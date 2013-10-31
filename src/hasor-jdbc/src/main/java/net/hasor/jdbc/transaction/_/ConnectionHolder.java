@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2005 the original author or authors.
+ * Copyright 2008-2009 the original 赵永春(zyc@hasor.net).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.jdbc.transaction;
-import net.hasor.jdbc.TransactionDataAccessException;
+package net.hasor.jdbc.transaction._;
+import java.sql.Connection;
 /**
  * 
  * @version : 2013-10-30
  * @author 赵永春(zyc@hasor.net)
  */
-public interface SavepointManager {
-    /**创建事务的保存点，通过<code>releaseSavepoint</code>方法释放这个保存点。*/
-    public Object createSavepoint() throws TransactionDataAccessException;
-    /**回滚事务到一个指定的保存点。*/
-    public void rollbackToSavepoint(Object savepoint) throws TransactionDataAccessException;
-    /**释放某个事务的保存点*/
-    public void releaseSavepoint(Object savepoint) throws TransactionDataAccessException;
+public interface ConnectionHolder {
+    /**是否开启了事务*/
+    public boolean hasTransaction();
+    /**是否包含一个有效的连接*/
+    public boolean hasConnection();
+    //
+    //
+    //
+    /**引用计数加一*/
+    public void requested();
+    /**获取连接*/
+    public Connection getConnection();
 }
