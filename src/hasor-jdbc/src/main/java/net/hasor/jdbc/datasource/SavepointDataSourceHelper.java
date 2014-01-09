@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.jdbc.datasource;
-import java.sql.Connection;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 /**
@@ -22,11 +21,7 @@ import javax.sql.DataSource;
  * @version : 2013-12-2
  * @author 赵永春(zyc@hasor.net)
  */
-public interface DataSourceHelper {
-    /**申请连接*/
-    public Connection getConnection(DataSource dataSource) throws SQLException;
-    /**释放连接*/
-    public void releaseConnection(Connection con, DataSource dataSource) throws SQLException;
-    /**当前连接*/
-    public Connection currentConnection(DataSource dataSource) throws SQLException;
+public interface SavepointDataSourceHelper extends DataSourceHelper {
+    /**获取SavepointManager*/
+    public SavepointManager getSavepointManager(DataSource dataSource) throws SQLException;
 }
