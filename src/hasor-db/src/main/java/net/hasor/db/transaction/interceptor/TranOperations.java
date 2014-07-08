@@ -20,7 +20,7 @@ import java.sql.SQLException;
  * @author 赵永春(zyc@hasor.net)
  * @version : 2013-10-30
  */
-public interface TransactionOperations {
+public interface TranOperations {
     /**
      * Execute the action specified by the given callback object within a transaction.
      * <p>Allows for returning a result object created within the transaction, that is,
@@ -31,5 +31,5 @@ public interface TransactionOperations {
      * @return a result object returned by the callback, or <code>null</code> if none
      * @throws TransactionException in case of initialization, rollback, or system errors
      */
-    Object execute(TransactionCallback action) throws SQLException;
+    public Object execute(TranCallback action) throws SQLException;
 }

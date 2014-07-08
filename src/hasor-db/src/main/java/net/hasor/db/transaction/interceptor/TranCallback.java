@@ -21,6 +21,6 @@ import java.sql.SQLException;
  * @author 赵永春(zyc@hasor.net)
  * @version : 2013-10-30
  */
-public interface TransactionCallback {
+public interface TranCallback {
     public Object execute(Connection connection) throws SQLException;
 }
