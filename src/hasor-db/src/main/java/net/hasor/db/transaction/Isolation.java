@@ -15,11 +15,11 @@
  */
 package net.hasor.db.transaction;
 import java.sql.Connection;
-import org.more.classcode.FormatException;
+
 /**
  * 事务隔离级别
  * @version : 2013-10-30
- * @author 赵永春(zyc@hasor.net)
+ * @author 赵永春(zyc @ hasor.net)
  */
 public enum Isolation {
     /**默认事务隔离级别，具体使用的数据库事务隔离级别由底层决定。
@@ -54,25 +54,28 @@ public enum Isolation {
     SERIALIZABLE(Connection.TRANSACTION_SERIALIZABLE);
     //
     private int value;
+
     Isolation(final int value) {
         this.value = value;
     }
+
     protected int value() {
         return this.value;
     }
+
     public static Isolation valueOf(final int value) {
         switch (value) {
-        case -1:
-            return Isolation.DEFAULT;
-        case Connection.TRANSACTION_READ_UNCOMMITTED:
-            return Isolation.READ_UNCOMMITTED;
-        case Connection.TRANSACTION_READ_COMMITTED:
-            return Isolation.READ_COMMITTED;
-        case Connection.TRANSACTION_REPEATABLE_READ:
-            return Isolation.REPEATABLE_READ;
-        case Connection.TRANSACTION_SERIALIZABLE:
-            return Isolation.SERIALIZABLE;
+            case -1:
+                return Isolation.DEFAULT;
+            case Connection.TRANSACTION_READ_UNCOMMITTED:
+                return Isolation.READ_UNCOMMITTED;
+            case Connection.TRANSACTION_READ_COMMITTED:
+                return Isolation.READ_COMMITTED;
+            case Connection.TRANSACTION_REPEATABLE_READ:
+                return Isolation.REPEATABLE_READ;
+            case Connection.TRANSACTION_SERIALIZABLE:
+                return Isolation.SERIALIZABLE;
         }
-        throw new FormatException(String.format("Connection ISOLATION error level %s.", value));
+        throw new IllegalStateException(String.format("Connection ISOLATION error level %s.", value));
     }
 }

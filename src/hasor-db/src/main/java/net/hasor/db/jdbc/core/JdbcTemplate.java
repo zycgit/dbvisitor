@@ -14,52 +14,27 @@
  * limitations under the License.
  */
 package net.hasor.db.jdbc.core;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.nio.charset.Charset;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLWarning;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import javax.sql.DataSource;
 import net.hasor.core.Hasor;
 import net.hasor.db.datasource.ConnectionProxy;
 import net.hasor.db.datasource.DataSourceUtils;
-import net.hasor.db.jdbc.BatchPreparedStatementSetter;
-import net.hasor.db.jdbc.CallableStatementCallback;
-import net.hasor.db.jdbc.CallableStatementCreator;
-import net.hasor.db.jdbc.ConnectionCallback;
-import net.hasor.db.jdbc.JdbcOperations;
-import net.hasor.db.jdbc.PreparedStatementCallback;
-import net.hasor.db.jdbc.PreparedStatementCreator;
-import net.hasor.db.jdbc.PreparedStatementSetter;
-import net.hasor.db.jdbc.ResultSetExtractor;
-import net.hasor.db.jdbc.RowCallbackHandler;
-import net.hasor.db.jdbc.RowMapper;
-import net.hasor.db.jdbc.SqlParameterSource;
-import net.hasor.db.jdbc.StatementCallback;
+import net.hasor.db.jdbc.*;
 import net.hasor.db.jdbc.core.mapper.BeanPropertyRowMapper;
 import net.hasor.db.jdbc.core.mapper.ColumnMapRowMapper;
 import net.hasor.db.jdbc.core.mapper.SingleColumnRowMapper;
 import org.more.util.ArrayUtils;
 import org.more.util.IOUtils;
 import org.more.util.ResourcesUtils;
+
+import javax.sql.DataSource;
+import java.io.*;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.nio.charset.Charset;
+import java.sql.*;
+import java.util.*;
+
 /**
  * 数据库操作模板方法。
  * @version : 2013-10-12
@@ -83,12 +58,15 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     //
     //
     //
+
     /**
      * Construct a new JdbcTemplate for bean usage.
      * <p>Note: The DataSource has to be set before using the instance.
      * @see #setDataSource
      */
-    public JdbcTemplate() {}
+    public JdbcTemplate() {
+    }
+
     /**
      * Construct a new JdbcTemplate, given a DataSource to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
@@ -97,48 +75,61 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     public JdbcTemplate(final DataSource dataSource) {
         this.setDataSource(dataSource);
     }
+
     public JdbcTemplate(final Connection conn) {
         this.setConnection(conn);
     }
+
     //
     //
     //
     public boolean isIgnoreWarnings() {
         return this.ignoreWarnings;
     }
+
     public void setIgnoreWarnings(final boolean ignoreWarnings) {
         this.ignoreWarnings = ignoreWarnings;
     }
+
     public int getFetchSize() {
         return this.fetchSize;
     }
+
     public void setFetchSize(final int fetchSize) {
         this.fetchSize = fetchSize;
     }
+
     public int getMaxRows() {
         return this.maxRows;
     }
+
     public void setMaxRows(final int maxRows) {
         this.maxRows = maxRows;
     }
+
     public int getQueryTimeout() {
         return this.queryTimeout;
     }
+
     public void setQueryTimeout(final int queryTimeout) {
         this.queryTimeout = queryTimeout;
     }
+
     public boolean isResultsCaseInsensitive() {
         return this.resultsCaseInsensitive;
     }
+
     public void setResultsCaseInsensitive(final boolean resultsCaseInsensitive) {
         this.resultsCaseInsensitive = resultsCaseInsensitive;
     }
+
     //
     //
     //
     public void loadSQL(final String sqlResource) throws IOException, SQLException {
         this.loadSQL("UTF-8", sqlResource);
     }
+
     public void loadSQL(final String charsetName, final String sqlResource) throws IOException, SQLException {
         InputStream inStream = ResourcesUtils.getResourceAsStream(sqlResource);
         if (inStream == null) {
@@ -147,11 +138,13 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         InputStreamReader reader = new InputStreamReader(inStream, Charset.forName(charsetName));
         this.loadSQL(reader);
     }
+
     public void loadSQL(final Reader sqlReader) throws IOException, SQLException {
         StringWriter outWriter = new StringWriter();
         IOUtils.copy(sqlReader, outWriter);
         this.execute(outWriter.toString());
     }
+
     /** 判断表是否已经存在*/
     public boolean tableExist(final String name) throws SQLException {
         return this.execute(new ConnectionCallback<Boolean>() {
@@ -163,6 +156,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             }
         });
     }
+
     //
     //
     //
@@ -186,10 +180,12 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         } catch (SQLException ex) {
             throw ex;
         } finally {
-            if (useLocal)
+            if (useLocal) {
                 DataSourceUtils.releaseConnection(con, this.getDataSource());//关闭或释放连接
+            }
         }
     }
+
     @Override
     public <T> T execute(final StatementCallback<T> action) throws SQLException {
         Hasor.assertIsNotNull(action, "Callback object must not be null");
@@ -211,6 +207,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             }
         });
     }
+
     @Override
     public <T> T execute(final PreparedStatementCreator psc, final PreparedStatementCallback<T> action) throws SQLException {
         Hasor.assertIsNotNull(psc, "PreparedStatementCreator must not be null");
@@ -241,6 +238,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             }
         });
     }
+
     @Override
     public <T> T execute(final CallableStatementCreator csc, final CallableStatementCallback<T> action) throws SQLException {
         Hasor.assertIsNotNull(csc, "CallableStatementCreator must not be null");
@@ -271,22 +269,27 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             }
         });
     }
+
     @Override
     public <T> T execute(final String sql, final PreparedStatementCallback<T> action) throws SQLException {
         return this.execute(new SimplePreparedStatementCreator(sql), action);
     }
+
     @Override
     public <T> T execute(final String callString, final CallableStatementCallback<T> action) throws SQLException {
         return this.execute(new SimpleCallableStatementCreator(callString), action);
     }
+
     @Override
     public <T> T execute(final String sql, final SqlParameterSource paramSource, final PreparedStatementCallback<T> action) throws SQLException {
         return this.execute(this.getPreparedStatementCreator(sql, paramSource), action);
     }
+
     @Override
     public <T> T execute(final String sql, final Map<String, ?> paramMap, final PreparedStatementCallback<T> action) throws SQLException {
         return this.execute(this.getPreparedStatementCreator(sql, new InnerMapSqlParameterSource(paramMap)), action);
     }
+
     //
     //
     //
@@ -299,6 +302,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
                 stmt.execute(sql);
                 return null;
             }
+
             @Override
             public String getSql() {
                 return sql;
@@ -309,6 +313,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     //
     //
     //
+
     /***/
     public <T> T query(final PreparedStatementCreator psc, final PreparedStatementSetter pss, final ResultSetExtractor<T> rse) throws SQLException {
         Hasor.assertIsNotNull(rse, "ResultSetExtractor must not be null");
@@ -332,10 +337,12 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             }
         });
     }
+
     @Override
     public <T> T query(final PreparedStatementCreator psc, final ResultSetExtractor<T> rse) throws SQLException {
         return this.query(psc, null, rse);
     }
+
     @Override
     public <T> T query(final String sql, final ResultSetExtractor<T> rse) throws SQLException {
         Hasor.assertIsNotNull(sql, "SQL must not be null");
@@ -349,10 +356,13 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
                     rs = stmt.executeQuery(sql);
                     return rse.extractData(rs);
                 } finally {
-                    rs.close();
+                    if (rs != null) {
+                        rs.close();
+                    }
                     rs = null;
                 }
             }
+
             @Override
             public String getSql() {
                 return sql;
@@ -360,26 +370,32 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         }
         return this.execute(new QueryStatementCallback());
     }
+
     @Override
     public <T> T query(final String sql, final PreparedStatementSetter pss, final ResultSetExtractor<T> rse) throws SQLException {
         return this.query(new SimplePreparedStatementCreator(sql), pss, rse);
     }
+
     @Override
     public <T> T query(final String sql, final ResultSetExtractor<T> rse, final Object... args) throws SQLException {
         return this.query(sql, this.newArgPreparedStatementSetter(args), rse);
     }
+
     @Override
     public <T> T query(final String sql, final Object[] args, final ResultSetExtractor<T> rse) throws SQLException {
         return this.query(sql, this.newArgPreparedStatementSetter(args), rse);
     }
+
     @Override
     public <T> T query(final String sql, final SqlParameterSource paramSource, final ResultSetExtractor<T> rse) throws SQLException {
         return this.query(this.getPreparedStatementCreator(sql, paramSource), rse);
     }
+
     @Override
     public <T> T query(final String sql, final Map<String, ?> paramMap, final ResultSetExtractor<T> rse) throws SQLException {
         return this.query(this.getPreparedStatementCreator(sql, new InnerMapSqlParameterSource(paramMap)), rse);
     }
+
     //
     //
     //
@@ -387,30 +403,37 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     public void query(final PreparedStatementCreator psc, final RowCallbackHandler rch) throws SQLException {
         this.query(psc, new RowCallbackHandlerResultSetExtractor(rch));
     }
+
     @Override
     public void query(final String sql, final RowCallbackHandler rch) throws SQLException {
         this.query(sql, new RowCallbackHandlerResultSetExtractor(rch));
     }
+
     @Override
     public void query(final String sql, final PreparedStatementSetter pss, final RowCallbackHandler rch) throws SQLException {
         this.query(sql, pss, new RowCallbackHandlerResultSetExtractor(rch));
     }
+
     @Override
     public void query(final String sql, final RowCallbackHandler rch, final Object... args) throws SQLException {
         this.query(sql, this.newArgPreparedStatementSetter(args), rch);
     }
+
     @Override
     public void query(final String sql, final Object[] args, final RowCallbackHandler rch) throws SQLException {
         this.query(sql, this.newArgPreparedStatementSetter(args), rch);
     }
+
     @Override
     public void query(final String sql, final SqlParameterSource paramSource, final RowCallbackHandler rch) throws SQLException {
         this.query(this.getPreparedStatementCreator(sql, paramSource), rch);
     }
+
     @Override
     public void query(final String sql, final Map<String, ?> paramMap, final RowCallbackHandler rch) throws SQLException {
         this.query(this.getPreparedStatementCreator(sql, new InnerMapSqlParameterSource(paramMap)), rch);
     }
+
     //
     //
     //
@@ -418,30 +441,37 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     public <T> List<T> query(final PreparedStatementCreator psc, final RowMapper<T> rowMapper) throws SQLException {
         return this.query(psc, new RowMapperResultSetExtractor<T>(rowMapper));
     }
+
     @Override
     public <T> List<T> query(final String sql, final PreparedStatementSetter pss, final RowMapper<T> rowMapper) throws SQLException {
         return this.query(sql, pss, new RowMapperResultSetExtractor<T>(rowMapper));
     }
+
     @Override
     public <T> List<T> query(final String sql, final RowMapper<T> rowMapper, final Object... args) throws SQLException {
         return this.query(sql, args, new RowMapperResultSetExtractor<T>(rowMapper));
     }
+
     @Override
     public <T> List<T> query(final String sql, final Object[] args, final RowMapper<T> rowMapper) throws SQLException {
         return this.query(sql, args, new RowMapperResultSetExtractor<T>(rowMapper));
     }
+
     @Override
     public <T> List<T> query(final String sql, final RowMapper<T> rowMapper) throws SQLException {
         return this.query(sql, new RowMapperResultSetExtractor<T>(rowMapper));
     }
+
     @Override
     public <T> List<T> query(final String sql, final SqlParameterSource paramSource, final RowMapper<T> rowMapper) throws SQLException {
         return this.query(this.getPreparedStatementCreator(sql, paramSource), rowMapper);
     }
+
     @Override
     public <T> List<T> query(final String sql, final Map<String, ?> paramMap, final RowMapper<T> rowMapper) throws SQLException {
         return this.query(this.getPreparedStatementCreator(sql, new InnerMapSqlParameterSource(paramMap)), rowMapper);
     }
+
     //
     //
     //
@@ -449,22 +479,27 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     public <T> List<T> queryForList(final String sql, final Class<T> elementType) throws SQLException {
         return this.query(sql, this.getBeanPropertyRowMapper(elementType));
     }
+
     @Override
     public <T> List<T> queryForList(final String sql, final Class<T> elementType, final Object... args) throws SQLException {
         return this.query(sql, args, this.getBeanPropertyRowMapper(elementType));
     }
+
     @Override
     public <T> List<T> queryForList(final String sql, final Object[] args, final Class<T> elementType) throws SQLException {
         return this.query(sql, args, this.getBeanPropertyRowMapper(elementType));
     }
+
     @Override
     public <T> List<T> queryForList(final String sql, final SqlParameterSource paramSource, final Class<T> elementType) throws SQLException {
         return this.query(sql, paramSource, this.getBeanPropertyRowMapper(elementType));
     }
+
     @Override
     public <T> List<T> queryForList(final String sql, final Map<String, ?> paramMap, final Class<T> elementType) throws SQLException {
         return this.query(sql, paramMap, this.getBeanPropertyRowMapper(elementType));
     }
+
     //
     //
     //
@@ -473,45 +508,55 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         List<T> results = this.query(sql, rowMapper);
         return JdbcTemplate.requiredSingleResult(results);
     }
+
     @Override
     public <T> T queryForObject(final String sql, final RowMapper<T> rowMapper, final Object... args) throws SQLException {
         List<T> results = this.query(sql, args, new RowMapperResultSetExtractor<T>(rowMapper, 1));
         return JdbcTemplate.requiredSingleResult(results);
     }
+
     @Override
     public <T> T queryForObject(final String sql, final Object[] args, final RowMapper<T> rowMapper) throws SQLException {
         List<T> results = this.query(sql, args, new RowMapperResultSetExtractor<T>(rowMapper, 1));
         return JdbcTemplate.requiredSingleResult(results);
     }
+
     @Override
     public <T> T queryForObject(final String sql, final SqlParameterSource paramSource, final RowMapper<T> rowMapper) throws SQLException {
         List<T> results = this.query(this.getPreparedStatementCreator(sql, paramSource), rowMapper);
         return JdbcTemplate.requiredSingleResult(results);
     }
+
     @Override
     public <T> T queryForObject(final String sql, final Map<String, ?> paramMap, final RowMapper<T> rowMapper) throws SQLException {
         return this.queryForObject(sql, new InnerMapSqlParameterSource(paramMap), rowMapper);
     }
+
     @Override
     public <T> T queryForObject(final String sql, final Class<T> requiredType) throws SQLException {
         return this.queryForObject(sql, this.getBeanPropertyRowMapper(requiredType));
     }
+
     @Override
     public <T> T queryForObject(final String sql, final Class<T> requiredType, final Object... args) throws SQLException {
         return this.queryForObject(sql, args, this.getBeanPropertyRowMapper(requiredType));
     }
+
     @Override
     public <T> T queryForObject(final String sql, final Object[] args, final Class<T> requiredType) throws SQLException {
         return this.queryForObject(sql, args, this.getBeanPropertyRowMapper(requiredType));
     }
+
     @Override
     public <T> T queryForObject(final String sql, final SqlParameterSource paramSource, final Class<T> requiredType) throws SQLException {
         return this.queryForObject(sql, paramSource, this.getBeanPropertyRowMapper(requiredType));
     }
+
     @Override
     public <T> T queryForObject(final String sql, final Map<String, ?> paramMap, final Class<T> requiredType) throws SQLException {
         return this.queryForObject(sql, paramMap, this.getBeanPropertyRowMapper(requiredType));
     }
+
     //
     //
     //
@@ -520,39 +565,47 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         Number number = this.queryForObject(sql, this.getSingleColumnRowMapper(Long.class));
         return number != null ? number.longValue() : 0;
     }
+
     @Override
     public long queryForLong(final String sql, final Object... args) throws SQLException {
         Number number = this.queryForObject(sql, args, this.getSingleColumnRowMapper(Long.class));
         return number != null ? number.longValue() : 0;
     }
+
     @Override
     public long queryForLong(final String sql, final SqlParameterSource paramSource) throws SQLException {
         Number number = this.queryForObject(sql, paramSource, this.getSingleColumnRowMapper(Number.class));
         return number != null ? number.longValue() : 0;
     }
+
     @Override
     public long queryForLong(final String sql, final Map<String, ?> paramMap) throws SQLException {
         return this.queryForLong(sql, new InnerMapSqlParameterSource(paramMap));
     }
+
     @Override
     public int queryForInt(final String sql) throws SQLException {
         Number number = this.queryForObject(sql, this.getSingleColumnRowMapper(Integer.class));
         return number != null ? number.intValue() : 0;
     }
+
     @Override
     public int queryForInt(final String sql, final Object... args) throws SQLException {
         Number number = this.queryForObject(sql, args, this.getSingleColumnRowMapper(Integer.class));
         return number != null ? number.intValue() : 0;
     }
+
     @Override
     public int queryForInt(final String sql, final SqlParameterSource paramSource) throws SQLException {
         Number number = this.queryForObject(sql, paramSource, this.getSingleColumnRowMapper(Number.class));
         return number != null ? number.intValue() : 0;
     }
+
     @Override
     public int queryForInt(final String sql, final Map<String, ?> paramMap) throws SQLException {
         return this.queryForInt(sql, new InnerMapSqlParameterSource(paramMap));
     }
+
     //
     //
     //
@@ -560,30 +613,37 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     public Map<String, Object> queryForMap(final String sql) throws SQLException {
         return this.queryForObject(sql, this.getColumnMapRowMapper());
     }
+
     @Override
     public Map<String, Object> queryForMap(final String sql, final Object... args) throws SQLException {
         return this.queryForObject(sql, args, this.getColumnMapRowMapper());
     }
+
     @Override
     public Map<String, Object> queryForMap(final String sql, final SqlParameterSource paramSource) throws SQLException {
         return this.queryForObject(sql, paramSource, this.getColumnMapRowMapper());
     }
+
     @Override
     public Map<String, Object> queryForMap(final String sql, final Map<String, ?> paramMap) throws SQLException {
         return this.queryForObject(sql, paramMap, this.getColumnMapRowMapper());
     }
+
     @Override
     public List<Map<String, Object>> queryForList(final String sql) throws SQLException {
         return this.query(sql, this.getColumnMapRowMapper());
     }
+
     @Override
     public List<Map<String, Object>> queryForList(final String sql, final Object... args) throws SQLException {
         return this.query(sql, args, this.getColumnMapRowMapper());
     }
+
     @Override
     public List<Map<String, Object>> queryForList(final String sql, final SqlParameterSource paramSource) throws SQLException {
         return this.query(sql, paramSource, this.getColumnMapRowMapper());
     }
+
     @Override
     public List<Map<String, Object>> queryForList(final String sql, final Map<String, ?> paramMap) throws SQLException {
         return this.queryForList(sql, new InnerMapSqlParameterSource(paramMap));
@@ -609,6 +669,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     //
     //
     //
+
     /***/
     public int update(final PreparedStatementCreator psc, final PreparedStatementSetter pss) throws SQLException {
         Hasor.logDebug("Executing prepared SQL update");
@@ -630,10 +691,12 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             }
         });
     }
+
     @Override
     public int update(final PreparedStatementCreator psc) throws SQLException {
-        return this.update(psc, (PreparedStatementSetter) null);
+        return this.update(psc, null);
     }
+
     @Override
     public int update(final String sql) throws SQLException {
         Hasor.assertIsNotNull(sql, "SQL must not be null");
@@ -646,6 +709,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
                 Hasor.logDebug("SQL update affected %s rows.", rows);
                 return rows;
             }
+
             @Override
             public String getSql() {
                 return sql;
@@ -653,22 +717,27 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         }
         return this.execute(new UpdateStatementCallback());
     }
+
     @Override
     public int update(final String sql, final PreparedStatementSetter pss) throws SQLException {
         return this.update(new SimplePreparedStatementCreator(sql), pss);
     }
+
     @Override
     public int update(final String sql, final Object... args) throws SQLException {
         return this.update(sql, this.newArgPreparedStatementSetter(args));
     }
+
     @Override
     public int update(final String sql, final SqlParameterSource paramSource) throws SQLException {
         return this.update(this.getPreparedStatementCreator(sql, paramSource));
     }
+
     @Override
     public int update(final String sql, final Map<String, ?> paramMap) throws SQLException {
         return this.update(this.getPreparedStatementCreator(sql, new InnerMapSqlParameterSource(paramMap)));
     }
+
     //
     //
     //
@@ -681,6 +750,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         //
         class BatchUpdateStatementCallback implements StatementCallback<int[]>, SqlProvider {
             private String currSql;
+
             @Override
             public int[] doInStatement(final Statement stmt) throws SQLException {
                 DatabaseMetaData dbmd = stmt.getConnection().getMetaData();
@@ -704,6 +774,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
                     }
                 return rowsAffected;
             }
+
             @Override
             public String getSql() {
                 return this.currSql;
@@ -711,6 +782,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         }
         return this.execute(new BatchUpdateStatementCallback());
     }
+
     @Override
     public int[] batchUpdate(final String sql, final Map<String, ?>[] batchValues) throws SQLException {
         SqlParameterSource[] batchArgs = new SqlParameterSource[batchValues.length];
@@ -721,6 +793,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         }
         return this.batchUpdate(sql, batchArgs);
     }
+
     @Override
     public int[] batchUpdate(final String sql, final SqlParameterSource[] batchArgs) throws SQLException {
         if (batchArgs.length <= 0) {
@@ -728,6 +801,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         }
         return this.batchUpdate(sql, new SqlParameterSourceBatchPreparedStatementSetter(sql, batchArgs));
     }
+
     @Override
     public int[] batchUpdate(String sql, final BatchPreparedStatementSetter pss) throws SQLException {
         Hasor.logDebug("Executing SQL batch update [%s].", sql);
@@ -776,6 +850,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     //
     //
     //
+
     /** Create a new RowMapper for reading columns as key-value pairs. */
     protected RowMapper<Map<String, Object>> getColumnMapRowMapper() {
         return new ColumnMapRowMapper() {
@@ -785,6 +860,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             }
         };
     }
+
     /** Create a new RowMapper for reading columns as Bean pairs. */
     protected <T> RowMapper<T> getBeanPropertyRowMapper(final Class<T> requiredType) {
         Hasor.assertIsNotNull(requiredType != null, "requiredType is null.");
@@ -801,12 +877,14 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             }
         };
     }
+
     /** Create a new RowMapper for reading result objects from a single column.*/
     protected <T> RowMapper<T> getSingleColumnRowMapper(final Class<T> requiredType) {
         return new SingleColumnRowMapper<T>(requiredType);
     }
     //
     //
+
     /**创建用于保存结果集的数据Map。*/
     protected Map<String, Object> createResultsMap() {
         if (!this.isResultsCaseInsensitive())
@@ -814,10 +892,12 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         else
             return new LinkedHashMap<String, Object>();
     }
+
     /** Create a new PreparedStatementSetter.*/
     protected PreparedStatementSetter newArgPreparedStatementSetter(final Object[] args) throws SQLException {
         return new InnerArgPreparedStatementSetter(args);
     }
+
     /**对Statement的属性进行设置。设置 JDBC Statement 对象的 fetchSize、maxRows、Timeout等参数。*/
     protected void applyStatementSettings(final Statement stmt) throws SQLException {
         int fetchSize = this.getFetchSize();
@@ -830,6 +910,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         if (timeout > 0)
             stmt.setQueryTimeout(timeout);
     }
+
     /**
      * Build a PreparedStatementCreator based on the given SQL and named parameters.
      * <p>Note: Not used for the <code>update</code> variant with generated key handling.
@@ -838,6 +919,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         return new MapPreparedStatementCreator(sql, paramSource);
     }
     //
+
     /**处理潜在的 SQL 警告。当要求不忽略 SQL 警告时，检测到 SQL 警告抛出 SQL 异常。*/
     private void handleWarnings(final Statement stmt) throws SQLException {
         if (this.isIgnoreWarnings()) {
@@ -854,6 +936,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
                 throw new SQLException("Warning not ignored", warning);
         }
     }
+
     /**获取SQL文本*/
     private static String getSql(final Object sqlProvider) {
         if (sqlProvider instanceof SqlProvider)
@@ -862,6 +945,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             return null;
     }
     //
+
     /**至返回结果集中的一条数据。*/
     private static <T> T requiredSingleResult(final Collection<T> results) throws SQLException {
         int size = results != null ? results.size() : 0;
@@ -871,6 +955,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             throw new SQLException("Incorrect column count: expected " + 1 + ", actual " + size);
         return results.iterator().next();
     }
+
     /**获取与本地线程绑定的数据库连接，JDBC 框架会维护这个连接的事务。开发者不必关心该连接的事务管理，以及资源释放操作。*/
     private Connection newProxyConnection(final Connection target, final DataSource targetSource) {
         Hasor.assertIsNotNull(target, "Connection is null.");
@@ -879,18 +964,22 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     }
     //
     //
+
     /**获取SQL*/
     protected static interface SqlProvider {
         public String getSql();
     }
+
     /**Connection 接口代理，目的是为了控制一些方法的调用。同时进行一些特殊类型的处理。*/
     private class CloseSuppressingInvocationHandler implements InvocationHandler {
         private final Connection target;
         private final DataSource targetSource;
+
         public CloseSuppressingInvocationHandler(final Connection target, final DataSource targetSource) {
             this.target = target;
             this.targetSource = targetSource;
         }
+
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             // Invocation on ConnectionProxy interface coming in...
@@ -920,44 +1009,55 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             }
         }
     }
+
     /**接口 {@link PreparedStatementCreator} 的简单实现，目的是根据 SQL 语句创建 {@link PreparedStatement}对象。*/
     private static class SimplePreparedStatementCreator implements PreparedStatementCreator, JdbcTemplate.SqlProvider {
         private final String sql;
+
         public SimplePreparedStatementCreator(final String sql) {
             Hasor.assertIsNotNull(sql, "SQL must not be null");
             this.sql = sql;
         }
+
         @Override
         public PreparedStatement createPreparedStatement(final Connection con) throws SQLException {
             return con.prepareStatement(this.sql);
         }
+
         @Override
         public String getSql() {
             return this.sql;
         }
     }
+
     /**接口 {@link CallableStatementCreator} 的简单实现，目的是根据 SQL 语句创建 {@link CallableStatement}对象。*/
     private static class SimpleCallableStatementCreator implements CallableStatementCreator, JdbcTemplate.SqlProvider {
         private final String callString;
+
         public SimpleCallableStatementCreator(final String callString) {
             Hasor.assertIsNotNull(callString, "Call string must not be null");
             this.callString = callString;
         }
+
         @Override
         public CallableStatement createCallableStatement(final Connection con) throws SQLException {
             return con.prepareCall(this.callString);
         }
+
         @Override
         public String getSql() {
             return this.callString;
         }
     }
+
     /**使用 {@link RowCallbackHandler} 类型循环处理每一行记录的适配器*/
     private static class RowCallbackHandlerResultSetExtractor implements ResultSetExtractor<Object> {
         private final RowCallbackHandler rch;
+
         public RowCallbackHandlerResultSetExtractor(final RowCallbackHandler rch) {
             this.rch = rch;
         }
+
         @Override
         public Object extractData(final ResultSet rs) throws SQLException {
             while (rs.next())
@@ -965,16 +1065,19 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             return null;
         }
     }
+
     /**接口 {@link CallableStatementCreator} 的简单实现，目的是根据 SQL 语句创建 {@link CallableStatement}对象。*/
     private static class MapPreparedStatementCreator implements PreparedStatementCreator, ParameterDisposer, JdbcTemplate.SqlProvider {
         private ParsedSql          parsedSql   = null;
         private SqlParameterSource paramSource = null;
+
         //
         public MapPreparedStatementCreator(final String originalSql, final SqlParameterSource paramSource) {
             Hasor.assertIsNotNull(originalSql, "SQL must not be null");
             this.parsedSql = ParsedSql.getParsedSql(originalSql);
             this.paramSource = paramSource;
         }
+
         //
         @Override
         public PreparedStatement createPreparedStatement(final Connection con) throws SQLException {
@@ -989,24 +1092,29 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             InnerStatementSetterUtils.cleanupParameters(paramArray);
             return statement;
         }
+
         @Override
         public String getSql() {
             return this.parsedSql.getOriginalSql();
         }
+
         @Override
         public void cleanupParameters() {
             if (this.paramSource instanceof ParameterDisposer)
                 ((ParameterDisposer) this.paramSource).cleanupParameters();
         }
     }
+
     /**接口 {@link BatchPreparedStatementSetter} 的简单实现，目的是设置批量操作*/
     private static class SqlParameterSourceBatchPreparedStatementSetter implements BatchPreparedStatementSetter, ParameterDisposer {
         private ParsedSql            parsedSql = null;
         private SqlParameterSource[] batchArgs = null;
+
         public SqlParameterSourceBatchPreparedStatementSetter(final String sql, final SqlParameterSource[] batchArgs) {
             this.parsedSql = ParsedSql.getParsedSql(sql);
             this.batchArgs = batchArgs;
         }
+
         //        public String preparedSQL(int i) throws SQLException {
         //            SqlParameterSource paramSource = this.batchArgs[i];
         //            //1.根据参数信息生成最终会执行的SQL语句.
@@ -1023,10 +1131,12 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             for (Object element : sqlValue)
                 InnerStatementSetterUtils.setParameterValue(ps, sqlColIndx++, element);
         }
+
         @Override
         public int getBatchSize() {
             return this.batchArgs.length;
         }
+
         @Override
         public void cleanupParameters() {
             for (SqlParameterSource batchItem : this.batchArgs)

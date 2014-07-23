@@ -41,12 +41,13 @@ public class SimpleTranInterceptorModule implements Module {
     public void loadModule(final ApiBinder apiBinder) throws Throwable {
         TransactionBinder it = new TransactionBinder(apiBinder);
         it.bind(this.dataSource)/*设置到数据源*/
-        .aroundOperation(new TransactionOperation())/*事务执行行为*/
+        .aroundOperation(new TransactionOperation())/*事务执行行为控制*/
         .matcher(AopMatchers.annotatedWithMethod(Transactional.class))/*所有标记 @Transactional 注解的方法*/
         .withPropagation(new PropagationStrategy())/*传播属性*/
         .withIsolation(new IsolationStrategy());/*隔离级别*/
     }
 }
+/**事务执行行为控制*/
 class TransactionOperation implements TranOperations {
     @Override
     public Object execute(final TransactionStatus tranStatus, final MethodInvocation invocation) throws Throwable {
@@ -59,7 +60,6 @@ class TransactionOperation implements TranOperations {
         //1.只读事务
         if (tranAnno.readOnly()) {
             tranStatus.setReadOnly();
-            return invocation.proceed();
         }
         //2.事务行为控制
         Object returnObj = null;
@@ -69,9 +69,51 @@ class TransactionOperation implements TranOperations {
             tranStatus.setRollbackOnly();
             return returnObj;
         } catch (Throwable e) {
-            throw e;
+            if (this.testRollBackFor(tranAnno, e) == true) {
+                tranStatus.setRollbackOnly();
+            } else if (this.testNoRollBackFor(tranAnno, e) == true) {
+                //
+            } else {
+                throw e;
+            }
         }
         return returnObj;
+    }
+    private boolean testNoRollBackFor(Transactional tranAnno, Throwable e) {
+        //1.test Class
+        Class<? extends Throwable>[] noRollBackType = tranAnno.noRollbackFor();
+        for (Class<? extends Throwable> cls : noRollBackType) {
+            if (cls.isInstance(e) == true) {
+                return true;
+            }
+        }
+        //2.test Name
+        String[] noRollBackName = tranAnno.noRollbackForClassName();
+        String errorType = e.getClass().getName();
+        for (String name : noRollBackName) {
+            if (errorType.equals(name) == true) {
+                return true;
+            }
+        }
+        return false;
+    }
+    private boolean testRollBackFor(Transactional tranAnno, Throwable e) {
+        //1.test Class
+        Class<? extends Throwable>[] rollBackType = tranAnno.rollbackFor();
+        for (Class<? extends Throwable> cls : rollBackType) {
+            if (cls.isInstance(e) == true) {
+                return true;
+            }
+        }
+        //2.test Name
+        String[] rollBackName = tranAnno.rollbackForClassName();
+        String errorType = e.getClass().getName();
+        for (String name : rollBackName) {
+            if (errorType.equals(name) == true) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 /**决定传播属性*/
