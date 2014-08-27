@@ -51,7 +51,7 @@
     </developers>
 
     <modules>
-        <module>src/hasor-db</module>
+        <module>hasor-db</module>
     </modules>
 
     <!-- 构建描述 -->

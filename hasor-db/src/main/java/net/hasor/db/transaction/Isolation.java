@@ -15,7 +15,6 @@
  */
 package net.hasor.db.transaction;
 import java.sql.Connection;
-
 /**
  * 事务隔离级别
  * @version : 2013-10-30
