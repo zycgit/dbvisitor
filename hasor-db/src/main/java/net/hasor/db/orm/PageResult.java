@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.ar;
+package net.hasor.db.orm;
 import java.util.ArrayList;
 import java.util.List;
 import org.more.bizcommon.Result;

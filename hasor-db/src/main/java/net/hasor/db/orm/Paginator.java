@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.ar;
+package net.hasor.db.orm;
+import java.util.ArrayList;
+import java.util.List;
+import net.hasor.db.orm.Paginator.Order.OrderBy;
 /**
  * 翻页
  * @version : 2014年10月25日
@@ -21,38 +24,33 @@ package net.hasor.db.ar;
  */
 public class Paginator {
     /**满足条件的总记录数*/
-    private int     totalCount  = 0;
+    private int               totalCount  = 0;
     /**每页记录数（-1表示无限大）*/
-    private int     pageSize    = 15;
+    private int               pageSize    = 15;
     /**当前页号*/
-    private int     currentPage = 1;
-    /** 排序字段 */
-    private String  sortField   = "";
-    /** 排序方式 */
-    private OrderBy orderBy     = OrderBy.ASC;
+    private int               currentPage = 1;
+    /**是否启用分页*/
+    private boolean           enable      = true;
+    /**排序方式 */
+    private final List<Order> orderBy     = new ArrayList<Paginator.Order>(0);
     //
-    /**排序方式*/
-    public static enum OrderBy {
-        ASC, DESC
-    }
     //
-    /**获取排序字段。*/
-    public String getSortField() {
-        return this.sortField;
+    /**获取排序字段*/
+    public List<Order> getOrderBy() {
+        return orderBy;
     }
-    /**设置排序字段。*/
-    public void setSortField(String sortField) {
-        this.sortField = sortField;
+    /**设置排序字段*/
+    public void setOrderBy(List<Order> orderBy) {
+        this.orderBy.clear();
+        this.orderBy.addAll(orderBy);
     }
-    /**获取排序方式。*/
-    public OrderBy getOrderBy() {
-        return this.orderBy;
+    /**设置排序字段*/
+    public void addOrderBy(String sortField, OrderBy orderBy) {
+        Order order = new Order();
+        order.sortField = sortField;
+        order.orderBy = orderBy;
+        this.orderBy.add(order);
     }
-    /**设置排序方式。*/
-    public void setOrderBy(OrderBy orderBy) {
-        this.orderBy = orderBy;
-    }
-    //
     /**获取分页的页大小。*/
     public int getPageSize() {
         return this.pageSize;
@@ -72,6 +70,14 @@ public class Paginator {
         if (totalCount < 0)
             totalCount = 0;
         this.totalCount = totalCount;
+    }
+    /**是否启用分页*/
+    public boolean isEnable() {
+        return enable;
+    }
+    /**是否启用分页*/
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
     //
     /**当前是否是第一页。*/
@@ -140,5 +146,33 @@ public class Paginator {
         int assumeLast = pgSize * cPage;
         int totalCount = getTotalCount();
         return (assumeLast > totalCount) ? totalCount : assumeLast;
+    }
+    //
+    public final static class Order {
+        /**排序方式*/
+        public static enum OrderBy {
+            ASC, DESC
+        }
+        /** 排序字段 */
+        private String  sortField = "";
+        /** 排序方式 */
+        private OrderBy orderBy   = OrderBy.ASC;
+        //
+        /**获取排序字段。*/
+        public String getSortField() {
+            return this.sortField;
+        }
+        /**设置排序字段。*/
+        public void setSortField(String sortField) {
+            this.sortField = sortField;
+        }
+        /**获取排序方式。*/
+        public OrderBy getOrderBy() {
+            return this.orderBy;
+        }
+        /**设置排序方式。*/
+        public void setOrderBy(OrderBy orderBy) {
+            this.orderBy = orderBy;
+        }
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.ar.record;
+package net.hasor.db.orm.ar;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -21,21 +21,25 @@ import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import net.hasor.core.Hasor;
-import net.hasor.db.ar.PageResult;
-import net.hasor.db.ar.Paginator;
-import net.hasor.db.ar.record.dialect.DialectEnum;
 import net.hasor.db.jdbc.JdbcOperations;
 import net.hasor.db.jdbc.RowMapper;
 import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.jdbc.core.mapper.ColumnMapRowMapper;
-import org.more.util.ArrayUtils;
+import net.hasor.db.orm.PageResult;
+import net.hasor.db.orm.Paginator;
+import net.hasor.db.orm.ar.SQLBuilder.BuilderData;
+import net.hasor.db.orm.ar.SQLBuilder.BuilderMapData;
+import net.hasor.db.orm.ar.dialect.SQLBuilderEnum;
+import net.hasor.db.orm.ar.record.MapRecord;
+import org.more.logger.LoggerHelper;
 /**
  * 用来表示数据库。
  * @version : 2014年10月27日
  * @author 赵永春(zyc@hasor.net)
  */
 public final class DataBase {
-    private static final Map<String, Object> Empty = new HashMap<String, Object>();
+    private static final Map<String, Object> Empty           = new HashMap<String, Object>();
+    private static final ArConfiguration     arConfiguration = new ArConfiguration();
     //
     /**根据SQL语句执行查询返回{@link PageResult}。*/
     public PageResult<Record> queryBySQL(String sqlQuery) throws SQLException {
@@ -78,30 +82,34 @@ public final class DataBase {
         return this.queryBySQL(recType, sqlQuery, paginator, Empty);
     }
     /**根据SQL语句执行查询返回{@link PageResult}。*/
-    public <T> PageResult<T> queryBySQL(Class<T> recType, String sqlQuery, Paginator paginator, Object... params) throws SQLException {
+    public <T> PageResult<T> queryBySQL(final Class<T> recType, final String sqlQuery, final Paginator paginator, final Object... params) throws SQLException {
         SQLBuilder builder = this.getSQLBuilder();
-        sqlQuery = builder.buildPaginator(sqlQuery, paginator);
+        BuilderData queryData = builder.buildPaginator(sqlQuery, paginator, params);
         //
-        List<T> entList = null;
         if (recType == Record.class) {
-            entList = (List<T>) this.getJdbc().query(sqlQuery, params, getRecordRowMapper(recType));
+            LoggerHelper.logInfo("selectSQL:%s", queryData);
+            List<T> entList = (List<T>) this.getJdbc().query(queryData.getSQL(), queryData.getData(), getRecordRowMapper());
+            return new PageResult<T>(paginator, entList);
         } else {
-            entList = this.getJdbc().queryForList(sqlQuery, params, recType);
+            LoggerHelper.logInfo("selectSQL:%s", queryData);
+            List<T> entList = this.getJdbc().queryForList(queryData.getSQL(), queryData.getData(), recType);
+            return new PageResult<T>(paginator, entList);
         }
-        return new PageResult<T>(paginator, entList);
     }
     /**根据SQL语句执行查询返回{@link PageResult}。*/
-    public <T> PageResult<T> queryBySQL(Class<T> recType, String sqlQuery, Paginator paginator, Map<String, Object> params) throws SQLException {
+    public <T> PageResult<T> queryBySQL(final Class<T> recType, final String sqlQuery, final Paginator paginator, final Map<String, Object> params) throws SQLException {
         SQLBuilder builder = this.getSQLBuilder();
-        sqlQuery = builder.buildPaginator(sqlQuery, paginator);
+        BuilderMapData queryData = builder.buildPaginator(sqlQuery, paginator, params);
         //
-        List<T> entList = null;
         if (recType == Record.class) {
-            entList = (List<T>) this.getJdbc().query(sqlQuery, params, getRecordRowMapper(recType));
+            LoggerHelper.logInfo("selectSQL:%s", queryData);
+            List<T> entList = (List<T>) this.getJdbc().query(queryData.getSQL(), queryData.getData(), getRecordRowMapper());
+            return new PageResult<T>(paginator, entList);
         } else {
-            entList = this.getJdbc().queryForList(sqlQuery, params, recType);
+            LoggerHelper.logInfo("selectSQL:%s", queryData);
+            List<T> entList = this.getJdbc().queryForList(queryData.getSQL(), queryData.getData(), recType);
+            return new PageResult<T>(paginator, entList);
         }
-        return new PageResult<T>(paginator, entList);
     }
     //
     /**装载数据。*/
@@ -113,8 +121,10 @@ public final class DataBase {
         Column[] idColumn = as(sechma.getPrimaryKey());
         Object[] idValue = as(ent.getID());
         //
-        String selectSQL = builder.buildSelect(sechma, idColumn, idValue);
-        Map<String, Object> dataContainer = this.getJdbc().queryForMap(selectSQL, idValue);
+        BuilderData loadData = builder.buildSelect(sechma, idColumn, idValue);
+        //
+        LoggerHelper.logInfo("selectSQL:%s", loadData);
+        Map<String, Object> dataContainer = this.getJdbc().queryForMap(loadData.getSQL(), loadData.getData());
         ent.setMap(dataContainer);
         return ent;
     }
@@ -126,8 +136,10 @@ public final class DataBase {
         //
         Column[] idColumn = as(sechma.getPrimaryKey());
         Object[] idValue = as(ent.getID());
-        String deleteSQL = builder.buildDelete(sechma, idColumn, idValue);
-        return this.getJdbc().update(deleteSQL, idValue);
+        BuilderData deleteData = builder.buildDelete(sechma, idColumn, idValue);
+        //
+        LoggerHelper.logInfo("deleteSQL:%s", deleteData);
+        return this.getJdbc().update(deleteData.getSQL(), deleteData.getData());
     }
     /**仅保存，如果目标记录不存在则引发异常。*/
     public int update(Record ent) throws SQLException {
@@ -137,18 +149,16 @@ public final class DataBase {
         //
         Column[] idColumn = as(sechma.getPrimaryKey());
         Object[] idValue = as(ent.getID());
-        String countSQL = builder.buildCount(sechma, idColumn, idValue);
+        final BuilderData countData = builder.buildCount(sechma, idColumn, idValue);
         //
         JdbcOperations jdbc = this.getJdbc();
-        if (jdbc.queryForInt(countSQL, idValue) > 0) {
+        if (jdbc.queryForInt(countData.getSQL(), countData.getData()) > 0) {
             Column[] updateColumn = ent.hasValueColumns(sechma.getUpdateColumns());//用于执行更新的列
             Object[] updateData = ent.columnValues(updateColumn);
-            String updateSQL = builder.buildUpdate(sechma, idColumn, idValue, updateColumn, updateData);
-            Object[] finalData = new Object[updateColumn.length + 1];
-            System.arraycopy(updateData, 0, finalData, 0, updateData.length);
-            finalData[finalData.length - 1] = idValue;
+            BuilderData updateSqlData = builder.buildUpdate(sechma, idColumn, idValue, updateColumn, updateData);
             //
-            return jdbc.update(updateSQL, finalData);
+            LoggerHelper.logInfo("updateSQL:%s", updateSqlData);
+            return jdbc.update(updateSqlData.getSQL(), updateSqlData.getData());
         }
         throw new SQLException("record does not exist.");
     }
@@ -166,10 +176,23 @@ public final class DataBase {
         Sechma sechma = ent.getSechma();
         Column keyColumn = sechma.getPrimaryKey();
         if (ent.isNull(keyColumn.getName())) {
-            Object newID = this.getIdentify(sechma).newUniqueID(ent, sechma, this.getJdbc());
-            ent.set(keyColumn, newID);
+            Identify identify = this.getIdentify(sechma);
+            if (identify != null) {
+                Object newID = identify.newUniqueID(ent, sechma, this.getJdbc());
+                ent.set(keyColumn, newID);
+            }
         }
-        return this.saveOrUpdate(ent);
+        //
+        checkID(ent);
+        //
+        JdbcOperations jdbc = this.getJdbc();
+        Column[] insertColumn = ent.hasValueColumns(sechma.getColumns());//用于执行更新的列
+        Object[] insertParam = ent.columnValues(insertColumn);
+        SQLBuilder builder = this.getSQLBuilder();
+        final BuilderData insertData = builder.buildInsert(sechma, insertColumn, insertParam);
+        //
+        LoggerHelper.logInfo("insertSQL:%s", insertData);
+        return jdbc.update(insertData.getSQL(), insertData.getData()) > 0;
     }
     /**根据ID判断记录在数据库中是否存在。*/
     public boolean existByID(Record ent) throws SQLException {
@@ -179,8 +202,10 @@ public final class DataBase {
         //
         Column[] idColumn = as(sechma.getPrimaryKey());
         Object[] idValue = as(ent.getID());
-        String countSQL = builder.buildCount(sechma, idColumn, idValue);
-        return this.getJdbc().queryForInt(countSQL, idValue) > 0;
+        BuilderData countData = builder.buildCount(sechma, idColumn, idValue);
+        //
+        LoggerHelper.logInfo("countSQL:%s", countData);
+        return this.getJdbc().queryForInt(countData.getSQL(), countData.getData()) > 0;
     }
     /**记录在数据库中是否存在。*/
     public int countByExample(Record example) throws SQLException {
@@ -188,8 +213,10 @@ public final class DataBase {
         SQLBuilder builder = this.getSQLBuilder();
         Column[] allColumn = example.hasValueColumns(sechma.getColumns());
         Object[] dataArrays = example.columnValues(allColumn);
-        String countSQL = builder.buildCount(sechma, allColumn, dataArrays);
-        return this.getJdbc().queryForInt(countSQL, dataArrays);
+        BuilderData countData = builder.buildCount(sechma, allColumn, dataArrays);
+        //
+        LoggerHelper.logInfo("countSQL:%s", countData);
+        return this.getJdbc().queryForInt(countData.getSQL(), countData.getData());
     }
     /**删除数据库中满足该对象特征的。*/
     public int deleteByExample(Record example) throws SQLException {
@@ -198,19 +225,23 @@ public final class DataBase {
         //
         Column[] allColumn = example.hasValueColumns(sechma.getColumns());
         Object[] dataArrays = example.columnValues(allColumn);
-        String deleteSQL = builder.buildDelete(sechma, allColumn, dataArrays);
-        return this.getJdbc().update(deleteSQL, dataArrays);
+        BuilderData deleteData = builder.buildDelete(sechma, allColumn, dataArrays);
+        //
+        LoggerHelper.logInfo("deleteSQL:%s", deleteData);
+        return this.getJdbc().update(deleteData.getSQL(), deleteData.getData());
     }
     /**更新数据库中满足该对象特征的。*/
     public int updateByExample(Record example, Map<String, Object> dataContainer) throws SQLException {
-        if (dataContainer == null || dataContainer.isEmpty())
+        if (dataContainer == null || dataContainer.isEmpty()) {
             return 0;
+        }
         return this.updateByExample(example, new MapRecord(example.getSechma(), dataContainer));
     }
     /**更新数据库中满足该对象特征的。*/
     public int updateByExample(Record example, Record dataContainer) throws SQLException {
-        if (dataContainer == null)
+        if (dataContainer == null) {
             return 0;
+        }
         Sechma sechma = example.getSechma();
         SQLBuilder builder = this.getSQLBuilder();
         //
@@ -219,12 +250,10 @@ public final class DataBase {
         Column[] dataColumn = dataContainer.hasValueColumns(sechma.getUpdateColumns());
         Object[] dataArrays = dataContainer.columnValues(dataColumn);
         //
-        String updateSQL = builder.buildUpdate(sechma, whereColumn, whereArrays, dataColumn, dataArrays);
-        Object[] updateData = new Object[whereArrays.length + dataArrays.length];
-        System.arraycopy(whereArrays, 0, updateData, 0/*            */, whereArrays.length);
-        System.arraycopy(dataArrays, 0, updateData, whereArrays.length, dataArrays.length);
+        BuilderData updateData = builder.buildUpdate(sechma, whereColumn, whereArrays, dataColumn, dataArrays);
         //
-        return this.getJdbc().update(updateSQL, updateData);
+        LoggerHelper.logInfo("updateSQL:%s", updateData);
+        return this.getJdbc().update(updateData.getSQL(), updateData.getData());
     }
     /**从数据库中查询满足该对象特征的。*/
     public PageResult<Record> listByExample(Record example) throws SQLException {
@@ -244,16 +273,19 @@ public final class DataBase {
         Sechma sechma = example.getSechma();
         Column[] whereColumn = example.hasValueColumns(sechma.getColumns());//所有列
         Object[] whereArrays = example.columnValues(whereColumn);
-        String selectSQL = builder.buildSelect(sechma, whereColumn, whereArrays);
-        selectSQL = builder.buildPaginator(selectSQL, paginator);
         //
-        List<T> entList = null;
+        BuilderData selectData = builder.buildSelect(sechma, whereColumn, whereArrays);
+        /*        */selectData = builder.buildPaginator(selectData.getSQL(), paginator, selectData.getData());
+        //
         if (recType == Record.class) {
-            entList = (List<T>) this.getJdbc().query(selectSQL, whereArrays, getRecordRowMapper(recType));
+            LoggerHelper.logInfo("selectSQL:%s", selectData);
+            List<T> entList = (List<T>) this.getJdbc().query(selectData.getSQL(), selectData.getData(), getRecordRowMapper());
+            return new PageResult<T>(paginator, entList);
         } else {
-            entList = this.getJdbc().queryForList(selectSQL, recType, whereArrays);
+            LoggerHelper.logInfo("selectSQL:%s", selectData);
+            List<T> entList = this.getJdbc().queryForList(selectData.getSQL(), recType, selectData.getData());
+            return new PageResult<T>(paginator, entList);
         }
-        return new PageResult<T>(paginator, entList);
     }
     private void checkID(Record ent) {
         Object idValue = ent.getID();
@@ -262,9 +294,8 @@ public final class DataBase {
         }
     }
     //
-    private RowMapper<Record> getRecordRowMapper(Class<?> recType) {
-        Sechma sechma = new Sechma(recType.getSimpleName());
-        return new RecordRowMapper(sechma);
+    private RowMapper<Record> getRecordRowMapper() {
+        return new RecordRowMapper(new Sechma("none"));
     }
     private static class RecordRowMapper implements RowMapper<Record> {
         private ColumnMapRowMapper mapRowMapper = new ColumnMapRowMapper();
@@ -279,14 +310,13 @@ public final class DataBase {
         }
     }
     //
-    private DataSource          dataSource   = null;
-    private SQLBuilder          sqlBuilder   = null;
-    private Map<String, Sechma> sechmaDefine = new HashMap<String, Sechma>(200);
+    private DataSource dataSource = null;
+    private SQLBuilder sqlBuilder = null;
     /**获取JDBC接口*/
     public JdbcOperations getJdbc() {
         return new JdbcTemplate(this.dataSource);
     }
-    public DataBase(DataSource dataSource, DialectEnum dialectEnum) throws SQLException {
+    public DataBase(DataSource dataSource, SQLBuilderEnum dialectEnum) {
         this.dataSource = dataSource;
         this.sqlBuilder = dialectEnum.createBuilder();
     }
@@ -298,67 +328,9 @@ public final class DataBase {
         return this.sqlBuilder;
     }
     protected Identify getIdentify(Sechma sechma) {
-        // TODO Auto-generated method stub
-        return null;
+        return arConfiguration.getIdentify(sechma);
+    }
+    public Sechma loadSechma(Class<?> sechmaType) {
+        return arConfiguration.loadSechma(sechmaType);
     }
 }
-//    /**从数据库中查找已存在的表，并创建其{@link Record}实例。*/
-//    public Record loadSechma(final String tableName, final String primarykey) throws SQLException {
-//        String sechmaCacheKey = tableName;// StringUtils.isBlank(catalog) ? tableName : (catalog + "." + tableName);
-//        Sechma define = this.sechmaDefine.get(sechmaCacheKey);
-//        if (define != null) {
-//            return new MapRecord(define);
-//        }
-//        //1.load
-//        define = this.getJdbc().execute(new ConnectionCallback<Sechma>() {
-//            public Sechma doInConnection(Connection con) throws SQLException {
-//                //1.验证表
-//                DatabaseMetaData metaData = con.getMetaData();
-//                ResultSet resultSet = metaData.getTables(null, null, tableName.toUpperCase(), new String[] { "TABLE" });
-//                if (resultSet.next() == false) {
-//                    throw new UndefinedException("table " + tableName + " is Undefined.");
-//                }
-//                //2.装载结构
-//                String emptySelect = getSQLBuilder().buildEmptySelect(tableName);
-//                ResultSetMetaData resMetaData = con.createStatement().executeQuery(emptySelect).getMetaData();
-//                return loadSechma(new Sechma(tableName), resMetaData, primarykey);
-//            }
-//        });
-//        //2.cache
-//        this.sechmaDefine.put(sechmaCacheKey, define);
-//        return new MapRecord(define);
-//    }
-//
-//    private static Sechma loadSechma(Sechma sechma, ResultSetMetaData resMetaData, String primarykey) throws SQLException {
-//        int columnCount = resMetaData.getColumnCount();
-//        for (int i = 1; i < columnCount; i++) {
-//            String colName = resMetaData.getColumnName(i);//列名称。
-//            int colSQLType = resMetaData.getColumnType(i);//来自 java.sql.Types 的 SQL 类型。
-//            //
-//            Column col = new Column(colName, colSQLType);
-//            col.setMaxSize(resMetaData.getPrecision(i));//列的大小。
-//            int allowEmpty = resMetaData.isNullable(i);//是否允许使用 NULL。 
-//            col.setEmpty(allowEmpty == ResultSetMetaData.columnNullable);//明确允许使用null
-//            //
-//            col.setDefaultValue(null);
-//            col.setIdentify(resMetaData.isAutoIncrement(i));
-//            //
-//            if (resMetaData.isReadOnly(i) == true) {
-//                col.setAllowInsert(false);
-//                col.setAllowUpdate(false);
-//            }
-//            //
-//            if (StringUtils.equalsBlankIgnoreCase(primarykey, colName) == true) {
-//                col.setPrimaryKey(true);
-//            }
-//            //
-//            sechma.addColumn(col);
-//        }
-//        return sechma;
-//    }
-//    private RowMapper<Record> getRecordRowMapper() {
-//        return new RecordRowMapper(sechmaKey);
-//    }
-//    private RowMapper<Record> getRecordRowMapper(Sechma sechma) {
-//        return new RecordRowMapper(sechma);
-//    }

@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.ar;
+package net.hasor.db.orm;
 import java.sql.SQLException;
 import java.util.Map;
 import javax.sql.DataSource;
 import net.hasor.core.Hasor;
-import net.hasor.db.ar.record.DataBase;
-import net.hasor.db.ar.record.Record;
-import net.hasor.db.ar.record.dialect.DialectEnum;
 import net.hasor.db.jdbc.JdbcOperations;
+import net.hasor.db.orm.ar.DataBase;
+import net.hasor.db.orm.ar.Record;
+import net.hasor.db.orm.ar.Sechma;
+import net.hasor.db.orm.ar.dialect.SQLBuilderEnum;
+import net.hasor.db.orm.ar.record.ObjectRecord;
 import org.more.util.ClassUtils;
 /**
  * 基础Dao
@@ -30,11 +32,11 @@ import org.more.util.ClassUtils;
  */
 public class AbstractDao<ENT> {
     private DataBase dataBase = null;
-    public AbstractDao(DataSource dataSource, DialectEnum dialect) throws SQLException {
+    public AbstractDao(DataSource dataSource, SQLBuilderEnum dialect) {
         this.dataBase = new DataBase(dataSource, dialect);
     }
-    public AbstractDao(DataBase dataBase) {
-        this.dataBase = Hasor.assertIsNotNull(dataBase);
+    public AbstractDao(DataBase dataSource) {
+        this.dataBase = Hasor.assertIsNotNull(dataSource);
     }
     //
     public void setDataBase(DataBase dataBase) {
@@ -51,8 +53,8 @@ public class AbstractDao<ENT> {
         return (Class<ENT>) ClassUtils.getSuperClassGenricType(this.getClass(), 0);
     }
     protected Record newRecord(ENT record) {
-        // TODO Auto-generated method stub
-        return null;
+        Sechma sechma = this.dataBase.loadSechma(getRecordType());
+        return new ObjectRecord<ENT>(sechma, record);
     }
     /**保存为新增。*/
     protected boolean saveAsNew(ENT record) throws SQLException {

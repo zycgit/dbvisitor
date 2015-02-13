@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.ar.record;
+package net.hasor.db.orm.ar;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Types;
@@ -43,9 +44,44 @@ final class InnerArUtils {
         sqlTypeToJavaTypeMap.put(Types.BLOB, Blob.class);
         sqlTypeToJavaTypeMap.put(Types.CLOB, Clob.class);
     }
-    //
     /**根据 SqlType 返回 Java类型.*/
     public static Class<?> sqlTypeToJavaType(int sqlType) {
         return sqlTypeToJavaTypeMap.get(sqlType);
+    }
+    //
+    //
+    //
+    private static Map<Class<?>, Integer> javaTypeToSqlTypeMap = new HashMap<Class<?>, Integer>(32);
+    static {
+        /* JDBC 3.0 only - not compatible with e.g. MySQL at present*/
+        javaTypeToSqlTypeMap.put(Boolean.class, Types.BOOLEAN);
+        javaTypeToSqlTypeMap.put(Boolean.TYPE, Types.BOOLEAN);
+        javaTypeToSqlTypeMap.put(Byte.class, Types.TINYINT);
+        javaTypeToSqlTypeMap.put(Byte.TYPE, Types.TINYINT);
+        javaTypeToSqlTypeMap.put(Short.class, Types.SMALLINT);
+        javaTypeToSqlTypeMap.put(Short.TYPE, Types.SMALLINT);
+        javaTypeToSqlTypeMap.put(Integer.class, Types.INTEGER);
+        javaTypeToSqlTypeMap.put(Integer.TYPE, Types.INTEGER);
+        javaTypeToSqlTypeMap.put(BigInteger.class, Types.BIGINT);
+        javaTypeToSqlTypeMap.put(Long.class, Types.BIGINT);
+        javaTypeToSqlTypeMap.put(Long.TYPE, Types.BIGINT);
+        javaTypeToSqlTypeMap.put(Float.class, Types.FLOAT);
+        javaTypeToSqlTypeMap.put(Float.TYPE, Types.FLOAT);
+        javaTypeToSqlTypeMap.put(Double.class, Types.DOUBLE);
+        javaTypeToSqlTypeMap.put(Double.TYPE, Types.DOUBLE);
+        javaTypeToSqlTypeMap.put(BigDecimal.class, Types.DECIMAL);
+        javaTypeToSqlTypeMap.put(java.sql.Date.class, Types.DATE);
+        javaTypeToSqlTypeMap.put(java.sql.Time.class, Types.TIME);
+        javaTypeToSqlTypeMap.put(java.sql.Timestamp.class, Types.TIMESTAMP);
+        javaTypeToSqlTypeMap.put(java.util.Date.class, Types.TIMESTAMP);
+        javaTypeToSqlTypeMap.put(String.class, Types.VARCHAR);
+    }
+    /**根据 SqlType 返回 Java类型.*/
+    public static int javaTypeToSqlType(Class<?> sqlType) {
+        if (sqlType == null || sqlType == Void.class) {
+            return Types.NULL;
+        }
+        Integer toSqlType = javaTypeToSqlTypeMap.get(sqlType);
+        return toSqlType == null ? Types.JAVA_OBJECT : toSqlType;
     }
 }

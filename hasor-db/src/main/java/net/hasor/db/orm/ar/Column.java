@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.ar.record;
+package net.hasor.db.orm.ar;
 import java.io.Serializable;
 import java.sql.Types;
 /**
@@ -34,6 +34,8 @@ public final class Column implements Serializable {
     private Object            defaultValue     = null;                //默认约束
     private boolean           insert           = true;                //是否允许用于数据新增
     private boolean           update           = true;                //是否允许用于数据更新
+    private boolean           deleteWhere      = true;                //是否允许作为删除条件
+    private boolean           updateWhere      = true;                //是否允许作为更新条件
     //
     public Column(String colName, int colSQLType) {
         this.name = colName;
@@ -48,10 +50,6 @@ public final class Column implements Serializable {
     /**获取列标题*/
     public String getTitle() {
         return this.title;
-    }
-    /**设置列标题*/
-    public void setTitle(String title) {
-        this.title = title;
     }
     /**获取列表示的 SQL 类型。
      * @see java.sql.Types*/
@@ -83,6 +81,14 @@ public final class Column implements Serializable {
     public boolean allowUpdate() {
         return this.update;
     }
+    /**表示列是否在delete时将实际数据用于条件查询(true)，如果不是则忽略对该列的条件判断(false)。*/
+    public boolean allowDeleteWhere() {
+        return this.deleteWhere;
+    }
+    /**表示列是否在update时将实际数据用于条件查询(true)，如果不是则忽略对该列的条件判断(false)。*/
+    public boolean allowUpdateWhere() {
+        return this.updateWhere;
+    }
     /**表示列是否允许空值出现。*/
     public boolean allowEmpty() {
         return this.empty;
@@ -91,17 +97,29 @@ public final class Column implements Serializable {
     public Object getDefaultValue() {
         return this.defaultValue;
     }
+    /**设置列标题*/
+    protected void setTitle(String title) {
+        this.title = title;
+    }
     /**设置修改默认值约束.*/
-    public void setDefaultValue(Object defaultValue) {
+    protected void setDefaultValue(Object defaultValue) {
         this.defaultValue = defaultValue;
     }
     /**设置允许用于数据新增*/
-    public void setAllowInsert(boolean insert) {
+    protected void setAllowInsert(boolean insert) {
         this.insert = insert;
     }
     /**设置允许用于数据更新*/
-    public void setAllowUpdate(boolean update) {
+    protected void setAllowUpdate(boolean update) {
         this.update = update;
+    }
+    /**设置是否允许作为删除条件*/
+    protected void setAllowDeleteWhere(boolean deleteWhere) {
+        this.deleteWhere = deleteWhere;
+    }
+    /**设置是否允许作为更新条件*/
+    protected void setAllowUpdateWhere(boolean updateWhere) {
+        this.updateWhere = updateWhere;
     }
     //
     /**设置是否为主键列*/

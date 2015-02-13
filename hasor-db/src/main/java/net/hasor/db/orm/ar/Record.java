@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.ar.record;
+package net.hasor.db.orm.ar;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParsePosition;
@@ -56,7 +56,7 @@ public abstract class Record implements Cloneable, Serializable {
         Object[] arrays = new Object[columnArrays.length];
         Map<String, Object> dataContainer = this.getDataContainer();
         //
-        for (int i = 0; i <= columnArrays.length; i++) {
+        for (int i = 0; i < columnArrays.length; i++) {
             arrays[i] = dataContainer.get(columnArrays[i].getName());
         }
         return arrays;
@@ -90,8 +90,9 @@ public abstract class Record implements Cloneable, Serializable {
             Object colValue = atCol.getDefaultValue();
             if (atCol.allowEmpty() == false && colValue == null) {
                 colValue = BeanUtils.getDefaultValue(atCol.getJavaType());
-                if (atCol.getJavaType() == String.class)
+                if (atCol.getJavaType() == String.class) {
                     colValue = "";
+                }
             }
             if (colValue != null) {
                 this.set(atCol, colValue);

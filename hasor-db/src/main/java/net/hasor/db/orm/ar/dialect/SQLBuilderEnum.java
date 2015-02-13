@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.ar.record.dialect;
-import java.sql.SQLException;
-import net.hasor.db.ar.record.SQLBuilder;
-import net.hasor.db.ar.record.dialect.mysql.MySqlBuilder;
-import net.hasor.db.ar.record.dialect.oracle.OracleSqlBuilder;
-import net.hasor.db.ar.record.dialect.sqlserver.SqlServerSqlBuilder;
+package net.hasor.db.orm.ar.dialect;
+import net.hasor.db.orm.ar.SQLBuilder;
+import net.hasor.db.orm.ar.dialect.mysql.MySqlBuilder;
+import net.hasor.db.orm.ar.dialect.oracle.OracleSqlBuilder;
+import net.hasor.db.orm.ar.dialect.sqlserver.SqlServerSqlBuilder;
 /**
  * 
  * @version : 2015年2月13日
  * @author 赵永春(zyc@hasor.net)
  */
-public enum DialectEnum {
+public enum SQLBuilderEnum {
     /*MySQL方言*/
     MySql(MySqlBuilder.class),
     /*SQLServer 2000*/
@@ -33,15 +32,15 @@ public enum DialectEnum {
     Oracle(OracleSqlBuilder.class);
     //
     //
-    DialectEnum(Class<? extends SQLBuilder> sqlBuilder) {
+    SQLBuilderEnum(Class<? extends SQLBuilder> sqlBuilder) {
         this.sqlBuilder = sqlBuilder;
     }
     private Class<? extends SQLBuilder> sqlBuilder;
-    public SQLBuilder createBuilder() throws SQLException {
+    public SQLBuilder createBuilder() {
         try {
             return this.sqlBuilder.newInstance();
         } catch (Exception e) {
-            throw new SQLException(e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }

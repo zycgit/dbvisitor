@@ -13,19 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.ar.record;
-import net.hasor.db.jdbc.JdbcOperations;
+package net.hasor.db.orm.ar.dialect;
 /**
  * 
- * @version : 2014年10月27日
+ * @version : 2015年2月13日
  * @author 赵永春(zyc@hasor.net)
  */
-public interface Identify {
-    /**
-     * ID生成器
-     * @param record 需要新ID的记录。
-     * @param sechma 记录所用的Sechma
-     * @param jdbcOperations 数据库操作接口。
-     */
-    public Object newUniqueID(Record record, Sechma sechma, JdbcOperations jdbcOperations);
+public enum Oper {
+    Delete, Update, Select
 }
