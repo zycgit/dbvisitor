@@ -213,7 +213,15 @@
     <!-- 使用“-P release”启用下面配置 -->
     <profiles>
         <profile>
-            <id>release</id>
+            <activation>
+				<jdk>1.8</jdk>
+			</activation>
+			<properties>
+				<java_doc_additionalparam>-Xdoclint:none</java_doc_additionalparam>
+			</properties>
+		</profile>
+		<profile>
+			<id>release</id>
             <properties>
                 <gpg.executable>gpg2</gpg.executable>
                 <gpg.passphrase>fubing220106</gpg.passphrase>
