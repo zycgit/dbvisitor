@@ -23,7 +23,6 @@ import net.hasor.db.jdbc.core.mapper.ColumnMapRowMapper;
 import net.hasor.db.jdbc.core.mapper.SingleColumnRowMapper;
 import org.more.logger.LoggerHelper;
 import org.more.util.ArrayUtils;
-import org.more.util.IOUtils;
 import org.more.util.ResourcesUtils;
 
 import javax.sql.DataSource;
@@ -36,6 +35,7 @@ import java.nio.charset.Charset;
 import java.sql.*;
 import java.util.*;
 
+import org.more.util.io.IOUtils;
 /**
  * 数据库操作模板方法。
  * @version : 2013-10-12
