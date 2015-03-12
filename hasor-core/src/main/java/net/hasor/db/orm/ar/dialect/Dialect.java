@@ -14,31 +14,22 @@
  * limitations under the License.
  */
 package net.hasor.db.orm.ar.dialect;
-import net.hasor.db.orm.ar.SQLBuilder;
-import net.hasor.db.orm.ar.dialect.mysql.MySqlBuilder;
 /**
  * 
  * @version : 2015年2月13日
  * @author 赵永春(zyc@hasor.net)
  */
-public enum SQLBuilderEnum {
-    /*MySQL方言*/
-    MySql(MySqlBuilder.class), ;
-    //    /*SQLServer 2000*/
-    //    SqlServer(SqlServerSqlBuilder.class),
-    //    /*Oracle方言*/
-    //    Oracle(OracleSqlBuilder.class);
+public enum Dialect {
     //
+    AND, EQ, IS,
     //
-    SQLBuilderEnum(Class<? extends SQLBuilder> sqlBuilder) {
-        this.sqlBuilder = sqlBuilder;
-    }
-    private Class<? extends SQLBuilder> sqlBuilder;
-    public SQLBuilder createBuilder() {
-        try {
-            return this.sqlBuilder.newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
+    DELETE, INSERT, UPDATE, SELECT,
+    //
+    FROM, SET, WHERE, VALUES, AS, ORDER_BY,
+    //
+    SEPARATOR, SPACE, LEFT_ANGLE, RIGHT_ANGLE, LEFT_QUOTE, RIGHT_QUOTE, LEFT_TABLE_QUOTE, RIGHT_TABLE_QUOTE,
+    //
+    NULL, PARAM, ALL, ASC, DESC,
+    //
+    COUNT_1,
 }
