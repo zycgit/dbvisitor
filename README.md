@@ -4,9 +4,9 @@
 
 ### 项目配置
 
-&emsp;&emsp;项目配置参考：[http://git.oschina.net/zycgit/hasor-configuration](http://git.oschina.net/zycgit/hasor-configuration)
+&emsp;&emsp;项目配置参考：[http://git.oschina.net/zycgit/configuration](http://git.oschina.net/zycgit/configuration)
 
-&emsp;&emsp;RoadMap：
+&emsp;&emsp;RoadMap：（详见roadmap.pdf）
 
 ----------
 ### 功能介绍
