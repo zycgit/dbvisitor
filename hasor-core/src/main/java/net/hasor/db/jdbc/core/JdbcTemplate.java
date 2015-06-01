@@ -14,9 +14,28 @@
  * limitations under the License.
  */
 package net.hasor.db.jdbc.core;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.nio.charset.Charset;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.sql.DataSource;
 import net.hasor.core.Hasor;
-import net.hasor.db.datasource.ConnectionProxy;
-import net.hasor.db.datasource.DataSourceUtils;
 import net.hasor.db.jdbc.*;
 import net.hasor.db.jdbc.core.mapper.BeanPropertyRowMapper;
 import net.hasor.db.jdbc.core.mapper.ColumnMapRowMapper;
@@ -35,29 +54,17 @@ import java.sql.*;
 import java.util.*;
 
 import org.more.util.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 /**
  * 数据库操作模板方法。
  * @version : 2013-10-12
  * @author 赵永春 (zyc@byshell.org)
  */
-public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
-    protected static Logger logger                 = LoggerFactory.getLogger(JdbcTemplate.class);
+public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     /*是否忽略出现的 SQL 警告*/
-    private boolean         ignoreWarnings         = true;
-    /*JDBC查询和从结果集里面每次取设置行数，循环去取，直到取完。合理设置该参数可以避免内存异常。
-     * 如果这个变量被设置为非零值,它将被用于设置 statements 的 fetchSize 属性。*/
-    private int             fetchSize              = 0;
-    /*从 JDBC 中可以查询的最大行数。
-     * 如果这个变量被设置为非零值,它将被用于设置 statements 的 maxRows 属性。*/
-    private int             maxRows                = 0;
-    /*从 JDBC 中可以查询的最大行数。
-     * 如果这个变量被设置为非零值,它将被用于设置 statements 的 queryTimeout 属性。*/
-    private int             queryTimeout           = 0;
+    private boolean ignoreWarnings         = true;
     /*当JDBC 结果集中如出现相同的列名仅仅大小写不同时。是否保留大小写列名敏感。
      * 如果为 true 表示敏感，并且结果集Map中保留两个记录。如果为 false 则表示不敏感，如出现冲突列名后者将会覆盖前者。*/
-    private boolean         resultsCaseInsensitive = false;
+    private boolean resultsCaseInsensitive = false;
     //
     //
     //
@@ -68,6 +75,15 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
      * @see #setDataSource
      */
     public JdbcTemplate() {
+        super();
+    }
+    /**
+     * Construct a new JdbcTemplate, given a DataSource to obtain connections from.
+     * <p>Note: This will not trigger initialization of the exception translator.
+     * @param dataSource the JDBC DataSource to obtain connections from
+     */
+    public JdbcTemplate(final DataSource dataSource) {
+        super(dataSource);
     }
 
     /**
@@ -75,12 +91,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param dataSource the JDBC DataSource to obtain connections from
      */
-    public JdbcTemplate(final DataSource dataSource) {
-        this.setDataSource(dataSource);
-    }
-
     public JdbcTemplate(final Connection conn) {
-        this.setConnection(conn);
+        super(conn);
     }
 
     //
