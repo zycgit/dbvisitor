@@ -336,3 +336,21 @@
         </dependencies>
     </dependencyManagement>
 </project>
+
+	<!-- Project Info -->
+	<name>Hasor</name>
+	<description>the parent pom for Hasor project.</description>
+
+	<!-- SCM -->
+	<scm>
+		<connection>scm:git:git@git.oschina.net:zycgit/hasor.git</connection>
+		<developerConnection>scm:git:git@git.oschina.net:zycgit/hasor.git</developerConnection>
+		<url>git@git.oschina.net:zycgit/hasor.git</url>
+	  	<tag>Release.Hasor-1.1.0</tag>
+  	</scm>
+
+	<!-- 模块 -->
+	<modules>
+		<module>hasor-core</module>
+	</modules>
+</project>
