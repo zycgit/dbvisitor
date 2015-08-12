@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package net.hasor.db.transaction;
 /**
- * 提供了基于 Aop 的事务拦截器实现，通过它可以自定义拦截器行为以及如何拦截事务。
+ * 
+ * @version : 2015年8月11日
+ * @author 赵永春(zyc@hasor.net)
  */
-package net.hasor.db.transaction.interceptor;
+public interface TranCallBack<T> {
+    public T doTransaction(TransactionStatus tranStatus) throws Throwable;
+}
