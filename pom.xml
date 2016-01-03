@@ -292,6 +292,19 @@
             <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>
+		<!-- 下面是插件的依赖，如需使用该功能在引用依赖 -->
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+			<version>2.3.22</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity</artifactId>
+			<version>1.7</version>
+			<scope>provided</scope>
+		</dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>

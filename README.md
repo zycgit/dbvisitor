@@ -26,7 +26,7 @@
 06. 提供完备的数据库操作接口，支持 Result -> Object 映射
 07. 全面支持各种数据库事务传播属性，提供更佳精准的事务控制，包括针对代码片段的事务控制
 08. 支持多数据源下的事务控制，无需考虑多数据源下事务切换的问题
-09. 最小依赖 －> slf4j-api
+09. 框架日志输出以slf4j-api为基准，可同时支持log4j、logback等多种主流日志框架
 
 ----------
 ### 内置插件
@@ -36,7 +36,8 @@
 04. ResourceModule插件，提供丰富的资源加载模块，可以实现将zip包中的资源响应给web请求
 05. RestfulModule插件，提供restful风格的Api进行Web开发
 06. StartupModule插件，简化“modules.module”的配置，提供整个应用程序的一个唯一入口 Module
-07. ValidModule插件，一个小型验证框架
+07. ValidModule插件，一个简单的对象验证框架
+08. TemplateModule插件，提供一个通用的模版渲染引擎接口
 
 ----------
 ### 发展状况
