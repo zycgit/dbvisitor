@@ -14,7 +14,7 @@
 ----------
 ### 架构
 
-![架构](http://static.oschina.net/uploads/space/2015/1127/185946_9TWV_1166271.png)
+![架构](http://project.hasor.net/resources/185946_9TWV_1166271.png)
 
 ----------
 ### 特性
@@ -22,11 +22,17 @@
 02. 支持Aop编程，更精准、更强大
 03. ‘零’配置文件，所有框架配置全部内置
 04. ‘零’开发，解析自定义Xml配置文件
-05. 提供事件机制，通过事件方便业务流程的解耦合，使业务逻辑更佳清晰
+05. 提供事件机制进行业务深度解耦，使业务逻辑更佳清晰
 06. 提供完备的数据库操作接口，支持 Result -> Object 映射
-07. 全面支持各种数据库事务传播属性，提供更佳精准的事务控制，包括针对代码片段的事务控制
+07. 提供丰富的JDBC事物控制机制
 08. 支持多数据源下的事务控制，无需考虑多数据源下事务切换的问题
-09. 框架日志输出以slf4j-api为基准，可同时支持log4j、logback等多种主流日志框架
+09. 支持log4j、logback等多种主流日志框架。
+10. 支持无缝与Spring集成，在Spring中也可以享受Hasor的插件
+11. 提供丰富的工具箱，帮助您快速开发
+12. web - 无需‘web.xml’配置各种Listener、Servlet、Filter
+13. web - 支持对ServletContextListener、HttpSessionListener、HttpServlet、Filter的IoC注入和Aop
+14. web - 支持restful风格的Web开发（内置插件）
+15. web - 支持freemarker模版引擎（内置插件）
 
 ----------
 ### 内置插件
@@ -38,6 +44,15 @@
 06. StartupModule插件，简化“modules.module”的配置，提供整个应用程序的一个唯一入口 Module
 07. ValidModule插件，一个简单的对象验证框架
 08. TemplateModule插件，提供一个通用的模版渲染引擎接口
+08. EventModule插件，提供注解化事件监听器，无需编写代码进行注册事件监听器
+
+----------
+### 工具箱
+01. ConverterUtils，提供任意类型到任意类型的转换
+02. JSON，来自Jetty的JSON序列化和反序列化工具
+03. “org.more.util”下拥有各种Util工具，它们都来自于Apache
+04. Paginator和PageResult对分页数据的封装
+05. “org.more.classcode”提供字节码的增强，提供了Aop、动态接口实现、动态属性新增。
 
 ----------
 ### 发展状况
@@ -54,15 +69,17 @@
 
 &emsp;&emsp; 2015年11月27日，2.0版本发布，提供了@Inject注解方式进行依赖注入，该版本一举解决了在去除Guice和决定不在依赖Spring之后Hasor的Ioc能力大大下降的问题。同时Hasor2.0开始确立了“小而美的核心，大而全的生态圈”的目标。
 
-----------
-### 交流平台
-
-QQ群：**193943114**
-
-issues：[http://git.oschina.net/teams/hasor/issues](http://git.oschina.net/teams/hasor/issues)
-
-Team：[http://team.oschina.net/hasor](http://team.oschina.net/hasor)
-
+&emsp;&emsp; 2016年5月29日，2.3.2版本，所有内置插件提供了智能载入机制。智能是指，内置插件在初始化的时都做了配置检查，只有用到了它们才会被加载到框架中。在这之后Hasor不光体积小功能强，在启动运行时也保证了自己的最小化，避免了不必要的加载。至此2.3.2版本之后，您可以大胆的放弃内置插件采用自己的方式去替代相关功能，也不需要担心内置插件会出来捣乱。在Hasor中一切都变得可以被化简。
 
 ----------
-![Hasor捐赠](http://static.oschina.net/uploads/space/2015/1130/154023_xiMj_1166271.png)
+### 相关连接
+
+* WebSite：[http://www.hasor.net](http://www.hasor.net)
+* Issues：[http://git.oschina.net/teams/hasor/issues](http://git.oschina.net/teams/hasor/issues)
+* Team：[http://team.oschina.net/hasor](http://team.oschina.net/hasor)
+* QQ群：193943114
+
+### 致项目组成员
+
+* mvn release:prepare -P release
+* mvn deploy -P release

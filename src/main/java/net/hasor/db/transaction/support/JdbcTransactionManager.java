@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 the original 赵永春(zyc@hasor.net).
+ * Copyright 2008-2009 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,7 +134,7 @@ public class JdbcTransactionManager implements TransactionManager {
         ===============================================================*/
         /*REQUIRED：加入已有事务*/
         if (behavior == REQUIRED ||
-                /*REQUIRES_NEW：独立事务*/
+        /*REQUIRES_NEW：独立事务*/
                 behavior == REQUIRES_NEW ||
                 /*NESTED：嵌套事务*/
                 behavior == NESTED) {
