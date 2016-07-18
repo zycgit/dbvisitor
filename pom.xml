@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.hasor</groupId>
     <artifactId>hasor-parent</artifactId>
-    <version>1.2.1-SNAPSHOT</version>
+    <version>2.4.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <!-- 配置属性 -->
@@ -12,7 +12,7 @@
         <downloadSources>true</downloadSources>
         <downloadJavadocs>true</downloadJavadocs>
         <jacoco.version>0.8.5</jacoco.version>
-        <hasor.version>0.0.9</hasor.version>
+        <hasor.version>2.3.4</hasor.version>
         <!--<maven.test.skip>true</maven.test.skip>-->
         <!--<skipTests>true</skipTests>-->
         <powermock.version>2.0.6</powermock.version>
@@ -292,19 +292,19 @@
             <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>
-		<!-- 下面是插件的依赖，如需使用该功能在引用依赖 -->
-		<dependency>
-			<groupId>org.freemarker</groupId>
-			<artifactId>freemarker</artifactId>
-			<version>2.3.22</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.velocity</groupId>
-			<artifactId>velocity</artifactId>
-			<version>1.7</version>
-			<scope>provided</scope>
-		</dependency>
+        <!-- 下面是插件的依赖，如需使用该功能在引用依赖 -->
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.22</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>1.7</version>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
