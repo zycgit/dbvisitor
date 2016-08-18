@@ -15,7 +15,7 @@
  */
 package net.hasor.db.transaction;
 /**
- * 
+ * {@link TransactionCallback}接口的无返回值。
  * @version : 2015年8月11日
  * @author 赵永春(zyc@hasor.net)
  */
@@ -24,5 +24,6 @@ public abstract class TransactionCallbackWithoutResult implements TransactionCal
         this.doTransactionWithoutResult(tranStatus);
         return null;
     }
+    /***/
     public abstract void doTransactionWithoutResult(TransactionStatus tranStatus) throws Throwable;
 }
