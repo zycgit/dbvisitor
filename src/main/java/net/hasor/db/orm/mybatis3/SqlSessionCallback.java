@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package net.hasor.db.orm.mybatis3;
+import org.apache.ibatis.session.SqlSession;
 /**
- * 提供了一些有用的 {@link net.hasor.db.jdbc.RowMapper}接口实现。
+ * @version : 2015年5月27日
+ * @author 赵永春(zyc@hasor.net)
  */
-package net.hasor.db.jdbc.core.mapper;
+public interface SqlSessionCallback<T> {
+    public T doSqlSession(SqlSession sqlSession);
+}
