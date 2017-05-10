@@ -9,6 +9,7 @@ target
 test-work
 bin
 .DS_Store
+build/
 node_modules
 _book
 hasor-work

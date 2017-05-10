@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>net.hasor</groupId>
     <artifactId>hasor-parent</artifactId>
-    <version>3.2.0-SNAPSHOT</version>
+    <version>3.2.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <!-- 配置属性 -->
@@ -11,10 +12,11 @@
         <downloadSources>true</downloadSources>
         <downloadJavadocs>true</downloadJavadocs>
         <jacoco.version>0.8.5</jacoco.version>
-        <hasor.version>3.2.0</hasor.version>
+        <hasor.version>3.2.2</hasor.version>
         <!--<maven.test.skip>true</maven.test.skip>-->
         <!--<skipTests>true</skipTests>-->
         <powermock.version>2.0.9</powermock.version>
+        <hasor.version>3.2.0-SNAPSHOT</hasor.version>
         <project.shortname>Hasor-</project.shortname>
         <project.website>http://www.hasor.net/</project.website>
         <project.inceptionYear>2020</project.inceptionYear>
@@ -73,7 +75,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>3.2.2-SNAPSHOT</version>
                     <executions>
                         <execution>
                             <id>attach-sources</id>
@@ -284,8 +286,8 @@
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
+        <artifactId>logback-classic</artifactId>
+        <version>1.2.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
