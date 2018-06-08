@@ -17,10 +17,6 @@
 - 体积小，无依赖。
 
 ----------
-### 面向人群
-* 学习者、开发者
-
-----------
 ### 架构
 ![架构](http://files.hasor.net/uploader/20170609/155318/CC2_403A_3BD5_D581.jpg "架构")
 
@@ -107,8 +103,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.hasor/hasor-rsf/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.hasor/hasor-rsf)
 [![Build Status](https://travis-ci.org/zycgit/rsf.svg?branch=master)](https://travis-ci.org/zycgit/rsf)
 [![Build Status](https://travis-ci.org/zycgit/rsf.svg?branch=dev)](https://travis-ci.org/zycgit/rsf)
-* Demo工程：[http://git.oschina.net/zycgit/hasor-example](http://git.oschina.net/zycgit/hasor-example)
-* 参考手册(WiKi版)：[点这里(Click Me)](SUMMARY.md)
 * Docs : [http://www.hasor.net/docs/hasor/guide/](http://www.hasor.net/docs/hasor/guide/)
 
 ----------
@@ -139,15 +133,6 @@
 * 
 * Q：我只想使用某一个小功能，Hasor可以拆分独立使用么？
 * A：可以的。
-
-### 小备注
-
-* mvn release:prepare -P release
-* mvn clean deploy -P release
-* jekyll 安装（mac）
-    * brew install ruby
-    * gem update --system
-    * sudo gem update
-    * sudo gem install jekyll bundler
-    * jekyll server
-* ./build.sh && docker build -t debug . && docker run debug
+* 
+* Q：如何构建 Hasor 手册？
+* A：首先安装 JDK8，然后进入 document 目录执行 “mvn clean site” 即可生成一个全新的文档手册。
