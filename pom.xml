@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.hasor</groupId>
     <artifactId>hasor-parent</artifactId>
-    <version>3.2.2-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <!-- 配置属性 -->
@@ -11,12 +11,11 @@
         <downloadSources>true</downloadSources>
         <downloadJavadocs>true</downloadJavadocs>
         <jacoco.version>0.8.5</jacoco.version>
-        <hasor.version>3.2.2</hasor.version>
+        <hasor.version>4.0.0</hasor.version>
         <!--<maven.test.skip>true</maven.test.skip>-->
         <!--<skipTests>true</skipTests>-->
         <jacoco.version>0.8.2</jacoco.version>
         <powermock.version>1.6.5</powermock.version>
-
         <project.shortname>Hasor-</project.shortname>
         <project.website>http://www.hasor.net/</project.website>
         <project.inceptionYear>2020</project.inceptionYear>
@@ -93,7 +92,7 @@
                     <configuration>
                         <failOnError>false</failOnError>
                         <failOnWarnings>false</failOnWarnings>
-                        <doclint>none</doclint>
+                        <doclint>none --allow-script-in-comments</doclint>
                         <additionalJOption>--allow-script-in-comments</additionalJOption>
                         <excludePackageNames>net.hasor.utils.*,net.hasor.libs.*</excludePackageNames>
                         <encoding>UTF-8</encoding>
@@ -236,6 +235,7 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!-- Release -->
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
