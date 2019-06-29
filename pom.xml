@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.hasor</groupId>
     <artifactId>hasor-parent</artifactId>
-    <version>4.0.7-SNAPSHOT</version>
+    <version>4.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <!-- 配置属性 -->
@@ -11,11 +11,11 @@
         <downloadSources>true</downloadSources>
         <downloadJavadocs>true</downloadJavadocs>
         <jacoco.version>0.8.5</jacoco.version>
-        <hasor.version>4.0.7</hasor.version>
+        <hasor.version>4.1.0</hasor.version>
         <!--<maven.test.skip>true</maven.test.skip>-->
         <!--<skipTests>true</skipTests>-->
         <jacoco.version>0.8.2</jacoco.version>
-        <powermock.version>1.6.5</powermock.version>
+        <powermock.version>2.0.2</powermock.version>
         <project.shortname>Hasor-</project.shortname>
         <project.website>http://www.hasor.net/</project.website>
         <project.inceptionYear>2020</project.inceptionYear>
@@ -314,6 +314,11 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>1.7.22</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis</artifactId>
+                <version>3.5.1</version>
             </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
