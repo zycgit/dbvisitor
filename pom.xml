@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.hasor</groupId>
     <artifactId>hasor-parent</artifactId>
@@ -12,10 +14,10 @@
         <downloadJavadocs>true</downloadJavadocs>
         <jacoco.version>0.8.5</jacoco.version>
         <hasor.version>4.1.0</hasor.version>
+        <jacoco.version>0.8.5</jacoco.version>
         <!--<maven.test.skip>true</maven.test.skip>-->
         <!--<skipTests>true</skipTests>-->
-        <jacoco.version>0.8.2</jacoco.version>
-        <powermock.version>2.0.2</powermock.version>
+        <powermock.version>2.0.4</powermock.version>
         <project.shortname>Hasor-</project.shortname>
         <project.website>http://www.hasor.net/</project.website>
         <project.inceptionYear>2020</project.inceptionYear>
@@ -235,7 +237,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- Release -->
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -325,6 +326,8 @@
                 <artifactId>fastjson</artifactId>
                 <version>1.2.67</version>
             </dependency>
+
+            <!-- Log依赖 -->
             <dependency>
                 <groupId>org.hsqldb</groupId>
                 <artifactId>hsqldb</artifactId>
