@@ -74,4 +74,4 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.hasor/hasor-rsf/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.hasor/hasor-rsf)
 [![Build Status](https://travis-ci.org/zycgit/rsf.svg?branch=master)](https://travis-ci.org/zycgit/rsf)
 [![Build Status](https://travis-ci.org/zycgit/rsf.svg?branch=dev)](https://travis-ci.org/zycgit/rsf)
-* Docs : [http://www.hasor.net/](http://www.hasor.net/)
+* Docs : [https://gitee.com/zycgit/hasor-document](https://gitee.com/zycgit/hasor-document)
