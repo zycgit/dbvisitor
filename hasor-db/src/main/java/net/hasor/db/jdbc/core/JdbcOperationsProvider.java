@@ -26,7 +26,7 @@ import java.util.function.Supplier;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class JdbcOperationsProvider implements Supplier<JdbcOperations> {
-    private Supplier<DataSource> dataSource;
+    private final Supplier<DataSource> dataSource;
 
     public JdbcOperationsProvider(DataSource dataSource) {
         this(new InstanceProvider<>(dataSource));
