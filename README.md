@@ -56,23 +56,12 @@
 * servlet 2.3
 
 ----------
-### 未来版本计划支持的项目（粗略计划）
-* 细节优化
-- 整个 static-config.xml 的配置都可以被主配置文件进行覆盖。
-- RsfCenter 数据订阅，方便不同版本Center之间数据同步。为Hasor版本升级可能存在的不兼容性考虑。
-
-----------
 ### 相关连接
 
-* WebSite：[http://www.hasor.net](http://www.hasor.net)
-* Docs : [http://hasor-guide.mydoc.io/](http://hasor-guide.mydoc.io/)
-* Issues：[http://git.oschina.net/teams/hasor/issues](http://git.oschina.net/teams/hasor/issues)
-* Team：[http://team.oschina.net/hasor](http://team.oschina.net/hasor)
-* Demo工程：[http://git.oschina.net/zycgit/hasor-example](http://git.oschina.net/zycgit/hasor-example)
-* QQ群：193943114、Gitter 
+* [![Hasor官方社区](https://pub.idqqimg.com/wpa/images/group.png)](https://qm.qq.com/cgi-bin/qm/qr?k=0ZqU8WlKVENanH6ajgpbVua7WJUMOKQ9&jump_from=webapi)
 [![Gitter](https://badges.gitter.im/hasor/hasor-dataql.svg)](https://gitter.im/hasor/hasor-dataql?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 * [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.hasor/hasor-rsf/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.hasor/hasor-rsf)
-[![Build Status](https://travis-ci.org/zycgit/rsf.svg?branch=master)](https://travis-ci.org/zycgit/rsf)
-[![Build Status](https://travis-ci.org/zycgit/rsf.svg?branch=dev)](https://travis-ci.org/zycgit/rsf)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.hasor/hasor-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.hasor/hasor-core)
+[![Build Status](https://travis-ci.org/zycgit/hasor.svg?branch=master)](https://travis-ci.org/zycgit/hasor)
+[![Build Status](https://travis-ci.org/zycgit/hasor.svg?branch=dev)](https://travis-ci.org/zycgit/hasor)
 * Website : [https://www.hasor.net](https://www.hasor.net)
