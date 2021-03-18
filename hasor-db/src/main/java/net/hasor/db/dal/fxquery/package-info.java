@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2010 the original author or authors.
+ * Copyright 2008-2009 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.dialect.provider;
 /**
- * 虚谷数据库的 SqlDialect 实现
- * @version : 2020-10-31
+ * FxSQL Parser
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-03-28
  */
-public class XuGuDialect extends MySqlDialect {
-}
+package net.hasor.db.dal.fxquery;
