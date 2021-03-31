@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.hasor</groupId>
     <artifactId>hasor-parent</artifactId>
-    <version>4.2.5</version>
+    <version>4.2.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <!-- 配置属性 -->
@@ -12,7 +12,7 @@
         <downloadSources>true</downloadSources>
         <downloadJavadocs>true</downloadJavadocs>
         <jacoco.version>0.8.5</jacoco.version>
-        <hasor.version>4.2.5</hasor.version>
+        <hasor.version>4.2.6</hasor.version>
         <jacoco.version>0.8.5</jacoco.version>
         <!--<maven.test.skip>true</maven.test.skip>-->
         <!--<skipTests>true</skipTests>-->
@@ -322,7 +322,7 @@
                 <version>1.2.67</version>
             </dependency>
 
-            <!-- Log依赖 -->
+            <!-- dbs -->
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
