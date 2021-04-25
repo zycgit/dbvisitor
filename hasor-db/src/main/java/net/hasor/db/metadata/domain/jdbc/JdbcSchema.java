@@ -13,16 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.metadata.domain.mysql;
+package net.hasor.db.metadata.domain.jdbc;
 /**
- * MySQL 约束
+ * Schema
  * @version : 2020-01-22
  * @author 赵永春 (zyc@hasor.net)
  */
-public class MySqlConstraint {
-    private String              schema;
-    private String              name;
-    private MySqlConstraintType constraintType;
+public class JdbcSchema {
+    private String catalog;//catalog name (may be null)
+    private String schema;
+
+    public String getCatalog() {
+        return this.catalog;
+    }
+
+    public void setCatalog(String catalog) {
+        this.catalog = catalog;
+    }
 
     public String getSchema() {
         return this.schema;
@@ -30,21 +37,5 @@ public class MySqlConstraint {
 
     public void setSchema(String schema) {
         this.schema = schema;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public MySqlConstraintType getConstraintType() {
-        return this.constraintType;
-    }
-
-    public void setConstraintType(MySqlConstraintType constraintType) {
-        this.constraintType = constraintType;
     }
 }
