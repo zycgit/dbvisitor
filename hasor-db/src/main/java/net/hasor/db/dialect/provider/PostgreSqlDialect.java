@@ -29,7 +29,7 @@ import java.util.List;
 public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect {
     @Override
     protected String keyWordsResource() {
-        return "/META-INF/hasor-framework/db-keywords/postgresql.keywords";
+        return "/META-INF/db-keywords/postgresql.keywords";
     }
 
     @Override

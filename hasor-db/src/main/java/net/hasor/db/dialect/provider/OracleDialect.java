@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class OracleDialect extends AbstractDialect implements PageSqlDialect, InsertSqlDialect {
     @Override
     protected String keyWordsResource() {
-        return "/META-INF/hasor-framework/db-keywords/oracle.keywords";
+        return "/META-INF/db-keywords/oracle.keywords";
     }
 
     @Override

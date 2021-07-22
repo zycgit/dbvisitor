@@ -29,7 +29,7 @@ import java.util.List;
 public class DmDialect extends AbstractDialect implements PageSqlDialect/* , InsertSqlDialect */ {
     @Override
     protected String keyWordsResource() {
-        return "/META-INF/hasor-framework/db-keywords/dm.keywords";
+        return "/META-INF/db-keywords/dm.keywords";
     }
 
     @Override

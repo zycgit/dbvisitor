@@ -33,7 +33,7 @@ import java.util.List;
 public class MySqlDialect extends AbstractDialect implements PageSqlDialect, InsertSqlDialect {
     @Override
     protected String keyWordsResource() {
-        return "/META-INF/hasor-framework/db-keywords/mysql.keywords";
+        return "/META-INF/db-keywords/mysql.keywords";
     }
 
     @Override
