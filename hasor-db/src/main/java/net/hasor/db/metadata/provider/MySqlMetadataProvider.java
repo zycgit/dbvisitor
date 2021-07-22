@@ -246,7 +246,7 @@ public class MySqlMetadataProvider extends AbstractMetadataProvider implements M
         List<Map<String, Object>> primaryKeyList = null;
         List<Map<String, Object>> columnList = null;
         try (Connection conn = this.connectSupplier.eGet()) {
-            String queryStringColumn = "select TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME,IS_NULLABLE,DATA_TYPE,CHARACTER_MAXIMUM_LENGTH,CHARACTER_OCTET_LENGTH,NUMERIC_SCALE,NUMERIC_PRECISION,DATETIME_PRECISION,CHARACTER_SET_NAME,COLLATION_NAME,COLUMN_TYPE,COLUMN_DEFAULT,COLUMN_COMMENT from INFORMATION_SCHEMA.COLUMNS " //
+            String queryStringColumn = "select TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME,IS_NULLABLE,DATA_TYPE,CHARACTER_MAXIMUM_LENGTH,CHARACTER_OCTET_LENGTH,NUMERIC_SCALE,NUMERIC_PRECISION,DATETIME_PRECISION,CHARACTER_SET_NAME,COLLATION_NAME,COLUMN_TYPE,COLUMN_DEFAULT,COLUMN_COMMENT,EXTRA from INFORMATION_SCHEMA.COLUMNS " //
                     + "where TABLE_SCHEMA = ? and TABLE_NAME = ?";
             columnList = new JdbcTemplate(conn).queryForList(queryStringColumn, schemaName, tableName);
             if (columnList == null) {
@@ -596,7 +596,18 @@ public class MySqlMetadataProvider extends AbstractMetadataProvider implements M
         column.setNumericPrecision(safeToInteger(recordMap.get("NUMERIC_PRECISION")));
         column.setNumericScale(safeToInteger(recordMap.get("NUMERIC_SCALE")));
         column.setDefaultValue(safeToString(recordMap.get("COLUMN_DEFAULT")));
-        //
+        String extra = safeToString(recordMap.get("EXTRA"));
+        if (StringUtils.isNotBlank(extra)) {
+            if (extra.toLowerCase().contains("on update current_timestamp")) {
+                column.setOnCurrentUpdateType(MySqlOnCurrentUpdateType.CurrentTimestamp);
+            }
+            if (extra.toLowerCase().contains("on update current_date")) {
+                column.setOnCurrentUpdateType(MySqlOnCurrentUpdateType.CurrentDate);
+            }
+            if (extra.toLowerCase().contains("on update current_time")) {
+                column.setOnCurrentUpdateType(MySqlOnCurrentUpdateType.CurrentTime);
+            }
+        }
         column.setPrimaryKey(primaryKeyColumnList.contains(column.getName()));
         column.setUniqueKey(uniqueKeyColumnList.contains(column.getName()));
         column.setComment(safeToString(recordMap.get("COLUMN_COMMENT")));
