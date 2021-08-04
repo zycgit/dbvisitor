@@ -24,6 +24,8 @@ import java.sql.JDBCType;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class OracleColumn implements ColumnDef {
+    private String         schema;
+    private String         table;
     private String         name;
     private boolean        nullable;
     private String         columnType;
@@ -33,6 +35,7 @@ public class OracleColumn implements ColumnDef {
     private boolean        primaryKey;
     private boolean        uniqueKey;//如若存在联合唯一索引需要借助getUniqueKey 来查询具体信息，这里只会表示该列存在至少一个唯一索引的引用。
     private String         comment;
+    private int            index;
     //
     private Long           dataBytesLength;
     private Long           dataCharLength;
@@ -44,6 +47,22 @@ public class OracleColumn implements ColumnDef {
     private boolean        virtual;
     private boolean        identity;
     private boolean        sensitive;
+
+    public String getSchema() {
+        return this.schema;
+    }
+
+    public void setSchema(String schema) {
+        this.schema = schema;
+    }
+
+    public String getTable() {
+        return this.table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
+    }
 
     @Override
     public String getName() {
@@ -119,6 +138,14 @@ public class OracleColumn implements ColumnDef {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public int getIndex() {
+        return this.index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 
     public Long getDataBytesLength() {

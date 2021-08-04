@@ -40,6 +40,7 @@ public class JdbcColumn implements ColumnDef {
     private boolean          primaryKey;
     private boolean          uniqueKey;//如若存在联合唯一索引需要借助getUniqueKey 来查询具体信息，这里只会表示该列存在至少一个唯一索引的引用。
     private String           comment;
+    private int              index;
     //
     private String           scopeCatalog;
     private String           scopeSchema;
@@ -48,7 +49,6 @@ public class JdbcColumn implements ColumnDef {
     private Integer          numberPrecRadix;
     private String           defaultValue;
     private Integer          charOctetLength;
-    private Integer          ordinalPosition;
     private Integer          sourceDataType;
 
     public String getTableCatalog() {
@@ -182,6 +182,14 @@ public class JdbcColumn implements ColumnDef {
         this.comment = comment;
     }
 
+    public int getIndex() {
+        return this.index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
     public String getScopeCatalog() {
         return this.scopeCatalog;
     }
@@ -236,14 +244,6 @@ public class JdbcColumn implements ColumnDef {
 
     public void setCharOctetLength(Integer charOctetLength) {
         this.charOctetLength = charOctetLength;
-    }
-
-    public Integer getOrdinalPosition() {
-        return this.ordinalPosition;
-    }
-
-    public void setOrdinalPosition(Integer ordinalPosition) {
-        this.ordinalPosition = ordinalPosition;
     }
 
     public Integer getSourceDataType() {

@@ -21,6 +21,7 @@ package net.hasor.db.metadata.domain.oracle;
  */
 public class OracleConstraint {
     private String               schema;
+    private String               table;
     private String               name;
     private OracleConstraintType constraintType;
     private boolean              enabled;
@@ -33,6 +34,14 @@ public class OracleConstraint {
 
     public void setSchema(String schema) {
         this.schema = schema;
+    }
+
+    public String getTable() {
+        return this.table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
     }
 
     public String getName() {

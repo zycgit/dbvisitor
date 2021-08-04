@@ -26,6 +26,7 @@ import java.util.Map;
  */
 public class OracleIndex {
     private String              schema;
+    private String              table;
     private String              name;
     private OracleIndexType     indexType;
     private List<String>        columns     = new ArrayList<>();
@@ -45,6 +46,14 @@ public class OracleIndex {
 
     public void setSchema(String schema) {
         this.schema = schema;
+    }
+
+    public String getTable() {
+        return this.table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
     }
 
     public String getName() {

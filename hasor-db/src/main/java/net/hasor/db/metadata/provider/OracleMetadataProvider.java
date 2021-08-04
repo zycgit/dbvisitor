@@ -48,7 +48,7 @@ public class OracleMetadataProvider extends AbstractMetadataProvider implements 
             + ") TAB\n"//
             + "left join DBA_TAB_COMMENTS on TAB.OWNER = DBA_TAB_COMMENTS.OWNER and TAB.TABLE_NAME = DBA_TAB_COMMENTS.TABLE_NAME and TAB.TABLE_TYPE = DBA_TAB_COMMENTS.TABLE_TYPE";
     private static final String COLUMNS = ""//
-            + "select COLS.COLUMN_NAME,DATA_TYPE,DATA_TYPE_OWNER,DATA_LENGTH,CHAR_LENGTH,DATA_PRECISION,DATA_SCALE,NULLABLE,DATA_DEFAULT,CHARACTER_SET_NAME,HIDDEN_COLUMN,VIRTUAL_COLUMN,IDENTITY_COLUMN,SENSITIVE_COLUMN,COMM.COMMENTS from DBA_TAB_COLS COLS\n"//
+            + "select COLS.OWNER,COLS.TABLE_NAME,COLS.COLUMN_NAME,DATA_TYPE,DATA_TYPE_OWNER,COLUMN_ID,DATA_LENGTH,CHAR_LENGTH,DATA_PRECISION,DATA_SCALE,NULLABLE,DATA_DEFAULT,CHARACTER_SET_NAME,HIDDEN_COLUMN,VIRTUAL_COLUMN,IDENTITY_COLUMN,SENSITIVE_COLUMN,COMM.COMMENTS from DBA_TAB_COLS COLS\n"//
             + "left join DBA_COL_COMMENTS COMM on COLS.OWNER = COMM.OWNER and COLS.TABLE_NAME = COMM.TABLE_NAME and COLS.COLUMN_NAME = COMM.COLUMN_NAME\n";
 
     public OracleMetadataProvider(Connection connection) {
@@ -237,32 +237,45 @@ public class OracleMetadataProvider extends AbstractMetadataProvider implements 
     }
 
     public List<OracleColumn> getColumns(String schemaName, String tableName) throws SQLException {
-        if (StringUtils.isBlank(tableName)) {
+        Map<String, List<OracleColumn>> columnsMap = getColumns(schemaName, new String[] { tableName });
+        if (columnsMap == null || columnsMap.isEmpty() || !columnsMap.containsKey(tableName)) {
             return Collections.emptyList();
+        }
+        return columnsMap.get(tableName);
+    }
+
+    public Map<String, List<OracleColumn>> getColumns(String schemaName, String[] tableNames) throws SQLException {
+        List<String> tableNameList = Arrays.stream(tableNames).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        if (tableNameList.isEmpty()) {
+            return Collections.emptyMap();
         }
         if (StringUtils.isBlank(schemaName)) {
             schemaName = getCurrentSchema();
             if (StringUtils.isBlank(schemaName)) {
-                throw new SQLException("no schema is specified and the current schema is not set");
+                throw new SQLException("no schema is specified and the current database is not set");
             }
         }
+        String tableNameArgs = StringUtils.repeat(",?", tableNameList.size()).substring(1);
+        List<Object> args = new ArrayList<>();
+        args.add(schemaName);
+        args.addAll(tableNameList);
         //
         List<Map<String, Object>> primaryUniqueKeyList = null;
         List<Map<String, Object>> columnList = null;
         try (Connection conn = this.connectSupplier.get()) {
             //COLUMNS
-            String queryStringColumn = COLUMNS + "where COLS.DATA_TYPE_OWNER is NULL and COLS.OWNER = ? and COLS.TABLE_NAME = ?";
-            columnList = new JdbcTemplate(conn).queryForList(queryStringColumn, schemaName, tableName);
+            String queryStringColumn = COLUMNS + "where COLS.DATA_TYPE_OWNER is NULL and COLS.OWNER = ? and COLS.TABLE_NAME in (" + tableNameArgs + ") order by COLUMN_ID asc";
+            columnList = new JdbcTemplate(conn).queryForList(queryStringColumn, args.toArray());
             if (columnList == null) {
-                return Collections.emptyList();
+                return Collections.emptyMap();
             }
             // UK、PK
             String primaryUniqueKeyQuery = ""//
                     + "select COLUMN_NAME,COLS.CONSTRAINT_NAME,CON.CONSTRAINT_TYPE from ALL_CONS_COLUMNS COLS\n"//
                     + "left join DBA_CONSTRAINTS CON on COLS.CONSTRAINT_NAME = CON.CONSTRAINT_NAME\n"//
-                    + "where (CON.CONSTRAINT_TYPE = 'P' or CON.CONSTRAINT_TYPE = 'U') and COLS.OWNER = ? and COLS.TABLE_NAME = ?\n"//
+                    + "where (CON.CONSTRAINT_TYPE = 'P' or CON.CONSTRAINT_TYPE = 'U') and COLS.OWNER = ? and COLS.TABLE_NAME in (" + tableNameArgs + ")\n"//
                     + "order by COLS.POSITION asc";
-            primaryUniqueKeyList = new JdbcTemplate(conn).queryForList(primaryUniqueKeyQuery, schemaName, tableName);
+            primaryUniqueKeyList = new JdbcTemplate(conn).queryForList(primaryUniqueKeyQuery, args.toArray());
         }
         List<String> primaryKeyColumnNameList = primaryUniqueKeyList.stream().filter(recordMap -> {
             String constraintType = safeToString(recordMap.get("CONSTRAINT_TYPE"));
@@ -276,10 +289,14 @@ public class OracleMetadataProvider extends AbstractMetadataProvider implements 
         }).map(recordMap -> {
             return safeToString(recordMap.get("COLUMN_NAME"));
         }).collect(Collectors.toList());
-        //
-        return columnList.stream().map(recordMap -> {
+        List<OracleColumn> allColumns = columnList.stream().map(recordMap -> {
             return convertColumn(recordMap, primaryKeyColumnNameList, uniqueKeyColumnNameList);
         }).collect(Collectors.toList());
+        Map<String, List<OracleColumn>> result = new LinkedHashMap<>();
+        for (OracleColumn column : allColumns) {
+            result.computeIfAbsent(column.getTable(), s -> new ArrayList<>()).add(column);
+        }
+        return result;
     }
 
     public List<OracleConstraint> getConstraint(String schemaName, String tableName) throws SQLException {
@@ -293,7 +310,7 @@ public class OracleMetadataProvider extends AbstractMetadataProvider implements 
             }
         }
         //
-        String queryString = "select OWNER,CONSTRAINT_NAME,CONSTRAINT_TYPE,STATUS,VALIDATED,GENERATED from DBA_CONSTRAINTS " //
+        String queryString = "select OWNER,TABLE_NAME,CONSTRAINT_NAME,CONSTRAINT_TYPE,STATUS,VALIDATED,GENERATED from DBA_CONSTRAINTS " //
                 + "where OWNER = ? and TABLE_NAME = ?";
         try (Connection conn = this.connectSupplier.get()) {
             List<Map<String, Object>> mapList = new JdbcTemplate(conn).queryForList(queryString, schemaName, tableName);
@@ -320,8 +337,17 @@ public class OracleMetadataProvider extends AbstractMetadataProvider implements 
     }
 
     public OraclePrimaryKey getPrimaryKey(String schemaName, String tableName) throws SQLException {
-        if (StringUtils.isBlank(tableName)) {
+        Map<String, OraclePrimaryKey> primaryKeyMap = getPrimaryKeys(schemaName, new String[] { tableName });
+        if (primaryKeyMap == null || primaryKeyMap.isEmpty()) {
             return null;
+        }
+        return primaryKeyMap.get(tableName);
+    }
+
+    public Map<String, OraclePrimaryKey> getPrimaryKeys(String schemaName, String[] tableNames) throws SQLException {
+        List<String> tableNameList = Arrays.stream(tableNames).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        if (tableNameList.isEmpty()) {
+            return Collections.emptyMap();
         }
         if (StringUtils.isBlank(schemaName)) {
             schemaName = getCurrentSchema();
@@ -329,37 +355,50 @@ public class OracleMetadataProvider extends AbstractMetadataProvider implements 
                 throw new SQLException("no schema is specified and the current database is not set");
             }
         }
-        //
+        String tableNameArgs = StringUtils.repeat(",?", tableNameList.size()).substring(1);
         String queryString = "" //
-                + "select CON.OWNER,CON.CONSTRAINT_NAME,CONSTRAINT_TYPE,STATUS,VALIDATED,GENERATED,COLUMN_NAME from DBA_CONS_COLUMNS CC\n" //
-                + "left join DBA_CONSTRAINTS CON on CC.CONSTRAINT_NAME = CON.CONSTRAINT_NAME\n" //
-                + "where CONSTRAINT_TYPE = 'P' and CC.OWNER = ? and CC.TABLE_NAME = ? order by POSITION asc"; //
+                + "select CON.OWNER,CC.TABLE_NAME,CON.CONSTRAINT_NAME,CONSTRAINT_TYPE,STATUS,VALIDATED,GENERATED,COLUMN_NAME from DBA_CONS_COLUMNS CC\n" //
+                + "left join DBA_CONSTRAINTS CON on CC.CONSTRAINT_NAME = CON.CONSTRAINT_NAME and CC.OWNER = CON.OWNER\n" //
+                + "where CONSTRAINT_TYPE = 'P' and CC.OWNER = ? and CC.TABLE_NAME in (" + tableNameArgs + ") order by POSITION asc";
         try (Connection conn = this.connectSupplier.get()) {
-            List<Map<String, Object>> mapList = new JdbcTemplate(conn).queryForList(queryString, schemaName, tableName);
-            if (mapList == null) {
-                return null;
+            List<Object> args = new ArrayList<>();
+            args.add(schemaName);
+            args.addAll(tableNameList);
+            List<Map<String, Object>> mapList = new JdbcTemplate(conn).queryForList(queryString, args.toArray());
+            if (mapList == null || mapList.isEmpty()) {
+                return Collections.emptyMap();
             }
             //
-            Map<String, Optional<OraclePrimaryKey>> pkMap = mapList.stream().map(this::convertPrimaryKey).collect(Collectors.groupingBy(o -> {
-                // group by (schema + name)
-                return o.getSchema() + "," + o.getName();
-            }, Collectors.reducing((pk1, pk2) -> {
-                // reducing group by data in to one.
-                pk1.getColumns().addAll(pk2.getColumns());
-                return pk1;
-            })));
-            if (pkMap.size() > 1) {
-                throw new SQLException("Data error encountered multiple primary keys '" + StringUtils.join(pkMap.keySet().toArray(), "','") + "'");
+            List<OraclePrimaryKey> primaryKeys = mapList.stream().map(this::convertPrimaryKey).collect(Collectors.toList());
+            Map<String, OraclePrimaryKey> primaryKeyMap = new LinkedHashMap<>();
+            for (OraclePrimaryKey primaryKey : primaryKeys) {
+                String tableName = primaryKey.getTable();
+                if (primaryKeyMap.containsKey(tableName)) {
+                    primaryKeyMap.get(tableName).getColumns().addAll(primaryKey.getColumns());
+                } else {
+                    primaryKeyMap.put(tableName, primaryKey);
+                }
             }
-            //
-            Optional<OraclePrimaryKey> primaryKeyOptional = pkMap.values().stream().findFirst().orElse(Optional.empty());
-            return primaryKeyOptional.orElse(null);
+            return primaryKeyMap;
         }
     }
 
     public List<OracleUniqueKey> getUniqueKey(String schemaName, String tableName) throws SQLException {
-        if (StringUtils.isBlank(tableName)) {
-            return null;
+        Map<String, List<OracleUniqueKey>> uniqueKeys = getUniqueKeys(schemaName, new String[] { tableName });
+        if (uniqueKeys == null || uniqueKeys.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<OracleUniqueKey> keys = uniqueKeys.get(tableName);
+        if (keys == null) {
+            return Collections.emptyList();
+        }
+        return keys;
+    }
+
+    public Map<String, List<OracleUniqueKey>> getUniqueKeys(String schemaName, String[] tableNames) throws SQLException {
+        List<String> tableNameList = Arrays.stream(tableNames).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        if (tableNameList.isEmpty()) {
+            return Collections.emptyMap();
         }
         if (StringUtils.isBlank(schemaName)) {
             schemaName = getCurrentSchema();
@@ -368,32 +407,52 @@ public class OracleMetadataProvider extends AbstractMetadataProvider implements 
             }
         }
         //
+        String tableNameArgs = StringUtils.repeat(",?", tableNameList.size()).substring(1);
         String queryString = "" //
-                + "select CON.OWNER,CON.CONSTRAINT_NAME,CONSTRAINT_TYPE,STATUS,VALIDATED,GENERATED,COLUMN_NAME from DBA_CONS_COLUMNS CC\n" //
-                + "left join DBA_CONSTRAINTS CON on CC.CONSTRAINT_NAME = CON.CONSTRAINT_NAME\n" //
-                + "where CONSTRAINT_TYPE in ('U','P') and CC.OWNER = ? and CC.TABLE_NAME = ? order by POSITION asc"; //
+                + "select CON.OWNER,CC.TABLE_NAME,CON.CONSTRAINT_NAME,CONSTRAINT_TYPE,STATUS,VALIDATED,GENERATED,COLUMN_NAME from DBA_CONS_COLUMNS CC\n" //
+                + "left join DBA_CONSTRAINTS CON on CC.CONSTRAINT_NAME = CON.CONSTRAINT_NAME and CC.OWNER = CON.OWNER\n" //
+                + "where CONSTRAINT_TYPE = 'U' and CC.OWNER = ? and CC.TABLE_NAME in (" + tableNameArgs + ") order by POSITION asc"; //
         try (Connection conn = this.connectSupplier.get()) {
-            List<Map<String, Object>> mapList = new JdbcTemplate(conn).queryForList(queryString, schemaName, tableName);
+            List<Object> args = new ArrayList<>();
+            args.add(schemaName);
+            args.addAll(tableNameList);
+            List<Map<String, Object>> mapList = new JdbcTemplate(conn).queryForList(queryString, args.toArray());
             if (mapList == null) {
                 return null;
             }
             //
-            return mapList.stream().map(this::convertUniqueKey).collect(Collectors.groupingBy(o -> {
-                // group by (schema + name)
-                return o.getSchema() + "," + o.getName();
-            }, Collectors.reducing((uk1, uk2) -> {
-                // reducing group by data in to one.
-                uk1.getColumns().addAll(uk2.getColumns());
-                return uk1;
-            }))).values().stream().map(o -> {
-                return o.orElse(null);
-            }).filter(Objects::nonNull).collect(Collectors.toList());
+            List<OracleUniqueKey> uniqueKeys = mapList.stream().map(this::convertUniqueKey).collect(Collectors.toList());
+            Map<String, Map<String, OracleUniqueKey>> uniqueKeyMap = new LinkedHashMap<>();
+            for (OracleUniqueKey uniqueKey : uniqueKeys) {
+                String tableName = uniqueKey.getTable();
+                Map<String, OracleUniqueKey> uniqueMap = uniqueKeyMap.computeIfAbsent(tableName, s -> new LinkedHashMap<>());
+                String uniqueKeyName = uniqueKey.getName();
+                if (uniqueMap.containsKey(uniqueKeyName)) {
+                    uniqueMap.get(uniqueKeyName).getColumns().addAll(uniqueKey.getColumns());
+                } else {
+                    uniqueMap.put(uniqueKeyName, uniqueKey);
+                }
+            }
+            return uniqueKeyMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, uks -> new ArrayList<>(uks.getValue().values())));
         }
     }
 
     public List<OracleForeignKey> getForeignKey(String schemaName, String tableName) throws SQLException {
-        if (StringUtils.isBlank(tableName)) {
+        Map<String, List<OracleForeignKey>> foreignKeys = getForeignKeys(schemaName, new String[] { tableName });
+        if (foreignKeys == null || foreignKeys.isEmpty()) {
             return Collections.emptyList();
+        }
+        List<OracleForeignKey> keys = foreignKeys.get(tableName);
+        if (keys == null) {
+            return Collections.emptyList();
+        }
+        return keys;
+    }
+
+    public Map<String, List<OracleForeignKey>> getForeignKeys(String schemaName, String[] tableNames) throws SQLException {
+        List<String> tableNameList = Arrays.stream(tableNames).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        if (tableNameList.isEmpty()) {
+            return Collections.emptyMap();
         }
         if (StringUtils.isBlank(schemaName)) {
             schemaName = getCurrentSchema();
@@ -401,9 +460,9 @@ public class OracleMetadataProvider extends AbstractMetadataProvider implements 
                 throw new SQLException("no schema is specified and the current database is not set");
             }
         }
-        //
+        String tableNameArgs = StringUtils.repeat(",?", tableNameList.size()).substring(1);
         String queryString = "" //
-                + "select CON.OWNER,CON.CONSTRAINT_NAME,STATUS,VALIDATED,GENERATED,DELETE_RULE,\n" //
+                + "select CON.OWNER,CON.TABLE_NAME,CON.CONSTRAINT_NAME,STATUS,VALIDATED,GENERATED,DELETE_RULE,\n" //
                 + "       C2.OWNER TARGET_OWNER,C2.TABLE_NAME TARGET_TABLE,\n" //
                 + "       C1.COLUMN_NAME SOURCE_COLUMN,C2.COLUMN_NAME TARGET_COLUMN\n" //
                 + "from DBA_CONSTRAINTS CON,DBA_CONS_COLUMNS C1,DBA_CONS_COLUMNS C2\n" //
@@ -411,30 +470,49 @@ public class OracleMetadataProvider extends AbstractMetadataProvider implements 
                 + "    CON.R_OWNER = C1.OWNER and CON.CONSTRAINT_NAME = C1.CONSTRAINT_NAME and\n" //
                 + "    CON.R_OWNER = C2.OWNER and CON.R_CONSTRAINT_NAME = C2.CONSTRAINT_NAME and\n" //
                 + "    C1.POSITION = C2.POSITION and\n" //
-                + "    CONSTRAINT_TYPE = 'R' and CON.OWNER = ? and CON.TABLE_NAME = ? order by C1.POSITION";
+                + "    CONSTRAINT_TYPE = 'R' and CON.OWNER = ? and CON.TABLE_NAME in (" + tableNameArgs + ") order by C1.POSITION";
         try (Connection conn = this.connectSupplier.get()) {
-            List<Map<String, Object>> mapList = new JdbcTemplate(conn).queryForList(queryString, schemaName, tableName);
+            List<Object> args = new ArrayList<>();
+            args.add(schemaName);
+            args.addAll(tableNameList);
+            List<Map<String, Object>> mapList = new JdbcTemplate(conn).queryForList(queryString, args.toArray());
             if (mapList == null) {
-                return Collections.emptyList();
+                return Collections.emptyMap();
             }
             //
-            return mapList.stream().map(this::convertForeignKey).collect(Collectors.groupingBy(o -> {
-                // group by (schema + name)
-                return o.getSchema() + "," + o.getName();
-            }, Collectors.reducing((fk1, fk2) -> {
-                // reducing group by data in to one.
-                fk1.getColumns().addAll(fk2.getColumns());
-                fk1.getReferenceMapping().putAll(fk2.getReferenceMapping());
-                return fk1;
-            }))).values().stream().map(o -> {
-                return o.orElse(null);
-            }).filter(Objects::nonNull).collect(Collectors.toList());
+            List<OracleForeignKey> foreignKeys = mapList.stream().map(this::convertForeignKey).collect(Collectors.toList());
+            Map<String, Map<String, OracleForeignKey>> foreignKeyMap = new LinkedHashMap<>();
+            for (OracleForeignKey foreignKey : foreignKeys) {
+                String tableName = foreignKey.getTable();
+                Map<String, OracleForeignKey> foreignMap = foreignKeyMap.computeIfAbsent(tableName, s -> new LinkedHashMap<>());
+                String foreignKeyName = foreignKey.getName();
+                if (foreignMap.containsKey(foreignKeyName)) {
+                    foreignMap.get(foreignKeyName).getColumns().addAll(foreignKey.getColumns());
+                    foreignMap.get(foreignKeyName).getReferenceMapping().putAll(foreignKey.getReferenceMapping());
+                } else {
+                    foreignMap.put(foreignKeyName, foreignKey);
+                }
+            }
+            return foreignKeyMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, uks -> new ArrayList<>(uks.getValue().values())));
         }
     }
 
     public List<OracleIndex> getIndexes(String schemaName, String tableName) throws SQLException {
-        if (StringUtils.isBlank(tableName)) {
+        Map<String, List<OracleIndex>> indexes = getIndexes(schemaName, new String[] { tableName });
+        if (indexes == null || indexes.isEmpty()) {
             return Collections.emptyList();
+        }
+        List<OracleIndex> keys = indexes.get(tableName);
+        if (keys == null) {
+            return Collections.emptyList();
+        }
+        return keys;
+    }
+
+    public Map<String, List<OracleIndex>> getIndexes(String schemaName, String[] tableNames) throws SQLException {
+        List<String> tableNameList = Arrays.stream(tableNames).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        if (tableNameList.isEmpty()) {
+            return Collections.emptyMap();
         }
         if (StringUtils.isBlank(schemaName)) {
             schemaName = getCurrentSchema();
@@ -442,31 +520,37 @@ public class OracleMetadataProvider extends AbstractMetadataProvider implements 
                 throw new SQLException("no schema is specified and the current database is not set");
             }
         }
-        //
+        String tableNameArgs = StringUtils.repeat(",?", tableNameList.size()).substring(1);
         String queryString = ""//
-                + "select IDX.OWNER,IDX.INDEX_NAME,IDX.INDEX_TYPE,CON.CONSTRAINT_TYPE,IDX.UNIQUENESS,IDX.GENERATED,DESCEND,PARTITIONED,TEMPORARY,COL.COLUMN_NAME,COL.DESCEND\n" //
+                + "select IDX.OWNER,IDX.TABLE_NAME,IDX.INDEX_NAME,IDX.INDEX_TYPE,CON.CONSTRAINT_TYPE,IDX.UNIQUENESS,IDX.GENERATED,DESCEND,PARTITIONED,TEMPORARY,COL.COLUMN_NAME,COL.DESCEND\n" //
                 + "from DBA_INDEXES IDX\n" //
                 + "left join DBA_IND_COLUMNS COL on IDX.OWNER = COL.INDEX_OWNER and IDX.INDEX_NAME = COL.INDEX_NAME\n" //
                 + "left join DBA_CONSTRAINTS CON on IDX.OWNER = CON.INDEX_OWNER and IDX.INDEX_NAME = CON.INDEX_NAME\n" //
-                + "where IDX.TABLE_OWNER = ? and IDX.TABLE_NAME = ?\n" //
+                + "where IDX.TABLE_OWNER = ? and IDX.TABLE_NAME in (" + tableNameArgs + ") and COLUMN_NAME is not null "//
+                + "and (CONSTRAINT_TYPE not in ('P','U','R') or CONSTRAINT_TYPE is null)\n" //
                 + "order by COL.COLUMN_POSITION asc";
         try (Connection conn = this.connectSupplier.get()) {
-            List<Map<String, Object>> mapList = new JdbcTemplate(conn).queryForList(queryString, schemaName, tableName);
+            List<Object> args = new ArrayList<>();
+            args.add(schemaName);
+            args.addAll(tableNameList);
+            List<Map<String, Object>> mapList = new JdbcTemplate(conn).queryForList(queryString, args.toArray());
             if (mapList == null) {
-                return Collections.emptyList();
+                return Collections.emptyMap();
             }
             //
-            return mapList.stream().map(this::convertIndex).collect(Collectors.groupingBy(o -> {
-                // group by (schema + name)
-                return o.getSchema() + "," + o.getName();
-            }, Collectors.reducing((idx1, idx2) -> {
-                // reducing group by data in to one.
-                idx1.getColumns().addAll(idx2.getColumns());
-                idx1.getStorageType().putAll(idx2.getStorageType());
-                return idx1;
-            }))).values().stream().map(o -> {
-                return o.orElse(null);
-            }).filter(Objects::nonNull).collect(Collectors.toList());
+            List<OracleIndex> indexes = mapList.stream().map(this::convertIndex).collect(Collectors.toList());
+            Map<String, Map<String, OracleIndex>> indexesMap = new LinkedHashMap<>();
+            for (OracleIndex index : indexes) {
+                Map<String, OracleIndex> foreignMap = indexesMap.computeIfAbsent(index.getTable(), s -> new LinkedHashMap<>());
+                String indexName = index.getTable();
+                if (foreignMap.containsKey(indexName)) {
+                    foreignMap.get(indexName).getColumns().addAll(index.getColumns());
+                    foreignMap.get(indexName).getStorageType().putAll(index.getStorageType());
+                } else {
+                    foreignMap.put(indexName, index);
+                }
+            }
+            return indexesMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, idx -> new ArrayList<>(idx.getValue().values())));
         }
     }
 
@@ -537,6 +621,8 @@ public class OracleMetadataProvider extends AbstractMetadataProvider implements 
 
     protected OracleColumn convertColumn(Map<String, Object> recordMap, List<String> primaryKeyColumnList, List<String> uniqueKeyColumnList) {
         OracleColumn column = new OracleColumn();
+        column.setSchema(safeToString(recordMap.get("OWNER")));
+        column.setTable(safeToString(recordMap.get("TABLE_NAME")));
         column.setName(safeToString(recordMap.get("COLUMN_NAME")));
         column.setNullable("Y".equals(safeToString(recordMap.get("NULLABLE"))));
         column.setColumnType(safeToString(recordMap.get("DATA_TYPE")));
@@ -561,12 +647,14 @@ public class OracleMetadataProvider extends AbstractMetadataProvider implements 
         column.setPrimaryKey(primaryKeyColumnList.contains(column.getName()));
         column.setUniqueKey(uniqueKeyColumnList.contains(column.getName()));
         column.setComment(safeToString(recordMap.get("COMMENTS")));
+        column.setIndex(safeToInteger(recordMap.get("COLUMN_ID")));
         return column;
     }
 
     protected OracleConstraint convertConstraint(Map<String, Object> recordMap) {
         OracleConstraint constraint = new OracleConstraint();
         constraint.setSchema(safeToString(recordMap.get("OWNER")));
+        constraint.setTable(safeToString(recordMap.get("TABLE_NAME")));
         constraint.setName(safeToString(recordMap.get("CONSTRAINT_NAME")));
         String constraintTypeString = safeToString(recordMap.get("CONSTRAINT_TYPE"));
         constraint.setConstraintType(OracleConstraintType.valueOfCode(constraintTypeString));
@@ -579,6 +667,7 @@ public class OracleMetadataProvider extends AbstractMetadataProvider implements 
     protected OraclePrimaryKey convertPrimaryKey(Map<String, Object> recordMap) {
         OraclePrimaryKey primaryKey = new OraclePrimaryKey();
         primaryKey.setSchema(safeToString(recordMap.get("OWNER")));
+        primaryKey.setTable(safeToString(recordMap.get("TABLE_NAME")));
         primaryKey.setName(safeToString(recordMap.get("CONSTRAINT_NAME")));
         primaryKey.setConstraintType(OracleConstraintType.PrimaryKey);
         primaryKey.setEnabled("ENABLED".equalsIgnoreCase(safeToString(recordMap.get("STATUS"))));
@@ -592,6 +681,7 @@ public class OracleMetadataProvider extends AbstractMetadataProvider implements 
     protected OracleUniqueKey convertUniqueKey(Map<String, Object> recordMap) {
         OracleUniqueKey uniqueKey = new OracleUniqueKey();
         uniqueKey.setSchema(safeToString(recordMap.get("OWNER")));
+        uniqueKey.setTable(safeToString(recordMap.get("TABLE_NAME")));
         uniqueKey.setName(safeToString(recordMap.get("CONSTRAINT_NAME")));
         uniqueKey.setEnabled("ENABLED".equalsIgnoreCase(safeToString(recordMap.get("STATUS"))));
         uniqueKey.setValidated("VALIDATED".equalsIgnoreCase(safeToString(recordMap.get("VALIDATED"))));
@@ -613,6 +703,7 @@ public class OracleMetadataProvider extends AbstractMetadataProvider implements 
     protected OracleForeignKey convertForeignKey(Map<String, Object> recordMap) {
         OracleForeignKey foreignKey = new OracleForeignKey();
         foreignKey.setSchema(safeToString(recordMap.get("OWNER")));
+        foreignKey.setTable(safeToString(recordMap.get("TABLE_NAME")));
         foreignKey.setName(safeToString(recordMap.get("CONSTRAINT_NAME")));
         foreignKey.setConstraintType(OracleConstraintType.ForeignKey);
         foreignKey.setEnabled("ENABLED".equalsIgnoreCase(safeToString(recordMap.get("STATUS"))));
@@ -631,6 +722,7 @@ public class OracleMetadataProvider extends AbstractMetadataProvider implements 
     protected OracleIndex convertIndex(Map<String, Object> recordMap) {
         OracleIndex index = new OracleIndex();
         index.setSchema(safeToString(recordMap.get("OWNER")));
+        index.setTable(safeToString(recordMap.get("TABLE_NAME")));
         index.setName(safeToString(recordMap.get("INDEX_NAME")));
         index.setIndexType(OracleIndexType.valueOfCode(safeToString(recordMap.get("INDEX_TYPE"))));
         index.setPrimaryKey("P".equalsIgnoreCase(safeToString(recordMap.get("CONSTRAINT_TYPE"))));

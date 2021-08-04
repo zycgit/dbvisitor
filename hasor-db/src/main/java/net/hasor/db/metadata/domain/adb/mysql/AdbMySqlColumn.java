@@ -32,6 +32,7 @@ public class AdbMySqlColumn implements ColumnDef {
     private JDBCType                    jdbcType;
     private boolean                     primaryKey;
     private String                      comment;
+    private int                         index;
     //
     private Integer                     datetimePrecision;
     private Integer                     numericPrecision;
@@ -171,6 +172,14 @@ public class AdbMySqlColumn implements ColumnDef {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public int getIndex() {
+        return this.index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 
     public AdbMySqlOnCurrentUpdateType getOnCurrentUpdateType() {

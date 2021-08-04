@@ -246,17 +246,9 @@ public class OracleMetadataServiceSupplierTest extends AbstractMetadataServiceSu
         OraclePrimaryKey primaryKey = this.repository.getPrimaryKey("SCOTT", "TB_USER");
         List<OracleUniqueKey> uniqueKeyList = this.repository.getUniqueKey("SCOTT", "TB_USER");
         Map<String, OracleUniqueKey> uniqueKeyMap = uniqueKeyList.stream().collect(Collectors.toMap(OracleUniqueKey::getName, u -> u));
-        assert uniqueKeyMap.size() == 2;
+        assert uniqueKeyMap.size() == 1;
         //
-        assert uniqueKeyMap.containsKey(primaryKey.getName());
-        assert uniqueKeyMap.get(primaryKey.getName()).getConstraintType() == OracleConstraintType.PrimaryKey;
-        assert uniqueKeyMap.get(primaryKey.getName()).getColumns().size() == 1;
-        assert uniqueKeyMap.get(primaryKey.getName()).getColumns().contains("USERUUID");
-        //
-        //        assert uniqueKeyMap.containsKey("TB_USER_USERUUID_UINDEX");
-        //        assert uniqueKeyMap.get("TB_USER_USERUUID_UINDEX").getConstraintType() == OracleConstraintType.Unique;
-        //        assert uniqueKeyMap.get("TB_USER_USERUUID_UINDEX").getColumns().size() == 1;
-        //        assert uniqueKeyMap.get("TB_USER_USERUUID_UINDEX").getColumns().contains("USERUUID");
+        assert !uniqueKeyMap.containsKey(primaryKey.getName());
         //
         assert uniqueKeyMap.containsKey("TB_USER_EMAIL_USERUUID_UINDEX");
         assert uniqueKeyMap.get("TB_USER_EMAIL_USERUUID_UINDEX").getConstraintType() == OracleConstraintType.Unique;
@@ -285,26 +277,12 @@ public class OracleMetadataServiceSupplierTest extends AbstractMetadataServiceSu
 
     @Test
     public void getIndexes1() throws SQLException {
-        OraclePrimaryKey primaryKey = this.repository.getPrimaryKey("SCOTT", "TB_USER");
         List<OracleIndex> indexList = this.repository.getIndexes("SCOTT", "TB_USER");
         Map<String, OracleIndex> indexMap = indexList.stream().collect(Collectors.toMap(OracleIndex::getName, i -> i));
-        assert indexMap.size() == 3;
+        assert indexMap.size() == 1;
         //
         Set<String> indexNameSet = indexList.stream().map(OracleIndex::getName).collect(Collectors.toSet());
-        assert indexNameSet.contains(primaryKey.getName());
-        assert indexNameSet.contains("TB_USER_EMAIL_USERUUID_UINDEX");
         assert indexNameSet.contains("NORMAL_INDEX_TB_USER");
-        assert indexMap.get(primaryKey.getName()).getColumns().size() == 1;
-        assert indexMap.get(primaryKey.getName()).getColumns().get(0).equals("USERUUID");
-        assert indexMap.get(primaryKey.getName()).isUnique();
-        assert indexMap.get(primaryKey.getName()).isPrimaryKey();
-        assert indexMap.get(primaryKey.getName()).getIndexType() == OracleIndexType.Normal;
-        assert indexMap.get("TB_USER_EMAIL_USERUUID_UINDEX").getColumns().size() == 2;
-        assert indexMap.get("TB_USER_EMAIL_USERUUID_UINDEX").getColumns().get(0).equals("EMAIL");
-        assert indexMap.get("TB_USER_EMAIL_USERUUID_UINDEX").getColumns().get(1).equals("USERUUID");
-        assert indexMap.get("TB_USER_EMAIL_USERUUID_UINDEX").getIndexType() == OracleIndexType.Normal;
-        assert indexMap.get("TB_USER_EMAIL_USERUUID_UINDEX").isUnique();
-        assert !indexMap.get("TB_USER_EMAIL_USERUUID_UINDEX").isPrimaryKey();
         assert indexMap.get("NORMAL_INDEX_TB_USER").getColumns().size() == 2;
         assert indexMap.get("NORMAL_INDEX_TB_USER").getColumns().get(0).equals("LOGINPASSWORD");
         assert indexMap.get("NORMAL_INDEX_TB_USER").getColumns().get(1).equals("LOGINNAME");
@@ -316,27 +294,22 @@ public class OracleMetadataServiceSupplierTest extends AbstractMetadataServiceSu
     @Test
     public void getIndexes2() throws SQLException {
         OraclePrimaryKey primaryKey = this.repository.getPrimaryKey("SCOTT", "PROC_TABLE_REF");
+        List<OracleUniqueKey> uniqueKeys = this.repository.getUniqueKey("SCOTT", "PROC_TABLE_REF");
+        List<OracleForeignKey> foreignKeys = this.repository.getForeignKey("SCOTT", "PROC_TABLE_REF");
         List<OracleIndex> indexList = this.repository.getIndexes("SCOTT", "PROC_TABLE_REF");
         Map<String, OracleIndex> indexMap = indexList.stream().collect(Collectors.toMap(OracleIndex::getName, i -> i));
-        assert indexMap.size() == 3;
-        assert indexMap.containsKey(primaryKey.getName());
-        assert indexMap.containsKey("PROC_TABLE_REF_UK");
+        assert indexMap.size() == 1;
+        assert uniqueKeys.size() == 1;
+        assert foreignKeys.size() == 1;
+        assert !indexMap.containsKey(primaryKey.getName());
+        assert !indexMap.containsKey(uniqueKeys.get(0).getName());
+        assert !indexMap.containsKey(foreignKeys.get(0).getName());
         assert indexMap.containsKey("PROC_TABLE_REF_INDEX");
-        assert indexMap.get(primaryKey.getName()).getColumns().size() == 1;
-        assert indexMap.get(primaryKey.getName()).getColumns().get(0).equals("R_INT");
-        assert indexMap.get(primaryKey.getName()).getIndexType() == OracleIndexType.Normal;
-        assert indexMap.get(primaryKey.getName()).isPrimaryKey();
-        assert indexMap.get(primaryKey.getName()).isUnique();
-        assert indexMap.get("PROC_TABLE_REF_UK").getColumns().size() == 1;
-        assert indexMap.get("PROC_TABLE_REF_UK").getColumns().get(0).equals("R_NAME");
-        assert indexMap.get("PROC_TABLE_REF_UK").getIndexType() == OracleIndexType.Normal;
-        assert !indexMap.get("PROC_TABLE_REF_UK").isPrimaryKey();
-        assert indexMap.get("PROC_TABLE_REF_UK").isUnique();
+        //
+        assert !indexMap.get("PROC_TABLE_REF_INDEX").isUnique();
+        assert !indexMap.get("PROC_TABLE_REF_INDEX").isPrimaryKey();
         assert indexMap.get("PROC_TABLE_REF_INDEX").getColumns().size() == 1;
         assert indexMap.get("PROC_TABLE_REF_INDEX").getColumns().get(0).equals("R_INDEX");
-        assert indexMap.get("PROC_TABLE_REF_INDEX").getIndexType() == OracleIndexType.Normal;
-        assert !indexMap.get("PROC_TABLE_REF_INDEX").isPrimaryKey();
-        assert !indexMap.get("PROC_TABLE_REF_INDEX").isUnique();
     }
 
     @Test
@@ -349,10 +322,6 @@ public class OracleMetadataServiceSupplierTest extends AbstractMetadataServiceSu
     @Test
     public void getIndexes4() throws SQLException {
         OracleIndex index = this.repository.getIndexes("SCOTT", "PROC_TABLE_REF", "PROC_TABLE_REF_UK");
-        assert index.getName().equals("PROC_TABLE_REF_UK");
-        assert index.getColumns().size() == 1;
-        assert index.getColumns().get(0).equals("R_NAME");
-        assert index.isUnique();
-        assert index.getIndexType() == OracleIndexType.Normal;
+        assert index == null;
     }
 }

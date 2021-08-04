@@ -578,7 +578,7 @@ public class JdbcMetadataProvider extends AbstractMetadataProvider implements Me
         jdbcColumn.setNumberPrecRadix(safeToInteger(rs.get("NUM_PREC_RADIX")));
         jdbcColumn.setDefaultValue(safeToString(rs.get("COLUMN_DEF")));
         jdbcColumn.setCharOctetLength(safeToInteger(rs.get("CHAR_OCTET_LENGTH")));
-        jdbcColumn.setOrdinalPosition(safeToInteger(rs.get("ORDINAL_POSITION")));
+        jdbcColumn.setIndex(safeToInteger(rs.get("ORDINAL_POSITION")));
         jdbcColumn.setSourceDataType(safeToInteger(rs.get("SOURCE_DATA_TYPE")));
         //
         if (primaryKey != null) {

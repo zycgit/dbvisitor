@@ -14,25 +14,24 @@
  * limitations under the License.
  */
 package net.hasor.db.metadata.domain.mysql;
-
 /**
  * MySQL default on xxxx
  * @version : 2021-03-30
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum MySqlOnCurrentUpdateType {
-
     CurrentTimestamp("current_timestamp"),
     CurrentDate("current_date"),
     CurrentTime("current_time");
-
     private final String typeName;
 
-    MySqlOnCurrentUpdateType(String typeName){
+    MySqlOnCurrentUpdateType(String typeName) {
         this.typeName = typeName;
     }
 
-    public String getTypeName() { return this.typeName; }
+    public String getTypeName() {
+        return this.typeName;
+    }
 
     public static MySqlOnCurrentUpdateType valueOfCode(String code) {
         for (MySqlOnCurrentUpdateType currentType : MySqlOnCurrentUpdateType.values()) {

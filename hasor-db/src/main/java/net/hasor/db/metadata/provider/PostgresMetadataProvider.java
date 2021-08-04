@@ -675,6 +675,7 @@ public class PostgresMetadataProvider extends AbstractMetadataProvider implement
         column.setPrimaryKey(primaryKeyColumnList.contains(column.getName()));
         column.setUniqueKey(uniqueKeyColumnList.contains(column.getName()));
         column.setComment(safeToString(recordMap.get("comments")));
+        column.setIndex(safeToInteger(recordMap.get("attnum")));
         return column;
     }
 

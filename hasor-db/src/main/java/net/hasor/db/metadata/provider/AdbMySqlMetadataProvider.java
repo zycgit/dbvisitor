@@ -252,8 +252,8 @@ public class AdbMySqlMetadataProvider extends AbstractMetadataProvider implement
         List<Map<String, Object>> primaryKeyList = null;
         List<Map<String, Object>> columnList = null;
         try (Connection conn = this.connectSupplier.eGet()) {
-            String queryStringColumn = "select TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME,IS_NULLABLE,DATA_TYPE,CHARACTER_MAXIMUM_LENGTH,CHARACTER_OCTET_LENGTH,NUMERIC_SCALE,NUMERIC_PRECISION,DATETIME_PRECISION,CHARACTER_SET_NAME,COLLATION_NAME,COLUMN_TYPE,COLUMN_DEFAULT,COLUMN_COMMENT,EXTRA from INFORMATION_SCHEMA.COLUMNS " //
-                    + "where TABLE_SCHEMA = ? and TABLE_NAME = ?";
+            String queryStringColumn = "select TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME,IS_NULLABLE,DATA_TYPE,CHARACTER_MAXIMUM_LENGTH,CHARACTER_OCTET_LENGTH,NUMERIC_SCALE,NUMERIC_PRECISION,DATETIME_PRECISION,CHARACTER_SET_NAME,COLLATION_NAME,COLUMN_TYPE,COLUMN_DEFAULT,COLUMN_COMMENT,EXTRA,ORDINAL_POSITION from INFORMATION_SCHEMA.COLUMNS " //
+                    + "where TABLE_SCHEMA = ? and TABLE_NAME = ? order by ORDINAL_POSITION asc";
             columnList = new JdbcTemplate(conn).queryForList(queryStringColumn, schemaName, tableName);
             if (columnList == null) {
                 return Collections.emptyList();
@@ -374,6 +374,7 @@ public class AdbMySqlMetadataProvider extends AbstractMetadataProvider implement
         }
         column.setPrimaryKey(primaryKeyColumnList.contains(column.getName()));
         column.setComment(safeToString(recordMap.get("COLUMN_COMMENT")));
+        column.setIndex(safeToInteger(recordMap.get("ORDINAL_POSITION")));
         return column;
     }
 
