@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.lambda.page;
+package net.hasor.db.page;
 import net.hasor.utils.function.ESupplier;
 
 import java.sql.SQLException;

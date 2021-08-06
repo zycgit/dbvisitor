@@ -34,8 +34,8 @@ import java.util.List;
  */
 public class MultipleResultSetExtractor implements PreparedStatementCallback<List<Object>>, CallableStatementCallback<List<Object>> {
     private static final Logger              logger      = LoggerFactory.getLogger(MultipleResultSetExtractor.class);
-    private final List<RowMapper<?>>  rowMappers;
-    private       MultipleProcessType processType = MultipleProcessType.ALL;
+    private final        List<RowMapper<?>>  rowMappers;
+    private              MultipleProcessType processType = MultipleProcessType.ALL;
 
     public MultipleResultSetExtractor(RowMapper<?>... rowMapper) {
         this.rowMappers = Arrays.asList(rowMapper);

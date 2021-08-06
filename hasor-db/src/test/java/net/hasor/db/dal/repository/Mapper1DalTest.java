@@ -1,6 +1,7 @@
 package net.hasor.db.dal.repository;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
+import net.hasor.db.mapping.resolve.MappingOptions;
 import net.hasor.test.db.dal.Mapper1Dal;
 import net.hasor.test.db.dal.dynamic.TextBuilderContext;
 import net.hasor.utils.ResourcesUtils;
@@ -20,7 +21,7 @@ public class Mapper1DalTest {
 
     @Before
     public void loadMapping() throws IOException {
-        MapperRegistry.DEFAULT.loadMapper(Mapper1Dal.class, true);
+        MapperRegistry.DEFAULT.loadMapper(Mapper1Dal.class, MappingOptions.buildOverwrite());
     }
 
     @Test

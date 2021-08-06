@@ -58,7 +58,7 @@ public class StatementExecute extends AbstractStatementExecute<Object> {
         configStatement(executeInfo, statement);
         MultipleResultSetExtractor extractor = super.buildMultipleResultExtractor(executeInfo);
         //
-        boolean retVal = statement.execute(executeInfo.sqlString);
+        boolean retVal = statement.execute(queryBuilder.getSqlString());
         List<Object> result = extractor.doResult(retVal, statement);
         if (result.isEmpty()) {
             return null;

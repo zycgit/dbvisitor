@@ -16,6 +16,7 @@
 package net.hasor.db.dal.execute;
 import net.hasor.db.dal.repository.config.MultipleResultsType;
 import net.hasor.db.dal.repository.config.ResultSetType;
+import net.hasor.db.page.Page;
 
 /**
  * 执行器需要的信息
@@ -23,11 +24,11 @@ import net.hasor.db.dal.repository.config.ResultSetType;
  * @author 赵永春 (zyc@hasor.net)
  */
 class ExecuteInfo {
-    public String              sqlString          = "";
     public String              parameterType      = null;
     public int                 timeout            = -1;
     public int                 fetchSize          = 256;
     public ResultSetType       resultSetType      = ResultSetType.DEFAULT;
     public String              resultMap;
     public MultipleResultsType multipleResultType = MultipleResultsType.LAST;
+    public Page                pageInfo;
 }

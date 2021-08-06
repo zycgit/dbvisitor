@@ -28,9 +28,10 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 负责存储过程调用的执行器
@@ -52,12 +53,13 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
     }
 
     protected Object executeQuery(Connection con, QuerySqlBuilder queryBuilder) throws SQLException {
+        ExecuteInfo executeInfo = getExecuteInfo();
         if (!con.getMetaData().supportsStoredProcedures()) {
             throw new UnsupportedOperationException("target DataSource Unsupported.");
         }
         //
-        ExecuteInfo executeInfo = getExecuteInfo();
-        try (CallableStatement ps = createCallableStatement(con, executeInfo.sqlString, executeInfo.resultSetType)) {
+        String sqlString = queryBuilder.getSqlString();
+        try (CallableStatement ps = createCallableStatement(con, sqlString, executeInfo.resultSetType)) {
             return executeQuery(ps, queryBuilder);
         }
     }
@@ -66,19 +68,30 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
         ExecuteInfo executeInfo = getExecuteInfo();
         configStatement(executeInfo, cs);
         //
-        List<SqlArg> sqlArg = queryBuilder.getSqlArg();
-        List<SqlParameter> paramList = sqlArg.stream().map(arg -> {
+        List<SqlArg> sqlArgList = queryBuilder.getSqlArg();
+        List<SqlParameter> paramList = new ArrayList<>();
+        Map<String, SqlArg> paramMap = new HashMap<>();
+        for (int i = 0; i < sqlArgList.size(); i++) {
+            String paramName = "param_" + i;
+            SqlArg arg = sqlArgList.get(i);
+            paramMap.put(paramName, arg);
             switch (arg.getSqlMode()) {
-                case In:
-                    return SqlParameterUtils.withInput(arg.getValue(), arg.getJdbcType(), arg.getTypeHandler());
-                case Out:
-                    return SqlParameterUtils.withOutput(arg.getJdbcType(), arg.getTypeHandler());
-                case InOut:
-                    return SqlParameterUtils.withInOut(arg.getValue(), arg.getJdbcType(), arg.getTypeHandler());
+                case In: {
+                    paramList.add(SqlParameterUtils.withInput(arg.getValue(), arg.getJdbcType(), arg.getTypeHandler()));
+                    break;
+                }
+                case Out: {
+                    paramList.add(SqlParameterUtils.withOutput(paramName, arg.getJdbcType(), arg.getTypeHandler()));
+                    break;
+                }
+                case InOut: {
+                    paramList.add(SqlParameterUtils.withInOut(paramName, arg.getValue(), arg.getJdbcType(), arg.getTypeHandler()));
+                    break;
+                }
                 default:
                     throw new UnsupportedOperationException("SqlMode " + arg.getSqlMode() + " Unsupported.");
             }
-        }).collect(Collectors.toList());
+        }
         //
         MultipleProcessType multipleType = MultipleProcessType.valueOf(executeInfo.multipleResultType.getTypeName());
         SimpleCallableStatementCallback callback = new SimpleCallableStatementCallback(multipleType, paramList);
@@ -86,7 +99,7 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
         if (result.isEmpty()) {
             return null;
         }
-        //
+        //executeInfo.resultMap
         if (multipleType == MultipleProcessType.FIRST || multipleType == MultipleProcessType.LAST) {
             return result.entrySet().iterator().next().getValue();
         } else {

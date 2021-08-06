@@ -3,6 +3,11 @@ import net.hasor.utils.convert.ConverterUtils;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+/**
+ * <resultMap> or <mapper>
+ * @version : 2021-06-21
+ * @author 赵永春 (zyc@hasor.net)
+ */
 public class MappingOptions {
     public static String  OPT_KEY_TO_CAMELCASE = "mapUnderscoreToCamelCase";
     public static String  OPT_KEY_AUTO_MAPPING = "autoMapping";
@@ -77,6 +82,12 @@ public class MappingOptions {
         if (options.mapUnderscoreToCamelCase == null) {
             options.mapUnderscoreToCamelCase = defaultOptions.mapUnderscoreToCamelCase;
         }
+        return options;
+    }
+
+    public static MappingOptions buildOverwrite() {
+        MappingOptions options = new MappingOptions();
+        options.setOverwrite(true);
         return options;
     }
 }

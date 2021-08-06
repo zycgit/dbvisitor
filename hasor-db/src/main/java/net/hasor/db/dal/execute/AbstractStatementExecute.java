@@ -24,6 +24,7 @@ import net.hasor.db.jdbc.extractor.MultipleResultSetExtractor;
 import net.hasor.db.jdbc.mapper.ColumnMapRowMapper;
 import net.hasor.db.jdbc.mapper.MappingRowMapper;
 import net.hasor.db.mapping.reader.TableReader;
+import net.hasor.utils.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -57,8 +58,12 @@ public abstract class AbstractStatementExecute<T> {
         return this.jdbcTemplate;
     }
 
-    public T execute(QuerySqlBuilder queryBuilder) throws SQLException {
+    public final T execute(QuerySqlBuilder queryBuilder) throws SQLException {
         return this.getJdbcTemplate().execute((ConnectionCallback<T>) con -> executeQuery(con, queryBuilder));
+    }
+
+    protected boolean usingPage() {
+        return executeInfo.pageInfo == null || executeInfo.pageInfo.getPageSize() <= 0;
     }
 
     protected abstract T executeQuery(Connection con, QuerySqlBuilder queryBuilder) throws SQLException;
@@ -73,14 +78,19 @@ public abstract class AbstractStatementExecute<T> {
     }
 
     protected MultipleResultSetExtractor buildMultipleResultExtractor(ExecuteInfo executeInfo) {
-        String[] resultMapSplit = executeInfo.resultMap.split(",");
-        RowMapper<?>[] rowMappers = new RowMapper[resultMapSplit.length];
-        for (int i = 0; i < resultMapSplit.length; i++) {
-            TableReader<?> tableReader = getBuilderContext().findTableReaderById(resultMapSplit[i]);
-            if (tableReader != null) {
-                rowMappers[i] = new MappingRowMapper<>(tableReader);
-            } else {
-                rowMappers[i] = new ColumnMapRowMapper(getBuilderContext().getHandlerRegistry());
+        RowMapper<?>[] rowMappers = null;
+        if (StringUtils.isBlank(executeInfo.resultMap)) {
+            rowMappers = new RowMapper[] { new ColumnMapRowMapper(getBuilderContext().getHandlerRegistry()) };
+        } else {
+            String[] resultMapSplit = executeInfo.resultMap.split(",");
+            rowMappers = new RowMapper[resultMapSplit.length];
+            for (int i = 0; i < resultMapSplit.length; i++) {
+                TableReader<?> tableReader = getBuilderContext().findTableReaderById(resultMapSplit[i]);
+                if (tableReader != null) {
+                    rowMappers[i] = new MappingRowMapper<>(tableReader);
+                } else {
+                    rowMappers[i] = new ColumnMapRowMapper(getBuilderContext().getHandlerRegistry());
+                }
             }
         }
         //

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="net.hasor.test.db.dal.Mapper1Dal">
+<mapper namespace="net.hasor.test.db.dal.execute.TestExecuteDal" overwrite="true">
     <resultMap id="tb_user_resultMap" type="net.hasor.test.db.dto.TbUser2">
         <id column="user_uuid" property="uid"/>
         <result column="name" property="name"/>
@@ -22,9 +22,9 @@
     </sql>
 
     <insert id="createUser">
-        INSERT INTO test_user (
+        insert into test_user (
             <include refid="user_do_allColumns"/>
-        ) VALUES (
+        ) values (
             #{uid},
             #{name},
             #{account},
@@ -35,18 +35,25 @@
     </insert>
 
     <insert id="initUser">
-        INSERT INTO test_user (
-            <include refid="user_do_allColumns"/>
-        ) VALUES (
-            '11', '22', '33', '44', '55', 6, '2021-07-20 10:47:55'
-        );
+        insert into test_user ( <include refid="user_do_allColumns"/> )
+        values ('11', '12', '13', '14', '15', 16, '2021-07-20 00:00:00'),
+               ('21', '22', '23', '24', '25', 26, '2021-07-20 00:00:00');
     </insert>
 
-
-    <select id="listUserList" parameterType="net.hasor.test.db.dto.TbUser2" resultMap="tb_user_resultMap">
-        SELECT
+    <select id="listUserList_1" parameterType="net.hasor.test.db.dto.TbUser2" resultMap="tb_user_resultMap" statementType="prepared">
+        select
             <include refid="user_do_allColumns"/>
-        FROM test_user;
+        from test_user;
     </select>
-    <!--    where aac = #{abc}-->
+
+    <select id="listUserList_2" parameterType="net.hasor.test.db.dto.TbUser2" resultMap="tb_user_resultMap" statementType="statement">
+        select
+            <include refid="user_do_allColumns"/>
+        from test_user;
+    </select>
+
+    <callable id="callSelectUser">
+        {call proc_select_user(#{p_out, mode=out})}
+    </callable>
+
 </mapper>

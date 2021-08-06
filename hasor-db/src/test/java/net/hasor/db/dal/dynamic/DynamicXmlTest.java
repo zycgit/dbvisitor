@@ -223,7 +223,7 @@ public class DynamicXmlTest {
         QuerySqlBuilder builder1 = parseXml.buildQuery(new TextBuilderContext(data1));
         assert builder1.getSqlString().trim().equals(querySql1.trim());
         assert builder1.getArgs()[0].equals("123");
-        assert builder1.getArgs()[1].equals("11");
+        assert builder1.getArgs()[1] == null;// mode = out not eval value.
         assert builder1.getSqlArg().get(0).getJavaType() == String.class;
         assert builder1.getSqlArg().get(1).getJavaType() == net.hasor.test.db.dto.TB_User.class;
         assert builder1.getSqlArg().get(0).getTypeHandler() instanceof StringTypeHandler;

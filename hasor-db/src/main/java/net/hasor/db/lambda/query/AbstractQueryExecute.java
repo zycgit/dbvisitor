@@ -22,8 +22,8 @@ import net.hasor.db.jdbc.RowCallbackHandler;
 import net.hasor.db.jdbc.RowMapper;
 import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.lambda.QueryExecute;
-import net.hasor.db.lambda.page.Page;
-import net.hasor.db.lambda.page.PageObject;
+import net.hasor.db.page.Page;
+import net.hasor.db.page.PageObject;
 
 import java.sql.SQLException;
 import java.util.List;

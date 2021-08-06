@@ -19,6 +19,7 @@ import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.rule.RuleRegistry;
 import net.hasor.db.dal.repository.MapperRegistry;
 import net.hasor.db.jdbc.core.JdbcTemplate;
+import net.hasor.db.page.Page;
 import net.hasor.utils.StringUtils;
 
 import javax.sql.DataSource;
@@ -53,25 +54,37 @@ public class MapperDalExecute extends DalExecute {
     }
 
     public Object execute(Connection connection, String dynamicId, Map<String, Object> context) throws SQLException {
-        BuilderContext builderContext = new BuilderContext(this.namespace, context, this.ruleRegistry, this.mapperRegistry, this.classLoader);
-        DynamicSql dynamicSql = mapperRegistry.findDynamicSql(this.namespace, dynamicId);
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(connection);
-        //
-        return execute(jdbcTemplate, dynamicSql, builderContext);
+        return execute(connection, dynamicId, context, null);
     }
 
     public Object execute(DataSource dataSource, String dynamicId, Map<String, Object> context) throws SQLException {
-        BuilderContext builderContext = new BuilderContext(this.namespace, context, this.ruleRegistry, this.mapperRegistry, this.classLoader);
-        DynamicSql dynamicSql = mapperRegistry.findDynamicSql(this.namespace, dynamicId);
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        //
-        return execute(jdbcTemplate, dynamicSql, builderContext);
+        return execute(dataSource, dynamicId, context, null);
     }
 
     public Object execute(JdbcTemplate jdbcTemplate, String dynamicId, Map<String, Object> context) throws SQLException {
+        return execute(jdbcTemplate, dynamicId, context, null);
+    }
+
+    public Object execute(Connection connection, String dynamicId, Map<String, Object> context, Page page) throws SQLException {
         BuilderContext builderContext = new BuilderContext(this.namespace, context, this.ruleRegistry, this.mapperRegistry, this.classLoader);
-        DynamicSql dynamicSql = mapperRegistry.findDynamicSql(this.namespace, dynamicId);
+        DynamicSql dynamicSql = this.mapperRegistry.findDynamicSql(this.namespace, dynamicId);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(connection);
         //
-        return execute(jdbcTemplate, dynamicSql, builderContext);
+        return execute(jdbcTemplate, dynamicSql, builderContext, page);
+    }
+
+    public Object execute(DataSource dataSource, String dynamicId, Map<String, Object> context, Page page) throws SQLException {
+        BuilderContext builderContext = new BuilderContext(this.namespace, context, this.ruleRegistry, this.mapperRegistry, this.classLoader);
+        DynamicSql dynamicSql = this.mapperRegistry.findDynamicSql(this.namespace, dynamicId);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        //
+        return execute(jdbcTemplate, dynamicSql, builderContext, page);
+    }
+
+    public Object execute(JdbcTemplate jdbcTemplate, String dynamicId, Map<String, Object> context, Page page) throws SQLException {
+        BuilderContext builderContext = new BuilderContext(this.namespace, context, this.ruleRegistry, this.mapperRegistry, this.classLoader);
+        DynamicSql dynamicSql = this.mapperRegistry.findDynamicSql(this.namespace, dynamicId);
+        //
+        return execute(jdbcTemplate, dynamicSql, builderContext, page);
     }
 }

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.db.lambda;
-import net.hasor.db.lambda.page.Page;
 import net.hasor.db.metadata.ColumnDef;
+import net.hasor.db.page.Page;
 import net.hasor.utils.reflect.SFunction;
 
 import java.util.Collections;

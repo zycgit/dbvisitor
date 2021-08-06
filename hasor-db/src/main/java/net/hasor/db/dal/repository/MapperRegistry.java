@@ -46,11 +46,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author 赵永春 (zyc@byshell.org)
  */
 public class MapperRegistry {
-    public static final MapperRegistry                       DEFAULT       = new MapperRegistry();
-    private final       Map<String, Map<String, DynamicSql>> spaceSqlMap   = new ConcurrentHashMap<>();
-    private final       Map<String, DynamicSql>              defaultSqlMap = new ConcurrentHashMap<>();
+    public static final MapperRegistry                       DEFAULT        = new MapperRegistry();
+    private final       Map<String, Map<String, DynamicSql>> spaceSqlMap    = new ConcurrentHashMap<>();
+    private final       Map<String, DynamicSql>              defaultSqlMap  = new ConcurrentHashMap<>();
     private final       MappingRegistry                      mappingRegistry;
     private final       ResourceLoader                       resourceLoader;
+    private final       MappingOptions                       mappingOptions = new MappingOptions();
 
     public MapperRegistry() {
         this(null, MappingRegistry.DEFAULT);
@@ -71,6 +72,10 @@ public class MapperRegistry {
 
     public ResourceLoader getResourceLoader() {
         return this.resourceLoader;
+    }
+
+    public MappingOptions getOptions() {
+        return this.mappingOptions;
     }
 
     /** 根据配置 ID 查找 DynamicSql */
@@ -100,7 +105,7 @@ public class MapperRegistry {
         }
     }
 
-    protected void saveDynamicSql(String mapperSpace, String idString, DynamicSql dynamicSql, boolean overwrite) throws IOException {
+    protected void saveDynamicSql(String mapperSpace, String idString, DynamicSql dynamicSql, MappingOptions defaultOptions) throws IOException {
         Map<String, DynamicSql> sqlMap = null;
         if (StringUtils.isBlank(mapperSpace)) {
             sqlMap = this.defaultSqlMap;
@@ -111,7 +116,7 @@ public class MapperRegistry {
             sqlMap = this.spaceSqlMap.get(mapperSpace);
         }
         //
-        if (sqlMap.containsKey(idString) && !overwrite) {
+        if (sqlMap.containsKey(idString) && Boolean.FALSE.equals(defaultOptions.getOverwrite())) {
             String msg = StringUtils.isBlank(mapperSpace) ? "default namespace" : ("'" + mapperSpace + "' namespace.");
             throw new IOException("repeat '" + idString + "' in " + msg);
         } else {
@@ -138,16 +143,21 @@ public class MapperRegistry {
 
     /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
     public void loadMapper(String resource) throws IOException {
-        this.loadMapper(resource, null, false);
+        this.loadMapper(resource, null, this.mappingOptions);
+    }
+
+    /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
+    public void loadMapper(String resource, MappingOptions defaultOptions) throws IOException {
+        this.loadMapper(resource, null, defaultOptions);
     }
 
     /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
     public void loadMapper(String resource, Class<?> refRepository) throws IOException {
-        this.loadMapper(resource, refRepository, false);
+        this.loadMapper(resource, refRepository, this.mappingOptions);
     }
 
     /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
-    public void loadMapper(String resource, Class<?> refRepository, boolean overwrite) throws IOException {
+    public void loadMapper(String resource, Class<?> refRepository, MappingOptions defaultOptions) throws IOException {
         String namespace = "";
         if (refRepository != null) {
             namespace = refRepository.getName();
@@ -162,10 +172,6 @@ public class MapperRegistry {
             Document document = documentBuilder.parse(new InputSource(asStream));
             Element root = document.getDocumentElement();
             //
-            MappingOptions defaultOptions = new MappingOptions();
-            defaultOptions.setOverwrite(overwrite);
-            this.mappingRegistry.loadMapper(namespace, root, defaultOptions);
-            //
             NamedNodeMap rootAttributes = root.getAttributes();
             if (rootAttributes != null) {
                 Node namespaceNode = rootAttributes.getNamedItem("namespace");
@@ -173,6 +179,9 @@ public class MapperRegistry {
                     namespace = namespaceNode.getNodeValue();
                 }
             }
+            //
+            defaultOptions = MappingOptions.resolveOptions(root, defaultOptions == null ? this.mappingOptions : defaultOptions);
+            this.mappingRegistry.loadMapper(namespace, root, defaultOptions);
             //
             NodeList childNodes = root.getChildNodes();
             for (int i = 0, len = childNodes.getLength(); i < len; i++) {
@@ -196,7 +205,7 @@ public class MapperRegistry {
                 }
                 //
                 if (dynamicSql != null) {
-                    saveDynamicSql(namespace, idString, dynamicSql, overwrite);
+                    saveDynamicSql(namespace, idString, dynamicSql, defaultOptions);
                 }
             }
         } catch (ParserConfigurationException | SAXException e) {
@@ -209,11 +218,11 @@ public class MapperRegistry {
 
     /** 解析并载入类型 */
     public void loadMapper(Class<?> dalType) throws IOException {
-        loadMapper(dalType, false);
+        loadMapper(dalType, this.mappingOptions);
     }
 
     /** 解析并载入类型 */
-    public void loadMapper(Class<?> dalType, boolean overwrite) throws IOException {
+    public void loadMapper(Class<?> dalType, MappingOptions defaultOptions) throws IOException {
         if (!dalType.isInterface()) {
             throw new UnsupportedOperationException("the '" + dalType.getName() + "' must interface.");
         }
@@ -224,7 +233,7 @@ public class MapperRegistry {
         //
         RefMapper refMapper = dalType.getAnnotation(RefMapper.class);
         if (refMapper != null) {
-            loadMapper(refMapper.value(), dalType, overwrite);
+            loadMapper(refMapper.value(), dalType, defaultOptions);
             return;
         }
         //
@@ -238,18 +247,18 @@ public class MapperRegistry {
             //
             String idString = method.getName();
             DynamicSql dynamicSql = dynamicParser.parseSqlConfig(method);
-            this.saveDynamicSql(mapperSpace, idString, dynamicSql, overwrite);
+            this.saveDynamicSql(mapperSpace, idString, dynamicSql, defaultOptions);
         }
     }
     //---------------------------------------------------------------------------------------------------------- String
 
     /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
     public void loadXmlString(String mapperSpace, String idString, String xmlString) throws IOException {
-        this.loadXmlString(mapperSpace, idString, xmlString, false);
+        this.loadXmlString(mapperSpace, idString, xmlString, null);
     }
 
     /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
-    public void loadXmlString(String mapperSpace, String idString, String xmlString, boolean overwrite) throws IOException {
+    public void loadXmlString(String mapperSpace, String idString, String xmlString, MappingOptions defaultOptions) throws IOException {
         if (StringUtils.isBlank(xmlString)) {
             return;
         }
@@ -263,7 +272,7 @@ public class MapperRegistry {
         try {
             DynamicSql dynamicSql = this.getXmlRepositoryParser().parseDynamicSql(xmlString);
             if (dynamicSql != null) {
-                saveDynamicSql(mapperSpace, idString, dynamicSql, overwrite);
+                saveDynamicSql(mapperSpace, idString, dynamicSql, defaultOptions);
             }
         } catch (ParserConfigurationException | SAXException e) {
             throw ExceptionUtils.toRuntime(e);

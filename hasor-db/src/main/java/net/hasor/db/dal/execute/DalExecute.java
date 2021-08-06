@@ -19,6 +19,7 @@ import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.repository.config.*;
 import net.hasor.db.jdbc.core.JdbcTemplate;
+import net.hasor.db.page.Page;
 import net.hasor.utils.StringUtils;
 
 import javax.sql.DataSource;
@@ -31,22 +32,22 @@ import java.sql.SQLException;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class DalExecute {
-    public static Object execute(Connection connection, DynamicSql dynamicSql, BuilderContext builderContext) throws SQLException {
+    public Object execute(Connection connection, DynamicSql dynamicSql, BuilderContext builderContext, Page page) throws SQLException {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(connection);
-        return execute(jdbcTemplate, dynamicSql, builderContext);
+        return execute(jdbcTemplate, dynamicSql, builderContext, page);
     }
 
-    public static Object execute(DataSource dataSource, DynamicSql dynamicSql, BuilderContext builderContext) throws SQLException {
+    public Object execute(DataSource dataSource, DynamicSql dynamicSql, BuilderContext builderContext, Page page) throws SQLException {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        return execute(jdbcTemplate, dynamicSql, builderContext);
+        return execute(jdbcTemplate, dynamicSql, builderContext, page);
     }
 
-    public static Object execute(JdbcTemplate jdbcTemplate, DynamicSql dynamicSql, BuilderContext builderContext) throws SQLException {
+    public Object execute(JdbcTemplate jdbcTemplate, DynamicSql dynamicSql, BuilderContext builderContext, Page page) throws SQLException {
         QuerySqlBuilder queryBuilder = dynamicSql.buildQuery(builderContext);
         ExecuteInfo executeInfo = new ExecuteInfo();
         StatementType statementType = StatementType.Prepared;
         //
-        executeInfo.sqlString = queryBuilder.getSqlString();
+        executeInfo.pageInfo = page;
         executeInfo.timeout = -1;
         executeInfo.parameterType = null;
         executeInfo.resultMap = "";

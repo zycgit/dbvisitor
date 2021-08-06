@@ -89,11 +89,11 @@ public class ParameterSqlBuildRule implements SqlBuildRule {
 
     @Override
     public void executeRule(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) throws SQLException {
-        Object argValue = OgnlUtils.evalOgnl(ruleValue, builderContext.getContext());
         SqlMode sqlMode = convertSqlMode((config != null) ? config.get(CFG_KEY_MODE) : null);
         JDBCType jdbcType = convertJdbcType((config != null) ? config.get(CFG_KEY_JDBC_TYPE) : null);
         Class<?> javaType = convertJavaType(builderContext, (config != null) ? config.get(CFG_KEY_JAVA_TYPE) : null);
         TypeHandler<?> typeHandler = convertTypeHandler(builderContext, (config != null) ? config.get(CFG_KEY_HANDLER) : null);
+        Object argValue = sqlMode == SqlMode.Out ? null : OgnlUtils.evalOgnl(ruleValue, builderContext.getContext());
         //
         if (sqlMode == null) {
             sqlMode = SqlMode.In;
@@ -119,7 +119,7 @@ public class ParameterSqlBuildRule implements SqlBuildRule {
         if (argValue == null && jdbcType == null && javaType == null) {
             jdbcType = JDBCType.VARCHAR;// fix all parameters unknown.
         }
-        querySqlBuilder.appendSql("?", new SqlArg(argValue, sqlMode, jdbcType, javaType, typeHandler));
+        querySqlBuilder.appendSql("?", new SqlArg(ruleValue, argValue, sqlMode, jdbcType, javaType, typeHandler));
     }
 
     @Override

@@ -19,13 +19,13 @@ import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.lambda.LambdaOperations.LambdaQuery;
 import net.hasor.db.lambda.QueryExecute;
-import net.hasor.db.lambda.page.Page;
 import net.hasor.db.lambda.segment.MergeSqlSegment;
 import net.hasor.db.lambda.segment.OrderByKeyword;
 import net.hasor.db.lambda.segment.Segment;
 import net.hasor.db.mapping.TableMapping;
 import net.hasor.db.metadata.ColumnDef;
 import net.hasor.db.metadata.TableDef;
+import net.hasor.db.page.Page;
 import net.hasor.utils.reflect.SFunction;
 
 import java.util.*;

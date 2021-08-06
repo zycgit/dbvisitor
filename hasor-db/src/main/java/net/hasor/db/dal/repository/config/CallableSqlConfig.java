@@ -25,10 +25,12 @@ import org.w3c.dom.Node;
 public class CallableSqlConfig extends QuerySqlConfig {
     public CallableSqlConfig(DynamicSql target) {
         super(target);
+        this.setStatementType(StatementType.Callable);
     }
 
     public CallableSqlConfig(DynamicSql target, Node operationNode) {
         super(target, operationNode);
+        this.setStatementType(StatementType.Callable);
     }
 
     @Override

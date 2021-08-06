@@ -52,7 +52,7 @@ public class OracleColumnTest extends AbstractMetadataServiceSupplierTest<Oracle
 
     @Test
     public void getColumns_1() throws SQLException {
-        List<OracleColumn> columnList = this.repository.getColumns("TESTER", "ORACLE_COLUMN_NULL");
+        List<OracleColumn> columnList = this.repository.getColumns("SCOTT", "ORACLE_COLUMN_NULL");
         Map<String, OracleColumn> columnMap = columnList.stream().collect(Collectors.toMap(OracleColumn::getName, c -> c));
         //
         assert columnMap.containsKey("C_1");

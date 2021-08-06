@@ -50,7 +50,8 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
 
     protected Object executeQuery(Connection con, QuerySqlBuilder queryBuilder) throws SQLException {
         ExecuteInfo executeInfo = getExecuteInfo();
-        try (PreparedStatement ps = createPreparedStatement(con, executeInfo.sqlString, executeInfo.resultSetType)) {
+        String sqlString = queryBuilder.getSqlString();
+        try (PreparedStatement ps = createPreparedStatement(con, sqlString, executeInfo.resultSetType)) {
             return executeQuery(ps, queryBuilder);
         }
     }
