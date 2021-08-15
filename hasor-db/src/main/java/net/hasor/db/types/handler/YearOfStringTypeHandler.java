@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.types.handler;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 
 import java.sql.*;
 import java.time.Year;

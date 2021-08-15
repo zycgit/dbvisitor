@@ -18,9 +18,9 @@ import net.hasor.db.dialect.ConditionSqlDialect;
 import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.metadata.ColumnDef;
 import net.hasor.db.metadata.TableDef;
-import net.hasor.utils.ResourcesUtils;
-import net.hasor.utils.StringUtils;
-import net.hasor.utils.io.IOUtils;
+import net.hasor.cobble.ResourcesUtils;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

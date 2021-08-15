@@ -24,7 +24,7 @@ import net.hasor.db.jdbc.extractor.MultipleResultSetExtractor;
 import net.hasor.db.jdbc.mapper.ColumnMapRowMapper;
 import net.hasor.db.jdbc.mapper.MappingRowMapper;
 import net.hasor.db.mapping.reader.TableReader;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;

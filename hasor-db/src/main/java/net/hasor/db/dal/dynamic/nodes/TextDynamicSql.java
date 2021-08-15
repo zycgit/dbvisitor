@@ -18,7 +18,7 @@ import net.hasor.db.dal.dynamic.BuilderContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.dynamic.segment.SqlSegmentParser;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 
 import java.sql.SQLException;
 

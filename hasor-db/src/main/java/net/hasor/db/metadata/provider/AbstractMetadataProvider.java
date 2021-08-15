@@ -15,10 +15,10 @@
  */
 package net.hasor.db.metadata.provider;
 import net.hasor.db.metadata.CaseSensitivityType;
-import net.hasor.utils.StringUtils;
-import net.hasor.utils.convert.ConverterUtils;
-import net.hasor.utils.function.EFunction;
-import net.hasor.utils.function.ESupplier;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.convert.ConverterUtils;
+import net.hasor.cobble.function.EFunction;
+import net.hasor.cobble.function.ESupplier;
 
 import javax.sql.DataSource;
 import java.io.Closeable;

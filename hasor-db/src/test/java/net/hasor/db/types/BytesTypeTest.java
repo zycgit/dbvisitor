@@ -21,8 +21,8 @@ import net.hasor.db.types.handler.BytesForWrapTypeHandler;
 import net.hasor.db.types.handler.BytesInputStreamTypeHandler;
 import net.hasor.db.types.handler.BytesTypeHandler;
 import net.hasor.test.db.utils.DsUtils;
-import net.hasor.utils.CommonCodeUtils;
-import net.hasor.utils.io.IOUtils;
+import net.hasor.cobble.CommonCodeUtils;
+import net.hasor.cobble.io.IOUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;

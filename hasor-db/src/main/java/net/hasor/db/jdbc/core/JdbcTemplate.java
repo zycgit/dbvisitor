@@ -24,10 +24,10 @@ import net.hasor.db.jdbc.paramer.MapSqlParameterSource;
 import net.hasor.db.mapping.MappingRegistry;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
-import net.hasor.utils.ResourcesUtils;
-import net.hasor.utils.StringUtils;
-import net.hasor.utils.io.IOUtils;
-import net.hasor.utils.ref.LinkedCaseInsensitiveMap;
+import net.hasor.cobble.ResourcesUtils;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.io.IOUtils;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

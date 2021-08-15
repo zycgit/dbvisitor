@@ -18,7 +18,7 @@ import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.metadata.*;
 import net.hasor.db.metadata.domain.mysql.*;
 import net.hasor.db.metadata.domain.mysql.driver.MysqlType;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

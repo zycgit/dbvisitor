@@ -16,8 +16,8 @@
 package net.hasor.db.dal.dynamic.nodes;
 import net.hasor.db.dal.dynamic.BuilderContext;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
-import net.hasor.utils.ArrayUtils;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.ArrayUtils;
+import net.hasor.cobble.StringUtils;
 
 import java.sql.SQLException;
 import java.util.Arrays;

@@ -19,7 +19,7 @@ import net.hasor.db.metadata.*;
 import net.hasor.db.metadata.domain.adb.mysql.*;
 import net.hasor.db.metadata.domain.mysql.MySqlConstraint;
 import net.hasor.db.metadata.domain.mysql.MySqlConstraintType;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

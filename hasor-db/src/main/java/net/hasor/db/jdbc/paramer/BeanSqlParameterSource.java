@@ -16,7 +16,7 @@
 package net.hasor.db.jdbc.paramer;
 import net.hasor.db.jdbc.SqlParameterSource;
 import net.hasor.db.jdbc.core.ParameterDisposer;
-import net.hasor.utils.BeanUtils;
+import net.hasor.cobble.BeanUtils;
 
 import java.util.List;
 import java.util.Objects;

@@ -20,7 +20,7 @@ import net.hasor.db.dal.dynamic.rule.RuleRegistry;
 import net.hasor.db.dal.repository.MapperRegistry;
 import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.page.Page;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

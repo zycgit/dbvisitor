@@ -24,7 +24,7 @@ import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.mapping.TableMapping;
 import net.hasor.db.mapping.reader.TableReader;
 import net.hasor.db.mapping.resolve.MappingOptions;
-import net.hasor.utils.ExceptionUtils;
+import net.hasor.cobble.ExceptionUtils;
 
 import java.sql.DatabaseMetaData;
 import java.util.Map;

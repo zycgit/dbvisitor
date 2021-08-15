@@ -18,10 +18,10 @@ import net.hasor.db.mapping.ColumnMapping;
 import net.hasor.db.mapping.TableMapping;
 import net.hasor.db.metadata.CaseSensitivityType;
 import net.hasor.db.types.TypeHandler;
-import net.hasor.utils.BeanUtils;
-import net.hasor.utils.StringUtils;
-import net.hasor.utils.convert.ConverterUtils;
-import net.hasor.utils.ref.LinkedCaseInsensitiveMap;
+import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.convert.ConverterUtils;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

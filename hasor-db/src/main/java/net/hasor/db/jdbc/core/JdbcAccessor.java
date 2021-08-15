@@ -15,7 +15,7 @@
  */
 package net.hasor.db.jdbc.core;
 import net.hasor.db.transaction.TranManager;
-import net.hasor.utils.function.EFunction;
+import net.hasor.cobble.function.EFunction;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

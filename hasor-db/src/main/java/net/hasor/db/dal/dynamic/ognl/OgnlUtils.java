@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic.ognl;
-import net.hasor.utils.ExceptionUtils;
+import net.hasor.cobble.ExceptionUtils;
 import ognl.Ognl;
 import ognl.OgnlContext;
 

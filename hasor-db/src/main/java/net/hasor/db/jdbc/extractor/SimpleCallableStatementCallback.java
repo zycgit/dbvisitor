@@ -17,8 +17,8 @@ package net.hasor.db.jdbc.extractor;
 import net.hasor.db.jdbc.*;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
-import net.hasor.utils.StringUtils;
-import net.hasor.utils.ref.LinkedCaseInsensitiveMap;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

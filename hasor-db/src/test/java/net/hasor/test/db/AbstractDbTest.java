@@ -15,10 +15,10 @@
  */
 package net.hasor.test.db;
 import net.hasor.db.jdbc.core.JdbcTemplate;
-import net.hasor.utils.BeanUtils;
-import net.hasor.utils.CharUtils;
-import net.hasor.utils.StringUtils;
-import net.hasor.utils.convert.ConverterUtils;
+import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.CharUtils;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.convert.ConverterUtils;
 
 import java.io.PrintStream;
 import java.sql.Connection;

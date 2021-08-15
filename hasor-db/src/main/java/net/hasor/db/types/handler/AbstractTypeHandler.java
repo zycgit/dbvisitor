@@ -15,7 +15,7 @@
  */
 package net.hasor.db.types.handler;
 import net.hasor.db.types.TypeHandler;
-import net.hasor.utils.reflect.TypeReference;
+import net.hasor.cobble.reflect.TypeReference;
 
 import java.sql.*;
 

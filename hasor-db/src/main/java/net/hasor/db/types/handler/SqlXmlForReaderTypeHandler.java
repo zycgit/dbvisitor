@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.types.handler;
-import net.hasor.utils.io.IOUtils;
+import net.hasor.cobble.io.IOUtils;
 
 import java.io.*;
 import java.sql.*;

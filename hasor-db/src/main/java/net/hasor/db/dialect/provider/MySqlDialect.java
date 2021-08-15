@@ -19,7 +19,7 @@ import net.hasor.db.dialect.InsertSqlDialect;
 import net.hasor.db.dialect.PageSqlDialect;
 import net.hasor.db.metadata.ColumnDef;
 import net.hasor.db.metadata.TableDef;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

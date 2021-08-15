@@ -16,7 +16,7 @@
 package net.hasor.db.dialect;
 import net.hasor.db.metadata.ColumnDef;
 import net.hasor.db.metadata.TableDef;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 
 import java.util.Collections;
 import java.util.List;

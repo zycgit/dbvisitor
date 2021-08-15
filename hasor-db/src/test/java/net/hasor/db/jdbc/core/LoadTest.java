@@ -19,7 +19,7 @@ import net.hasor.db.metadata.domain.mysql.MySqlTable;
 import net.hasor.db.metadata.provider.MySqlMetadataProvider;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.utils.DsUtils;
-import net.hasor.utils.ResourcesUtils;
+import net.hasor.cobble.ResourcesUtils;
 import org.junit.Test;
 
 import java.io.IOException;

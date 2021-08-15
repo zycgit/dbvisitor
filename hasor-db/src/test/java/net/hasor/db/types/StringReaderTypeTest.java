@@ -22,7 +22,7 @@ import net.hasor.db.types.handler.NClobReaderTypeHandler;
 import net.hasor.db.types.handler.NStringReaderTypeHandler;
 import net.hasor.db.types.handler.StringReaderTypeHandler;
 import net.hasor.test.db.utils.DsUtils;
-import net.hasor.utils.io.IOUtils;
+import net.hasor.cobble.io.IOUtils;
 import org.junit.Test;
 
 import java.io.Reader;

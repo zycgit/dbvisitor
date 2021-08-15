@@ -20,8 +20,8 @@ import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.repository.RepositoryItemParser;
 import net.hasor.db.dal.repository.config.QueryType;
 import net.hasor.db.dal.repository.config.StatementType;
-import net.hasor.utils.ExceptionUtils;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.ExceptionUtils;
+import net.hasor.cobble.StringUtils;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;

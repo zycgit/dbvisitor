@@ -16,7 +16,7 @@
 package net.hasor.db.lambda;
 import net.hasor.db.metadata.ColumnDef;
 import net.hasor.db.page.Page;
-import net.hasor.utils.reflect.SFunction;
+import net.hasor.cobble.reflect.SFunction;
 
 import java.util.Collections;
 import java.util.List;

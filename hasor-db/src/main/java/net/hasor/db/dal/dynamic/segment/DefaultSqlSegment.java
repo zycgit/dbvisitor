@@ -20,8 +20,8 @@ import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.dynamic.rule.ParameterSqlBuildRule;
 import net.hasor.db.dal.dynamic.rule.SqlBuildRule;
 import net.hasor.db.dal.dynamic.rule.TextSqlBuildRule;
-import net.hasor.utils.StringUtils;
-import net.hasor.utils.ref.LinkedCaseInsensitiveMap;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 
 import java.sql.SQLException;
 import java.util.Collections;

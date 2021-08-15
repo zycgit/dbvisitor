@@ -17,7 +17,7 @@ package net.hasor.db.jdbc.paramer;
 import net.hasor.db.jdbc.core.ParameterDisposer;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TB_User;
-import net.hasor.utils.BeanUtils;
+import net.hasor.cobble.BeanUtils;
 import org.junit.Test;
 
 import java.util.*;

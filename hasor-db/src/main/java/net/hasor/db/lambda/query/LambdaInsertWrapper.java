@@ -25,8 +25,8 @@ import net.hasor.db.mapping.ColumnMapping;
 import net.hasor.db.mapping.TableMapping;
 import net.hasor.db.metadata.ColumnDef;
 import net.hasor.db.metadata.TableDef;
-import net.hasor.utils.BeanUtils;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.StringUtils;
 
 import java.sql.SQLException;
 import java.util.*;

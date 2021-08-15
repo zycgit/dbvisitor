@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.lambda.segment;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

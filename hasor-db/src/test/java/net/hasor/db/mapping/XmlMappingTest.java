@@ -16,8 +16,8 @@
 package net.hasor.db.mapping;
 import net.hasor.db.mapping.resolve.MappingOptions;
 import net.hasor.test.db.AbstractDbTest;
-import net.hasor.utils.ResourcesUtils;
-import net.hasor.utils.io.IOUtils;
+import net.hasor.cobble.ResourcesUtils;
+import net.hasor.cobble.io.IOUtils;
 import org.junit.Test;
 
 import java.io.IOException;

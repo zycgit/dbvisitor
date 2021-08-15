@@ -2,32 +2,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.hasor</groupId>
-    <artifactId>hasor-parent</artifactId>
-    <version>4.2.6-SNAPSHOT</version>
+    <artifactId>hasordb-parent</artifactId>
+    <version>4.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <!-- 配置属性 -->
     <properties>
-        <wtpversion>2.0</wtpversion>
         <downloadSources>true</downloadSources>
         <downloadJavadocs>true</downloadJavadocs>
         <jacoco.version>0.8.5</jacoco.version>
-        <hasor.version>4.2.6</hasor.version>
-        <jacoco.version>0.8.5</jacoco.version>
         <!--<maven.test.skip>true</maven.test.skip>-->
         <!--<skipTests>true</skipTests>-->
-        <powermock.version>2.0.6</powermock.version>
-        <project.shortname>Hasor-</project.shortname>
-        <project.website>http://www.hasor.net/</project.website>
-        <project.inceptionYear>2020</project.inceptionYear>
-        <javadocs.bottom><![CDATA[  ]]></javadocs.bottom>
     </properties>
 
-    <!-- 项目信息 -->
-    <name>Root</name>
-    <description>master POM</description>
-    <url>${project.website}</url>
-    <inceptionYear>${project.inceptionYear}</inceptionYear>
+    <!-- Project Info -->
+    <name>HasorDB</name>
+    <description>the hasor DataBase project.</description>
+    <url>http://www.hasor.net/</url>
+    <inceptionYear>2021</inceptionYear>
 
     <!-- 授权协议 -->
     <licenses>
@@ -39,12 +31,12 @@
 
     <!-- SCM -->
     <scm>
-        <connection>scm:git:git@git.oschina.net:zycgit/dbvisitor.git</connection>
-        <developerConnection>scm:git:git@git.oschina.net:zycgit/dbvisitor.git</developerConnection>
-        <url>git@git.oschina.net:zycgit/dbvisitor.git</url>
+        <connection>scm:git:git@git.oschina.net:zycgit/hasordb.git</connection>
+        <developerConnection>scm:git:git@git.oschina.net:zycgit/hasordb.git</developerConnection>
+        <url>git@git.oschina.net:zycgit/hasordb.git</url>
+        <tag>Release.HasorDB-4.3.0</tag>
     </scm>
 
-    <!-- 开发者 -->
     <developers>
         <developer>
             <name>赵永春(Mr.Zhao)</name>
@@ -55,6 +47,30 @@
     <modules>
         <module>hasor-db</module>
     </modules>
+
+    <!-- 引用依赖 -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>net.hasor</groupId>
+                <artifactId>cobble-all</artifactId>
+                <version>4.3.0</version>
+            </dependency>
+            <dependency>
+                <groupId>net.hasor</groupId>
+                <artifactId>hasor-db</artifactId>
+                <version>4.3.0</version>
+            </dependency>
+
+            <!-- test -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <!-- 构建描述 -->
     <build>
@@ -92,13 +108,10 @@
                 <configuration>
                     <failOnError>false</failOnError>
                     <failOnWarnings>false</failOnWarnings>
-                    <doclint>none --allow-script-in-comments</doclint>
+                    <doclint>none</doclint>
                     <additionalJOption>--allow-script-in-comments</additionalJOption>
-                    <excludePackageNames>net.hasor.utils.*,net.hasor.libs.*</excludePackageNames>
                     <encoding>UTF-8</encoding>
                     <docencoding>UTF-8</docencoding>
-                    <header><![CDATA[ [<a target="_blank" href="http://www.hasor.net">Web Site</a>] ]]></header>
-                    <bottom>${javadocs.bottom}</bottom>
                 </configuration>
                 <executions>
                     <execution>
@@ -164,14 +177,6 @@
         </plugins>
     </build>
 
-    <!-- 发布使用的版本库 -->
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <!-- 使用“-P release”启用下面配置 -->
     <profiles>
         <profile>
@@ -216,7 +221,7 @@
                             <autoVersionSubmodules>true</autoVersionSubmodules>
                             <useReleaseProfile>false</useReleaseProfile>
                             <releaseProfiles>release</releaseProfiles>
-                            <tagNameFormat>Release.${project.shortname}@{project.version}</tagNameFormat>
+                            <tagNameFormat>Release.HasorDB-@{project.version}</tagNameFormat>
                             <goals>deploy</goals>
                         </configuration>
                     </plugin>
@@ -224,81 +229,4 @@
             </build>
         </profile>
     </profiles>
-
-    <!-- 公共依赖 -->
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <version>${powermock.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito2</artifactId>
-            <version>${powermock.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.67</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-    <!-- 需要统一管理的依赖 -->
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>net.hasor</groupId>
-                <artifactId>hasor-commons</artifactId>
-                <version>${hasor.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.hasor</groupId>
-                <artifactId>hasor-core</artifactId>
-                <version>${hasor.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>1.7.22</version>
-            </dependency>
-            <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>fastjson</artifactId>
-                <version>1.2.67</version>
-            </dependency>
-
-            <!-- dbs -->
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>1.4.200</version>
-            </dependency>
-            <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>5.1.40</version>
-            </dependency>
-            <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>druid</artifactId>
-                <version>1.1.23</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>

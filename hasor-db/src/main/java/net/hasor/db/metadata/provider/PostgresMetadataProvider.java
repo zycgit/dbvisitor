@@ -20,7 +20,7 @@ import net.hasor.db.metadata.MetaDataService;
 import net.hasor.db.metadata.TableDef;
 import net.hasor.db.metadata.domain.postgres.*;
 import net.hasor.db.metadata.domain.postgres.driver.PgServerVersion;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

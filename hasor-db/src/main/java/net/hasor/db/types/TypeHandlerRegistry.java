@@ -15,8 +15,8 @@
  */
 package net.hasor.db.types;
 import net.hasor.db.types.handler.*;
-import net.hasor.utils.ExceptionUtils;
-import net.hasor.utils.reflect.TypeReference;
+import net.hasor.cobble.ExceptionUtils;
+import net.hasor.cobble.reflect.TypeReference;
 
 import java.io.InputStream;
 import java.io.Reader;

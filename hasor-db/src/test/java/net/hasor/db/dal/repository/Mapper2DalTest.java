@@ -4,8 +4,8 @@ import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.mapping.resolve.MappingOptions;
 import net.hasor.test.db.dal.Mapper2Dal;
 import net.hasor.test.db.dal.dynamic.TextBuilderContext;
-import net.hasor.utils.ResourcesUtils;
-import net.hasor.utils.io.IOUtils;
+import net.hasor.cobble.ResourcesUtils;
+import net.hasor.cobble.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 

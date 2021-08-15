@@ -24,10 +24,10 @@ import net.hasor.db.lambda.segment.SqlLike;
 import net.hasor.db.mapping.ColumnMapping;
 import net.hasor.db.metadata.ColumnDef;
 import net.hasor.db.metadata.TableDef;
-import net.hasor.utils.ArrayUtils;
-import net.hasor.utils.StringUtils;
-import net.hasor.utils.reflect.MethodUtils;
-import net.hasor.utils.reflect.SFunction;
+import net.hasor.cobble.ArrayUtils;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.reflect.MethodUtils;
+import net.hasor.cobble.reflect.SFunction;
 
 import java.lang.reflect.Method;
 import java.util.*;

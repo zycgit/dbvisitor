@@ -16,7 +16,7 @@
 package net.hasor.db.dialect.provider;
 import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.dialect.PageSqlDialect;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

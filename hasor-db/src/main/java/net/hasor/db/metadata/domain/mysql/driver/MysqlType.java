@@ -28,7 +28,7 @@
  */
 
 package net.hasor.db.metadata.domain.mysql.driver;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

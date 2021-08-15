@@ -16,7 +16,7 @@
 package net.hasor.db.dialect.provider;
 import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.dialect.PageSqlDialect;
-import net.hasor.utils.ExceptionUtils;
+import net.hasor.cobble.ExceptionUtils;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.select.OrderByElement;

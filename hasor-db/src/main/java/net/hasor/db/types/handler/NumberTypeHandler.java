@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.db.types.handler;
-import net.hasor.utils.NumberUtils;
-import net.hasor.utils.io.IOUtils;
+import net.hasor.cobble.NumberUtils;
+import net.hasor.cobble.io.IOUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;

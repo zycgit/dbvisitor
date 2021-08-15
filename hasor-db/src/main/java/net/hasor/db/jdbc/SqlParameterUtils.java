@@ -16,7 +16,7 @@
 package net.hasor.db.jdbc;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 
 import java.sql.JDBCType;
 import java.util.Objects;

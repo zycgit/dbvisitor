@@ -20,7 +20,7 @@ import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.repository.config.*;
 import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.page.Page;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

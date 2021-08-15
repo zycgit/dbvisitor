@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.page;
-import net.hasor.utils.function.ESupplier;
+import net.hasor.cobble.function.ESupplier;
 
 import java.sql.SQLException;
 import java.util.Objects;

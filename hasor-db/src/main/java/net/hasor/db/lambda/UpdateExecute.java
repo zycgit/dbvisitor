@@ -15,8 +15,8 @@
  */
 package net.hasor.db.lambda;
 import net.hasor.db.mapping.ColumnMapping;
-import net.hasor.utils.StringUtils;
-import net.hasor.utils.reflect.SFunction;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.reflect.SFunction;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

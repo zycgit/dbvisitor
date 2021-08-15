@@ -17,8 +17,8 @@ package net.hasor.db.jdbc.mapper;
 import net.hasor.db.jdbc.RowMapper;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
-import net.hasor.utils.ResourcesUtils;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.ResourcesUtils;
+import net.hasor.cobble.StringUtils;
 
 import java.sql.JDBCType;
 import java.sql.ResultSet;

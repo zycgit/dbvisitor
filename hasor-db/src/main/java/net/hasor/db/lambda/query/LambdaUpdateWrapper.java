@@ -23,8 +23,8 @@ import net.hasor.db.mapping.ColumnMapping;
 import net.hasor.db.mapping.TableMapping;
 import net.hasor.db.mapping.reader.TableReader;
 import net.hasor.db.metadata.ColumnDef;
-import net.hasor.utils.BeanUtils;
-import net.hasor.utils.reflect.SFunction;
+import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.reflect.SFunction;
 
 import java.sql.SQLException;
 import java.util.*;

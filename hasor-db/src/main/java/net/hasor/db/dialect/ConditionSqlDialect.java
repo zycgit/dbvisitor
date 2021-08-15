@@ -15,7 +15,7 @@
  */
 package net.hasor.db.dialect;
 import net.hasor.db.lambda.segment.SqlLike;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 
 /**
  * SQL 条件方言

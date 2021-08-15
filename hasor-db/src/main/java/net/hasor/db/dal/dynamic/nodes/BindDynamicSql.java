@@ -18,7 +18,7 @@ import net.hasor.db.dal.dynamic.BuilderContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.dynamic.ognl.OgnlUtils;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

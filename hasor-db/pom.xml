@@ -1,41 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>net.hasor</groupId>
+    <parent>
+        <groupId>net.hasor</groupId>
+        <artifactId>hasordb-parent</artifactId>
+        <version>4.3.0-SNAPSHOT</version>
+    </parent>
+
     <artifactId>hasor-db</artifactId>
-    <version>4.2.6-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <!-- 配置属性 -->
-    <properties>
-        <downloadSources>true</downloadSources>
-        <downloadJavadocs>true</downloadJavadocs>
-        <jacoco.version>0.8.5</jacoco.version>
-        <!--<maven.test.skip>true</maven.test.skip>-->
-        <!--<skipTests>true</skipTests>-->
-    </properties>
-
     <!-- Project Info -->
-    <name>HasorDB</name>
-    <description>the hasor DataBase project.</description>
-    <url>http://www.hasor.net/</url>
-    <inceptionYear>2021</inceptionYear>
-
-    <!-- 授权协议 -->
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
-
-    <!-- SCM -->
-    <scm>
-        <connection>scm:git:git@git.oschina.net:zycgit/hasor.git</connection>
-        <developerConnection>scm:git:git@git.oschina.net:zycgit/hasor.git</developerConnection>
-        <url>git@git.oschina.net:zycgit/hasor.git</url>
-        <tag>HEAD</tag>
-    </scm>
+    <name>HasorDB-Core</name>
 
     <developers>
         <developer>
@@ -48,15 +24,7 @@
     <dependencies>
         <dependency>
             <groupId>net.hasor</groupId>
-            <artifactId>hasor-commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.hasor</groupId>
-            <artifactId>hasor-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <artifactId>cobble-all</artifactId>
         </dependency>
 
         <!-- shade -->
@@ -67,21 +35,8 @@
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>com.github.jsqlparser</groupId>
-            <artifactId>jsqlparser</artifactId>
-            <version>3.1</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
 
         <!-- test -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
@@ -106,17 +61,17 @@
             <version>1.2.67</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.1.23</version>
+            <scope>test</scope>
+        </dependency>
 
         <!-- driver -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.1.23</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
             <version>1.4.200</version>
             <scope>test</scope>
         </dependency>
@@ -151,14 +106,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-            <version>1.1.9</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- driver -->
-        <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc8</artifactId>
             <version>19.3.0.0</version>
@@ -169,106 +116,6 @@
     <!-- 构建描述 -->
     <build>
         <plugins>
-            <!-- Compile -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <encoding>UTF8</encoding>
-                </configuration>
-            </plugin>
-            <!-- Source -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- Javadoc -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.1.1</version>
-                <configuration>
-                    <failOnError>false</failOnError>
-                    <failOnWarnings>false</failOnWarnings>
-                    <doclint>none</doclint>
-                    <additionalJOption>--allow-script-in-comments</additionalJOption>
-                    <encoding>UTF-8</encoding>
-                    <docencoding>UTF-8</docencoding>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- resources -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
-            <!-- eclipse 插件 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-eclipse-plugin</artifactId>
-                <version>2.10</version>
-                <configuration>
-                    <workspace>${basedir}</workspace>
-                    <downloadSources>${downloadSources}</downloadSources>
-                    <downloadJavadocs>${downloadJavadocs}</downloadJavadocs>
-                </configuration>
-            </plugin>
-            <!-- Test 失败继续 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.7</version>
-                <configuration>
-                    <testFailureIgnore>true</testFailureIgnore>
-                </configuration>
-            </plugin>
-            <!-- 覆盖率 -->
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <outputDirectory>${project.basedir}/target/jacoco-ut</outputDirectory>
-                </configuration>
-            </plugin>
-            <!-- 把 jsqlparser 的源码和 class 集成到 hasor-db 项目中(为了解决 MSSQL 中分页查询语句改写处理 top 的问题) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -287,7 +134,6 @@
                                 <includes>
                                     <include>ognl:ognl</include>
                                     <include>org.javassist:javassist</include>
-                                    <include>com.github.jsqlparser:jsqlparser</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
@@ -299,10 +145,6 @@
                                     <pattern>javassist</pattern>
                                     <shadedPattern>net.hasor.db.jars.javassist</shadedPattern>
                                 </relocation>
-                                <relocation>
-                                    <pattern>net.sf.jsqlparser</pattern>
-                                    <shadedPattern>net.hasor.db.jars.jsqlparser</shadedPattern>
-                                </relocation>
                             </relocations>
                             <filters>
                                 <filter>
@@ -310,7 +152,6 @@
                                     <excludes>
                                         <exclude>META-INF/maven/ognl/**</exclude>
                                         <exclude>META-INF/maven/org.javassist/**</exclude>
-                                        <exclude>META-INF/maven/com.github.jsqlparser/**</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
@@ -320,57 +161,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <!-- 使用“-P release”启用下面配置 -->
-    <profiles>
-        <profile>
-            <id>release</id>
-            <properties>
-                <gpg.executable>gpg2</gpg.executable>
-                <gpg.passphrase>fubing220106</gpg.passphrase>
-            </properties>
-            <build>
-                <plugins>
-                    <!-- GPG -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.7</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-release-plugin</artifactId>
-                        <version>2.5.3</version>
-                        <configuration>
-                            <autoVersionSubmodules>true</autoVersionSubmodules>
-                            <useReleaseProfile>false</useReleaseProfile>
-                            <releaseProfiles>release</releaseProfiles>
-                            <tagNameFormat>Release.HasorDB-@{project.version}</tagNameFormat>
-                            <goals>deploy</goals>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

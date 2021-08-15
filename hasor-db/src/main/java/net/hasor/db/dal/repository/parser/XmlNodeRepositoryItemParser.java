@@ -18,7 +18,7 @@ import net.hasor.db.dal.dynamic.DynamicParser;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.repository.RepositoryItemParser;
 import net.hasor.db.dal.repository.config.*;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.StringUtils;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 

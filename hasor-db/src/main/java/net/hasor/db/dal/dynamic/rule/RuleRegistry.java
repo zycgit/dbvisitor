@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic.rule;
-import net.hasor.utils.ref.LinkedCaseInsensitiveMap;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 
 import java.util.Map;
 

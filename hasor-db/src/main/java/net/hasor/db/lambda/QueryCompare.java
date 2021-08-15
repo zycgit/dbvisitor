@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.lambda;
-import net.hasor.utils.reflect.SFunction;
+import net.hasor.cobble.reflect.SFunction;
 
 import java.util.Collection;
 import java.util.function.Consumer;

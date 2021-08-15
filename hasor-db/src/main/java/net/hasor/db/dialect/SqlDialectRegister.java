@@ -16,10 +16,10 @@
 package net.hasor.db.dialect;
 import net.hasor.db.JdbcUtils;
 import net.hasor.db.dialect.provider.*;
-import net.hasor.utils.ResourcesUtils;
-import net.hasor.utils.StringUtils;
-import net.hasor.utils.ref.LinkedCaseInsensitiveMap;
-import net.hasor.utils.supplier.TypeSupplier;
+import net.hasor.cobble.ResourcesUtils;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
+import net.hasor.cobble.supplier.TypeSupplier;
 
 import java.util.Map;
 

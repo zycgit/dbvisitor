@@ -24,9 +24,9 @@ import net.hasor.db.metadata.domain.jdbc.JdbcTableType;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
 import net.hasor.db.types.UnknownTypeHandler;
-import net.hasor.utils.BeanUtils;
-import net.hasor.utils.ExceptionUtils;
-import net.hasor.utils.StringUtils;
+import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.ExceptionUtils;
+import net.hasor.cobble.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

@@ -26,7 +26,7 @@ import net.hasor.db.mapping.TableMapping;
 import net.hasor.db.metadata.ColumnDef;
 import net.hasor.db.metadata.TableDef;
 import net.hasor.db.page.Page;
-import net.hasor.utils.reflect.SFunction;
+import net.hasor.cobble.reflect.SFunction;
 
 import java.util.*;
 import java.util.function.Function;
