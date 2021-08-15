@@ -15,7 +15,6 @@
  */
 package net.hasor.db.metadata;
 import net.hasor.db.jdbc.core.JdbcTemplate;
-import net.hasor.db.metadata.provider.AbstractMetadataProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -30,7 +29,7 @@ import java.sql.SQLException;
  * @version : 2021-3-22
  * @author 赵永春 (zyc@hasor.net)
  */
-public abstract class AbstractMetadataServiceSupplierTest<T extends AbstractMetadataProvider> {
+public abstract class AbstractMetadataServiceSupplierTest<T> {
     private static final Logger     logger = LoggerFactory.getLogger(AbstractMetadataServiceSupplierTest.class);
     protected            Connection connection;
     protected            T          repository;

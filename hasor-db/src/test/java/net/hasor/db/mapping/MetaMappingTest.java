@@ -17,8 +17,8 @@ package net.hasor.db.mapping;
 import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.mapping.resolve.MappingOptions;
 import net.hasor.db.metadata.AbstractMetadataServiceSupplierTest;
-import net.hasor.db.metadata.domain.mysql.MySqlSchema;
-import net.hasor.db.metadata.provider.MySqlMetadataProvider;
+import net.hasor.db.metadata.JdbcMetadataProvider;
+import net.hasor.db.metadata.domain.JdbcSchema;
 import net.hasor.test.db.dto.T1;
 import net.hasor.test.db.utils.DsUtils;
 import org.junit.Test;
@@ -37,19 +37,19 @@ import static net.hasor.test.db.utils.DsUtils.MYSQL_SCHEMA_NAME;
  * @version : 2014-1-13
  * @author 赵永春 (zyc@hasor.net)
  */
-public class MetaMappingTest extends AbstractMetadataServiceSupplierTest<MySqlMetadataProvider> {
+public class MetaMappingTest extends AbstractMetadataServiceSupplierTest<JdbcMetadataProvider> {
     @Override
     protected Connection initConnection() throws SQLException {
         return DsUtils.localMySQL();
     }
 
     @Override
-    protected MySqlMetadataProvider initRepository(Connection con) {
-        return new MySqlMetadataProvider(con);
+    protected JdbcMetadataProvider initRepository(Connection con) {
+        return new JdbcMetadataProvider(con);
     }
 
     @Override
-    protected void beforeTest(JdbcTemplate jdbcTemplate, MySqlMetadataProvider repository) throws SQLException, IOException {
+    protected void beforeTest(JdbcTemplate jdbcTemplate, JdbcMetadataProvider repository) throws SQLException, IOException {
         applySql("drop table tb_user");
         applySql("drop table proc_table_ref");
         applySql("drop table proc_table");
@@ -61,8 +61,8 @@ public class MetaMappingTest extends AbstractMetadataServiceSupplierTest<MySqlMe
 
     @Test
     public void getSchemasTest() throws SQLException {
-        List<MySqlSchema> schemas = this.repository.getSchemas();
-        List<String> collect = schemas.stream().map(MySqlSchema::getName).collect(Collectors.toList());
+        List<JdbcSchema> schemas = this.repository.getSchemas();
+        List<String> collect = schemas.stream().map(JdbcSchema::getSchema).collect(Collectors.toList());
         assert collect.contains("information_schema");
         assert collect.contains("mysql");
         assert collect.contains(MYSQL_SCHEMA_NAME);

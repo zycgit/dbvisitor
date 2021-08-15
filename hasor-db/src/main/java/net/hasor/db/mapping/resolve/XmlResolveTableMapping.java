@@ -21,7 +21,7 @@ import net.hasor.db.mapping.TableMappingDef;
 import net.hasor.db.metadata.CaseSensitivityType;
 import net.hasor.db.metadata.ColumnDef;
 import net.hasor.db.metadata.MetaDataService;
-import net.hasor.db.metadata.domain.SimpleColumnDef;
+import net.hasor.db.metadata.SimpleColumnDef;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
 import net.hasor.cobble.BeanUtils;

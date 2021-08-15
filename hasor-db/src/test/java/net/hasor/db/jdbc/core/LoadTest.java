@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.db.jdbc.core;
+import net.hasor.cobble.ResourcesUtils;
 import net.hasor.db.jdbc.ConnectionCallback;
-import net.hasor.db.metadata.domain.mysql.MySqlTable;
-import net.hasor.db.metadata.provider.MySqlMetadataProvider;
+import net.hasor.db.metadata.JdbcMetadataProvider;
+import net.hasor.db.metadata.domain.JdbcTable;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.utils.DsUtils;
-import net.hasor.cobble.ResourcesUtils;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -39,7 +39,7 @@ import static net.hasor.test.db.utils.DsUtils.MYSQL_SCHEMA_NAME;
 public class LoadTest extends AbstractDbTest {
     private boolean hasTable(JdbcTemplate jdbcTemplate) throws SQLException {
         return jdbcTemplate.execute((ConnectionCallback<Boolean>) con -> {
-            MySqlTable tables = new MySqlMetadataProvider(con).getTable(MYSQL_SCHEMA_NAME, "tb_user");
+            JdbcTable tables = new JdbcMetadataProvider(con).getTable(null, MYSQL_SCHEMA_NAME, "tb_user");
             return tables != null;
         });
     }

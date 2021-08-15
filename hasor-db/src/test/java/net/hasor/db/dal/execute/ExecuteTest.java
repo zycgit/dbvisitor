@@ -4,7 +4,7 @@ import net.hasor.db.dal.repository.MapperRegistry;
 import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.mapping.resolve.MappingOptions;
 import net.hasor.db.metadata.AbstractMetadataServiceSupplierTest;
-import net.hasor.db.metadata.provider.JdbcMetadataProvider;
+import net.hasor.db.metadata.JdbcMetadataProvider;
 import net.hasor.test.db.dto.TbUser2;
 import net.hasor.test.db.utils.DsUtils;
 import org.junit.Test;

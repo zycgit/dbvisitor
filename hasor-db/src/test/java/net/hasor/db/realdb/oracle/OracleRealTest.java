@@ -1,6 +1,6 @@
 package net.hasor.db.realdb.oracle;
 import net.hasor.db.jdbc.core.JdbcTemplate;
-import net.hasor.db.metadata.provider.JdbcMetadataProvider;
+import net.hasor.db.metadata.JdbcMetadataProvider;
 import net.hasor.test.db.utils.DsUtils;
 import org.junit.Test;
 
