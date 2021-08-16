@@ -37,4 +37,8 @@ public class CallableSqlConfig extends QuerySqlConfig {
     public QueryType getDynamicType() {
         return QueryType.Callable;
     }
+
+    protected MultipleResultsType defaultMultipleResultsType() {
+        return MultipleResultsType.ALL;
+    }
 }

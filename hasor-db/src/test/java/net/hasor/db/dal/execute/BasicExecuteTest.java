@@ -16,8 +16,9 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class ExecuteTest extends AbstractMetadataServiceSupplierTest<JdbcMetadataProvider> {
+public class BasicExecuteTest extends AbstractMetadataServiceSupplierTest<JdbcMetadataProvider> {
     @Override
     protected Connection initConnection() throws SQLException {
         return DsUtils.localMySQL();
@@ -46,7 +47,7 @@ public class ExecuteTest extends AbstractMetadataServiceSupplierTest<JdbcMetadat
 
     @Test
     public void listUserList_1() throws IOException, SQLException {
-        MapperRegistry.DEFAULT.loadMapper("/net_hasor_db/dal_dynamic/execute/execute.xml", MappingOptions.buildOverwrite());
+        MapperRegistry.DEFAULT.loadMapper("/net_hasor_db/dal_dynamic/execute/basic_execute.xml", MappingOptions.buildOverwrite());
         MapperDalExecute dalExecute = new MapperDalExecute("net.hasor.test.db.dal.execute.TestExecuteDal", MapperRegistry.DEFAULT, RuleRegistry.DEFAULT);
         //
         Object execute1 = dalExecute.execute(connection, "initUser", new HashMap<>());
@@ -76,7 +77,7 @@ public class ExecuteTest extends AbstractMetadataServiceSupplierTest<JdbcMetadat
 
     @Test
     public void listUserList_2() throws IOException, SQLException {
-        MapperRegistry.DEFAULT.loadMapper("/net_hasor_db/dal_dynamic/execute/execute.xml", MappingOptions.buildOverwrite());
+        MapperRegistry.DEFAULT.loadMapper("/net_hasor_db/dal_dynamic/execute/basic_execute.xml", MappingOptions.buildOverwrite());
         MapperDalExecute dalExecute = new MapperDalExecute("net.hasor.test.db.dal.execute.TestExecuteDal", MapperRegistry.DEFAULT, RuleRegistry.DEFAULT);
         //
         Object execute1 = dalExecute.execute(connection, "initUser", new HashMap<>());
@@ -106,10 +107,13 @@ public class ExecuteTest extends AbstractMetadataServiceSupplierTest<JdbcMetadat
 
     @Test
     public void procedure_1() throws SQLException, IOException {
-        MapperRegistry.DEFAULT.loadMapper("/net_hasor_db/dal_dynamic/execute/execute.xml", MappingOptions.buildOverwrite());
+        MapperRegistry.DEFAULT.loadMapper("/net_hasor_db/dal_dynamic/execute/basic_execute.xml", MappingOptions.buildOverwrite());
         MapperDalExecute dalExecute = new MapperDalExecute("net.hasor.test.db.dal.execute.TestExecuteDal", MapperRegistry.DEFAULT, RuleRegistry.DEFAULT);
         //
-        Object execute1 = dalExecute.execute(connection, "callSelectUser", new HashMap<>());
+        Object execute1 = dalExecute.execute(connection, "initUser", new HashMap<>());
+        Object execute2 = dalExecute.execute(connection, "callSelectUser", new HashMap<>());
         assert execute1.equals(2);
+        assert execute2 instanceof Map;
+        assert ((Map<?, ?>) execute2).get("abc").equals("123.123");
     }
 }

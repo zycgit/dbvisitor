@@ -608,7 +608,6 @@ public class JdbcMetadataProvider implements MetaDataService {
             jdbcType = JDBCType.valueOf(safeToInteger(rs.get("DATA_TYPE")));
         } catch (Exception e) { /**/ }
         jdbcColumn.setJdbcType(jdbcType);
-        jdbcColumn.setSqlType(JdbcSqlTypes.valueOfCode(jdbcColumn.getJdbcNumber()));
         //
         jdbcColumn.setColumnSize(safeToInteger(rs.get("COLUMN_SIZE")));
         jdbcColumn.setComment(safeToString(rs.get("REMARKS")));

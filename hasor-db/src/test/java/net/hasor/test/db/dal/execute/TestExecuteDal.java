@@ -27,7 +27,7 @@ import java.util.Map;
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-@RefMapper("/net_hasor_db/dal_dynamic/execute/execute.xml")
+@RefMapper("/net_hasor_db/dal_dynamic/execute/basic_execute.xml")
 public interface TestExecuteDal {
     public int createUser(TbUser2 tbUser);
 

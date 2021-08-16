@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.db.metadata;
+import net.hasor.db.metadata.domain.JdbcTableType;
+
 /**
  * 查询的表
  * @version : 2020-10-31
@@ -30,5 +32,5 @@ public interface TableDef {
     public String getTable();
 
     /** 表类型 */
-    public TableType getTableType();
+    public JdbcTableType getTableType();
 }

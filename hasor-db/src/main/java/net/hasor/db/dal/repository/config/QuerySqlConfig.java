@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.repository.config;
-import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.cobble.StringUtils;
+import net.hasor.db.dal.dynamic.DynamicSql;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -53,7 +53,11 @@ public class QuerySqlConfig extends DmlSqlConfig {
         this.resultType = resultType;
         this.fetchSize = StringUtils.isBlank(fetchSize) ? 256 : Integer.parseInt(fetchSize);
         this.resultSetType = ResultSetType.valueOfCode(resultSetType, ResultSetType.DEFAULT);
-        this.multipleResultType = MultipleResultsType.valueOfCode(multipleResult, MultipleResultsType.LAST);
+        this.multipleResultType = MultipleResultsType.valueOfCode(multipleResult, defaultMultipleResultsType());
+    }
+
+    protected MultipleResultsType defaultMultipleResultsType() {
+        return MultipleResultsType.LAST;
     }
 
     @Override

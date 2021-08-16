@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 package net.hasor.db.metadata;
+import net.hasor.db.metadata.domain.JdbcTableType;
+
 /**
  * TableDef 实现
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
 public class SimpleTableDef implements TableDef {
-    private String    catalog;
-    private String    schema;
-    private String    table;
-    private TableType tableType;
+    private String        catalog;
+    private String        schema;
+    private String        table;
+    private JdbcTableType tableType;
 
     @Override
     public String getCatalog() {
@@ -53,11 +55,11 @@ public class SimpleTableDef implements TableDef {
     }
 
     @Override
-    public TableType getTableType() {
+    public JdbcTableType getTableType() {
         return this.tableType;
     }
 
-    public void setTableType(TableType tableType) {
+    public void setTableType(JdbcTableType tableType) {
         this.tableType = tableType;
     }
 }

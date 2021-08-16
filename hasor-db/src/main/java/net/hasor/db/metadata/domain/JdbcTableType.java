@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.db.metadata.domain;
-import net.hasor.db.metadata.TableType;
-
 /**
  * Jdbc Table Type
  * @version : 2020-04-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public enum JdbcTableType implements TableType {
+public enum JdbcTableType {
     Table("TABLE"),
     SystemTable("SYSTEM TABLE"),
     View("VIEW"),

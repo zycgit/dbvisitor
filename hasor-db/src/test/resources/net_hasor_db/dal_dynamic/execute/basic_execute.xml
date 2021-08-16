@@ -53,7 +53,6 @@
     </select>
 
     <callable id="callSelectUser">
-        {call proc_select_user(#{p_out, mode=out})}
+        {call proc_select_user(#{abc, mode=out})}
     </callable>
-
 </mapper>

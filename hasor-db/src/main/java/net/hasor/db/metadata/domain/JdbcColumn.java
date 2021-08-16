@@ -29,7 +29,6 @@ public class JdbcColumn implements ColumnDef {
     private String           tableName;
     private String           columnName;
     private String           columnType;
-    private JdbcSqlTypes     sqlType;
     private JDBCType         jdbcType;
     private Integer          jdbcNumber;
     private JdbcNullableType nullableType;
@@ -122,14 +121,6 @@ public class JdbcColumn implements ColumnDef {
 
     public void setGeneratedColumn(Boolean generatedColumn) {
         this.generatedColumn = generatedColumn;
-    }
-
-    public JdbcSqlTypes getSqlType() {
-        return this.sqlType;
-    }
-
-    public void setSqlType(JdbcSqlTypes sqlType) {
-        this.sqlType = sqlType;
     }
 
     @Override

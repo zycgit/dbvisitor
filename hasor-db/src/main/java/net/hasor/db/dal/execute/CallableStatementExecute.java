@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.execute;
+import net.hasor.cobble.StringUtils;
 import net.hasor.db.dal.dynamic.BuilderContext;
 import net.hasor.db.dal.dynamic.DalBoundSql.SqlArg;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
@@ -28,10 +29,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 负责存储过程调用的执行器
@@ -99,11 +97,38 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
         if (result.isEmpty()) {
             return null;
         }
+        //
+        Map<String, Object> resultMap = new LinkedHashMap<>();
+        result.forEach((key, value) -> {
+            if (paramMap.containsKey(key)) {
+                SqlArg sqlArg = paramMap.get(key);
+                String argExpr = sqlArg.getExpr();
+                if (StringUtils.isBlank(argExpr)) {
+                    int argIndex = sqlArgList.indexOf(sqlArg);
+                    throw new IllegalArgumentException("parameter[index = " + argIndex + "] container name not set.");
+                }
+                resultMap.put(argExpr, value);
+            } else {
+                resultMap.put(key, value);
+            }
+        });
         //executeInfo.resultMap
-        if (multipleType == MultipleProcessType.FIRST || multipleType == MultipleProcessType.LAST) {
-            return result.entrySet().iterator().next().getValue();
+        if (multipleType == MultipleProcessType.FIRST) {
+            if (sqlArgList.isEmpty()) {
+                return result.entrySet().iterator().next().getValue();
+            } else {
+                String expr = sqlArgList.get(0).getExpr();
+                return resultMap.get(expr);
+            }
+        } else if (multipleType == MultipleProcessType.LAST) {
+            if (sqlArgList.isEmpty()) {
+                return result.entrySet().iterator().next().getValue();
+            } else {
+                String expr = sqlArgList.get(sqlArgList.size() - 1).getExpr();
+                return resultMap.get(expr);
+            }
         } else {
-            return result;
+            return resultMap;
         }
     }
 }
