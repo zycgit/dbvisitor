@@ -34,7 +34,6 @@
         <connection>scm:git:git@git.oschina.net:zycgit/hasordb.git</connection>
         <developerConnection>scm:git:git@git.oschina.net:zycgit/hasordb.git</developerConnection>
         <url>git@git.oschina.net:zycgit/hasordb.git</url>
-        <tag>Release.HasorDB-4.3.0</tag>
     </scm>
 
     <developers>

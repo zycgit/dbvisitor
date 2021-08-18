@@ -15,6 +15,7 @@
  */
 package net.hasor.db.metadata;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.convert.ConverterUtils;
 import net.hasor.cobble.function.EFunction;
 import net.hasor.cobble.function.ESupplier;
 import net.hasor.db.jdbc.extractor.ColumnMapResultSetExtractor;
@@ -33,8 +34,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static net.hasor.cobble.BeanUtils.*;
 
 /**
  * 基于 JDBC 接口的元信息获取
@@ -737,5 +736,27 @@ public class JdbcMetadataProvider implements MetaDataService {
                 throw ex.getTargetException();
             }
         }
+    }
+
+    public static String safeToString(Object obj) {
+        return (obj == null) ? null : obj.toString();
+    }
+
+    public static Integer safeToInteger(Object obj) {
+        return (obj == null) ? null : (Integer) ConverterUtils.convert(Integer.class, obj);
+    }
+
+    public static Long safeToLong(Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        if (obj instanceof Number) {
+            return ((Number) obj).longValue();
+        }
+        return (Long) ConverterUtils.convert(Long.class, obj);
+    }
+
+    public static Boolean safeToBoolean(Object obj) {
+        return (obj == null) ? null : (Boolean) ConverterUtils.convert(Boolean.class, obj);
     }
 }
