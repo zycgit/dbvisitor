@@ -27,10 +27,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Table {
-    /** 分类 */
+    /** 分类（可选项） */
     public String catalog() default "";
 
-    /** Schema */
+    /** Schema，对于 mysql 来说 schema 相当于 db */
     public String schema() default "";
 
     /** 表名，为空的话表示采用类名为表名 see: {@link #name()} */

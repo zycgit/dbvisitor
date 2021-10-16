@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.db.mapping;
-import net.hasor.db.lambda.generation.GenerationType;
 import net.hasor.db.metadata.CaseSensitivityType;
 import net.hasor.db.metadata.domain.JdbcTableType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 一个实体的映射信息
@@ -29,27 +25,21 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class TableMappingDef implements TableMapping {
-    private       String                           catalogName;
-    private       String                           schemaName;
-    private       String                           tableName;
-    private       JdbcTableType                    tableType;
-    private       boolean                          useDelimited;
-    private       boolean                          autoProperty;
-    private       CaseSensitivityType              caseSensitivity;
-    private final Class<?>                         entityType;
-    //
-    private final List<String>                     propertyNames;
+    private       String              catalogName;
+    private       String              schemaName;
+    private       String              tableName;
+    private       JdbcTableType       tableType;
+    private       boolean             useDelimited;
+    private       boolean             autoProperty;
+    private       CaseSensitivityType caseSensitivity;
+    private final Class<?>            entityType;
+
     private final Map<String, ColumnMapping>       propertyMapping;
-    private final List<ColumnMapping>              mappingList;
-    private final List<String>                     columnNames;
     private final Map<String, List<ColumnMapping>> columnNameMapping;
 
     public TableMappingDef(Class<?> entityType) {
         this.entityType = entityType;
-        this.propertyNames = new ArrayList<>();
         this.propertyMapping = new HashMap<>();
-        this.mappingList = new ArrayList<>();
-        this.columnNames = new ArrayList<>();
         this.columnNameMapping = new HashMap<>();
     }
 
@@ -120,18 +110,18 @@ public class TableMappingDef implements TableMapping {
     }
 
     @Override
-    public List<ColumnMapping> getProperties() {
-        return this.mappingList;
+    public Collection<ColumnMapping> getProperties() {
+        return this.propertyMapping.values();
     }
 
     @Override
-    public List<String> getPropertyNames() {
-        return this.propertyNames;
+    public Collection<String> getPropertyNames() {
+        return this.propertyMapping.keySet();
     }
 
     @Override
-    public List<String> getColumnNames() {
-        return this.columnNames;
+    public Collection<String> getColumnNames() {
+        return this.columnNameMapping.keySet();
     }
 
     @Override
@@ -145,30 +135,19 @@ public class TableMappingDef implements TableMapping {
     }
 
     public boolean isEmpty() {
-        return this.propertyNames.isEmpty();
-    }
-
-    @Override
-    public GenerationType generationKey() {
-        return null;
+        return this.propertyMapping.isEmpty();
     }
 
     public void addMapping(ColumnMapping mapping) {
         String columnName = mapping.getName();
         String propertyName = mapping.getPropertyName();
-        this.propertyNames.add(propertyName);
         this.propertyMapping.put(propertyName, mapping);
-        this.mappingList.add(mapping);
-        this.columnNames.add(columnName);
         List<ColumnMapping> propertyNames = this.columnNameMapping.computeIfAbsent(columnName, k -> new ArrayList<>());
         propertyNames.add(mapping);
     }
 
     public void clearMapping() {
-        this.propertyNames.clear();
         this.propertyMapping.clear();
-        this.mappingList.clear();
-        this.columnNames.clear();
         this.columnNameMapping.clear();
     }
 }

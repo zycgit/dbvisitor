@@ -13,22 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.mapping.resolve;
+package net.hasor.db.dal.repository.parser;
+import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.ClassUtils;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.convert.ConverterUtils;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.db.mapping.ColumnMapping;
 import net.hasor.db.mapping.ColumnMappingDef;
 import net.hasor.db.mapping.TableMapping;
 import net.hasor.db.mapping.TableMappingDef;
+import net.hasor.db.mapping.resolve.AbstractResolveTableMapping;
+import net.hasor.db.mapping.resolve.ClassResolveTableMapping;
+import net.hasor.db.mapping.resolve.MappingOptions;
+import net.hasor.db.mapping.resolve.ResolveTableMapping;
 import net.hasor.db.metadata.CaseSensitivityType;
 import net.hasor.db.metadata.ColumnDef;
 import net.hasor.db.metadata.MetaDataService;
 import net.hasor.db.metadata.SimpleColumnDef;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
-import net.hasor.cobble.BeanUtils;
-import net.hasor.cobble.ClassUtils;
-import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.convert.ConverterUtils;
-import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;

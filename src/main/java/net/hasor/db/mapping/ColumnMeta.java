@@ -36,7 +36,4 @@ public @interface ColumnMeta {
 
     /** 唯一键 key */
     public String uniqueKey() default "";
-
-    /** 外键 key */
-    public String foreignKey() default "";
 }

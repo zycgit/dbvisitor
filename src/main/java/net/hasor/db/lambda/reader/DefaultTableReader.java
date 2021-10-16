@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.mapping.reader;
-import net.hasor.db.mapping.ColumnMapping;
-import net.hasor.db.mapping.TableMapping;
-import net.hasor.db.metadata.CaseSensitivityType;
-import net.hasor.db.types.TypeHandler;
+package net.hasor.db.lambda.reader;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.convert.ConverterUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
+import net.hasor.db.mapping.ColumnMapping;
+import net.hasor.db.mapping.TableMapping;
+import net.hasor.db.metadata.CaseSensitivityType;
+import net.hasor.db.types.TypeHandler;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -49,7 +49,7 @@ public class DefaultTableReader<T> implements TableReader<T> {
         this.columnPropertyMapping = new HashMap<>();
         this.propertyForWriteByColumn = new HashMap<>();
         //
-        List<ColumnMapping> properties = tableMapping.getProperties();
+        Collection<ColumnMapping> properties = tableMapping.getProperties();
         for (ColumnMapping property : properties) {
             String propertyName = property.getPropertyName();
             String columnName = property.getName();

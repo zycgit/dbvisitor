@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.db.mapping.resolve;
+import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.ExceptionUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.db.mapping.*;
-import net.hasor.db.metadata.CaseSensitivityType;
-import net.hasor.db.metadata.ColumnDef;
-import net.hasor.db.metadata.MetaDataService;
-import net.hasor.db.metadata.TableDef;
-import net.hasor.db.metadata.SimpleColumnDef;
+import net.hasor.db.metadata.*;
 import net.hasor.db.metadata.domain.JdbcTableType;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
 import net.hasor.db.types.UnknownTypeHandler;
-import net.hasor.cobble.BeanUtils;
-import net.hasor.cobble.ExceptionUtils;
-import net.hasor.cobble.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.mapping;
-import net.hasor.db.mapping.reader.DefaultTableReader;
-import net.hasor.db.mapping.reader.TableReader;
-import net.hasor.db.mapping.resolve.ClassResolveTableMapping;
-import net.hasor.db.mapping.resolve.MappingOptions;
-import net.hasor.db.mapping.resolve.XmlResolveTableMapping;
-import net.hasor.db.metadata.MetaDataService;
-import net.hasor.db.types.TypeHandlerRegistry;
+package net.hasor.db.dal.repository;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.db.lambda.reader.DefaultTableReader;
+import net.hasor.db.lambda.reader.TableReader;
+import net.hasor.db.mapping.TableMapping;
+import net.hasor.db.mapping.resolve.ClassResolveTableMapping;
+import net.hasor.db.mapping.resolve.MappingOptions;
+import net.hasor.db.dal.repository.parser.XmlResolveTableMapping;
+import net.hasor.db.metadata.MetaDataService;
+import net.hasor.db.types.TypeHandlerRegistry;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;

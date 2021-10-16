@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.db.mapping;
-import net.hasor.db.lambda.generation.GenerationType;
 import net.hasor.db.metadata.CaseSensitivityType;
 import net.hasor.db.metadata.TableDef;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -28,21 +28,18 @@ import java.util.List;
 public interface TableMapping extends TableDef {
     public Class<?> entityType();
 
-    /** 主键生成策略 */
-    public GenerationType generationKey();
-
     /** 是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Property 注解声明。 */
     public boolean isAutoProperty();
 
     public CaseSensitivityType getCaseSensitivity();
 
-    public List<String> getPropertyNames();
+    public Collection<String> getPropertyNames();
 
-    public List<ColumnMapping> getProperties();
+    public Collection<ColumnMapping> getProperties();
 
     public ColumnMapping getMapping(String propertyName);
 
-    public List<String> getColumnNames();
+    public Collection<String> getColumnNames();
 
     public List<ColumnMapping> getMappingByColumnName(String columnName);
 }
