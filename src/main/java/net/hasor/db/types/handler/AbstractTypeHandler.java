@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.db.types.handler;
-import net.hasor.db.types.TypeHandler;
 import net.hasor.cobble.reflect.TypeReference;
+import net.hasor.db.types.TypeHandler;
 
 import java.sql.*;
 

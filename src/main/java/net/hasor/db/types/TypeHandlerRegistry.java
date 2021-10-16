@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.db.types;
-import net.hasor.db.types.handler.*;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.reflect.TypeReference;
+import net.hasor.db.types.handler.*;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -39,13 +39,13 @@ public final class TypeHandlerRegistry {
     private static final Map<Class<? extends TypeHandler<?>>, TypeHandler<?>> cachedSingleHandlers  = new ConcurrentHashMap<>();
     private static final Map<String, JDBCType>                                javaTypeToJdbcTypeMap = new ConcurrentHashMap<>();
     private static final Map<JDBCType, Class<?>>                              jdbcTypeToJavaTypeMap = new ConcurrentHashMap<>();
-    //
-    public static final  TypeHandlerRegistry                                  DEFAULT               = new TypeHandlerRegistry();
-    private final        UnknownTypeHandler                                   defaultTypeHandler    = new UnknownTypeHandler(this);
+
+    public static final TypeHandlerRegistry                        DEFAULT            = new TypeHandlerRegistry();
+    private final       UnknownTypeHandler                         defaultTypeHandler = new UnknownTypeHandler(this);
     // mappings
-    private final        Map<String, TypeHandler<?>>                          javaTypeHandlerMap    = new ConcurrentHashMap<>();
-    private final        Map<JDBCType, TypeHandler<?>>                        jdbcTypeHandlerMap    = new ConcurrentHashMap<>();
-    private final        Map<String, Map<JDBCType, TypeHandler<?>>>           typeHandlerMap        = new ConcurrentHashMap<>();
+    private final       Map<String, TypeHandler<?>>                javaTypeHandlerMap = new ConcurrentHashMap<>();
+    private final       Map<JDBCType, TypeHandler<?>>              jdbcTypeHandlerMap = new ConcurrentHashMap<>();
+    private final       Map<String, Map<JDBCType, TypeHandler<?>>> typeHandlerMap     = new ConcurrentHashMap<>();
 
     static {
         // primitive and wrapper
@@ -151,7 +151,7 @@ public final class TypeHandlerRegistry {
         this.register(Clob.class, createSingleTypeHandler(ClobTypeHandler.class));
         this.register(NClob.class, createSingleTypeHandler(NClobTypeHandler.class));
         this.register(Blob.class, createSingleTypeHandler(BlobBytesTypeHandler.class));
-        //
+
         this.register(JDBCType.BIT, createSingleTypeHandler(BooleanTypeHandler.class));
         this.register(JDBCType.BOOLEAN, createSingleTypeHandler(BooleanTypeHandler.class));
         this.register(JDBCType.TINYINT, createSingleTypeHandler(ByteTypeHandler.class));
@@ -190,7 +190,7 @@ public final class TypeHandlerRegistry {
         // ROWID(Types.ROWID),
         // REF_CURSOR(Types.REF_CURSOR),
         this.register(JDBCType.OTHER, createSingleTypeHandler(UnknownTypeHandler.class));
-        //
+
         this.registerCrossChars(MonthDay.class, createSingleTypeHandler(MonthDayOfStringTypeHandler.class));
         this.registerCrossNChars(MonthDay.class, createSingleTypeHandler(MonthDayOfStringTypeHandler.class));
         this.registerCrossNumber(MonthDay.class, createSingleTypeHandler(MonthDayOfNumberTypeHandler.class));
@@ -203,7 +203,7 @@ public final class TypeHandlerRegistry {
         this.registerCrossChars(Month.class, createSingleTypeHandler(MonthOfStringTypeHandler.class));
         this.registerCrossNChars(Month.class, createSingleTypeHandler(MonthOfStringTypeHandler.class));
         this.registerCrossNumber(Month.class, createSingleTypeHandler(MonthOfNumberTypeHandler.class));
-        //
+
         this.registerCrossChars(String.class, createSingleTypeHandler(StringTypeHandler.class));
         this.registerCrossNChars(String.class, createSingleTypeHandler(NStringTypeHandler.class));
         this.registerCross(JDBCType.CLOB, String.class, createSingleTypeHandler(ClobTypeHandler.class));
@@ -212,11 +212,11 @@ public final class TypeHandlerRegistry {
         this.registerCrossNChars(Reader.class, createSingleTypeHandler(NStringReaderTypeHandler.class));
         this.registerCross(JDBCType.CLOB, Reader.class, createSingleTypeHandler(ClobReaderTypeHandler.class));
         this.registerCross(JDBCType.NCLOB, Reader.class, createSingleTypeHandler(NClobReaderTypeHandler.class));
-        //
+
         this.registerCross(JDBCType.SQLXML, String.class, createSingleTypeHandler(SqlXmlTypeHandler.class));
         this.registerCross(JDBCType.SQLXML, Reader.class, createSingleTypeHandler(SqlXmlForReaderTypeHandler.class));
         this.registerCross(JDBCType.SQLXML, InputStream.class, createSingleTypeHandler(SqlXmlForInputStreamTypeHandler.class));
-        //
+
         this.registerCross(JDBCType.BINARY, byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
         this.registerCross(JDBCType.BINARY, Byte[].class, createSingleTypeHandler(BytesForWrapTypeHandler.class));
         this.registerCross(JDBCType.VARBINARY, byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
@@ -225,14 +225,14 @@ public final class TypeHandlerRegistry {
         this.registerCross(JDBCType.BLOB, Byte[].class, createSingleTypeHandler(BlobBytesForWrapTypeHandler.class));
         this.registerCross(JDBCType.LONGVARBINARY, byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
         this.registerCross(JDBCType.LONGVARBINARY, Byte[].class, createSingleTypeHandler(BytesForWrapTypeHandler.class));
-        //
+
         this.registerCross(JDBCType.BINARY, InputStream.class, createSingleTypeHandler(BytesInputStreamTypeHandler.class));
         this.registerCross(JDBCType.VARBINARY, InputStream.class, createSingleTypeHandler(BytesInputStreamTypeHandler.class));
         this.registerCross(JDBCType.BLOB, InputStream.class, createSingleTypeHandler(BlobInputStreamTypeHandler.class));
         this.registerCross(JDBCType.LONGVARBINARY, InputStream.class, createSingleTypeHandler(BytesInputStreamTypeHandler.class));
-        //
+
         this.registerCross(JDBCType.ARRAY, Object.class, createSingleTypeHandler(ArrayTypeHandler.class));
-        //
+
         javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleBlob", JDBCType.VARBINARY);
         javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleClob", JDBCType.CLOB);
         javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleNClob", JDBCType.NCLOB);
@@ -413,7 +413,7 @@ public final class TypeHandlerRegistry {
                 }
             }
         }
-        //
+
         if (typeClass != null) {
             TypeHandler<?> typeHandler = this.javaTypeHandlerMap.get(typeClass.getName());
             if (typeHandler != null) {
@@ -429,7 +429,7 @@ public final class TypeHandlerRegistry {
                 }
             }
         }
-        //
+
         return this.defaultTypeHandler;
     }
 

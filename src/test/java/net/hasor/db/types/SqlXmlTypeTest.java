@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.db.types;
+import net.hasor.cobble.io.IOUtils;
 import net.hasor.db.jdbc.SqlParameterUtils;
 import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.types.handler.SqlXmlForInputStreamTypeHandler;
 import net.hasor.db.types.handler.SqlXmlForReaderTypeHandler;
 import net.hasor.db.types.handler.SqlXmlTypeHandler;
 import net.hasor.test.db.utils.DsUtils;
-import net.hasor.cobble.io.IOUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;

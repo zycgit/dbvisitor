@@ -15,6 +15,7 @@
  */
 package net.hasor.db.types;
 import com.alibaba.druid.pool.DruidDataSource;
+import net.hasor.cobble.io.IOUtils;
 import net.hasor.db.jdbc.SqlParameterUtils;
 import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.types.handler.ClobReaderTypeHandler;
@@ -22,7 +23,6 @@ import net.hasor.db.types.handler.NClobReaderTypeHandler;
 import net.hasor.db.types.handler.NStringReaderTypeHandler;
 import net.hasor.db.types.handler.StringReaderTypeHandler;
 import net.hasor.test.db.utils.DsUtils;
-import net.hasor.cobble.io.IOUtils;
 import org.junit.Test;
 
 import java.io.Reader;

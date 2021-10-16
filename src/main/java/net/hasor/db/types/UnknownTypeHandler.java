@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.db.types;
+import net.hasor.cobble.ResourcesUtils;
 import net.hasor.db.types.handler.AbstractTypeHandler;
 import net.hasor.db.types.handler.ObjectTypeHandler;
-import net.hasor.cobble.ResourcesUtils;
 
 import java.sql.*;
 import java.util.HashMap;
