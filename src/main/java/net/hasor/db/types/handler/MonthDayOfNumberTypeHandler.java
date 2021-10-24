@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.db.types.handler;
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.MonthDay;
 
 /**
@@ -28,7 +31,7 @@ import java.time.MonthDay;
  */
 public class MonthDayOfNumberTypeHandler extends AbstractTypeHandler<MonthDay> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, MonthDay monthDay, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, MonthDay monthDay, Integer jdbcType) throws SQLException {
         String monthValue = String.valueOf(monthDay.getMonthValue());
         String dayValue = String.valueOf(monthDay.getDayOfMonth());
         if (monthValue.length() == 1) {

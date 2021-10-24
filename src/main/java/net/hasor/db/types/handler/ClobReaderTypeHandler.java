@@ -30,7 +30,7 @@ public class ClobReaderTypeHandler extends AbstractTypeHandler<Reader> {
      * @see PreparedStatement#setClob(int, Reader)
      */
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Reader parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Reader parameter, Integer jdbcType) throws SQLException {
         ps.setClob(i, parameter);
     }
 

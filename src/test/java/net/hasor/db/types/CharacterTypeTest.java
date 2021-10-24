@@ -67,14 +67,14 @@ public class CharacterTypeTest {
             assert dat2 == 'a';
             //
             List<Character> character1 = jdbcTemplate.query("select ?", ps -> {
-                new CharacterTypeHandler().setParameter(ps, 1, 'a', JDBCType.CHAR);
+                new CharacterTypeHandler().setParameter(ps, 1, 'a', JDBCType.CHAR.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new CharacterTypeHandler().getNullableResult(rs, 1);
             });
             assert character1.get(0) == 'a';
             //
             List<Character> character2 = jdbcTemplate.query("select ? as ncr", ps -> {
-                new CharacterTypeHandler().setParameter(ps, 1, 'a', JDBCType.CHAR);
+                new CharacterTypeHandler().setParameter(ps, 1, 'a', JDBCType.CHAR.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new CharacterTypeHandler().getNullableResult(rs, "ncr");
             });
@@ -90,7 +90,7 @@ public class CharacterTypeTest {
             jdbcTemplate.execute("create procedure proc_char(out p_out char) begin set p_out='A'; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_char(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.CHAR, new CharacterTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.CHAR.getVendorTypeNumber(), new CharacterTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Character;
@@ -136,14 +136,14 @@ public class CharacterTypeTest {
             assert dat2 == 'a';
             //
             List<Character> character1 = jdbcTemplate.query("select ?", ps -> {
-                new NCharacterTypeHandler().setParameter(ps, 1, 'a', JDBCType.NCHAR);
+                new NCharacterTypeHandler().setParameter(ps, 1, 'a', JDBCType.NCHAR.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new NCharacterTypeHandler().getNullableResult(rs, 1);
             });
             assert character1.get(0) == 'a';
             //
             List<Character> character2 = jdbcTemplate.query("select ? as ncr", ps -> {
-                new NCharacterTypeHandler().setParameter(ps, 1, 'a', JDBCType.NCHAR);
+                new NCharacterTypeHandler().setParameter(ps, 1, 'a', JDBCType.NCHAR.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new NCharacterTypeHandler().getNullableResult(rs, "ncr");
             });
@@ -159,7 +159,7 @@ public class CharacterTypeTest {
             jdbcTemplate.execute("create procedure proc_char(out p_out char) begin set p_out='A'; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_char(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.NCHAR, new NCharacterTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.NCHAR.getVendorTypeNumber(), new NCharacterTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Character;

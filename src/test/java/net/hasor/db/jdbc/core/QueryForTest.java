@@ -104,7 +104,7 @@ public class QueryForTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             //
             TB_User tbUser = TestUtils.beanForData1();
-            MappingRowMapper<TbUser> rowMapper = MappingRowMapper.newInstance(TbUser.class);
+            MappingRowMapper<TbUser> rowMapper = new MappingRowMapper<>(TbUser.class);
             TbUser user = jdbcTemplate.queryForObject("select * from tb_user where userUUID = '" + tbUser.getUserUUID() + "'", rowMapper);
             assert user != null;
             assert tbUser.getUserUUID().equals(user.getUid());
@@ -117,7 +117,7 @@ public class QueryForTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             //
             TB_User tbUser = TestUtils.beanForData1();
-            MappingRowMapper<TbUser> rowMapper = MappingRowMapper.newInstance(TbUser.class);
+            MappingRowMapper<TbUser> rowMapper = new MappingRowMapper<>(TbUser.class);
             TbUser user = jdbcTemplate.queryForObject("select * from tb_user where userUUID = ?", rowMapper, tbUser.getUserUUID());
             assert user != null;
             assert tbUser.getUserUUID().equals(user.getUid());
@@ -130,7 +130,7 @@ public class QueryForTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             //
             TB_User tbUser = TestUtils.beanForData1();
-            MappingRowMapper<TbUser> rowMapper = MappingRowMapper.newInstance(TbUser.class);
+            MappingRowMapper<TbUser> rowMapper = new MappingRowMapper<>(TbUser.class);
             TbUser user = jdbcTemplate.queryForObject("select * from tb_user where userUUID = ?", new Object[] { tbUser.getUserUUID() }, rowMapper);
             assert user != null;
             assert tbUser.getUserUUID().equals(user.getUid());
@@ -144,7 +144,7 @@ public class QueryForTest extends AbstractDbTest {
             //
             TB_User tbUser = TestUtils.beanForData1();
             BeanSqlParameterSource beanSqlParameterSource = new BeanSqlParameterSource(tbUser);
-            MappingRowMapper<TbUser> rowMapper = MappingRowMapper.newInstance(TbUser.class);
+            MappingRowMapper<TbUser> rowMapper = new MappingRowMapper<>(TbUser.class);
             TbUser user = jdbcTemplate.queryForObject("select * from tb_user where userUUID = :userUUID", beanSqlParameterSource, rowMapper);
             assert user != null;
             assert tbUser.getUserUUID().equals(user.getUid());
@@ -159,7 +159,7 @@ public class QueryForTest extends AbstractDbTest {
             TB_User tbUser = TestUtils.beanForData1();
             Map<String, String> mapParams = new HashMap<>();
             mapParams.put("uuid", tbUser.getUserUUID());
-            MappingRowMapper<TbUser> rowMapper = MappingRowMapper.newInstance(TbUser.class);
+            MappingRowMapper<TbUser> rowMapper = new MappingRowMapper<>(TbUser.class);
             TbUser user = jdbcTemplate.queryForObject("select * from tb_user where userUUID = :uuid", mapParams, rowMapper);
             assert user != null;
             assert tbUser.getUserUUID().equals(user.getUid());

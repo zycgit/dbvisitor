@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 package net.hasor.db.types.handler;
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * @author Clinton Begin
  */
 public class CharacterTypeHandler extends AbstractTypeHandler<Character> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Character parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Character parameter, Integer jdbcType) throws SQLException {
         ps.setString(i, parameter.toString());
     }
 

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.db.jdbc.mapper;
+import net.hasor.cobble.ResourcesUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.db.jdbc.RowMapper;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
-import net.hasor.cobble.ResourcesUtils;
-import net.hasor.cobble.StringUtils;
 
 import java.sql.JDBCType;
 import java.sql.ResultSet;
@@ -57,24 +57,23 @@ public abstract class AbstractRowMapper<T> implements RowMapper<T> {
 
     /** 获取读取列用到的那个 TypeHandler */
     public TypeHandler<?> getResultSetTypeHandler(ResultSet rs, int columnIndex, Class<?> targetType) throws SQLException {
-        int columnType = rs.getMetaData().getColumnType(columnIndex);
+        int jdbcType = rs.getMetaData().getColumnType(columnIndex);
         String columnTypeName = rs.getMetaData().getColumnTypeName(columnIndex);
         String columnClassName = rs.getMetaData().getColumnClassName(columnIndex);
-        //
+
         if ("YEAR".equalsIgnoreCase(columnTypeName)) {
             // TODO with mysql `YEAR` type, columnType is DATE. but getDate() throw Long cast Date failed.
-            columnType = JDBCType.INTEGER.getVendorTypeNumber();
+            jdbcType = JDBCType.INTEGER.getVendorTypeNumber();
         } else if (StringUtils.isNotBlank(columnClassName) && columnClassName.startsWith("oracle.")) {
             // TODO with oracle columnClassName is specifically customizes standard types, it specializes process.
-            JDBCType jdbcType = TypeHandlerRegistry.toSqlType(columnClassName);
+            jdbcType = TypeHandlerRegistry.toSqlType(columnClassName);
             if (targetType != null) {
                 return this.handlerRegistry.getTypeHandler(targetType, jdbcType);
             } else {
                 return this.handlerRegistry.getTypeHandler(jdbcType);
             }
         }
-        //
-        JDBCType jdbcType = JDBCType.valueOf(columnType);
+
         Class<?> columnTypeClass = targetType;
         if (columnTypeClass == null) {
             try {
@@ -85,7 +84,7 @@ public abstract class AbstractRowMapper<T> implements RowMapper<T> {
         }
         TypeHandler<?> typeHandler = this.handlerRegistry.getTypeHandler(columnTypeClass, jdbcType);
         if (typeHandler == null) {
-            String message = "jdbcType=" + jdbcType.getVendorTypeNumber() + " ,columnTypeClass=" + columnTypeClass;
+            String message = "jdbcType=" + jdbcType + " ,columnTypeClass=" + columnTypeClass;
             throw new SQLException("no typeHandler is matched to any available " + message);
         }
         return typeHandler;

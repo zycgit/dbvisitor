@@ -91,7 +91,7 @@ public class SqlXmlTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             //
             List<String> dat = jdbcTemplate.query("select ? from dual", ps -> {
-                new SqlXmlTypeHandler().setParameter(ps, 1, "<xml>abc</xml>", JDBCType.SQLXML);
+                new SqlXmlTypeHandler().setParameter(ps, 1, "<xml>abc</xml>", JDBCType.SQLXML.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new SqlXmlTypeHandler().getNullableResult(rs, 1);
             });
@@ -106,7 +106,7 @@ public class SqlXmlTypeTest {
             preProc(jdbcTemplate);
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_xmltype(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.SQLXML, new SqlXmlTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.SQLXML.getVendorTypeNumber(), new SqlXmlTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof String;
@@ -151,7 +151,7 @@ public class SqlXmlTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             //
             List<InputStream> dat = jdbcTemplate.query("select ? from dual", ps -> {
-                new SqlXmlForInputStreamTypeHandler().setParameter(ps, 1, new ByteArrayInputStream("<xml>abc</xml>".getBytes()), JDBCType.SQLXML);
+                new SqlXmlForInputStreamTypeHandler().setParameter(ps, 1, new ByteArrayInputStream("<xml>abc</xml>".getBytes()), JDBCType.SQLXML.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new SqlXmlForInputStreamTypeHandler().getNullableResult(rs, 1);
             });
@@ -167,7 +167,7 @@ public class SqlXmlTypeTest {
             preProc(jdbcTemplate);
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_xmltype(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.SQLXML, new SqlXmlForInputStreamTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.SQLXML.getVendorTypeNumber(), new SqlXmlForInputStreamTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof InputStream;
@@ -213,7 +213,7 @@ public class SqlXmlTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             //
             List<Reader> dat = jdbcTemplate.query("select ? from dual", ps -> {
-                new SqlXmlForReaderTypeHandler().setParameter(ps, 1, new StringReader("<xml>abc</xml>"), JDBCType.SQLXML);
+                new SqlXmlForReaderTypeHandler().setParameter(ps, 1, new StringReader("<xml>abc</xml>"), JDBCType.SQLXML.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new SqlXmlForReaderTypeHandler().getNullableResult(rs, 1);
             });
@@ -229,7 +229,7 @@ public class SqlXmlTypeTest {
             preProc(jdbcTemplate);
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_xmltype(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.SQLXML, new SqlXmlForReaderTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.SQLXML.getVendorTypeNumber(), new SqlXmlForReaderTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Reader;

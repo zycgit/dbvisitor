@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.jdbc.mapper;
-import net.hasor.db.jdbc.RowMapper;
+import net.hasor.db.jdbc.ResultSetExtractor;
 import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.db.mapping.resolve.ClassResolveTableMapping;
@@ -25,28 +25,32 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 用于 POJO 的 RowMapper，带有 ORM 能力
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class MappingRowMapper<T> implements RowMapper<T> {
+public class MappingResultSetExtractor<T> implements ResultSetExtractor<List<T>> {
     private final TableReader<T> tableReader;
 
-    /** Create a new ResultMapper.*/
-    public MappingRowMapper(Class<T> mapperClass) {
+    /**
+     * 创建 {@link MappingResultSetExtractor} 对象
+     * @param mapperClass 类型
+     */
+    public MappingResultSetExtractor(final Class<T> mapperClass) {
         this(mapperClass, TypeHandlerRegistry.DEFAULT);
     }
 
-    /** Create a new ResultMapper.*/
-    public MappingRowMapper(Class<T> mapperClass, TypeHandlerRegistry typeRegistry) {
+    public MappingResultSetExtractor(final Class<T> mapperClass, TypeHandlerRegistry typeRegistry) {
+        Objects.requireNonNull(mapperClass, "mapperClass is required");
         TableMapping<T> tableMapping = ClassResolveTableMapping.resolveTableMapping(mapperClass, mapperClass.getClassLoader(), typeRegistry);
         this.tableReader = tableMapping.toReader();
     }
 
     @Override
-    public T mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public List<T> extractData(final ResultSet rs) throws SQLException {
         ResultSetMetaData rsmd = rs.getMetaData();
         int nrOfColumns = rsmd.getColumnCount();
         List<String> columnList = new ArrayList<>();
@@ -54,7 +58,8 @@ public class MappingRowMapper<T> implements RowMapper<T> {
             String colName = rsmd.getColumnName(i);
             columnList.add(colName);
         }
-        return tableReader.extractRow(columnList, rs, rowNum);
+
+        return this.tableReader.extractData(columnList, rs);
     }
 
 }

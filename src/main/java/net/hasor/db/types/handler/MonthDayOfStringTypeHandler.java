@@ -16,7 +16,10 @@
 package net.hasor.db.types.handler;
 import net.hasor.cobble.StringUtils;
 
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.MonthDay;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -41,7 +44,7 @@ public class MonthDayOfStringTypeHandler extends AbstractTypeHandler<MonthDay> {
             .toFormatter();
 
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, MonthDay monthDay, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, MonthDay monthDay, Integer jdbcType) throws SQLException {
         String monthValue = String.valueOf(monthDay.getMonthValue());
         String dayValue = String.valueOf(monthDay.getDayOfMonth());
         if (monthValue.length() == 1) {

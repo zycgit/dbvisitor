@@ -53,8 +53,8 @@ public class Caller2Test extends AbstractDbTest {
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_select_cross_table(?,?)}",//
                     Arrays.asList(//
-                            SqlParameterUtils.withInput("aaa", JDBCType.VARCHAR),//
-                            SqlParameterUtils.withOutput("bbb", JDBCType.VARCHAR)));
+                            SqlParameterUtils.withInput("aaa", JDBCType.VARCHAR.getVendorTypeNumber()),//
+                            SqlParameterUtils.withOutputName("bbb", JDBCType.VARCHAR.getVendorTypeNumber())));
             //
             assert objectMap.size() == 4;
             assert objectMap.get("bbb").equals("aaa");

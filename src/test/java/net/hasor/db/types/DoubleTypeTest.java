@@ -66,7 +66,7 @@ public class DoubleTypeTest {
             assert dat2 == 123.123d;
             //
             List<Double> dat = jdbcTemplate.query("select ?", ps -> {
-                new DoubleTypeHandler().setParameter(ps, 1, 123.123d, JDBCType.DOUBLE);
+                new DoubleTypeHandler().setParameter(ps, 1, 123.123d, JDBCType.DOUBLE.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new DoubleTypeHandler().getNullableResult(rs, 1);
             });
@@ -82,7 +82,7 @@ public class DoubleTypeTest {
             jdbcTemplate.execute("create procedure proc_double(out p_out double) begin set p_out=123.123; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_double(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.DOUBLE, new DoubleTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.DOUBLE.getVendorTypeNumber(), new DoubleTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Double;

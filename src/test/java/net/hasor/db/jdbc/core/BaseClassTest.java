@@ -18,7 +18,7 @@ import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.db.datasource.ConnectionProxy;
 import net.hasor.db.jdbc.ConnectionCallback;
 import net.hasor.db.jdbc.StatementCallback;
-import net.hasor.db.mapping.MappingRegistry;
+import net.hasor.db.types.TypeHandlerRegistry;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.utils.DsUtils;
 import org.junit.Test;
@@ -185,14 +185,11 @@ public class BaseClassTest extends AbstractDbTest {
     @Test
     public void jdbcTemplateTest_6() {
         DataSource dataSource = PowerMockito.mock(DataSource.class);
-        Connection connection = PowerMockito.mock(Connection.class);
-        MappingRegistry mappingHandler = PowerMockito.mock(MappingRegistry.class);
-        //
-        assert new JdbcTemplate(dataSource, mappingHandler).getMappingRegistry() == mappingHandler;
-        assert new JdbcTemplate(connection, mappingHandler).getMappingRegistry() == mappingHandler;
-        //
-        assert new JdbcTemplate().getMappingRegistry() == MappingRegistry.DEFAULT;
-        //
+        TypeHandlerRegistry typeRegistry = new TypeHandlerRegistry();
+        assert new JdbcTemplate(dataSource, typeRegistry).getTypeRegistry() == typeRegistry;
+
+        assert new JdbcTemplate().getTypeRegistry() == TypeHandlerRegistry.DEFAULT;
+
         assert new JdbcTemplate().isResultsCaseInsensitive();
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
         assert jdbcTemplate.isResultsCaseInsensitive();

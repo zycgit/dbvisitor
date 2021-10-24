@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 package net.hasor.db.types.handler;
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * @author Clinton Begin
  */
 public class LongTypeHandler extends AbstractTypeHandler<Long> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Long parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Long parameter, Integer jdbcType) throws SQLException {
         ps.setLong(i, parameter);
     }
 

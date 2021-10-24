@@ -16,8 +16,6 @@
 package net.hasor.db.jdbc;
 import net.hasor.db.types.TypeHandler;
 
-import java.sql.JDBCType;
-
 /**
  * Object to represent an SQL parameter definition.
  *
@@ -33,7 +31,7 @@ public interface SqlParameter {
 
     public static interface ValueSqlParameter extends SqlParameter {
         /** Return the SQL type of the parameter. */
-        public JDBCType getJdbcType();
+        public Integer getJdbcType();
 
         /** Return the type name of the parameter, if any. */
         public String getTypeName();

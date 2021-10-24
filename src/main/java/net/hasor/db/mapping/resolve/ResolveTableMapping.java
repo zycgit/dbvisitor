@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.mapping.resolve;
-import net.hasor.db.mapping.TableMapping;
-import net.hasor.db.metadata.MetaDataService;
+import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.db.types.TypeHandlerRegistry;
 
 import java.sql.SQLException;
@@ -26,5 +25,5 @@ import java.sql.SQLException;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface ResolveTableMapping<T> {
-    public TableMapping resolveTableMapping(T refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MetaDataService metaDataService, MappingOptions options) throws SQLException, ClassNotFoundException;
+    public <V> TableMapping<V> resolveTableMapping(T refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions options) throws SQLException, ClassNotFoundException;
 }

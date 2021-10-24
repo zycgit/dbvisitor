@@ -37,69 +37,69 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class TypeHandlerRegistry {
     private static final Map<Class<? extends TypeHandler<?>>, TypeHandler<?>> cachedSingleHandlers  = new ConcurrentHashMap<>();
-    private static final Map<String, JDBCType>                                javaTypeToJdbcTypeMap = new ConcurrentHashMap<>();
-    private static final Map<JDBCType, Class<?>>                              jdbcTypeToJavaTypeMap = new ConcurrentHashMap<>();
+    private static final Map<String, Integer>                                 javaTypeToJdbcTypeMap = new ConcurrentHashMap<>();
+    private static final Map<Integer, Class<?>>                               jdbcTypeToJavaTypeMap = new ConcurrentHashMap<>();
 
-    public static final TypeHandlerRegistry                        DEFAULT            = new TypeHandlerRegistry();
-    private final       UnknownTypeHandler                         defaultTypeHandler = new UnknownTypeHandler(this);
+    public static final TypeHandlerRegistry                       DEFAULT            = new TypeHandlerRegistry();
+    private final       UnknownTypeHandler                        defaultTypeHandler = new UnknownTypeHandler(this);
     // mappings
-    private final       Map<String, TypeHandler<?>>                javaTypeHandlerMap = new ConcurrentHashMap<>();
-    private final       Map<JDBCType, TypeHandler<?>>              jdbcTypeHandlerMap = new ConcurrentHashMap<>();
-    private final       Map<String, Map<JDBCType, TypeHandler<?>>> typeHandlerMap     = new ConcurrentHashMap<>();
+    private final       Map<String, TypeHandler<?>>               javaTypeHandlerMap = new ConcurrentHashMap<>();
+    private final       Map<Integer, TypeHandler<?>>              jdbcTypeHandlerMap = new ConcurrentHashMap<>();
+    private final       Map<String, Map<Integer, TypeHandler<?>>> typeHandlerMap     = new ConcurrentHashMap<>();
 
     static {
         // primitive and wrapper
-        javaTypeToJdbcTypeMap.put(Boolean.class.getName(), JDBCType.BIT);
-        javaTypeToJdbcTypeMap.put(boolean.class.getName(), JDBCType.BIT);
-        javaTypeToJdbcTypeMap.put(Byte.class.getName(), JDBCType.TINYINT);
-        javaTypeToJdbcTypeMap.put(byte.class.getName(), JDBCType.TINYINT);
-        javaTypeToJdbcTypeMap.put(Short.class.getName(), JDBCType.SMALLINT);
-        javaTypeToJdbcTypeMap.put(short.class.getName(), JDBCType.SMALLINT);
-        javaTypeToJdbcTypeMap.put(Integer.class.getName(), JDBCType.INTEGER);
-        javaTypeToJdbcTypeMap.put(int.class.getName(), JDBCType.INTEGER);
-        javaTypeToJdbcTypeMap.put(Long.class.getName(), JDBCType.BIGINT);
-        javaTypeToJdbcTypeMap.put(long.class.getName(), JDBCType.BIGINT);
-        javaTypeToJdbcTypeMap.put(Float.class.getName(), JDBCType.FLOAT);
-        javaTypeToJdbcTypeMap.put(float.class.getName(), JDBCType.FLOAT);
-        javaTypeToJdbcTypeMap.put(Double.class.getName(), JDBCType.DOUBLE);
-        javaTypeToJdbcTypeMap.put(double.class.getName(), JDBCType.DOUBLE);
-        javaTypeToJdbcTypeMap.put(Character.class.getName(), JDBCType.CHAR);
-        javaTypeToJdbcTypeMap.put(char.class.getName(), JDBCType.CHAR);
+        javaTypeToJdbcTypeMap.put(Boolean.class.getName(), JDBCType.BIT.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(boolean.class.getName(), JDBCType.BIT.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(Byte.class.getName(), JDBCType.TINYINT.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(byte.class.getName(), JDBCType.TINYINT.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(Short.class.getName(), JDBCType.SMALLINT.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(short.class.getName(), JDBCType.SMALLINT.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(Integer.class.getName(), JDBCType.INTEGER.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(int.class.getName(), JDBCType.INTEGER.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(Long.class.getName(), JDBCType.BIGINT.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(long.class.getName(), JDBCType.BIGINT.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(Float.class.getName(), JDBCType.FLOAT.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(float.class.getName(), JDBCType.FLOAT.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(Double.class.getName(), JDBCType.DOUBLE.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(double.class.getName(), JDBCType.DOUBLE.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(Character.class.getName(), JDBCType.CHAR.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(char.class.getName(), JDBCType.CHAR.getVendorTypeNumber());
         // java time
-        javaTypeToJdbcTypeMap.put(Date.class.getName(), JDBCType.TIMESTAMP);
-        javaTypeToJdbcTypeMap.put(java.sql.Date.class.getName(), JDBCType.DATE);
-        javaTypeToJdbcTypeMap.put(java.sql.Timestamp.class.getName(), JDBCType.TIMESTAMP);
-        javaTypeToJdbcTypeMap.put(java.sql.Time.class.getName(), JDBCType.TIME);
-        javaTypeToJdbcTypeMap.put(Instant.class.getName(), JDBCType.TIMESTAMP);
-        javaTypeToJdbcTypeMap.put(LocalDateTime.class.getName(), JDBCType.TIMESTAMP);
-        javaTypeToJdbcTypeMap.put(LocalDate.class.getName(), JDBCType.DATE);
-        javaTypeToJdbcTypeMap.put(LocalTime.class.getName(), JDBCType.TIME);
-        javaTypeToJdbcTypeMap.put(ZonedDateTime.class.getName(), JDBCType.TIMESTAMP);
-        javaTypeToJdbcTypeMap.put(JapaneseDate.class.getName(), JDBCType.TIMESTAMP);
-        javaTypeToJdbcTypeMap.put(YearMonth.class.getName(), JDBCType.VARCHAR);
-        javaTypeToJdbcTypeMap.put(Year.class.getName(), JDBCType.SMALLINT);
-        javaTypeToJdbcTypeMap.put(Month.class.getName(), JDBCType.SMALLINT);
-        javaTypeToJdbcTypeMap.put(OffsetDateTime.class.getName(), JDBCType.TIMESTAMP);
-        javaTypeToJdbcTypeMap.put(OffsetTime.class.getName(), JDBCType.TIMESTAMP);
+        javaTypeToJdbcTypeMap.put(Date.class.getName(), JDBCType.TIMESTAMP.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(java.sql.Date.class.getName(), JDBCType.DATE.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(java.sql.Timestamp.class.getName(), JDBCType.TIMESTAMP.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(java.sql.Time.class.getName(), JDBCType.TIME.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(Instant.class.getName(), JDBCType.TIMESTAMP.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(LocalDateTime.class.getName(), JDBCType.TIMESTAMP.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(LocalDate.class.getName(), JDBCType.DATE.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(LocalTime.class.getName(), JDBCType.TIME.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(ZonedDateTime.class.getName(), JDBCType.TIMESTAMP.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(JapaneseDate.class.getName(), JDBCType.TIMESTAMP.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(YearMonth.class.getName(), JDBCType.VARCHAR.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(Year.class.getName(), JDBCType.SMALLINT.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(Month.class.getName(), JDBCType.SMALLINT.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(OffsetDateTime.class.getName(), JDBCType.TIMESTAMP.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(OffsetTime.class.getName(), JDBCType.TIMESTAMP.getVendorTypeNumber());
         // java extensions Types
-        javaTypeToJdbcTypeMap.put(String.class.getName(), JDBCType.VARCHAR);
-        javaTypeToJdbcTypeMap.put(BigInteger.class.getName(), JDBCType.BIGINT);
-        javaTypeToJdbcTypeMap.put(BigDecimal.class.getName(), JDBCType.DECIMAL);
-        javaTypeToJdbcTypeMap.put(Reader.class.getName(), JDBCType.CLOB);
-        javaTypeToJdbcTypeMap.put(InputStream.class.getName(), JDBCType.BLOB);
-        javaTypeToJdbcTypeMap.put(URL.class.getName(), JDBCType.DATALINK);
-        javaTypeToJdbcTypeMap.put(Byte[].class.getName(), JDBCType.VARBINARY);
-        javaTypeToJdbcTypeMap.put(byte[].class.getName(), JDBCType.VARBINARY);
-        javaTypeToJdbcTypeMap.put(Object[].class.getName(), JDBCType.ARRAY);
-        javaTypeToJdbcTypeMap.put(Object.class.getName(), JDBCType.JAVA_OBJECT);
+        javaTypeToJdbcTypeMap.put(String.class.getName(), JDBCType.VARCHAR.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(BigInteger.class.getName(), JDBCType.BIGINT.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(BigDecimal.class.getName(), JDBCType.DECIMAL.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(Reader.class.getName(), JDBCType.CLOB.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(InputStream.class.getName(), JDBCType.BLOB.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(URL.class.getName(), JDBCType.DATALINK.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(Byte[].class.getName(), JDBCType.VARBINARY.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(byte[].class.getName(), JDBCType.VARBINARY.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(Object[].class.getName(), JDBCType.ARRAY.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put(Object.class.getName(), JDBCType.JAVA_OBJECT.getVendorTypeNumber());
         // oracle types
-        javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleBlob", JDBCType.VARBINARY);
-        javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleClob", JDBCType.CLOB);
-        javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleNClob", JDBCType.NCLOB);
-        javaTypeToJdbcTypeMap.put("oracle.sql.DATE", JDBCType.DATE);
-        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMP", JDBCType.TIMESTAMP);
-        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMPTZ", JDBCType.TIMESTAMP);
-        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMPLTZ", JDBCType.TIMESTAMP);
+        javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleBlob", JDBCType.BLOB.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleClob", JDBCType.CLOB.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleNClob", JDBCType.NCLOB.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put("oracle.sql.DATE", JDBCType.DATE.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMP", JDBCType.TIMESTAMP.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMPTZ", JDBCType.TIMESTAMP.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMPLTZ", JDBCType.TIMESTAMP.getVendorTypeNumber());
     }
 
     public TypeHandlerRegistry() {
@@ -152,44 +152,44 @@ public final class TypeHandlerRegistry {
         this.register(NClob.class, createSingleTypeHandler(NClobTypeHandler.class));
         this.register(Blob.class, createSingleTypeHandler(BlobBytesTypeHandler.class));
 
-        this.register(JDBCType.BIT, createSingleTypeHandler(BooleanTypeHandler.class));
-        this.register(JDBCType.BOOLEAN, createSingleTypeHandler(BooleanTypeHandler.class));
-        this.register(JDBCType.TINYINT, createSingleTypeHandler(ByteTypeHandler.class));
-        this.register(JDBCType.SMALLINT, createSingleTypeHandler(ShortTypeHandler.class));
-        this.register(JDBCType.INTEGER, createSingleTypeHandler(IntegerTypeHandler.class));
-        this.register(JDBCType.BIGINT, createSingleTypeHandler(LongTypeHandler.class));
-        this.register(JDBCType.FLOAT, createSingleTypeHandler(FloatTypeHandler.class));
-        this.register(JDBCType.DOUBLE, createSingleTypeHandler(DoubleTypeHandler.class));
-        this.register(JDBCType.REAL, createSingleTypeHandler(BigDecimalTypeHandler.class));
-        this.register(JDBCType.NUMERIC, createSingleTypeHandler(BigDecimalTypeHandler.class));
-        this.register(JDBCType.DECIMAL, createSingleTypeHandler(BigDecimalTypeHandler.class));
-        this.register(JDBCType.CHAR, createSingleTypeHandler(CharacterTypeHandler.class));
-        this.register(JDBCType.NCHAR, createSingleTypeHandler(NCharacterTypeHandler.class));
-        this.register(JDBCType.CLOB, createSingleTypeHandler(ClobTypeHandler.class));
-        this.register(JDBCType.VARCHAR, createSingleTypeHandler(StringTypeHandler.class));
-        this.register(JDBCType.LONGVARCHAR, createSingleTypeHandler(StringTypeHandler.class));
-        this.register(JDBCType.NCLOB, createSingleTypeHandler(NClobTypeHandler.class));
-        this.register(JDBCType.NVARCHAR, createSingleTypeHandler(NStringTypeHandler.class));
-        this.register(JDBCType.LONGNVARCHAR, createSingleTypeHandler(NStringTypeHandler.class));
-        this.register(JDBCType.TIMESTAMP, createSingleTypeHandler(DateTypeHandler.class));
-        this.register(JDBCType.DATE, createSingleTypeHandler(DateOnlyTypeHandler.class));
-        this.register(JDBCType.TIME, createSingleTypeHandler(TimeOnlyTypeHandler.class));
-        this.register(JDBCType.TIME_WITH_TIMEZONE, createSingleTypeHandler(OffsetTimeForSqlTypeHandler.class));
-        this.register(JDBCType.TIMESTAMP_WITH_TIMEZONE, createSingleTypeHandler(OffsetDateTimeForSqlTypeHandler.class));
-        this.register(JDBCType.SQLXML, createSingleTypeHandler(SqlXmlTypeHandler.class));
-        this.register(JDBCType.BINARY, createSingleTypeHandler(BytesTypeHandler.class));
-        this.register(JDBCType.VARBINARY, createSingleTypeHandler(BytesTypeHandler.class));
-        this.register(JDBCType.BLOB, createSingleTypeHandler(BlobBytesTypeHandler.class));
-        this.register(JDBCType.LONGVARBINARY, createSingleTypeHandler(BytesTypeHandler.class));
-        this.register(JDBCType.JAVA_OBJECT, createSingleTypeHandler(ObjectTypeHandler.class));
-        this.register(JDBCType.ARRAY, createSingleTypeHandler(ArrayTypeHandler.class));
+        this.register(JDBCType.BIT.getVendorTypeNumber(), createSingleTypeHandler(BooleanTypeHandler.class));
+        this.register(JDBCType.BOOLEAN.getVendorTypeNumber(), createSingleTypeHandler(BooleanTypeHandler.class));
+        this.register(JDBCType.TINYINT.getVendorTypeNumber(), createSingleTypeHandler(ByteTypeHandler.class));
+        this.register(JDBCType.SMALLINT.getVendorTypeNumber(), createSingleTypeHandler(ShortTypeHandler.class));
+        this.register(JDBCType.INTEGER.getVendorTypeNumber(), createSingleTypeHandler(IntegerTypeHandler.class));
+        this.register(JDBCType.BIGINT.getVendorTypeNumber(), createSingleTypeHandler(LongTypeHandler.class));
+        this.register(JDBCType.FLOAT.getVendorTypeNumber(), createSingleTypeHandler(FloatTypeHandler.class));
+        this.register(JDBCType.DOUBLE.getVendorTypeNumber(), createSingleTypeHandler(DoubleTypeHandler.class));
+        this.register(JDBCType.REAL.getVendorTypeNumber(), createSingleTypeHandler(BigDecimalTypeHandler.class));
+        this.register(JDBCType.NUMERIC.getVendorTypeNumber(), createSingleTypeHandler(BigDecimalTypeHandler.class));
+        this.register(JDBCType.DECIMAL.getVendorTypeNumber(), createSingleTypeHandler(BigDecimalTypeHandler.class));
+        this.register(JDBCType.CHAR.getVendorTypeNumber(), createSingleTypeHandler(CharacterTypeHandler.class));
+        this.register(JDBCType.NCHAR.getVendorTypeNumber(), createSingleTypeHandler(NCharacterTypeHandler.class));
+        this.register(JDBCType.CLOB.getVendorTypeNumber(), createSingleTypeHandler(ClobTypeHandler.class));
+        this.register(JDBCType.VARCHAR.getVendorTypeNumber(), createSingleTypeHandler(StringTypeHandler.class));
+        this.register(JDBCType.LONGVARCHAR.getVendorTypeNumber(), createSingleTypeHandler(StringTypeHandler.class));
+        this.register(JDBCType.NCLOB.getVendorTypeNumber(), createSingleTypeHandler(NClobTypeHandler.class));
+        this.register(JDBCType.NVARCHAR.getVendorTypeNumber(), createSingleTypeHandler(NStringTypeHandler.class));
+        this.register(JDBCType.LONGNVARCHAR.getVendorTypeNumber(), createSingleTypeHandler(NStringTypeHandler.class));
+        this.register(JDBCType.TIMESTAMP.getVendorTypeNumber(), createSingleTypeHandler(DateTypeHandler.class));
+        this.register(JDBCType.DATE.getVendorTypeNumber(), createSingleTypeHandler(DateOnlyTypeHandler.class));
+        this.register(JDBCType.TIME.getVendorTypeNumber(), createSingleTypeHandler(TimeOnlyTypeHandler.class));
+        this.register(JDBCType.TIME_WITH_TIMEZONE.getVendorTypeNumber(), createSingleTypeHandler(OffsetTimeForSqlTypeHandler.class));
+        this.register(JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber(), createSingleTypeHandler(OffsetDateTimeForSqlTypeHandler.class));
+        this.register(JDBCType.SQLXML.getVendorTypeNumber(), createSingleTypeHandler(SqlXmlTypeHandler.class));
+        this.register(JDBCType.BINARY.getVendorTypeNumber(), createSingleTypeHandler(BytesTypeHandler.class));
+        this.register(JDBCType.VARBINARY.getVendorTypeNumber(), createSingleTypeHandler(BytesTypeHandler.class));
+        this.register(JDBCType.BLOB.getVendorTypeNumber(), createSingleTypeHandler(BlobBytesTypeHandler.class));
+        this.register(JDBCType.LONGVARBINARY.getVendorTypeNumber(), createSingleTypeHandler(BytesTypeHandler.class));
+        this.register(JDBCType.JAVA_OBJECT.getVendorTypeNumber(), createSingleTypeHandler(ObjectTypeHandler.class));
+        this.register(JDBCType.ARRAY.getVendorTypeNumber(), createSingleTypeHandler(ArrayTypeHandler.class));
         // DATALINK(Types.DATALINK)
         // DISTINCT(Types.DISTINCT),
         // STRUCT(Types.STRUCT),
         // REF(Types.REF),
         // ROWID(Types.ROWID),
         // REF_CURSOR(Types.REF_CURSOR),
-        this.register(JDBCType.OTHER, createSingleTypeHandler(UnknownTypeHandler.class));
+        this.register(JDBCType.OTHER.getVendorTypeNumber(), createSingleTypeHandler(UnknownTypeHandler.class));
 
         this.registerCrossChars(MonthDay.class, createSingleTypeHandler(MonthDayOfStringTypeHandler.class));
         this.registerCrossNChars(MonthDay.class, createSingleTypeHandler(MonthDayOfStringTypeHandler.class));
@@ -206,40 +206,40 @@ public final class TypeHandlerRegistry {
 
         this.registerCrossChars(String.class, createSingleTypeHandler(StringTypeHandler.class));
         this.registerCrossNChars(String.class, createSingleTypeHandler(NStringTypeHandler.class));
-        this.registerCross(JDBCType.CLOB, String.class, createSingleTypeHandler(ClobTypeHandler.class));
-        this.registerCross(JDBCType.NCLOB, String.class, createSingleTypeHandler(NClobTypeHandler.class));
+        this.registerCross(JDBCType.CLOB.getVendorTypeNumber(), String.class, createSingleTypeHandler(ClobTypeHandler.class));
+        this.registerCross(JDBCType.NCLOB.getVendorTypeNumber(), String.class, createSingleTypeHandler(NClobTypeHandler.class));
         this.registerCrossChars(Reader.class, createSingleTypeHandler(StringReaderTypeHandler.class));
         this.registerCrossNChars(Reader.class, createSingleTypeHandler(NStringReaderTypeHandler.class));
-        this.registerCross(JDBCType.CLOB, Reader.class, createSingleTypeHandler(ClobReaderTypeHandler.class));
-        this.registerCross(JDBCType.NCLOB, Reader.class, createSingleTypeHandler(NClobReaderTypeHandler.class));
+        this.registerCross(JDBCType.CLOB.getVendorTypeNumber(), Reader.class, createSingleTypeHandler(ClobReaderTypeHandler.class));
+        this.registerCross(JDBCType.NCLOB.getVendorTypeNumber(), Reader.class, createSingleTypeHandler(NClobReaderTypeHandler.class));
 
-        this.registerCross(JDBCType.SQLXML, String.class, createSingleTypeHandler(SqlXmlTypeHandler.class));
-        this.registerCross(JDBCType.SQLXML, Reader.class, createSingleTypeHandler(SqlXmlForReaderTypeHandler.class));
-        this.registerCross(JDBCType.SQLXML, InputStream.class, createSingleTypeHandler(SqlXmlForInputStreamTypeHandler.class));
+        this.registerCross(JDBCType.SQLXML.getVendorTypeNumber(), String.class, createSingleTypeHandler(SqlXmlTypeHandler.class));
+        this.registerCross(JDBCType.SQLXML.getVendorTypeNumber(), Reader.class, createSingleTypeHandler(SqlXmlForReaderTypeHandler.class));
+        this.registerCross(JDBCType.SQLXML.getVendorTypeNumber(), InputStream.class, createSingleTypeHandler(SqlXmlForInputStreamTypeHandler.class));
 
-        this.registerCross(JDBCType.BINARY, byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
-        this.registerCross(JDBCType.BINARY, Byte[].class, createSingleTypeHandler(BytesForWrapTypeHandler.class));
-        this.registerCross(JDBCType.VARBINARY, byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
-        this.registerCross(JDBCType.VARBINARY, Byte[].class, createSingleTypeHandler(BytesForWrapTypeHandler.class));
-        this.registerCross(JDBCType.BLOB, byte[].class, createSingleTypeHandler(BlobBytesTypeHandler.class));
-        this.registerCross(JDBCType.BLOB, Byte[].class, createSingleTypeHandler(BlobBytesForWrapTypeHandler.class));
-        this.registerCross(JDBCType.LONGVARBINARY, byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
-        this.registerCross(JDBCType.LONGVARBINARY, Byte[].class, createSingleTypeHandler(BytesForWrapTypeHandler.class));
+        this.registerCross(JDBCType.BINARY.getVendorTypeNumber(), byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
+        this.registerCross(JDBCType.BINARY.getVendorTypeNumber(), Byte[].class, createSingleTypeHandler(BytesForWrapTypeHandler.class));
+        this.registerCross(JDBCType.VARBINARY.getVendorTypeNumber(), byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
+        this.registerCross(JDBCType.VARBINARY.getVendorTypeNumber(), Byte[].class, createSingleTypeHandler(BytesForWrapTypeHandler.class));
+        this.registerCross(JDBCType.BLOB.getVendorTypeNumber(), byte[].class, createSingleTypeHandler(BlobBytesTypeHandler.class));
+        this.registerCross(JDBCType.BLOB.getVendorTypeNumber(), Byte[].class, createSingleTypeHandler(BlobBytesForWrapTypeHandler.class));
+        this.registerCross(JDBCType.LONGVARBINARY.getVendorTypeNumber(), byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
+        this.registerCross(JDBCType.LONGVARBINARY.getVendorTypeNumber(), Byte[].class, createSingleTypeHandler(BytesForWrapTypeHandler.class));
 
-        this.registerCross(JDBCType.BINARY, InputStream.class, createSingleTypeHandler(BytesInputStreamTypeHandler.class));
-        this.registerCross(JDBCType.VARBINARY, InputStream.class, createSingleTypeHandler(BytesInputStreamTypeHandler.class));
-        this.registerCross(JDBCType.BLOB, InputStream.class, createSingleTypeHandler(BlobInputStreamTypeHandler.class));
-        this.registerCross(JDBCType.LONGVARBINARY, InputStream.class, createSingleTypeHandler(BytesInputStreamTypeHandler.class));
+        this.registerCross(JDBCType.BINARY.getVendorTypeNumber(), InputStream.class, createSingleTypeHandler(BytesInputStreamTypeHandler.class));
+        this.registerCross(JDBCType.VARBINARY.getVendorTypeNumber(), InputStream.class, createSingleTypeHandler(BytesInputStreamTypeHandler.class));
+        this.registerCross(JDBCType.BLOB.getVendorTypeNumber(), InputStream.class, createSingleTypeHandler(BlobInputStreamTypeHandler.class));
+        this.registerCross(JDBCType.LONGVARBINARY.getVendorTypeNumber(), InputStream.class, createSingleTypeHandler(BytesInputStreamTypeHandler.class));
 
-        this.registerCross(JDBCType.ARRAY, Object.class, createSingleTypeHandler(ArrayTypeHandler.class));
+        this.registerCross(JDBCType.ARRAY.getVendorTypeNumber(), Object.class, createSingleTypeHandler(ArrayTypeHandler.class));
 
-        javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleBlob", JDBCType.VARBINARY);
-        javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleClob", JDBCType.CLOB);
-        javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleNClob", JDBCType.NCLOB);
-        javaTypeToJdbcTypeMap.put("oracle.sql.DATE", JDBCType.DATE);
-        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMP", JDBCType.TIMESTAMP);
-        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMPTZ", JDBCType.TIMESTAMP_WITH_TIMEZONE);
-        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMPLTZ", JDBCType.TIMESTAMP_WITH_TIMEZONE);
+        javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleBlob", JDBCType.VARBINARY.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleClob", JDBCType.CLOB.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleNClob", JDBCType.NCLOB.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put("oracle.sql.DATE", JDBCType.DATE.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMP", JDBCType.TIMESTAMP.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMPTZ", JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber());
+        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMPLTZ", JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber());
     }
 
     private TypeHandler<?> createSingleTypeHandler(Class<? extends TypeHandler<?>> typeHandler) {
@@ -258,7 +258,7 @@ public final class TypeHandlerRegistry {
     }
 
     /** 注册 TypeHandler */
-    public void register(JDBCType jdbcType, TypeHandler<?> typeHandler) {
+    public void register(int jdbcType, TypeHandler<?> typeHandler) {
         this.jdbcTypeHandlerMap.put(jdbcType, typeHandler);
     }
 
@@ -267,35 +267,35 @@ public final class TypeHandlerRegistry {
         this.javaTypeHandlerMap.put(javaType.getName(), typeHandler);
     }
 
-    public void registerCross(JDBCType jdbcType, Class<?> javaType, TypeHandler<?> typeHandler) {
-        Map<JDBCType, TypeHandler<?>> typeClassMap = this.typeHandlerMap.computeIfAbsent(javaType.getName(), k -> {
+    public void registerCross(int jdbcType, Class<?> javaType, TypeHandler<?> typeHandler) {
+        Map<Integer, TypeHandler<?>> typeClassMap = this.typeHandlerMap.computeIfAbsent(javaType.getName(), k -> {
             return new ConcurrentHashMap<>();
         });
         typeClassMap.put(jdbcType, typeHandler);
     }
 
     private void registerCrossChars(Class<?> jdbcType, TypeHandler<?> typeHandler) {
-        registerCross(JDBCType.CHAR, jdbcType, typeHandler);
-        registerCross(JDBCType.VARCHAR, jdbcType, typeHandler);
-        registerCross(JDBCType.LONGVARCHAR, jdbcType, typeHandler);
+        registerCross(JDBCType.CHAR.getVendorTypeNumber(), jdbcType, typeHandler);
+        registerCross(JDBCType.VARCHAR.getVendorTypeNumber(), jdbcType, typeHandler);
+        registerCross(JDBCType.LONGVARCHAR.getVendorTypeNumber(), jdbcType, typeHandler);
     }
 
     private void registerCrossNChars(Class<?> jdbcType, TypeHandler<?> typeHandler) {
-        registerCross(JDBCType.NCHAR, jdbcType, typeHandler);
-        registerCross(JDBCType.NVARCHAR, jdbcType, typeHandler);
-        registerCross(JDBCType.LONGNVARCHAR, jdbcType, typeHandler);
+        registerCross(JDBCType.NCHAR.getVendorTypeNumber(), jdbcType, typeHandler);
+        registerCross(JDBCType.NVARCHAR.getVendorTypeNumber(), jdbcType, typeHandler);
+        registerCross(JDBCType.LONGNVARCHAR.getVendorTypeNumber(), jdbcType, typeHandler);
     }
 
     private void registerCrossNumber(Class<?> jdbcType, TypeHandler<?> typeHandler) {
-        registerCross(JDBCType.TINYINT, jdbcType, typeHandler);
-        registerCross(JDBCType.SMALLINT, jdbcType, typeHandler);
-        registerCross(JDBCType.INTEGER, jdbcType, typeHandler);
-        registerCross(JDBCType.BIGINT, jdbcType, typeHandler);
-        registerCross(JDBCType.FLOAT, jdbcType, typeHandler);
-        registerCross(JDBCType.DOUBLE, jdbcType, typeHandler);
-        registerCross(JDBCType.REAL, jdbcType, typeHandler);
-        registerCross(JDBCType.NUMERIC, jdbcType, typeHandler);
-        registerCross(JDBCType.DECIMAL, jdbcType, typeHandler);
+        registerCross(JDBCType.TINYINT.getVendorTypeNumber(), jdbcType, typeHandler);
+        registerCross(JDBCType.SMALLINT.getVendorTypeNumber(), jdbcType, typeHandler);
+        registerCross(JDBCType.INTEGER.getVendorTypeNumber(), jdbcType, typeHandler);
+        registerCross(JDBCType.BIGINT.getVendorTypeNumber(), jdbcType, typeHandler);
+        registerCross(JDBCType.FLOAT.getVendorTypeNumber(), jdbcType, typeHandler);
+        registerCross(JDBCType.DOUBLE.getVendorTypeNumber(), jdbcType, typeHandler);
+        registerCross(JDBCType.REAL.getVendorTypeNumber(), jdbcType, typeHandler);
+        registerCross(JDBCType.NUMERIC.getVendorTypeNumber(), jdbcType, typeHandler);
+        registerCross(JDBCType.DECIMAL.getVendorTypeNumber(), jdbcType, typeHandler);
     }
 
     /** 根据 @MappedJavaTypes @MappedJdbcTypes @MappedCross 注解注册 TypeHandler */
@@ -308,7 +308,7 @@ public final class TypeHandlerRegistry {
         }
         MappedJdbcTypes mappedJdbcTypes = handlerClass.getAnnotation(MappedJdbcTypes.class);
         if (mappedJdbcTypes != null) {
-            for (JDBCType jdbcType : mappedJdbcTypes.value()) {
+            for (int jdbcType : mappedJdbcTypes.value()) {
                 if (typeHandler instanceof TypeReference) {
                     registerCross(jdbcType, ((TypeReference<?>) typeHandler).getRawType(), typeHandler);
                 } else {
@@ -321,7 +321,7 @@ public final class TypeHandlerRegistry {
             MappedJdbcTypes jdbcTypes = cross.jdbcType();
             MappedJavaTypes javaTypes = cross.javaTypes();
             for (Class<?> javaType : javaTypes.value()) {
-                for (JDBCType jdbcType : jdbcTypes.value()) {
+                for (int jdbcType : jdbcTypes.value()) {
                     registerCross(jdbcType, javaType, typeHandler);
                 }
             }
@@ -333,25 +333,26 @@ public final class TypeHandlerRegistry {
     }
 
     /** 根据 Java 类型Derive a default SQL type from the given Java type.*/
-    public static JDBCType toSqlType(final String javaType) {
-        JDBCType jdbcType = javaTypeToJdbcTypeMap.get(javaType);
+    public static int toSqlType(final String javaType) {
+        Integer jdbcType = javaTypeToJdbcTypeMap.get(javaType);
         if (jdbcType != null) {
             return jdbcType;
         }
-        return JDBCType.OTHER;
+        return JDBCType.JAVA_OBJECT.getVendorTypeNumber();
+
     }
 
     /** 根据 Java 类型Derive a default SQL type from the given Java type.*/
-    public static JDBCType toSqlType(final Class<?> javaType) {
-        JDBCType jdbcType = javaTypeToJdbcTypeMap.get(javaType.getName());
+    public static int toSqlType(final Class<?> javaType) {
+        Integer jdbcType = javaTypeToJdbcTypeMap.get(javaType.getName());
         if (jdbcType != null) {
             return jdbcType;
         }
-        return JDBCType.OTHER;
+        return JDBCType.JAVA_OBJECT.getVendorTypeNumber();
     }
 
     /** 根据 jdbcType 获取默认的 Java Type.*/
-    public static Class<?> toJavaType(JDBCType jdbcType) {
+    public static Class<?> toJavaType(int jdbcType) {
         return jdbcTypeToJavaTypeMap.get(jdbcType);
     }
 
@@ -369,15 +370,13 @@ public final class TypeHandlerRegistry {
         return this.javaTypeHandlerMap.containsKey(typeClass.getName());
     }
 
-    public boolean hasTypeHandler(JDBCType jdbcType) {
-        Objects.requireNonNull(jdbcType, "jdbcType is null.");
+    public boolean hasTypeHandler(int jdbcType) {
         return this.jdbcTypeHandlerMap.containsKey(jdbcType);
     }
 
-    public boolean hasTypeHandler(Class<?> typeClass, JDBCType jdbcType) {
+    public boolean hasTypeHandler(Class<?> typeClass, int jdbcType) {
         Objects.requireNonNull(typeClass, "typeClass is null.");
-        Objects.requireNonNull(jdbcType, "jdbcType is null.");
-        Map<JDBCType, TypeHandler<?>> jdbcHandlerMap = this.typeHandlerMap.get(typeClass.getName());
+        Map<Integer, TypeHandler<?>> jdbcHandlerMap = this.typeHandlerMap.get(typeClass.getName());
         if (jdbcHandlerMap != null) {
             return jdbcHandlerMap.containsKey(jdbcType);
         }
@@ -390,8 +389,7 @@ public final class TypeHandlerRegistry {
         return (typeHandler != null) ? typeHandler : this.defaultTypeHandler;
     }
 
-    public TypeHandler<?> getTypeHandler(JDBCType jdbcType) {
-        Objects.requireNonNull(jdbcType, "jdbcType is null.");
+    public TypeHandler<?> getTypeHandler(int jdbcType) {
         TypeHandler<?> typeHandler = this.jdbcTypeHandlerMap.get(jdbcType);
         return (typeHandler != null) ? typeHandler : this.defaultTypeHandler;
     }
@@ -400,33 +398,29 @@ public final class TypeHandlerRegistry {
      * 根据 typeClass 和 jdbcType 的映射关系查找对应的 TypeHandler。
      *  - 如果不存在对应的 TypeHandler，那么通过 typeClass 单独查找。
      *  - 如果 typeClass 也没有注册那么返回 {@link #getDefaultTypeHandler()} */
-    public TypeHandler<?> getTypeHandler(Class<?> typeClass, JDBCType jdbcType) {
-        if (typeClass == null && jdbcType == null) {
+    public TypeHandler<?> getTypeHandler(Class<?> typeClass, int jdbcType) {
+        if (typeClass == null) {
             return this.defaultTypeHandler;
         }
-        if (typeClass != null && jdbcType != null) {
-            Map<JDBCType, TypeHandler<?>> handlerMap = this.typeHandlerMap.get(typeClass.getName());
-            if (handlerMap != null) {
-                TypeHandler<?> typeHandler = handlerMap.get(jdbcType);
-                if (typeHandler != null) {
-                    return typeHandler;
-                }
-            }
-        }
-
-        if (typeClass != null) {
-            TypeHandler<?> typeHandler = this.javaTypeHandlerMap.get(typeClass.getName());
+        Map<Integer, TypeHandler<?>> handlerMap = this.typeHandlerMap.get(typeClass.getName());
+        if (handlerMap != null) {
+            TypeHandler<?> typeHandler = handlerMap.get(jdbcType);
             if (typeHandler != null) {
                 return typeHandler;
             }
-            if (Enum.class.isAssignableFrom(typeClass)) {
-                typeClass = typeClass.isAnonymousClass() ? typeClass.getSuperclass() : typeClass;
-                typeHandler = this.javaTypeHandlerMap.get(typeClass.getName());
-                if (typeHandler == null) {
-                    EnumTypeHandler enumOfStringTypeHandler = new EnumTypeHandler(typeClass);
-                    this.javaTypeHandlerMap.put(typeClass.getName(), enumOfStringTypeHandler);
-                    return enumOfStringTypeHandler;
-                }
+        }
+
+        TypeHandler<?> typeHandler = this.javaTypeHandlerMap.get(typeClass.getName());
+        if (typeHandler != null) {
+            return typeHandler;
+        }
+        if (Enum.class.isAssignableFrom(typeClass)) {
+            typeClass = typeClass.isAnonymousClass() ? typeClass.getSuperclass() : typeClass;
+            typeHandler = this.javaTypeHandlerMap.get(typeClass.getName());
+            if (typeHandler == null) {
+                EnumTypeHandler enumOfStringTypeHandler = new EnumTypeHandler(typeClass);
+                this.javaTypeHandlerMap.put(typeClass.getName(), enumOfStringTypeHandler);
+                return enumOfStringTypeHandler;
             }
         }
 

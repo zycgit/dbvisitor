@@ -25,7 +25,7 @@ import java.time.Month;
  */
 public class MonthOfTimeTypeHandler extends AbstractTypeHandler<Month> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Month parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Month parameter, Integer jdbcType) throws SQLException {
         LocalDateTime dateTime = LocalDateTime.of(0, parameter.getValue(), 1, 0, 0);
         ps.setTimestamp(i, Timestamp.valueOf(dateTime));
     }

@@ -39,7 +39,7 @@ public class JapaneseDateTypeHandler extends AbstractTypeHandler<JapaneseDate> {
     }
 
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, JapaneseDate parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, JapaneseDate parameter, Integer jdbcType) throws SQLException {
         ps.setDate(i, Date.valueOf(LocalDate.ofEpochDay(parameter.toEpochDay())));
     }
 

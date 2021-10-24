@@ -66,7 +66,7 @@ public class ShortTypeTest {
             assert dat2 == 123;
             //
             List<Short> dat = jdbcTemplate.query("select ?", ps -> {
-                new ShortTypeHandler().setParameter(ps, 1, (short) 123, JDBCType.SMALLINT);
+                new ShortTypeHandler().setParameter(ps, 1, (short) 123, JDBCType.SMALLINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new ShortTypeHandler().getNullableResult(rs, 1);
             });
@@ -82,7 +82,7 @@ public class ShortTypeTest {
             jdbcTemplate.execute("create procedure proc_integer(out p_out integer) begin set p_out=123; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_integer(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.INTEGER, new ShortTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.INTEGER.getVendorTypeNumber(), new ShortTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Short;

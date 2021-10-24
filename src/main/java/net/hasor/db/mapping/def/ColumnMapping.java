@@ -13,27 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.mapping;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.sql.JDBCType;
+package net.hasor.db.mapping.def;
+import net.hasor.cobble.function.Property;
+import net.hasor.db.types.TypeHandler;
 
 /**
- * （可选）标记在字段上可以用于脱离元信息依赖作为元信息补充。
+ * 字段映射信息
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ColumnMeta {
-    /** 指定使用的 jdbcType */
-    public JDBCType jdbcType() default JDBCType.OTHER;
+public interface ColumnMapping {
+    /** 列名 */
+    public String getColumn();
+
+    /** 属性名 */
+    public String getProperty();
+
+    /** 对应的 javaType */
+    public Class<?> getJavaType();
+
+    /** 使用的 jdbcType,如果没有配置那么会通过 javaType 来自动推断 */
+    public Integer getJdbcType();
+
+    public TypeHandler<?> getTypeHandler();
+
+    public Property getHandler();
 
     /** 是否为主键 */
-    public boolean primary() default false;
+    public boolean isPrimaryKey();
 
-    /** 唯一键 key */
-    public String uniqueKey() default "";
+    /** 参与更新 */
+    public boolean isUpdate();
+
+    /** 参与新增 */
+    public boolean isInsert();
 }

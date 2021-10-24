@@ -23,7 +23,7 @@ import java.time.Instant;
  */
 public class InstantTypeHandler extends AbstractTypeHandler<Instant> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Instant parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Instant parameter, Integer jdbcType) throws SQLException {
         ps.setTimestamp(i, Timestamp.from(parameter));
     }
 

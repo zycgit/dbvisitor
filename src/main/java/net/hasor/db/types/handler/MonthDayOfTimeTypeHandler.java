@@ -25,7 +25,7 @@ import java.time.MonthDay;
  */
 public class MonthDayOfTimeTypeHandler extends AbstractTypeHandler<MonthDay> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, MonthDay parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, MonthDay parameter, Integer jdbcType) throws SQLException {
         LocalDateTime dateTime = LocalDateTime.MIN//
                 .withYear(0)//
                 .withMonth(parameter.getMonthValue())//

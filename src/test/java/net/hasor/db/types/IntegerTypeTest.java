@@ -66,7 +66,7 @@ public class IntegerTypeTest {
             assert dat2 == 123;
             //
             List<Integer> dat = jdbcTemplate.query("select ?", ps -> {
-                new IntegerTypeHandler().setParameter(ps, 1, 123, JDBCType.INTEGER);
+                new IntegerTypeHandler().setParameter(ps, 1, 123, JDBCType.INTEGER.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new IntegerTypeHandler().getNullableResult(rs, 1);
             });
@@ -82,7 +82,7 @@ public class IntegerTypeTest {
             jdbcTemplate.execute("create procedure proc_integer(out p_out integer) begin set p_out=123123; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_integer(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.INTEGER, new IntegerTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.INTEGER.getVendorTypeNumber(), new IntegerTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Integer;

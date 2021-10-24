@@ -20,7 +20,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * @version : 2020-10-31
@@ -28,7 +31,7 @@ import java.sql.*;
  */
 public class BytesInputStreamTypeHandler extends AbstractTypeHandler<InputStream> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, InputStream parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, InputStream parameter, Integer jdbcType) throws SQLException {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             IOUtils.copy(parameter, baos);

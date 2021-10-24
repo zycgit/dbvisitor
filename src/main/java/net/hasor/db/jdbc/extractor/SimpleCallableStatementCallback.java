@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.db.jdbc.extractor;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.db.jdbc.*;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
-import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.CallableStatement;
-import java.sql.JDBCType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -72,7 +71,7 @@ public class SimpleCallableStatementCallback implements CallableStatementCallbac
         for (SqlParameter declaredParam : declaredParameters) {
             // input parameters
             if (declaredParam instanceof SqlParameter.InSqlParameter) {
-                JDBCType paramJdbcType = Objects.requireNonNull(((SqlParameter.InSqlParameter) declaredParam).getJdbcType(), "jdbcType must not be null");
+                Integer paramJdbcType = Objects.requireNonNull(((SqlParameter.InSqlParameter) declaredParam).getJdbcType(), "jdbcType must not be null");
                 Object paramValue = ((SqlParameter.InSqlParameter) declaredParam).getValue();
                 TypeHandler paramTypeHandler = ((SqlParameter.InSqlParameter) declaredParam).getTypeHandler();
                 //
@@ -81,7 +80,7 @@ public class SimpleCallableStatementCallback implements CallableStatementCallbac
             }
             // output parameters
             if (declaredParam instanceof SqlParameter.OutSqlParameter) {
-                JDBCType paramJdbcType = Objects.requireNonNull(((SqlParameter.OutSqlParameter) declaredParam).getJdbcType(), "jdbcType must not be null");
+                Integer paramJdbcType = Objects.requireNonNull(((SqlParameter.OutSqlParameter) declaredParam).getJdbcType(), "jdbcType must not be null");
                 String paramTypeName = ((SqlParameter.OutSqlParameter) declaredParam).getTypeName();
                 Integer paramScale = ((SqlParameter.OutSqlParameter) declaredParam).getScale();
                 //
@@ -116,7 +115,7 @@ public class SimpleCallableStatementCallback implements CallableStatementCallbac
             }
             outParameter = (SqlParameter.OutSqlParameter) declaredParam;
             String paramName = declaredParam.getName();
-            JDBCType paramJdbcType = Objects.requireNonNull(outParameter.getJdbcType(), "jdbcType must not be null");
+            Integer paramJdbcType = Objects.requireNonNull(outParameter.getJdbcType(), "jdbcType must not be null");
             TypeHandler paramTypeHandler = outParameter.getTypeHandler();
             //
             paramName = StringUtils.isNotBlank(paramName) ? paramName : "#out-" + i;

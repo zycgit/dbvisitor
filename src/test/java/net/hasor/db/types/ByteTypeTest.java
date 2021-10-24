@@ -66,7 +66,7 @@ public class ByteTypeTest {
             assert dat2 == 34;
             //
             List<Byte> dat = jdbcTemplate.query("select ?", ps -> {
-                new ByteTypeHandler().setParameter(ps, 1, (byte) 123, JDBCType.SMALLINT);
+                new ByteTypeHandler().setParameter(ps, 1, (byte) 123, JDBCType.SMALLINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new ByteTypeHandler().getNullableResult(rs, 1);
             });
@@ -82,7 +82,7 @@ public class ByteTypeTest {
             jdbcTemplate.execute("create procedure proc_smallint(out p_out smallint) begin set p_out=123; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_smallint(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.SMALLINT, new ByteTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.SMALLINT.getVendorTypeNumber(), new ByteTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Byte;

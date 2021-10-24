@@ -17,7 +17,10 @@ package net.hasor.db.types.handler;
 import net.hasor.db.types.EnumOfCode;
 import net.hasor.db.types.EnumOfValue;
 
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * @version : 2020-11-29
@@ -50,7 +53,7 @@ public class EnumTypeHandler<E extends Enum<E>> extends AbstractTypeHandler<E> {
     }
 
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, E parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, E parameter, Integer jdbcType) throws SQLException {
         if (parameter instanceof EnumOfCode && this.ofCode != null) {
             ps.setString(i, ((EnumOfCode<?>) parameter).codeName());
             return;

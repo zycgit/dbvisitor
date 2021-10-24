@@ -35,7 +35,7 @@ public class ArrayTypeTest {
             //
             Set<String> testSet = new HashSet<>(Arrays.asList("a", "b", "c"));
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_array) values (?);", ps -> {
-                new ArrayTypeHandler().setParameter(ps, 1, testSet.toArray(), JDBCType.ARRAY);
+                new ArrayTypeHandler().setParameter(ps, 1, testSet.toArray(), JDBCType.ARRAY.getVendorTypeNumber());
             });
             List<Object> dat = jdbcTemplate.query("select c_array from tb_h2_types where c_array is not null limit 1;", (rs, rowNum) -> {
                 return new ArrayTypeHandler().getResult(rs, 1);
@@ -56,7 +56,7 @@ public class ArrayTypeTest {
             //
             Set<String> testSet = new HashSet<>(Arrays.asList("a", "b", "c"));
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_array) values (?);", ps -> {
-                new ArrayTypeHandler().setParameter(ps, 1, testSet.toArray(), JDBCType.ARRAY);
+                new ArrayTypeHandler().setParameter(ps, 1, testSet.toArray(), JDBCType.ARRAY.getVendorTypeNumber());
             });
             List<Object> dat = jdbcTemplate.query("select c_array from tb_h2_types where c_array is not null limit 1;", (rs, rowNum) -> {
                 return new ArrayTypeHandler().getResult(rs, "c_array");

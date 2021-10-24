@@ -30,7 +30,7 @@ public class BlobInputStreamTypeHandler extends AbstractTypeHandler<InputStream>
      * @see PreparedStatement#setBlob(int, InputStream)
      */
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, InputStream parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, InputStream parameter, Integer jdbcType) throws SQLException {
         ps.setBlob(i, parameter);
     }
 

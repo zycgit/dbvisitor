@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.db.types.handler;
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.YearMonth;
 
 /**
@@ -28,7 +31,7 @@ import java.time.YearMonth;
  */
 public class YearMonthOfNumberTypeHandler extends AbstractTypeHandler<YearMonth> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, YearMonth yearMonth, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, YearMonth yearMonth, Integer jdbcType) throws SQLException {
         String monthValue = String.valueOf(yearMonth.getMonthValue());
         if (monthValue.length() == 1) {
             monthValue = "0" + monthValue;

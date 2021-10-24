@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      http:www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,7 @@ import net.hasor.test.db.AbstractDbTest;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
 
-import java.sql.JDBCType;
+import java.sql.Types;
 
 import static net.hasor.db.jdbc.SqlParameter.*;
 
@@ -33,8 +33,8 @@ import static net.hasor.db.jdbc.SqlParameter.*;
 public class SqlParameterUtilsTest extends AbstractDbTest {
     @Test
     public void withOutput_1() {
-        OutSqlParameter parameter = SqlParameterUtils.withOutput(JDBCType.BIGINT);
-        assert parameter.getJdbcType() == JDBCType.BIGINT;
+        OutSqlParameter parameter = SqlParameterUtils.withOutput(Types.BIGINT);
+        assert parameter.getJdbcType() == Types.BIGINT;
         assert parameter.getTypeHandler() == null;
         assert parameter.getName() == null;
         assert parameter.getScale() == null;
@@ -43,8 +43,8 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
 
     @Test
     public void withOutput_2() {
-        OutSqlParameter parameter = SqlParameterUtils.withOutput(JDBCType.BIGINT, 123);
-        assert parameter.getJdbcType() == JDBCType.BIGINT;
+        OutSqlParameter parameter = SqlParameterUtils.withOutput(Types.BIGINT, 123);
+        assert parameter.getJdbcType() == Types.BIGINT;
         assert parameter.getTypeHandler() == null;
         assert parameter.getName() == null;
         assert parameter.getScale() == 123;
@@ -53,8 +53,8 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
 
     @Test
     public void withOutput_3() {
-        OutSqlParameter parameter = SqlParameterUtils.withOutput(JDBCType.BIGINT, "type");
-        assert parameter.getJdbcType() == JDBCType.BIGINT;
+        OutSqlParameter parameter = SqlParameterUtils.withOutput(Types.BIGINT, "type");
+        assert parameter.getJdbcType() == Types.BIGINT;
         assert parameter.getTypeHandler() == null;
         assert parameter.getName() == null;
         assert parameter.getScale() == null;
@@ -64,8 +64,8 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
     @Test
     public void withOutput_4() {
         TypeHandler<?> handler = PowerMockito.mock(TypeHandler.class);
-        OutSqlParameter parameter = SqlParameterUtils.withOutput(JDBCType.BIGINT, handler);
-        assert parameter.getJdbcType() == JDBCType.BIGINT;
+        OutSqlParameter parameter = SqlParameterUtils.withOutput(Types.BIGINT, handler);
+        assert parameter.getJdbcType() == Types.BIGINT;
         assert parameter.getTypeHandler() == handler;
         assert parameter.getName() == null;
         assert parameter.getScale() == null;
@@ -75,8 +75,8 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
     @Test
     public void withOutput_5() {
         TypeHandler<?> handler = PowerMockito.mock(TypeHandler.class);
-        OutSqlParameter parameter = SqlParameterUtils.withOutput(JDBCType.BIGINT, 123, handler);
-        assert parameter.getJdbcType() == JDBCType.BIGINT;
+        OutSqlParameter parameter = SqlParameterUtils.withOutput(Types.BIGINT, 123, handler);
+        assert parameter.getJdbcType() == Types.BIGINT;
         assert parameter.getTypeHandler() == handler;
         assert parameter.getName() == null;
         assert parameter.getScale() == 123;
@@ -86,8 +86,8 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
     @Test
     public void withOutput_6() {
         TypeHandler<?> handler = PowerMockito.mock(TypeHandler.class);
-        OutSqlParameter parameter = SqlParameterUtils.withOutput(JDBCType.BIGINT, "type", handler);
-        assert parameter.getJdbcType() == JDBCType.BIGINT;
+        OutSqlParameter parameter = SqlParameterUtils.withOutput(Types.BIGINT, "type", handler);
+        assert parameter.getJdbcType() == Types.BIGINT;
         assert parameter.getTypeHandler() == handler;
         assert parameter.getName() == null;
         assert parameter.getScale() == null;
@@ -96,15 +96,15 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
 
     @Test
     public void withOutput_7() {
-        OutSqlParameter parameter = SqlParameterUtils.withOutput("abc", JDBCType.BIGINT);
-        assert parameter.getJdbcType() == JDBCType.BIGINT;
+        OutSqlParameter parameter = SqlParameterUtils.withOutputName("abc", Types.BIGINT);
+        assert parameter.getJdbcType() == Types.BIGINT;
         assert parameter.getTypeHandler() == null;
         assert parameter.getName().equals("abc");
         assert parameter.getScale() == null;
         assert parameter.getTypeName() == null;
-        //
+
         try {
-            SqlParameterUtils.withOutput("", JDBCType.BIGINT);
+            SqlParameterUtils.withOutputName("", Types.BIGINT);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().equals("paramName can not be empty or null.");
@@ -113,15 +113,15 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
 
     @Test
     public void withOutput_8() {
-        OutSqlParameter parameter = SqlParameterUtils.withOutput("abc", JDBCType.BIGINT, 123);
-        assert parameter.getJdbcType() == JDBCType.BIGINT;
+        OutSqlParameter parameter = SqlParameterUtils.withOutputName("abc", Types.BIGINT, 123);
+        assert parameter.getJdbcType() == Types.BIGINT;
         assert parameter.getTypeHandler() == null;
         assert parameter.getName().equals("abc");
         assert parameter.getScale() == 123;
         assert parameter.getTypeName() == null;
-        //
+
         try {
-            SqlParameterUtils.withOutput("", JDBCType.BIGINT, 123);
+            SqlParameterUtils.withOutputName("", Types.BIGINT, 123);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().equals("paramName can not be empty or null.");
@@ -130,15 +130,15 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
 
     @Test
     public void withOutput_9() {
-        OutSqlParameter parameter = SqlParameterUtils.withOutput("abc", JDBCType.BIGINT, "type");
-        assert parameter.getJdbcType() == JDBCType.BIGINT;
+        OutSqlParameter parameter = SqlParameterUtils.withOutputName("abc", Types.BIGINT, "type");
+        assert parameter.getJdbcType() == Types.BIGINT;
         assert parameter.getTypeHandler() == null;
         assert parameter.getName().equals("abc");
         assert parameter.getScale() == null;
         assert parameter.getTypeName().equals("type");
-        //
+
         try {
-            SqlParameterUtils.withOutput("", JDBCType.BIGINT, "type");
+            SqlParameterUtils.withOutputName("", Types.BIGINT, "type");
             assert false;
         } catch (Exception e) {
             assert e.getMessage().equals("paramName can not be empty or null.");
@@ -148,15 +148,15 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
     @Test
     public void withOutput_10() {
         TypeHandler<?> handler = PowerMockito.mock(TypeHandler.class);
-        OutSqlParameter parameter = SqlParameterUtils.withOutput("abc", JDBCType.BIGINT, 123, handler);
-        assert parameter.getJdbcType() == JDBCType.BIGINT;
+        OutSqlParameter parameter = SqlParameterUtils.withOutputName("abc", Types.BIGINT, 123, handler);
+        assert parameter.getJdbcType() == Types.BIGINT;
         assert parameter.getTypeHandler() == handler;
         assert parameter.getName().equals("abc");
         assert parameter.getScale() == 123;
         assert parameter.getTypeName() == null;
-        //
+
         try {
-            SqlParameterUtils.withOutput("", JDBCType.BIGINT, 123, handler);
+            SqlParameterUtils.withOutputName("", Types.BIGINT, 123, handler);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().equals("paramName can not be empty or null.");
@@ -166,15 +166,15 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
     @Test
     public void withOutput_11() {
         TypeHandler<?> handler = PowerMockito.mock(TypeHandler.class);
-        OutSqlParameter parameter = SqlParameterUtils.withOutput("abc", JDBCType.BIGINT, "type", handler);
-        assert parameter.getJdbcType() == JDBCType.BIGINT;
+        OutSqlParameter parameter = SqlParameterUtils.withOutputName("abc", Types.BIGINT, "type", handler);
+        assert parameter.getJdbcType() == Types.BIGINT;
         assert parameter.getTypeHandler() == handler;
         assert parameter.getName().equals("abc");
         assert parameter.getScale() == null;
         assert parameter.getTypeName().equals("type");
-        //
+
         try {
-            SqlParameterUtils.withOutput("", JDBCType.BIGINT, "type", handler);
+            SqlParameterUtils.withOutputName("", Types.BIGINT, "type", handler);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().equals("paramName can not be empty or null.");
@@ -184,15 +184,15 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
     @Test
     public void withOutput_12() {
         TypeHandler<?> handler = PowerMockito.mock(TypeHandler.class);
-        OutSqlParameter parameter = SqlParameterUtils.withOutput("abc", JDBCType.BIGINT, handler);
-        assert parameter.getJdbcType() == JDBCType.BIGINT;
+        OutSqlParameter parameter = SqlParameterUtils.withOutputName("abc", Types.BIGINT, handler);
+        assert parameter.getJdbcType() == Types.BIGINT;
         assert parameter.getTypeHandler() == handler;
         assert parameter.getName().equals("abc");
         assert parameter.getScale() == null;
         assert parameter.getTypeName() == null;
-        //
+
         try {
-            SqlParameterUtils.withOutput("", JDBCType.BIGINT, handler);
+            SqlParameterUtils.withOutputName("", Types.BIGINT, handler);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().equals("paramName can not be empty or null.");
@@ -201,8 +201,8 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
 
     @Test
     public void withInput_1() {
-        JDBCType handler = TypeHandlerRegistry.toSqlType("dddd".getClass());
-        //
+        Integer handler = TypeHandlerRegistry.toSqlType("dddd".getClass());
+
         InSqlParameter parameter = SqlParameterUtils.withInput("abc");
         assert parameter.getJdbcType() == handler;
         assert parameter.getTypeHandler() == null;
@@ -214,8 +214,8 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
 
     @Test
     public void withInput_2() {
-        InSqlParameter parameter = SqlParameterUtils.withInput("abc", JDBCType.BIGINT);
-        assert parameter.getJdbcType() == JDBCType.BIGINT;
+        InSqlParameter parameter = SqlParameterUtils.withInput("abc", Types.BIGINT);
+        assert parameter.getJdbcType() == Types.BIGINT;
         assert parameter.getTypeHandler() == null;
         assert parameter.getName() == null;
         assert parameter.getScale() == null;
@@ -226,8 +226,8 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
     @Test
     public void withInput_3() {
         TypeHandler<?> handler = PowerMockito.mock(TypeHandler.class);
-        InSqlParameter parameter = SqlParameterUtils.withInput("abc", JDBCType.BIGINT, handler);
-        assert parameter.getJdbcType() == JDBCType.BIGINT;
+        InSqlParameter parameter = SqlParameterUtils.withInput("abc", Types.BIGINT, handler);
+        assert parameter.getJdbcType() == Types.BIGINT;
         assert parameter.getTypeHandler() == handler;
         assert parameter.getName() == null;
         assert parameter.getScale() == null;
@@ -237,12 +237,12 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
 
     @Test
     public void withInOut_1() {
-        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("abc", JDBCType.BIGINT);
+        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("abc", Types.BIGINT);
         InSqlParameter asIn = (InSqlParameter) inOut;
         OutSqlParameter asOut = (OutSqlParameter) inOut;
-        //
+
         assert inOut.getName() == null;
-        assert inOut.getJdbcType() == JDBCType.BIGINT;
+        assert inOut.getJdbcType() == Types.BIGINT;
         assert inOut.getTypeName() == null;
         assert inOut.getScale() == null;
         assert asIn.getTypeHandler() == null;
@@ -252,12 +252,12 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
 
     @Test
     public void withInOut_2() {
-        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("abc", JDBCType.BIGINT, 123);
+        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("abc", Types.BIGINT, 123);
         InSqlParameter asIn = (InSqlParameter) inOut;
         OutSqlParameter asOut = (OutSqlParameter) inOut;
-        //
+
         assert inOut.getName() == null;
-        assert inOut.getJdbcType() == JDBCType.BIGINT;
+        assert inOut.getJdbcType() == Types.BIGINT;
         assert inOut.getTypeName() == null;
         assert inOut.getScale() == 123;
         assert asIn.getTypeHandler() == null;
@@ -267,12 +267,12 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
 
     @Test
     public void withInOut_3() {
-        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("abc", JDBCType.BIGINT, "type");
+        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("abc", Types.BIGINT, "type");
         InSqlParameter asIn = (InSqlParameter) inOut;
         OutSqlParameter asOut = (OutSqlParameter) inOut;
-        //
+
         assert inOut.getName() == null;
-        assert inOut.getJdbcType() == JDBCType.BIGINT;
+        assert inOut.getJdbcType() == Types.BIGINT;
         assert inOut.getTypeName().equals("type");
         assert inOut.getScale() == null;
         assert asIn.getTypeHandler() == null;
@@ -283,12 +283,12 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
     @Test
     public void withInOut_4() {
         TypeHandler<?> handler = PowerMockito.mock(TypeHandler.class);
-        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("abc", JDBCType.BIGINT, handler);
+        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("abc", Types.BIGINT, handler);
         InSqlParameter asIn = (InSqlParameter) inOut;
         OutSqlParameter asOut = (OutSqlParameter) inOut;
-        //
+
         assert inOut.getName() == null;
-        assert inOut.getJdbcType() == JDBCType.BIGINT;
+        assert inOut.getJdbcType() == Types.BIGINT;
         assert inOut.getTypeName() == null;
         assert inOut.getScale() == null;
         assert asIn.getTypeHandler() == handler;
@@ -299,12 +299,12 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
     @Test
     public void withInOut_5() {
         TypeHandler<?> handler = PowerMockito.mock(TypeHandler.class);
-        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("abc", JDBCType.BIGINT, 123, handler);
+        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("abc", Types.BIGINT, 123, handler);
         InSqlParameter asIn = (InSqlParameter) inOut;
         OutSqlParameter asOut = (OutSqlParameter) inOut;
-        //
+
         assert inOut.getName() == null;
-        assert inOut.getJdbcType() == JDBCType.BIGINT;
+        assert inOut.getJdbcType() == Types.BIGINT;
         assert inOut.getTypeName() == null;
         assert inOut.getScale() == 123;
         assert asIn.getTypeHandler() == handler;
@@ -315,12 +315,12 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
     @Test
     public void withInOut_6() {
         TypeHandler<?> handler = PowerMockito.mock(TypeHandler.class);
-        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("abc", JDBCType.BIGINT, "type", handler);
+        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("abc", Types.BIGINT, "type", handler);
         InSqlParameter asIn = (InSqlParameter) inOut;
         OutSqlParameter asOut = (OutSqlParameter) inOut;
-        //
+
         assert inOut.getName() == null;
-        assert inOut.getJdbcType() == JDBCType.BIGINT;
+        assert inOut.getJdbcType() == Types.BIGINT;
         assert inOut.getTypeName().equals("type");
         assert inOut.getScale() == null;
         assert asIn.getTypeHandler() == handler;
@@ -330,20 +330,20 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
 
     @Test
     public void withInOut_7() {
-        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("name", "abc", JDBCType.BIGINT);
+        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOutName("name", "abc", Types.BIGINT);
         InSqlParameter asIn = (InSqlParameter) inOut;
         OutSqlParameter asOut = (OutSqlParameter) inOut;
-        //
+
         assert inOut.getName().equals("name");
-        assert inOut.getJdbcType() == JDBCType.BIGINT;
+        assert inOut.getJdbcType() == Types.BIGINT;
         assert inOut.getTypeName() == null;
         assert inOut.getScale() == null;
         assert asIn.getTypeHandler() == null;
         assert asIn.getValue().equals("abc");
         assert asOut.getTypeHandler() == null;
-        //
+
         try {
-            SqlParameterUtils.withInOut("", "abc", JDBCType.BIGINT);
+            SqlParameterUtils.withInOutName("", "abc", Types.BIGINT);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().equals("paramName can not be empty or null.");
@@ -352,20 +352,20 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
 
     @Test
     public void withInOut_8() {
-        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("name", "abc", JDBCType.BIGINT, 123);
+        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOutName("name", "abc", Types.BIGINT, 123);
         InSqlParameter asIn = (InSqlParameter) inOut;
         OutSqlParameter asOut = (OutSqlParameter) inOut;
-        //
+
         assert inOut.getName().equals("name");
-        assert inOut.getJdbcType() == JDBCType.BIGINT;
+        assert inOut.getJdbcType() == Types.BIGINT;
         assert inOut.getTypeName() == null;
         assert inOut.getScale() == 123;
         assert asIn.getTypeHandler() == null;
         assert asIn.getValue().equals("abc");
         assert asOut.getTypeHandler() == null;
-        //
+
         try {
-            SqlParameterUtils.withInOut("", "abc", JDBCType.BIGINT, 123);
+            SqlParameterUtils.withInOutName("", "abc", Types.BIGINT, 123);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().equals("paramName can not be empty or null.");
@@ -374,20 +374,20 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
 
     @Test
     public void withInOut_9() {
-        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("name", "abc", JDBCType.BIGINT, "type");
+        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOutName("name", "abc", Types.BIGINT, "type");
         InSqlParameter asIn = (InSqlParameter) inOut;
         OutSqlParameter asOut = (OutSqlParameter) inOut;
-        //
+
         assert inOut.getName().equals("name");
-        assert inOut.getJdbcType() == JDBCType.BIGINT;
+        assert inOut.getJdbcType() == Types.BIGINT;
         assert inOut.getTypeName().equals("type");
         assert inOut.getScale() == null;
         assert asIn.getTypeHandler() == null;
         assert asIn.getValue().equals("abc");
         assert asOut.getTypeHandler() == null;
-        //
+
         try {
-            SqlParameterUtils.withInOut("", "abc", JDBCType.BIGINT, "type");
+            SqlParameterUtils.withInOutName("", "abc", Types.BIGINT, "type");
             assert false;
         } catch (Exception e) {
             assert e.getMessage().equals("paramName can not be empty or null.");
@@ -397,20 +397,20 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
     @Test
     public void withInOut_10() {
         TypeHandler<?> handler = PowerMockito.mock(TypeHandler.class);
-        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("name", "abc", JDBCType.BIGINT, handler);
+        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOutName("name", "abc", Types.BIGINT, handler);
         InSqlParameter asIn = (InSqlParameter) inOut;
         OutSqlParameter asOut = (OutSqlParameter) inOut;
-        //
+
         assert inOut.getName().equals("name");
-        assert inOut.getJdbcType() == JDBCType.BIGINT;
+        assert inOut.getJdbcType() == Types.BIGINT;
         assert inOut.getTypeName() == null;
         assert inOut.getScale() == null;
         assert asIn.getTypeHandler() == handler;
         assert asIn.getValue().equals("abc");
         assert asOut.getTypeHandler() == handler;
-        //
+
         try {
-            SqlParameterUtils.withInOut("", "abc", JDBCType.BIGINT, handler);
+            SqlParameterUtils.withInOutName("", "abc", Types.BIGINT, handler);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().equals("paramName can not be empty or null.");
@@ -420,20 +420,20 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
     @Test
     public void withInOut_11() {
         TypeHandler<?> handler = PowerMockito.mock(TypeHandler.class);
-        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("name", "abc", JDBCType.BIGINT, 123, handler);
+        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOutName("name", "abc", Types.BIGINT, 123, handler);
         InSqlParameter asIn = (InSqlParameter) inOut;
         OutSqlParameter asOut = (OutSqlParameter) inOut;
-        //
+
         assert inOut.getName().equals("name");
-        assert inOut.getJdbcType() == JDBCType.BIGINT;
+        assert inOut.getJdbcType() == Types.BIGINT;
         assert inOut.getTypeName() == null;
         assert inOut.getScale() == 123;
         assert asIn.getTypeHandler() == handler;
         assert asIn.getValue().equals("abc");
         assert asOut.getTypeHandler() == handler;
-        //
+
         try {
-            SqlParameterUtils.withInOut("", "abc", JDBCType.BIGINT, 123, handler);
+            SqlParameterUtils.withInOutName("", "abc", Types.BIGINT, 123, handler);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().equals("paramName can not be empty or null.");
@@ -443,20 +443,20 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
     @Test
     public void withInOut_12() {
         TypeHandler<?> handler = PowerMockito.mock(TypeHandler.class);
-        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOut("name", "abc", JDBCType.BIGINT, "type", handler);
+        ValueSqlParameter inOut = (SqlParameter.ValueSqlParameter) SqlParameterUtils.withInOutName("name", "abc", Types.BIGINT, "type", handler);
         InSqlParameter asIn = (InSqlParameter) inOut;
         OutSqlParameter asOut = (OutSqlParameter) inOut;
-        //
+
         assert inOut.getName().equals("name");
-        assert inOut.getJdbcType() == JDBCType.BIGINT;
+        assert inOut.getJdbcType() == Types.BIGINT;
         assert inOut.getTypeName().equals("type");
         assert inOut.getScale() == null;
         assert asIn.getTypeHandler() == handler;
         assert asIn.getValue().equals("abc");
         assert asOut.getTypeHandler() == handler;
-        //
+
         try {
-            SqlParameterUtils.withInOut("", "abc", JDBCType.BIGINT, "type", handler);
+            SqlParameterUtils.withInOutName("", "abc", Types.BIGINT, "type", handler);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().equals("paramName can not be empty or null.");
@@ -470,7 +470,7 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
         assert returnSqlParameter.getResultSetExtractor() == null;
         assert returnSqlParameter.getRowMapper() == null;
         assert returnSqlParameter.getRowCallbackHandler() == null;
-        //
+
         try {
             SqlParameterUtils.withReturnValue("");
             assert false;
@@ -487,7 +487,7 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
         assert returnSqlParameter.getResultSetExtractor() == handler;
         assert returnSqlParameter.getRowMapper() == null;
         assert returnSqlParameter.getRowCallbackHandler() == null;
-        //
+
         try {
             SqlParameterUtils.withReturnResult("", handler);
             assert false;
@@ -504,7 +504,7 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
         assert returnSqlParameter.getResultSetExtractor() == null;
         assert returnSqlParameter.getRowMapper() == null;
         assert returnSqlParameter.getRowCallbackHandler() == handler;
-        //
+
         try {
             SqlParameterUtils.withReturnResult("", handler);
             assert false;
@@ -521,7 +521,7 @@ public class SqlParameterUtilsTest extends AbstractDbTest {
         assert returnSqlParameter.getResultSetExtractor() == null;
         assert returnSqlParameter.getRowMapper() == handler;
         assert returnSqlParameter.getRowCallbackHandler() == null;
-        //
+
         try {
             SqlParameterUtils.withReturnResult("", handler);
             assert false;

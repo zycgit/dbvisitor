@@ -56,7 +56,7 @@ public class Caller1Test extends AbstractDbTest {
     public void mysqlCallResultSet_1() throws SQLException {
         try (Connection conn = DsUtils.localMySQL()) {
             Map<String, Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_table(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withInput("aaa", JDBCType.VARCHAR)));
+                    Collections.singletonList(SqlParameterUtils.withInput("aaa", JDBCType.VARCHAR.getVendorTypeNumber())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("#result-set-1") instanceof ArrayList;
@@ -71,7 +71,7 @@ public class Caller1Test extends AbstractDbTest {
     public void mysqlCallResultSet_2() throws SQLException {
         try (Connection conn = DsUtils.localMySQL()) {
             Map<String, Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_multiple_table(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withInput("aaa", JDBCType.VARCHAR)));
+                    Collections.singletonList(SqlParameterUtils.withInput("aaa", JDBCType.VARCHAR.getVendorTypeNumber())));
             //
             assert objectMap.size() == 3;
             assert objectMap.get("#result-set-1") instanceof ArrayList;

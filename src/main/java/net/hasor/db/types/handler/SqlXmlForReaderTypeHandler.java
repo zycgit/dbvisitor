@@ -25,7 +25,7 @@ import java.sql.*;
  */
 public class SqlXmlForReaderTypeHandler extends AbstractTypeHandler<Reader> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Reader parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Reader parameter, Integer jdbcType) throws SQLException {
         SQLXML sqlxml = ps.getConnection().createSQLXML();
         try {
             Writer writer = sqlxml.setCharacterStream();

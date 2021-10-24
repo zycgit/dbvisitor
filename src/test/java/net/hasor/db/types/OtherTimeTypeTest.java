@@ -72,7 +72,7 @@ public class OtherTimeTypeTest {
             //
             Date testData = new Date();
             List<Instant> dat = jdbcTemplate.query("select ?", ps -> {
-                new InstantTypeHandler().setParameter(ps, 1, testData.toInstant(), JDBCType.TIMESTAMP);
+                new InstantTypeHandler().setParameter(ps, 1, testData.toInstant(), JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new InstantTypeHandler().getNullableResult(rs, 1);
             });
@@ -89,7 +89,7 @@ public class OtherTimeTypeTest {
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 10:11:12', '%Y-%m-%d %h:%i:%s'); end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.TIMESTAMP, new InstantTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new InstantTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Instant;
@@ -137,7 +137,7 @@ public class OtherTimeTypeTest {
             LocalDate testData = LocalDate.of(1998, Month.APRIL, 12);
             JapaneseDate jpData = JapaneseDate.from(testData);
             List<JapaneseDate> dat = jdbcTemplate.query("select ?", ps -> {
-                new JapaneseDateTypeHandler().setParameter(ps, 1, jpData, JDBCType.TIMESTAMP);
+                new JapaneseDateTypeHandler().setParameter(ps, 1, jpData, JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new JapaneseDateTypeHandler().getNullableResult(rs, 1);
             });
@@ -155,7 +155,7 @@ public class OtherTimeTypeTest {
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 10:11:12', '%Y-%m-%d %h:%i:%s'); end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.TIMESTAMP, new JapaneseDateTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new JapaneseDateTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof JapaneseDate;

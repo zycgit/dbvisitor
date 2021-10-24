@@ -62,7 +62,7 @@ public class BigIntegerTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             //
             List<BigInteger> dat = jdbcTemplate.query("select ?", ps -> {
-                new BigIntegerTypeHandler().setParameter(ps, 1, new BigInteger("1234567890"), JDBCType.BIGINT);
+                new BigIntegerTypeHandler().setParameter(ps, 1, new BigInteger("1234567890"), JDBCType.BIGINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new BigIntegerTypeHandler().getNullableResult(rs, 1);
             });
@@ -78,7 +78,7 @@ public class BigIntegerTypeTest {
             jdbcTemplate.execute("create procedure proc_bigint(out p_out bigint) begin set p_out=123123; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_bigint(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.BIGINT, new BigIntegerTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.BIGINT.getVendorTypeNumber(), new BigIntegerTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof BigInteger;

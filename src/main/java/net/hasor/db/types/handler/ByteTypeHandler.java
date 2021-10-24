@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 package net.hasor.db.types.handler;
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * @author Clinton Begin
  */
 public class ByteTypeHandler extends AbstractTypeHandler<Byte> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Byte parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Byte parameter, Integer jdbcType) throws SQLException {
         ps.setByte(i, parameter);
     }
 

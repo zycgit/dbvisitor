@@ -17,7 +17,10 @@ package net.hasor.db.types.handler;
 import net.hasor.cobble.NumberUtils;
 import net.hasor.cobble.StringUtils;
 
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Month;
 
 /**
@@ -26,7 +29,7 @@ import java.time.Month;
  */
 public class MonthOfStringTypeHandler extends AbstractTypeHandler<Month> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Month month, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Month month, Integer jdbcType) throws SQLException {
         ps.setString(i, month.name().toUpperCase());
     }
 

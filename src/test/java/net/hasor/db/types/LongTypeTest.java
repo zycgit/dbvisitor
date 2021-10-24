@@ -66,7 +66,7 @@ public class LongTypeTest {
             assert dat2 == 123l;
             //
             List<Long> dat = jdbcTemplate.query("select ?", ps -> {
-                new LongTypeHandler().setParameter(ps, 1, 123l, JDBCType.BIGINT);
+                new LongTypeHandler().setParameter(ps, 1, 123l, JDBCType.BIGINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new LongTypeHandler().getNullableResult(rs, 1);
             });
@@ -82,7 +82,7 @@ public class LongTypeTest {
             jdbcTemplate.execute("create procedure proc_bigint(out p_out bigint) begin set p_out=123123; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_bigint(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.BIGINT, new LongTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.BIGINT.getVendorTypeNumber(), new LongTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Long;

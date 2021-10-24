@@ -22,7 +22,7 @@ import java.util.Date;
  */
 public class DateTypeHandler extends AbstractTypeHandler<Date> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Date parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Date parameter, Integer jdbcType) throws SQLException {
         ps.setTimestamp(i, new Timestamp(parameter.getTime()));
     }
 

@@ -34,7 +34,7 @@ public class UnknownTypeHandler extends AbstractTypeHandler<Object> {
     }
 
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, Integer jdbcType) throws SQLException {
         TypeHandler handler = resolveTypeHandler(parameter, jdbcType);
         handler.setParameter(ps, i, parameter, jdbcType);
     }
@@ -64,7 +64,7 @@ public class UnknownTypeHandler extends AbstractTypeHandler<Object> {
         return handler;
     }
 
-    private TypeHandler<?> resolveTypeHandler(Object parameter, JDBCType jdbcType) {
+    private TypeHandler<?> resolveTypeHandler(Object parameter, Integer jdbcType) {
         TypeHandler<?> handler = null;
         if (parameter == null) {
             handler = OBJECT_TYPE_HANDLER;
@@ -103,7 +103,7 @@ public class UnknownTypeHandler extends AbstractTypeHandler<Object> {
 
     private TypeHandler<?> resolveTypeHandler(ResultSetMetaData rsmd, Integer columnIndex) {
         TypeHandler<?> handler = null;
-        JDBCType jdbcType = safeGetJdbcTypeForColumn(rsmd, columnIndex);
+        Integer jdbcType = safeGetJdbcTypeForColumn(rsmd, columnIndex);
         Class<?> javaType = safeGetClassForColumn(rsmd, columnIndex);
         if (javaType != null && jdbcType != null) {
             handler = this.typeHandlerRegistry.getTypeHandler(javaType, jdbcType);
@@ -115,9 +115,9 @@ public class UnknownTypeHandler extends AbstractTypeHandler<Object> {
         return handler;
     }
 
-    private static JDBCType safeGetJdbcTypeForColumn(ResultSetMetaData rsmd, Integer columnIndex) {
+    private static Integer safeGetJdbcTypeForColumn(ResultSetMetaData rsmd, Integer columnIndex) {
         try {
-            return JDBCType.valueOf(rsmd.getColumnType(columnIndex));
+            return rsmd.getColumnType(columnIndex);
         } catch (Exception e) {
             return null;
         }

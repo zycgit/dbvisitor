@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.db.jdbc.paramer;
+import net.hasor.cobble.BeanUtils;
 import net.hasor.db.jdbc.core.ParameterDisposer;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TB_User;
-import net.hasor.cobble.BeanUtils;
 import org.junit.Test;
 
 import java.util.*;

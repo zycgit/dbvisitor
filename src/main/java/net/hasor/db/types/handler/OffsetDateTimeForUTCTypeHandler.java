@@ -26,7 +26,7 @@ import java.time.ZonedDateTime;
  */
 public class OffsetDateTimeForUTCTypeHandler extends AbstractTypeHandler<OffsetDateTime> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, OffsetDateTime parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, OffsetDateTime parameter, Integer jdbcType) throws SQLException {
         ZonedDateTime zonedDateTime = parameter.atZoneSameInstant(ZoneOffset.UTC);
         Timestamp timestamp = Timestamp.from(zonedDateTime.toInstant());
         ps.setTimestamp(i, timestamp);

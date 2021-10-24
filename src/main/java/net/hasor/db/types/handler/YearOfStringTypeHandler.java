@@ -16,7 +16,10 @@
 package net.hasor.db.types.handler;
 import net.hasor.cobble.StringUtils;
 
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Year;
 
 /**
@@ -25,7 +28,7 @@ import java.time.Year;
  */
 public class YearOfStringTypeHandler extends AbstractTypeHandler<Year> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Year year, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Year year, Integer jdbcType) throws SQLException {
         ps.setString(i, String.valueOf(year.getValue()));
     }
 

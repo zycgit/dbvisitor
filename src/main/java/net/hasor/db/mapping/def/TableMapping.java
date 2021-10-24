@@ -13,33 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.mapping;
-import net.hasor.db.metadata.CaseSensitivityType;
-import net.hasor.db.metadata.TableDef;
+package net.hasor.db.mapping.def;
+
+import net.hasor.db.mapping.DefaultTableReader;
+import net.hasor.db.mapping.TableReader;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * 查询的表
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface TableMapping extends TableDef {
-    public Class<?> entityType();
+public interface TableMapping<T> {
 
-    /** 是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Property 注解声明。 */
+    /** Schema */
+    public String getSchema();
+
+    /** 表名 */
+    public String getTable();
+
+    public Class<T> entityType();
+
+    /** 是否将类型下的所有属性都当作数据库字段进行映射，true 表示自动。false 表示必须通过 @Column 注解声明 */
     public boolean isAutoProperty();
 
-    public CaseSensitivityType getCaseSensitivity();
+    /** 使用 lambda 查询期间是否使用 引号 */
+    public boolean useDelimited();
 
-    public Collection<String> getPropertyNames();
+    public boolean isCaseSensitivity();
 
     public Collection<ColumnMapping> getProperties();
 
-    public ColumnMapping getMapping(String propertyName);
+    public ColumnMapping getPropertyByColumn(String column);
 
-    public Collection<String> getColumnNames();
+    public ColumnMapping getPropertyByName(String property);
 
-    public List<ColumnMapping> getMappingByColumnName(String columnName);
+    public default TableReader<T> toReader() {
+        return new DefaultTableReader<>(this.entityType(), this);
+    }
+
 }

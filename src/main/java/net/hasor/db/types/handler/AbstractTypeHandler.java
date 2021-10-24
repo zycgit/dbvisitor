@@ -17,7 +17,10 @@ package net.hasor.db.types.handler;
 import net.hasor.cobble.reflect.TypeReference;
 import net.hasor.db.types.TypeHandler;
 
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * The base {@link TypeHandler} for references a generic type.
@@ -33,13 +36,13 @@ import java.sql.*;
  */
 public abstract class AbstractTypeHandler<T> extends TypeReference<T> implements TypeHandler<T> {
     @Override
-    public void setParameter(PreparedStatement ps, int i, T parameter, JDBCType jdbcType) throws SQLException {
+    public void setParameter(PreparedStatement ps, int i, T parameter, Integer jdbcType) throws SQLException {
         if (parameter == null) {
             if (jdbcType == null) {
                 throw new SQLException("JDBC requires that the JdbcType must be specified for all nullable parameters.");
             }
             try {
-                ps.setNull(i, jdbcType.getVendorTypeNumber());
+                ps.setNull(i, jdbcType);
             } catch (SQLException e) {
                 throw new SQLException("Error setting null for parameter #" + i + " with JdbcType " + jdbcType + ", " + //
                         "Try setting a different JdbcType for this parameter or a different jdbcTypeForNull configuration property. Cause: " + e.getMessage(), e);
@@ -81,7 +84,7 @@ public abstract class AbstractTypeHandler<T> extends TypeReference<T> implements
         }
     }
 
-    public abstract void setNonNullParameter(PreparedStatement ps, int i, T parameter, JDBCType jdbcType) throws SQLException;
+    public abstract void setNonNullParameter(PreparedStatement ps, int i, T parameter, Integer jdbcType) throws SQLException;
 
     /** @param columnName Colunm name, when configuration <code>useColumnLabel</code> is <code>false</code> */
     public abstract T getNullableResult(ResultSet rs, String columnName) throws SQLException;

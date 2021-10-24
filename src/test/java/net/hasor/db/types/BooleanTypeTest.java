@@ -70,7 +70,7 @@ public class BooleanTypeTest {
             assert !dat4;
             //
             List<Boolean> dat = jdbcTemplate.query("select ?", ps -> {
-                new BooleanTypeHandler().setParameter(ps, 1, true, JDBCType.BOOLEAN);
+                new BooleanTypeHandler().setParameter(ps, 1, true, JDBCType.BOOLEAN.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new BooleanTypeHandler().getNullableResult(rs, 1);
             });
@@ -86,7 +86,7 @@ public class BooleanTypeTest {
             jdbcTemplate.execute("create procedure proc_boolean(out p_out boolean) begin set p_out=true; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_boolean(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.BOOLEAN, new BooleanTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.BOOLEAN.getVendorTypeNumber(), new BooleanTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Boolean;

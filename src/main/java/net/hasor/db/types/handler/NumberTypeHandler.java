@@ -27,7 +27,7 @@ import java.sql.*;
  */
 public class NumberTypeHandler extends AbstractTypeHandler<Number> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Number parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Number parameter, Integer jdbcType) throws SQLException {
         throw new UnsupportedOperationException();
     }
 

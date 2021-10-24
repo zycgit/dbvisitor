@@ -72,7 +72,7 @@ public class ArrayTypeHandler extends AbstractTypeHandler<Object> {
     }
 
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, Integer jdbcType) throws SQLException {
         if (parameter instanceof Array) {
             // it's the user's responsibility to properly free() the Array instance
             ps.setArray(i, (Array) parameter);

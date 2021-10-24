@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.db.types.handler;
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.OffsetDateTime;
 
 /**
@@ -23,7 +26,7 @@ import java.time.OffsetDateTime;
  */
 public class OffsetDateTimeForSqlTypeHandler extends AbstractTypeHandler<OffsetDateTime> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, OffsetDateTime parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, OffsetDateTime parameter, Integer jdbcType) throws SQLException {
         ps.setObject(i, parameter);
     }
 

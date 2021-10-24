@@ -25,7 +25,7 @@ import java.time.Year;
  */
 public class YearOfTimeTypeHandler extends AbstractTypeHandler<Year> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Year parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Year parameter, Integer jdbcType) throws SQLException {
         LocalDateTime dateTime = LocalDateTime.MIN.withYear(parameter.getValue());
         ps.setTimestamp(i, Timestamp.valueOf(dateTime));
     }

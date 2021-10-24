@@ -21,7 +21,7 @@ import java.sql.*;
  */
 public class SqlTimeTypeHandler extends AbstractTypeHandler<Time> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Time parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Time parameter, Integer jdbcType) throws SQLException {
         ps.setTime(i, parameter);
     }
 

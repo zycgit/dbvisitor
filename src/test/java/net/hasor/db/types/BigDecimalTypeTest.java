@@ -74,7 +74,7 @@ public class BigDecimalTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             //
             List<BigDecimal> dat = jdbcTemplate.query("select ?", ps -> {
-                new BigDecimalTypeHandler().setParameter(ps, 1, new BigDecimal("1234567890.1234567890"), JDBCType.DECIMAL);
+                new BigDecimalTypeHandler().setParameter(ps, 1, new BigDecimal("1234567890.1234567890"), JDBCType.DECIMAL.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new BigDecimalTypeHandler().getNullableResult(rs, 1);
             });
@@ -90,7 +90,7 @@ public class BigDecimalTypeTest {
             jdbcTemplate.execute("create procedure proc_decimal(out p_out decimal(10,2)) begin set p_out=123.123; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_decimal(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.NUMERIC, new BigDecimalTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.NUMERIC.getVendorTypeNumber(), new BigDecimalTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof BigDecimal;

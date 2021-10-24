@@ -66,7 +66,7 @@ public class FloatTypeTest {
             assert dat2 == 123.123f;
             //
             List<Float> dat = jdbcTemplate.query("select ?", ps -> {
-                new FloatTypeHandler().setParameter(ps, 1, 123.123f, JDBCType.FLOAT);
+                new FloatTypeHandler().setParameter(ps, 1, 123.123f, JDBCType.FLOAT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new FloatTypeHandler().getNullableResult(rs, 1);
             });
@@ -82,7 +82,7 @@ public class FloatTypeTest {
             jdbcTemplate.execute("create procedure proc_float(out p_out float) begin set p_out=123.123; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_float(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.FLOAT, new FloatTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.FLOAT.getVendorTypeNumber(), new FloatTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Float;

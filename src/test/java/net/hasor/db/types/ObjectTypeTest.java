@@ -73,7 +73,7 @@ public class ObjectTypeTest {
             //
             Set<String> testSet = new HashSet<>(Arrays.asList("a", "b", "c"));
             List<Object> dat = jdbcTemplate.query("select ?", ps -> {
-                new ObjectTypeHandler().setParameter(ps, 1, testSet, JDBCType.OTHER);
+                new ObjectTypeHandler().setParameter(ps, 1, testSet, JDBCType.OTHER.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new ObjectTypeHandler().getNullableResult(rs, 1);
             });

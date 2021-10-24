@@ -19,7 +19,10 @@ import net.hasor.cobble.io.IOUtils;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * @version : 2020-10-31
@@ -27,7 +30,7 @@ import java.sql.*;
  */
 public class NStringReaderTypeHandler extends AbstractTypeHandler<Reader> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Reader parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Reader parameter, Integer jdbcType) throws SQLException {
         try {
             ps.setNString(i, IOUtils.toString(parameter));
         } catch (IOException e) {

@@ -73,7 +73,7 @@ public class MonthDayTypeTest {
             assert dat1.getMonth() == Month.FEBRUARY;
             //
             List<MonthDay> dat2 = jdbcTemplate.query("select ?", ps -> {
-                new MonthDayOfNumberTypeHandler().setParameter(ps, 1, MonthDay.of(8, 2), JDBCType.SMALLINT);
+                new MonthDayOfNumberTypeHandler().setParameter(ps, 1, MonthDay.of(8, 2), JDBCType.SMALLINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new MonthDayOfNumberTypeHandler().getNullableResult(rs, 1);
             });
@@ -90,7 +90,7 @@ public class MonthDayTypeTest {
             jdbcTemplate.execute("create procedure proc_integer(out p_out integer) begin set p_out=1112; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_integer(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.INTEGER, new MonthDayOfNumberTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.INTEGER.getVendorTypeNumber(), new MonthDayOfNumberTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof MonthDay;
@@ -148,7 +148,7 @@ public class MonthDayTypeTest {
             assert dat2.getDayOfMonth() == 31;
             //
             List<MonthDay> dat3 = jdbcTemplate.query("select ?", ps -> {
-                new MonthDayOfStringTypeHandler().setParameter(ps, 1, MonthDay.of(Month.FEBRUARY, 26), JDBCType.SMALLINT);
+                new MonthDayOfStringTypeHandler().setParameter(ps, 1, MonthDay.of(Month.FEBRUARY, 26), JDBCType.SMALLINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new MonthDayOfStringTypeHandler().getNullableResult(rs, 1);
             });
@@ -165,7 +165,7 @@ public class MonthDayTypeTest {
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(10)) begin set p_out='11-12'; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_varchar(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.VARCHAR, new MonthDayOfStringTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARCHAR.getVendorTypeNumber(), new MonthDayOfStringTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof MonthDay;
@@ -219,7 +219,7 @@ public class MonthDayTypeTest {
             //
             //
             List<MonthDay> dat2 = jdbcTemplate.query("select ?", ps -> {
-                new MonthDayOfTimeTypeHandler().setParameter(ps, 1, MonthDay.of(Month.APRIL, 23), JDBCType.TIMESTAMP);
+                new MonthDayOfTimeTypeHandler().setParameter(ps, 1, MonthDay.of(Month.APRIL, 23), JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new MonthDayOfTimeTypeHandler().getNullableResult(rs, 1);
             });
@@ -228,7 +228,7 @@ public class MonthDayTypeTest {
             //
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", ps -> {
-                new MonthDayOfTimeTypeHandler().setParameter(ps, 1, MonthDay.of(Month.APRIL, 23), JDBCType.TIMESTAMP);
+                new MonthDayOfTimeTypeHandler().setParameter(ps, 1, MonthDay.of(Month.APRIL, 23), JDBCType.TIMESTAMP.getVendorTypeNumber());
             });
             MonthDay dat3 = jdbcTemplate.queryForObject("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", MonthDay.class);
             assert dat3.getMonth() == Month.APRIL;
@@ -244,7 +244,7 @@ public class MonthDayTypeTest {
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 10:11:12', '%Y-%m-%d %h:%i:%s'); end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.TIMESTAMP, new MonthDayOfTimeTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new MonthDayOfTimeTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof MonthDay;

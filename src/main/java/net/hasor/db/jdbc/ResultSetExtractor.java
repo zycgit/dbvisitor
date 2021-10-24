@@ -26,6 +26,6 @@ import java.sql.SQLException;
  */
 @FunctionalInterface
 public interface ResultSetExtractor<T> {
-    /**将结果集内容转换。 */
+    /** 将结果集内容转换 */
     public T extractData(ResultSet rs) throws SQLException;
 }

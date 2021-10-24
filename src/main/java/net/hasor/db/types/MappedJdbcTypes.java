@@ -18,7 +18,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.sql.JDBCType;
 
 /**
  * @author Eduardo Macarron
@@ -26,5 +25,5 @@ import java.sql.JDBCType;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface MappedJdbcTypes {
-    public JDBCType[] value();
+    public int[] value();
 }

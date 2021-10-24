@@ -104,15 +104,15 @@ public class NumberTypeTest {
             jdbcTemplate.execute("create procedure proc_data(out p_out date) begin set p_out= str_to_date('2008-08-09 10:11:12', '%Y-%m-%d %h:%i:%s'); end;");
             //
             Map<String, Object> objectMap1 = jdbcTemplate.call("{call proc_varchar(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.VARCHAR, new NumberTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARCHAR.getVendorTypeNumber(), new NumberTypeHandler())));
             Map<String, Object> objectMap2 = jdbcTemplate.call("{call proc_bigint(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.BIGINT, new NumberTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.BIGINT.getVendorTypeNumber(), new NumberTypeHandler())));
             Map<String, Object> objectMap4 = jdbcTemplate.call("{call proc_float(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.FLOAT, new NumberTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.FLOAT.getVendorTypeNumber(), new NumberTypeHandler())));
             Map<String, Object> objectMap5 = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.TIMESTAMP, new NumberTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new NumberTypeHandler())));
             Map<String, Object> objectMap6 = jdbcTemplate.call("{call proc_data(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.DATE, new NumberTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.DATE.getVendorTypeNumber(), new NumberTypeHandler())));
             //
             assert objectMap1.size() == 2;
             assert objectMap2.size() == 2;

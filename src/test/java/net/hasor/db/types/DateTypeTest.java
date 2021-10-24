@@ -74,7 +74,7 @@ public class DateTypeTest {
             //
             Date testData = new Date();
             List<Date> dat = jdbcTemplate.query("select ?", ps -> {
-                new DateTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP);
+                new DateTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new DateTypeHandler().getNullableResult(rs, 1);
             });
@@ -92,7 +92,7 @@ public class DateTypeTest {
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.TIMESTAMP, new DateTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new DateTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Date;
@@ -153,7 +153,7 @@ public class DateTypeTest {
             //
             Date testData = new Date();
             List<Date> dat = jdbcTemplate.query("select ?", ps -> {
-                new TimeOnlyTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP);
+                new TimeOnlyTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new TimeOnlyTypeHandler().getNullableResult(rs, 1);
             });
@@ -177,7 +177,7 @@ public class DateTypeTest {
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.TIMESTAMP, new TimeOnlyTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new TimeOnlyTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Date;
@@ -238,7 +238,7 @@ public class DateTypeTest {
             //
             Date testData = new Date();
             List<Date> dat = jdbcTemplate.query("select ?", ps -> {
-                new DateOnlyTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP);
+                new DateOnlyTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new DateOnlyTypeHandler().getNullableResult(rs, 1);
             });
@@ -262,7 +262,7 @@ public class DateTypeTest {
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.TIMESTAMP, new DateOnlyTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new DateOnlyTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Date;

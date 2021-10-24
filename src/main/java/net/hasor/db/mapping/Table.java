@@ -27,8 +27,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Table {
-    /** 分类（可选项） */
-    public String catalog() default "";
 
     /** Schema，对于 mysql 来说 schema 相当于 db */
     public String schema() default "";
@@ -39,17 +37,16 @@ public @interface Table {
     /** 表名，为空的话表示采用类名为表名 see: {@link #value()} */
     public String name() default "";
 
-    /**
-     * 是否使用限定符(默认不使用)，通常无需配置 hasor-db 会自动识别。
-     * 如遇到如下两个情况，hasor-db 可能强制启用标识符限定(相当设置为 true)：
-     *  - 1. 表/列名是关键字(强制启动)
-     *  - 2. autoFiled 配置为 true 的情况下，根据元信息匹配如遇到名称无法匹配，例如 Oracle 的名称默认都是大写。
-     */
-    public boolean useDelimited() default false;
-
-    /** 是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Column 注解声明。 */
+    /** 是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Column 注解声明 */
     public boolean autoMapping() default true;
 
-    /** 表名和属性名，根据驼峰规则转换为带有下划线的表名和列名。 */
+    /** 表名和属性名，根据驼峰规则转换为带有下划线的表名和列名 */
     public boolean mapUnderscoreToCamelCase() default false;
+
+    /** 当表/列名中 存在关键字时候需要设置为 true */
+    public boolean useDelimited() default false;
+
+    /** 是否对表名列名敏感，默认 false 不敏感 */
+    public boolean caseSensitivity() default false;
+
 }

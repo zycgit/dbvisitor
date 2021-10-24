@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 package net.hasor.db.types;
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  *  code form org.apache.ibatis.type.TypeHandler
  * @author Clinton Begin
  */
 public interface TypeHandler<T> {
-    public void setParameter(PreparedStatement ps, int i, T parameter, JDBCType jdbcType) throws SQLException;
+    public void setParameter(PreparedStatement ps, int i, T parameter, Integer jdbcType) throws SQLException;
 
     /** @param columnName Colunm name, when configuration <code>useColumnLabel</code> is <code>false</code> */
     public T getResult(ResultSet rs, String columnName) throws SQLException;

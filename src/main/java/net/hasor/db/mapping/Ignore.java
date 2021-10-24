@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 the original author or authors.
+ * Copyright 2002-2010 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.metadata.domain;
+package net.hasor.db.mapping;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
- * Jdbc Schema
- * @version : 2020-04-25
+ * 当使用 @Table 注解并且设置了 autoMapping = true 之后，可以通过该注解忽略列的映射。
+ *
+ * 注意：注解 @Ignore/Column 一起出现的情况下映射会被忽略。
+ * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class JdbcSchema {
-    private String catalog;//catalog name (may be null)
-    private String schema;
-
-    public String getCatalog() {
-        return this.catalog;
-    }
-
-    public void setCatalog(String catalog) {
-        this.catalog = catalog;
-    }
-
-    public String getSchema() {
-        return this.schema;
-    }
-
-    public void setSchema(String schema) {
-        this.schema = schema;
-    }
+@Target({ ElementType.FIELD, ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Ignore {
 }

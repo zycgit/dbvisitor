@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.db.page;
-import net.hasor.db.page.Page;
-import net.hasor.db.page.PageObject;
 import org.junit.Test;
 
 import java.sql.SQLException;

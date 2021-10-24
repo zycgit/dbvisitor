@@ -15,9 +15,6 @@
  */
 package net.hasor.db.jdbc.core;
 import net.hasor.cobble.ResourcesUtils;
-import net.hasor.db.jdbc.ConnectionCallback;
-import net.hasor.db.metadata.JdbcMetadataProvider;
-import net.hasor.db.metadata.domain.JdbcTable;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.utils.DsUtils;
 import org.junit.Test;
@@ -37,24 +34,18 @@ import static net.hasor.test.db.utils.DsUtils.MYSQL_SCHEMA_NAME;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class LoadTest extends AbstractDbTest {
-    private boolean hasTable(JdbcTemplate jdbcTemplate) throws SQLException {
-        return jdbcTemplate.execute((ConnectionCallback<Boolean>) con -> {
-            JdbcTable tables = new JdbcMetadataProvider(con).getTable(null, MYSQL_SCHEMA_NAME, "tb_user");
-            return tables != null;
-        });
-    }
 
     @Test
     public void loadSQL_1() throws SQLException, IOException {
         try (Connection conn = DsUtils.localMySQL()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            if (hasTable(jdbcTemplate)) {
+            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
                 jdbcTemplate.executeUpdate("drop table tb_user");
             }
             //
-            assert !hasTable(jdbcTemplate);
+            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
             jdbcTemplate.loadSQL("/net_hasor_db/tb_user_for_mysql.sql");
-            assert hasTable(jdbcTemplate);
+            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
         }
     }
 
@@ -62,17 +53,17 @@ public class LoadTest extends AbstractDbTest {
     public void loadSQL_2() throws SQLException, IOException {
         try (Connection conn = DsUtils.localMySQL()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            if (hasTable(jdbcTemplate)) {
+            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
                 jdbcTemplate.executeUpdate("drop table tb_user");
             }
             //
-            assert !hasTable(jdbcTemplate);
+            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
             InputStream asStream = ResourcesUtils.getResourceAsStream("/net_hasor_db/tb_user_for_mysql.sql");
             if (asStream == null) {
                 assert false;
             }
             jdbcTemplate.loadSQL(new InputStreamReader(asStream));
-            assert hasTable(jdbcTemplate);
+            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
         }
     }
 
@@ -80,13 +71,13 @@ public class LoadTest extends AbstractDbTest {
     public void loadSQL_3() throws SQLException, IOException {
         try (Connection conn = DsUtils.localMySQL()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            if (hasTable(jdbcTemplate)) {
+            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
                 jdbcTemplate.executeUpdate("drop table tb_user");
             }
             //
-            assert !hasTable(jdbcTemplate);
+            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
             jdbcTemplate.loadSQL(StandardCharsets.UTF_8, "/net_hasor_db/tb_user_for_mysql.sql");
-            assert hasTable(jdbcTemplate);
+            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
         }
     }
 
@@ -94,13 +85,13 @@ public class LoadTest extends AbstractDbTest {
     public void loadSplitSQL_1() throws SQLException, IOException {
         try (Connection conn = DsUtils.localMySQL()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            if (hasTable(jdbcTemplate)) {
+            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
                 jdbcTemplate.executeUpdate("drop table tb_user");
             }
             //
-            assert !hasTable(jdbcTemplate);
+            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
             jdbcTemplate.loadSplitSQL(";", "/net_hasor_db/tb_user_for_mysql.sql");
-            assert hasTable(jdbcTemplate);
+            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
         }
     }
 
@@ -108,13 +99,13 @@ public class LoadTest extends AbstractDbTest {
     public void loadSplitSQL_2() throws SQLException, IOException {
         try (Connection conn = DsUtils.localMySQL()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            if (hasTable(jdbcTemplate)) {
+            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
                 jdbcTemplate.executeUpdate("drop table tb_user");
             }
             //
-            assert !hasTable(jdbcTemplate);
+            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
             jdbcTemplate.loadSplitSQL(";", StandardCharsets.UTF_8, "/net_hasor_db/tb_user_for_mysql.sql");
-            assert hasTable(jdbcTemplate);
+            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
         }
     }
 
@@ -122,17 +113,17 @@ public class LoadTest extends AbstractDbTest {
     public void loadSplitSQL_3() throws SQLException, IOException {
         try (Connection conn = DsUtils.localMySQL()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            if (hasTable(jdbcTemplate)) {
+            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
                 jdbcTemplate.executeUpdate("drop table tb_user");
             }
             //
-            assert !hasTable(jdbcTemplate);
+            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
             InputStream asStream = ResourcesUtils.getResourceAsStream("/net_hasor_db/tb_user_for_mysql.sql");
             if (asStream == null) {
                 assert false;
             }
             jdbcTemplate.loadSplitSQL(";", new InputStreamReader(asStream));
-            assert hasTable(jdbcTemplate);
+            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
         }
     }
 }

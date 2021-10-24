@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.db.jdbc.paramer;
+import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.function.Property;
 import net.hasor.db.jdbc.SqlParameterSource;
 import net.hasor.db.jdbc.core.ParameterDisposer;
-import net.hasor.cobble.BeanUtils;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -27,27 +28,32 @@ import java.util.Objects;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class BeanSqlParameterSource implements SqlParameterSource, ParameterDisposer {
-    private final Object       dataBean;
-    private final List<String> dataNames;
+    private final Object                dataBean;
+    private final Map<String, Property> dataProperty;
 
     public BeanSqlParameterSource(Object dataBean) {
         this.dataBean = Objects.requireNonNull(dataBean);
-        this.dataNames = BeanUtils.getPropertiesAndFields(dataBean.getClass());
+        this.dataProperty = BeanUtils.getPropertyFunc(dataBean.getClass());
     }
 
     @Override
     public boolean hasValue(final String paramName) {
-        return this.dataNames.contains(paramName);
+        return this.dataProperty.containsKey(paramName);
     }
 
     @Override
     public Object getValue(final String paramName) throws IllegalArgumentException {
-        return BeanUtils.readPropertyOrField(this.dataBean, paramName);
+        Property property = this.dataProperty.get(paramName);
+        if (property == null) {
+            return null;
+        } else {
+            return property.get(this.dataBean);
+        }
     }
 
     @Override
     public String[] getParameterNames() {
-        return this.dataNames.toArray(new String[0]);
+        return this.dataProperty.keySet().toArray(new String[0]);
     }
 
     @Override

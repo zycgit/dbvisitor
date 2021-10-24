@@ -68,7 +68,7 @@ public class StringReaderTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             //
             List<Reader> dat = jdbcTemplate.query("select ?", ps -> {
-                new ClobReaderTypeHandler().setParameter(ps, 1, new StringReader("abcedfg"), JDBCType.CLOB);
+                new ClobReaderTypeHandler().setParameter(ps, 1, new StringReader("abcedfg"), JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new ClobReaderTypeHandler().getNullableResult(rs, 1);
             });
@@ -85,7 +85,7 @@ public class StringReaderTypeTest {
             jdbcTemplate.execute("create procedure proc_text(out p_out text) begin set p_out='abcdefg'; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_text(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.CLOB, new ClobReaderTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.CLOB.getVendorTypeNumber(), new ClobReaderTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Reader;
@@ -128,7 +128,7 @@ public class StringReaderTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             //
             List<Reader> dat = jdbcTemplate.query("select ?", ps -> {
-                new NClobReaderTypeHandler().setParameter(ps, 1, new StringReader("abcedfg"), JDBCType.CLOB);
+                new NClobReaderTypeHandler().setParameter(ps, 1, new StringReader("abcedfg"), JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new NClobReaderTypeHandler().getNullableResult(rs, 1);
             });
@@ -145,7 +145,7 @@ public class StringReaderTypeTest {
             jdbcTemplate.execute("create procedure proc_text(out p_out text) begin set p_out='abcdefg'; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_text(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.NCLOB, new NClobReaderTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.NCLOB.getVendorTypeNumber(), new NClobReaderTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Reader;
@@ -193,7 +193,7 @@ public class StringReaderTypeTest {
             assert dat2 == null;
             //
             List<Reader> dat = jdbcTemplate.query("select ?", ps -> {
-                new StringReaderTypeHandler().setParameter(ps, 1, new StringReader("abcdefg"), JDBCType.CLOB);
+                new StringReaderTypeHandler().setParameter(ps, 1, new StringReader("abcdefg"), JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new StringReaderTypeHandler().getNullableResult(rs, 1);
             });
@@ -210,7 +210,7 @@ public class StringReaderTypeTest {
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(10)) begin set p_out='abcdefg'; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_varchar(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.VARCHAR, new StringReaderTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARCHAR.getVendorTypeNumber(), new StringReaderTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Reader;
@@ -258,7 +258,7 @@ public class StringReaderTypeTest {
             assert dat2 == null;
             //
             List<Reader> dat = jdbcTemplate.query("select ?", ps -> {
-                new NStringReaderTypeHandler().setParameter(ps, 1, new StringReader("abcdefg"), JDBCType.CLOB);
+                new NStringReaderTypeHandler().setParameter(ps, 1, new StringReader("abcdefg"), JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new NStringReaderTypeHandler().getNullableResult(rs, 1);
             });
@@ -275,7 +275,7 @@ public class StringReaderTypeTest {
             jdbcTemplate.execute("create procedure proc_nvarchar(out p_out nvarchar(10)) begin set p_out='abcdefg'; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_nvarchar(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.NVARCHAR, new NStringReaderTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.NVARCHAR.getVendorTypeNumber(), new NStringReaderTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Reader;

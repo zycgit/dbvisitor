@@ -92,7 +92,7 @@ public class BlobBytesTypeTest {
             //
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             List<Byte[]> dat = jdbcTemplate.query("select ?", ps -> {
-                new BlobBytesForWrapTypeHandler().setParameter(ps, 1, toWrapped(testData), JDBCType.BLOB);
+                new BlobBytesForWrapTypeHandler().setParameter(ps, 1, toWrapped(testData), JDBCType.BLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new BlobBytesForWrapTypeHandler().getNullableResult(rs, 1);
             });
@@ -112,7 +112,7 @@ public class BlobBytesTypeTest {
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_blob(?)}",//
                     Collections.singletonList(//
-                            SqlParameterUtils.withOutput("out", JDBCType.BLOB, new BlobBytesForWrapTypeHandler())//
+                            SqlParameterUtils.withOutputName("out", JDBCType.BLOB.getVendorTypeNumber(), new BlobBytesForWrapTypeHandler())//
                     ));
             //
             assert objectMap.size() == 2;
@@ -166,7 +166,7 @@ public class BlobBytesTypeTest {
             //
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             List<byte[]> dat = jdbcTemplate.query("select ?", ps -> {
-                new BlobBytesTypeHandler().setParameter(ps, 1, testData, JDBCType.BLOB);
+                new BlobBytesTypeHandler().setParameter(ps, 1, testData, JDBCType.BLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new BlobBytesTypeHandler().getNullableResult(rs, 1);
             });
@@ -185,7 +185,7 @@ public class BlobBytesTypeTest {
             jdbcTemplate.execute("create procedure proc_blob(out p_out blob) begin set p_out= b'0111111100001111'; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_blob(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.BLOB, new BlobBytesTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.BLOB.getVendorTypeNumber(), new BlobBytesTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof byte[];
@@ -238,7 +238,7 @@ public class BlobBytesTypeTest {
             //
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             List<InputStream> dat = jdbcTemplate.query("select ?", ps -> {
-                new BlobInputStreamTypeHandler().setParameter(ps, 1, new ByteArrayInputStream(testData), JDBCType.BLOB);
+                new BlobInputStreamTypeHandler().setParameter(ps, 1, new ByteArrayInputStream(testData), JDBCType.BLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new BlobInputStreamTypeHandler().getNullableResult(rs, 1);
             });
@@ -257,7 +257,7 @@ public class BlobBytesTypeTest {
             jdbcTemplate.execute("create procedure proc_blob(out p_out blob) begin set p_out= b'0111111100001111'; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_blob(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.BLOB, new BlobInputStreamTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.BLOB.getVendorTypeNumber(), new BlobInputStreamTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof InputStream;

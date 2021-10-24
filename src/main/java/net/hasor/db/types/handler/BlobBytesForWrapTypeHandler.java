@@ -22,7 +22,7 @@ import java.sql.*;
  */
 public class BlobBytesForWrapTypeHandler extends AbstractTypeHandler<Byte[]> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, Byte[] parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, Byte[] parameter, Integer jdbcType) throws SQLException {
         ps.setBlob(i, new ByteArrayInputStream(convertToPrimitiveArray(parameter)));
     }
 

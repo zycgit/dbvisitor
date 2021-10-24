@@ -64,7 +64,7 @@ public class StringTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             //
             List<String> dat = jdbcTemplate.query("select ?", ps -> {
-                new ClobTypeHandler().setParameter(ps, 1, "abcedfg", JDBCType.CLOB);
+                new ClobTypeHandler().setParameter(ps, 1, "abcedfg", JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new ClobTypeHandler().getNullableResult(rs, 1);
             });
@@ -80,7 +80,7 @@ public class StringTypeTest {
             jdbcTemplate.execute("create procedure proc_text(out p_out text) begin set p_out='abcdefg'; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_text(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.CLOB, new ClobTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.CLOB.getVendorTypeNumber(), new ClobTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof String;
@@ -120,7 +120,7 @@ public class StringTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             //
             List<String> dat = jdbcTemplate.query("select ?", ps -> {
-                new NClobTypeHandler().setParameter(ps, 1, "abcedfg", JDBCType.CLOB);
+                new NClobTypeHandler().setParameter(ps, 1, "abcedfg", JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new NClobTypeHandler().getNullableResult(rs, 1);
             });
@@ -136,7 +136,7 @@ public class StringTypeTest {
             jdbcTemplate.execute("create procedure proc_text(out p_out text) begin set p_out='abcdefg'; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_text(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.CLOB, new NClobTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.CLOB.getVendorTypeNumber(), new NClobTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof String;
@@ -181,7 +181,7 @@ public class StringTypeTest {
             assert dat2 == null;
             //
             List<String> dat = jdbcTemplate.query("select ?", ps -> {
-                new StringTypeHandler().setParameter(ps, 1, "abcdefg", JDBCType.VARCHAR);
+                new StringTypeHandler().setParameter(ps, 1, "abcdefg", JDBCType.VARCHAR.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new StringTypeHandler().getNullableResult(rs, 1);
             });
@@ -197,7 +197,7 @@ public class StringTypeTest {
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(10)) begin set p_out='abcdefg'; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_varchar(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.VARCHAR, new StringTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARCHAR.getVendorTypeNumber(), new StringTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof String;
@@ -242,7 +242,7 @@ public class StringTypeTest {
             assert dat2 == null;
             //
             List<String> dat = jdbcTemplate.query("select ?", ps -> {
-                new NStringTypeHandler().setParameter(ps, 1, "abcdefg", JDBCType.SMALLINT);
+                new NStringTypeHandler().setParameter(ps, 1, "abcdefg", JDBCType.SMALLINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new NStringTypeHandler().getNullableResult(rs, 1);
             });
@@ -258,7 +258,7 @@ public class StringTypeTest {
             jdbcTemplate.execute("create procedure proc_nvarchar(out p_out nvarchar(10)) begin set p_out='abcdefg'; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_nvarchar(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutput("out", JDBCType.NVARCHAR, new NStringTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.NVARCHAR.getVendorTypeNumber(), new NStringTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof String;

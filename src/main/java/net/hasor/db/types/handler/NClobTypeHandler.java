@@ -24,7 +24,7 @@ import java.sql.*;
  */
 public class NClobTypeHandler extends AbstractTypeHandler<String> {
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, String parameter, JDBCType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, String parameter, Integer jdbcType) throws SQLException {
         ps.setNClob(i, new StringReader(parameter));
     }
 

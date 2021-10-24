@@ -21,13 +21,14 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.sql.Types;
 
 /**
  * （可选）标记在字段上表示映射到的列
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-@Target(ElementType.FIELD)
+@Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Column {
     /** 列名，为空的话表示采用字段名为列名 see: {@link #name()} */
@@ -36,12 +37,21 @@ public @interface Column {
     /** 列名，为空的话表示采用类名为表名 see: {@link #value()} */
     public String name() default "";
 
+    /** 指定使用的 jdbcType */
+    public int jdbcType() default Types.JAVA_OBJECT;
+
+    /** 如果当前属性是一个抽象类型，那么可以通过 specialJavaType 来指定具体的实现类 */
+    public Class<?> specialJavaType() default Object.class;
+
     /** 指定使用的 typeHandler（功效和 Mybatis 的 TypeHandler 相同） */
     public Class<? extends TypeHandler<?>> typeHandler() default UnknownTypeHandler.class;
 
-    /** 参与更新（在配置了 @Table 注解时，通过 net.hasor.db.lambda.LambdaOperations 接口操作才有效。） */
+    /** (选填)是否为主键 */
+    public boolean primary() default false;
+
+    /** (选填)参与更新（在配置了 @Table 注解时，通过 net.hasor.db.lambda.LambdaOperations 接口操作才有效） */
     public boolean update() default true;
 
-    /** 参与新增（在配置了 @Table 注解时，通过 net.hasor.db.lambda.LambdaOperations 接口操作才有效。） */
+    /** (选填)参与新增（在配置了 @Table 注解时，通过 net.hasor.db.lambda.LambdaOperations 接口操作才有效） */
     public boolean insert() default true;
 }
