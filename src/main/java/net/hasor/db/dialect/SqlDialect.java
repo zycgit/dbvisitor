@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.db.dialect;
-import net.hasor.db.metadata.ColumnDef;
-import net.hasor.db.metadata.TableDef;
-
 import java.util.Set;
 
 /**
@@ -33,8 +30,8 @@ public interface SqlDialect {
     public String rightQualifier();
 
     /** 生成 form 后面的表名 */
-    public String tableName(boolean useQualifier, TableDef tableDef);
+    public String tableName(boolean useQualifier, String schema, String table);
 
     /** 生成 where 中用到的条件名（包括 group by、order by） */
-    public String columnName(boolean useQualifier, TableDef tableDef, ColumnDef columnDef);
+    public String columnName(boolean useQualifier, String schema, String table, String column);
 }

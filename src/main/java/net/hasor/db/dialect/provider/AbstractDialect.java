@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.db.dialect.provider;
-import net.hasor.db.dialect.ConditionSqlDialect;
-import net.hasor.db.dialect.SqlDialect;
-import net.hasor.db.metadata.ColumnDef;
-import net.hasor.db.metadata.TableDef;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
+import net.hasor.db.dialect.ConditionSqlDialect;
+import net.hasor.db.dialect.SqlDialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,17 +64,17 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
     }
 
     @Override
-    public String tableName(boolean useQualifier, TableDef tableDef) {
-        if (StringUtils.isBlank(tableDef.getSchema())) {
-            return fmtName(useQualifier, tableDef.getTable());
+    public String tableName(boolean useQualifier, String schema, String table) {
+        if (StringUtils.isBlank(schema)) {
+            return fmtName(useQualifier, table);
         } else {
-            return fmtName(useQualifier, tableDef.getSchema()) + "." + fmtName(useQualifier, tableDef.getTable());
+            return fmtName(useQualifier, schema) + "." + fmtName(useQualifier, table);
         }
     }
 
     @Override
-    public String columnName(boolean useQualifier, TableDef tableDef, ColumnDef columnDef) {
-        return fmtName(useQualifier, columnDef.getName());
+    public String columnName(boolean useQualifier, String schema, String table, String column) {
+        return fmtName(useQualifier, column);
     }
 
     protected String fmtName(boolean useQualifier, String fmtString) {

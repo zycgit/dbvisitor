@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.db.dialect;
-import net.hasor.db.JdbcUtils;
-import net.hasor.db.dialect.provider.*;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.cobble.supplier.TypeSupplier;
+import net.hasor.db.JdbcUtils;
+import net.hasor.db.dialect.provider.*;
 
 import java.util.Map;
 

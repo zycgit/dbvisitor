@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.db.dialect;
-import net.hasor.db.metadata.ColumnDef;
-import net.hasor.db.metadata.TableDef;
 import net.hasor.cobble.StringUtils;
 
 import java.util.Collections;
@@ -46,17 +44,17 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     }
 
     @Override
-    public String tableName(boolean useQualifier, TableDef tableDef) {
-        if (StringUtils.isBlank(tableDef.getSchema())) {
-            return tableDef.getTable();
+    public String tableName(boolean useQualifier, String schema, String table) {
+        if (StringUtils.isBlank(schema)) {
+            return table;
         } else {
-            return tableDef.getSchema() + "." + tableDef.getTable();
+            return schema + "." + table;
         }
     }
 
     @Override
-    public String columnName(boolean useQualifier, TableDef tableDef, ColumnDef columnDef) {
-        return columnDef.getName();
+    public String columnName(boolean useQualifier, String schema, String table, String column) {
+        return column;
     }
 
     @Override
@@ -70,42 +68,52 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     }
 
     @Override
-    public boolean supportInsertIgnore(List<ColumnDef> primaryColumns) {
+    public boolean supportInsertInto(List<String> primaryKey, List<String> columns) {
+        return true;
+    }
+
+    @Override
+    public String insertWithInto(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.append("insert into ");
+        strBuilder.append(tableName(useQualifier, schema, table));
+        strBuilder.append(" ");
+        strBuilder.append("(");
+
+        StringBuilder argBuilder = new StringBuilder();
+        for (int i = 0; i < columns.size(); i++) {
+            if (i > 0) {
+                strBuilder.append(",");
+                argBuilder.append(",");
+            }
+            strBuilder.append(columnName(useQualifier, schema, table, columns.get(i)));
+            argBuilder.append("?");
+        }
+
+        strBuilder.append(") values (");
+        strBuilder.append(argBuilder);
+        strBuilder.append(")");
+        return strBuilder.toString();
+    }
+
+    @Override
+    public boolean supportInsertIgnore(List<String> primaryKey, List<String> columns) {
         return false;
     }
 
     @Override
-    public String insertWithIgnore(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
+    public String insertWithIgnore(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean supportInsertIgnoreFromSelect(List<ColumnDef> primaryColumns) {
+    public boolean supportInsertReplace(List<String> primaryKey, List<String> columns) {
         return false;
     }
 
     @Override
-    public String insertIgnoreFromSelect(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
+    public String insertWithReplace(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public boolean supportInsertReplace(List<ColumnDef> primaryColumns) {
-        return false;
-    }
-
-    @Override
-    public String insertWithReplace(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean supportInsertReplaceFromSelect(List<ColumnDef> primaryColumns) {
-        return false;
-    }
-
-    @Override
-    public String insertWithReplaceFromSelect(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
-        throw new UnsupportedOperationException();
-    }
 }

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.dialect;
+
 /**
  * SQL 分页方言
  * @version : 2020-10-31

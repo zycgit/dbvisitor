@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.db.dialect;
-import net.hasor.db.lambda.segment.SqlLike;
 import net.hasor.cobble.StringUtils;
 
 /**
@@ -23,6 +22,16 @@ import net.hasor.cobble.StringUtils;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface ConditionSqlDialect extends SqlDialect {
+    /** like 查询相关的选项 */
+    public static enum SqlLike {
+        /** %值 */
+        LEFT,
+        /** 值% */
+        RIGHT,
+        /** %值% */
+        DEFAULT
+    }
+
     /** 用于链接 insert into .... 和 select ... */
     public default String selectAsInsertConcatStr() {
         return "";

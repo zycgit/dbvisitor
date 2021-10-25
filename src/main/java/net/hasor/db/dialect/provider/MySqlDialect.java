@@ -15,11 +15,7 @@
  */
 package net.hasor.db.dialect.provider;
 import net.hasor.db.dialect.BoundSql;
-import net.hasor.db.dialect.InsertSqlDialect;
 import net.hasor.db.dialect.PageSqlDialect;
-import net.hasor.db.metadata.ColumnDef;
-import net.hasor.db.metadata.TableDef;
-import net.hasor.cobble.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +26,7 @@ import java.util.List;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class MySqlDialect extends AbstractDialect implements PageSqlDialect, InsertSqlDialect {
+public class MySqlDialect extends AbstractDialect implements PageSqlDialect/*, InsertSqlDialect*/ {
     @Override
     protected String keyWordsResource() {
         return "/META-INF/db-keywords/mysql.keywords";
@@ -58,62 +54,62 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
         return new BoundSql.BoundSqlObj(sqlBuilder.toString(), paramArrays.toArray());
     }
 
-    @Override
-    public boolean supportInsertIgnore(List<ColumnDef> primaryColumns) {
-        return true;
-    }
-
-    @Override
-    public String insertWithIgnore(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
-        // insert ignore t(id, name) values (?, ?);
-        String allColumns = buildAllColumns(useQualifier, tableDef, insertColumns);
-        int fieldCount = insertColumns.size();
-        return "INSERT IGNORE " + tableName(useQualifier, tableDef) + " ( " + allColumns + " ) VALUES ( " + StringUtils.repeat(",?", fieldCount).substring(1) + " )";
-    }
-
-    @Override
-    public boolean supportInsertIgnoreFromSelect(List<ColumnDef> primaryColumns) {
-        return true;
-    }
-
-    @Override
-    public String insertIgnoreFromSelect(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
-        // insert ignore t(id, name) select ...
-        String allColumns = buildAllColumns(useQualifier, tableDef, insertColumns);
-        return "INSERT IGNORE " + tableName(useQualifier, tableDef) + " ( " + allColumns + " )";
-    }
-
-    @Override
-    public boolean supportInsertReplace(List<ColumnDef> primaryColumns) {
-        return true;
-    }
-
-    @Override
-    public String insertWithReplace(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
-        // replace into t(id, name) values (?, ?);
-        String allColumns = buildAllColumns(useQualifier, tableDef, insertColumns);
-        int fieldCount = insertColumns.size();
-        return "REPLACE INTO " + tableName(useQualifier, tableDef) + " ( " + allColumns + " ) VALUES ( " + StringUtils.repeat(",?", fieldCount).substring(1) + " )";
-    }
-
-    @Override
-    public boolean supportInsertReplaceFromSelect(List<ColumnDef> primaryColumns) {
-        return true;
-    }
-
-    @Override
-    public String insertWithReplaceFromSelect(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
-        // replace into t(id, name) values (?, ?);
-        String allColumns = buildAllColumns(useQualifier, tableDef, insertColumns);
-        int fieldCount = insertColumns.size();
-        return "REPLACE INTO " + tableName(useQualifier, tableDef) + " ( " + allColumns + " )";
-    }
-
-    private String buildAllColumns(boolean useQualifier, TableDef tableDef, List<ColumnDef> insertColumns) {
-        return insertColumns.stream().map(fieldInfo -> {
-            return columnName(useQualifier, tableDef, fieldInfo);
-        }).reduce((s1, s2) -> {
-            return s1 + " , " + s2;
-        }).orElse("");
-    }
+    //    @Override
+    //    public boolean supportInsertIgnore(List<ColumnDef> primaryColumns) {
+    //        return true;
+    //    }
+    //
+    //    @Override
+    //    public String insertWithIgnore(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
+    //        // insert ignore t(id, name) values (?, ?);
+    //        String allColumns = buildAllColumns(useQualifier, tableDef, insertColumns);
+    //        int fieldCount = insertColumns.size();
+    //        return "INSERT IGNORE " + tableName(useQualifier, tableDef) + " ( " + allColumns + " ) VALUES ( " + StringUtils.repeat(",?", fieldCount).substring(1) + " )";
+    //    }
+    //
+    //    @Override
+    //    public boolean supportInsertIgnoreFromSelect(List<ColumnDef> primaryColumns) {
+    //        return true;
+    //    }
+    //
+    //    @Override
+    //    public String insertIgnoreFromSelect(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
+    //        // insert ignore t(id, name) select ...
+    //        String allColumns = buildAllColumns(useQualifier, tableDef, insertColumns);
+    //        return "INSERT IGNORE " + tableName(useQualifier, tableDef) + " ( " + allColumns + " )";
+    //    }
+    //
+    //    @Override
+    //    public boolean supportInsertReplace(List<ColumnDef> primaryColumns) {
+    //        return true;
+    //    }
+    //
+    //    @Override
+    //    public String insertWithReplace(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
+    //        // replace into t(id, name) values (?, ?);
+    //        String allColumns = buildAllColumns(useQualifier, tableDef, insertColumns);
+    //        int fieldCount = insertColumns.size();
+    //        return "REPLACE INTO " + tableName(useQualifier, tableDef) + " ( " + allColumns + " ) VALUES ( " + StringUtils.repeat(",?", fieldCount).substring(1) + " )";
+    //    }
+    //
+    //    @Override
+    //    public boolean supportInsertReplaceFromSelect(List<ColumnDef> primaryColumns) {
+    //        return true;
+    //    }
+    //
+    //    @Override
+    //    public String insertWithReplaceFromSelect(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
+    //        // replace into t(id, name) values (?, ?);
+    //        String allColumns = buildAllColumns(useQualifier, tableDef, insertColumns);
+    //        int fieldCount = insertColumns.size();
+    //        return "REPLACE INTO " + tableName(useQualifier, tableDef) + " ( " + allColumns + " )";
+    //    }
+    //
+    //    private String buildAllColumns(boolean useQualifier, TableDef tableDef, List<ColumnDef> insertColumns) {
+    //        return insertColumns.stream().map(fieldInfo -> {
+    //            return columnName(useQualifier, tableDef, fieldInfo);
+    //        }).reduce((s1, s2) -> {
+    //            return s1 + " , " + s2;
+    //        }).orElse("");
+    //    }
 }

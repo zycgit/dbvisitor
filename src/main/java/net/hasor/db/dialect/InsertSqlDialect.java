@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.db.dialect;
-import net.hasor.db.metadata.ColumnDef;
-import net.hasor.db.metadata.TableDef;
 
 import java.util.List;
 
@@ -25,23 +23,36 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface InsertSqlDialect extends SqlDialect {
+    /** 是否支持 insert into */
+    public boolean supportInsertInto(List<String> primaryKey, List<String> columns);
+
+    public String insertWithInto(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
+
     /** 是否支持 insert ignore */
-    public boolean supportInsertIgnore(List<ColumnDef> primaryColumns);
+    public boolean supportInsertIgnore(List<String> primaryKey, List<String> columns);
 
-    public String insertWithIgnore(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns);
-
-    /** 是否支持 insert ignore from select */
-    public boolean supportInsertIgnoreFromSelect(List<ColumnDef> primaryColumns);
-
-    public String insertIgnoreFromSelect(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns);
+    public String insertWithIgnore(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
 
     /** 是否支持 insert replace */
-    public boolean supportInsertReplace(List<ColumnDef> primaryColumns);
+    public boolean supportInsertReplace(List<String> primaryKey, List<String> columns);
 
-    public String insertWithReplace(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns);
+    public String insertWithReplace(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
 
-    /** 是否支持 insert replace from select */
-    public boolean supportInsertReplaceFromSelect(List<ColumnDef> primaryColumns);
+    //
 
-    public String insertWithReplaceFromSelect(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns);
+    //    /** 是否支持 insert into from select */
+    //    public boolean supportInsertIntoFromSelect(List<String> destPrimaryKey, Map<String, String> columnMapping);
+    //
+    //    public String insertWithIntoFromSelect(boolean useQualifier, String srcSchema, String srcTable, String destSchema, String destTable, List<String> destPrimaryKey, Map<String, String> columnMapping);
+    //
+    //    /** 是否支持 insert ignore from select */
+    //    public boolean supportInsertIgnoreFromSelect(List<String> primaryKey, List<String> columns);
+    //
+    //    public String insertWithIgnoreFromSelect(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
+    //
+    //    /** 是否支持 insert replace from select */
+    //    public boolean supportInsertReplaceFromSelect(List<String> primaryKey, List<String> columns);
+    //
+    //    public String insertWithReplaceFromSelect(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
+
 }
