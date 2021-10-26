@@ -30,22 +30,22 @@ public class TableDef<T> implements TableMapping<T> {
     private final Class<T> entityType;
     private final boolean  autoProperty;
     private final boolean  useDelimited;
-    private final boolean  caseSensitivity;
+    private final boolean  caseInsensitive;
 
     private final List<ColumnMapping>        columnMappings;
     private final Map<String, ColumnMapping> mapByProperty;
     private final Map<String, ColumnMapping> mapByColumn;
 
-    public TableDef(String schema, String table, Class<T> entityType, boolean autoProperty, boolean useDelimited, boolean caseSensitivity) {
+    public TableDef(String schema, String table, Class<T> entityType, boolean autoProperty, boolean useDelimited, boolean caseInsensitive) {
         this.schema = schema;
         this.table = table;
         this.entityType = entityType;
         this.autoProperty = autoProperty;
         this.useDelimited = useDelimited;
-        this.caseSensitivity = caseSensitivity;
+        this.caseInsensitive = caseInsensitive;
         this.columnMappings = new ArrayList<>();
         this.mapByProperty = new HashMap<>();
-        this.mapByColumn = caseSensitivity ? new HashMap<>() : new LinkedCaseInsensitiveMap<>();
+        this.mapByColumn = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
     }
 
     @Override
@@ -73,8 +73,8 @@ public class TableDef<T> implements TableMapping<T> {
         return this.useDelimited;
     }
 
-    public boolean isCaseSensitivity() {
-        return this.caseSensitivity;
+    public boolean isCaseInsensitive() {
+        return this.caseInsensitive;
     }
 
     @Override

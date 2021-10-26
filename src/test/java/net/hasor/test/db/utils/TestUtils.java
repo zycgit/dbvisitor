@@ -15,6 +15,7 @@
  */
 package net.hasor.test.db.utils;
 import net.hasor.test.db.dto.TB_User;
+import net.hasor.test.db.dto.TbUser;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -41,6 +42,17 @@ public class TestUtils {
         return UUID.randomUUID().toString();
     }
 
+    private static TbUser fillBean(Object[] data, TbUser tbUser) {
+        tbUser.setUid((String) data[0]);
+        tbUser.setName((String) data[1]);
+        tbUser.setAccount((String) data[2]);
+        tbUser.setPassword((String) data[3]);
+        tbUser.setMail((String) data[4]);
+        tbUser.setIndex((Integer) data[5]);
+        tbUser.setCreateTime((Date) data[6]);
+        return tbUser;
+    }
+
     private static TB_User fillBean(Object[] data, TB_User tbUser) {
         tbUser.setUserUUID((String) data[0]);
         tbUser.setName((String) data[1]);
@@ -61,6 +73,10 @@ public class TestUtils {
         map.put("index", data[5]);
         map.put("registerTime", data[6]);
         return map;
+    }
+
+    public static TbUser mappingBeanForData1() {
+        return fillBean(DATA_1, new TbUser());
     }
 
     public static TB_User beanForData1() {

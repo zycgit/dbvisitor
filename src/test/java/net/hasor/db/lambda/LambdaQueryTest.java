@@ -17,6 +17,7 @@ package net.hasor.db.lambda;
 import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.db.jdbc.extractor.RowMapperResultSetExtractor;
 import net.hasor.db.jdbc.mapper.ColumnMapRowMapper;
+import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TB_User;
 import net.hasor.test.db.dto.TbUser;

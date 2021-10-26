@@ -19,6 +19,7 @@ import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.dialect.provider.MySqlDialect;
 import net.hasor.db.lambda.LambdaOperations.LambdaUpdate;
+import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TB_User;
 import org.junit.Test;

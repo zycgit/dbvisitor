@@ -15,6 +15,7 @@
  */
 package net.hasor.db.dialect.provider;
 import net.hasor.db.dialect.BoundSql;
+import net.hasor.db.dialect.InsertSqlDialect;
 import net.hasor.db.dialect.PageSqlDialect;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ import java.util.List;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class OracleDialect extends AbstractDialect implements PageSqlDialect/*, InsertSqlDialect*/ {
+public class OracleDialect extends AbstractDialect implements PageSqlDialect, InsertSqlDialect {
     @Override
     protected String keyWordsResource() {
         return "/META-INF/db-keywords/oracle.keywords";
@@ -47,148 +48,135 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect/*, 
     public BoundSql pageSql(BoundSql boundSql, int start, int limit) {
         String sqlString = boundSql.getSqlString();
         List<Object> paramArrays = new ArrayList<>(Arrays.asList(boundSql.getArgs()));
-        //
+
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("SELECT * FROM ( SELECT TMP.*, ROWNUM ROW_ID FROM ( ");
         sqlBuilder.append(sqlString);
         sqlBuilder.append(" ) TMP WHERE ROWNUM <= ? ) WHERE ROW_ID > ?");
-        //
+
         paramArrays.add(start + limit);
         paramArrays.add(start);
         return new BoundSql.BoundSqlObj(sqlBuilder.toString(), paramArrays.toArray());
     }
 
-    //    @Override
-    //    public boolean supportInsertIgnore(List<ColumnDef> primaryColumns) {
-    //        return !primaryColumns.isEmpty();
-    //    }
-    //
-    //    @Override
-    //    public String insertWithIgnore(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
-    //        //        MERGE INTO DS_ENV TMP
-    //        //        USING (SELECT 3            "ID",
-    //        //                systimestamp GMT_CREATE,
-    //        //                systimestamp GMT_MODIFIED,
-    //        //                'abc'        OWNER_UID,
-    //        //                'dev'        ENV_NAME,
-    //        //                'dddddd'     DESCRIPTION
-    //        //                FROM dual) SRC
-    //        //        ON (TMP."ID" = SRC."ID")
-    //        //        WHEN NOT MATCHED THEN
-    //        //            INSERT ("ID", "GMT_CREATE", "GMT_MODIFIED", "OWNER_UID", "ENV_NAME", "DESCRIPTION")
-    //        //            VALUES (SRC."ID", SRC."GMT_CREATE", SRC."GMT_MODIFIED", SRC."OWNER_UID", SRC."ENV_NAME", SRC."DESCRIPTION");
-    //        List<ColumnDef> pkColumns = insertColumns.stream().filter(ColumnDef::isPrimaryKey).collect(Collectors.toList());
-    //        StringBuilder mergeBasic = buildMergeInfoBasic(useQualifier, tableDef, insertColumns, pkColumns);
-    //        StringBuilder mergeWhenNotMatched = buildMergeInfoWhenNotMatched(useQualifier, insertColumns);
-    //        return mergeBasic.toString() + " " + mergeWhenNotMatched.toString();
-    //    }
-    //
-    //    @Override
-    //    public boolean supportInsertIgnoreFromSelect(List<ColumnDef> primaryColumns) {
-    //        return false;
-    //    }
-    //
-    //    @Override
-    //    public String insertIgnoreFromSelect(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
-    //        throw new UnsupportedOperationException();
-    //    }
-    //
-    //    @Override
-    //    public boolean supportInsertReplace(List<ColumnDef> primaryColumns) {
-    //        return !primaryColumns.isEmpty();
-    //    }
-    //
-    //    @Override
-    //    public String insertWithReplace(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
-    //        //        MERGE INTO DS_ENV TMP
-    //        //        USING (SELECT 3            "ID",
-    //        //                systimestamp GMT_CREATE,
-    //        //                systimestamp GMT_MODIFIED,
-    //        //                'abc'        OWNER_UID,
-    //        //                'dev'        ENV_NAME,
-    //        //                'dddddd'     DESCRIPTION
-    //        //                FROM dual) SRC
-    //        //        ON (TMP."ID" = SRC."ID")
-    //        //        WHEN MATCHED THEN
-    //        //                UPDATE
-    //        //            SET "GMT_CREATE"   = SRC."GMT_CREATE",
-    //        //                "GMT_MODIFIED" = SRC."GMT_MODIFIED",
-    //        //                "OWNER_UID"    = SRC."OWNER_UID",
-    //        //                "ENV_NAME"     = SRC."ENV_NAME",
-    //        //                "DESCRIPTION"  = SRC."DESCRIPTION"
-    //        List<ColumnDef> pkColumns = insertColumns.stream().filter(ColumnDef::isPrimaryKey).collect(Collectors.toList());
-    //        StringBuilder mergeBasic = buildMergeInfoBasic(useQualifier, tableDef, insertColumns, pkColumns);
-    //        StringBuilder mergeWhenMatched = buildMergeInfoWhenMatched(useQualifier, insertColumns);
-    //        return mergeBasic.toString() + " " + mergeWhenMatched.toString();
-    //    }
-    //
-    //    @Override
-    //    public boolean supportInsertReplaceFromSelect(List<ColumnDef> primaryColumns) {
-    //        return false;
-    //    }
-    //
-    //    @Override
-    //    public String insertWithReplaceFromSelect(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
-    //        throw new UnsupportedOperationException();
-    //    }
-    //
-    //    private StringBuilder buildMergeInfoBasic(boolean useQualifier, TableDef tableDef, List<ColumnDef> allColumns, List<ColumnDef> primaryColumns) {
-    //        StringBuilder mergeBuilder = new StringBuilder();
-    //        String finalTableName = tableName(useQualifier, tableDef);
-    //        mergeBuilder.append("MERGE INTO " + finalTableName + " TMP USING( SELECT ");
-    //        for (int i = 0; i < allColumns.size(); i++) {
-    //            ColumnDef columnDef = allColumns.get(i);
-    //            if (i != 0) {
-    //                mergeBuilder.append(" , ");
-    //            }
-    //            mergeBuilder.append("? " + columnName(useQualifier, tableDef, columnDef));
-    //        }
-    //        mergeBuilder.append(" FROM dual) SRC ON (");
-    //        for (int i = 0; i < primaryColumns.size(); i++) {
-    //            if (i != 0) {
-    //                mergeBuilder.append(" AND ");
-    //            }
-    //            String pkColumn = columnName(useQualifier, tableDef, primaryColumns.get(i));
-    //            mergeBuilder.append("TMP." + pkColumn + " = SRC." + pkColumn);
-    //        }
-    //        mergeBuilder.append(")");
-    //        return mergeBuilder;
-    //    }
-    //
-    //    private StringBuilder buildMergeInfoWhenNotMatched(boolean useQualifier, List<ColumnDef> allColumns) {
-    //        String allColumnString = allColumns.stream().map(columnDef -> {
-    //            return fmtName(useQualifier, columnDef.getName());
-    //        }).reduce((s1, s2) -> s1 + "," + s2).orElse("");
-    //        //
-    //        StringBuilder mergeBuilder = new StringBuilder();
-    //        mergeBuilder.append("WHEN NOT MATCHED THEN ");
-    //        mergeBuilder.append("INSERT(" + allColumnString + ") ");
-    //        mergeBuilder.append("VALUES( ");
-    //        for (int i = 0; i < allColumns.size(); i++) {
-    //            ColumnDef columnDef = allColumns.get(i);
-    //            if (i != 0) {
-    //                mergeBuilder.append(" , ");
-    //            }
-    //            mergeBuilder.append("SRC." + fmtName(useQualifier, columnDef.getName()));
-    //        }
-    //        mergeBuilder.append(")");
-    //        //
-    //        return mergeBuilder;
-    //    }
-    //
-    //    private StringBuilder buildMergeInfoWhenMatched(boolean useQualifier, List<ColumnDef> allColumns) {
-    //        StringBuilder mergeBuilder = new StringBuilder();
-    //        mergeBuilder.append("WHEN MATCHED THEN ");
-    //        mergeBuilder.append("UPDATE SET ");
-    //        for (int i = 0; i < allColumns.size(); i++) {
-    //            ColumnDef columnDef = allColumns.get(i);
-    //            if (i != 0) {
-    //                mergeBuilder.append(" , ");
-    //            }
-    //            String columnName = fmtName(useQualifier, columnDef.getName());
-    //            mergeBuilder.append(columnName + " = SRC." + columnName);
-    //        }
-    //        mergeBuilder.append(" ");
-    //        return mergeBuilder;
-    //    }
+    @Override
+    public boolean supportInsertInto(List<String> primaryKey, List<String> columns) {
+        return true;
+    }
+
+    @Override
+    public String insertWithInto(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.append("INSERT INTO ");
+        strBuilder.append(tableName(useQualifier, schema, table));
+        strBuilder.append(" (");
+
+        StringBuilder argBuilder = new StringBuilder();
+        for (int i = 0; i < columns.size(); i++) {
+            if (i > 0) {
+                strBuilder.append(", ");
+                argBuilder.append(", ");
+            }
+            strBuilder.append(columnName(useQualifier, schema, table, columns.get(i)));
+            argBuilder.append("?");
+        }
+
+        strBuilder.append(") VALUES (");
+        strBuilder.append(argBuilder);
+        strBuilder.append(")");
+        return strBuilder.toString();
+    }
+
+    @Override
+    public boolean supportInsertIgnore(List<String> primaryKey, List<String> columns) {
+        return !primaryKey.isEmpty();
+    }
+
+    @Override
+    public String insertWithIgnore(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
+        StringBuilder mergeBuilder = new StringBuilder();
+
+        buildMergeInfoBasic(useQualifier, schema, table, primaryKey, columns, mergeBuilder);
+
+        buildMergeInfoWhenNotMatched(useQualifier, schema, table, columns, mergeBuilder);
+
+        return mergeBuilder.toString();
+    }
+
+    @Override
+    public boolean supportInsertReplace(List<String> primaryKey, List<String> columns) {
+        return !primaryKey.isEmpty();
+    }
+
+    @Override
+    public String insertWithReplace(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
+        StringBuilder mergeBuilder = new StringBuilder();
+
+        buildMergeInfoBasic(useQualifier, schema, table, primaryKey, columns, mergeBuilder);
+
+        buildMergeInfoWhenMatched(useQualifier, schema, table, columns, mergeBuilder);
+        buildMergeInfoWhenNotMatched(useQualifier, schema, table, columns, mergeBuilder);
+
+        return mergeBuilder.toString();
+    }
+
+    private void buildMergeInfoBasic(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns, StringBuilder mergeBuilder) {
+        mergeBuilder.append("MERGE INTO ");
+        mergeBuilder.append(tableName(useQualifier, schema, table));
+        mergeBuilder.append(" TMP USING (SELECT ");
+
+        for (int i = 0; i < columns.size(); i++) {
+            if (i > 0) {
+                mergeBuilder.append(", ");
+            }
+
+            mergeBuilder.append("? ");
+            mergeBuilder.append(columnName(useQualifier, schema, table, columns.get(i)));
+        }
+
+        mergeBuilder.append(" FROM dual ) SRC ON (");
+        for (int i = 0; i < primaryKey.size(); i++) {
+            if (i != 0) {
+                mergeBuilder.append(" AND ");
+            }
+            String pkColumn = columnName(useQualifier, schema, table, primaryKey.get(i));
+            mergeBuilder.append("TMP." + pkColumn + " = SRC." + pkColumn);
+        }
+        mergeBuilder.append(") ");
+    }
+
+    private void buildMergeInfoWhenNotMatched(boolean useQualifier, String schema, String table, List<String> allColumns, StringBuilder mergeBuilder) {
+        mergeBuilder.append("WHEN NOT MATCHED THEN ");
+        mergeBuilder.append("INSERT (");
+
+        StringBuilder argBuilder = new StringBuilder();
+        for (int i = 0; i < allColumns.size(); i++) {
+            if (i > 0) {
+                mergeBuilder.append(", ");
+                argBuilder.append(", ");
+            }
+            mergeBuilder.append(columnName(useQualifier, schema, table, allColumns.get(i)));
+            argBuilder.append("SRC.").append(columnName(useQualifier, schema, table, allColumns.get(i)));
+        }
+
+        mergeBuilder.append(") VALUES( ");
+        mergeBuilder.append(argBuilder);
+        mergeBuilder.append(") ");
+    }
+
+    private void buildMergeInfoWhenMatched(boolean useQualifier, String schema, String table, List<String> allColumns, StringBuilder mergeBuilder) {
+        mergeBuilder.append("WHEN MATCHED THEN ");
+        mergeBuilder.append("UPDATE SET ");
+        for (int i = 0; i < allColumns.size(); i++) {
+            String column = allColumns.get(i);
+            if (i != 0) {
+                mergeBuilder.append(", ");
+            }
+            mergeBuilder.append(columnName(useQualifier, schema, table, column));
+            mergeBuilder.append(" = SRC.");
+            mergeBuilder.append(columnName(useQualifier, schema, table, column));
+        }
+        mergeBuilder.append(" ");
+    }
+
 }

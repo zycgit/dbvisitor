@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.lambda.query;
-import net.hasor.db.dialect.BoundSql;
-import net.hasor.db.dialect.PageSqlDialect;
-import net.hasor.db.dialect.SqlDialect;
+package net.hasor.db.lambda.core;
+import net.hasor.db.dialect.*;
 import net.hasor.db.jdbc.ResultSetExtractor;
 import net.hasor.db.jdbc.RowCallbackHandler;
 import net.hasor.db.jdbc.RowMapper;
-import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.lambda.QueryExecute;
-import net.hasor.db.page.Page;
-import net.hasor.db.page.PageObject;
+import net.hasor.db.mapping.TableReader;
+import net.hasor.db.mapping.resolve.MappingOptions;
 
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,12 +36,12 @@ import java.util.Map;
 public abstract class AbstractQueryExecute<T> extends AbstractExecute<T> implements QueryExecute<T> {
     private final Page pageInfo = new PageObject(0, this::queryForCount);
 
-    public AbstractQueryExecute(Class<T> exampleType, JdbcTemplate jdbcTemplate) {
-        super(exampleType, jdbcTemplate);
+    public AbstractQueryExecute(TableReader<T> tableReader, LambdaTemplate jdbcTemplate) {
+        super(tableReader, jdbcTemplate);
     }
 
-    AbstractQueryExecute(Class<T> exampleType, JdbcTemplate jdbcTemplate, String dbType, SqlDialect dialect) {
-        super(exampleType, jdbcTemplate, dbType, dialect);
+    AbstractQueryExecute(TableReader<T> tableReader, LambdaTemplate jdbcTemplate, String dbType, SqlDialect dialect) {
+        super(tableReader, jdbcTemplate, dbType, dialect);
     }
 
     /**
@@ -80,9 +79,11 @@ public abstract class AbstractQueryExecute<T> extends AbstractExecute<T> impleme
     }
 
     @Override
-    public <V> QueryExecute<V> wrapperType(Class<V> wrapperType) {
+    public <V> QueryExecute<V> wrapperType(Class<V> wrapperType, MappingOptions options) {
+        TableReader<V> tableReader = this.getJdbcTemplate().getTableReader(wrapperType, options);
+
         AbstractQueryExecute<T> self = this;
-        return new AbstractQueryExecute<V>(wrapperType, this.getJdbcTemplate(), this.dbType, this.dialect()) {
+        return new AbstractQueryExecute<V>(tableReader, this.getJdbcTemplate(), this.dbType, this.dialect()) {
             @Override
             protected boolean supportPage() {
                 return AbstractQueryExecute.this.supportPage();
@@ -113,16 +114,34 @@ public abstract class AbstractQueryExecute<T> extends AbstractExecute<T> impleme
         return this.getJdbcTemplate().query(boundSql.getSqlString(), boundSql.getArgs(), rowMapper);
     }
 
+    private List<String> fetchColumns(ResultSetMetaData rsmd) throws SQLException {
+        int nrOfColumns = rsmd.getColumnCount();
+        List<String> columnList = new ArrayList<>();
+        for (int i = 1; i <= nrOfColumns; i++) {
+            String colName = rsmd.getColumnName(i);
+            columnList.add(colName);
+        }
+        return columnList;
+    }
+
     @Override
     public List<T> queryForList() throws SQLException {
         BoundSql boundSql = getBoundSql();
-        return this.getJdbcTemplate().query(boundSql.getSqlString(), boundSql.getArgs(), getRowMapper());
+        TableReader<T> tableReader = getTableReader();
+        return this.getJdbcTemplate().query(boundSql.getSqlString(), boundSql.getArgs(), rs -> {
+            List<String> columns = fetchColumns(rs.getMetaData());
+            return tableReader.extractData(columns, rs);
+        });
     }
 
     @Override
     public T queryForObject() throws SQLException {
         BoundSql boundSql = getBoundSql();
-        return this.getJdbcTemplate().queryForObject(boundSql.getSqlString(), boundSql.getArgs(), getRowMapper());
+        TableReader<T> tableReader = getTableReader();
+        return this.getJdbcTemplate().queryForObject(boundSql.getSqlString(), boundSql.getArgs(), (rs, rowNum) -> {
+            List<String> columns = fetchColumns(rs.getMetaData());
+            return tableReader.extractRow(columns, rs, rowNum);
+        });
     }
 
     @Override

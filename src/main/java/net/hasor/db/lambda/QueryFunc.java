@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.db.lambda;
-import net.hasor.db.metadata.ColumnDef;
-import net.hasor.db.page.Page;
 import net.hasor.cobble.reflect.SFunction;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Predicate;
+import net.hasor.db.dialect.Page;
 
 /**
  * Query 复杂操作构造器。
@@ -29,63 +24,31 @@ import java.util.function.Predicate;
  */
 public interface QueryFunc<T, R> {
     /**
-     * 查询指定列。
+     * 查询所有列
      * 在分组查询下：返回所有分组列 */
     public R selectAll();
 
     /**
-     * 查询指定列。
+     * 查询属性
      * 在分组查询下：设置参数中，只有 group by 列才会被查询。 */
     public R select(String... columns);
 
     /**
-     * 查询指定列。
+     * 查询属性
      * 在分组查询下：设置参数中，只有 group by 列才会被查询。 */
-    public default R select(SFunction<T> property) {
-        return select(Collections.singletonList(property));
-    }
-
-    /**
-     * 查询指定列。
-     * 在分组查询下：设置参数中，只有 group by 列才会被查询。 */
-    public R select(List<SFunction<T>> properties);
-
-    /**
-     * 按条件过滤查询指定列。
-     * 在分组查询下：设置参数中，只有 group by 列才会被查询。 */
-    public R select(Predicate<ColumnDef> tester);
+    public R select(SFunction<T>... properties);
 
     /**分组，类似：group by xxx */
-    public default R groupBy(SFunction<T> property) {
-        return groupBy(Collections.singletonList(property));
-    }
-
-    /**分组，类似：group by xxx */
-    public R groupBy(List<SFunction<T>> properties);
+    public R groupBy(SFunction<T>... properties);
 
     /** 排序，类似：order by xxx */
-    public default R orderBy(SFunction<T> property) {
-        return orderBy(Collections.singletonList(property));
-    }
-
-    /** 排序，类似：order by xxx */
-    public R orderBy(List<SFunction<T>> properties);
+    public R orderBy(SFunction<T>... properties);
 
     /** 排序(升序)，类似：order by xxx desc */
-    public default R asc(SFunction<T> property) {
-        return asc(Collections.singletonList(property));
-    }
-
-    /** 排序(升序)，类似：order by xxx desc */
-    public R asc(List<SFunction<T>> properties);
+    public R asc(SFunction<T>... properties);
 
     /** 排序(降序)，类似：order by xxx desc */
-    public default R desc(SFunction<T> property) {
-        return desc(Collections.singletonList(property));
-    }
-
-    /** 排序(降序)，类似：order by xxx desc */
-    public R desc(List<SFunction<T>> properties);
+    public R desc(SFunction<T>... properties);
 
     /** 设置分页信息 */
     public R usePage(Page pageInfo);

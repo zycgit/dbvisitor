@@ -27,10 +27,12 @@ import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.sql.Types;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 通过 Class 来解析 TableMapping
@@ -55,9 +57,23 @@ public class ClassResolveTableMapping implements ResolveTableMapping<Class<?>> {
         options = new MappingOptions(options);
 
         TableDef<V> def = this.resolveTable((Class<V>) entityType, options);
-
         Map<String, Property> properties = BeanUtils.getPropertyFunc(entityType);
+
+        // keep order by fields
+        List<String> names = new ArrayList<>();
+        List<String> fields = BeanUtils.getALLFields(entityType).values().stream().map(Field::getName).collect(Collectors.toList());
+        for (String name : fields) {
+            if (properties.containsKey(name)) {
+                names.add(name);
+            }
+        }
         for (String name : properties.keySet()) {
+            if (!names.contains(name)) {
+                names.add(name);
+            }
+        }
+
+        for (String name : names) {
             Property property = properties.get(name);
             Class<?> type = BeanUtils.getPropertyType(property);
             resolveProperty(def, name, type, property, typeRegistry, options);
@@ -80,12 +96,12 @@ public class ClassResolveTableMapping implements ResolveTableMapping<Class<?>> {
 
             boolean autoProperty = defTable.autoMapping();
             boolean useDelimited = defTable.useDelimited();
-            boolean caseSensitivity = defTable.caseSensitivity() || Boolean.TRUE.equals(options.getCaseSensitivity());
-            return new TableDef<>(schema, table, entityType, autoProperty, useDelimited, caseSensitivity);
+            boolean caseInsensitive = defTable.caseInsensitive() || options.getCaseInsensitive() == null || Boolean.TRUE.equals(options.getCaseInsensitive());
+            return new TableDef<>(schema, table, entityType, autoProperty, useDelimited, caseInsensitive);
         } else {
 
             String tableName = humpToLine(entityType.getSimpleName(), options.getMapUnderscoreToCamelCase());
-            return new TableDef<>(null, tableName, entityType, true, false, false);
+            return new TableDef<>(null, tableName, entityType, true, false, true);
         }
     }
 

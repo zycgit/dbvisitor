@@ -9,6 +9,22 @@
   [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.hasor/hasor-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.hasor/hasor-core)
   [![Build Status](https://travis-ci.org/zycgit/hasor.svg?branch=master)](https://travis-ci.org/zycgit/hasor)
 
+
+
+## 功能
+
+- 多种 ORM 方式
+  - 基于 Xml 的动态 SQL（高度兼容 Mybatis）
+  - 基于 Lambda 的 CURD。
+  - 基于注解 JdbcTemplate 接口方式（Spring queryForList 风格）
+
+- 完整事务控制
+  - 支持嵌套事务不限层数。
+  - 5个隔离级别
+  - 7个传播特性
+
+- 分页查询
+
 ----------
 ## 场景
 01. 完全基于 SQL 的数据库读写操作

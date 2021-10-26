@@ -18,7 +18,7 @@ import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.db.JdbcUtils;
 import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.dialect.SqlDialectRegister;
-import net.hasor.db.jdbc.core.JdbcTemplate;
+import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TB_User;
 import net.hasor.test.db.dto.TbUser;
@@ -42,7 +42,7 @@ public class PageTest extends AbstractDbTest {
         BoundSql boundSql = new LambdaTemplate().lambdaQuery(TbUser.class).select(TbUser::getAccount)//
                 .initPage(10, 2)//
                 .getBoundSql(SqlDialectRegister.findOrCreate(JdbcUtils.MYSQL));
-        assert boundSql.getSqlString().equals("SELECT loginName FROM tb_user LIMIT ?, ?");
+        assert boundSql.getSqlString().equals("SELECT loginName FROM TB_User LIMIT ?, ?");
         assert boundSql.getArgs()[0].equals(20);
         assert boundSql.getArgs()[1].equals(10);
     }
@@ -54,7 +54,7 @@ public class PageTest extends AbstractDbTest {
                 .between(TbUser::getAccount, 2, 3)//
                 .initPage(10, 2)//
                 .getBoundSql(SqlDialectRegister.findOrCreate(JdbcUtils.MYSQL));
-        assert boundSql.getSqlString().equals("SELECT loginName FROM tb_user WHERE `index` = ? AND loginName BETWEEN ? AND ? LIMIT ?, ?");
+        assert boundSql.getSqlString().equals("SELECT loginName FROM TB_User WHERE `index` = ? AND loginName BETWEEN ? AND ? LIMIT ?, ?");
         assert boundSql.getArgs()[0].equals(1);
         assert boundSql.getArgs()[1].equals(2);
         assert boundSql.getArgs()[2].equals(3);
@@ -66,12 +66,12 @@ public class PageTest extends AbstractDbTest {
     public void pageTest_3() {
         BoundSql boundSql1 = new LambdaTemplate().lambdaQuery(TbUser.class).select(TbUser::getAccount)//
                 .orderBy(TbUser::getUid).initPage(5, 0).getBoundSql(SqlDialectRegister.findOrCreate(JdbcUtils.MYSQL));
-        assert boundSql1.getSqlString().equals("SELECT loginName FROM tb_user ORDER BY userUUID LIMIT ?");
+        assert boundSql1.getSqlString().equals("SELECT loginName FROM TB_User ORDER BY userUUID LIMIT ?");
         assert boundSql1.getArgs()[0].equals(5);
         //
         BoundSql boundSql2 = new LambdaTemplate().lambdaQuery(TbUser.class).select(TbUser::getAccount)//
                 .orderBy(TbUser::getUid).initPage(5, 1).getBoundSql(SqlDialectRegister.findOrCreate(JdbcUtils.MYSQL));
-        assert boundSql2.getSqlString().equals("SELECT loginName FROM tb_user ORDER BY userUUID LIMIT ?, ?");
+        assert boundSql2.getSqlString().equals("SELECT loginName FROM TB_User ORDER BY userUUID LIMIT ?, ?");
         assert boundSql2.getArgs()[0].equals(5);
         assert boundSql2.getArgs()[1].equals(5);
     }
@@ -80,8 +80,7 @@ public class PageTest extends AbstractDbTest {
     public void pageTest_4() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
-            JdbcTemplate jdbcTemplate = lambdaTemplate.getJdbcTemplate();
-            jdbcTemplate.execute("delete from tb_user");
+            lambdaTemplate.execute("delete from tb_user");
             //
             int count = 13;
             Object[][] batchValues = new Object[count][];
@@ -95,8 +94,8 @@ public class PageTest extends AbstractDbTest {
                 batchValues[i][5] = i;
                 batchValues[i][6] = new Date();
             }
-            jdbcTemplate.executeBatch(INSERT_ARRAY, batchValues);//批量执行执行插入语句
-            assert jdbcTemplate.queryForInt("select count(1) from tb_user") == 13;
+            lambdaTemplate.executeBatch(INSERT_ARRAY, batchValues);//批量执行执行插入语句
+            assert lambdaTemplate.queryForInt("select count(1) from tb_user") == 13;
             //
             List<TbUser> page0 = lambdaTemplate.lambdaQuery(TbUser.class).orderBy(TbUser::getIndex).initPage(5, 0).queryForList();
             List<TbUser> page1 = lambdaTemplate.lambdaQuery(TbUser.class).orderBy(TbUser::getIndex).initPage(5, 1).queryForList();
@@ -126,8 +125,7 @@ public class PageTest extends AbstractDbTest {
     public void pageTest_5() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
-            JdbcTemplate jdbcTemplate = lambdaTemplate.getJdbcTemplate();
-            jdbcTemplate.execute("delete from tb_user");
+            lambdaTemplate.execute("delete from tb_user");
             //
             int count = 13;
             Object[][] batchValues = new Object[count][];
@@ -141,8 +139,8 @@ public class PageTest extends AbstractDbTest {
                 batchValues[i][5] = i;
                 batchValues[i][6] = new Date();
             }
-            jdbcTemplate.executeBatch(INSERT_ARRAY, batchValues);//批量执行执行插入语句
-            assert jdbcTemplate.queryForInt("select count(1) from tb_user") == 13;
+            lambdaTemplate.executeBatch(INSERT_ARRAY, batchValues);//批量执行执行插入语句
+            assert lambdaTemplate.queryForInt("select count(1) from tb_user") == 13;
             //
             List<TB_User> page0 = lambdaTemplate.lambdaQuery(TB_User.class).orderBy(TB_User::getIndex).initPage(5, 0).queryForList();
             List<TB_User> page1 = lambdaTemplate.lambdaQuery(TB_User.class).orderBy(TB_User::getIndex).initPage(5, 1).queryForList();

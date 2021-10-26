@@ -41,7 +41,7 @@ public interface TableMapping<T> {
     /** 使用 lambda 查询期间是否使用 引号 */
     public boolean useDelimited();
 
-    public boolean isCaseSensitivity();
+    public boolean isCaseInsensitive();
 
     public Collection<ColumnMapping> getProperties();
 

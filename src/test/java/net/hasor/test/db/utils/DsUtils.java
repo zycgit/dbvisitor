@@ -17,15 +17,11 @@ package net.hasor.test.db.utils;
 import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.db.jdbc.ConnectionCallback;
 import net.hasor.db.jdbc.core.JdbcTemplate;
-import net.hasor.db.jdbc.extractor.ColumnMapResultSetExtractor;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
 import static net.hasor.test.db.utils.TestUtils.*;
 
@@ -35,12 +31,30 @@ import static net.hasor.test.db.utils.TestUtils.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class DsUtils {
-    public static String MYSQL_SCHEMA_NAME     = "rds_mysql_4387ovi";
-    public static String MYSQL_JDBC_URL        = "jdbc:mysql://rm-bp1oo27t8762xhlob0o.mysql.rds.aliyuncs.com:3306/rds_mysql_4387ovi?allowMultiQueries=true";
-    public static String ADB_MYSQL_SCHEMA_NAME = "adb_mysql_4387qyy";
-    public static String ADB_MYSQL_JDBC_URL    = "jdbc:mysql://am-wz99xu17yks5p9e3f90650o.ads.aliyuncs.com:3306/adb_mysql_4387qyy";
-    public static String PG_JDBC_URL           = "jdbc:postgresql://127.0.0.1:15432/postgres";
-    public static String ORACLE_JDBC_URL       = "jdbc:oracle:thin:@127.0.0.1:11521:xe";
+    public static  String  MYSQL_SCHEMA_NAME;
+    public static  String  MYSQL_JDBC_URL;
+    public static  String  MYSQL_USER;
+    public static  String  MYSQL_PASSWORD;
+    //
+    public static  String  ADB_MYSQL_SCHEMA_NAME = "adb_mysql_4387qyy";
+    public static  String  ADB_MYSQL_JDBC_URL    = "jdbc:mysql://am-wz99xu17yks5p9e3f90650o.ads.aliyuncs.com:3306/adb_mysql_4387qyy";
+    public static  String  PG_JDBC_URL           = "jdbc:postgresql://127.0.0.1:15432/postgres";
+    public static  String  ORACLE_JDBC_URL       = "jdbc:oracle:thin:@127.0.0.1:11521:xe";
+    private static boolean useLib                = false;
+
+    static {
+        if (useLib) {
+            MYSQL_SCHEMA_NAME = "rds_mysql_4387ovi";
+            MYSQL_JDBC_URL = "jdbc:mysql://rm-bp1oo27t8762xhlob0o.mysql.rds.aliyuncs.com:3306/rds_mysql_4387ovi?allowMultiQueries=true";
+            MYSQL_USER = "lab_1893191353";
+            MYSQL_PASSWORD = "9b5ab3277ef2_#@Aa";
+        } else {
+            MYSQL_SCHEMA_NAME = "devtester";
+            MYSQL_JDBC_URL = "jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true";
+            MYSQL_USER = "root";
+            MYSQL_PASSWORD = "123456";
+        }
+    }
 
     public static DruidDataSource createDs(String dbID) throws Throwable {
         DruidDataSource druid = new DruidDataSource();
@@ -63,24 +77,25 @@ public class DsUtils {
     private static void initDB(JdbcTemplate jdbcTemplate) throws SQLException, IOException {
         // init table
         jdbcTemplate.execute((ConnectionCallback<Object>) con -> {
-            ResultSet resultSet = null;
-            List<Map<String, Object>> mapList;
-            //
-            resultSet = con.getMetaData().getTables(null, null, "tb_user", null);
-            mapList = new ColumnMapResultSetExtractor().extractData(resultSet);
-            if (!mapList.isEmpty()) {
+            try {
                 jdbcTemplate.executeUpdate("drop table tb_user");
+            } catch (Exception e) {
             }
-            resultSet = con.getMetaData().getTables(null, null, "tb_h2types", null);
-            mapList = new ColumnMapResultSetExtractor().extractData(resultSet);
-            if (!mapList.isEmpty()) {
+            try {
                 jdbcTemplate.executeUpdate("drop table tb_h2types");
+            } catch (Exception e) {
             }
             return null;
         });
         //
-        jdbcTemplate.loadSQL("net_hasor_db/tb_user_for_h2.sql");
-        jdbcTemplate.loadSQL("net_hasor_db/all_types/tb_h2_types.sql");
+        try {
+            jdbcTemplate.loadSQL("net_hasor_db/tb_user_for_h2.sql");
+        } catch (Exception e) {
+        }
+        try {
+            jdbcTemplate.loadSQL("net_hasor_db/all_types/tb_h2_types.sql");
+        } catch (Exception e) {
+        }
     }
 
     public static DruidDataSource createDs() throws Throwable {
@@ -100,7 +115,7 @@ public class DsUtils {
     }
 
     public static Connection localMySQL() throws SQLException {
-        return DriverManager.getConnection(MYSQL_JDBC_URL, "lab_1893191353", "9b5ab3277ef2_#@Aa");
+        return DriverManager.getConnection(MYSQL_JDBC_URL, MYSQL_USER, MYSQL_PASSWORD);
     }
 
     public static Connection aliyunAdbMySQL() throws SQLException {

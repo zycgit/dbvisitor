@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.lambda.query;
+package net.hasor.db.lambda.core;
+import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.reflect.SFunction;
 import net.hasor.db.dialect.BoundSql;
-import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.lambda.LambdaOperations.LambdaUpdate;
 import net.hasor.db.lambda.UpdateExecute;
 import net.hasor.db.lambda.segment.MergeSqlSegment;
-import net.hasor.db.mapping.ColumnMapping;
-import net.hasor.db.mapping.TableMapping;
-import net.hasor.db.mapping.reader.TableReader;
-import net.hasor.db.metadata.ColumnDef;
-import net.hasor.cobble.BeanUtils;
-import net.hasor.cobble.reflect.SFunction;
+import net.hasor.db.mapping.TableReader;
+import net.hasor.db.mapping.def.ColumnMapping;
+import net.hasor.db.mapping.def.TableMapping;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -44,27 +42,18 @@ public class LambdaUpdateWrapper<T> extends AbstractQueryCompare<T, LambdaUpdate
     protected final Map<String, Object>        updateValueMap;
     private         boolean                    allowEmptyWhere = false;
 
-    public LambdaUpdateWrapper(Class<T> exampleType, JdbcTemplate jdbcTemplate) {
-        super(exampleType, jdbcTemplate);
-        this.allowUpdateProperties = this.getAllowUpdateProperties();
-        this.updateValueMap = new HashMap<>();
-    }
+    public LambdaUpdateWrapper(TableReader<T> tableReader, LambdaTemplate jdbcTemplate) {
+        super(tableReader, jdbcTemplate);
 
-    protected Map<String, ColumnMapping> getAllowUpdateProperties() {
-        Map<String, ColumnMapping> toUpdateProp = new LinkedHashMap<>();
-        TableMapping tableDef = super.getTableMapping();
-        TableReader<T> tableReader = super.getTableReader();
-        List<String> columnNames = tableDef.getColumnNames();
-        for (String columnName : columnNames) {
-            ColumnMapping mapping = tableReader.getPropertyForWriteByColumn(columnName);
+        this.allowUpdateProperties = new LinkedHashMap<>();
+        TableMapping<T> tableMapping = super.getTableMapping();
+        for (ColumnMapping mapping : tableMapping.getProperties()) {
             if (mapping.isUpdate()) {
-                toUpdateProp.put(mapping.getPropertyName(), mapping);
+                this.allowUpdateProperties.put(mapping.getProperty(), mapping);
             }
         }
-        if (toUpdateProp.size() == 0) {
-            throw new IllegalStateException("no column require UPDATE.");
-        }
-        return toUpdateProp;
+
+        this.updateValueMap = new HashMap<>();
     }
 
     @Override
@@ -90,54 +79,57 @@ public class LambdaUpdateWrapper<T> extends AbstractQueryCompare<T, LambdaUpdate
     }
 
     @Override
-    public UpdateExecute<T> updateTo(T newValue, List<SFunction<T>> properties) {
-        if (properties == null || properties.isEmpty()) {
-            throw new NullPointerException("properties not be null.");
-        }
-        Map<String, ColumnMapping> updateProperties = properties.stream().map(this::propertyMapping)//
-                .collect(Collectors.toMap(ColumnMapping::getPropertyName, o -> o));
-        //
-        return this.updateTo(newValue, property -> {
-            return updateProperties.containsKey(property.getPropertyName());
-        });
+    public UpdateExecute<T> updateTo(Map<String, Object> newValue) {
+        Predicate<ColumnMapping> tester = m -> true;
+        Function<ColumnMapping, Object> reader = m -> newValue.get(m.getProperty());
+
+        return this.updateTo(tester, reader);
     }
 
     @Override
-    public UpdateExecute<T> updateTo(T newValue, Predicate<ColumnMapping> tester) {
+    public UpdateExecute<T> updateTo(Map<String, Object> newValue, SFunction<T>... properties) {
+        List<String> collect = Arrays.stream(properties).map(BeanUtils::toProperty).collect(Collectors.toList());
+
+        Predicate<ColumnMapping> tester = m -> collect.contains(m.getProperty());
+        Function<ColumnMapping, Object> reader = m -> newValue.get(m.getProperty());
+
+        return this.updateTo(tester, reader);
+    }
+
+    @Override
+    public UpdateExecute<T> updateTo(T newValue) {
         if (newValue == null) {
             throw new NullPointerException("newValue is null.");
         }
-        return this.updateTo(property -> {
-            return BeanUtils.readPropertyOrField(newValue, property);
-        }, tester);
+
+        Predicate<ColumnMapping> tester = m -> true;
+        Function<ColumnMapping, Object> reader = m -> m.getHandler().get(newValue);
+
+        return this.updateTo(tester, reader);
     }
 
     @Override
-    public UpdateExecute<T> updateTo(Map<String, Object> propertyMap, List<SFunction<T>> properties) {
-        if (properties == null || properties.isEmpty()) {
-            throw new NullPointerException("properties not be null.");
-        }
-        Map<String, ColumnDef> updateProperties = properties.stream().map(this::propertyMapping)//
-                .collect(Collectors.toMap(ColumnMapping::getPropertyName, o -> o));
-        //
-        return this.updateTo(propertyMap, property -> {
-            return updateProperties.containsKey(property.getPropertyName());
-        });
-    }
-
-    @Override
-    public UpdateExecute<T> updateTo(Map<String, Object> propertyMap, Predicate<ColumnMapping> tester) {
-        if (propertyMap == null) {
+    public UpdateExecute<T> updateTo(T newValue, SFunction<T>... properties) {
+        if (newValue == null) {
             throw new NullPointerException("newValue is null.");
         }
-        return this.updateTo(propertyMap::get, tester);
+        if (properties == null || properties.length == 0) {
+            throw new NullPointerException("properties is empty.");
+        }
+
+        List<String> collect = Arrays.stream(properties).map(BeanUtils::toProperty).collect(Collectors.toList());
+
+        Predicate<ColumnMapping> tester = m -> collect.contains(m.getProperty());
+        Function<ColumnMapping, Object> reader = m -> m.getHandler().get(newValue);
+
+        return this.updateTo(tester, reader);
     }
 
-    protected <R> UpdateExecute<T> updateTo(Function<String, R> readValueFunction, Predicate<ColumnMapping> tester) {
+    protected UpdateExecute<T> updateTo(Predicate<ColumnMapping> tester, Function<ColumnMapping, Object> propertyReader) {
         if (tester == null) {
             throw new NullPointerException("tester is null.");
         }
-        //
+
         this.updateValueMap.clear();
         Set<String> updateColumns = new HashSet<>();
         for (Map.Entry<String, ColumnMapping> allowFieldEntry : this.allowUpdateProperties.entrySet()) {
@@ -145,13 +137,13 @@ public class LambdaUpdateWrapper<T> extends AbstractQueryCompare<T, LambdaUpdate
             if (!tester.test(allowProperty)) {
                 continue;
             }
-            String columnName = allowProperty.getName();
-            String propertyName = allowProperty.getPropertyName();
+            String columnName = allowProperty.getColumn();
+            String propertyName = allowProperty.getProperty();
             if (updateColumns.contains(columnName)) {
                 throw new IllegalStateException("Multiple property mapping to '" + columnName + "' column");
             } else {
                 updateColumns.add(columnName);
-                Object propertyValue = readValueFunction.apply(propertyName);
+                Object propertyValue = propertyReader.apply(allowProperty);
                 this.updateValueMap.put(propertyName, propertyValue);
             }
         }
@@ -170,9 +162,12 @@ public class LambdaUpdateWrapper<T> extends AbstractQueryCompare<T, LambdaUpdate
         MergeSqlSegment updateTemplate = new MergeSqlSegment();
         updateTemplate.addSegment(UPDATE);
         // tableName
-        TableMapping tableDef = super.getTableMapping();
-        String tableName = dialect().tableName(isQualifier(), tableDef);
-        updateTemplate.addSegment(() -> tableName);
+        TableMapping<T> tableMapping = this.getTableMapping();
+        String schemaName = tableMapping.getSchema();
+        String tableName = tableMapping.getTable();
+
+        String table = dialect().tableName(isQualifier(), schemaName, tableName);
+        updateTemplate.addSegment(() -> table);
         //
         updateTemplate.addSegment(SET);
         boolean isFirstColumn = true;
@@ -184,7 +179,7 @@ public class LambdaUpdateWrapper<T> extends AbstractQueryCompare<T, LambdaUpdate
             }
             //
             ColumnMapping mapping = allowUpdateProperties.get(propertyName);
-            String columnName = dialect().columnName(isQualifier(), tableDef, mapping);
+            String columnName = dialect().columnName(isQualifier(), schemaName, tableName, mapping.getColumn());
             Object columnValue = updateValueMap.get(propertyName);
             updateTemplate.addSegment(() -> columnName, EQ, formatSegment(columnValue));
         }

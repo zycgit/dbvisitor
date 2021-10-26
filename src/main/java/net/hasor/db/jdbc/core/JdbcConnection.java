@@ -49,6 +49,8 @@ public class JdbcConnection extends JdbcAccessor {
     private              int     queryTimeout   = 0;
     /*是否忽略出现的 SQL 警告*/
     private              boolean ignoreWarnings = true;
+    /* 当 SQL 执行错误是否打印错误日志 */
+    private              boolean printStmtError = false;
 
     /**
      * Construct a new JdbcConnection for bean usage.
@@ -108,6 +110,14 @@ public class JdbcConnection extends JdbcAccessor {
         this.ignoreWarnings = ignoreWarnings;
     }
 
+    public boolean isPrintStmtError() {
+        return this.printStmtError;
+    }
+
+    public void setPrintStmtError(boolean printStmtError) {
+        this.printStmtError = printStmtError;
+    }
+
     public <T> T execute(final ConnectionCallback<T> action) throws SQLException {
         Objects.requireNonNull(action, "Callback object must not be null");
         //
@@ -150,7 +160,9 @@ public class JdbcConnection extends JdbcAccessor {
                 JdbcConnection.this.handleWarnings(stmt);
                 return result;
             } catch (SQLException ex) {
-                logger.error(stmtSQL, ex);
+                if (this.printStmtError) {
+                    logger.error(stmtSQL, ex);
+                }
                 throw ex;
             }
         });

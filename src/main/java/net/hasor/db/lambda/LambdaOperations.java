@@ -14,23 +14,46 @@
  * limitations under the License.
  */
 package net.hasor.db.lambda;
+import net.hasor.db.jdbc.JdbcOperations;
+import net.hasor.db.mapping.resolve.MappingOptions;
+
 /**
  * 提供 lambda 方式生成 SQL。
  * @version : 2020-10-27
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface LambdaOperations {
+public interface LambdaOperations extends JdbcOperations {
     /** 相当于 insert ... */
-    public <T> LambdaInsert<T> lambdaInsert(Class<T> exampleType);
+    public default <T> LambdaInsert<T> lambdaInsert(Class<T> exampleType) {
+        return lambdaInsert(exampleType, null);
+    }
+
+    /** 相当于 insert ... */
+    public <T> LambdaInsert<T> lambdaInsert(Class<T> exampleType, MappingOptions options);
 
     /** 相当于 update ... */
-    public <T> LambdaUpdate<T> lambdaUpdate(Class<T> exampleType);
+    public default <T> LambdaUpdate<T> lambdaUpdate(Class<T> exampleType) {
+        return lambdaUpdate(exampleType, null);
+    }
+
+    /** 相当于 update ... */
+    public <T> LambdaUpdate<T> lambdaUpdate(Class<T> exampleType, MappingOptions options);
 
     /** 相当于 select * form */
-    public <T> LambdaQuery<T> lambdaQuery(Class<T> exampleType);
+    public default <T> LambdaQuery<T> lambdaQuery(Class<T> exampleType) {
+        return lambdaQuery(exampleType, null);
+    }
+
+    /** 相当于 select * form */
+    public <T> LambdaQuery<T> lambdaQuery(Class<T> exampleType, MappingOptions options);
 
     /** 相当于 delete */
-    public <T> LambdaDelete<T> lambdaDelete(Class<T> exampleType);
+    public default <T> LambdaDelete<T> lambdaDelete(Class<T> exampleType) {
+        return lambdaDelete(exampleType, null);
+    }
+
+    /** 相当于 delete */
+    public <T> LambdaDelete<T> lambdaDelete(Class<T> exampleType, MappingOptions options);
 
     /** lambda query */
     public interface LambdaQuery<T> extends LambdaCommon<QueryExecute<T>, T>, QueryExecute<T>, QueryCompare<T, LambdaQuery<T>>, QueryFunc<T, LambdaQuery<T>> {

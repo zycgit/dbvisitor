@@ -17,6 +17,7 @@ package net.hasor.db.lambda;
 import net.hasor.db.jdbc.ResultSetExtractor;
 import net.hasor.db.jdbc.RowCallbackHandler;
 import net.hasor.db.jdbc.RowMapper;
+import net.hasor.db.mapping.resolve.MappingOptions;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -29,7 +30,12 @@ import java.util.Map;
  */
 public interface QueryExecute<T> extends BoundSqlBuilder {
     /** QueryExecute 的查询类型转换为另外一个类型。*/
-    public <V> QueryExecute<V> wrapperType(Class<V> wrapperType) throws SQLException;
+    public default <V> QueryExecute<V> wrapperType(Class<V> wrapperType) throws SQLException {
+        return wrapperType(wrapperType, null);
+    }
+
+    /** QueryExecute 的查询类型转换为另外一个类型。*/
+    public <V> QueryExecute<V> wrapperType(Class<V> wrapperType, MappingOptions options) throws SQLException;
 
     /** 执行查询，并通过 ResultSetExtractor 转换结果集。*/
     public <V> V query(ResultSetExtractor<V> rse) throws SQLException;

@@ -54,7 +54,7 @@ public enum SqlKeyword implements Segment {
     LEFT("("),                  //
     RIGHT(")")                  //
     ;
-    //
+
     private final String sqlString;
 
     SqlKeyword(String sqlString) {

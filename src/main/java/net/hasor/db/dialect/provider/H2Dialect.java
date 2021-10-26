@@ -45,7 +45,7 @@ public class H2Dialect extends AbstractDialect implements PageSqlDialect {
             sqlBuilder.append(" OFFSET ?");
             paramArrays.add(start);
         }
-        //
+        
         return new BoundSql.BoundSqlObj(sqlBuilder.toString(), paramArrays.toArray());
     }
 }

@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.lambda.query;
+package net.hasor.db.lambda.core;
 import net.hasor.db.dialect.BoundSql;
-import net.hasor.db.dialect.SqlDialect;
-import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.lambda.DeleteExecute;
 import net.hasor.db.lambda.LambdaOperations.LambdaDelete;
 import net.hasor.db.lambda.segment.MergeSqlSegment;
-import net.hasor.db.lambda.segment.Segment;
-import net.hasor.db.metadata.TableDef;
+import net.hasor.db.mapping.TableReader;
 
 import java.sql.SQLException;
 
@@ -35,8 +32,8 @@ import static net.hasor.db.lambda.segment.SqlKeyword.*;
 public class LambdaDeleteWrapper<T> extends AbstractQueryCompare<T, LambdaDelete<T>> implements LambdaDelete<T> {
     private boolean allowEmptyWhere = false;
 
-    public LambdaDeleteWrapper(Class<T> exampleType, JdbcTemplate jdbcTemplate) {
-        super(exampleType, jdbcTemplate);
+    public LambdaDeleteWrapper(TableReader<T> tableReader, LambdaTemplate jdbcTemplate) {
+        super(tableReader, jdbcTemplate);
     }
 
     @Override
@@ -84,15 +81,7 @@ public class LambdaDeleteWrapper<T> extends AbstractQueryCompare<T, LambdaDelete
         }
         return sqlSegment.getSqlSegment();
     }
-
-    private Segment buildTabName(SqlDialect dialect) {
-        TableDef tableDef = super.getTableMapping();
-        if (tableDef == null) {
-            throw new IllegalArgumentException("tableDef not found.");
-        }
-        return () -> dialect.tableName(isQualifier(), tableDef);
-    }
-
+ 
     @Override
     public int doDelete() throws SQLException {
         BoundSql boundSql = getBoundSql();

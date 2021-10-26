@@ -17,6 +17,7 @@ package net.hasor.db.lambda;
 import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.db.lambda.LambdaOperations.LambdaQuery;
 import net.hasor.db.lambda.LambdaOperations.LambdaUpdate;
+import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TB_User;
 import net.hasor.test.db.utils.DsUtils;
@@ -45,7 +46,7 @@ public class LambdaUpdateTest extends AbstractDbTest {
             assert tbUsers1.get(2).getName() != null;
             //
             LambdaUpdate<TB_User> lambdaUpdate = lambdaTemplate.lambdaUpdate(TB_User.class);
-            lambdaUpdate.updateTo(new HashMap<>(), "name");
+            lambdaUpdate.updateTo(new HashMap<>(), TB_User::getName);
             int update = lambdaUpdate.allowEmptyWhere().doUpdate();
             assert update == 3;
             //
@@ -67,7 +68,7 @@ public class LambdaUpdateTest extends AbstractDbTest {
             //
             LambdaUpdate<TB_User> lambdaUpdate = lambdaTemplate.lambdaUpdate(TB_User.class);
             int update = lambdaUpdate.eq(TB_User::getLoginName, beanForData1().getLoginName())//
-                    .updateTo(new HashMap<>(), "name")//
+                    .updateTo(new HashMap<>(), TB_User::getName)//
                     .doUpdate();
             assert update == 1;
             //

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.page;
+package net.hasor.db.dialect;
 import org.junit.Test;
 
 import java.sql.SQLException;
@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * 分页器的功能测试。
  */
-public class PageTest {
+public class PageObjectTest {
     @Test
     public void pageTest_1() throws SQLException {
         Page page = new PageObject();

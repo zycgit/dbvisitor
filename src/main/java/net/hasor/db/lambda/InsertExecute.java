@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.db.lambda;
-import net.hasor.db.lambda.LambdaOperations.LambdaQuery;
-
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * lambda Insert 执行器
@@ -41,34 +38,23 @@ public interface InsertExecute<T> extends BoundSqlBuilder {
     /** 执行插入，并返回所有结果*/
     public int[] executeGetResult() throws SQLException;
 
-    /** 当插入遇到重复键，使用新值替代旧值（当 SQL 方言不支持时，会退化为 onDuplicateKeyBlock）*/
-    public InsertExecute<T> onDuplicateKeyUpdate();
+    /** insert 策略，默认策略是 {@link DuplicateKeyStrategy#Into} */
+    public InsertExecute<T> onDuplicateStrategy(DuplicateKeyStrategy strategy);
 
-    /** 当插入遇到重复键时，忽略新值插入（当 SQL 方言不支持时，会退化为 onDuplicateKeyBlock）*/
-    public InsertExecute<T> onDuplicateKeyIgnore();
-
-    /** 当插入遇到重复键时，报错（默认）*/
-    public InsertExecute<T> onDuplicateKeyBlock();
-
-    /** 批量插入记录。 */
+    /** 批量插入记录 */
     public default InsertExecute<T> applyEntity(T entity) {
         return applyEntity(Collections.singletonList(entity));
     }
 
-    /** 批量插入记录。 */
+    /** 批量插入记录 */
     public InsertExecute<T> applyEntity(List<T> entity);
 
-    /** 批量插入记录。 */
-    public default InsertExecute<T> applyMap(Map<String, Object> dataMap) {
-        return applyMap(Collections.singletonList(dataMap));
+    /** 批量插入记录 */
+    public default InsertExecute<T> applyMap(Map<String, Object> entity) {
+        return applyMap(Collections.singletonList(entity));
     }
 
-    /** 批量插入记录。 */
-    public InsertExecute<T> applyMap(List<Map<String, Object>> dataMapList);
+    /** 批量插入记录 */
+    public InsertExecute<T> applyMap(List<Map<String, Object>> entity);
 
-    /** insert form select */
-    public <V> InsertExecute<T> applyQueryAsInsert(LambdaQuery<V> lambdaQuery);
-
-    /** insert form select */
-    public <V> InsertExecute<T> applyQueryAsInsert(Class<V> exampleType, Consumer<LambdaQuery<V>> queryBuilderConsumer);
 }

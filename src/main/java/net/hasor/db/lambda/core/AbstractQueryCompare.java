@@ -13,27 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.lambda.query;
+package net.hasor.db.lambda.core;
+import net.hasor.cobble.ArrayUtils;
+import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.reflect.SFunction;
 import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.dialect.ConditionSqlDialect;
-import net.hasor.db.jdbc.core.JdbcTemplate;
+import net.hasor.db.dialect.ConditionSqlDialect.SqlLike;
 import net.hasor.db.lambda.QueryCompare;
 import net.hasor.db.lambda.segment.MergeSqlSegment;
 import net.hasor.db.lambda.segment.Segment;
-import net.hasor.db.lambda.segment.SqlLike;
-import net.hasor.db.mapping.ColumnMapping;
-import net.hasor.db.metadata.ColumnDef;
-import net.hasor.db.metadata.TableDef;
-import net.hasor.cobble.ArrayUtils;
-import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.reflect.MethodUtils;
-import net.hasor.cobble.reflect.SFunction;
+import net.hasor.db.mapping.TableReader;
+import net.hasor.db.mapping.def.ColumnMapping;
+import net.hasor.db.mapping.def.TableMapping;
 
-import java.lang.reflect.Method;
 import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
 import static net.hasor.db.lambda.segment.SqlKeyword.*;
@@ -44,53 +39,13 @@ import static net.hasor.db.lambda.segment.SqlKeyword.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public abstract class AbstractQueryCompare<T, R> extends AbstractQueryExecute<T> implements QueryCompare<T, R> {
-    private static final Map<String, ColumnMapping> COLUMN_CACHE      = new WeakHashMap<>();
-    private static final ReadWriteLock              COLUMN_CACHE_LOCK = new ReentrantReadWriteLock();
-    protected            MergeSqlSegment            queryTemplate     = new MergeSqlSegment();
-    protected            List<Object>               queryParam        = new ArrayList<>();
-    private              Segment                    nextSegmentPrefix = null;
-    private              boolean                    lookCondition     = false;
+    protected MergeSqlSegment queryTemplate     = new MergeSqlSegment();
+    protected List<Object>    queryParam        = new ArrayList<>();
+    private   Segment         nextSegmentPrefix = null;
+    private   boolean         lookCondition     = false;
 
-    public AbstractQueryCompare(Class<T> exampleType, JdbcTemplate jdbcTemplate) {
-        super(exampleType, jdbcTemplate);
-    }
-
-    protected ColumnMapping propertyMapping(SFunction<T> property) {
-        Method targetMethod = MethodUtils.lambdaMethodName(property);
-        String cacheKey = targetMethod.toGenericString();
-        Lock readLock = COLUMN_CACHE_LOCK.readLock();
-        try {
-            readLock.lock();
-            ColumnMapping columnMapping = COLUMN_CACHE.get(cacheKey);
-            if (columnMapping != null) {
-                return columnMapping;
-            }
-        } finally {
-            readLock.unlock();
-        }
-        //
-        Lock writeLock = COLUMN_CACHE_LOCK.writeLock();
-        try {
-            writeLock.lock();
-            ColumnMapping columnMapping = COLUMN_CACHE.get(cacheKey);
-            if (columnMapping != null) {
-                return columnMapping;
-            }
-            String methodName = targetMethod.getName();
-            String attr;
-            if (methodName.startsWith("get")) {
-                attr = methodName.substring(3);
-            } else {
-                attr = methodName.substring(2);
-            }
-            attr = StringUtils.firstCharToLowerCase(attr);
-            //
-            columnMapping = super.getTableMapping().getMapping(attr);
-            COLUMN_CACHE.put(cacheKey, columnMapping);
-            return columnMapping;
-        } finally {
-            writeLock.unlock();
-        }
+    public AbstractQueryCompare(TableReader<T> tableReader, LambdaTemplate jdbcTemplate) {
+        super(tableReader, jdbcTemplate);
     }
 
     @Override
@@ -261,9 +216,9 @@ public abstract class AbstractQueryCompare<T, R> extends AbstractQueryExecute<T>
     }
 
     protected String conditionName(SFunction<T> property) {
-        TableDef tableDef = super.getTableMapping();
-        ColumnDef columnDef = propertyMapping(property);
-        return this.dialect().columnName(isQualifier(), tableDef, columnDef);
+        TableMapping<T> tableDef = super.getTableMapping();
+        ColumnMapping columnDef = tableDef.getPropertyByName(BeanUtils.toProperty(property));
+        return this.dialect().columnName(isQualifier(), tableDef.getSchema(), tableDef.getTable(), columnDef.getColumn());
     }
 
     @Override

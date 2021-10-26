@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.db.lambda;
+import net.hasor.db.lambda.core.LambdaTemplate;
+
 import javax.sql.DataSource;
 import java.util.function.Supplier;
 

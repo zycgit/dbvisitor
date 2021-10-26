@@ -75,7 +75,7 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     @Override
     public String insertWithInto(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
         StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("insert into ");
+        strBuilder.append("INSERT INTO ");
         strBuilder.append(tableName(useQualifier, schema, table));
         strBuilder.append(" ");
         strBuilder.append("(");
@@ -83,14 +83,14 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
         StringBuilder argBuilder = new StringBuilder();
         for (int i = 0; i < columns.size(); i++) {
             if (i > 0) {
-                strBuilder.append(",");
-                argBuilder.append(",");
+                strBuilder.append(", ");
+                argBuilder.append(", ");
             }
             strBuilder.append(columnName(useQualifier, schema, table, columns.get(i)));
             argBuilder.append("?");
         }
 
-        strBuilder.append(") values (");
+        strBuilder.append(") VALUES (");
         strBuilder.append(argBuilder);
         strBuilder.append(")");
         return strBuilder.toString();

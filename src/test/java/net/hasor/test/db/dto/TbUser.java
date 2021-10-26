@@ -24,9 +24,9 @@ import java.util.Date;
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-@Table("tb_user")
+@Table("TB_User")
 public class TbUser {
-    @Column("userUUID")
+    @Column(value = "userUUID", primary = true)
     private String uid;
     @Column()
     private String name;

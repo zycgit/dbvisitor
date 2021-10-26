@@ -17,9 +17,10 @@ package net.hasor.db.lambda;
 import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.db.dialect.BatchBoundSql;
 import net.hasor.db.lambda.LambdaOperations.LambdaInsert;
+import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TB_User;
-import net.hasor.test.db.dto.TbUserShadow;
+import net.hasor.test.db.dto.TbUser;
 import net.hasor.test.db.utils.DsUtils;
 import org.junit.Test;
 
@@ -38,11 +39,12 @@ public class LambdaInsertTest extends AbstractDbTest {
     public void lambda_insert_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
-            lambdaTemplate.getJdbcTemplate().execute("delete from tb_user");
+            lambdaTemplate.execute("delete from tb_user");
             //
-            LambdaInsert<TB_User> lambdaInsert = lambdaTemplate.lambdaInsert(TB_User.class);
-            lambdaInsert.applyEntity(beanForData1());
+            LambdaInsert<TbUser> lambdaInsert = lambdaTemplate.lambdaInsert(TbUser.class);
+            lambdaInsert.applyEntity(mappingBeanForData1());
             lambdaInsert.applyMap(mapForData2());
+            
             assert lambdaInsert.getBoundSql() instanceof BatchBoundSql;
             //
             int i = lambdaInsert.executeSumResult();
@@ -53,29 +55,6 @@ public class LambdaInsertTest extends AbstractDbTest {
             List<String> ids = tbUsers.stream().map(TB_User::getUserUUID).collect(Collectors.toList());
             assert ids.contains(beanForData1().getUserUUID());
             assert ids.contains(beanForData2().getUserUUID());
-        }
-    }
-
-    @Test
-    public void lambda_insert_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
-            lambdaTemplate.getJdbcTemplate().loadSQL("net_hasor_db/tb_user_shadow_for_h2.sql");
-            //
-            LambdaInsert<TbUserShadow> lambdaInsert = lambdaTemplate.lambdaInsert(TbUserShadow.class);
-            lambdaInsert.applyQueryAsInsert(lambdaTemplate.lambdaQuery(TB_User.class));
-            //
-            assert !(lambdaInsert.getBoundSql() instanceof BatchBoundSql);
-            //
-            int i = lambdaInsert.executeSumResult();
-            assert i == 3;
-            //
-            List<TbUserShadow> tbUsers = lambdaTemplate.lambdaQuery(TbUserShadow.class).queryForList();
-            assert tbUsers.size() == 3;
-            List<String> ids = tbUsers.stream().map(TbUserShadow::getUserUUID).collect(Collectors.toList());
-            assert ids.contains(beanForData1().getUserUUID());
-            assert ids.contains(beanForData2().getUserUUID());
-            assert ids.contains(beanForData3().getUserUUID());
         }
     }
 }

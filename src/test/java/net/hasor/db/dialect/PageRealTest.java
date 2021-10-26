@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.page;
+package net.hasor.db.dialect;
 import org.junit.Test;
 
 import java.sql.SQLException;

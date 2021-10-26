@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.lambda.segment;
+package net.hasor.db.lambda;
 /**
- * like 查询相关的选项。
- * @version : 2020-10-31
+ * 遇到重复 Key 的策略
+ * @version : 2021-10-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public enum SqlLike {
-    /** %值 */
-    LEFT,
-    /** 值% */
-    RIGHT,
-    /** %值% */
-    DEFAULT
+public enum DuplicateKeyStrategy {
+    /** 使用标准 insert into */
+    Into,
+    /** 新值替代旧值 例如 mysql 的 replace into */
+    Replace,
+    /** 忽略插入 例如 mysql 的 insert ignore */
+    Ignore
 }

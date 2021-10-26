@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.page;
+package net.hasor.db.dialect;
 import net.hasor.cobble.function.ESupplier;
 
 import java.sql.SQLException;

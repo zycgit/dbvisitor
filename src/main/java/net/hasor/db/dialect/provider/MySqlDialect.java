@@ -15,6 +15,7 @@
  */
 package net.hasor.db.dialect.provider;
 import net.hasor.db.dialect.BoundSql;
+import net.hasor.db.dialect.InsertSqlDialect;
 import net.hasor.db.dialect.PageSqlDialect;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ import java.util.List;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class MySqlDialect extends AbstractDialect implements PageSqlDialect/*, InsertSqlDialect*/ {
+public class MySqlDialect extends AbstractDialect implements PageSqlDialect, InsertSqlDialect {
     @Override
     protected String keyWordsResource() {
         return "/META-INF/db-keywords/mysql.keywords";
@@ -41,7 +42,7 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect/*, I
     public BoundSql pageSql(BoundSql boundSql, int start, int limit) {
         StringBuilder sqlBuilder = new StringBuilder(boundSql.getSqlString());
         List<Object> paramArrays = new ArrayList<>(Arrays.asList(boundSql.getArgs()));
-        //
+
         if (start <= 0) {
             sqlBuilder.append(" LIMIT ?");
             paramArrays.add(limit);
@@ -50,66 +51,61 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect/*, I
             paramArrays.add(start);
             paramArrays.add(limit);
         }
-        //
+
         return new BoundSql.BoundSqlObj(sqlBuilder.toString(), paramArrays.toArray());
     }
 
-    //    @Override
-    //    public boolean supportInsertIgnore(List<ColumnDef> primaryColumns) {
-    //        return true;
-    //    }
-    //
-    //    @Override
-    //    public String insertWithIgnore(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
-    //        // insert ignore t(id, name) values (?, ?);
-    //        String allColumns = buildAllColumns(useQualifier, tableDef, insertColumns);
-    //        int fieldCount = insertColumns.size();
-    //        return "INSERT IGNORE " + tableName(useQualifier, tableDef) + " ( " + allColumns + " ) VALUES ( " + StringUtils.repeat(",?", fieldCount).substring(1) + " )";
-    //    }
-    //
-    //    @Override
-    //    public boolean supportInsertIgnoreFromSelect(List<ColumnDef> primaryColumns) {
-    //        return true;
-    //    }
-    //
-    //    @Override
-    //    public String insertIgnoreFromSelect(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
-    //        // insert ignore t(id, name) select ...
-    //        String allColumns = buildAllColumns(useQualifier, tableDef, insertColumns);
-    //        return "INSERT IGNORE " + tableName(useQualifier, tableDef) + " ( " + allColumns + " )";
-    //    }
-    //
-    //    @Override
-    //    public boolean supportInsertReplace(List<ColumnDef> primaryColumns) {
-    //        return true;
-    //    }
-    //
-    //    @Override
-    //    public String insertWithReplace(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
-    //        // replace into t(id, name) values (?, ?);
-    //        String allColumns = buildAllColumns(useQualifier, tableDef, insertColumns);
-    //        int fieldCount = insertColumns.size();
-    //        return "REPLACE INTO " + tableName(useQualifier, tableDef) + " ( " + allColumns + " ) VALUES ( " + StringUtils.repeat(",?", fieldCount).substring(1) + " )";
-    //    }
-    //
-    //    @Override
-    //    public boolean supportInsertReplaceFromSelect(List<ColumnDef> primaryColumns) {
-    //        return true;
-    //    }
-    //
-    //    @Override
-    //    public String insertWithReplaceFromSelect(boolean useQualifier, TableDef tableDef, List<ColumnDef> primaryColumns, List<ColumnDef> insertColumns) {
-    //        // replace into t(id, name) values (?, ?);
-    //        String allColumns = buildAllColumns(useQualifier, tableDef, insertColumns);
-    //        int fieldCount = insertColumns.size();
-    //        return "REPLACE INTO " + tableName(useQualifier, tableDef) + " ( " + allColumns + " )";
-    //    }
-    //
-    //    private String buildAllColumns(boolean useQualifier, TableDef tableDef, List<ColumnDef> insertColumns) {
-    //        return insertColumns.stream().map(fieldInfo -> {
-    //            return columnName(useQualifier, tableDef, fieldInfo);
-    //        }).reduce((s1, s2) -> {
-    //            return s1 + " , " + s2;
-    //        }).orElse("");
-    //    }
+    @Override
+    public boolean supportInsertInto(List<String> primaryKey, List<String> columns) {
+        return true;
+    }
+
+    @Override
+    public String insertWithInto(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
+        return buildSql("INSERT INTO ", useQualifier, schema, table, columns);
+    }
+
+    @Override
+    public boolean supportInsertIgnore(List<String> primaryKey, List<String> columns) {
+        return true;
+    }
+
+    @Override
+    public String insertWithIgnore(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
+        return buildSql("INSERT IGNORE ", useQualifier, schema, table, columns);
+    }
+
+    @Override
+    public boolean supportInsertReplace(List<String> primaryKey, List<String> columns) {
+        return true;
+    }
+
+    @Override
+    public String insertWithReplace(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
+        return buildSql("REPLACE INTO ", useQualifier, schema, table, columns);
+    }
+
+    protected String buildSql(String markString, boolean useQualifier, String schema, String table, List<String> columns) {
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.append(markString);
+        strBuilder.append(tableName(useQualifier, schema, table));
+        strBuilder.append(" ");
+        strBuilder.append("(");
+
+        StringBuilder argBuilder = new StringBuilder();
+        for (int i = 0; i < columns.size(); i++) {
+            if (i > 0) {
+                strBuilder.append(", ");
+                argBuilder.append(", ");
+            }
+            strBuilder.append(columnName(useQualifier, schema, table, columns.get(i)));
+            argBuilder.append("?");
+        }
+
+        strBuilder.append(") VALUES (");
+        strBuilder.append(argBuilder);
+        strBuilder.append(")");
+        return strBuilder.toString();
+    }
+
 }

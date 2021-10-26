@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.lambda.query;
+package net.hasor.db.lambda.core;
 import net.hasor.db.JdbcUtils;
 import net.hasor.db.dialect.DefaultSqlDialect;
 import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.dialect.SqlDialectRegister;
 import net.hasor.db.jdbc.ConnectionCallback;
-import net.hasor.db.jdbc.RowMapper;
-import net.hasor.db.jdbc.core.JdbcTemplate;
-import net.hasor.db.mapping.TableMapping;
-import net.hasor.db.mapping.reader.TableReader;
-import net.hasor.db.mapping.resolve.MappingOptions;
-import net.hasor.cobble.ExceptionUtils;
+import net.hasor.db.lambda.segment.Segment;
+import net.hasor.db.mapping.TableReader;
+import net.hasor.db.mapping.def.TableMapping;
 
 import java.sql.DatabaseMetaData;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -38,27 +34,14 @@ import java.util.Objects;
 public abstract class AbstractExecute<T> {
     protected final String         dbType;
     private         SqlDialect     dialect;
-    private final   Class<T>       exampleType;
-    private final   JdbcTemplate   jdbcTemplate;
-    private final   TableReader<T> exampleTableReader;
-    private final   RowMapper<T>   exampleRowMapper;
-    private final   TableMapping   exampleTableMapping;
+    private final   TableReader<T> tableReader;
+    private final   LambdaTemplate jdbcTemplate;
     private         boolean        qualifier;
 
-    public AbstractExecute(Class<T> exampleType, JdbcTemplate jdbcTemplate) {
-        if (Objects.requireNonNull(exampleType, "exampleType is null.") == Map.class) {
-            throw new UnsupportedOperationException("Map cannot be used as lambda exampleType.");
-        }
-        try {
-            this.exampleType = exampleType;
-            this.jdbcTemplate = jdbcTemplate;
-            this.exampleTableReader = jdbcTemplate.getMappingRegistry().loadReader(exampleType, new MappingOptions());
-            this.exampleRowMapper = this.exampleTableReader::readRow;
-            this.exampleTableMapping = this.exampleTableReader.getTableMapping();
-        } catch (Exception e) {
-            throw ExceptionUtils.toRuntime(e);
-        }
-        //
+    public AbstractExecute(TableReader<T> tableReader, LambdaTemplate jdbcTemplate) {
+        this.tableReader = Objects.requireNonNull(tableReader, "tableReader is null.");
+        this.jdbcTemplate = jdbcTemplate;
+
         String tmpDbType = "";
         try {
             tmpDbType = jdbcTemplate.execute((ConnectionCallback<String>) con -> {
@@ -68,45 +51,33 @@ public abstract class AbstractExecute<T> {
         } catch (Exception e) {
             tmpDbType = "";
         }
-        //
+
         SqlDialect tempDialect = SqlDialectRegister.findOrCreate(tmpDbType);
         this.dbType = tmpDbType;
         this.dialect = (tempDialect == null) ? DefaultSqlDialect.DEFAULT : tempDialect;
     }
 
-    AbstractExecute(Class<T> exampleType, JdbcTemplate jdbcTemplate, String dbType, SqlDialect dialect) {
-        try {
-            this.exampleType = exampleType;
-            this.jdbcTemplate = jdbcTemplate;
-            this.exampleTableReader = jdbcTemplate.getMappingRegistry().loadReader(exampleType, new MappingOptions());
-            this.exampleRowMapper = this.exampleTableReader::readRow;
-            this.exampleTableMapping = this.exampleTableReader.getTableMapping();
-        } catch (Exception e) {
-            throw ExceptionUtils.toRuntime(e);
-        }
-        //
+    AbstractExecute(TableReader<T> tableReader, LambdaTemplate jdbcTemplate, String dbType, SqlDialect dialect) {
+        this.tableReader = Objects.requireNonNull(tableReader, "tableReader is null.");
+        this.jdbcTemplate = jdbcTemplate;
         this.dbType = dbType;
         this.dialect = (dialect == null) ? DefaultSqlDialect.DEFAULT : dialect;
     }
 
     public final Class<T> exampleType() {
-        return this.exampleType;
+        return this.tableReader.getTableMapping().entityType();
     }
 
-    public final JdbcTemplate getJdbcTemplate() {
+    public final LambdaTemplate getJdbcTemplate() {
         return this.jdbcTemplate;
     }
 
-    protected final TableMapping getTableMapping() {
-        return this.exampleTableMapping;
+    protected final TableMapping<T> getTableMapping() {
+        return this.tableReader.getTableMapping();
     }
 
     protected final TableReader<T> getTableReader() {
-        return this.exampleTableReader;
-    }
-
-    protected final RowMapper<T> getRowMapper() {
-        return this.exampleRowMapper;
+        return this.tableReader;
     }
 
     protected final SqlDialect dialect() {
@@ -123,5 +94,12 @@ public abstract class AbstractExecute<T> {
 
     protected boolean isQualifier() {
         return this.qualifier;
+    }
+
+    protected Segment buildTabName(SqlDialect dialect) {
+        TableMapping<T> tableMapping = this.getTableMapping();
+        String schemaName = tableMapping.getSchema();
+        String tableName = tableMapping.getTable();
+        return () -> dialect.tableName(isQualifier(), schemaName, tableName);
     }
 }

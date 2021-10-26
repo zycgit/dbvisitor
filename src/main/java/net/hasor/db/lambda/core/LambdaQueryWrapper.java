@@ -13,24 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.lambda.query;
+package net.hasor.db.lambda.core;
+import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.reflect.SFunction;
 import net.hasor.db.dialect.BoundSql;
-import net.hasor.db.dialect.SqlDialect;
-import net.hasor.db.jdbc.core.JdbcTemplate;
+import net.hasor.db.dialect.Page;
 import net.hasor.db.lambda.LambdaOperations.LambdaQuery;
 import net.hasor.db.lambda.QueryExecute;
 import net.hasor.db.lambda.segment.MergeSqlSegment;
 import net.hasor.db.lambda.segment.OrderByKeyword;
 import net.hasor.db.lambda.segment.Segment;
-import net.hasor.db.mapping.TableMapping;
-import net.hasor.db.metadata.ColumnDef;
-import net.hasor.db.metadata.TableDef;
-import net.hasor.db.page.Page;
-import net.hasor.cobble.reflect.SFunction;
+import net.hasor.db.mapping.TableReader;
+import net.hasor.db.mapping.def.ColumnMapping;
+import net.hasor.db.mapping.def.TableMapping;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static net.hasor.db.lambda.segment.OrderByKeyword.*;
@@ -48,8 +46,8 @@ public class LambdaQueryWrapper<T> extends AbstractQueryCompare<T, LambdaQuery<T
     private       boolean       lockGroupBy     = false;
     private       boolean       lockOrderBy     = false;
 
-    public LambdaQueryWrapper(Class<T> exampleType, JdbcTemplate jdbcTemplate) {
-        super(exampleType, jdbcTemplate);
+    public LambdaQueryWrapper(TableReader<T> tableReader, LambdaTemplate jdbcTemplate) {
+        super(tableReader, jdbcTemplate);
     }
 
     @Override
@@ -83,14 +81,6 @@ public class LambdaQueryWrapper<T> extends AbstractQueryCompare<T, LambdaQuery<T
             }
         }
         return sqlSegment.getSqlSegment();
-    }
-
-    private Segment buildTabName(SqlDialect dialect) {
-        TableDef tableDef = super.getTableMapping();
-        if (tableDef == null) {
-            throw new IllegalArgumentException("tableDef not found.");
-        }
-        return () -> dialect.tableName(isQualifier(), tableDef);
     }
 
     private static Segment buildColumns(Collection<Segment> columnSegments) {
@@ -141,45 +131,51 @@ public class LambdaQueryWrapper<T> extends AbstractQueryCompare<T, LambdaQuery<T
     }
 
     @Override
+    public final LambdaQuery<T> select(SFunction<T>... properties) {
+        if (properties == null || properties.length == 0) {
+            throw new IndexOutOfBoundsException("properties is empty. please use selectAll()");
+        }
+
+        TableMapping<T> tableMapping = this.getTableMapping();
+        String schemaName = tableMapping.getSchema();
+        String tableName = tableMapping.getTable();
+
+        List<String> columns = Arrays.stream(properties).map(tsFunction -> {
+            String property = BeanUtils.toProperty(tsFunction);
+            ColumnMapping mapping = tableMapping.getPropertyByName(property);
+            if (mapping != null) {
+                return dialect().columnName(isQualifier(), schemaName, tableName, mapping.getColumn());
+            } else {
+                return null;
+            }
+        }).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+
+        for (String col : columns) {
+            this.customSelect.add(() -> col);
+        }
+
+        return this;
+    }
+
+    @Override
     public LambdaQuery<T> select(String... columns) {
-        if (columns != null && columns.length > 0) {
-            this.customSelect.addAll(Arrays.stream(columns).map((Function<String, Segment>) s -> {
-                return () -> s;
-            }).collect(Collectors.toList()));
+        if (columns == null || columns.length == 0) {
+            throw new IndexOutOfBoundsException("columns is empty. please use selectAll()");
+        }
+
+        for (String col : columns) {
+            this.customSelect.add(() -> col);
         }
         return this;
     }
 
     @Override
-    public final LambdaQuery<T> select(List<SFunction<T>> properties) {
-        List<ColumnDef> selectColumn = properties.stream()//
-                .filter(Objects::nonNull).map(this::propertyMapping).collect(Collectors.toList());
-        return this.select0(selectColumn, fieldInfo -> true);
-    }
-
-    @Override
-    public final LambdaQuery<T> select(Predicate<ColumnDef> tester) {
-        TableMapping tableDef = super.getTableMapping();
-        List<String> allProperty = tableDef.getPropertyNames();
-        List<ColumnDef> collect = allProperty.stream().map(tableDef::getMapping).collect(Collectors.toList());
-        return this.select0(collect, tester);
-    }
-
-    private LambdaQuery<T> select0(Collection<ColumnDef> allFiled, Predicate<ColumnDef> tester) {
-        TableMapping tableDef = super.getTableMapping();
-        allFiled.stream().filter(tester).forEach(columnDef -> {
-            String selectColumn = dialect().columnName(isQualifier(), tableDef, columnDef);
-            customSelect.add(() -> selectColumn);
-        });
-        return this;
-    }
-
-    public final LambdaQuery<T> groupBy(List<SFunction<T>> properties) {
+    public final LambdaQuery<T> groupBy(SFunction<T>... properties) {
         if (this.lockGroupBy) {
             throw new IllegalStateException("group by is locked.");
         }
         this.lockCondition();
-        if (properties != null && !properties.isEmpty()) {
+        if (properties != null && properties.length > 0) {
             if (this.groupBySegments.isEmpty()) {
                 this.queryTemplate.addSegment(GROUP_BY);
             }
@@ -193,24 +189,27 @@ public class LambdaQueryWrapper<T> extends AbstractQueryCompare<T, LambdaQuery<T
         return this.getSelf();
     }
 
-    public LambdaQuery<T> orderBy(List<SFunction<T>> properties) {
+    @Override
+    public LambdaQuery<T> orderBy(SFunction<T>... properties) {
         return this.addOrderBy(ORDER_DEFAULT, properties);
     }
 
-    public LambdaQuery<T> asc(List<SFunction<T>> properties) {
+    @Override
+    public LambdaQuery<T> asc(SFunction<T>... properties) {
         return this.addOrderBy(ASC, properties);
     }
 
-    public LambdaQuery<T> desc(List<SFunction<T>> properties) {
+    @Override
+    public LambdaQuery<T> desc(SFunction<T>... properties) {
         return this.addOrderBy(DESC, properties);
     }
 
-    private LambdaQuery<T> addOrderBy(OrderByKeyword keyword, List<SFunction<T>> orderBy) {
+    private LambdaQuery<T> addOrderBy(OrderByKeyword keyword, SFunction<T>... orderBy) {
         if (this.lockOrderBy) {
             throw new IllegalStateException("order by is locked.");
         }
         this.lockGroupBy();
-        if (orderBy != null && !orderBy.isEmpty()) {
+        if (orderBy != null && orderBy.length > 0) {
             if (this.orderBySegments.isEmpty()) {
                 this.queryTemplate.addSegment(ORDER_BY);
             } else {

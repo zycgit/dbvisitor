@@ -9,7 +9,7 @@ import org.w3c.dom.Node;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class MappingOptions {
-    public static String OPT_KEY_CASE_SENSITIVITY = "caseSensitivity";
+    public static String OPT_KEY_CASE_INSENSITIVE = "caseInsensitive";
     public static String OPT_KEY_TO_CAMELCASE     = "mapUnderscoreToCamelCase";
     public static String OPT_KEY_AUTO_MAPPING     = "autoMapping";
     public static String OPT_KEY_OVERWRITE        = "overwrite";
@@ -17,7 +17,7 @@ public class MappingOptions {
     private Boolean overwrite;
     private Boolean autoMapping;
     private Boolean mapUnderscoreToCamelCase;
-    private Boolean caseSensitivity;
+    private Boolean caseInsensitive;
 
     public MappingOptions() {
     }
@@ -27,7 +27,7 @@ public class MappingOptions {
             this.overwrite = options.overwrite;
             this.autoMapping = options.autoMapping;
             this.mapUnderscoreToCamelCase = options.mapUnderscoreToCamelCase;
-            this.caseSensitivity = options.caseSensitivity;
+            this.caseInsensitive = options.caseInsensitive;
         }
     }
 
@@ -55,12 +55,12 @@ public class MappingOptions {
         this.mapUnderscoreToCamelCase = mapUnderscoreToCamelCase;
     }
 
-    public Boolean getCaseSensitivity() {
-        return this.caseSensitivity;
+    public Boolean getCaseInsensitive() {
+        return this.caseInsensitive;
     }
 
-    public void setCaseSensitivity(Boolean caseSensitivity) {
-        this.caseSensitivity = caseSensitivity;
+    public void setCaseInsensitive(Boolean caseInsensitive) {
+        this.caseInsensitive = caseInsensitive;
     }
 
     public static MappingOptions resolveOptions(Node refData) {
@@ -71,18 +71,18 @@ public class MappingOptions {
         Node overwriteNode = nodeAttributes.getNamedItem(OPT_KEY_OVERWRITE);
         Node autoMappingNode = nodeAttributes.getNamedItem(OPT_KEY_AUTO_MAPPING);
         Node mapUnderscoreToCamelCaseNode = nodeAttributes.getNamedItem(OPT_KEY_TO_CAMELCASE);
-        Node caseSensitivityNode = nodeAttributes.getNamedItem(OPT_KEY_CASE_SENSITIVITY);
+        Node caseInsensitiveNode = nodeAttributes.getNamedItem(OPT_KEY_CASE_INSENSITIVE);
 
         String overwrite = (overwriteNode != null) ? overwriteNode.getNodeValue() : null;
         String autoMapping = (autoMappingNode != null) ? autoMappingNode.getNodeValue() : null;
         String mapUnderscoreToCamelCase = (mapUnderscoreToCamelCaseNode != null) ? mapUnderscoreToCamelCaseNode.getNodeValue() : null;
-        String caseSensitivity = (caseSensitivityNode != null) ? caseSensitivityNode.getNodeValue() : null;
+        String caseInsensitive = (caseInsensitiveNode != null) ? caseInsensitiveNode.getNodeValue() : null;
 
         MappingOptions options = new MappingOptions();
         options.overwrite = (overwrite == null) ? null : Boolean.TRUE.equals(ConverterUtils.convert(overwrite, Boolean.TYPE));
         options.autoMapping = (autoMapping == null) ? null : Boolean.TRUE.equals(ConverterUtils.convert(autoMapping, Boolean.TYPE));
         options.mapUnderscoreToCamelCase = (mapUnderscoreToCamelCase == null) ? null : Boolean.TRUE.equals(ConverterUtils.convert(mapUnderscoreToCamelCase, Boolean.TYPE));
-        options.caseSensitivity = (mapUnderscoreToCamelCase == null) ? null : Boolean.TRUE.equals(ConverterUtils.convert(caseSensitivity, Boolean.TYPE));
+        options.caseInsensitive = (mapUnderscoreToCamelCase == null) ? null : Boolean.TRUE.equals(ConverterUtils.convert(caseInsensitive, Boolean.TYPE));
         return options;
     }
 
@@ -97,8 +97,8 @@ public class MappingOptions {
         if (options.mapUnderscoreToCamelCase == null) {
             options.mapUnderscoreToCamelCase = defaultOptions.mapUnderscoreToCamelCase;
         }
-        if (options.caseSensitivity == null) {
-            options.caseSensitivity = defaultOptions.caseSensitivity;
+        if (options.caseInsensitive == null) {
+            options.caseInsensitive = defaultOptions.caseInsensitive;
         }
         return options;
     }

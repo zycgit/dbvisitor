@@ -19,9 +19,9 @@ import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.dialect.provider.MySqlDialect;
 import net.hasor.db.lambda.LambdaOperations.LambdaInsert;
+import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TB_User;
-import net.hasor.test.db.dto.TbUserShadow;
 import org.junit.Test;
 
 import static net.hasor.test.db.utils.TestUtils.beanForData1;
@@ -41,28 +41,11 @@ public class BuilderInsertTest extends AbstractDbTest {
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaInsert.getBoundSql(dialect);
         assert boundSql1 instanceof BatchBoundSql;
-        assert boundSql1.getSqlString().equals("INSERT INTO TB_User ( userUUID , name , loginName , loginPassword , email , `index` , registerTime ) VALUES ( ?,?,?,?,?,?,? )");
+        assert boundSql1.getSqlString().equals("INSERT INTO TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
         //
         BoundSql boundSql2 = lambdaInsert.useQualifier().getBoundSql(dialect);
         assert boundSql2 instanceof BatchBoundSql;
-        assert boundSql2.getSqlString().equals("INSERT INTO `TB_User` ( `userUUID` , `name` , `loginName` , `loginPassword` , `email` , `index` , `registerTime` ) VALUES ( ?,?,?,?,?,?,? )");
-    }
-
-    @Test
-    public void insert_2() {
-        LambdaInsert<TbUserShadow> lambdaInsert = new LambdaTemplate().lambdaInsert(TbUserShadow.class);
-        lambdaInsert.applyQueryAsInsert(TB_User.class, queryBuilder -> {
-            queryBuilder.eq(TB_User::getIndex, 123);
-        });
-        //
-        SqlDialect dialect = new MySqlDialect();
-        BoundSql boundSql1 = lambdaInsert.getBoundSql(dialect);
-        assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("INSERT INTO tb_user_shadow ( userUUID , name , loginName , loginPassword , email , `index` , registerTime )  SELECT * FROM TB_User WHERE `index` = ?");
-        //
-        BoundSql boundSql2 = lambdaInsert.useQualifier().getBoundSql(dialect);
-        assert !(boundSql2 instanceof BatchBoundSql);
-        assert boundSql2.getSqlString().equals("INSERT INTO `tb_user_shadow` ( `userUUID` , `name` , `loginName` , `loginPassword` , `email` , `index` , `registerTime` )  SELECT * FROM `TB_User` WHERE `index` = ?");
+        assert boundSql2.getSqlString().equals("INSERT INTO `TB_User` (`userUUID`, `name`, `loginName`, `loginPassword`, `email`, `index`, `registerTime`) VALUES (?, ?, ?, ?, ?, ?, ?)");
     }
 
     @Test
@@ -70,33 +53,16 @@ public class BuilderInsertTest extends AbstractDbTest {
         LambdaInsert<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
-        lambdaInsert.onDuplicateKeyBlock();
+        lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Into);
         //
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaInsert.getBoundSql(dialect);
         assert boundSql1 instanceof BatchBoundSql;
-        assert boundSql1.getSqlString().equals("INSERT INTO TB_User ( userUUID , name , loginName , loginPassword , email , `index` , registerTime ) VALUES ( ?,?,?,?,?,?,? )");
+        assert boundSql1.getSqlString().equals("INSERT INTO TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
         //
         BoundSql boundSql2 = lambdaInsert.useQualifier().getBoundSql(dialect);
         assert boundSql2 instanceof BatchBoundSql;
-        assert boundSql2.getSqlString().equals("INSERT INTO `TB_User` ( `userUUID` , `name` , `loginName` , `loginPassword` , `email` , `index` , `registerTime` ) VALUES ( ?,?,?,?,?,?,? )");
-    }
-
-    @Test
-    public void insertDuplicateKeyBlock_2() {
-        LambdaInsert<TbUserShadow> lambdaInsert = new LambdaTemplate().lambdaInsert(TbUserShadow.class);
-        lambdaInsert.applyQueryAsInsert(TB_User.class, queryBuilder -> {
-            queryBuilder.eq(TB_User::getIndex, 123);
-        }).onDuplicateKeyBlock();
-        //
-        SqlDialect dialect = new MySqlDialect();
-        BoundSql boundSql1 = lambdaInsert.getBoundSql(dialect);
-        assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("INSERT INTO tb_user_shadow ( userUUID , name , loginName , loginPassword , email , `index` , registerTime )  SELECT * FROM TB_User WHERE `index` = ?");
-        //
-        BoundSql boundSql2 = lambdaInsert.useQualifier().getBoundSql(dialect);
-        assert !(boundSql2 instanceof BatchBoundSql);
-        assert boundSql2.getSqlString().equals("INSERT INTO `tb_user_shadow` ( `userUUID` , `name` , `loginName` , `loginPassword` , `email` , `index` , `registerTime` )  SELECT * FROM `TB_User` WHERE `index` = ?");
+        assert boundSql2.getSqlString().equals("INSERT INTO `TB_User` (`userUUID`, `name`, `loginName`, `loginPassword`, `email`, `index`, `registerTime`) VALUES (?, ?, ?, ?, ?, ?, ?)");
     }
 
     @Test
@@ -104,33 +70,16 @@ public class BuilderInsertTest extends AbstractDbTest {
         LambdaInsert<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
-        lambdaInsert.onDuplicateKeyUpdate();
+        lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Replace);
         //
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaInsert.getBoundSql(dialect);
         assert boundSql1 instanceof BatchBoundSql;
-        assert boundSql1.getSqlString().equals("REPLACE INTO TB_User ( userUUID , name , loginName , loginPassword , email , `index` , registerTime ) VALUES ( ?,?,?,?,?,?,? )");
+        assert boundSql1.getSqlString().equals("REPLACE INTO TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
         //
         BoundSql boundSql2 = lambdaInsert.useQualifier().getBoundSql(dialect);
         assert boundSql2 instanceof BatchBoundSql;
-        assert boundSql2.getSqlString().equals("REPLACE INTO `TB_User` ( `userUUID` , `name` , `loginName` , `loginPassword` , `email` , `index` , `registerTime` ) VALUES ( ?,?,?,?,?,?,? )");
-    }
-
-    @Test
-    public void insertDuplicateKeyUpdate_2() {
-        LambdaInsert<TbUserShadow> lambdaInsert = new LambdaTemplate().lambdaInsert(TbUserShadow.class);
-        lambdaInsert.applyQueryAsInsert(TB_User.class, queryBuilder -> {
-            queryBuilder.eq(TB_User::getIndex, 123);
-        }).onDuplicateKeyUpdate();
-        //
-        SqlDialect dialect = new MySqlDialect();
-        BoundSql boundSql1 = lambdaInsert.getBoundSql(dialect);
-        assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("REPLACE INTO tb_user_shadow ( userUUID , name , loginName , loginPassword , email , `index` , registerTime )  SELECT * FROM TB_User WHERE `index` = ?");
-        //
-        BoundSql boundSql2 = lambdaInsert.useQualifier().getBoundSql(dialect);
-        assert !(boundSql2 instanceof BatchBoundSql);
-        assert boundSql2.getSqlString().equals("REPLACE INTO `tb_user_shadow` ( `userUUID` , `name` , `loginName` , `loginPassword` , `email` , `index` , `registerTime` )  SELECT * FROM `TB_User` WHERE `index` = ?");
+        assert boundSql2.getSqlString().equals("REPLACE INTO `TB_User` (`userUUID`, `name`, `loginName`, `loginPassword`, `email`, `index`, `registerTime`) VALUES (?, ?, ?, ?, ?, ?, ?)");
     }
 
     @Test
@@ -138,32 +87,15 @@ public class BuilderInsertTest extends AbstractDbTest {
         LambdaInsert<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
-        lambdaInsert.onDuplicateKeyIgnore();
+        lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Ignore);
         //
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaInsert.getBoundSql(dialect);
         assert boundSql1 instanceof BatchBoundSql;
-        assert boundSql1.getSqlString().equals("INSERT IGNORE TB_User ( userUUID , name , loginName , loginPassword , email , `index` , registerTime ) VALUES ( ?,?,?,?,?,?,? )");
+        assert boundSql1.getSqlString().equals("INSERT IGNORE TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
         //
         BoundSql boundSql2 = lambdaInsert.useQualifier().getBoundSql(dialect);
         assert boundSql2 instanceof BatchBoundSql;
-        assert boundSql2.getSqlString().equals("INSERT IGNORE `TB_User` ( `userUUID` , `name` , `loginName` , `loginPassword` , `email` , `index` , `registerTime` ) VALUES ( ?,?,?,?,?,?,? )");
-    }
-
-    @Test
-    public void insertDuplicateKeyIgnore_2() {
-        LambdaInsert<TbUserShadow> lambdaInsert = new LambdaTemplate().lambdaInsert(TbUserShadow.class);
-        lambdaInsert.applyQueryAsInsert(TB_User.class, queryBuilder -> {
-            queryBuilder.eq(TB_User::getIndex, 123);
-        }).onDuplicateKeyIgnore();
-        //
-        SqlDialect dialect = new MySqlDialect();
-        BoundSql boundSql1 = lambdaInsert.getBoundSql(dialect);
-        assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("INSERT IGNORE tb_user_shadow ( userUUID , name , loginName , loginPassword , email , `index` , registerTime )  SELECT * FROM TB_User WHERE `index` = ?");
-        //
-        BoundSql boundSql2 = lambdaInsert.useQualifier().getBoundSql(dialect);
-        assert !(boundSql2 instanceof BatchBoundSql);
-        assert boundSql2.getSqlString().equals("INSERT IGNORE `tb_user_shadow` ( `userUUID` , `name` , `loginName` , `loginPassword` , `email` , `index` , `registerTime` )  SELECT * FROM `TB_User` WHERE `index` = ?");
+        assert boundSql2.getSqlString().equals("INSERT IGNORE `TB_User` (`userUUID`, `name`, `loginName`, `loginPassword`, `email`, `index`, `registerTime`) VALUES (?, ?, ?, ?, ?, ?, ?)");
     }
 }

@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
  */
 public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     private static final Logger              logger                 = LoggerFactory.getLogger(JdbcTemplate.class);
-    /*当JDBC 结果集中如出现相同的列名仅仅大小写不同时。是否保留大小写列名敏感。
+    /* 当JDBC 结果集中如出现相同的列名仅仅大小写不同时。是否保留大小写列名敏感。
      * 如果为 true 表示不敏感，并且结果集Map中保留两个记录。如果为 false 则表示敏感，如出现冲突列名后者将会覆盖前者。*/
     private              boolean             resultsCaseInsensitive = true;
     private              TypeHandlerRegistry typeRegistry           = TypeHandlerRegistry.DEFAULT;

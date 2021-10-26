@@ -38,21 +38,4 @@ public interface InsertSqlDialect extends SqlDialect {
 
     public String insertWithReplace(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
 
-    //
-
-    //    /** 是否支持 insert into from select */
-    //    public boolean supportInsertIntoFromSelect(List<String> destPrimaryKey, Map<String, String> columnMapping);
-    //
-    //    public String insertWithIntoFromSelect(boolean useQualifier, String srcSchema, String srcTable, String destSchema, String destTable, List<String> destPrimaryKey, Map<String, String> columnMapping);
-    //
-    //    /** 是否支持 insert ignore from select */
-    //    public boolean supportInsertIgnoreFromSelect(List<String> primaryKey, List<String> columns);
-    //
-    //    public String insertWithIgnoreFromSelect(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
-    //
-    //    /** 是否支持 insert replace from select */
-    //    public boolean supportInsertReplaceFromSelect(List<String> primaryKey, List<String> columns);
-    //
-    //    public String insertWithReplaceFromSelect(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
-
 }

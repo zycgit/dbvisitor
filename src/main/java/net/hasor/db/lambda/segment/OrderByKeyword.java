@@ -20,10 +20,10 @@ package net.hasor.db.lambda.segment;
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum OrderByKeyword implements Segment {
-    ORDER_DEFAULT(""),//
-    ASC("ASC"),//
+    ORDER_DEFAULT(""),
+    ASC("ASC"),
     DESC("DESC");
-    //
+
     private final String sqlString;
 
     OrderByKeyword(String sqlString) {

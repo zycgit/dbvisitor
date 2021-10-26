@@ -46,7 +46,7 @@ public @interface Table {
     /** 当表/列名中 存在关键字时候需要设置为 true */
     public boolean useDelimited() default false;
 
-    /** 是否对表名列名敏感，默认 false 不敏感 */
-    public boolean caseSensitivity() default false;
+    /** 是否对表名列名敏感，默认 true 不敏感 */
+    public boolean caseInsensitive() default true;
 
 }
