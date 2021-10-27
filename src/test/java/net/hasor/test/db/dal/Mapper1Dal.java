@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.test.db.dal;
-import net.hasor.db.dal.RefMapper;
+import net.hasor.db.dal.repository.RefMapper;
 import net.hasor.test.db.dto.TbUser;
 
 import java.util.List;

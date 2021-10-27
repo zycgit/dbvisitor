@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic.nodes;
-import net.hasor.db.dal.dynamic.BuilderContext;
+import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.dynamic.ognl.OgnlUtils;
 
@@ -33,14 +33,14 @@ public class IfDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder) throws SQLException {
-        if (test(builderContext)) {
-            super.buildQuery(builderContext, querySqlBuilder);
+    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+        if (test(context)) {
+            super.buildQuery(context, querySqlBuilder);
         }
     }
 
-    protected boolean test(BuilderContext builderContext) {
-        Object testExprResult = OgnlUtils.evalOgnl(this.testExpr, builderContext.getContext());
+    protected boolean test(DynamicContext context) {
+        Object testExprResult = OgnlUtils.evalOgnl(this.testExpr, context.getContext());
         return Boolean.TRUE.equals(testExprResult);
     }
 }

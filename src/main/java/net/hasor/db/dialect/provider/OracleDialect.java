@@ -104,12 +104,12 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
     }
 
     @Override
-    public boolean supportInsertReplace(List<String> primaryKey, List<String> columns) {
+    public boolean supportUpsert(List<String> primaryKey, List<String> columns) {
         return !primaryKey.isEmpty();
     }
 
     @Override
-    public String insertWithReplace(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertWithUpsert(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
         StringBuilder mergeBuilder = new StringBuilder();
 
         buildMergeInfoBasic(useQualifier, schema, table, primaryKey, columns, mergeBuilder);

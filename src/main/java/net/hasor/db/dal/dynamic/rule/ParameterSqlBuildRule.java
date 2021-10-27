@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic.rule;
-import net.hasor.db.dal.dynamic.BuilderContext;
+import net.hasor.cobble.NumberUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.db.dal.dynamic.DalBoundSql.SqlArg;
+import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.dynamic.SqlMode;
 import net.hasor.db.dal.dynamic.ognl.OgnlUtils;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
-import net.hasor.cobble.StringUtils;
 
 import java.sql.JDBCType;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Map;
 
 /**
@@ -50,21 +52,25 @@ public class ParameterSqlBuildRule implements SqlBuildRule {
         return null;
     }
 
-    private JDBCType convertJdbcType(String jdbcType) {
+    private Integer convertJdbcType(String jdbcType) {
+        if (NumberUtils.isNumber(jdbcType)) {
+            return NumberUtils.createInteger(jdbcType);
+        }
+
         if (StringUtils.isNotBlank(jdbcType)) {
             for (JDBCType typeElement : JDBCType.values()) {
                 if (typeElement.name().equalsIgnoreCase(jdbcType)) {
-                    return typeElement;
+                    return typeElement.getVendorTypeNumber();
                 }
             }
         }
         return null;
     }
 
-    private Class<?> convertJavaType(BuilderContext builderContext, String javaType) {
+    private Class<?> convertJavaType(DynamicContext context, String javaType) {
         try {
             if (StringUtils.isNotBlank(javaType)) {
-                return builderContext.loadClass(javaType);
+                return context.loadClass(javaType);
             }
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -72,14 +78,11 @@ public class ParameterSqlBuildRule implements SqlBuildRule {
         return null;
     }
 
-    private TypeHandler<?> convertTypeHandler(BuilderContext builderContext, String typeHandler) {
+    private TypeHandler<?> convertTypeHandler(DynamicContext context, String typeHandler) {
         try {
             if (StringUtils.isNotBlank(typeHandler)) {
-                Class<?> aClass = builderContext.loadClass(typeHandler);
-                TypeHandlerRegistry handlerRegistry = builderContext.getHandlerRegistry();
-                if (handlerRegistry.hasTypeHandler(aClass)) {
-                    return handlerRegistry.getTypeHandler(aClass);
-                }
+                Class<?> aClass = context.loadClass(typeHandler);
+                return context.findTypeHandler(aClass);
             }
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -88,37 +91,37 @@ public class ParameterSqlBuildRule implements SqlBuildRule {
     }
 
     @Override
-    public void executeRule(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) throws SQLException {
+    public void executeRule(DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) throws SQLException {
         SqlMode sqlMode = convertSqlMode((config != null) ? config.get(CFG_KEY_MODE) : null);
-        JDBCType jdbcType = convertJdbcType((config != null) ? config.get(CFG_KEY_JDBC_TYPE) : null);
-        Class<?> javaType = convertJavaType(builderContext, (config != null) ? config.get(CFG_KEY_JAVA_TYPE) : null);
-        TypeHandler<?> typeHandler = convertTypeHandler(builderContext, (config != null) ? config.get(CFG_KEY_HANDLER) : null);
-        Object argValue = sqlMode == SqlMode.Out ? null : OgnlUtils.evalOgnl(ruleValue, builderContext.getContext());
-        //
+        Integer jdbcType = convertJdbcType((config != null) ? config.get(CFG_KEY_JDBC_TYPE) : null);
+        Class<?> javaType = convertJavaType(context, (config != null) ? config.get(CFG_KEY_JAVA_TYPE) : null);
+        TypeHandler<?> typeHandler = convertTypeHandler(context, (config != null) ? config.get(CFG_KEY_HANDLER) : null);
+        Object argValue = sqlMode == SqlMode.Out ? null : OgnlUtils.evalOgnl(ruleValue, context.getContext());
+
         if (sqlMode == null) {
             sqlMode = SqlMode.In;
         }
         if (javaType == null && argValue != null) {
             javaType = argValue.getClass();
         }
-        if (jdbcType == null && javaType != null) {
-            jdbcType = TypeHandlerRegistry.toSqlType(javaType);
+
+        if (argValue == null && jdbcType == null && javaType == null) {
+            jdbcType = Types.VARCHAR;// fix all parameters unknown.
+        }
+
+        if (typeHandler == null) {
+            if (javaType != null && jdbcType != null) {
+                typeHandler = context.findTypeHandler(javaType, jdbcType);
+            } else if (javaType != null) {
+                typeHandler = context.findTypeHandler(javaType);
+            } else if (jdbcType != null) {
+                typeHandler = context.findTypeHandler(jdbcType);
+            }
         }
         if (typeHandler == null) {
-            TypeHandlerRegistry handlerRegistry = builderContext.getHandlerRegistry();
-            if (argValue != null) {
-                typeHandler = handlerRegistry.getTypeHandler(javaType, jdbcType);
-            } else if (jdbcType != null) {
-                typeHandler = handlerRegistry.getTypeHandler(jdbcType);
-            }
-            if (typeHandler == null) {
-                typeHandler = handlerRegistry.getDefaultTypeHandler();
-            }
+            typeHandler = TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();
         }
-        //
-        if (argValue == null && jdbcType == null && javaType == null) {
-            jdbcType = JDBCType.VARCHAR;// fix all parameters unknown.
-        }
+
         querySqlBuilder.appendSql("?", new SqlArg(ruleValue, argValue, sqlMode, jdbcType, javaType, typeHandler));
     }
 

@@ -195,9 +195,9 @@ public class LambdaInsertWrapper<T> extends AbstractExecute<T> implements Lambda
                 }
                 break;
             }
-            case Replace: {
-                if (dialect.supportInsertReplace(primaryKeys, insertColumns)) {
-                    String sqlString = dialect.insertWithReplace(this.isQualifier(), schemaName, tableName, primaryKeys, insertColumns);
+            case Update: {
+                if (dialect.supportUpsert(primaryKeys, insertColumns)) {
+                    String sqlString = dialect.insertWithUpsert(this.isQualifier(), schemaName, tableName, primaryKeys, insertColumns);
                     return buildBatchBoundSql(sqlString);
                 }
                 break;

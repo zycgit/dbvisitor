@@ -17,7 +17,6 @@ package net.hasor.db.dal.dynamic;
 import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.types.TypeHandler;
 
-import java.sql.JDBCType;
 import java.util.List;
 
 /**
@@ -32,11 +31,11 @@ public interface DalBoundSql extends BoundSql {
         private String         expr;
         private Object         value;
         private SqlMode        sqlMode;
-        private JDBCType       jdbcType;
+        private Integer        jdbcType;
         private Class<?>       javaType;
         private TypeHandler<?> typeHandler;
 
-        public SqlArg(String expr, Object value, SqlMode sqlMode, JDBCType jdbcType, Class<?> javaType, TypeHandler<?> typeHandler) {
+        public SqlArg(String expr, Object value, SqlMode sqlMode, Integer jdbcType, Class<?> javaType, TypeHandler<?> typeHandler) {
             this.expr = expr;
             this.value = value;
             this.sqlMode = sqlMode;
@@ -69,11 +68,11 @@ public interface DalBoundSql extends BoundSql {
             this.sqlMode = sqlMode;
         }
 
-        public JDBCType getJdbcType() {
+        public Integer getJdbcType() {
             return this.jdbcType;
         }
 
-        public void setJdbcType(JDBCType jdbcType) {
+        public void setJdbcType(Integer jdbcType) {
             this.jdbcType = jdbcType;
         }
 

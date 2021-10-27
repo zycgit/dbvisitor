@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic.nodes;
-import net.hasor.db.dal.dynamic.BuilderContext;
+import net.hasor.cobble.StringUtils;
+import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.dynamic.ognl.OgnlUtils;
-import net.hasor.cobble.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,9 +47,9 @@ public class BindDynamicSql implements DynamicSql {
     }
 
     @Override
-    public void buildQuery(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder) {
+    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) {
         if (StringUtils.isNotBlank(this.name)) {
-            Map<String, Object> contextMap = builderContext.getContext();
+            Map<String, Object> contextMap = context.getContext();
             if (contextMap.containsKey(this.name)) {
                 if (!this.overwrite) {
                     throw new IllegalArgumentException("duplicate key '" + this.name + "'");

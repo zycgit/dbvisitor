@@ -1,11 +1,12 @@
 package net.hasor.db.dal.repository;
+import net.hasor.db.dal.repository.manager.DalRegistry;
 import org.junit.Test;
 
 public class Mapper3DalTest {
     @Test
     public void bindTest_01() throws Throwable {
-        MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/net_hasor_db/dal_dynamic/mapper_3.xml");
+        DalRegistry registry = new DalRegistry();
+        registry.loadResource("/net_hasor_db/dal_dynamic/mapper_3.xml");
         //
         System.out.println();
         //        registry.findDynamicSql();

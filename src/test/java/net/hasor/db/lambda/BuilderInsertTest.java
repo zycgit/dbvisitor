@@ -70,16 +70,16 @@ public class BuilderInsertTest extends AbstractDbTest {
         LambdaInsert<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
-        lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Replace);
+        lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Update);
         //
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaInsert.getBoundSql(dialect);
         assert boundSql1 instanceof BatchBoundSql;
-        assert boundSql1.getSqlString().equals("REPLACE INTO TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        assert boundSql1.getSqlString().equals("INSERT INTO TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE");
         //
         BoundSql boundSql2 = lambdaInsert.useQualifier().getBoundSql(dialect);
         assert boundSql2 instanceof BatchBoundSql;
-        assert boundSql2.getSqlString().equals("REPLACE INTO `TB_User` (`userUUID`, `name`, `loginName`, `loginPassword`, `email`, `index`, `registerTime`) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        assert boundSql2.getSqlString().equals("INSERT INTO `TB_User` (`userUUID`, `name`, `loginName`, `loginPassword`, `email`, `index`, `registerTime`) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE");
     }
 
     @Test

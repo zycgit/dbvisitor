@@ -81,7 +81,7 @@ public class LambdaDeleteWrapper<T> extends AbstractQueryCompare<T, LambdaDelete
         }
         return sqlSegment.getSqlSegment();
     }
- 
+
     @Override
     public int doDelete() throws SQLException {
         BoundSql boundSql = getBoundSql();

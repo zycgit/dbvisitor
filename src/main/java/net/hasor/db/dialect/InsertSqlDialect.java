@@ -34,8 +34,7 @@ public interface InsertSqlDialect extends SqlDialect {
     public String insertWithIgnore(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
 
     /** 是否支持 insert replace */
-    public boolean supportInsertReplace(List<String> primaryKey, List<String> columns);
+    public boolean supportUpsert(List<String> primaryKey, List<String> columns);
 
-    public String insertWithReplace(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
-
+    public String insertWithUpsert(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
 }

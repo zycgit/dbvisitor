@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.test.db.dal;
-import net.hasor.db.dal.Query;
-import net.hasor.db.dal.SimpleMapper;
+import net.hasor.db.dal.repository.Query;
+import net.hasor.db.dal.repository.SimpleMapper;
 import net.hasor.test.db.dto.TbUser;
 
 import java.util.List;

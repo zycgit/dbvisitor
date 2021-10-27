@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic.segment;
-import net.hasor.db.dal.dynamic.BuilderContext;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
+import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.dynamic.rule.ParameterSqlBuildRule;
 import net.hasor.db.dal.dynamic.rule.SqlBuildRule;
 import net.hasor.db.dal.dynamic.rule.TextSqlBuildRule;
-import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 
 import java.sql.SQLException;
 import java.util.Collections;
@@ -100,9 +100,9 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
     }
 
     @Override
-    public void buildQuery(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder) throws SQLException {
+    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
         for (FxSegment fxSegment : this.queryStringPlan) {
-            fxSegment.buildQuery(builderContext, querySqlBuilder);
+            fxSegment.buildQuery(context, querySqlBuilder);
         }
     }
 
@@ -118,7 +118,7 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
     }
 
     public static interface FxSegment extends Cloneable {
-        public void buildQuery(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder) throws SQLException;
+        public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException;
 
         public FxSegment clone();
     }
@@ -135,8 +135,8 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
         }
 
         @Override
-        public void buildQuery(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder) throws SQLException {
-            TextSqlBuildRule.INSTANCE.executeRule(builderContext, querySqlBuilder, this.textString.toString(), Collections.emptyMap());
+        public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+            TextSqlBuildRule.INSTANCE.executeRule(context, querySqlBuilder, this.textString.toString(), Collections.emptyMap());
         }
 
         @Override
@@ -158,9 +158,9 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
         }
 
         @Override
-        public void buildQuery(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder) throws SQLException {
-            String placeholderQuery = String.valueOf(evalOgnl(this.exprString.toString(), builderContext.getContext()));
-            TextSqlBuildRule.INSTANCE.executeRule(builderContext, querySqlBuilder, placeholderQuery, Collections.emptyMap());
+        public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+            String placeholderQuery = String.valueOf(evalOgnl(this.exprString.toString(), context.getContext()));
+            TextSqlBuildRule.INSTANCE.executeRule(context, querySqlBuilder, placeholderQuery, Collections.emptyMap());
         }
 
         @Override
@@ -186,13 +186,13 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
         }
 
         @Override
-        public void buildQuery(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder) throws SQLException {
-            SqlBuildRule ruleByName = builderContext.getRuleRegistry().findByName(this.ruleName);
+        public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+            SqlBuildRule ruleByName = context.findRule(this.ruleName);
             if (ruleByName == null) {
                 throw new UnsupportedOperationException("rule `" + this.ruleName + "` Unsupported.");
             }
-            if (ruleByName.test(builderContext, this.activateExpr)) {
-                ruleByName.executeRule(builderContext, querySqlBuilder, this.ruleValue, Collections.emptyMap());
+            if (ruleByName.test(context, this.activateExpr)) {
+                ruleByName.executeRule(context, querySqlBuilder, this.ruleValue, Collections.emptyMap());
             }
         }
 
@@ -222,8 +222,8 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
         }
 
         @Override
-        public void buildQuery(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder) throws SQLException {
-            ParameterSqlBuildRule.INSTANCE.executeRule(builderContext, querySqlBuilder, this.exprString, this.config);
+        public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+            ParameterSqlBuildRule.INSTANCE.executeRule(context, querySqlBuilder, this.exprString, this.config);
         }
 
         @Override

@@ -25,11 +25,11 @@ public interface DynamicSql {
     /** 是否包含替换占位符，如果包含替换占位符那么不能使用批量模式 */
     public boolean isHavePlaceholder();
 
-    public void buildQuery(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder) throws SQLException;
+    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException;
 
-    public default QuerySqlBuilder buildQuery(BuilderContext builderContext) throws SQLException {
+    public default QuerySqlBuilder buildQuery(DynamicContext context) throws SQLException {
         QuerySqlBuilder fxBuilder = new QuerySqlBuilder();
-        this.buildQuery(builderContext, fxBuilder);
+        this.buildQuery(context, fxBuilder);
         return fxBuilder;
     }
 }

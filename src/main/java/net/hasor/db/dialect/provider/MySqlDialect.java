@@ -62,7 +62,7 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
 
     @Override
     public String insertWithInto(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
-        return buildSql("INSERT INTO ", useQualifier, schema, table, columns);
+        return buildSql("INSERT INTO ", useQualifier, schema, table, columns, "");
     }
 
     @Override
@@ -72,20 +72,20 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
 
     @Override
     public String insertWithIgnore(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
-        return buildSql("INSERT IGNORE ", useQualifier, schema, table, columns);
+        return buildSql("INSERT IGNORE ", useQualifier, schema, table, columns, "");
     }
 
     @Override
-    public boolean supportInsertReplace(List<String> primaryKey, List<String> columns) {
+    public boolean supportUpsert(List<String> primaryKey, List<String> columns) {
         return true;
     }
 
     @Override
-    public String insertWithReplace(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
-        return buildSql("REPLACE INTO ", useQualifier, schema, table, columns);
+    public String insertWithUpsert(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
+        return buildSql("INSERT INTO ", useQualifier, schema, table, columns, " ON DUPLICATE KEY UPDATE");
     }
 
-    protected String buildSql(String markString, boolean useQualifier, String schema, String table, List<String> columns) {
+    protected String buildSql(String markString, boolean useQualifier, String schema, String table, List<String> columns, String appendSql) {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append(markString);
         strBuilder.append(tableName(useQualifier, schema, table));
@@ -105,6 +105,7 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
         strBuilder.append(") VALUES (");
         strBuilder.append(argBuilder);
         strBuilder.append(")");
+        strBuilder.append(appendSql);
         return strBuilder.toString();
     }
 

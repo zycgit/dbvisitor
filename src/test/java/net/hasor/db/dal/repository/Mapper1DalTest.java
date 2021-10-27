@@ -1,11 +1,11 @@
 package net.hasor.db.dal.repository;
-import net.hasor.db.dal.dynamic.DynamicSql;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
-import net.hasor.db.mapping.resolve.MappingOptions;
-import net.hasor.test.db.dal.Mapper1Dal;
-import net.hasor.test.db.dal.dynamic.TextBuilderContext;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.io.IOUtils;
+import net.hasor.db.dal.dynamic.DynamicSql;
+import net.hasor.db.dal.dynamic.QuerySqlBuilder;
+import net.hasor.db.dal.repository.manager.DalRegistry;
+import net.hasor.test.db.dal.Mapper1Dal;
+import net.hasor.test.db.dal.dynamic.TextBuilderContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,19 +15,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Mapper1DalTest {
+    private DalRegistry dalRegistry;
+
     private String loadString(String queryConfig) throws IOException {
         return IOUtils.readToString(ResourcesUtils.getResourceAsStream(queryConfig), "UTF-8");
     }
 
     @Before
     public void loadMapping() throws IOException {
-        MapperRegistry.DEFAULT.loadMapper(Mapper1Dal.class, MappingOptions.buildOverwrite());
+        this.dalRegistry = new DalRegistry();
+        this.dalRegistry.loadMapper(Mapper1Dal.class);
     }
 
     @Test
     public void bindTest_01() throws Throwable {
-        DynamicSql parseXml = MapperRegistry.DEFAULT.findDynamicSql(Mapper1Dal.class, "testBind");
-        //
+        DynamicSql parseXml = this.dalRegistry.findDynamicSql(Mapper1Dal.class, "testBind");
+
         String querySql1 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper1Dal_testBind.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("sellerId", "123");
@@ -38,8 +41,8 @@ public class Mapper1DalTest {
 
     @Test
     public void bindTest_02() {
-        DynamicSql parseXml = MapperRegistry.DEFAULT.findDynamicSql(Mapper1Dal.class, "testBind");
-        //
+        DynamicSql parseXml = this.dalRegistry.findDynamicSql(Mapper1Dal.class, "testBind");
+
         Map<String, Object> data1 = new HashMap<>();
         data1.put("sellerId", "123");
         data1.put("abc", "aaa");
@@ -53,8 +56,8 @@ public class Mapper1DalTest {
 
     @Test
     public void chooseTest_01() throws Throwable {
-        DynamicSql parseXml = MapperRegistry.DEFAULT.findDynamicSql(Mapper1Dal.class, "testChoose");
-        //
+        DynamicSql parseXml = this.dalRegistry.findDynamicSql(Mapper1Dal.class, "testChoose");
+
         String querySql1 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper1Dal_testChoose.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("title", "123");
@@ -67,8 +70,8 @@ public class Mapper1DalTest {
 
     @Test
     public void chooseTest_02() throws Throwable {
-        DynamicSql parseXml = MapperRegistry.DEFAULT.findDynamicSql(Mapper1Dal.class, "testChoose");
-        //
+        DynamicSql parseXml = this.dalRegistry.findDynamicSql(Mapper1Dal.class, "testChoose");
+
         String querySql1 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper1Dal_testChoose.sql_2");
         Map<String, Object> data1 = new HashMap<>();
         QuerySqlBuilder builder1 = parseXml.buildQuery(new TextBuilderContext(data1));
@@ -77,8 +80,8 @@ public class Mapper1DalTest {
 
     @Test
     public void foreachTest_01() throws Throwable {
-        DynamicSql parseXml = MapperRegistry.DEFAULT.findDynamicSql(Mapper1Dal.class, "testForeach");
-        //
+        DynamicSql parseXml = this.dalRegistry.findDynamicSql(Mapper1Dal.class, "testForeach");
+
         String querySql1 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper1Dal_testForeach.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("eventTypes", Arrays.asList("a", "b", "c", "d", "e"));
@@ -93,8 +96,8 @@ public class Mapper1DalTest {
 
     @Test
     public void ifTest_01() throws Throwable {
-        DynamicSql parseXml = MapperRegistry.DEFAULT.findDynamicSql(Mapper1Dal.class, "testIf");
-        //
+        DynamicSql parseXml = this.dalRegistry.findDynamicSql(Mapper1Dal.class, "testIf");
+
         String querySql1 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper1Dal_testIf.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("ownerID", "123");
@@ -103,8 +106,7 @@ public class Mapper1DalTest {
         assert builder1.getSqlString().trim().equals(querySql1.trim());
         assert builder1.getArgs()[0].equals("123");
         assert builder1.getArgs()[1].equals("SYSTEM");
-        //
-        //
+
         String querySql2 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper1Dal_testIf.sql_2");
         Map<String, Object> data2 = new HashMap<>();
         data1.put("ownerID", "123");

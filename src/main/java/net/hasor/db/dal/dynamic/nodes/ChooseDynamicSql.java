@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic.nodes;
-import net.hasor.db.dal.dynamic.BuilderContext;
+import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 
@@ -41,16 +41,16 @@ public class ChooseDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder) throws SQLException {
+    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
         try {
             this.useDefault.set(true);
-            super.buildQuery(builderContext, querySqlBuilder);
+            super.buildQuery(context, querySqlBuilder);
         } finally {
             if (this.useDefault.get()) {
                 if (!querySqlBuilder.lastSpaceCharacter()) {
                     querySqlBuilder.appendSql(" ");
                 }
-                this.defaultDynamicSql.buildQuery(builderContext, querySqlBuilder);
+                this.defaultDynamicSql.buildQuery(context, querySqlBuilder);
             }
             this.useDefault.remove();
         }
@@ -62,18 +62,18 @@ public class ChooseDynamicSql extends ArrayDynamicSql {
         }
 
         @Override
-        public void buildQuery(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder) throws SQLException {
-            if (test(builderContext)) {
+        public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+            if (test(context)) {
                 if (!querySqlBuilder.lastSpaceCharacter()) {
                     querySqlBuilder.appendSql(" ");
                 }
-                super.buildQuery(builderContext, querySqlBuilder);
+                super.buildQuery(context, querySqlBuilder);
             }
         }
 
         @Override
-        protected boolean test(BuilderContext builderContext) {
-            boolean testResult = super.test(builderContext);
+        protected boolean test(DynamicContext context) {
+            boolean testResult = super.test(context);
             if (testResult && useDefault.get()) {
                 useDefault.set(false);
             }

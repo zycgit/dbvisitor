@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic;
-import net.hasor.db.dal.dynamic.nodes.*;
 import net.hasor.cobble.convert.ConverterUtils;
+import net.hasor.db.dal.dynamic.nodes.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -101,7 +101,7 @@ public class DynamicParser {
         String open = getNodeAttributeValue(curXmlNode, "open");
         String close = getNodeAttributeValue(curXmlNode, "close");
         String separator = getNodeAttributeValue(curXmlNode, "separator");
-        //
+
         ArrayDynamicSql parent = new ForeachDynamicSql(collection, item, open, close, separator);
         parentSqlNode.addChildNode(parent);
         this.parseNodeList(parent, curXmlNode.getChildNodes());
@@ -110,7 +110,7 @@ public class DynamicParser {
     /** 解析 <if> 节点 */
     protected void parseIfSqlNode(ArrayDynamicSql parentSqlNode, Node curXmlNode) {
         String test = getNodeAttributeValue(curXmlNode, "test");
-        //
+
         ArrayDynamicSql parent = new IfDynamicSql(test);
         parentSqlNode.addChildNode(parent);
         this.parseNodeList(parent, curXmlNode.getChildNodes());
@@ -123,7 +123,7 @@ public class DynamicParser {
         String suffix = getNodeAttributeValue(curXmlNode, "suffix");
         String suffixOverrides = getNodeAttributeValue(curXmlNode, "suffixOverrides");
         boolean caseSensitive = (boolean) ConverterUtils.convert(getNodeAttributeValue(curXmlNode, "caseSensitive"), Boolean.TYPE);
-        //
+
         ArrayDynamicSql parent = new TermDynamicSql(prefix, suffix, prefixOverrides, suffixOverrides, caseSensitive);
         parentSqlNode.addChildNode(parent);
         this.parseNodeList(parent, curXmlNode.getChildNodes());
@@ -131,7 +131,7 @@ public class DynamicParser {
 
     /** 解析 <where> 节点 */
     protected void parseWhereSqlNode(ArrayDynamicSql parentSqlNode, Node curXmlNode) {
-        //
+
         ArrayDynamicSql parent = new WhereDynamicSql();
         parentSqlNode.addChildNode(parent);
         this.parseNodeList(parent, curXmlNode.getChildNodes());
@@ -139,7 +139,7 @@ public class DynamicParser {
 
     /** 解析 <set> 节点 */
     protected void parseSetSqlNode(ArrayDynamicSql parentSqlNode, Node curXmlNode) {
-        //
+
         ArrayDynamicSql parent = new SetDynamicSql();
         parentSqlNode.addChildNode(parent);
         this.parseNodeList(parent, curXmlNode.getChildNodes());
@@ -150,13 +150,13 @@ public class DynamicParser {
         String name = getNodeAttributeValue(curXmlNode, "name");
         String value = getNodeAttributeValue(curXmlNode, "value");
         boolean overwrite = (boolean) ConverterUtils.convert(getNodeAttributeValue(curXmlNode, "overwrite"), Boolean.TYPE);
-        //
+
         parentSqlNode.addChildNode(new BindDynamicSql(name, value, overwrite));
     }
 
     /** 解析 <choose> 节点 */
     protected void parseChooseSqlNode(ArrayDynamicSql parentSqlNode, Node curXmlNode) {
-        //
+
         ArrayDynamicSql parent = new ChooseDynamicSql();
         parentSqlNode.addChildNode(parent);
         this.parseNodeList(parent, curXmlNode.getChildNodes());
@@ -169,7 +169,7 @@ public class DynamicParser {
         }
         String test = getNodeAttributeValue(curXmlNode, "test");
         ChooseDynamicSql chooseSqlNode = (ChooseDynamicSql) parentSqlNode;
-        //
+
         ArrayDynamicSql parent = new ArrayDynamicSql();
         chooseSqlNode.addWhen(test, parent);
         this.parseNodeList(parent, curXmlNode.getChildNodes());
@@ -181,7 +181,7 @@ public class DynamicParser {
             throw new UnsupportedOperationException("the tag `<otherwise>` parent tag must be `<choose>`");
         }
         ChooseDynamicSql chooseSqlNode = (ChooseDynamicSql) parentSqlNode;
-        //
+
         ArrayDynamicSql parent = new ArrayDynamicSql();
         chooseSqlNode.setDefaultNode(parent);
         this.parseNodeList(parent, curXmlNode.getChildNodes());
@@ -190,7 +190,7 @@ public class DynamicParser {
     /** 解析 <include> 节点 */
     protected void parseIncludeSqlNode(ArrayDynamicSql parentSqlNode, Node curXmlNode) {
         String refId = getNodeAttributeValue(curXmlNode, "refid");
-        //
+
         parentSqlNode.addChildNode(new IncludeDynamicSql(refId));
     }
 }

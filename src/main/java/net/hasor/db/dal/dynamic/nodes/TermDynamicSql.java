@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic.nodes;
-import net.hasor.db.dal.dynamic.BuilderContext;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.db.dal.dynamic.DynamicContext;
+import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -67,9 +67,9 @@ public class TermDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder) throws SQLException {
+    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
         QuerySqlBuilder tempQuerySqlBuilder = new QuerySqlBuilder();
-        super.buildQuery(builderContext, tempQuerySqlBuilder);
+        super.buildQuery(context, tempQuerySqlBuilder);
         //
         String childrenSql = tempQuerySqlBuilder.getSqlString().trim();
         if (StringUtils.isNotBlank(childrenSql)) {

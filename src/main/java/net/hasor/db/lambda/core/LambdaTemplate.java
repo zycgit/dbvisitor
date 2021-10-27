@@ -18,7 +18,7 @@ import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.lambda.LambdaOperations;
 import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.TableMapping;
-import net.hasor.db.mapping.resolve.ClassResolveTableMapping;
+import net.hasor.db.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.db.mapping.resolve.MappingOptions;
 import net.hasor.db.types.TypeHandlerRegistry;
 
@@ -111,9 +111,9 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
 
             options = new MappingOptions(options);
             options.setCaseInsensitive(this.isResultsCaseInsensitive());
-            TableMapping<T> tableMapping = new ClassResolveTableMapping().resolveTableMapping(exampleType, exampleType.getClassLoader(), this.getTypeRegistry(), options);
+            TableMapping<?> tableMapping = new ClassTableMappingResolve().resolveTableMapping(exampleType, exampleType.getClassLoader(), this.getTypeRegistry(), options);
 
-            return tableMapping.toReader();
+            return (TableReader<T>) tableMapping.toReader();
         }
     }
 

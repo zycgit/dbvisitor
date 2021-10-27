@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic.segment;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.rule.ParameterSqlBuildRule;
 import net.hasor.db.dal.dynamic.tokens.GenericTokenParser;
-import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 
 import java.util.Map;
 

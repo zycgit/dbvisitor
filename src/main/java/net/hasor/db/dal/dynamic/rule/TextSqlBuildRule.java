@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic.rule;
-import net.hasor.db.dal.dynamic.BuilderContext;
+import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 
 import java.util.Map;
@@ -28,7 +28,7 @@ public class TextSqlBuildRule implements SqlBuildRule {
     public static final SqlBuildRule INSTANCE = new TextSqlBuildRule();
 
     @Override
-    public void executeRule(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) {
+    public void executeRule(DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) {
         querySqlBuilder.appendSql(ruleValue);
     }
 

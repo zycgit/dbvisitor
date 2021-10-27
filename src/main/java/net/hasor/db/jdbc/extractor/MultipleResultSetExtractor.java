@@ -62,7 +62,7 @@ public class MultipleResultSetExtractor implements PreparedStatementCallback<Lis
         if (logger.isTraceEnabled()) {
             logger.trace("statement.execute() returned '" + retVal + "'");
         }
-        //
+
         List<Object> resultList = new ArrayList<>();
         if (retVal) {
             try (ResultSet resultSet = stmt.getResultSet()) {
@@ -72,11 +72,11 @@ public class MultipleResultSetExtractor implements PreparedStatementCallback<Lis
         } else {
             resultList.add(stmt.getUpdateCount());
         }
-        //
+
         if (this.processType == MultipleProcessType.FIRST) {
             return resultList;
         }
-        //
+
         int resultIndex = 1;
         while ((stmt.getMoreResults()) || (stmt.getUpdateCount() != -1)) {
             int updateCount = stmt.getUpdateCount();
@@ -92,7 +92,7 @@ public class MultipleResultSetExtractor implements PreparedStatementCallback<Lis
                     last = updateCount;
                 }
             }
-            //
+
             if (this.processType == MultipleProcessType.LAST) {
                 resultList.set(0, last);
             } else {
@@ -112,10 +112,14 @@ public class MultipleResultSetExtractor implements PreparedStatementCallback<Lis
      * @param rowMapper the corresponding stored procedure parameter
      * @return a Map that contains returned results
      */
-    protected static Object processResultSet(ResultSet rs, RowMapper<?> rowMapper) throws SQLException {
+    protected Object processResultSet(ResultSet rs, RowMapper<?> rowMapper) throws SQLException {
         if (rs == null) {
             return null;
         }
-        return new RowMapperResultSetExtractor<>(rowMapper).extractData(rs);
+        return createSetExtractor(rowMapper).extractData(rs);
+    }
+
+    protected RowMapperResultSetExtractor<?> createSetExtractor(RowMapper<?> rowMapper) {
+        return new RowMapperResultSetExtractor<>(rowMapper);
     }
 }

@@ -16,6 +16,9 @@
 package net.hasor.db.dal.repository.config;
 import net.hasor.cobble.StringUtils;
 import net.hasor.db.dal.dynamic.DynamicSql;
+import net.hasor.db.dal.repository.MultipleResultsType;
+import net.hasor.db.dal.repository.QueryType;
+import net.hasor.db.dal.repository.ResultSetType;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -48,7 +51,7 @@ public class QuerySqlConfig extends DmlSqlConfig {
         String fetchSize = (fetchSizeNode != null) ? fetchSizeNode.getNodeValue() : null;
         String resultSetType = (resultSetTypeNode != null) ? resultSetTypeNode.getNodeValue() : null;
         String multipleResult = (multipleResultNode != null) ? multipleResultNode.getNodeValue() : null;
-        //
+
         this.resultMap = resultMap;
         this.resultType = resultType;
         this.fetchSize = StringUtils.isBlank(fetchSize) ? 256 : Integer.parseInt(fetchSize);

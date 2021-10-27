@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic.nodes;
-import net.hasor.db.dal.dynamic.BuilderContext;
+import net.hasor.cobble.StringUtils;
+import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.dynamic.segment.SqlSegmentParser;
-import net.hasor.cobble.StringUtils;
 
 import java.sql.SQLException;
 
@@ -48,8 +48,8 @@ public class TextDynamicSql implements DynamicSql {
     }
 
     @Override
-    public void buildQuery(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder) throws SQLException {
-        this.dynamicSql.buildQuery(builderContext, querySqlBuilder);
+    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+        this.dynamicSql.buildQuery(context, querySqlBuilder);
     }
 
     protected DynamicSql parserQuery(String fragmentString) {

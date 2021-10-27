@@ -76,8 +76,8 @@ public class InsertSqlDialectTest extends AbstractDbTest {
         BoundSql boundSql2 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Ignore).getBoundSql(dialect);
         assert boundSql2.getSqlString().equals("INSERT IGNORE TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
 
-        BoundSql boundSql3 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Replace).getBoundSql(dialect);
-        assert boundSql3.getSqlString().equals("REPLACE INTO TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        BoundSql boundSql3 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Update).getBoundSql(dialect);
+        assert boundSql3.getSqlString().equals("INSERT INTO TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE");
     }
 
     @Test
@@ -94,7 +94,7 @@ public class InsertSqlDialectTest extends AbstractDbTest {
         assert boundSql2.getSqlString().equals("MERGE INTO TB_User TMP USING (SELECT ? userUUID, ? name, ? loginName, ? loginPassword, ? email, ? \"index\", ? registerTime FROM dual ) SRC ON (TMP.userUUID = SRC.userUUID) "//
                 + "WHEN NOT MATCHED THEN INSERT (userUUID, name, loginName, loginPassword, email, \"index\", registerTime) VALUES( SRC.userUUID, SRC.name, SRC.loginName, SRC.loginPassword, SRC.email, SRC.\"index\", SRC.registerTime) ");
 
-        BoundSql boundSql3 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Replace).getBoundSql(dialect);
+        BoundSql boundSql3 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Update).getBoundSql(dialect);
         assert boundSql3.getSqlString().equals("MERGE INTO TB_User TMP USING (SELECT ? userUUID, ? name, ? loginName, ? loginPassword, ? email, ? \"index\", ? registerTime FROM dual ) SRC ON (TMP.userUUID = SRC.userUUID) "//
                 + "WHEN MATCHED THEN UPDATE SET userUUID = SRC.userUUID, name = SRC.name, loginName = SRC.loginName, loginPassword = SRC.loginPassword, email = SRC.email, \"index\" = SRC.\"index\", registerTime = SRC.registerTime "//
                 + "WHEN NOT MATCHED THEN INSERT (userUUID, name, loginName, loginPassword, email, \"index\", registerTime) VALUES( SRC.userUUID, SRC.name, SRC.loginName, SRC.loginPassword, SRC.email, SRC.\"index\", SRC.registerTime) ");

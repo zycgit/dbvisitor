@@ -15,6 +15,9 @@
  */
 package net.hasor.db.dal.repository.config;
 import net.hasor.db.dal.dynamic.DynamicSql;
+import net.hasor.db.dal.repository.MultipleResultsType;
+import net.hasor.db.dal.repository.QueryType;
+import net.hasor.db.dal.repository.StatementType;
 import org.w3c.dom.Node;
 
 /**

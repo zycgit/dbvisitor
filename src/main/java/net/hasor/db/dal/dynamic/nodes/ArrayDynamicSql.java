@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic.nodes;
-import net.hasor.db.dal.dynamic.BuilderContext;
+import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 
@@ -64,16 +64,16 @@ public class ArrayDynamicSql implements DynamicSql {
     }
 
     @Override
-    public void buildQuery(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder) throws SQLException {
+    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
         for (int i = 0; i < this.subNodes.size(); i++) {
             DynamicSql dynamicSql = this.subNodes.get(i);
-            if (visitItem(i, dynamicSql, builderContext, querySqlBuilder)) {
-                dynamicSql.buildQuery(builderContext, querySqlBuilder);
+            if (visitItem(i, dynamicSql, context, querySqlBuilder)) {
+                dynamicSql.buildQuery(context, querySqlBuilder);
             }
         }
     }
 
-    protected boolean visitItem(int i, DynamicSql dynamicSql, BuilderContext builderContext, QuerySqlBuilder querySqlBuilder) {
+    protected boolean visitItem(int i, DynamicSql dynamicSql, DynamicContext context, QuerySqlBuilder querySqlBuilder) {
         return true;
     }
 }

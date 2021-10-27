@@ -44,7 +44,7 @@ public class LambdaInsertTest extends AbstractDbTest {
             LambdaInsert<TbUser> lambdaInsert = lambdaTemplate.lambdaInsert(TbUser.class);
             lambdaInsert.applyEntity(mappingBeanForData1());
             lambdaInsert.applyMap(mapForData2());
-            
+
             assert lambdaInsert.getBoundSql() instanceof BatchBoundSql;
             //
             int i = lambdaInsert.executeSumResult();

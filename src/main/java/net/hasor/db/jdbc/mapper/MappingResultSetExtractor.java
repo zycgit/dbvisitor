@@ -17,7 +17,7 @@ package net.hasor.db.jdbc.mapper;
 import net.hasor.db.jdbc.ResultSetExtractor;
 import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.TableMapping;
-import net.hasor.db.mapping.resolve.ClassResolveTableMapping;
+import net.hasor.db.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.db.types.TypeHandlerRegistry;
 
 import java.sql.ResultSet;
@@ -45,8 +45,8 @@ public class MappingResultSetExtractor<T> implements ResultSetExtractor<List<T>>
 
     public MappingResultSetExtractor(final Class<T> mapperClass, TypeHandlerRegistry typeRegistry) {
         Objects.requireNonNull(mapperClass, "mapperClass is required");
-        TableMapping<T> tableMapping = ClassResolveTableMapping.resolveTableMapping(mapperClass, mapperClass.getClassLoader(), typeRegistry);
-        this.tableReader = tableMapping.toReader();
+        TableMapping<?> tableMapping = ClassTableMappingResolve.resolveTableMapping(mapperClass, mapperClass.getClassLoader(), typeRegistry);
+        this.tableReader = (TableReader<T>) tableMapping.toReader();
     }
 
     @Override

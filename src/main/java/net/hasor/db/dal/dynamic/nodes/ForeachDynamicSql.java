@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic.nodes;
-import net.hasor.db.dal.dynamic.BuilderContext;
+import net.hasor.cobble.StringUtils;
+import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.dynamic.ognl.OgnlUtils;
-import net.hasor.cobble.StringUtils;
 
 import java.lang.reflect.Array;
 import java.sql.SQLException;
@@ -51,9 +51,9 @@ public class ForeachDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(BuilderContext builderContext, QuerySqlBuilder querySqlBuilder) throws SQLException {
+    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
         // 获取集合数据对象，数组形态
-        Object collectionData = OgnlUtils.evalOgnl(this.collection, builderContext.getContext());
+        Object collectionData = OgnlUtils.evalOgnl(this.collection, context.getContext());
         if (collectionData == null) {
             return;
         }
@@ -65,7 +65,7 @@ public class ForeachDynamicSql extends ArrayDynamicSql {
         }
         //
         querySqlBuilder.appendSql(StringUtils.defaultString(this.open));
-        Map<String, Object> objectMap = builderContext.getContext();
+        Map<String, Object> objectMap = context.getContext();
         Object oriValue = objectMap.get(this.item);
         try {
             int length = Array.getLength(collectionData);
@@ -74,7 +74,7 @@ public class ForeachDynamicSql extends ArrayDynamicSql {
                     querySqlBuilder.appendSql(StringUtils.defaultString(this.separator)); // 分隔符
                 }
                 objectMap.put(this.item, Array.get(collectionData, i));
-                super.buildQuery(builderContext, querySqlBuilder);
+                super.buildQuery(context, querySqlBuilder);
             }
             querySqlBuilder.appendSql(StringUtils.defaultString(this.close));
         } finally {
