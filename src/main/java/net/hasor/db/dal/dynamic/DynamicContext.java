@@ -18,7 +18,7 @@ import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.ref.BeanMap;
 import net.hasor.db.dal.dynamic.rule.RuleRegistry;
 import net.hasor.db.dal.dynamic.rule.SqlBuildRule;
-import net.hasor.db.mapping.TableReader;
+import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
 
@@ -45,7 +45,7 @@ public class DynamicContext {
         return null;
     }
 
-    public TableReader<?> findTableReader(String resultMap) {
+    public TableMapping<?> findTableMapping(String resultMap) {
         return null;
     }
 

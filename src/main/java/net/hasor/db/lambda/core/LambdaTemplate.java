@@ -16,7 +16,6 @@
 package net.hasor.db.lambda.core;
 import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.lambda.LambdaOperations;
-import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.db.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.db.mapping.resolve.MappingOptions;
@@ -33,7 +32,7 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
-    protected final Map<Class<?>, TableReader<?>> typeReader = new HashMap<>();
+    protected final Map<Class<?>, TableMapping<?>> tableMapping = new HashMap<>();
 
     /**
      * Construct a new JdbcTemplate for bean usage.
@@ -90,7 +89,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
 
     }
 
-    protected <T> TableReader<T> getTableReader(Class<T> exampleType, MappingOptions options) {
+    protected <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
         if (exampleType == null) {
             throw new NullPointerException("exampleType is null.");
         }
@@ -98,42 +97,42 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
             throw new UnsupportedOperationException("Map cannot be used as lambda exampleType.");
         }
 
-        TableReader<?> tableReader = this.typeReader.get(exampleType);
-        if (tableReader != null) {
-            return (TableReader<T>) tableReader;
+        TableMapping<?> mapping = this.tableMapping.get(exampleType);
+        if (mapping != null) {
+            return (TableMapping<T>) mapping;
         }
 
         synchronized (this) {
-            tableReader = this.typeReader.get(exampleType);
-            if (tableReader != null) {
-                return (TableReader<T>) tableReader;
+            mapping = this.tableMapping.get(exampleType);
+            if (mapping != null) {
+                return (TableMapping<T>) mapping;
             }
 
             options = new MappingOptions(options);
             options.setCaseInsensitive(this.isResultsCaseInsensitive());
             TableMapping<?> tableMapping = new ClassTableMappingResolve().resolveTableMapping(exampleType, exampleType.getClassLoader(), this.getTypeRegistry(), options);
 
-            return (TableReader<T>) tableMapping.toReader();
+            return (TableMapping<T>) tableMapping;
         }
     }
 
     @Override
     public <T> LambdaOperations.LambdaQuery<T> lambdaQuery(Class<T> exampleType, MappingOptions options) {
-        return new LambdaQueryWrapper<>(getTableReader(exampleType, options), this);
+        return new LambdaQueryWrapper<>(getTableMapping(exampleType, options), this);
     }
 
     @Override
     public <T> LambdaOperations.LambdaDelete<T> lambdaDelete(Class<T> exampleType, MappingOptions options) {
-        return new LambdaDeleteWrapper<>(getTableReader(exampleType, options), this);
+        return new LambdaDeleteWrapper<>(getTableMapping(exampleType, options), this);
     }
 
     @Override
     public <T> LambdaOperations.LambdaUpdate<T> lambdaUpdate(Class<T> exampleType, MappingOptions options) {
-        return new LambdaUpdateWrapper<>(getTableReader(exampleType, options), this);
+        return new LambdaUpdateWrapper<>(getTableMapping(exampleType, options), this);
     }
 
     @Override
     public <T> LambdaOperations.LambdaInsert<T> lambdaInsert(Class<T> exampleType, MappingOptions options) {
-        return new LambdaInsertWrapper<>(getTableReader(exampleType, options), this);
+        return new LambdaInsertWrapper<>(getTableMapping(exampleType, options), this);
     }
 }

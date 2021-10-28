@@ -20,7 +20,6 @@ import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.dialect.SqlDialectRegister;
 import net.hasor.db.jdbc.ConnectionCallback;
 import net.hasor.db.lambda.segment.Segment;
-import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.TableMapping;
 
 import java.sql.DatabaseMetaData;
@@ -32,14 +31,14 @@ import java.util.Objects;
  * @author 赵永春 (zyc@hasor.net)
  */
 public abstract class AbstractExecute<T> {
-    protected final String         dbType;
-    private         SqlDialect     dialect;
-    private final   TableReader<T> tableReader;
-    private final   LambdaTemplate jdbcTemplate;
-    private         boolean        qualifier;
+    protected final String          dbType;
+    private         SqlDialect      dialect;
+    private final   TableMapping<T> tableMapping;
+    private final   LambdaTemplate  jdbcTemplate;
+    private         boolean         qualifier;
 
-    public AbstractExecute(TableReader<T> tableReader, LambdaTemplate jdbcTemplate) {
-        this.tableReader = Objects.requireNonNull(tableReader, "tableReader is null.");
+    public AbstractExecute(TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate) {
+        this.tableMapping = Objects.requireNonNull(tableMapping, "tableMapping is null.");
         this.jdbcTemplate = jdbcTemplate;
 
         String tmpDbType = "";
@@ -57,15 +56,15 @@ public abstract class AbstractExecute<T> {
         this.dialect = (tempDialect == null) ? DefaultSqlDialect.DEFAULT : tempDialect;
     }
 
-    AbstractExecute(TableReader<T> tableReader, LambdaTemplate jdbcTemplate, String dbType, SqlDialect dialect) {
-        this.tableReader = Objects.requireNonNull(tableReader, "tableReader is null.");
+    AbstractExecute(TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate, String dbType, SqlDialect dialect) {
+        this.tableMapping = Objects.requireNonNull(tableMapping, "tableMapping is null.");
         this.jdbcTemplate = jdbcTemplate;
         this.dbType = dbType;
         this.dialect = (dialect == null) ? DefaultSqlDialect.DEFAULT : dialect;
     }
 
     public final Class<T> exampleType() {
-        return this.tableReader.getTableMapping().entityType();
+        return this.tableMapping.entityType();
     }
 
     public final LambdaTemplate getJdbcTemplate() {
@@ -73,11 +72,7 @@ public abstract class AbstractExecute<T> {
     }
 
     protected final TableMapping<T> getTableMapping() {
-        return this.tableReader.getTableMapping();
-    }
-
-    protected final TableReader<T> getTableReader() {
-        return this.tableReader;
+        return this.tableMapping;
     }
 
     protected final SqlDialect dialect() {

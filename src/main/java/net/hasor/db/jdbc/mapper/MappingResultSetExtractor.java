@@ -55,11 +55,17 @@ public class MappingResultSetExtractor<T> implements ResultSetExtractor<List<T>>
         int nrOfColumns = rsmd.getColumnCount();
         List<String> columnList = new ArrayList<>();
         for (int i = 1; i <= nrOfColumns; i++) {
-            String colName = rsmd.getColumnName(i);
-            columnList.add(colName);
+            columnList.add(lookupColumnName(rsmd, i));
         }
 
         return this.tableReader.extractData(columnList, rs);
     }
 
+    private static String lookupColumnName(final ResultSetMetaData resultSetMetaData, final int columnIndex) throws SQLException {
+        String name = resultSetMetaData.getColumnLabel(columnIndex);
+        if (name == null || name.length() < 1) {
+            name = resultSetMetaData.getColumnName(columnIndex);
+        }
+        return name;
+    }
 }

@@ -20,6 +20,7 @@ import net.hasor.db.jdbc.RowCallbackHandler;
 import net.hasor.db.jdbc.RowMapper;
 import net.hasor.db.lambda.QueryExecute;
 import net.hasor.db.mapping.TableReader;
+import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.db.mapping.resolve.MappingOptions;
 
 import java.sql.ResultSetMetaData;
@@ -36,12 +37,12 @@ import java.util.Map;
 public abstract class AbstractQueryExecute<T> extends AbstractExecute<T> implements QueryExecute<T> {
     private final Page pageInfo = new PageObject(0, this::queryForCount);
 
-    public AbstractQueryExecute(TableReader<T> tableReader, LambdaTemplate jdbcTemplate) {
-        super(tableReader, jdbcTemplate);
+    public AbstractQueryExecute(TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate) {
+        super(tableMapping, jdbcTemplate);
     }
 
-    AbstractQueryExecute(TableReader<T> tableReader, LambdaTemplate jdbcTemplate, String dbType, SqlDialect dialect) {
-        super(tableReader, jdbcTemplate, dbType, dialect);
+    AbstractQueryExecute(TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate, String dbType, SqlDialect dialect) {
+        super(tableMapping, jdbcTemplate, dbType, dialect);
     }
 
     /**
@@ -80,10 +81,9 @@ public abstract class AbstractQueryExecute<T> extends AbstractExecute<T> impleme
 
     @Override
     public <V> QueryExecute<V> wrapperType(Class<V> wrapperType, MappingOptions options) {
-        TableReader<V> tableReader = this.getJdbcTemplate().getTableReader(wrapperType, options);
-
+        TableMapping<V> tableMapping = this.getJdbcTemplate().getTableMapping(wrapperType, options);
         AbstractQueryExecute<T> self = this;
-        return new AbstractQueryExecute<V>(tableReader, this.getJdbcTemplate(), this.dbType, this.dialect()) {
+        return new AbstractQueryExecute<V>(tableMapping, this.getJdbcTemplate(), this.dbType, this.dialect()) {
             @Override
             protected boolean supportPage() {
                 return AbstractQueryExecute.this.supportPage();
@@ -118,7 +118,10 @@ public abstract class AbstractQueryExecute<T> extends AbstractExecute<T> impleme
         int nrOfColumns = rsmd.getColumnCount();
         List<String> columnList = new ArrayList<>();
         for (int i = 1; i <= nrOfColumns; i++) {
-            String colName = rsmd.getColumnName(i);
+            String colName = rsmd.getColumnLabel(i);
+            if (colName == null || colName.length() < 1) {
+                colName = rsmd.getColumnName(i);
+            }
             columnList.add(colName);
         }
         return columnList;
@@ -127,7 +130,7 @@ public abstract class AbstractQueryExecute<T> extends AbstractExecute<T> impleme
     @Override
     public List<T> queryForList() throws SQLException {
         BoundSql boundSql = getBoundSql();
-        TableReader<T> tableReader = getTableReader();
+        TableReader<T> tableReader = getTableMapping().toReader();
         return this.getJdbcTemplate().query(boundSql.getSqlString(), boundSql.getArgs(), rs -> {
             List<String> columns = fetchColumns(rs.getMetaData());
             return tableReader.extractData(columns, rs);
@@ -137,7 +140,7 @@ public abstract class AbstractQueryExecute<T> extends AbstractExecute<T> impleme
     @Override
     public T queryForObject() throws SQLException {
         BoundSql boundSql = getBoundSql();
-        TableReader<T> tableReader = getTableReader();
+        TableReader<T> tableReader = getTableMapping().toReader();
         return this.getJdbcTemplate().queryForObject(boundSql.getSqlString(), boundSql.getArgs(), (rs, rowNum) -> {
             List<String> columns = fetchColumns(rs.getMetaData());
             return tableReader.extractRow(columns, rs, rowNum);

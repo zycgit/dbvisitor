@@ -27,7 +27,6 @@ import net.hasor.db.dal.repository.parser.ClassDynamicResolve;
 import net.hasor.db.dal.repository.parser.DynamicResolve;
 import net.hasor.db.dal.repository.parser.XmlDynamicResolve;
 import net.hasor.db.dal.repository.parser.XmlTableMappingResolve;
-import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.db.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.db.mapping.resolve.MappingOptions;
@@ -53,13 +52,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author 赵永春 (zyc@byshell.org)
  */
 public class DalRegistry {
-    public static final DalRegistry                              DEFAULT    = new DalRegistry(null, null, null, MappingOptions.buildNew());
-    private final       Map<String, Map<String, DynamicSql>>     dynamicMap = new ConcurrentHashMap<>();
-    private final       Map<String, Map<String, TableReader<?>>> readerMap  = new ConcurrentHashMap<>();
-    private final       ClassLoader                              classLoader;
-    private final       TypeHandlerRegistry                      typeRegistry;
-    private final       RuleRegistry                             ruleRegistry;
-    private final       MappingOptions                           mappingOptions;
+    public static final DalRegistry                               DEFAULT    = new DalRegistry(null, null, null, MappingOptions.buildNew());
+    private final       Map<String, Map<String, DynamicSql>>      dynamicMap = new ConcurrentHashMap<>();
+    private final       Map<String, Map<String, TableMapping<?>>> mappingMap = new ConcurrentHashMap<>();
+    private final       ClassLoader                               classLoader;
+    private final       TypeHandlerRegistry                       typeRegistry;
+    private final       RuleRegistry                              ruleRegistry;
+    private final       MappingOptions                            mappingOptions;
 
     public DalRegistry() {
         this(null, null, null, null);
@@ -106,17 +105,17 @@ public class DalRegistry {
     }
 
     /** 从类型中解析 TableMapping */
-    public <T> TableReader<T> findTableReader(String space, Class<?> entityType) {
-        return findTableReader(space, entityType.getName());
+    public <T> TableMapping<T> findTableMapping(String space, Class<?> entityType) {
+        return findTableMapping(space, entityType.getName());
     }
 
     /** 从类型中解析 TableMapping */
-    public <T> TableReader<T> findTableReader(String space, String mapName) {
-        Map<String, TableReader<?>> resultMap = this.readerMap.get(space);
+    public <T> TableMapping<T> findTableMapping(String space, String mapName) {
+        Map<String, TableMapping<?>> resultMap = this.mappingMap.get(space);
         if (resultMap == null) {
             return null;
         } else {
-            return (TableReader<T>) resultMap.get(mapName);
+            return (TableMapping<T>) resultMap.get(mapName);
         }
     }
 
@@ -202,16 +201,16 @@ public class DalRegistry {
 
     // --------------------------------------------------------------------------------------------
 
-    protected void saveReader(String space, String identify, TableMapping<?> tableMapping) throws IOException {
-        if (!this.readerMap.containsKey(space)) {
-            this.readerMap.put(space, new ConcurrentHashMap<>());
+    protected void saveMapping(String space, String identify, TableMapping<?> tableMapping) throws IOException {
+        if (!this.mappingMap.containsKey(space)) {
+            this.mappingMap.put(space, new ConcurrentHashMap<>());
         }
 
-        Map<String, TableReader<?>> readerMap = this.readerMap.get(space);
-        if (readerMap.containsKey(identify)) {
+        Map<String, TableMapping<?>> mappingMap = this.mappingMap.get(space);
+        if (mappingMap.containsKey(identify)) {
             throw new IOException("repeat '" + identify + "' in " + (StringUtils.isBlank(space) ? "default namespace" : ("'" + space + "' namespace.")));
         } else {
-            readerMap.put(identify, tableMapping.toReader());
+            mappingMap.put(identify, tableMapping);
         }
     }
 
@@ -257,7 +256,7 @@ public class DalRegistry {
             }
 
             TableMapping<?> tableMapping = resolve.resolveTableMapping(node, getClassLoader(), getTypeRegistry(), options);
-            saveReader(scope, idString, tableMapping);
+            saveMapping(scope, idString, tableMapping);
         }
     }
 
@@ -285,21 +284,21 @@ public class DalRegistry {
                 String resultType = ((QuerySqlConfig) dynamicSql).getResultType();
 
                 if (StringUtils.isNotBlank(resultMap)) {
-                    TableReader<?> tableReader = null;
+                    TableMapping<?> tableMapping = null;
 
-                    Map<String, TableReader<?>> readerMap = this.readerMap.get(scope);
+                    Map<String, TableMapping<?>> readerMap = this.mappingMap.get(scope);
                     if (readerMap != null) {
-                        tableReader = readerMap.get(resultMap);
+                        tableMapping = readerMap.get(resultMap);
                     }
 
-                    Objects.requireNonNull(tableReader, "loadMapper failed, '" + idString + "', resultMap '" + resultMap + "' is missing ,resource '" + scope + "'");
+                    Objects.requireNonNull(tableMapping, "loadMapper failed, '" + idString + "', resultMap '" + resultMap + "' is missing ,resource '" + scope + "'");
                 }
 
                 if (StringUtils.isNotBlank(resultType)) {
 
                     Class<?> mapType = ClassUtils.getClass(getClassLoader(), resultType);
                     TableMapping<?> tableMapping = mapResolve.resolveTableMapping(mapType, getClassLoader(), getTypeRegistry(), options);
-                    saveReader(scope, idString, tableMapping);
+                    saveMapping(scope, idString, tableMapping);
                 }
             }
 

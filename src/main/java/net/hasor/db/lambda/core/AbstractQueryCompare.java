@@ -24,7 +24,6 @@ import net.hasor.db.dialect.ConditionSqlDialect.SqlLike;
 import net.hasor.db.lambda.QueryCompare;
 import net.hasor.db.lambda.segment.MergeSqlSegment;
 import net.hasor.db.lambda.segment.Segment;
-import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.ColumnMapping;
 import net.hasor.db.mapping.def.TableMapping;
 
@@ -44,8 +43,8 @@ public abstract class AbstractQueryCompare<T, R> extends AbstractQueryExecute<T>
     private   Segment         nextSegmentPrefix = null;
     private   boolean         lookCondition     = false;
 
-    public AbstractQueryCompare(TableReader<T> tableReader, LambdaTemplate jdbcTemplate) {
-        super(tableReader, jdbcTemplate);
+    public AbstractQueryCompare(TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate) {
+        super(tableMapping, jdbcTemplate);
     }
 
     @Override

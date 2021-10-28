@@ -39,7 +39,7 @@ public class MapperMappingTest extends AbstractDbTest {
 
     @Test
     public void mapperTest_01() {
-        TableMapping<?> tableMapping = this.dalRegistry.findTableReader("resultMap_test", "resultMap_1").getTableMapping();
+        TableMapping<?> tableMapping = this.dalRegistry.findTableMapping("resultMap_test", "resultMap_1");
 
         assert tableMapping.getPropertyByName("uid").getColumn().equals("userUUID");
         assert tableMapping.getPropertyByName("name").getColumn().equals("name");
@@ -57,7 +57,7 @@ public class MapperMappingTest extends AbstractDbTest {
 
     @Test
     public void mapperTest_02() {
-        TableMapping<?> tableMapping = this.dalRegistry.findTableReader("resultMap_test", "resultMap_2").getTableMapping();
+        TableMapping<?> tableMapping = this.dalRegistry.findTableMapping("resultMap_test", "resultMap_2");
 
         assert tableMapping.getPropertyByName("uid").getColumn().equals("uid");
         assert tableMapping.getPropertyByName("name").getColumn().equals("name");
@@ -75,7 +75,7 @@ public class MapperMappingTest extends AbstractDbTest {
 
     @Test
     public void mapperTest_03() {
-        TableMapping<?> tableMapping = this.dalRegistry.findTableReader("resultMap_test", "resultMap_3").getTableMapping();
+        TableMapping<?> tableMapping = this.dalRegistry.findTableMapping("resultMap_test", "resultMap_3");
 
         assert tableMapping.getPropertyByName("uid").getColumn().equals("user_uuid");
         assert tableMapping.getPropertyByName("name").getColumn().equals("name");
@@ -93,7 +93,7 @@ public class MapperMappingTest extends AbstractDbTest {
 
     @Test
     public void mapperTest_04() {
-        TableMapping<?> tableMapping = this.dalRegistry.findTableReader("resultMap_test", "resultMap_4").getTableMapping();
+        TableMapping<?> tableMapping = this.dalRegistry.findTableMapping("resultMap_test", "resultMap_4");
 
         assert tableMapping.getPropertyByName("uid").getColumn().equals("uid");
         assert tableMapping.getPropertyByName("name").getColumn().equals("name");

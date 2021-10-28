@@ -38,7 +38,6 @@ public class DefaultTableReader<T> implements TableReader<T> {
         this.tableMapping = tableMapping;
     }
 
-    @Override
     public TableMapping<T> getTableMapping() {
         return this.tableMapping;
     }

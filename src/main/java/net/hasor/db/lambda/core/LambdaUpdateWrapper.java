@@ -20,7 +20,6 @@ import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.lambda.LambdaOperations.LambdaUpdate;
 import net.hasor.db.lambda.UpdateExecute;
 import net.hasor.db.lambda.segment.MergeSqlSegment;
-import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.ColumnMapping;
 import net.hasor.db.mapping.def.TableMapping;
 
@@ -42,11 +41,10 @@ public class LambdaUpdateWrapper<T> extends AbstractQueryCompare<T, LambdaUpdate
     protected final Map<String, Object>        updateValueMap;
     private         boolean                    allowEmptyWhere = false;
 
-    public LambdaUpdateWrapper(TableReader<T> tableReader, LambdaTemplate jdbcTemplate) {
-        super(tableReader, jdbcTemplate);
+    public LambdaUpdateWrapper(TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate) {
+        super(tableMapping, jdbcTemplate);
 
         this.allowUpdateProperties = new LinkedHashMap<>();
-        TableMapping<T> tableMapping = super.getTableMapping();
         for (ColumnMapping mapping : tableMapping.getProperties()) {
             if (mapping.isUpdate()) {
                 this.allowUpdateProperties.put(mapping.getProperty(), mapping);

@@ -24,7 +24,6 @@ import net.hasor.db.lambda.QueryExecute;
 import net.hasor.db.lambda.segment.MergeSqlSegment;
 import net.hasor.db.lambda.segment.OrderByKeyword;
 import net.hasor.db.lambda.segment.Segment;
-import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.ColumnMapping;
 import net.hasor.db.mapping.def.TableMapping;
 
@@ -46,8 +45,8 @@ public class LambdaQueryWrapper<T> extends AbstractQueryCompare<T, LambdaQuery<T
     private       boolean       lockGroupBy     = false;
     private       boolean       lockOrderBy     = false;
 
-    public LambdaQueryWrapper(TableReader<T> tableReader, LambdaTemplate jdbcTemplate) {
-        super(tableReader, jdbcTemplate);
+    public LambdaQueryWrapper(TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate) {
+        super(tableMapping, jdbcTemplate);
     }
 
     @Override

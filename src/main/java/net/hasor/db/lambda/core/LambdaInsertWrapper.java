@@ -21,7 +21,6 @@ import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.lambda.DuplicateKeyStrategy;
 import net.hasor.db.lambda.InsertExecute;
 import net.hasor.db.lambda.LambdaOperations.LambdaInsert;
-import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.ColumnMapping;
 import net.hasor.db.mapping.def.TableMapping;
 
@@ -40,8 +39,8 @@ public class LambdaInsertWrapper<T> extends AbstractExecute<T> implements Lambda
     private final List<Object[]>       insertValues;
     private       DuplicateKeyStrategy insertStrategy;
 
-    public LambdaInsertWrapper(TableReader<T> tableReader, LambdaTemplate jdbcTemplate) {
-        super(tableReader, jdbcTemplate);
+    public LambdaInsertWrapper(TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate) {
+        super(tableMapping, jdbcTemplate);
         this.insertProperties = getInsertProperties();
         this.primaryKeyProperties = getPrimaryKeyColumns();
         this.insertValues = new ArrayList<>();

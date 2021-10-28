@@ -18,7 +18,7 @@ import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.lambda.DeleteExecute;
 import net.hasor.db.lambda.LambdaOperations.LambdaDelete;
 import net.hasor.db.lambda.segment.MergeSqlSegment;
-import net.hasor.db.mapping.TableReader;
+import net.hasor.db.mapping.def.TableMapping;
 
 import java.sql.SQLException;
 
@@ -32,8 +32,8 @@ import static net.hasor.db.lambda.segment.SqlKeyword.*;
 public class LambdaDeleteWrapper<T> extends AbstractQueryCompare<T, LambdaDelete<T>> implements LambdaDelete<T> {
     private boolean allowEmptyWhere = false;
 
-    public LambdaDeleteWrapper(TableReader<T> tableReader, LambdaTemplate jdbcTemplate) {
-        super(tableReader, jdbcTemplate);
+    public LambdaDeleteWrapper(TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate) {
+        super(tableMapping, jdbcTemplate);
     }
 
     @Override

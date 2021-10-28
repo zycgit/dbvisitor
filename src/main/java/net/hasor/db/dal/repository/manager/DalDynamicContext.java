@@ -18,7 +18,7 @@ import net.hasor.cobble.ref.BeanMap;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.rule.RuleRegistry;
-import net.hasor.db.mapping.TableReader;
+import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.db.types.TypeHandlerRegistry;
 
 import java.util.Map;
@@ -48,11 +48,16 @@ public class DalDynamicContext extends DynamicContext {
         return this.dalRegistry.findDynamicSql(this.space, dynamicId);
     }
 
-    public TableReader<?> findTableReader(String resultMap) {
-        return this.dalRegistry.findTableReader(this.space, resultMap);
+    public TableMapping<?> findTableMapping(String resultMap) {
+        TableMapping<?> tableMapping = this.dalRegistry.findTableMapping(this.space, resultMap);
+        if (tableMapping != null) {
+            return tableMapping;
+        } else {
+            return null;
+        }
     }
 
-    protected TypeHandlerRegistry getTypeRegistry() {
+    public TypeHandlerRegistry getTypeRegistry() {
         return this.dalRegistry.getTypeRegistry();
     }
 

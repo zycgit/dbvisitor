@@ -54,8 +54,8 @@ public class XmlMappingTest extends AbstractDbTest {
         DalRegistry dalRegistry = new DalRegistry();
         dalRegistry.loadResource("/net_hasor_db/dal_repository/mapper_1.xml");
 
-        TableMapping<?> tableMapping1 = dalRegistry.findTableReader("resultMap_test", "resultMap_1").getTableMapping();
-        TableMapping<?> tableMapping2 = dalRegistry.findTableReader("resultMap_test", "resultMap_1").getTableMapping();
+        TableMapping<?> tableMapping1 = dalRegistry.findTableMapping("resultMap_test", "resultMap_1");
+        TableMapping<?> tableMapping2 = dalRegistry.findTableMapping("resultMap_test", "resultMap_1");
         assert tableMapping1 == tableMapping2;
     }
 
@@ -69,7 +69,7 @@ public class XmlMappingTest extends AbstractDbTest {
 
     @Test
     public void mapperTest_03() {
-        TableMapping<?> tableMapping = this.dalRegistry.findTableReader("", "mapper_2").getTableMapping();
+        TableMapping<?> tableMapping = this.dalRegistry.findTableMapping("", "mapper_2");
 
         assert tableMapping.getPropertyByName("uid").getColumn().equals("userUUID");
         assert tableMapping.getPropertyByName("name").getColumn().equals("name");
@@ -87,7 +87,7 @@ public class XmlMappingTest extends AbstractDbTest {
 
     @Test
     public void mapperTest_04() {
-        TableMapping<?> tableMapping = this.dalRegistry.findTableReader("", "mapper_3").getTableMapping();
+        TableMapping<?> tableMapping = this.dalRegistry.findTableMapping("", "mapper_3");
 
         assert tableMapping.getPropertyByName("uid").getColumn().equals("uid");
         assert tableMapping.getPropertyByName("name").getColumn().equals("name");
@@ -105,7 +105,7 @@ public class XmlMappingTest extends AbstractDbTest {
 
     @Test
     public void mapperTest_05() {
-        TableMapping<?> tableMapping = this.dalRegistry.findTableReader("", "mapper_4").getTableMapping();
+        TableMapping<?> tableMapping = this.dalRegistry.findTableMapping("", "mapper_4");
 
         assert tableMapping.getPropertyByName("uid").getColumn().equals("user_uuid");
         assert tableMapping.getPropertyByName("name").getColumn().equals("name");
@@ -123,7 +123,7 @@ public class XmlMappingTest extends AbstractDbTest {
 
     @Test
     public void mapperTest_06() {
-        TableMapping<?> tableMapping = this.dalRegistry.findTableReader("", "mapper_5").getTableMapping();
+        TableMapping<?> tableMapping = this.dalRegistry.findTableMapping("", "mapper_5");
 
         assert tableMapping.getPropertyByName("uid").getColumn().equals("uid");
         assert tableMapping.getPropertyByName("name").getColumn().equals("name");
