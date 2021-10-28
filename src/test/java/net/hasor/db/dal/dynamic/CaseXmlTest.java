@@ -42,7 +42,7 @@ public class CaseXmlTest {
         data1.put("label", new ArrayList<>(Arrays.asList(LicenseOfCodeEnum.Private, LicenseOfCodeEnum.GPLv3)));
         data1.put("state", new ArrayList<>(Collections.singletonList(CharacterSensitiveEnum.A)));
         data1.put("consoleJobId", "123");
-        QuerySqlBuilder builder1 = parseXml.buildQuery(new TextBuilderContext(data1));
+        QuerySqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
         assert builder1.getSqlString().trim().equals(querySql1.trim());
         assert builder1.getArgs()[0].equals("33322");
         assert builder1.getArgs()[1].equals(LicenseOfCodeEnum.Private);

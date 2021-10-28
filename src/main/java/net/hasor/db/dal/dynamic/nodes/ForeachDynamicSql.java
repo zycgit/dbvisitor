@@ -51,9 +51,9 @@ public class ForeachDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+    public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
         // 获取集合数据对象，数组形态
-        Object collectionData = OgnlUtils.evalOgnl(this.collection, context.getContext());
+        Object collectionData = OgnlUtils.evalOgnl(this.collection, data);
         if (collectionData == null) {
             return;
         }
@@ -65,20 +65,19 @@ public class ForeachDynamicSql extends ArrayDynamicSql {
         }
         //
         querySqlBuilder.appendSql(StringUtils.defaultString(this.open));
-        Map<String, Object> objectMap = context.getContext();
-        Object oriValue = objectMap.get(this.item);
+        Object oriValue = data.get(this.item);
         try {
             int length = Array.getLength(collectionData);
             for (int i = 0; i < length; i++) {
                 if (i > 0) {
                     querySqlBuilder.appendSql(StringUtils.defaultString(this.separator)); // 分隔符
                 }
-                objectMap.put(this.item, Array.get(collectionData, i));
-                super.buildQuery(context, querySqlBuilder);
+                data.put(this.item, Array.get(collectionData, i));
+                super.buildQuery(data, context, querySqlBuilder);
             }
             querySqlBuilder.appendSql(StringUtils.defaultString(this.close));
         } finally {
-            objectMap.put(this.item, oriValue);
+            data.put(this.item, oriValue);
         }
     }
 }

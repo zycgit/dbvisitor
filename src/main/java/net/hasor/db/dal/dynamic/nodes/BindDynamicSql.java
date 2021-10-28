@@ -47,18 +47,17 @@ public class BindDynamicSql implements DynamicSql {
     }
 
     @Override
-    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) {
+    public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) {
         if (StringUtils.isNotBlank(this.name)) {
-            Map<String, Object> contextMap = context.getContext();
-            if (contextMap.containsKey(this.name)) {
+            if (data.containsKey(this.name)) {
                 if (!this.overwrite) {
                     throw new IllegalArgumentException("duplicate key '" + this.name + "'");
                 } else {
                     logger.warn("tag bind overwrite param key " + this.name);
                 }
             }
-            Object testExprResult = OgnlUtils.evalOgnl(this.valueExpr, contextMap);
-            contextMap.put(this.name, testExprResult);
+            Object testExprResult = OgnlUtils.evalOgnl(this.valueExpr, data);
+            data.put(this.name, testExprResult);
         }
     }
 }

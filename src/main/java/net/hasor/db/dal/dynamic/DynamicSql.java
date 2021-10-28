@@ -15,6 +15,7 @@
  */
 package net.hasor.db.dal.dynamic;
 import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * 本处理器，兼容 @{...}、#{...}、${...} 三种写法。
@@ -25,11 +26,11 @@ public interface DynamicSql {
     /** 是否包含替换占位符，如果包含替换占位符那么不能使用批量模式 */
     public boolean isHavePlaceholder();
 
-    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException;
+    public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException;
 
-    public default QuerySqlBuilder buildQuery(DynamicContext context) throws SQLException {
+    public default QuerySqlBuilder buildQuery(Map<String, Object> data, DynamicContext context) throws SQLException {
         QuerySqlBuilder fxBuilder = new QuerySqlBuilder();
-        this.buildQuery(context, fxBuilder);
+        this.buildQuery(data, context, fxBuilder);
         return fxBuilder;
     }
 }

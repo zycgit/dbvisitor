@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.execute;
-import net.hasor.db.dal.repository.config.MultipleResultsType;
-import net.hasor.db.dal.repository.config.ResultSetType;
-import net.hasor.db.page.Page;
+
+import net.hasor.db.dal.repository.MultipleResultsType;
+import net.hasor.db.dal.repository.ResultSetType;
+import net.hasor.db.dialect.Page;
 
 /**
  * 执行器需要的信息
@@ -27,8 +28,9 @@ class ExecuteInfo {
     public String              parameterType      = null;
     public int                 timeout            = -1;
     public int                 fetchSize          = 256;
-    public ResultSetType       resultSetType      = ResultSetType.DEFAULT;
+    public ResultSetType       resultSetType      = ResultSetType.FORWARD_ONLY;
     public String              resultMap;
+    public boolean             caseInsensitive    = true;
     public MultipleResultsType multipleResultType = MultipleResultsType.LAST;
     public Page                pageInfo;
 }

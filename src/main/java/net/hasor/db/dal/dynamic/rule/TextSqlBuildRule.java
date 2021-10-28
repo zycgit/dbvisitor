@@ -28,7 +28,7 @@ public class TextSqlBuildRule implements SqlBuildRule {
     public static final SqlBuildRule INSTANCE = new TextSqlBuildRule();
 
     @Override
-    public void executeRule(DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) {
+    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) {
         querySqlBuilder.appendSql(ruleValue);
     }
 

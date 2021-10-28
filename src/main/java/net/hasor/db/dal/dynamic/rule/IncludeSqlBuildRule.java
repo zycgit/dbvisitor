@@ -30,12 +30,12 @@ public class IncludeSqlBuildRule implements SqlBuildRule {
     public static final SqlBuildRule INSTANCE = new IncludeSqlBuildRule();
 
     @Override
-    public void executeRule(DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) throws SQLException {
+    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) throws SQLException {
         DynamicSql includeSql = context.findDynamic(ruleValue);
         if (includeSql == null) {
             throw new SQLException("include sql '" + ruleValue + "' not found.");
         }
-        QuerySqlBuilder sqlBuilder = includeSql.buildQuery(context);
+        QuerySqlBuilder sqlBuilder = includeSql.buildQuery(data, context);
         if (!querySqlBuilder.lastSpaceCharacter()) {
             querySqlBuilder.appendSql(" ");
         }

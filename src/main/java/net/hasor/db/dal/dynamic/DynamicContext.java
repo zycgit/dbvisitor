@@ -15,15 +15,11 @@
  */
 package net.hasor.db.dal.dynamic;
 import net.hasor.cobble.ClassUtils;
-import net.hasor.cobble.ref.BeanMap;
 import net.hasor.db.dal.dynamic.rule.RuleRegistry;
 import net.hasor.db.dal.dynamic.rule.SqlBuildRule;
 import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 解析动态 SQL 配置
@@ -31,26 +27,12 @@ import java.util.Map;
  * @author 赵永春 (zyc@byshell.org)
  */
 public class DynamicContext {
-    protected final Map<String, Object> context;
-
-    public DynamicContext() {
-        this.context = new HashMap<>();
-    }
-
-    public DynamicContext(Map<String, Object> context) {
-        this.context = context == null ? new HashMap<>() : context;
-    }
-
     public DynamicSql findDynamic(String dynamicId) {
         return null;
     }
 
     public TableMapping<?> findTableMapping(String resultMap) {
         return null;
-    }
-
-    public Map<String, Object> getContext() {
-        return this.context;
     }
 
     public TypeHandler<?> findTypeHandler(Integer jdbcType) {
@@ -96,15 +78,4 @@ public class DynamicContext {
     protected ClassLoader getClassLoader() {
         return Thread.currentThread().getContextClassLoader();
     }
-
-    public static DynamicContext createContext(Object context) {
-        if (context == null) {
-            return new DynamicContext(new HashMap<>());
-        } else if (context instanceof Map) {
-            return new DynamicContext((Map) context);
-        } else {
-            return new DynamicContext(new BeanMap(context));
-        }
-    }
-
 }

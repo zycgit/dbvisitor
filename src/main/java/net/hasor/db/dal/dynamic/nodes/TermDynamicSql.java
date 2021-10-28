@@ -21,6 +21,7 @@ import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * 对应XML中 <trim>
@@ -67,9 +68,9 @@ public class TermDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+    public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
         QuerySqlBuilder tempQuerySqlBuilder = new QuerySqlBuilder();
-        super.buildQuery(context, tempQuerySqlBuilder);
+        super.buildQuery(data, context, tempQuerySqlBuilder);
         //
         String childrenSql = tempQuerySqlBuilder.getSqlString().trim();
         if (StringUtils.isNotBlank(childrenSql)) {

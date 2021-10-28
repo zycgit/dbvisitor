@@ -32,14 +32,14 @@ public class NotnullSqlBuildRule implements SqlBuildRule {
     public static final SqlBuildRule INSTANCE = new NotnullSqlBuildRule();
 
     @Override
-    public boolean test(DynamicContext context, String activateExpr) {
-        Object evalObject = evalOgnl(activateExpr, context.getContext());
+    public boolean test(Map<String, Object> data, DynamicContext context, String activateExpr) {
+        Object evalObject = evalOgnl(activateExpr, data);
         return evalObject != null;
     }
 
     @Override
-    public void executeRule(DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) throws SQLException {
-        Object evalOgnl = OgnlUtils.evalOgnl(ruleValue, context.getContext());
+    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) throws SQLException {
+        Object evalOgnl = OgnlUtils.evalOgnl(ruleValue, data);
         querySqlBuilder.appendSql(evalOgnl.toString());
     }
 }

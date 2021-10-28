@@ -34,7 +34,7 @@ public class Mapper1DalTest {
         String querySql1 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper1Dal_testBind.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("sellerId", "123");
-        QuerySqlBuilder builder1 = parseXml.buildQuery(new TextBuilderContext(data1));
+        QuerySqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
         assert builder1.getSqlString().trim().equals(querySql1.trim());
         assert builder1.getArgs()[0].equals("123abc");
     }
@@ -47,7 +47,7 @@ public class Mapper1DalTest {
         data1.put("sellerId", "123");
         data1.put("abc", "aaa");
         try {
-            parseXml.buildQuery(new TextBuilderContext(data1));
+            parseXml.buildQuery(data1, new TextBuilderContext());
             assert false;
         } catch (Exception e) {
             assert e.getMessage().contains("duplicate key 'abc'");
@@ -62,7 +62,7 @@ public class Mapper1DalTest {
         Map<String, Object> data1 = new HashMap<>();
         data1.put("title", "123");
         data1.put("content", "aaa");
-        QuerySqlBuilder builder1 = parseXml.buildQuery(new TextBuilderContext(data1));
+        QuerySqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
         assert builder1.getSqlString().trim().equals(querySql1.trim());
         assert builder1.getArgs()[0].equals("123");
         assert builder1.getArgs()[1].equals("aaa");
@@ -74,7 +74,7 @@ public class Mapper1DalTest {
 
         String querySql1 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper1Dal_testChoose.sql_2");
         Map<String, Object> data1 = new HashMap<>();
-        QuerySqlBuilder builder1 = parseXml.buildQuery(new TextBuilderContext(data1));
+        QuerySqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
         assert builder1.getSqlString().trim().equals(querySql1.trim());
     }
 
@@ -85,7 +85,7 @@ public class Mapper1DalTest {
         String querySql1 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper1Dal_testForeach.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("eventTypes", Arrays.asList("a", "b", "c", "d", "e"));
-        QuerySqlBuilder builder1 = parseXml.buildQuery(new TextBuilderContext(data1));
+        QuerySqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
         assert builder1.getSqlString().trim().equals(querySql1.trim());
         assert builder1.getArgs()[0].equals("a");
         assert builder1.getArgs()[1].equals("b");
@@ -102,7 +102,7 @@ public class Mapper1DalTest {
         Map<String, Object> data1 = new HashMap<>();
         data1.put("ownerID", "123");
         data1.put("ownerType", "SYSTEM");
-        QuerySqlBuilder builder1 = parseXml.buildQuery(new TextBuilderContext(data1));
+        QuerySqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
         assert builder1.getSqlString().trim().equals(querySql1.trim());
         assert builder1.getArgs()[0].equals("123");
         assert builder1.getArgs()[1].equals("SYSTEM");
@@ -111,7 +111,7 @@ public class Mapper1DalTest {
         Map<String, Object> data2 = new HashMap<>();
         data1.put("ownerID", "123");
         data1.put("ownerType", null);
-        QuerySqlBuilder builder2 = parseXml.buildQuery(new TextBuilderContext(data2));
+        QuerySqlBuilder builder2 = parseXml.buildQuery(data2, new TextBuilderContext());
         assert builder2.getSqlString().trim().equals(querySql2.trim());
         assert builder2.getArgs().length == 0;
     }

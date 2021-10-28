@@ -28,9 +28,9 @@ import static net.hasor.db.dal.dynamic.ognl.OgnlUtils.evalOgnl;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface SqlBuildRule {
-    public default boolean test(DynamicContext context, String activateExpr) {
-        return Boolean.TRUE.equals(evalOgnl(activateExpr, context.getContext()));
+    public default boolean test(Map<String, Object> data, DynamicContext context, String activateExpr) {
+        return Boolean.TRUE.equals(evalOgnl(activateExpr, data));
     }
 
-    public void executeRule(DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) throws SQLException;
+    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) throws SQLException;
 }

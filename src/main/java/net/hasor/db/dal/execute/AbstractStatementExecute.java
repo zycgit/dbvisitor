@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.execute;
-import net.hasor.db.dal.dynamic.BuilderContext;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
-import net.hasor.db.jdbc.ConnectionCallback;
-import net.hasor.db.jdbc.RowMapper;
-import net.hasor.db.jdbc.core.JdbcTemplate;
-import net.hasor.db.jdbc.extractor.MultipleProcessType;
-import net.hasor.db.jdbc.extractor.MultipleResultSetExtractor;
-import net.hasor.db.jdbc.mapper.ColumnMapRowMapper;
-import net.hasor.db.jdbc.mapper.MappingRowMapper;
-import net.hasor.db.mapping.reader.TableReader;
 import net.hasor.cobble.StringUtils;
+import net.hasor.db.dal.dynamic.QuerySqlBuilder;
+import net.hasor.db.dal.repository.MultipleResultsType;
+import net.hasor.db.dal.repository.manager.DalDynamicContext;
+import net.hasor.db.jdbc.extractor.MultipleProcessType;
+import net.hasor.db.mapping.TableReader;
+import net.hasor.db.mapping.def.TableMapping;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * 执行器基类
@@ -36,33 +34,19 @@ import java.sql.Statement;
  * @author 赵永春 (zyc@hasor.net)
  */
 public abstract class AbstractStatementExecute<T> {
-    private final BuilderContext builderContext;
-    private final ExecuteInfo    executeInfo;
-    private final JdbcTemplate   jdbcTemplate;
+    private final Supplier<Connection> connection;
 
-    public AbstractStatementExecute(BuilderContext builderContext, ExecuteInfo executeInfo, JdbcTemplate jdbcTemplate) {
-        this.builderContext = builderContext;
-        this.executeInfo = executeInfo;
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-    protected BuilderContext getBuilderContext() {
-        return this.builderContext;
-    }
-
-    protected ExecuteInfo getExecuteInfo() {
-        return this.executeInfo;
-    }
-
-    protected JdbcTemplate getJdbcTemplate() {
-        return this.jdbcTemplate;
+    public AbstractStatementExecute(Supplier<Connection> connection) {
+        this.connection = connection;
     }
 
     public final T execute(QuerySqlBuilder queryBuilder) throws SQLException {
-        return this.getJdbcTemplate().execute((ConnectionCallback<T>) con -> executeQuery(con, queryBuilder));
+        try (Connection conn = this.connection.get()) {
+            return executeQuery(conn, queryBuilder);
+        }
     }
 
-    protected boolean usingPage() {
+    protected boolean usingPage(ExecuteInfo executeInfo) {
         return executeInfo.pageInfo == null || executeInfo.pageInfo.getPageSize() <= 0;
     }
 
@@ -77,24 +61,44 @@ public abstract class AbstractStatementExecute<T> {
         }
     }
 
-    protected MultipleResultSetExtractor buildMultipleResultExtractor(ExecuteInfo executeInfo) {
-        RowMapper<?>[] rowMappers = null;
+    protected DalResultSetExtractor buildExtractor(ExecuteInfo executeInfo, DalDynamicContext context) {
+
+        TableReader<?>[] tableReaders = null;
         if (StringUtils.isBlank(executeInfo.resultMap)) {
-            rowMappers = new RowMapper[] { new ColumnMapRowMapper(getBuilderContext().getHandlerRegistry()) };
+            tableReaders = new TableReader[] { getDefaultTableReader(executeInfo, context) };
         } else {
             String[] resultMapSplit = executeInfo.resultMap.split(",");
-            rowMappers = new RowMapper[resultMapSplit.length];
+            tableReaders = new TableReader[resultMapSplit.length];
             for (int i = 0; i < resultMapSplit.length; i++) {
-                TableReader<?> tableReader = getBuilderContext().findTableReaderById(resultMapSplit[i]);
-                if (tableReader != null) {
-                    rowMappers[i] = new MappingRowMapper<>(tableReader);
+                TableMapping<?> tableMapping = context.findTableMapping(resultMapSplit[i]);
+                if (tableMapping != null) {
+                    tableReaders[i] = tableMapping.toReader();
                 } else {
-                    rowMappers[i] = new ColumnMapRowMapper(getBuilderContext().getHandlerRegistry());
+                    tableReaders[i] = getDefaultTableReader(executeInfo, context);
                 }
             }
         }
-        //
+
         MultipleProcessType multipleType = MultipleProcessType.valueOf(executeInfo.multipleResultType.getTypeName());
-        return new MultipleResultSetExtractor(multipleType, rowMappers);
+        return new DalResultSetExtractor(executeInfo.caseInsensitive, context, multipleType, tableReaders);
     }
+
+    private MapTableReader getDefaultTableReader(ExecuteInfo executeInfo, DalDynamicContext context) {
+        return new MapTableReader(executeInfo.caseInsensitive, context.getTypeRegistry());
+    }
+
+    protected Object getResult(List<Object> result, ExecuteInfo executeInfo) {
+        if (result == null || result.isEmpty()) {
+            return null;
+        }
+
+        if (executeInfo.multipleResultType == MultipleResultsType.FIRST) {
+            return result.get(0);
+        } else if (executeInfo.multipleResultType == MultipleResultsType.LAST) {
+            return result.get(result.size() - 1);
+        } else {
+            return result;
+        }
+    }
+
 }

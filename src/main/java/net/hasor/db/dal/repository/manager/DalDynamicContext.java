@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.repository.manager;
-import net.hasor.cobble.ref.BeanMap;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.rule.RuleRegistry;
 import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.db.types.TypeHandlerRegistry;
-
-import java.util.Map;
 
 /**
  * 生成动态 SQL 的 Build 环境
@@ -32,15 +29,8 @@ public class DalDynamicContext extends DynamicContext {
     private final String      space;
     private final DalRegistry dalRegistry;
 
-    public DalDynamicContext(String space, Object context, DalRegistry dalRegistry) {
+    public DalDynamicContext(String space, DalRegistry dalRegistry) {
         this.space = space;
-
-        if (context instanceof Map) {
-            super.context.putAll((Map) context);
-        } else if (context != null) {
-            super.context.putAll(new BeanMap(context));
-        }
-
         this.dalRegistry = dalRegistry;
     }
 

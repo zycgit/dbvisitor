@@ -19,6 +19,7 @@ import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 
 import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * <choose>、<when>、<otherwise> 标签
@@ -41,16 +42,16 @@ public class ChooseDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+    public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
         try {
             this.useDefault.set(true);
-            super.buildQuery(context, querySqlBuilder);
+            super.buildQuery(data, context, querySqlBuilder);
         } finally {
             if (this.useDefault.get()) {
                 if (!querySqlBuilder.lastSpaceCharacter()) {
                     querySqlBuilder.appendSql(" ");
                 }
-                this.defaultDynamicSql.buildQuery(context, querySqlBuilder);
+                this.defaultDynamicSql.buildQuery(data, context, querySqlBuilder);
             }
             this.useDefault.remove();
         }
@@ -62,18 +63,18 @@ public class ChooseDynamicSql extends ArrayDynamicSql {
         }
 
         @Override
-        public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
-            if (test(context)) {
+        public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+            if (test(data)) {
                 if (!querySqlBuilder.lastSpaceCharacter()) {
                     querySqlBuilder.appendSql(" ");
                 }
-                super.buildQuery(context, querySqlBuilder);
+                super.buildQuery(data, context, querySqlBuilder);
             }
         }
 
         @Override
-        protected boolean test(DynamicContext context) {
-            boolean testResult = super.test(context);
+        protected boolean test(Map<String, Object> data) {
+            boolean testResult = super.test(data);
             if (testResult && useDefault.get()) {
                 useDefault.set(false);
             }

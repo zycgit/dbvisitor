@@ -3,13 +3,8 @@ import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.nodes.TextDynamicSql;
 
-import java.util.Map;
-
 public class TextBuilderContext extends DynamicContext {
-    public TextBuilderContext(Map<String, Object> context) {
-        super(context);
-    }
-
+ 
     @Override
     public DynamicSql findDynamic(String dynamicId) {
         if (dynamicId.endsWith("_allColumns")) {

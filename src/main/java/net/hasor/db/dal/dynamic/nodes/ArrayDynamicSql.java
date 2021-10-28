@@ -21,6 +21,7 @@ import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 多个 SQL 节点组合成一个 SqlNode
@@ -64,11 +65,11 @@ public class ArrayDynamicSql implements DynamicSql {
     }
 
     @Override
-    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+    public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
         for (int i = 0; i < this.subNodes.size(); i++) {
             DynamicSql dynamicSql = this.subNodes.get(i);
             if (visitItem(i, dynamicSql, context, querySqlBuilder)) {
-                dynamicSql.buildQuery(context, querySqlBuilder);
+                dynamicSql.buildQuery(data, context, querySqlBuilder);
             }
         }
     }

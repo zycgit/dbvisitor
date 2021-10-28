@@ -91,12 +91,12 @@ public class ParameterSqlBuildRule implements SqlBuildRule {
     }
 
     @Override
-    public void executeRule(DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) throws SQLException {
+    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) throws SQLException {
         SqlMode sqlMode = convertSqlMode((config != null) ? config.get(CFG_KEY_MODE) : null);
         Integer jdbcType = convertJdbcType((config != null) ? config.get(CFG_KEY_JDBC_TYPE) : null);
         Class<?> javaType = convertJavaType(context, (config != null) ? config.get(CFG_KEY_JAVA_TYPE) : null);
         TypeHandler<?> typeHandler = convertTypeHandler(context, (config != null) ? config.get(CFG_KEY_HANDLER) : null);
-        Object argValue = sqlMode == SqlMode.Out ? null : OgnlUtils.evalOgnl(ruleValue, context.getContext());
+        Object argValue = sqlMode == SqlMode.Out ? null : OgnlUtils.evalOgnl(ruleValue, data);
 
         if (sqlMode == null) {
             sqlMode = SqlMode.In;

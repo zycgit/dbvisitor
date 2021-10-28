@@ -20,6 +20,7 @@ import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.repository.QueryType;
 
 import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * Segment SqlConfig
@@ -43,7 +44,7 @@ public class SegmentSqlConfig implements DynamicSql {
     }
 
     @Override
-    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
-        this.target.buildQuery(context, querySqlBuilder);
+    public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+        this.target.buildQuery(data, context, querySqlBuilder);
     }
 }

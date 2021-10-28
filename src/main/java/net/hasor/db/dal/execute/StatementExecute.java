@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.execute;
-import net.hasor.db.dal.dynamic.BuilderContext;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
-import net.hasor.db.dal.repository.config.MultipleResultsType;
-import net.hasor.db.dal.repository.config.ResultSetType;
-import net.hasor.db.jdbc.core.JdbcTemplate;
-import net.hasor.db.jdbc.extractor.MultipleResultSetExtractor;
+import net.hasor.db.dal.repository.ResultSetType;
+import net.hasor.db.dal.repository.manager.DalDynamicContext;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * 负责一般SQL调用的执行器
@@ -33,8 +31,13 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class StatementExecute extends AbstractStatementExecute<Object> {
-    public StatementExecute(BuilderContext builderContext, ExecuteInfo executeInfo, JdbcTemplate jdbcTemplate) {
-        super(builderContext, executeInfo, jdbcTemplate);
+    private final DalDynamicContext context;
+    private final ExecuteInfo       executeInfo;
+
+    public StatementExecute(DalDynamicContext context, ExecuteInfo executeInfo, Supplier<Connection> connection) {
+        super(connection);
+        this.context = context;
+        this.executeInfo = executeInfo;
     }
 
     protected Statement createStatement(Connection conn, ResultSetType resultSetType) throws SQLException {
@@ -47,27 +50,18 @@ public class StatementExecute extends AbstractStatementExecute<Object> {
     }
 
     protected Object executeQuery(Connection con, QuerySqlBuilder queryBuilder) throws SQLException {
-        ExecuteInfo executeInfo = getExecuteInfo();
-        try (Statement stat = createStatement(con, executeInfo.resultSetType)) {
+        try (Statement stat = createStatement(con, this.executeInfo.resultSetType)) {
+            configStatement(this.executeInfo, stat);
             return executeQuery(stat, queryBuilder);
         }
     }
 
     protected Object executeQuery(Statement statement, QuerySqlBuilder queryBuilder) throws SQLException {
-        ExecuteInfo executeInfo = getExecuteInfo();
-        configStatement(executeInfo, statement);
-        MultipleResultSetExtractor extractor = super.buildMultipleResultExtractor(executeInfo);
-        //
+
+        DalResultSetExtractor extractor = super.buildExtractor(this.executeInfo, this.context);
         boolean retVal = statement.execute(queryBuilder.getSqlString());
         List<Object> result = extractor.doResult(retVal, statement);
-        if (result.isEmpty()) {
-            return null;
-        }
-        //
-        if (executeInfo.multipleResultType == MultipleResultsType.FIRST || executeInfo.multipleResultType == MultipleResultsType.LAST) {
-            return result.get(0);
-        } else {
-            return result;
-        }
+
+        return getResult(result, this.executeInfo);
     }
 }

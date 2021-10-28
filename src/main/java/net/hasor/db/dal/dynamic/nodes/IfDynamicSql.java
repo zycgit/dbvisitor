@@ -19,6 +19,7 @@ import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.dynamic.ognl.OgnlUtils;
 
 import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * <if> 标签
@@ -33,14 +34,14 @@ public class IfDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
-        if (test(context)) {
-            super.buildQuery(context, querySqlBuilder);
+    public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+        if (test(data)) {
+            super.buildQuery(data, context, querySqlBuilder);
         }
     }
 
-    protected boolean test(DynamicContext context) {
-        Object testExprResult = OgnlUtils.evalOgnl(this.testExpr, context.getContext());
+    protected boolean test(Map<String, Object> data) {
+        Object testExprResult = OgnlUtils.evalOgnl(this.testExpr, data);
         return Boolean.TRUE.equals(testExprResult);
     }
 }
