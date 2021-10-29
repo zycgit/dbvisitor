@@ -60,11 +60,11 @@ public class SqlSegmentParser {
         if (StringUtils.isBlank(ruleData[0])) {
             throw new IllegalArgumentException("analysisSQL failed, Rule name not specified.");
         }
-        //
+
         if (ruleData.length > 1 && StringUtils.isBlank(ruleData[1])) {
             throw new IllegalArgumentException("analysisSQL failed, activation condition not specified.");
         }
-        //
+
         String ruleName = (ruleData.length > 0) ? ruleData[0].trim() : null;
         String activateExpr = (ruleData.length > 1) ? ruleData[1].trim() : null;
         String exprString = (ruleData.length > 2) ? ruleData[2].trim() : null;
@@ -74,9 +74,9 @@ public class SqlSegmentParser {
     private static void parserValue(DefaultSqlSegment fxQuery, String content) {
         String[] valueData = content.split(",");
         if (valueData.length > 5 || valueData.length == 0) {
-            throw new IllegalArgumentException("analysisSQL failed, format error -> '#{valueExpr [,mode= IN|OUT|INOUT] [,jdbcType=INT] [,javaType=java.lang.String] [,typeHandler=YouTypeHandlerClassName]}'");
+            throw new IllegalArgumentException("analysisSQL failed, format error -> '#{valueExpr [,name= xxx] [,mode= IN|OUT|INOUT] [,jdbcType=INT] [,javaType=java.lang.String] [,typeHandler=YouTypeHandlerClassName]}'");
         }
-        //
+
         Map<String, String> exprMap = new LinkedCaseInsensitiveMap<>();
         for (int i = 1; i < valueData.length; i++) {
             String data = valueData[i];
@@ -88,12 +88,13 @@ public class SqlSegmentParser {
                 exprMap.put(kv[0].trim(), kv[1].trim());
             }
         }
-        //
+
         String exprString = valueData[0];
+        String name = exprMap.get(ParameterSqlBuildRule.CFG_KEY_NAME);
         String sqlMode = exprMap.get(ParameterSqlBuildRule.CFG_KEY_MODE);
         String jdbcType = exprMap.get(ParameterSqlBuildRule.CFG_KEY_JDBC_TYPE);
         String javaType = exprMap.get(ParameterSqlBuildRule.CFG_KEY_JAVA_TYPE);
         String typeHandler = exprMap.get(ParameterSqlBuildRule.CFG_KEY_HANDLER);
-        fxQuery.appendValueExpr(exprString, sqlMode, jdbcType, javaType, typeHandler);
+        fxQuery.appendValueExpr(exprString, name, sqlMode, jdbcType, javaType, typeHandler);
     }
 }

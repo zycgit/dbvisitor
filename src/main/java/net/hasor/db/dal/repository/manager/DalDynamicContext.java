@@ -25,7 +25,7 @@ import net.hasor.db.types.TypeHandlerRegistry;
  * @version : 2021-06-05
  * @author 赵永春 (zyc@byshell.org)
  */
-public class DalDynamicContext extends DynamicContext {
+class DalDynamicContext extends DynamicContext {
     private final String      space;
     private final DalRegistry dalRegistry;
 
@@ -51,11 +51,11 @@ public class DalDynamicContext extends DynamicContext {
         return this.dalRegistry.getTypeRegistry();
     }
 
-    protected RuleRegistry getRuleRegistry() {
+    public RuleRegistry getRuleRegistry() {
         return this.dalRegistry.getRuleRegistry();
     }
 
-    protected ClassLoader getClassLoader() {
+    public ClassLoader getClassLoader() {
         return this.dalRegistry.getClassLoader();
     }
 }

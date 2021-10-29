@@ -36,6 +36,7 @@ import java.util.Map;
  */
 public class ParameterSqlBuildRule implements SqlBuildRule {
     public static final SqlBuildRule INSTANCE          = new ParameterSqlBuildRule();
+    public static final String       CFG_KEY_NAME      = "name";
     public static final String       CFG_KEY_MODE      = "mode";
     public static final String       CFG_KEY_JDBC_TYPE = "jdbcType";
     public static final String       CFG_KEY_JAVA_TYPE = "javaType";
@@ -92,6 +93,7 @@ public class ParameterSqlBuildRule implements SqlBuildRule {
 
     @Override
     public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) throws SQLException {
+        String name = (config != null) ? config.get(CFG_KEY_NAME) : null;
         SqlMode sqlMode = convertSqlMode((config != null) ? config.get(CFG_KEY_MODE) : null);
         Integer jdbcType = convertJdbcType((config != null) ? config.get(CFG_KEY_JDBC_TYPE) : null);
         Class<?> javaType = convertJavaType(context, (config != null) ? config.get(CFG_KEY_JAVA_TYPE) : null);
@@ -122,7 +124,7 @@ public class ParameterSqlBuildRule implements SqlBuildRule {
             typeHandler = TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();
         }
 
-        querySqlBuilder.appendSql("?", new SqlArg(ruleValue, argValue, sqlMode, jdbcType, javaType, typeHandler));
+        querySqlBuilder.appendSql("?", new SqlArg(name, ruleValue, argValue, sqlMode, jdbcType, javaType, typeHandler));
     }
 
     @Override

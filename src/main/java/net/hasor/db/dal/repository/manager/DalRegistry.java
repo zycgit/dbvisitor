@@ -17,6 +17,7 @@ package net.hasor.db.dal.repository.manager;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.rule.RuleRegistry;
 import net.hasor.db.dal.repository.RefMapper;
@@ -80,6 +81,10 @@ public class DalRegistry {
 
     public RuleRegistry getRuleRegistry() {
         return this.ruleRegistry;
+    }
+
+    public DynamicContext createContext(String space) {
+        return new DalDynamicContext(space, this);
     }
 
     // --------------------------------------------------------------------------------------------

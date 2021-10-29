@@ -70,9 +70,12 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
     }
 
     /** 添加一个 SQL 参数，最终这个参数会通过 PreparedStatement 形式传递。 */
-    public void appendValueExpr(String exprString, String sqlMode, String jdbcType, String javaType, String typeHandler) {
+    public void appendValueExpr(String exprString, String name, String sqlMode, String jdbcType, String javaType, String typeHandler) {
         this.queryStringOri.append("#{");
         this.queryStringOri.append(exprString);
+        if (name != null) {
+            this.queryStringOri.append(", name=" + name);
+        }
         if (sqlMode != null) {
             this.queryStringOri.append(", mode=" + sqlMode);
         }
@@ -87,7 +90,7 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
         }
         this.queryStringOri.append("}");
         //
-        this.queryStringPlan.add(new ParameterFxSegment(exprString, sqlMode, jdbcType, javaType, typeHandler));
+        this.queryStringPlan.add(new ParameterFxSegment(exprString, name, sqlMode, jdbcType, javaType, typeHandler));
     }
 
     /** 是否包含替换占位符，如果包含替换占位符那么不能使用批量模式 */
@@ -211,9 +214,15 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
         private final String              exprString;
         private final Map<String, String> config;
 
-        public ParameterFxSegment(String exprString, String sqlMode, String jdbcType, String javaType, String typeHandler) {
+        ParameterFxSegment(String exprString, Map<String, String> config) {
+            this(exprString, config.get(CFG_KEY_NAME), config.get(CFG_KEY_MODE), config.get(CFG_KEY_JDBC_TYPE), config.get(CFG_KEY_JAVA_TYPE), config.get(CFG_KEY_HANDLER));
+
+        }
+
+        public ParameterFxSegment(String exprString, String name, String sqlMode, String jdbcType, String javaType, String typeHandler) {
             this.exprString = exprString;
             this.config = new LinkedCaseInsensitiveMap<String>() {{
+                put(CFG_KEY_NAME, name);
                 put(CFG_KEY_MODE, sqlMode);
                 put(CFG_KEY_JDBC_TYPE, jdbcType);
                 put(CFG_KEY_JAVA_TYPE, javaType);
@@ -228,7 +237,7 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
 
         @Override
         public ParameterFxSegment clone() {
-            return new ParameterFxSegment(this.exprString, this.config.get(CFG_KEY_MODE), this.config.get(CFG_KEY_JDBC_TYPE), this.config.get(CFG_KEY_JAVA_TYPE), this.config.get(CFG_KEY_HANDLER));
+            return new ParameterFxSegment(this.exprString, this.config);
         }
 
         @Override

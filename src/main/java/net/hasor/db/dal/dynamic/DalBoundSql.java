@@ -28,6 +28,7 @@ public interface DalBoundSql extends BoundSql {
     public List<SqlArg> getSqlArg();
 
     public static class SqlArg {
+        private String         name;
         private String         expr;
         private Object         value;
         private SqlMode        sqlMode;
@@ -35,13 +36,22 @@ public interface DalBoundSql extends BoundSql {
         private Class<?>       javaType;
         private TypeHandler<?> typeHandler;
 
-        public SqlArg(String expr, Object value, SqlMode sqlMode, Integer jdbcType, Class<?> javaType, TypeHandler<?> typeHandler) {
+        public SqlArg(String name, String expr, Object value, SqlMode sqlMode, Integer jdbcType, Class<?> javaType, TypeHandler<?> typeHandler) {
+            this.name = name;
             this.expr = expr;
             this.value = value;
             this.sqlMode = sqlMode;
             this.typeHandler = typeHandler;
             this.jdbcType = jdbcType;
             this.javaType = javaType;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
         }
 
         public String getExpr() {

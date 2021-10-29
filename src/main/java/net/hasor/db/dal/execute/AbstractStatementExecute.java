@@ -15,9 +15,15 @@
  */
 package net.hasor.db.dal.execute;
 import net.hasor.cobble.StringUtils;
+import net.hasor.db.dal.dynamic.DynamicContext;
+import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.repository.MultipleResultsType;
-import net.hasor.db.dal.repository.manager.DalDynamicContext;
+import net.hasor.db.dal.repository.ResultSetType;
+import net.hasor.db.dal.repository.config.CallableSqlConfig;
+import net.hasor.db.dal.repository.config.DmlSqlConfig;
+import net.hasor.db.dal.repository.config.QuerySqlConfig;
+import net.hasor.db.dialect.Page;
 import net.hasor.db.jdbc.extractor.MultipleProcessType;
 import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.TableMapping;
@@ -25,8 +31,10 @@ import net.hasor.db.mapping.def.TableMapping;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 执行器基类
@@ -34,23 +42,51 @@ import java.util.function.Supplier;
  * @author 赵永春 (zyc@hasor.net)
  */
 public abstract class AbstractStatementExecute<T> {
-    private final Supplier<Connection> connection;
+    private final DynamicContext context;
 
-    public AbstractStatementExecute(Supplier<Connection> connection) {
-        this.connection = connection;
+    public AbstractStatementExecute(DynamicContext context) {
+        this.context = context;
     }
 
-    public final T execute(QuerySqlBuilder queryBuilder) throws SQLException {
-        try (Connection conn = this.connection.get()) {
-            return executeQuery(conn, queryBuilder);
+    public final T execute(Connection conn, DynamicSql dynamicSql, Map<String, Object> data, Page pageInfo) throws SQLException {
+        QuerySqlBuilder queryBuilder = dynamicSql.buildQuery(data, this.context);
+        ExecuteInfo executeInfo = new ExecuteInfo();
+
+        executeInfo.pageInfo = pageInfo;
+        executeInfo.timeout = -1;
+        executeInfo.parameterType = null;
+        executeInfo.resultMap = "";
+        executeInfo.fetchSize = 256;
+        executeInfo.resultSetType = ResultSetType.DEFAULT;
+        executeInfo.multipleResultType = MultipleResultsType.LAST;
+
+        if (dynamicSql instanceof DmlSqlConfig) {
+            executeInfo.timeout = ((DmlSqlConfig) dynamicSql).getTimeout();
+            executeInfo.parameterType = ((DmlSqlConfig) dynamicSql).getParameterType();
         }
+        if (dynamicSql instanceof QuerySqlConfig) {
+            String resultMapStr = ((QuerySqlConfig) dynamicSql).getResultMap();
+            String resultTypeStr = ((QuerySqlConfig) dynamicSql).getResultType();
+            executeInfo.resultMap = StringUtils.isNotBlank(resultTypeStr) ? resultTypeStr : resultMapStr;
+            executeInfo.fetchSize = ((QuerySqlConfig) dynamicSql).getFetchSize();
+            executeInfo.resultSetType = ((QuerySqlConfig) dynamicSql).getResultSetType();
+            executeInfo.multipleResultType = ((QuerySqlConfig) dynamicSql).getMultipleResultType();
+        }
+        if (dynamicSql instanceof CallableSqlConfig) {
+            executeInfo.resultOut = ((CallableSqlConfig) dynamicSql).getResultOut();
+            if (executeInfo.resultOut == null) {
+                executeInfo.resultOut = Collections.emptySet();
+            }
+        }
+
+        return executeQuery(conn, executeInfo, queryBuilder);
     }
 
     protected boolean usingPage(ExecuteInfo executeInfo) {
         return executeInfo.pageInfo == null || executeInfo.pageInfo.getPageSize() <= 0;
     }
 
-    protected abstract T executeQuery(Connection con, QuerySqlBuilder queryBuilder) throws SQLException;
+    protected abstract T executeQuery(Connection con, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException;
 
     protected void configStatement(ExecuteInfo executeInfo, Statement statement) throws SQLException {
         if (executeInfo.timeout > 0) {
@@ -61,29 +97,29 @@ public abstract class AbstractStatementExecute<T> {
         }
     }
 
-    protected DalResultSetExtractor buildExtractor(ExecuteInfo executeInfo, DalDynamicContext context) {
+    protected DalResultSetExtractor buildExtractor(ExecuteInfo executeInfo) {
 
         TableReader<?>[] tableReaders = null;
         if (StringUtils.isBlank(executeInfo.resultMap)) {
-            tableReaders = new TableReader[] { getDefaultTableReader(executeInfo, context) };
+            tableReaders = new TableReader[] { getDefaultTableReader(executeInfo, this.context) };
         } else {
             String[] resultMapSplit = executeInfo.resultMap.split(",");
             tableReaders = new TableReader[resultMapSplit.length];
             for (int i = 0; i < resultMapSplit.length; i++) {
-                TableMapping<?> tableMapping = context.findTableMapping(resultMapSplit[i]);
+                TableMapping<?> tableMapping = this.context.findTableMapping(resultMapSplit[i]);
                 if (tableMapping != null) {
                     tableReaders[i] = tableMapping.toReader();
                 } else {
-                    tableReaders[i] = getDefaultTableReader(executeInfo, context);
+                    tableReaders[i] = getDefaultTableReader(executeInfo, this.context);
                 }
             }
         }
 
         MultipleProcessType multipleType = MultipleProcessType.valueOf(executeInfo.multipleResultType.getTypeName());
-        return new DalResultSetExtractor(executeInfo.caseInsensitive, context, multipleType, tableReaders);
+        return new DalResultSetExtractor(executeInfo.caseInsensitive, this.context, multipleType, tableReaders);
     }
 
-    private MapTableReader getDefaultTableReader(ExecuteInfo executeInfo, DalDynamicContext context) {
+    private MapTableReader getDefaultTableReader(ExecuteInfo executeInfo, DynamicContext context) {
         return new MapTableReader(executeInfo.caseInsensitive, context.getTypeRegistry());
     }
 
@@ -101,4 +137,17 @@ public abstract class AbstractStatementExecute<T> {
         }
     }
 
+    protected static class ExecuteInfo {
+        public String              parameterType      = null;
+        public int                 timeout            = -1;
+        public int                 fetchSize          = 256;
+        public ResultSetType       resultSetType      = ResultSetType.FORWARD_ONLY;
+        public String              resultMap;
+        public boolean             caseInsensitive    = true;
+        public MultipleResultsType multipleResultType = MultipleResultsType.LAST;
+        public Set<String>         resultOut;
+        //
+        public Page                pageInfo;
+        public Map<String, Object> data;
+    }
 }

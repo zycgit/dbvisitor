@@ -15,21 +15,20 @@
  */
 package net.hasor.db.dal.execute;
 import net.hasor.cobble.StringUtils;
-import net.hasor.db.dal.dynamic.BuilderContext;
 import net.hasor.db.dal.dynamic.DalBoundSql.SqlArg;
+import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
-import net.hasor.db.dal.repository.config.ResultSetType;
-import net.hasor.db.jdbc.SqlParameter;
-import net.hasor.db.jdbc.SqlParameterUtils;
-import net.hasor.db.jdbc.core.JdbcTemplate;
-import net.hasor.db.jdbc.extractor.MultipleProcessType;
-import net.hasor.db.jdbc.extractor.SimpleCallableStatementCallback;
+import net.hasor.db.dal.dynamic.SqlMode;
+import net.hasor.db.dal.repository.ResultSetType;
+import net.hasor.db.types.TypeHandler;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 负责存储过程调用的执行器
@@ -37,8 +36,8 @@ import java.util.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class CallableStatementExecute extends AbstractStatementExecute<Object> {
-    public CallableStatementExecute(BuilderContext builderContext, ExecuteInfo executeInfo, JdbcTemplate jdbcTemplate) {
-        super(builderContext, executeInfo, jdbcTemplate);
+    public CallableStatementExecute(DynamicContext context) {
+        super(context);
     }
 
     protected CallableStatement createCallableStatement(Connection conn, String queryString, ResultSetType resultSetType) throws SQLException {
@@ -50,85 +49,82 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
         }
     }
 
-    protected Object executeQuery(Connection con, QuerySqlBuilder queryBuilder) throws SQLException {
-        ExecuteInfo executeInfo = getExecuteInfo();
+    protected boolean usingPage(ExecuteInfo executeInfo) {
+        return false;
+    }
+
+    @Override
+    protected CallableResult executeQuery(Connection con, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException {
         if (!con.getMetaData().supportsStoredProcedures()) {
             throw new UnsupportedOperationException("target DataSource Unsupported.");
         }
-        //
+
         String sqlString = queryBuilder.getSqlString();
         try (CallableStatement ps = createCallableStatement(con, sqlString, executeInfo.resultSetType)) {
-            return executeQuery(ps, queryBuilder);
+            configStatement(executeInfo, ps);
+            return executeQuery(ps, executeInfo, queryBuilder);
         }
     }
 
-    protected Object executeQuery(CallableStatement cs, QuerySqlBuilder queryBuilder) throws SQLException {
-        ExecuteInfo executeInfo = getExecuteInfo();
-        configStatement(executeInfo, cs);
-        //
-        List<SqlArg> sqlArgList = queryBuilder.getSqlArg();
-        List<SqlParameter> paramList = new ArrayList<>();
-        Map<String, SqlArg> paramMap = new HashMap<>();
-        for (int i = 0; i < sqlArgList.size(); i++) {
-            String paramName = "param_" + i;
-            SqlArg arg = sqlArgList.get(i);
-            paramMap.put(paramName, arg);
+    protected CallableResult executeQuery(CallableStatement cs, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException {
+        List<SqlArg> sqlArg = queryBuilder.getSqlArg();
+
+        int sqlColIndex = 1;
+        for (int i = 0; i < sqlArg.size(); i++) {
+            SqlArg arg = sqlArg.get(i);
+            TypeHandler<Object> typeHandler = (TypeHandler<Object>) arg.getTypeHandler();
+
             switch (arg.getSqlMode()) {
                 case In: {
-                    paramList.add(SqlParameterUtils.withInput(arg.getValue(), arg.getJdbcType(), arg.getTypeHandler()));
-                    break;
-                }
-                case Out: {
-                    paramList.add(SqlParameterUtils.withOutput(paramName, arg.getJdbcType(), arg.getTypeHandler()));
+                    typeHandler.setParameter(cs, sqlColIndex, arg.getValue(), arg.getJdbcType());
                     break;
                 }
                 case InOut: {
-                    paramList.add(SqlParameterUtils.withInOut(paramName, arg.getValue(), arg.getJdbcType(), arg.getTypeHandler()));
+                    typeHandler.setParameter(cs, sqlColIndex, arg.getValue(), arg.getJdbcType());
+                    cs.registerOutParameter(sqlColIndex, arg.getJdbcType());
                     break;
                 }
-                default:
-                    throw new UnsupportedOperationException("SqlMode " + arg.getSqlMode() + " Unsupported.");
-            }
-        }
-        //
-        MultipleProcessType multipleType = MultipleProcessType.valueOf(executeInfo.multipleResultType.getTypeName());
-        SimpleCallableStatementCallback callback = new SimpleCallableStatementCallback(multipleType, paramList);
-        Map<String, Object> result = callback.doInCallableStatement(cs);
-        if (result.isEmpty()) {
-            return null;
-        }
-        //
-        Map<String, Object> resultMap = new LinkedHashMap<>();
-        result.forEach((key, value) -> {
-            if (paramMap.containsKey(key)) {
-                SqlArg sqlArg = paramMap.get(key);
-                String argExpr = sqlArg.getExpr();
-                if (StringUtils.isBlank(argExpr)) {
-                    int argIndex = sqlArgList.indexOf(sqlArg);
-                    throw new IllegalArgumentException("parameter[index = " + argIndex + "] container name not set.");
+                case Out: {
+                    cs.registerOutParameter(sqlColIndex, arg.getJdbcType());
+                    break;
                 }
-                resultMap.put(argExpr, value);
-            } else {
-                resultMap.put(key, value);
             }
-        });
-        //executeInfo.resultMap
-        if (multipleType == MultipleProcessType.FIRST) {
-            if (sqlArgList.isEmpty()) {
-                return result.entrySet().iterator().next().getValue();
-            } else {
-                String expr = sqlArgList.get(0).getExpr();
-                return resultMap.get(expr);
-            }
-        } else if (multipleType == MultipleProcessType.LAST) {
-            if (sqlArgList.isEmpty()) {
-                return result.entrySet().iterator().next().getValue();
-            } else {
-                String expr = sqlArgList.get(sqlArgList.size() - 1).getExpr();
-                return resultMap.get(expr);
-            }
-        } else {
-            return resultMap;
+
+            sqlColIndex++;
         }
+
+        // execute call
+        boolean retVal = cs.execute();
+
+        // fetch output
+        Map<String, Object> resultOut = new LinkedHashMap<>();
+
+        boolean keepAll = executeInfo.resultOut.contains("*");
+        for (int i = 0; i < sqlArg.size(); i++) {
+            SqlArg arg = sqlArg.get(i);
+            TypeHandler<Object> argHandler = (TypeHandler<Object>) arg.getTypeHandler();
+
+            if (arg.getSqlMode() != SqlMode.Out) {
+                continue;
+            }
+
+            String paramName = arg.getName();
+            if (StringUtils.isBlank(paramName)) {
+                paramName = "out_" + i;
+            }
+
+            Object resultValue = argHandler.getResult(cs, i);
+
+            if (keepAll || executeInfo.resultOut.contains(paramName)) {
+                resultOut.put(paramName, resultValue);
+            }
+        }
+
+        DalResultSetExtractor extractor = super.buildExtractor(executeInfo);
+        List<Object> resultSet = extractor.doResult(retVal, cs);
+        Object result = getResult(resultSet, executeInfo);
+
+        return new CallableResult(resultOut, result);
     }
+
 }

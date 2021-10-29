@@ -67,15 +67,15 @@ public class DynamicContext {
         return getRuleRegistry().findByName(ruleName);
     }
 
-    protected TypeHandlerRegistry getTypeRegistry() {
+    public TypeHandlerRegistry getTypeRegistry() {
         return TypeHandlerRegistry.DEFAULT;
     }
 
-    protected RuleRegistry getRuleRegistry() {
+    public RuleRegistry getRuleRegistry() {
         return RuleRegistry.DEFAULT;
     }
 
-    protected ClassLoader getClassLoader() {
+    public ClassLoader getClassLoader() {
         return Thread.currentThread().getContextClassLoader();
     }
 }

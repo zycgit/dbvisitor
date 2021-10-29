@@ -15,9 +15,9 @@
  */
 package net.hasor.db.dal.execute;
 import net.hasor.db.dal.dynamic.DalBoundSql.SqlArg;
+import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.repository.ResultSetType;
-import net.hasor.db.dal.repository.manager.DalDynamicContext;
 import net.hasor.db.types.TypeHandler;
 
 import java.sql.Connection;
@@ -25,7 +25,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * 负责参数化SQL调用的执行器
@@ -33,13 +32,8 @@ import java.util.function.Supplier;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
-    private final DalDynamicContext context;
-    private final ExecuteInfo       executeInfo;
-
-    public PreparedStatementExecute(DalDynamicContext context, ExecuteInfo executeInfo, Supplier<Connection> connection) {
-        super(connection);
-        this.context = context;
-        this.executeInfo = executeInfo;
+    public PreparedStatementExecute(DynamicContext context) {
+        super(context);
     }
 
     protected PreparedStatement createPreparedStatement(Connection conn, String queryString, ResultSetType resultSetType) throws SQLException {
@@ -51,15 +45,16 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
         }
     }
 
-    protected Object executeQuery(Connection con, QuerySqlBuilder queryBuilder) throws SQLException {
+    @Override
+    protected Object executeQuery(Connection con, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException {
         String sqlString = queryBuilder.getSqlString();
-        try (PreparedStatement ps = createPreparedStatement(con, sqlString, this.executeInfo.resultSetType)) {
-            configStatement(this.executeInfo, ps);
-            return executeQuery(ps, queryBuilder);
+        try (PreparedStatement ps = createPreparedStatement(con, sqlString, executeInfo.resultSetType)) {
+            configStatement(executeInfo, ps);
+            return executeQuery(ps, executeInfo, queryBuilder);
         }
     }
 
-    protected Object executeQuery(PreparedStatement ps, QuerySqlBuilder queryBuilder) throws SQLException {
+    protected Object executeQuery(PreparedStatement ps, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException {
 
         List<SqlArg> sqlArg = queryBuilder.getSqlArg();
         for (int i = 0; i < sqlArg.size(); i++) {
@@ -68,10 +63,10 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
             typeHandler.setParameter(ps, i + 1, arg.getValue(), arg.getJdbcType());
         }
 
-        DalResultSetExtractor extractor = super.buildExtractor(this.executeInfo, this.context);
+        DalResultSetExtractor extractor = super.buildExtractor(executeInfo);
         boolean retVal = ps.execute();
         List<Object> result = extractor.doResult(retVal, ps);
 
-        return getResult(result, this.executeInfo);
+        return getResult(result, executeInfo);
     }
 }

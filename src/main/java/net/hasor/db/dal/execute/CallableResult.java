@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.execute;
-
-import net.hasor.db.dal.repository.MultipleResultsType;
-import net.hasor.db.dal.repository.ResultSetType;
-import net.hasor.db.dialect.Page;
+import java.util.Map;
 
 /**
- * 执行器需要的信息
+ * 调用存储过程的返回值
  * @version : 2021-07-20
  * @author 赵永春 (zyc@hasor.net)
  */
-class ExecuteInfo {
-    public String              parameterType      = null;
-    public int                 timeout            = -1;
-    public int                 fetchSize          = 256;
-    public ResultSetType       resultSetType      = ResultSetType.FORWARD_ONLY;
-    public String              resultMap;
-    public boolean             caseInsensitive    = true;
-    public MultipleResultsType multipleResultType = MultipleResultsType.LAST;
-    public Page                pageInfo;
+public class CallableResult {
+    private final Map<String, Object> resultOut;
+    private final Object              resultSet;
+
+    public CallableResult(Map<String, Object> resultOut, Object resultSet) {
+        this.resultOut = resultOut;
+        this.resultSet = resultSet;
+    }
+
+    public Map<String, Object> getResultOut() {
+        return this.resultOut;
+    }
+
+    public Object getResultSet() {
+        return this.resultSet;
+    }
 }

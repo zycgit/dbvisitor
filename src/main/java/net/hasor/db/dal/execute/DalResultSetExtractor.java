@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.execute;
-import net.hasor.db.dal.repository.manager.DalDynamicContext;
+import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.jdbc.CallableStatementCallback;
 import net.hasor.db.jdbc.PreparedStatementCallback;
 import net.hasor.db.jdbc.ResultSetExtractor;
@@ -38,7 +38,7 @@ public class DalResultSetExtractor implements PreparedStatementCallback<List<Obj
     private final        List<TableReader<?>> tableReaders;
     private final        MultipleProcessType  processType;
 
-    public DalResultSetExtractor(boolean defaultCaseInsensitive, DalDynamicContext context, MultipleProcessType processType, TableReader<?>[] tableReaders) {
+    public DalResultSetExtractor(boolean defaultCaseInsensitive, DynamicContext context, MultipleProcessType processType, TableReader<?>[] tableReaders) {
         this.processType = processType == null ? MultipleProcessType.ALL : processType;
         this.tableReaders = Arrays.asList(tableReaders);
         this.defaultTableReader = new MapTableReader(defaultCaseInsensitive, context.getTypeRegistry());
