@@ -25,8 +25,8 @@ import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
 
 import java.sql.JDBCType;
-import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -35,12 +35,12 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class ParameterSqlBuildRule implements SqlBuildRule {
-    public static final SqlBuildRule INSTANCE          = new ParameterSqlBuildRule();
-    public static final String       CFG_KEY_NAME      = "name";
-    public static final String       CFG_KEY_MODE      = "mode";
-    public static final String       CFG_KEY_JDBC_TYPE = "jdbcType";
-    public static final String       CFG_KEY_JAVA_TYPE = "javaType";
-    public static final String       CFG_KEY_HANDLER   = "typeHandler";
+    public static final ParameterSqlBuildRule INSTANCE          = new ParameterSqlBuildRule();
+    public static final String                CFG_KEY_NAME      = "name";
+    public static final String                CFG_KEY_MODE      = "mode";
+    public static final String                CFG_KEY_JDBC_TYPE = "jdbcType";
+    public static final String                CFG_KEY_JAVA_TYPE = "javaType";
+    public static final String                CFG_KEY_HANDLER   = "typeHandler";
 
     private SqlMode convertSqlMode(String sqlMode) {
         if (StringUtils.isNotBlank(sqlMode)) {
@@ -92,7 +92,11 @@ public class ParameterSqlBuildRule implements SqlBuildRule {
     }
 
     @Override
-    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) throws SQLException {
+    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue) {
+        this.executeRule(data, context, querySqlBuilder, ruleValue, Collections.emptyMap());
+    }
+
+    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) {
         String name = (config != null) ? config.get(CFG_KEY_NAME) : null;
         SqlMode sqlMode = convertSqlMode((config != null) ? config.get(CFG_KEY_MODE) : null);
         Integer jdbcType = convertJdbcType((config != null) ? config.get(CFG_KEY_JDBC_TYPE) : null);

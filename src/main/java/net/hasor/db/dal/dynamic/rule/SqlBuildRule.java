@@ -32,5 +32,5 @@ public interface SqlBuildRule {
         return Boolean.TRUE.equals(evalOgnl(activateExpr, data));
     }
 
-    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) throws SQLException;
+    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue) throws SQLException;
 }

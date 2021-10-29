@@ -18,7 +18,6 @@ import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.dynamic.ognl.OgnlUtils;
 
-import java.sql.SQLException;
 import java.util.Map;
 
 import static net.hasor.db.dal.dynamic.ognl.OgnlUtils.evalOgnl;
@@ -38,7 +37,7 @@ public class NotnullSqlBuildRule implements SqlBuildRule {
     }
 
     @Override
-    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) throws SQLException {
+    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue) {
         Object evalOgnl = OgnlUtils.evalOgnl(ruleValue, data);
         querySqlBuilder.appendSql(evalOgnl.toString());
     }

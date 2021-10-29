@@ -24,7 +24,6 @@ import net.hasor.db.dal.dynamic.rule.SqlBuildRule;
 import net.hasor.db.dal.dynamic.rule.TextSqlBuildRule;
 
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -139,7 +138,7 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
 
         @Override
         public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
-            TextSqlBuildRule.INSTANCE.executeRule(data, context, querySqlBuilder, this.textString.toString(), Collections.emptyMap());
+            TextSqlBuildRule.INSTANCE.executeRule(data, context, querySqlBuilder, this.textString.toString());
         }
 
         @Override
@@ -163,7 +162,7 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
         @Override
         public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
             String placeholderQuery = String.valueOf(evalOgnl(this.exprString.toString(), data));
-            TextSqlBuildRule.INSTANCE.executeRule(data, context, querySqlBuilder, placeholderQuery, Collections.emptyMap());
+            TextSqlBuildRule.INSTANCE.executeRule(data, context, querySqlBuilder, placeholderQuery);
         }
 
         @Override
@@ -195,7 +194,7 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
                 throw new UnsupportedOperationException("rule `" + this.ruleName + "` Unsupported.");
             }
             if (ruleByName.test(data, context, this.activateExpr)) {
-                ruleByName.executeRule(data, context, querySqlBuilder, this.ruleValue, Collections.emptyMap());
+                ruleByName.executeRule(data, context, querySqlBuilder, this.ruleValue);
             }
         }
 
