@@ -48,6 +48,10 @@ public abstract class AbstractStatementExecute<T> {
         this.context = context;
     }
 
+    protected DynamicContext getContext() {
+        return this.context;
+    }
+
     public final T execute(Connection conn, DynamicSql dynamicSql, Map<String, Object> data, Page pageInfo) throws SQLException {
         QuerySqlBuilder queryBuilder = dynamicSql.buildQuery(data, this.context);
         ExecuteInfo executeInfo = new ExecuteInfo();
@@ -138,6 +142,7 @@ public abstract class AbstractStatementExecute<T> {
     }
 
     protected static class ExecuteInfo {
+        // query
         public String              parameterType      = null;
         public int                 timeout            = -1;
         public int                 fetchSize          = 256;
@@ -146,8 +151,9 @@ public abstract class AbstractStatementExecute<T> {
         public boolean             caseInsensitive    = true;
         public MultipleResultsType multipleResultType = MultipleResultsType.LAST;
         public Set<String>         resultOut;
-        //
+
         public Page                pageInfo;
+        public boolean             pageResult;
         public Map<String, Object> data;
     }
 }

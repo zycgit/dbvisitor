@@ -46,13 +46,13 @@
         from test_user;
     </select>
 
-    <select id="listUserList_2" parameterType="net.hasor.test.db.dto.TbUser2" resultMap="tb_user_resultMap" statementType="statement">
+    <select id="listUserList_2" resultType="net.hasor.test.db.dal.execute.TestUser" statementType="statement">
         select
             <include refid="user_do_allColumns"/>
         from test_user;
     </select>
 
-    <callable id="callSelectUser" resultMap="string" resultOut="sss,sss">
-        {call proc_select_user(#{abc, mode=out})}
+    <callable id="callSelectUser" resultOut="abc,sss">
+        {call proc_select_user(#{name= abc, mode=out})}
     </callable>
 </mapper>

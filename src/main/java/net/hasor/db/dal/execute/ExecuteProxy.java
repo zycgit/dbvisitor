@@ -35,7 +35,7 @@ public class ExecuteProxy {
 
     public ExecuteProxy(String dynamicId, DynamicContext context) {
         DynamicSql sqlConfig = context.findDynamic(dynamicId);
-        if (sqlConfig instanceof DmlSqlConfig) {
+        if (!(sqlConfig instanceof DmlSqlConfig)) {
             throw new ClassCastException("dynamic '" + dynamicId + "' is not DmlSqlConfig");
         }
 

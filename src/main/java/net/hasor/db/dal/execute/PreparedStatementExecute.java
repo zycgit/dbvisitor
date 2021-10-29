@@ -48,6 +48,14 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
     @Override
     protected Object executeQuery(Connection con, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException {
         String sqlString = queryBuilder.getSqlString();
+
+        //        if (usingPage(executeInfo)) {
+        //            PageSqlDialect dialect = getContext().getDialect();
+        //            int position = executeInfo.pageInfo.getFirstRecordPosition();
+        //            int pageSize = executeInfo.pageInfo.getFirstRecordPosition();
+        //            BoundSql boundSql = dialect.pageSql(queryBuilder, position, pageSize);
+        //        }
+
         try (PreparedStatement ps = createPreparedStatement(con, sqlString, executeInfo.resultSetType)) {
             configStatement(executeInfo, ps);
             return executeQuery(ps, executeInfo, queryBuilder);

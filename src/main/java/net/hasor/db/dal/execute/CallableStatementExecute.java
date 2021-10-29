@@ -54,7 +54,7 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
     }
 
     @Override
-    protected CallableResult executeQuery(Connection con, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException {
+    protected Object executeQuery(Connection con, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException {
         if (!con.getMetaData().supportsStoredProcedures()) {
             throw new UnsupportedOperationException("target DataSource Unsupported.");
         }
@@ -66,7 +66,7 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
         }
     }
 
-    protected CallableResult executeQuery(CallableStatement cs, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException {
+    protected Object executeQuery(CallableStatement cs, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException {
         List<SqlArg> sqlArg = queryBuilder.getSqlArg();
 
         int sqlColIndex = 1;
@@ -98,7 +98,6 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
 
         // fetch output
         Map<String, Object> resultOut = new LinkedHashMap<>();
-
         boolean keepAll = executeInfo.resultOut.contains("*");
         for (int i = 0; i < sqlArg.size(); i++) {
             SqlArg arg = sqlArg.get(i);
@@ -113,18 +112,33 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
                 paramName = "out_" + i;
             }
 
-            Object resultValue = argHandler.getResult(cs, i);
-
             if (keepAll || executeInfo.resultOut.contains(paramName)) {
+                Object resultValue = argHandler.getResult(cs, i + 1);
                 resultOut.put(paramName, resultValue);
             }
         }
 
+        // keepAll
         DalResultSetExtractor extractor = super.buildExtractor(executeInfo);
         List<Object> resultSet = extractor.doResult(retVal, cs);
-        Object result = getResult(resultSet, executeInfo);
+        if (keepAll) {
+            for (int i = 0; i < resultSet.size(); i++) {
+                Object result = resultSet.get(i);
+                resultOut.put("result-" + i, result);
+            }
+            return resultOut;
+        }
 
-        return new CallableResult(resultOut, result);
+        if (!executeInfo.resultOut.isEmpty()) {
+            // 如果配置了 resultOut 那么一定是返回 resultOut 中的数据
+            if (resultOut.size() == 1 && executeInfo.resultOut.size() == 1) {
+                return resultOut.entrySet().iterator().next().getValue();
+            } else {
+                return resultOut;
+            }
+        } else {
+            return getResult(resultSet, executeInfo);
+        }
     }
 
 }

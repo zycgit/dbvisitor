@@ -26,7 +26,7 @@ import java.util.Set;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, InsertSqlDialect {
-    public static SqlDialect DEFAULT = new DefaultSqlDialect();
+    public static final DefaultSqlDialect DEFAULT = new DefaultSqlDialect();
 
     @Override
     public Set<String> keywords() {

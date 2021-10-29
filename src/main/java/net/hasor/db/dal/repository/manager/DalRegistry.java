@@ -105,7 +105,7 @@ public class DalRegistry {
     }
 
     /** 从类型中解析 TableMapping */
-    public <T> TableMapping<T> findTableMapping(String space, Class<?> entityType) {
+    public <T> TableMapping<T> findTableMapping(String space, Class<T> entityType) {
         return findTableMapping(space, entityType.getName());
     }
 
@@ -148,7 +148,7 @@ public class DalRegistry {
         if (!refRepository.isInterface()) {
             throw new UnsupportedOperationException("the '" + refRepository.getName() + "' must interface.");
         }
-        String scope = refRepository.getName();
+        String namespace = refRepository.getName();
         RefMapper refMapper = refRepository.getAnnotation(RefMapper.class);
         SimpleMapper simpleMapper = refRepository.getAnnotation(SimpleMapper.class);
 
@@ -172,7 +172,8 @@ public class DalRegistry {
                     Element root = loadXmlRoot(resource, stream);
                     MappingOptions options = MappingOptions.resolveOptions(root, this.mappingOptions);
 
-                    this.loadDynamic(scope, root, options);
+                    this.loadReader(namespace, root, options);
+                    this.loadDynamic(namespace, root, options);
 
                 } catch (ParserConfigurationException | SAXException | ClassNotFoundException e) {
                     throw new IOException(e);
@@ -193,7 +194,7 @@ public class DalRegistry {
                 DynamicSql dynamicSql = resolve.parseSqlConfig(method);
 
                 if (dynamicSql != null) {
-                    saveDynamic(scope, identify, dynamicSql);
+                    saveDynamic(namespace, identify, dynamicSql);
                 }
             }
         }
@@ -211,6 +212,7 @@ public class DalRegistry {
             throw new IOException("repeat '" + identify + "' in " + (StringUtils.isBlank(space) ? "default namespace" : ("'" + space + "' namespace.")));
         } else {
             mappingMap.put(identify, tableMapping);
+            mappingMap.put(tableMapping.entityType().getName(), tableMapping);
         }
     }
 
@@ -282,8 +284,9 @@ public class DalRegistry {
             if (dynamicSql instanceof QuerySqlConfig) {
                 String resultMap = ((QuerySqlConfig) dynamicSql).getResultMap();
                 String resultType = ((QuerySqlConfig) dynamicSql).getResultType();
+                boolean useResultMap = StringUtils.isNotBlank(resultMap);
 
-                if (StringUtils.isNotBlank(resultMap)) {
+                if (useResultMap && StringUtils.isNotBlank(resultMap)) {
                     TableMapping<?> tableMapping = null;
 
                     Map<String, TableMapping<?>> readerMap = this.mappingMap.get(scope);
@@ -294,11 +297,14 @@ public class DalRegistry {
                     Objects.requireNonNull(tableMapping, "loadMapper failed, '" + idString + "', resultMap '" + resultMap + "' is missing ,resource '" + scope + "'");
                 }
 
-                if (StringUtils.isNotBlank(resultType)) {
-
+                if (!useResultMap && StringUtils.isNotBlank(resultType)) {
                     Class<?> mapType = ClassUtils.getClass(getClassLoader(), resultType);
-                    TableMapping<?> tableMapping = mapResolve.resolveTableMapping(mapType, getClassLoader(), getTypeRegistry(), options);
-                    saveMapping(scope, idString, tableMapping);
+
+                    // resultType is option ,first check it.
+                    if (findTableMapping(scope, mapType.getName()) == null) {
+                        TableMapping<?> tableMapping = mapResolve.resolveTableMapping(mapType, getClassLoader(), getTypeRegistry(), options);
+                        saveMapping(scope, mapType.getName(), tableMapping);
+                    }
                 }
             }
 

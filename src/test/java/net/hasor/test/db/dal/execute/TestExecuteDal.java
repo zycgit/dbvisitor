@@ -16,7 +16,6 @@
 package net.hasor.test.db.dal.execute;
 import net.hasor.db.dal.repository.Param;
 import net.hasor.db.dal.repository.RefMapper;
-import net.hasor.test.db.dto.TbUser;
 import net.hasor.test.db.dto.TbUser2;
 
 import java.util.List;
@@ -33,9 +32,9 @@ public interface TestExecuteDal {
 
     public int initUser();
 
-    public List<TbUser> listUserList_1(@Param("abc") String name);
+    public List<TbUser2> listUserList_1(@Param("abc") String name);
 
-    public List<TbUser> listUserList_2(@Param("abc") String name);
+    public List<TestUser> listUserList_2(@Param("abc") String name);
 
     public Map<String, Object> callSelectUser(@Param("abc") String name);
 }

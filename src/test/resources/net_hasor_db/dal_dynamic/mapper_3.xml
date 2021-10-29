@@ -16,16 +16,14 @@
         return #;
     </dataqlMap>
 
-
     <sql id="projectInfoDO_allColumns">
-        id
-        , owner_id
+        id , owner_id
     </sql>
 
     <!-- dataqlMap="tb_user_dataqlMap"-->
     <select id="testBind" resultMap="tb_user_resultMap">
         SELECT
-        <include refid="projectInfoDO_allColumns"/>
+            <include refid="projectInfoDO_allColumns"/>
         FROM console_job
         WHERE aac = #{abc}
     </select>

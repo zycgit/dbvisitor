@@ -28,6 +28,8 @@ import java.lang.annotation.*;
 public @interface Query {
     public String value();
 
+    public String resultMap() default "";
+
     public StatementType statementType() default StatementType.Prepared;
 
     public int timeout() default -1;

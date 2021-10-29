@@ -107,7 +107,12 @@ public class ClassDynamicResolve extends DynamicParser implements DynamicResolve
             dynamicSqlAttribute.put("fetchSize", String.valueOf(((Query) annotation).fetchSize()));
             dynamicSqlAttribute.put("resultSetType", ((Query) annotation).resultSetType().getTypeName());
             dynamicSqlAttribute.put("multipleResult", ((Query) annotation).multipleResult().getTypeName());
-            dynamicSqlAttribute.put("resultType", resultType.getName());
+            String resultMap = ((Query) annotation).resultMap();
+            if (StringUtils.isBlank(resultMap)) {
+                dynamicSqlAttribute.put("resultType", resultType.getName());
+            } else {
+                dynamicSqlAttribute.put("resultMap", resultMap);
+            }
         } else if (annotation instanceof Callable) {
             queryType = getQueryType(QueryType.Callable, ((Callable) annotation).statementType());
             dynamicSqlBody = ((Callable) annotation).value();
@@ -116,7 +121,13 @@ public class ClassDynamicResolve extends DynamicParser implements DynamicResolve
             dynamicSqlAttribute.put("fetchSize", String.valueOf(((Callable) annotation).fetchSize()));
             dynamicSqlAttribute.put("resultSetType", ((Callable) annotation).resultSetType().getTypeName());
             dynamicSqlAttribute.put("multipleResult", ((Callable) annotation).multipleResult().getTypeName());
-            dynamicSqlAttribute.put("resultType", resultType.getName());
+            String resultMap = ((Callable) annotation).resultMap();
+            if (StringUtils.isBlank(resultMap)) {
+                dynamicSqlAttribute.put("resultType", resultType.getName());
+            } else {
+                dynamicSqlAttribute.put("resultMap", resultMap);
+            }
+            dynamicSqlAttribute.put("resultOut", ((Callable) annotation).resultOut());
         } else {
             return null;
         }

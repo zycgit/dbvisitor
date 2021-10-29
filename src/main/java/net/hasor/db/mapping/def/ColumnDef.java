@@ -88,4 +88,9 @@ public class ColumnDef implements ColumnMapping {
     public boolean isPrimaryKey() {
         return this.primary;
     }
+
+    @Override
+    public String toString() {
+        return "ColumnDef{" + "columnName='" + columnName + '\'' + ", propertyName='" + propertyName + '\'' + ", jdbcType=" + jdbcType + ", insert=" + insert + ", update=" + update + ", primary=" + primary + '}';
+    }
 }

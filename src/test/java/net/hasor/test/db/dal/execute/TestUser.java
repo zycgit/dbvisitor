@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.db.dto;
-import net.hasor.db.mapping.Table;
+package net.hasor.test.db.dal.execute;
+import net.hasor.db.mapping.Column;
 
 import java.util.Date;
 
@@ -23,14 +23,20 @@ import java.util.Date;
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-@Table("tb_user_shadow")
-public class TbUserShadow {
+public class TestUser {
+    @Column("user_uuid")
     private String userUUID;
+    @Column("name")
     private String name;
+    @Column("login_name")
     private String loginName;
+    @Column("login_password")
     private String loginPassword;
+    @Column("email")
     private String email;
+    @Column("index")
     private int    index;
+    @Column("register_time")
     private Date   registerTime;
 
     public String getUserUUID() {

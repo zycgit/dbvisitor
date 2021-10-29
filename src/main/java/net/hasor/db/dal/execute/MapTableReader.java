@@ -77,7 +77,7 @@ public class MapTableReader implements TableReader<Map<String, Object>> {
                 handler = this.mapperUtils.getHandlerRegistry().getDefaultTypeHandler();
             }
 
-            Object result = handler.getResult(rs, rowNum);
+            Object result = handler.getResult(rs, i + 1);
             target.put(columnName, result);
         }
 

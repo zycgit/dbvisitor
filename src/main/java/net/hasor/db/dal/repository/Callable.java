@@ -28,6 +28,10 @@ import java.lang.annotation.*;
 public @interface Callable {
     public String value();
 
+    public String resultOut() default "";
+
+    public String resultMap() default "";
+
     public StatementType statementType() default StatementType.Callable;
 
     public int timeout() default -1;

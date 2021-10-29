@@ -1,4 +1,4 @@
-package net.hasor.db.dal;
+package net.hasor.db.dal.execute;
 import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.db.lambda.LambdaOperations;
 import net.hasor.db.lambda.core.LambdaTemplate;

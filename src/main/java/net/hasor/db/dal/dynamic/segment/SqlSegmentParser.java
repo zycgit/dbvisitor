@@ -77,8 +77,13 @@ public class SqlSegmentParser {
             throw new IllegalArgumentException("analysisSQL failed, format error -> '#{valueExpr [,name= xxx] [,mode= IN|OUT|INOUT] [,jdbcType=INT] [,javaType=java.lang.String] [,typeHandler=YouTypeHandlerClassName]}'");
         }
 
+        boolean noExpr = StringUtils.contains(valueData[0], "=");
         Map<String, String> exprMap = new LinkedCaseInsensitiveMap<>();
-        for (int i = 1; i < valueData.length; i++) {
+        for (int i = 0; i < valueData.length; i++) {
+            if (!noExpr && i == 0) {
+                continue;
+            }
+            
             String data = valueData[i];
             String[] kv = data.split("=");
             if (kv.length != 2) {
@@ -89,7 +94,7 @@ public class SqlSegmentParser {
             }
         }
 
-        String exprString = valueData[0];
+        String exprString = noExpr ? null : valueData[0];
         String name = exprMap.get(ParameterSqlBuildRule.CFG_KEY_NAME);
         String sqlMode = exprMap.get(ParameterSqlBuildRule.CFG_KEY_MODE);
         String jdbcType = exprMap.get(ParameterSqlBuildRule.CFG_KEY_JDBC_TYPE);
