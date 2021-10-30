@@ -16,11 +16,11 @@
 package net.hasor.db.dal.dynamic.rule;
 import net.hasor.cobble.NumberUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.db.dal.dynamic.DalBoundSql.SqlArg;
 import net.hasor.db.dal.dynamic.DynamicContext;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
+import net.hasor.db.dal.dynamic.SqlArg;
 import net.hasor.db.dal.dynamic.SqlMode;
 import net.hasor.db.dal.dynamic.ognl.OgnlUtils;
+import net.hasor.db.dialect.SqlBuilder;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
 
@@ -92,11 +92,11 @@ public class ParameterSqlBuildRule implements SqlBuildRule {
     }
 
     @Override
-    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue) {
-        this.executeRule(data, context, querySqlBuilder, ruleValue, Collections.emptyMap());
+    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String ruleValue) {
+        this.executeRule(data, context, sqlBuilder, ruleValue, Collections.emptyMap());
     }
 
-    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue, Map<String, String> config) {
+    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String ruleValue, Map<String, String> config) {
         String name = (config != null) ? config.get(CFG_KEY_NAME) : null;
         SqlMode sqlMode = convertSqlMode((config != null) ? config.get(CFG_KEY_MODE) : null);
         Integer jdbcType = convertJdbcType((config != null) ? config.get(CFG_KEY_JDBC_TYPE) : null);
@@ -128,7 +128,7 @@ public class ParameterSqlBuildRule implements SqlBuildRule {
             typeHandler = TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();
         }
 
-        querySqlBuilder.appendSql("?", new SqlArg(name, ruleValue, argValue, sqlMode, jdbcType, javaType, typeHandler));
+        sqlBuilder.appendSql("?", new SqlArg(name, ruleValue, argValue, sqlMode, jdbcType, javaType, typeHandler));
     }
 
     @Override

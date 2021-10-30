@@ -17,7 +17,7 @@ package net.hasor.db.dal.dynamic.nodes;
 import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.db.dal.dynamic.DynamicContext;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
+import net.hasor.db.dialect.SqlBuilder;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -68,16 +68,16 @@ public class TermDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
-        QuerySqlBuilder tempQuerySqlBuilder = new QuerySqlBuilder();
-        super.buildQuery(data, context, tempQuerySqlBuilder);
+    public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
+        SqlBuilder tempDalSqlBuilder = new SqlBuilder();
+        super.buildQuery(data, context, tempDalSqlBuilder);
         //
-        String childrenSql = tempQuerySqlBuilder.getSqlString().trim();
+        String childrenSql = tempDalSqlBuilder.getSqlString().trim();
         if (StringUtils.isNotBlank(childrenSql)) {
-            if (!querySqlBuilder.lastSpaceCharacter()) {
-                querySqlBuilder.appendSql(" ");
+            if (!sqlBuilder.lastSpaceCharacter()) {
+                sqlBuilder.appendSql(" ");
             }
-            querySqlBuilder.appendSql(StringUtils.defaultString(this.prefix) + " "); // 开始拼接SQL
+            sqlBuilder.appendSql(StringUtils.defaultString(this.prefix) + " "); // 开始拼接SQL
             //
             // 去掉prefixOverrides
             for (String override : this.prefixOverrides) {
@@ -97,10 +97,10 @@ public class TermDynamicSql extends ArrayDynamicSql {
                     break;
                 }
             }
-            querySqlBuilder.appendSql(childrenSql);
-            querySqlBuilder.appendSql(" " + StringUtils.defaultString(this.suffix)); // 拼接结束SQL
+            sqlBuilder.appendSql(childrenSql);
+            sqlBuilder.appendSql(" " + StringUtils.defaultString(this.suffix)); // 拼接结束SQL
         }
-        //
-        querySqlBuilder.appendArgs(tempQuerySqlBuilder.getSqlArg());
+
+        sqlBuilder.appendArgs(tempDalSqlBuilder);
     }
 }

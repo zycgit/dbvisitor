@@ -15,7 +15,7 @@
  */
 package net.hasor.db.dal.dynamic.rule;
 import net.hasor.db.dal.dynamic.DynamicContext;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
+import net.hasor.db.dialect.SqlBuilder;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -32,5 +32,5 @@ public interface SqlBuildRule {
         return Boolean.TRUE.equals(evalOgnl(activateExpr, data));
     }
 
-    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue) throws SQLException;
+    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String ruleValue) throws SQLException;
 }

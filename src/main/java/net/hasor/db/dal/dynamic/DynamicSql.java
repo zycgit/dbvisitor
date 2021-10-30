@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic;
+import net.hasor.db.dialect.SqlBuilder;
+
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -26,10 +28,10 @@ public interface DynamicSql {
     /** 是否包含替换占位符，如果包含替换占位符那么不能使用批量模式 */
     public boolean isHavePlaceholder();
 
-    public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException;
+    public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException;
 
-    public default QuerySqlBuilder buildQuery(Map<String, Object> data, DynamicContext context) throws SQLException {
-        QuerySqlBuilder fxBuilder = new QuerySqlBuilder();
+    public default SqlBuilder buildQuery(Map<String, Object> data, DynamicContext context) throws SQLException {
+        SqlBuilder fxBuilder = new SqlBuilder();
         this.buildQuery(data, context, fxBuilder);
         return fxBuilder;
     }

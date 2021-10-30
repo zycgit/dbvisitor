@@ -15,7 +15,7 @@
  */
 package net.hasor.db.dal.dynamic.rule;
 import net.hasor.db.dal.dynamic.DynamicContext;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
+import net.hasor.db.dialect.SqlBuilder;
 
 import java.util.Map;
 
@@ -28,8 +28,8 @@ public class TextSqlBuildRule implements SqlBuildRule {
     public static final SqlBuildRule INSTANCE = new TextSqlBuildRule();
 
     @Override
-    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue) {
-        querySqlBuilder.appendSql(ruleValue);
+    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String ruleValue) {
+        sqlBuilder.appendSql(ruleValue);
     }
 
     @Override

@@ -83,7 +83,7 @@ public class SqlSegmentParser {
             if (!noExpr && i == 0) {
                 continue;
             }
-            
+
             String data = valueData[i];
             String[] kv = data.split("=");
             if (kv.length != 2) {

@@ -16,7 +16,7 @@
 package net.hasor.db.dal.dynamic.nodes;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
+import net.hasor.db.dialect.SqlBuilder;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -65,16 +65,16 @@ public class ArrayDynamicSql implements DynamicSql {
     }
 
     @Override
-    public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+    public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
         for (int i = 0; i < this.subNodes.size(); i++) {
             DynamicSql dynamicSql = this.subNodes.get(i);
-            if (visitItem(i, dynamicSql, context, querySqlBuilder)) {
-                dynamicSql.buildQuery(data, context, querySqlBuilder);
+            if (visitItem(i, dynamicSql, context, sqlBuilder)) {
+                dynamicSql.buildQuery(data, context, sqlBuilder);
             }
         }
     }
 
-    protected boolean visitItem(int i, DynamicSql dynamicSql, DynamicContext context, QuerySqlBuilder querySqlBuilder) {
+    protected boolean visitItem(int i, DynamicSql dynamicSql, DynamicContext context, SqlBuilder sqlBuilder) {
         return true;
     }
 }

@@ -16,7 +16,7 @@
 package net.hasor.db.dal.dynamic.nodes;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
+import net.hasor.db.dialect.SqlBuilder;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -42,16 +42,16 @@ public class ChooseDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+    public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
         try {
             this.useDefault.set(true);
-            super.buildQuery(data, context, querySqlBuilder);
+            super.buildQuery(data, context, sqlBuilder);
         } finally {
             if (this.useDefault.get()) {
-                if (!querySqlBuilder.lastSpaceCharacter()) {
-                    querySqlBuilder.appendSql(" ");
+                if (!sqlBuilder.lastSpaceCharacter()) {
+                    sqlBuilder.appendSql(" ");
                 }
-                this.defaultDynamicSql.buildQuery(data, context, querySqlBuilder);
+                this.defaultDynamicSql.buildQuery(data, context, sqlBuilder);
             }
             this.useDefault.remove();
         }
@@ -63,12 +63,12 @@ public class ChooseDynamicSql extends ArrayDynamicSql {
         }
 
         @Override
-        public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+        public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
             if (test(data)) {
-                if (!querySqlBuilder.lastSpaceCharacter()) {
-                    querySqlBuilder.appendSql(" ");
+                if (!sqlBuilder.lastSpaceCharacter()) {
+                    sqlBuilder.appendSql(" ");
                 }
-                super.buildQuery(data, context, querySqlBuilder);
+                super.buildQuery(data, context, sqlBuilder);
             }
         }
 

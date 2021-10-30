@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.execute;
-import net.hasor.db.dal.dynamic.DalBoundSql.SqlArg;
 import net.hasor.db.dal.dynamic.DynamicContext;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
+import net.hasor.db.dal.dynamic.SqlArg;
 import net.hasor.db.dal.repository.ResultSetType;
+import net.hasor.db.dialect.BoundSql;
+import net.hasor.db.dialect.PageSqlDialect;
+import net.hasor.db.dialect.SqlBuilder;
 import net.hasor.db.types.TypeHandler;
 
 import java.sql.Connection;
@@ -46,27 +48,27 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
     }
 
     @Override
-    protected Object executeQuery(Connection con, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException {
-        String sqlString = queryBuilder.getSqlString();
+    protected Object executeQuery(Connection con, ExecuteInfo executeInfo, SqlBuilder sqlBuilder) throws SQLException {
+        BoundSql querySql = sqlBuilder;
 
-        //        if (usingPage(executeInfo)) {
-        //            PageSqlDialect dialect = getContext().getDialect();
-        //            int position = executeInfo.pageInfo.getFirstRecordPosition();
-        //            int pageSize = executeInfo.pageInfo.getFirstRecordPosition();
-        //            BoundSql boundSql = dialect.pageSql(queryBuilder, position, pageSize);
-        //        }
+        if (usingPage(executeInfo)) {
+            PageSqlDialect dialect = getContext().getDialect();
+            int position = executeInfo.pageInfo.getFirstRecordPosition();
+            int pageSize = executeInfo.pageInfo.getPageSize();
+            querySql = dialect.pageSql(sqlBuilder, position, pageSize);
+        }
 
-        try (PreparedStatement ps = createPreparedStatement(con, sqlString, executeInfo.resultSetType)) {
+        try (PreparedStatement ps = createPreparedStatement(con, querySql.getSqlString(), executeInfo.resultSetType)) {
             configStatement(executeInfo, ps);
-            return executeQuery(ps, executeInfo, queryBuilder);
+            return executeQuery(ps, executeInfo, querySql);
         }
     }
 
-    protected Object executeQuery(PreparedStatement ps, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException {
+    protected Object executeQuery(PreparedStatement ps, ExecuteInfo executeInfo, BoundSql queryBuilder) throws SQLException {
 
-        List<SqlArg> sqlArg = queryBuilder.getSqlArg();
-        for (int i = 0; i < sqlArg.size(); i++) {
-            SqlArg arg = sqlArg.get(i);
+        List<SqlArg> sqlArgs = toArgs(queryBuilder);
+        for (int i = 0; i < sqlArgs.size(); i++) {
+            SqlArg arg = sqlArgs.get(i);
             TypeHandler typeHandler = arg.getTypeHandler();
             typeHandler.setParameter(ps, i + 1, arg.getValue(), arg.getJdbcType());
         }

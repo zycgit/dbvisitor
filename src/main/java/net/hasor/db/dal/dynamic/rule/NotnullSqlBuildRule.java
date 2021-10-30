@@ -15,8 +15,8 @@
  */
 package net.hasor.db.dal.dynamic.rule;
 import net.hasor.db.dal.dynamic.DynamicContext;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.dynamic.ognl.OgnlUtils;
+import net.hasor.db.dialect.SqlBuilder;
 
 import java.util.Map;
 
@@ -37,8 +37,8 @@ public class NotnullSqlBuildRule implements SqlBuildRule {
     }
 
     @Override
-    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue) {
+    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String ruleValue) {
         Object evalOgnl = OgnlUtils.evalOgnl(ruleValue, data);
-        querySqlBuilder.appendSql(evalOgnl.toString());
+        sqlBuilder.appendSql(evalOgnl.toString());
     }
 }

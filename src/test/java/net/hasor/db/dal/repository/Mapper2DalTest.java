@@ -2,8 +2,9 @@ package net.hasor.db.dal.repository;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.db.dal.dynamic.DynamicSql;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
+import net.hasor.db.dal.dynamic.SqlArg;
 import net.hasor.db.dal.repository.manager.DalRegistry;
+import net.hasor.db.dialect.SqlBuilder;
 import net.hasor.test.db.dal.Mapper2Dal;
 import net.hasor.test.db.dal.dynamic.TextBuilderContext;
 import org.junit.Before;
@@ -34,9 +35,9 @@ public class Mapper2DalTest {
         String querySql1 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper2Dal_testBind.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("sellerId", "123");
-        QuerySqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
+        SqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
         assert builder1.getSqlString().trim().equals(querySql1.trim());
-        assert builder1.getArgs()[0].equals("123abc");
+        assert ((SqlArg) builder1.getArgs()[0]).getValue().equals("123abc");
     }
 
     @Test
@@ -62,10 +63,10 @@ public class Mapper2DalTest {
         Map<String, Object> data1 = new HashMap<>();
         data1.put("title", "123");
         data1.put("content", "aaa");
-        QuerySqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
+        SqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
         assert builder1.getSqlString().trim().equals(querySql1.trim());
-        assert builder1.getArgs()[0].equals("123");
-        assert builder1.getArgs()[1].equals("aaa");
+        assert ((SqlArg) builder1.getArgs()[0]).getValue().equals("123");
+        assert ((SqlArg) builder1.getArgs()[1]).getValue().equals("aaa");
     }
 
     @Test
@@ -74,7 +75,7 @@ public class Mapper2DalTest {
 
         String querySql1 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper2Dal_testChoose.sql_2");
         Map<String, Object> data1 = new HashMap<>();
-        QuerySqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
+        SqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
         assert builder1.getSqlString().trim().equals(querySql1.trim());
     }
 
@@ -85,13 +86,13 @@ public class Mapper2DalTest {
         String querySql1 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper2Dal_testForeach.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("eventTypes", Arrays.asList("a", "b", "c", "d", "e"));
-        QuerySqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
+        SqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
         assert builder1.getSqlString().trim().equals(querySql1.trim());
-        assert builder1.getArgs()[0].equals("a");
-        assert builder1.getArgs()[1].equals("b");
-        assert builder1.getArgs()[2].equals("c");
-        assert builder1.getArgs()[3].equals("d");
-        assert builder1.getArgs()[4].equals("e");
+        assert ((SqlArg) builder1.getArgs()[0]).getValue().equals("a");
+        assert ((SqlArg) builder1.getArgs()[1]).getValue().equals("b");
+        assert ((SqlArg) builder1.getArgs()[2]).getValue().equals("c");
+        assert ((SqlArg) builder1.getArgs()[3]).getValue().equals("d");
+        assert ((SqlArg) builder1.getArgs()[4]).getValue().equals("e");
     }
 
     @Test
@@ -102,16 +103,16 @@ public class Mapper2DalTest {
         Map<String, Object> data1 = new HashMap<>();
         data1.put("ownerID", "123");
         data1.put("ownerType", "SYSTEM");
-        QuerySqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
+        SqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
         assert builder1.getSqlString().trim().equals(querySql1.trim());
-        assert builder1.getArgs()[0].equals("123");
-        assert builder1.getArgs()[1].equals("SYSTEM");
+        assert ((SqlArg) builder1.getArgs()[0]).getValue().equals("123");
+        assert ((SqlArg) builder1.getArgs()[1]).getValue().equals("SYSTEM");
 
         String querySql2 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper2Dal_testIf.sql_2");
         Map<String, Object> data2 = new HashMap<>();
         data1.put("ownerID", "123");
         data1.put("ownerType", null);
-        QuerySqlBuilder builder2 = parseXml.buildQuery(data2, new TextBuilderContext());
+        SqlBuilder builder2 = parseXml.buildQuery(data2, new TextBuilderContext());
         assert builder2.getSqlString().trim().equals(querySql2.trim());
         assert builder2.getArgs().length == 0;
     }

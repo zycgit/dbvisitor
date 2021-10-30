@@ -17,8 +17,8 @@ package net.hasor.db.dal.dynamic.nodes;
 import net.hasor.cobble.StringUtils;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.dynamic.segment.SqlSegmentParser;
+import net.hasor.db.dialect.SqlBuilder;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -49,8 +49,8 @@ public class TextDynamicSql implements DynamicSql {
     }
 
     @Override
-    public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
-        this.dynamicSql.buildQuery(data, context, querySqlBuilder);
+    public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
+        this.dynamicSql.buildQuery(data, context, sqlBuilder);
     }
 
     protected DynamicSql parserQuery(String fragmentString) {

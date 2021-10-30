@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.dal.dynamic;
+package net.hasor.db.dialect;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,18 +23,9 @@ import java.util.List;
  * @version : 2021-06-05
  * @author 赵永春 (zyc@byshell.org)
  */
-public class QuerySqlBuilder implements DalBoundSql {
-    private final StringBuilder queryString = new StringBuilder();
-    private final List<SqlArg>  argList     = new ArrayList<>();
-
-    public void appendSql(String sql, SqlArg... args) {
-        this.queryString.append(sql);
-        this.argList.addAll(Arrays.asList(args));
-    }
-
-    public void appendSql(String sql) {
-        this.queryString.append(sql);
-    }
+public class SqlBuilder implements BoundSql {
+    protected final StringBuilder queryString = new StringBuilder();
+    protected final List<Object>  argList     = new ArrayList<>();
 
     public boolean lastSpaceCharacter() {
         if (this.queryString.length() == 0) {
@@ -45,24 +36,31 @@ public class QuerySqlBuilder implements DalBoundSql {
         }
     }
 
-    public void appendArgs(List<SqlArg> originalArgList) {
-        this.argList.addAll(originalArgList);
+    public void appendSql(String sql, Object... args) {
+        this.queryString.append(sql);
+        this.argList.addAll(Arrays.asList(args));
     }
 
-    public void appendBuilder(DalBoundSql dalBoundSql) {
-        if (dalBoundSql instanceof QuerySqlBuilder) {
-            this.queryString.append(((QuerySqlBuilder) dalBoundSql).queryString);
-            this.argList.addAll(dalBoundSql.getSqlArg());
+    public void appendSql(String sql) {
+        this.queryString.append(sql);
+    }
+
+    public void appendSql(BoundSql boundSql) {
+        this.queryString.append(boundSql.getSqlString());
+    }
+
+    public void appendBuilder(BoundSql boundSql) {
+        if (boundSql instanceof SqlBuilder) {
+            this.queryString.append(((SqlBuilder) boundSql).queryString);
+            this.argList.addAll(((SqlBuilder) boundSql).argList);
         } else {
-            this.queryString.append(dalBoundSql.getSqlString());
-            List<SqlArg> sqlArgs = dalBoundSql.getSqlArg();
-            this.argList.addAll(sqlArgs);
+            this.queryString.append(boundSql.getSqlString());
+            this.argList.addAll(Arrays.asList(boundSql.getArgs()));
         }
     }
 
-    @Override
-    public List<SqlArg> getSqlArg() {
-        return this.argList;
+    public void appendArgs(BoundSql boundSql) {
+        this.argList.addAll(Arrays.asList(boundSql.getArgs()));
     }
 
     @Override
@@ -72,6 +70,6 @@ public class QuerySqlBuilder implements DalBoundSql {
 
     @Override
     public Object[] getArgs() {
-        return this.argList.stream().map(SqlArg::getValue).toArray();
+        return this.argList.toArray();
     }
 }

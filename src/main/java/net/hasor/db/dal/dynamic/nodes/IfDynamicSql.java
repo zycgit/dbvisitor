@@ -15,8 +15,8 @@
  */
 package net.hasor.db.dal.dynamic.nodes;
 import net.hasor.db.dal.dynamic.DynamicContext;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.dynamic.ognl.OgnlUtils;
+import net.hasor.db.dialect.SqlBuilder;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -34,9 +34,9 @@ public class IfDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+    public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
         if (test(data)) {
-            super.buildQuery(data, context, querySqlBuilder);
+            super.buildQuery(data, context, sqlBuilder);
         }
     }
 

@@ -15,11 +15,12 @@
  */
 package net.hasor.db.dal.execute;
 import net.hasor.cobble.StringUtils;
-import net.hasor.db.dal.dynamic.DalBoundSql.SqlArg;
 import net.hasor.db.dal.dynamic.DynamicContext;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
+import net.hasor.db.dal.dynamic.SqlArg;
 import net.hasor.db.dal.dynamic.SqlMode;
 import net.hasor.db.dal.repository.ResultSetType;
+import net.hasor.db.dialect.BoundSql;
+import net.hasor.db.dialect.SqlBuilder;
 import net.hasor.db.types.TypeHandler;
 
 import java.sql.CallableStatement;
@@ -49,29 +50,28 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
         }
     }
 
-    protected boolean usingPage(ExecuteInfo executeInfo) {
-        return false;
-    }
-
     @Override
-    protected Object executeQuery(Connection con, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException {
+    protected Object executeQuery(Connection con, ExecuteInfo executeInfo, SqlBuilder sqlBuilder) throws SQLException {
         if (!con.getMetaData().supportsStoredProcedures()) {
-            throw new UnsupportedOperationException("target DataSource Unsupported.");
+            throw new UnsupportedOperationException("procedure DataSource Unsupported.");
+        }
+        if (usingPage(executeInfo)) {
+            throw new UnsupportedOperationException("procedure does not support page query.");
         }
 
-        String sqlString = queryBuilder.getSqlString();
+        String sqlString = sqlBuilder.getSqlString();
         try (CallableStatement ps = createCallableStatement(con, sqlString, executeInfo.resultSetType)) {
             configStatement(executeInfo, ps);
-            return executeQuery(ps, executeInfo, queryBuilder);
+            return executeQuery(ps, executeInfo, sqlBuilder);
         }
     }
 
-    protected Object executeQuery(CallableStatement cs, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException {
-        List<SqlArg> sqlArg = queryBuilder.getSqlArg();
+    protected Object executeQuery(CallableStatement cs, ExecuteInfo executeInfo, BoundSql queryBuilder) throws SQLException {
+        List<SqlArg> sqlArgs = toArgs(queryBuilder);
 
-        int sqlColIndex = 1;
-        for (int i = 0; i < sqlArg.size(); i++) {
-            SqlArg arg = sqlArg.get(i);
+        for (int i = 0; i < sqlArgs.size(); i++) {
+            int sqlColIndex = i + 1;
+            SqlArg arg = sqlArgs.get(i);
             TypeHandler<Object> typeHandler = (TypeHandler<Object>) arg.getTypeHandler();
 
             switch (arg.getSqlMode()) {
@@ -89,8 +89,6 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
                     break;
                 }
             }
-
-            sqlColIndex++;
         }
 
         // execute call
@@ -99,8 +97,8 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
         // fetch output
         Map<String, Object> resultOut = new LinkedHashMap<>();
         boolean keepAll = executeInfo.resultOut.contains("*");
-        for (int i = 0; i < sqlArg.size(); i++) {
-            SqlArg arg = sqlArg.get(i);
+        for (int i = 0; i < sqlArgs.size(); i++) {
+            SqlArg arg = sqlArgs.get(i);
             TypeHandler<Object> argHandler = (TypeHandler<Object>) arg.getTypeHandler();
 
             if (arg.getSqlMode() != SqlMode.Out) {
@@ -140,5 +138,4 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
             return getResult(resultSet, executeInfo);
         }
     }
-
 }

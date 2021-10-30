@@ -16,8 +16,8 @@
 package net.hasor.db.dal.dynamic.nodes;
 import net.hasor.cobble.StringUtils;
 import net.hasor.db.dal.dynamic.DynamicContext;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.dynamic.ognl.OgnlUtils;
+import net.hasor.db.dialect.SqlBuilder;
 
 import java.lang.reflect.Array;
 import java.sql.SQLException;
@@ -51,7 +51,7 @@ public class ForeachDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder) throws SQLException {
+    public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
         // 获取集合数据对象，数组形态
         Object collectionData = OgnlUtils.evalOgnl(this.collection, data);
         if (collectionData == null) {
@@ -64,18 +64,18 @@ public class ForeachDynamicSql extends ArrayDynamicSql {
             collectionData = new Object[] { collectionData }; //如果不是数组那么转换成数组
         }
         //
-        querySqlBuilder.appendSql(StringUtils.defaultString(this.open));
+        sqlBuilder.appendSql(StringUtils.defaultString(this.open));
         Object oriValue = data.get(this.item);
         try {
             int length = Array.getLength(collectionData);
             for (int i = 0; i < length; i++) {
                 if (i > 0) {
-                    querySqlBuilder.appendSql(StringUtils.defaultString(this.separator)); // 分隔符
+                    sqlBuilder.appendSql(StringUtils.defaultString(this.separator)); // 分隔符
                 }
                 data.put(this.item, Array.get(collectionData, i));
-                super.buildQuery(data, context, querySqlBuilder);
+                super.buildQuery(data, context, sqlBuilder);
             }
-            querySqlBuilder.appendSql(StringUtils.defaultString(this.close));
+            sqlBuilder.appendSql(StringUtils.defaultString(this.close));
         } finally {
             data.put(this.item, oriValue);
         }

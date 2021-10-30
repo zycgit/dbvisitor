@@ -17,24 +17,27 @@ package net.hasor.db.dal.execute;
 import net.hasor.cobble.StringUtils;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
+import net.hasor.db.dal.dynamic.SqlArg;
+import net.hasor.db.dal.dynamic.SqlMode;
 import net.hasor.db.dal.repository.MultipleResultsType;
 import net.hasor.db.dal.repository.ResultSetType;
 import net.hasor.db.dal.repository.config.CallableSqlConfig;
 import net.hasor.db.dal.repository.config.DmlSqlConfig;
 import net.hasor.db.dal.repository.config.QuerySqlConfig;
+import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.dialect.Page;
+import net.hasor.db.dialect.SqlBuilder;
 import net.hasor.db.jdbc.extractor.MultipleProcessType;
 import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.TableMapping;
+import net.hasor.db.types.TypeHandlerRegistry;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.sql.Types;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 执行器基类
@@ -53,7 +56,7 @@ public abstract class AbstractStatementExecute<T> {
     }
 
     public final T execute(Connection conn, DynamicSql dynamicSql, Map<String, Object> data, Page pageInfo) throws SQLException {
-        QuerySqlBuilder queryBuilder = dynamicSql.buildQuery(data, this.context);
+        SqlBuilder queryBuilder = dynamicSql.buildQuery(data, this.context);
         ExecuteInfo executeInfo = new ExecuteInfo();
 
         executeInfo.pageInfo = pageInfo;
@@ -87,10 +90,10 @@ public abstract class AbstractStatementExecute<T> {
     }
 
     protected boolean usingPage(ExecuteInfo executeInfo) {
-        return executeInfo.pageInfo == null || executeInfo.pageInfo.getPageSize() <= 0;
+        return executeInfo.pageInfo != null && executeInfo.pageInfo.getPageSize() > 0;
     }
 
-    protected abstract T executeQuery(Connection con, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException;
+    protected abstract T executeQuery(Connection con, ExecuteInfo executeInfo, SqlBuilder sqlBuilder) throws SQLException;
 
     protected void configStatement(ExecuteInfo executeInfo, Statement statement) throws SQLException {
         if (executeInfo.timeout > 0) {
@@ -139,6 +142,26 @@ public abstract class AbstractStatementExecute<T> {
         } else {
             return result;
         }
+    }
+
+    protected List<SqlArg> toArgs(BoundSql boundSql) {
+        Object[] oriArgs = boundSql.getArgs();
+        return Arrays.stream(oriArgs).map(o -> {
+            if (o instanceof SqlArg) {
+                return (SqlArg) o;
+            } else {
+                SqlArg sqlArg = SqlArg.valueOf(o);
+                sqlArg.setSqlMode(SqlMode.In);
+                if (o == null) {
+                    sqlArg.setTypeHandler(getContext().getTypeRegistry().getDefaultTypeHandler());
+                    sqlArg.setJdbcType(Types.NULL);
+                } else {
+                    sqlArg.setTypeHandler(getContext().findTypeHandler(o.getClass()));
+                    sqlArg.setJdbcType(TypeHandlerRegistry.toSqlType(o.getClass()));
+                }
+                return sqlArg;
+            }
+        }).collect(Collectors.toList());
     }
 
     protected static class ExecuteInfo {

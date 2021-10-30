@@ -16,7 +16,7 @@
 package net.hasor.db.dal.dynamic.rule;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
+import net.hasor.db.dialect.SqlBuilder;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -30,17 +30,17 @@ public class IncludeSqlBuildRule implements SqlBuildRule {
     public static final SqlBuildRule INSTANCE = new IncludeSqlBuildRule();
 
     @Override
-    public void executeRule(Map<String, Object> data, DynamicContext context, QuerySqlBuilder querySqlBuilder, String ruleValue) throws SQLException {
+    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String ruleValue) throws SQLException {
         DynamicSql includeSql = context.findDynamic(ruleValue);
         if (includeSql == null) {
             throw new SQLException("include sql '" + ruleValue + "' not found.");
         }
-        QuerySqlBuilder sqlBuilder = includeSql.buildQuery(data, context);
-        if (!querySqlBuilder.lastSpaceCharacter()) {
-            querySqlBuilder.appendSql(" ");
+        SqlBuilder includeBuilder = includeSql.buildQuery(data, context);
+        if (!sqlBuilder.lastSpaceCharacter()) {
+            sqlBuilder.appendSql(" ");
         }
-        querySqlBuilder.appendBuilder(sqlBuilder);
-        querySqlBuilder.appendSql(" ");
+        sqlBuilder.appendBuilder(includeBuilder);
+        sqlBuilder.appendSql(" ");
     }
 
     @Override

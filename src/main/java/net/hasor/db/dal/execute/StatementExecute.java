@@ -15,8 +15,9 @@
  */
 package net.hasor.db.dal.execute;
 import net.hasor.db.dal.dynamic.DynamicContext;
-import net.hasor.db.dal.dynamic.QuerySqlBuilder;
 import net.hasor.db.dal.repository.ResultSetType;
+import net.hasor.db.dialect.BoundSql;
+import net.hasor.db.dialect.SqlBuilder;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -45,14 +46,18 @@ public class StatementExecute extends AbstractStatementExecute<Object> {
     }
 
     @Override
-    protected Object executeQuery(Connection con, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException {
+    protected Object executeQuery(Connection con, ExecuteInfo executeInfo, SqlBuilder sqlBuilder) throws SQLException {
+        if (usingPage(executeInfo)) {
+            throw new UnsupportedOperationException("Statement does not support page query, please using PreparedStatement.");
+        }
+
         try (Statement stat = createStatement(con, executeInfo.resultSetType)) {
             configStatement(executeInfo, stat);
-            return executeQuery(stat, executeInfo, queryBuilder);
+            return executeQuery(stat, executeInfo, sqlBuilder);
         }
     }
 
-    protected Object executeQuery(Statement statement, ExecuteInfo executeInfo, QuerySqlBuilder queryBuilder) throws SQLException {
+    protected Object executeQuery(Statement statement, ExecuteInfo executeInfo, BoundSql queryBuilder) throws SQLException {
 
         DalResultSetExtractor extractor = super.buildExtractor(executeInfo);
         boolean retVal = statement.execute(queryBuilder.getSqlString());
