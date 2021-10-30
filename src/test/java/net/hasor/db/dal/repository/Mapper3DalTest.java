@@ -1,5 +1,4 @@
 package net.hasor.db.dal.repository;
-import net.hasor.db.dal.repository.manager.DalRegistry;
 import org.junit.Test;
 
 public class Mapper3DalTest {

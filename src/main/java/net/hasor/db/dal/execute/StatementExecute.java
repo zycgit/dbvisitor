@@ -57,10 +57,17 @@ public class StatementExecute extends AbstractStatementExecute<Object> {
         }
     }
 
-    protected Object executeQuery(Statement statement, ExecuteInfo executeInfo, BoundSql queryBuilder) throws SQLException {
+    protected Object executeQuery(Statement statement, ExecuteInfo executeInfo, BoundSql boundSql) throws SQLException {
+        String querySQL = boundSql.getSqlString();
 
         DalResultSetExtractor extractor = super.buildExtractor(executeInfo);
-        boolean retVal = statement.execute(queryBuilder.getSqlString());
+        boolean retVal;
+        try {
+            retVal = statement.execute(querySQL);
+        } catch (SQLException e) {
+            logger.error("executeQuery failed, " + fmtBoundSql(boundSql, executeInfo.data), e);
+            throw e;
+        }
         List<Object> result = extractor.doResult(retVal, statement);
 
         return getResult(result, executeInfo);

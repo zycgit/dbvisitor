@@ -1,9 +1,7 @@
-package net.hasor.db.dal.repository;
+package net.hasor.db.dal.dynamic;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.io.IOUtils;
-import net.hasor.db.dal.dynamic.DynamicSql;
-import net.hasor.db.dal.dynamic.SqlArg;
-import net.hasor.db.dal.repository.manager.DalRegistry;
+import net.hasor.db.dal.repository.DalRegistry;
 import net.hasor.db.dialect.SqlBuilder;
 import net.hasor.test.db.dal.Mapper1Dal;
 import net.hasor.test.db.dal.dynamic.TextBuilderContext;

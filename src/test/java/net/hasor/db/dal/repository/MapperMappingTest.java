@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.repository;
-import net.hasor.db.dal.repository.manager.DalRegistry;
 import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.test.db.AbstractDbTest;
 import org.junit.Before;

@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.db.lambda.core;
-import net.hasor.db.dialect.*;
+import net.hasor.db.dialect.BoundSql;
+import net.hasor.db.dialect.PageSqlDialect;
+import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.jdbc.ResultSetExtractor;
 import net.hasor.db.jdbc.RowCallbackHandler;
 import net.hasor.db.jdbc.RowMapper;
@@ -22,6 +24,8 @@ import net.hasor.db.lambda.QueryExecute;
 import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.db.mapping.resolve.MappingOptions;
+import net.hasor.db.page.Page;
+import net.hasor.db.page.PageObject;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;

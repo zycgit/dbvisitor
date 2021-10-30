@@ -1,5 +1,5 @@
-package net.hasor.db.dal.execute;
-import net.hasor.db.dal.repository.manager.DalRegistry;
+package net.hasor.db.dal.session;
+import net.hasor.db.dal.repository.DalRegistry;
 import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.test.db.dal.execute.TestExecuteDal;
 import net.hasor.test.db.dal.execute.TestUser;
@@ -10,23 +10,20 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
 public class BasicExecuteTest {
-    private DalRegistry dalRegistry;
-    private Connection  connection;
+    private DalSession dalSession;
 
     @Before
     public void loadMapping() throws IOException, SQLException {
-        this.dalRegistry = new DalRegistry();
-        this.dalRegistry.loadMapper(TestExecuteDal.class);
-
-        this.connection = DsUtils.localMySQL();
-        this.beforeTest(new JdbcTemplate(this.connection));
+        DalRegistry dalRegistry = new DalRegistry();
+        dalRegistry.loadMapper(TestExecuteDal.class);
+        this.dalSession = new DalSession(DsUtils.localMySQL(), dalRegistry);
+        this.beforeTest(this.dalSession.jdbcTemplate());
     }
 
     protected void beforeTest(JdbcTemplate jdbcTemplate) throws SQLException, IOException {
@@ -39,7 +36,7 @@ public class BasicExecuteTest {
 
     @Test
     public void listUserList_1() {
-        TestExecuteDal dalExecute = DalFactory.newRepository(TestExecuteDal.class, this.connection, dalRegistry);
+        TestExecuteDal dalExecute = this.dalSession.createMapper(TestExecuteDal.class);
         int i = dalExecute.initUser();
         assert i == 2;
         List<TbUser2> execute2 = dalExecute.listUserList_1("aaa");
@@ -65,7 +62,7 @@ public class BasicExecuteTest {
 
     @Test
     public void listUserList_2() {
-        TestExecuteDal dalExecute = DalFactory.newRepository(TestExecuteDal.class, this.connection, dalRegistry);
+        TestExecuteDal dalExecute = this.dalSession.createMapper(TestExecuteDal.class);
         int i = dalExecute.initUser();
         assert i == 2;
         List<TestUser> execute2 = dalExecute.listUserList_2("aaa");
@@ -92,7 +89,7 @@ public class BasicExecuteTest {
 
     @Test
     public void procedure_1() {
-        TestExecuteDal dalExecute = DalFactory.newRepository(TestExecuteDal.class, this.connection, dalRegistry);
+        TestExecuteDal dalExecute = this.dalSession.createMapper(TestExecuteDal.class);
         dalExecute.initUser();
 
         Map<String, Object> execute1 = dalExecute.callSelectUser("");

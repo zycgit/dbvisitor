@@ -51,7 +51,7 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
     }
 
     @Override
-    protected Object executeQuery(Connection con, ExecuteInfo executeInfo, SqlBuilder sqlBuilder) throws SQLException {
+    protected Object executeQuery(Connection con, ExecuteInfo executeInfo, SqlBuilder boundSql) throws SQLException {
         if (!con.getMetaData().supportsStoredProcedures()) {
             throw new UnsupportedOperationException("procedure DataSource Unsupported.");
         }
@@ -59,10 +59,13 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
             throw new UnsupportedOperationException("procedure does not support page query.");
         }
 
-        String sqlString = sqlBuilder.getSqlString();
-        try (CallableStatement ps = createCallableStatement(con, sqlString, executeInfo.resultSetType)) {
+        String querySQL = boundSql.getSqlString();
+        try (CallableStatement ps = createCallableStatement(con, querySQL, executeInfo.resultSetType)) {
             configStatement(executeInfo, ps);
-            return executeQuery(ps, executeInfo, sqlBuilder);
+            return executeQuery(ps, executeInfo, boundSql);
+        } catch (SQLException e) {
+            logger.error("executeQuery failed, " + fmtBoundSql(boundSql, executeInfo.data), e);
+            throw e;
         }
     }
 

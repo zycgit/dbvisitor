@@ -13,42 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.dal.execute;
+package net.hasor.db.dal.session;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.function.EFunction;
 import net.hasor.cobble.ref.BeanMap;
 import net.hasor.db.dal.dynamic.DynamicSql;
+import net.hasor.db.dal.execute.ExecuteProxy;
+import net.hasor.db.dal.repository.DalRegistry;
 import net.hasor.db.dal.repository.Param;
-import net.hasor.db.dal.repository.manager.DalRegistry;
-import net.hasor.db.dialect.Page;
-import net.hasor.db.jdbc.core.JdbcAccessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.hasor.db.dialect.PageSqlDialect;
+import net.hasor.db.page.Page;
+import net.hasor.db.page.PageResult;
 
-import javax.sql.DataSource;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
-class RepositoryInvocationHandler extends JdbcAccessor implements InvocationHandler {
-    private static final Logger                            logger        = LoggerFactory.getLogger(RepositoryInvocationHandler.class);
-    private final        String                            space;
-    private final        Map<String, ExecuteProxy>         dynamicSqlMap = new HashMap<>();
-    private final        Map<String, Integer>              pageInfoMap   = new HashMap<>();
-    private final        Map<String, Map<String, Integer>> argNamesMap   = new HashMap<>();
+class ExecuteInvocationHandler implements InvocationHandler {
+    private final String                            space;
+    private final DalSession                        dalSession;
+    private final Map<String, ExecuteProxy>         dynamicSqlMap = new HashMap<>();
+    private final Map<String, Integer>              pageInfoMap   = new HashMap<>();
+    private final Map<String, Map<String, Integer>> argNamesMap   = new HashMap<>();
 
-    public RepositoryInvocationHandler(final DataSource dataSource, Class<?> dalType, DalRegistry dalRegistry) {
+    public ExecuteInvocationHandler(DalSession dalSession, Class<?> dalType, DalRegistry dalRegistry) {
         this.space = dalType.getName();
-        this.setDataSource(dataSource);
-        this.initDynamicSqlMap(dalType, dalRegistry);
-    }
-
-    public RepositoryInvocationHandler(final Connection conn, Class<?> dalType, DalRegistry dalRegistry) {
-        this.space = dalType.getName();
-        this.setConnection(conn);
+        this.dalSession = dalSession;
         this.initDynamicSqlMap(dalType, dalRegistry);
     }
 
@@ -135,11 +126,13 @@ class RepositoryInvocationHandler extends JdbcAccessor implements InvocationHand
 
         String dynamicId = method.getName();
         Page page = extractPage(dynamicId, objects);
+        boolean pageResult = method.getReturnType() == PageResult.class;
         Map<String, Object> data = extractData(dynamicId, objects);
 
         final ExecuteProxy execute = this.dynamicSqlMap.get(dynamicId);
-        Object result = this.execute(conn -> {
-            return execute.execute(conn, data, page);
+        PageSqlDialect dialect = this.dalSession.getDialect();
+        Object result = this.dalSession.execute(conn -> {
+            return execute.execute(conn, data, page, pageResult, dialect);
         });
 
         Class<?> returnType = method.getReturnType();
@@ -176,32 +169,6 @@ class RepositoryInvocationHandler extends JdbcAccessor implements InvocationHand
                 }
             } else {
                 return result;
-            }
-        }
-    }
-
-    protected <R> R execute(final EFunction<Connection, R, SQLException> apply) throws SQLException {
-        Connection localConn = this.getConnection();
-        DataSource localDS = this.getDataSource();//获取数据源
-        boolean usingDS = (localConn == null);
-        if (logger.isDebugEnabled()) {
-            logger.debug("database connection using DataSource = {}", usingDS);
-        }
-        if (localConn == null && localDS == null) {
-            throw new IllegalArgumentException("DataSource or Connection are not available.");
-        }
-
-        Connection useConn = null;
-        try {
-            if (usingDS) {
-                useConn = applyConnection(localDS);
-            } else {
-                useConn = localConn;
-            }
-            return apply.eApply(useConn);
-        } finally {
-            if (usingDS && useConn != null) {
-                useConn.close();
             }
         }
     }

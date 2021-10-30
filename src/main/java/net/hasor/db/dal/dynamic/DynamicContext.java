@@ -30,7 +30,7 @@ import net.hasor.db.types.TypeHandlerRegistry;
  */
 public class DynamicContext {
 
-    public PageSqlDialect getDialect() {
+    public PageSqlDialect findDialect(String dbType) {
         return DefaultSqlDialect.DEFAULT;
     }
 

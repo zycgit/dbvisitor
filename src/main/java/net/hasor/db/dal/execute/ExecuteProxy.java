@@ -18,7 +18,8 @@ import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.repository.StatementType;
 import net.hasor.db.dal.repository.config.DmlSqlConfig;
-import net.hasor.db.dialect.Page;
+import net.hasor.db.dialect.PageSqlDialect;
+import net.hasor.db.page.Page;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -60,7 +61,7 @@ public class ExecuteProxy {
         }
     }
 
-    public Object execute(Connection conn, Map<String, Object> data, Page page) throws SQLException {
-        return this.execute.execute(conn, this.dynamicSql, data, page);
+    public Object execute(Connection conn, Map<String, Object> data, Page page, boolean pageResult, PageSqlDialect dialect) throws SQLException {
+        return this.execute.execute(conn, this.dynamicSql, data, page, pageResult, dialect);
     }
 }

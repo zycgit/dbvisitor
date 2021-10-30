@@ -15,7 +15,7 @@
  */
 package net.hasor.db.lambda;
 import net.hasor.cobble.reflect.SFunction;
-import net.hasor.db.dialect.Page;
+import net.hasor.db.page.Page;
 
 /**
  * Query 复杂操作构造器。

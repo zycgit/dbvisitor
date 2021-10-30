@@ -18,7 +18,6 @@ import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.reflect.SFunction;
 import net.hasor.db.dialect.BoundSql;
-import net.hasor.db.dialect.Page;
 import net.hasor.db.lambda.LambdaOperations.LambdaQuery;
 import net.hasor.db.lambda.QueryExecute;
 import net.hasor.db.lambda.segment.MergeSqlSegment;
@@ -26,6 +25,7 @@ import net.hasor.db.lambda.segment.OrderByKeyword;
 import net.hasor.db.lambda.segment.Segment;
 import net.hasor.db.mapping.def.ColumnMapping;
 import net.hasor.db.mapping.def.TableMapping;
+import net.hasor.db.page.Page;
 
 import java.util.*;
 import java.util.stream.Collectors;

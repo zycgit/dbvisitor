@@ -15,6 +15,7 @@
  */
 package net.hasor.db.dal.execute;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.io.IOUtils;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.SqlArg;
@@ -25,13 +26,17 @@ import net.hasor.db.dal.repository.config.CallableSqlConfig;
 import net.hasor.db.dal.repository.config.DmlSqlConfig;
 import net.hasor.db.dal.repository.config.QuerySqlConfig;
 import net.hasor.db.dialect.BoundSql;
-import net.hasor.db.dialect.Page;
+import net.hasor.db.dialect.PageSqlDialect;
 import net.hasor.db.dialect.SqlBuilder;
 import net.hasor.db.jdbc.extractor.MultipleProcessType;
 import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.TableMapping;
+import net.hasor.db.page.Page;
 import net.hasor.db.types.TypeHandlerRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -45,7 +50,8 @@ import java.util.stream.Collectors;
  * @author 赵永春 (zyc@hasor.net)
  */
 public abstract class AbstractStatementExecute<T> {
-    private final DynamicContext context;
+    protected static final Logger         logger = LoggerFactory.getLogger(AbstractStatementExecute.class);
+    private final          DynamicContext context;
 
     public AbstractStatementExecute(DynamicContext context) {
         this.context = context;
@@ -55,7 +61,7 @@ public abstract class AbstractStatementExecute<T> {
         return this.context;
     }
 
-    public final T execute(Connection conn, DynamicSql dynamicSql, Map<String, Object> data, Page pageInfo) throws SQLException {
+    public final T execute(Connection conn, DynamicSql dynamicSql, Map<String, Object> data, Page pageInfo, boolean pageResult, PageSqlDialect dialect) throws SQLException {
         SqlBuilder queryBuilder = dynamicSql.buildQuery(data, this.context);
         ExecuteInfo executeInfo = new ExecuteInfo();
 
@@ -66,6 +72,9 @@ public abstract class AbstractStatementExecute<T> {
         executeInfo.fetchSize = 256;
         executeInfo.resultSetType = ResultSetType.DEFAULT;
         executeInfo.multipleResultType = MultipleResultsType.LAST;
+        executeInfo.pageDialect = dialect;
+        executeInfo.pageResult = pageResult;
+        executeInfo.data = data;
 
         if (dynamicSql instanceof DmlSqlConfig) {
             executeInfo.timeout = ((DmlSqlConfig) dynamicSql).getTimeout();
@@ -164,6 +173,65 @@ public abstract class AbstractStatementExecute<T> {
         }).collect(Collectors.toList());
     }
 
+    protected static String fmtBoundSql(BoundSql boundSql, Map<String, Object> userData) {
+        StringBuilder builder = new StringBuilder("querySQL: ");
+
+        try {
+            List<String> lines = IOUtils.readLines(new StringReader(boundSql.getSqlString()));
+            for (String line : lines) {
+                if (StringUtils.isNotBlank(line)) {
+                    builder.append(line.trim()).append(" ");
+                }
+            }
+        } catch (Exception e) {
+            builder.append(boundSql.getSqlString().replace("\n", ""));
+        }
+        builder.append(" ");
+
+        builder.append(",parameter: [");
+        int i = 0;
+        for (Object arg : boundSql.getArgs()) {
+            if (i > 0) {
+                builder.append(", ");
+            }
+            builder.append(fmtValue(arg));
+            i++;
+        }
+        builder.append("] ");
+
+        builder.append(",userData: {");
+        int j = 0;
+        for (String key : userData.keySet()) {
+            if (j > 0) {
+                builder.append(", ");
+            }
+            builder.append(key);
+            builder.append(" = ");
+            builder.append(fmtValue(userData.get(key)));
+            j++;
+        }
+        builder.append("}");
+        return builder.toString();
+    }
+
+    protected static String fmtValue(Object value) {
+        Object object = value instanceof SqlArg ? ((SqlArg) value).getValue() : value;
+        if (object == null) {
+            return "null";
+        } else if (object instanceof String) {
+            if (((String) object).length() > 2048) {
+                return "'" + ((String) object).substring(0, 2048) + "...'";
+            } else {
+                return "'" + ((String) object).replace("'", "\\'") + "'";
+            }
+        } else if (object instanceof Page) {
+            return "page[pageSize=" + ((Page) object).getPageSize()//
+                    + ", currentPage=" + ((Page) object).getCurrentPage()//
+                    + ", pageNumberOffset=" + ((Page) object).getPageNumberOffset() + "]";
+        }
+        return object.toString();
+    }
+
     protected static class ExecuteInfo {
         // query
         public String              parameterType      = null;
@@ -174,9 +242,11 @@ public abstract class AbstractStatementExecute<T> {
         public boolean             caseInsensitive    = true;
         public MultipleResultsType multipleResultType = MultipleResultsType.LAST;
         public Set<String>         resultOut;
-
+        // page
         public Page                pageInfo;
+        public PageSqlDialect      pageDialect;
         public boolean             pageResult;
+        // data
         public Map<String, Object> data;
     }
 }

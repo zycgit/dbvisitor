@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.dialect;
+package net.hasor.db.page;
 import net.hasor.cobble.function.ESupplier;
 
 import java.sql.SQLException;
@@ -39,6 +39,12 @@ public class PageObject implements Page {
 
     public PageObject() {
         this.totalCountSupplier = () -> 0;
+    }
+
+    public PageObject(int pageSize, int totalCount) {
+        this.pageSize = pageSize;
+        this.totalCount = totalCount;
+        this.totalCountInited.set(true);
     }
 
     public PageObject(int pageSize, ESupplier<Integer, SQLException> totalCountSupplier) {

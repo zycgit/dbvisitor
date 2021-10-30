@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.dal.repository.manager;
+package net.hasor.db.dal.repository;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.rule.RuleRegistry;
-import net.hasor.db.dal.repository.RefMapper;
-import net.hasor.db.dal.repository.SimpleMapper;
 import net.hasor.db.dal.repository.config.QuerySqlConfig;
 import net.hasor.db.dal.repository.parser.ClassDynamicResolve;
 import net.hasor.db.dal.repository.parser.DynamicResolve;
@@ -84,7 +82,7 @@ public class DalRegistry {
     }
 
     public DynamicContext createContext(String space) {
-        return new DalDynamicContext(space, this);
+        return new DalContext(space, this);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -343,5 +341,36 @@ public class DalRegistry {
 
     protected DynamicResolve<Node> getXmlDynamicResolve() {
         return new XmlDynamicResolve();
+    }
+
+    /** 生成动态 SQL 的 Build 环境 */
+    private static class DalContext extends DynamicContext {
+        private final String      space;
+        private final DalRegistry dalRegistry;
+
+        public DalContext(String space, DalRegistry dalRegistry) {
+            this.space = space;
+            this.dalRegistry = dalRegistry;
+        }
+
+        public DynamicSql findDynamic(String dynamicId) {
+            return this.dalRegistry.findDynamicSql(this.space, dynamicId);
+        }
+
+        public TableMapping<?> findTableMapping(String resultMap) {
+            return this.dalRegistry.findTableMapping(this.space, resultMap);
+        }
+
+        public TypeHandlerRegistry getTypeRegistry() {
+            return this.dalRegistry.getTypeRegistry();
+        }
+
+        public RuleRegistry getRuleRegistry() {
+            return this.dalRegistry.getRuleRegistry();
+        }
+
+        public ClassLoader getClassLoader() {
+            return this.dalRegistry.getClassLoader();
+        }
     }
 }
