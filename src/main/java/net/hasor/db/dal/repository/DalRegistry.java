@@ -109,16 +109,19 @@ public class DalRegistry {
 
     /** 从类型中解析 TableMapping */
     public <T> TableMapping<T> findTableMapping(String space, String mapName) {
+        space = StringUtils.isBlank(space) ? "" : space;
         Map<String, TableMapping<?>> resultMap = this.mappingMap.get(space);
-        if (resultMap == null) {
-            return null;
-        } else {
+        if (resultMap != null && resultMap.containsKey(mapName)) {
             return (TableMapping<T>) resultMap.get(mapName);
+        } else if (StringUtils.isNotBlank(space)) {
+            return findTableMapping("", mapName);
+        } else {
+            return null;
         }
     }
 
     /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
-    public void loadResource(String resource) throws IOException {
+    public void loadMapper(String resource) throws IOException {
         try (InputStream stream = getResourceAsStream(resource)) {
             Element root = loadXmlRoot(resource, stream);
 
@@ -201,6 +204,7 @@ public class DalRegistry {
     // --------------------------------------------------------------------------------------------
 
     protected void saveMapping(String space, String identify, TableMapping<?> tableMapping) throws IOException {
+        space = StringUtils.isBlank(space) ? "" : space;
         if (!this.mappingMap.containsKey(space)) {
             this.mappingMap.put(space, new ConcurrentHashMap<>());
         }
@@ -210,7 +214,6 @@ public class DalRegistry {
             throw new IOException("repeat '" + identify + "' in " + (StringUtils.isBlank(space) ? "default namespace" : ("'" + space + "' namespace.")));
         } else {
             mappingMap.put(identify, tableMapping);
-            mappingMap.put(tableMapping.entityType().getName(), tableMapping);
         }
     }
 
@@ -238,15 +241,22 @@ public class DalRegistry {
             }
 
             boolean isResultMap = "resultMap".equalsIgnoreCase(node.getNodeName());
-            if (!isResultMap) {
+            boolean isEntityMap = "entityMap".equalsIgnoreCase(node.getNodeName());
+            if (!(isResultMap || isEntityMap)) {
                 continue;
             }
 
             NamedNodeMap nodeAttributes = node.getAttributes();
             Node idNode = nodeAttributes.getNamedItem("id");
             Node typeNode = nodeAttributes.getNamedItem("type");
+            Node tableNode = nodeAttributes.getNamedItem("table");
             String idString = (idNode != null) ? idNode.getNodeValue() : null;
             String typeString = (typeNode != null) ? typeNode.getNodeValue() : null;
+            String tableName = (tableNode != null) ? tableNode.getNodeValue() : null;
+
+            if (isEntityMap && StringUtils.isBlank(tableName)) {
+                throw new IOException("<entityMap> must be include 'table'='xxx'.");
+            }
 
             if (StringUtils.isBlank(idString) && StringUtils.isBlank(typeString)) {
                 throw new IOException("the <" + node.getNodeName() + "> tag, id and type require at least one.");
@@ -256,7 +266,12 @@ public class DalRegistry {
             }
 
             TableMapping<?> tableMapping = resolve.resolveTableMapping(node, getClassLoader(), getTypeRegistry(), options);
-            saveMapping(scope, idString, tableMapping);
+
+            if (isEntityMap) {
+                saveMapping(null, idString, tableMapping);
+            } else {
+                saveMapping(scope, idString, tableMapping);
+            }
         }
     }
 
@@ -267,7 +282,12 @@ public class DalRegistry {
 
         for (int i = 0, len = childNodes.getLength(); i < len; i++) {
             Node node = childNodes.item(i);
+            String elementName = node.getNodeName();
             if (node.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+
+            if ("entityMap".equalsIgnoreCase(elementName) || "resultMap".equalsIgnoreCase(elementName)) {
                 continue;
             }
 
@@ -275,7 +295,7 @@ public class DalRegistry {
             Node idNode = nodeAttributes.getNamedItem("id");
             String idString = (idNode != null) ? idNode.getNodeValue() : null;
             if (StringUtils.isBlank(idString)) {
-                throw new IOException("the <" + configRoot.getNodeName() + "> tag is missing an ID.");
+                throw new IOException("the <" + node.getNodeName() + "> tag is missing an ID.");
             }
 
             DynamicSql dynamicSql = resolve.parseSqlConfig(node);

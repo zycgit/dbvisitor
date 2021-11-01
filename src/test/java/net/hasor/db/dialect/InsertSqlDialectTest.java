@@ -88,15 +88,15 @@ public class InsertSqlDialectTest extends AbstractDbTest {
 
         SqlDialect dialect = new OracleDialect();
         BoundSql boundSql1 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Into).getBoundSql(dialect);
-        assert boundSql1.getSqlString().equals("INSERT INTO TB_User (userUUID, name, loginName, loginPassword, email, \"index\", registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        assert boundSql1.getSqlString().equals("INSERT INTO tb_user (userUUID, name, loginName, loginPassword, email, \"index\", registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
 
         BoundSql boundSql2 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Ignore).getBoundSql(dialect);
-        assert boundSql2.getSqlString().equals("MERGE INTO TB_User TMP USING (SELECT ? userUUID, ? name, ? loginName, ? loginPassword, ? email, ? \"index\", ? registerTime FROM dual ) SRC ON (TMP.userUUID = SRC.userUUID) "//
+        assert boundSql2.getSqlString().equals("MERGE INTO tb_user TMP USING (SELECT ? userUUID, ? name, ? loginName, ? loginPassword, ? email, ? \"index\", ? registerTime FROM dual ) SRC ON (TMP.userUUID = SRC.userUUID) "//
                 + "WHEN NOT MATCHED THEN INSERT (userUUID, name, loginName, loginPassword, email, \"index\", registerTime) VALUES( SRC.userUUID, SRC.name, SRC.loginName, SRC.loginPassword, SRC.email, SRC.\"index\", SRC.registerTime) ");
 
         BoundSql boundSql3 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Update).getBoundSql(dialect);
-        assert boundSql3.getSqlString().equals("MERGE INTO TB_User TMP USING (SELECT ? userUUID, ? name, ? loginName, ? loginPassword, ? email, ? \"index\", ? registerTime FROM dual ) SRC ON (TMP.userUUID = SRC.userUUID) "//
-                + "WHEN MATCHED THEN UPDATE SET userUUID = SRC.userUUID, name = SRC.name, loginName = SRC.loginName, loginPassword = SRC.loginPassword, email = SRC.email, \"index\" = SRC.\"index\", registerTime = SRC.registerTime "//
+        assert boundSql3.getSqlString().equals("MERGE INTO tb_user TMP USING (SELECT ? userUUID, ? name, ? loginName, ? loginPassword, ? email, ? \"index\", ? registerTime FROM dual ) SRC ON (TMP.userUUID = SRC.userUUID) " //
+                + "WHEN MATCHED THEN UPDATE SET userUUID = SRC.userUUID, name = SRC.name, loginName = SRC.loginName, loginPassword = SRC.loginPassword, email = SRC.email, \"index\" = SRC.\"index\", registerTime = SRC.registerTime " //
                 + "WHEN NOT MATCHED THEN INSERT (userUUID, name, loginName, loginPassword, email, \"index\", registerTime) VALUES( SRC.userUUID, SRC.name, SRC.loginName, SRC.loginPassword, SRC.email, SRC.\"index\", SRC.registerTime) ");
     }
 }

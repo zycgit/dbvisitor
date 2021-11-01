@@ -1,4 +1,4 @@
-package net.hasor.db.realdb.oracle;
+package net.hasor.db.realdb.mysql;
 import net.hasor.db.lambda.LambdaOperations.LambdaInsert;
 import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.test.db.dto.TbUser;
@@ -9,16 +9,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
 
-public class OraclePerformanceTest {
+public class MySqlPerformanceTest {
     private void reinit(Connection con) {
         LambdaTemplate lambdaTemplate = new LambdaTemplate(con);
         try {
-            lambdaTemplate.execute("drop table tb_user");
+            lambdaTemplate.execute("drop table if exists tb_user");
         } catch (Exception e) {
             e.printStackTrace();
         }
         try {
-            lambdaTemplate.loadSQL("/net_hasor_db/tb_user_for_oracle.sql");
+            lambdaTemplate.loadSQL("/net_hasor_db/tb_user_for_mysql.sql");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -47,9 +47,9 @@ public class OraclePerformanceTest {
     }
 
     @Test
-    public void oracleInsertQuery_1() throws SQLException {
+    public void mysqlInsertQuery_1() throws SQLException {
         long t = System.currentTimeMillis();
-        try (Connection con = DsUtils.localOracle()) {
+        try (Connection con = DsUtils.localMySQL()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(con);
             //
             reinit(con);
@@ -64,9 +64,9 @@ public class OraclePerformanceTest {
     }
 
     @Test
-    public void oracleInsertQuery_2() throws SQLException {
+    public void mysqlInsertQuery_2() throws SQLException {
         long t = System.currentTimeMillis();
-        try (Connection con = DsUtils.localOracle()) {
+        try (Connection con = DsUtils.localMySQL()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(con);
             //
             reinit(con);

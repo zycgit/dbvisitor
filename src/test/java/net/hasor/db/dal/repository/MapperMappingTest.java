@@ -33,7 +33,7 @@ public class MapperMappingTest extends AbstractDbTest {
     @Before
     public void beforeTest() throws Exception {
         this.dalRegistry = new DalRegistry();
-        this.dalRegistry.loadResource("/net_hasor_db/dal_repository/mapper_1.xml");
+        this.dalRegistry.loadMapper("/net_hasor_db/dal_repository/mapper_1.xml");
     }
 
     @Test
@@ -48,7 +48,7 @@ public class MapperMappingTest extends AbstractDbTest {
         assert tableMapping.getPropertyByName("index").getColumn().equals("index");
         assert tableMapping.getPropertyByName("createTime").getColumn().equals("registerTime");
 
-        assert tableMapping.getTable().equals("TB_User");
+        assert tableMapping.getTable().equals("tb_user");
         assert Objects.equals(tableMapping.getPropertyByName("mail").getJdbcType(), JDBCType.VARCHAR.getVendorTypeNumber());
         assert Objects.equals(tableMapping.getPropertyByName("index").getJdbcType(), JDBCType.INTEGER.getVendorTypeNumber());
         assert Objects.equals(tableMapping.getPropertyByName("createTime").getJdbcType(), JDBCType.TIMESTAMP.getVendorTypeNumber());

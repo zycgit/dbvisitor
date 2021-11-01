@@ -24,8 +24,9 @@ import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.dialect.SqlDialectRegister;
 import net.hasor.db.jdbc.ConnectionCallback;
 import net.hasor.db.jdbc.core.JdbcAccessor;
-import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.lambda.core.LambdaTemplate;
+import net.hasor.db.mapping.def.TableMapping;
+import net.hasor.db.mapping.resolve.MappingOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,32 +89,22 @@ public class DalSession extends JdbcAccessor {
         return this.dialect;
     }
 
-    public JdbcTemplate jdbcTemplate() {
-        Connection localConn = this.getConnection();
-        if (localConn != null) {
-            return new JdbcTemplate(localConn);
-        }
-
-        DataSource localDS = this.getDataSource();//获取数据源
-        if (localDS != null) {
-            return new JdbcTemplate(localDS);
-        }
-
-        return new JdbcTemplate();
-    }
-
     public LambdaTemplate lambdaTemplate() {
+
         Connection localConn = this.getConnection();
-        if (localConn != null) {
-            return new LambdaTemplate(localConn);
-        }
-
         DataSource localDS = this.getDataSource();//获取数据源
-        if (localDS != null) {
-            return new LambdaTemplate(localDS);
+        DalLambdaTemplate template = null;
+
+        if (localConn != null) {
+            template = new DalLambdaTemplate(localConn);
+        } else if (localDS != null) {
+            template = new DalLambdaTemplate(localDS);
+        } else {
+            template = new DalLambdaTemplate();
         }
 
-        return new LambdaTemplate();
+        template.setAccessorApply(this.getAccessorApply());
+        return template;
     }
 
     public <T> T createMapper(Class<T> mapperType) {
@@ -163,4 +154,25 @@ public class DalSession extends JdbcAccessor {
         return (!(tempDialect instanceof PageSqlDialect)) ? DefaultSqlDialect.DEFAULT : (PageSqlDialect) tempDialect;
     }
 
+    private class DalLambdaTemplate extends LambdaTemplate {
+        public DalLambdaTemplate() {
+        }
+
+        public DalLambdaTemplate(Connection localConn) {
+            super(localConn);
+        }
+
+        public DalLambdaTemplate(DataSource localDS) {
+            super(localDS);
+        }
+
+        protected <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
+            return dalRegistry.findTableMapping(null, exampleType);
+        }
+
+        @Override
+        protected SqlDialect getDefaultDialect() {
+            return getDialect();
+        }
+    }
 }

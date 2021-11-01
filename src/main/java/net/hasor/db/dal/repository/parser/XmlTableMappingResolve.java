@@ -56,7 +56,11 @@ public class XmlTableMappingResolve implements TableMappingResolve<Node> {
         options = MappingOptions.resolveOptions(refData, options);
         NamedNodeMap nodeAttributes = refData.getAttributes();
         Node typeNode = nodeAttributes.getNamedItem("type");
+        Node schemaNode = nodeAttributes.getNamedItem("schema");
+        Node tableNode = nodeAttributes.getNamedItem("table");
         String type = (typeNode != null) ? typeNode.getNodeValue() : null;
+        String schemaName = (schemaNode != null) ? schemaNode.getNodeValue() : null;
+        String tableName = (tableNode != null) ? tableNode.getNodeValue() : null;
 
         Class<?> entityType = classLoader.loadClass(type);
         if (CLASS_MAPPING_MAP.containsKey(entityType)) {
@@ -64,12 +68,20 @@ public class XmlTableMappingResolve implements TableMappingResolve<Node> {
         }
 
         if (options.getAutoMapping() != null && options.getAutoMapping()) {
-            return this.classResolveTableMapping.resolveTableMapping(entityType, classLoader, typeRegistry, options);
-        } else {
+            TableDef<?> tableDef = this.classResolveTableMapping.resolveTableMapping(entityType, classLoader, typeRegistry, options);
+            if (StringUtils.isNotBlank(schemaName)) {
+                tableDef.setSchema(schemaName);
+            }
+            if (StringUtils.isNotBlank(tableName)) {
+                tableDef.setTable(tableName);
+            }
 
+            return tableDef;
+        } else {
             boolean caseInsensitive = options.getCaseInsensitive() == null || Boolean.TRUE.equals(options.getCaseInsensitive());
-            String schemaName = null;
-            String tableName = humpToLine(entityType.getSimpleName(), options.getMapUnderscoreToCamelCase());
+            if (StringUtils.isBlank(tableName)) {
+                tableName = humpToLine(entityType.getSimpleName(), options.getMapUnderscoreToCamelCase());
+            }
 
             TableDef<?> tableDef = new TableDef<>(schemaName, tableName, entityType, false, false, caseInsensitive);
             loadTableMapping(tableDef, refData, classLoader, typeRegistry);
@@ -95,7 +107,7 @@ public class XmlTableMappingResolve implements TableMappingResolve<Node> {
             ColumnMapping columnMapping = null;
             if ("id".equalsIgnoreCase(elementName)) {
                 columnMapping = this.resolveProperty(true, node, propertyMap, classLoader, typeRegistry);
-            } else if ("result".equalsIgnoreCase(elementName)) {
+            } else if ("result".equalsIgnoreCase(elementName) || "mapping".equalsIgnoreCase(elementName)) {
                 columnMapping = this.resolveProperty(false, node, propertyMap, classLoader, typeRegistry);
             } else {
                 throw new UnsupportedOperationException("tag <" + elementName + "> Unsupported.");

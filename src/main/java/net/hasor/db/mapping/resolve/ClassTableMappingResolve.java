@@ -22,7 +22,6 @@ import net.hasor.db.mapping.Ignore;
 import net.hasor.db.mapping.Table;
 import net.hasor.db.mapping.def.ColumnDef;
 import net.hasor.db.mapping.def.TableDef;
-import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
 
@@ -48,12 +47,12 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
         CLASS_MAPPING_MAP.put(Map.class, HashMap.class);
     }
 
-    public static TableMapping<?> resolveTableMapping(Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
+    public static TableDef<?> resolveTableMapping(Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
         return new ClassTableMappingResolve().resolveTableMapping(entityType, classLoader, typeRegistry, null);
     }
 
     @Override
-    public TableMapping<?> resolveTableMapping(Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions options) {
+    public TableDef<?> resolveTableMapping(Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions options) {
         options = new MappingOptions(options);
 
         TableDef<?> def = this.resolveTable((Class<?>) entityType, options);

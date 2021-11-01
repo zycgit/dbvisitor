@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.lambda.core;
+import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.lambda.LambdaOperations;
 import net.hasor.db.mapping.def.TableMapping;
@@ -116,23 +117,35 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         }
     }
 
-    @Override
-    public <T> LambdaOperations.LambdaQuery<T> lambdaQuery(Class<T> exampleType, MappingOptions options) {
-        return new LambdaQueryWrapper<>(getTableMapping(exampleType, options), this);
+    protected SqlDialect getDefaultDialect() {
+        return null;
+    }
+
+    private <T, E extends AbstractExecute<T>> E configDialect(E execute) {
+        SqlDialect dialect = getDefaultDialect();
+        if (dialect != null) {
+            execute.setDialect(dialect);
+        }
+        return execute;
     }
 
     @Override
-    public <T> LambdaOperations.LambdaDelete<T> lambdaDelete(Class<T> exampleType, MappingOptions options) {
-        return new LambdaDeleteWrapper<>(getTableMapping(exampleType, options), this);
+    public <T> LambdaQuery<T> lambdaQuery(Class<T> exampleType, MappingOptions options) {
+        return configDialect(new LambdaQueryWrapper<>(getTableMapping(exampleType, options), this));
     }
 
     @Override
-    public <T> LambdaOperations.LambdaUpdate<T> lambdaUpdate(Class<T> exampleType, MappingOptions options) {
-        return new LambdaUpdateWrapper<>(getTableMapping(exampleType, options), this);
+    public <T> LambdaDelete<T> lambdaDelete(Class<T> exampleType, MappingOptions options) {
+        return configDialect(new LambdaDeleteWrapper<>(getTableMapping(exampleType, options), this));
     }
 
     @Override
-    public <T> LambdaOperations.LambdaInsert<T> lambdaInsert(Class<T> exampleType, MappingOptions options) {
-        return new LambdaInsertWrapper<>(getTableMapping(exampleType, options), this);
+    public <T> LambdaUpdate<T> lambdaUpdate(Class<T> exampleType, MappingOptions options) {
+        return configDialect(new LambdaUpdateWrapper<>(getTableMapping(exampleType, options), this));
+    }
+
+    @Override
+    public <T> LambdaInsert<T> lambdaInsert(Class<T> exampleType, MappingOptions options) {
+        return configDialect(new LambdaInsertWrapper<>(getTableMapping(exampleType, options), this));
     }
 }

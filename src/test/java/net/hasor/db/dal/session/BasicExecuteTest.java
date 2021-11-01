@@ -23,7 +23,7 @@ public class BasicExecuteTest {
         DalRegistry dalRegistry = new DalRegistry();
         dalRegistry.loadMapper(TestExecuteDal.class);
         this.dalSession = new DalSession(DsUtils.localMySQL(), dalRegistry);
-        this.beforeTest(this.dalSession.jdbcTemplate());
+        this.beforeTest(this.dalSession.lambdaTemplate());
     }
 
     protected void beforeTest(JdbcTemplate jdbcTemplate) throws SQLException, IOException {

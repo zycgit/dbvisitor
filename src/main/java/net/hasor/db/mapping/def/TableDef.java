@@ -25,8 +25,8 @@ import java.util.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class TableDef<T> implements TableMapping<T> {
-    private final String   schema;
-    private final String   table;
+    private       String   schema;
+    private       String   table;
     private final Class<T> entityType;
     private final boolean  autoProperty;
     private final boolean  useDelimited;
@@ -53,9 +53,17 @@ public class TableDef<T> implements TableMapping<T> {
         return this.schema;
     }
 
+    public void setSchema(String schema) {
+        this.schema = schema;
+    }
+
     @Override
     public String getTable() {
         return this.table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
     }
 
     @Override

@@ -27,7 +27,7 @@ public class PageExecuteTest {
 
         this.dalSession = new DalSession(DsUtils.localMySQL(), dalRegistry);
 
-        this.beforeTest(this.dalSession.jdbcTemplate());
+        this.beforeTest(this.dalSession.lambdaTemplate());
     }
 
     protected void beforeTest(JdbcTemplate jdbcTemplate) throws SQLException, IOException {
@@ -110,9 +110,23 @@ public class PageExecuteTest {
         PageExecuteDal dalExecute = this.dalSession.createMapper(PageExecuteDal.class);
         dalExecute.deleteAll();
 
-        dalExecute.deleteByCondition(queryCompare -> {
-            queryCompare.eq("abc", 1);
+        for (int i = 0; i < 50; i++) {
+            dalExecute.createUser(buildData(i));
+        }
+
+        TbUser2 tbUser2 = new TbUser2();
+        tbUser2.setIndex(1);
+        List<TbUser2> list = dalExecute.queryBySample(tbUser2);
+        assert list.size() == 1;
+        assert list.get(0).getIndex() == 1;
+        assert list.get(0).getAccount().equals("acc_1");
+
+        int delete = dalExecute.deleteByCondition(queryCompare -> {
+            queryCompare.eq("index", 1);
         });
-        //        dalExecute.la
+        assert delete == 1;
+
+        list = dalExecute.queryBySample(tbUser2);
+        assert list.size() == 0;
     }
 }

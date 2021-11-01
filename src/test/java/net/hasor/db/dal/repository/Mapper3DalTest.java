@@ -5,7 +5,7 @@ public class Mapper3DalTest {
     @Test
     public void bindTest_01() throws Throwable {
         DalRegistry registry = new DalRegistry();
-        registry.loadResource("/net_hasor_db/dal_dynamic/mapper_3.xml");
+        registry.loadMapper("/net_hasor_db/dal_dynamic/mapper_3.xml");
         //
         System.out.println();
         //        registry.findDynamicSql();
