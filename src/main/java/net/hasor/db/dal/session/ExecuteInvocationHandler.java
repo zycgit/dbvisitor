@@ -21,6 +21,7 @@ import net.hasor.db.dal.execute.ExecuteProxy;
 import net.hasor.db.dal.repository.DalRegistry;
 import net.hasor.db.dal.repository.Param;
 import net.hasor.db.dialect.PageSqlDialect;
+import net.hasor.db.jdbc.ConnectionCallback;
 import net.hasor.db.page.Page;
 import net.hasor.db.page.PageResult;
 
@@ -140,8 +141,8 @@ class ExecuteInvocationHandler implements InvocationHandler {
 
         final ExecuteProxy execute = this.dynamicSqlMap.get(dynamicId);
         PageSqlDialect dialect = this.dalSession.getDialect();
-        Object result = this.dalSession.execute(conn -> {
-            return execute.execute(conn, data, page, pageResult, dialect);
+        Object result = this.dalSession.lambdaTemplate().execute((ConnectionCallback<Object>) con -> {
+            return execute.execute(con, data, page, pageResult, dialect);
         });
 
         Class<?> returnType = method.getReturnType();

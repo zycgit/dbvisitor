@@ -22,13 +22,10 @@ import net.hasor.db.dialect.DefaultSqlDialect;
 import net.hasor.db.dialect.PageSqlDialect;
 import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.dialect.SqlDialectRegister;
-import net.hasor.db.jdbc.ConnectionCallback;
 import net.hasor.db.jdbc.core.JdbcAccessor;
 import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.db.mapping.resolve.MappingOptions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.lang.reflect.InvocationHandler;
@@ -44,9 +41,9 @@ import java.util.Objects;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class DalSession extends JdbcAccessor {
-    private static final Logger         logger = LoggerFactory.getLogger(DalSession.class);
-    private final        DalRegistry    dalRegistry;
-    private              PageSqlDialect dialect;
+    private final DalRegistry    dalRegistry;
+    private       PageSqlDialect dialect;
+    private       LambdaTemplate lambdaTemplate;
 
     public DalSession(Connection connection, DalRegistry dalRegistry) {
         this(connection, dalRegistry, null);
@@ -81,7 +78,7 @@ public class DalSession extends JdbcAccessor {
                 return this.dialect;
             }
             try {
-                this.dialect = execute(this::findPageDialect);
+                this.dialect = this.lambdaTemplate().execute(this::findPageDialect);
             } catch (Exception e) {
                 throw ExceptionUtils.toRuntime(e);
             }
@@ -90,21 +87,22 @@ public class DalSession extends JdbcAccessor {
     }
 
     public LambdaTemplate lambdaTemplate() {
+        if (this.lambdaTemplate == null) {
+            Connection localConn = this.getConnection();
+            DataSource localDS = this.getDataSource();//获取数据源
 
-        Connection localConn = this.getConnection();
-        DataSource localDS = this.getDataSource();//获取数据源
-        DalLambdaTemplate template = null;
+            if (localConn != null) {
+                this.lambdaTemplate = new DalLambdaTemplate(localConn);
+            } else if (localDS != null) {
+                this.lambdaTemplate = new DalLambdaTemplate(localDS);
+            } else {
+                this.lambdaTemplate = new DalLambdaTemplate();
+            }
 
-        if (localConn != null) {
-            template = new DalLambdaTemplate(localConn);
-        } else if (localDS != null) {
-            template = new DalLambdaTemplate(localDS);
-        } else {
-            template = new DalLambdaTemplate();
+            this.lambdaTemplate.setAccessorApply(this.getAccessorApply());
         }
 
-        template.setAccessorApply(this.getAccessorApply());
-        return template;
+        return this.lambdaTemplate;
     }
 
     public <T> T createMapper(Class<T> mapperType) {
@@ -119,32 +117,6 @@ public class DalSession extends JdbcAccessor {
         ClassLoader classLoader = this.dalRegistry.getClassLoader();
         InvocationHandler handler = new ExecuteInvocationHandler(this, mapperType, this.dalRegistry, mapperHandler);
         return (T) Proxy.newProxyInstance(classLoader, new Class[] { mapperType }, handler);
-    }
-
-    public <R> R execute(final ConnectionCallback<R> callback) throws SQLException {
-        Connection localConn = this.getConnection();
-        DataSource localDS = this.getDataSource();//获取数据源
-        boolean usingDS = (localConn == null);
-        if (logger.isDebugEnabled()) {
-            logger.debug("database connection using DataSource = {}", usingDS);
-        }
-        if (localConn == null && localDS == null) {
-            throw new IllegalArgumentException("DataSource or Connection are not available.");
-        }
-
-        Connection useConn = null;
-        try {
-            if (usingDS) {
-                useConn = applyConnection(localDS);
-            } else {
-                useConn = localConn;
-            }
-            return callback.doInConnection(useConn);
-        } finally {
-            if (usingDS && useConn != null) {
-                useConn.close();
-            }
-        }
     }
 
     private PageSqlDialect findPageDialect(Connection conn) throws SQLException {
