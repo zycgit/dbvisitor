@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.db.lambda.core;
-import net.hasor.cobble.BeanUtils;
-import net.hasor.cobble.reflect.SFunction;
 import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.lambda.LambdaOperations.LambdaUpdate;
 import net.hasor.db.lambda.UpdateExecute;
@@ -27,7 +25,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static net.hasor.db.lambda.segment.SqlKeyword.*;
 
@@ -78,18 +75,8 @@ public class LambdaUpdateWrapper<T> extends AbstractQueryCompare<T, LambdaUpdate
 
     @Override
     public UpdateExecute<T> updateTo(Map<String, Object> newValue) {
-        Predicate<ColumnMapping> tester = m -> true;
-        Function<ColumnMapping, Object> reader = m -> newValue.get(m.getProperty());
-
-        return this.updateTo(tester, reader);
-    }
-
-    @Override
-    public UpdateExecute<T> updateTo(Map<String, Object> newValue, SFunction<T>... properties) {
-        List<String> collect = Arrays.stream(properties).map(BeanUtils::toProperty).collect(Collectors.toList());
-
-        Predicate<ColumnMapping> tester = m -> collect.contains(m.getProperty());
-        Function<ColumnMapping, Object> reader = m -> newValue.get(m.getProperty());
+        Predicate<ColumnMapping> tester = m -> newValue.containsKey(m.getColumn());
+        Function<ColumnMapping, Object> reader = m -> newValue.get(m.getColumn());
 
         return this.updateTo(tester, reader);
     }
@@ -107,18 +94,21 @@ public class LambdaUpdateWrapper<T> extends AbstractQueryCompare<T, LambdaUpdate
     }
 
     @Override
-    public UpdateExecute<T> updateTo(T newValue, SFunction<T>... properties) {
-        if (newValue == null) {
-            throw new NullPointerException("newValue is null.");
-        }
-        if (properties == null || properties.length == 0) {
-            throw new NullPointerException("properties is empty.");
+    public UpdateExecute<T> updateToBySample(T sample) {
+        if (sample == null) {
+            throw new NullPointerException("sample is null.");
         }
 
-        List<String> collect = Arrays.stream(properties).map(BeanUtils::toProperty).collect(Collectors.toList());
+        Map<String, Object> tempData = new HashMap<>();
+        for (Map.Entry<String, ColumnMapping> mappingEntry : this.allowUpdateProperties.entrySet()) {
+            Object value = mappingEntry.getValue().getHandler().get(sample);
+            if (value != null) {
+                tempData.put(mappingEntry.getKey(), value);
+            }
+        }
 
-        Predicate<ColumnMapping> tester = m -> collect.contains(m.getProperty());
-        Function<ColumnMapping, Object> reader = m -> m.getHandler().get(newValue);
+        Predicate<ColumnMapping> tester = m -> tempData.containsKey(m.getProperty());
+        Function<ColumnMapping, Object> reader = m -> tempData.get(m.getProperty());
 
         return this.updateTo(tester, reader);
     }

@@ -16,6 +16,7 @@
 package net.hasor.test.db.dal.execute;
 import net.hasor.db.dal.repository.Param;
 import net.hasor.db.dal.repository.RefMapper;
+import net.hasor.db.dal.session.BaseMapper;
 import net.hasor.db.page.Page;
 import net.hasor.db.page.PageResult;
 import net.hasor.test.db.dto.TbUser2;
@@ -28,7 +29,7 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  */
 @RefMapper("/net_hasor_db/dal_dynamic/execute/page_execute.xml")
-public interface PageExecuteDal {
+public interface PageExecuteDal extends BaseMapper<TbUser2> {
     public void deleteAll();
 
     public int createUser(TbUser2 tbUser);

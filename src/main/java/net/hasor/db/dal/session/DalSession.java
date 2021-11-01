@@ -15,6 +15,7 @@
  */
 package net.hasor.db.dal.session;
 import net.hasor.cobble.ExceptionUtils;
+import net.hasor.cobble.resolvable.ResolvableType;
 import net.hasor.db.JdbcUtils;
 import net.hasor.db.dal.repository.DalRegistry;
 import net.hasor.db.dialect.DefaultSqlDialect;
@@ -116,8 +117,16 @@ public class DalSession extends JdbcAccessor {
     }
 
     public <T> T createMapper(Class<T> mapperType) {
+        BaseMapperHandler mapperHandler = null;
+        if (BaseMapper.class.isAssignableFrom(mapperType)) {
+            ResolvableType type = ResolvableType.forClass(mapperType).as(BaseMapper.class);
+            Class<?>[] generics = type.resolveGenerics(Object.class);
+            Class<?> entityType = generics[0];
+            mapperHandler = new BaseMapperHandler(mapperType.getName(), entityType, this);
+        }
+
         ClassLoader classLoader = this.dalRegistry.getClassLoader();
-        InvocationHandler handler = new ExecuteInvocationHandler(this, mapperType, this.dalRegistry);
+        InvocationHandler handler = new ExecuteInvocationHandler(this, mapperType, this.dalRegistry, mapperHandler);
         return (T) Proxy.newProxyInstance(classLoader, new Class[] { mapperType }, handler);
     }
 
@@ -153,4 +162,5 @@ public class DalSession extends JdbcAccessor {
         SqlDialect tempDialect = SqlDialectRegister.findOrCreate(tmpDbType);
         return (!(tempDialect instanceof PageSqlDialect)) ? DefaultSqlDialect.DEFAULT : (PageSqlDialect) tempDialect;
     }
+
 }

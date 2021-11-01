@@ -27,8 +27,8 @@ import static net.hasor.db.dal.dynamic.ognl.OgnlUtils.evalOgnl;
  * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
  */
-public class NotnullSqlBuildRule implements SqlBuildRule {
-    public static final SqlBuildRule INSTANCE = new NotnullSqlBuildRule();
+public class NotnullRule implements SqlBuildRule {
+    public static final SqlBuildRule INSTANCE = new NotnullRule();
 
     @Override
     public boolean test(Map<String, Object> data, DynamicContext context, String activateExpr) {

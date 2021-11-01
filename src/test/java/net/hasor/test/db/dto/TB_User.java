@@ -22,13 +22,13 @@ import java.util.Date;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class TB_User {
-    private String userUUID;
-    private String name;
-    private String loginName;
-    private String loginPassword;
-    private String email;
-    private int    index;
-    private Date   registerTime;
+    private String  userUUID;
+    private String  name;
+    private String  loginName;
+    private String  loginPassword;
+    private String  email;
+    private Integer index;
+    private Date    registerTime;
 
     public String getUserUUID() {
         return userUUID;
@@ -70,11 +70,11 @@ public class TB_User {
         this.email = email;
     }
 
-    public int getIndex() {
+    public Integer getIndex() {
         return index;
     }
 
-    public void setIndex(int index) {
+    public void setIndex(Integer index) {
         this.index = index;
     }
 

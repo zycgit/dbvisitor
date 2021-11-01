@@ -36,15 +36,21 @@ class ExecuteInvocationHandler implements InvocationHandler {
     private final Map<String, ExecuteProxy>         dynamicSqlMap = new HashMap<>();
     private final Map<String, Integer>              pageInfoMap   = new HashMap<>();
     private final Map<String, Map<String, Integer>> argNamesMap   = new HashMap<>();
+    private final BaseMapperHandler                 mapperHandler;
 
-    public ExecuteInvocationHandler(DalSession dalSession, Class<?> dalType, DalRegistry dalRegistry) {
+    public ExecuteInvocationHandler(DalSession dalSession, Class<?> dalType, DalRegistry dalRegistry, BaseMapperHandler mapperHandler) {
         this.space = dalType.getName();
         this.dalSession = dalSession;
         this.initDynamicSqlMap(dalType, dalRegistry);
+        this.mapperHandler = mapperHandler;
     }
 
     private void initDynamicSqlMap(Class<?> dalType, DalRegistry dalRegistry) {
         for (Method method : dalType.getMethods()) {
+            if (method.getDeclaringClass() == BaseMapper.class || method.getDeclaringClass() == Object.class) {
+                continue;
+            }
+
             String dynamicId = method.getName();
             DynamicSql parseXml = dalRegistry.findDynamicSql(this.space, dynamicId);
             if (parseXml == null) {
@@ -123,6 +129,9 @@ class ExecuteInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
+        if (this.mapperHandler != null && method.getDeclaringClass() == BaseMapper.class) {
+            return method.invoke(this.mapperHandler, objects);
+        }
 
         String dynamicId = method.getName();
         Page page = extractPage(dynamicId, objects);

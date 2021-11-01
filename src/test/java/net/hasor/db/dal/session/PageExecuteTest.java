@@ -105,4 +105,14 @@ public class PageExecuteTest {
         assert pageData2.getTotalPage() == 6;
     }
 
+    @Test
+    public void listUserListPage_3() throws SQLException {
+        PageExecuteDal dalExecute = this.dalSession.createMapper(PageExecuteDal.class);
+        dalExecute.deleteAll();
+
+        dalExecute.deleteByCondition(queryCompare -> {
+            queryCompare.eq("abc", 1);
+        });
+        //        dalExecute.la
+    }
 }

@@ -49,12 +49,12 @@ public interface InsertExecute<T> extends BoundSqlBuilder {
     /** 批量插入记录 */
     public InsertExecute<T> applyEntity(List<T> entity);
 
-    /** 批量插入记录 */
-    public default InsertExecute<T> applyMap(Map<String, Object> entity) {
-        return applyMap(Collections.singletonList(entity));
+    /** 批量插入记录，map key 为列名 */
+    public default InsertExecute<T> applyMap(Map<String, Object> columnMap) {
+        return applyMap(Collections.singletonList(columnMap));
     }
 
-    /** 批量插入记录 */
-    public InsertExecute<T> applyMap(List<Map<String, Object>> entity);
+    /** 批量插入记录，map key 为列名 */
+    public InsertExecute<T> applyMap(List<Map<String, Object>> columnMapList);
 
 }

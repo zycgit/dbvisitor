@@ -18,9 +18,9 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
-import net.hasor.db.dal.dynamic.rule.ParameterSqlBuildRule;
+import net.hasor.db.dal.dynamic.rule.ParameterRule;
 import net.hasor.db.dal.dynamic.rule.SqlBuildRule;
-import net.hasor.db.dal.dynamic.rule.TextSqlBuildRule;
+import net.hasor.db.dal.dynamic.rule.TextRule;
 import net.hasor.db.dialect.SqlBuilder;
 
 import java.sql.SQLException;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import static net.hasor.db.dal.dynamic.ognl.OgnlUtils.evalOgnl;
-import static net.hasor.db.dal.dynamic.rule.ParameterSqlBuildRule.*;
+import static net.hasor.db.dal.dynamic.rule.ParameterRule.*;
 
 /**
  * 本处理器，兼容 @{...}、#{...}、${...} 三种写法。
@@ -138,7 +138,7 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
 
         @Override
         public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
-            TextSqlBuildRule.INSTANCE.executeRule(data, context, sqlBuilder, this.textString.toString());
+            TextRule.INSTANCE.executeRule(data, context, sqlBuilder, this.textString.toString());
         }
 
         @Override
@@ -162,7 +162,7 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
         @Override
         public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
             String placeholderQuery = String.valueOf(evalOgnl(this.exprString.toString(), data));
-            TextSqlBuildRule.INSTANCE.executeRule(data, context, sqlBuilder, placeholderQuery);
+            TextRule.INSTANCE.executeRule(data, context, sqlBuilder, placeholderQuery);
         }
 
         @Override
@@ -231,7 +231,7 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
 
         @Override
         public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
-            ParameterSqlBuildRule.INSTANCE.executeRule(data, context, sqlBuilder, this.exprString, this.config);
+            ParameterRule.INSTANCE.executeRule(data, context, sqlBuilder, this.exprString, this.config);
         }
 
         @Override

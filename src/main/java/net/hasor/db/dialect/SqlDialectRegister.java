@@ -35,7 +35,7 @@ public class SqlDialectRegister {
     static {
         registerDialectAlias(JdbcUtils.ALI_ORACLE, OracleDialect.class);
         registerDialectAlias(JdbcUtils.DB2, Db2Dialect.class);
-        registerDialectAlias(JdbcUtils.DERBY, SqlServerDialect.class);// Apache Derby
+        registerDialectAlias(JdbcUtils.DERBY, DerbyDialect.class);// Apache Derby
         registerDialectAlias(JdbcUtils.DM, DmDialect.class);
         registerDialectAlias(JdbcUtils.H2, H2Dialect.class);
         registerDialectAlias(JdbcUtils.HERDDB, HerdDBDialect.class);
@@ -51,9 +51,7 @@ public class SqlDialectRegister {
         registerDialectAlias(JdbcUtils.PHOENIX, PhoenixDialect.class);
         registerDialectAlias(JdbcUtils.POSTGRESQL, PostgreSqlDialect.class);
         registerDialectAlias(JdbcUtils.SQLITE, SqlLiteDialect.class);
-        registerDialectAlias(JdbcUtils.SQL_SERVER, SqlServerDialect.class);
-        registerDialectAlias("sqlserver2012", SqlServerDialect.class);
-        registerDialectAlias("sqlserver2005", SqlServer2005Dialect.class);
+        registerDialectAlias(JdbcUtils.SQL_SERVER, SqlServer2005Dialect.class);
         registerDialectAlias(JdbcUtils.XUGU, XuGuDialect.class);
     }
 

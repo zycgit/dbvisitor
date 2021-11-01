@@ -75,11 +75,10 @@ public class BuilderUpdateTest extends AbstractDbTest {
         TB_User data = new TB_User();
         data.setLoginName("acc");
         data.setLoginPassword("pwd");
-        //
         LambdaUpdate<TB_User> lambdaUpdate = new LambdaTemplate().lambdaUpdate(TB_User.class);
         lambdaUpdate.and(queryBuilder -> {
             queryBuilder.eq(TB_User::getIndex, 123);
-        }).updateTo(data, TB_User::getLoginPassword, TB_User::getLoginName);
+        }).updateToBySample(data);
         //
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaUpdate.getBoundSql(dialect);

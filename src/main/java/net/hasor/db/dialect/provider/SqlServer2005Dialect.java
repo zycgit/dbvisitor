@@ -27,7 +27,15 @@ import java.util.List;
  * @author hubin
  * @since 2016-11-10
  */
-public class SqlServer2005Dialect extends SqlServerDialect implements PageSqlDialect {
+public class SqlServer2005Dialect extends AbstractDialect implements PageSqlDialect {
+    public String leftQualifier() {
+        return "[";
+    }
+
+    public String rightQualifier() {
+        return "]";
+    }
+
     private static String getOrderByPart(String sql) {
         String loweredString = sql.toLowerCase();
         int orderByIndex = loweredString.indexOf("order by");
@@ -65,7 +73,7 @@ public class SqlServer2005Dialect extends SqlServerDialect implements PageSqlDia
         long secondParam = start + limit;
         sqlString = "WITH selectTemp AS (SELECT " + distinctStr + "TOP 100 PERCENT " + //
                 " ROW_NUMBER() OVER (" + orderby + ") as __row_number__, " + pagingBuilder + ") SELECT * FROM selectTemp WHERE __row_number__ BETWEEN " +
-                //FIX#299：原因：mysql中limit 10(offset,size) 是从第10开始（不包含10）,；而这里用的BETWEEN是两边都包含，所以改为offset+1
+                //FIX#299：原因：mysql 中 limit 10(offset,size) 是从第10开始（不包含10）,；而这里用的BETWEEN是两边都包含，所以改为offset+1
                 firstParam + " AND " + secondParam + " ORDER BY __row_number__";
         //
         paramArrays.add(firstParam);

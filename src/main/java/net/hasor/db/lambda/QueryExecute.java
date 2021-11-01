@@ -49,7 +49,7 @@ public interface QueryExecute<T> extends BoundSqlBuilder {
     /** 执行查询，并结果将被映射到一个列表(一个条目为每一行)的对象，列表中每一条记录都是<code>elementType</code>参数指定的类型对象。*/
     public List<T> queryForList() throws SQLException;
 
-    /** 执行查询，并结果将被映射到一个列表(一个条目为每一行)的对象，列表中每一条记录都是<code>elementType</code>参数指定的类型对象。*/
+    /** 执行查询，并返回一个结果。*/
     public T queryForObject() throws SQLException;
 
     /** 执行查询，并将结果集数据转换成<code>Map</code>。

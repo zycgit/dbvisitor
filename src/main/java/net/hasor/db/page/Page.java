@@ -36,8 +36,10 @@ public interface Page {
     /** 设置前页号 */
     public void setCurrentPage(int currentPage);
 
+    /** 页码偏移量（例如：从1页作为起始页，可以设置为 1。否则第一页的页码是 0） */
     public int getPageNumberOffset();
 
+    /** 设置页码偏移量（例如：从1页作为起始页，可以设置为 1。否则第一页的页码是 0） */
     public void setPageNumberOffset(int pageNumberOffset);
 
     /** 获取本页第一个记录的索引位置 */

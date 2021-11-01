@@ -31,6 +31,11 @@ public class PageResult<T> extends PageObject {
         this.setPageNumberOffset(pageInfo.getPageNumberOffset());
     }
 
+    public PageResult(Page pageInfo, int totalCount, List<T> data) {
+        this(pageInfo, totalCount);
+        this.data = data;
+    }
+
     public List<T> getData() {
         return this.data;
     }

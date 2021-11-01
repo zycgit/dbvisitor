@@ -120,13 +120,13 @@ public class LambdaInsertWrapper<T> extends AbstractExecute<T> implements Lambda
     }
 
     @Override
-    public InsertExecute<T> applyMap(List<Map<String, Object>> entityList) {
+    public InsertExecute<T> applyMap(List<Map<String, Object>> columnMapList) {
         int propertyCount = this.insertProperties.size();
-        for (Map<String, Object> entity : entityList) {
+        for (Map<String, Object> columnMap : columnMapList) {
             Object[] args = new Object[propertyCount];
             for (int i = 0; i < propertyCount; i++) {
                 ColumnMapping mapping = this.insertProperties.get(i);
-                args[i] = entity.get(mapping.getProperty());
+                args[i] = columnMap.get(mapping.getColumn());
             }
             this.insertValues.add(args);
         }

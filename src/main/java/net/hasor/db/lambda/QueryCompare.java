@@ -50,56 +50,111 @@ public interface QueryCompare<T, R> {
     /** 等于条件 查询，类似：'col = ?' */
     public R eq(SFunction<T> property, Object value);
 
+    /** 等于条件 查询，类似：'col = ?' */
+    public R eq(String columnName, Object value);
+
     /** 不等于条件 查询，类似：'col <> ?' */
     public R ne(SFunction<T> property, Object value);
+
+    /** 不等于条件 查询，类似：'col <> ?' */
+    public R ne(String columnName, Object value);
 
     /** 大于条件 查询，类似：'col > ?' */
     public R gt(SFunction<T> property, Object value);
 
+    /** 大于条件 查询，类似：'col > ?' */
+    public R gt(String columnName, Object value);
+
     /** 大于等于条件 查询，类似：'col >= ?' */
     public R ge(SFunction<T> property, Object value);
+
+    /** 大于等于条件 查询，类似：'col >= ?' */
+    public R ge(String columnName, Object value);
 
     /** 小于条件 查询，类似：'col < ?' */
     public R lt(SFunction<T> property, Object value);
 
+    /** 小于条件 查询，类似：'col < ?' */
+    public R lt(String columnName, Object value);
+
     /** 小于等于条件 查询，类似：'col <= ?' */
     public R le(SFunction<T> property, Object value);
+
+    /** 小于等于条件 查询，类似：'col <= ?' */
+    public R le(String columnName, Object value);
 
     /** like 查询，类似：'col like CONCAT('%', ?, '%')' */
     public R like(SFunction<T> property, Object value);
 
+    /** like 查询，类似：'col like CONCAT('%', ?, '%')' */
+    public R like(String columnName, Object value);
+
     /** not like 查询，类似：'col not like CONCAT('%', ?, '%')' */
     public R notLike(SFunction<T> property, Object value);
+
+    /** not like 查询，类似：'col not like CONCAT('%', ?, '%')' */
+    public R notLike(String columnName, Object value);
 
     /** like 查询，类似：'col like CONCAT(?, '%')' */
     public R likeRight(SFunction<T> property, Object value);
 
+    /** like 查询，类似：'col like CONCAT(?, '%')' */
+    public R likeRight(String columnName, Object value);
+
     /** not like 查询，类似：'col not like CONCAT(?, '%')' */
     public R notLikeRight(SFunction<T> property, Object value);
+
+    /** not like 查询，类似：'col not like CONCAT(?, '%')' */
+    public R notLikeRight(String columnName, Object value);
 
     /** like 查询，类似：'col like CONCAT('%', ?)' */
     public R likeLeft(SFunction<T> property, Object value);
 
+    /** like 查询，类似：'col like CONCAT('%', ?)' */
+    public R likeLeft(String columnName, Object value);
+
     /** not like 查询，类似：'col not like CONCAT('%', ?)' */
     public R notLikeLeft(SFunction<T> property, Object value);
+
+    /** not like 查询，类似：'col not like CONCAT('%', ?)' */
+    public R notLikeLeft(String columnName, Object value);
 
     /** is null 查询，类似：'col is null' */
     public R isNull(SFunction<T> property);
 
+    /** is null 查询，类似：'col is null' */
+    public R isNull(String columnName);
+
     /** not null 查询，类似：'col is not null' */
     public R isNotNull(SFunction<T> property);
+
+    /** not null 查询，类似：'col is not null' */
+    public R isNotNull(String columnName);
 
     /** in 查询，类似：'col in (?,?,?)' */
     public R in(SFunction<T> property, Collection<?> value);
 
+    /** in 查询，类似：'col in (?,?,?)' */
+    public R in(String columnName, Collection<?> value);
+
     /** not in 查询，类似：'col not in (?,?,?)' */
     public R notIn(SFunction<T> property, Collection<?> value);
+
+    /** not in 查询，类似：'col not in (?,?,?)' */
+    public R notIn(String columnName, Collection<?> value);
 
     /** between 语句，类似：'col between ? and ?' */
     public R between(SFunction<T> property, Object value1, Object value2);
 
+    /** between 语句，类似：'col between ? and ?' */
+    public R between(String columnName, Object value1, Object value2);
+
     /** not between 语句，类似：'col not between ? and ?' */
     public R notBetween(SFunction<T> property, Object value1, Object value2);
+
+    /** not between 语句，类似：'col not between ? and ?' */
+    public R notBetween(String columnName, Object value1, Object value2);
+
     //    /** in 子查询，类似：'col in (LambdaQuery)' */
     //    public <V> R andInLambda(SFunction<T> property, CompareBuilder<V> subLambda);
     //    /** in 子查询，类似：'or col in (LambdaQuery)' */

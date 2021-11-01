@@ -17,7 +17,7 @@ package net.hasor.db.dal.dynamic.segment;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.db.dal.dynamic.DynamicSql;
-import net.hasor.db.dal.dynamic.rule.ParameterSqlBuildRule;
+import net.hasor.db.dal.dynamic.rule.ParameterRule;
 import net.hasor.db.dal.dynamic.tokens.GenericTokenParser;
 
 import java.util.Map;
@@ -95,11 +95,11 @@ public class SqlSegmentParser {
         }
 
         String exprString = noExpr ? null : valueData[0];
-        String name = exprMap.get(ParameterSqlBuildRule.CFG_KEY_NAME);
-        String sqlMode = exprMap.get(ParameterSqlBuildRule.CFG_KEY_MODE);
-        String jdbcType = exprMap.get(ParameterSqlBuildRule.CFG_KEY_JDBC_TYPE);
-        String javaType = exprMap.get(ParameterSqlBuildRule.CFG_KEY_JAVA_TYPE);
-        String typeHandler = exprMap.get(ParameterSqlBuildRule.CFG_KEY_HANDLER);
+        String name = exprMap.get(ParameterRule.CFG_KEY_NAME);
+        String sqlMode = exprMap.get(ParameterRule.CFG_KEY_MODE);
+        String jdbcType = exprMap.get(ParameterRule.CFG_KEY_JDBC_TYPE);
+        String javaType = exprMap.get(ParameterRule.CFG_KEY_JAVA_TYPE);
+        String typeHandler = exprMap.get(ParameterRule.CFG_KEY_HANDLER);
         fxQuery.appendValueExpr(exprString, name, sqlMode, jdbcType, javaType, typeHandler);
     }
 }

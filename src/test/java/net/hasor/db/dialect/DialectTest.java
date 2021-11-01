@@ -286,7 +286,7 @@ public class DialectTest extends AbstractDbTest {
 
     @Test
     public void dialect_sqlserver2012_1() {
-        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate("sqlserver2012");
+        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.SQL_SERVER);
         String buildTableName1 = dialect.tableName(true, "", "tb_user");
         String buildTableName2 = dialect.tableName(true, "abc", "tb_user");
         String buildCondition = dialect.columnName(true, "", "tb_user", "userUUID");
@@ -300,21 +300,21 @@ public class DialectTest extends AbstractDbTest {
         assert countSql.getArgs().length == 1;
 
         BoundSql pageSql = dialect.pageSql(this.queryBoundSql, 1, 3);
-        assert pageSql.getSqlString().equals("select * from tb_user where age > 12 and sex = ? ORDER BY CURRENT_TIMESTAMP offset ? rows fetch next ? rows only");
+        assert pageSql.getSqlString().equals("WITH selectTemp AS (SELECT TOP 100 PERCENT  ROW_NUMBER() OVER (ORDER BY CURRENT_TIMESTAMP) as __row_number__,  * from tb_user where age > 12 and sex = ?) SELECT * FROM selectTemp WHERE __row_number__ BETWEEN 2 AND 4 ORDER BY __row_number__");
         assert pageSql.getArgs().length == 3;
         assert pageSql.getArgs()[0].equals('F');
-        assert pageSql.getArgs()[1].equals(1);
-        assert pageSql.getArgs()[2].equals(3);
+        assert pageSql.getArgs()[1].equals(2L);
+        assert pageSql.getArgs()[2].equals(4L);
 
         BoundSql countSql2 = dialect.countSql(this.queryBoundSql2);
-        assert countSql2.getSqlString().equals("SELECT COUNT(*) FROM (SELECT * FROM tb_user WHERE age > 12 AND sex = ?) as TEMP_T");
+        assert countSql2.getSqlString().equals("SELECT COUNT(*) FROM (select * from tb_user where age > 12 and sex = ? order by a desc) as TEMP_T");
         assert countSql2.getArgs().length == 1;
         BoundSql pageSql2 = dialect.pageSql(this.queryBoundSql2, 1, 3);
-        assert pageSql2.getSqlString().equals("select * from tb_user where age > 12 and sex = ? order by a desc offset ? rows fetch next ? rows only");
+        assert pageSql2.getSqlString().equals("WITH selectTemp AS (SELECT TOP 100 PERCENT  ROW_NUMBER() OVER (order by a desc) as __row_number__,  * from tb_user where age > 12 and sex = ? order by a desc) SELECT * FROM selectTemp WHERE __row_number__ BETWEEN 2 AND 4 ORDER BY __row_number__");
         assert pageSql2.getArgs().length == 3;
         assert pageSql2.getArgs()[0].equals('F');
-        assert pageSql2.getArgs()[1].equals(1);
-        assert pageSql2.getArgs()[2].equals(3);
+        assert pageSql2.getArgs()[1].equals(2L);
+        assert pageSql2.getArgs()[2].equals(4L);
     }
 
     @Test

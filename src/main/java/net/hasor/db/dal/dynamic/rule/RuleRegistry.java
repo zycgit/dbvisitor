@@ -27,15 +27,21 @@ public class RuleRegistry {
     public static final RuleRegistry              DEFAULT = new RuleRegistry();
     private final       Map<String, SqlBuildRule> ruleMap = new LinkedCaseInsensitiveMap<>();
 
-    public RuleRegistry() {
-        register("include", IncludeSqlBuildRule.INSTANCE);
-        register("text", TextSqlBuildRule.INSTANCE);
-        register("nonull", NotnullSqlBuildRule.INSTANCE);
-        register("parameter", ParameterSqlBuildRule.INSTANCE);
+    static {
+        DEFAULT.register("include", IncludeRule.INSTANCE);
+        DEFAULT.register("text", TextRule.INSTANCE);
+        DEFAULT.register("nonull", NotnullRule.INSTANCE);
+        DEFAULT.register("parameter", ParameterRule.INSTANCE);
+        DEFAULT.register("md5", Md5Rule.INSTANCE);
+        DEFAULT.register("uuid", Uuid32Rule.INSTANCE);
     }
 
     public SqlBuildRule findByName(String ruleName) {
-        return this.ruleMap.get(ruleName);
+        SqlBuildRule rule = this.ruleMap.get(ruleName);
+        if (rule == null) {
+            rule = DEFAULT.findByName(ruleName);
+        }
+        return rule;
     }
 
     /** 注册 SqlBuildRule */

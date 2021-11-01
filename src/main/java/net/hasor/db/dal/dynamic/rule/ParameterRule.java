@@ -34,13 +34,13 @@ import java.util.Map;
  * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
  */
-public class ParameterSqlBuildRule implements SqlBuildRule {
-    public static final ParameterSqlBuildRule INSTANCE          = new ParameterSqlBuildRule();
-    public static final String                CFG_KEY_NAME      = "name";
-    public static final String                CFG_KEY_MODE      = "mode";
-    public static final String                CFG_KEY_JDBC_TYPE = "jdbcType";
-    public static final String                CFG_KEY_JAVA_TYPE = "javaType";
-    public static final String                CFG_KEY_HANDLER   = "typeHandler";
+public class ParameterRule implements SqlBuildRule {
+    public static final ParameterRule INSTANCE          = new ParameterRule();
+    public static final String        CFG_KEY_NAME      = "name";
+    public static final String        CFG_KEY_MODE      = "mode";
+    public static final String        CFG_KEY_JDBC_TYPE = "jdbcType";
+    public static final String        CFG_KEY_JAVA_TYPE = "javaType";
+    public static final String        CFG_KEY_HANDLER   = "typeHandler";
 
     private SqlMode convertSqlMode(String sqlMode) {
         if (StringUtils.isNotBlank(sqlMode)) {

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.db.lambda;
-import net.hasor.cobble.reflect.SFunction;
-
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -31,13 +29,12 @@ public interface UpdateExecute<T> extends BoundSqlBuilder {
     /** 允许空 Where条件（注意：空 Where 条件会导致更新整个数据库） */
     public UpdateExecute<T> allowEmptyWhere();
 
+    /** 更新数据，map key 为列名 */
     public UpdateExecute<T> updateTo(Map<String, Object> newValue);
-
-    public UpdateExecute<T> updateTo(Map<String, Object> newValue, SFunction<T>... properties);
 
     /** 设置 update 的 set 中的值。 */
     public UpdateExecute<T> updateTo(T newValue);
 
     /** 设置 update 的 set 中的值。 */
-    public UpdateExecute<T> updateTo(T newValue, SFunction<T>... properties);
+    public UpdateExecute<T> updateToBySample(T sample);
 }

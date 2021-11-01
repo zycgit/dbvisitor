@@ -35,7 +35,7 @@ class CloseSuppressingInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
         Connection connection = holder.getConnection();
-        //
+
         if (method.getName().equals("getTargetConnection")) {
             return connection;
         } else if (method.getName().equals("getTargetSource")) {
@@ -52,7 +52,7 @@ class CloseSuppressingInvocationHandler implements InvocationHandler {
             }
             return null;
         }
-        //
+
         try {
             return method.invoke(connection, args);
         } catch (InvocationTargetException ex) {

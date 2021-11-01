@@ -15,32 +15,21 @@
  */
 package net.hasor.db.dal.dynamic.rule;
 import net.hasor.db.dal.dynamic.DynamicContext;
-import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dialect.SqlBuilder;
 
-import java.sql.SQLException;
 import java.util.Map;
 
 /**
- * 动态参数规则，负责处理包含另外一段动态 SQL。
+ * 动态参数规则，普通文本
  * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
  */
-public class IncludeSqlBuildRule implements SqlBuildRule {
-    public static final SqlBuildRule INSTANCE = new IncludeSqlBuildRule();
+public class TextRule implements SqlBuildRule {
+    public static final SqlBuildRule INSTANCE = new TextRule();
 
     @Override
-    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String ruleValue) throws SQLException {
-        DynamicSql includeSql = context.findDynamic(ruleValue);
-        if (includeSql == null) {
-            throw new SQLException("include sql '" + ruleValue + "' not found.");
-        }
-        SqlBuilder includeBuilder = includeSql.buildQuery(data, context);
-        if (!sqlBuilder.lastSpaceCharacter()) {
-            sqlBuilder.appendSql(" ");
-        }
-        sqlBuilder.appendBuilder(includeBuilder);
-        sqlBuilder.appendSql(" ");
+    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String ruleValue) {
+        sqlBuilder.appendSql(ruleValue);
     }
 
     @Override
