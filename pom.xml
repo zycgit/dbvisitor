@@ -44,21 +44,21 @@
     </developers>
 
     <modules>
-        <module>hasor-db</module>
+        <module>hasordb-core</module>
     </modules>
 
     <!-- 引用依赖 -->
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>net.hasor</groupId>
-                <artifactId>cobble-all</artifactId>
-                <version>4.3.0</version>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.30</version>
             </dependency>
             <dependency>
                 <groupId>net.hasor</groupId>
-                <artifactId>hasor-db</artifactId>
-                <version>4.3.0</version>
+                <artifactId>cobble-all</artifactId>
+                <version>4.2.6-SNAPSHOT</version>
             </dependency>
 
             <!-- test -->
