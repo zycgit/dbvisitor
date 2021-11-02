@@ -15,7 +15,6 @@
  */
 package net.hasor.db.dal.dynamic.segment;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.rule.ParameterRule;
 import net.hasor.db.dal.dynamic.tokens.GenericTokenParser;
@@ -72,34 +71,14 @@ public class SqlSegmentParser {
     }
 
     private static void parserValue(DefaultSqlSegment fxQuery, String content) {
-        String[] valueData = content.split(",");
-        if (valueData.length > 5 || valueData.length == 0) {
+        String[] testSplit = content.split(",");
+        if (testSplit.length > 6 || testSplit.length == 0) {
             throw new IllegalArgumentException("analysisSQL failed, format error -> '#{valueExpr [,name= xxx] [,mode= IN|OUT|INOUT] [,jdbcType=INT] [,javaType=java.lang.String] [,typeHandler=YouTypeHandlerClassName]}'");
         }
 
-        boolean noExpr = StringUtils.contains(valueData[0], "=");
-        Map<String, String> exprMap = new LinkedCaseInsensitiveMap<>();
-        for (int i = 0; i < valueData.length; i++) {
-            if (!noExpr && i == 0) {
-                continue;
-            }
-
-            String data = valueData[i];
-            String[] kv = data.split("=");
-            if (kv.length != 2) {
-                throw new IllegalArgumentException("analysisSQL failed, config must be 'key = value' , '" + content + "' with '" + data + "'");
-            }
-            if (StringUtils.isNotBlank(kv[0])) {
-                exprMap.put(kv[0].trim(), kv[1].trim());
-            }
-        }
-
-        String exprString = noExpr ? null : valueData[0];
-        String name = exprMap.get(ParameterRule.CFG_KEY_NAME);
-        String sqlMode = exprMap.get(ParameterRule.CFG_KEY_MODE);
-        String jdbcType = exprMap.get(ParameterRule.CFG_KEY_JDBC_TYPE);
-        String javaType = exprMap.get(ParameterRule.CFG_KEY_JAVA_TYPE);
-        String typeHandler = exprMap.get(ParameterRule.CFG_KEY_HANDLER);
-        fxQuery.appendValueExpr(exprString, name, sqlMode, jdbcType, javaType, typeHandler);
+        boolean noExpr = StringUtils.contains(testSplit[0], "=");
+        String expr = noExpr ? "" : testSplit[0];
+        Map<String, String> config = ParameterRule.INSTANCE.parserConfig(testSplit, noExpr ? 0 : 1, testSplit.length);
+        fxQuery.appendValueExpr(expr, config);
     }
 }

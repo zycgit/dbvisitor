@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic.segment;
-import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.rule.ParameterRule;
@@ -29,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import static net.hasor.db.dal.dynamic.ognl.OgnlUtils.evalOgnl;
-import static net.hasor.db.dal.dynamic.rule.ParameterRule.*;
 
 /**
  * 本处理器，兼容 @{...}、#{...}、${...} 三种写法。
@@ -69,27 +66,19 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
     }
 
     /** 添加一个 SQL 参数，最终这个参数会通过 PreparedStatement 形式传递。 */
-    public void appendValueExpr(String exprString, String name, String sqlMode, String jdbcType, String javaType, String typeHandler) {
+    public void appendValueExpr(String exprString, Map<String, String> exprMap) {
         this.queryStringOri.append("#{");
         this.queryStringOri.append(exprString);
-        if (name != null) {
-            this.queryStringOri.append(", name=" + name);
+
+        if (exprMap != null && !exprMap.isEmpty()) {
+            for (String key : exprMap.keySet()) {
+                String value = exprMap.get(key);
+                this.queryStringOri.append(", " + key + "=" + value);
+            }
         }
-        if (sqlMode != null) {
-            this.queryStringOri.append(", mode=" + sqlMode);
-        }
-        if (StringUtils.isNotBlank(jdbcType)) {
-            this.queryStringOri.append(", jdbcType=" + jdbcType);
-        }
-        if (StringUtils.isNotBlank(javaType)) {
-            this.queryStringOri.append(", javaType=" + javaType);
-        }
-        if (StringUtils.isNotBlank(typeHandler)) {
-            this.queryStringOri.append(", typeHandler=" + typeHandler);
-        }
+
         this.queryStringOri.append("}");
-        //
-        this.queryStringPlan.add(new ParameterFxSegment(exprString, name, sqlMode, jdbcType, javaType, typeHandler));
+        this.queryStringPlan.add(new ParameterFxSegment(exprString, exprMap));
     }
 
     /** 是否包含替换占位符，如果包含替换占位符那么不能使用批量模式 */
@@ -213,20 +202,9 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
         private final String              exprString;
         private final Map<String, String> config;
 
-        ParameterFxSegment(String exprString, Map<String, String> config) {
-            this(exprString, config.get(CFG_KEY_NAME), config.get(CFG_KEY_MODE), config.get(CFG_KEY_JDBC_TYPE), config.get(CFG_KEY_JAVA_TYPE), config.get(CFG_KEY_HANDLER));
-
-        }
-
-        public ParameterFxSegment(String exprString, String name, String sqlMode, String jdbcType, String javaType, String typeHandler) {
+        public ParameterFxSegment(String exprString, Map<String, String> config) {
             this.exprString = exprString;
-            this.config = new LinkedCaseInsensitiveMap<String>() {{
-                put(CFG_KEY_NAME, name);
-                put(CFG_KEY_MODE, sqlMode);
-                put(CFG_KEY_JDBC_TYPE, jdbcType);
-                put(CFG_KEY_JAVA_TYPE, javaType);
-                put(CFG_KEY_HANDLER, typeHandler);
-            }};
+            this.config = config;
         }
 
         @Override
