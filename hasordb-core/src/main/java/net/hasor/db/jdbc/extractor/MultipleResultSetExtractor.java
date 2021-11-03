@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.db.jdbc.extractor;
+import net.hasor.cobble.logging.Logger;
+import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.db.jdbc.CallableStatementCallback;
 import net.hasor.db.jdbc.PreparedStatementCallback;
 import net.hasor.db.jdbc.ResultSetExtractor;
 import net.hasor.db.jdbc.RowMapper;
 import net.hasor.db.jdbc.mapper.ColumnMapRowMapper;
 import net.hasor.db.types.TypeHandlerRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;

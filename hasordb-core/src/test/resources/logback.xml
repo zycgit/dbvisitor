@@ -9,7 +9,7 @@
     <!-- 文件输出日志 -->
     <appender name="fileOut" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>../logs/console.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <fileNamePattern>../logs/console.logger.%d{yyyy-MM-dd}</fileNamePattern>
         </rollingPolicy>
         <Encoding>UTF-8</Encoding>
         <layout class="ch.qos.logback.classic.PatternLayout">

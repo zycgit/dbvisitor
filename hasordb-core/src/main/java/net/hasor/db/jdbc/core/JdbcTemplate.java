@@ -17,6 +17,8 @@ package net.hasor.db.jdbc.core;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
+import net.hasor.cobble.logging.Logger;
+import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.db.jdbc.*;
 import net.hasor.db.jdbc.SqlParameter.ReturnSqlParameter;
@@ -27,8 +29,6 @@ import net.hasor.db.jdbc.mapper.MappingRowMapper;
 import net.hasor.db.jdbc.mapper.SingleColumnRowMapper;
 import net.hasor.db.jdbc.paramer.MapSqlParameterSource;
 import net.hasor.db.types.TypeHandlerRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.io.*;
@@ -215,7 +215,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     @Override
     public boolean execute(final String sql) throws SQLException {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing SQL statement [{}].", sql);
+            logger.trace("Executing SQL statement [" + sql + "].");
         }
         class ExecuteStatementCallback implements StatementCallback<Boolean>, SqlProvider {
             @Override
@@ -293,7 +293,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         Objects.requireNonNull(sql, "SQL must not be null.");
         Objects.requireNonNull(rse, "ResultSetExtractor must not be null.");
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing SQL query [{}].", sql);
+            logger.trace("Executing SQL query [" + sql + "].");
         }
         class QueryStatementCallback implements StatementCallback<T>, SqlProvider {
             @Override
@@ -605,7 +605,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                 }
                 int rows = ps.executeUpdate();
                 if (logger.isDebugEnabled()) {
-                    logger.debug("SQL update affected {} rows", rows);
+                    logger.trace("SQL update affected " + rows + " rows.");
                 }
                 return rows;
             } finally {
@@ -625,7 +625,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     public int executeUpdate(final String sql) throws SQLException {
         Objects.requireNonNull(sql, "SQL must not be null");
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing SQL update [{}]", sql);
+            logger.trace("Executing SQL update [" + sql + "].");
         }
         //
         class UpdateStatementCallback implements StatementCallback<Integer>, SqlProvider {
@@ -633,7 +633,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             public Integer doInStatement(final Statement stmt) throws SQLException {
                 int rows = stmt.executeUpdate(sql);
                 if (logger.isDebugEnabled()) {
-                    logger.debug("SQL update affected {} rows.", rows);
+                    logger.trace("SQL update affected " + rows + " rows.");
                 }
                 return rows;
             }
@@ -672,7 +672,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             throw new NullPointerException("SQL array must not be empty");
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing SQL batch update of {} statements", sql.length);
+            logger.debug("Executing SQL batch update of " + sql.length + " statements");
         }
         //
         class BatchUpdateStatementCallback implements StatementCallback<int[]>, SqlProvider {
@@ -756,7 +756,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     @Override
     public int[] executeBatch(final String sql, final BatchPreparedStatementSetter pss) throws SQLException {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing SQL batch update [{}].", sql);
+            logger.debug("Executing SQL batch update [" + sql + "].");
         }
         String buildSql = getParsedSql(sql).buildSql();
 

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.db.jdbc.core;
+import net.hasor.cobble.logging.Logger;
+import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.db.datasource.ConnectionProxy;
 import net.hasor.db.jdbc.ConnectionCallback;
 import net.hasor.db.jdbc.StatementCallback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.lang.reflect.InvocationHandler;
@@ -125,7 +125,7 @@ public class JdbcConnection extends JdbcAccessor {
         DataSource localDS = this.getDataSource();//获取数据源
         boolean usingDS = (localConn == null);
         if (logger.isDebugEnabled()) {
-            logger.debug("database connection using DataSource = {}", usingDS);
+            logger.trace("database connection using DataSource = " + usingDS);
         }
         if (localConn == null && localDS == null) {
             throw new IllegalArgumentException("DataSource or Connection are not available.");
@@ -190,8 +190,10 @@ public class JdbcConnection extends JdbcAccessor {
             if (logger.isDebugEnabled()) {
                 SQLWarning warningToLog = stmt.getWarnings();
                 while (warningToLog != null) {
-                    logger.debug("SQLWarning ignored: SQL state '{}', error code '{}', message [{}].",//
-                            warningToLog.getSQLState(), warningToLog.getErrorCode(), warningToLog.getMessage());
+                    logger.trace("SQLWarning ignored: SQL state '" + warningToLog.getSQLState() + "', "//
+                            + "error code '" + warningToLog.getErrorCode() + "', " //
+                            + "message [" + warningToLog.getMessage() + "]."//
+                    );
                     warningToLog = warningToLog.getNextWarning();
                 }
             }

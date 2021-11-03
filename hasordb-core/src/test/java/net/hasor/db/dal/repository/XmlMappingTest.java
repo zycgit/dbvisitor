@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.repository;
+import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.test.db.AbstractDbTest;
 import org.junit.Before;
@@ -30,6 +31,7 @@ import java.sql.Types;
 public class XmlMappingTest extends AbstractDbTest {
     @Test
     public void mapperTest_01() {
+        LoggerFactory.useSlf4jLogger();
         try {
             DalRegistry dalRegistry = new DalRegistry();
             dalRegistry.loadMapper("/net_hasor_db/dal_repository/mapper_1.xml");

@@ -106,6 +106,10 @@ public class DalSession extends JdbcAccessor {
     }
 
     public <T> T createMapper(Class<T> mapperType) {
+        if (!mapperType.isInterface()) {
+            throw new UnsupportedOperationException("mapperType " + mapperType.getName() + " is not interface.");
+        }
+
         BaseMapperHandler mapperHandler = null;
         if (BaseMapper.class.isAssignableFrom(mapperType)) {
             ResolvableType type = ResolvableType.forClass(mapperType).as(BaseMapper.class);

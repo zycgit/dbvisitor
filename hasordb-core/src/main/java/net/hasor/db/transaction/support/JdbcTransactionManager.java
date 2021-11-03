@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.db.transaction.support;
+import net.hasor.cobble.logging.Logger;
+import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.db.datasource.ConnectionHolder;
 import net.hasor.db.transaction.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
