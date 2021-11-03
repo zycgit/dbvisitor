@@ -29,7 +29,7 @@ import java.util.Map;
  * @author 赵永春 (zyc@byshell.org)
  * @version : 2021-05-24
  */
-public class TermDynamicSql extends ArrayDynamicSql {
+public class TrimDynamicSql extends ArrayDynamicSql {
     /** 前缀  prefix*/
     private final String   prefix;
     /** 后缀  suffix*/
@@ -41,7 +41,7 @@ public class TermDynamicSql extends ArrayDynamicSql {
     /** 匹配模式是否大小写敏感 */
     private final boolean  caseSensitive;
 
-    public TermDynamicSql(String prefix, String suffix, String prefixOverrides, String suffixOverrides, boolean caseSensitive) {
+    public TrimDynamicSql(String prefix, String suffix, String prefixOverrides, String suffixOverrides, boolean caseSensitive) {
         this.prefix = prefix;
         this.suffix = suffix;
         this.caseSensitive = caseSensitive;

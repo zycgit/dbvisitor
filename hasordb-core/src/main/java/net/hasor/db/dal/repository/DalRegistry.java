@@ -249,7 +249,7 @@ public class DalRegistry {
         }
     }
 
-    private void loadReader(String scope, Element configRoot, MappingOptions options) throws IOException, ClassNotFoundException {
+    private void loadReader(String space, Element configRoot, MappingOptions options) throws IOException, ClassNotFoundException {
         NodeList childNodes = configRoot.getChildNodes();
         TableMappingResolve<Node> resolve = getXmlTableMappingResolve();
 
@@ -259,8 +259,8 @@ public class DalRegistry {
                 continue;
             }
 
-            boolean isResultMap = "resultMap".equalsIgnoreCase(node.getNodeName());
             boolean isEntityMap = "entityMap".equalsIgnoreCase(node.getNodeName());
+            boolean isResultMap = "resultMap".equalsIgnoreCase(node.getNodeName());
             if (!(isResultMap || isEntityMap)) {
                 continue;
             }
@@ -273,24 +273,25 @@ public class DalRegistry {
             String typeString = (typeNode != null) ? typeNode.getNodeValue() : null;
             String tableName = (tableNode != null) ? tableNode.getNodeValue() : null;
 
-            if (isEntityMap && StringUtils.isBlank(tableName)) {
-                throw new IOException("<entityMap> must be include 'table'='xxx'.");
-            }
-
-            if (StringUtils.isBlank(idString) && StringUtils.isBlank(typeString)) {
-                throw new IOException("the <" + node.getNodeName() + "> tag, id and type require at least one.");
-            }
-            if (StringUtils.isBlank(idString)) {
+            if (isEntityMap) {
+                if (StringUtils.isBlank(tableName)) {
+                    throw new IOException("<entityMap> must be include 'table'='xxx'.");
+                }
+                space = "";
                 idString = typeString;
+            }
+            if (isResultMap) {
+                if (StringUtils.isBlank(idString) && StringUtils.isBlank(typeString)) {
+                    throw new IOException("the <resultMap> tag, id and type require at least one.");
+                }
+                space = StringUtils.isBlank(space) ? "" : space;
+                if (StringUtils.isBlank(idString)) {
+                    idString = typeString;
+                }
             }
 
             TableMapping<?> tableMapping = resolve.resolveTableMapping(node, getClassLoader(), getTypeRegistry(), options);
-
-            if (isEntityMap) {
-                saveMapping(null, idString, tableMapping);
-            } else {
-                saveMapping(scope, idString, tableMapping);
-            }
+            saveMapping(space, idString, tableMapping);
         }
     }
 
@@ -354,7 +355,10 @@ public class DalRegistry {
     // --------------------------------------------------------------------------------------------
 
     protected Element loadXmlRoot(InputStream stream) throws ParserConfigurationException, IOException, SAXException {
-        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+        builderFactory.setValidating(true);
+
+        DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
         Document document = documentBuilder.parse(new InputSource(stream));
         return document.getDocumentElement();
     }

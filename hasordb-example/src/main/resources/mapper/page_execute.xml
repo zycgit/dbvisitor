@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//hasor.net//DTD Mapper 3.0//EN" "http://www.hasor.net/schema/hasordb/mapper.dtd">
 <mapper namespace="net.hasor.test.db.dal.execute.PageExecuteDal">
 
-    <entityMap table="test_user" type="net.hasor.test.db.dto.TbUser2" schema="">
+    <entityMap table="test_user" type="net.hasor.test.db.dto.TbUser2">
         <id column="user_uuid" property="uid"/>
         <mapping column="name" property="name"/>
         <mapping column="login_name" property="account"/>
@@ -23,7 +23,8 @@
     </resultMap>
 
     <sql id="user_do_allColumns">
-        user_uuid,
+        user_uuid
+        ,
         name,
         login_name,
         login_password,
@@ -33,7 +34,8 @@
     </sql>
 
     <delete id="deleteAll">
-        delete from test_user;
+        delete
+        from test_user;
     </delete>
 
     <insert id="createUser">
@@ -50,7 +52,7 @@
         )
     </insert>
 
-    <select id="listByPage1" resultMap="tb_user_resultMap" statementType="prepared">
+    <select id="listByPage1" resultMap="tb_user_resultMap" statementType="PREPARED">
         select
         <include refid="user_do_allColumns"/>
         from test_user
@@ -59,7 +61,7 @@
         order by `index`
     </select>
 
-    <select id="listByPage2" resultMap="tb_user_resultMap" statementType="prepared">
+    <select id="listByPage2" resultMap="tb_user_resultMap" statementType="PREPARED">
         select
         <include refid="user_do_allColumns"/>
         from test_user

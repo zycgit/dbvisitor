@@ -67,7 +67,6 @@ public abstract class AbstractStatementExecute<T> {
 
         executeInfo.pageInfo = pageInfo;
         executeInfo.timeout = -1;
-        executeInfo.parameterType = null;
         executeInfo.resultMap = "";
         executeInfo.fetchSize = 256;
         executeInfo.resultSetType = ResultSetType.DEFAULT;
@@ -78,7 +77,6 @@ public abstract class AbstractStatementExecute<T> {
 
         if (dynamicSql instanceof DmlSqlConfig) {
             executeInfo.timeout = ((DmlSqlConfig) dynamicSql).getTimeout();
-            executeInfo.parameterType = ((DmlSqlConfig) dynamicSql).getParameterType();
         }
         if (dynamicSql instanceof QuerySqlConfig) {
             String resultMapStr = ((QuerySqlConfig) dynamicSql).getResultMap();
@@ -234,7 +232,6 @@ public abstract class AbstractStatementExecute<T> {
 
     protected static class ExecuteInfo {
         // query
-        public String              parameterType      = null;
         public int                 timeout            = -1;
         public int                 fetchSize          = 256;
         public ResultSetType       resultSetType      = ResultSetType.FORWARD_ONLY;

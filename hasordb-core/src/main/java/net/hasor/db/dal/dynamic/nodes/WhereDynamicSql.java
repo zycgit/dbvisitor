@@ -20,7 +20,7 @@ package net.hasor.db.dal.dynamic.nodes;
  * @author 赵永春 (zyc@byshell.org)
  * @version : 2021-05-24
  */
-public class WhereDynamicSql extends TermDynamicSql {
+public class WhereDynamicSql extends TrimDynamicSql {
     public WhereDynamicSql() {
         super("where", "", "and | or", "", true);
     }

@@ -40,7 +40,10 @@ import java.io.StringReader;
  */
 public class XmlDynamicResolve extends DynamicParser implements DynamicResolve<Node> {
     public DynamicSql parseSqlConfig(String sqlString) throws IOException, SAXException, ParserConfigurationException {
-        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+        builderFactory.setValidating(false);
+
+        DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
         Document document = documentBuilder.parse(new InputSource(new StringReader(sqlString)));
         Element root = document.getDocumentElement();
         return parseSqlConfig(root);

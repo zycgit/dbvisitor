@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//hasor.net//DTD Mapper 3.0//EN" "http://www.hasor.net/schema/hasordb/mapper.dtd">
 <mapper namespace="net.hasor.test.db.dal.execute.TestExecuteDal">
     <resultMap id="tb_user_resultMap" type="net.hasor.test.db.dto.TbUser2">
         <id column="user_uuid" property="uid"/>

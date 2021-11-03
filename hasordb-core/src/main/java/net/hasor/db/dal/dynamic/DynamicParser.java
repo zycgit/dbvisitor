@@ -36,7 +36,10 @@ import java.io.StringReader;
  */
 public class DynamicParser {
     public DynamicSql parseDynamicSql(String sqlString) throws IOException, SAXException, ParserConfigurationException {
-        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+        builderFactory.setValidating(false);
+
+        DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
         Document document = documentBuilder.parse(new InputSource(new StringReader(sqlString)));
         Element root = document.getDocumentElement();
         return parseDynamicSql(root);
@@ -124,7 +127,7 @@ public class DynamicParser {
         String suffixOverrides = getNodeAttributeValue(curXmlNode, "suffixOverrides");
         boolean caseSensitive = (boolean) ConverterUtils.convert(getNodeAttributeValue(curXmlNode, "caseSensitive"), Boolean.TYPE);
 
-        ArrayDynamicSql parent = new TermDynamicSql(prefix, suffix, prefixOverrides, suffixOverrides, caseSensitive);
+        ArrayDynamicSql parent = new TrimDynamicSql(prefix, suffix, prefixOverrides, suffixOverrides, caseSensitive);
         parentSqlNode.addChildNode(parent);
         this.parseNodeList(parent, curXmlNode.getChildNodes());
     }
