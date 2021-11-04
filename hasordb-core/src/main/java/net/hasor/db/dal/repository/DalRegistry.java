@@ -17,6 +17,7 @@ package net.hasor.db.dal.repository;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.XmlUtils;
 import net.hasor.cobble.loader.ResourceLoader;
 import net.hasor.cobble.loader.providers.ClassPathResourceLoader;
 import net.hasor.db.dal.dynamic.DynamicContext;
@@ -37,7 +38,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -355,10 +355,7 @@ public class DalRegistry {
     // --------------------------------------------------------------------------------------------
 
     protected Element loadXmlRoot(InputStream stream) throws ParserConfigurationException, IOException, SAXException {
-        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        builderFactory.setValidating(true);
-
-        DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
+        DocumentBuilder documentBuilder = XmlUtils.getDocumentBuilderWithNoValid().newDocumentBuilder();
         Document document = documentBuilder.parse(new InputSource(stream));
         return document.getDocumentElement();
     }

@@ -16,7 +16,11 @@
 package net.hasor.db.dal.repository.config;
 import net.hasor.cobble.StringUtils;
 import net.hasor.db.dal.dynamic.DynamicSql;
+import net.hasor.db.dal.dynamic.nodes.ArrayDynamicSql;
+import net.hasor.db.dal.dynamic.nodes.SelectKeyDynamicSql;
+import net.hasor.db.dal.repository.MultipleResultsType;
 import net.hasor.db.dal.repository.QueryType;
+import net.hasor.db.dal.repository.ResultSetType;
 import net.hasor.db.dal.repository.StatementType;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -27,11 +31,13 @@ import org.w3c.dom.Node;
  * @author 赵永春 (zyc@byshell.org)
  */
 public abstract class DmlSqlConfig extends SegmentSqlConfig {
-    private StatementType statementType = StatementType.Prepared;
-    private int           timeout       = -1;
+    private StatementType      statementType = StatementType.Prepared;
+    private int                timeout       = -1;
+    private SelectKeySqlConfig selectKey;
 
     public DmlSqlConfig(DynamicSql target) {
         super(target);
+        this.processSelectKey(target);
     }
 
     public DmlSqlConfig(DynamicSql target, Node operationNode) {
@@ -41,9 +47,40 @@ public abstract class DmlSqlConfig extends SegmentSqlConfig {
         Node timeoutNode = nodeAttributes.getNamedItem("timeout");
         String statementType = (statementTypeNode != null) ? statementTypeNode.getNodeValue() : null;
         String timeout = (timeoutNode != null) ? timeoutNode.getNodeValue() : null;
-        //
+
         this.statementType = StatementType.valueOfCode(statementType, StatementType.Prepared);
         this.timeout = StringUtils.isBlank(timeout) ? -1 : Integer.parseInt(timeout);
+
+        this.processSelectKey(target);
+    }
+
+    protected void processSelectKey(DynamicSql target) {
+        if (target instanceof ArrayDynamicSql) {
+            for (DynamicSql dynamicSql : ((ArrayDynamicSql) target).getSubNodes()) {
+                if (dynamicSql instanceof SelectKeyDynamicSql) {
+                    SelectKeyDynamicSql skDynamicSql = (SelectKeyDynamicSql) dynamicSql;
+                    StatementType skStatementType = StatementType.valueOfCode(skDynamicSql.getStatementType(), StatementType.Prepared);
+                    ResultSetType skResultSetType = ResultSetType.valueOfCode(skDynamicSql.getResultSetType(), ResultSetType.DEFAULT);
+                    MultipleResultsType skMultipleResultsType = MultipleResultsType.valueOfCode(skDynamicSql.getMultipleResultType(), MultipleResultsType.LAST);
+
+                    this.selectKey = new SelectKeySqlConfig(skDynamicSql);
+                    this.selectKey.setStatementType(skStatementType);
+                    this.selectKey.setTimeout(skDynamicSql.getTimeout());
+                    this.selectKey.setResultMap(skDynamicSql.getResultMap());
+                    this.selectKey.setResultType(skDynamicSql.getResultType());
+                    this.selectKey.setFetchSize(skDynamicSql.getFetchSize());
+                    this.selectKey.setResultSetType(skResultSetType);
+                    this.selectKey.setMultipleResultType(skMultipleResultsType);
+                    this.selectKey.setKeyProperty(skDynamicSql.getKeyProperty());
+                    this.selectKey.setKeyColumn(skDynamicSql.getKeyColumn());
+                    this.selectKey.setOrder(skDynamicSql.getOrder());
+                }
+            }
+        }
+    }
+
+    public SelectKeySqlConfig getSelectKey() {
+        return this.selectKey;
     }
 
     public abstract QueryType getDynamicType();

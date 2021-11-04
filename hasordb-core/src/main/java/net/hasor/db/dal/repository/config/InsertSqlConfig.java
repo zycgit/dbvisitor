@@ -24,6 +24,7 @@ import org.w3c.dom.Node;
  * @author 赵永春 (zyc@byshell.org)
  */
 public class InsertSqlConfig extends DmlSqlConfig {
+
     public InsertSqlConfig(DynamicSql target) {
         super(target);
     }

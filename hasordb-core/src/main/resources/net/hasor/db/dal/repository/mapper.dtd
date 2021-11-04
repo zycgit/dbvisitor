@@ -13,7 +13,6 @@
        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
        See the License for the specific language governing permissions and
        limitations under the License.
-
 -->
 <!ELEMENT mapper ( entityMap* | resultMap* | sql* | insert* | update* | delete* | select* | callable* )+>
 <!ATTLIST mapper
@@ -85,8 +84,13 @@
 
 <!ELEMENT selectKey (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
 <!ATTLIST selectKey
-        resultType CDATA #IMPLIED
         statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
+        timeout CDATA #IMPLIED
+        resultMap CDATA #IMPLIED
+        resultType CDATA #IMPLIED
+        fetchSize CDATA #IMPLIED
+        resultSetType CDATA #IMPLIED
+        multipleResultType CDATA #IMPLIED
         keyProperty CDATA #REQUIRED
         keyColumn CDATA #IMPLIED
         order (BEFORE|AFTER) #IMPLIED

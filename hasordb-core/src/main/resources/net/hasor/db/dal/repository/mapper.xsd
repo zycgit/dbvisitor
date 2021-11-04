@@ -161,8 +161,13 @@
                 <xs:element ref="if"/>
                 <xs:element ref="bind"/>
             </xs:choice>
-            <xs:attribute name="resultType"/>
             <xs:attribute name="statementType" type="statementType_type"/>
+            <xs:attribute name="timeout"/>
+            <xs:attribute name="resultMap"/>
+            <xs:attribute name="resultType"/>
+            <xs:attribute name="fetchSize"/>
+            <xs:attribute name="resultSetType"/>
+            <xs:attribute name="multipleResultType"/>
             <xs:attribute name="keyProperty" use="required"/>
             <xs:attribute name="keyColumn"/>
             <xs:attribute name="order">

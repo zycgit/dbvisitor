@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.XmlUtils;
 import net.hasor.cobble.convert.ConverterUtils;
 import net.hasor.db.dal.dynamic.nodes.*;
 import org.w3c.dom.Document;
@@ -24,7 +26,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
@@ -35,11 +36,9 @@ import java.io.StringReader;
  * @author 赵永春 (zyc@byshell.org)
  */
 public class DynamicParser {
-    public DynamicSql parseDynamicSql(String sqlString) throws IOException, SAXException, ParserConfigurationException {
-        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        builderFactory.setValidating(false);
 
-        DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
+    public DynamicSql parseDynamicSql(String sqlString) throws IOException, SAXException, ParserConfigurationException {
+        DocumentBuilder documentBuilder = XmlUtils.getDocumentBuilderWithNoValid().newDocumentBuilder();
         Document document = documentBuilder.parse(new InputSource(new StringReader(sqlString)));
         Element root = document.getDocumentElement();
         return parseDynamicSql(root);
@@ -83,6 +82,8 @@ public class DynamicParser {
                     parseOtherwiseSqlNode(parentSqlNode, node);
                 } else if ("include".equalsIgnoreCase(nodeName)) {
                     parseIncludeSqlNode(parentSqlNode, node);
+                } else if ("selectKey".equalsIgnoreCase(nodeName)) {
+                    parseSelectKeySqlNode(parentSqlNode, node);
                 } else {
                     throw new UnsupportedOperationException("Unsupported tags :" + nodeName);
                 }
@@ -196,4 +197,26 @@ public class DynamicParser {
 
         parentSqlNode.addChildNode(new IncludeDynamicSql(refId));
     }
+
+    /** 解析 <selectKey> 节点 */
+    private void parseSelectKeySqlNode(ArrayDynamicSql parentSqlNode, Node curXmlNode) {
+        String statementType = getNodeAttributeValue(curXmlNode, "statementType");
+        String timeout = getNodeAttributeValue(curXmlNode, "timeout");
+        String resultMap = getNodeAttributeValue(curXmlNode, "resultMap");
+        String resultType = getNodeAttributeValue(curXmlNode, "resultType");
+        String fetchSize = getNodeAttributeValue(curXmlNode, "fetchSize");
+        String resultSetType = getNodeAttributeValue(curXmlNode, "resultSetType");
+        String multipleResultType = getNodeAttributeValue(curXmlNode, "multipleResultType");
+        String keyProperty = getNodeAttributeValue(curXmlNode, "keyProperty");
+        String keyColumn = getNodeAttributeValue(curXmlNode, "keyColumn");
+        String order = getNodeAttributeValue(curXmlNode, "order");
+        int timeoutNum = StringUtils.isBlank(timeout) ? -1 : Math.max(-1, Integer.parseInt(timeout));
+        int fetchSizeNum = StringUtils.isBlank(fetchSize) ? 256 : Integer.parseInt(fetchSize);
+
+        ArrayDynamicSql parent = new SelectKeyDynamicSql(statementType, timeoutNum, resultMap, resultType, fetchSizeNum,//
+                resultSetType, multipleResultType, keyProperty, keyColumn, order);
+        parentSqlNode.addChildNode(parent);
+        this.parseNodeList(parent, curXmlNode.getChildNodes());
+    }
+
 }

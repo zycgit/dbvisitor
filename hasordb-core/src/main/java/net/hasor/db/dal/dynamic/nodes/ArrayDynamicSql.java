@@ -32,6 +32,11 @@ public class ArrayDynamicSql implements DynamicSql {
     /** 子节点 */
     protected List<DynamicSql> subNodes = new ArrayList<>();
 
+    /** 获取节点 */
+    public List<DynamicSql> getSubNodes() {
+        return this.subNodes;
+    }
+
     /** 追加子节点 */
     public void addChildNode(DynamicSql node) {
         this.subNodes.add(node);

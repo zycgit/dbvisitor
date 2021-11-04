@@ -74,7 +74,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
         }
 
         strategy = (strategy == null) ? DuplicateKeyStrategy.Into : strategy;
-        return lambdaInsert().onDuplicateStrategy(strategy).applyEntity(entity).executeSumResult();
+        return insert().onDuplicateStrategy(strategy).applyEntity(entity).executeSumResult();
     }
 
     @Override
@@ -84,7 +84,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
         }
 
         strategy = (strategy == null) ? DuplicateKeyStrategy.Into : strategy;
-        return lambdaInsert().onDuplicateStrategy(strategy).applyEntity(entity).executeSumResult();
+        return insert().onDuplicateStrategy(strategy).applyEntity(entity).executeSumResult();
     }
 
     @Override
@@ -94,7 +94,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
         }
 
         strategy = (strategy == null) ? DuplicateKeyStrategy.Into : strategy;
-        return lambdaInsert().onDuplicateStrategy(strategy).applyMap(columnMap).executeSumResult();
+        return insert().onDuplicateStrategy(strategy).applyMap(columnMap).executeSumResult();
     }
 
     @Override
@@ -104,7 +104,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
         }
 
         strategy = (strategy == null) ? DuplicateKeyStrategy.Into : strategy;
-        return lambdaInsert().onDuplicateStrategy(strategy).applyMap(columnMapList).executeSumResult();
+        return insert().onDuplicateStrategy(strategy).applyMap(columnMapList).executeSumResult();
     }
 
     @Override
@@ -118,7 +118,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new SQLException(entityType() + " no primary key is identified");
         }
 
-        LambdaDelete<Object> delete = lambdaDelete();
+        LambdaDelete<Object> delete = delete();
         if (pks.size() == 1) {
             delete.and().eq(pks.get(0).getColumn(), id);
         } else {
@@ -141,7 +141,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             return 0;
         }
 
-        LambdaDelete<Object> delete = lambdaDelete();
+        LambdaDelete<Object> delete = delete();
         for (ColumnMapping mapping : getMapping().getProperties()) {
             Object value = mapping.getHandler().get(sample);
             if (value != null) {
@@ -158,7 +158,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             return 0;
         }
 
-        LambdaDelete<Object> delete = lambdaDelete();
+        LambdaDelete<Object> delete = delete();
         for (String columnKey : columnMap.keySet()) {
             Object val = columnMap.get(columnKey);
             if (val == null) {
@@ -177,7 +177,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new NullPointerException("queryCompare is null or empty.");
         }
 
-        return lambdaDelete().and(queryCompare).doDelete();
+        return delete().and(queryCompare).doDelete();
     }
 
     @Override
@@ -192,10 +192,10 @@ class BaseMapperHandler implements BaseMapper<Object> {
         }
 
         if (pks.size() == 1) {
-            LambdaDelete<Object> delete = lambdaDelete();
+            LambdaDelete<Object> delete = delete();
             return delete.and().in(pks.get(0).getColumn(), idList).doDelete();
         } else {
-            LambdaDelete<Object> delete = lambdaDelete();
+            LambdaDelete<Object> delete = delete();
             for (Object obj : idList) {
                 delete.or(queryCompare -> {
                     for (ColumnMapping pkColumn : pks) {
@@ -223,7 +223,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new SQLException(entityType() + " no primary key is identified");
         }
 
-        LambdaUpdate<Object> update = lambdaUpdate();
+        LambdaUpdate<Object> update = update();
         for (ColumnMapping pk : pks) {
             Object o = pk.getHandler().get(entity);
             if (o == null) {
@@ -241,7 +241,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new NullPointerException("sample or entity is null.");
         }
 
-        LambdaUpdate<Object> update = lambdaUpdate();
+        LambdaUpdate<Object> update = update();
         for (ColumnMapping mapping : getMapping().getProperties()) {
             Object value = mapping.getHandler().get(sample);
             if (value != null) {
@@ -268,10 +268,10 @@ class BaseMapperHandler implements BaseMapper<Object> {
         }
 
         if (pks.size() == 1) {
-            LambdaUpdate<Object> update = lambdaUpdate();
+            LambdaUpdate<Object> update = update();
             return update.and().in(pks.get(0).getColumn(), idList).doUpdate();
         } else {
-            LambdaUpdate<Object> update = lambdaUpdate();
+            LambdaUpdate<Object> update = update();
             for (Object obj : idList) {
                 update.or(queryCompare -> {
                     for (ColumnMapping pkColumn : pks) {
@@ -293,7 +293,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
         if (queryCompare == null || entity == null) {
             throw new NullPointerException("queryCompare or entity is null.");
         }
-        return lambdaUpdate().and(queryCompare).updateTo(entity).doUpdate();
+        return update().and(queryCompare).updateTo(entity).doUpdate();
     }
 
     @Override
@@ -302,7 +302,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             return 0;
         }
 
-        LambdaUpdate<Object> update = lambdaUpdate();
+        LambdaUpdate<Object> update = update();
         for (String columnKey : columnMap.keySet()) {
             Object val = columnMap.get(columnKey);
             if (val == null) {
@@ -321,7 +321,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new SQLException(entityType() + " no primary key is identified");
         }
 
-        LambdaQuery<Object> query = lambdaQuery();
+        LambdaQuery<Object> query = query();
         if (pks.size() == 1) {
             query.and().eq(pks.get(0).getColumn(), id);
         } else {
@@ -343,7 +343,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new NullPointerException("sample is null.");
         }
 
-        LambdaQuery<Object> query = lambdaQuery();
+        LambdaQuery<Object> query = query();
         for (ColumnMapping mapping : getMapping().getProperties()) {
             Object value = mapping.getHandler().get(sample);
             if (value != null) {
@@ -356,7 +356,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
 
     protected LambdaQuery<Object> buildQueryByColumn(Map<String, Object> columnMap) {
 
-        LambdaQuery<Object> query = lambdaQuery();
+        LambdaQuery<Object> query = query();
         for (String columnKey : columnMap.keySet()) {
             Object val = columnMap.get(columnKey);
             if (val != null) {
@@ -376,10 +376,10 @@ class BaseMapperHandler implements BaseMapper<Object> {
         }
 
         if (pks.size() == 1) {
-            LambdaQuery<Object> query = lambdaQuery();
+            LambdaQuery<Object> query = query();
             return query.and().in(pks.get(0).getColumn(), idList);
         } else {
-            LambdaQuery<Object> query = lambdaQuery();
+            LambdaQuery<Object> query = query();
             for (Object obj : idList) {
                 query.or(queryCompare -> {
                     for (ColumnMapping pkColumn : pks) {
@@ -424,7 +424,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
         if (queryCompare == null) {
             throw new NullPointerException("queryCompare or entity is null.");
         } else {
-            return lambdaQuery().and(queryCompare).queryForList();
+            return query().and(queryCompare).queryForList();
         }
     }
 
@@ -456,13 +456,13 @@ class BaseMapperHandler implements BaseMapper<Object> {
         if (queryCompare == null) {
             throw new NullPointerException("queryCompare or entity is null.");
         } else {
-            return lambdaQuery().and(queryCompare).queryForMapList();
+            return query().and(queryCompare).queryForMapList();
         }
     }
 
     @Override
     public int countAll() throws SQLException {
-        return lambdaQuery().queryForCount();
+        return query().queryForCount();
     }
 
     @Override
@@ -480,7 +480,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
         if (queryCompare == null) {
             throw new NullPointerException("queryCompare or entity is null.");
         } else {
-            return lambdaQuery().and(queryCompare).queryForCount();
+            return query().and(queryCompare).queryForCount();
         }
     }
 }

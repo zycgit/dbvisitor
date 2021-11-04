@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE mapper PUBLIC "-//hasor.net//DTD Mapper 3.0//EN" "http://www.hasor.net/schema/hasordb/mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//hasor.net//DTD Mapper 1.0//EN" "https://www.hasor.net/schema/hasordb/mapper.dtd">
 <mapper namespace="net.hasor.test.db.dal.Mapper1Dal">
 
     <resultMap id="tb_user_resultMap" type="net.hasor.test.db.dto.TbUser2">
@@ -13,15 +13,25 @@
     </resultMap>
 
     <sql id="projectInfoDO_allColumns">
-        id , owner_id
+        id, owner_id
     </sql>
 
     <!-- dataqlMap="tb_user_dataqlMap"-->
     <select id="testBind" resultMap="tb_user_resultMap">
         SELECT
-            <include refid="projectInfoDO_allColumns"/>
+        <include refid="projectInfoDO_allColumns"/>
         FROM console_job
         WHERE aac = #{abc}
     </select>
 
+    <insert id="testInsert">
+        insert into test_user (
+        <include refid="projectInfoDO_allColumns"/>
+        ) values (
+        #{uid} , #{name}
+        );
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
 </mapper>

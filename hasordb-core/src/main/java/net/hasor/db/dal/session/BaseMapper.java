@@ -42,19 +42,19 @@ public interface BaseMapper<T> {
 
     public LambdaTemplate lambdaTemplate();
 
-    public default LambdaInsert<T> lambdaInsert() {
+    public default LambdaInsert<T> insert() {
         return lambdaTemplate().lambdaInsert(entityType());
     }
 
-    public default LambdaDelete<T> lambdaDelete() {
+    public default LambdaDelete<T> delete() {
         return lambdaTemplate().lambdaDelete(entityType());
     }
 
-    public default LambdaUpdate<T> lambdaUpdate() {
+    public default LambdaUpdate<T> update() {
         return lambdaTemplate().lambdaUpdate(entityType());
     }
 
-    public default LambdaQuery<T> lambdaQuery() {
+    public default LambdaQuery<T> query() {
         return lambdaTemplate().lambdaQuery(entityType());
     }
 
@@ -292,11 +292,11 @@ public interface BaseMapper<T> {
     /** 分页查询 */
     public default PageResult<T> queryByPage(Page page, Consumer<QueryCompare<T, LambdaQuery<T>>> queryCompare) throws SQLException {
         if (queryCompare == null) {
-            List<T> pageData = lambdaQuery().usePage(page).queryForList();
+            List<T> pageData = query().usePage(page).queryForList();
             int totalCount = countAll();
             return new PageResult<>(page, totalCount, pageData);
         } else {
-            List<T> pageData = lambdaQuery().and(queryCompare).usePage(page).queryForList();
+            List<T> pageData = query().and(queryCompare).usePage(page).queryForList();
             int totalCount = countByCondition(queryCompare);
             return new PageResult<>(page, totalCount, pageData);
         }

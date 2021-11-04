@@ -15,36 +15,52 @@
  */
 package net.hasor.db.dal.repository.config;
 import net.hasor.db.dal.dynamic.DynamicContext;
-import net.hasor.db.dal.dynamic.DynamicSql;
-import net.hasor.db.dal.repository.QueryType;
+import net.hasor.db.dal.dynamic.nodes.SelectKeyDynamicSql;
 import net.hasor.db.dialect.SqlBuilder;
 
 import java.sql.SQLException;
 import java.util.Map;
 
 /**
- * Segment SqlConfig
+ * SelectKey SqlConfig
  * @version : 2021-06-19
  * @author 赵永春 (zyc@byshell.org)
  */
-public class SegmentSqlConfig implements DynamicSql {
-    protected final DynamicSql target;
+public class SelectKeySqlConfig extends QuerySqlConfig {
+    private String keyProperty;
+    private String keyColumn;
+    private String order;
 
-    public SegmentSqlConfig(DynamicSql target) {
-        this.target = target;
+    public SelectKeySqlConfig(SelectKeyDynamicSql target) {
+        super(target);
     }
 
-    public QueryType getDynamicType() {
-        return QueryType.Segment;
+    public String getKeyProperty() {
+        return this.keyProperty;
     }
 
-    @Override
-    public boolean isHavePlaceholder() {
-        return this.target.isHavePlaceholder();
+    public void setKeyProperty(String keyProperty) {
+        this.keyProperty = keyProperty;
+    }
+
+    public String getKeyColumn() {
+        return this.keyColumn;
+    }
+
+    public void setKeyColumn(String keyColumn) {
+        this.keyColumn = keyColumn;
+    }
+
+    public String getOrder() {
+        return this.order;
+    }
+
+    public void setOrder(String order) {
+        this.order = order;
     }
 
     @Override
     public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
-        this.target.buildQuery(data, context, sqlBuilder);
+        ((SelectKeyDynamicSql) this.target).buildSqlQuery(data, context, sqlBuilder);
     }
 }

@@ -16,6 +16,7 @@
 package net.hasor.db.dal.dynamic;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.io.IOUtils;
+import net.hasor.db.dal.repository.config.InsertSqlConfig;
 import net.hasor.db.dialect.SqlBuilder;
 import net.hasor.db.types.UnknownTypeHandler;
 import net.hasor.db.types.handler.StringTypeHandler;
@@ -230,5 +231,25 @@ public class DynamicXmlTest {
         assert ((SqlArg) builder1.getArgs()[1]).getTypeHandler() instanceof UnknownTypeHandler;
         assert ((SqlArg) builder1.getArgs()[0]).getSqlMode() == SqlMode.In;
         assert ((SqlArg) builder1.getArgs()[1]).getSqlMode() == SqlMode.Out;
+    }
+
+    @Test
+    public void selectKeyTest_01() throws Throwable {
+        String queryConfig = loadString("/net_hasor_db/dal_dynamic/fragment/selectkey_01.xml");
+        DynamicSql parseXml = xmlParser.parseDynamicSql(queryConfig);
+
+        String querySql1 = loadString("/net_hasor_db/dal_dynamic/fragment/selectkey_01.xml.sql_1");
+        Map<String, Object> data1 = new HashMap<>();
+        data1.put("uid", "zyc_uid");
+        data1.put("name", "zyc_name");
+        SqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
+        assert builder1.getSqlString().trim().equals(querySql1.trim());
+
+        InsertSqlConfig insertSqlConfig = new InsertSqlConfig(parseXml);
+        assert insertSqlConfig.getSelectKey() != null;
+
+        String querySql2 = loadString("/net_hasor_db/dal_dynamic/fragment/selectkey_01.xml.sql_2");
+        SqlBuilder builder2 = insertSqlConfig.getSelectKey().buildQuery(data1, new TextBuilderContext());
+        assert builder2.getSqlString().trim().equals(querySql2.trim());
     }
 }
