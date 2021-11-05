@@ -248,7 +248,7 @@ public class DalRegistry {
         }
     }
 
-    private void loadReader(String space, Element configRoot, MappingOptions options) throws IOException, ClassNotFoundException {
+    private void loadReader(final String space, Element configRoot, MappingOptions options) throws IOException, ClassNotFoundException {
         NodeList childNodes = configRoot.getChildNodes();
         TableMappingResolve<Node> resolve = getXmlTableMappingResolve();
 
@@ -271,26 +271,27 @@ public class DalRegistry {
             String idString = (idNode != null) ? idNode.getNodeValue() : null;
             String typeString = (typeNode != null) ? typeNode.getNodeValue() : null;
             String tableName = (tableNode != null) ? tableNode.getNodeValue() : null;
+            String mapperSpace = space;
 
             if (isEntityMap) {
                 if (StringUtils.isBlank(tableName)) {
                     throw new IOException("<entityMap> must be include 'table'='xxx'.");
                 }
-                space = "";
+                mapperSpace = "";
                 idString = typeString;
             }
             if (isResultMap) {
                 if (StringUtils.isBlank(idString) && StringUtils.isBlank(typeString)) {
                     throw new IOException("the <resultMap> tag, id and type require at least one.");
                 }
-                space = StringUtils.isBlank(space) ? "" : space;
+                mapperSpace = StringUtils.isBlank(mapperSpace) ? "" : mapperSpace;
                 if (StringUtils.isBlank(idString)) {
                     idString = typeString;
                 }
             }
 
             TableMapping<?> tableMapping = resolve.resolveTableMapping(node, getClassLoader(), getTypeRegistry(), options);
-            saveMapping(space, idString, tableMapping);
+            saveMapping(mapperSpace, idString, tableMapping);
         }
     }
 
