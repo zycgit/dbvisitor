@@ -20,11 +20,23 @@
         </developer>
     </developers>
 
-    <!-- 引用依赖 -->
     <dependencies>
+        <!-- jdbc toos -->
         <dependency>
             <groupId>net.hasor</groupId>
             <artifactId>hasor-db</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.1.23</version>
+        </dependency>
+
+        <!-- driver -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.22</version>
         </dependency>
     </dependencies>
 </project>

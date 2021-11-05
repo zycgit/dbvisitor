@@ -45,19 +45,22 @@
 
     <modules>
         <module>hasordb-core</module>
+        <module>hasordb-example</module>
+        <!--        <module>hasordb-integration/hasordb-spring</module>-->
+        <!--        <module>hasordb-integration/hasordb-spring-starter</module>-->
     </modules>
 
     <!-- 引用依赖 -->
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>1.7.30</version>
+                <groupId>net.hasor</groupId>
+                <artifactId>cobble-all</artifactId>
+                <version>4.2.6-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>net.hasor</groupId>
-                <artifactId>cobble-all</artifactId>
+                <artifactId>hasor-db</artifactId>
                 <version>4.2.6-SNAPSHOT</version>
             </dependency>
 
