@@ -24,6 +24,7 @@ import net.hasor.db.dal.dynamic.SqlArg;
 import net.hasor.db.dal.dynamic.SqlMode;
 import net.hasor.db.dal.repository.MultipleResultsType;
 import net.hasor.db.dal.repository.ResultSetType;
+import net.hasor.db.dal.repository.StatementType;
 import net.hasor.db.dal.repository.config.CallableSqlConfig;
 import net.hasor.db.dal.repository.config.DmlSqlConfig;
 import net.hasor.db.dal.repository.config.QuerySqlConfig;
@@ -111,6 +112,34 @@ public abstract class AbstractStatementExecute<T> {
         if (executeInfo.fetchSize > 0) {
             statement.setFetchSize(executeInfo.fetchSize);
         }
+    }
+
+    protected SelectKeyHolder getSelectKeyHolder(ExecuteInfo executeInfo) {
+        if (executeInfo.keySqlConfig == null) {
+            return null;
+        }
+
+        StatementType statementType = executeInfo.keySqlConfig.getStatementType();
+        AbstractStatementExecute<?> selectKeyExecute = null;
+        switch (statementType) {
+            case Statement: {
+                selectKeyExecute = new StatementExecute(context);
+                break;
+            }
+            case Prepared: {
+                selectKeyExecute = new PreparedStatementExecute(context);
+                break;
+            }
+            case Callable: {
+                selectKeyExecute = new CallableStatementExecute(context);
+                break;
+            }
+            default: {
+                throw new UnsupportedOperationException("statementType '" + statementType.getTypeName() + "' Unsupported.");
+            }
+        }
+
+        return new SelectKeyExecute(executeInfo.keySqlConfig, selectKeyExecute);
     }
 
     protected DalResultSetExtractor buildExtractor(ExecuteInfo executeInfo) {

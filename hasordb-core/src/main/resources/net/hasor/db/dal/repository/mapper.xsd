@@ -167,7 +167,6 @@
             <xs:attribute name="resultType"/>
             <xs:attribute name="fetchSize"/>
             <xs:attribute name="resultSetType"/>
-            <xs:attribute name="multipleResultType"/>
             <xs:attribute name="keyProperty" use="required"/>
             <xs:attribute name="keyColumn"/>
             <xs:attribute name="order">

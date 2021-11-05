@@ -15,7 +15,6 @@
  */
 package net.hasor.db.dal.repository;
 import net.hasor.cobble.ClassUtils;
-import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.XmlUtils;
 import net.hasor.cobble.loader.ResourceLoader;
@@ -187,7 +186,7 @@ public class DalRegistry {
             }
 
             if (StringUtils.isNotBlank(resource)) {
-                try (InputStream stream = ResourcesUtils.getResourceAsStream(resource)) {
+                try (InputStream stream = this.resourceLoader.getResourceAsStream(resource)) {
 
                     Element root = loadXmlRoot(stream);
                     MappingOptions options = MappingOptions.resolveOptions(root, this.mappingOptions);

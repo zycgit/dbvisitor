@@ -16,6 +16,7 @@
 package net.hasor.db.dal.repository.config;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.nodes.SelectKeyDynamicSql;
+import net.hasor.db.dal.repository.MultipleResultsType;
 import net.hasor.db.dialect.SqlBuilder;
 
 import java.sql.SQLException;
@@ -33,6 +34,7 @@ public class SelectKeySqlConfig extends QuerySqlConfig {
 
     public SelectKeySqlConfig(SelectKeyDynamicSql target) {
         super(target);
+        this.setMultipleResultType(MultipleResultsType.LAST);
     }
 
     public String getKeyProperty() {

@@ -18,7 +18,6 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.nodes.ArrayDynamicSql;
 import net.hasor.db.dal.dynamic.nodes.SelectKeyDynamicSql;
-import net.hasor.db.dal.repository.MultipleResultsType;
 import net.hasor.db.dal.repository.QueryType;
 import net.hasor.db.dal.repository.ResultSetType;
 import net.hasor.db.dal.repository.StatementType;
@@ -61,7 +60,6 @@ public abstract class DmlSqlConfig extends SegmentSqlConfig {
                     SelectKeyDynamicSql skDynamicSql = (SelectKeyDynamicSql) dynamicSql;
                     StatementType skStatementType = StatementType.valueOfCode(skDynamicSql.getStatementType(), StatementType.Prepared);
                     ResultSetType skResultSetType = ResultSetType.valueOfCode(skDynamicSql.getResultSetType(), ResultSetType.DEFAULT);
-                    MultipleResultsType skMultipleResultsType = MultipleResultsType.valueOfCode(skDynamicSql.getMultipleResultType(), MultipleResultsType.LAST);
 
                     this.selectKey = new SelectKeySqlConfig(skDynamicSql);
                     this.selectKey.setStatementType(skStatementType);
@@ -70,7 +68,6 @@ public abstract class DmlSqlConfig extends SegmentSqlConfig {
                     this.selectKey.setResultType(skDynamicSql.getResultType());
                     this.selectKey.setFetchSize(skDynamicSql.getFetchSize());
                     this.selectKey.setResultSetType(skResultSetType);
-                    this.selectKey.setMultipleResultType(skMultipleResultsType);
                     this.selectKey.setKeyProperty(skDynamicSql.getKeyProperty());
                     this.selectKey.setKeyColumn(skDynamicSql.getKeyColumn());
                     this.selectKey.setOrder(skDynamicSql.getOrder());
