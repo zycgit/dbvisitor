@@ -3,6 +3,7 @@ import net.hasor.db.dal.repository.DalRegistry;
 import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.test.db.dal.execute.TestExecuteDal;
 import net.hasor.test.db.dal.execute.TestUser;
+import net.hasor.test.db.dto.AutoId;
 import net.hasor.test.db.dto.TbUser2;
 import net.hasor.test.db.utils.DsUtils;
 import org.junit.Before;
@@ -13,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Map;
 
 public class BasicExecuteTest {
     private DalSession dalSession;
@@ -29,6 +29,8 @@ public class BasicExecuteTest {
     protected void beforeTest(JdbcTemplate jdbcTemplate) throws SQLException, IOException {
         jdbcTemplate.execute("drop table if exists test_user");
         jdbcTemplate.loadSplitSQL(";", StandardCharsets.UTF_8, "/net_hasor_db/dal_dynamic/execute/execute_for_mysql.sql");
+        jdbcTemplate.execute("drop table if exists auto_id");
+        jdbcTemplate.loadSplitSQL(";", StandardCharsets.UTF_8, "/net_hasor_db/auto_id_for_mysql.sql");
 
         jdbcTemplate.execute("drop procedure if exists proc_select_user;");
         jdbcTemplate.execute("create procedure proc_select_user(out p_out double) begin set p_out=123.123; select * from test_user; end;");
@@ -88,11 +90,17 @@ public class BasicExecuteTest {
     }
 
     @Test
-    public void procedure_1() {
+    public void selectKey_1() {
         TestExecuteDal dalExecute = this.dalSession.createMapper(TestExecuteDal.class);
-        dalExecute.initUser();
 
-        Map<String, Object> execute1 = dalExecute.callSelectUser("");
-        assert execute1.get("abc").equals("123.123");
+        AutoId autoId = new AutoId();
+        autoId.setId(null);
+        autoId.setName("abc");
+        autoId.setUid("uuid");
+        assert autoId.getId() == null;
+
+        dalExecute.insertAutoID(autoId);
+
+        assert autoId.getId() != null;
     }
 }

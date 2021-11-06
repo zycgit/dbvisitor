@@ -16,6 +16,7 @@
 package net.hasor.db.dal.session;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.BeanMap;
+import net.hasor.cobble.ref.MergedMap;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.execute.ExecuteProxy;
 import net.hasor.db.dal.repository.DalRegistry;
@@ -111,21 +112,23 @@ class ExecuteInvocationHandler implements InvocationHandler {
         }
 
         Map<String, Integer> argNames = this.argNamesMap.get(dynamicId);
-        Map<String, Object> argMap = new HashMap<>();
+        MergedMap<String, Object> mergedMap = new MergedMap<>();
 
+        Map<String, Object> argMap = new HashMap<>();
         argNames.forEach((key, idx) -> {
             argMap.put(key, objects[idx]);
         });
+        mergedMap.appendMap(argMap);
 
         if (objects.length == 1) {
             if (objects[0] instanceof Map) {
-                argMap.putAll((Map<? extends String, ?>) objects[0]);
+                mergedMap.appendMap((Map<? extends String, ?>) objects[0]);
             } else if (!(objects[0] instanceof Collection)) {
-                argMap.putAll(new BeanMap(objects[0]));
+                mergedMap.appendMap(new BeanMap(objects[0]));
             }
         }
 
-        return argMap;
+        return mergedMap;
     }
 
     @Override

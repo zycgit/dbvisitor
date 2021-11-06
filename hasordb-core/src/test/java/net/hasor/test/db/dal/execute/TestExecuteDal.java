@@ -16,6 +16,7 @@
 package net.hasor.test.db.dal.execute;
 import net.hasor.db.dal.repository.Param;
 import net.hasor.db.dal.repository.RefMapper;
+import net.hasor.test.db.dto.AutoId;
 import net.hasor.test.db.dto.TbUser2;
 
 import java.util.List;
@@ -37,4 +38,7 @@ public interface TestExecuteDal {
     public List<TestUser> listUserList_2(@Param("abc") String name);
 
     public Map<String, Object> callSelectUser(@Param("abc") String name);
+
+    public int insertAutoID(AutoId autoId);
+
 }

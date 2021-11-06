@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2005 the original author or authors.
+ * Copyright 2008-2009 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.dal.execute;
-import java.sql.Connection;
-import java.util.Map;
-
+package net.hasor.test.db.dto;
 /**
- * 执行 SelectKey 的接口定义
- * @version : 2021-11-05
+ *
+ * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface SelectKeyHolder {
+public class AutoId {
+    private Integer id;
+    private String  uid;
+    private String  name;
 
-    public void processBefore(Connection conn, Map<String, Object> parameter);
+    public Integer getId() {
+        return id;
+    }
 
-    public void processAfter(Connection conn, Map<String, Object> parameter);
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.execute;
+import net.hasor.cobble.StringUtils;
 import net.hasor.db.dal.repository.config.SelectKeySqlConfig;
+
+import java.sql.Connection;
+import java.util.Map;
 
 /**
  * 负责处理 SelectKey 的执行
@@ -22,8 +26,25 @@ import net.hasor.db.dal.repository.config.SelectKeySqlConfig;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class SelectKeyExecute implements SelectKeyHolder {
+    private SelectKeySqlConfig          keySqlConfig;
+    private AbstractStatementExecute<?> selectKeyExecute;
 
     public SelectKeyExecute(SelectKeySqlConfig keySqlConfig, AbstractStatementExecute<?> selectKeyExecute) {
-        throw new UnsupportedOperationException("SelectKey Unsupported.");
+        this.keySqlConfig = keySqlConfig;
+        this.selectKeyExecute = selectKeyExecute;
+    }
+
+    @Override
+    public void processBefore(Connection conn, Map<String, Object> parameter) {
+        if (StringUtils.equalsIgnoreCase("BEFORE", this.keySqlConfig.getOrder())) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public void processAfter(Connection conn, Map<String, Object> parameter) {
+        if (StringUtils.equalsIgnoreCase("AFTER", this.keySqlConfig.getOrder())) {
+            throw new UnsupportedOperationException();
+        }
     }
 }

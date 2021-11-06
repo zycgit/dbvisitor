@@ -57,4 +57,15 @@
     <callable id="callSelectUser" resultOut="abc,sss">
         {call proc_select_user(#{name= abc, mode=out})}
     </callable>
+
+    <insert id="insertAutoID">
+        insert into auto_id (
+            userUUID, name
+        ) values (
+            #{uid}, #{name}
+        );
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
 </mapper>

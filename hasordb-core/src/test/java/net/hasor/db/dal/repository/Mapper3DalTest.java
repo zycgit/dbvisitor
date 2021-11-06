@@ -22,7 +22,7 @@ public class Mapper3DalTest {
         SqlBuilder builder1 = dynamicSql.buildQuery(data1, new TextBuilderContext());
         SqlBuilder builder2 = dynamicSql.getSelectKey().buildQuery(data1, new TextBuilderContext());
 
-        assert builder1.getSqlString().contains("insert into test_user");
+        assert builder1.getSqlString().contains("insert into auto_id");
         assert builder2.getSqlString().contains("SELECT LAST_INSERT_ID()");
     }
 }
