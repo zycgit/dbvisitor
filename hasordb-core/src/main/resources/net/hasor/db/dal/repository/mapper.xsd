@@ -163,7 +163,6 @@
             </xs:choice>
             <xs:attribute name="statementType" type="statementType_type"/>
             <xs:attribute name="timeout"/>
-            <xs:attribute name="resultMap"/>
             <xs:attribute name="resultType"/>
             <xs:attribute name="fetchSize"/>
             <xs:attribute name="resultSetType"/>

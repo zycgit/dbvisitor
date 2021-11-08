@@ -35,6 +35,7 @@ public class SelectKeySqlConfig extends QuerySqlConfig {
     public SelectKeySqlConfig(SelectKeyDynamicSql target) {
         super(target);
         this.setMultipleResultType(MultipleResultsType.LAST);
+        this.setResultMap(null); // is always null, in dtd and xsd do not be config.
     }
 
     public String getKeyProperty() {

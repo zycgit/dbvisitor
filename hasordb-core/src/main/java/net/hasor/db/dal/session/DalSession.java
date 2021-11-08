@@ -143,7 +143,7 @@ public class DalSession extends JdbcAccessor {
         }
 
         protected <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
-            return dalRegistry.findTableMapping(null, exampleType);
+            return dalRegistry.findTableMapping(null, exampleType.getName());
         }
 
         @Override

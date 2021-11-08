@@ -99,8 +99,36 @@ public class BasicExecuteTest {
         autoId.setUid("uuid");
         assert autoId.getId() == null;
 
-        dalExecute.insertAutoID(autoId);
+        dalExecute.insertAutoID_1(autoId);
+        Integer id1 = autoId.getId();
 
-        assert autoId.getId() != null;
+        dalExecute.insertAutoID_1(autoId);
+        Integer id2 = autoId.getId();
+
+        assert id1 != null;
+        assert id2 != null;
+        assert !id1.equals(id2);
     }
+
+    @Test
+    public void selectKey_2() {
+        TestExecuteDal dalExecute = this.dalSession.createMapper(TestExecuteDal.class);
+
+        AutoId autoId = new AutoId();
+        autoId.setId(null);
+        autoId.setName("abc");
+        autoId.setUid("uuid");
+        assert autoId.getId() == null;
+
+        dalExecute.insertAutoID_2(autoId);
+        Integer id1 = autoId.getId();
+
+        dalExecute.insertAutoID_2(autoId);
+        Integer id2 = autoId.getId();
+
+        assert id1 != null;
+        assert id2 != null;
+        assert !id1.equals(id2);
+    }
+
 }

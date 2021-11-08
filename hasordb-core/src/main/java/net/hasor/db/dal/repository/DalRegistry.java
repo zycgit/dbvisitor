@@ -22,11 +22,14 @@ import net.hasor.cobble.loader.providers.ClassPathResourceLoader;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.rule.RuleRegistry;
+import net.hasor.db.dal.execute.MapTableReader;
+import net.hasor.db.dal.execute.SingleValueTableReader;
 import net.hasor.db.dal.repository.config.QuerySqlConfig;
 import net.hasor.db.dal.repository.parser.ClassDynamicResolve;
 import net.hasor.db.dal.repository.parser.DynamicResolve;
 import net.hasor.db.dal.repository.parser.XmlDynamicResolve;
 import net.hasor.db.dal.repository.parser.XmlTableMappingResolve;
+import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.db.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.db.mapping.resolve.MappingOptions;
@@ -43,7 +46,6 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -52,9 +54,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author 赵永春 (zyc@byshell.org)
  */
 public class DalRegistry {
-    public static final DalRegistry                               DEFAULT    = new DalRegistry(null, null, null, MappingOptions.buildNew(), null);
-    private final       Map<String, Map<String, DynamicSql>>      dynamicMap = new ConcurrentHashMap<>();
-    private final       Map<String, Map<String, TableMapping<?>>> mappingMap = new ConcurrentHashMap<>();
+    public static final DalRegistry                               DEFAULT         = new DalRegistry(null, null, null, MappingOptions.buildNew(), null);
+    private final       Map<String, Map<String, DynamicSql>>      dynamicMap      = new ConcurrentHashMap<>();
+    private final       Map<String, Map<String, TableMapping<?>>> tableMappingMap = new ConcurrentHashMap<>();
+    private final       Map<String, TableReader<?>>               typeReaderMap   = new ConcurrentHashMap<>();
     private final       ResourceLoader                            resourceLoader;
     private final       ClassLoader                               classLoader;
     private final       TypeHandlerRegistry                       typeRegistry;
@@ -71,6 +74,25 @@ public class DalRegistry {
         this.ruleRegistry = (classLoader == null) ? RuleRegistry.DEFAULT : ruleRegistry;
         this.mappingOptions = new MappingOptions(mappingOptions);
         this.resourceLoader = (resourceLoader == null) ? new ClassPathResourceLoader(this.classLoader) : resourceLoader;
+
+        boolean caseInsensitive = this.mappingOptions.getCaseInsensitive() == null || Boolean.TRUE.equals(this.mappingOptions.getCaseInsensitive());
+        this.typeReaderMap.put(byte.class.getName(), new SingleValueTableReader<>(byte.class, this.typeRegistry));
+        this.typeReaderMap.put(Byte.class.getName(), new SingleValueTableReader<>(Byte.class, this.typeRegistry));
+        this.typeReaderMap.put(short.class.getName(), new SingleValueTableReader<>(short.class, this.typeRegistry));
+        this.typeReaderMap.put(Short.class.getName(), new SingleValueTableReader<>(Short.class, this.typeRegistry));
+        this.typeReaderMap.put(int.class.getName(), new SingleValueTableReader<>(int.class, this.typeRegistry));
+        this.typeReaderMap.put(Integer.class.getName(), new SingleValueTableReader<>(Integer.class, this.typeRegistry));
+        this.typeReaderMap.put(long.class.getName(), new SingleValueTableReader<>(long.class, this.typeRegistry));
+        this.typeReaderMap.put(Long.class.getName(), new SingleValueTableReader<>(Long.class, this.typeRegistry));
+        this.typeReaderMap.put(float.class.getName(), new SingleValueTableReader<>(float.class, this.typeRegistry));
+        this.typeReaderMap.put(Float.class.getName(), new SingleValueTableReader<>(Float.class, this.typeRegistry));
+        this.typeReaderMap.put(double.class.getName(), new SingleValueTableReader<>(double.class, this.typeRegistry));
+        this.typeReaderMap.put(Double.class.getName(), new SingleValueTableReader<>(Double.class, this.typeRegistry));
+        this.typeReaderMap.put(char.class.getName(), new SingleValueTableReader<>(char.class, this.typeRegistry));
+        this.typeReaderMap.put(Character.class.getName(), new SingleValueTableReader<>(Character.class, this.typeRegistry));
+
+        this.typeReaderMap.put(String.class.getName(), new SingleValueTableReader<>(String.class, this.typeRegistry));
+        this.typeReaderMap.put(Map.class.getName(), new MapTableReader(caseInsensitive, this.typeRegistry));
     }
 
     public ClassLoader getClassLoader() {
@@ -107,20 +129,25 @@ public class DalRegistry {
     }
 
     /** 从类型中解析 TableMapping */
-    public <T> TableMapping<T> findTableMapping(String space, Class<T> entityType) {
-        return findTableMapping(space, entityType.getName());
-    }
-
-    /** 从类型中解析 TableMapping */
     public <T> TableMapping<T> findTableMapping(String space, String mapName) {
         space = StringUtils.isBlank(space) ? "" : space;
-        Map<String, TableMapping<?>> resultMap = this.mappingMap.get(space);
+        Map<String, TableMapping<?>> resultMap = this.tableMappingMap.get(space);
         if (resultMap != null && resultMap.containsKey(mapName)) {
             return (TableMapping<T>) resultMap.get(mapName);
         } else if (StringUtils.isNotBlank(space)) {
             return findTableMapping("", mapName);
         } else {
-            return null;
+            return (this != DEFAULT) ? DEFAULT.findTableMapping(space, mapName) : null;
+        }
+    }
+
+    /** 从类型中解析 TableReader */
+    public <T> TableReader<T> findTableReader(String entityType) {
+        TableReader<?> tableReader = this.typeReaderMap.get(entityType);
+        if (tableReader != null) {
+            return (TableReader<T>) tableReader;
+        } else {
+            return (this != DEFAULT) ? DEFAULT.findTableReader(entityType) : null;
         }
     }
 
@@ -223,15 +250,27 @@ public class DalRegistry {
 
     protected void saveMapping(String space, String identify, TableMapping<?> tableMapping) throws IOException {
         space = StringUtils.isBlank(space) ? "" : space;
-        if (!this.mappingMap.containsKey(space)) {
-            this.mappingMap.put(space, new ConcurrentHashMap<>());
+        if (!this.tableMappingMap.containsKey(space)) {
+            this.tableMappingMap.put(space, new ConcurrentHashMap<>());
         }
 
-        Map<String, TableMapping<?>> mappingMap = this.mappingMap.get(space);
+        Map<String, TableMapping<?>> mappingMap = this.tableMappingMap.get(space);
         if (mappingMap.containsKey(identify)) {
-            throw new IOException("repeat '" + identify + "' in " + (StringUtils.isBlank(space) ? "default namespace" : ("'" + space + "' namespace.")));
+            throw new IOException("repeat resultMap '" + identify + "' in " + (StringUtils.isBlank(space) ? "default namespace" : ("'" + space + "' namespace.")));
         } else {
             mappingMap.put(identify, tableMapping);
+        }
+    }
+
+    protected void saveReader(String resultType, TableReader<?> tableReader) throws IOException {
+        if (StringUtils.isBlank(resultType) || tableReader == null) {
+            return;
+        }
+
+        if (this.typeReaderMap.containsKey(resultType)) {
+            throw new IOException("repeat resultType '" + resultType + "'");
+        } else {
+            this.typeReaderMap.put(resultType, tableReader);
         }
     }
 
@@ -322,26 +361,28 @@ public class DalRegistry {
             if (dynamicSql instanceof QuerySqlConfig) {
                 String resultMap = ((QuerySqlConfig) dynamicSql).getResultMap();
                 String resultType = ((QuerySqlConfig) dynamicSql).getResultType();
-                boolean useResultMap = StringUtils.isNotBlank(resultMap);
 
-                if (useResultMap && StringUtils.isNotBlank(resultMap)) {
-                    TableMapping<?> tableMapping = null;
+                if (StringUtils.isNotBlank(resultMap)) {
 
-                    Map<String, TableMapping<?>> readerMap = this.mappingMap.get(scope);
-                    if (readerMap != null) {
-                        tableMapping = readerMap.get(resultMap);
+                    String[] tableMappings = resultMap.split(",");
+                    for (String mapping : tableMappings) {
+                        if (findTableMapping(scope, mapping) == null) {
+                            throw new IOException("loadMapper failed, '" + idString + "', resultMap '" + resultMap + "' is undefined ,resource '" + scope + "'");
+                        }
                     }
-
-                    Objects.requireNonNull(tableMapping, "loadMapper failed, '" + idString + "', resultMap '" + resultMap + "' is missing ,resource '" + scope + "'");
                 }
 
-                if (!useResultMap && StringUtils.isNotBlank(resultType)) {
-                    Class<?> mapType = ClassUtils.getClass(getClassLoader(), resultType);
+                if (StringUtils.isNotBlank(resultType)) {
 
-                    // resultType is option ,first check it.
-                    if (findTableMapping(scope, mapType.getName()) == null) {
-                        TableMapping<?> tableMapping = mapResolve.resolveTableMapping(mapType, getClassLoader(), getTypeRegistry(), options);
-                        saveMapping(scope, mapType.getName(), tableMapping);
+                    if (findTableReader(resultType) == null) {
+                        Class<?> resultTypeClass = ClassUtils.getClass(getClassLoader(), resultType);
+                        TableMapping<?> tableMapping = mapResolve.resolveTableMapping(resultTypeClass, getClassLoader(), getTypeRegistry(), options);
+
+                        if (tableMapping != null) {
+                            saveReader(resultTypeClass.getName(), tableMapping.toReader());
+                        } else {
+                            throw new IOException("loadMapper failed, '" + idString + "', resultType '" + resultType + "' is undefined or load failed. ,resource '" + scope + "'");
+                        }
                     }
                 }
             }
@@ -394,6 +435,10 @@ public class DalRegistry {
             return this.dalRegistry.findTableMapping(this.space, resultMap);
         }
 
+        public TableReader<?> findTableReader(String resultType) {
+            return this.dalRegistry.findTableReader(resultType);
+        }
+
         public TypeHandlerRegistry getTypeRegistry() {
             return this.dalRegistry.getTypeRegistry();
         }
@@ -406,4 +451,5 @@ public class DalRegistry {
             return this.dalRegistry.getClassLoader();
         }
     }
+
 }

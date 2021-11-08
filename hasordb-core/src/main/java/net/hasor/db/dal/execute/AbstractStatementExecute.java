@@ -62,12 +62,17 @@ public abstract class AbstractStatementExecute<T> {
     }
 
     public final T execute(Connection conn, DynamicSql dynamicSql, Map<String, Object> data, Page pageInfo, boolean pageResult, PageSqlDialect dialect) throws SQLException {
+        return this.execute(conn, dynamicSql, data, pageInfo, pageResult, dialect, false);
+    }
+
+    public final T execute(Connection conn, DynamicSql dynamicSql, Map<String, Object> data, Page pageInfo, boolean pageResult, PageSqlDialect dialect, boolean resultAsMap) throws SQLException {
         SqlBuilder queryBuilder = dynamicSql.buildQuery(data, this.context);
         ExecuteInfo executeInfo = new ExecuteInfo();
 
         executeInfo.pageInfo = pageInfo;
         executeInfo.timeout = -1;
         executeInfo.resultMap = "";
+        executeInfo.resultType = Map.class.getName();
         executeInfo.fetchSize = 256;
         executeInfo.resultSetType = ResultSetType.DEFAULT;
         executeInfo.multipleResultType = MultipleResultsType.LAST;
@@ -79,9 +84,8 @@ public abstract class AbstractStatementExecute<T> {
             executeInfo.timeout = ((DmlSqlConfig) dynamicSql).getTimeout();
         }
         if (dynamicSql instanceof QuerySqlConfig) {
-            String resultMapStr = ((QuerySqlConfig) dynamicSql).getResultMap();
-            String resultTypeStr = ((QuerySqlConfig) dynamicSql).getResultType();
-            executeInfo.resultMap = StringUtils.isNotBlank(resultTypeStr) ? resultTypeStr : resultMapStr;
+            executeInfo.resultMap = ((QuerySqlConfig) dynamicSql).getResultMap();
+            executeInfo.resultType = ((QuerySqlConfig) dynamicSql).getResultType();
             executeInfo.fetchSize = ((QuerySqlConfig) dynamicSql).getFetchSize();
             executeInfo.resultSetType = ((QuerySqlConfig) dynamicSql).getResultSetType();
             executeInfo.multipleResultType = ((QuerySqlConfig) dynamicSql).getMultipleResultType();
@@ -91,6 +95,11 @@ public abstract class AbstractStatementExecute<T> {
             if (executeInfo.resultOut == null) {
                 executeInfo.resultOut = Collections.emptySet();
             }
+        }
+
+        if (resultAsMap) {
+            executeInfo.resultType = Map.class.getName();
+            executeInfo.resultMap = "";
         }
 
         return executeQuery(conn, executeInfo, queryBuilder);
@@ -114,19 +123,36 @@ public abstract class AbstractStatementExecute<T> {
     protected DalResultSetExtractor buildExtractor(ExecuteInfo executeInfo) {
 
         TableReader<?>[] tableReaders = null;
-        if (StringUtils.isBlank(executeInfo.resultMap)) {
+        if (StringUtils.isBlank(executeInfo.resultType) && StringUtils.isBlank(executeInfo.resultMap)) {
+
             tableReaders = new TableReader[] { getDefaultTableReader(executeInfo, this.context) };
-        } else {
+        } else if (StringUtils.isNotBlank(executeInfo.resultType)) {
+
+            TableReader<?> tableReader = this.context.findTableReader(executeInfo.resultType);
+            if (tableReader != null) {
+                tableReaders = new TableReader[] { tableReader };
+            } else {
+                throw new NoSuchElementException("not found resultType '" + executeInfo.resultType + "'.");
+            }
+        } else if (StringUtils.isNotBlank(executeInfo.resultMap)) {
+
             String[] resultMapSplit = executeInfo.resultMap.split(",");
             tableReaders = new TableReader[resultMapSplit.length];
             for (int i = 0; i < resultMapSplit.length; i++) {
+                if (StringUtils.isBlank(resultMapSplit[i])) {
+                    throw new NullPointerException("resultMap is blank '" + resultMapSplit[i] + "' of '" + executeInfo.resultMap + "'");
+                }
+
                 TableMapping<?> tableMapping = this.context.findTableMapping(resultMapSplit[i]);
                 if (tableMapping != null) {
                     tableReaders[i] = tableMapping.toReader();
                 } else {
-                    tableReaders[i] = getDefaultTableReader(executeInfo, this.context);
+                    throw new NoSuchElementException("not found resultMap '" + resultMapSplit[i] + "' of '" + executeInfo.resultMap + "'");
                 }
             }
+        } else {
+
+            throw new IllegalStateException("doesn't trigger here");
         }
 
         MultipleProcessType multipleType = MultipleProcessType.valueOf(executeInfo.multipleResultType.getTypeName());
@@ -235,6 +261,7 @@ public abstract class AbstractStatementExecute<T> {
         public int                 timeout            = -1;
         public int                 fetchSize          = 256;
         public ResultSetType       resultSetType      = ResultSetType.FORWARD_ONLY;
+        public String              resultType;
         public String              resultMap;
         public boolean             caseInsensitive    = true;
         public MultipleResultsType multipleResultType = MultipleResultsType.LAST;

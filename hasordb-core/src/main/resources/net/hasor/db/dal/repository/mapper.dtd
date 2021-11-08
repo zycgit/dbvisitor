@@ -86,7 +86,6 @@
 <!ATTLIST selectKey
         statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
         timeout CDATA #IMPLIED
-        resultMap CDATA #IMPLIED
         resultType CDATA #IMPLIED
         fetchSize CDATA #IMPLIED
         resultSetType CDATA #IMPLIED

@@ -15,9 +15,13 @@
  */
 package net.hasor.db.dal.execute;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.ref.BeanMap;
 import net.hasor.db.dal.repository.config.SelectKeySqlConfig;
+import net.hasor.db.dialect.PageSqlDialect;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,8 +30,8 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class SelectKeyExecute implements SelectKeyHolder {
-    private SelectKeySqlConfig          keySqlConfig;
-    private AbstractStatementExecute<?> selectKeyExecute;
+    private final SelectKeySqlConfig          keySqlConfig;
+    private final AbstractStatementExecute<?> selectKeyExecute;
 
     public SelectKeyExecute(SelectKeySqlConfig keySqlConfig, AbstractStatementExecute<?> selectKeyExecute) {
         this.keySqlConfig = keySqlConfig;
@@ -35,16 +39,63 @@ public class SelectKeyExecute implements SelectKeyHolder {
     }
 
     @Override
-    public void processBefore(Connection conn, Map<String, Object> parameter) {
+    public void processBefore(Connection conn, Map<String, Object> parameter, PageSqlDialect dialect) throws SQLException {
         if (StringUtils.equalsIgnoreCase("BEFORE", this.keySqlConfig.getOrder())) {
-            throw new UnsupportedOperationException();
+            this.processSelectKey(conn, parameter, dialect);
         }
     }
 
     @Override
-    public void processAfter(Connection conn, Map<String, Object> parameter) {
+    public void processAfter(Connection conn, Map<String, Object> parameter, PageSqlDialect dialect) throws SQLException {
         if (StringUtils.equalsIgnoreCase("AFTER", this.keySqlConfig.getOrder())) {
-            throw new UnsupportedOperationException();
+            this.processSelectKey(conn, parameter, dialect);
+        }
+    }
+
+    private void processSelectKey(Connection conn, Map<String, Object> parameter, PageSqlDialect dialect) throws SQLException {
+        String keyColumn = this.keySqlConfig.getKeyColumn();
+        String keyProperty = this.keySqlConfig.getKeyProperty();
+        Object resultValue = null;
+
+        if (StringUtils.isBlank(keyColumn)) {
+            // maybe is single value.
+            resultValue = this.selectKeyExecute.execute(conn, this.keySqlConfig, parameter, null, false, dialect);
+        } else {
+            resultValue = this.selectKeyExecute.execute(conn, this.keySqlConfig, parameter, null, false, dialect, true);
+        }
+
+        if (resultValue instanceof List) {
+            resultValue = ((List<?>) resultValue).get(0);
+        }
+
+        if (StringUtils.isNotBlank(keyColumn)) {
+            String[] properties = keyProperty.split(",");
+            String[] columns = keyColumn.split(",");
+            if (properties.length != columns.length) {
+                throw new SQLException("SelectKey keyProperty size " + properties.length + " and keyColumn size " + columns.length + ", mismatch.");
+            }
+
+            Map<String, Object> keyResult = null;
+            if (resultValue instanceof Map) {
+                keyResult = (Map<String, Object>) resultValue;
+            } else {
+                keyResult = new BeanMap(resultValue);
+            }
+            for (int i = 0; i < columns.length; i++) {
+                parameter.put(properties[i], keyResult.get(columns[i]));
+            }
+
+        } else {
+            String[] properties = keyProperty.split(",");
+            if (properties.length > 1) {
+                throw new SQLException("SelectKey multiple property, keyColumn must be config.");
+            }
+
+            if (resultValue instanceof Map) {
+                resultValue = ((Map<?, ?>) resultValue).values().stream().findFirst().orElse(null);
+            }
+
+            parameter.put(properties[0], resultValue);
         }
     }
 }

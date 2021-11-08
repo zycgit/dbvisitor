@@ -72,13 +72,13 @@ public class ExecuteProxy {
     public Object execute(Connection conn, Map<String, Object> data, Page page, boolean pageResult, PageSqlDialect dialect) throws SQLException {
 
         if (this.selectKeyHolder != null) {
-            this.selectKeyHolder.processBefore(conn, data);
+            this.selectKeyHolder.processBefore(conn, data, dialect);
         }
 
         Object result = this.execute.execute(conn, this.dynamicSql, data, page, pageResult, dialect);
 
         if (this.selectKeyHolder != null) {
-            this.selectKeyHolder.processAfter(conn, data);
+            this.selectKeyHolder.processAfter(conn, data, dialect);
         }
 
         return result;

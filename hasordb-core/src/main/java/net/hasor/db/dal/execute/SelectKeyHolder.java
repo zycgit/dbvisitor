@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.execute;
+import net.hasor.db.dialect.PageSqlDialect;
+
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 
 /**
@@ -24,8 +27,8 @@ import java.util.Map;
  */
 public interface SelectKeyHolder {
 
-    public void processBefore(Connection conn, Map<String, Object> parameter);
+    public void processBefore(Connection conn, Map<String, Object> parameter, PageSqlDialect dialect) throws SQLException;
 
-    public void processAfter(Connection conn, Map<String, Object> parameter);
+    public void processAfter(Connection conn, Map<String, Object> parameter, PageSqlDialect dialect) throws SQLException;
 
 }
