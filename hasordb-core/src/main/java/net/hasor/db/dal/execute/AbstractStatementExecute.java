@@ -61,6 +61,10 @@ public abstract class AbstractStatementExecute<T> {
         return this.context;
     }
 
+    public final T execute(Connection conn, DynamicSql dynamicSql, Map<String, Object> data) throws SQLException {
+        return this.execute(conn, dynamicSql, data, null, false, null, false);
+    }
+
     public final T execute(Connection conn, DynamicSql dynamicSql, Map<String, Object> data, Page pageInfo, boolean pageResult, PageSqlDialect dialect) throws SQLException {
         return this.execute(conn, dynamicSql, data, pageInfo, pageResult, dialect, false);
     }

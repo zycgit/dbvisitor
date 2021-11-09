@@ -34,7 +34,7 @@ import java.util.Map;
 public class ExecuteProxy {
     private final DmlSqlConfig                dynamicSql;
     private final AbstractStatementExecute<?> execute;
-    private       SelectKeyExecute            selectKeyHolder;
+    private       KeySequenceExecute          selectKeyHolder;
 
     public ExecuteProxy(String dynamicId, DynamicContext context) {
         DynamicSql sqlConfig = context.findDynamic(dynamicId);
@@ -48,7 +48,7 @@ public class ExecuteProxy {
         SelectKeySqlConfig selectKey = ((DmlSqlConfig) sqlConfig).getSelectKey();
         if (selectKey != null) {
             AbstractStatementExecute<?> selectKeyExecute = buildExecute(selectKey.getStatementType(), context);
-            this.selectKeyHolder = new SelectKeyExecute(selectKey, selectKeyExecute);
+            this.selectKeyHolder = new KeySequenceExecute(selectKey, selectKeyExecute);
         }
     }
 
@@ -72,13 +72,13 @@ public class ExecuteProxy {
     public Object execute(Connection conn, Map<String, Object> data, Page page, boolean pageResult, PageSqlDialect dialect) throws SQLException {
 
         if (this.selectKeyHolder != null) {
-            this.selectKeyHolder.processBefore(conn, data, dialect);
+            this.selectKeyHolder.processBefore(conn, data);
         }
 
         Object result = this.execute.execute(conn, this.dynamicSql, data, page, pageResult, dialect);
 
         if (this.selectKeyHolder != null) {
-            this.selectKeyHolder.processAfter(conn, data, dialect);
+            this.selectKeyHolder.processAfter(conn, data);
         }
 
         return result;

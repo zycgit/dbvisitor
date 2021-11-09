@@ -18,7 +18,6 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.ref.BeanMap;
 import net.hasor.db.dal.repository.config.SelectKeySqlConfig;
-import net.hasor.db.dialect.PageSqlDialect;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -30,39 +29,37 @@ import java.util.Map;
  * @version : 2021-11-05
  * @author 赵永春 (zyc@hasor.net)
  */
-public class SelectKeyExecute implements SelectKeyHolder {
+public class KeySequenceExecute implements KeySequenceHolder {
     private final SelectKeySqlConfig          keySqlConfig;
     private final AbstractStatementExecute<?> selectKeyExecute;
 
-    public SelectKeyExecute(SelectKeySqlConfig keySqlConfig, AbstractStatementExecute<?> selectKeyExecute) {
+    public KeySequenceExecute(SelectKeySqlConfig keySqlConfig, AbstractStatementExecute<?> selectKeyExecute) {
         this.keySqlConfig = keySqlConfig;
         this.selectKeyExecute = selectKeyExecute;
     }
 
-    @Override
-    public void processBefore(Connection conn, Map<String, Object> parameter, PageSqlDialect dialect) throws SQLException {
+    public void processBefore(Connection conn, Map<String, Object> parameter) throws SQLException {
         if (StringUtils.equalsIgnoreCase("BEFORE", this.keySqlConfig.getOrder())) {
-            this.processSelectKey(conn, parameter, dialect);
+            this.processSelectKey(conn, parameter);
         }
     }
 
-    @Override
-    public void processAfter(Connection conn, Map<String, Object> parameter, PageSqlDialect dialect) throws SQLException {
+    public void processAfter(Connection conn, Map<String, Object> parameter) throws SQLException {
         if (StringUtils.equalsIgnoreCase("AFTER", this.keySqlConfig.getOrder())) {
-            this.processSelectKey(conn, parameter, dialect);
+            this.processSelectKey(conn, parameter);
         }
     }
 
-    private void processSelectKey(Connection conn, Map<String, Object> parameter, PageSqlDialect dialect) throws SQLException {
+    public void processSelectKey(Connection conn, Map<String, Object> parameter) throws SQLException {
         String keyColumn = this.keySqlConfig.getKeyColumn();
         String keyProperty = this.keySqlConfig.getKeyProperty();
         Object resultValue = null;
 
         if (StringUtils.isBlank(keyColumn)) {
             // maybe is single value.
-            resultValue = this.selectKeyExecute.execute(conn, this.keySqlConfig, parameter, null, false, dialect);
+            resultValue = this.selectKeyExecute.execute(conn, this.keySqlConfig, parameter, null, false, null);
         } else {
-            resultValue = this.selectKeyExecute.execute(conn, this.keySqlConfig, parameter, null, false, dialect, true);
+            resultValue = this.selectKeyExecute.execute(conn, this.keySqlConfig, parameter, null, false, null, true);
         }
 
         if (resultValue instanceof List) {

@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.execute;
-import net.hasor.db.dialect.PageSqlDialect;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
 /**
- * 执行 SelectKey 的接口定义
+ * 主键生成器
  * @version : 2021-11-05
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface SelectKeyHolder {
+public interface KeySequenceHolder {
 
-    public void processBefore(Connection conn, Map<String, Object> parameter, PageSqlDialect dialect) throws SQLException;
-
-    public void processAfter(Connection conn, Map<String, Object> parameter, PageSqlDialect dialect) throws SQLException;
-
+    public void processSelectKey(Connection conn, Map<String, Object> parameter) throws SQLException;
 }
