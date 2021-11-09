@@ -15,6 +15,7 @@
  */
 package net.hasor.db.dal.session;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.ref.BeanMap;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.execute.ExecuteProxy;
@@ -123,7 +124,9 @@ class ExecuteInvocationHandler implements InvocationHandler {
             if (objects[0] instanceof Map) {
                 mergedMap.appendMap((Map<? extends String, ?>) objects[0], false);
             } else if (!(objects[0] instanceof Collection)) {
-                mergedMap.appendMap(new BeanMap(objects[0]), true);
+                BeanMap beanMap = new BeanMap(objects[0]);
+                beanMap.setTransformConvert(ConverterBean.getInstance());
+                mergedMap.appendMap(beanMap, true);
             }
         }
 

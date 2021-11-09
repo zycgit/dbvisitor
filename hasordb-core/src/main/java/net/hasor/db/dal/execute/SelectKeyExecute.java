@@ -15,6 +15,7 @@
  */
 package net.hasor.db.dal.execute;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.ref.BeanMap;
 import net.hasor.db.dal.repository.config.SelectKeySqlConfig;
 import net.hasor.db.dialect.PageSqlDialect;
@@ -79,7 +80,9 @@ public class SelectKeyExecute implements SelectKeyHolder {
             if (resultValue instanceof Map) {
                 keyResult = (Map<String, Object>) resultValue;
             } else {
-                keyResult = new BeanMap(resultValue);
+                BeanMap beanMap = new BeanMap(resultValue);
+                beanMap.setTransformConvert(ConverterBean.getInstance());
+                keyResult = beanMap;
             }
             for (int i = 0; i < columns.length; i++) {
                 parameter.put(properties[i], keyResult.get(columns[i]));
