@@ -31,6 +31,7 @@ public class SelectKeySqlConfig extends QuerySqlConfig {
     private String keyProperty;
     private String keyColumn;
     private String order;
+    private String handler;
 
     public SelectKeySqlConfig(SelectKeyDynamicSql target) {
         super(target);
@@ -60,6 +61,14 @@ public class SelectKeySqlConfig extends QuerySqlConfig {
 
     public void setOrder(String order) {
         this.order = order;
+    }
+
+    public String getHandler() {
+        return this.handler;
+    }
+
+    public void setHandler(String handler) {
+        this.handler = handler;
     }
 
     @Override

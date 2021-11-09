@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.execute;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Map;
+import net.hasor.db.dal.repository.config.SelectKeySqlConfig;
 
 /**
  * 主键生成器
  * @version : 2021-11-05
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface KeySequenceHolder {
+public interface KeySequenceHolderFactory {
 
-    public Object processSelectKey(Connection conn, Map<String, Object> parameter) throws SQLException;
+    public KeySequenceHolder createHolder(SelectKeySqlConfig keySqlConfig, AbstractStatementExecute<?> execute);
 }

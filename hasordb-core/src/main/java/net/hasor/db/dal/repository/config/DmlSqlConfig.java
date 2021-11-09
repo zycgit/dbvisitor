@@ -71,6 +71,7 @@ public abstract class DmlSqlConfig extends SegmentSqlConfig {
                     this.selectKey.setKeyProperty(skDynamicSql.getKeyProperty());
                     this.selectKey.setKeyColumn(skDynamicSql.getKeyColumn());
                     this.selectKey.setOrder(skDynamicSql.getOrder());
+                    this.selectKey.setHandler(skDynamicSql.getHandler());
                 }
             }
         }

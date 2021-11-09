@@ -209,11 +209,12 @@ public class DynamicParser {
         String keyProperty = getNodeAttributeValue(curXmlNode, "keyProperty");
         String keyColumn = getNodeAttributeValue(curXmlNode, "keyColumn");
         String order = getNodeAttributeValue(curXmlNode, "order");
+        String handler = getNodeAttributeValue(curXmlNode, "handler");
         int timeoutNum = StringUtils.isBlank(timeout) ? -1 : Math.max(-1, Integer.parseInt(timeout));
         int fetchSizeNum = StringUtils.isBlank(fetchSize) ? 256 : Integer.parseInt(fetchSize);
 
         ArrayDynamicSql parent = new SelectKeyDynamicSql(statementType, timeoutNum, resultMap, resultType,//
-                fetchSizeNum, resultSetType, keyProperty, keyColumn, order);
+                fetchSizeNum, resultSetType, keyProperty, keyColumn, order, handler);
         parentSqlNode.addChildNode(parent);
         this.parseNodeList(parent, curXmlNode.getChildNodes());
     }

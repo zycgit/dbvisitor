@@ -92,6 +92,7 @@
         keyProperty CDATA #REQUIRED
         keyColumn CDATA #IMPLIED
         order (BEFORE|AFTER) #IMPLIED
+        handler CDATA #IMPLIED
         >
 
 <!ELEMENT delete (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>

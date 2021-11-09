@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.execute;
+import net.hasor.cobble.ExceptionUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
+import net.hasor.db.dal.execute.sequence.SelectKeySequenceHolderFactory;
 import net.hasor.db.dal.repository.StatementType;
 import net.hasor.db.dal.repository.config.DmlSqlConfig;
 import net.hasor.db.dal.repository.config.SelectKeySqlConfig;
@@ -48,7 +51,26 @@ public class ExecuteProxy {
         SelectKeySqlConfig selectKey = ((DmlSqlConfig) sqlConfig).getSelectKey();
         if (selectKey != null) {
             AbstractStatementExecute<?> selectKeyExecute = buildExecute(selectKey.getStatementType(), context);
-            this.selectKeyHolder = new KeySequenceExecute(selectKey, selectKeyExecute);
+            KeySequenceHolder sequenceHolder = null;
+
+            if (StringUtils.isBlank(selectKey.getHandler())) {
+
+                sequenceHolder = new SelectKeySequenceHolderFactory().createHolder(selectKey, selectKeyExecute);
+            } else {
+
+                try {
+                    Class<?> aClass = context.getClassLoader().loadClass(selectKey.getHandler());
+                    KeySequenceHolderFactory holderFactory = (KeySequenceHolderFactory) aClass.newInstance();
+                    sequenceHolder = holderFactory.createHolder(selectKey, selectKeyExecute);
+                    if (sequenceHolder == null) {
+                        throw new NullPointerException("createSelectKeyHolder result is null.");
+                    }
+                } catch (Exception e) {
+                    throw ExceptionUtils.toRuntime(e);
+                }
+            }
+
+            this.selectKeyHolder = new KeySequenceExecute(selectKey, sequenceHolder);
         }
     }
 

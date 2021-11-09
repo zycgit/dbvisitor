@@ -176,6 +176,7 @@
                     </xs:restriction>
                 </xs:simpleType>
             </xs:attribute>
+            <xs:attribute name="handler"/>
         </xs:complexType>
     </xs:element>
 

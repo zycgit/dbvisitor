@@ -35,9 +35,10 @@ public class SelectKeyDynamicSql extends ArrayDynamicSql {
     private final String keyProperty;
     private final String keyColumn;
     private final String order;
+    private final String handler;
 
     public SelectKeyDynamicSql(String statementType, int timeout, String resultMap, String resultType, int fetchSize,//
-            String resultSetType, String keyProperty, String keyColumn, String order) {
+            String resultSetType, String keyProperty, String keyColumn, String order, String handler) {
         this.statementType = statementType;
         this.timeout = timeout;
         this.resultMap = resultMap;
@@ -47,6 +48,7 @@ public class SelectKeyDynamicSql extends ArrayDynamicSql {
         this.keyProperty = keyProperty;
         this.keyColumn = keyColumn;
         this.order = order;
+        this.handler = handler;
     }
 
     public String getStatementType() {
@@ -83,6 +85,10 @@ public class SelectKeyDynamicSql extends ArrayDynamicSql {
 
     public String getOrder() {
         return this.order;
+    }
+
+    public String getHandler() {
+        return this.handler;
     }
 
     @Override

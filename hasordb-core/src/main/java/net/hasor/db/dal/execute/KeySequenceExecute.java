@@ -29,13 +29,13 @@ import java.util.Map;
  * @version : 2021-11-05
  * @author 赵永春 (zyc@hasor.net)
  */
-public class KeySequenceExecute implements KeySequenceHolder {
-    private final SelectKeySqlConfig          keySqlConfig;
-    private final AbstractStatementExecute<?> selectKeyExecute;
+public class KeySequenceExecute {
+    private final SelectKeySqlConfig keySqlConfig;
+    private final KeySequenceHolder  sequenceHolder;
 
-    public KeySequenceExecute(SelectKeySqlConfig keySqlConfig, AbstractStatementExecute<?> selectKeyExecute) {
+    public KeySequenceExecute(SelectKeySqlConfig keySqlConfig, KeySequenceHolder sequenceHolder) {
         this.keySqlConfig = keySqlConfig;
-        this.selectKeyExecute = selectKeyExecute;
+        this.sequenceHolder = sequenceHolder;
     }
 
     public void processBefore(Connection conn, Map<String, Object> parameter) throws SQLException {
@@ -53,14 +53,7 @@ public class KeySequenceExecute implements KeySequenceHolder {
     public void processSelectKey(Connection conn, Map<String, Object> parameter) throws SQLException {
         String keyColumn = this.keySqlConfig.getKeyColumn();
         String keyProperty = this.keySqlConfig.getKeyProperty();
-        Object resultValue = null;
-
-        if (StringUtils.isBlank(keyColumn)) {
-            // maybe is single value.
-            resultValue = this.selectKeyExecute.execute(conn, this.keySqlConfig, parameter, null, false, null);
-        } else {
-            resultValue = this.selectKeyExecute.execute(conn, this.keySqlConfig, parameter, null, false, null, true);
-        }
+        Object resultValue = this.sequenceHolder.processSelectKey(conn, parameter);
 
         if (resultValue instanceof List) {
             resultValue = ((List<?>) resultValue).get(0);
