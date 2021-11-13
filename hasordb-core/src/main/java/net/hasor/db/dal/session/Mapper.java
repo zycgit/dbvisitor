@@ -13,32 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.dal.repository;
-
-import java.lang.annotation.*;
-
+package net.hasor.db.dal.session;
 /**
- * select 语句
- * @version : 2021-05-19
+ * Mapper 标记接口所有 Mapper 都会是该接口的子类
+ * @version : 2021-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Query {
-    public String value();
-
-    public String resultMap() default "";
-
-    public Class<?> resultType() default Object.class;
-
-    public StatementType statementType() default StatementType.Prepared;
-
-    public int timeout() default -1;
-
-    public int fetchSize() default 256;
-
-    public ResultSetType resultSetType() default ResultSetType.DEFAULT;
-
-    public MultipleResultsType multipleResult() default MultipleResultsType.LAST;
+public interface Mapper {
 }

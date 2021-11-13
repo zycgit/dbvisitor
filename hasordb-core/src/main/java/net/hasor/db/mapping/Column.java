@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 import java.sql.Types;
 
 /**
- * （可选）标记在字段上表示映射到的列
+ * （可选）标记在字段或者 get/set 方法上表示映射到的列
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */

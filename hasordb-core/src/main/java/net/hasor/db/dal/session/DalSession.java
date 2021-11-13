@@ -15,7 +15,7 @@
  */
 package net.hasor.db.dal.session;
 import net.hasor.cobble.ExceptionUtils;
-import net.hasor.cobble.resolvable.ResolvableType;
+import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.db.JdbcUtils;
 import net.hasor.db.dal.repository.DalRegistry;
 import net.hasor.db.dialect.DefaultSqlDialect;
@@ -45,18 +45,26 @@ public class DalSession extends JdbcAccessor {
     private       PageSqlDialect dialect;
     private       LambdaTemplate lambdaTemplate;
 
+    public DalSession(Connection connection) {
+        this(connection, DalRegistry.DEFAULT, null);
+    }
+
+    public DalSession(DataSource dataSource) {
+        this(dataSource, DalRegistry.DEFAULT, null);
+    }
+
     public DalSession(Connection connection, DalRegistry dalRegistry) {
         this(connection, dalRegistry, null);
+    }
+
+    public DalSession(DataSource dataSource, DalRegistry dalRegistry) {
+        this(dataSource, dalRegistry, null);
     }
 
     public DalSession(Connection connection, DalRegistry dalRegistry, PageSqlDialect dialect) {
         this.setConnection(Objects.requireNonNull(connection, "connection is null."));
         this.dalRegistry = Objects.requireNonNull(dalRegistry, "dalRegistry is null.");
         this.dialect = dialect;
-    }
-
-    public DalSession(DataSource dataSource, DalRegistry dalRegistry) {
-        this(dataSource, dalRegistry, null);
     }
 
     public DalSession(DataSource dataSource, DalRegistry dalRegistry, PageSqlDialect dialect) {
@@ -92,17 +100,46 @@ public class DalSession extends JdbcAccessor {
             DataSource localDS = this.getDataSource();//获取数据源
 
             if (localConn != null) {
-                this.lambdaTemplate = new DalLambdaTemplate(localConn);
+                this.lambdaTemplate = new DalLambdaTemplate(localConn, null);
             } else if (localDS != null) {
-                this.lambdaTemplate = new DalLambdaTemplate(localDS);
+                this.lambdaTemplate = new DalLambdaTemplate(localDS, null);
             } else {
-                this.lambdaTemplate = new DalLambdaTemplate();
+                this.lambdaTemplate = new DalLambdaTemplate(null);
             }
 
             this.lambdaTemplate.setAccessorApply(this.getAccessorApply());
         }
 
         return this.lambdaTemplate;
+    }
+
+    protected LambdaTemplate newTemplate(String space) {
+        Connection localConn = this.getConnection();
+        DataSource localDS = this.getDataSource();//获取数据源
+
+        LambdaTemplate template = null;
+        if (localConn != null) {
+            template = new DalLambdaTemplate(localConn, space);
+        } else if (localDS != null) {
+            template = new DalLambdaTemplate(localDS, space);
+        } else {
+            template = new DalLambdaTemplate(space);
+        }
+
+        template.setAccessorApply(this.getAccessorApply());
+
+        return template;
+    }
+
+    public <T> BaseMapper<T> createBaseMapper(Class<T> entityType) {
+        if (this.dalRegistry.findTableMapping(null, entityType.getName()) == null) {
+            this.dalRegistry.loadAsMapping(null, entityType);
+        }
+
+        BaseMapperHandler mapperHandler = new BaseMapperHandler(null, entityType, this);
+        ClassLoader classLoader = this.dalRegistry.getClassLoader();
+        InvocationHandler handler = new ExecuteInvocationHandler(this, Mapper.class, this.dalRegistry, mapperHandler);
+        return (BaseMapper<T>) Proxy.newProxyInstance(classLoader, new Class[] { Mapper.class, BaseMapper.class }, handler);
     }
 
     public <T> T createMapper(Class<T> mapperType) {
@@ -131,19 +168,24 @@ public class DalSession extends JdbcAccessor {
     }
 
     private class DalLambdaTemplate extends LambdaTemplate {
-        public DalLambdaTemplate() {
+        private final String space;
+
+        public DalLambdaTemplate(String space) {
+            this.space = space;
         }
 
-        public DalLambdaTemplate(Connection localConn) {
+        public DalLambdaTemplate(Connection localConn, String space) {
             super(localConn);
+            this.space = space;
         }
 
-        public DalLambdaTemplate(DataSource localDS) {
+        public DalLambdaTemplate(DataSource localDS, String space) {
             super(localDS);
+            this.space = space;
         }
 
         protected <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
-            return dalRegistry.findTableMapping(null, exampleType.getName());
+            return dalRegistry.findTableMapping(this.space, exampleType.getName());
         }
 
         @Override

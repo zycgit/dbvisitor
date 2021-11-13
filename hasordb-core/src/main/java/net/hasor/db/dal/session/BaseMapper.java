@@ -36,26 +36,26 @@ import java.util.function.Consumer;
  * @version : 2021-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface BaseMapper<T> {
+public interface BaseMapper<T> extends Mapper {
 
     public Class<T> entityType();
 
-    public LambdaTemplate lambdaTemplate();
+    public LambdaTemplate template();
 
     public default LambdaInsert<T> insert() {
-        return lambdaTemplate().lambdaInsert(entityType());
+        return template().lambdaInsert(entityType());
     }
 
     public default LambdaDelete<T> delete() {
-        return lambdaTemplate().lambdaDelete(entityType());
+        return template().lambdaDelete(entityType());
     }
 
     public default LambdaUpdate<T> update() {
-        return lambdaTemplate().lambdaUpdate(entityType());
+        return template().lambdaUpdate(entityType());
     }
 
     public default LambdaQuery<T> query() {
-        return lambdaTemplate().lambdaQuery(entityType());
+        return template().lambdaQuery(entityType());
     }
 
     /**

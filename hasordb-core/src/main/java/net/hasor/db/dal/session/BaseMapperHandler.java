@@ -38,14 +38,20 @@ import java.util.stream.Collectors;
  * @author 赵永春 (zyc@hasor.net)
  */
 class BaseMapperHandler implements BaseMapper<Object> {
+    private final String               space;
     private final Class<Object>        entityType;
     private final DalSession           dalSession;
     private final TableMapping<Object> tableMapping;
 
     public BaseMapperHandler(String space, Class<?> entityType, DalSession dalSession) {
+        this.space = space;
         this.entityType = (Class<Object>) entityType;
         this.dalSession = dalSession;
-        this.tableMapping = dalSession.getDalRegistry().findTableMapping(space, this.entityType.getName());
+        TableMapping<Object> tableMapping = dalSession.getDalRegistry().findTableMapping(space, this.entityType.getName());
+        if (tableMapping == null) {
+            throw new IllegalStateException("entityType '" + entityType.getName() + "' tableMapping is null.");
+        }
+        this.tableMapping = tableMapping;
     }
 
     @Override
@@ -54,8 +60,8 @@ class BaseMapperHandler implements BaseMapper<Object> {
     }
 
     @Override
-    public LambdaTemplate lambdaTemplate() {
-        return this.dalSession.lambdaTemplate();
+    public LambdaTemplate template() {
+        return this.dalSession.newTemplate(this.space);
     }
 
     private TableMapping<Object> getMapping() {

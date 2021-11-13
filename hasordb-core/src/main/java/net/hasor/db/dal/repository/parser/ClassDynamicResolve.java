@@ -16,6 +16,7 @@
 package net.hasor.db.dal.repository.parser;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.logging.Logger;
 import net.hasor.db.dal.dynamic.DynamicParser;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.repository.*;
@@ -35,7 +36,8 @@ import java.util.Objects;
  * @author 赵永春 (zyc@byshell.org)
  */
 public class ClassDynamicResolve extends DynamicParser implements DynamicResolve<Method> {
-    private final XmlDynamicResolve xmlDynamicResolve = new XmlDynamicResolve();
+    private static final Logger            logger            = Logger.getLogger(ClassDynamicResolve.class);
+    private final        XmlDynamicResolve xmlDynamicResolve = new XmlDynamicResolve();
 
     public static boolean matchType(Class<?> dalType) {
         if (!dalType.isInterface()) {
@@ -107,11 +109,9 @@ public class ClassDynamicResolve extends DynamicParser implements DynamicResolve
             dynamicSqlAttribute.put("fetchSize", String.valueOf(((Query) annotation).fetchSize()));
             dynamicSqlAttribute.put("resultSetType", ((Query) annotation).resultSetType().getTypeName());
             dynamicSqlAttribute.put("multipleResult", ((Query) annotation).multipleResult().getTypeName());
-            String resultMap = ((Query) annotation).resultMap();
-            if (StringUtils.isBlank(resultMap)) {
-                dynamicSqlAttribute.put("resultType", resultType.getName());
-            } else {
-                dynamicSqlAttribute.put("resultMap", resultMap);
+            dynamicSqlAttribute.put("resultMap", ((Query) annotation).resultMap());
+            if (((Query) annotation).resultType() != Object.class) {
+                dynamicSqlAttribute.put("resultType", ((Query) annotation).resultType().getName());
             }
         } else if (annotation instanceof Callable) {
             queryType = getQueryType(QueryType.Callable, ((Callable) annotation).statementType());
@@ -121,11 +121,9 @@ public class ClassDynamicResolve extends DynamicParser implements DynamicResolve
             dynamicSqlAttribute.put("fetchSize", String.valueOf(((Callable) annotation).fetchSize()));
             dynamicSqlAttribute.put("resultSetType", ((Callable) annotation).resultSetType().getTypeName());
             dynamicSqlAttribute.put("multipleResult", ((Callable) annotation).multipleResult().getTypeName());
-            String resultMap = ((Callable) annotation).resultMap();
-            if (StringUtils.isBlank(resultMap)) {
-                dynamicSqlAttribute.put("resultType", resultType.getName());
-            } else {
-                dynamicSqlAttribute.put("resultMap", resultMap);
+            dynamicSqlAttribute.put("resultMap", ((Callable) annotation).resultMap());
+            if (((Callable) annotation).resultType() != Object.class) {
+                dynamicSqlAttribute.put("resultType", ((Callable) annotation).resultType().getName());
             }
             dynamicSqlAttribute.put("resultOut", ((Callable) annotation).resultOut());
         } else {
@@ -139,9 +137,10 @@ public class ClassDynamicResolve extends DynamicParser implements DynamicResolve
             xmlBuilder.append(" " + key + " =\"" + xmlValue + "\"");
         });
         xmlBuilder.append(">");
-        xmlBuilder.append(dynamicSqlBody);
+        xmlBuilder.append("<![CDATA[ " + dynamicSqlBody + " ]]>");
         xmlBuilder.append("</" + queryType.getXmlTag() + ">");
 
+        logger.trace("createDynamicSql xml is --> " + xmlBuilder);
         return this.xmlDynamicResolve.parseSqlConfig(xmlBuilder.toString());
     }
 

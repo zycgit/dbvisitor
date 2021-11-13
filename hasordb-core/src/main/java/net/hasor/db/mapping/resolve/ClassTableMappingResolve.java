@@ -85,7 +85,7 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
         if (entityType.isAnnotationPresent(Table.class)) {
             Table defTable = entityType.getAnnotation(Table.class);
             String schema = defTable.schema();
-            String table = StringUtils.isNotBlank(defTable.name()) ? defTable.name() : defTable.value();
+            String table = StringUtils.isNotBlank(defTable.name()) ? defTable.name() : StringUtils.isNotBlank(defTable.value()) ? defTable.value() : entityType.getSimpleName();
 
             if (defTable.mapUnderscoreToCamelCase() || Boolean.TRUE.equals(options.getMapUnderscoreToCamelCase())) {
                 schema = humpToLine(schema, true);

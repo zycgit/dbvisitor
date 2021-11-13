@@ -15,6 +15,7 @@
  */
 package net.hasor.db.types;
 import net.hasor.cobble.ExceptionUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.reflect.TypeReference;
 import net.hasor.db.types.handler.*;
 
@@ -332,6 +333,10 @@ public final class TypeHandlerRegistry {
         return Collections.unmodifiableCollection(this.javaTypeHandlerMap.values());
     }
 
+    public Collection<String> getHandlerJavaTypes() {
+        return Collections.unmodifiableCollection(this.javaTypeHandlerMap.keySet());
+    }
+
     /** 根据 Java 类型Derive a default SQL type from the given Java type.*/
     public static int toSqlType(final String javaType) {
         Integer jdbcType = javaTypeToJdbcTypeMap.get(javaType);
@@ -381,6 +386,14 @@ public final class TypeHandlerRegistry {
             return jdbcHandlerMap.containsKey(jdbcType);
         }
         return false;
+    }
+
+    public TypeHandler<?> getTypeHandler(String typeName) {
+        if (StringUtils.isBlank(typeName)) {
+            throw new NullPointerException("typeName is null.");
+        }
+        TypeHandler<?> typeHandler = this.javaTypeHandlerMap.get(typeName);
+        return (typeHandler != null) ? typeHandler : this.defaultTypeHandler;
     }
 
     public TypeHandler<?> getTypeHandler(Class<?> typeClass) {

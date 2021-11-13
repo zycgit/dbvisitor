@@ -32,6 +32,8 @@ public @interface Callable {
 
     public String resultMap() default "";
 
+    public Class<?> resultType() default Object.class;
+
     public StatementType statementType() default StatementType.Callable;
 
     public int timeout() default -1;
