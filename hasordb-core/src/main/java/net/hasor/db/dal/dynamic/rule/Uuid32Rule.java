@@ -43,6 +43,7 @@ public class Uuid32Rule implements SqlBuildRule {
 
     @Override
     public String toString() {
-        return "MD5 [" + this.hashCode() + "]";
+        return "uuid32 [" + this.hashCode() + "]";
     }
+
 }

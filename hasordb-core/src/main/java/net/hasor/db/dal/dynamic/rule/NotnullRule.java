@@ -41,4 +41,9 @@ public class NotnullRule implements SqlBuildRule {
         Object evalOgnl = OgnlUtils.evalOgnl(ruleValue, data);
         sqlBuilder.appendSql(evalOgnl.toString());
     }
+
+    @Override
+    public String toString() {
+        return "nonull [" + this.hashCode() + "]";
+    }
 }

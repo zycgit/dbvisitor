@@ -28,6 +28,8 @@ import java.lang.annotation.*;
 public @interface Callable {
     public String value();
 
+    public boolean xml() default false;
+
     public String resultOut() default "";
 
     public String resultMap() default "";

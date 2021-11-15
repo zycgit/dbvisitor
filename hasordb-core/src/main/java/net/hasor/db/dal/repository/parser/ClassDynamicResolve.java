@@ -85,22 +85,26 @@ public class ClassDynamicResolve extends DynamicParser implements DynamicResolve
         QueryType queryType = null;
         Map<String, String> dynamicSqlAttribute = new HashMap<>();
         dynamicSqlAttribute.put("parameterType", parameterType);
+        boolean isXml = false;
 
         if (annotation instanceof Insert) {
             queryType = getQueryType(QueryType.Insert, ((Insert) annotation).statementType());
             dynamicSqlBody = ((Insert) annotation).value();
             dynamicSqlAttribute.put("statementType", ((Insert) annotation).statementType().getTypeName());
             dynamicSqlAttribute.put("timeout", String.valueOf(((Insert) annotation).timeout()));
+            isXml = ((Insert) annotation).xml();
         } else if (annotation instanceof Delete) {
             queryType = getQueryType(QueryType.Delete, ((Delete) annotation).statementType());
             dynamicSqlBody = ((Delete) annotation).value();
             dynamicSqlAttribute.put("statementType", ((Delete) annotation).statementType().getTypeName());
             dynamicSqlAttribute.put("timeout", String.valueOf(((Delete) annotation).timeout()));
+            isXml = ((Delete) annotation).xml();
         } else if (annotation instanceof Update) {
             queryType = getQueryType(QueryType.Update, ((Update) annotation).statementType());
             dynamicSqlBody = ((Update) annotation).value();
             dynamicSqlAttribute.put("statementType", ((Update) annotation).statementType().getTypeName());
             dynamicSqlAttribute.put("timeout", String.valueOf(((Update) annotation).timeout()));
+            isXml = ((Update) annotation).xml();
         } else if (annotation instanceof Query) {
             queryType = getQueryType(QueryType.Query, ((Query) annotation).statementType());
             dynamicSqlBody = ((Query) annotation).value();
@@ -113,6 +117,7 @@ public class ClassDynamicResolve extends DynamicParser implements DynamicResolve
             if (((Query) annotation).resultType() != Object.class) {
                 dynamicSqlAttribute.put("resultType", ((Query) annotation).resultType().getName());
             }
+            isXml = ((Query) annotation).xml();
         } else if (annotation instanceof Callable) {
             queryType = getQueryType(QueryType.Callable, ((Callable) annotation).statementType());
             dynamicSqlBody = ((Callable) annotation).value();
@@ -126,6 +131,7 @@ public class ClassDynamicResolve extends DynamicParser implements DynamicResolve
                 dynamicSqlAttribute.put("resultType", ((Callable) annotation).resultType().getName());
             }
             dynamicSqlAttribute.put("resultOut", ((Callable) annotation).resultOut());
+            isXml = ((Callable) annotation).xml();
         } else {
             return null;
         }
@@ -137,7 +143,11 @@ public class ClassDynamicResolve extends DynamicParser implements DynamicResolve
             xmlBuilder.append(" " + key + " =\"" + xmlValue + "\"");
         });
         xmlBuilder.append(">");
-        xmlBuilder.append("<![CDATA[ " + dynamicSqlBody + " ]]>");
+        if (isXml) {
+            xmlBuilder.append(dynamicSqlBody);
+        } else {
+            xmlBuilder.append("<![CDATA[ " + dynamicSqlBody + " ]]>");
+        }
         xmlBuilder.append("</" + queryType.getXmlTag() + ">");
 
         logger.trace("createDynamicSql xml is --> " + xmlBuilder);

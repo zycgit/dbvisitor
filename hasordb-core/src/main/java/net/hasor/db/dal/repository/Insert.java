@@ -28,6 +28,8 @@ import java.lang.annotation.*;
 public @interface Insert {
     public String value();
 
+    public boolean xml() default false;
+
     public StatementType statementType() default StatementType.Prepared;
 
     public int timeout() default -1;

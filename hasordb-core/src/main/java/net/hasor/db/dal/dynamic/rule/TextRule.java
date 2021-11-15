@@ -34,6 +34,6 @@ public class TextRule implements SqlBuildRule {
 
     @Override
     public String toString() {
-        return "Text [" + this.hashCode() + "]";
+        return "text [" + this.hashCode() + "]";
     }
 }

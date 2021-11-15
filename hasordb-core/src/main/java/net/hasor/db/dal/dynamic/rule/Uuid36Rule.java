@@ -14,49 +14,36 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic.rule;
-import net.hasor.cobble.CommonCodeUtils;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.SqlArg;
 import net.hasor.db.dal.dynamic.SqlMode;
-import net.hasor.db.dal.dynamic.ognl.OgnlUtils;
 import net.hasor.db.dialect.SqlBuilder;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
 
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Map;
+import java.util.UUID;
 
 /**
- * 对表达式结果进行 md5 加密。
+ * 生成一个 36位的 uuid。
  * @version : 2021-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class Md5Rule implements SqlBuildRule {
-    public static final  Md5Rule        INSTANCE    = new Md5Rule();
+public class Uuid36Rule implements SqlBuildRule {
+    public static final  Uuid36Rule     INSTANCE    = new Uuid36Rule();
     private static final TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
 
     @Override
-    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String ruleValue) throws SQLException {
-        Object argValue = OgnlUtils.evalOgnl(ruleValue, data);
-
-        if (argValue == null) {
-            argValue = "";
-        }
-
-        try {
-            argValue = CommonCodeUtils.MD5.getMD5(argValue.toString());
-        } catch (NoSuchAlgorithmException e) {
-            throw new SQLException(e);
-        }
-
-        SqlArg sqlArg = new SqlArg(null, ruleValue, argValue, SqlMode.In, Types.VARCHAR, String.class, typeHandler);
+    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String ruleValue) {
+        String uuidValue = UUID.randomUUID().toString().replace("-", "");
+        SqlArg sqlArg = new SqlArg(null, ruleValue, uuidValue, SqlMode.In, Types.VARCHAR, String.class, typeHandler);
         sqlBuilder.appendSql("?", sqlArg);
     }
 
     @Override
     public String toString() {
-        return "md5 [" + this.hashCode() + "]";
+        return "uuid36 [" + this.hashCode() + "]";
     }
+
 }

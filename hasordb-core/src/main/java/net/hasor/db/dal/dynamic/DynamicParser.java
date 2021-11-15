@@ -15,7 +15,6 @@
  */
 package net.hasor.db.dal.dynamic;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.XmlUtils;
 import net.hasor.cobble.convert.ConverterUtils;
 import net.hasor.db.dal.dynamic.nodes.*;
 import org.w3c.dom.Document;
@@ -26,6 +25,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
@@ -36,9 +36,10 @@ import java.io.StringReader;
  * @author 赵永春 (zyc@byshell.org)
  */
 public class DynamicParser {
+    private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();
 
     public DynamicSql parseDynamicSql(String sqlString) throws IOException, SAXException, ParserConfigurationException {
-        DocumentBuilder documentBuilder = XmlUtils.getDocumentBuilderWithNoValid().newDocumentBuilder();
+        DocumentBuilder documentBuilder = FACTORY.newDocumentBuilder();
         Document document = documentBuilder.parse(new InputSource(new StringReader(sqlString)));
         Element root = document.getDocumentElement();
         return parseDynamicSql(root);

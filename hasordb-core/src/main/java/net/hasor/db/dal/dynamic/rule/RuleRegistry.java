@@ -33,7 +33,8 @@ public class RuleRegistry {
         DEFAULT.register("nonull", NotnullRule.INSTANCE);
         DEFAULT.register("parameter", ParameterRule.INSTANCE);
         DEFAULT.register("md5", Md5Rule.INSTANCE);
-        DEFAULT.register("uuid", Uuid32Rule.INSTANCE);
+        DEFAULT.register("uuid32", Uuid32Rule.INSTANCE);
+        DEFAULT.register("uuid36", Uuid36Rule.INSTANCE);
     }
 
     public SqlBuildRule findByName(String ruleName) {

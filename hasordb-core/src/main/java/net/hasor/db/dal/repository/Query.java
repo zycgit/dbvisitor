@@ -28,6 +28,8 @@ import java.lang.annotation.*;
 public @interface Query {
     public String value();
 
+    public boolean xml() default false;
+
     public String resultMap() default "";
 
     public Class<?> resultType() default Object.class;

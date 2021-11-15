@@ -162,6 +162,6 @@ public class ParameterRule implements SqlBuildRule {
 
     @Override
     public String toString() {
-        return "Parameter [" + this.hashCode() + "]";
+        return "parameter [" + this.hashCode() + "]";
     }
 }

@@ -16,9 +16,9 @@
 package net.hasor.db.dal.repository;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.XmlUtils;
 import net.hasor.cobble.loader.ResourceLoader;
 import net.hasor.cobble.loader.providers.ClassPathResourceLoader;
+import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.rule.RuleRegistry;
@@ -28,6 +28,7 @@ import net.hasor.db.dal.repository.parser.ClassDynamicResolve;
 import net.hasor.db.dal.repository.parser.DynamicResolve;
 import net.hasor.db.dal.repository.parser.XmlDynamicResolve;
 import net.hasor.db.dal.repository.parser.XmlTableMappingResolve;
+import net.hasor.db.dal.session.BaseMapper;
 import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.TableDef;
 import net.hasor.db.mapping.def.TableMapping;
@@ -39,8 +40,10 @@ import net.hasor.db.types.TypeHandlerRegistry;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -240,7 +243,7 @@ public class DalRegistry {
                         break;
                     }
                     if (anno instanceof Callable) {
-                        resultType = ((Query) anno).resultType();
+                        resultType = ((Callable) anno).resultType();
                         break;
                     }
                 }
@@ -255,6 +258,16 @@ public class DalRegistry {
                 if (dynamicSql != null) {
                     saveDynamic(namespace, identify, dynamicSql);
                 }
+            }
+        }
+
+        if (BaseMapper.class.isAssignableFrom(refRepository)) {
+            ResolvableType type = ResolvableType.forClass(refRepository).as(BaseMapper.class);
+            Class<?>[] generics = type.resolveGenerics(Object.class);
+            Class<?> entityType = generics[0];
+            entityType = (entityType == Object.class) ? null : entityType;
+            if (entityType != null && findTableReader(namespace, entityType.getName()) == null) {
+                this.loadAsMapping(namespace, entityType);
             }
         }
     }
@@ -418,9 +431,27 @@ public class DalRegistry {
     }
 
     // --------------------------------------------------------------------------------------------
+    private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();
 
     protected Element loadXmlRoot(InputStream stream) throws ParserConfigurationException, IOException, SAXException {
-        DocumentBuilder documentBuilder = XmlUtils.getDocumentBuilderWithNoValid().newDocumentBuilder();
+        DocumentBuilder documentBuilder = FACTORY.newDocumentBuilder();
+        documentBuilder.setEntityResolver((publicId, systemId) -> {
+            boolean hasorDTD = StringUtils.equalsIgnoreCase("-//hasor.net//DTD Mapper 1.0//EN", publicId) || StringUtils.containsIgnoreCase(systemId, "hasordb-mapper.dtd");
+            boolean mybatisDTD = StringUtils.equalsIgnoreCase("-//mybatis.org//DTD Mapper 3.0//EN", publicId) || StringUtils.containsIgnoreCase(systemId, "mybatis-3-mapper.dtd");
+            if (hasorDTD) {
+                InputSource source = new InputSource(getClassLoader().getResourceAsStream("net/hasor/db/dal/repository/parser/hasordb-mapper.dtd"));
+                source.setPublicId(publicId);
+                source.setSystemId(systemId);
+                return source;
+            } else if (mybatisDTD) {
+                InputSource source = new InputSource(getClassLoader().getResourceAsStream("net/hasor/db/dal/repository/parser/mybatis-3-mapper.dtd"));
+                source.setPublicId(publicId);
+                source.setSystemId(systemId);
+                return source;
+            } else {
+                return new DefaultHandler().resolveEntity(publicId, systemId);
+            }
+        });
         Document document = documentBuilder.parse(new InputSource(stream));
         return document.getDocumentElement();
     }

@@ -27,10 +27,10 @@ import java.util.List;
  */
 @SimpleMapper
 public interface Mapper2Dal {
-    @Query("<bind name=\"abc\" value=\"sellerId + 'abc'\"/> SELECT * FROM console_job WHERE aac = #{abc}")
+    @Query(xml = true, value = "<bind name=\"abc\" value=\"sellerId + 'abc'\"/> SELECT * FROM console_job WHERE aac = #{abc}")
     public List<TbUser> testBind(String abc);
 
-    @Query("select * from t_blog" + //
+    @Query(xml = true, value = "select * from t_blog" + //
             "<where>" + //
             "    <choose>" + //
             "        <when test=\"title != null\">and title = #{title}</when>" + //
@@ -40,13 +40,13 @@ public interface Mapper2Dal {
             "</where>")
     public List<TbUser> testChoose(String title, String content);
 
-    @Query("SELECT * FROM alert_detail WHERE alert_detail.event_type IN " +//
+    @Query(xml = true, value = "SELECT * FROM alert_detail WHERE alert_detail.event_type IN " +//
             "<foreach collection='eventTypes' item='eventType' separator=',' open='(' close=')'>" +//
             "    #{eventType,javaType=net.hasor.test.db.dto.CharacterSensitiveEnum}" +//
             "</foreach>")
     public List<TbUser> testForeach(List<String> eventTypes);
 
-    @Query("select * from PROJECT_INFO where 1=1 and status = 2 " + //
+    @Query(xml = true, value = "select * from PROJECT_INFO where 1=1 and status = 2 " + //
             "<if test='ownerID != null and ownerType !=null'>" + //
             "    and owner_id = #{ownerID}" + //
             "    and owner_type = #{ownerType}" + //
