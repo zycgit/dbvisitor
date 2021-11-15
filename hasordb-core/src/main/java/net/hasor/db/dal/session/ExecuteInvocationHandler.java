@@ -92,7 +92,6 @@ class ExecuteInvocationHandler implements InvocationHandler {
                 if (Page.class.isAssignableFrom(method.getParameterTypes()[i])) {
                     this.pageInfoMap.put(dynamicId, i);
                 }
-
             }
         }
     }
