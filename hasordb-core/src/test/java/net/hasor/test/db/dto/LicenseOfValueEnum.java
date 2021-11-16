@@ -31,9 +31,8 @@ public enum LicenseOfValueEnum implements EnumOfValue<LicenseOfValueEnum> {
     Unlicense(6, "Unlicense"),//
     Other(999, "其它"),//
     ;
-    //
-    private int    type;
-    private String desc;
+    private final int    type;
+    private final String desc;
 
     LicenseOfValueEnum(int type, String desc) {
         this.type = type;

@@ -44,13 +44,16 @@ public class PrintUtils {
     public static <T> String printObjectList(final List<T> dataList, final PrintStream out) {
         List<Map<String, Object>> newDataList = new ArrayList<>();
         for (T obj : dataList) {
-            List<String> keys = BeanUtils.getProperties(obj.getClass());
-            Map<String, Object> newObj = new HashMap<>();
-            for (String key : keys) {
-                newObj.put(key, BeanUtils.readProperty(obj, key));
+            if (obj instanceof Map) {
+                newDataList.add((Map) obj);
+            } else {
+                List<String> keys = BeanUtils.getProperties(obj.getClass());
+                Map<String, Object> newObj = new HashMap<>();
+                for (String key : keys) {
+                    newObj.put(key, BeanUtils.readProperty(obj, key));
+                }
+                newDataList.add(newObj);
             }
-            //
-            newDataList.add(newObj);
         }
         return printMapList(newDataList, out);
     }

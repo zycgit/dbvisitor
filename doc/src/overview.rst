@@ -2,7 +2,7 @@
 ------------------------------------
 
 HasorDB 是一款数据库访问框架，其思想和编程方式来自于 SpringJDBC、MyBatis、MyBatisPlus。可以简单理解 HasorDB 是前面三者集合体。
-不同于一般整合方式的是 HasorDB 采用了参照原有接口完全重新实现，尽可能的接近原始框架的使用体验。对于某些独立模块则采用代码移植。
+不同于一般整合方式的是 HasorDB 采用了参照原有接口完全重新实现，尽可能的接近原始框架的使用体验。
 
 虽然 HasorDB 是参照已有框架重新实现，但同时也融入了其独特的一些新特性。这使得使用起来更加便捷。
 
@@ -25,10 +25,9 @@ HasorDB 是一款数据库访问框架，其思想和编程方式来自于 Sprin
     - 支持 INSERT 策略（INTO、UPDATE、IGNORE）
     - 更加丰富的 TypeHandler（MyBatis 40+，HasorDB 60+）
     - Mapper XML 支持多语句、多结果
-    - 提供独特的 `@{xxx, expr , xxxxx }` 规则扩展机制，让动态 SQL 更加简单
+    - 提供独特的规则机制，让动态 SQL 更加简单
     - 支持 存储过程
-    - 全面支持 JDBC 4.2 各种数据类型
-    - 全面支持 Java8 中的各种时间类型
+    - 支持 JDBC 4.2 和 Java8 中时间类型
     - 支持多数据源
 
 
@@ -70,7 +69,7 @@ jOOQ 最有创造性的地方提供了特殊的 'DSL'，这组 'DSL' 其实是�
 
 
 **MyBatisPlus**
-它来自于中国的一款开源工具，它基于 MyBatis 提供的一组更高级的封装和拓展。比如它提供了类似 jOOQ 的语法糖、分页查询、以及一些常用的 TypeHandler对于枚举的。
+它来自于中国的一款开源工具，它基于 MyBatis 提供的一组更高级的封装和拓展。比如它提供了类似 jOOQ 的语法糖、分页查询。
 其中 HasorDB 的 LambdaTemplate 就是参考了它的实现。
 
 - https://baomidou.com/en/
@@ -91,7 +90,7 @@ http://ibeetl.com/
 **sqltoy-orm**
 来自于中国的一款数据库操作框架，作者在这个框架中倾注了很多心思。与大多数 ORM 框架一样它也提供了很多相似的功能及特色的 Mapper 文件。
 这款框架最别具一格的地方是对于动态 SQL 拼接上，巧妙的提供了一种新型语法可以极大的减少类似 MyBatis 中 if,foreach 标签。
-受到 sqltoy-orm 灵感的触发 HasorDB 提供了 `@{xxx, expr , xxxxx }` 规则机制，并允许用户自定义规则实现从而达成类似 sqltoy-orm 的效果。
+受到 sqltoy-orm 灵感的触发 HasorDB 提供了规则机制，并允许用户自定义规则实现从而达成类似 sqltoy-orm 的效果。
 
 另外最有趣的地方是 sqltoy-orm 中融入了很多业务场景的理解和抽象，例如：对结果集的行列转换处理、结果集聚合计算。这是这款框架最具有新意的地方。
 

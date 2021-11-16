@@ -54,6 +54,7 @@ public abstract class AbstractExecute<T> {
         SqlDialect tempDialect = SqlDialectRegister.findOrCreate(tmpDbType);
         this.dbType = tmpDbType;
         this.dialect = (tempDialect == null) ? DefaultSqlDialect.DEFAULT : tempDialect;
+        this.qualifier = tableMapping.useDelimited();
     }
 
     AbstractExecute(TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate, String dbType, SqlDialect dialect) {
@@ -61,6 +62,7 @@ public abstract class AbstractExecute<T> {
         this.jdbcTemplate = jdbcTemplate;
         this.dbType = dbType;
         this.dialect = (dialect == null) ? DefaultSqlDialect.DEFAULT : dialect;
+        this.qualifier = tableMapping.useDelimited();
     }
 
     public final Class<T> exampleType() {

@@ -114,7 +114,7 @@ SQL 方式
         private Integer age;
         private Date    createTime;
 
-        ... 省略 get/set 方法 ...
+        // getters and setters omitted
     }
 
     // 然后通过 `queryForList` 方法直接查询，控制台就可以得到相同的结果
@@ -183,7 +183,7 @@ SQL 方式
         private Integer age;
         private Date    createTime;
 
-        ... 省略 get/set 方法 ...
+        // getters and setters omitted
     }
 
     // 创建数据源
@@ -270,7 +270,7 @@ SQL 方式
     }
 
 
-为了更好了解和使用 HasorDB 的 Mapper 文件建议增加 DTD加以验证。另外 HasorDB 兼容 MyBatis3 的 DTD 对于绝大部分 MyBatis 工程都可以正常兼容，特殊的 MyBatis 用法需要做改造。
+为了更好了解和使用 HasorDB 的 Mapper 文件建议增加 DTD加以验证。另外 HasorDB 兼容 MyBatis3 的 DTD 对于绝大部分 MyBatis 工程都可以正常兼容。
 
 .. code-block:: xml
     :linenos:
@@ -315,7 +315,7 @@ SQL 方式
 
 .. CAUTION::
     由于 Mapper 文件无法感知 BaseMapper 接口的范型，如果需要 Mapper 文件混合 BaseMapper 一起使用。
-    则建议 ``@Table``、``@Column`` 注解配置也加上。
+    则建议 ``@Table``、``@Column`` 注解配置也加上。这部分内容请参考 ``对象映射``
 
 
 分页查询
@@ -372,7 +372,7 @@ HasorDB 的分页能力仅在 ``LambdaTemplate``、``BaseMapper``、``Mapper DAO
     PageResult<TestUser> pageData2 = baseMapper.queryByPage(pageInfo);
 
 
-若想分页查询 Mapper 文件中的查询，仅需在对应 DAO 接口方法中增加一个 Page 参数，并且将返回值。
+若想分页查询 Mapper 文件中的查询，仅需在对应 DAO 接口方法中增加一个 Page 参数即可。
 
 .. code-block:: java
     :linenos:
