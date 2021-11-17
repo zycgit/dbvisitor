@@ -33,7 +33,7 @@ public class ByteTypeTest {
     public void testByteTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_tinyint) values (123);");
             List<Byte> dat = jdbcTemplate.query("select c_tinyint from tb_h2_types where c_tinyint is not null limit 1;", (rs, rowNum) -> {
                 return new ByteTypeHandler().getResult(rs, 1);
@@ -46,7 +46,7 @@ public class ByteTypeTest {
     public void testByteTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_tinyint) values (123);");
             List<Byte> dat = jdbcTemplate.query("select c_tinyint from tb_h2_types where c_tinyint is not null limit 1;", (rs, rowNum) -> {
                 return new ByteTypeHandler().getResult(rs, "c_tinyint");
@@ -59,12 +59,12 @@ public class ByteTypeTest {
     public void testByteTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
-            byte dat1 = jdbcTemplate.queryForObject("select ?", byte.class, 12);
-            Byte dat2 = jdbcTemplate.queryForObject("select ?", Byte.class, 34);
+
+            byte dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { 12 }, byte.class);
+            Byte dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { 34 }, Byte.class);
             assert dat1 == 12;
             assert dat2 == 34;
-            //
+
             List<Byte> dat = jdbcTemplate.query("select ?", ps -> {
                 new ByteTypeHandler().setParameter(ps, 1, (byte) 123, JDBCType.SMALLINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -80,10 +80,10 @@ public class ByteTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_smallint;");
             jdbcTemplate.execute("create procedure proc_smallint(out p_out smallint) begin set p_out=123; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_smallint(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.SMALLINT.getVendorTypeNumber(), new ByteTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Byte;
             assert objectMap.get("out").equals(Byte.parseByte("123"));

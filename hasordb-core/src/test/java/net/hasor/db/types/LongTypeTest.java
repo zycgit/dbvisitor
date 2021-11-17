@@ -33,7 +33,7 @@ public class LongTypeTest {
     public void testLongTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_bigint) values (123);");
             List<Long> dat = jdbcTemplate.query("select c_bigint from tb_h2_types where c_bigint is not null limit 1;", (rs, rowNum) -> {
                 return new LongTypeHandler().getResult(rs, 1);
@@ -46,7 +46,7 @@ public class LongTypeTest {
     public void testLongTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_bigint) values (123);");
             List<Long> dat = jdbcTemplate.query("select c_bigint from tb_h2_types where c_bigint is not null limit 1;", (rs, rowNum) -> {
                 return new LongTypeHandler().getResult(rs, "c_bigint");
@@ -59,12 +59,12 @@ public class LongTypeTest {
     public void testLongTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
-            long dat1 = jdbcTemplate.queryForObject("select ?", long.class, 123l);
-            Long dat2 = jdbcTemplate.queryForObject("select ?", Long.class, 123l);
+
+            long dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { 123l }, long.class);
+            Long dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { 123l }, Long.class);
             assert dat1 == 123l;
             assert dat2 == 123l;
-            //
+
             List<Long> dat = jdbcTemplate.query("select ?", ps -> {
                 new LongTypeHandler().setParameter(ps, 1, 123l, JDBCType.BIGINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -80,10 +80,10 @@ public class LongTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_bigint;");
             jdbcTemplate.execute("create procedure proc_bigint(out p_out bigint) begin set p_out=123123; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_bigint(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.BIGINT.getVendorTypeNumber(), new LongTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Long;
             assert objectMap.get("out").equals(Long.parseLong("123123"));

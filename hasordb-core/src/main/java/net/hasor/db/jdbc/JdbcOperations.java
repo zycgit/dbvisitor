@@ -53,7 +53,7 @@ public interface JdbcOperations {
     public List<Object> multipleExecute(String sql) throws SQLException;
 
     /** 执行一个 SQL语句块，语句块可能返回多个结果.（需要数据库驱动支持，例如mysql 要设置 allowMultiQueries=true 参数） */
-    public List<Object> multipleExecute(String sql, Object... args) throws SQLException;
+    public List<Object> multipleExecute(String sql, Object[] args) throws SQLException;
 
     /** 执行一个 SQL语句块，语句块可能返回多个结果.（需要数据库驱动支持，例如mysql 要设置 allowMultiQueries=true 参数） */
     public List<Object> multipleExecute(String sql, Map<String, ?> paramMap) throws SQLException;
@@ -72,10 +72,7 @@ public interface JdbcOperations {
     public <T> T query(String sql, PreparedStatementSetter pss, ResultSetExtractor<T> rse) throws SQLException;
 
     /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作，并且将 SQL 查询结果集使用 ResultSetExtractor 转换。*/
-    public <T> T query(String sql, ResultSetExtractor<T> rse, Object... args) throws SQLException;
-
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作，并且将 SQL 查询结果集使用 ResultSetExtractor 转换。*/
-    public <T> T query(String sql, Object[] arg, ResultSetExtractor<T> rses) throws SQLException;
+    public <T> T query(String sql, Object[] args, ResultSetExtractor<T> rse) throws SQLException;
 
     /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作，并且将 SQL 查询结果集使用 ResultSetExtractor 转换。*/
     public <T> T query(String sql, SqlParameterSource paramSource, ResultSetExtractor<T> rse) throws SQLException;
@@ -96,9 +93,6 @@ public interface JdbcOperations {
 
     /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作，并且结果集行处理使用 RowCallbackHandler 接口处理。*/
     public void query(String sql, PreparedStatementSetter pss, RowCallbackHandler rch) throws SQLException;
-
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作，并且结果集行处理使用 RowCallbackHandler 接口处理。*/
-    public void query(String sql, RowCallbackHandler rch, Object... args) throws SQLException;
 
     /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作，并且结果集行处理使用 RowCallbackHandler 接口处理。*/
     public void query(String sql, Object[] args, RowCallbackHandler rch) throws SQLException;
@@ -123,9 +117,6 @@ public interface JdbcOperations {
     public <T> List<T> query(String sql, PreparedStatementSetter pss, RowMapper<T> rowMapper) throws SQLException;
 
     /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将返回一个 List，每一行将通过 RowMapper 映射。*/
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) throws SQLException;
-
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将返回一个 List，每一行将通过 RowMapper 映射。*/
     public <T> List<T> query(String sql, Object[] args, RowMapper<T> rowMapper) throws SQLException;
 
     /**执行一个静态 SQL 语句，并使用 RowMapper 处理结果集。*/
@@ -139,12 +130,6 @@ public interface JdbcOperations {
 
     /**执行一个静态 SQL 语句，结果将被映射到一个列表(一个条目为每一行)的对象，列表中每一条记录都是<code>elementType</code>参数指定的类型对象。*/
     public <T> List<T> queryForList(String sql, Class<T> elementType) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 elementType 参数所表示的类型。
-     * @throws SQLException if the query fails
-     */
-    public <T> List<T> queryForList(String sql, Class<T> elementType, Object... args) throws SQLException;
 
     /**
      * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 elementType 参数所表示的类型。
@@ -169,13 +154,6 @@ public interface JdbcOperations {
      * @return 当不存在记录时返回<code>null</code>。
      */
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将通过 RowMapper 映射转换并返回。
-     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。
-     * @throws SQLException if the query fails
-     */
-    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... args) throws SQLException;
 
     /**
      * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将通过 RowMapper 映射转换并返回。
@@ -209,13 +187,6 @@ public interface JdbcOperations {
      * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。
      * @throws SQLException if the query fails
      */
-    public <T> T queryForObject(String sql, Class<T> requiredType, Object... args) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将通过 requiredType 参数所表示的类型封装。
-     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。
-     * @throws SQLException if the query fails
-     */
     public <T> T queryForObject(String sql, Object[] args, Class<T> requiredType) throws SQLException;
 
     /**
@@ -243,7 +214,7 @@ public interface JdbcOperations {
      * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。
      * @throws SQLException if the query fails
      */
-    public Map<String, Object> queryForMap(String sql, Object... args) throws SQLException;
+    public Map<String, Object> queryForMap(String sql, Object[] args) throws SQLException;
 
     /**
      * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将使用 Map 封装。
@@ -270,7 +241,7 @@ public interface JdbcOperations {
      * 所以需要保证查询的结果只有一行一列，否则执行会引发异常。
      * @throws SQLException if the query fails
      */
-    public long queryForLong(String sql, Object... args) throws SQLException;
+    public long queryForLong(String sql, Object[] args) throws SQLException;
 
     /**
      * 查询一个 SQL 语句，sql 参数通过 SqlParameterSource 封装。查询结果将转换成 long 类型。
@@ -297,7 +268,7 @@ public interface JdbcOperations {
      * 所以需要保证查询的结果只有一行一列，否则执行会引发异常。
      * @throws SQLException if the query fails
      */
-    public int queryForInt(String sql, Object... args) throws SQLException;
+    public int queryForInt(String sql, Object[] args) throws SQLException;
 
     /**
      * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 int 类型。
@@ -324,7 +295,7 @@ public interface JdbcOperations {
      * 所以需要保证查询的结果只有一行一列，否则执行会引发异常。
      * @throws SQLException if the query fails
      */
-    public String queryForString(String sql, Object... args) throws SQLException;
+    public String queryForString(String sql, Object[] args) throws SQLException;
 
     /**
      * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 String 类型。
@@ -345,7 +316,7 @@ public interface JdbcOperations {
     public List<Map<String, Object>> queryForList(String sql) throws SQLException;
 
     /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询记录将会使用 Map 保存，并封装到 List 中。*/
-    public List<Map<String, Object>> queryForList(String sql, Object... args) throws SQLException;
+    public List<Map<String, Object>> queryForList(String sql, Object[] args) throws SQLException;
 
     /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询记录将会使用 Map 保存，并封装到 List 中。*/
     public List<Map<String, Object>> queryForList(String sql, PreparedStatementSetter args) throws SQLException;
@@ -366,7 +337,7 @@ public interface JdbcOperations {
     public int executeUpdate(String sql, PreparedStatementSetter pss) throws SQLException;
 
     /**执行一个更新语句（insert、update、delete），这个查询将会使用 PreparedStatement 接口操作。*/
-    public int executeUpdate(String sql, Object... args) throws SQLException;
+    public int executeUpdate(String sql, Object[] args) throws SQLException;
 
     /**执行一个更新语句（insert、update、delete），这个查询将会使用 PreparedStatement 接口操作。*/
     public int executeUpdate(String sql, SqlParameterSource paramSource) throws SQLException;

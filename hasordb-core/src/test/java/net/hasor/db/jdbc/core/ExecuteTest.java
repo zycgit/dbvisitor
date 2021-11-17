@@ -47,7 +47,7 @@ public class ExecuteTest extends AbstractDbTest {
                 return con.createStatement().execute("update tb_user set name = CONCAT(name, '~' ) where userUUID = '" + beanForData1().getUserUUID() + "'");
             });
             //
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", TB_User.class, beanForData1().getUserUUID());
+            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
             Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());
             assert collect.size() == 1;
             assert collect.contains(beanForData1().getName() + "~");
@@ -63,7 +63,7 @@ public class ExecuteTest extends AbstractDbTest {
                 return s.execute("update tb_user set name = CONCAT(name, '~' ) where userUUID = '" + beanForData1().getUserUUID() + "'");
             });
             //
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", TB_User.class, beanForData1().getUserUUID());
+            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
             Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());
             assert collect.size() == 1;
             assert collect.contains(beanForData1().getName() + "~");
@@ -82,7 +82,7 @@ public class ExecuteTest extends AbstractDbTest {
                 return ps.execute();
             });
             //
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", TB_User.class, beanForData1().getUserUUID());
+            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
             Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());
             assert collect.size() == 1;
             assert collect.contains(beanForData1().getName() + "~");
@@ -99,7 +99,7 @@ public class ExecuteTest extends AbstractDbTest {
                 return ps.execute();
             });
             //
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", TB_User.class, beanForData1().getUserUUID());
+            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
             Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());
             assert collect.size() == 1;
             assert collect.contains(beanForData1().getName() + "~");
@@ -113,7 +113,7 @@ public class ExecuteTest extends AbstractDbTest {
             //
             jdbcTemplate.execute("update tb_user set name = CONCAT(name, '~' ) where userUUID = '" + beanForData1().getUserUUID() + "'");
             //
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", TB_User.class, beanForData1().getUserUUID());
+            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
             Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());
             assert collect.size() == 1;
             assert collect.contains(beanForData1().getName() + "~");
@@ -128,7 +128,7 @@ public class ExecuteTest extends AbstractDbTest {
             Map<String, String> dat = Collections.singletonMap("uuid", beanForData1().getUserUUID());
             jdbcTemplate.execute("update tb_user set name = CONCAT(name, '~' ) where userUUID = :uuid", dat, PreparedStatement::execute);
             //
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", TB_User.class, beanForData1().getUserUUID());
+            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
             Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());
             assert collect.size() == 1;
             assert collect.contains(beanForData1().getName() + "~");
@@ -143,7 +143,7 @@ public class ExecuteTest extends AbstractDbTest {
             Map<String, String> dat = Collections.singletonMap("uuid", beanForData1().getUserUUID());
             jdbcTemplate.execute("update tb_user set name = CONCAT(name, '~' ) where userUUID = :uuid", new MapSqlParameterSource(dat), PreparedStatement::execute);
             //
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", TB_User.class, beanForData1().getUserUUID());
+            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
             Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());
             assert collect.size() == 1;
             assert collect.contains(beanForData1().getName() + "~");

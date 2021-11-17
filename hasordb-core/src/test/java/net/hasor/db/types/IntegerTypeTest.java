@@ -33,7 +33,7 @@ public class IntegerTypeTest {
     public void testIntegerTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_integer) values (123);");
             List<Integer> dat = jdbcTemplate.query("select c_integer from tb_h2_types where c_integer is not null limit 1;", (rs, rowNum) -> {
                 return new IntegerTypeHandler().getResult(rs, 1);
@@ -46,7 +46,7 @@ public class IntegerTypeTest {
     public void testIntegerTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_integer) values (123);");
             List<Integer> dat = jdbcTemplate.query("select c_integer from tb_h2_types where c_integer is not null limit 1;", (rs, rowNum) -> {
                 return new IntegerTypeHandler().getResult(rs, "c_integer");
@@ -59,12 +59,12 @@ public class IntegerTypeTest {
     public void testIntegerTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
-            int dat1 = jdbcTemplate.queryForObject("select ?", int.class, 123);
-            Integer dat2 = jdbcTemplate.queryForObject("select ?", Integer.class, 123);
+
+            int dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { 123 }, int.class);
+            Integer dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { 123 }, Integer.class);
             assert dat1 == 123;
             assert dat2 == 123;
-            //
+
             List<Integer> dat = jdbcTemplate.query("select ?", ps -> {
                 new IntegerTypeHandler().setParameter(ps, 1, 123, JDBCType.INTEGER.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -80,10 +80,10 @@ public class IntegerTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_integer;");
             jdbcTemplate.execute("create procedure proc_integer(out p_out integer) begin set p_out=123123; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_integer(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.INTEGER.getVendorTypeNumber(), new IntegerTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Integer;
             assert objectMap.get("out").equals(123123);

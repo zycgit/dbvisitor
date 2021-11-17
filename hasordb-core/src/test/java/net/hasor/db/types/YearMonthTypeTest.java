@@ -38,7 +38,7 @@ public class YearMonthTypeTest {
     public void testYearMonthOfNumberTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_integer) values (202001);");
             List<YearMonth> dat = jdbcTemplate.query("select c_integer from tb_h2_types where c_integer is not null limit 1;", (rs, rowNum) -> {
                 return new YearMonthOfNumberTypeHandler().getResult(rs, 1);
@@ -52,7 +52,7 @@ public class YearMonthTypeTest {
     public void testYearMonthOfNumberTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_integer) values (202001);");
             List<YearMonth> dat = jdbcTemplate.query("select c_integer from tb_h2_types where c_integer is not null limit 1;", (rs, rowNum) -> {
                 return new YearMonthOfNumberTypeHandler().getResult(rs, "c_integer");
@@ -66,11 +66,11 @@ public class YearMonthTypeTest {
     public void testYearMonthOfNumberTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
-            YearMonth dat1 = jdbcTemplate.queryForObject("select ?", YearMonth.class, YearMonth.of(2008, 2));
+
+            YearMonth dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { YearMonth.of(2008, 2) }, YearMonth.class);
             assert dat1.getYear() == 2008;
             assert dat1.getMonth() == Month.FEBRUARY;
-            //
+
             List<YearMonth> dat2 = jdbcTemplate.query("select ?", ps -> {
                 new YearMonthOfNumberTypeHandler().setParameter(ps, 1, YearMonth.of(2008, 2), JDBCType.SMALLINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -87,10 +87,10 @@ public class YearMonthTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_integer;");
             jdbcTemplate.execute("create procedure proc_integer(out p_out integer) begin set p_out=202001; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_integer(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.INTEGER.getVendorTypeNumber(), new YearMonthOfNumberTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof YearMonth;
             YearMonth instant = (YearMonth) objectMap.get("out");
@@ -103,7 +103,7 @@ public class YearMonthTypeTest {
     public void testYearMonthOfStringTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('2008-01');");
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('2022-03');");
             List<YearMonth> dat = jdbcTemplate.query("select c_varchar from tb_h2_types where c_varchar is not null limit 2;", (rs, rowNum) -> {
@@ -120,7 +120,7 @@ public class YearMonthTypeTest {
     public void testYearMonthOfStringTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('1986-01');");
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('1998-03');");
             List<YearMonth> dat = jdbcTemplate.query("select c_varchar from tb_h2_types where c_varchar is not null limit 2;", (rs, rowNum) -> {
@@ -137,14 +137,14 @@ public class YearMonthTypeTest {
     public void testYearMonthOfStringTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
-            YearMonth dat1 = jdbcTemplate.queryForObject("select ?", YearMonth.class, "0005-01");
+
+            YearMonth dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { "0005-01" }, YearMonth.class);
             assert dat1.getYear() == 5;
             assert dat1.getMonth() == Month.JANUARY;
-            YearMonth dat2 = jdbcTemplate.queryForObject("select ?", YearMonth.class, "2020-01");
+            YearMonth dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { "2020-01" }, YearMonth.class);
             assert dat2.getYear() == 2020;
             assert dat2.getMonth() == Month.JANUARY;
-            //
+
             List<YearMonth> dat3 = jdbcTemplate.query("select ?", ps -> {
                 new YearMonthOfStringTypeHandler().setParameter(ps, 1, YearMonth.of(1998, 2), JDBCType.VARCHAR.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -161,10 +161,10 @@ public class YearMonthTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_varchar;");
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(10)) begin set p_out='2020-01'; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_varchar(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARCHAR.getVendorTypeNumber(), new YearMonthOfStringTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof YearMonth;
             YearMonth instant = (YearMonth) objectMap.get("out");
@@ -177,7 +177,7 @@ public class YearMonthTypeTest {
     public void testYearMonthOfTimeTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
             List<YearMonth> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new YearMonthOfTimeTypeHandler().getResult(rs, 1);
@@ -192,7 +192,7 @@ public class YearMonthTypeTest {
     public void testYearMonthOfTimeTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
             List<YearMonth> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new YearMonthOfTimeTypeHandler().getResult(rs, "c_timestamp");
@@ -207,14 +207,12 @@ public class YearMonthTypeTest {
     public void testYearMonthOfTimeTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
-            //
-            YearMonth dat1 = jdbcTemplate.queryForObject("select ?", YearMonth.class, new Date());
+
+            YearMonth dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { new Date() }, YearMonth.class);
             YearMonth yearMonth = YearMonth.now();
             assert dat1.getYear() == yearMonth.getYear();
             assert dat1.getMonth() == yearMonth.getMonth();
-            //
-            //
+
             List<YearMonth> dat2 = jdbcTemplate.query("select ?", ps -> {
                 new YearMonthOfTimeTypeHandler().setParameter(ps, 1, YearMonth.of(2018, 4), JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -222,8 +220,7 @@ public class YearMonthTypeTest {
             });
             assert dat2.get(0).getYear() == 2018;
             assert dat2.get(0).getMonth() == Month.APRIL;
-            //
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", ps -> {
                 new YearMonthOfTimeTypeHandler().setParameter(ps, 1, YearMonth.of(2018, 4), JDBCType.TIMESTAMP.getVendorTypeNumber());
             });
@@ -239,10 +236,10 @@ public class YearMonthTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_timestamp;");
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 10:11:12', '%Y-%m-%d %h:%i:%s'); end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new YearMonthOfTimeTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof YearMonth;
             YearMonth instant = (YearMonth) objectMap.get("out");

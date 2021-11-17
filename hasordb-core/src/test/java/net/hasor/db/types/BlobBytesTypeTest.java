@@ -55,13 +55,13 @@ public class BlobBytesTypeTest {
     public void testBlobBytesForWrapTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
             List<Byte[]> dat = jdbcTemplate.query("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
                 return new BlobBytesForWrapTypeHandler().getResult(rs, 1);
             });
-            //
+
             String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
             String s2 = CommonCodeUtils.MD5.encodeMD5(toPrimitive(dat.get(0)));
             assert s1.equals(s2);
@@ -72,13 +72,13 @@ public class BlobBytesTypeTest {
     public void testBlobBytesForWrapTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
             List<Byte[]> dat = jdbcTemplate.query("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
                 return new BlobBytesForWrapTypeHandler().getResult(rs, "c_blob");
             });
-            //
+
             String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
             String s2 = CommonCodeUtils.MD5.encodeMD5(toPrimitive(dat.get(0)));
             assert s1.equals(s2);
@@ -89,14 +89,14 @@ public class BlobBytesTypeTest {
     public void testBlobBytesForWrapTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             List<Byte[]> dat = jdbcTemplate.query("select ?", ps -> {
                 new BlobBytesForWrapTypeHandler().setParameter(ps, 1, toWrapped(testData), JDBCType.BLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new BlobBytesForWrapTypeHandler().getNullableResult(rs, 1);
             });
-            //
+
             String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
             String s2 = CommonCodeUtils.MD5.encodeMD5(toPrimitive(dat.get(0)));
             assert s1.equals(s2);
@@ -109,12 +109,12 @@ public class BlobBytesTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_blob;");
             jdbcTemplate.execute("create procedure proc_blob(out p_out blob) begin set p_out= b'0111111100001111'; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_blob(?)}",//
                     Collections.singletonList(//
                             SqlParameterUtils.withOutputName("out", JDBCType.BLOB.getVendorTypeNumber(), new BlobBytesForWrapTypeHandler())//
                     ));
-            //
+
             assert objectMap.size() == 2;
             assert !(objectMap.get("out") instanceof byte[]);
             assert objectMap.get("out") instanceof Byte[];
@@ -129,13 +129,13 @@ public class BlobBytesTypeTest {
     public void testBlobBytesTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
             List<byte[]> dat = jdbcTemplate.query("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
                 return new BlobBytesTypeHandler().getResult(rs, 1);
             });
-            //
+
             String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
             String s2 = CommonCodeUtils.MD5.encodeMD5(dat.get(0));
             assert s1.equals(s2);
@@ -146,13 +146,13 @@ public class BlobBytesTypeTest {
     public void testBlobBytesTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
             List<byte[]> dat = jdbcTemplate.query("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
                 return new BlobBytesTypeHandler().getResult(rs, "c_blob");
             });
-            //
+
             String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
             String s2 = CommonCodeUtils.MD5.encodeMD5(dat.get(0));
             assert s1.equals(s2);
@@ -163,14 +163,14 @@ public class BlobBytesTypeTest {
     public void testBlobBytesTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             List<byte[]> dat = jdbcTemplate.query("select ?", ps -> {
                 new BlobBytesTypeHandler().setParameter(ps, 1, testData, JDBCType.BLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new BlobBytesTypeHandler().getNullableResult(rs, 1);
             });
-            //
+
             String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
             String s2 = CommonCodeUtils.MD5.encodeMD5(dat.get(0));
             assert s1.equals(s2);
@@ -183,10 +183,10 @@ public class BlobBytesTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_blob;");
             jdbcTemplate.execute("create procedure proc_blob(out p_out blob) begin set p_out= b'0111111100001111'; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_blob(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.BLOB.getVendorTypeNumber(), new BlobBytesTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof byte[];
             assert !(objectMap.get("out") instanceof Byte[]);
@@ -201,13 +201,13 @@ public class BlobBytesTypeTest {
     public void testBlobInputStreamTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
             List<InputStream> dat = jdbcTemplate.query("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
                 return new BlobInputStreamTypeHandler().getResult(rs, 1);
             });
-            //
+
             String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
             String s2 = CommonCodeUtils.MD5.encodeMD5(IOUtils.toByteArray(dat.get(0)));
             assert s1.equals(s2);
@@ -218,13 +218,13 @@ public class BlobBytesTypeTest {
     public void testBlobInputStreamTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
             List<InputStream> dat = jdbcTemplate.query("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
                 return new BlobInputStreamTypeHandler().getResult(rs, "c_blob");
             });
-            //
+
             String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
             String s2 = CommonCodeUtils.MD5.encodeMD5(IOUtils.toByteArray(dat.get(0)));
             assert s1.equals(s2);
@@ -235,14 +235,14 @@ public class BlobBytesTypeTest {
     public void testBlobInputStreamTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             List<InputStream> dat = jdbcTemplate.query("select ?", ps -> {
                 new BlobInputStreamTypeHandler().setParameter(ps, 1, new ByteArrayInputStream(testData), JDBCType.BLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new BlobInputStreamTypeHandler().getNullableResult(rs, 1);
             });
-            //
+
             String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
             String s2 = CommonCodeUtils.MD5.encodeMD5(IOUtils.toByteArray(dat.get(0)));
             assert s1.equals(s2);
@@ -255,18 +255,18 @@ public class BlobBytesTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_blob;");
             jdbcTemplate.execute("create procedure proc_blob(out p_out blob) begin set p_out= b'0111111100001111'; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_blob(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.BLOB.getVendorTypeNumber(), new BlobInputStreamTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof InputStream;
             assert objectMap.get("#update-count-1").equals(0);
-            //
+
             byte[] bytes = new byte[2];
             bytes[0] = 0b01111111;
             bytes[1] = 0b00001111;
-            //
+
             String s1 = CommonCodeUtils.MD5.encodeMD5(bytes);
             String s2 = CommonCodeUtils.MD5.encodeMD5(IOUtils.toByteArray((InputStream) objectMap.get("out")));
             assert s1.equals(s2);

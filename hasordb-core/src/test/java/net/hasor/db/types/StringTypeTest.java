@@ -175,8 +175,8 @@ public class StringTypeTest {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             //
-            String dat1 = jdbcTemplate.queryForObject("select ?", String.class, "abcdefg");
-            String dat2 = jdbcTemplate.queryForObject("select ?", String.class, (String) null);
+            String dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { "abcdefg" }, String.class);
+            String dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { null }, String.class);
             assert dat1.equals("abcdefg");
             assert dat2 == null;
             //
@@ -236,8 +236,8 @@ public class StringTypeTest {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             //
-            String dat1 = jdbcTemplate.queryForObject("select ?", String.class, "abcdefg");
-            String dat2 = jdbcTemplate.queryForObject("select ?", String.class, (String) null);
+            String dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { "abcdefg" }, String.class);
+            String dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { null }, String.class);
             assert dat1.equals("abcdefg");
             assert dat2 == null;
             //

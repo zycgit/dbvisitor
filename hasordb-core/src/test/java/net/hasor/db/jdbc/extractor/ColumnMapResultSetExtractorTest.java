@@ -72,11 +72,11 @@ public class ColumnMapResultSetExtractorTest extends AbstractDbTest {
             List<Map<String, Object>> mapList = null;
             //
             // before
-            mapList = jdbcTemplate.query("select * from tb_user where userUUID =?", new ColumnMapResultSetExtractor(), dataId);
+            mapList = jdbcTemplate.query("select * from tb_user where userUUID =?", new Object[] { dataId }, new ColumnMapResultSetExtractor());
             assert mapList.size() == 0;
             // after
             jdbcTemplate.executeUpdate(INSERT_ARRAY, dataArgs);
-            mapList = jdbcTemplate.query("select * from tb_user where userUUID =?", new ColumnMapResultSetExtractor(), dataId);
+            mapList = jdbcTemplate.query("select * from tb_user where userUUID =?", new Object[] { dataId }, new ColumnMapResultSetExtractor());
             assert mapList.size() == 1;
             assert mapList.get(0).get("name").equals(beanForData4().getName());
         }

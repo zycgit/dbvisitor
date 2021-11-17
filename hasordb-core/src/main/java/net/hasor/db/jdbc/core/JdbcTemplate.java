@@ -237,7 +237,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public List<Object> multipleExecute(final String sql, final Object... args) throws SQLException {
+    public List<Object> multipleExecute(final String sql, final Object[] args) throws SQLException {
         PreparedStatementSetter pss = newArgPreparedStatementSetter(args);
         return this.execute(new SimplePreparedStatementCreator(sql), ps -> {
             try {
@@ -317,11 +317,6 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public <T> T query(final String sql, final ResultSetExtractor<T> rse, final Object... args) throws SQLException {
-        return this.query(sql, this.newArgPreparedStatementSetter(args), rse);
-    }
-
-    @Override
     public <T> T query(final String sql, final Object[] args, final ResultSetExtractor<T> rse) throws SQLException {
         return this.query(sql, this.newArgPreparedStatementSetter(args), rse);
     }
@@ -352,11 +347,6 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public void query(final String sql, final RowCallbackHandler rch, final Object... args) throws SQLException {
-        this.query(sql, this.newArgPreparedStatementSetter(args), rch);
-    }
-
-    @Override
     public void query(final String sql, final Object[] args, final RowCallbackHandler rch) throws SQLException {
         this.query(sql, this.newArgPreparedStatementSetter(args), rch);
     }
@@ -379,11 +369,6 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     @Override
     public <T> List<T> query(final String sql, final PreparedStatementSetter pss, final RowMapper<T> rowMapper) throws SQLException {
         return this.query(sql, pss, new RowMapperResultSetExtractor<>(rowMapper));
-    }
-
-    @Override
-    public <T> List<T> query(final String sql, final RowMapper<T> rowMapper, final Object... args) throws SQLException {
-        return this.query(sql, args, new RowMapperResultSetExtractor<>(rowMapper));
     }
 
     @Override
@@ -412,11 +397,6 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public <T> List<T> queryForList(final String sql, final Class<T> elementType, final Object... args) throws SQLException {
-        return this.query(sql, args, this.getBeanPropertyResultSetExtractor(elementType));
-    }
-
-    @Override
     public <T> List<T> queryForList(final String sql, final Object[] args, final Class<T> elementType) throws SQLException {
         return this.query(sql, args, this.getBeanPropertyResultSetExtractor(elementType));
     }
@@ -437,11 +417,6 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public <T> T queryForObject(final String sql, final RowMapper<T> rowMapper, final Object... args) throws SQLException {
-        return requiredSingleResult(this.query(sql, args, new RowMapperResultSetExtractor<>(rowMapper, 1)));
-    }
-
-    @Override
     public <T> T queryForObject(final String sql, final Object[] args, final RowMapper<T> rowMapper) throws SQLException {
         return requiredSingleResult(this.query(sql, args, new RowMapperResultSetExtractor<>(rowMapper, 1)));
     }
@@ -459,11 +434,6 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     @Override
     public <T> T queryForObject(final String sql, final Class<T> requiredType) throws SQLException {
         return this.queryForObject(sql, this.getBeanPropertyRowMapper(requiredType));
-    }
-
-    @Override
-    public <T> T queryForObject(final String sql, final Class<T> requiredType, final Object... args) throws SQLException {
-        return this.queryForObject(sql, args, this.getBeanPropertyRowMapper(requiredType));
     }
 
     @Override
@@ -488,7 +458,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public long queryForLong(final String sql, final Object... args) throws SQLException {
+    public long queryForLong(final String sql, final Object[] args) throws SQLException {
         Number number = this.queryForObject(sql, args, this.getSingleColumnRowMapper(long.class));
         return number != null ? number.longValue() : 0;
     }
@@ -511,7 +481,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public int queryForInt(final String sql, final Object... args) throws SQLException {
+    public int queryForInt(final String sql, final Object[] args) throws SQLException {
         Number number = this.queryForObject(sql, args, this.getSingleColumnRowMapper(int.class));
         return number != null ? number.intValue() : 0;
     }
@@ -533,8 +503,8 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public String queryForString(final String sql, final Object... args) throws SQLException {
-        return this.queryForObject(sql, String.class, args);
+    public String queryForString(final String sql, final Object[] args) throws SQLException {
+        return this.queryForObject(sql, args, String.class);
     }
 
     @Override
@@ -553,7 +523,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public Map<String, Object> queryForMap(final String sql, final Object... args) throws SQLException {
+    public Map<String, Object> queryForMap(final String sql, final Object[] args) throws SQLException {
         return this.queryForObject(sql, args, this.getColumnMapRowMapper());
     }
 
@@ -573,7 +543,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public List<Map<String, Object>> queryForList(final String sql, final Object... args) throws SQLException {
+    public List<Map<String, Object>> queryForList(final String sql, final Object[] args) throws SQLException {
         return this.query(sql, args, this.getColumnMapRowMapper());
     }
 
@@ -652,7 +622,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public int executeUpdate(final String sql, final Object... args) throws SQLException {
+    public int executeUpdate(final String sql, final Object[] args) throws SQLException {
         return this.executeUpdate(sql, this.newArgPreparedStatementSetter(args));
     }
 

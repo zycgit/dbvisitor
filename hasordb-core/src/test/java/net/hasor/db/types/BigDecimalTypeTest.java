@@ -34,13 +34,13 @@ public class BigDecimalTypeTest {
     public void testBigDecimalTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_decimal_1) values (1234567890.1234567890);");
             List<BigDecimal> dat1 = jdbcTemplate.query("select c_decimal_1 from tb_h2_types where c_decimal_1 is not null limit 1;", (rs, rowNum) -> {
                 return new BigDecimalTypeHandler().getResult(rs, 1);
             });
             assert dat1.get(0).toString().equals("1234567890.1234567890");
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_decimal_2) values (1234567890.1234567890);");
             List<BigDecimal> dat2 = jdbcTemplate.query("select c_decimal_2 from tb_h2_types where c_decimal_2 is not null limit 1;", (rs, rowNum) -> {
                 return new BigDecimalTypeHandler().getResult(rs, 1);
@@ -53,13 +53,13 @@ public class BigDecimalTypeTest {
     public void testBigDecimalTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_decimal_1) values (1234567890.1234567890);");
             List<BigDecimal> dat1 = jdbcTemplate.query("select c_decimal_1 from tb_h2_types where c_decimal_1 is not null limit 1;", (rs, rowNum) -> {
                 return new BigDecimalTypeHandler().getResult(rs, "c_decimal_1");
             });
             assert dat1.get(0).toString().equals("1234567890.1234567890");
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_decimal_2) values (1234567890.1234567890);");
             List<BigDecimal> dat2 = jdbcTemplate.query("select c_decimal_2 from tb_h2_types where c_decimal_2 is not null limit 1;", (rs, rowNum) -> {
                 return new BigDecimalTypeHandler().getResult(rs, "c_decimal_2");
@@ -72,7 +72,7 @@ public class BigDecimalTypeTest {
     public void testBigDecimalTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             List<BigDecimal> dat = jdbcTemplate.query("select ?", ps -> {
                 new BigDecimalTypeHandler().setParameter(ps, 1, new BigDecimal("1234567890.1234567890"), JDBCType.DECIMAL.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -88,10 +88,10 @@ public class BigDecimalTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_decimal;");
             jdbcTemplate.execute("create procedure proc_decimal(out p_out decimal(10,2)) begin set p_out=123.123; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_decimal(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.NUMERIC.getVendorTypeNumber(), new BigDecimalTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof BigDecimal;
             assert objectMap.get("out").equals(new BigDecimal("123.12"));

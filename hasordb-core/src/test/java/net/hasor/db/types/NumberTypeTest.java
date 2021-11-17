@@ -34,13 +34,13 @@ public class NumberTypeTest {
     public void testNumberTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             Date testData = new Date();
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", testData);
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
             List<Number> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new NumberTypeHandler().getResult(rs, 1);
             });
-            //
+
             assert dat.get(0).longValue() == testData.getTime();
         }
     }
@@ -49,13 +49,13 @@ public class NumberTypeTest {
     public void testNumberTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             Date testData = new Date();
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", testData);
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
             List<Number> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new NumberTypeHandler().getResult(rs, "c_timestamp");
             });
-            //
+
             assert dat.get(0).longValue() == testData.getTime();
         }
     }
@@ -64,12 +64,12 @@ public class NumberTypeTest {
     public void testNumberTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('123');");
             List<Number> dat = jdbcTemplate.query("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
                 return new NumberTypeHandler().getResult(rs, "c_char");
             });
-            //
+
             assert dat.get(0).longValue() == 123;
         }
     }
@@ -78,12 +78,12 @@ public class NumberTypeTest {
     public void testNumberTypeHandler_4() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('123');");
             List<Number> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
                 return new NumberTypeHandler().getResult(rs, "c_clob");
             });
-            //
+
             assert dat.get(0).longValue() == 123;
         }
     }
@@ -102,7 +102,7 @@ public class NumberTypeTest {
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 10:11:12', '%Y-%m-%d %h:%i:%s'); end;");
             jdbcTemplate.execute("drop procedure if exists proc_data;");
             jdbcTemplate.execute("create procedure proc_data(out p_out date) begin set p_out= str_to_date('2008-08-09 10:11:12', '%Y-%m-%d %h:%i:%s'); end;");
-            //
+
             Map<String, Object> objectMap1 = jdbcTemplate.call("{call proc_varchar(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARCHAR.getVendorTypeNumber(), new NumberTypeHandler())));
             Map<String, Object> objectMap2 = jdbcTemplate.call("{call proc_bigint(?)}",//
@@ -113,7 +113,7 @@ public class NumberTypeTest {
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new NumberTypeHandler())));
             Map<String, Object> objectMap6 = jdbcTemplate.call("{call proc_data(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.DATE.getVendorTypeNumber(), new NumberTypeHandler())));
-            //
+
             assert objectMap1.size() == 2;
             assert objectMap2.size() == 2;
             assert objectMap4.size() == 2;

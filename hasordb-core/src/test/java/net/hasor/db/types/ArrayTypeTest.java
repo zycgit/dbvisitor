@@ -32,7 +32,7 @@ public class ArrayTypeTest {
     public void testArrayTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             Set<String> testSet = new HashSet<>(Arrays.asList("a", "b", "c"));
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_array) values (?);", ps -> {
                 new ArrayTypeHandler().setParameter(ps, 1, testSet.toArray(), JDBCType.ARRAY.getVendorTypeNumber());
@@ -53,7 +53,7 @@ public class ArrayTypeTest {
     public void testArrayTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             Set<String> testSet = new HashSet<>(Arrays.asList("a", "b", "c"));
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_array) values (?);", ps -> {
                 new ArrayTypeHandler().setParameter(ps, 1, testSet.toArray(), JDBCType.ARRAY.getVendorTypeNumber());
@@ -77,10 +77,10 @@ public class ArrayTypeTest {
         //            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
         //            jdbcTemplate.execute("drop procedure if exists proc_bytes;");
         //            jdbcTemplate.execute("create procedure proc_bytes(out p_out varbinary(10)) begin set p_out= b'0111111100001111'; end;");
-        //            //
+        //
         //            Map<String, Object> objectMap = jdbcTemplate.call("{call proc_bytes(?)}",//
         //                    Collections.singletonList(CallableSqlParameter.withOutput("out", JDBCType.ARRAY, new ArrayTypeHandler())));
-        //            //
+        //
         //            assert objectMap.size() == 2;
         //            assert objectMap.get("out") instanceof Double;
         //            assert objectMap.get("out").equals(123.123d);

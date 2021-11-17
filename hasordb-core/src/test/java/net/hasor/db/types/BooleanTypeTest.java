@@ -33,7 +33,7 @@ public class BooleanTypeTest {
     public void testBooleanTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+ 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_boolean) values (true);");
             List<Boolean> dat = jdbcTemplate.query("select c_boolean from tb_h2_types where c_boolean is not null limit 1;", (rs, rowNum) -> {
                 return new BooleanTypeHandler().getResult(rs, 1);
@@ -46,7 +46,7 @@ public class BooleanTypeTest {
     public void testBooleanTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_boolean) values (true);");
             List<Boolean> dat = jdbcTemplate.query("select c_boolean from tb_h2_types where c_boolean is not null limit 1;", (rs, rowNum) -> {
                 return new BooleanTypeHandler().getResult(rs, "c_boolean");
@@ -59,16 +59,16 @@ public class BooleanTypeTest {
     public void testBooleanTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
-            boolean dat1 = jdbcTemplate.queryForObject("select ?", boolean.class, true);
-            Boolean dat2 = jdbcTemplate.queryForObject("select ?", Boolean.class, true);
-            boolean dat3 = jdbcTemplate.queryForObject("select ?", boolean.class, false);
-            Boolean dat4 = jdbcTemplate.queryForObject("select ?", Boolean.class, false);
+
+            boolean dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { true }, boolean.class);
+            Boolean dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { true }, Boolean.class);
+            boolean dat3 = jdbcTemplate.queryForObject("select ?", new Object[] { false }, boolean.class);
+            Boolean dat4 = jdbcTemplate.queryForObject("select ?", new Object[] { false }, Boolean.class);
             assert dat1;
             assert dat2;
             assert !dat3;
             assert !dat4;
-            //
+
             List<Boolean> dat = jdbcTemplate.query("select ?", ps -> {
                 new BooleanTypeHandler().setParameter(ps, 1, true, JDBCType.BOOLEAN.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -84,10 +84,10 @@ public class BooleanTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_boolean;");
             jdbcTemplate.execute("create procedure proc_boolean(out p_out boolean) begin set p_out=true; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_boolean(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.BOOLEAN.getVendorTypeNumber(), new BooleanTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Boolean;
             assert objectMap.get("out").equals(true);

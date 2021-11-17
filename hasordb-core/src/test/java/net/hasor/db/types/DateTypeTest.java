@@ -41,13 +41,13 @@ public class DateTypeTest {
     public void testDateTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             Date testData = new Date();
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", testData);
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
             List<Date> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new DateTypeHandler().getResult(rs, 1);
             });
-            //
+
             assert testData.getTime() == dat.get(0).getTime();
         }
     }
@@ -56,13 +56,13 @@ public class DateTypeTest {
     public void testDateTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             Date testData = new Date();
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", testData);
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
             List<Date> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new DateTypeHandler().getResult(rs, "c_timestamp");
             });
-            //
+
             assert testData.getTime() == dat.get(0).getTime();
         }
     }
@@ -71,14 +71,14 @@ public class DateTypeTest {
     public void testDateTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             Date testData = new Date();
             List<Date> dat = jdbcTemplate.query("select ?", ps -> {
                 new DateTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new DateTypeHandler().getNullableResult(rs, 1);
             });
-            //
+
             Date dateTime = dat.get(0);
             assert dateTime.getTime() == testData.getTime();
         }
@@ -90,10 +90,10 @@ public class DateTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_timestamp;");
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new DateTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Date;
             String dateString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(objectMap.get("out"));
@@ -106,18 +106,18 @@ public class DateTypeTest {
     public void testTimeOnlyTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             Date testData = new Date();
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", testData);
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
             List<Date> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new TimeOnlyTypeHandler().getResult(rs, 1);
             });
-            //
+
             assert testData.getTime() != dat.get(0).getTime();
             LocalDate t1Data = LocalDateTime.ofInstant(testData.toInstant(), ZoneId.systemDefault()).toLocalDate();
             LocalDate t2Data = LocalDateTime.ofInstant(dat.get(0).toInstant(), ZoneId.systemDefault()).toLocalDate();
             assert t1Data.toEpochDay() != t2Data.toEpochDay();
-            //
+
             LocalTime t1Time = LocalDateTime.ofInstant(testData.toInstant(), ZoneId.systemDefault()).toLocalTime();
             LocalTime t2Time = LocalDateTime.ofInstant(dat.get(0).toInstant(), ZoneId.systemDefault()).toLocalTime();
             assert t1Time.toNanoOfDay() == t2Time.toNanoOfDay();
@@ -128,18 +128,18 @@ public class DateTypeTest {
     public void testTimeOnlyTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             Date testData = new Date();
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", testData);
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
             List<Date> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new TimeOnlyTypeHandler().getResult(rs, "c_timestamp");
             });
-            //
+
             assert testData.getTime() != dat.get(0).getTime();
             LocalDate t1Data = LocalDateTime.ofInstant(testData.toInstant(), ZoneId.systemDefault()).toLocalDate();
             LocalDate t2Data = LocalDateTime.ofInstant(dat.get(0).toInstant(), ZoneId.systemDefault()).toLocalDate();
             assert t1Data.toEpochDay() != t2Data.toEpochDay();
-            //
+
             LocalTime t1Time = LocalDateTime.ofInstant(testData.toInstant(), ZoneId.systemDefault()).toLocalTime();
             LocalTime t2Time = LocalDateTime.ofInstant(dat.get(0).toInstant(), ZoneId.systemDefault()).toLocalTime();
             assert t1Time.toNanoOfDay() == t2Time.toNanoOfDay();
@@ -150,19 +150,19 @@ public class DateTypeTest {
     public void testTimeOnlyTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             Date testData = new Date();
             List<Date> dat = jdbcTemplate.query("select ?", ps -> {
                 new TimeOnlyTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new TimeOnlyTypeHandler().getNullableResult(rs, 1);
             });
-            //
+
             assert testData.getTime() != dat.get(0).getTime();
             LocalDate t1Data = LocalDateTime.ofInstant(testData.toInstant(), ZoneId.systemDefault()).toLocalDate();
             LocalDate t2Data = LocalDateTime.ofInstant(dat.get(0).toInstant(), ZoneId.systemDefault()).toLocalDate();
             assert t1Data.toEpochDay() != t2Data.toEpochDay();
-            //
+
             LocalTime t1Time = LocalDateTime.ofInstant(testData.toInstant(), ZoneId.systemDefault()).toLocalTime();
             LocalTime t2Time = LocalDateTime.ofInstant(dat.get(0).toInstant(), ZoneId.systemDefault()).toLocalTime();
             assert t1Time.toNanoOfDay() == t2Time.toNanoOfDay();
@@ -175,10 +175,10 @@ public class DateTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_timestamp;");
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new TimeOnlyTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Date;
             String dateString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(objectMap.get("out"));
@@ -191,18 +191,18 @@ public class DateTypeTest {
     public void testDateOnlyTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             Date testData = new Date();
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", testData);
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
             List<Date> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new DateOnlyTypeHandler().getResult(rs, 1);
             });
-            //
+
             assert testData.getTime() != dat.get(0).getTime();
             LocalDate t1Data = LocalDateTime.ofInstant(testData.toInstant(), ZoneId.systemDefault()).toLocalDate();
             LocalDate t2Data = LocalDateTime.ofInstant(dat.get(0).toInstant(), ZoneId.systemDefault()).toLocalDate();
             assert t1Data.toEpochDay() == t2Data.toEpochDay();
-            //
+
             LocalTime t1Time = LocalDateTime.ofInstant(testData.toInstant(), ZoneId.systemDefault()).toLocalTime();
             LocalTime t2Time = LocalDateTime.ofInstant(dat.get(0).toInstant(), ZoneId.systemDefault()).toLocalTime();
             assert t1Time.toNanoOfDay() != t2Time.toNanoOfDay();
@@ -213,18 +213,18 @@ public class DateTypeTest {
     public void testDateOnlyTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             Date testData = new Date();
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", testData);
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
             List<Date> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new DateOnlyTypeHandler().getResult(rs, "c_timestamp");
             });
-            //
+
             assert testData.getTime() != dat.get(0).getTime();
             LocalDate t1Data = LocalDateTime.ofInstant(testData.toInstant(), ZoneId.systemDefault()).toLocalDate();
             LocalDate t2Data = LocalDateTime.ofInstant(dat.get(0).toInstant(), ZoneId.systemDefault()).toLocalDate();
             assert t1Data.toEpochDay() == t2Data.toEpochDay();
-            //
+
             LocalTime t1Time = LocalDateTime.ofInstant(testData.toInstant(), ZoneId.systemDefault()).toLocalTime();
             LocalTime t2Time = LocalDateTime.ofInstant(dat.get(0).toInstant(), ZoneId.systemDefault()).toLocalTime();
             assert t1Time.toNanoOfDay() != t2Time.toNanoOfDay();
@@ -235,19 +235,19 @@ public class DateTypeTest {
     public void testDateOnlyTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             Date testData = new Date();
             List<Date> dat = jdbcTemplate.query("select ?", ps -> {
                 new DateOnlyTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new DateOnlyTypeHandler().getNullableResult(rs, 1);
             });
-            //
+
             assert testData.getTime() != dat.get(0).getTime();
             LocalDate t1Data = LocalDateTime.ofInstant(testData.toInstant(), ZoneId.systemDefault()).toLocalDate();
             LocalDate t2Data = LocalDateTime.ofInstant(dat.get(0).toInstant(), ZoneId.systemDefault()).toLocalDate();
             assert t1Data.toEpochDay() == t2Data.toEpochDay();
-            //
+
             LocalTime t1Time = LocalDateTime.ofInstant(testData.toInstant(), ZoneId.systemDefault()).toLocalTime();
             LocalTime t2Time = LocalDateTime.ofInstant(dat.get(0).toInstant(), ZoneId.systemDefault()).toLocalTime();
             assert t1Time.toNanoOfDay() != t2Time.toNanoOfDay();
@@ -260,10 +260,10 @@ public class DateTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_timestamp;");
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new DateOnlyTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Date;
             String dateString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(objectMap.get("out"));

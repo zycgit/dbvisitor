@@ -90,9 +90,9 @@ public class QueryTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             //
             TB_User tbUser = TestUtils.beanForData1();
-            List<TbUser> tbUsers = jdbcTemplate.query("select * from tb_user where userUUID = ?", rs -> {
+            List<TbUser> tbUsers = jdbcTemplate.query("select * from tb_user where userUUID = ?", new Object[] { tbUser.getUserUUID() }, rs -> {
                 return new RowMapperResultSetExtractor<>(new MappingRowMapper<>(TbUser.class)).extractData(rs);
-            }, tbUser.getUserUUID());
+            });
             assert tbUsers.size() == 1;
             assert tbUser.getUserUUID().equals(tbUsers.get(0).getUid());
         }
@@ -201,9 +201,9 @@ public class QueryTest extends AbstractDbTest {
             //
             TB_User tbUser = TestUtils.beanForData1();
             List<TbUser> tbUsers = new ArrayList<>();
-            jdbcTemplate.query("select * from tb_user where userUUID = ?", (rs, rowNum) -> {
+            jdbcTemplate.query("select * from tb_user where userUUID = ?", new Object[] { tbUser.getUserUUID() }, (rs, rowNum) -> {
                 tbUsers.add(new MappingRowMapper<>(TbUser.class).mapRow(rs, rowNum));
-            }, tbUser.getUserUUID());
+            });
             assert tbUsers.size() == 1;
             assert tbUser.getUserUUID().equals(tbUsers.get(0).getUid());
         }
@@ -305,7 +305,7 @@ public class QueryTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             //
             TB_User tbUser = TestUtils.beanForData1();
-            List<TbUser> tbUsers = jdbcTemplate.query("select * from tb_user where userUUID = ?", new MappingRowMapper<>(TbUser.class), tbUser.getUserUUID());
+            List<TbUser> tbUsers = jdbcTemplate.query("select * from tb_user where userUUID = ?", new Object[] { tbUser.getUserUUID() }, new MappingRowMapper<>(TbUser.class));
             assert tbUsers.size() == 1;
             assert tbUser.getUserUUID().equals(tbUsers.get(0).getUid());
         }

@@ -33,7 +33,7 @@ public class FloatTypeTest {
     public void testFloatTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_float) values (123.123);");
             List<Float> dat = jdbcTemplate.query("select c_float from tb_h2_types where c_float is not null limit 1;", (rs, rowNum) -> {
                 return new FloatTypeHandler().getResult(rs, 1);
@@ -46,7 +46,7 @@ public class FloatTypeTest {
     public void testFloatTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_float) values (123.123);");
             List<Float> dat = jdbcTemplate.query("select c_float from tb_h2_types where c_float is not null limit 1;", (rs, rowNum) -> {
                 return new FloatTypeHandler().getResult(rs, "c_float");
@@ -59,12 +59,12 @@ public class FloatTypeTest {
     public void testFloatTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
-            float dat1 = jdbcTemplate.queryForObject("select ?", float.class, 123.123f);
-            Float dat2 = jdbcTemplate.queryForObject("select ?", Float.class, 123.123f);
+
+            float dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { 123.123f }, float.class);
+            Float dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { 123.123f }, Float.class);
             assert dat1 == 123.123f;
             assert dat2 == 123.123f;
-            //
+
             List<Float> dat = jdbcTemplate.query("select ?", ps -> {
                 new FloatTypeHandler().setParameter(ps, 1, 123.123f, JDBCType.FLOAT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -80,10 +80,10 @@ public class FloatTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_float;");
             jdbcTemplate.execute("create procedure proc_float(out p_out float) begin set p_out=123.123; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_float(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.FLOAT.getVendorTypeNumber(), new FloatTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Float;
             assert objectMap.get("out").equals(123.123f);

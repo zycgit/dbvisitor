@@ -38,7 +38,7 @@ public class StringReaderTypeTest {
     public void testClobReaderTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
             List<Reader> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
                 return new ClobReaderTypeHandler().getResult(rs, 1);
@@ -52,7 +52,7 @@ public class StringReaderTypeTest {
     public void testClobReaderTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
             List<Reader> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
                 return new ClobReaderTypeHandler().getResult(rs, "c_clob");
@@ -66,7 +66,7 @@ public class StringReaderTypeTest {
     public void testClobReaderTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             List<Reader> dat = jdbcTemplate.query("select ?", ps -> {
                 new ClobReaderTypeHandler().setParameter(ps, 1, new StringReader("abcedfg"), JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -83,10 +83,10 @@ public class StringReaderTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_text;");
             jdbcTemplate.execute("create procedure proc_text(out p_out text) begin set p_out='abcdefg'; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_text(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.CLOB.getVendorTypeNumber(), new ClobReaderTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Reader;
             String body = IOUtils.readToString((Reader) objectMap.get("out"));
@@ -98,7 +98,7 @@ public class StringReaderTypeTest {
     public void testNClobReaderTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
             List<Reader> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
                 return new NClobReaderTypeHandler().getResult(rs, 1);
@@ -112,7 +112,7 @@ public class StringReaderTypeTest {
     public void testNClobReaderTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
             List<Reader> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
                 return new NClobReaderTypeHandler().getResult(rs, "c_clob");
@@ -126,7 +126,7 @@ public class StringReaderTypeTest {
     public void testNClobReaderTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             List<Reader> dat = jdbcTemplate.query("select ?", ps -> {
                 new NClobReaderTypeHandler().setParameter(ps, 1, new StringReader("abcedfg"), JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -143,10 +143,10 @@ public class StringReaderTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_text;");
             jdbcTemplate.execute("create procedure proc_text(out p_out text) begin set p_out='abcdefg'; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_text(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.NCLOB.getVendorTypeNumber(), new NClobReaderTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Reader;
             String body = IOUtils.readToString((Reader) objectMap.get("out"));
@@ -158,7 +158,7 @@ public class StringReaderTypeTest {
     public void testStringTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
             List<Reader> dat = jdbcTemplate.query("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
                 return new StringReaderTypeHandler().getResult(rs, 1);
@@ -172,7 +172,7 @@ public class StringReaderTypeTest {
     public void testStringTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
             List<Reader> dat = jdbcTemplate.query("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
                 return new StringReaderTypeHandler().getResult(rs, "c_text");
@@ -186,12 +186,12 @@ public class StringReaderTypeTest {
     public void testStringTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
-            String dat1 = jdbcTemplate.queryForObject("select ?", String.class, "abcdefg");
-            String dat2 = jdbcTemplate.queryForObject("select ?", String.class, (String) null);
+
+            String dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { "abcdefg" }, String.class);
+            String dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { null }, String.class);
             assert dat1.equals("abcdefg");
             assert dat2 == null;
-            //
+
             List<Reader> dat = jdbcTemplate.query("select ?", ps -> {
                 new StringReaderTypeHandler().setParameter(ps, 1, new StringReader("abcdefg"), JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -208,10 +208,10 @@ public class StringReaderTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_varchar;");
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(10)) begin set p_out='abcdefg'; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_varchar(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARCHAR.getVendorTypeNumber(), new StringReaderTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Reader;
             String body = IOUtils.readToString((Reader) objectMap.get("out"));
@@ -223,7 +223,7 @@ public class StringReaderTypeTest {
     public void testNStringTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
             List<Reader> dat = jdbcTemplate.query("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
                 return new NStringReaderTypeHandler().getResult(rs, 1);
@@ -237,7 +237,7 @@ public class StringReaderTypeTest {
     public void testNStringTypeHandler_2() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
             List<Reader> dat = jdbcTemplate.query("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
                 return new NStringReaderTypeHandler().getResult(rs, "c_text");
@@ -251,12 +251,12 @@ public class StringReaderTypeTest {
     public void testNStringTypeHandler_3() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            //
-            String dat1 = jdbcTemplate.queryForObject("select ?", String.class, "abcdefg");
-            String dat2 = jdbcTemplate.queryForObject("select ?", String.class, (String) null);
+
+            String dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { "abcdefg" }, String.class);
+            String dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { null }, String.class);
             assert dat1.equals("abcdefg");
             assert dat2 == null;
-            //
+
             List<Reader> dat = jdbcTemplate.query("select ?", ps -> {
                 new NStringReaderTypeHandler().setParameter(ps, 1, new StringReader("abcdefg"), JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -273,10 +273,10 @@ public class StringReaderTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_nvarchar;");
             jdbcTemplate.execute("create procedure proc_nvarchar(out p_out nvarchar(10)) begin set p_out='abcdefg'; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_nvarchar(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.NVARCHAR.getVendorTypeNumber(), new NStringReaderTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Reader;
             String body = IOUtils.readToString((Reader) objectMap.get("out"));

@@ -60,8 +60,8 @@ public class ShortTypeTest {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             //
-            short dat1 = jdbcTemplate.queryForObject("select ?", short.class, 123);
-            Short dat2 = jdbcTemplate.queryForObject("select ?", Short.class, 123);
+            short dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { 123 }, short.class);
+            Short dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { 123 }, Short.class);
             assert dat1 == 123;
             assert dat2 == 123;
             //
