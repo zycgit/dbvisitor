@@ -41,7 +41,7 @@ public class Caller2Test extends AbstractDbTest {
             jdbcTemplate.execute("insert into proc_table_forcaller (c_id,c_name) values (1, 'aaa');");
             jdbcTemplate.execute("insert into proc_table_forcaller (c_id,c_name) values (2, 'bbb');");
             jdbcTemplate.execute("insert into proc_table_forcaller (c_id,c_name) values (3, 'ccc');");
-            //
+
             jdbcTemplate.execute("drop procedure if exists proc_select_cross_table;");
             jdbcTemplate.execute(""//
                     + "create procedure proc_select_cross_table(in p_name varchar(200), out p_out varchar(200))" //
@@ -50,12 +50,12 @@ public class Caller2Test extends AbstractDbTest {
                     + "   select * from proc_table_forcaller where c_name = p_name ;" //
                     + "   set p_out = p_name;"//
                     + " end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_select_cross_table(?,?)}",//
                     Arrays.asList(//
                             SqlParameterUtils.withInput("aaa", JDBCType.VARCHAR.getVendorTypeNumber()),//
                             SqlParameterUtils.withOutputName("bbb", JDBCType.VARCHAR.getVendorTypeNumber())));
-            //
+
             assert objectMap.size() == 4;
             assert objectMap.get("bbb").equals("aaa");
             assert objectMap.get("#result-set-1") instanceof ArrayList;

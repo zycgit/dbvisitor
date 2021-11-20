@@ -1,9 +1,6 @@
-.. Hasor Docs documentation master file, created by
-sphinx-quickstart on Wed Apr 11 00:43:36 2018.
-You can adapt this file completely to your liking, but it should at least
-contain the root `toctree` directive.
+.. HasorDB Documentation master file, created by sphinx-quickstart on Wed Apr 11 00:43:36 2018.
 
-Welcome to Hasor Framework
+Welcome to HasorDB
 ======================================
 
 .. toctree::
@@ -12,12 +9,12 @@ Welcome to Hasor Framework
 
     overview
     startup
+    architecture
+    pojo
+    jdbc
 
-    changelog/index
+    curd/index
+    annotation
+    mapper
 
-Indices and tables
-==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

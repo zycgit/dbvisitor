@@ -32,8 +32,7 @@
   - Mapper XML 支持多语句、多结果
   - 提供独特的 `@{xxx, expr , xxxxx }` 规则扩展机制，让动态 SQL 更加简单
   - 支持 存储过程
-  - 全面支持 JDBC 4.2 各种数据类型
-  - 全面支持 Java8 中的各种时间类型
+  - 支持 JDBC 4.2 和 Java8 中时间类型
   - 支持多数据源
 
 
@@ -133,7 +132,7 @@ PrintUtils.printMapList(mapList);
   private Integer age;
   private Date    createTime;
   
-  /* ... 省略 get/set 方法 ... */
+  // getters and setters omitted
 }
 
 // 然后通过 `queryForList` 方法直接查询，控制台就可以得到相同的结果
@@ -194,7 +193,7 @@ int result = lambdaTemplate.lambdaUpdate(TestUser.class)
   private Integer age;
   private Date    createTime;
   
-  /* ... 省略 get/set 方法 ... */
+  // getters and setters omitted
 }
 
 // 创建数据源
@@ -276,7 +275,7 @@ public interface TestUserDAO extends BaseMapper<TestUser> {
 }
 ```
 
-为了更好了解和使用 HasorDB 的 Mapper 文件建议增加 DTD加以验证。另外 HasorDB 兼容 MyBatis3 的 DTD 对于绝大部分 MyBatis 工程都可以正常兼容，特殊的 MyBatis 用法需要做改造。
+为了更好了解和使用 HasorDB 的 Mapper 文件建议增加 DTD加以验证。另外 HasorDB 兼容 MyBatis3 的 DTD 对于绝大部分 MyBatis 工程都可以正常兼容。
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -369,16 +368,22 @@ pageInfo.nextPage();
 PageResult<TestUser> pageData2 = baseMapper.queryByPage(pageInfo);
 ```
 
-若想分页查询 Mapper 文件中的查询，仅需在对应 DAO 接口方法中增加一个 Page 参数，并且将返回值。
+若想分页查询 Mapper 文件中的查询，仅需在对应 DAO 接口方法中增加一个 Page 参数即可。
 
 ```java
 @RefMapper("/mapper/quick_page3/TestUserMapper.xml")
 public interface TestUserDAO extends BaseMapper<TestUser> {
     // 可以直接返回分页之后的数据结果
-    public List<TestUser> queryByAge(@Param("beginAge") int beginAge, @Param("endAge") int endAge, Page pageInfo);
+    public List<TestUser> queryByAge(
+              @Param("beginAge") int beginAge, 
+              @Param("endAge") int endAge, 
+              Page pageInfo);
     
     // 也可以返回包含分页信息的分页结果
-    public List<TestUser> queryByAge(@Param("beginAge") int beginAge, @Param("endAge") int endAge, Page pageInfo);
+    public PageResult<TestUser> queryByAge2(
+              @Param("beginAge") int beginAge, 
+              @Param("endAge") int endAge, 
+              Page pageInfo);
 }
 ```
 

@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.hasor</groupId>
     <artifactId>hasordb-doc</artifactId>
-    <version>4.0.7</version>
+    <version>4.3.0</version>
     <packaging>pom</packaging>
 
     <!-- 构建描述 -->

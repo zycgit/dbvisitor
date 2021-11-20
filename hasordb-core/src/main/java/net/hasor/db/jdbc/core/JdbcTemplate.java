@@ -154,7 +154,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     public void loadSplitSQL(final String splitString, final Reader sqlReader) throws IOException, SQLException {
         StringWriter outWriter = new StringWriter();
         IOUtils.copy(sqlReader, outWriter);
-        //
+
         List<String> taskList = null;
         if (StringUtils.isBlank(splitString)) {
             taskList = Collections.singletonList(outWriter.toString());
@@ -162,7 +162,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             taskList = Arrays.asList(outWriter.toString().split(splitString));
         }
         taskList = taskList.parallelStream().filter(StringUtils::isNotBlank).collect(Collectors.toList());
-        //
+
         for (String str : taskList) {
             this.execute(str);
         }
@@ -176,7 +176,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             String sql = JdbcTemplate.getSql(psc);
             logger.debug("Executing prepared SQL statement " + (sql != null ? " [" + sql + "]" : ""));
         }
-        //
+
         return this.execute((ConnectionCallback<T>) con -> {
             try (PreparedStatement ps = psc.createPreparedStatement(con)) {
                 JdbcTemplate.this.applyStatementSettings(ps);
@@ -597,7 +597,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         if (logger.isDebugEnabled()) {
             logger.trace("Executing SQL update [" + sql + "].");
         }
-        //
+
         class UpdateStatementCallback implements StatementCallback<Integer>, SqlProvider {
             @Override
             public Integer doInStatement(final Statement stmt) throws SQLException {
@@ -644,7 +644,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         if (logger.isDebugEnabled()) {
             logger.debug("Executing SQL batch update of " + sql.length + " statements");
         }
-        //
+
         class BatchUpdateStatementCallback implements StatementCallback<int[]>, SqlProvider {
             private String currSql;
 
@@ -774,7 +774,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             String sql = JdbcTemplate.getSql(csc);
             logger.debug("Calling stored procedure" + (sql != null ? " [" + sql + "]" : ""));
         }
-        //
+
         return this.execute((ConnectionCallback<T>) con -> {
             try (CallableStatement cs = csc.createCallableStatement(con)) {
                 JdbcTemplate.this.applyStatementSettings(cs);
@@ -1014,7 +1014,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             if (logger.isTraceEnabled()) {
                 logger.trace("statement.execute() returned '" + retVal + "'");
             }
-            //
+
             List<Object> resultList = new ArrayList<>();
             if (retVal) {
                 try (ResultSet resultSet = ps.getResultSet()) {

@@ -120,7 +120,7 @@ public class JdbcConnection extends JdbcAccessor {
 
     public <T> T execute(final ConnectionCallback<T> action) throws SQLException {
         Objects.requireNonNull(action, "Callback object must not be null");
-        //
+
         Connection localConn = this.getConnection();
         DataSource localDS = this.getDataSource();//获取数据源
         boolean usingDS = (localConn == null);
@@ -130,7 +130,7 @@ public class JdbcConnection extends JdbcAccessor {
         if (localConn == null && localDS == null) {
             throw new IllegalArgumentException("DataSource or Connection are not available.");
         }
-        //
+
         ConnectionProxy useConn = null;
         try {
             if (usingDS) {
