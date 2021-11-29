@@ -57,7 +57,7 @@ public class SingleColumnRowMapperTest {
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_int) values (123);");
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_double) values (123.123);");
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_float) values (123.123);");
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_time) values (?)", new Date());
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_time) values (?)", new Object[] { new Date() });
             //
             int num1 = jdbcTemplate.queryForObject("select c_int from tb_h2_types where c_int = 123;", Integer.class);
             Number num2 = jdbcTemplate.queryForObject("select c_int from tb_h2_types where c_int = 123;", Number.class);

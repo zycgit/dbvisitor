@@ -74,9 +74,32 @@ public class LambdaUpdateWrapper<T> extends AbstractQueryCompare<T, LambdaUpdate
     }
 
     @Override
-    public UpdateExecute<T> updateTo(Map<String, Object> newValue) {
+    public UpdateExecute<T> updateByColumn(Map<String, Object> newValue) {
         Predicate<ColumnMapping> tester = m -> newValue.containsKey(m.getColumn());
         Function<ColumnMapping, Object> reader = m -> newValue.get(m.getColumn());
+
+        return this.updateTo(tester, reader);
+    }
+
+    @Override
+    public UpdateExecute<T> updateByColumn(Collection<String> setColumns, T newValue) {
+        if (newValue == null || setColumns == null || setColumns.isEmpty()) {
+            throw new NullPointerException("newValue / setColumns is null or empty.");
+        }
+
+        Map<String, Object> tempData = new HashMap<>();
+        for (Map.Entry<String, ColumnMapping> mappingEntry : this.allowUpdateProperties.entrySet()) {
+            ColumnMapping mapping = mappingEntry.getValue();
+
+            if (setColumns.contains(mapping.getColumn())) {
+                Object value = mapping.getHandler().get(newValue);
+                tempData.put(mappingEntry.getKey(), value);
+            }
+
+        }
+
+        Predicate<ColumnMapping> tester = m -> tempData.containsKey(m.getProperty());
+        Function<ColumnMapping, Object> reader = m -> tempData.get(m.getProperty());
 
         return this.updateTo(tester, reader);
     }
@@ -94,7 +117,7 @@ public class LambdaUpdateWrapper<T> extends AbstractQueryCompare<T, LambdaUpdate
     }
 
     @Override
-    public UpdateExecute<T> updateToBySample(T sample) {
+    public UpdateExecute<T> updateBySample(T sample) {
         if (sample == null) {
             throw new NullPointerException("sample is null.");
         }

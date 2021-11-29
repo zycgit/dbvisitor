@@ -37,7 +37,7 @@ public class CurdMain {
         TestUser sample = new TestUser();
         sample.setName("mala");
         int result2 = lambdaTemplate.lambdaUpdate(TestUser.class)//
-                .eq(TestUser::getId, 1).updateToBySample(sample).doUpdate();
+                .eq(TestUser::getId, 1).updateBySample(sample).doUpdate();
 
         dtoList = lambdaTemplate.lambdaQuery(TestUser.class).queryForList();
         PrintUtils.printObjectList(dtoList);

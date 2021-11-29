@@ -15,6 +15,7 @@
  */
 package net.hasor.db.lambda;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -30,11 +31,14 @@ public interface UpdateExecute<T> extends BoundSqlBuilder {
     public UpdateExecute<T> allowEmptyWhere();
 
     /** 更新数据，map key 为列名 */
-    public UpdateExecute<T> updateTo(Map<String, Object> newValue);
+    public UpdateExecute<T> updateByColumn(Map<String, Object> newValue);
 
-    /** 设置 update 的 set 中的值。 */
+    /** 更新数据，map key 为列名 */
+    public UpdateExecute<T> updateByColumn(Collection<String> setColumns, T newValue);
+
+    /** 所有属性都作为 set 的值 */
     public UpdateExecute<T> updateTo(T newValue);
 
-    /** 设置 update 的 set 中的值。 */
-    public UpdateExecute<T> updateToBySample(T sample);
+    /** sample 中不为空的属性作为 set 的值 */
+    public UpdateExecute<T> updateBySample(T sample);
 }

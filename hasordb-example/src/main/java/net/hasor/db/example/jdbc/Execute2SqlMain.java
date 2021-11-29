@@ -27,12 +27,12 @@ public class Execute2SqlMain {
         List<TestUser> dtoList = jdbcTemplate.queryForList(querySql2, queryArg2, TestUser.class);
         PrintUtils.printObjectList(dtoList);
 
-        String querySql3 = "select * from test_user where age > ? limit 1";
+        String querySql3 = "select * from test_user where age > ? order by age limit 1";
         Object[] queryArg3 = new Object[] { 40 };
         Map<String, Object> map = jdbcTemplate.queryForMap(querySql3, queryArg3);
         PrintUtils.printObjectList(Collections.singletonList(map));
 
-        String querySql4 = "select * from test_user where age > ? limit 1";
+        String querySql4 = "select * from test_user where age > ? order by age limit 1";
         Object[] queryArg4 = new Object[] { 40 };
         TestUser dto = jdbcTemplate.queryForObject(querySql4, queryArg4, TestUser.class);
         PrintUtils.printObjectList(Collections.singletonList(dto));

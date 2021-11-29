@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.db.dialect;
+import java.util.Arrays;
+
 /**
  * SQL
  * @version : 2020-10-31
@@ -46,6 +48,11 @@ public interface BoundSql {
         @Override
         public Object[] getArgs() {
             return this.paramArray;
+        }
+
+        @Override
+        public String toString() {
+            return "BoundSqlObj{'" + sqlString + '\'' + ", args=" + Arrays.toString(paramArray) + '}';
         }
     }
 }

@@ -47,7 +47,7 @@ public class LambdaUpdateTest extends AbstractDbTest {
 
             LambdaUpdate<TB_User> lambdaUpdate = lambdaTemplate.lambdaUpdate(TB_User.class);
             int update = lambdaUpdate.eq(TB_User::getLoginName, beanForData1().getLoginName())//
-                    .updateTo(valueMap)//
+                    .updateByColumn(valueMap)//
                     .doUpdate();
             assert update == 1;
 

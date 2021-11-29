@@ -78,7 +78,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
         LambdaUpdate<TB_User> lambdaUpdate = new LambdaTemplate().lambdaUpdate(TB_User.class);
         lambdaUpdate.and(queryBuilder -> {
             queryBuilder.eq(TB_User::getIndex, 123);
-        }).updateToBySample(data);
+        }).updateBySample(data);
         //
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaUpdate.getBoundSql(dialect);

@@ -25,11 +25,11 @@ public class Execute1SqlMain {
         PrintUtils.printObjectList(dtoList);
 
         Map<String, Object> map = jdbcTemplate//
-                .queryForMap("select * from test_user where age > 40 limit 1");
+                .queryForMap("select * from test_user where age > 40 order by age limit 1");
         PrintUtils.printObjectList(Collections.singletonList(map));
 
         TestUser dto = jdbcTemplate//
-                .queryForObject("select * from test_user where age > 40 limit 1", TestUser.class);
+                .queryForObject("select * from test_user where age > 40 order by age limit 1", TestUser.class);
         PrintUtils.printObjectList(Collections.singletonList(dto));
 
         int queryForInt = jdbcTemplate.queryForInt("select count(*) from test_user where age > 40");

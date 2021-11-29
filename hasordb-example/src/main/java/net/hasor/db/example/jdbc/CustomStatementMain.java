@@ -1,8 +1,9 @@
 package net.hasor.db.example.jdbc;
 import net.hasor.db.example.DsUtils;
-import net.hasor.db.example.PrintUtils;
+import net.hasor.db.jdbc.PreparedStatementCreator;
+import net.hasor.db.jdbc.RowCallbackHandler;
 import net.hasor.db.jdbc.core.JdbcTemplate;
-import net.hasor.db.jdbc.extractor.RowMapperResultSetExtractor;
+import net.hasor.db.jdbc.extractor.RowCallbackHandlerResultSetExtractor;
 import net.hasor.db.jdbc.mapper.MappingRowMapper;
 
 import javax.sql.DataSource;
@@ -10,7 +11,6 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 public class CustomStatementMain {
     public static void main(String[] args) throws SQLException, IOException {
@@ -18,14 +18,24 @@ public class CustomStatementMain {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcTemplate.loadSQL("CreateDB.sql");
 
-        List<TestUser> resultList = jdbcTemplate.query(con -> {
+        // 定制 PreparedStatement
+        PreparedStatementCreator creator = con -> {
             PreparedStatement ps = con.prepareStatement(//
                     "select * from test_user", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             ps.setFetchSize(Integer.MIN_VALUE);
             return ps;
-        }, new RowMapperResultSetExtractor<>(new MappingRowMapper<>(TestUser.class)));
+        };
 
-        PrintUtils.printObjectList(resultList);
+        // 行读取工具
+        MappingRowMapper<TestUser> rowMapper = new MappingRowMapper<>(TestUser.class);
 
+        // 流式消费数据
+        RowCallbackHandler handler = (rs, rowNum) -> {
+            TestUser dto = rowMapper.mapRow(rs, rowNum);
+
+        };
+
+        // 执行流式处理
+        jdbcTemplate.query(creator, new RowCallbackHandlerResultSetExtractor(handler));
     }
 }

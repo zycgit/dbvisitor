@@ -126,7 +126,7 @@ public class ExecuteUpdateTest extends AbstractDbTest {
             Set<String> collect1 = tbUsers1.stream().map(TB_User::getName).collect(Collectors.toSet());
             assert collect1.size() == 3;
             //
-            assert jdbcTemplate.executeUpdate("update tb_user set name = ?", "123") == 3;
+            assert jdbcTemplate.executeUpdate("update tb_user set name = ?", new Object[] { "123" }) == 3;
             //
             List<TB_User> tbUsers2 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
             Set<String> collect2 = tbUsers2.stream().map(TB_User::getName).collect(Collectors.toSet());

@@ -71,7 +71,7 @@ public interface Page {
         setCurrentPage(getTotalPage() - 1);
     }
 
-    /** 获取分页的页大小 */
+    /** 获取分页信息 */
     public default Map<String, Object> toPageInfo() throws SQLException {
         return new LinkedHashMap<String, Object>() {{
             put("enable", getPageSize() > 0);

@@ -39,7 +39,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class TypeHandlerRegistry {
     private static final Map<Class<? extends TypeHandler<?>>, TypeHandler<?>> cachedSingleHandlers  = new ConcurrentHashMap<>();
     private static final Map<String, Integer>                                 javaTypeToJdbcTypeMap = new ConcurrentHashMap<>();
-    private static final Map<Integer, Class<?>>                               jdbcTypeToJavaTypeMap = new ConcurrentHashMap<>();
 
     public static final TypeHandlerRegistry                       DEFAULT            = new TypeHandlerRegistry();
     private final       UnknownTypeHandler                        defaultTypeHandler = new UnknownTypeHandler(this);
@@ -99,8 +98,8 @@ public final class TypeHandlerRegistry {
         javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleNClob", Types.NCLOB);
         javaTypeToJdbcTypeMap.put("oracle.sql.DATE", Types.DATE);
         javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMP", Types.TIMESTAMP);
-        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMPTZ", Types.TIMESTAMP);
-        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMPLTZ", Types.TIMESTAMP);
+        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMPTZ", Types.TIMESTAMP_WITH_TIMEZONE);
+        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMPLTZ", Types.TIMESTAMP_WITH_TIMEZONE);
     }
 
     public TypeHandlerRegistry() {
@@ -233,14 +232,6 @@ public final class TypeHandlerRegistry {
         this.registerCross(Types.LONGVARBINARY, InputStream.class, createSingleTypeHandler(BytesInputStreamTypeHandler.class));
 
         this.registerCross(Types.ARRAY, Object.class, createSingleTypeHandler(ArrayTypeHandler.class));
-
-        javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleBlob", Types.VARBINARY);
-        javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleClob", Types.CLOB);
-        javaTypeToJdbcTypeMap.put("oracle.jdbc.OracleNClob", Types.NCLOB);
-        javaTypeToJdbcTypeMap.put("oracle.sql.DATE", Types.DATE);
-        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMP", Types.TIMESTAMP);
-        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMPTZ", Types.TIMESTAMP_WITH_TIMEZONE);
-        javaTypeToJdbcTypeMap.put("oracle.sql.TIMESTAMPLTZ", Types.TIMESTAMP_WITH_TIMEZONE);
     }
 
     private TypeHandler<?> createSingleTypeHandler(Class<? extends TypeHandler<?>> typeHandler) {
@@ -354,11 +345,6 @@ public final class TypeHandlerRegistry {
             return jdbcType;
         }
         return Types.JAVA_OBJECT;
-    }
-
-    /** 根据 jdbcType 获取默认的 Java Type.*/
-    public static Class<?> toJavaType(int jdbcType) {
-        return jdbcTypeToJavaTypeMap.get(jdbcType);
     }
 
     public static boolean hasTypeHandlerType(Class<?> handlerType) {

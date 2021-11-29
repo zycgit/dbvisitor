@@ -24,12 +24,12 @@ public class Execute3SqlMain {
         List<TestUser> dtoList = jdbcTemplate.queryForList(querySql2, queryArg2, TestUser.class);
         PrintUtils.printObjectList(dtoList);
 
-        String querySql3 = "select * from test_user where age > :age limit 1";
+        String querySql3 = "select * from test_user where age > :age order by age limit 1";
         Map<String, Object> queryArg3 = Collections.singletonMap("age", 40);
         Map<String, Object> map = jdbcTemplate.queryForMap(querySql3, queryArg3);
         PrintUtils.printObjectList(Collections.singletonList(map));
 
-        String querySql4 = "select * from test_user where age > :age limit 1";
+        String querySql4 = "select * from test_user where age > :age order by age limit 1";
         Map<String, Object> queryArg4 = Collections.singletonMap("age", 40);
         TestUser dto = jdbcTemplate.queryForObject(querySql4, queryArg4, TestUser.class);
         PrintUtils.printObjectList(Collections.singletonList(dto));
@@ -61,8 +61,12 @@ public class Execute3SqlMain {
         int result2 = jdbcTemplate.executeUpdate(querySql9, queryArg9);
         System.out.println(result2);
 
-        String querySql10 = "insert into `test_user` values (?,?,?,?)";
-        Object[] queryArg10 = new Object[] { 10, "'david'", 26, new Date() };
+        String querySql10 = "insert into `test_user` values (:id , :name , :age , :create )";
+        Map<String, Object> queryArg10 = new HashMap<>();
+        queryArg10.put("id", 10);
+        queryArg10.put("name", "david");
+        queryArg10.put("age", 26);
+        queryArg10.put("create", new Date());
         int result3 = jdbcTemplate.executeUpdate(querySql10, queryArg10);
         System.out.println(result3);
     }

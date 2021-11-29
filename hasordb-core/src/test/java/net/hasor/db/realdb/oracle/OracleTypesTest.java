@@ -56,7 +56,7 @@ public class OracleTypesTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             preTable(jdbcTemplate);
             Date time = new Date(System.currentTimeMillis());
-            jdbcTemplate.executeUpdate("insert into tb_oracle_types (c_timestamp,c_timestamp_n) values (?,?)", time, time);
+            jdbcTemplate.executeUpdate("insert into tb_oracle_types (c_timestamp,c_timestamp_n) values (?,?)", new Object[] { time, time });
             //
             List<Map<String, Object>> list = jdbcTemplate.queryForList("select c_timestamp,c_timestamp_n from tb_oracle_types");
             assert list.size() == 1;
