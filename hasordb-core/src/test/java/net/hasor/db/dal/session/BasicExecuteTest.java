@@ -13,7 +13,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BasicExecuteTest {
     private DalSession dalSession;
@@ -129,6 +131,18 @@ public class BasicExecuteTest {
         assert id1 != null;
         assert id2 != null;
         assert !id1.equals(id2);
+    }
+
+    @Test
+    public void call_1() {
+        TestExecuteDal dalExecute = this.dalSession.createMapper(TestExecuteDal.class);
+
+        Map<String, Object> args = new HashMap<>();
+        args.put("abc", "abc");
+
+        Map<String, Object> abc = dalExecute.callSelectUser(args);
+
+        assert args.get("abc").toString().equals("123.123");
     }
 
 }

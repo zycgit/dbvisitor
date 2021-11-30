@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.jdbc.core;
+import net.hasor.db.jdbc.SqlParameter.InSqlParameter;
 import net.hasor.db.jdbc.SqlParameterSource;
 
 import java.sql.SQLException;
@@ -65,6 +66,11 @@ public class ParsedSql {
 
     /**生成SQL*/
     public String buildSql() {
+        return this.buildSql(null);
+    }
+
+    /**生成SQL*/
+    public String buildSql(final SqlParameterSource paramSource) {
         String originalSql = this.getOriginalSql();
         List<String> parameterNames = this.getParameterNames();
         List<int[]> parameterIndexes = this.getParameterIndexes();
@@ -76,7 +82,34 @@ public class ParsedSql {
             int startIndex = indexes[0];
             int endIndex = indexes[1];
             sqlToUse.append(originalSql, lastIndex, startIndex);
-            sqlToUse.append("?");
+
+            if (paramSource != null) {
+                Object value = paramSource.getValue(parameterNames.get(i));
+                if (this.namedParameterCount > 0) {
+                    if (value instanceof InSqlParameter) {
+                        value = ((InSqlParameter) value).getValue();
+                    }
+                    if (value instanceof Iterable) {
+                        Iterator<?> entryIter = ((Iterable<?>) value).iterator();
+                        int k = 0;
+                        while (entryIter.hasNext()) {
+                            if (k > 0) {
+                                sqlToUse.append(", ");
+                            }
+                            k++;
+                            sqlToUse.append("?");
+                            entryIter.next();
+                        }
+                    } else {
+                        sqlToUse.append("?");
+                    }
+                } else {
+                    sqlToUse.append("?");
+                }
+            } else {
+                sqlToUse.append("?");
+            }
+
             lastIndex = endIndex;
         }
         sqlToUse.append(originalSql.substring(lastIndex));
@@ -91,15 +124,24 @@ public class ParsedSql {
         int unnamedParameterCount = this.getUnnamedParameterCount();//无名字参数总数
         int totalParameterCount = this.getTotalParameterCount();//参数总数
         //
-        Object[] paramArray = new Object[totalParameterCount];
+        List<Object> paramArray = new ArrayList<>(totalParameterCount);
         if (namedParameterCount > 0 && unnamedParameterCount > 0) {
             throw new SQLException("You can't mix named and traditional ? placeholders. You have " + namedParameterCount + " named parameter(s) and " + unnamedParameterCount + " traditonal placeholder(s) in [" + originalSql + "]");
         }
-        for (int i = 0; i < parameterNames.size(); i++) {
-            String paramName = parameterNames.get(i);
-            paramArray[i] = paramSource.getValue(paramName);
+        for (String paramName : parameterNames) {
+            Object value = paramSource.getValue(paramName);
+            if (value instanceof InSqlParameter) {
+                value = ((InSqlParameter) value).getValue();
+            }
+            if (value instanceof Iterable) {
+                for (Object o : (Iterable<?>) value) {
+                    paramArray.add(o);
+                }
+            } else {
+                paramArray.add(value);
+            }
         }
-        return paramArray;
+        return paramArray.toArray();
     }
 
     /**Set of characters that qualify as parameter separators, indicating that a parameter name in a SQL String has ended. */

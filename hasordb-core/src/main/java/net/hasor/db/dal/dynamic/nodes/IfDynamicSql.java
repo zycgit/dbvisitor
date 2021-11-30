@@ -36,8 +36,12 @@ public class IfDynamicSql extends ArrayDynamicSql {
     @Override
     public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
         if (test(data)) {
-            super.buildQuery(data, context, sqlBuilder);
+            this.buildBody(data, context, sqlBuilder);
         }
+    }
+
+    public void buildBody(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
+        super.buildQuery(data, context, sqlBuilder);
     }
 
     protected boolean test(Map<String, Object> data) {

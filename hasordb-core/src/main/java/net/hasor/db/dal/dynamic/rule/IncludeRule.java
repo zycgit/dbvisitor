@@ -22,7 +22,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 /**
- * 动态参数规则，负责处理包含另外一段动态 SQL。
+ * 效果和使用 `<include refid="sqlid"/>` 标签相同
  * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -30,7 +30,8 @@ public class IncludeRule implements SqlBuildRule {
     public static final SqlBuildRule INSTANCE = new IncludeRule();
 
     @Override
-    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String ruleValue) throws SQLException {
+    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
+        ruleValue = ruleValue.trim();
         DynamicSql includeSql = context.findDynamic(ruleValue);
         if (includeSql == null) {
             throw new SQLException("include sql '" + ruleValue + "' not found.");

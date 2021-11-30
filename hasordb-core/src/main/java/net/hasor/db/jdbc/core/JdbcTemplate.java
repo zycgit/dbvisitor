@@ -728,7 +728,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         if (logger.isDebugEnabled()) {
             logger.debug("Executing SQL batch update [" + sql + "].");
         }
-        String buildSql = getParsedSql(sql).buildSql();
+        String buildSql = getParsedSql(sql).buildSql(null);
 
         return this.execute(buildSql, ps -> {
             try {
@@ -1054,7 +1054,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         @Override
         public PreparedStatement createPreparedStatement(final Connection con) throws SQLException {
             //1.根据参数信息生成最终会执行的SQL语句.
-            String sqlToUse = this.parsedSql.buildSql();
+            String sqlToUse = this.parsedSql.buildSql(this.paramSource);
             //2.确定参数对象
             Object[] paramArray = this.parsedSql.buildValues(this.paramSource);
             //3.创建PreparedStatement对象，并设置参数

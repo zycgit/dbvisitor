@@ -28,8 +28,6 @@ public enum QueryType {
     Update("update"),
     /** 查询类型 类型 */
     Query("select"),
-    /** 调用存储过程 */
-    Callable("callable"),
     /** Sql 片段，可以被 include */
     Segment("sql"),
     ;

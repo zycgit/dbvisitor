@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.dal.dynamic.nodes;
+package net.hasor.db.dal.dynamic.rule;
 /**
- * 对应XML中 <set>
- * @author zhangxu
- * @author 赵永春 (zyc@byshell.org)
- * @version : 2021-05-24
+ * 如果参数不为空，则生成 'or column = ?' 或者 'column = ?' 。
+ * @version : 2021-06-05
+ * @author 赵永春 (zyc@hasor.net)
  */
-public class SetDynamicSql extends TrimDynamicSql {
-    public SetDynamicSql() {
-        super("set", "", "", ",");
+public class OrRule extends ConditionRule {
+    public static final SqlBuildRule INSTANCE = new OrRule();
+
+    protected OrRule() {
+        super("or");
+    }
+
+    @Override
+    public String toString() {
+        return "or [" + this.hashCode() + "]";
     }
 }

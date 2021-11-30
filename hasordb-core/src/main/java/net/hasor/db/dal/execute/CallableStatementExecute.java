@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.execute;
-import net.hasor.cobble.StringUtils;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.SqlArg;
 import net.hasor.db.dal.dynamic.SqlMode;
+import net.hasor.db.dal.dynamic.ognl.OgnlUtils;
 import net.hasor.db.dal.repository.ResultSetType;
 import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.dialect.SqlBuilder;
 import net.hasor.db.types.TypeHandler;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.LinkedHashMap;
+import java.sql.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 负责存储过程调用的执行器
@@ -98,8 +93,6 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
         boolean retVal = cs.execute();
 
         // fetch output
-        Map<String, Object> resultOut = new LinkedHashMap<>();
-        boolean keepAll = executeInfo.resultOut.contains("*");
         for (int i = 0; i < sqlArgs.size(); i++) {
             SqlArg arg = sqlArgs.get(i);
             TypeHandler<Object> argHandler = (TypeHandler<Object>) arg.getTypeHandler();
@@ -108,37 +101,18 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
                 continue;
             }
 
-            String paramName = arg.getName();
-            if (StringUtils.isBlank(paramName)) {
-                paramName = "out_" + i;
+            if (arg.getJdbcType() == Types.REF_CURSOR) {
+                throw new UnsupportedOperationException("Types.REF_CURSOR Unsupported.");
             }
 
-            if (keepAll || executeInfo.resultOut.contains(paramName)) {
-                Object resultValue = argHandler.getResult(cs, i + 1);
-                resultOut.put(paramName, resultValue);
-            }
+            String expr = arg.getExpr();
+            Object resultValue = argHandler.getResult(cs, i + 1);
+            OgnlUtils.writeByExpr(expr, executeInfo.data, resultValue);
         }
 
-        // keepAll
+        // result
         DalResultSetExtractor extractor = super.buildExtractor(executeInfo);
         List<Object> resultSet = extractor.doResult(retVal, cs);
-        if (keepAll) {
-            for (int i = 0; i < resultSet.size(); i++) {
-                Object result = resultSet.get(i);
-                resultOut.put("result-" + i, result);
-            }
-            return resultOut;
-        }
-
-        if (!executeInfo.resultOut.isEmpty()) {
-            // 如果配置了 resultOut 那么一定是返回 resultOut 中的数据
-            if (resultOut.size() == 1 && executeInfo.resultOut.size() == 1) {
-                return resultOut.entrySet().iterator().next().getValue();
-            } else {
-                return resultOut;
-            }
-        } else {
-            return getResult(resultSet, executeInfo);
-        }
+        return getResult(resultSet, executeInfo);
     }
 }

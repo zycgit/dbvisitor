@@ -24,7 +24,6 @@ import net.hasor.db.dal.dynamic.SqlArg;
 import net.hasor.db.dal.dynamic.SqlMode;
 import net.hasor.db.dal.repository.MultipleResultsType;
 import net.hasor.db.dal.repository.ResultSetType;
-import net.hasor.db.dal.repository.config.CallableSqlConfig;
 import net.hasor.db.dal.repository.config.DmlSqlConfig;
 import net.hasor.db.dal.repository.config.QuerySqlConfig;
 import net.hasor.db.dialect.BoundSql;
@@ -41,7 +40,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 /**
@@ -94,12 +96,6 @@ public abstract class AbstractStatementExecute<T> {
             executeInfo.resultSetType = ((QuerySqlConfig) dynamicSql).getResultSetType();
             executeInfo.multipleResultType = ((QuerySqlConfig) dynamicSql).getMultipleResultType();
         }
-        if (dynamicSql instanceof CallableSqlConfig) {
-            executeInfo.resultOut = ((CallableSqlConfig) dynamicSql).getResultOut();
-            if (executeInfo.resultOut == null) {
-                executeInfo.resultOut = Collections.emptySet();
-            }
-        }
 
         if (resultAsMap) {
             executeInfo.resultType = Map.class.getName();
@@ -130,14 +126,22 @@ public abstract class AbstractStatementExecute<T> {
         if (StringUtils.isBlank(executeInfo.resultType) && StringUtils.isBlank(executeInfo.resultMap)) {
 
             tableReaders = new TableReader[] { getDefaultTableReader(executeInfo, this.context) };
+
         } else if (StringUtils.isNotBlank(executeInfo.resultType)) {
 
-            TableReader<?> tableReader = this.context.findTableReader(executeInfo.resultType);
-            if (tableReader != null) {
-                tableReaders = new TableReader[] { tableReader };
-            } else {
-                throw new NoSuchElementException("not found resultType '" + executeInfo.resultType + "'.");
+            String[] resultTypeSplit = executeInfo.resultType.split(",");
+            tableReaders = new TableReader[resultTypeSplit.length];
+            for (int i = 0; i < resultTypeSplit.length; i++) {
+                if (StringUtils.isBlank(resultTypeSplit[i])) {
+                    throw new NullPointerException("resultType is blank '" + resultTypeSplit[i] + "' of '" + executeInfo.resultType + "'");
+                }
+
+                tableReaders[i] = this.context.findTableReader(resultTypeSplit[i]);
+                if (tableReaders[i] == null) {
+                    throw new NoSuchElementException("not found resultType '" + resultTypeSplit[i] + "' of '" + executeInfo.resultType + "'");
+                }
             }
+
         } else if (StringUtils.isNotBlank(executeInfo.resultMap)) {
 
             String[] resultMapSplit = executeInfo.resultMap.split(",");
@@ -269,7 +273,6 @@ public abstract class AbstractStatementExecute<T> {
         public String              resultMap;
         public boolean             caseInsensitive    = true;
         public MultipleResultsType multipleResultType = MultipleResultsType.LAST;
-        public Set<String>         resultOut;
         // page
         public Page                pageInfo;
         public PageSqlDialect      pageDialect;

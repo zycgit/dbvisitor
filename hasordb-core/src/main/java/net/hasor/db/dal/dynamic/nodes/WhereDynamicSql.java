@@ -22,6 +22,6 @@ package net.hasor.db.dal.dynamic.nodes;
  */
 public class WhereDynamicSql extends TrimDynamicSql {
     public WhereDynamicSql() {
-        super("where", "", "and | or", "", true);
+        super("where", "", "and | or", "");
     }
 }

@@ -32,4 +32,13 @@ public class OgnlUtils {
             throw ExceptionUtils.toRuntime(e);
         }
     }
+
+    public static void writeByExpr(String exprString, Object root, Object value) {
+        try {
+            OgnlContext context = new OgnlContext(null, null, new OgnlMemberAccess(true));
+            Ognl.setValue(exprString, context, root, value);
+        } catch (Exception e) {
+            throw ExceptionUtils.toRuntime(e);
+        }
+    }
 }

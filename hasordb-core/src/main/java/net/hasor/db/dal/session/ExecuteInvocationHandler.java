@@ -121,7 +121,7 @@ class ExecuteInvocationHandler implements InvocationHandler {
 
         if (objects.length == 1) {
             if (objects[0] instanceof Map) {
-                mergedMap.appendMap((Map<? extends String, ?>) objects[0], false);
+                mergedMap.appendMap((Map<? extends String, ?>) objects[0], true);
             } else if (!(objects[0] instanceof Collection)) {
                 BeanMap beanMap = new BeanMap(objects[0]);
                 beanMap.setTransformConvert(ConverterBean.getInstance());

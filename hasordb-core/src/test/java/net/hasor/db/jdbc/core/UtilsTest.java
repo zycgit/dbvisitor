@@ -112,12 +112,12 @@ public class UtilsTest extends AbstractDbTest {
         hashMap.put("abc", arrays);
         SqlParameterSource source = new MapSqlParameterSource(hashMap);
         //
-        String buildSql = ParsedSql.getParsedSql("select ?").buildSql();
+        String buildSql = ParsedSql.getParsedSql("select ?").buildSql(source);
         Object[] buildValues = ParsedSql.getParsedSql("select &abc").buildValues(source);
         //
         assert buildSql.equals("select ?");
-        assert buildValues.length == 1;
-        assert buildValues[0] == arrays;
+        assert buildValues.length == 3;
+        assert buildValues[0] == arrays.get(0);
     }
 
     @Test

@@ -55,31 +55,14 @@
     <xs:element name="mapper">
         <xs:complexType>
             <xs:choice maxOccurs="unbounded">
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="entityMap"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="resultMap"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="sql"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="insert"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="update"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="delete"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="select"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="callable"/>
             </xs:choice>
             <xs:attribute name="namespace" type="xs:string"/>
-            <xs:attribute name="caseInsensitive" type="boolean_type"/>
-            <xs:attribute name="mapUnderscoreToCamelCase" type="boolean_type"/>
-            <xs:attribute name="autoMapping" type="boolean_type"/>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:element name="entityMap">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="id"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="mapping"/>
-            </xs:sequence>
-            <xs:attribute name="schema"/>
-            <xs:attribute name="table" use="required"/>
-            <xs:attribute name="type" use="required"/>
             <xs:attribute name="caseInsensitive" type="boolean_type"/>
             <xs:attribute name="mapUnderscoreToCamelCase" type="boolean_type"/>
             <xs:attribute name="autoMapping" type="boolean_type"/>
@@ -92,8 +75,10 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="id"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="result"/>
             </xs:sequence>
-            <xs:attribute name="id" use="required"/>
             <xs:attribute name="type" use="required"/>
+            <xs:attribute name="id"/>
+            <xs:attribute name="schema"/>
+            <xs:attribute name="table"/>
             <xs:attribute name="caseInsensitive" type="boolean_type"/>
             <xs:attribute name="mapUnderscoreToCamelCase" type="boolean_type"/>
             <xs:attribute name="autoMapping" type="boolean_type"/>
@@ -221,29 +206,6 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="callable">
-        <xs:complexType mixed="true">
-            <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element ref="include"/>
-                <xs:element ref="trim"/>
-                <xs:element ref="where"/>
-                <xs:element ref="set"/>
-                <xs:element ref="foreach"/>
-                <xs:element ref="choose"/>
-                <xs:element ref="if"/>
-                <xs:element ref="bind"/>
-            </xs:choice>
-            <xs:attribute name="id" use="required"/>
-            <xs:attribute name="timeout"/>
-            <xs:attribute name="resultMap"/>
-            <xs:attribute name="resultType"/>
-            <xs:attribute name="fetchSize"/>
-            <xs:attribute name="resultSetType" type="resultSetType_type"/>
-            <xs:attribute name="multipleResult" type="multipleResult_type"/>
-            <xs:attribute name="resultOut"/>
-        </xs:complexType>
-    </xs:element>
-
     <!-- Dynamic -->
     <xs:element name="sql">
         <xs:complexType mixed="true">
@@ -283,7 +245,6 @@
             <xs:attribute name="prefixOverrides"/>
             <xs:attribute name="suffix"/>
             <xs:attribute name="suffixOverrides"/>
-            <xs:attribute name="caseSensitive" type="boolean_type"/>
         </xs:complexType>
     </xs:element>
 
@@ -396,7 +357,6 @@
         <xs:complexType>
             <xs:attribute name="name" use="required"/>
             <xs:attribute name="value" use="required"/>
-            <xs:attribute name="overwrite" type="boolean_type"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

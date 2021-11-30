@@ -26,24 +26,24 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * 生成一个 36位的 uuid。
+ * 产生一个 32 字符长度的 `UUID`，并加入到 SQL 参数中
  * @version : 2021-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class Uuid36Rule implements SqlBuildRule {
-    public static final  Uuid36Rule     INSTANCE    = new Uuid36Rule();
+public class UUID32Rule implements SqlBuildRule {
+    public static final  UUID32Rule     INSTANCE    = new UUID32Rule();
     private static final TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
 
     @Override
-    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String ruleValue) {
+    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) {
         String uuidValue = UUID.randomUUID().toString().replace("-", "");
-        SqlArg sqlArg = new SqlArg(null, ruleValue, uuidValue, SqlMode.In, Types.VARCHAR, String.class, typeHandler);
+        SqlArg sqlArg = new SqlArg(ruleValue, uuidValue, SqlMode.In, Types.VARCHAR, String.class, typeHandler);
         sqlBuilder.appendSql("?", sqlArg);
     }
 
     @Override
     public String toString() {
-        return "uuid36 [" + this.hashCode() + "]";
+        return "uuid32 [" + this.hashCode() + "]";
     }
 
 }

@@ -54,10 +54,8 @@ public class ExecuteProxy {
             KeySequenceHolder sequenceHolder = null;
 
             if (StringUtils.isBlank(selectKey.getHandler())) {
-
                 sequenceHolder = new SelectKeySequenceHolderFactory().createHolder(selectKey, selectKeyExecute);
             } else {
-
                 try {
                     Class<?> aClass = context.getClassLoader().loadClass(selectKey.getHandler());
                     KeySequenceHolderFactory holderFactory = (KeySequenceHolderFactory) aClass.newInstance();

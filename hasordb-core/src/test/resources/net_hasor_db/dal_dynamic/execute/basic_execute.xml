@@ -54,9 +54,9 @@
         from test_user;
     </select>
 
-    <callable id="callSelectUser" resultOut="abc,sss">
-        {call proc_select_user(#{name= abc, mode=out})}
-    </callable>
+    <select id="callSelectUser" statementType="CALLABLE">
+        {call proc_select_user(#{abc, mode=out})}
+    </select>
 
     <insert id="insertAutoID_1">
         insert into auto_id (

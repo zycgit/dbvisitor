@@ -16,7 +16,7 @@
 package net.hasor.db.dal.dynamic.segment;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
-import net.hasor.db.dal.dynamic.rule.ParameterRule;
+import net.hasor.db.dal.dynamic.rule.ArgRule;
 import net.hasor.db.dal.dynamic.rule.SqlBuildRule;
 import net.hasor.db.dal.dynamic.rule.TextRule;
 import net.hasor.db.dialect.SqlBuilder;
@@ -59,9 +59,9 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
     }
 
     /** 追加 规则 */
-    public void appendRuleExpr(String ruleName, String activateExpr, String exprString) {
-        this.queryStringOri.append("@{" + ruleName + ", " + activateExpr + ", " + exprString + "}");
-        this.queryStringPlan.add(new RuleFxSegment(ruleName, activateExpr, exprString));
+    public void appendRuleExpr(String ruleName, String activeExpr, String exprString) {
+        this.queryStringOri.append("@{" + ruleName + ", " + activeExpr + ", " + exprString + "}");
+        this.queryStringPlan.add(new RuleFxSegment(ruleName, activeExpr, exprString));
         this.havePlaceholder = true;
     }
 
@@ -127,7 +127,7 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
 
         @Override
         public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
-            TextRule.INSTANCE.executeRule(data, context, sqlBuilder, this.textString.toString());
+            TextRule.INSTANCE.executeRule(data, context, sqlBuilder, "true", this.textString.toString());
         }
 
         @Override
@@ -151,7 +151,7 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
         @Override
         public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
             String placeholderQuery = String.valueOf(evalOgnl(this.exprString.toString(), data));
-            TextRule.INSTANCE.executeRule(data, context, sqlBuilder, placeholderQuery);
+            TextRule.INSTANCE.executeRule(data, context, sqlBuilder, "true", placeholderQuery);
         }
 
         @Override
@@ -167,12 +167,12 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
 
     protected static class RuleFxSegment implements FxSegment {
         private final String ruleName;
-        private final String activateExpr;
+        private final String activeExpr;
         private final String ruleValue;
 
-        public RuleFxSegment(String ruleName, String activateExpr, String ruleValue) {
+        public RuleFxSegment(String ruleName, String activeExpr, String ruleValue) {
             this.ruleName = ruleName;
-            this.activateExpr = activateExpr;
+            this.activeExpr = activeExpr;
             this.ruleValue = ruleValue;
         }
 
@@ -182,14 +182,14 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
             if (ruleByName == null) {
                 throw new UnsupportedOperationException("rule `" + this.ruleName + "` Unsupported.");
             }
-            if (ruleByName.test(data, context, this.activateExpr)) {
-                ruleByName.executeRule(data, context, sqlBuilder, this.ruleValue);
+            if (ruleByName.test(data, context, this.activeExpr)) {
+                ruleByName.executeRule(data, context, sqlBuilder, this.activeExpr, this.ruleValue);
             }
         }
 
         @Override
         public RuleFxSegment clone() {
-            return new RuleFxSegment(this.ruleName, this.activateExpr, this.ruleValue);
+            return new RuleFxSegment(this.ruleName, this.activeExpr, this.ruleValue);
         }
 
         @Override
@@ -209,7 +209,7 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
 
         @Override
         public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
-            ParameterRule.INSTANCE.executeRule(data, context, sqlBuilder, this.exprString, this.config);
+            ArgRule.INSTANCE.executeRule(data, context, sqlBuilder, this.exprString, this.config);
         }
 
         @Override

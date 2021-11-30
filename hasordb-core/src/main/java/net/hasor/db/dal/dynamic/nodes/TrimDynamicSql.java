@@ -38,33 +38,22 @@ public class TrimDynamicSql extends ArrayDynamicSql {
     private final String[] prefixOverrides;
     /** 后缀 suffixOverrides */
     private final String[] suffixOverrides;
-    /** 匹配模式是否大小写敏感 */
-    private final boolean  caseSensitive;
 
-    public TrimDynamicSql(String prefix, String suffix, String prefixOverrides, String suffixOverrides, boolean caseSensitive) {
+    public TrimDynamicSql(String prefix, String suffix, String prefixOverrides, String suffixOverrides) {
         this.prefix = prefix;
         this.suffix = suffix;
-        this.caseSensitive = caseSensitive;
         this.prefixOverrides = StringUtils.isBlank(prefixOverrides) ? ArrayUtils.EMPTY_STRING_ARRAY : //
                 Arrays.stream(prefixOverrides.split("\\|")).map(String::trim).toArray(String[]::new);
         this.suffixOverrides = StringUtils.isBlank(suffixOverrides) ? ArrayUtils.EMPTY_STRING_ARRAY : //
                 Arrays.stream(suffixOverrides.split("\\|")).map(String::trim).toArray(String[]::new);
     }
 
-    private static boolean startsWith(boolean caseSensitive, String test, String prefix) {
-        if (caseSensitive) {
-            return StringUtils.startsWithIgnoreCase(test.trim(), prefix);
-        } else {
-            return test.startsWith(prefix);
-        }
+    private static boolean startsWith(String test, String prefix) {
+        return StringUtils.startsWithIgnoreCase(test.trim(), prefix);
     }
 
-    private static boolean endsWith(boolean caseSensitive, String test, String suffix) {
-        if (caseSensitive) {
-            return StringUtils.endsWithIgnoreCase(test.trim(), suffix);
-        } else {
-            return test.trim().endsWith(suffix);
-        }
+    private static boolean endsWith(String test, String suffix) {
+        return StringUtils.endsWithIgnoreCase(test.trim(), suffix);
     }
 
     @Override
@@ -85,14 +74,14 @@ public class TrimDynamicSql extends ArrayDynamicSql {
                 if (StringUtils.isBlank(override)) {
                     continue;
                 }
-                if (startsWith(this.caseSensitive, childrenSql, override)) {
+                if (startsWith(childrenSql, override)) {
                     childrenSql = childrenSql.substring(childrenSql.indexOf(override) + override.length());
                     break;
                 }
             }
             // 去掉 suffixOverrides
             for (String override : this.suffixOverrides) {
-                if (endsWith(this.caseSensitive, childrenSql, override)) {
+                if (endsWith(childrenSql, override)) {
                     childrenSql = childrenSql.substring(0, childrenSql.lastIndexOf(override));
                     break;
                 }

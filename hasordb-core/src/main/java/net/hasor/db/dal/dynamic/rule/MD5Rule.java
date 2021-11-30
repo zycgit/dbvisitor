@@ -29,16 +29,16 @@ import java.sql.Types;
 import java.util.Map;
 
 /**
- * 对表达式结果进行 md5 加密。
+ * 进行 OGNL 求值，值结果用 MD5 进行编码然后加入到 SQL 参数中
  * @version : 2021-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class Md5Rule implements SqlBuildRule {
-    public static final  Md5Rule        INSTANCE    = new Md5Rule();
+public class MD5Rule implements SqlBuildRule {
+    public static final  MD5Rule        INSTANCE    = new MD5Rule();
     private static final TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
 
     @Override
-    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String ruleValue) throws SQLException {
+    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         Object argValue = OgnlUtils.evalOgnl(ruleValue, data);
 
         if (argValue == null) {
@@ -51,7 +51,7 @@ public class Md5Rule implements SqlBuildRule {
             throw new SQLException(e);
         }
 
-        SqlArg sqlArg = new SqlArg(null, ruleValue, argValue, SqlMode.In, Types.VARCHAR, String.class, typeHandler);
+        SqlArg sqlArg = new SqlArg(ruleValue, argValue, SqlMode.In, Types.VARCHAR, String.class, typeHandler);
         sqlBuilder.appendSql("?", sqlArg);
     }
 

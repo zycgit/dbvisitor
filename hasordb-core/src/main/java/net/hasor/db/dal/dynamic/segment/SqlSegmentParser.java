@@ -16,7 +16,7 @@
 package net.hasor.db.dal.dynamic.segment;
 import net.hasor.cobble.StringUtils;
 import net.hasor.db.dal.dynamic.DynamicSql;
-import net.hasor.db.dal.dynamic.rule.ParameterRule;
+import net.hasor.db.dal.dynamic.rule.ArgRule;
 import net.hasor.db.dal.dynamic.tokens.GenericTokenParser;
 
 import java.util.Map;
@@ -51,34 +51,93 @@ public class SqlSegmentParser {
         fxQuery.appendPlaceholderExpr(content);
     }
 
-    private static void parserRule(DefaultSqlSegment fxQuery, String content) {
-        String[] ruleData = content.split(",");
-        if (ruleData.length > 3 || ruleData.length == 0) {
-            throw new IllegalArgumentException("analysisSQL failed, format error -> '@{ruleName [, activateExpr [, exprString]]}'");
+    public static void parserRule(DefaultSqlSegment fxQuery, String content) {
+        int index = 0;
+        int readIndex = 0;
+        int length = content.length();
+        String ruleName = null;
+        String activeExpr = "true";
+        String ruleContent = null;
+
+        if (index < length) {
+            readIndex = nextTokenIndex(index, content);
+            ruleName = content.substring(index, readIndex);
+            index = readIndex + 1;
         }
-        if (StringUtils.isBlank(ruleData[0])) {
-            throw new IllegalArgumentException("analysisSQL failed, Rule name not specified.");
+        if (index < length) {
+            readIndex = nextTokenIndex(index, content);
+            activeExpr = content.substring(index, readIndex);
+            if (StringUtils.isBlank(activeExpr)) {
+                activeExpr = "true";
+            }
+            index = readIndex + 1;
+        }
+        if (index < length) {
+            ruleContent = content.substring(index);
         }
 
-        if (ruleData.length > 1 && StringUtils.isBlank(ruleData[1])) {
-            throw new IllegalArgumentException("analysisSQL failed, activation condition not specified.");
+        if (StringUtils.isBlank(ruleName)) {
+            throw new IllegalArgumentException("analysisSQL failed, rule name is null.");
         }
 
-        String ruleName = (ruleData.length > 0) ? ruleData[0].trim() : null;
-        String activateExpr = (ruleData.length > 1) ? ruleData[1].trim() : null;
-        String exprString = (ruleData.length > 2) ? ruleData[2].trim() : null;
-        fxQuery.appendRuleExpr(ruleName, activateExpr, exprString);
+        fxQuery.appendRuleExpr(ruleName, activeExpr, ruleContent);
+    }
+
+    private static int nextTokenIndex(int start, String content) {
+        int index = start;
+
+        boolean inSingleQuotes = false;
+        boolean inDoubleQuotes = false;
+        boolean inEscape = false;
+        for (; index < content.length(); index++) {
+            char c = content.charAt(index);
+
+            if (inEscape) {
+                inEscape = false;
+                continue;
+            }
+
+            if ('\'' == c) {
+
+                if (!inSingleQuotes && !inDoubleQuotes) {
+                    inSingleQuotes = true;
+                } else if (inSingleQuotes) {
+                    inSingleQuotes = false;
+                }
+
+            } else if ('\"' == c) {
+
+                if (!inDoubleQuotes && !inSingleQuotes) {
+                    inDoubleQuotes = true;
+                } else if (inDoubleQuotes) {
+                    inDoubleQuotes = false;
+                }
+
+            } else if ('\\' == c) {
+
+                if (inDoubleQuotes || inSingleQuotes) {
+                    inEscape = true;
+                }
+
+            } else if (',' == c) {
+                if (!inDoubleQuotes && !inSingleQuotes) {
+                    return index;
+                }
+            }
+        }
+
+        return index;
     }
 
     private static void parserValue(DefaultSqlSegment fxQuery, String content) {
         String[] testSplit = content.split(",");
         if (testSplit.length > 6 || testSplit.length == 0) {
-            throw new IllegalArgumentException("analysisSQL failed, format error -> '#{valueExpr [,name= xxx] [,mode= IN|OUT|INOUT] [,jdbcType=INT] [,javaType=java.lang.String] [,typeHandler=YouTypeHandlerClassName]}'");
+            throw new IllegalArgumentException("analysisSQL failed, format error -> '#{valueExpr [,mode= IN|OUT|INOUT] [,jdbcType=INT] [,javaType=java.lang.String] [,typeHandler=YouTypeHandlerClassName]}'");
         }
 
         boolean noExpr = StringUtils.contains(testSplit[0], "=");
         String expr = noExpr ? "" : testSplit[0];
-        Map<String, String> config = ParameterRule.INSTANCE.parserConfig(testSplit, noExpr ? 0 : 1, testSplit.length);
+        Map<String, String> config = ArgRule.INSTANCE.parserConfig(testSplit, noExpr ? 0 : 1, testSplit.length);
         fxQuery.appendValueExpr(expr, config);
     }
 }

@@ -27,11 +27,11 @@ public class PageMain {
 
         Page pageInfo = new PageObject();
         pageInfo.setPageSize(3);
-        PageResult<TestUser> pageData1 = baseMapper.queryByPage(pageInfo);
+        PageResult<TestUser> pageData1 = baseMapper.pageBySample(null, pageInfo);
         PrintUtils.printObjectList(pageData1.getData());
 
         pageInfo.nextPage();
-        PageResult<TestUser> pageData2 = baseMapper.queryByPage(pageInfo);
+        PageResult<TestUser> pageData2 = baseMapper.pageBySample(null, pageInfo);
         PrintUtils.printObjectList(pageData2.getData());
 
     }

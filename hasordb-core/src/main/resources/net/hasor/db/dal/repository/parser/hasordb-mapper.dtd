@@ -14,7 +14,7 @@
        See the License for the specific language governing permissions and
        limitations under the License.
 -->
-<!ELEMENT mapper ( entityMap* | resultMap* | sql* | insert* | update* | delete* | select* | callable* )+>
+<!ELEMENT mapper ( resultMap* | sql* | insert* | update* | delete* | select* )+>
 <!ATTLIST mapper
         namespace CDATA #IMPLIED
         caseInsensitive (true|false) #IMPLIED
@@ -22,20 +22,12 @@
         autoMapping (true|false) #IMPLIED
         >
 
-<!ELEMENT entityMap (id*, mapping*)>
-<!ATTLIST entityMap
-        schema CDATA #IMPLIED
-        table CDATA #REQUIRED
-        type CDATA #REQUIRED
-        caseInsensitive (true|false) #IMPLIED
-        mapUnderscoreToCamelCase (true|false) #IMPLIED
-        autoMapping (true|false) #IMPLIED
-        >
-
 <!ELEMENT resultMap (id*, result*)>
 <!ATTLIST resultMap
-        id CDATA #REQUIRED
         type CDATA #REQUIRED
+        id CDATA #IMPLIED
+        schema CDATA #IMPLIED
+        table CDATA #IMPLIED
         caseInsensitive (true|false) #IMPLIED
         mapUnderscoreToCamelCase (true|false) #IMPLIED
         autoMapping (true|false) #IMPLIED
@@ -114,18 +106,6 @@
         multipleResult (FIRST|LAST|ALL) #IMPLIED
         >
 
-<!ELEMENT callable (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
-<!ATTLIST callable
-        id CDATA #REQUIRED
-        timeout CDATA #IMPLIED
-        resultMap CDATA #IMPLIED
-        resultType CDATA #IMPLIED
-        fetchSize CDATA #IMPLIED
-        resultSetType (FORWARD_ONLY | SCROLL_INSENSITIVE | SCROLL_SENSITIVE | DEFAULT) #IMPLIED
-        multipleResult (FIRST|LAST|ALL) #IMPLIED
-        resultOut CDATA #IMPLIED
-        >
-
 <!-- Dynamic -->
 <!ELEMENT sql (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
 <!ATTLIST sql
@@ -143,7 +123,6 @@
         prefixOverrides CDATA #IMPLIED
         suffix CDATA #IMPLIED
         suffixOverrides CDATA #IMPLIED
-        caseSensitive (true|false) #IMPLIED
         >
 
 <!ELEMENT where (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
@@ -178,5 +157,4 @@
 <!ATTLIST bind
         name CDATA #REQUIRED
         value CDATA #REQUIRED
-        overwrite (true|false) #IMPLIED
         >

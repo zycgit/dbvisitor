@@ -37,7 +37,7 @@ public interface TestExecuteDal {
 
     public List<TestUser> listUserList_2(@Param("abc") String name);
 
-    public Map<String, Object> callSelectUser(@Param("abc") String name);
+    public Map<String, Object> callSelectUser(Map<String, Object> args);
 
     public int insertAutoID_1(AutoId autoId);
 

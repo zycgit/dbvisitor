@@ -18,11 +18,9 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.db.dal.dynamic.DynamicParser;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.repository.QueryType;
-import net.hasor.db.dal.repository.StatementType;
 import net.hasor.db.dal.repository.config.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -49,12 +47,7 @@ public class XmlDynamicResolve extends DynamicParser implements DynamicResolve<N
     }
 
     public DynamicSql parseSqlConfig(Node configNode) {
-        NamedNodeMap nodeAttributes = configNode.getAttributes();
-        Node statementTypeNode = nodeAttributes.getNamedItem("statementType");
-        String statementType = (statementTypeNode != null) ? statementTypeNode.getNodeValue() : null;
-        StatementType statementTypeEnum = StatementType.valueOfCode(statementType, StatementType.Prepared);
-
-        QueryType queryType = getQueryType(configNode.getNodeName().toLowerCase().trim(), statementTypeEnum);
+        QueryType queryType = getQueryType(configNode.getNodeName().toLowerCase().trim());
         if (queryType == null) {
             return null;
         }
@@ -71,8 +64,6 @@ public class XmlDynamicResolve extends DynamicParser implements DynamicResolve<N
                 return new UpdateSqlConfig(dynamicSql, configNode);
             case Query:
                 return new QuerySqlConfig(dynamicSql, configNode);
-            case Callable:
-                return new CallableSqlConfig(dynamicSql, configNode);
             case Segment:
                 return new SegmentSqlConfig(dynamicSql);
             default:
@@ -80,12 +71,9 @@ public class XmlDynamicResolve extends DynamicParser implements DynamicResolve<N
         }
     }
 
-    protected QueryType getQueryType(String elementName, StatementType statementTypeEnum) {
+    protected QueryType getQueryType(String elementName) {
         if (StringUtils.isBlank(elementName)) {
             throw new UnsupportedOperationException("tag name is Empty.");
-        }
-        if (statementTypeEnum == StatementType.Callable) {
-            return QueryType.Callable;
         }
         return QueryType.valueOfTag(elementName);
     }

@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.session;
-import net.hasor.db.lambda.DuplicateKeyStrategy;
-import net.hasor.db.lambda.LambdaOperations;
 import net.hasor.db.lambda.LambdaOperations.LambdaDelete;
 import net.hasor.db.lambda.LambdaOperations.LambdaQuery;
 import net.hasor.db.lambda.LambdaOperations.LambdaUpdate;
-import net.hasor.db.lambda.QueryCompare;
 import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.db.mapping.def.ColumnMapping;
 import net.hasor.db.mapping.def.TableMapping;
+import net.hasor.db.page.Page;
+import net.hasor.db.page.PageObject;
+import net.hasor.db.page.PageResult;
 
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -64,6 +62,11 @@ class BaseMapperHandler implements BaseMapper<Object> {
         return this.dalSession.newTemplate(this.space);
     }
 
+    @Override
+    public DalSession getSession() {
+        return this.dalSession;
+    }
+
     private TableMapping<Object> getMapping() {
         return this.tableMapping;
     }
@@ -74,43 +77,59 @@ class BaseMapperHandler implements BaseMapper<Object> {
     }
 
     @Override
-    public int insert(Object entity, DuplicateKeyStrategy strategy) throws SQLException {
+    public int saveOrUpdate(Object entity) throws SQLException {
         if (entity == null) {
-            return 0;
+            throw new NullPointerException("entity is null.");
         }
 
-        strategy = (strategy == null) ? DuplicateKeyStrategy.Into : strategy;
-        return insert().onDuplicateStrategy(strategy).applyEntity(entity).executeSumResult();
+        List<ColumnMapping> pks = foundPrimaryKey();
+        if (pks.isEmpty()) {
+            throw new SQLException(entityType() + " no primary key is identified");
+        }
+
+        LambdaQuery<Object> query = query();
+        LambdaUpdate<Object> update = update();
+
+        for (ColumnMapping pk : pks) {
+            Object o = pk.getHandler().get(entity);
+            if (o == null) {
+                query.and().isNull(pk.getColumn());
+                update.and().isNull(pk.getColumn());
+            } else {
+                query.and().eq(pk.getColumn(), o);
+                update.and().eq(pk.getColumn(), o);
+            }
+        }
+
+        if (query.queryForCount() == 0) {
+            return insert().applyEntity(entity).executeSumResult();
+        } else {
+            return update.updateTo(entity).doUpdate();
+        }
     }
 
     @Override
-    public int insertBatch(List<Object> entity, DuplicateKeyStrategy strategy) throws SQLException {
-        if (entity == null || entity.isEmpty()) {
-            return 0;
+    public int delete(Object entity) throws SQLException {
+        if (entity == null) {
+            throw new NullPointerException("entity is null.");
         }
 
-        strategy = (strategy == null) ? DuplicateKeyStrategy.Into : strategy;
-        return insert().onDuplicateStrategy(strategy).applyEntity(entity).executeSumResult();
-    }
-
-    @Override
-    public int insertByColumn(Map<String, Object> columnMap, DuplicateKeyStrategy strategy) throws SQLException {
-        if (columnMap == null || columnMap.isEmpty()) {
-            return 0;
+        List<ColumnMapping> pks = foundPrimaryKey();
+        if (pks.isEmpty()) {
+            throw new SQLException(entityType() + " no primary key is identified");
         }
 
-        strategy = (strategy == null) ? DuplicateKeyStrategy.Into : strategy;
-        return insert().onDuplicateStrategy(strategy).applyMap(columnMap).executeSumResult();
-    }
+        LambdaDelete<Object> delete = delete();
 
-    @Override
-    public int insertByColumnBatch(List<Map<String, Object>> columnMapList, DuplicateKeyStrategy strategy) throws SQLException {
-        if (columnMapList == null || columnMapList.isEmpty()) {
-            return 0;
+        for (ColumnMapping pk : pks) {
+            Object o = pk.getHandler().get(entity);
+            if (o == null) {
+                delete.and().isNull(pk.getColumn());
+            } else {
+                delete.and().eq(pk.getColumn(), o);
+            }
         }
-
-        strategy = (strategy == null) ? DuplicateKeyStrategy.Into : strategy;
-        return insert().onDuplicateStrategy(strategy).applyMap(columnMapList).executeSumResult();
+        return delete.doDelete();
     }
 
     @Override
@@ -142,52 +161,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
     }
 
     @Override
-    public int deleteBySample(Object sample) throws SQLException {
-        if (sample == null) {
-            return 0;
-        }
-
-        LambdaDelete<Object> delete = delete();
-        for (ColumnMapping mapping : getMapping().getProperties()) {
-            Object value = mapping.getHandler().get(sample);
-            if (value != null) {
-                delete.and().eq(mapping.getColumn(), value);
-            }
-        }
-
-        return delete.doDelete();
-    }
-
-    @Override
-    public int deleteByColumn(Map<String, Object> columnMap) throws SQLException {
-        if (columnMap == null || columnMap.isEmpty()) {
-            return 0;
-        }
-
-        LambdaDelete<Object> delete = delete();
-        for (String columnKey : columnMap.keySet()) {
-            Object val = columnMap.get(columnKey);
-            if (val == null) {
-                delete.and().isNull(columnKey);
-            } else {
-                delete.and().eq(columnKey, val);
-            }
-        }
-
-        return delete.doDelete();
-    }
-
-    @Override
-    public int deleteByCondition(Consumer<QueryCompare<Object, LambdaDelete<Object>>> queryCompare) throws SQLException {
-        if (queryCompare == null) {
-            throw new NullPointerException("queryCompare is null or empty.");
-        }
-
-        return delete().and(queryCompare).doDelete();
-    }
-
-    @Override
-    public int deleteBatchIds(List<? extends Serializable> idList) throws SQLException {
+    public int deleteByIds(List<? extends Serializable> idList) throws SQLException {
         if (idList == null || idList.isEmpty()) {
             return 0;
         }
@@ -219,109 +193,11 @@ class BaseMapperHandler implements BaseMapper<Object> {
     }
 
     @Override
-    public int updateById(Object entity) throws SQLException {
-        if (entity == null) {
-            throw new NullPointerException("entity is null.");
+    public Object getById(Serializable id) throws SQLException {
+        if (id == null) {
+            return null;
         }
 
-        List<ColumnMapping> pks = foundPrimaryKey();
-        if (pks.isEmpty()) {
-            throw new SQLException(entityType() + " no primary key is identified");
-        }
-
-        LambdaUpdate<Object> update = update();
-        for (ColumnMapping pk : pks) {
-            Object o = pk.getHandler().get(entity);
-            if (o == null) {
-                update.and().isNull(pk.getColumn());
-            } else {
-                update.and().eq(pk.getColumn(), o);
-            }
-        }
-        return update.updateTo(entity).doUpdate();
-    }
-
-    @Override
-    public int updateBySample(Object sample, Object entity) throws SQLException {
-        if (sample == null || entity == null) {
-            throw new NullPointerException("sample or entity is null.");
-        }
-
-        LambdaUpdate<Object> update = update();
-        for (ColumnMapping mapping : getMapping().getProperties()) {
-            Object value = mapping.getHandler().get(sample);
-            if (value != null) {
-                update.and().eq(mapping.getColumn(), value);
-            }
-        }
-
-        return update.updateTo(entity).doUpdate();
-    }
-
-    @Override
-    public int updateByIds(Object entity, List<? extends Serializable> idList) throws SQLException {
-        if (idList == null || idList.isEmpty()) {
-            return 0;
-        }
-
-        if (entity == null) {
-            throw new NullPointerException("entity is null.");
-        }
-
-        List<ColumnMapping> pks = foundPrimaryKey();
-        if (pks.isEmpty()) {
-            throw new SQLException(entityType() + " no primary key is identified");
-        }
-
-        if (pks.size() == 1) {
-            LambdaUpdate<Object> update = update();
-            return update.and().in(pks.get(0).getColumn(), idList).doUpdate();
-        } else {
-            LambdaUpdate<Object> update = update();
-            for (Object obj : idList) {
-                update.or(queryCompare -> {
-                    for (ColumnMapping pkColumn : pks) {
-                        Object val = pkColumn.getHandler().get(obj);
-                        if (val == null) {
-                            queryCompare.and().isNull(pkColumn.getColumn());
-                        } else {
-                            queryCompare.and().eq(pkColumn.getColumn(), val);
-                        }
-                    }
-                });
-            }
-            return update.updateTo(entity).doUpdate();
-        }
-    }
-
-    @Override
-    public int updateByCondition(Object entity, Consumer<QueryCompare<Object, LambdaUpdate<Object>>> queryCompare) throws SQLException {
-        if (queryCompare == null || entity == null) {
-            throw new NullPointerException("queryCompare or entity is null.");
-        }
-        return update().and(queryCompare).updateTo(entity).doUpdate();
-    }
-
-    @Override
-    public int updateByCondition(Map<String, Object> columnMap, Consumer<QueryCompare<Object, LambdaUpdate<Object>>> queryCompare) throws SQLException {
-        if (columnMap == null || columnMap.isEmpty()) {
-            return 0;
-        }
-
-        LambdaUpdate<Object> update = update();
-        for (String columnKey : columnMap.keySet()) {
-            Object val = columnMap.get(columnKey);
-            if (val == null) {
-                update.and().isNull(columnKey);
-            } else {
-                update.and().eq(columnKey, val);
-            }
-        }
-
-        return update.doUpdate();
-    }
-
-    protected LambdaQuery<Object> buildQueryById(Serializable id) throws SQLException {
         List<ColumnMapping> pks = foundPrimaryKey();
         if (pks.isEmpty()) {
             throw new SQLException(entityType() + " no primary key is identified");
@@ -341,49 +217,22 @@ class BaseMapperHandler implements BaseMapper<Object> {
             }
         }
 
-        return query;
+        return query.queryForObject();
     }
 
-    protected LambdaQuery<Object> buildQueryBySample(Object sample) {
-        if (sample == null) {
-            throw new NullPointerException("sample is null.");
+    @Override
+    public List<Object> getByIds(List<? extends Serializable> idList) throws SQLException {
+        if (idList == null || idList.isEmpty()) {
+            return Collections.emptyList();
         }
 
-        LambdaQuery<Object> query = query();
-        for (ColumnMapping mapping : getMapping().getProperties()) {
-            Object value = mapping.getHandler().get(sample);
-            if (value != null) {
-                query.and().eq(mapping.getColumn(), value);
-            }
-        }
-
-        return query;
-    }
-
-    protected LambdaQuery<Object> buildQueryByColumn(Map<String, Object> columnMap) {
-
-        LambdaQuery<Object> query = query();
-        for (String columnKey : columnMap.keySet()) {
-            Object val = columnMap.get(columnKey);
-            if (val != null) {
-                query.and().isNull(columnKey);
-            } else {
-                query.and().eq(columnKey, val);
-            }
-        }
-
-        return query;
-    }
-
-    protected LambdaQuery<Object> buildQueryByIds(List<? extends Serializable> idList) throws SQLException {
         List<ColumnMapping> pks = foundPrimaryKey();
         if (pks.isEmpty()) {
             throw new SQLException(entityType() + " no primary key is identified");
         }
 
         if (pks.size() == 1) {
-            LambdaQuery<Object> query = query();
-            return query.and().in(pks.get(0).getColumn(), idList);
+            return query().and().in(pks.get(0).getColumn(), idList).queryForList();
         } else {
             LambdaQuery<Object> query = query();
             for (Object obj : idList) {
@@ -398,77 +247,28 @@ class BaseMapperHandler implements BaseMapper<Object> {
                     }
                 });
             }
-            return query;
+            return query.queryForList();
         }
     }
 
-    @Override
-    public Object queryById(Serializable id) throws SQLException {
-        if (id == null) {
-            return null;
-        } else {
-            return buildQueryById(id).queryForObject();
+    protected LambdaQuery<Object> buildQueryBySample(Object sample) {
+        LambdaQuery<Object> query = query();
+
+        if (sample != null) {
+            for (ColumnMapping mapping : getMapping().getProperties()) {
+                Object value = mapping.getHandler().get(sample);
+                if (value != null) {
+                    query.and().eq(mapping.getColumn(), value);
+                }
+            }
         }
+
+        return query;
     }
 
     @Override
-    public List<Object> queryBySample(Object sample) throws SQLException {
+    public List<Object> listBySample(Object sample) throws SQLException {
         return buildQueryBySample(sample).queryForList();
-    }
-
-    @Override
-    public List<Object> queryByIds(List<? extends Serializable> idList) throws SQLException {
-        if (idList == null || idList.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return buildQueryByIds(idList).queryForList();
-    }
-
-    @Override
-    public List<Object> queryByCondition(Consumer<QueryCompare<Object, LambdaQuery<Object>>> queryCompare) throws SQLException {
-        if (queryCompare == null) {
-            throw new NullPointerException("queryCompare or entity is null.");
-        } else {
-            return query().and(queryCompare).queryForList();
-        }
-    }
-
-    @Override
-    public Map<String, Object> queryMapById(Serializable id) throws SQLException {
-        if (id == null) {
-            return null;
-        } else {
-            return buildQueryById(id).queryForMap();
-        }
-    }
-
-    @Override
-    public List<Map<String, Object>> queryMapBySample(Object sample) throws SQLException {
-        return buildQueryBySample(sample).queryForMapList();
-    }
-
-    @Override
-    public List<Map<String, Object>> queryMapBatchIds(List<? extends Serializable> idList) throws SQLException {
-        if (idList == null || idList.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return buildQueryByIds(idList).queryForMapList();
-    }
-
-    @Override
-    public List<Map<String, Object>> queryMapByCondition(Consumer<QueryCompare<Object, LambdaOperations.LambdaQuery<Object>>> queryCompare) throws SQLException {
-        if (queryCompare == null) {
-            throw new NullPointerException("queryCompare or entity is null.");
-        } else {
-            return query().and(queryCompare).queryForMapList();
-        }
-    }
-
-    @Override
-    public int countAll() throws SQLException {
-        return query().queryForCount();
     }
 
     @Override
@@ -477,16 +277,22 @@ class BaseMapperHandler implements BaseMapper<Object> {
     }
 
     @Override
-    public int countByColumn(Map<String, Object> columnMap) throws SQLException {
-        return buildQueryByColumn(columnMap).queryForCount();
+    public int countAll() throws SQLException {
+        return query().queryForCount();
     }
 
     @Override
-    public int countByCondition(Consumer<QueryCompare<Object, LambdaOperations.LambdaQuery<Object>>> queryCompare) throws SQLException {
-        if (queryCompare == null) {
-            throw new NullPointerException("queryCompare or entity is null.");
-        } else {
-            return query().and(queryCompare).queryForCount();
-        }
+    public PageResult<Object> pageBySample(Object sample, Page page) throws SQLException {
+        List<Object> result = buildQueryBySample(sample).usePage(page).queryForList();
+        return new PageResult<>(page, page.getTotalCount(), result);
     }
+
+    @Override
+    public Page initPageBySample(Object sample, int pageSize, int pageNumberOffset) throws SQLException {
+        int totalCount = countBySample(sample);
+        PageObject pageObject = new PageObject(pageSize, totalCount);
+        pageObject.setPageNumberOffset(pageNumberOffset);
+        return pageObject;
+    }
+
 }

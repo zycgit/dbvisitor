@@ -68,16 +68,7 @@ public class ClassDynamicResolve extends DynamicParser implements DynamicResolve
         return annotation instanceof Insert     //
                 || annotation instanceof Delete //
                 || annotation instanceof Update //
-                || annotation instanceof Query  //
-                || annotation instanceof Callable;
-    }
-
-    protected QueryType getQueryType(QueryType queryType, StatementType statementType) {
-        if (statementType == StatementType.Callable) {
-            return QueryType.Callable;
-        } else {
-            return queryType;
-        }
+                || annotation instanceof Query;
     }
 
     protected DynamicSql createDynamicSql(Annotation annotation, Class<?> resultType, String parameterType) throws ParserConfigurationException, IOException, SAXException {
@@ -88,25 +79,25 @@ public class ClassDynamicResolve extends DynamicParser implements DynamicResolve
         boolean isXml = false;
 
         if (annotation instanceof Insert) {
-            queryType = getQueryType(QueryType.Insert, ((Insert) annotation).statementType());
+            queryType = QueryType.Insert;
             dynamicSqlBody = ((Insert) annotation).value();
             dynamicSqlAttribute.put("statementType", ((Insert) annotation).statementType().getTypeName());
             dynamicSqlAttribute.put("timeout", String.valueOf(((Insert) annotation).timeout()));
             isXml = ((Insert) annotation).xml();
         } else if (annotation instanceof Delete) {
-            queryType = getQueryType(QueryType.Delete, ((Delete) annotation).statementType());
+            queryType = QueryType.Delete;
             dynamicSqlBody = ((Delete) annotation).value();
             dynamicSqlAttribute.put("statementType", ((Delete) annotation).statementType().getTypeName());
             dynamicSqlAttribute.put("timeout", String.valueOf(((Delete) annotation).timeout()));
             isXml = ((Delete) annotation).xml();
         } else if (annotation instanceof Update) {
-            queryType = getQueryType(QueryType.Update, ((Update) annotation).statementType());
+            queryType = QueryType.Update;
             dynamicSqlBody = ((Update) annotation).value();
             dynamicSqlAttribute.put("statementType", ((Update) annotation).statementType().getTypeName());
             dynamicSqlAttribute.put("timeout", String.valueOf(((Update) annotation).timeout()));
             isXml = ((Update) annotation).xml();
         } else if (annotation instanceof Query) {
-            queryType = getQueryType(QueryType.Query, ((Query) annotation).statementType());
+            queryType = QueryType.Query;
             dynamicSqlBody = ((Query) annotation).value();
             dynamicSqlAttribute.put("statementType", ((Query) annotation).statementType().getTypeName());
             dynamicSqlAttribute.put("timeout", String.valueOf(((Query) annotation).timeout()));
@@ -118,20 +109,6 @@ public class ClassDynamicResolve extends DynamicParser implements DynamicResolve
                 dynamicSqlAttribute.put("resultType", ((Query) annotation).resultType().getName());
             }
             isXml = ((Query) annotation).xml();
-        } else if (annotation instanceof Callable) {
-            queryType = getQueryType(QueryType.Callable, ((Callable) annotation).statementType());
-            dynamicSqlBody = ((Callable) annotation).value();
-            dynamicSqlAttribute.put("statementType", ((Callable) annotation).statementType().getTypeName());
-            dynamicSqlAttribute.put("timeout", String.valueOf(((Callable) annotation).timeout()));
-            dynamicSqlAttribute.put("fetchSize", String.valueOf(((Callable) annotation).fetchSize()));
-            dynamicSqlAttribute.put("resultSetType", ((Callable) annotation).resultSetType().getTypeName());
-            dynamicSqlAttribute.put("multipleResult", ((Callable) annotation).multipleResult().getTypeName());
-            dynamicSqlAttribute.put("resultMap", ((Callable) annotation).resultMap());
-            if (((Callable) annotation).resultType() != Object.class) {
-                dynamicSqlAttribute.put("resultType", ((Callable) annotation).resultType().getName());
-            }
-            dynamicSqlAttribute.put("resultOut", ((Callable) annotation).resultOut());
-            isXml = ((Callable) annotation).xml();
         } else {
             return null;
         }

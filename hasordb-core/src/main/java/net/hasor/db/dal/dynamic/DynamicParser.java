@@ -15,7 +15,6 @@
  */
 package net.hasor.db.dal.dynamic;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.convert.ConverterUtils;
 import net.hasor.db.dal.dynamic.nodes.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -127,9 +126,8 @@ public class DynamicParser {
         String prefixOverrides = getNodeAttributeValue(curXmlNode, "prefixOverrides");
         String suffix = getNodeAttributeValue(curXmlNode, "suffix");
         String suffixOverrides = getNodeAttributeValue(curXmlNode, "suffixOverrides");
-        boolean caseSensitive = (boolean) ConverterUtils.convert(getNodeAttributeValue(curXmlNode, "caseSensitive"), Boolean.TYPE);
 
-        ArrayDynamicSql parent = new TrimDynamicSql(prefix, suffix, prefixOverrides, suffixOverrides, caseSensitive);
+        ArrayDynamicSql parent = new TrimDynamicSql(prefix, suffix, prefixOverrides, suffixOverrides);
         parentSqlNode.addChildNode(parent);
         this.parseNodeList(parent, curXmlNode.getChildNodes());
     }
@@ -154,9 +152,8 @@ public class DynamicParser {
     protected void parseBindSqlNode(ArrayDynamicSql parentSqlNode, Node curXmlNode) {
         String name = getNodeAttributeValue(curXmlNode, "name");
         String value = getNodeAttributeValue(curXmlNode, "value");
-        boolean overwrite = (boolean) ConverterUtils.convert(getNodeAttributeValue(curXmlNode, "overwrite"), Boolean.TYPE);
 
-        parentSqlNode.addChildNode(new BindDynamicSql(name, value, overwrite));
+        parentSqlNode.addChildNode(new BindDynamicSql(name, value));
     }
 
     /** 解析 <choose> 节点 */

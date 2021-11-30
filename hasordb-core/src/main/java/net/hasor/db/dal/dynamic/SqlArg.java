@@ -22,7 +22,6 @@ import net.hasor.db.types.TypeHandler;
  * @author 赵永春 (zyc@byshell.org)
  */
 public class SqlArg {
-    private String         name;
     private String         expr;
     private Object         value;
     private SqlMode        sqlMode;
@@ -30,8 +29,7 @@ public class SqlArg {
     private Class<?>       javaType;
     private TypeHandler<?> typeHandler;
 
-    public SqlArg(String name, String expr, Object value, SqlMode sqlMode, Integer jdbcType, Class<?> javaType, TypeHandler<?> typeHandler) {
-        this.name = name;
+    public SqlArg(String expr, Object value, SqlMode sqlMode, Integer jdbcType, Class<?> javaType, TypeHandler<?> typeHandler) {
         this.expr = expr;
         this.value = value;
         this.sqlMode = sqlMode;
@@ -41,15 +39,7 @@ public class SqlArg {
     }
 
     public static SqlArg valueOf(Object obj) {
-        return new SqlArg(null, null, obj, null, null, null, null);
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+        return new SqlArg(null, obj, null, null, null, null);
     }
 
     public String getExpr() {

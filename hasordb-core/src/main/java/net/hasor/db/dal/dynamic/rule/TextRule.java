@@ -28,7 +28,7 @@ public class TextRule implements SqlBuildRule {
     public static final SqlBuildRule INSTANCE = new TextRule();
 
     @Override
-    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String ruleValue) {
+    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) {
         sqlBuilder.appendSql(ruleValue);
     }
 

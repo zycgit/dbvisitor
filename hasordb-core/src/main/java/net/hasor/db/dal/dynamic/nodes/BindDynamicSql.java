@@ -15,8 +15,6 @@
  */
 package net.hasor.db.dal.dynamic.nodes;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.logging.Logger;
-import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.ognl.OgnlUtils;
@@ -30,15 +28,12 @@ import java.util.Map;
  * @version : 2021-05-24
  */
 public class BindDynamicSql implements DynamicSql {
-    private final static Logger  logger = LoggerFactory.getLogger(BindDynamicSql.class);
-    private final        String  name;      // 名字
-    private final        String  valueExpr; // 值
-    private final        boolean overwrite; // 遇到冲突 Key 是否覆盖
+    private final String name;      // 名字
+    private final String valueExpr; // 值
 
-    public BindDynamicSql(String name, String valueExpr, boolean overwrite) {
+    public BindDynamicSql(String name, String valueExpr) {
         this.name = name;
         this.valueExpr = valueExpr;
-        this.overwrite = overwrite;
     }
 
     @Override
@@ -49,13 +44,6 @@ public class BindDynamicSql implements DynamicSql {
     @Override
     public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) {
         if (StringUtils.isNotBlank(this.name)) {
-            if (data.containsKey(this.name)) {
-                if (!this.overwrite) {
-                    throw new IllegalArgumentException("duplicate key '" + this.name + "'");
-                } else {
-                    logger.warn("tag bind overwrite param key " + this.name);
-                }
-            }
             Object testExprResult = OgnlUtils.evalOgnl(this.valueExpr, data);
             data.put(this.name, testExprResult);
         }

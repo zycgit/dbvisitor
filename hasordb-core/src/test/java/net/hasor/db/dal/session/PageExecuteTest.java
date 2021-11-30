@@ -116,17 +116,15 @@ public class PageExecuteTest {
 
         TbUser2 tbUser2 = new TbUser2();
         tbUser2.setIndex(1);
-        List<TbUser2> list = dalExecute.queryBySample(tbUser2);
+        List<TbUser2> list = dalExecute.listBySample(tbUser2);
         assert list.size() == 1;
         assert list.get(0).getIndex() == 1;
         assert list.get(0).getAccount().equals("acc_1");
 
-        int delete = dalExecute.deleteByCondition(queryCompare -> {
-            queryCompare.eq("index", 1);
-        });
+        int delete = dalExecute.delete().eq("index", 1).doDelete();
         assert delete == 1;
 
-        list = dalExecute.queryBySample(tbUser2);
+        list = dalExecute.listBySample(tbUser2);
         assert list.size() == 0;
     }
 }

@@ -242,10 +242,6 @@ public class DalRegistry {
                         resultType = ((Query) anno).resultType();
                         break;
                     }
-                    if (anno instanceof Callable) {
-                        resultType = ((Callable) anno).resultType();
-                        break;
-                    }
                 }
                 resultType = (resultType == Object.class) ? null : resultType;
                 if (resultType != null && findTableReader(namespace, resultType.getName()) == null) {
@@ -293,36 +289,24 @@ public class DalRegistry {
                 continue;
             }
 
-            boolean isEntityMap = "entityMap".equalsIgnoreCase(node.getNodeName());
             boolean isResultMap = "resultMap".equalsIgnoreCase(node.getNodeName());
-            if (!(isResultMap || isEntityMap)) {
+            if (!isResultMap) {
                 continue;
             }
 
             NamedNodeMap nodeAttributes = node.getAttributes();
             Node idNode = nodeAttributes.getNamedItem("id");
             Node typeNode = nodeAttributes.getNamedItem("type");
-            Node tableNode = nodeAttributes.getNamedItem("table");
             String idString = (idNode != null) ? idNode.getNodeValue() : null;
             String typeString = (typeNode != null) ? typeNode.getNodeValue() : null;
-            String tableName = (tableNode != null) ? tableNode.getNodeValue() : null;
             String mapperSpace = space;
 
-            if (isEntityMap) {
-                if (StringUtils.isBlank(tableName)) {
-                    throw new IOException("<entityMap> must be include 'table'='xxx'.");
-                }
-                mapperSpace = "";
-                idString = typeString;
+            if (StringUtils.isBlank(typeString)) {
+                throw new IOException("the <resultMap> tag, type is null.");
             }
-            if (isResultMap) {
-                if (StringUtils.isBlank(idString) && StringUtils.isBlank(typeString)) {
-                    throw new IOException("the <resultMap> tag, id and type require at least one.");
-                }
-                mapperSpace = StringUtils.isBlank(mapperSpace) ? "" : mapperSpace;
-                if (StringUtils.isBlank(idString)) {
-                    idString = typeString;
-                }
+            mapperSpace = StringUtils.isBlank(mapperSpace) ? "" : mapperSpace;
+            if (StringUtils.isBlank(idString)) {
+                idString = typeString;
             }
 
             TableMapping<?> tableMapping = resolve.resolveTableMapping(node, getClassLoader(), getTypeRegistry(), options);
@@ -341,7 +325,7 @@ public class DalRegistry {
                 continue;
             }
 
-            if ("entityMap".equalsIgnoreCase(elementName) || "resultMap".equalsIgnoreCase(elementName)) {
+            if ("resultMap".equalsIgnoreCase(elementName)) {
                 continue;
             }
 
@@ -368,9 +352,12 @@ public class DalRegistry {
                 }
 
                 if (StringUtils.isNotBlank(resultType)) {
-                    if (findTableReader(scope, resultType) == null) {
-                        Class<?> resultClass = ClassUtils.getClass(getClassLoader(), resultType);
-                        loadReaderByType(resultClass, options);
+                    String[] resultTypes = resultType.split(",");
+                    for (String type : resultTypes) {
+                        if (findTableReader(scope, type) == null) {
+                            Class<?> resultClass = ClassUtils.getClass(getClassLoader(), type);
+                            loadReaderByType(resultClass, options);
+                        }
                     }
                 }
             }
@@ -418,6 +405,10 @@ public class DalRegistry {
     }
 
     protected void saveDynamic(String space, String identify, DynamicSql dynamicSql) throws IOException {
+        if (identify.contains(".")) {
+            throw new IllegalStateException("identify cannot contain the character '.'");
+        }
+
         if (!this.dynamicMap.containsKey(space)) {
             this.dynamicMap.put(space, new ConcurrentHashMap<>());
         }

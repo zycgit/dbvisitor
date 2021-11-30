@@ -27,12 +27,12 @@ import java.util.Map;
  * @version : 2021-05-24
  */
 public class ChooseDynamicSql extends ArrayDynamicSql {
-    private       DynamicSql           defaultDynamicSql;
-    private final ThreadLocal<Boolean> useDefault = new ThreadLocal<>();
+    private DynamicSql defaultDynamicSql;
 
     public void addWhen(String test, ArrayDynamicSql nodeBlock) {
-        WhenDynamicSql whenSqlNode = new WhenDynamicSql(test);
+        IfDynamicSql whenSqlNode = new IfDynamicSql(test);
         whenSqlNode.addChildNode(nodeBlock);
+
         super.addChildNode(whenSqlNode);
     }
 
@@ -43,42 +43,29 @@ public class ChooseDynamicSql extends ArrayDynamicSql {
 
     @Override
     public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
+        boolean useDefault = true;
         try {
-            this.useDefault.set(true);
-            super.buildQuery(data, context, sqlBuilder);
+            for (DynamicSql dynamicSql : this.subNodes) {
+                if (dynamicSql instanceof IfDynamicSql) {
+
+                    boolean test = ((IfDynamicSql) dynamicSql).test(data);
+                    if (test) {
+                        ((IfDynamicSql) dynamicSql).buildBody(data, context, sqlBuilder);
+                        useDefault = false;
+                        break;
+                    }
+
+                } else {
+                    dynamicSql.buildQuery(data, context, sqlBuilder);
+                }
+            }
         } finally {
-            if (this.useDefault.get()) {
+            if (useDefault) {
                 if (!sqlBuilder.lastSpaceCharacter()) {
                     sqlBuilder.appendSql(" ");
                 }
                 this.defaultDynamicSql.buildQuery(data, context, sqlBuilder);
             }
-            this.useDefault.remove();
-        }
-    }
-
-    private class WhenDynamicSql extends IfDynamicSql {
-        public WhenDynamicSql(String testExpr) {
-            super(testExpr);
-        }
-
-        @Override
-        public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
-            if (test(data)) {
-                if (!sqlBuilder.lastSpaceCharacter()) {
-                    sqlBuilder.appendSql(" ");
-                }
-                super.buildQuery(data, context, sqlBuilder);
-            }
-        }
-
-        @Override
-        protected boolean test(Map<String, Object> data) {
-            boolean testResult = super.test(data);
-            if (testResult && useDefault.get()) {
-                useDefault.set(false);
-            }
-            return testResult;
         }
     }
 }

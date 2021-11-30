@@ -28,18 +28,22 @@ public class RuleRegistry {
     private final       Map<String, SqlBuildRule> ruleMap = new LinkedCaseInsensitiveMap<>();
 
     static {
+        DEFAULT.register("and", AndRule.INSTANCE);
+        DEFAULT.register("or", OrRule.INSTANCE);
+
+        DEFAULT.register("ognl", OgnlRule.INSTANCE);
+        DEFAULT.register("md5", MD5Rule.INSTANCE);
+        DEFAULT.register("uuid32", UUID32Rule.INSTANCE);
+        DEFAULT.register("uuid36", UUID36Rule.INSTANCE);
+
         DEFAULT.register("include", IncludeRule.INSTANCE);
         DEFAULT.register("text", TextRule.INSTANCE);
-        DEFAULT.register("nonull", NotnullRule.INSTANCE);
-        DEFAULT.register("parameter", ParameterRule.INSTANCE);
-        DEFAULT.register("md5", Md5Rule.INSTANCE);
-        DEFAULT.register("uuid32", Uuid32Rule.INSTANCE);
-        DEFAULT.register("uuid36", Uuid36Rule.INSTANCE);
+        DEFAULT.register("arg", ArgRule.INSTANCE);
     }
 
     public SqlBuildRule findByName(String ruleName) {
         SqlBuildRule rule = this.ruleMap.get(ruleName);
-        if (rule == null) {
+        if (rule == null && this != DEFAULT) {
             rule = DEFAULT.findByName(ruleName);
         }
         return rule;

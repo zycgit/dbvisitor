@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,18 +40,15 @@ public class Mapper2DalTest {
     }
 
     @Test
-    public void bindTest_02() {
+    public void bindTest_02() throws SQLException {
         DynamicSql parseXml = this.dalRegistry.findDynamicSql(Mapper2Dal.class, "testBind");
 
         Map<String, Object> data1 = new HashMap<>();
         data1.put("sellerId", "123");
         data1.put("abc", "aaa");
-        try {
-            parseXml.buildQuery(data1, new TextBuilderContext());
-            assert false;
-        } catch (Exception e) {
-            assert e.getMessage().contains("duplicate key 'abc'");
-        }
+        parseXml.buildQuery(data1, new TextBuilderContext());
+
+        assert data1.get("abc").equals("123abc");
     }
 
     @Test
@@ -64,7 +62,6 @@ public class Mapper2DalTest {
         SqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
         assert builder1.getSqlString().trim().equals(querySql1.trim());
         assert ((SqlArg) builder1.getArgs()[0]).getValue().equals("123");
-        assert ((SqlArg) builder1.getArgs()[1]).getValue().equals("aaa");
     }
 
     @Test

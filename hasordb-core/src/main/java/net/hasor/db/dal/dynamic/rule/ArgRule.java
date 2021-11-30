@@ -34,13 +34,12 @@ import java.util.Map;
  * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
  */
-public class ParameterRule implements SqlBuildRule {
-    public static final ParameterRule INSTANCE          = new ParameterRule();
-    public static final String        CFG_KEY_NAME      = "name";
-    public static final String        CFG_KEY_MODE      = "mode";
-    public static final String        CFG_KEY_JDBC_TYPE = "jdbcType";
-    public static final String        CFG_KEY_JAVA_TYPE = "javaType";
-    public static final String        CFG_KEY_HANDLER   = "typeHandler";
+public class ArgRule implements SqlBuildRule {
+    public static final ArgRule INSTANCE          = new ArgRule();
+    public static final String  CFG_KEY_MODE      = "mode";
+    public static final String  CFG_KEY_JDBC_TYPE = "jdbcType";
+    public static final String  CFG_KEY_JAVA_TYPE = "javaType";
+    public static final String  CFG_KEY_HANDLER   = "typeHandler";
 
     private SqlMode convertSqlMode(String sqlMode) {
         if (StringUtils.isNotBlank(sqlMode)) {
@@ -112,21 +111,20 @@ public class ParameterRule implements SqlBuildRule {
     }
 
     @Override
-    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String ruleValue) {
+    public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) {
         String[] testSplit = ruleValue.split(",");
         if (testSplit.length > 6 || testSplit.length == 0) {
-            throw new IllegalArgumentException("analysisSQL failed, format error -> '#{valueExpr [,name= xxx] [,mode= IN|OUT|INOUT] [,jdbcType=INT] [,javaType=java.lang.String] [,typeHandler=YouTypeHandlerClassName]}'");
+            throw new IllegalArgumentException("analysisSQL failed, format error -> '#{valueExpr [,mode= IN|OUT|INOUT] [,jdbcType=INT] [,javaType=java.lang.String] [,typeHandler=YouTypeHandlerClassName]}'");
         }
 
         boolean noExpr = StringUtils.contains(testSplit[0], "=");
         String expr = noExpr ? "" : testSplit[0];
-        Map<String, String> config = ParameterRule.INSTANCE.parserConfig(testSplit, noExpr ? 0 : 1, testSplit.length);
+        Map<String, String> config = ArgRule.INSTANCE.parserConfig(testSplit, noExpr ? 0 : 1, testSplit.length);
 
         executeRule(data, context, sqlBuilder, expr, config);
     }
 
     public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String expr, Map<String, String> config) {
-        String name = (config != null) ? config.get(CFG_KEY_NAME) : null;
         SqlMode sqlMode = convertSqlMode((config != null) ? config.get(CFG_KEY_MODE) : null);
         Integer jdbcType = convertJdbcType((config != null) ? config.get(CFG_KEY_JDBC_TYPE) : null);
         Class<?> javaType = convertJavaType(context, (config != null) ? config.get(CFG_KEY_JAVA_TYPE) : null);
@@ -157,7 +155,7 @@ public class ParameterRule implements SqlBuildRule {
             typeHandler = TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();
         }
 
-        sqlBuilder.appendSql("?", new SqlArg(name, expr, argValue, sqlMode, jdbcType, javaType, typeHandler));
+        sqlBuilder.appendSql("?", new SqlArg(expr, argValue, sqlMode, jdbcType, javaType, typeHandler));
     }
 
     @Override
