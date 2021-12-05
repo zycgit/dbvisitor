@@ -227,33 +227,30 @@ public class DalRegistry {
             }
         }
 
-        if (simpleMapper != null) {
-            Method[] dalTypeMethods = refRepository.getMethods();
-            DynamicResolve<Method> resolve = getMethodDynamicResolve();
+        Method[] dalTypeMethods = refRepository.getMethods();
+        DynamicResolve<Method> resolve = getMethodDynamicResolve();
+        for (Method method : dalTypeMethods) {
+            if (!ClassDynamicResolve.matchMethod(method)) {
+                continue;
+            }
 
-            for (Method method : dalTypeMethods) {
-                if (!ClassDynamicResolve.matchMethod(method)) {
-                    continue;
+            Class<?> resultType = null;
+            for (Annotation anno : method.getAnnotations()) {
+                if (anno instanceof Query) {
+                    resultType = ((Query) anno).resultType();
+                    break;
                 }
+            }
+            resultType = (resultType == Object.class) ? null : resultType;
+            if (resultType != null && findTableReader(namespace, resultType.getName()) == null) {
+                this.loadAsMapping(namespace, resultType);
+            }
 
-                Class<?> resultType = null;
-                for (Annotation anno : method.getAnnotations()) {
-                    if (anno instanceof Query) {
-                        resultType = ((Query) anno).resultType();
-                        break;
-                    }
-                }
-                resultType = (resultType == Object.class) ? null : resultType;
-                if (resultType != null && findTableReader(namespace, resultType.getName()) == null) {
-                    this.loadAsMapping(namespace, resultType);
-                }
+            String identify = method.getName();
+            DynamicSql dynamicSql = resolve.parseSqlConfig(method);
 
-                String identify = method.getName();
-                DynamicSql dynamicSql = resolve.parseSqlConfig(method);
-
-                if (dynamicSql != null) {
-                    saveDynamic(namespace, identify, dynamicSql);
-                }
+            if (dynamicSql != null) {
+                saveDynamic(namespace, identify, dynamicSql);
             }
         }
 
