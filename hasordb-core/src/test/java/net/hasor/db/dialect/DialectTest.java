@@ -256,35 +256,6 @@ public class DialectTest extends AbstractDbTest {
     }
 
     @Test
-    public void dialect_herddb_1() {
-        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.HERDDB);
-        String buildTableName1 = dialect.tableName(true, "", "tb_user");
-        String buildTableName2 = dialect.tableName(true, "abc", "tb_user");
-        String buildCondition = dialect.columnName(true, "", "tb_user", "userUUID");
-
-        assert buildTableName1.equals("`tb_user`");
-        assert buildTableName2.equals("`abc`.`tb_user`");
-        assert buildCondition.equals("`userUUID`");
-
-        BoundSql countSql = dialect.countSql(this.queryBoundSql);
-        assert countSql.getSqlString().equals("SELECT COUNT(*) FROM (select * from tb_user where age > 12 and sex = ?) as TEMP_T");
-        assert countSql.getArgs().length == 1;
-
-        BoundSql pageSql = dialect.pageSql(this.queryBoundSql, 1, 3);
-        assert pageSql.getSqlString().equals("select * from tb_user where age > 12 and sex = ? LIMIT ?, ?");
-        assert pageSql.getArgs().length == 3;
-        assert pageSql.getArgs()[0].equals('F');
-        assert pageSql.getArgs()[1].equals(1);
-        assert pageSql.getArgs()[2].equals(3);
-
-        BoundSql pageSql2 = dialect.pageSql(this.queryBoundSql, 0, 3);
-        assert pageSql2.getSqlString().equals("select * from tb_user where age > 12 and sex = ? LIMIT ?");
-        assert pageSql2.getArgs().length == 2;
-        assert pageSql2.getArgs()[0].equals('F');
-        assert pageSql2.getArgs()[1].equals(3);
-    }
-
-    @Test
     public void dialect_sqlserver2012_1() {
         PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.SQL_SERVER);
         String buildTableName1 = dialect.tableName(true, "", "tb_user");

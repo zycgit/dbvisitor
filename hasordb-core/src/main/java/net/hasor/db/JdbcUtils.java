@@ -30,7 +30,6 @@ public class JdbcUtils {
     public static final String SYBASE           = "sybase";
     public static final String SQL_SERVER       = "sqlserver";
     public static final String ORACLE           = "oracle";
-    public static final String ALI_ORACLE       = "alioracle";
     public static final String MYSQL            = "mysql";
     public static final String MARIADB          = "mariadb";
     public static final String DERBY            = "derby";
@@ -44,11 +43,9 @@ public class JdbcUtils {
     public static final String OCEANBASE        = "oceanbase";
     public static final String OCEANBASE_ORACLE = "oceanbase_oracle";
     public static final String INFORMIX         = "informix";
-    public static final String HERDDB           = "herddb";
     public static final String IMPALA           = "impala";
     /** 阿里云 odps */
     public static final String ODPS             = "odps";
-    public static final String TERADATA         = "teradata";
     /** Log4JDBC */
     public static final String LOG4JDBC         = "log4jdbc";
     public static final String PHOENIX          = "phoenix";
@@ -74,18 +71,11 @@ public class JdbcUtils {
             return MARIADB;
         } else if (rawUrl.startsWith("jdbc:oracle:") || rawUrl.startsWith("jdbc:log4jdbc:oracle:")) {
             return ORACLE;
-        } else if (rawUrl.startsWith("jdbc:alibaba:oracle:")) {
-            return ALI_ORACLE;
         } else if (rawUrl.startsWith("jdbc:oceanbase:")) {
             return OCEANBASE;
         } else if (rawUrl.startsWith("jdbc:oceanbase:oracle:")) {
             return OCEANBASE_ORACLE;
-        } else if (rawUrl.startsWith("jdbc:microsoft:") || rawUrl.startsWith("jdbc:log4jdbc:microsoft:")) {
-            return SQL_SERVER;
-            //        } else if (jdbcUrl.contains(":sqlserver:") || jdbcUrl.contains(":microsoft:")) {
-            //            return DbType.SQL_SERVER2005;
-            //        } else if (jdbcUrl.contains(":sqlserver2012:")) {
-        } else if (rawUrl.startsWith("jdbc:sqlserver:") || rawUrl.startsWith("jdbc:log4jdbc:sqlserver:")) {
+        } else if (rawUrl.startsWith("jdbc:microsoft:") || rawUrl.startsWith("jdbc:log4jdbc:microsoft:") || rawUrl.startsWith("jdbc:sqlserver:") || rawUrl.startsWith("jdbc:log4jdbc:sqlserver:")) {
             return SQL_SERVER;
         } else if (rawUrl.startsWith("jdbc:sybase:Tds:") || rawUrl.startsWith("jdbc:log4jdbc:sybase:")) {
             return SYBASE;
@@ -149,9 +139,7 @@ public class JdbcUtils {
             return XUGU;
         } else if (rawUrl.startsWith("jdbc:log4jdbc:")) {
             return LOG4JDBC;
-        } else if (rawUrl.startsWith("jdbc:hive:")) {
-            return HIVE;
-        } else if (rawUrl.startsWith("jdbc:hive2:")) {
+        } else if (rawUrl.startsWith("jdbc:hive:") || rawUrl.startsWith("jdbc:hive2:")) {
             return HIVE;
         } else if (rawUrl.startsWith("jdbc:phoenix:")) {
             return PHOENIX;

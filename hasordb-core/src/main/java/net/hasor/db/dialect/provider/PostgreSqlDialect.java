@@ -41,7 +41,7 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
     public BoundSql pageSql(BoundSql boundSql, int start, int limit) {
         StringBuilder sqlBuilder = new StringBuilder(boundSql.getSqlString());
         List<Object> paramArrays = new ArrayList<>(Arrays.asList(boundSql.getArgs()));
-        //
+
         if (limit > 0) {
             sqlBuilder.append(" LIMIT ?");
             paramArrays.add(limit);
@@ -50,7 +50,7 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
             sqlBuilder.append(" OFFSET ?");
             paramArrays.add(start);
         }
-        //
+
         return new BoundSql.BoundSqlObj(sqlBuilder.toString(), paramArrays.toArray());
     }
 }

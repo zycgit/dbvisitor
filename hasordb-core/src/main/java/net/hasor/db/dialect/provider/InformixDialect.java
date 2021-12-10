@@ -36,7 +36,7 @@ public class InformixDialect extends AbstractDialect implements PageSqlDialect {
     public BoundSql pageSql(BoundSql boundSql, int start, int limit) {
         String sqlString = boundSql.getSqlString();
         List<Object> paramArrays = new ArrayList<>(Arrays.asList(boundSql.getArgs()));
-        //
+
         StringBuilder sqlBuilder = new StringBuilder();
         List<Object> newParam = new ArrayList<>();
         sqlBuilder.append("SELECT ");
@@ -51,7 +51,7 @@ public class InformixDialect extends AbstractDialect implements PageSqlDialect {
         sqlBuilder.append(" * FROM ( ");
         sqlBuilder.append(sqlString);
         sqlBuilder.append(" ) TEMP_T");
-        //
+
         paramArrays.addAll(0, newParam);
         return new BoundSql.BoundSqlObj(sqlBuilder.toString(), paramArrays.toArray());
     }

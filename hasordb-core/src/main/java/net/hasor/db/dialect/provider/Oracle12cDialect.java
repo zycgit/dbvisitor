@@ -36,9 +36,9 @@ public class Oracle12cDialect extends OracleDialect {
     public BoundSql pageSql(BoundSql boundSql, int start, int limit) {
         StringBuilder sqlBuilder = new StringBuilder(boundSql.getSqlString());
         List<Object> paramArrays = new ArrayList<>(Arrays.asList(boundSql.getArgs()));
-        //
+
         sqlBuilder.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
-        //
+
         paramArrays.add(start);
         paramArrays.add(limit);
         return new BoundSql.BoundSqlObj(sqlBuilder.toString(), paramArrays.toArray());

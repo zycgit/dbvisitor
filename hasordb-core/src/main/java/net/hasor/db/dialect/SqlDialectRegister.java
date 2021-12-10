@@ -33,12 +33,10 @@ public class SqlDialectRegister {
     private static final Map<String, SqlDialect> dialectCache    = new LinkedCaseInsensitiveMap<>();
 
     static {
-        registerDialectAlias(JdbcUtils.ALI_ORACLE, OracleDialect.class);
         registerDialectAlias(JdbcUtils.DB2, Db2Dialect.class);
         registerDialectAlias(JdbcUtils.DERBY, DerbyDialect.class);// Apache Derby
         registerDialectAlias(JdbcUtils.DM, DmDialect.class);
         registerDialectAlias(JdbcUtils.H2, H2Dialect.class);
-        registerDialectAlias(JdbcUtils.HERDDB, HerdDBDialect.class);
         registerDialectAlias(JdbcUtils.HIVE, HiveDialect.class);
         registerDialectAlias(JdbcUtils.HSQL, HSQLDialect.class);
         registerDialectAlias(JdbcUtils.IMPALA, ImpalaDialect.class);

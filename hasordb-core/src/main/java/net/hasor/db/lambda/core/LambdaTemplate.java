@@ -34,6 +34,7 @@ import java.util.Map;
  */
 public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
     protected final Map<Class<?>, TableMapping<?>> tableMapping = new HashMap<>();
+    protected       SqlDialect                     dialect      = null;
 
     /**
      * Construct a new JdbcTemplate for bean usage.
@@ -90,6 +91,10 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
 
     }
 
+    public void setDialect(SqlDialect dialect) {
+        this.dialect = dialect;
+    }
+
     protected <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
         if (exampleType == null) {
             throw new NullPointerException("exampleType is null.");
@@ -118,7 +123,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
     }
 
     protected SqlDialect getDefaultDialect() {
-        return null;
+        return this.dialect;
     }
 
     private <T, E extends AbstractExecute<T>> E configDialect(E execute) {

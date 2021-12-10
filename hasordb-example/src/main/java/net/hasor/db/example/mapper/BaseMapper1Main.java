@@ -2,6 +2,7 @@ package net.hasor.db.example.mapper;
 import net.hasor.db.dal.session.BaseMapper;
 import net.hasor.db.dal.session.DalSession;
 import net.hasor.db.example.DsUtils;
+import net.hasor.db.lambda.core.LambdaTemplate;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -16,6 +17,9 @@ public class BaseMapper1Main {
 
         BaseMapper<TestUser> baseMapper = dalSession.createBaseMapper(TestUser.class);
         baseMapper.query().queryForList();
+
+
+
         //
         //        Map<String, Object> newValue = new HashMap<>();
         //        newValue.put("id", 20);

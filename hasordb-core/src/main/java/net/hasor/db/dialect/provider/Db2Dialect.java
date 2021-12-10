@@ -34,7 +34,7 @@ public class Db2Dialect extends AbstractDialect implements PageSqlDialect {
         sqlBuilder.append("SELECT * FROM (SELECT TMP_PAGE.*,ROWNUMBER() OVER() AS ROW_ID FROM ( ");
         sqlBuilder.append(boundSql.getSqlString());
         sqlBuilder.append(" ) AS TMP_PAGE) TMP_PAGE WHERE ROW_ID BETWEEN ? AND ?");
-        //
+
         Object[] paramArray = boundSql.getArgs();
         Object[] destArgs = new Object[paramArray.length + 2];
         System.arraycopy(paramArray, 0, destArgs, 0, paramArray.length);

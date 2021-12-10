@@ -32,11 +32,6 @@ public interface ConditionSqlDialect extends SqlDialect {
         DEFAULT
     }
 
-    /** 用于链接 insert into .... 和 select ... */
-    public default String selectAsInsertConcatStr() {
-        return "";
-    }
-
     public default String like(SqlLike likeType, Object value) {
         if (value == null || StringUtils.isBlank(value.toString())) {
             return "%";
