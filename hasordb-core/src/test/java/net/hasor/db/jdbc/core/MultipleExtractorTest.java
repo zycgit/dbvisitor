@@ -36,7 +36,7 @@ import static net.hasor.test.db.utils.TestUtils.*;
 public class MultipleExtractorTest extends AbstractDbTest {
     @Test
     public void testMultipleResultExtractor_1() throws SQLException, IOException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists tb_user;");
             jdbcTemplate.loadSQL("net_hasor_db/tb_user_for_mysql.sql");
@@ -64,7 +64,7 @@ public class MultipleExtractorTest extends AbstractDbTest {
 
     @Test
     public void testMultipleResultExtractor_2() throws SQLException, IOException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists tb_user;");
             jdbcTemplate.loadSQL("net_hasor_db/tb_user_for_mysql.sql");
@@ -93,7 +93,7 @@ public class MultipleExtractorTest extends AbstractDbTest {
 
     @Test
     public void testMultipleResultExtractor_3() throws SQLException, IOException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists tb_user;");
             jdbcTemplate.loadSQL("net_hasor_db/tb_user_for_mysql.sql");
@@ -124,7 +124,7 @@ public class MultipleExtractorTest extends AbstractDbTest {
 
     @Test
     public void testMultipleResultExtractor_4() throws SQLException, IOException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists tb_user;");
             jdbcTemplate.loadSQL("net_hasor_db/tb_user_for_mysql.sql");

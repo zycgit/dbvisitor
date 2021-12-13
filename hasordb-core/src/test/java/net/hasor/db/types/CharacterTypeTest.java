@@ -84,7 +84,7 @@ public class CharacterTypeTest {
 
     @Test
     public void testCharacterTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_char;");
             jdbcTemplate.execute("create procedure proc_char(out p_out char) begin set p_out='A'; end;");
@@ -153,7 +153,7 @@ public class CharacterTypeTest {
 
     @Test
     public void testNCharacterTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_char;");
             jdbcTemplate.execute("create procedure proc_char(out p_out char) begin set p_out='A'; end;");

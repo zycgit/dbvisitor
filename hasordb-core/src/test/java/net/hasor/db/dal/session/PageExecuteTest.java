@@ -25,7 +25,7 @@ public class PageExecuteTest {
         DalRegistry dalRegistry = new DalRegistry();
         dalRegistry.loadMapper(PageExecuteDal.class);
 
-        this.dalSession = new DalSession(DsUtils.localMySQL(), dalRegistry);
+        this.dalSession = new DalSession(DsUtils.mysqlConnection(), dalRegistry);
 
         this.beforeTest(this.dalSession.lambdaTemplate());
     }

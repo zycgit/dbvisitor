@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.transaction.provider;
-import net.hasor.db.transaction.TranManager;
-import net.hasor.db.transaction.TransactionTemplate;
+package net.hasor.db.transaction;
 
 import javax.sql.DataSource;
 import java.util.function.Supplier;
@@ -25,14 +23,18 @@ import java.util.function.Supplier;
  * @version : 2015年11月10日
  * @author 赵永春 (zyc@hasor.net)
  */
-public class TransactionTemplateProvider implements Supplier<TransactionTemplate> {
+public class TransactionManagerProvider implements Supplier<TransactionManager> {
     private final Supplier<DataSource> dataSource;
 
-    public TransactionTemplateProvider(Supplier<DataSource> dataSource) {
+    public TransactionManagerProvider(DataSource dataSource) {
+        this(() -> dataSource);
+    }
+
+    public TransactionManagerProvider(Supplier<DataSource> dataSource) {
         this.dataSource = dataSource;
     }
 
-    public TransactionTemplate get() {
-        return TranManager.getTemplate(this.dataSource.get());
+    public TransactionManager get() {
+        return DataSourceManager.getManager(this.dataSource.get());
     }
 }

@@ -86,7 +86,7 @@ public class DateTypeTest {
 
     @Test
     public void testDateTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_timestamp;");
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");
@@ -171,7 +171,7 @@ public class DateTypeTest {
 
     @Test
     public void testTimeOnlyTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_timestamp;");
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");
@@ -256,7 +256,7 @@ public class DateTypeTest {
 
     @Test
     public void testDateOnlyTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_timestamp;");
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");

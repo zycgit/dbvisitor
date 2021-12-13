@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.transaction.support;
-import net.hasor.db.datasource.ConnectionHolder;
-import net.hasor.db.datasource.SavepointManager;
+import net.hasor.db.transaction.ConnectionHolder;
 import net.hasor.db.transaction.Isolation;
 
 import javax.sql.DataSource;
@@ -27,19 +26,19 @@ import java.sql.SQLException;
  * @author 赵永春 (zyc@byshell.org)
  */
 public class TransactionObject {
-    private ConnectionHolder holder      = null;
-    private DataSource       dataSource  = null;
-    private Isolation        oriIsolationLevel; //创建事务对象时的隔离级别，当事物结束之后用以恢复隔离级别
-    private boolean          recoverMark = false;
+    private final ConnectionHolder holder;
+    private final DataSource       dataSource;
+    private final Isolation        recoverIsolation; //创建事务对象时的隔离级别，当事物结束之后用以恢复隔离级别
+    private       boolean          recoverMark = false;
 
-    public TransactionObject(final ConnectionHolder holder, final Isolation oriIsolationLevel, final DataSource dataSource) throws SQLException {
+    public TransactionObject(final ConnectionHolder holder, final Isolation recoverIsolation, final DataSource dataSource) throws SQLException {
         this.holder = holder;
         this.dataSource = dataSource;
-        this.oriIsolationLevel = oriIsolationLevel;
+        this.recoverIsolation = recoverIsolation;
     }
 
-    public Isolation getOriIsolationLevel() {
-        return this.oriIsolationLevel;
+    public Isolation getRecoverIsolation() {
+        return this.recoverIsolation;
     }
 
     public ConnectionHolder getHolder() {
@@ -48,10 +47,6 @@ public class TransactionObject {
 
     public DataSource getDataSource() {
         return this.dataSource;
-    }
-
-    public SavepointManager getSavepointManager() {
-        return this.getHolder();
     }
 
     public void rollback() throws SQLException {

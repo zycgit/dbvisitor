@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.db.transaction.support;
-import net.hasor.db.datasource.SavepointManager;
 import net.hasor.db.transaction.Isolation;
 import net.hasor.db.transaction.Propagation;
 import net.hasor.db.transaction.TransactionStatus;
@@ -27,62 +26,72 @@ import java.sql.Savepoint;
  * @version : 2013-10-30
  * @author 赵永春 (zyc@hasor.net)
  */
-public class JdbcTransactionStatus implements TransactionStatus {
-    private Savepoint         savepoint     = null;  //事务保存点
-    private TransactionObject tranConn      = null;  //当前事务使用的数据库连接
-    private TransactionObject suspendConn   = null;  //当前事务之前挂起的上一个数据库事务
-    private Propagation       behavior      = null;  //传播属性
-    private Isolation         level         = null;  //隔离级别
-    private boolean           completed     = false; //完成（true表示完成）
-    private boolean           rollbackOnly  = false; //要求回滚（true表示回滚）
-    private boolean           newConnection = false; //是否使用了一个全新的数据库连接开启事务（true表示新连接）
-    private boolean           readOnly      = false; //只读模式（true表示只读）
+public class LocalTransactionStatus implements TransactionStatus {
+    private       Savepoint         savepoint     = null;  //事务保存点
+    private       TransactionObject tranConn      = null;  //当前事务使用的数据库连接
+    private       TransactionObject suspendConn   = null;  //当前事务之前挂起的上一个数据库事务
+    private final Propagation       propagation;  //传播属性
+    private final Isolation         level;  //隔离级别
+    private       boolean           completed     = false; //完成（true表示完成）
+    private       boolean           rollbackOnly  = false; //要求回滚（true表示回滚）
+    private       boolean           newConnection = false; //是否使用了一个全新的数据库连接开启事务（true表示新连接）
+    private       boolean           readOnly      = false; //只读模式（true表示只读）
 
-    public JdbcTransactionStatus(final Propagation behavior, final Isolation level) {
-        this.behavior = behavior;
+    public LocalTransactionStatus(final Propagation propagation, final Isolation level) {
+        this.propagation = propagation;
         this.level = level;
     }
 
-    private SavepointManager getSavepointManager() {
-        return this.tranConn.getSavepointManager();
+    protected SavepointManager getSavepointManager() {
+        return (SavepointManager) this.tranConn.getHolder();
     }
 
     public void markSavepoint() throws SQLException {
         if (this.hasSavepoint()) {
             throw new SQLException("TransactionStatus has Savepoint");
         }
-        if (!this.getSavepointManager().supportSavepoint()) {
-            throw new SQLException("SavepointManager does not support Savepoint.");
+
+        SavepointManager manager = getSavepointManager();
+        if (!manager.supportSavepoint()) {
+            throw new SQLException("Connection does not support Savepoint.");
         }
-        this.savepoint = this.getSavepointManager().createSavepoint();
+
+        this.savepoint = manager.createSavepoint();
     }
 
     public void releaseSavepoint() throws SQLException {
         if (!this.hasSavepoint()) {
             throw new SQLException("TransactionStatus has not Savepoint");
         }
-        if (!this.getSavepointManager().supportSavepoint()) {
-            throw new SQLException("SavepointManager does not support Savepoint.");
+
+        SavepointManager manager = getSavepointManager();
+        if (!manager.supportSavepoint()) {
+            throw new SQLException("Connection does not support Savepoint.");
         }
-        this.getSavepointManager().releaseSavepoint(this.savepoint);
+
+        manager.releaseSavepoint(this.savepoint);
+        this.savepoint = null;
     }
 
     public void rollbackToSavepoint() throws SQLException {
         if (!this.hasSavepoint()) {
             throw new SQLException("TransactionStatus has not Savepoint");
         }
-        if (!this.getSavepointManager().supportSavepoint()) {
-            throw new SQLException("SavepointManager does not support Savepoint.");
+
+        SavepointManager manager = getSavepointManager();
+        if (!manager.supportSavepoint()) {
+            throw new SQLException("Connection does not support Savepoint.");
         }
-        this.getSavepointManager().rollbackToSavepoint(this.savepoint);
+
+        manager.rollback(this.savepoint);
     }
 
-    /*设置完成状态*/
+    /* 设置完成状态 */
     void setCompleted() {
         this.completed = true;
     }
 
-    /*标记使用的是全新连接*/
+    /* 标记使用的是全新连接 */
     void markNewConnection() {
         this.newConnection = true;
     }
@@ -104,8 +113,8 @@ public class JdbcTransactionStatus implements TransactionStatus {
     }
 
     @Override
-    public Propagation getTransactionBehavior() {
-        return this.behavior;
+    public Propagation getPropagation() {
+        return this.propagation;
     }
 
     @Override
@@ -144,7 +153,7 @@ public class JdbcTransactionStatus implements TransactionStatus {
     }
 
     @Override
-    public void setRollbackOnly() throws SQLException {
+    public void setRollback() throws SQLException {
         if (this.isCompleted()) {
             throw new SQLException("Transaction is already completed.");
         }

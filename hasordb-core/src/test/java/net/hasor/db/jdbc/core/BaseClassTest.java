@@ -15,9 +15,9 @@
  */
 package net.hasor.db.jdbc.core;
 import com.alibaba.druid.pool.DruidDataSource;
-import net.hasor.db.datasource.ConnectionProxy;
 import net.hasor.db.jdbc.ConnectionCallback;
 import net.hasor.db.jdbc.StatementCallback;
+import net.hasor.db.transaction.ConnectionProxy;
 import net.hasor.db.types.TypeHandlerRegistry;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.utils.DsUtils;

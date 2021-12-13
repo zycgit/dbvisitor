@@ -14,15 +14,27 @@
  * limitations under the License.
  */
 package net.hasor.db.transaction;
-import net.hasor.db.jdbc.core.JdbcTemplate;
 
-import java.sql.SQLException;
+import javax.sql.DataSource;
+import java.util.function.Supplier;
 
 /**
- * 事务传播属性
+ *
  * @version : 2015年11月10日
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface ConsumerThrow {
-    public void accept(JdbcTemplate jdbcTemplate) throws SQLException;
+public class TransactionTemplateProvider implements Supplier<TransactionTemplate> {
+    private final Supplier<DataSource> dataSource;
+
+    public TransactionTemplateProvider(DataSource dataSource) {
+        this(() -> dataSource);
+    }
+
+    public TransactionTemplateProvider(Supplier<DataSource> dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public TransactionTemplate get() {
+        return DataSourceManager.getTemplate(this.dataSource.get());
+    }
 }

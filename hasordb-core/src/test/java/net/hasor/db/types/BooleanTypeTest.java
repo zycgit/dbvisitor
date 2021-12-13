@@ -33,7 +33,7 @@ public class BooleanTypeTest {
     public void testBooleanTypeHandler_1() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
- 
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_boolean) values (true);");
             List<Boolean> dat = jdbcTemplate.query("select c_boolean from tb_h2_types where c_boolean is not null limit 1;", (rs, rowNum) -> {
                 return new BooleanTypeHandler().getResult(rs, 1);
@@ -80,7 +80,7 @@ public class BooleanTypeTest {
 
     @Test
     public void testBooleanTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_boolean;");
             jdbcTemplate.execute("create procedure proc_boolean(out p_out boolean) begin set p_out=true; end;");

@@ -76,7 +76,7 @@ public class DoubleTypeTest {
 
     @Test
     public void testCharacterTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_double;");
             jdbcTemplate.execute("create procedure proc_double(out p_out double) begin set p_out=123.123; end;");

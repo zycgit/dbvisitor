@@ -130,7 +130,7 @@ public class DynamicXmlTest {
         assert builder1.getSqlString().trim().equals(querySql1.trim());
         assert ((SqlArg) builder1.getArgs()[0]).getValue().equals("123abc");
     }
-  
+
     @Test
     public void whereTest_01() throws Throwable {
         String queryConfig = loadString("/net_hasor_db/dal_dynamic/fragment/where_01.xml");

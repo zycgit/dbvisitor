@@ -33,7 +33,7 @@ import java.util.Map;
 public class OgnlRule implements SqlBuildRule {
     public static final  SqlBuildRule   INSTANCE          = new OgnlRule();
     private static final TypeHandler<?> stringTypeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
- 
+
     @Override
     public void executeRule(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) {
         Object evalOgnl = OgnlUtils.evalOgnl(ruleValue, data);

@@ -76,7 +76,7 @@ public class LongTypeTest {
 
     @Test
     public void testLongTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_bigint;");
             jdbcTemplate.execute("create procedure proc_bigint(out p_out bigint) begin set p_out=123123; end;");

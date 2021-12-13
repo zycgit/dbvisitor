@@ -13,26 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.transaction.provider;
-import net.hasor.db.transaction.TranManager;
-import net.hasor.db.transaction.TransactionManager;
+package net.hasor.db.transaction.support;
+import net.hasor.db.transaction.DataSourceManager;
 
 import javax.sql.DataSource;
-import java.util.function.Supplier;
 
 /**
- *
- * @version : 2015年11月10日
+ * @version : 2013-10-30
  * @author 赵永春 (zyc@hasor.net)
  */
-public class TransactionManagerProvider implements Supplier<TransactionManager> {
-    private final Supplier<DataSource> dataSource;
-
-    public TransactionManagerProvider(Supplier<DataSource> dataSource) {
-        this.dataSource = dataSource;
+class SyncManager extends DataSourceManager {
+    public static void setSync(TransactionObject tranConn) {
+        unsafeResetHolder(tranConn.getDataSource(), tranConn.getHolder());
     }
 
-    public TransactionManager get() {
-        return TranManager.getManager(this.dataSource.get());
+    public static void clearSync(DataSource dataSource) {
+        unsafeClearHolder(dataSource);
     }
 }

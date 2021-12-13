@@ -18,15 +18,8 @@ import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.CharUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.convert.ConverterUtils;
-import net.hasor.db.jdbc.ConnectionCallback;
-import net.hasor.db.jdbc.core.JdbcTemplate;
-import net.hasor.db.jdbc.extractor.RowMapperResultSetExtractor;
 
 import java.io.PrintStream;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -36,28 +29,6 @@ import java.util.Map.Entry;
  * @author 赵永春 (zyc@hasor.net)
  */
 public abstract class AbstractDbTest {
-
-    public boolean hasTable(JdbcTemplate jdbcTemplate, String catalog, String schemaName, String table) throws SQLException {
-        return jdbcTemplate.execute((ConnectionCallback<Boolean>) con -> {
-            DatabaseMetaData metaData = con.getMetaData();
-            try (ResultSet resultSet = metaData.getTables(catalog, schemaName, table, null)) {
-                List<String> jdbcTables = new RowMapperResultSetExtractor<>((rs, rowNum) -> {
-                    return rs.getString("TABLE_NAME");
-                }).extractData(resultSet);
-                return jdbcTables.contains(table);
-            }
-        });
-    }
-
-    protected int tableCountWithNew(JdbcTemplate jdbcTemplate) throws SQLException {
-        try (Connection connection = jdbcTemplate.getDataSource().getConnection()) {
-            return new JdbcTemplate(connection).queryForInt("select count(1) from tb_user");
-        }
-    }
-
-    protected int tableCountWithCurrent(JdbcTemplate jdbcTemplate) throws SQLException {
-        return jdbcTemplate.queryForInt("select count(1) from tb_user");
-    }
 
     /**打印列表内容*/
     public static <T> String printObjectList(final List<T> dataList) {

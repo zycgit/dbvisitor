@@ -38,7 +38,7 @@ public class MySqlTypesTest {
 
     @Test
     public void testMySqlYear() throws Exception {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             preTable(jdbcTemplate);
             //

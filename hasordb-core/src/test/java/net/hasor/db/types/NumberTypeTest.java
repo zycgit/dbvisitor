@@ -90,7 +90,7 @@ public class NumberTypeTest {
 
     @Test
     public void testNumberTypeHandler_5() throws Exception {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_varchar;");
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(10)) begin set p_out='123.4'; end;");

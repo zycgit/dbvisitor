@@ -28,8 +28,8 @@ import java.util.UUID;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class TestUtils {
-    public static final  String   INSERT_ARRAY = "insert into tb_user (userUUID,name,loginName,loginPassword,email,index,registerTime) values (?,?,?,?,?,?,?);";
-    public static final  String   INSERT_MAP   = "insert into tb_user (userUUID,name,loginName,loginPassword,email,index,registerTime) values (:userUUID,:name,:loginName,:loginPassword,:email,:index,:registerTime);";
+    public static final  String   INSERT_ARRAY = "insert into tb_user (userUUID,name,loginName,loginPassword,email,`index`,registerTime) values (?,?,?,?,?,?,?);";
+    public static final  String   INSERT_MAP   = "insert into tb_user (userUUID,name,loginName,loginPassword,email,`index`,registerTime) values (:userUUID,:name,:loginName,:loginPassword,:email,:index,:registerTime);";
     private static final Object[] DATA_1       = new Object[] { newID(), "默罕默德", "muhammad", "1", "muhammad@hasor.net", 1, new Date() };
     private static final Object[] DATA_2       = new Object[] { newID(), "安妮.贝隆", "belon", "2", "belon@hasor.net", 2, new Date() };
     private static final Object[] DATA_3       = new Object[] { newID(), "赵飞燕", "feiyan", "3", "feiyan@hasor.net", 3, new Date() };

@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.datasource;
+package net.hasor.db.transaction.support;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 
 /**
- *
- * @version : 2013-10-30
+ * Savepoint Manager
+ * @version : 2021-12-14
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface SavepointManager {
-    /**返回 JDBC 驱动是否支持保存点。*/
+    /** 则表示当前数据库连接是否被打开(被打开的连接一定有引用) */
     public boolean supportSavepoint() throws SQLException;
 
-    /**创建事务的保存点，通过<code>releaseSavepoint</code>方法释放这个保存点。SQLException */
+    /** 使用一个全新的名称创建一个保存点 */
     public Savepoint createSavepoint() throws SQLException;
 
-    /**回滚事务到一个指定的保存点。*/
-    public void rollbackToSavepoint(Savepoint savepoint) throws SQLException;
-
-    /**释放某个事务的保存点*/
+    /** 释放某个事务的保存点 */
     public void releaseSavepoint(Savepoint savepoint) throws SQLException;
+
+    /** 回滚事务到一个指定的保存点 */
+    public void rollback(Savepoint savepoint) throws SQLException;
 }

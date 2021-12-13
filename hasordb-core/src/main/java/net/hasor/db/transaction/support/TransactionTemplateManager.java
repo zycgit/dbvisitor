@@ -31,16 +31,16 @@ class TransactionTemplateManager implements TransactionTemplate {
     public <T> T execute(TransactionCallback<T> callBack, Propagation behavior, Isolation level) throws Throwable {
         TransactionStatus tranStatus = null;
         try {
-            tranStatus = transactionManager.getTransaction(behavior, level);
+            tranStatus = this.transactionManager.getTransaction(behavior, level);
             return callBack.doTransaction(tranStatus);
         } catch (Throwable e) {
             if (tranStatus != null) {
-                tranStatus.setRollbackOnly();
+                tranStatus.setRollback();
             }
             throw e;
         } finally {
             if (tranStatus != null && !tranStatus.isCompleted()) {
-                transactionManager.commit(tranStatus);
+                this.transactionManager.commit(tranStatus);
             }
         }
     }

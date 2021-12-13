@@ -29,7 +29,7 @@ public interface TransactionTemplate {
      * @throws SQLException 执行期间发生SQL异常
      */
     public default <T> T execute(TransactionCallback<T> callBack) throws Throwable {
-        return this.execute(callBack, Propagation.REQUIRED, Isolation.DEFAULT);
+        return this.execute(callBack, Propagation.REQUIRED, null);
     }
 
     /**
@@ -40,7 +40,7 @@ public interface TransactionTemplate {
      * @throws SQLException 执行期间发生SQL异常
      */
     public default <T> T execute(TransactionCallback<T> callBack, Propagation behavior) throws Throwable {
-        return this.execute(callBack, behavior, Isolation.DEFAULT);
+        return this.execute(callBack, behavior, null);
     }
 
     /**

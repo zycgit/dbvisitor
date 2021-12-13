@@ -108,7 +108,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetDateTimeForSqlTypeHandler_4() throws Exception {
-        try (Connection conn = DsUtils.localOracle()) {
+        try (Connection conn = DsUtils.oracleConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute(""//
                     + "create or replace procedure proc_timestamptz(p_out out timestamp with time zone)\n" //
@@ -205,7 +205,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetDateTimeForUTCTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_timestamp;");
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");
@@ -294,7 +294,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetTimeForSqlTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localOracle()) {
+        try (Connection conn = DsUtils.oracleConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute(""//
                     + "create or replace procedure proc_timestamptz(p_out out timestamp with time zone)\n" //
@@ -388,7 +388,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetTimeForUTCTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_timestamp;");
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");
@@ -480,7 +480,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testZonedDateTimeTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localOracle()) {
+        try (Connection conn = DsUtils.oracleConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute(""//
                     + "create or replace procedure proc_timestamptz(p_out out timestamp with time zone)\n" //

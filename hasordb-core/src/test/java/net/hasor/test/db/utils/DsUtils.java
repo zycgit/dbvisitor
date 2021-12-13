@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Collections;
 
 import static net.hasor.test.db.utils.TestUtils.*;
 
@@ -114,22 +115,69 @@ public class DsUtils {
         return dataSource;
     }
 
-    public static Connection localMySQL() throws SQLException {
+    public static Connection mysqlConnection() throws SQLException {
         return DriverManager.getConnection(MYSQL_JDBC_URL, MYSQL_USER, MYSQL_PASSWORD);
     }
 
-    public static Connection aliyunAdbMySQL() throws SQLException {
-        return DriverManager.getConnection(ADB_MYSQL_JDBC_URL, "lab_1930494464", "3c8cb997a455_#@Aa");
-        //        return DriverManager.getConnection("jdbc:mysql://am-bp1n12212i9iuio5e167320o.ads.aliyuncs.com:3306/adb_mysql_4387qyy", "root", "am-bp1n12212i9iuio5e");
+    public static DruidDataSource mysqlDataSource() throws SQLException {
+        DruidDataSource druid = new DruidDataSource();
+        druid.setUrl(MYSQL_JDBC_URL);
+        druid.setUsername(MYSQL_USER);
+        druid.setPassword(MYSQL_PASSWORD);
+        druid.setMaxActive(5);
+        druid.setMaxWait(3 * 1000);
+        druid.setInitialSize(1);
+        druid.setConnectionErrorRetryAttempts(1);
+        druid.setBreakAfterAcquireFailure(true);
+        druid.setTestOnBorrow(true);
+        druid.setTestWhileIdle(true);
+        druid.setFailFast(true);
+        druid.init();
+        return druid;
     }
 
-    public static Connection localPg() throws SQLException {
+    public static Connection pgConnection() throws SQLException {
         return DriverManager.getConnection(PG_JDBC_URL, "postgres", "123456");
     }
 
-    public static Connection localOracle() throws SQLException {
+    public static DruidDataSource pgDataSource() throws SQLException {
+        DruidDataSource druid = new DruidDataSource();
+        druid.setUrl(PG_JDBC_URL);
+        druid.setUsername("postgres");
+        druid.setPassword("123456");
+        druid.setMaxActive(5);
+        druid.setMaxWait(3 * 1000);
+        druid.setInitialSize(1);
+        druid.setConnectionErrorRetryAttempts(1);
+        druid.setBreakAfterAcquireFailure(true);
+        druid.setTestOnBorrow(true);
+        druid.setTestWhileIdle(true);
+        druid.setFailFast(true);
+        druid.init();
+        return druid;
+    }
+
+    public static Connection oracleConnection() throws SQLException {
         Connection connection = DriverManager.getConnection(ORACLE_JDBC_URL, "sys as sysdba", "oracle");
         connection.createStatement().execute("alter session set current_schema = SCOTT");
         return connection;
+    }
+
+    public static DruidDataSource oracleDataSource() throws SQLException {
+        DruidDataSource druid = new DruidDataSource();
+        druid.setUrl(ORACLE_JDBC_URL);
+        druid.setUsername("sys as sysdba");
+        druid.setPassword("oracle");
+        druid.setMaxActive(5);
+        druid.setMaxWait(3 * 1000);
+        druid.setInitialSize(1);
+        druid.setConnectionErrorRetryAttempts(1);
+        druid.setBreakAfterAcquireFailure(true);
+        druid.setTestOnBorrow(true);
+        druid.setTestWhileIdle(true);
+        druid.setFailFast(true);
+        druid.setConnectionInitSqls(Collections.singletonList("alter session set current_schema = SCOTT"));
+        druid.init();
+        return druid;
     }
 }

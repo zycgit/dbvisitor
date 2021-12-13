@@ -16,9 +16,9 @@
 package net.hasor.db.jdbc.core;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.db.datasource.ConnectionProxy;
 import net.hasor.db.jdbc.ConnectionCallback;
 import net.hasor.db.jdbc.StatementCallback;
+import net.hasor.db.transaction.ConnectionProxy;
 
 import javax.sql.DataSource;
 import java.lang.reflect.InvocationHandler;
@@ -123,27 +123,27 @@ public class JdbcConnection extends JdbcAccessor {
 
         Connection localConn = this.getConnection();
         DataSource localDS = this.getDataSource();//获取数据源
-        boolean usingDS = (localConn == null);
-        if (logger.isDebugEnabled()) {
-            logger.trace("database connection using DataSource = " + usingDS);
-        }
         if (localConn == null && localDS == null) {
             throw new IllegalArgumentException("DataSource or Connection are not available.");
         }
 
-        ConnectionProxy useConn = null;
+        boolean usingDS = (localConn == null);
+        if (logger.isDebugEnabled()) {
+            logger.trace("database connection using DataSource = " + usingDS);
+        }
+
+        Connection useConn = null;
         try {
             if (usingDS) {
-                localConn = applyConnection(localDS);
-                useConn = this.newProxyConnection(localConn, localDS);//代理连接
+                useConn = applyConnection(localDS);
             } else {
                 useConn = this.newProxyConnection(localConn, null);//代理连接
             }
             return action.doInConnection(useConn);
         } finally {
             if (usingDS) {
-                if (localConn != null) {
-                    localConn.close();
+                if (useConn != null) {
+                    useConn.close();
                 }
             }
         }

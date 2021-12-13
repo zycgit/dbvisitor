@@ -84,7 +84,7 @@ public class BigDecimalTypeTest {
 
     @Test
     public void testBigDecimalTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_decimal;");
             jdbcTemplate.execute("create procedure proc_decimal(out p_out decimal(10,2)) begin set p_out=123.123; end;");

@@ -74,7 +74,7 @@ public class StringTypeTest {
 
     @Test
     public void testClobTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_text;");
             jdbcTemplate.execute("create procedure proc_text(out p_out text) begin set p_out='abcdefg'; end;");
@@ -130,7 +130,7 @@ public class StringTypeTest {
 
     @Test
     public void testNClobTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_text;");
             jdbcTemplate.execute("create procedure proc_text(out p_out text) begin set p_out='abcdefg'; end;");
@@ -191,7 +191,7 @@ public class StringTypeTest {
 
     @Test
     public void testStringTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_varchar;");
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(10)) begin set p_out='abcdefg'; end;");
@@ -252,7 +252,7 @@ public class StringTypeTest {
 
     @Test
     public void testNStringTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_nvarchar;");
             jdbcTemplate.execute("create procedure proc_nvarchar(out p_out nvarchar(10)) begin set p_out='abcdefg'; end;");

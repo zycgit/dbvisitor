@@ -22,28 +22,43 @@ import java.sql.SQLException;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface TransactionManager {
-    /**开启事务，使用默认事务隔离级别。
+    /**
+     * 开启事务，使用默认事务隔离级别。
      * @see Propagation
-     * @see TransactionManager#getTransaction(Propagation, Isolation)*/
-    public default TransactionStatus getTransaction(Propagation behavior) throws SQLException {
-        return this.getTransaction(behavior, Isolation.DEFAULT);
+     * @see TransactionManager#getTransaction(Propagation, Isolation)
+     */
+    public default TransactionStatus getTransaction() throws SQLException {
+        return this.getTransaction(Propagation.REQUIRED, Isolation.DEFAULT);
     }
 
-    /**开启事务
+    /**
+     * 开启事务，使用默认事务隔离级别。
      * @see Propagation
-     * @see java.sql.Connection#setTransactionIsolation(int)*/
+     * @see TransactionManager#getTransaction(Propagation, Isolation)
+     */
+    public default TransactionStatus getTransaction(Propagation behavior) throws SQLException {
+        return this.getTransaction(behavior, null);
+    }
+
+    /**
+     * 开启事务
+     * @see Propagation
+     * @see java.sql.Connection#setTransactionIsolation(int)
+     */
     public TransactionStatus getTransaction(Propagation behavior, Isolation level) throws SQLException;
 
-    /**递交事务
-     * <p>如果递交的事务并不处于事务堆栈顶端，会同时递交该事务的后面其它事务。*/
+    /**
+     * 递交事务
+     * <p>如果递交的事务并不处于事务堆栈顶端，会同时递交该事务的后面其它事务
+     */
     public void commit(TransactionStatus status) throws SQLException;
 
-    /**回滚事务*/
+    /** 回滚事务 */
     public void rollBack(TransactionStatus status) throws SQLException;
 
-    /**是否存在未处理完的事务（包括被挂起的事务）。*/
+    /** 是否存在未处理完的事务（包括被挂起的事务） */
     public boolean hasTransaction();
 
-    /**测试事务状态是否位于栈顶。*/
+    /** 测试事务状态是否位于栈顶 */
     public boolean isTopTransaction(TransactionStatus status);
 }

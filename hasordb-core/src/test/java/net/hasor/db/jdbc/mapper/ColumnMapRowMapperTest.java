@@ -47,7 +47,7 @@ public class ColumnMapRowMapperTest {
 
     @Test
     public void testColumnMapRowMapper_2() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             Map<String, Object> objectMap1 = jdbcTemplate.queryForObject("select 1 as T, 2 as t", new ColumnMapRowMapper(false));
             assert objectMap1.size() == 2;

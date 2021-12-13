@@ -76,7 +76,7 @@ public class ByteTypeTest {
 
     @Test
     public void testFloatTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_smallint;");
             jdbcTemplate.execute("create procedure proc_smallint(out p_out smallint) begin set p_out=123; end;");

@@ -49,7 +49,7 @@ public class OraclePerformanceTest {
     @Test
     public void oracleInsertQuery_1() throws SQLException {
         long t = System.currentTimeMillis();
-        try (Connection con = DsUtils.localOracle()) {
+        try (Connection con = DsUtils.oracleConnection()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(con);
             //
             reinit(con);
@@ -66,7 +66,7 @@ public class OraclePerformanceTest {
     @Test
     public void oracleInsertQuery_2() throws SQLException {
         long t = System.currentTimeMillis();
-        try (Connection con = DsUtils.localOracle()) {
+        try (Connection con = DsUtils.oracleConnection()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(con);
             //
             reinit(con);

@@ -76,7 +76,7 @@ public class ShortTypeTest {
 
     @Test
     public void testShortTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localMySQL()) {
+        try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_integer;");
             jdbcTemplate.execute("create procedure proc_integer(out p_out integer) begin set p_out=123; end;");

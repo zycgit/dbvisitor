@@ -59,7 +59,7 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlTypeHandler_1() throws SQLException {
-        try (Connection conn = DsUtils.localOracle()) {
+        try (Connection conn = DsUtils.oracleConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             preTable(jdbcTemplate);
 
@@ -73,7 +73,7 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlTypeHandler_2() throws SQLException {
-        try (Connection conn = DsUtils.localOracle()) {
+        try (Connection conn = DsUtils.oracleConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             preTable(jdbcTemplate);
 
@@ -87,7 +87,7 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlTypeHandler_3() throws SQLException {
-        try (Connection conn = DsUtils.localOracle()) {
+        try (Connection conn = DsUtils.oracleConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
 
             List<String> dat = jdbcTemplate.query("select ? from dual", ps -> {
@@ -101,7 +101,7 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.localOracle()) {
+        try (Connection conn = DsUtils.oracleConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             preProc(jdbcTemplate);
 
@@ -117,7 +117,7 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlForInputStreamTypeHandler_1() throws Exception {
-        try (Connection conn = DsUtils.localOracle()) {
+        try (Connection conn = DsUtils.oracleConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             preTable(jdbcTemplate);
 
@@ -132,7 +132,7 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlForInputStreamTypeHandler_2() throws Exception {
-        try (Connection conn = DsUtils.localOracle()) {
+        try (Connection conn = DsUtils.oracleConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             preTable(jdbcTemplate);
 
@@ -147,7 +147,7 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlForInputStreamTypeHandler_3() throws Exception {
-        try (Connection conn = DsUtils.localOracle()) {
+        try (Connection conn = DsUtils.oracleConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
 
             List<InputStream> dat = jdbcTemplate.query("select ? from dual", ps -> {
@@ -162,7 +162,7 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlForInputStreamTypeHandler_4() throws Exception {
-        try (Connection conn = DsUtils.localOracle()) {
+        try (Connection conn = DsUtils.oracleConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             preProc(jdbcTemplate);
 
@@ -179,7 +179,7 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlForReaderTypeHandler_1() throws Exception {
-        try (Connection conn = DsUtils.localOracle()) {
+        try (Connection conn = DsUtils.oracleConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             preTable(jdbcTemplate);
 
@@ -194,7 +194,7 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlForReaderTypeHandler_2() throws Exception {
-        try (Connection conn = DsUtils.localOracle()) {
+        try (Connection conn = DsUtils.oracleConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             preTable(jdbcTemplate);
 
@@ -209,7 +209,7 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlForReaderTypeHandler_3() throws Exception {
-        try (Connection conn = DsUtils.localOracle()) {
+        try (Connection conn = DsUtils.oracleConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
 
             List<Reader> dat = jdbcTemplate.query("select ? from dual", ps -> {
@@ -224,7 +224,7 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlForReaderTypeHandler_4() throws Exception {
-        try (Connection conn = DsUtils.localOracle()) {
+        try (Connection conn = DsUtils.oracleConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             preProc(jdbcTemplate);
 
