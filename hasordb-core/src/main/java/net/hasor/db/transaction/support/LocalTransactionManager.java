@@ -72,9 +72,25 @@ public class LocalTransactionManager implements TransactionManager, Closeable {
         return this.tStatusStack.peek() == status;
     }
 
+    @Override
+    public void commit() throws SQLException {
+        LocalTransactionStatus last = this.tStatusStack.peek();
+        if (last != null) {
+            commit(last);
+        }
+    }
+
+    @Override
+    public void rollBack() throws SQLException {
+        LocalTransactionStatus last = this.tStatusStack.peek();
+        if (last != null) {
+            rollBack(last);
+        }
+    }
+
     /** 开启事务 */
     @Override
-    public final TransactionStatus getTransaction(final Propagation behavior, final Isolation level) throws SQLException {
+    public final TransactionStatus begin(final Propagation behavior, final Isolation level) throws SQLException {
         Objects.requireNonNull(behavior);
         //1.获取连接
         LocalTransactionStatus defStatus = new LocalTransactionStatus(behavior, level);

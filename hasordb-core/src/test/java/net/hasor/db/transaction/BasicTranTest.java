@@ -39,7 +39,7 @@ public class BasicTranTest extends AbstractDbTest {
             TransactionManager transManager = new LocalTransactionManager(dataSource);
             assert !transManager.hasTransaction();
 
-            TransactionStatus tran = transManager.getTransaction(Propagation.REQUIRED);
+            TransactionStatus tran = transManager.begin(Propagation.REQUIRED);
             assert transManager.hasTransaction();
 
             transManager.commit(tran);
@@ -55,10 +55,10 @@ public class BasicTranTest extends AbstractDbTest {
             TransactionManager transManager = new LocalTransactionManager(dataSource);
             assert holder.getRefCount() == 0;
 
-            TransactionStatus tran1 = transManager.getTransaction(Propagation.REQUIRED);
+            TransactionStatus tran1 = transManager.begin(Propagation.REQUIRED);
             assert holder.getRefCount() == 1;
 
-            TransactionStatus tran2 = transManager.getTransaction(Propagation.REQUIRED);
+            TransactionStatus tran2 = transManager.begin(Propagation.REQUIRED);
             assert holder.getRefCount() == 2;
 
             transManager.commit(tran2);
@@ -78,12 +78,12 @@ public class BasicTranTest extends AbstractDbTest {
             ConnectionHolder holderTmp = null;
             assert holder1.getRefCount() == 0;
 
-            TransactionStatus tran1 = transManager.getTransaction(Propagation.REQUIRED);
+            TransactionStatus tran1 = transManager.begin(Propagation.REQUIRED);
             holderTmp = DataSourceManager.getHolder(dataSource);
             assert holder1.getRefCount() == 1;
             assert holder1 == holderTmp;
 
-            TransactionStatus tran2 = transManager.getTransaction(Propagation.REQUIRES_NEW);
+            TransactionStatus tran2 = transManager.begin(Propagation.REQUIRES_NEW);
             holderTmp = DataSourceManager.getHolder(dataSource);
             assert holder1.getRefCount() == 2;
             assert holder1 != holderTmp;
@@ -105,7 +105,7 @@ public class BasicTranTest extends AbstractDbTest {
         try (DruidDataSource dataSource = DsUtils.mysqlDataSource()) {
             TransactionManager transManager = new LocalTransactionManager(dataSource);
 
-            TransactionStatus tran1 = transManager.getTransaction(Propagation.REQUIRED);
+            TransactionStatus tran1 = transManager.begin(Propagation.REQUIRED);
             ConnectionHolder holder1 = DataSourceManager.getHolder(dataSource);
             assert holder1.getRefCount() == 1;
             String conn1_0_id = new JdbcTemplate(dataSource).queryForString("select connection_id();");
@@ -113,7 +113,7 @@ public class BasicTranTest extends AbstractDbTest {
 
             assert conn1_0_id.equals(conn1_1_id);
 
-            TransactionStatus tran2 = transManager.getTransaction(Propagation.REQUIRES_NEW);
+            TransactionStatus tran2 = transManager.begin(Propagation.REQUIRES_NEW);
             ConnectionHolder holder2 = DataSourceManager.getHolder(dataSource);
             assert holder2.getRefCount() == 1;
             String conn2_0_id = new JdbcTemplate(dataSource).queryForString("select connection_id();");
@@ -137,9 +137,9 @@ public class BasicTranTest extends AbstractDbTest {
             TransactionManager transManager = new LocalTransactionManager(dataSource);
             ConnectionHolder holder = DataSourceManager.getHolder(dataSource);
 
-            TransactionStatus tran1 = transManager.getTransaction(Propagation.REQUIRED);
-            TransactionStatus tran2 = transManager.getTransaction(Propagation.REQUIRED);
-            TransactionStatus tran3 = transManager.getTransaction(Propagation.REQUIRED);
+            TransactionStatus tran1 = transManager.begin(Propagation.REQUIRED);
+            TransactionStatus tran2 = transManager.begin(Propagation.REQUIRED);
+            TransactionStatus tran3 = transManager.begin(Propagation.REQUIRED);
 
             assert !tran1.isCompleted();
             assert !tran2.isCompleted();
@@ -160,9 +160,9 @@ public class BasicTranTest extends AbstractDbTest {
         try (DruidDataSource dataSource = DsUtils.mysqlDataSource()) {
             TransactionManager transManager = new LocalTransactionManager(dataSource);
 
-            TransactionStatus tran1 = transManager.getTransaction(Propagation.REQUIRED);
-            TransactionStatus tran2 = transManager.getTransaction(Propagation.REQUIRED);
-            TransactionStatus tran3 = transManager.getTransaction(Propagation.REQUIRED);
+            TransactionStatus tran1 = transManager.begin(Propagation.REQUIRED);
+            TransactionStatus tran2 = transManager.begin(Propagation.REQUIRED);
+            TransactionStatus tran3 = transManager.begin(Propagation.REQUIRED);
 
             assert transManager.isTopTransaction(tran3);
             assert !transManager.isTopTransaction(tran2);
@@ -178,9 +178,9 @@ public class BasicTranTest extends AbstractDbTest {
             LocalTransactionManager transManager = new LocalTransactionManager(dataSource);
             ConnectionHolder holder = DataSourceManager.getHolder(dataSource);
 
-            TransactionStatus tran1 = transManager.getTransaction(Propagation.REQUIRED);
-            TransactionStatus tran2 = transManager.getTransaction(Propagation.REQUIRED);
-            TransactionStatus tran3 = transManager.getTransaction(Propagation.REQUIRED);
+            TransactionStatus tran1 = transManager.begin(Propagation.REQUIRED);
+            TransactionStatus tran2 = transManager.begin(Propagation.REQUIRED);
+            TransactionStatus tran3 = transManager.begin(Propagation.REQUIRED);
 
             assert transManager.hasTransaction();
             assert holder.getRefCount() == 3;
@@ -205,7 +205,7 @@ public class BasicTranTest extends AbstractDbTest {
             initJdbc.loadSQL("net_hasor_db/tb_user_for_mysql.sql");
 
             LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);
-            TransactionStatus tran1 = tranManager.getTransaction(Propagation.REQUIRED, Isolation.REPEATABLE_READ);
+            TransactionStatus tran1 = tranManager.begin(Propagation.REQUIRED, Isolation.REPEATABLE_READ);
 
             assert new JdbcTemplate(dataSource).queryForInt("select count(*) from tb_user") == 0;
             new JdbcTemplate(dataSource).executeUpdate(INSERT_ARRAY, arrayForData4());
@@ -223,11 +223,11 @@ public class BasicTranTest extends AbstractDbTest {
         try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager transManager = new LocalTransactionManager(dataSource)) {
 
-            transManager.getTransaction(Propagation.REQUIRED);
+            transManager.begin(Propagation.REQUIRED);
             assert DataSourceManager.getHolder(dataSource).hasTransaction();
 
             try {
-                transManager.getTransaction(Propagation.NEVER);
+                transManager.begin(Propagation.NEVER);
                 assert false;
             } catch (SQLException e) {
                 assert e.getMessage().equals("existing transaction found for transaction marked with propagation 'never'");
@@ -242,13 +242,13 @@ public class BasicTranTest extends AbstractDbTest {
         try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager transManager = new LocalTransactionManager(dataSource)) {
 
-            transManager.getTransaction(Propagation.REQUIRED);
+            transManager.begin(Propagation.REQUIRED);
             assert DataSourceManager.getHolder(dataSource).hasTransaction();
 
-            transManager.getTransaction(Propagation.NOT_SUPPORTED);
+            transManager.begin(Propagation.NOT_SUPPORTED);
             assert !DataSourceManager.getHolder(dataSource).hasTransaction();
 
-            transManager.getTransaction(Propagation.NEVER);
+            transManager.begin(Propagation.NEVER);
             assert !DataSourceManager.getHolder(dataSource).hasTransaction();
         }
     }
@@ -258,8 +258,8 @@ public class BasicTranTest extends AbstractDbTest {
         try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager transManager = new LocalTransactionManager(dataSource)) {
 
-            transManager.getTransaction(Propagation.REQUIRED);
-            transManager.getTransaction(Propagation.MANDATORY);
+            transManager.begin(Propagation.REQUIRED);
+            transManager.begin(Propagation.MANDATORY);
 
             assert DataSourceManager.getHolder(dataSource).hasTransaction();
         }
@@ -270,14 +270,14 @@ public class BasicTranTest extends AbstractDbTest {
         try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager transManager = new LocalTransactionManager(dataSource)) {
 
-            transManager.getTransaction(Propagation.REQUIRED);
+            transManager.begin(Propagation.REQUIRED);
             assert DataSourceManager.getHolder(dataSource).hasTransaction();
 
-            transManager.getTransaction(Propagation.NOT_SUPPORTED);
+            transManager.begin(Propagation.NOT_SUPPORTED);
             assert !DataSourceManager.getHolder(dataSource).hasTransaction();
 
             try {
-                transManager.getTransaction(Propagation.MANDATORY);
+                transManager.begin(Propagation.MANDATORY);
                 assert false;
             } catch (SQLException e) {
                 assert e.getMessage().equals("no existing transaction found for transaction marked with propagation 'mandatory'");
@@ -291,7 +291,7 @@ public class BasicTranTest extends AbstractDbTest {
              LocalTransactionManager transManager = new LocalTransactionManager(dataSource)) {
 
             try {
-                transManager.getTransaction(Propagation.MANDATORY);
+                transManager.begin(Propagation.MANDATORY);
                 assert false;
             } catch (SQLException e) {
                 assert e.getMessage().equals("no existing transaction found for transaction marked with propagation 'mandatory'");
@@ -306,10 +306,10 @@ public class BasicTranTest extends AbstractDbTest {
 
             assert !DataSourceManager.getHolder(dataSource).hasTransaction();
 
-            transManager.getTransaction(Propagation.SUPPORTS);
+            transManager.begin(Propagation.SUPPORTS);
             assert !DataSourceManager.getHolder(dataSource).hasTransaction();
 
-            transManager.getTransaction(Propagation.NESTED);
+            transManager.begin(Propagation.NESTED);
             assert DataSourceManager.getHolder(dataSource).hasTransaction();
 
             transManager.commit(transManager.lastTransaction());
@@ -324,10 +324,10 @@ public class BasicTranTest extends AbstractDbTest {
 
             assert !DataSourceManager.getHolder(dataSource).hasTransaction();
 
-            transManager.getTransaction(Propagation.NESTED);
+            transManager.begin(Propagation.NESTED);
             assert DataSourceManager.getHolder(dataSource).hasTransaction();
 
-            transManager.getTransaction(Propagation.SUPPORTS);
+            transManager.begin(Propagation.SUPPORTS);
             assert DataSourceManager.getHolder(dataSource).hasTransaction();
 
             transManager.commit(transManager.lastTransaction());
@@ -342,10 +342,10 @@ public class BasicTranTest extends AbstractDbTest {
 
             assert !DataSourceManager.getHolder(dataSource).hasTransaction();
 
-            transManager.getTransaction(Propagation.NESTED);
+            transManager.begin(Propagation.NESTED);
             assert DataSourceManager.getHolder(dataSource).hasTransaction();
 
-            transManager.getTransaction(Propagation.NOT_SUPPORTED);
+            transManager.begin(Propagation.NOT_SUPPORTED);
             assert !DataSourceManager.getHolder(dataSource).hasTransaction();
 
             transManager.commit(transManager.lastTransaction());

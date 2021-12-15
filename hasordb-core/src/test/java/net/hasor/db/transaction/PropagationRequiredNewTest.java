@@ -40,13 +40,13 @@ public class PropagationRequiredNewTest extends AbstractPropagationTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
             /* T1 */
-            TransactionStatus tran1 = tranManager.getTransaction(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
+            TransactionStatus tran1 = tranManager.begin(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
             assert selectCount(dataSource) == 1;
             assert selectCount(conn) == 0;
 
             /* T2 */
-            TransactionStatus tran2 = tranManager.getTransaction(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
+            TransactionStatus tran2 = tranManager.begin(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
             assert selectCount(dataSource) == 2;
@@ -74,13 +74,13 @@ public class PropagationRequiredNewTest extends AbstractPropagationTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
             /* T1 */
-            TransactionStatus tran1 = tranManager.getTransaction(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
+            TransactionStatus tran1 = tranManager.begin(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
             assert selectCount(dataSource) == 1;
             assert selectCount(conn) == 0;
 
             /* T2 */
-            TransactionStatus tran2 = tranManager.getTransaction(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
+            TransactionStatus tran2 = tranManager.begin(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
             assert selectCount(dataSource) == 2;
@@ -105,13 +105,13 @@ public class PropagationRequiredNewTest extends AbstractPropagationTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
             /* T1 */
-            TransactionStatus tran1 = tranManager.getTransaction(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
+            TransactionStatus tran1 = tranManager.begin(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
             assert selectCount(dataSource) == 1;
             assert selectCount(conn) == 0;
 
             /* T2 */
-            TransactionStatus tran2 = tranManager.getTransaction(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
+            TransactionStatus tran2 = tranManager.begin(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
             assert selectCount(dataSource) == 2;
@@ -142,13 +142,13 @@ public class PropagationRequiredNewTest extends AbstractPropagationTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
             /* T1 */
-            TransactionStatus tran1 = tranManager.getTransaction(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
+            TransactionStatus tran1 = tranManager.begin(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
             assert selectCount(dataSource) == 1;
             assert selectCount(conn) == 0;
 
             /* T2 */
-            TransactionStatus tran2 = tranManager.getTransaction(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
+            TransactionStatus tran2 = tranManager.begin(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
             assert selectCount(dataSource) == 2;
@@ -173,13 +173,13 @@ public class PropagationRequiredNewTest extends AbstractPropagationTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
             /* T1 */
-            TransactionStatus tran1 = tranManager.getTransaction(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
+            TransactionStatus tran1 = tranManager.begin(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
             assert selectCount(dataSource) == 1;
             assert selectCount(conn) == 0;
 
             /* T2 */
-            TransactionStatus tran2 = tranManager.getTransaction(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
+            TransactionStatus tran2 = tranManager.begin(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
             assert selectCount(dataSource) == 2;
@@ -207,13 +207,13 @@ public class PropagationRequiredNewTest extends AbstractPropagationTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
             /* T1 */
-            TransactionStatus tran1 = tranManager.getTransaction(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
+            TransactionStatus tran1 = tranManager.begin(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
             assert selectCount(dataSource) == 1;
             assert selectCount(conn) == 0;
 
             /* T2 */
-            TransactionStatus tran2 = tranManager.getTransaction(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
+            TransactionStatus tran2 = tranManager.begin(Propagation.REQUIRES_NEW, Isolation.REPEATABLE_READ);
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
             assert selectCount(dataSource) == 2;

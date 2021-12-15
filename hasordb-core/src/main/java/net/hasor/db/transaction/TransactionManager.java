@@ -25,19 +25,19 @@ public interface TransactionManager {
     /**
      * 开启事务，使用默认事务隔离级别。
      * @see Propagation
-     * @see TransactionManager#getTransaction(Propagation, Isolation)
+     * @see TransactionManager#begin(Propagation, Isolation)
      */
-    public default TransactionStatus getTransaction() throws SQLException {
-        return this.getTransaction(Propagation.REQUIRED, Isolation.DEFAULT);
+    public default TransactionStatus begin() throws SQLException {
+        return this.begin(Propagation.REQUIRED, Isolation.DEFAULT);
     }
 
     /**
      * 开启事务，使用默认事务隔离级别。
      * @see Propagation
-     * @see TransactionManager#getTransaction(Propagation, Isolation)
+     * @see TransactionManager#begin(Propagation, Isolation)
      */
-    public default TransactionStatus getTransaction(Propagation behavior) throws SQLException {
-        return this.getTransaction(behavior, null);
+    public default TransactionStatus begin(Propagation behavior) throws SQLException {
+        return this.begin(behavior, null);
     }
 
     /**
@@ -45,7 +45,7 @@ public interface TransactionManager {
      * @see Propagation
      * @see java.sql.Connection#setTransactionIsolation(int)
      */
-    public TransactionStatus getTransaction(Propagation behavior, Isolation level) throws SQLException;
+    public TransactionStatus begin(Propagation behavior, Isolation level) throws SQLException;
 
     /**
      * 递交事务
@@ -53,12 +53,19 @@ public interface TransactionManager {
      */
     public void commit(TransactionStatus status) throws SQLException;
 
+    /** 递交最近 begin 的那个事务 */
+    public void commit() throws SQLException;
+
     /** 回滚事务 */
     public void rollBack(TransactionStatus status) throws SQLException;
 
-    /** 是否存在未处理完的事务（包括被挂起的事务） */
+    /** 回滚最近 begin 的那个事务 */
+    public void rollBack() throws SQLException;
+
+    /** 是否存在处理中的事务 */
     public boolean hasTransaction();
 
     /** 测试事务状态是否位于栈顶 */
     public boolean isTopTransaction(TransactionStatus status);
+
 }
