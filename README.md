@@ -1,12 +1,11 @@
 介绍
 ------------------------------------
 
-* Project Home: [https://www.hasor.net](https://www.hasor.net)
-* [![QQ群:193943114](https://img.shields.io/badge/QQ%E7%BE%A4-193943114-orange)](https://qm.qq.com/cgi-bin/qm/qr?k=0ZqU8WlKVENanH6ajgpbVua7WJUMOKQ9&jump_from=webapi)
-  [![Gitter](https://badges.gitter.im/hasor/hasor-dataql.svg)](https://gitter.im/hasor/hasor-dataql?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+* Project Home: [https://www.hasordb.net](https://www.hasordb.net)
+* [![QQ群:948706820](https://img.shields.io/badge/QQ%E7%BE%A4-948706820-orange)](https://qm.qq.com/cgi-bin/qm/qr?k=Qy3574A4VgI0ph4fqFbZW-w49gnyqu6p&jump_from=webapi)
+  [![zyc@byshell.org](https://img.shields.io/badge/Email-zyc%40byshell.org-blue)](mailto:zyc@byshell.org)
   [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-  [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.hasor/hasor-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.hasor/hasor-core)
-  [![Build Status](https://travis-ci.org/zycgit/hasor.svg?branch=master)](https://travis-ci.org/zycgit/hasor)
+  [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.hasor/hasor-db/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.hasor/hasor-db)
 
 &emsp;&emsp;HasorDB 是一款数据库访问框架，其思想和编程方式来自于 SpringJDBC、MyBatis、MyBatisPlus。
 可以简单理解 HasorDB 是前面三者集合体, 不同于一般整合方式的是 HasorDB 采用了参照原有接口完全重新实现，尽可能的接近原始框架的使用体验。
