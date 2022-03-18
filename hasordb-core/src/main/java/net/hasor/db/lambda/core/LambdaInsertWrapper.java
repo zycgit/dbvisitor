@@ -143,12 +143,7 @@ public class LambdaInsertWrapper<T> extends AbstractExecute<T> implements Lambda
         if (this.insertValues.size() == 0) {
             throw new IllegalStateException("there is no data to insert");
         }
-        boolean isInsertSqlDialect = dialect instanceof InsertSqlDialect;
-        if (isInsertSqlDialect) {
-            return dialectInsert((InsertSqlDialect) dialect);
-        } else {
-            throw new UnsupportedOperationException(dialect.getClass().getName() + " does not implement InsertSqlDialect.");
-        }
+        return dialectInsert(dialect);
     }
 
     @Override
@@ -172,31 +167,37 @@ public class LambdaInsertWrapper<T> extends AbstractExecute<T> implements Lambda
         }
     }
 
-    protected BoundSql dialectInsert(InsertSqlDialect dialect) {
+    protected BoundSql dialectInsert(SqlDialect dialect) {
+        boolean isInsertSqlDialect = dialect instanceof InsertSqlDialect;
         TableMapping<T> tableMapping = this.getTableMapping();
         String schemaName = tableMapping.getSchema();
         String tableName = tableMapping.getTable();
         List<String> primaryKeys = this.primaryKeyProperties.parallelStream().map(ColumnMapping::getColumn).collect(Collectors.toList());
         List<String> insertColumns = this.insertProperties.parallelStream().map(ColumnMapping::getColumn).collect(Collectors.toList());
+        if (!isInsertSqlDialect) {
+            String sqlString = defaultDialectInsert(this.isQualifier(), schemaName, tableName, insertColumns, dialect);
+            return buildBatchBoundSql(sqlString);
+        }
 
+        InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
         switch (this.insertStrategy) {
             case Into: {
-                if (dialect.supportInsertInto(primaryKeys, insertColumns)) {
-                    String sqlString = dialect.insertWithInto(this.isQualifier(), schemaName, tableName, primaryKeys, insertColumns);
+                if (insertDialect.supportInsertInto(primaryKeys, insertColumns)) {
+                    String sqlString = insertDialect.insertWithInto(this.isQualifier(), schemaName, tableName, primaryKeys, insertColumns);
                     return buildBatchBoundSql(sqlString);
                 }
                 break;
             }
             case Ignore: {
-                if (dialect.supportInsertIgnore(primaryKeys, insertColumns)) {
-                    String sqlString = dialect.insertWithIgnore(this.isQualifier(), schemaName, tableName, primaryKeys, insertColumns);
+                if (insertDialect.supportInsertIgnore(primaryKeys, insertColumns)) {
+                    String sqlString = insertDialect.insertWithIgnore(this.isQualifier(), schemaName, tableName, primaryKeys, insertColumns);
                     return buildBatchBoundSql(sqlString);
                 }
                 break;
             }
             case Update: {
-                if (dialect.supportUpsert(primaryKeys, insertColumns)) {
-                    String sqlString = dialect.insertWithUpsert(this.isQualifier(), schemaName, tableName, primaryKeys, insertColumns);
+                if (insertDialect.supportUpsert(primaryKeys, insertColumns)) {
+                    String sqlString = insertDialect.insertWithUpsert(this.isQualifier(), schemaName, tableName, primaryKeys, insertColumns);
                     return buildBatchBoundSql(sqlString);
                 }
                 break;
@@ -211,5 +212,28 @@ public class LambdaInsertWrapper<T> extends AbstractExecute<T> implements Lambda
             args[i] = this.insertValues.get(i);
         }
         return new BatchBoundSql.BatchBoundSqlObj(batchSql, args);
+    }
+
+    protected String defaultDialectInsert(boolean useQualifier, String schema, String table, List<String> columns, SqlDialect dialect) {
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.append("INSERT INTO ");
+        strBuilder.append(dialect.tableName(useQualifier, schema, table));
+        strBuilder.append(" ");
+        strBuilder.append("(");
+
+        StringBuilder argBuilder = new StringBuilder();
+        for (int i = 0; i < columns.size(); i++) {
+            if (i > 0) {
+                strBuilder.append(", ");
+                argBuilder.append(", ");
+            }
+            strBuilder.append(dialect.columnName(useQualifier, schema, table, columns.get(i)));
+            argBuilder.append("?");
+        }
+
+        strBuilder.append(") VALUES (");
+        strBuilder.append(argBuilder);
+        strBuilder.append(")");
+        return strBuilder.toString();
     }
 }
