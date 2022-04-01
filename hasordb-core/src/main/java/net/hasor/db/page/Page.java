@@ -25,54 +25,54 @@ import java.util.Map;
  */
 public interface Page {
     /** 获取页大小，默认是 -1 表示无穷大。 */
-    public int getPageSize();
+    int getPageSize();
 
     /** 设置分页的页大小，-1 表示无穷大 */
-    public void setPageSize(int pageSize);
+    void setPageSize(int pageSize);
 
     /**取当前页号 */
-    public int getCurrentPage();
+    int getCurrentPage();
 
     /** 设置前页号 */
-    public void setCurrentPage(int currentPage);
+    void setCurrentPage(int currentPage);
 
     /** 页码偏移量（例如：从1页作为起始页，可以设置为 1。否则第一页的页码是 0） */
-    public int getPageNumberOffset();
+    int getPageNumberOffset();
 
     /** 设置页码偏移量（例如：从1页作为起始页，可以设置为 1。否则第一页的页码是 0） */
-    public void setPageNumberOffset(int pageNumberOffset);
+    void setPageNumberOffset(int pageNumberOffset);
 
     /** 获取本页第一个记录的索引位置 */
-    public int getFirstRecordPosition();
+    int getFirstRecordPosition();
 
     /** 获取总页数 */
-    public int getTotalPage() throws SQLException;
+    int getTotalPage() throws SQLException;
 
     /** 获取记录总数 */
-    public int getTotalCount() throws SQLException;
+    int getTotalCount() throws SQLException;
 
     /** 移动到第一页 */
-    public default void firstPage() {
+    default void firstPage() {
         setCurrentPage(0);
     }
 
     /** 移动到上一页 */
-    public default void previousPage() {
+    default void previousPage() {
         setCurrentPage(getCurrentPage() - 1);
     }
 
     /** 移动到下一页 */
-    public default void nextPage() {
+    default void nextPage() {
         setCurrentPage(getCurrentPage() + 1);
     }
 
     /** 移动到最后一页 */
-    public default void lastPage() throws SQLException {
+    default void lastPage() throws SQLException {
         setCurrentPage(getTotalPage() - 1);
     }
 
     /** 获取分页信息 */
-    public default Map<String, Object> toPageInfo() throws SQLException {
+    default Map<String, Object> toPageInfo() throws SQLException {
         return new LinkedHashMap<String, Object>() {{
             put("enable", getPageSize() > 0);
             put("pageSize", getPageSize());

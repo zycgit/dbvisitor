@@ -24,27 +24,27 @@ import net.hasor.db.types.TypeHandler;
  */
 public interface ColumnMapping {
     /** 列名 */
-    public String getColumn();
+    String getColumn();
 
     /** 属性名 */
-    public String getProperty();
+    String getProperty();
 
     /** 对应的 javaType */
-    public Class<?> getJavaType();
+    Class<?> getJavaType();
 
     /** 使用的 jdbcType,如果没有配置那么会通过 javaType 来自动推断 */
-    public Integer getJdbcType();
+    Integer getJdbcType();
 
-    public TypeHandler<?> getTypeHandler();
+    TypeHandler<?> getTypeHandler();
 
-    public Property getHandler();
+    Property getHandler();
 
     /** 是否为主键 */
-    public boolean isPrimaryKey();
+    boolean isPrimaryKey();
 
     /** 参与更新 */
-    public boolean isUpdate();
+    boolean isUpdate();
 
     /** 参与新增 */
-    public boolean isInsert();
+    boolean isInsert();
 }

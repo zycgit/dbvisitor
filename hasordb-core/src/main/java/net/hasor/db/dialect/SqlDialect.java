@@ -23,15 +23,15 @@ import java.util.Set;
  */
 public interface SqlDialect {
     /** Cannot be used as a key for column names. when column name is key words, Generate SQL using Qualifier warp it. */
-    public Set<String> keywords();
+    Set<String> keywords();
 
-    public String leftQualifier();
+    String leftQualifier();
 
-    public String rightQualifier();
+    String rightQualifier();
 
     /** 生成 form 后面的表名 */
-    public String tableName(boolean useQualifier, String schema, String table);
+    String tableName(boolean useQualifier, String schema, String table);
 
     /** 生成 where 中用到的条件名（包括 group by、order by） */
-    public String columnName(boolean useQualifier, String schema, String table, String column);
+    String columnName(boolean useQualifier, String schema, String table, String column);
 }

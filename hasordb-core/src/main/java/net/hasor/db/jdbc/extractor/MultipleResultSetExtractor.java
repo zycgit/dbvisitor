@@ -103,7 +103,7 @@ public class MultipleResultSetExtractor implements PreparedStatementCallback<Lis
     }
 
     protected RowMapper<?> getDefaultRowMapper() {
-        return new ColumnMapRowMapper(TypeHandlerRegistry.DEFAULT);
+        return new ColumnMapRowMapper(true, TypeHandlerRegistry.DEFAULT);
     }
 
     /**

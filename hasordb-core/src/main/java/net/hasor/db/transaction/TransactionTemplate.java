@@ -28,7 +28,7 @@ public interface TransactionTemplate {
      * @return 返回 {@link TransactionCallback} 接口执行的返回值。
      * @throws SQLException 执行期间发生SQL异常
      */
-    public default <T> T execute(TransactionCallback<T> callBack) throws Throwable {
+    default <T> T execute(TransactionCallback<T> callBack) throws Throwable {
         return this.execute(callBack, Propagation.REQUIRED, null);
     }
 
@@ -39,7 +39,7 @@ public interface TransactionTemplate {
      * @return 返回 {@link TransactionCallback} 接口执行的返回值。
      * @throws SQLException 执行期间发生SQL异常
      */
-    public default <T> T execute(TransactionCallback<T> callBack, Propagation behavior) throws Throwable {
+    default <T> T execute(TransactionCallback<T> callBack, Propagation behavior) throws Throwable {
         return this.execute(callBack, behavior, null);
     }
 
@@ -51,5 +51,5 @@ public interface TransactionTemplate {
      * @return 返回 {@link TransactionCallback} 接口执行的返回值。
      * @throws SQLException 执行期间发生SQL异常
      */
-    public <T> T execute(TransactionCallback<T> callBack, Propagation behavior, Isolation level) throws Throwable;
+    <T> T execute(TransactionCallback<T> callBack, Propagation behavior, Isolation level) throws Throwable;
 }

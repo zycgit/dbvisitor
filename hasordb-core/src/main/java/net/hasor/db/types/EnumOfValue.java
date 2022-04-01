@@ -20,7 +20,7 @@ package net.hasor.db.types;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface EnumOfValue<T> {
-    public int codeValue();
+    int codeValue();
 
-    public T valueOfCode(int codeValue);
+    T valueOfCode(int codeValue);
 }

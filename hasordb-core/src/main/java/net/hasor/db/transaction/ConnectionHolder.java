@@ -25,24 +25,24 @@ import java.sql.SQLException;
  */
 public interface ConnectionHolder {
     /** 增加引用计数,一个因为持有人已被请求 */
-    public void requested();
+    void requested();
 
     /** 减少引用计数,一个因为持有人已被释放 */
-    public void released() throws SQLException;
+    void released() throws SQLException;
 
-    public int getRefCount();
-
-    /** 获取数据库连接 */
-    public Connection getConnection() throws SQLException;
+    int getRefCount();
 
     /** 获取数据库连接 */
-    public DataSource getDataSource() throws SQLException;
+    Connection getConnection() throws SQLException;
+
+    /** 获取数据库连接 */
+    DataSource getDataSource() throws SQLException;
 
     /** 则表示当前数据库连接是否被打开(被打开的连接一定有引用) */
-    public boolean isOpen();
+    boolean isOpen();
 
     /** 是否存在事务 */
-    public default boolean hasTransaction() throws SQLException {
+    default boolean hasTransaction() throws SQLException {
         Connection conn = this.getConnection();
         if (conn == null) {
             return false;
@@ -52,7 +52,7 @@ public interface ConnectionHolder {
     }
 
     /** 设置事务状态 */
-    public default void setTransaction() throws SQLException {
+    default void setTransaction() throws SQLException {
         Connection conn = this.getConnection();
         if (conn == null) {
             throw new IllegalStateException("connection is close.");
@@ -64,7 +64,7 @@ public interface ConnectionHolder {
     }
 
     /** 取消事务状态,设置为自动递交 */
-    public default void cancelTransaction() throws SQLException {
+    default void cancelTransaction() throws SQLException {
         Connection conn = this.getConnection();
         if (conn == null) {
             throw new IllegalStateException("connection is close.");

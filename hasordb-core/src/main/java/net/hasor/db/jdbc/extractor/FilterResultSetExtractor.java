@@ -32,24 +32,15 @@ public class FilterResultSetExtractor<T> extends RowMapperResultSetExtractor<T> 
      * @param rowMapper 行映射器。
      */
     public FilterResultSetExtractor(RowMapper<T> rowMapper) {
-        this(s -> true, rowMapper, 0);
+        this(rowMapper, s -> true, 0);
     }
 
     /**
      * 创建 {@link FilterResultSetExtractor} 对象
      * @param rowMapper 行映射器。
      */
-    public FilterResultSetExtractor(Predicate<T> rowTester, RowMapper<T> rowMapper) {
-        this(rowTester, rowMapper, 0);
-    }
-
-    /**
-     * 创建 {@link FilterResultSetExtractor} 对象
-     * @param rowMapper 行映射器。
-     * @param rowsExpected 预期结果集大小（实际得到的结果集条目不受此参数限制）
-     */
-    public FilterResultSetExtractor(RowMapper<T> rowMapper, int rowsExpected) {
-        this(s -> true, rowMapper, rowsExpected);
+    public FilterResultSetExtractor(RowMapper<T> rowMapper, Predicate<T> rowTester) {
+        this(rowMapper, rowTester, 0);
     }
 
     /**
@@ -57,7 +48,7 @@ public class FilterResultSetExtractor<T> extends RowMapperResultSetExtractor<T> 
      * @param rowMapper 行映射器。
      * @param rowsExpected 预期结果集大小（实际得到的结果集条目不受此参数限制）
      */
-    public FilterResultSetExtractor(Predicate<T> rowTester, RowMapper<T> rowMapper, int rowsExpected) {
+    public FilterResultSetExtractor(RowMapper<T> rowMapper, Predicate<T> rowTester, int rowsExpected) {
         super(rowMapper, rowsExpected);
         this.rowTester = Objects.requireNonNull(rowTester, "rowTester is null.");
     }

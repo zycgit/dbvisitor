@@ -22,10 +22,10 @@ package net.hasor.db.dialect;
  */
 public interface PageSqlDialect extends SqlDialect {
     /** 生成 count 查询 SQL */
-    public default BoundSql countSql(BoundSql boundSql) {
+    default BoundSql countSql(BoundSql boundSql) {
         return new BoundSql.BoundSqlObj("SELECT COUNT(*) FROM (" + boundSql.getSqlString() + ") as TEMP_T", boundSql.getArgs());
     }
 
     /** 生成分页查询 SQL */
-    public BoundSql pageSql(BoundSql boundSql, int start, int limit);
+    BoundSql pageSql(BoundSql boundSql, int start, int limit);
 }

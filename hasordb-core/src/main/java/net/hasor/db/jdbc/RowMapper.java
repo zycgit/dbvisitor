@@ -32,5 +32,5 @@ public interface RowMapper<T> {
      * @param rs 记录集
      * @param rowNum 当前记录的行号
      */
-    public T mapRow(ResultSet rs, int rowNum) throws SQLException;
+    T mapRow(ResultSet rs, int rowNum) throws SQLException;
 }

@@ -38,24 +38,25 @@ import java.util.stream.Collectors;
  * @version : 2021-06-21
  * @author 赵永春 (zyc@hasor.net)
  */
-public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
+public class ClassTableMappingResolve implements TableMappingResolve {
     private static final Map<Class<?>, Class<?>> CLASS_MAPPING_MAP = new HashMap<>();
 
     static {
+        CLASS_MAPPING_MAP.put(Collection.class, ArrayList.class);
         CLASS_MAPPING_MAP.put(List.class, ArrayList.class);
-        CLASS_MAPPING_MAP.put(Set.class, HashSet.class);
-        CLASS_MAPPING_MAP.put(Map.class, HashMap.class);
+        CLASS_MAPPING_MAP.put(Set.class, LinkedHashSet.class);
+        CLASS_MAPPING_MAP.put(Map.class, LinkedHashMap.class);
     }
 
-    public static TableDef<?> resolveTableMapping(Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
+    public static <T> TableDef<T> resolveTableMapping(Class<T> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
         return new ClassTableMappingResolve().resolveTableMapping(entityType, classLoader, typeRegistry, null);
     }
 
     @Override
-    public TableDef<?> resolveTableMapping(Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions options) {
+    public <T> TableDef<T> resolveTableMapping(Class<T> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions options) {
         options = new MappingOptions(options);
 
-        TableDef<?> def = this.resolveTable((Class<?>) entityType, options);
+        TableDef<T> def = this.resolveTable(entityType, options, typeRegistry);
         Map<String, Property> properties = BeanUtils.getPropertyFunc(entityType);
 
         // keep order by fields
@@ -81,7 +82,7 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
         return def;
     }
 
-    protected <V> TableDef<V> resolveTable(Class<V> entityType, MappingOptions options) {
+    protected <T> TableDef<T> resolveTable(Class<T> entityType, MappingOptions options, TypeHandlerRegistry typeRegistry) {
         if (entityType.isAnnotationPresent(Table.class)) {
             Table defTable = entityType.getAnnotation(Table.class);
             String schema = defTable.schema();
@@ -96,11 +97,11 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
             boolean autoProperty = defTable.autoMapping();
             boolean useDelimited = defTable.useDelimited();
             boolean caseInsensitive = defTable.caseInsensitive() || options.getCaseInsensitive() == null || Boolean.TRUE.equals(options.getCaseInsensitive());
-            return new TableDef<>(schema, table, entityType, autoProperty, useDelimited, caseInsensitive);
+            return new TableDef<>(schema, table, entityType, autoProperty, useDelimited, caseInsensitive, typeRegistry);
         } else {
 
             String tableName = humpToLine(entityType.getSimpleName(), options.getMapUnderscoreToCamelCase());
-            return new TableDef<>(null, tableName, entityType, true, false, true);
+            return new TableDef<>(null, tableName, entityType, true, false, true, typeRegistry);
         }
     }
 
@@ -177,4 +178,5 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
         }
         return strString;
     }
+
 }

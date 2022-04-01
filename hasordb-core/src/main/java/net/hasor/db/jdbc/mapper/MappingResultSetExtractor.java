@@ -39,14 +39,18 @@ public class MappingResultSetExtractor<T> implements ResultSetExtractor<List<T>>
      * 创建 {@link MappingResultSetExtractor} 对象
      * @param mapperClass 类型
      */
-    public MappingResultSetExtractor(final Class<T> mapperClass) {
-        this(mapperClass, TypeHandlerRegistry.DEFAULT);
-    }
-
     public MappingResultSetExtractor(final Class<T> mapperClass, TypeHandlerRegistry typeRegistry) {
         Objects.requireNonNull(mapperClass, "mapperClass is required");
         TableMapping<?> tableMapping = ClassTableMappingResolve.resolveTableMapping(mapperClass, mapperClass.getClassLoader(), typeRegistry);
         this.tableReader = (TableReader<T>) tableMapping.toReader();
+    }
+
+    /**
+     * 创建 {@link MappingResultSetExtractor} 对象
+     * @param tableReader 类型
+     */
+    public MappingResultSetExtractor(TableReader<T> tableReader) {
+        this.tableReader = Objects.requireNonNull(tableReader, "tableReader is null.");
     }
 
     @Override
@@ -58,7 +62,12 @@ public class MappingResultSetExtractor<T> implements ResultSetExtractor<List<T>>
             columnList.add(lookupColumnName(rsmd, i));
         }
 
-        return this.tableReader.extractData(columnList, rs);
+        List<T> results = new ArrayList<>();
+        int rowNum = 0;
+        while (rs.next()) {
+            results.add(this.tableReader.extractRow(columnList, rs, rowNum++));
+        }
+        return results;
     }
 
     private static String lookupColumnName(final ResultSetMetaData resultSetMetaData, final int columnIndex) throws SQLException {

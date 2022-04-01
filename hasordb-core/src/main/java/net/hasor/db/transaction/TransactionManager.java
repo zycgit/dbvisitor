@@ -27,7 +27,7 @@ public interface TransactionManager {
      * @see Propagation
      * @see TransactionManager#begin(Propagation, Isolation)
      */
-    public default TransactionStatus begin() throws SQLException {
+    default TransactionStatus begin() throws SQLException {
         return this.begin(Propagation.REQUIRED, Isolation.DEFAULT);
     }
 
@@ -36,7 +36,7 @@ public interface TransactionManager {
      * @see Propagation
      * @see TransactionManager#begin(Propagation, Isolation)
      */
-    public default TransactionStatus begin(Propagation behavior) throws SQLException {
+    default TransactionStatus begin(Propagation behavior) throws SQLException {
         return this.begin(behavior, null);
     }
 
@@ -45,27 +45,27 @@ public interface TransactionManager {
      * @see Propagation
      * @see java.sql.Connection#setTransactionIsolation(int)
      */
-    public TransactionStatus begin(Propagation behavior, Isolation level) throws SQLException;
+    TransactionStatus begin(Propagation behavior, Isolation level) throws SQLException;
 
     /**
      * 递交事务
      * <p>如果递交的事务并不处于事务堆栈顶端，会同时递交该事务的后面其它事务
      */
-    public void commit(TransactionStatus status) throws SQLException;
+    void commit(TransactionStatus status) throws SQLException;
 
     /** 递交最近 begin 的那个事务 */
-    public void commit() throws SQLException;
+    void commit() throws SQLException;
 
     /** 回滚事务 */
-    public void rollBack(TransactionStatus status) throws SQLException;
+    void rollBack(TransactionStatus status) throws SQLException;
 
     /** 回滚最近 begin 的那个事务 */
-    public void rollBack() throws SQLException;
+    void rollBack() throws SQLException;
 
     /** 是否存在处理中的事务 */
-    public boolean hasTransaction();
+    boolean hasTransaction();
 
     /** 测试事务状态是否位于栈顶 */
-    public boolean isTopTransaction(TransactionStatus status);
+    boolean isTopTransaction(TransactionStatus status);
 
 }

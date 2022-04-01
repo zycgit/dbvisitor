@@ -22,6 +22,6 @@ import net.hasor.db.types.TypeHandlerRegistry;
  * @version : 2021-06-21
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface TableMappingResolve<T> {
-    public TableMapping<?> resolveTableMapping(T refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions options) throws ClassNotFoundException;
+public interface TableMappingResolve {
+    <T> TableMapping<T> resolveTableMapping(Class<T> refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions options) throws ClassNotFoundException;
 }

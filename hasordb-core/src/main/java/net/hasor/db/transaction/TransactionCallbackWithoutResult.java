@@ -20,11 +20,11 @@ package net.hasor.db.transaction;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface TransactionCallbackWithoutResult extends TransactionCallback<Void> {
-    public default Void doTransaction(TransactionStatus tranStatus) throws Throwable {
+    default Void doTransaction(TransactionStatus tranStatus) throws Throwable {
         this.doTransactionWithoutResult(tranStatus);
         return null;
     }
 
     /***/
-    public void doTransactionWithoutResult(TransactionStatus tranStatus) throws Throwable;
+    void doTransactionWithoutResult(TransactionStatus tranStatus) throws Throwable;
 }

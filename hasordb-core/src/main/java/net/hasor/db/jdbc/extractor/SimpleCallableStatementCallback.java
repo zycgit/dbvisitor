@@ -37,6 +37,7 @@ public class SimpleCallableStatementCallback implements CallableStatementCallbac
     private final        List<SqlParameter>  declaredParameters;
     private final        MultipleProcessType processType;
     private              boolean             resultsCaseInsensitive = false;
+    private              TypeHandlerRegistry typeHandler            = TypeHandlerRegistry.DEFAULT;
 
     public SimpleCallableStatementCallback(List<SqlParameter> declaredParameters) {
         this(MultipleProcessType.ALL, declaredParameters);
@@ -53,6 +54,14 @@ public class SimpleCallableStatementCallback implements CallableStatementCallbac
 
     public void setResultsCaseInsensitive(final boolean resultsCaseInsensitive) {
         this.resultsCaseInsensitive = resultsCaseInsensitive;
+    }
+
+    public TypeHandlerRegistry getTypeHandler() {
+        return this.typeHandler;
+    }
+
+    public void setTypeHandler(TypeHandlerRegistry typeHandler) {
+        this.typeHandler = typeHandler;
     }
 
     protected Map<String, Object> createResultsMap() {
@@ -132,7 +141,7 @@ public class SimpleCallableStatementCallback implements CallableStatementCallbac
         if (retVal) {
             try (ResultSet resultSet = cs.getResultSet()) {
                 resultName = resultParameterName(sqlParameter, "#result-set-" + resultIndex);
-                resultValue = processResultSet(isResultsCaseInsensitive(), resultSet, sqlParameter);
+                resultValue = processResultSet(resultSet, sqlParameter);
             }
         } else {
             resultName = resultParameterName(sqlParameter, "#update-count-" + resultIndex);
@@ -155,7 +164,7 @@ public class SimpleCallableStatementCallback implements CallableStatementCallbac
             try (ResultSet resultSet = cs.getResultSet()) {
                 if (resultSet != null) {
                     resultName = resultParameterName(sqlParameter, "#result-set-" + resultIndex);
-                    resultValue = processResultSet(isResultsCaseInsensitive(), resultSet, sqlParameter);
+                    resultValue = processResultSet(resultSet, sqlParameter);
                 } else {
                     resultName = resultParameterName(sqlParameter, "#update-count-" + resultIndex);
                     resultValue = updateCount;
@@ -177,7 +186,7 @@ public class SimpleCallableStatementCallback implements CallableStatementCallbac
      * @param param the corresponding stored procedure parameter
      * @return a Map that contains returned results
      */
-    protected static Object processResultSet(boolean caseInsensitive, ResultSet rs, SqlParameter.ReturnSqlParameter param) throws SQLException {
+    protected Object processResultSet(ResultSet rs, SqlParameter.ReturnSqlParameter param) throws SQLException {
         if (rs != null) {
             if (param != null) {
                 if (param.getRowMapper() != null) {
@@ -191,7 +200,7 @@ public class SimpleCallableStatementCallback implements CallableStatementCallbac
                     return param.getResultSetExtractor().extractData(rs);
                 }
             } else {
-                return new ColumnMapResultSetExtractor(caseInsensitive).extractData(rs);
+                return new ColumnMapResultSetExtractor(0, this.typeHandler, this.resultsCaseInsensitive).extractData(rs);
             }
         }
         return null;

@@ -32,5 +32,5 @@ public interface ConnectionCallback<T> {
      * @param con 一个可用的 JDBC 数据库连接
      * @return 返回操作执行的最终结果。
      */
-    public T doInConnection(Connection con) throws SQLException;
+    T doInConnection(Connection con) throws SQLException;
 }

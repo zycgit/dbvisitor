@@ -28,17 +28,17 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Transactional {
     /** 传播属性 */
-    public Propagation propagation() default Propagation.REQUIRED;
+    Propagation propagation() default Propagation.REQUIRED;
 
     /** 隔离级别 */
-    public Isolation isolation() default Isolation.DEFAULT;
+    Isolation isolation() default Isolation.DEFAULT;
 
     /** 是否为只读事务 */
-    public boolean readOnly() default false;
+    boolean readOnly() default false;
 
     /** 遇到下列异常继续事务递交 */
-    public Class<? extends Throwable>[] noRollbackFor() default {};
+    Class<? extends Throwable>[] noRollbackFor() default {};
 
     /** 遇到下列异常继续事务递交 */
-    public String[] noRollbackForClassName() default {};
+    String[] noRollbackForClassName() default {};
 }

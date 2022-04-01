@@ -20,11 +20,11 @@ package net.hasor.db.types;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface EnumOfCode<T> {
-    public default String codeName() {
+    default String codeName() {
         return name();
     }
 
-    public String name();
+    String name();
 
-    public T valueOfCode(String codeString);
+    T valueOfCode(String codeString);
 }

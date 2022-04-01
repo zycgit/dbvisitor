@@ -23,7 +23,7 @@ import net.hasor.cobble.StringUtils;
  */
 public interface ConditionSqlDialect extends SqlDialect {
     /** like 查询相关的选项 */
-    public static enum SqlLike {
+    enum SqlLike {
         /** %值 */
         LEFT,
         /** 值% */
@@ -32,7 +32,7 @@ public interface ConditionSqlDialect extends SqlDialect {
         DEFAULT
     }
 
-    public default String like(SqlLike likeType, Object value) {
+    default String like(SqlLike likeType, Object value) {
         if (value == null || StringUtils.isBlank(value.toString())) {
             return "%";
         }

@@ -24,14 +24,14 @@ import java.sql.Savepoint;
  */
 public interface SavepointManager {
     /** 则表示当前数据库连接是否被打开(被打开的连接一定有引用) */
-    public boolean supportSavepoint() throws SQLException;
+    boolean supportSavepoint() throws SQLException;
 
     /** 使用一个全新的名称创建一个保存点 */
-    public Savepoint createSavepoint() throws SQLException;
+    Savepoint createSavepoint() throws SQLException;
 
     /** 释放某个事务的保存点 */
-    public void releaseSavepoint(Savepoint savepoint) throws SQLException;
+    void releaseSavepoint(Savepoint savepoint) throws SQLException;
 
     /** 回滚事务到一个指定的保存点 */
-    public void rollback(Savepoint savepoint) throws SQLException;
+    void rollback(Savepoint savepoint) throws SQLException;
 }

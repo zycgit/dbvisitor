@@ -32,5 +32,5 @@ public interface StatementCallback<T> {
      * @param stmt 一个可用的 Statement 对象连接
      * @return 返回操作执行的最终结果。
      */
-    public T doInStatement(Statement stmt) throws SQLException;
+    T doInStatement(Statement stmt) throws SQLException;
 }

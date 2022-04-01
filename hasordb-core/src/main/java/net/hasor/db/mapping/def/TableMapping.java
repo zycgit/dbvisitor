@@ -15,10 +15,13 @@
  */
 package net.hasor.db.mapping.def;
 
-import net.hasor.db.mapping.DefaultTableReader;
 import net.hasor.db.mapping.TableReader;
+import net.hasor.db.mapping.reader.DefaultTableReader;
+import net.hasor.db.mapping.reader.MapTableReader;
+import net.hasor.db.types.TypeHandlerRegistry;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * 查询的表
@@ -28,30 +31,36 @@ import java.util.Collection;
 public interface TableMapping<T> {
 
     /** Schema */
-    public String getSchema();
+    String getSchema();
 
     /** 表名 */
-    public String getTable();
+    String getTable();
 
-    public Class<T> entityType();
+    Class<T> entityType();
 
     /** 是否将类型下的所有属性都当作数据库字段进行映射，true 表示自动。false 表示必须通过 @Column 注解声明 */
-    public boolean isAutoProperty();
+    boolean isAutoProperty();
 
     /** 使用 lambda 查询期间是否使用 引号 */
-    public boolean useDelimited();
+    boolean useDelimited();
 
     /** 结果处理是否大小写敏感 */
-    public boolean isCaseInsensitive();
+    boolean isCaseInsensitive();
 
-    public Collection<ColumnMapping> getProperties();
+    Collection<ColumnMapping> getProperties();
 
-    public ColumnMapping getPropertyByColumn(String column);
+    ColumnMapping getPropertyByColumn(String column);
 
-    public ColumnMapping getPropertyByName(String property);
+    ColumnMapping getPropertyByName(String property);
 
-    public default TableReader<T> toReader() {
-        return new DefaultTableReader<>(this.entityType(), this);
+    default TableReader<Map<String, Object>> toMapReader() {
+        return new MapTableReader(this);
     }
+
+    default TableReader<T> toReader() {
+        return new DefaultTableReader<>(this);
+    }
+
+    TypeHandlerRegistry getTypeHandlerRegistry();
 
 }

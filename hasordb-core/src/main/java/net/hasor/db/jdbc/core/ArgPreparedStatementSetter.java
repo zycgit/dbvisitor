@@ -29,10 +29,10 @@ public class ArgPreparedStatementSetter implements PreparedStatementSetter, Para
     private final Object[]            args;
 
     public ArgPreparedStatementSetter(Object[] args) {
-        this(TypeHandlerRegistry.DEFAULT, args);
+        this(args, TypeHandlerRegistry.DEFAULT);
     }
 
-    public ArgPreparedStatementSetter(TypeHandlerRegistry typeHandlerRegistry, Object[] args) {
+    public ArgPreparedStatementSetter(Object[] args, TypeHandlerRegistry typeHandlerRegistry) {
         this.typeHandlerRegistry = typeHandlerRegistry;
         this.args = args;
     }

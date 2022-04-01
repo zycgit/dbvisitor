@@ -30,8 +30,8 @@ public interface ConnectionProxy extends Connection, Closeable {
      * Return the target Connection of this proxy. <p>This will typically be the native driver Connection or a wrapper from a connection pool.
      * @return the underlying Connection (never <code>null</code>)
      */
-    public Connection getTargetConnection();
+    Connection getTargetConnection();
 
     /**获取目标使用的数据源*/
-    public DataSource getTargetSource();
+    DataSource getTargetSource();
 }

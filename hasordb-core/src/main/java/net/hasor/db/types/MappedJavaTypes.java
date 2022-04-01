@@ -24,5 +24,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface MappedJavaTypes {
-    public Class<?>[] value();
+    Class<?>[] value();
 }

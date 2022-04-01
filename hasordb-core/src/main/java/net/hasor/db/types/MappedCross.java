@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 @Repeatable(MappedCrossGroup.class)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MappedCross {
-    public MappedJdbcTypes jdbcType();
+    MappedJdbcTypes jdbcType();
 
-    public MappedJavaTypes javaTypes();
+    MappedJavaTypes javaTypes();
 }

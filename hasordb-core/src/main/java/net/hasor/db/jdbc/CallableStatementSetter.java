@@ -29,5 +29,5 @@ public interface CallableStatementSetter {
      * @param cs the CallableStatement to invoke setter methods on
      * @throws SQLException if a SQLException is encountered (i.e. there is no need to catch SQLException)
      */
-    public void setValues(CallableStatement cs) throws SQLException;
+    void setValues(CallableStatement cs) throws SQLException;
 }

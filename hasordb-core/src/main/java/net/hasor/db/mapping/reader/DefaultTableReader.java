@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.mapping;
+package net.hasor.db.mapping.reader;
+import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.ColumnMapping;
 import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.db.types.TypeHandler;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,37 +29,22 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class DefaultTableReader<T> implements TableReader<T> {
-    private final Class<T>        mapperClass;
     private final TableMapping<T> tableMapping;
 
     /** Create a new TableReader.*/
-    public DefaultTableReader(Class<T> mapperClass, TableMapping<T> tableMapping) {
-        this.mapperClass = mapperClass;
+    public DefaultTableReader(TableMapping<T> tableMapping) {
         this.tableMapping = tableMapping;
-    }
-
-    public TableMapping<T> getTableMapping() {
-        return this.tableMapping;
-    }
-
-    @Override
-    public List<T> extractData(List<String> columns, ResultSet rs) throws SQLException {
-        List<T> results = new ArrayList<>();
-        int rowNum = 0;
-        while (rs.next()) {
-            results.add(this.extractRow(columns, rs, rowNum++));
-        }
-        return results;
     }
 
     @Override
     public T extractRow(List<String> columns, ResultSet rs, int rowNum) throws SQLException {
-        T target = null;
+        T target;
         try {
-            target = this.mapperClass.newInstance();
+            target = this.tableMapping.entityType().newInstance();
         } catch (Exception e) {
-            throw new SQLException("newInstance " + this.mapperClass.getName() + " failed.", e);
+            throw new SQLException("newInstance " + this.tableMapping.entityType().getName() + " failed.", e);
         }
+
         for (int i = 0; i < columns.size(); i++) {
             String column = columns.get(i);
 

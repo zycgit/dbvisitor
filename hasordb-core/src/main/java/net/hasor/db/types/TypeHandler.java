@@ -24,12 +24,12 @@ import java.sql.SQLException;
  * @author Clinton Begin
  */
 public interface TypeHandler<T> {
-    public void setParameter(PreparedStatement ps, int i, T parameter, Integer jdbcType) throws SQLException;
+    void setParameter(PreparedStatement ps, int i, T parameter, Integer jdbcType) throws SQLException;
 
     /** @param columnName Colunm name, when configuration <code>useColumnLabel</code> is <code>false</code> */
-    public T getResult(ResultSet rs, String columnName) throws SQLException;
+    T getResult(ResultSet rs, String columnName) throws SQLException;
 
-    public T getResult(ResultSet rs, int columnIndex) throws SQLException;
+    T getResult(ResultSet rs, int columnIndex) throws SQLException;
 
-    public T getResult(CallableStatement cs, int columnIndex) throws SQLException;
+    T getResult(CallableStatement cs, int columnIndex) throws SQLException;
 }

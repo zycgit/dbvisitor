@@ -24,17 +24,17 @@ import java.util.List;
  */
 public interface InsertSqlDialect extends SqlDialect {
     /** 是否支持 insert into */
-    public boolean supportInsertInto(List<String> primaryKey, List<String> columns);
+    boolean supportInsertInto(List<String> primaryKey, List<String> columns);
 
-    public String insertWithInto(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
+    String insertWithInto(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
 
     /** 是否支持 insert ignore */
-    public boolean supportInsertIgnore(List<String> primaryKey, List<String> columns);
+    boolean supportInsertIgnore(List<String> primaryKey, List<String> columns);
 
-    public String insertWithIgnore(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
+    String insertWithIgnore(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
 
     /** 是否支持 insert replace */
-    public boolean supportUpsert(List<String> primaryKey, List<String> columns);
+    boolean supportUpsert(List<String> primaryKey, List<String> columns);
 
-    public String insertWithUpsert(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
+    String insertWithUpsert(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
 }

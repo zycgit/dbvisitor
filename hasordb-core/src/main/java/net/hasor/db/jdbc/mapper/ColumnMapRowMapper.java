@@ -52,15 +52,7 @@ public class ColumnMapRowMapper extends AbstractRowMapper<Map<String, Object>> {
     public ColumnMapRowMapper() {
         this(true, TypeHandlerRegistry.DEFAULT);
     }
-
-    public ColumnMapRowMapper(TypeHandlerRegistry typeHandler) {
-        this(true, typeHandler);
-    }
-
-    public ColumnMapRowMapper(boolean caseInsensitive) {
-        this(caseInsensitive, TypeHandlerRegistry.DEFAULT);
-    }
-
+ 
     public ColumnMapRowMapper(boolean caseInsensitive, TypeHandlerRegistry typeHandler) {
         super(typeHandler);
         this.caseInsensitive = caseInsensitive;
@@ -76,7 +68,7 @@ public class ColumnMapRowMapper extends AbstractRowMapper<Map<String, Object>> {
         int columnCount = rsmd.getColumnCount();
         Map<String, Object> mapOfColValues = this.createColumnMap(columnCount);
         for (int i = 1; i <= columnCount; i++) {
-            String key = this.getColumnKey(ColumnMapRowMapper.lookupColumnName(rsmd, i));
+            String key = this.getColumnKey(rsmd, i);
             Object obj = this.getColumnValue(rs, i);
             if (!mapOfColValues.containsKey(key)) {
                 mapOfColValues.put(key, obj);
@@ -85,25 +77,20 @@ public class ColumnMapRowMapper extends AbstractRowMapper<Map<String, Object>> {
         return mapOfColValues;
     }
 
-    private static String lookupColumnName(final ResultSetMetaData resultSetMetaData, final int columnIndex) throws SQLException {
-        String name = resultSetMetaData.getColumnLabel(columnIndex);
+    protected String getColumnKey(final ResultSetMetaData rsmd, final int index) throws SQLException {
+        String name = rsmd.getColumnLabel(index);
         if (name == null || name.length() < 1) {
-            name = resultSetMetaData.getColumnName(columnIndex);
+            name = rsmd.getColumnName(index);
         }
         return name;
     }
 
-    /**取得指定列的值*/
+    /** 取得指定列的值 */
     protected Object getColumnValue(final ResultSet rs, final int index) throws SQLException {
         return getResultSetValue(rs, index);
     }
 
-    /**讲列名转换为合理的格式。*/
-    protected String getColumnKey(final String columnName) {
-        return columnName;
-    }
-
-    /**创建一个 Map 用于存放数据*/
+    /** 创建一个 Map 用于存放数据 */
     protected Map<String, Object> createColumnMap(final int columnCount) {
         if (this.caseInsensitive) {
             return new LinkedCaseInsensitiveMap<>(columnCount);

@@ -26,7 +26,7 @@ import java.sql.SQLException;
  * @author 赵永春 (zyc@byshell.org)
  */
 public class SingleColumnRowMapper<T> extends AbstractRowMapper<T> {
-    private Class<T> requiredType;
+    private final Class<T> requiredType;
 
     /**
      * Create a new SingleColumnRowMapper.
@@ -42,11 +42,6 @@ public class SingleColumnRowMapper<T> extends AbstractRowMapper<T> {
      */
     public SingleColumnRowMapper(Class<T> requiredType, TypeHandlerRegistry typeHandler) {
         super(typeHandler);
-        this.requiredType = requiredType;
-    }
-
-    /** Set the type that each result object is expected to match. <p>If not specified, the column value will be exposed as returned by the JDBC driver. */
-    public void setRequiredType(final Class<T> requiredType) {
         this.requiredType = requiredType;
     }
 

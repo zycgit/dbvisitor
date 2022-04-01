@@ -16,6 +16,7 @@
 package net.hasor.db.mapping.def;
 
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
+import net.hasor.db.types.TypeHandlerRegistry;
 
 import java.util.*;
 
@@ -25,18 +26,19 @@ import java.util.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class TableDef<T> implements TableMapping<T> {
-    private       String   schema;
-    private       String   table;
-    private final Class<T> entityType;
-    private final boolean  autoProperty;
-    private final boolean  useDelimited;
-    private final boolean  caseInsensitive;
+    private       String              schema;
+    private       String              table;
+    private final Class<T>            entityType;
+    private final boolean             autoProperty;
+    private final boolean             useDelimited;
+    private final boolean             caseInsensitive;
+    private final TypeHandlerRegistry typeHandlerRegistry;
 
     private final List<ColumnMapping>        columnMappings;
     private final Map<String, ColumnMapping> mapByProperty;
     private final Map<String, ColumnMapping> mapByColumn;
 
-    public TableDef(String schema, String table, Class<T> entityType, boolean autoProperty, boolean useDelimited, boolean caseInsensitive) {
+    public TableDef(String schema, String table, Class<T> entityType, boolean autoProperty, boolean useDelimited, boolean caseInsensitive, TypeHandlerRegistry typeHandlerRegistry) {
         this.schema = schema;
         this.table = table;
         this.entityType = entityType;
@@ -46,6 +48,7 @@ public class TableDef<T> implements TableMapping<T> {
         this.columnMappings = new ArrayList<>();
         this.mapByProperty = new HashMap<>();
         this.mapByColumn = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
+        this.typeHandlerRegistry = typeHandlerRegistry;
     }
 
     @Override
@@ -98,6 +101,11 @@ public class TableDef<T> implements TableMapping<T> {
     @Override
     public ColumnMapping getPropertyByName(String property) {
         return this.mapByProperty.get(property);
+    }
+
+    @Override
+    public TypeHandlerRegistry getTypeHandlerRegistry() {
+        return this.typeHandlerRegistry;
     }
 
     public void addMapping(ColumnMapping mapping) {

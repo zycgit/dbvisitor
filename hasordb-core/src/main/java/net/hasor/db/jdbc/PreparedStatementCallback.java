@@ -31,5 +31,5 @@ public interface PreparedStatementCallback<T> {
      * @param ps 一个可用的 PreparedStatement 对象连接
      * @return 返回操作执行的最终结果。
      */
-    public T doInPreparedStatement(PreparedStatement ps) throws SQLException;
+    T doInPreparedStatement(PreparedStatement ps) throws SQLException;
 }

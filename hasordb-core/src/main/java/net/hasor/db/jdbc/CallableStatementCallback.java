@@ -31,5 +31,5 @@ public interface CallableStatementCallback<T> {
      * @param cs 一个可用的 JDBC 数据库连接
      * @return 返回操作执行的最终结果。
      */
-    public T doInCallableStatement(CallableStatement cs) throws SQLException;
+    T doInCallableStatement(CallableStatement cs) throws SQLException;
 }

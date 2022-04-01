@@ -39,7 +39,7 @@ public interface SqlParameterSource {
      * @param paramName the name of the parameter
      * @return whether there is a value defined
      */
-    public boolean hasValue(String paramName);
+    boolean hasValue(String paramName);
 
     /**
      * Return the parameter value for the requested named parameter.
@@ -47,11 +47,11 @@ public interface SqlParameterSource {
      * @return the value of the specified parameter
      * @throws IllegalArgumentException if there is no value for the requested parameter
      */
-    public Object getValue(String paramName) throws IllegalArgumentException;
+    Object getValue(String paramName) throws IllegalArgumentException;
 
     /**
      * Enumerate all available parameter names if possible.
      * @return the array of parameter names, or {@code null} if not determinable
      */
-    public String[] getParameterNames();
+    String[] getParameterNames();
 }

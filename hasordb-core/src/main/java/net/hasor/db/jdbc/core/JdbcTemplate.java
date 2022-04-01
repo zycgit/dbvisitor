@@ -698,6 +698,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 int idx = 1;
+                TypeHandlerRegistry typeRegistry = getTypeRegistry();
                 for (Object value : batchValues[i]) {
                     if (value == null) {
                         ps.setObject(idx, null);
@@ -840,7 +841,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
      * @param param the corresponding stored procedure parameter
      * @return a Map that contains returned results
      */
-    protected static Object processResultSet(boolean caseInsensitive, ResultSet rs, ReturnSqlParameter param) throws SQLException {
+    protected static Object processResultSet(TypeHandlerRegistry typeRegistry, boolean caseInsensitive, ResultSet rs, ReturnSqlParameter param) throws SQLException {
         if (rs != null) {
             if (param != null) {
                 if (param.getRowMapper() != null) {
@@ -854,7 +855,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                     return param.getResultSetExtractor().extractData(rs);
                 }
             } else {
-                return new ColumnMapResultSetExtractor(caseInsensitive).extractData(rs);
+                return new ColumnMapResultSetExtractor(0, typeRegistry, caseInsensitive).extractData(rs);
             }
         }
         return null;
@@ -862,7 +863,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
 
     /** Create a new RowMapper for reading columns as key-value pairs. */
     protected RowMapper<Map<String, Object>> getColumnMapRowMapper() {
-        return new ColumnMapRowMapper(this.typeRegistry) {
+        return new ColumnMapRowMapper(this.isResultsCaseInsensitive(), this.getTypeRegistry()) {
             @Override
             protected Map<String, Object> createColumnMap(final int columnCount) {
                 return JdbcTemplate.this.createResultsMap();
@@ -884,7 +885,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
 
         }
 
-        return new MappingResultSetExtractor<>(requiredType, this.typeRegistry);
+        return new MappingResultSetExtractor<>(requiredType, this.getTypeRegistry());
     }
 
     /** Create a new RowMapper for reading columns as Bean pairs. */
@@ -898,12 +899,12 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             return this.getSingleColumnRowMapper(requiredType);
         }
 
-        return new MappingRowMapper<>(requiredType, this.typeRegistry);
+        return new MappingRowMapper<>(requiredType, this.getTypeRegistry());
     }
 
     /** Create a new RowMapper for reading result objects from a single column.*/
     protected <T> RowMapper<T> getSingleColumnRowMapper(Class<T> requiredType) {
-        return new SingleColumnRowMapper<>(requiredType, this.typeRegistry);
+        return new SingleColumnRowMapper<>(requiredType, this.getTypeRegistry());
     }
 
     /**创建用于保存结果集的数据Map。*/
@@ -917,7 +918,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
 
     /** Create a new PreparedStatementSetter.*/
     protected PreparedStatementSetter newArgPreparedStatementSetter(final Object[] args) {
-        return new ArgPreparedStatementSetter(this.typeRegistry, args);
+        return new ArgPreparedStatementSetter(args, getTypeRegistry());
     }
 
     /** Build a PreparedStatementCreator based on the given SQL and named parameters. */
@@ -1015,13 +1016,15 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                 logger.trace("statement.execute() returned '" + retVal + "'");
             }
 
+            TypeHandlerRegistry typeRegistry = getTypeRegistry();
+
             List<Object> resultList = new ArrayList<>();
             if (retVal) {
                 try (ResultSet resultSet = ps.getResultSet()) {
                     //resultSet.getMetaData(),
-                    ColumnMapRowMapper columnMapRowMapper = new ColumnMapRowMapper(typeRegistry);
+                    ColumnMapRowMapper columnMapRowMapper = new ColumnMapRowMapper(isResultsCaseInsensitive(), typeRegistry);
                     ReturnSqlParameter result = SqlParameterUtils.withReturnResult("TMP", new RowMapperResultSetExtractor<>(columnMapRowMapper));
-                    resultList.add(processResultSet(isResultsCaseInsensitive(), resultSet, result));
+                    resultList.add(processResultSet(typeRegistry, isResultsCaseInsensitive(), resultSet, result));
                 }
             } else {
                 resultList.add(ps.getUpdateCount());
@@ -1030,7 +1033,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                 int updateCount = ps.getUpdateCount();
                 try (ResultSet resultSet = ps.getResultSet()) {
                     if (resultSet != null) {
-                        resultList.add(processResultSet(isResultsCaseInsensitive(), resultSet, null));
+                        resultList.add(processResultSet(typeRegistry, isResultsCaseInsensitive(), resultSet, null));
                     } else {
                         resultList.add(updateCount);
                     }
@@ -1059,6 +1062,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             Object[] paramArray = this.parsedSql.buildValues(this.paramSource);
             //3.创建PreparedStatement对象，并设置参数
             PreparedStatement statement = con.prepareStatement(sqlToUse);
+            TypeHandlerRegistry typeRegistry = getTypeRegistry();
             for (int i = 0; i < paramArray.length; i++) {
                 typeRegistry.setParameterValue(statement, i + 1, paramArray[i]);
             }
@@ -1096,6 +1100,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             Object[] sqlValue = this.parsedSql.buildValues(paramSource);
             //2.设置参数
             int sqlColIndex = 1;
+            TypeHandlerRegistry typeRegistry = getTypeRegistry();
             for (Object element : sqlValue) {
                 typeRegistry.setParameterValue(ps, sqlColIndex++, element);
             }

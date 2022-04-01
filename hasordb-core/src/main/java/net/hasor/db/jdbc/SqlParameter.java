@@ -27,37 +27,37 @@ import net.hasor.db.types.TypeHandler;
  */
 public interface SqlParameter {
     /** Return the name of the parameter, or {@code null} if anonymous. */
-    public String getName();
+    String getName();
 
-    public static interface ValueSqlParameter extends SqlParameter {
+    interface ValueSqlParameter extends SqlParameter {
         /** Return the SQL type of the parameter. */
-        public Integer getJdbcType();
+        Integer getJdbcType();
 
         /** Return the type name of the parameter, if any. */
-        public String getTypeName();
+        String getTypeName();
 
         /** Return the scale of the parameter, if any. */
-        public Integer getScale();
+        Integer getScale();
     }
 
-    public static interface OutSqlParameter extends ValueSqlParameter {
-        public TypeHandler<?> getTypeHandler();
+    interface OutSqlParameter extends ValueSqlParameter {
+        TypeHandler<?> getTypeHandler();
     }
 
-    public static interface InSqlParameter extends ValueSqlParameter {
-        public TypeHandler<?> getTypeHandler();
+    interface InSqlParameter extends ValueSqlParameter {
+        TypeHandler<?> getTypeHandler();
 
-        public Object getValue();
+        Object getValue();
     }
 
-    public static interface ReturnSqlParameter extends SqlParameter {
+    interface ReturnSqlParameter extends SqlParameter {
         /** Return the ResultSetExtractor held by this parameter, if any. */
-        public ResultSetExtractor<?> getResultSetExtractor();
+        ResultSetExtractor<?> getResultSetExtractor();
 
         /** Return the RowCallbackHandler held by this parameter, if any. */
-        public RowCallbackHandler getRowCallbackHandler();
+        RowCallbackHandler getRowCallbackHandler();
 
         /** Return the RowMapper held by this parameter, if any. */
-        public RowMapper<?> getRowMapper();
+        RowMapper<?> getRowMapper();
     }
 }

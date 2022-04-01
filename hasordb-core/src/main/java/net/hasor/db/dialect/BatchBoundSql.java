@@ -22,11 +22,11 @@ import java.util.Arrays;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface BatchBoundSql extends BoundSql {
-    public String getSqlString();
+    String getSqlString();
 
-    public Object[][] getArgs();
+    Object[][] getArgs();
 
-    public static class BatchBoundSqlObj extends BoundSqlObj implements BatchBoundSql {
+    class BatchBoundSqlObj extends BoundSqlObj implements BatchBoundSql {
         public BatchBoundSqlObj(String sqlString, Object[][] paramArray) {
             super(sqlString, paramArray);
         }

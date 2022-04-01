@@ -32,26 +32,26 @@ import java.sql.Types;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Column {
     /** 列名，为空的话表示采用字段名为列名 see: {@link #name()} */
-    public String value() default "";
+    String value() default "";
 
     /** 列名，为空的话表示采用类名为表名 see: {@link #value()} */
-    public String name() default "";
+    String name() default "";
 
     /** 指定使用的 jdbcType */
-    public int jdbcType() default Types.JAVA_OBJECT;
+    int jdbcType() default Types.JAVA_OBJECT;
 
     /** 如果当前属性是一个抽象类型，那么可以通过 specialJavaType 来指定具体的实现类 */
-    public Class<?> specialJavaType() default Object.class;
+    Class<?> specialJavaType() default Object.class;
 
     /** 指定使用的 typeHandler（功效和 Mybatis 的 TypeHandler 相同） */
-    public Class<? extends TypeHandler<?>> typeHandler() default UnknownTypeHandler.class;
+    Class<? extends TypeHandler<?>> typeHandler() default UnknownTypeHandler.class;
 
     /** (选填)是否为主键 */
-    public boolean primary() default false;
+    boolean primary() default false;
 
     /** (选填)参与更新（在配置了 @Table 注解时，通过 net.hasor.db.lambda.LambdaOperations 接口操作才有效） */
-    public boolean update() default true;
+    boolean update() default true;
 
     /** (选填)参与新增（在配置了 @Table 注解时，通过 net.hasor.db.lambda.LambdaOperations 接口操作才有效） */
-    public boolean insert() default true;
+    boolean insert() default true;
 }

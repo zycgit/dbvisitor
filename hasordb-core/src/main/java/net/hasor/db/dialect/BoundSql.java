@@ -22,11 +22,11 @@ import java.util.Arrays;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface BoundSql {
-    public String getSqlString();
+    String getSqlString();
 
-    public Object[] getArgs();
+    Object[] getArgs();
 
-    public static class BoundSqlObj implements BoundSql {
+    class BoundSqlObj implements BoundSql {
         /** SQL */
         private final String   sqlString;
         private final Object[] paramArray;

@@ -28,5 +28,5 @@ import java.sql.SQLException;
 @FunctionalInterface
 public interface PreparedStatementCreator {
     /**使用参数传进来的连接创建 PreparedStatement 对象。 */
-    public PreparedStatement createPreparedStatement(Connection con) throws SQLException;
+    PreparedStatement createPreparedStatement(Connection con) throws SQLException;
 }

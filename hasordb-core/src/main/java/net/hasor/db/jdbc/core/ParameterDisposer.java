@@ -21,5 +21,5 @@ package net.hasor.db.jdbc.core;
  */
 public interface ParameterDisposer {
     /** 关闭参数分配的可回收资源，例如：Lob 类型参数。*/
-    public void cleanupParameters();
+    void cleanupParameters();
 }
