@@ -18,8 +18,6 @@ import net.hasor.db.dialect.BatchBoundSql;
 import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.dialect.provider.MySqlDialect;
-import net.hasor.db.lambda.LambdaOperations.LambdaUpdate;
-import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TB_User;
 import org.junit.Test;
@@ -32,7 +30,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
     @Test
     public void updateBuilder_1() {
         try {
-            LambdaUpdate<TB_User> lambdaUpdate = new LambdaTemplate().lambdaUpdate(TB_User.class);
+            EntityUpdateOperation<TB_User> lambdaUpdate = new LambdaTemplate().lambdaUpdate(TB_User.class);
             SqlDialect dialect = new MySqlDialect();
             assert lambdaUpdate.getBoundSql(dialect) == null;
             lambdaUpdate.doUpdate();
@@ -42,14 +40,14 @@ public class BuilderUpdateTest extends AbstractDbTest {
         }
         //
         try {
-            new LambdaTemplate().lambdaUpdate(TB_User.class).updateTo((TB_User) null);
+            new LambdaTemplate().lambdaUpdate(TB_User.class).updateBySample(null);
             assert false;
         } catch (Exception e) {
-            assert e.getMessage().startsWith("newValue is null.");
+            assert e.getMessage().contains("newValue is null.");
         }
         //
         try {
-            UpdateExecute<TB_User> lambdaUpdate = new LambdaTemplate().lambdaUpdate(TB_User.class).updateTo(new TB_User());
+            EntityUpdateOperation<TB_User> lambdaUpdate = new LambdaTemplate().lambdaUpdate(TB_User.class).updateTo(new TB_User());
             lambdaUpdate.doUpdate();
             assert false;
         } catch (Exception e) {
@@ -59,7 +57,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
 
     @Test
     public void updateBuilder_2() {
-        LambdaUpdate<TB_User> lambdaUpdate = new LambdaTemplate().lambdaUpdate(TB_User.class);
+        EntityUpdateOperation<TB_User> lambdaUpdate = new LambdaTemplate().lambdaUpdate(TB_User.class);
         lambdaUpdate.allowEmptyWhere();
         //
         SqlDialect dialect = new MySqlDialect();
@@ -75,7 +73,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
         TB_User data = new TB_User();
         data.setLoginName("acc");
         data.setLoginPassword("pwd");
-        LambdaUpdate<TB_User> lambdaUpdate = new LambdaTemplate().lambdaUpdate(TB_User.class);
+        EntityUpdateOperation<TB_User> lambdaUpdate = new LambdaTemplate().lambdaUpdate(TB_User.class);
         lambdaUpdate.and(queryBuilder -> {
             queryBuilder.eq(TB_User::getIndex, 123);
         }).updateBySample(data);
@@ -83,6 +81,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaUpdate.getBoundSql(dialect);
         assert !(boundSql1 instanceof BatchBoundSql);
+        //                                      UPDATE TB_User SET registerTime = ? , loginName = ? , name = ? , loginPassword = ? , `index` = ? , userUUID = ? , email = ? WHERE ( `index` = ? )
         assert boundSql1.getSqlString().equals("UPDATE TB_User SET loginName = ? , loginPassword = ? WHERE ( `index` = ? )");
         assert boundSql1.getArgs()[0].equals("acc");
         assert boundSql1.getArgs()[1].equals("pwd");
@@ -102,7 +101,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
         data.setLoginName("acc");
         data.setLoginPassword("pwd");
         //
-        LambdaUpdate<TB_User> lambdaUpdate = new LambdaTemplate().lambdaUpdate(TB_User.class);
+        EntityUpdateOperation<TB_User> lambdaUpdate = new LambdaTemplate().lambdaUpdate(TB_User.class);
         lambdaUpdate.eq(TB_User::getLoginName, "admin").and().eq(TB_User::getLoginPassword, "pass").updateTo(data);
         //
         SqlDialect dialect = new MySqlDialect();

@@ -15,7 +15,6 @@
  */
 package net.hasor.db.lambda;
 import com.alibaba.druid.pool.DruidDataSource;
-import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.db.types.TypeHandlerRegistry;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TbUser;
@@ -39,7 +38,7 @@ public class BaseLambdaTest extends AbstractDbTest {
                     .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
                     .queryForMap();
             assert tbUser.get("name").equals("默罕默德");
-            assert tbUser.get("loginName").equals("muhammad");
+            assert tbUser.get("account").equals("muhammad");
         }
     }
 
@@ -52,7 +51,7 @@ public class BaseLambdaTest extends AbstractDbTest {
                         .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
                         .queryForMap();
                 assert tbUser.get("name").equals("默罕默德");
-                assert tbUser.get("loginName").equals("muhammad");
+                assert tbUser.get("account").equals("muhammad");
             }
             //
             try (Connection conn = dataSource.getConnection()) {
@@ -61,7 +60,7 @@ public class BaseLambdaTest extends AbstractDbTest {
                         .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
                         .queryForMap();
                 assert tbUser.get("name").equals("默罕默德");
-                assert tbUser.get("loginName").equals("muhammad");
+                assert tbUser.get("account").equals("muhammad");
             }
         }
     }
@@ -74,7 +73,7 @@ public class BaseLambdaTest extends AbstractDbTest {
                     .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
                     .queryForMap();
             assert tbUser.get("name").equals("默罕默德");
-            assert tbUser.get("loginName").equals("muhammad");
+            assert tbUser.get("account").equals("muhammad");
         }
     }
 
@@ -86,7 +85,7 @@ public class BaseLambdaTest extends AbstractDbTest {
                     .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
                     .queryForMap();
             assert tbUser.get("name").equals("默罕默德");
-            assert tbUser.get("loginName").equals("muhammad");
+            assert tbUser.get("account").equals("muhammad");
         }
     }
 
@@ -98,7 +97,7 @@ public class BaseLambdaTest extends AbstractDbTest {
                     .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
                     .queryForMap();
             assert tbUser.get("name").equals("默罕默德");
-            assert tbUser.get("loginName").equals("muhammad");
+            assert tbUser.get("account").equals("muhammad");
         }
     }
 }

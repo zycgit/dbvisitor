@@ -15,8 +15,8 @@
  */
 package net.hasor.db.lambda.core;
 import net.hasor.db.dialect.BoundSql;
-import net.hasor.db.lambda.LambdaOperations.LambdaUpdate;
-import net.hasor.db.lambda.UpdateExecute;
+import net.hasor.db.dialect.SqlDialect;
+import net.hasor.db.lambda.LambdaTemplate;
 import net.hasor.db.lambda.segment.MergeSqlSegment;
 import net.hasor.db.mapping.def.ColumnMapping;
 import net.hasor.db.mapping.def.TableMapping;
@@ -33,13 +33,13 @@ import static net.hasor.db.lambda.segment.SqlKeyword.*;
  * @version : 2020-10-27
  * @author 赵永春 (zyc@hasor.net)
  */
-public class LambdaUpdateWrapper<T> extends AbstractQueryCompare<T, LambdaUpdate<T>> implements LambdaUpdate<T> {
+public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R, T, P> implements UpdateExecute<R, T> {
     protected final Map<String, ColumnMapping> allowUpdateProperties;
     protected final Map<String, Object>        updateValueMap;
     private         boolean                    allowEmptyWhere = false;
 
-    public LambdaUpdateWrapper(TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate) {
-        super(tableMapping, jdbcTemplate);
+    public AbstractUpdateLambda(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
+        super(exampleType, tableMapping, jdbcTemplate);
 
         this.allowUpdateProperties = new LinkedHashMap<>();
         for (ColumnMapping mapping : tableMapping.getProperties()) {
@@ -52,117 +52,92 @@ public class LambdaUpdateWrapper<T> extends AbstractQueryCompare<T, LambdaUpdate
     }
 
     @Override
-    protected boolean supportPage() {
-        return false;// update is disable Page;
-    }
-
-    @Override
-    protected LambdaUpdate<T> getSelf() {
-        return this;
-    }
-
-    @Override
-    public LambdaUpdate<T> useQualifier() {
-        this.enableQualifier();
-        return this;
-    }
-
-    @Override
-    public UpdateExecute<T> allowEmptyWhere() {
+    public R allowEmptyWhere() {
         this.allowEmptyWhere = true;
-        return this;
+        return this.getSelf();
     }
 
     @Override
-    public UpdateExecute<T> updateByColumn(Map<String, Object> newValue) {
-        Predicate<ColumnMapping> tester = m -> newValue.containsKey(m.getColumn());
-        Function<ColumnMapping, Object> reader = m -> newValue.get(m.getColumn());
-
-        return this.updateTo(tester, reader);
-    }
-
-    @Override
-    public UpdateExecute<T> updateByColumn(Collection<String> setColumns, T newValue) {
-        if (newValue == null || setColumns == null || setColumns.isEmpty()) {
-            throw new NullPointerException("newValue / setColumns is null or empty.");
+    public int doUpdate() throws SQLException {
+        if (this.updateValueMap.isEmpty()) {
+            throw new IllegalStateException("Nothing to update.");
         }
 
-        Map<String, Object> tempData = new HashMap<>();
-        for (Map.Entry<String, ColumnMapping> mappingEntry : this.allowUpdateProperties.entrySet()) {
-            ColumnMapping mapping = mappingEntry.getValue();
-
-            if (setColumns.contains(mapping.getColumn())) {
-                Object value = mapping.getHandler().get(newValue);
-                tempData.put(mappingEntry.getKey(), value);
-            }
-
-        }
-
-        Predicate<ColumnMapping> tester = m -> tempData.containsKey(m.getProperty());
-        Function<ColumnMapping, Object> reader = m -> tempData.get(m.getProperty());
-
-        return this.updateTo(tester, reader);
+        BoundSql boundSql = getBoundSql();
+        return this.getJdbcTemplate().executeUpdate(boundSql.getSqlString(), boundSql.getArgs());
     }
 
     @Override
-    public UpdateExecute<T> updateTo(T newValue) {
+    public R updateBySample(final T newValue) {
         if (newValue == null) {
             throw new NullPointerException("newValue is null.");
         }
 
-        Predicate<ColumnMapping> tester = m -> true;
-        Function<ColumnMapping, Object> reader = m -> m.getHandler().get(newValue);
-
-        return this.updateTo(tester, reader);
-    }
-
-    @Override
-    public UpdateExecute<T> updateBySample(T sample) {
-        if (sample == null) {
-            throw new NullPointerException("sample is null.");
-        }
-
         Map<String, Object> tempData = new HashMap<>();
         for (Map.Entry<String, ColumnMapping> mappingEntry : this.allowUpdateProperties.entrySet()) {
-            Object value = mappingEntry.getValue().getHandler().get(sample);
+            Object value = mappingEntry.getValue().getHandler().get(newValue);
             if (value != null) {
                 tempData.put(mappingEntry.getKey(), value);
             }
         }
 
-        Predicate<ColumnMapping> tester = m -> tempData.containsKey(m.getProperty());
-        Function<ColumnMapping, Object> reader = m -> tempData.get(m.getProperty());
-
-        return this.updateTo(tester, reader);
+        return this.updateToByCondition(tempData::containsKey, tempData::get);
     }
 
-    protected UpdateExecute<T> updateTo(Predicate<ColumnMapping> tester, Function<ColumnMapping, Object> propertyReader) {
-        if (tester == null) {
-            throw new NullPointerException("tester is null.");
+    @Override
+    public R updateByMap(Map<String, Object> newValue) {
+        if (newValue == null) {
+            throw new NullPointerException("newValue is null.");
         }
 
+        return this.updateToByCondition(newValue::containsKey, newValue::get);
+    }
+
+    @Override
+    public R updateTo(T newValue) {
+        if (newValue == null) {
+            throw new NullPointerException("newValue is null.");
+        }
+
+        return this.updateToByCondition(p -> true, createPropertyReaderFunc(newValue));
+    }
+
+    private Function<String, Object> createPropertyReaderFunc(T newValue) {
+        if (exampleIsMap()) {
+            return ((Map) newValue)::get;
+        } else {
+            final TableMapping<?> tableMapping = this.getTableMapping();
+            return property -> {
+                ColumnMapping propertyReader = tableMapping.getPropertyByName(property);
+                return (propertyReader == null) ? null : propertyReader.getHandler().get(newValue);
+            };
+        }
+    }
+
+    protected R updateToByCondition(Predicate<String> propertyTester, Function<String, Object> propertyReader) {
         this.updateValueMap.clear();
         Set<String> updateColumns = new HashSet<>();
         for (Map.Entry<String, ColumnMapping> allowFieldEntry : this.allowUpdateProperties.entrySet()) {
             ColumnMapping allowProperty = allowFieldEntry.getValue();
-            if (!tester.test(allowProperty)) {
+            if (!propertyTester.test(allowProperty.getProperty())) {
                 continue;
             }
+
             String columnName = allowProperty.getColumn();
             String propertyName = allowProperty.getProperty();
             if (updateColumns.contains(columnName)) {
                 throw new IllegalStateException("Multiple property mapping to '" + columnName + "' column");
-            } else {
-                updateColumns.add(columnName);
-                Object propertyValue = propertyReader.apply(allowProperty);
-                this.updateValueMap.put(propertyName, propertyValue);
             }
+
+            updateColumns.add(columnName);
+            Object propertyValue = propertyReader.apply(allowProperty.getProperty());
+            this.updateValueMap.put(propertyName, propertyValue);
         }
-        return this;
+        return this.getSelf();
     }
 
     @Override
-    public BoundSql getOriginalBoundSql() {
+    protected BoundSql buildBoundSql(SqlDialect dialect) {
         if (this.updateValueMap.isEmpty()) {
             return null;
         }
@@ -172,14 +147,15 @@ public class LambdaUpdateWrapper<T> extends AbstractQueryCompare<T, LambdaUpdate
         // update
         MergeSqlSegment updateTemplate = new MergeSqlSegment();
         updateTemplate.addSegment(UPDATE);
+
         // tableName
-        TableMapping<T> tableMapping = this.getTableMapping();
+        TableMapping<?> tableMapping = this.getTableMapping();
         String schemaName = tableMapping.getSchema();
         String tableName = tableMapping.getTable();
-
-        String table = dialect().tableName(isQualifier(), schemaName, tableName);
+        String table = dialect.tableName(isQualifier(), schemaName, tableName);
         updateTemplate.addSegment(() -> table);
-        //
+
+        // SET
         updateTemplate.addSegment(SET);
         boolean isFirstColumn = true;
         for (String propertyName : updateValueMap.keySet()) {
@@ -188,32 +164,24 @@ public class LambdaUpdateWrapper<T> extends AbstractQueryCompare<T, LambdaUpdate
             } else {
                 updateTemplate.addSegment(() -> ",");
             }
-            //
+
             ColumnMapping mapping = allowUpdateProperties.get(propertyName);
-            String columnName = dialect().columnName(isQualifier(), schemaName, tableName, mapping.getColumn());
+            String columnName = dialect.columnName(isQualifier(), schemaName, tableName, mapping.getColumn());
             Object columnValue = updateValueMap.get(propertyName);
             updateTemplate.addSegment(() -> columnName, EQ, formatSegment(columnValue));
         }
-        //
+
+        // WHERE
         if (!this.queryTemplate.isEmpty()) {
             updateTemplate.addSegment(WHERE);
             updateTemplate.addSegment(this.queryTemplate.sub(1));
         } else if (!this.allowEmptyWhere) {
             throw new UnsupportedOperationException("The dangerous UPDATE operation, You must call `allowEmptyWhere()` to enable UPDATE ALL.");
         }
-        //
+
         String sqlQuery = updateTemplate.getSqlSegment();
         Object[] args = this.queryParam.toArray().clone();
         return new BoundSql.BoundSqlObj(sqlQuery, args);
     }
 
-    @Override
-    public int doUpdate() throws SQLException {
-        if (this.updateValueMap.isEmpty()) {
-            throw new IllegalStateException("Nothing to update.");
-        }
-        BoundSql boundSql = getBoundSql();
-        String sqlString = boundSql.getSqlString();
-        return this.getJdbcTemplate().executeUpdate(sqlString, boundSql.getArgs());
-    }
 }

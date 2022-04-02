@@ -25,5 +25,5 @@ public enum DuplicateKeyStrategy {
     /** 新值替代旧值 例如 mysql 的 replace into ,以及 upsert  */
     Update,
     /** 忽略插入 例如 mysql 的 insert ignore */
-    Ignore
+    Ignore,
 }

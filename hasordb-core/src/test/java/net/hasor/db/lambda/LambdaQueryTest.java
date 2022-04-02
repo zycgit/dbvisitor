@@ -17,7 +17,6 @@ package net.hasor.db.lambda;
 import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.db.jdbc.extractor.RowMapperResultSetExtractor;
 import net.hasor.db.jdbc.mapper.ColumnMapRowMapper;
-import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TB_User;
 import net.hasor.test.db.dto.TbUser;
@@ -145,31 +144,17 @@ public class LambdaQueryTest extends AbstractDbTest {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
             //
-            TB_User tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
-                    .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
-                    .wrapperType(TB_User.class).queryForObject();
-            //
-            assert tbUser.getName().equals("默罕默德");
-            assert tbUser.getLoginName().equals("muhammad");
-        }
-    }
-
-    @Test
-    public void lambdaQuery_select_6() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
-            //
             Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
                     .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
                     .queryForMap();
             //
             assert tbUser.get("name").equals("默罕默德");
-            assert tbUser.get("loginName").equals("muhammad");
+            assert tbUser.get("account").equals("muhammad");
         }
     }
 
     @Test
-    public void lambdaQuery_lambdaCount_7() throws Throwable {
+    public void lambdaQuery_lambdaCount_6() throws Throwable {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
             //

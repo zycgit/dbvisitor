@@ -33,7 +33,7 @@ public class BasicRowMapperTest {
 
     @Test
     public void testColumnMapRowMapper_2() {
-        assert !new ColumnMapRowMapper(false).isCaseInsensitive();
-        assert new ColumnMapRowMapper(true).isCaseInsensitive();
+        assert !new ColumnMapRowMapper(false, TypeHandlerRegistry.DEFAULT).isCaseInsensitive();
+        assert new ColumnMapRowMapper(true, TypeHandlerRegistry.DEFAULT).isCaseInsensitive();
     }
 }

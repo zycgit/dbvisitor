@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.lambda;
+package net.hasor.db.lambda.core;
+
+import net.hasor.db.lambda.DuplicateKeyStrategy;
+
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
@@ -24,9 +27,9 @@ import java.util.Map;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface InsertExecute<T> extends BoundSqlBuilder {
+public interface InsertExecute<R, T> extends BoundSqlBuilder {
     /** 执行插入，并且将返回的int结果相加。*/
-    public default int executeSumResult() throws SQLException {
+    default int executeSumResult() throws SQLException {
         int[] results = this.executeGetResult();
         int sumValue = 0;
         for (int result : results) {
@@ -36,25 +39,24 @@ public interface InsertExecute<T> extends BoundSqlBuilder {
     }
 
     /** 执行插入，并返回所有结果*/
-    public int[] executeGetResult() throws SQLException;
+    int[] executeGetResult() throws SQLException;
 
     /** insert 策略，默认策略是 {@link DuplicateKeyStrategy#Into} */
-    public InsertExecute<T> onDuplicateStrategy(DuplicateKeyStrategy strategy);
+    R onDuplicateStrategy(DuplicateKeyStrategy strategy);
 
     /** 批量插入记录 */
-    public default InsertExecute<T> applyEntity(T entity) {
+    default R applyEntity(T entity) {
         return applyEntity(Collections.singletonList(entity));
     }
 
     /** 批量插入记录 */
-    public InsertExecute<T> applyEntity(List<T> entity);
+    R applyEntity(List<T> entityList);
 
-    /** 批量插入记录，map key 为列名 */
-    public default InsertExecute<T> applyMap(Map<String, Object> columnMap) {
-        return applyMap(Collections.singletonList(columnMap));
+    /** 批量插入记录 */
+    default R applyMap(Map<String, Object> entity) {
+        return applyMap(Collections.singletonList(entity));
     }
 
-    /** 批量插入记录，map key 为列名 */
-    public InsertExecute<T> applyMap(List<Map<String, Object>> columnMapList);
-
+    /** 批量插入记录 */
+    R applyMap(List<Map<String, Object>> entityList);
 }

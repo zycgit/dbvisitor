@@ -16,6 +16,7 @@
 package net.hasor.db.jdbc.mapper;
 import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.db.jdbc.core.JdbcTemplate;
+import net.hasor.db.types.TypeHandlerRegistry;
 import net.hasor.test.db.utils.DsUtils;
 import org.junit.Test;
 
@@ -49,10 +50,10 @@ public class ColumnMapRowMapperTest {
     public void testColumnMapRowMapper_2() throws SQLException {
         try (Connection conn = DsUtils.mysqlConnection()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            Map<String, Object> objectMap1 = jdbcTemplate.queryForObject("select 1 as T, 2 as t", new ColumnMapRowMapper(false));
+            Map<String, Object> objectMap1 = jdbcTemplate.queryForObject("select 1 as T, 2 as t", new ColumnMapRowMapper(false, TypeHandlerRegistry.DEFAULT));
             assert objectMap1.size() == 2;
             //
-            Map<String, Object> objectMap2 = jdbcTemplate.queryForObject("select 1 as T, 2 as t", new ColumnMapRowMapper(true));
+            Map<String, Object> objectMap2 = jdbcTemplate.queryForObject("select 1 as T, 2 as t", new ColumnMapRowMapper(true, TypeHandlerRegistry.DEFAULT));
             assert objectMap2.size() == 1;
         }
     }

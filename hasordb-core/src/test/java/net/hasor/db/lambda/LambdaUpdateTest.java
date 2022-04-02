@@ -15,9 +15,6 @@
  */
 package net.hasor.db.lambda;
 import com.alibaba.druid.pool.DruidDataSource;
-import net.hasor.db.lambda.LambdaOperations.LambdaQuery;
-import net.hasor.db.lambda.LambdaOperations.LambdaUpdate;
-import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TB_User;
 import net.hasor.test.db.utils.DsUtils;
@@ -36,22 +33,23 @@ public class LambdaUpdateTest extends AbstractDbTest {
 
     @Test
     public void lambda_update_2() throws Throwable {
+
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
-            LambdaQuery<TB_User> lambdaQuery = lambdaTemplate.lambdaQuery(TB_User.class);
+            EntityQueryOperation<TB_User> lambdaQuery = lambdaTemplate.lambdaQuery(TB_User.class);
             TB_User tbUser1 = lambdaQuery.eq(TB_User::getLoginName, beanForData1().getLoginName()).queryForObject();
             assert tbUser1.getName() != null;
 
             HashMap<String, Object> valueMap = new HashMap<>();
             valueMap.put("name", null);
 
-            LambdaUpdate<TB_User> lambdaUpdate = lambdaTemplate.lambdaUpdate(TB_User.class);
-            int update = lambdaUpdate.eq(TB_User::getLoginName, beanForData1().getLoginName())//
-                    .updateByColumn(valueMap)//
+            EntityUpdateOperation<TB_User> lambdaUpdate = lambdaTemplate.lambdaUpdate(TB_User.class);
+            int update = lambdaUpdate.eq(TB_User::getLoginName, "muhammad")//
+                    .updateByMap(valueMap)//
                     .doUpdate();
             assert update == 1;
 
-            TB_User tbUser2 = lambdaQuery.eq(TB_User::getLoginName, beanForData1().getLoginName()).queryForObject();
+            TB_User tbUser2 = lambdaTemplate.lambdaQuery(TB_User.class).eq(TB_User::getLoginName, "muhammad").queryForObject();
             assert tbUser2.getName() == null;
         }
     }

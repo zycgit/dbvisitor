@@ -42,7 +42,6 @@ public class SingleColumnRowMapperTest {
             assert "123".equals(resultData);
             //
             SingleColumnRowMapper<String> rowMapper = new SingleColumnRowMapper<>(String.class);
-            rowMapper.setRequiredType(String.class);
             resultData = jdbcTemplate.queryForObject(//
                     "select c_int from tb_h2_types where c_int = 123;", rowMapper);
             assert "123".equals(resultData);

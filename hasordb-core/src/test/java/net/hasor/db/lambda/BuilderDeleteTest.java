@@ -18,8 +18,6 @@ import net.hasor.db.dialect.BatchBoundSql;
 import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.dialect.provider.MySqlDialect;
-import net.hasor.db.lambda.LambdaOperations.LambdaDelete;
-import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TB_User;
 import org.junit.Test;
@@ -32,7 +30,7 @@ public class BuilderDeleteTest extends AbstractDbTest {
     @Test
     public void deleteBuilder_1() {
         try {
-            LambdaDelete<TB_User> lambdaDelete = new LambdaTemplate().lambdaDelete(TB_User.class);
+            EntityDeleteOperation<TB_User> lambdaDelete = new LambdaTemplate().lambdaDelete(TB_User.class);
             SqlDialect dialect = new MySqlDialect();
             lambdaDelete.getBoundSql(dialect);
             assert false;
@@ -43,7 +41,7 @@ public class BuilderDeleteTest extends AbstractDbTest {
 
     @Test
     public void deleteBuilder_2() {
-        LambdaDelete<TB_User> lambdaDelete = new LambdaTemplate().lambdaDelete(TB_User.class);
+        EntityDeleteOperation<TB_User> lambdaDelete = new LambdaTemplate().lambdaDelete(TB_User.class);
         lambdaDelete.allowEmptyWhere();
 
         SqlDialect dialect = new MySqlDialect();
@@ -56,7 +54,7 @@ public class BuilderDeleteTest extends AbstractDbTest {
 
     @Test
     public void deleteBuilder_3() {
-        LambdaDelete<TB_User> lambdaDelete = new LambdaTemplate().lambdaDelete(TB_User.class);
+        EntityDeleteOperation<TB_User> lambdaDelete = new LambdaTemplate().lambdaDelete(TB_User.class);
         lambdaDelete.and(queryBuilder -> {
             queryBuilder.eq(TB_User::getIndex, 123);
         });
@@ -73,7 +71,7 @@ public class BuilderDeleteTest extends AbstractDbTest {
 
     @Test
     public void deleteBuilder_4() {
-        LambdaDelete<TB_User> lambdaDelete = new LambdaTemplate().lambdaDelete(TB_User.class);
+        EntityDeleteOperation<TB_User> lambdaDelete = new LambdaTemplate().lambdaDelete(TB_User.class);
         lambdaDelete.eq(TB_User::getLoginName, "admin").and().eq(TB_User::getLoginPassword, "pass");
 
         SqlDialect dialect = new MySqlDialect();

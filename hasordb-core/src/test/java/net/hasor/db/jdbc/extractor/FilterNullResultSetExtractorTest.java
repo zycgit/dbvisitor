@@ -63,8 +63,8 @@ public class FilterNullResultSetExtractorTest extends AbstractDbTest {
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData7());
             //
             FilterResultSetExtractor<Map<String, Object>> nonullExtractor = new FilterResultSetExtractor<>(//
-                    data -> data.get("loginPassword") != null,//
-                    new ColumnMapRowMapper()//
+                    new ColumnMapRowMapper(),//
+                    data -> data.get("loginPassword") != null//
             );
             //
             List<Map<String, Object>> mapList = jdbcTemplate.query("select * from tb_user", nonullExtractor);
@@ -88,8 +88,8 @@ public class FilterNullResultSetExtractorTest extends AbstractDbTest {
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData7()); // loginPassword is null
             //
             FilterResultSetExtractor<Map<String, Object>> nonullExtractor = new FilterResultSetExtractor<>(//
-                    new ColumnMapRowMapper(),//
-                    2);
+                    new ColumnMapRowMapper(), s -> true, 2//
+            );
             nonullExtractor.setRowTester(data -> data.get("loginPassword") != null);
             //
             List<Map<String, Object>> mapList = jdbcTemplate.query("select * from tb_user order by index asc", nonullExtractor);
@@ -106,7 +106,7 @@ public class FilterNullResultSetExtractorTest extends AbstractDbTest {
     @Test
     public void testFilterNullResultSetExtractor_4() {
         Predicate<Map<String, Object>> test = data -> data.get("loginPassword") != null;
-        FilterResultSetExtractor<Map<String, Object>> nonullExtractor = new FilterResultSetExtractor<>(new ColumnMapRowMapper(), 2);
+        FilterResultSetExtractor<Map<String, Object>> nonullExtractor = new FilterResultSetExtractor<>(new ColumnMapRowMapper(), s -> true, 2);
         nonullExtractor.setRowTester(test);
         //
         assert nonullExtractor.getRowTester() == test;

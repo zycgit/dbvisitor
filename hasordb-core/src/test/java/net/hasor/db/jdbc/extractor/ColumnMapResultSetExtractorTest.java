@@ -40,7 +40,7 @@ public class ColumnMapResultSetExtractorTest extends AbstractDbTest {
             List<Map<String, Object>> mapList1 = jdbcTemplate.query("select * from tb_user", new ColumnMapResultSetExtractor(1));
             List<Map<String, Object>> mapList2 = jdbcTemplate.query("select * from tb_user", new ColumnMapResultSetExtractor());
             List<Map<String, Object>> mapList3 = jdbcTemplate.query("select * from tb_user", new ColumnMapResultSetExtractor(1, TypeHandlerRegistry.DEFAULT));
-            List<Map<String, Object>> mapList4 = jdbcTemplate.query("select * from tb_user", new ColumnMapResultSetExtractor(false, 1));
+            List<Map<String, Object>> mapList4 = jdbcTemplate.query("select * from tb_user", new ColumnMapResultSetExtractor(1, TypeHandlerRegistry.DEFAULT, false));
             //
             assert mapList1.size() == 1;
             assert mapList2.size() == 3;

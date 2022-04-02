@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.lambda;
+package net.hasor.db.lambda.core;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -23,22 +22,19 @@ import java.util.Map;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface UpdateExecute<T> extends BoundSqlBuilder {
+public interface UpdateExecute<R, T> extends BoundSqlBuilder {
     /** 生成 select count() 查询语句并查询总数。*/
-    public int doUpdate() throws SQLException;
+    int doUpdate() throws SQLException;
 
     /** 允许空 Where条件（注意：空 Where 条件会导致更新整个数据库） */
-    public UpdateExecute<T> allowEmptyWhere();
+    R allowEmptyWhere();
+
+    /** 更新数据，sample 对象中为空的属性不会参与更新 */
+    R updateBySample(T sample);
+
+    /** 更新数据 */
+    R updateByMap(Map<String, Object> sample);
 
     /** 更新数据，map key 为列名 */
-    public UpdateExecute<T> updateByColumn(Map<String, Object> newValue);
-
-    /** 更新数据，map key 为列名 */
-    public UpdateExecute<T> updateByColumn(Collection<String> setColumns, T newValue);
-
-    /** 所有属性都作为 set 的值 */
-    public UpdateExecute<T> updateTo(T newValue);
-
-    /** sample 中不为空的属性作为 set 的值 */
-    public UpdateExecute<T> updateBySample(T sample);
+    R updateTo(T newValue);
 }

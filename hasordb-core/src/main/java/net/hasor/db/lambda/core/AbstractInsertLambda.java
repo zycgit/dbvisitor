@@ -19,8 +19,7 @@ import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.dialect.InsertSqlDialect;
 import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.lambda.DuplicateKeyStrategy;
-import net.hasor.db.lambda.InsertExecute;
-import net.hasor.db.lambda.LambdaOperations.LambdaInsert;
+import net.hasor.db.lambda.LambdaTemplate;
 import net.hasor.db.mapping.def.ColumnMapping;
 import net.hasor.db.mapping.def.TableMapping;
 
@@ -33,34 +32,28 @@ import java.util.stream.Collectors;
  * @version : 2020-10-27
  * @author 赵永春 (zyc@hasor.net)
  */
-public class LambdaInsertWrapper<T> extends AbstractExecute<T> implements LambdaInsert<T> {
-    private final List<ColumnMapping>  insertProperties;
-    private final List<ColumnMapping>  primaryKeyProperties;
-    private final List<Object[]>       insertValues;
-    private       DuplicateKeyStrategy insertStrategy;
+public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P> implements InsertExecute<R, T> {
+    protected final List<ColumnMapping>  insertProperties;
+    protected final List<ColumnMapping>  primaryKeyProperties;
+    protected final List<Object[]>       insertValues;
+    protected       DuplicateKeyStrategy insertStrategy;
 
-    public LambdaInsertWrapper(TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate) {
-        super(tableMapping, jdbcTemplate);
+    protected final List<String> primaryKeys;
+    protected final List<String> insertColumns;
+
+    public AbstractInsertLambda(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
+        super(exampleType, tableMapping, jdbcTemplate);
         this.insertProperties = getInsertProperties();
         this.primaryKeyProperties = getPrimaryKeyColumns();
         this.insertValues = new ArrayList<>();
         this.insertStrategy = DuplicateKeyStrategy.Into;
-    }
 
-    @Override
-    public LambdaInsert<T> useQualifier() {
-        this.enableQualifier();
-        return this;
-    }
-
-    @Override
-    public InsertExecute<T> onDuplicateStrategy(DuplicateKeyStrategy insertStrategy) {
-        this.insertStrategy = Objects.requireNonNull(insertStrategy);
-        return this;
+        this.primaryKeys = this.primaryKeyProperties.parallelStream().map(ColumnMapping::getColumn).collect(Collectors.toList());
+        this.insertColumns = this.insertProperties.parallelStream().map(ColumnMapping::getColumn).collect(Collectors.toList());
     }
 
     protected List<ColumnMapping> getInsertProperties() {
-        TableMapping<T> tableMapping = this.getTableMapping();
+        TableMapping<?> tableMapping = this.getTableMapping();
         List<ColumnMapping> toInsertProperties = new ArrayList<>();
         Set<String> insertColumns = new HashSet<>();
 
@@ -85,8 +78,8 @@ public class LambdaInsertWrapper<T> extends AbstractExecute<T> implements Lambda
     }
 
     protected List<ColumnMapping> getPrimaryKeyColumns() {
-        TableMapping<T> tableMapping = this.getTableMapping();
-        //
+        TableMapping<?> tableMapping = this.getTableMapping();
+
         List<ColumnMapping> pkProperties = new ArrayList<>();
         Set<String> pkColumns = new HashSet<>();
         for (ColumnMapping mapping : tableMapping.getProperties()) {
@@ -94,7 +87,7 @@ public class LambdaInsertWrapper<T> extends AbstractExecute<T> implements Lambda
             if (!mapping.isPrimaryKey()) {
                 continue;
             }
-            //
+
             if (pkColumns.contains(columnName)) {
                 throw new IllegalStateException("Multiple property mapping to '" + columnName + "' column");
             } else {
@@ -106,44 +99,41 @@ public class LambdaInsertWrapper<T> extends AbstractExecute<T> implements Lambda
     }
 
     @Override
-    public InsertExecute<T> applyEntity(List<T> entityList) {
+    public R onDuplicateStrategy(DuplicateKeyStrategy insertStrategy) {
+        this.insertStrategy = Objects.requireNonNull(insertStrategy);
+        return this.getSelf();
+    }
+
+    @Override
+    public R applyEntity(List<T> entityList) {
         int propertyCount = this.insertProperties.size();
-        for (Object entity : entityList) {
+        entityList.parallelStream().map(entity -> {
             Object[] args = new Object[propertyCount];
             for (int i = 0; i < propertyCount; i++) {
-                ColumnMapping mapping = this.insertProperties.get(i);
-                args[i] = mapping.getHandler().get(entity);
+                ColumnMapping mapping = insertProperties.get(i);
+                if (exampleIsMap()) {
+                    args[i] = ((Map) entity).get(mapping.getProperty());
+                } else {
+                    args[i] = mapping.getHandler().get(entity);
+                }
             }
-            this.insertValues.add(args);
-        }
-        return this;
+            return args;
+        }).forEach(insertValues::add);
+        return this.getSelf();
     }
 
     @Override
-    public InsertExecute<T> applyMap(List<Map<String, Object>> columnMapList) {
+    public R applyMap(List<Map<String, Object>> entityList) {
         int propertyCount = this.insertProperties.size();
-        for (Map<String, Object> columnMap : columnMapList) {
+        entityList.parallelStream().map(entity -> {
             Object[] args = new Object[propertyCount];
             for (int i = 0; i < propertyCount; i++) {
-                ColumnMapping mapping = this.insertProperties.get(i);
-                args[i] = columnMap.get(mapping.getColumn());
+                ColumnMapping mapping = insertProperties.get(i);
+                args[i] = entity.get(mapping.getProperty());
             }
-            this.insertValues.add(args);
-        }
-        return this;
-    }
-
-    @Override
-    public BoundSql getBoundSql() {
-        return getBoundSql(dialect());
-    }
-
-    @Override
-    public BoundSql getBoundSql(SqlDialect dialect) {
-        if (this.insertValues.size() == 0) {
-            throw new IllegalStateException("there is no data to insert");
-        }
-        return dialectInsert(dialect);
+            return args;
+        }).forEach(insertValues::add);
+        return this.getSelf();
     }
 
     @Override
@@ -167,37 +157,46 @@ public class LambdaInsertWrapper<T> extends AbstractExecute<T> implements Lambda
         }
     }
 
+    @Override
+    protected BoundSql buildBoundSql(SqlDialect dialect) {
+        if (this.insertValues.size() == 0) {
+            throw new IllegalStateException("there is no data to insert");
+        } else {
+            return dialectInsert(dialect);
+        }
+    }
+
     protected BoundSql dialectInsert(SqlDialect dialect) {
         boolean isInsertSqlDialect = dialect instanceof InsertSqlDialect;
-        TableMapping<T> tableMapping = this.getTableMapping();
+        TableMapping tableMapping = this.getTableMapping();
         String schemaName = tableMapping.getSchema();
         String tableName = tableMapping.getTable();
-        List<String> primaryKeys = this.primaryKeyProperties.parallelStream().map(ColumnMapping::getColumn).collect(Collectors.toList());
-        List<String> insertColumns = this.insertProperties.parallelStream().map(ColumnMapping::getColumn).collect(Collectors.toList());
         if (!isInsertSqlDialect) {
-            String sqlString = defaultDialectInsert(this.isQualifier(), schemaName, tableName, insertColumns, dialect);
+            String sqlString = defaultDialectInsert(this.isQualifier(), schemaName, tableName, this.insertColumns, dialect);
             return buildBatchBoundSql(sqlString);
         }
 
-        InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
         switch (this.insertStrategy) {
             case Into: {
-                if (insertDialect.supportInsertInto(primaryKeys, insertColumns)) {
-                    String sqlString = insertDialect.insertWithInto(this.isQualifier(), schemaName, tableName, primaryKeys, insertColumns);
+                InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
+                if (insertDialect.supportInsertInto(this.primaryKeys, this.insertColumns)) {
+                    String sqlString = insertDialect.insertWithInto(this.isQualifier(), schemaName, tableName, this.primaryKeys, this.insertColumns);
                     return buildBatchBoundSql(sqlString);
                 }
                 break;
             }
             case Ignore: {
-                if (insertDialect.supportInsertIgnore(primaryKeys, insertColumns)) {
-                    String sqlString = insertDialect.insertWithIgnore(this.isQualifier(), schemaName, tableName, primaryKeys, insertColumns);
+                InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
+                if (insertDialect.supportInsertIgnore(this.primaryKeys, this.insertColumns)) {
+                    String sqlString = insertDialect.insertWithIgnore(this.isQualifier(), schemaName, tableName, this.primaryKeys, this.insertColumns);
                     return buildBatchBoundSql(sqlString);
                 }
                 break;
             }
             case Update: {
-                if (insertDialect.supportUpsert(primaryKeys, insertColumns)) {
-                    String sqlString = insertDialect.insertWithUpsert(this.isQualifier(), schemaName, tableName, primaryKeys, insertColumns);
+                InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
+                if (insertDialect.supportUpsert(this.primaryKeys, this.insertColumns)) {
+                    String sqlString = insertDialect.insertWithUpsert(this.isQualifier(), schemaName, tableName, this.primaryKeys, this.insertColumns);
                     return buildBatchBoundSql(sqlString);
                 }
                 break;

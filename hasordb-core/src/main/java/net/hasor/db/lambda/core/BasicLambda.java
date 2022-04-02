@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 package net.hasor.db.lambda.core;
+import net.hasor.cobble.StringUtils;
 import net.hasor.db.JdbcUtils;
+import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.dialect.DefaultSqlDialect;
 import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.dialect.SqlDialectRegister;
 import net.hasor.db.jdbc.ConnectionCallback;
+import net.hasor.db.lambda.LambdaTemplate;
 import net.hasor.db.lambda.segment.Segment;
+import net.hasor.db.mapping.def.ColumnMapping;
 import net.hasor.db.mapping.def.TableMapping;
 
 import java.sql.DatabaseMetaData;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -30,14 +35,18 @@ import java.util.Objects;
  * @version : 2020-10-27
  * @author 赵永春 (zyc@hasor.net)
  */
-public abstract class AbstractExecute<T> {
+public abstract class BasicLambda<R, T, P> {
     protected final String          dbType;
     private         SqlDialect      dialect;
-    private final   TableMapping<T> tableMapping;
+    private final   Class<?>        exampleType;
+    private final   boolean         exampleIsMap;
+    private final   TableMapping<?> tableMapping;
     private final   LambdaTemplate  jdbcTemplate;
     private         boolean         qualifier;
 
-    public AbstractExecute(TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate) {
+    public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
+        this.exampleType = Objects.requireNonNull(exampleType, "exampleType is null.");
+        this.exampleIsMap = Map.class == exampleType || Map.class.isAssignableFrom(this.exampleType());
         this.tableMapping = Objects.requireNonNull(tableMapping, "tableMapping is null.");
         this.jdbcTemplate = jdbcTemplate;
 
@@ -57,7 +66,9 @@ public abstract class AbstractExecute<T> {
         this.qualifier = tableMapping.useDelimited();
     }
 
-    AbstractExecute(TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate, String dbType, SqlDialect dialect) {
+    BasicLambda(Class<T> exampleType, TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate, String dbType, SqlDialect dialect) {
+        this.exampleType = Objects.requireNonNull(exampleType, "exampleType is null.");
+        this.exampleIsMap = Map.class.isAssignableFrom(this.exampleType());
         this.tableMapping = Objects.requireNonNull(tableMapping, "tableMapping is null.");
         this.jdbcTemplate = jdbcTemplate;
         this.dbType = dbType;
@@ -65,15 +76,20 @@ public abstract class AbstractExecute<T> {
         this.qualifier = tableMapping.useDelimited();
     }
 
-    public final Class<T> exampleType() {
-        return this.tableMapping.entityType();
+    public final Class<?> exampleType() {
+        return this.exampleType;
+    }
+
+    public R useQualifier() {
+        this.qualifier = true;
+        return this.getSelf();
     }
 
     public final LambdaTemplate getJdbcTemplate() {
         return this.jdbcTemplate;
     }
 
-    protected final TableMapping<T> getTableMapping() {
+    protected final TableMapping<?> getTableMapping() {
         return this.tableMapping;
     }
 
@@ -81,22 +97,57 @@ public abstract class AbstractExecute<T> {
         return this.dialect;
     }
 
-    protected final void setDialect(SqlDialect sqlDialect) {
+    public final void setDialect(SqlDialect sqlDialect) {
         this.dialect = sqlDialect;
-    }
-
-    protected void enableQualifier() {
-        this.qualifier = true;
     }
 
     protected boolean isQualifier() {
         return this.qualifier;
     }
 
-    protected Segment buildTabName(SqlDialect dialect) {
-        TableMapping<T> tableMapping = this.getTableMapping();
+    protected boolean exampleIsMap() {
+        return this.exampleIsMap;
+    }
+
+    protected abstract String getPropertyName(P property);
+
+    protected Segment buildColumnName(P property) {
+        String propertyName = getPropertyName(property);
+        TableMapping<?> tableMapping = this.getTableMapping();
         String schemaName = tableMapping.getSchema();
         String tableName = tableMapping.getTable();
-        return () -> dialect.tableName(isQualifier(), schemaName, tableName);
+        ColumnMapping propertyInfo = tableMapping.getPropertyByName(propertyName);
+
+        if (propertyInfo == null) {
+            String tab = StringUtils.isBlank(schemaName) ? ("'" + tableName + "'") : ("'" + schemaName + "'.'" + tableName + "'");
+            throw new NullPointerException("tableMapping '" + tab + "', property '" + propertyName + "' is not exist.");
+        }
+
+        String columnName = propertyInfo.getColumn();
+        return () -> dialect().columnName(isQualifier(), schemaName, tableName, columnName);
     }
+
+    public final BoundSql getBoundSql() {
+        return getBoundSql(dialect());
+    }
+
+    public final BoundSql getBoundSql(SqlDialect dialect) {
+        if (dialect == null) {
+            throw new IllegalStateException("dialect is null.");
+        } else {
+            SqlDialect oriDialect = dialect();
+            try {
+                this.dialect = dialect;
+                return buildBoundSql(dialect);
+            } finally {
+                this.dialect = oriDialect;
+            }
+
+        }
+    }
+
+    protected abstract BoundSql buildBoundSql(SqlDialect dialect);
+
+    protected abstract R getSelf();
+
 }

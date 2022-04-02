@@ -22,5 +22,5 @@ package net.hasor.db.lambda.segment;
 @FunctionalInterface
 public interface Segment {
     /** 获取 SQL 内容 */
-    public String getSqlSegment();
+    String getSqlSegment();
 }

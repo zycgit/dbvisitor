@@ -34,11 +34,11 @@ public enum SqlKeyword implements Segment {
     IS_NULL("IS NULL"),         //
     IS_NOT_NULL("IS NOT NULL"), //
     BETWEEN("BETWEEN"),         //
-    //
+
     GROUP_BY("GROUP BY"),       //
     HAVING("HAVING"),           //
     ORDER_BY("ORDER BY"),       //
-    //
+
     INSERT("INSERT"),           //
     UPDATE("UPDATE"),           //
     SET("SET"),                 //
@@ -47,7 +47,6 @@ public enum SqlKeyword implements Segment {
     EXISTS("EXISTS"),           //
     SELECT("SELECT"),           //
     DELETE("DELETE"),           //
-    COLUMNS("*"),               //
     FROM("FROM"),               //
     WHERE("WHERE"),             //
     EMPTY(""),                  //

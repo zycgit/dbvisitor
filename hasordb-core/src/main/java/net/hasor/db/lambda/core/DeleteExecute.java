@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.lambda;
-import net.hasor.db.dialect.BoundSql;
-import net.hasor.db.dialect.SqlDialect;
+package net.hasor.db.lambda.core;
+import java.sql.SQLException;
 
 /**
- * 提供 BoundSql 。
+ * lambda Delete 执行器
  * @version : 2020-10-27
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface BoundSqlBuilder {
-    public BoundSql getBoundSql();
+public interface DeleteExecute<R> extends BoundSqlBuilder {
+    /** 根据 Lambda 构造器的条件执行删除 */
+    int doDelete() throws SQLException;
 
-    public BoundSql getBoundSql(SqlDialect dialect);
+    /** 允许空 Where条件（注意：空 Where 条件会导致删除整个数据库） */
+    R allowEmptyWhere();
 }

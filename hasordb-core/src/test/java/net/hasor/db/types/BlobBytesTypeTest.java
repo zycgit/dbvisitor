@@ -15,7 +15,7 @@
  */
 package net.hasor.db.types;
 import com.alibaba.druid.pool.DruidDataSource;
-import net.hasor.cobble.CommonCodeUtils;
+import net.hasor.cobble.codec.MD5;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.db.jdbc.SqlParameterUtils;
 import net.hasor.db.jdbc.core.JdbcTemplate;
@@ -62,8 +62,8 @@ public class BlobBytesTypeTest {
                 return new BlobBytesForWrapTypeHandler().getResult(rs, 1);
             });
 
-            String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
-            String s2 = CommonCodeUtils.MD5.encodeMD5(toPrimitive(dat.get(0)));
+            String s1 = MD5.encodeMD5(testData);
+            String s2 = MD5.encodeMD5(toPrimitive(dat.get(0)));
             assert s1.equals(s2);
         }
     }
@@ -79,8 +79,8 @@ public class BlobBytesTypeTest {
                 return new BlobBytesForWrapTypeHandler().getResult(rs, "c_blob");
             });
 
-            String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
-            String s2 = CommonCodeUtils.MD5.encodeMD5(toPrimitive(dat.get(0)));
+            String s1 = MD5.encodeMD5(testData);
+            String s2 = MD5.encodeMD5(toPrimitive(dat.get(0)));
             assert s1.equals(s2);
         }
     }
@@ -97,8 +97,8 @@ public class BlobBytesTypeTest {
                 return new BlobBytesForWrapTypeHandler().getNullableResult(rs, 1);
             });
 
-            String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
-            String s2 = CommonCodeUtils.MD5.encodeMD5(toPrimitive(dat.get(0)));
+            String s1 = MD5.encodeMD5(testData);
+            String s2 = MD5.encodeMD5(toPrimitive(dat.get(0)));
             assert s1.equals(s2);
         }
     }
@@ -136,8 +136,8 @@ public class BlobBytesTypeTest {
                 return new BlobBytesTypeHandler().getResult(rs, 1);
             });
 
-            String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
-            String s2 = CommonCodeUtils.MD5.encodeMD5(dat.get(0));
+            String s1 = MD5.encodeMD5(testData);
+            String s2 = MD5.encodeMD5(dat.get(0));
             assert s1.equals(s2);
         }
     }
@@ -153,8 +153,8 @@ public class BlobBytesTypeTest {
                 return new BlobBytesTypeHandler().getResult(rs, "c_blob");
             });
 
-            String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
-            String s2 = CommonCodeUtils.MD5.encodeMD5(dat.get(0));
+            String s1 = MD5.encodeMD5(testData);
+            String s2 = MD5.encodeMD5(dat.get(0));
             assert s1.equals(s2);
         }
     }
@@ -171,8 +171,8 @@ public class BlobBytesTypeTest {
                 return new BlobBytesTypeHandler().getNullableResult(rs, 1);
             });
 
-            String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
-            String s2 = CommonCodeUtils.MD5.encodeMD5(dat.get(0));
+            String s1 = MD5.encodeMD5(testData);
+            String s2 = MD5.encodeMD5(dat.get(0));
             assert s1.equals(s2);
         }
     }
@@ -208,8 +208,8 @@ public class BlobBytesTypeTest {
                 return new BlobInputStreamTypeHandler().getResult(rs, 1);
             });
 
-            String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
-            String s2 = CommonCodeUtils.MD5.encodeMD5(IOUtils.toByteArray(dat.get(0)));
+            String s1 = MD5.encodeMD5(testData);
+            String s2 = MD5.encodeMD5(IOUtils.toByteArray(dat.get(0)));
             assert s1.equals(s2);
         }
     }
@@ -225,8 +225,8 @@ public class BlobBytesTypeTest {
                 return new BlobInputStreamTypeHandler().getResult(rs, "c_blob");
             });
 
-            String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
-            String s2 = CommonCodeUtils.MD5.encodeMD5(IOUtils.toByteArray(dat.get(0)));
+            String s1 = MD5.encodeMD5(testData);
+            String s2 = MD5.encodeMD5(IOUtils.toByteArray(dat.get(0)));
             assert s1.equals(s2);
         }
     }
@@ -243,8 +243,8 @@ public class BlobBytesTypeTest {
                 return new BlobInputStreamTypeHandler().getNullableResult(rs, 1);
             });
 
-            String s1 = CommonCodeUtils.MD5.encodeMD5(testData);
-            String s2 = CommonCodeUtils.MD5.encodeMD5(IOUtils.toByteArray(dat.get(0)));
+            String s1 = MD5.encodeMD5(testData);
+            String s2 = MD5.encodeMD5(IOUtils.toByteArray(dat.get(0)));
             assert s1.equals(s2);
         }
     }
@@ -267,8 +267,8 @@ public class BlobBytesTypeTest {
             bytes[0] = 0b01111111;
             bytes[1] = 0b00001111;
 
-            String s1 = CommonCodeUtils.MD5.encodeMD5(bytes);
-            String s2 = CommonCodeUtils.MD5.encodeMD5(IOUtils.toByteArray((InputStream) objectMap.get("out")));
+            String s1 = MD5.encodeMD5(bytes);
+            String s2 = MD5.encodeMD5(IOUtils.toByteArray((InputStream) objectMap.get("out")));
             assert s1.equals(s2);
         }
     }

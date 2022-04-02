@@ -29,8 +29,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.sql.Types;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -38,7 +36,7 @@ import java.util.stream.Collectors;
  * @version : 2021-06-21
  * @author 赵永春 (zyc@hasor.net)
  */
-public class ClassTableMappingResolve implements TableMappingResolve {
+public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
     private static final Map<Class<?>, Class<?>> CLASS_MAPPING_MAP = new HashMap<>();
 
     static {
@@ -48,15 +46,15 @@ public class ClassTableMappingResolve implements TableMappingResolve {
         CLASS_MAPPING_MAP.put(Map.class, LinkedHashMap.class);
     }
 
-    public static <T> TableDef<T> resolveTableMapping(Class<T> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
+    public static TableDef<?> resolveTableMapping(Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
         return new ClassTableMappingResolve().resolveTableMapping(entityType, classLoader, typeRegistry, null);
     }
 
     @Override
-    public <T> TableDef<T> resolveTableMapping(Class<T> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions options) {
+    public TableDef<?> resolveTableMapping(Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions options) {
         options = new MappingOptions(options);
 
-        TableDef<T> def = this.resolveTable(entityType, options, typeRegistry);
+        TableDef<?> def = this.resolveTable(entityType, options, typeRegistry);
         Map<String, Property> properties = BeanUtils.getPropertyFunc(entityType);
 
         // keep order by fields
@@ -82,15 +80,15 @@ public class ClassTableMappingResolve implements TableMappingResolve {
         return def;
     }
 
-    protected <T> TableDef<T> resolveTable(Class<T> entityType, MappingOptions options, TypeHandlerRegistry typeRegistry) {
+    protected TableDef<?> resolveTable(Class<?> entityType, MappingOptions options, TypeHandlerRegistry typeRegistry) {
         if (entityType.isAnnotationPresent(Table.class)) {
             Table defTable = entityType.getAnnotation(Table.class);
             String schema = defTable.schema();
             String table = StringUtils.isNotBlank(defTable.name()) ? defTable.name() : StringUtils.isNotBlank(defTable.value()) ? defTable.value() : entityType.getSimpleName();
 
             if (defTable.mapUnderscoreToCamelCase() || Boolean.TRUE.equals(options.getMapUnderscoreToCamelCase())) {
-                schema = humpToLine(schema, true);
-                table = humpToLine(table, true);
+                schema = hump2Line(schema, true);
+                table = hump2Line(table, true);
                 options.setMapUnderscoreToCamelCase(true); // for parserProperty
             }
 
@@ -100,7 +98,7 @@ public class ClassTableMappingResolve implements TableMappingResolve {
             return new TableDef<>(schema, table, entityType, autoProperty, useDelimited, caseInsensitive, typeRegistry);
         } else {
 
-            String tableName = humpToLine(entityType.getSimpleName(), options.getMapUnderscoreToCamelCase());
+            String tableName = hump2Line(entityType.getSimpleName(), options.getMapUnderscoreToCamelCase());
             return new TableDef<>(null, tableName, entityType, true, false, true, typeRegistry);
         }
     }
@@ -127,7 +125,7 @@ public class ClassTableMappingResolve implements TableMappingResolve {
         if (info != null) {
             column = StringUtils.isNotBlank(info.name()) ? info.name() : info.value();
             if (StringUtils.isBlank(column)) {
-                column = humpToLine(name, options.getMapUnderscoreToCamelCase());
+                column = hump2Line(name, options.getMapUnderscoreToCamelCase());
             }
 
             javaType = info.specialJavaType() == Object.class ? CLASS_MAPPING_MAP.getOrDefault(type, type) : info.specialJavaType();
@@ -144,7 +142,7 @@ public class ClassTableMappingResolve implements TableMappingResolve {
 
         } else if (tableDef.isAutoProperty()) {
 
-            column = humpToLine(name, options.getMapUnderscoreToCamelCase());
+            column = hump2Line(name, options.getMapUnderscoreToCamelCase());
             javaType = CLASS_MAPPING_MAP.getOrDefault(type, type);
             jdbcType = TypeHandlerRegistry.toSqlType(javaType);
             typeHandler = typeRegistry.getTypeHandler(javaType, jdbcType);
@@ -158,25 +156,11 @@ public class ClassTableMappingResolve implements TableMappingResolve {
         tableDef.addMapping(new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler, insert, update, primary));
     }
 
-    private static final Pattern humpPattern = Pattern.compile("[A-Z]");
-
-    private static String humpToLine(String str, Boolean mapUnderscoreToCamelCase) {
+    private String hump2Line(String str, Boolean mapUnderscoreToCamelCase) {
         if (StringUtils.isBlank(str) || mapUnderscoreToCamelCase == null || !mapUnderscoreToCamelCase) {
             return str;
+        } else {
+            return StringUtils.humpToLine(str);
         }
-        Matcher matcher = humpPattern.matcher(str);
-        StringBuffer sb = new StringBuffer();
-        while (matcher.find()) {
-            matcher.appendReplacement(sb, "_" + matcher.group(0).toLowerCase());
-        }
-        matcher.appendTail(sb);
-        //
-        String strString = sb.toString();
-        strString = strString.replaceAll("_{2,}", "_");
-        if (strString.charAt(0) == '_') {
-            strString = strString.substring(1);
-        }
-        return strString;
     }
-
 }

@@ -18,7 +18,6 @@ import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.db.JdbcUtils;
 import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.dialect.SqlDialectRegister;
-import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TB_User;
 import net.hasor.test.db.dto.TbUser;

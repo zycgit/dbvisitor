@@ -18,8 +18,6 @@ import net.hasor.db.dialect.BatchBoundSql;
 import net.hasor.db.dialect.BoundSql;
 import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.dialect.provider.MySqlDialect;
-import net.hasor.db.lambda.LambdaOperations.LambdaInsert;
-import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TB_User;
 import org.junit.Test;
@@ -34,7 +32,7 @@ import static net.hasor.test.db.utils.TestUtils.mapForData2;
 public class BuilderInsertTest extends AbstractDbTest {
     @Test
     public void insert_1() {
-        LambdaInsert<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
+        InsertOperation<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
         //
@@ -50,7 +48,7 @@ public class BuilderInsertTest extends AbstractDbTest {
 
     @Test
     public void insertDuplicateKeyBlock_1() {
-        LambdaInsert<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
+        InsertOperation<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Into);
@@ -67,7 +65,7 @@ public class BuilderInsertTest extends AbstractDbTest {
 
     @Test
     public void insertDuplicateKeyUpdate_1() {
-        LambdaInsert<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
+        InsertOperation<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Update);
@@ -84,7 +82,7 @@ public class BuilderInsertTest extends AbstractDbTest {
 
     @Test
     public void insertDuplicateKeyIgnore_1() {
-        LambdaInsert<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
+        InsertOperation<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Ignore);

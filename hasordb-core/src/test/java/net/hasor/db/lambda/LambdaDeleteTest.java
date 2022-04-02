@@ -15,8 +15,6 @@
  */
 package net.hasor.db.lambda;
 import com.alibaba.druid.pool.DruidDataSource;
-import net.hasor.db.lambda.LambdaOperations.LambdaDelete;
-import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TB_User;
 import net.hasor.test.db.utils.DsUtils;
@@ -38,7 +36,7 @@ public class LambdaDeleteTest extends AbstractDbTest {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
             //
-            LambdaDelete<TB_User> lambdaDelete = lambdaTemplate.lambdaDelete(TB_User.class);
+            EntityDeleteOperation<TB_User> lambdaDelete = lambdaTemplate.lambdaDelete(TB_User.class);
             int delete = lambdaDelete.allowEmptyWhere().doDelete();
             assert delete == 3;
         }
@@ -49,7 +47,7 @@ public class LambdaDeleteTest extends AbstractDbTest {
         try (DruidDataSource dataSource = DsUtils.createDs()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
             //
-            LambdaDelete<TB_User> lambdaDelete = lambdaTemplate.lambdaDelete(TB_User.class);
+            EntityDeleteOperation<TB_User> lambdaDelete = lambdaTemplate.lambdaDelete(TB_User.class);
             int delete = lambdaDelete.eq(TB_User::getLoginName, beanForData1().getLoginName()).doDelete();
             assert delete == 1;
             //

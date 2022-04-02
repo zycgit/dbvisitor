@@ -15,7 +15,6 @@
  */
 package net.hasor.db.lambda;
 import net.hasor.db.dialect.BoundSql;
-import net.hasor.db.lambda.core.LambdaTemplate;
 import net.hasor.test.db.AbstractDbTest;
 import net.hasor.test.db.dto.TbUser;
 import org.junit.Test;
@@ -225,7 +224,7 @@ public class BuilderQueryTest extends AbstractDbTest {
                     .groupBy(TbUser::getIndex).eq(TbUser::getAccount, "b"); // after groupBy is Error.
             assert false;
         } catch (Exception e) {
-            assert e.getMessage().startsWith("condition is locked.");
+            assert e.getMessage().equals("must before (group by/order by) invoke it.");
         }
 
         try {
@@ -234,7 +233,7 @@ public class BuilderQueryTest extends AbstractDbTest {
                     .orderBy(TbUser::getIndex).eq(TbUser::getAccount, "b"); // << --- after orderBy is Error.
             assert false;
         } catch (Exception e) {
-            assert e.getMessage().startsWith("condition is locked.");
+            assert e.getMessage().equals("must before (group by/order by) invoke it.");
         }
 
         try {
@@ -245,7 +244,7 @@ public class BuilderQueryTest extends AbstractDbTest {
                     .groupBy(TbUser::getIndex); // << --- after orderBy is Error.
             assert false;
         } catch (Exception e) {
-            assert e.getMessage().startsWith("group by is locked.");
+            assert e.getMessage().startsWith("must before order by invoke it.");
         }
     }
 
@@ -388,9 +387,9 @@ public class BuilderQueryTest extends AbstractDbTest {
     public void queryBuilder6() {
         LambdaTemplate lambdaTemplate = new LambdaTemplate();
 
-        BoundSql boundSql1 = lambdaTemplate.lambdaQuery(TbUser.class).select("a", "b", "c", "d")//
+        BoundSql boundSql1 = lambdaTemplate.lambdaQuery(TbUser.class).applySelect("a, b, c, d")//
                 .eq(TbUser::getIndex, 1).or().between(TbUser::getAccount, 2, 3).getBoundSql();
-        assert boundSql1.getSqlString().equals("SELECT a , b , c , d FROM tb_user WHERE index = ? OR loginName BETWEEN ? AND ?");
+        assert boundSql1.getSqlString().equals("SELECT a, b, c, d FROM tb_user WHERE index = ? OR loginName BETWEEN ? AND ?");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);

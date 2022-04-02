@@ -40,10 +40,9 @@ public class MultipleExtractorTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists tb_user;");
             jdbcTemplate.loadSQL("net_hasor_db/tb_user_for_mysql.sql");
-            String insertSql = INSERT_ARRAY.replace("index", "`index`");
-            jdbcTemplate.executeUpdate(insertSql, arrayForData1());
-            jdbcTemplate.executeUpdate(insertSql, arrayForData2());
-            jdbcTemplate.executeUpdate(insertSql, arrayForData3());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
             //
             String multipleSql = ""//
                     + "select * from tb_user where loginName = 'muhammad';\n"//
@@ -68,10 +67,9 @@ public class MultipleExtractorTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists tb_user;");
             jdbcTemplate.loadSQL("net_hasor_db/tb_user_for_mysql.sql");
-            String insertSql = INSERT_ARRAY.replace("index", "`index`");
-            jdbcTemplate.executeUpdate(insertSql, arrayForData1());
-            jdbcTemplate.executeUpdate(insertSql, arrayForData2());
-            jdbcTemplate.executeUpdate(insertSql, arrayForData3());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
             //
             String multipleSql = ""//
                     + "select * from tb_user where loginName = ?;\n"//
@@ -97,10 +95,9 @@ public class MultipleExtractorTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists tb_user;");
             jdbcTemplate.loadSQL("net_hasor_db/tb_user_for_mysql.sql");
-            String insertSql = INSERT_ARRAY.replace("index", "`index`");
-            jdbcTemplate.executeUpdate(insertSql, arrayForData1());
-            jdbcTemplate.executeUpdate(insertSql, arrayForData2());
-            jdbcTemplate.executeUpdate(insertSql, arrayForData3());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
             //
             Map<String, String> data = new HashMap<>();
             data.put("name1", "muhammad");
@@ -128,10 +125,9 @@ public class MultipleExtractorTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists tb_user;");
             jdbcTemplate.loadSQL("net_hasor_db/tb_user_for_mysql.sql");
-            String insertSql = INSERT_ARRAY.replace("index", "`index`");
-            jdbcTemplate.executeUpdate(insertSql, arrayForData1());
-            jdbcTemplate.executeUpdate(insertSql, arrayForData2());
-            jdbcTemplate.executeUpdate(insertSql, arrayForData3());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
             //
             Map<String, String> data = new HashMap<>();
             data.put("name1", "muhammad");
