@@ -22,5 +22,5 @@ import net.hasor.db.dal.dynamic.DynamicSql;
  * @author 赵永春 (zyc@byshell.org)
  */
 public interface DynamicResolve<T> {
-    public DynamicSql parseSqlConfig(T config);
+    DynamicSql parseSqlConfig(T config);
 }

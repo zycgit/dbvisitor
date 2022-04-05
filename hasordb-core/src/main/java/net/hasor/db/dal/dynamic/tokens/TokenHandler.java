@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2009-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,5 +21,5 @@ package net.hasor.db.dal.dynamic.tokens;
  * @version : 2020-04-12
  */
 public interface TokenHandler {
-    public String handleToken(StringBuilder hasFound, String openToken, String content);
+    String handleToken(StringBuilder hasFound, String openToken, String content);
 }

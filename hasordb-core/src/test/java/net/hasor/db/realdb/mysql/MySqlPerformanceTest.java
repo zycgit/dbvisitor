@@ -1,6 +1,6 @@
 package net.hasor.db.realdb.mysql;
-import net.hasor.db.lambda.LambdaOperations.LambdaInsert;
-import net.hasor.db.lambda.core.LambdaTemplate;
+import net.hasor.db.lambda.InsertOperation;
+import net.hasor.db.lambda.LambdaTemplate;
 import net.hasor.test.db.dto.TbUser;
 import net.hasor.test.db.utils.DsUtils;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class MySqlPerformanceTest {
 
     private void initData(Connection con, int count) throws SQLException {
         LambdaTemplate lambdaTemplate = new LambdaTemplate(con);
-        LambdaInsert<TbUser> lambdaInsert = lambdaTemplate.lambdaInsert(TbUser.class);
+        InsertOperation<TbUser> lambdaInsert = lambdaTemplate.lambdaInsert(TbUser.class);
         for (int i = 0; i < count; i++) {
             TbUser tbUser = new TbUser();
             tbUser.setUid("id_" + i);

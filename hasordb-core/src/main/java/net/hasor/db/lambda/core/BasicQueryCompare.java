@@ -140,91 +140,91 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
 
     @Override
     public R eq(P property, Object value) {
-        return this.addCondition(buildColumnName(property), EQ, formatValue(value));
+        return this.addCondition(buildColumnByLambda(property), EQ, formatValue(value));
     }
 
     @Override
     public R ne(P property, Object value) {
-        return this.addCondition(buildColumnName(property), NE, formatValue(value));
+        return this.addCondition(buildColumnByLambda(property), NE, formatValue(value));
     }
 
     @Override
     public R gt(P property, Object value) {
-        return this.addCondition(buildColumnName(property), GT, formatValue(value));
+        return this.addCondition(buildColumnByLambda(property), GT, formatValue(value));
     }
 
     @Override
     public R ge(P property, Object value) {
-        return this.addCondition(buildColumnName(property), GE, formatValue(value));
+        return this.addCondition(buildColumnByLambda(property), GE, formatValue(value));
     }
 
     @Override
     public R lt(P property, Object value) {
-        return this.addCondition(buildColumnName(property), LT, formatValue(value));
+        return this.addCondition(buildColumnByLambda(property), LT, formatValue(value));
     }
 
     @Override
     public R le(P property, Object value) {
-        return this.addCondition(buildColumnName(property), LE, formatValue(value));
+        return this.addCondition(buildColumnByLambda(property), LE, formatValue(value));
     }
 
     @Override
     public R like(P property, Object value) {
-        return this.addCondition(buildColumnName(property), LIKE, formatLikeValue(SqlLike.DEFAULT, value));
+        return this.addCondition(buildColumnByLambda(property), LIKE, formatLikeValue(SqlLike.DEFAULT, value));
     }
 
     @Override
     public R notLike(P property, Object value) {
-        return this.addCondition(buildColumnName(property), NOT, LIKE, formatLikeValue(SqlLike.DEFAULT, value));
+        return this.addCondition(buildColumnByLambda(property), NOT, LIKE, formatLikeValue(SqlLike.DEFAULT, value));
     }
 
     @Override
     public R likeRight(P property, Object value) {
-        return this.addCondition(buildColumnName(property), LIKE, formatLikeValue(SqlLike.RIGHT, value));
+        return this.addCondition(buildColumnByLambda(property), LIKE, formatLikeValue(SqlLike.RIGHT, value));
     }
 
     @Override
     public R notLikeRight(P property, Object value) {
-        return this.addCondition(buildColumnName(property), NOT, LIKE, formatLikeValue(SqlLike.RIGHT, value));
+        return this.addCondition(buildColumnByLambda(property), NOT, LIKE, formatLikeValue(SqlLike.RIGHT, value));
     }
 
     @Override
     public R likeLeft(P property, Object value) {
-        return this.addCondition(buildColumnName(property), LIKE, formatLikeValue(SqlLike.LEFT, value));
+        return this.addCondition(buildColumnByLambda(property), LIKE, formatLikeValue(SqlLike.LEFT, value));
     }
 
     @Override
     public R notLikeLeft(P property, Object value) {
-        return this.addCondition(buildColumnName(property), NOT, LIKE, formatLikeValue(SqlLike.LEFT, value));
+        return this.addCondition(buildColumnByLambda(property), NOT, LIKE, formatLikeValue(SqlLike.LEFT, value));
     }
 
     @Override
     public R isNull(P property) {
-        return this.addCondition(buildColumnName(property), IS_NULL);
+        return this.addCondition(buildColumnByLambda(property), IS_NULL);
     }
 
     @Override
     public R isNotNull(P property) {
-        return this.addCondition(buildColumnName(property), IS_NOT_NULL);
+        return this.addCondition(buildColumnByLambda(property), IS_NOT_NULL);
     }
 
     @Override
     public R in(P property, Collection<?> value) {
-        return this.addCondition(buildColumnName(property), IN, LEFT, formatValue(value.toArray()), RIGHT);
+        return this.addCondition(buildColumnByLambda(property), IN, LEFT, formatValue(value.toArray()), RIGHT);
     }
 
     @Override
     public R notIn(P property, Collection<?> value) {
-        return this.addCondition(buildColumnName(property), NOT, IN, LEFT, formatValue(value.toArray()), RIGHT);
+        return this.addCondition(buildColumnByLambda(property), NOT, IN, LEFT, formatValue(value.toArray()), RIGHT);
     }
 
     @Override
     public R between(P property, Object value1, Object value2) {
-        return this.addCondition(buildColumnName(property), BETWEEN, formatValue(value1), AND, formatValue(value2));
+        return this.addCondition(buildColumnByLambda(property), BETWEEN, formatValue(value1), AND, formatValue(value2));
     }
 
     @Override
     public R notBetween(P property, Object value1, Object value2) {
-        return this.addCondition(buildColumnName(property), NOT, BETWEEN, formatValue(value1), AND, formatValue(value2));
+        return this.addCondition(buildColumnByLambda(property), NOT, BETWEEN, formatValue(value1), AND, formatValue(value2));
     }
 }

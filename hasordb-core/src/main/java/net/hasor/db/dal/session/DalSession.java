@@ -27,7 +27,7 @@ import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.dialect.SqlDialectRegister;
 import net.hasor.db.jdbc.ConnectionCallback;
 import net.hasor.db.jdbc.core.JdbcAccessor;
-import net.hasor.db.lambda.core.LambdaTemplate;
+import net.hasor.db.lambda.LambdaTemplate;
 import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.db.mapping.resolve.MappingOptions;
 import net.hasor.db.page.Page;

@@ -23,5 +23,5 @@ import net.hasor.db.dal.repository.config.SelectKeySqlConfig;
  */
 public interface KeySequenceHolderFactory {
 
-    public KeySequenceHolder createHolder(SelectKeySqlConfig keySqlConfig, AbstractStatementExecute<?> execute);
+    KeySequenceHolder createHolder(SelectKeySqlConfig keySqlConfig, AbstractStatementExecute<?> execute);
 }

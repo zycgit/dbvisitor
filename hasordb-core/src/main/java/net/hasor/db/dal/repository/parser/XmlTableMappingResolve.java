@@ -83,7 +83,7 @@ public class XmlTableMappingResolve implements TableMappingResolve<Node> {
                 tableName = humpToLine(entityType.getSimpleName(), options.getMapUnderscoreToCamelCase());
             }
 
-            TableDef<?> tableDef = new TableDef<>(schemaName, tableName, entityType, false, false, caseInsensitive);
+            TableDef<?> tableDef = new TableDef<>(schemaName, tableName, entityType, false, false, caseInsensitive, typeRegistry);
             loadTableMapping(tableDef, refData, classLoader, typeRegistry);
 
             return tableDef;

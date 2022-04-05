@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.dynamic.rule;
-import net.hasor.cobble.CommonCodeUtils;
+import net.hasor.cobble.codec.MD5;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.SqlArg;
 import net.hasor.db.dal.dynamic.SqlMode;
@@ -46,7 +46,7 @@ public class MD5Rule implements SqlBuildRule {
         }
 
         try {
-            argValue = CommonCodeUtils.MD5.getMD5(argValue.toString());
+            argValue = MD5.getMD5(argValue.toString());
         } catch (NoSuchAlgorithmException e) {
             throw new SQLException(e);
         }

@@ -16,10 +16,15 @@
 package net.hasor.db.lambda.support.entity;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.reflect.SFunction;
+import net.hasor.db.dialect.ConditionSqlDialect;
 import net.hasor.db.lambda.EntityUpdateOperation;
 import net.hasor.db.lambda.LambdaTemplate;
 import net.hasor.db.lambda.core.AbstractUpdateLambda;
 import net.hasor.db.mapping.def.TableMapping;
+
+import java.util.Collection;
+
+import static net.hasor.db.lambda.segment.SqlKeyword.*;
 
 /**
  * 提供 lambda update 能力，是 LambdaUpdate 接口的实现类。
@@ -39,5 +44,97 @@ public class UpdateLambdaForEntity<T> extends AbstractUpdateLambda<EntityUpdateO
     @Override
     protected String getPropertyName(SFunction<T> property) {
         return BeanUtils.toProperty(property);
+    }
+
+    // ----------------------------------------------------
+
+    @Override
+    public EntityUpdateOperation<T> eq(String property, Object value) {
+        return this.addCondition(buildColumnByProperty(property), EQ, formatValue(value));
+    }
+
+    @Override
+    public EntityUpdateOperation<T> ne(String property, Object value) {
+        return this.addCondition(buildColumnByProperty(property), NE, formatValue(value));
+    }
+
+    @Override
+    public EntityUpdateOperation<T> gt(String property, Object value) {
+        return this.addCondition(buildColumnByProperty(property), GT, formatValue(value));
+    }
+
+    @Override
+    public EntityUpdateOperation<T> ge(String property, Object value) {
+        return this.addCondition(buildColumnByProperty(property), GE, formatValue(value));
+    }
+
+    @Override
+    public EntityUpdateOperation<T> lt(String property, Object value) {
+        return this.addCondition(buildColumnByProperty(property), LT, formatValue(value));
+    }
+
+    @Override
+    public EntityUpdateOperation<T> le(String property, Object value) {
+        return this.addCondition(buildColumnByProperty(property), LE, formatValue(value));
+    }
+
+    @Override
+    public EntityUpdateOperation<T> like(String property, Object value) {
+        return this.addCondition(buildColumnByProperty(property), LIKE, formatLikeValue(ConditionSqlDialect.SqlLike.DEFAULT, value));
+    }
+
+    @Override
+    public EntityUpdateOperation<T> notLike(String property, Object value) {
+        return this.addCondition(buildColumnByProperty(property), NOT, LIKE, formatLikeValue(ConditionSqlDialect.SqlLike.DEFAULT, value));
+    }
+
+    @Override
+    public EntityUpdateOperation<T> likeRight(String property, Object value) {
+        return this.addCondition(buildColumnByProperty(property), LIKE, formatLikeValue(ConditionSqlDialect.SqlLike.RIGHT, value));
+    }
+
+    @Override
+    public EntityUpdateOperation<T> notLikeRight(String property, Object value) {
+        return this.addCondition(buildColumnByProperty(property), NOT, LIKE, formatLikeValue(ConditionSqlDialect.SqlLike.RIGHT, value));
+    }
+
+    @Override
+    public EntityUpdateOperation<T> likeLeft(String property, Object value) {
+        return this.addCondition(buildColumnByProperty(property), LIKE, formatLikeValue(ConditionSqlDialect.SqlLike.LEFT, value));
+    }
+
+    @Override
+    public EntityUpdateOperation<T> notLikeLeft(String property, Object value) {
+        return this.addCondition(buildColumnByProperty(property), NOT, LIKE, formatLikeValue(ConditionSqlDialect.SqlLike.LEFT, value));
+    }
+
+    @Override
+    public EntityUpdateOperation<T> isNull(String property) {
+        return this.addCondition(buildColumnByProperty(property), IS_NULL);
+    }
+
+    @Override
+    public EntityUpdateOperation<T> isNotNull(String property) {
+        return this.addCondition(buildColumnByProperty(property), IS_NOT_NULL);
+    }
+
+    @Override
+    public EntityUpdateOperation<T> in(String property, Collection<?> value) {
+        return this.addCondition(buildColumnByProperty(property), IN, LEFT, formatValue(value.toArray()), RIGHT);
+    }
+
+    @Override
+    public EntityUpdateOperation<T> notIn(String property, Collection<?> value) {
+        return this.addCondition(buildColumnByProperty(property), NOT, IN, LEFT, formatValue(value.toArray()), RIGHT);
+    }
+
+    @Override
+    public EntityUpdateOperation<T> between(String property, Object value1, Object value2) {
+        return this.addCondition(buildColumnByProperty(property), BETWEEN, formatValue(value1), AND, formatValue(value2));
+    }
+
+    @Override
+    public EntityUpdateOperation<T> notBetween(String property, Object value1, Object value2) {
+        return this.addCondition(buildColumnByProperty(property), NOT, BETWEEN, formatValue(value1), AND, formatValue(value2));
     }
 }

@@ -26,11 +26,11 @@ import java.util.Map;
  */
 public interface DynamicSql {
     /** 是否包含替换占位符，如果包含替换占位符那么不能使用批量模式 */
-    public boolean isHavePlaceholder();
+    boolean isHavePlaceholder();
 
-    public void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException;
+    void buildQuery(Map<String, Object> data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException;
 
-    public default SqlBuilder buildQuery(Map<String, Object> data, DynamicContext context) throws SQLException {
+    default SqlBuilder buildQuery(Map<String, Object> data, DynamicContext context) throws SQLException {
         SqlBuilder fxBuilder = new SqlBuilder();
         this.buildQuery(data, context, fxBuilder);
         return fxBuilder;

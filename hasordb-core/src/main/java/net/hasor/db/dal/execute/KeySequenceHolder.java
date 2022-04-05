@@ -25,5 +25,5 @@ import java.util.Map;
  */
 public interface KeySequenceHolder {
 
-    public Object processSelectKey(Connection conn, Map<String, Object> parameter) throws SQLException;
+    Object processSelectKey(Connection conn, Map<String, Object> parameter) throws SQLException;
 }

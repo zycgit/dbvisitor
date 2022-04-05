@@ -26,11 +26,11 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Delete {
-    public String value();
+    String value();
 
-    public boolean xml() default false;
+    boolean xml() default false;
 
-    public StatementType statementType() default StatementType.Prepared;
+    StatementType statementType() default StatementType.Prepared;
 
-    public int timeout() default -1;
+    int timeout() default -1;
 }

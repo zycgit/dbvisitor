@@ -111,8 +111,12 @@ public abstract class BasicLambda<R, T, P> {
 
     protected abstract String getPropertyName(P property);
 
-    protected Segment buildColumnName(P property) {
+    protected Segment buildColumnByLambda(P property) {
         String propertyName = getPropertyName(property);
+        return buildColumnByProperty(propertyName);
+    }
+
+    protected Segment buildColumnByProperty(String propertyName) {
         TableMapping<?> tableMapping = this.getTableMapping();
         String schemaName = tableMapping.getSchema();
         String tableName = tableMapping.getTable();

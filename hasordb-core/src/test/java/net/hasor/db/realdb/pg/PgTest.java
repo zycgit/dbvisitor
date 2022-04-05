@@ -15,7 +15,7 @@
  */
 package net.hasor.db.realdb.pg;
 import net.hasor.db.dialect.BoundSql;
-import net.hasor.db.lambda.core.LambdaTemplate;
+import net.hasor.db.lambda.LambdaTemplate;
 import org.junit.Test;
 
 import java.sql.Timestamp;

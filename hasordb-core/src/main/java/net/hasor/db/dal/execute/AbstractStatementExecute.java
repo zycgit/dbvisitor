@@ -32,6 +32,7 @@ import net.hasor.db.dialect.SqlBuilder;
 import net.hasor.db.jdbc.extractor.MultipleProcessType;
 import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.TableMapping;
+import net.hasor.db.mapping.reader.DynamicTableReader;
 import net.hasor.db.page.Page;
 import net.hasor.db.types.TypeHandlerRegistry;
 
@@ -167,8 +168,8 @@ public abstract class AbstractStatementExecute<T> {
         return new DalResultSetExtractor(executeInfo.caseInsensitive, this.context, multipleType, tableReaders);
     }
 
-    private MapTableReader getDefaultTableReader(ExecuteInfo executeInfo, DynamicContext context) {
-        return new MapTableReader(executeInfo.caseInsensitive, context.getTypeRegistry());
+    private DynamicTableReader getDefaultTableReader(ExecuteInfo executeInfo, DynamicContext context) {
+        return new DynamicTableReader(executeInfo.caseInsensitive, context.getTypeRegistry());
     }
 
     protected Object getResult(List<Object> result, ExecuteInfo executeInfo) {

@@ -38,7 +38,7 @@ public class TestUtils {
     private static final Object[] DATA_6       = new Object[] { newID(), "张果老", "guolao", null, "guolao@hasor.net", 6, new Date() };
     private static final Object[] DATA_7       = new Object[] { newID(), "吴广", "wuguang", null, "wuguang@hasor.net", 7, new Date() };
 
-    private static String newID() {
+    public static String newID() {
         return UUID.randomUUID().toString();
     }
 

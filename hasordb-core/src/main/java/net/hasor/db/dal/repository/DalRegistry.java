@@ -22,7 +22,6 @@ import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
 import net.hasor.db.dal.dynamic.rule.RuleRegistry;
-import net.hasor.db.dal.execute.MapTableReader;
 import net.hasor.db.dal.repository.config.QuerySqlConfig;
 import net.hasor.db.dal.repository.parser.ClassDynamicResolve;
 import net.hasor.db.dal.repository.parser.DynamicResolve;
@@ -32,6 +31,7 @@ import net.hasor.db.dal.session.BaseMapper;
 import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.def.TableDef;
 import net.hasor.db.mapping.def.TableMapping;
+import net.hasor.db.mapping.reader.DynamicTableReader;
 import net.hasor.db.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.db.mapping.resolve.MappingOptions;
 import net.hasor.db.mapping.resolve.TableMappingResolve;
@@ -50,10 +50,6 @@ import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -86,10 +82,12 @@ public class DalRegistry {
         this.resourceLoader = (resourceLoader == null) ? new ClassPathResourceLoader(this.classLoader) : resourceLoader;
 
         for (String javaType : this.typeRegistry.getHandlerJavaTypes()) {
-            this.typeHandlerCache.put(javaType, new TypeHandlerReader<>(this.typeRegistry.getTypeHandler(javaType)));
+            TypeHandler<?> typeHandler = this.typeRegistry.getTypeHandler(javaType);
+            TableReader<Object> tableReader = (columns, rs, rowNum) -> typeHandler.getResult(rs, 1);
+            this.typeHandlerCache.put(javaType, tableReader);
         }
         boolean caseInsensitive = this.mappingOptions.getCaseInsensitive() == null || Boolean.TRUE.equals(this.mappingOptions.getCaseInsensitive());
-        this.typeHandlerCache.put(Map.class.getName(), new MapTableReader(caseInsensitive, this.typeRegistry));
+        this.typeHandlerCache.put(Map.class.getName(), new DynamicTableReader(caseInsensitive, this.typeRegistry));
 
     }
 
@@ -374,7 +372,7 @@ public class DalRegistry {
 
         if (this.typeRegistry.hasTypeHandler(resultClass)) {
             TypeHandler<?> typeHandler = this.typeRegistry.getTypeHandler(resultClass);
-            tableReader = new TypeHandlerReader<>(typeHandler);
+            tableReader = (TableReader<Object>) (columns, rs, rowNum) -> typeHandler.getResult(rs, 1);
         } else {
             tableReader = getClassTableMappingResolve().resolveTableMapping(resultClass, resultClass.getClassLoader(), getTypeRegistry(), options).toReader();
         }
@@ -492,30 +490,6 @@ public class DalRegistry {
 
         public ClassLoader getClassLoader() {
             return this.dalRegistry.getClassLoader();
-        }
-    }
-
-    /** 值化 */
-    private static class TypeHandlerReader<T> implements TableReader<T> {
-        private final TypeHandler<T> typeHandler;
-
-        public TypeHandlerReader(TypeHandler<T> typeHandler) {
-            this.typeHandler = typeHandler;
-        }
-
-        @Override
-        public List<T> extractData(List<String> columns, ResultSet rs) throws SQLException {
-            List<T> results = new ArrayList<>();
-            int rowNum = 0;
-            while (rs.next()) {
-                results.add(this.extractRow(columns, rs, rowNum++));
-            }
-            return results;
-        }
-
-        @Override
-        public T extractRow(List<String> columns, ResultSet rs, int rowNum) throws SQLException {
-            return this.typeHandler.getResult(rs, 1);
         }
     }
 }

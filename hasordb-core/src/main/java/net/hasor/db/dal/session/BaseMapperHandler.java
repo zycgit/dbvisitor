@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.session;
-import net.hasor.db.lambda.LambdaOperations.LambdaDelete;
-import net.hasor.db.lambda.LambdaOperations.LambdaQuery;
-import net.hasor.db.lambda.LambdaOperations.LambdaUpdate;
-import net.hasor.db.lambda.core.LambdaTemplate;
+import net.hasor.db.lambda.EntityDeleteOperation;
+import net.hasor.db.lambda.EntityQueryOperation;
+import net.hasor.db.lambda.EntityUpdateOperation;
+import net.hasor.db.lambda.LambdaTemplate;
 import net.hasor.db.mapping.def.ColumnMapping;
 import net.hasor.db.mapping.def.TableMapping;
 import net.hasor.db.page.Page;
@@ -87,8 +87,8 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new SQLException(entityType() + " no primary key is identified");
         }
 
-        LambdaQuery<Object> query = query();
-        LambdaUpdate<Object> update = update();
+        EntityQueryOperation<Object> query = query();
+        EntityUpdateOperation<Object> update = update();
 
         for (ColumnMapping pk : pks) {
             Object o = pk.getHandler().get(entity);
@@ -119,7 +119,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new SQLException(entityType() + " no primary key is identified");
         }
 
-        LambdaDelete<Object> delete = delete();
+        EntityDeleteOperation<Object> delete = delete();
 
         for (ColumnMapping pk : pks) {
             Object o = pk.getHandler().get(entity);
@@ -143,7 +143,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new SQLException(entityType() + " no primary key is identified");
         }
 
-        LambdaDelete<Object> delete = delete();
+        EntityDeleteOperation<Object> delete = delete();
         if (pks.size() == 1) {
             delete.and().eq(pks.get(0).getColumn(), id);
         } else {
@@ -172,10 +172,10 @@ class BaseMapperHandler implements BaseMapper<Object> {
         }
 
         if (pks.size() == 1) {
-            LambdaDelete<Object> delete = delete();
+            EntityDeleteOperation<Object> delete = delete();
             return delete.and().in(pks.get(0).getColumn(), idList).doDelete();
         } else {
-            LambdaDelete<Object> delete = delete();
+            EntityDeleteOperation<Object> delete = delete();
             for (Object obj : idList) {
                 delete.or(queryCompare -> {
                     for (ColumnMapping pkColumn : pks) {
@@ -203,7 +203,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new SQLException(entityType() + " no primary key is identified");
         }
 
-        LambdaQuery<Object> query = query();
+        EntityQueryOperation<Object> query = query();
         if (pks.size() == 1) {
             query.and().eq(pks.get(0).getColumn(), id);
         } else {
@@ -234,7 +234,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
         if (pks.size() == 1) {
             return query().and().in(pks.get(0).getColumn(), idList).queryForList();
         } else {
-            LambdaQuery<Object> query = query();
+            EntityQueryOperation<Object> query = query();
             for (Object obj : idList) {
                 query.or(queryCompare -> {
                     for (ColumnMapping pkColumn : pks) {
@@ -251,8 +251,8 @@ class BaseMapperHandler implements BaseMapper<Object> {
         }
     }
 
-    protected LambdaQuery<Object> buildQueryBySample(Object sample) {
-        LambdaQuery<Object> query = query();
+    protected EntityQueryOperation<Object> buildQueryBySample(Object sample) {
+        EntityQueryOperation<Object> query = query();
 
         if (sample != null) {
             for (ColumnMapping mapping : getMapping().getProperties()) {

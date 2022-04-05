@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.session;
-import net.hasor.db.lambda.LambdaOperations.LambdaDelete;
-import net.hasor.db.lambda.LambdaOperations.LambdaInsert;
-import net.hasor.db.lambda.LambdaOperations.LambdaQuery;
-import net.hasor.db.lambda.LambdaOperations.LambdaUpdate;
-import net.hasor.db.lambda.core.LambdaTemplate;
+import net.hasor.db.lambda.*;
 import net.hasor.db.page.Page;
 import net.hasor.db.page.PageResult;
 
@@ -33,44 +29,44 @@ import java.util.List;
  */
 public interface BaseMapper<T> extends Mapper {
 
-    public Class<T> entityType();
+    Class<T> entityType();
 
-    public LambdaTemplate template();
+    LambdaTemplate template();
 
-    public DalSession getSession();
+    DalSession getSession();
 
     /** return LambdaInsert for insert */
-    public default LambdaInsert<T> insert() {
+    default InsertOperation<T> insert() {
         return template().lambdaInsert(entityType());
     }
 
     /** return LambdaDelete for delete */
-    public default LambdaDelete<T> delete() {
+    default EntityDeleteOperation<T> delete() {
         return template().lambdaDelete(entityType());
     }
 
     /** return LambdaUpdate for update */
-    public default LambdaUpdate<T> update() {
+    default EntityUpdateOperation<T> update() {
         return template().lambdaUpdate(entityType());
     }
 
     /** return LambdaQuery for query */
-    public default LambdaQuery<T> query() {
+    default EntityQueryOperation<T> query() {
         return template().lambdaQuery(entityType());
     }
 
     /** 执行 Mapper 配置文件中的 SQL */
-    public default int executeStatement(String stId, Object parameter) throws SQLException {
+    default int executeStatement(String stId, Object parameter) throws SQLException {
         return this.getSession().executeStatement(stId, parameter);
     }
 
     /** 执行 Mapper 配置文件中的 SQL */
-    public default <E> List<E> queryStatement(String stId, Object parameter) throws SQLException {
+    default <E> List<E> queryStatement(String stId, Object parameter) throws SQLException {
         return this.queryStatement(stId, parameter, null);
     }
 
     /** 执行 Mapper 配置文件中的 SQL */
-    public default <E> List<E> queryStatement(String stId, Object parameter, Page page) throws SQLException {
+    default <E> List<E> queryStatement(String stId, Object parameter, Page page) throws SQLException {
         return this.getSession().queryStatement(stId, parameter, page);
     }
 
@@ -78,7 +74,7 @@ public interface BaseMapper<T> extends Mapper {
      * 插入一条记录
      * @param entity 实体对象
      */
-    public default int save(T entity) throws SQLException {
+    default int save(T entity) throws SQLException {
         return insert().applyEntity(entity).executeSumResult();
     }
 
@@ -86,7 +82,7 @@ public interface BaseMapper<T> extends Mapper {
      * 插入一组记录
      * @param entity 实体对象列表
      */
-    public default int save(List<T> entity) throws SQLException {
+    default int save(List<T> entity) throws SQLException {
         return insert().applyEntity(entity).executeSumResult();
     }
 
@@ -94,37 +90,37 @@ public interface BaseMapper<T> extends Mapper {
      * 保存或修改
      * @param entity 实体对象
      */
-    public int saveOrUpdate(T entity) throws SQLException;
+    int saveOrUpdate(T entity) throws SQLException;
 
     /**
      * 删除
      * @param entity 实体对象
      */
-    public int delete(T entity) throws SQLException;
+    int delete(T entity) throws SQLException;
 
     /**
      * 根据 ID 删除
      * @param id 主键ID
      */
-    public int deleteById(Serializable id) throws SQLException;
+    int deleteById(Serializable id) throws SQLException;
 
     /**
      * 根据 ID 删除
      * @param idList 主键ID
      */
-    public int deleteByIds(List<? extends Serializable> idList) throws SQLException;
+    int deleteByIds(List<? extends Serializable> idList) throws SQLException;
 
     /**
      * 根据 ID 查询
      * @param id 主键ID
      */
-    public T getById(Serializable id) throws SQLException;
+    T getById(Serializable id) throws SQLException;
 
     /**
      * 查询（根据ID 批量查询）
      * @param idList 主键ID列表
      */
-    public List<T> getByIds(List<? extends Serializable> idList) throws SQLException;
+    List<T> getByIds(List<? extends Serializable> idList) throws SQLException;
 
     /**
      * 根据 entity 条件，作为样本 null 将不会被列入条件。
@@ -132,7 +128,7 @@ public interface BaseMapper<T> extends Mapper {
      * @param entity 实体对象
      * @return T
      */
-    public List<T> listBySample(T entity) throws SQLException;
+    List<T> listBySample(T entity) throws SQLException;
 
     /**
      * 根据 entity 条件，作为样本 null 将不会被列入条件。
@@ -140,22 +136,22 @@ public interface BaseMapper<T> extends Mapper {
      * @param entity 实体对象
      * @return T
      */
-    public int countBySample(T entity) throws SQLException;
+    int countBySample(T entity) throws SQLException;
 
     /**
      * 相当于 select count(1) form xxxx
      * @return int
      */
-    public int countAll() throws SQLException;
+    int countAll() throws SQLException;
 
     /** 分页查询 */
-    public PageResult<T> pageBySample(Object sample, Page page) throws SQLException;
+    PageResult<T> pageBySample(Object sample, Page page) throws SQLException;
 
     /** 初始化分页对象 */
-    public default Page initPageBySample(Object sample, int pageSize) throws SQLException {
+    default Page initPageBySample(Object sample, int pageSize) throws SQLException {
         return this.initPageBySample(sample, pageSize, 0);
     }
 
     /** 初始化分页对象 */
-    public Page initPageBySample(Object sample, int pageSize, int pageNumberOffset) throws SQLException;
+    Page initPageBySample(Object sample, int pageSize, int pageNumberOffset) throws SQLException;
 }

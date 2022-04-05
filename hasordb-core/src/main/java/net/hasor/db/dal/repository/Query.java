@@ -26,21 +26,21 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Query {
-    public String value();
+    String value();
 
-    public boolean xml() default false;
+    boolean xml() default false;
 
-    public String resultMap() default "";
+    String resultMap() default "";
 
-    public Class<?> resultType() default Object.class;
+    Class<?> resultType() default Object.class;
 
-    public StatementType statementType() default StatementType.Prepared;
+    StatementType statementType() default StatementType.Prepared;
 
-    public int timeout() default -1;
+    int timeout() default -1;
 
-    public int fetchSize() default 256;
+    int fetchSize() default 256;
 
-    public ResultSetType resultSetType() default ResultSetType.DEFAULT;
+    ResultSetType resultSetType() default ResultSetType.DEFAULT;
 
-    public MultipleResultsType multipleResult() default MultipleResultsType.LAST;
+    MultipleResultsType multipleResult() default MultipleResultsType.LAST;
 }

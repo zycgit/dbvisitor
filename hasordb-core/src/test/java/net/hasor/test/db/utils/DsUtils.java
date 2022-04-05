@@ -32,30 +32,15 @@ import static net.hasor.test.db.utils.TestUtils.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class DsUtils {
-    public static  String  MYSQL_SCHEMA_NAME;
-    public static  String  MYSQL_JDBC_URL;
-    public static  String  MYSQL_USER;
-    public static  String  MYSQL_PASSWORD;
+    public static String MYSQL_SCHEMA_NAME     = "devtester";
+    public static String MYSQL_JDBC_URL        = "jdbc:mysql://127.0.0.1:3306/devtester?allowMultiQueries=true";
     //
-    public static  String  ADB_MYSQL_SCHEMA_NAME = "adb_mysql_4387qyy";
-    public static  String  ADB_MYSQL_JDBC_URL    = "jdbc:mysql://am-wz99xu17yks5p9e3f90650o.ads.aliyuncs.com:3306/adb_mysql_4387qyy";
-    public static  String  PG_JDBC_URL           = "jdbc:postgresql://127.0.0.1:15432/postgres";
-    public static  String  ORACLE_JDBC_URL       = "jdbc:oracle:thin:@127.0.0.1:11521:xe";
-    private static boolean useLib                = false;
-
-    static {
-        if (useLib) {
-            MYSQL_SCHEMA_NAME = "rds_mysql_4387ovi";
-            MYSQL_JDBC_URL = "jdbc:mysql://rm-bp1oo27t8762xhlob0o.mysql.rds.aliyuncs.com:3306/rds_mysql_4387ovi?allowMultiQueries=true";
-            MYSQL_USER = "lab_1893191353";
-            MYSQL_PASSWORD = "9b5ab3277ef2_#@Aa";
-        } else {
-            MYSQL_SCHEMA_NAME = "devtester";
-            MYSQL_JDBC_URL = "jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true";
-            MYSQL_USER = "root";
-            MYSQL_PASSWORD = "123456";
-        }
-    }
+    public static String ADB_MYSQL_SCHEMA_NAME = "adb_mysql_4387qyy";
+    public static String ADB_MYSQL_JDBC_URL    = "jdbc:mysql://am-wz99xu17yks5p9e3f90650o.ads.aliyuncs.com:3306/adb_mysql_4387qyy";
+    //
+    public static String PG_JDBC_URL           = "jdbc:postgresql://127.0.0.1:5432/postgres";
+    //
+    public static String ORACLE_JDBC_URL       = "jdbc:oracle:thin:@127.0.0.1:1521:xe";
 
     public static DruidDataSource createDs(String dbID) throws Throwable {
         DruidDataSource druid = new DruidDataSource();
@@ -116,14 +101,14 @@ public class DsUtils {
     }
 
     public static Connection mysqlConnection() throws SQLException {
-        return DriverManager.getConnection(MYSQL_JDBC_URL, MYSQL_USER, MYSQL_PASSWORD);
+        return DriverManager.getConnection(MYSQL_JDBC_URL, "root", "123456");
     }
 
     public static DruidDataSource mysqlDataSource() throws SQLException {
         DruidDataSource druid = new DruidDataSource();
         druid.setUrl(MYSQL_JDBC_URL);
-        druid.setUsername(MYSQL_USER);
-        druid.setPassword(MYSQL_PASSWORD);
+        druid.setUsername("root");
+        druid.setPassword("123456");
         druid.setMaxActive(5);
         druid.setMaxWait(3 * 1000);
         druid.setInitialSize(1);

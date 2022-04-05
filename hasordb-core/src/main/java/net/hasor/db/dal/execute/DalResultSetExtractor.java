@@ -22,6 +22,7 @@ import net.hasor.db.jdbc.PreparedStatementCallback;
 import net.hasor.db.jdbc.ResultSetExtractor;
 import net.hasor.db.jdbc.extractor.MultipleProcessType;
 import net.hasor.db.mapping.TableReader;
+import net.hasor.db.mapping.reader.DynamicTableReader;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class DalResultSetExtractor implements PreparedStatementCallback<List<Obj
     public DalResultSetExtractor(boolean defaultCaseInsensitive, DynamicContext context, MultipleProcessType processType, TableReader<?>[] tableReaders) {
         this.processType = processType == null ? MultipleProcessType.ALL : processType;
         this.tableReaders = Arrays.asList(tableReaders);
-        this.defaultTableReader = new MapTableReader(defaultCaseInsensitive, context.getTypeRegistry());
+        this.defaultTableReader = new DynamicTableReader(defaultCaseInsensitive, context.getTypeRegistry());
     }
 
     @Override
@@ -118,7 +119,12 @@ public class DalResultSetExtractor implements PreparedStatementCallback<List<Obj
             columnList.add(lookupColumnName(rsmd, i));
         }
 
-        return tableReader.extractData(columnList, rs);
+        List<Object> results = new ArrayList<>();
+        int rowNum = 0;
+        while (rs.next()) {
+            results.add(tableReader.extractRow(columnList, rs, rowNum++));
+        }
+        return results;
     }
 
     private static String lookupColumnName(final ResultSetMetaData resultSetMetaData, final int columnIndex) throws SQLException {
