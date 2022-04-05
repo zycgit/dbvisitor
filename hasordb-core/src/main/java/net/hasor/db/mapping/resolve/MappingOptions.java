@@ -36,12 +36,22 @@ public class MappingOptions {
         this.autoMapping = autoMapping;
     }
 
+    public MappingOptions autoMapping(Boolean autoMapping) {
+        setAutoMapping(autoMapping);
+        return this;
+    }
+
     public Boolean getMapUnderscoreToCamelCase() {
         return this.mapUnderscoreToCamelCase;
     }
 
     public void setMapUnderscoreToCamelCase(Boolean mapUnderscoreToCamelCase) {
         this.mapUnderscoreToCamelCase = mapUnderscoreToCamelCase;
+    }
+
+    public MappingOptions mapUnderscoreToCamelCase(Boolean mapUnderscoreToCamelCase) {
+        setMapUnderscoreToCamelCase(mapUnderscoreToCamelCase);
+        return this;
     }
 
     public Boolean getCaseInsensitive() {
@@ -52,9 +62,14 @@ public class MappingOptions {
         this.caseInsensitive = caseInsensitive;
     }
 
+    public MappingOptions caseInsensitive(Boolean caseInsensitive) {
+        setCaseInsensitive(caseInsensitive);
+        return this;
+    }
+
     public static MappingOptions resolveOptions(Node refData) {
         if (refData == null) {
-            return new MappingOptions();
+            return MappingOptions.buildNew();
         }
         NamedNodeMap nodeAttributes = refData.getAttributes();
         Node autoMappingNode = nodeAttributes.getNamedItem(OPT_KEY_AUTO_MAPPING);
@@ -68,7 +83,7 @@ public class MappingOptions {
         MappingOptions options = new MappingOptions();
         options.autoMapping = (autoMapping == null) ? null : Boolean.TRUE.equals(ConverterUtils.convert(autoMapping, Boolean.TYPE));
         options.mapUnderscoreToCamelCase = (mapUnderscoreToCamelCase == null) ? null : Boolean.TRUE.equals(ConverterUtils.convert(mapUnderscoreToCamelCase, Boolean.TYPE));
-        options.caseInsensitive = (mapUnderscoreToCamelCase == null) ? null : Boolean.TRUE.equals(ConverterUtils.convert(caseInsensitive, Boolean.TYPE));
+        options.caseInsensitive = (caseInsensitive == null) ? null : Boolean.TRUE.equals(ConverterUtils.convert(caseInsensitive, Boolean.TYPE));
         return options;
     }
 
@@ -89,4 +104,9 @@ public class MappingOptions {
     public static MappingOptions buildNew() {
         return new MappingOptions();
     }
+
+    public static MappingOptions buildNew(MappingOptions options) {
+        return new MappingOptions(options);
+    }
+
 }

@@ -2,7 +2,6 @@ package net.hasor.db.example.mapper;
 import net.hasor.db.dal.session.BaseMapper;
 import net.hasor.db.dal.session.DalSession;
 import net.hasor.db.example.DsUtils;
-import net.hasor.db.lambda.core.LambdaTemplate;
 
 import javax.sql.DataSource;
 import java.io.IOException;

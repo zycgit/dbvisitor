@@ -27,9 +27,9 @@ import java.sql.SQLException;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class DsUtils {
-    public static String MYSQL_JDBC_URL  = "jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true";
-    public static String PG_JDBC_URL     = "jdbc:postgresql://127.0.0.1:15432/postgres";
-    public static String ORACLE_JDBC_URL = "jdbc:oracle:thin:@127.0.0.1:11521:xe";
+    public static String MYSQL_JDBC_URL  = "jdbc:mysql://127.0.0.1:3306/devtester?allowMultiQueries=true";
+    public static String PG_JDBC_URL     = "jdbc:postgresql://127.0.0.1:5432/postgres";
+    public static String ORACLE_JDBC_URL = "jdbc:oracle:thin:@127.0.0.1:1521:xe";
 
     private static DataSource createDs(String driver, String url, String user, String password) throws SQLException {
         DruidDataSource druid = new DruidDataSource();

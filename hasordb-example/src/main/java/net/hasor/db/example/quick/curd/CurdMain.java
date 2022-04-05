@@ -1,7 +1,7 @@
 package net.hasor.db.example.quick.curd;
 import net.hasor.db.example.DsUtils;
 import net.hasor.db.example.PrintUtils;
-import net.hasor.db.lambda.core.LambdaTemplate;
+import net.hasor.db.lambda.LambdaTemplate;
 
 import javax.sql.DataSource;
 import java.io.IOException;

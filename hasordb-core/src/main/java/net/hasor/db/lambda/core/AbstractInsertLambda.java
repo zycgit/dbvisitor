@@ -168,7 +168,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
 
     protected BoundSql dialectInsert(SqlDialect dialect) {
         boolean isInsertSqlDialect = dialect instanceof InsertSqlDialect;
-        TableMapping tableMapping = this.getTableMapping();
+        TableMapping<?> tableMapping = this.getTableMapping();
         String schemaName = tableMapping.getSchema();
         String tableName = tableMapping.getTable();
         if (!isInsertSqlDialect) {
