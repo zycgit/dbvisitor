@@ -46,7 +46,7 @@ dependency
 <dependency>
   <groupId>net.hasor</groupId>
   <artifactId>hasor-db</artifactId>
-  <version>4.3.0</version><!-- see new version https://mvnrepository.com/artifact/net.hasor/hasor-db -->
+  <version>4.3.2</version><!-- see new version https://mvnrepository.com/artifact/net.hasor/hasor-db -->
 </dependency>
 ```
 
@@ -173,7 +173,7 @@ TestUser sample = new TestUser();
 sample.setName("mala");
 int result = lambdaTemplate.lambdaUpdate(TestUser.class)
                 .eq(TestUser::getId, 1)
-                .updateToBySample(sample)
+                .updateBySample(sample)
                 .doUpdate();
 
 // Delete data whose ID is 2

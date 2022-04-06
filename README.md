@@ -43,7 +43,7 @@
 <dependency>
   <groupId>net.hasor</groupId>
   <artifactId>hasor-db</artifactId>
-  <version>4.3.0</version><!-- 查看最新版本：https://mvnrepository.com/artifact/net.hasor/hasor-db -->
+  <version>4.3.2</version><!-- 查看最新版本：https://mvnrepository.com/artifact/net.hasor/hasor-db -->
 </dependency>
 ```
 
@@ -169,7 +169,7 @@ TestUser sample = new TestUser();
 sample.setName("mala");
 int result = lambdaTemplate.lambdaUpdate(TestUser.class)
                 .eq(TestUser::getId, 1)
-                .updateToBySample(sample)
+                .updateBySample(sample)
                 .doUpdate();
 
 // 删除，ID 为 2 的数据
