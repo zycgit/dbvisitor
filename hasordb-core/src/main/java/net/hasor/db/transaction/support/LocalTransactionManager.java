@@ -44,12 +44,10 @@ public class LocalTransactionManager implements TransactionManager, Closeable {
     private static final Logger                        logger       = LoggerFactory.getLogger(LocalTransactionManager.class);
     private final        Deque<LocalTransactionStatus> tStatusStack = new LinkedBlockingDeque<>();
     private final        DataSource                    dataSource;
-    private final        TransactionTemplateManager    transactionTemplate;
 
     public LocalTransactionManager(final DataSource dataSource) {
         Objects.requireNonNull(dataSource);
         this.dataSource = dataSource;
-        this.transactionTemplate = new TransactionTemplateManager(this);
     }
 
     /** 获取当前事务管理器管理的数据源对象 */
@@ -384,11 +382,6 @@ public class LocalTransactionManager implements TransactionManager, Closeable {
             }
             return new TransactionObject(holder, recoverIsolation, this.getDataSource());
         }
-    }
-
-    /** 获取对应的 {@link TransactionTemplate} */
-    public TransactionTemplate getTransactionTemplate() {
-        return this.transactionTemplate;
     }
 
     /** 获取最后一个事务 {@link LocalTransactionStatus} */

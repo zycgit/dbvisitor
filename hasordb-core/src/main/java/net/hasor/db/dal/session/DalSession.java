@@ -26,6 +26,7 @@ import net.hasor.db.dialect.PageSqlDialect;
 import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.dialect.SqlDialectRegister;
 import net.hasor.db.jdbc.ConnectionCallback;
+import net.hasor.db.jdbc.DynamicConnection;
 import net.hasor.db.jdbc.core.JdbcAccessor;
 import net.hasor.db.lambda.LambdaTemplate;
 import net.hasor.db.mapping.def.TableMapping;
@@ -62,6 +63,10 @@ public class DalSession extends JdbcAccessor {
         this(dataSource, DalRegistry.DEFAULT, null);
     }
 
+    public DalSession(DynamicConnection dynamicConnection) throws SQLException {
+        this(dynamicConnection, DalRegistry.DEFAULT, null);
+    }
+
     public DalSession(Connection connection, DalRegistry dalRegistry) throws SQLException {
         this(connection, dalRegistry, null);
     }
@@ -73,33 +78,40 @@ public class DalSession extends JdbcAccessor {
     public DalSession(Connection connection, DalRegistry dalRegistry, PageSqlDialect dialect) throws SQLException {
         this.setConnection(Objects.requireNonNull(connection, "connection is null."));
         this.dalRegistry = Objects.requireNonNull(dalRegistry, "dalRegistry is null.");
-        this.defaultTemplate = apply(new DalLambdaTemplate(connection, null));
-        this.spaceTemplateFactory = space -> apply(new DalLambdaTemplate(connection, space));
+        this.defaultTemplate = new DalLambdaTemplate(connection, null);
+        this.spaceTemplateFactory = space -> new DalLambdaTemplate(connection, space);
 
         if (dialect == null) {
             this.dialect = this.lambdaTemplate().execute(this::findPageDialect);
         } else {
             this.dialect = dialect;
         }
+    }
 
+    public DalSession(DynamicConnection dynamicConn, DalRegistry dalRegistry, PageSqlDialect dialect) throws SQLException {
+        this.setDynamic(Objects.requireNonNull(dynamicConn, "dynamicConnection is null."));
+        this.dalRegistry = Objects.requireNonNull(dalRegistry, "dalRegistry is null.");
+        this.defaultTemplate = new DalLambdaTemplate(dynamicConn, null);
+        this.spaceTemplateFactory = space -> new DalLambdaTemplate(dynamicConn, space);
+
+        if (dialect == null) {
+            this.dialect = this.lambdaTemplate().execute(this::findPageDialect);
+        } else {
+            this.dialect = dialect;
+        }
     }
 
     public DalSession(DataSource dataSource, DalRegistry dalRegistry, PageSqlDialect dialect) throws SQLException {
         this.setDataSource(Objects.requireNonNull(dataSource, "dataSource is null."));
         this.dalRegistry = Objects.requireNonNull(dalRegistry, "dalRegistry is null.");
-        this.defaultTemplate = apply(new DalLambdaTemplate(dataSource, null));
-        this.spaceTemplateFactory = space -> apply(new DalLambdaTemplate(dataSource, space));
+        this.defaultTemplate = new DalLambdaTemplate(dataSource, null);
+        this.spaceTemplateFactory = space -> new DalLambdaTemplate(dataSource, space);
 
         if (dialect == null) {
             this.dialect = this.lambdaTemplate().execute(this::findPageDialect);
         } else {
             this.dialect = dialect;
         }
-    }
-
-    private DalLambdaTemplate apply(DalLambdaTemplate template) {
-        template.setAccessorApply(this.getAccessorApply());
-        return template;
     }
 
     public DalRegistry getDalRegistry() {
@@ -212,6 +224,11 @@ public class DalSession extends JdbcAccessor {
 
         public DalLambdaTemplate(Connection localConn, String space) {
             super(localConn);
+            this.space = space;
+        }
+
+        public DalLambdaTemplate(DynamicConnection dynamicConn, String space) {
+            super(dynamicConn);
             this.space = space;
         }
 

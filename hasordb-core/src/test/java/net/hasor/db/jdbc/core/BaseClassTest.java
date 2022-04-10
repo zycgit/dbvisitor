@@ -29,8 +29,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
 
 /***
  *
@@ -38,43 +36,6 @@ import java.util.function.Function;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class BaseClassTest extends AbstractDbTest {
-    @Test
-    public void jdbcAccessorTest_1() {
-        DataSource dataSource = PowerMockito.mock(DataSource.class);
-        Connection connection = PowerMockito.mock(Connection.class);
-        //
-        JdbcAccessor jdbcTemplate = new JdbcAccessor();
-        jdbcTemplate.setDataSource(dataSource);
-        jdbcTemplate.setConnection(connection);
-        assert jdbcTemplate.getConnection() == connection;
-        assert jdbcTemplate.getDataSource() == dataSource;
-    }
-
-    @Test
-    public void jdbcAccessorTest_2() {
-        JdbcAccessor jdbcTemplate = new JdbcAccessor();
-        jdbcTemplate.setAccessorApply(null);
-        try {
-            jdbcTemplate.applyConnection(null);
-        } catch (Exception e) {
-            assert e.getMessage().equals("accessorApply is null.");
-        }
-    }
-
-    @Test
-    public void jdbcAccessorTest_3() {
-        AtomicBoolean atomicBoolean = new AtomicBoolean(false);
-        Function<DataSource, Connection> accessorApply = dataSource -> {
-            atomicBoolean.set(true);
-            return null;
-        };
-        //
-        JdbcAccessor jdbcTemplate = new JdbcAccessor();
-        jdbcTemplate.setAccessorApply(accessorApply);
-        jdbcTemplate.getAccessorApply().apply(null);
-        assert atomicBoolean.get();
-    }
-
     @Test
     public void jdbcConnectionTest_1() {
         JdbcConnection jdbcTemplate = new JdbcConnection();
@@ -172,7 +133,6 @@ public class BaseClassTest extends AbstractDbTest {
             assert con instanceof ConnectionProxy;
             assert ((ConnectionProxy) con).getTargetConnection() == connection;
             assert con != connection;
-            assert ((ConnectionProxy) con).getTargetSource() == null;
             assert con.equals(con);
             assert !con.equals(connection);
             //

@@ -35,6 +35,6 @@ public class TransactionManagerProvider implements Supplier<TransactionManager> 
     }
 
     public TransactionManager get() {
-        return DataSourceManager.getManager(this.dataSource.get());
+        return DataSourceUtils.getManager(this.dataSource.get());
     }
 }

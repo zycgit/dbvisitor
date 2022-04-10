@@ -24,17 +24,17 @@ import java.util.function.Supplier;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class TransactionTemplateProvider implements Supplier<TransactionTemplate> {
-    private final Supplier<DataSource> dataSource;
+    private final TransactionTemplate transactionTemplate;
 
     public TransactionTemplateProvider(DataSource dataSource) {
-        this(() -> dataSource);
+        this.transactionTemplate = new TransactionTemplateManager(DataSourceUtils.getManager(dataSource));
     }
 
-    public TransactionTemplateProvider(Supplier<DataSource> dataSource) {
-        this.dataSource = dataSource;
+    public TransactionTemplateProvider(TransactionManager transactionManager) {
+        this.transactionTemplate = new TransactionTemplateManager(transactionManager);
     }
 
     public TransactionTemplate get() {
-        return DataSourceManager.getTemplate(this.dataSource.get());
+        return this.transactionTemplate;
     }
 }

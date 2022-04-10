@@ -13,21 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.transaction.support;
-import net.hasor.db.transaction.DataSourceUtils;
-
-import javax.sql.DataSource;
+package net.hasor.db.jdbc;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
- * @version : 2013-10-30
+ * 动态获取 Connection。
+ * @version : 2022-04-10
  * @author 赵永春 (zyc@hasor.net)
  */
-class SyncManager extends DataSourceUtils {
-    public static void setSync(TransactionObject tranConn) {
-        unsafeResetHolder(tranConn.getDataSource(), tranConn.getHolder());
-    }
-
-    public static void clearSync(DataSource dataSource) {
-        unsafeClearHolder(dataSource);
-    }
+@FunctionalInterface
+public interface DynamicConnection {
+    Connection getConnection() throws SQLException;
 }

@@ -40,14 +40,15 @@ public class ExtTranTest extends AbstractPropagationTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
             /* T1 */
-            tranManager.getTransactionTemplate().execute((TransactionCallbackWithoutResult) tran1 -> {
+            TransactionTemplate templateManager = new TransactionTemplateManager(tranManager);
+            templateManager.execute((TransactionCallbackWithoutResult) tran1 -> {
 
                 jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
                 assert selectCount(dataSource) == 1;
                 assert selectCount(conn) == 0;
 
                 /* T2 */
-                tranManager.getTransactionTemplate().execute((TransactionCallbackWithoutResult) tran2 -> {
+                templateManager.execute((TransactionCallbackWithoutResult) tran2 -> {
                     jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
                     jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
 
@@ -77,16 +78,17 @@ public class ExtTranTest extends AbstractPropagationTest {
              Connection conn = DsUtils.mysqlConnection()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+            TransactionTemplate templateManager = new TransactionTemplateManager(tranManager);
 
             /* T1 */
-            tranManager.getTransactionTemplate().execute((TransactionCallbackWithoutResult) tran1 -> {
+            templateManager.execute((TransactionCallbackWithoutResult) tran1 -> {
 
                 jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
                 assert selectCount(dataSource) == 1;
                 assert selectCount(conn) == 0;
 
                 /* T2 */
-                tranManager.getTransactionTemplate().execute((TransactionCallbackWithoutResult) tran2 -> {
+                templateManager.execute((TransactionCallbackWithoutResult) tran2 -> {
                     jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
                     jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
 
@@ -114,16 +116,17 @@ public class ExtTranTest extends AbstractPropagationTest {
              Connection conn = DsUtils.mysqlConnection()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+            TransactionTemplate templateManager = new TransactionTemplateManager(tranManager);
 
             /* T1 */
-            tranManager.getTransactionTemplate().execute((TransactionCallbackWithoutResult) tran1 -> {
+            templateManager.execute((TransactionCallbackWithoutResult) tran1 -> {
 
                 jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
                 assert selectCount(dataSource) == 1;
                 assert selectCount(conn) == 0;
 
                 /* T2 */
-                tranManager.getTransactionTemplate().execute((TransactionCallbackWithoutResult) tran2 -> {
+                templateManager.execute((TransactionCallbackWithoutResult) tran2 -> {
                     jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
                     jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
 
@@ -152,16 +155,17 @@ public class ExtTranTest extends AbstractPropagationTest {
              Connection conn = DsUtils.mysqlConnection()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+            TransactionTemplate templateManager = new TransactionTemplateManager(tranManager);
 
             /* T1 */
-            tranManager.getTransactionTemplate().execute((TransactionCallbackWithoutResult) tran1 -> {
+            templateManager.execute((TransactionCallbackWithoutResult) tran1 -> {
 
                 jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
                 assert selectCount(dataSource) == 1;
                 assert selectCount(conn) == 0;
 
                 /* T2 */
-                tranManager.getTransactionTemplate().execute((TransactionCallbackWithoutResult) tran2 -> {
+                templateManager.execute((TransactionCallbackWithoutResult) tran2 -> {
                     jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
                     jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
 
@@ -190,16 +194,17 @@ public class ExtTranTest extends AbstractPropagationTest {
              Connection conn = DsUtils.mysqlConnection()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+            TransactionTemplate templateManager = new TransactionTemplateManager(tranManager);
 
             /* T1 */
-            tranManager.getTransactionTemplate().execute((TransactionCallbackWithoutResult) tran1 -> {
+            templateManager.execute((TransactionCallbackWithoutResult) tran1 -> {
 
                 jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
                 assert selectCount(dataSource) == 1;
                 assert selectCount(conn) == 0;
 
                 /* T2 */
-                tranManager.getTransactionTemplate().execute((TransactionCallbackWithoutResult) tran2 -> {
+                templateManager.execute((TransactionCallbackWithoutResult) tran2 -> {
                     jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
                     jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
 
@@ -228,9 +233,10 @@ public class ExtTranTest extends AbstractPropagationTest {
              Connection conn = DsUtils.mysqlConnection()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+            TransactionTemplate templateManager = new TransactionTemplateManager(tranManager);
 
             /* T1 */
-            tranManager.getTransactionTemplate().execute((TransactionCallbackWithoutResult) tran1 -> {
+            templateManager.execute((TransactionCallbackWithoutResult) tran1 -> {
 
                 jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
                 assert selectCount(dataSource) == 1;
@@ -238,7 +244,7 @@ public class ExtTranTest extends AbstractPropagationTest {
 
                 try {
                     /* T2 */
-                    tranManager.getTransactionTemplate().execute((TransactionCallbackWithoutResult) tran2 -> {
+                    templateManager.execute((TransactionCallbackWithoutResult) tran2 -> {
                         jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
                         jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
 

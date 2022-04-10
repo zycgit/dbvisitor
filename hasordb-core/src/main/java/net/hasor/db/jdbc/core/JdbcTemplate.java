@@ -110,6 +110,26 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         this.typeRegistry = Objects.requireNonNull(typeRegistry, "typeRegistry is null.");
     }
 
+    /**
+     * Construct a new JdbcTemplate, given a Connection to obtain connections from.
+     * <p>Note: This will not trigger initialization of the exception translator.
+     * @param dynamicConn the JDBC Connection of Dynamic
+     */
+    public JdbcTemplate(final DynamicConnection dynamicConn) {
+        super(dynamicConn);
+    }
+
+    /**
+     * Construct a new JdbcTemplate, given a Connection to obtain connections from.
+     * <p>Note: This will not trigger initialization of the exception translator.
+     * @param dynamicConn the JDBC Connection of dynamic
+     * @param typeRegistry the TypeHandlerRegistry
+     */
+    public JdbcTemplate(final DynamicConnection dynamicConn, TypeHandlerRegistry typeRegistry) {
+        super(dynamicConn);
+        this.typeRegistry = Objects.requireNonNull(typeRegistry, "typeRegistry is null.");
+    }
+
     public boolean isResultsCaseInsensitive() {
         return this.resultsCaseInsensitive;
     }

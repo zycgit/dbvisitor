@@ -33,14 +33,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @version : 2013-10-30
  * @author 赵永春 (zyc@hasor.net)
  */
-public class DataSourceManager {
-    private final static ThreadLocal<Map<DataSource, LocalTransactionManager>> managerMap = ThreadLocal.withInitial(ConcurrentHashMap::new);
-    private final static ThreadLocal<Map<DataSource, ConnectionHolder>>        holderMap  = ThreadLocal.withInitial(ConcurrentHashMap::new);
+public class DataSourceUtils {
+    private final static ThreadLocal<Map<DataSource, TransactionManager>> managerMap = ThreadLocal.withInitial(ConcurrentHashMap::new);
+    private final static ThreadLocal<Map<DataSource, ConnectionHolder>>   holderMap  = ThreadLocal.withInitial(ConcurrentHashMap::new);
+
+    DataSourceUtils() {
+    }
 
     /** 获取或创建 数据源的当前本地事务管理器 */
-    private static synchronized LocalTransactionManager createOrGetManager(final DataSource dataSource) {
+    private static synchronized TransactionManager createOrGetManager(final DataSource dataSource) {
         Objects.requireNonNull(dataSource);
-        Map<DataSource, LocalTransactionManager> localMap = managerMap.get();
+        Map<DataSource, TransactionManager> localMap = managerMap.get();
         return localMap.computeIfAbsent(dataSource, LocalTransactionManager::new);
     }
 
@@ -59,11 +62,6 @@ public class DataSourceManager {
     /** 获取当前本地 {@link TransactionManager} */
     public static TransactionManager getManager(DataSource dataSource) {
         return createOrGetManager(dataSource);
-    }
-
-    /** 获取当前本地 {@link TransactionTemplate} */
-    public static TransactionTemplate getTemplate(DataSource dataSource) {
-        return createOrGetManager(dataSource).getTransactionTemplate();
     }
 
     /** 强制设置当前本地 ConnectionHolder */
@@ -86,16 +84,16 @@ public class DataSourceManager {
         ConnectionHolderImpl holder = createOrGetHolder(dataSource);
         holder.requested();// ref++
 
-        CloseSuppressingInvocationHandler handler = new CloseSuppressingInvocationHandler(holder); // when close ref--
+        CloseSuppressingInvocationHandlerForHolder handler = new CloseSuppressingInvocationHandlerForHolder(holder); // when close ref--
         return (ConnectionProxy) Proxy.newProxyInstance(ConnectionProxy.class.getClassLoader(), new Class[] { ConnectionProxy.class, Closeable.class }, handler);
     }
 
     /** Connection 接口代理，目的是为了控制一些方法的调用。同时进行一些特殊类型的处理 */
-    private static class CloseSuppressingInvocationHandler implements InvocationHandler {
+    private static class CloseSuppressingInvocationHandlerForHolder implements InvocationHandler {
         private final ConnectionHolderImpl holder;
         private final AtomicBoolean        closed;
 
-        CloseSuppressingInvocationHandler(ConnectionHolderImpl holder) {
+        CloseSuppressingInvocationHandlerForHolder(ConnectionHolderImpl holder) {
             this.holder = holder;
             this.closed = new AtomicBoolean(false);
         }

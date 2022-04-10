@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.transaction.support;
-import net.hasor.db.transaction.*;
-
+package net.hasor.db.transaction;
 /**
  *
  * @version : 2015年10月22日
  * @author 赵永春 (zyc@hasor.net)
  */
-class TransactionTemplateManager implements TransactionTemplate {
+public class TransactionTemplateManager implements TransactionTemplate {
     private final TransactionManager transactionManager;
 
     public TransactionTemplateManager(TransactionManager transactionManager) {

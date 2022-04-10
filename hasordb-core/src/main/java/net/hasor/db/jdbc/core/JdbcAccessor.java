@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.db.jdbc.core;
-import net.hasor.cobble.function.EFunction;
-import net.hasor.db.transaction.DataSourceManager;
+import net.hasor.db.jdbc.DynamicConnection;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.function.Function;
 
 /**
  *
@@ -28,9 +25,9 @@ import java.util.function.Function;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class JdbcAccessor {
-    private DataSource                                      dataSource;
-    private Connection                                      connection;
-    private EFunction<DataSource, Connection, SQLException> accessorApply = DataSourceManager::getConnection;
+    private DataSource        dataSource;
+    private Connection        connection;
+    private DynamicConnection dynamic;
 
     /**Return the DataSource used by this template.*/
     public DataSource getDataSource() {
@@ -52,22 +49,11 @@ public class JdbcAccessor {
         this.connection = connection;
     }
 
-    protected Function<DataSource, Connection> getAccessorApply() {
-        return this.accessorApply;
+    public DynamicConnection getDynamic() {
+        return dynamic;
     }
 
-    public void setAccessorApply(EFunction<DataSource, Connection, SQLException> accessorApply) {
-        this.accessorApply = accessorApply;
-    }
-
-    public void setAccessorApply(Function<DataSource, Connection> accessorApply) {
-        this.accessorApply = accessorApply::apply;
-    }
-
-    protected Connection applyConnection(DataSource dataSource) throws SQLException {
-        if (this.accessorApply == null) {
-            throw new IllegalArgumentException("accessorApply is null.");
-        }
-        return this.accessorApply.eApply(dataSource);
+    public void setDynamic(DynamicConnection dynamic) {
+        this.dynamic = dynamic;
     }
 }

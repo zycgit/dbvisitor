@@ -17,8 +17,10 @@ package net.hasor.db.jdbc.core;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.db.jdbc.ConnectionCallback;
+import net.hasor.db.jdbc.DynamicConnection;
 import net.hasor.db.jdbc.StatementCallback;
 import net.hasor.db.transaction.ConnectionProxy;
+import net.hasor.db.transaction.DataSourceUtils;
 
 import javax.sql.DataSource;
 import java.lang.reflect.InvocationHandler;
@@ -78,6 +80,15 @@ public class JdbcConnection extends JdbcAccessor {
         this.setConnection(conn);
     }
 
+    /**
+     * Construct a new JdbcConnection, given a Connection to obtain connections from.
+     * <p>Note: This will not trigger initialization of the exception translator.
+     * @param dynamicConn the JDBC Connection of dynamic
+     */
+    public JdbcConnection(final DynamicConnection dynamicConn) {
+        this.setDynamic(dynamicConn);
+    }
+
     public int getFetchSize() {
         return this.fetchSize;
     }
@@ -122,9 +133,13 @@ public class JdbcConnection extends JdbcAccessor {
         Objects.requireNonNull(action, "Callback object must not be null");
 
         Connection localConn = this.getConnection();
-        DataSource localDS = this.getDataSource();//获取数据源
-        if (localConn == null && localDS == null) {
-            throw new IllegalArgumentException("DataSource or Connection are not available.");
+        DataSource localDS = this.getDataSource();
+        DynamicConnection localDynamic = this.getDynamic();
+        if (localConn == null && localDS == null && localDynamic == null) {
+            throw new IllegalArgumentException("DataSource, Connection or DynamicConnection are not available.");
+        }
+        if (localConn == null && localDynamic != null) {
+            localConn = localDynamic.getConnection();
         }
 
         boolean usingDS = (localConn == null);
@@ -135,9 +150,9 @@ public class JdbcConnection extends JdbcAccessor {
         Connection useConn = null;
         try {
             if (usingDS) {
-                useConn = applyConnection(localDS);
+                useConn = DataSourceUtils.getConnection(localDS);
             } else {
-                useConn = this.newProxyConnection(localConn, null);//代理连接
+                useConn = this.newProxyConnection(localConn);//代理连接
             }
             return action.doInConnection(useConn);
         } finally {
@@ -206,20 +221,18 @@ public class JdbcConnection extends JdbcAccessor {
     }
 
     /**获取与本地线程绑定的数据库连接，JDBC 框架会维护这个连接的事务。开发者不必关心该连接的事务管理，以及资源释放操作。*/
-    private ConnectionProxy newProxyConnection(final Connection target, final DataSource targetSource) {
+    private ConnectionProxy newProxyConnection(final Connection target) {
         Objects.requireNonNull(target, "Connection is null.");
-        CloseSuppressingInvocationHandler handler = new CloseSuppressingInvocationHandler(target, targetSource);
+        CloseSuppressingInvocationHandler handler = new CloseSuppressingInvocationHandler(target);
         return (ConnectionProxy) Proxy.newProxyInstance(ConnectionProxy.class.getClassLoader(), new Class[] { ConnectionProxy.class }, handler);
     }
 
     /**Connection 接口代理，目的是为了控制一些方法的调用。同时进行一些特殊类型的处理。*/
     private class CloseSuppressingInvocationHandler implements InvocationHandler {
         private final Connection target;
-        private final DataSource targetSource;
 
-        public CloseSuppressingInvocationHandler(final Connection target, final DataSource targetSource) {
+        public CloseSuppressingInvocationHandler(final Connection target) {
             this.target = target;
-            this.targetSource = targetSource;
         }
 
         @Override
@@ -229,9 +242,6 @@ public class JdbcConnection extends JdbcAccessor {
                 case "getTargetConnection":
                     // Handle getTargetConnection method: return underlying Connection.
                     return this.target;
-                case "getTargetSource":
-                    // Handle getTargetConnection method: return underlying DataSource.
-                    return this.targetSource;
                 case "equals":
                     // Only consider equal when proxies are identical.
                     return proxy == args[0];

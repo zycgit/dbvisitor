@@ -19,6 +19,7 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.db.dialect.SqlDialect;
 import net.hasor.db.jdbc.ConnectionCallback;
+import net.hasor.db.jdbc.DynamicConnection;
 import net.hasor.db.jdbc.core.JdbcTemplate;
 import net.hasor.db.lambda.core.BasicLambda;
 import net.hasor.db.lambda.support.entity.DeleteLambdaForEntity;
@@ -102,6 +103,26 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
      */
     public LambdaTemplate(final Connection conn, TypeHandlerRegistry typeRegistry) {
         super(conn, typeRegistry);
+    }
+
+    /**
+     * Construct a new JdbcTemplate, given a Connection to obtain connections from.
+     * <p>Note: This will not trigger initialization of the exception translator.
+     * @param dynamicConn the JDBC Connection of dynamic
+     */
+    public LambdaTemplate(final DynamicConnection dynamicConn) {
+        super(dynamicConn);
+        this.init();
+    }
+
+    /**
+     * Construct a new JdbcTemplate, given a Connection to obtain connections from.
+     * <p>Note: This will not trigger initialization of the exception translator.
+     * @param dynamicConn the JDBC Connection of dynamic
+     * @param typeRegistry the TypeHandlerRegistry
+     */
+    public LambdaTemplate(final DynamicConnection dynamicConn, TypeHandlerRegistry typeRegistry) {
+        super(dynamicConn, typeRegistry);
     }
 
     protected void init() {

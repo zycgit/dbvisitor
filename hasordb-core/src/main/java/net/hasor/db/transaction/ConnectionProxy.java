@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.db.transaction;
-import javax.sql.DataSource;
 import java.io.Closeable;
 import java.sql.Connection;
 
@@ -31,7 +30,4 @@ public interface ConnectionProxy extends Connection, Closeable {
      * @return the underlying Connection (never <code>null</code>)
      */
     Connection getTargetConnection();
-
-    /**获取目标使用的数据源*/
-    DataSource getTargetSource();
 }
