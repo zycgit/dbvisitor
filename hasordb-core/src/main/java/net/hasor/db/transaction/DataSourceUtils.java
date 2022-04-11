@@ -33,12 +33,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @version : 2013-10-30
  * @author 赵永春 (zyc@hasor.net)
  */
-public class DataSourceUtils {
+public abstract class DataSourceUtils {
     private final static ThreadLocal<Map<DataSource, TransactionManager>> managerMap = ThreadLocal.withInitial(ConcurrentHashMap::new);
     private final static ThreadLocal<Map<DataSource, ConnectionHolder>>   holderMap  = ThreadLocal.withInitial(ConcurrentHashMap::new);
-
-    DataSourceUtils() {
-    }
 
     /** 获取或创建 数据源的当前本地事务管理器 */
     private static synchronized TransactionManager createOrGetManager(final DataSource dataSource) {
