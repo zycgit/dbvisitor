@@ -136,7 +136,7 @@ public class JdbcConnection extends JdbcAccessor {
         DataSource localDS = this.getDataSource();
         DynamicConnection localDynamic = this.getDynamic();
         if (localConn == null && localDS == null && localDynamic == null) {
-            throw new IllegalArgumentException("DataSource, Connection or DynamicConnection are not available.");
+            throw new IllegalArgumentException("Connection unavailable, any of (DataSource/Connection/DynamicConnection) is required.");
         }
         if (localConn == null && localDynamic != null) {
             localConn = localDynamic.getConnection();

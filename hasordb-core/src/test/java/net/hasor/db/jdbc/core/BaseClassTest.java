@@ -74,7 +74,7 @@ public class BaseClassTest extends AbstractDbTest {
             jdbcTemplate.execute((ConnectionCallback<Object>) con -> null);
             assert false;
         } catch (Exception e) {
-            assert e.getMessage().equals("DataSource or Connection are not available.");
+            assert e.getMessage().contains("Connection unavailable, any of (DataSource/Connection/DynamicConnection) is required.");
         }
     }
 

@@ -354,7 +354,7 @@ public class BuilderQueryTest extends AbstractDbTest {
                     .queryForMap();
             assert false;
         } catch (Exception e) {
-            assert e.getMessage().contains("DataSource or Connection are not available.");
+            assert e.getMessage().contains("Connection unavailable, any of (DataSource/Connection/DynamicConnection) is required.");
         }
     }
 

@@ -93,6 +93,8 @@ public class DsUtils {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         DsUtils.initDB(jdbcTemplate);
         if (initData) {
+            jdbcTemplate.execute("delete from tb_user");
+            jdbcTemplate.execute("delete from tb_h2_types");
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
