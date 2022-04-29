@@ -17,14 +17,12 @@ package net.hasor.db.dal.repository;
 import java.lang.annotation.*;
 
 /**
- * 引用 Mapper 配置文件中的 SQL。
- * @version : 2021-05-19
+ * 基于注解的 Mapper
+ * @version : 2021-06-19
  * @author 赵永春 (zyc@hasor.net)
  */
-@DalMapper
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface RefMapper {
-    String value();
+@Target(ElementType.ANNOTATION_TYPE)
+public @interface DalMapper {
 }

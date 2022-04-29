@@ -13,18 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.db.dal.repository;
-import java.lang.annotation.*;
+package net.hasor.db.dal.execute.sequence;
+import net.hasor.db.dal.execute.AbstractStatementExecute;
+import net.hasor.db.dal.execute.KeySequenceHolder;
+import net.hasor.db.dal.execute.KeySequenceHolderFactory;
+import net.hasor.db.dal.repository.config.SelectKeySqlConfig;
+
+import java.util.UUID;
 
 /**
- * 引用 Mapper 配置文件中的 SQL。
- * @version : 2021-05-19
+ * 使用 UUID 作为默认 Key 值
+ * @version : 2022-04-29
  * @author 赵永春 (zyc@hasor.net)
  */
-@DalMapper
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface RefMapper {
-    String value();
+public class UUIDSequenceHolderFactory implements KeySequenceHolderFactory {
+    @Override
+    public KeySequenceHolder createHolder(SelectKeySqlConfig keySqlConfig, AbstractStatementExecute<?> selectKeyExecute) {
+        return (conn, parameter) -> UUID.randomUUID().toString();
+    }
 }

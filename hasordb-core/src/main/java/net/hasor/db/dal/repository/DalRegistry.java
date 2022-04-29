@@ -229,16 +229,21 @@ public class DalRegistry {
             throw new UnsupportedOperationException("the '" + refRepository.getName() + "' must interface.");
         }
         String namespace = refRepository.getName();
+        boolean simpleMapper = false;
+
+        Annotation[] annotations = refRepository.getDeclaredAnnotations();
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof DalMapper || annotation.annotationType().getAnnotation(DalMapper.class) != null) {
+                simpleMapper = true;
+                break;
+            }
+        }
+
+        if (!simpleMapper) {
+            throw new UnsupportedOperationException("type '" + refRepository.getName() + "' need @RefMapper or @SimpleMapper or @DalMapper");
+        }
+
         RefMapper refMapper = refRepository.getAnnotation(RefMapper.class);
-        SimpleMapper simpleMapper = refRepository.getAnnotation(SimpleMapper.class);
-
-        if (refMapper != null && simpleMapper != null) {
-            throw new UnsupportedOperationException("type '" + refRepository.getName() + "' @RefMapper or @SimpleMapper cannot be both used.");
-        }
-        if (refMapper == null && simpleMapper == null) {
-            throw new UnsupportedOperationException("type '" + refRepository.getName() + "' need @RefMapper or @SimpleMapper");
-        }
-
         if (refMapper != null) {
             String resource = refMapper.value();
             if (resource.startsWith("/")) {
