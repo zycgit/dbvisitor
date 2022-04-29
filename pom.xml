@@ -46,8 +46,7 @@
     <modules>
         <module>hasordb-core</module>
         <module>hasordb-example</module>
-        <!-- <module>hasordb-integration/hasordb-spring</module> -->
-        <!-- <module>hasordb-integration/hasordb-spring-starter</module> -->
+        <module>hasordb-integration/hasordb-spring</module>
     </modules>
 
     <!-- 引用依赖 -->
@@ -61,6 +60,11 @@
             <dependency>
                 <groupId>net.hasor</groupId>
                 <artifactId>hasor-db</artifactId>
+                <version>4.3.4-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>net.hasor</groupId>
+                <artifactId>hasordb-spring</artifactId>
                 <version>4.3.4-SNAPSHOT</version>
             </dependency>
 
