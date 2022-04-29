@@ -45,7 +45,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
         this.space = space;
         this.entityType = (Class<Object>) entityType;
         this.dalSession = dalSession;
-        TableMapping<Object> tableMapping = dalSession.getDalRegistry().findTableMapping(space, this.entityType.getName());
+        TableMapping<Object> tableMapping = dalSession.getDalRegistry().findTableMapping(space, this.entityType);
         if (tableMapping == null) {
             throw new IllegalStateException("entityType '" + entityType.getName() + "' tableMapping is null.");
         }

@@ -32,6 +32,11 @@ import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.*;
 
+/**
+ * Mapper 代理接口类
+ * @version : 2021-10-30
+ * @author 赵永春 (zyc@hasor.net)
+ */
 class ExecuteInvocationHandler implements InvocationHandler {
     private final String                            space;
     private final DalSession                        dalSession;
@@ -60,7 +65,6 @@ class ExecuteInvocationHandler implements InvocationHandler {
             }
 
             this.dynamicSqlMap.put(dynamicId, new ExecuteProxy(dynamicId, dalRegistry.createContext(this.space)));
-            this.pageInfoMap.put(dynamicId, -1);
             Map<String, Integer> argNames = this.argNamesMap.computeIfAbsent(dynamicId, s -> new HashMap<>());
 
             int parameterCount = method.getParameterCount();
@@ -98,7 +102,7 @@ class ExecuteInvocationHandler implements InvocationHandler {
 
     protected Page extractPage(String dynamicId, Object[] objects) {
         Integer integer = this.pageInfoMap.get(dynamicId);
-        if (integer < 0) {
+        if (integer == null || integer < 0) {
             return null;
         } else {
             return (Page) objects[integer];
@@ -144,6 +148,10 @@ class ExecuteInvocationHandler implements InvocationHandler {
         Map<String, Object> data = extractData(dynamicId, objects);
 
         final ExecuteProxy execute = this.dynamicSqlMap.get(dynamicId);
+        if (execute == null) {
+            throw new NoSuchMethodException("method '" + method.getDeclaringClass().getName() + "." + method.getName() + "' does not exist in mapper.");
+        }
+
         PageSqlDialect dialect = this.dalSession.getDialect();
         Object result = this.dalSession.lambdaTemplate().execute((ConnectionCallback<Object>) con -> {
             return execute.execute(con, data, page, pageResult, dialect);

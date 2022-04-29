@@ -17,7 +17,7 @@ package net.hasor.db.dal.repository;
 import java.lang.annotation.*;
 
 /**
- * 基于注解的 Mapper 。
+ * 基于注解的 Mapper
  * @version : 2021-06-19
  * @author 赵永春 (zyc@hasor.net)
  */

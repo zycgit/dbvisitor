@@ -16,8 +16,6 @@
 package net.hasor.db.dal.repository;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.loader.ResourceLoader;
-import net.hasor.cobble.loader.providers.ClassPathResourceLoader;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.db.dal.dynamic.DynamicContext;
 import net.hasor.db.dal.dynamic.DynamicSql;
@@ -50,36 +48,38 @@ import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Mapper 配置中心
  * @version : 2021-06-05
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  */
 public class DalRegistry {
-    public static final DalRegistry                               DEFAULT          = new DalRegistry(null, null, null, MappingOptions.buildNew(), null);
+    public static final DalRegistry                               DEFAULT          = new DalRegistry(null, null, null, MappingOptions.buildNew());
     private final       Map<String, Map<String, DynamicSql>>      dynamicMap       = new ConcurrentHashMap<>();
     private final       Map<String, Map<String, TableMapping<?>>> tableMappingMap  = new ConcurrentHashMap<>();
     private final       Map<String, TableReader<?>>               typeHandlerCache = new ConcurrentHashMap<>();
 
-    private final ResourceLoader      resourceLoader;
     private final ClassLoader         classLoader;
     private final TypeHandlerRegistry typeRegistry;
     private final RuleRegistry        ruleRegistry;
     private final MappingOptions      mappingOptions;
 
     public DalRegistry() {
-        this(null, null, null, null, null);
+        this(null, null, null, null);
     }
 
-    public DalRegistry(ClassLoader classLoader, TypeHandlerRegistry typeRegistry, RuleRegistry ruleRegistry, MappingOptions mappingOptions, ResourceLoader resourceLoader) {
+    public DalRegistry(ClassLoader classLoader, TypeHandlerRegistry typeRegistry, RuleRegistry ruleRegistry, MappingOptions mappingOptions) {
         this.classLoader = (classLoader == null) ? Thread.currentThread().getContextClassLoader() : classLoader;
         this.typeRegistry = (classLoader == null) ? TypeHandlerRegistry.DEFAULT : typeRegistry;
         this.ruleRegistry = (classLoader == null) ? RuleRegistry.DEFAULT : ruleRegistry;
         this.mappingOptions = new MappingOptions(mappingOptions);
-        this.resourceLoader = (resourceLoader == null) ? new ClassPathResourceLoader(this.classLoader) : resourceLoader;
 
         for (String javaType : this.typeRegistry.getHandlerJavaTypes()) {
             TypeHandler<?> typeHandler = this.typeRegistry.getTypeHandler(javaType);
@@ -137,6 +137,36 @@ public class DalRegistry {
         }
     }
 
+    /** 从类型中解析 TableMapping */
+    public <T> TableMapping<T> findTableMapping(String space, Class<?> mapType) {
+        space = StringUtils.isBlank(space) ? "" : space;
+        String[] names = new String[] {     //
+                mapType.getName(),          //
+                mapType.getSimpleName(),    //
+                StringUtils.firstCharToLowerCase(mapType.getSimpleName())//
+        };
+
+        for (String name : names) {
+            TableMapping<T> mapping = findTableMapping(space, name);
+            if (mapping != null) {
+                return mapping;
+            }
+        }
+
+        Map<String, TableMapping<?>> resultMap = this.tableMappingMap.get(space);
+        List<TableMapping<?>> mappings = resultMap.values().stream().filter(tableMapping -> {
+            return mapType.isAssignableFrom(tableMapping.entityType());
+        }).collect(Collectors.toList());
+
+        if (mappings.size() == 1) {
+            return (TableMapping<T>) mappings.get(0);
+        } else if (mappings.size() > 1) {
+            throw new NoSuchElementException("type '" + mapType.getName() + "' automatic choose failure, there are multiple matches.");
+        } else {
+            return null;
+        }
+    }
+
     /** 从类型中解析 TableReader */
     protected <T> TableReader<T> findTableReader(String scope, String entityType) {
         TableMapping<T> tableMapping = this.findTableMapping(scope, entityType);
@@ -152,19 +182,25 @@ public class DalRegistry {
     /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
     public void loadMapper(URL resource) throws IOException {
         try (InputStream stream = resource.openStream()) {
+            Objects.requireNonNull(stream, "resource '" + resource + "' is not exist.");
             this.loadMapper(stream);
         }
     }
 
     /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
     public void loadMapper(String resource) throws IOException {
-        try (InputStream stream = this.resourceLoader.getResourceAsStream(resource)) {
+        if (resource.startsWith("/")) {
+            resource = resource.substring(1);
+        }
+        try (InputStream stream = this.classLoader.getResourceAsStream(resource)) {
+            Objects.requireNonNull(stream, "resource '" + resource + "' is not exist.");
             this.loadMapper(stream);
         }
     }
 
     /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
     public void loadMapper(InputStream stream) throws IOException {
+        Objects.requireNonNull(stream, "load InputStream is null.");
         try {
             Element root = loadXmlRoot(stream);
             NamedNodeMap rootAttributes = root.getAttributes();
@@ -205,13 +241,16 @@ public class DalRegistry {
 
         if (refMapper != null) {
             String resource = refMapper.value();
+            if (resource.startsWith("/")) {
+                resource = resource.substring(1);
+            }
 
             if (StringUtils.isBlank(resource) && !ClassDynamicResolve.matchType(refRepository)) {
                 return;
             }
 
             if (StringUtils.isNotBlank(resource)) {
-                try (InputStream stream = this.resourceLoader.getResourceAsStream(resource)) {
+                try (InputStream stream = this.classLoader.getResourceAsStream(resource)) {
 
                     Element root = loadXmlRoot(stream);
                     MappingOptions options = MappingOptions.resolveOptions(root, this.mappingOptions);
@@ -420,6 +459,9 @@ public class DalRegistry {
     private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();
 
     protected Element loadXmlRoot(InputStream stream) throws ParserConfigurationException, IOException, SAXException {
+        if (stream == null) {
+            throw new NullPointerException("stream is null.");
+        }
         DocumentBuilder documentBuilder = FACTORY.newDocumentBuilder();
         documentBuilder.setEntityResolver((publicId, systemId) -> {
             boolean hasorDTD = StringUtils.equalsIgnoreCase("-//hasor.net//DTD Mapper 1.0//EN", publicId) || StringUtils.containsIgnoreCase(systemId, "hasordb-mapper.dtd");
