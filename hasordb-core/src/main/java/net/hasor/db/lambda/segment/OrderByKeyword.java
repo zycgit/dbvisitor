@@ -16,7 +16,7 @@
 package net.hasor.db.lambda.segment;
 /**
  * 排序相关的关键字。
- * @version : 2020-10-31
+ * @version : 2020-11-02
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum OrderByKeyword implements Segment {

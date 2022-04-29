@@ -21,7 +21,7 @@ import org.w3c.dom.Node;
 /**
  * Insert SqlConfig
  * @version : 2021-06-19
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  */
 public class InsertSqlConfig extends DmlSqlConfig {
 

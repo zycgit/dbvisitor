@@ -33,7 +33,7 @@ import java.util.Objects;
 /**
  * 解析动态 SQL 配置（注解形式）
  * @version : 2021-06-05
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  */
 public class ClassDynamicResolve extends DynamicParser implements DynamicResolve<Method> {
     private static final Logger            logger            = Logger.getLogger(ClassDynamicResolve.class);

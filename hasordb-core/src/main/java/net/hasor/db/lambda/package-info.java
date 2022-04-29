@@ -15,5 +15,7 @@
  */
 /**
  * 提供单表的 CURD 能力，并提供 lambda 方式操作操作数据库。
+ * @version : 2021-07-20
+ * @author 赵永春 (zyc@hasor.net)
  */
 package net.hasor.db.lambda;

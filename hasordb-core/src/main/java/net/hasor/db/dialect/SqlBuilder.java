@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * SQL Build
  * @version : 2021-06-05
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  */
 public class SqlBuilder implements BoundSql {
     protected final StringBuilder queryString = new StringBuilder();

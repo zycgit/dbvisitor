@@ -19,8 +19,7 @@ import javax.sql.DataSource;
 import java.util.function.Supplier;
 
 /**
- *
- * @version : 2014年7月17日
+ * @version : 2021-07-20
  * @author 赵永春 (zyc@hasor.net)
  */
 public class LambdaTemplateProvider implements Supplier<LambdaTemplate> {

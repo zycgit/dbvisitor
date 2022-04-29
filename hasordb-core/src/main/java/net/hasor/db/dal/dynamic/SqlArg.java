@@ -19,7 +19,7 @@ import net.hasor.db.types.TypeHandler;
 /**
  * 代表一个动态 SQL Build 之后的具体 SQL 和其参数
  * @version : 2021-06-05
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  */
 public class SqlArg {
     private String         expr;

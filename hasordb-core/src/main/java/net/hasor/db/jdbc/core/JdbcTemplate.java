@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Thomas Risberg
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  * @see PreparedStatementCreator
  * @see PreparedStatementSetter
  * @see CallableStatementCreator

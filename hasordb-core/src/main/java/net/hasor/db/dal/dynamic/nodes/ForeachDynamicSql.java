@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * 对应XML中 <foreach>
  * @author jmxd
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-05-24
  */
 public class ForeachDynamicSql extends ArrayDynamicSql {
@@ -63,7 +63,7 @@ public class ForeachDynamicSql extends ArrayDynamicSql {
         if (!collectionData.getClass().isArray()) {
             collectionData = new Object[] { collectionData }; //如果不是数组那么转换成数组
         }
-        //
+
         sqlBuilder.appendSql(StringUtils.defaultString(this.open));
         Object oriValue = data.get(this.item);
         try {

@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * <bind> 标签
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-05-24
  */
 public class BindDynamicSql implements DynamicSql {

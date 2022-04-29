@@ -30,7 +30,7 @@ import java.util.*;
 /**
  * {@link ResultSetExtractor} 接口实现类，该类会将结果集中的每一行进行处理，并返回一个 List 用以封装处理结果集。
  * @version : 2021-07-20
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  */
 public class SimpleCallableStatementCallback implements CallableStatementCallback<Map<String, Object>> {
     private static final Logger              logger                 = LoggerFactory.getLogger(SimpleCallableStatementCallback.class);

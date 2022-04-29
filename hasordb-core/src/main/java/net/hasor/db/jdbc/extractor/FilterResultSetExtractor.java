@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 
 /**
  * 扩展了 {@link RowMapperResultSetExtractor}，通过实现 testRow 方法保证在处理结果中过滤空值。
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  * @see RowMapper
  */
 public class FilterResultSetExtractor<T> extends RowMapperResultSetExtractor<T> {

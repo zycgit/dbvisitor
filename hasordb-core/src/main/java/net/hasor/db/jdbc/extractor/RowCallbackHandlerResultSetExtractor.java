@@ -22,7 +22,7 @@ import java.sql.SQLException;
 
 /**
  * 使用 {@link RowCallbackHandler} 类型循环处理每一行记录的适配器。
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  */
 public class RowCallbackHandlerResultSetExtractor implements ResultSetExtractor<Void> {
     private final RowCallbackHandler rch;

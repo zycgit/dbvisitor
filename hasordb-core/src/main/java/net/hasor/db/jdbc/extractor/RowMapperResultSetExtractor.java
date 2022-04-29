@@ -41,7 +41,7 @@ import java.util.Objects;
  *     new RowMapperResultSetExtractor(rowMapper, 1));</pre>
  *
  * @author Juergen Hoeller
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  * @see RowMapper
  */
 public class RowMapperResultSetExtractor<T> implements ResultSetExtractor<List<T>> {

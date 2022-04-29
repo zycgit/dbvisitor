@@ -22,7 +22,7 @@ import java.util.List;
 
 /**
  * 提供多个 Segment 汇聚成为一个的工具。
- * @version : 2020-10-31
+ * @version : 2020-11-02
  * @author 赵永春 (zyc@hasor.net)
  */
 public final class MergeSqlSegment implements Segment {

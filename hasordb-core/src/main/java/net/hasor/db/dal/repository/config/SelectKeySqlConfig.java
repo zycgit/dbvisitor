@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * SelectKey SqlConfig
  * @version : 2021-06-19
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  */
 public class SelectKeySqlConfig extends QuerySqlConfig {
     private String keyProperty;

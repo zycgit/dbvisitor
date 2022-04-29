@@ -16,7 +16,7 @@
 package net.hasor.db.lambda.segment;
 /**
  * SQL 片段。
- * @version : 2020-10-31
+ * @version : 2020-11-02
  * @author 赵永春 (zyc@hasor.net)
  */
 @FunctionalInterface

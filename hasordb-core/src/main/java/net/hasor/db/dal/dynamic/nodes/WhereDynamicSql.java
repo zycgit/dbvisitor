@@ -17,7 +17,7 @@ package net.hasor.db.dal.dynamic.nodes;
 /**
  * 对应XML中 <where>
  * @author zhangxu
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-05-24
  */
 public class WhereDynamicSql extends TrimDynamicSql {

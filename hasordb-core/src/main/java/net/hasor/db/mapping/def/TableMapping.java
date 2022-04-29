@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.db.mapping.def;
-
 import net.hasor.db.mapping.TableReader;
 import net.hasor.db.mapping.reader.DefaultTableReader;
 import net.hasor.db.mapping.reader.MapTableReader;

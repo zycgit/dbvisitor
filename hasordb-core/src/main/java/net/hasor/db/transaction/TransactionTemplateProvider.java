@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.db.transaction;
-
 import javax.sql.DataSource;
 import java.util.function.Supplier;
 

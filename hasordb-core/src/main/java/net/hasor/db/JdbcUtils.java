@@ -19,6 +19,7 @@ package net.hasor.db;
  * com.alibaba.druid.util.JdbcConstants
  * com.alibaba.druid.util.JdbcUtils
  * @author wenshao [szujobs@hotmail.com]
+ * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-09-12
  */
 public class JdbcUtils {

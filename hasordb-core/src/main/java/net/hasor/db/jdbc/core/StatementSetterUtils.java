@@ -20,7 +20,7 @@ import java.util.Collection;
 /**
  *
  * @version : 2014-3-29
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  */
 public class StatementSetterUtils {
     /**

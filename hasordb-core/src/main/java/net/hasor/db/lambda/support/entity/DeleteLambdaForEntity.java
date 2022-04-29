@@ -27,8 +27,8 @@ import java.util.Collection;
 import static net.hasor.db.lambda.segment.SqlKeyword.*;
 
 /**
- * 提供 lambda update 能力，是 LambdaUpdate 接口的实现类。
- * @version : 2020-10-27
+ * 提供 lambda delete 能力，是 EntityDeleteOperation 接口的实现类。
+ * @version : 2022-04-02
  * @author 赵永春 (zyc@hasor.net)
  */
 public class DeleteLambdaForEntity<T> extends AbstractDeleteLambda<EntityDeleteOperation<T>, T, SFunction<T>> implements EntityDeleteOperation<T> {

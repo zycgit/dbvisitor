@@ -42,6 +42,7 @@ import java.util.Map;
  * to specify the column names in the same casing as exposed by the driver.
  *
  * @author Juergen Hoeller
+ * @author 赵永春 (zyc@hasor.net)
  * @since 1.2
  * @see JdbcOperations#queryForList(String)
  * @see JdbcOperations#queryForMap(String)

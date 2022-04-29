@@ -23,6 +23,7 @@ import java.util.List;
 /**
  * Oracle12c 的 SqlDialect 实现
  * @author 廖仑辉 (form mybatis-plus-extension-3.3.0.jar)
+ * @author 赵永春 (zyc@hasor.net)
  * @since 2019-11-29
  */
 public class Oracle12cDialect extends OracleDialect {

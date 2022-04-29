@@ -17,7 +17,7 @@ package net.hasor.db.jdbc.extractor;
 /**
  * 在处理多结果集的时结果集保留策略。
  * @version : 2021-07-20
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  */
 public enum MultipleProcessType {
     /** 多结果，保留第一个结果 */

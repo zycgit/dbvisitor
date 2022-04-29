@@ -25,7 +25,7 @@ import java.sql.Savepoint;
 /**
  * Connection 引用计数器
  * @version : 2014-3-29
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  */
 class ConnectionHolderImpl implements ConnectionHolder, SavepointManager {
     private       int        referenceCount;

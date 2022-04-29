@@ -25,7 +25,7 @@ import java.util.Map;
 
 /**
  * 多个 SQL 节点组合成一个 SqlNode
- * @author 赵永春 (zyc@byshell.org)
+ * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-05-24
  */
 public class ArrayDynamicSql implements DynamicSql {

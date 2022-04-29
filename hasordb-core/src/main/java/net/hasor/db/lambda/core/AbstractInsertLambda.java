@@ -28,7 +28,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 提供 lambda insert 能力。是 LambdaInsert 接口的实现类。
+ * 提供 lambda insert 基础能力。
  * @version : 2020-10-27
  * @author 赵永春 (zyc@hasor.net)
  */

@@ -22,8 +22,8 @@ import net.hasor.db.lambda.core.AbstractInsertLambda;
 import net.hasor.db.mapping.def.TableMapping;
 
 /**
- * 提供 lambda insert 能力。是 LambdaInsert 接口的实现类。
- * @version : 2020-10-27
+ * 提供 lambda insert 能力。是 InsertOperation 接口的实现类。
+ * @version : 2022-04-02
  * @author 赵永春 (zyc@hasor.net)
  */
 public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperation<T>, T, SFunction<T>> implements InsertOperation<T> {

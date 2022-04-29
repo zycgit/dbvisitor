@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.db.mapping.def;
-
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.db.types.TypeHandlerRegistry;
 

@@ -15,5 +15,6 @@
  */
 /**
  * 提供了一些有用的 {@link net.hasor.db.jdbc.SqlParameterSource}接口实现。
+ * @author 赵永春 (zyc@hasor.net)
  */
 package net.hasor.db.jdbc.paramer;

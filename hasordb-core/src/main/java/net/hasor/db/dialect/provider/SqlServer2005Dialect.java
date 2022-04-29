@@ -25,6 +25,7 @@ import java.util.List;
 /**
  * SqlServer2005 的 SqlDialect 实现 (form mybatis-plus-extension-3.3.0.jar ,com.baomidou.mybatisplus.extension.plugins.pagination.dialects.SQLServer2005Dialect)
  * @author hubin
+ * @author 赵永春 (zyc@hasor.net)
  * @since 2016-11-10
  */
 public class SqlServer2005Dialect extends AbstractDialect implements PageSqlDialect {

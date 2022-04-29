@@ -15,5 +15,6 @@
  */
 /**
  * 数据库操作框架，对 Spring JDBC 进行了重新设计和实现。
+ * @author 赵永春 (zyc@hasor.net)
  */
 package net.hasor.db.jdbc;

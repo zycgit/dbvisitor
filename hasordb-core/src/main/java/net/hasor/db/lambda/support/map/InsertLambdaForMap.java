@@ -22,8 +22,8 @@ import net.hasor.db.mapping.def.TableMapping;
 import java.util.Map;
 
 /**
- * 提供 lambda insert 能力。是 LambdaInsert 接口的实现类。
- * @version : 2020-10-27
+ * 提供 lambda insert 能力。是 InsertOperation 接口的实现类。
+ * @version : 2022-04-02
  * @author 赵永春 (zyc@hasor.net)
  */
 public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map<String, Object>>, Map<String, Object>, String> //
