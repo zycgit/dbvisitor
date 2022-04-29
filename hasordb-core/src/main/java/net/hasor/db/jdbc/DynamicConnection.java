@@ -25,4 +25,8 @@ import java.sql.SQLException;
 @FunctionalInterface
 public interface DynamicConnection {
     Connection getConnection() throws SQLException;
+
+    default void releaseConnection(Connection conn) throws SQLException {
+
+    }
 }

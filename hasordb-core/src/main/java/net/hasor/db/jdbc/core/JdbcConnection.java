@@ -135,31 +135,35 @@ public class JdbcConnection extends JdbcAccessor {
         Connection localConn = this.getConnection();
         DataSource localDS = this.getDataSource();
         DynamicConnection localDynamic = this.getDynamic();
-        if (localConn == null && localDS == null && localDynamic == null) {
+        boolean usingConn = (localConn != null);
+        boolean usingDynamic = (localDynamic != null);
+        boolean usingDS = (localDS != null);
+
+        if (!usingConn && !usingDynamic && !usingDS) {
             throw new IllegalArgumentException("Connection unavailable, any of (DataSource/Connection/DynamicConnection) is required.");
         }
-        if (localConn == null && localDynamic != null) {
-            localConn = localDynamic.getConnection();
-        }
-
-        boolean usingDS = (localConn == null);
         if (logger.isDebugEnabled()) {
-            logger.trace("database connection using DataSource = " + usingDS);
+            logger.trace("database connection using " + (usingConn ? "connection" : usingDynamic ? "dynamic" : "dataSource"));
         }
 
         Connection useConn = null;
+        if (usingConn) {
+            useConn = this.newProxyConnection(localConn);//代理连接
+        } else if (usingDynamic) {
+            useConn = localDynamic.getConnection();
+        } else {
+            useConn = DataSourceUtils.getConnection(localDS);
+        }
+
         try {
-            if (usingDS) {
-                useConn = DataSourceUtils.getConnection(localDS);
-            } else {
-                useConn = this.newProxyConnection(localConn);//代理连接
-            }
             return action.doInConnection(useConn);
         } finally {
-            if (usingDS) {
-                if (useConn != null) {
-                    useConn.close();
-                }
+            if (usingDynamic) {
+                localDynamic.releaseConnection(useConn);
+            } else if (usingDS) {
+                useConn.close();
+            } else {
+                // don't do anything
             }
         }
     }
