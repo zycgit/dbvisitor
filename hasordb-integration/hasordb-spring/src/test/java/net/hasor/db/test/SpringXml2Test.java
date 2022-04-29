@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "classpath:spring-xml-1.xml" })
-public class SpringXml1Test {
+@ContextConfiguration({ "classpath:spring-xml-2.xml" })
+public class SpringXml2Test {
     @Resource
     private UserMapper userMapper;
     @Resource
@@ -49,7 +49,7 @@ public class SpringXml1Test {
     public void getListTest() {
         assert userMapper != null;
         assert roleMapper != null;
-        
+
         List<UserDTO> users = userMapper.queryAll();
 
         assert users.size() == 5;
