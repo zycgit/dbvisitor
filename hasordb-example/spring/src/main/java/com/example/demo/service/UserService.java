@@ -1,0 +1,18 @@
+package com.example.demo.service;
+
+import com.example.demo.dao.UserMapper;
+import com.example.demo.dto.UserDTO;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.List;
+
+@Component
+public class UserService {
+    @Resource
+    private UserMapper userMapper;
+
+    public List<UserDTO> getAllUsers() {
+        return this.userMapper.queryAll();
+    }
+}

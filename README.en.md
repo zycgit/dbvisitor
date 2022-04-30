@@ -2,7 +2,7 @@
 ------------------------------------
 ``Documents are translated using translation software, The original for README.md``
 
-* Project Home: [https://www.hasordb.net](https://www.hasordb.net) Backup：www.hasordb.com、www.hasordb.cn
+* Project Home: [https://www.hasordb.net](https://www.hasordb.net)
 * [![QQ群:948706820](https://img.shields.io/badge/QQ%E7%BE%A4-948706820-orange)](https://qm.qq.com/cgi-bin/qm/qr?k=Qy3574A4VgI0ph4fqFbZW-w49gnyqu6p&jump_from=webapi)
   [![zyc@byshell.org](https://img.shields.io/badge/Email-zyc%40byshell.org-blue)](mailto:zyc@byshell.org)
   [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
@@ -46,7 +46,7 @@ dependency
 <dependency>
   <groupId>net.hasor</groupId>
   <artifactId>hasor-db</artifactId>
-  <version>4.3.2</version><!-- see new version https://mvnrepository.com/artifact/net.hasor/hasor-db -->
+  <version>4.3.4</version><!-- see new version https://mvnrepository.com/artifact/net.hasor/hasor-db -->
 </dependency>
 ```
 
@@ -451,11 +451,10 @@ PageResult<TestUser> page2 = userDAO.queryByAge2(25, 100, pageInfo);
 
 ### using transaction
 
-HasorDB provides three ways to use transactions:
+HasorDB provides two ways to use transactions:
 
 - ** using API **, by calling the 'TransactionManager' interface to achieve transaction control.
 - ** Template **, through the 'TransactionTemplate' interface to achieve transaction control.
-- ** Annotated ** annotated Transaction control based on '@Transaction' (dev ing...)
 
 ### transaction using API
 
@@ -528,29 +527,6 @@ try {
 }
 ```
 
-Template transactions follow this general logic to make a more general API call.
-The following code is the implementation logic of the template transaction class:
-
-```java {5,9,14} title="类：net.hasor.db.transaction.support.TransactionTemplateManager"
-public <T> T execute(TransactionCallback<T> callBack, 
-                     Propagation behavior, Isolation level) throws Throwable {
-    TransactionStatus tranStatus = null;
-    try {
-        tranStatus = this.transactionManager.begin(behavior, level);
-        return callBack.doTransaction(tranStatus);
-    } catch (Throwable e) {
-        if (tranStatus != null) {
-            tranStatus.setRollback();
-        }
-        throw e;
-    } finally {
-        if (tranStatus != null && !tranStatus.isCompleted()) {
-            this.transactionManager.commit(tranStatus);
-        }
-    }
-}
-```
-
 The way to use a template transaction is：
 
 ```java
@@ -568,20 +544,6 @@ Object result = template.execute(tranStatus -> {
 });
 ```
 
-Throwing an exception in a transaction template causes the transaction to roll back, while the exception continues to be thrown up:
-
-```java {4}
-try {
-    Object result = template.execute(new TransactionCallback<Object>() {
-        public Object doTransaction(TransactionStatus tranStatus) {
-            throw new Exception("...");
-        }
-    });
-} catch (Throwable e) {
-    ... run here
-}
-```
-
 You can also set the transaction state to 'rollBack' or 'readOnly' to cause rollBack
 
 ```java {3,5}
@@ -593,13 +555,5 @@ Object result = template.execute(new TransactionCallback<Object>() {
 
         return ...;
     }
-});
-```
-
-Not return a value template, need to use ` TransactionCallbackWithoutResult ` interface. Specific usage is as follows:
-
-```java
-template.execute((TransactionCallbackWithoutResult) tranStatus -> {
-    ...
 });
 ```

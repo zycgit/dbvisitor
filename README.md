@@ -1,7 +1,7 @@
 介绍
 ------------------------------------
 
-* Project Home: [https://www.hasordb.net](https://www.hasordb.net) 备用域名：www.hasordb.com、www.hasordb.cn
+* Project Home: [https://www.hasordb.net](https://www.hasordb.net)
 * [![QQ群:948706820](https://img.shields.io/badge/QQ%E7%BE%A4-948706820-orange)](https://qm.qq.com/cgi-bin/qm/qr?k=Qy3574A4VgI0ph4fqFbZW-w49gnyqu6p&jump_from=webapi)
   [![zyc@byshell.org](https://img.shields.io/badge/Email-zyc%40byshell.org-blue)](mailto:zyc@byshell.org)
   [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
@@ -43,7 +43,7 @@
 <dependency>
   <groupId>net.hasor</groupId>
   <artifactId>hasor-db</artifactId>
-  <version>4.3.2</version><!-- 查看最新版本：https://mvnrepository.com/artifact/net.hasor/hasor-db -->
+  <version>4.3.4</version><!-- 查看最新版本：https://mvnrepository.com/artifact/net.hasor/hasor-db -->
 </dependency>
 ```
 
@@ -451,7 +451,6 @@ HasorDB 提供了三种方式使用事务，分别为：
 
 - **声明式事务**，通过调用 `TransactionManager` 接口来实现事务控制。
 - **模版事务**，通过 `TransactionTemplate` 接口来实现事务控制。
-- **注解事务**，基于 `@Transaction` 的注解事务控制（开发中...）
 
 ### 声明式事务
 
@@ -509,48 +508,10 @@ TransactionStatus tranA = manager.begin(
 
 ### 模版事务
 
-通常使用事务都会遵循下列逻辑：
-
-```java {2,6,8}
-try {
-    manager.begin(behavior, level);
-
-    ...
-
-    manager.commit();
-} catch (Throwable e) {
-    manager.rollBack();
-    throw e;
-}
-```
-
-而模版事务会遵循这个常规逻辑使其变为一个更加通用 API 调用方式，下面这段代码就是模版事务类的实现逻辑：
-
-```java {5,9,14} title="类：net.hasor.db.transaction.support.TransactionTemplateManager"
-public <T> T execute(TransactionCallback<T> callBack, 
-                     Propagation behavior, Isolation level) throws Throwable {
-    TransactionStatus tranStatus = null;
-    try {
-        tranStatus = this.transactionManager.begin(behavior, level);
-        return callBack.doTransaction(tranStatus);
-    } catch (Throwable e) {
-        if (tranStatus != null) {
-            tranStatus.setRollback();
-        }
-        throw e;
-    } finally {
-        if (tranStatus != null && !tranStatus.isCompleted()) {
-            this.transactionManager.commit(tranStatus);
-        }
-    }
-}
-```
-
 使用模版事务的方式为：
 
 ```java
 Object result = template.execute(new TransactionCallback<Object>() {
-    @Override
     public Object doTransaction(TransactionStatus tranStatus) {
         ...
         return null;
@@ -563,21 +524,7 @@ Object result = template.execute(tranStatus -> {
 });
 ```
 
-在事务模版中抛出异常会导致事务回滚，同时异常会继续上抛：
-
-```java {4}
-try {
-    Object result = template.execute(new TransactionCallback<Object>() {
-        public Object doTransaction(TransactionStatus tranStatus) {
-            throw new Exception("...");
-        }
-    });
-} catch (Throwable e) {
-    ... run here
-}
-```
-
-也可以设置事务状态为 `rollBack` 或 `readOnly` 也会导致回滚
+在模版事务中可以设置事务状态为 `rollBack` 或 `readOnly` 从而控制事务的回滚。
 
 ```java {3,5}
 Object result = template.execute(new TransactionCallback<Object>() {
@@ -588,13 +535,5 @@ Object result = template.execute(new TransactionCallback<Object>() {
 
         return ...;
     }
-});
-```
-
-没有返回值的模版事务，需要用到 `TransactionCallbackWithoutResult` 接口。具体用法如下：
-
-```java
-template.execute((TransactionCallbackWithoutResult) tranStatus -> {
-    ...
 });
 ```
