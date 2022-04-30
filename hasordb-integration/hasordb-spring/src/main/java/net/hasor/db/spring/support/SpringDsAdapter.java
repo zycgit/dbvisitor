@@ -17,6 +17,7 @@ package net.hasor.db.spring.support;
 import net.hasor.db.dal.session.Mapper;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 
 /**
@@ -40,6 +41,12 @@ import java.sql.Connection;
  * @see Mapper
  */
 public class SpringDsAdapter extends AbstractDsAdapter {
+    public SpringDsAdapter() {
+    }
+
+    public SpringDsAdapter(DataSource dataSource) {
+        this.setDataSource(dataSource);
+    }
 
     @Override
     public Connection getConnection() {

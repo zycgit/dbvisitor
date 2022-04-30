@@ -18,6 +18,9 @@ package net.hasor.db.spring.support;
 import net.hasor.db.dal.session.DalSession;
 import net.hasor.db.dal.session.Mapper;
 
+import javax.sql.DataSource;
+import java.sql.SQLException;
+
 /**
  * BeanFactory that enables injection of user mapper interfaces.
  * <p>
@@ -53,12 +56,14 @@ public class DalMapperBean extends AbstractSupportBean<Object> {
     private Object                  mapperObject;
 
     @Override
-    public void afterPropertiesSet() {
-        if (this.dalSession == null) {
-            throw new IllegalArgumentException("session is null.");
-        }
+    public void afterPropertiesSet() throws SQLException {
         if (this.mapperInterface == null) {
             throw new NullPointerException("mapperInterface is null.");
+        }
+
+        if (this.dalSession == null) {
+            DataSource dataSource = this.applicationContext.getBean(DataSource.class);
+            this.dalSession = new DalSession(new SpringDsAdapter(dataSource));
         }
 
         this.mapperObject = this.dalSession.createMapper(this.mapperInterface);

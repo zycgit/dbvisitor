@@ -18,6 +18,7 @@ import net.hasor.db.dal.session.Mapper;
 import net.hasor.db.transaction.ConnectionProxy;
 import net.hasor.db.transaction.DataSourceUtils;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -42,6 +43,12 @@ import java.sql.SQLException;
  * @see Mapper
  */
 public class HasordbDsAdapter extends AbstractDsAdapter {
+    public HasordbDsAdapter() {
+    }
+
+    public HasordbDsAdapter(DataSource dataSource) {
+        this.setDataSource(dataSource);
+    }
 
     @Override
     public Connection getConnection() {
