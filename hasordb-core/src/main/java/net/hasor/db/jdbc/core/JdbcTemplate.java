@@ -184,6 +184,9 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         taskList = taskList.parallelStream().filter(StringUtils::isNotBlank).collect(Collectors.toList());
 
         for (String str : taskList) {
+            if (str.trim().startsWith("--")) {
+                continue;
+            }
             this.execute(str);
         }
     }
