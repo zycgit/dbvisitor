@@ -48,15 +48,8 @@ import java.lang.annotation.*;
  *   }
  *
  *   &#064;Bean
- *   public DataSourceTransactionManager transactionManager() {
- *     return new DataSourceTransactionManager(dataSource());
- *   }
- *
- *   &#064;Bean
- *   public SqlSessionFactory sqlSessionFactory() throws Exception {
- *     SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
- *     sessionFactory.setDataSource(dataSource());
- *     return sessionFactory.getObject();
+ *   public DalSession dalSession() throws Exception {
+ *     return new DalSession(dataSource());
  *   }
  * }
  * </pre>

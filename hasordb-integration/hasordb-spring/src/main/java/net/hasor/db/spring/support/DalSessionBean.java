@@ -61,6 +61,13 @@ public class DalSessionBean extends AbstractSupportBean<DalSession> {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        if (this.dataSource == null) {
+            this.dataSource = this.applicationContext.getBean(DataSource.class);
+            if (this.dataSource == null) {
+                throw new IllegalStateException("missing dataSource.");
+            }
+        }
+
         initDsAdapter();
         initDialect();
 
