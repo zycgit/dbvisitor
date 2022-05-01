@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//hasor.net//DTD Mapper 1.0//EN" "https://www.hasor.net/schema/hasordb-mapper.dtd">
+<mapper namespace="com.example.demo.dao.UserMapper">
+
+    <resultMap id="userDTO" table="stb_user" type="com.example.demo.dto.UserDTO" autoMapping="true" mapUnderscoreToCamelCase="true" caseInsensitive="true"/>
+
+    <select id="queryAll" resultMap="userDTO">
+        select * from `stb_user` order by id asc
+    </select>
+
+    <select id="queryByNameAndAge">
+        select * from `test_user`
+        @{and, age = :age}
+        @{and, name = :name}
+        @{and, id in (:ids)}
+    </select>
+</mapper>

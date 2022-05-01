@@ -61,6 +61,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
     private              Class<? extends DalMapperBean> mapperFactoryBeanClass = DalMapperBean.class;
     private              boolean                        lazyInitialization;
     private              String                         defaultScope;
+    private              String                         dependsOn;
 
     public ClassPathMapperScanner(BeanDefinitionRegistry registry) {
         super(registry, false);
@@ -129,7 +130,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
         // the mapper interface is the original class of the bean but, the actual class of the bean is MapperFactoryBean
         definition.getPropertyValues().add("mapperInterface", beanClassName);
-        definition.setBeanClass(this.mapperFactoryBeanClass);
+        definition.setBeanClass(this.mapperFactoryBeanClass != null ? this.mapperFactoryBeanClass : DalMapperBean.class);
 
         // Attribute for MockitoPostProcessor
         // https://github.com/mybatis/spring-boot-starter/issues/475
@@ -153,6 +154,10 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
         // lazy
         definition.setLazyInit(this.lazyInitialization);
 
+        if (StringUtils.hasText(dependsOn)) {
+            definition.setDependsOn(new String[] { dependsOn });
+        }
+
         // scope
         if (scopedProxy) {
             return;
@@ -166,6 +171,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
             if (registry.containsBeanDefinition(proxyHolder.getBeanName())) {
                 registry.removeBeanDefinition(proxyHolder.getBeanName());
             }
+
             registry.registerBeanDefinition(proxyHolder.getBeanName(), proxyHolder.getBeanDefinition());
         }
     }
@@ -211,5 +217,9 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
     public void setDefaultScope(String defaultScope) {
         this.defaultScope = defaultScope;
+    }
+
+    public void setDependsOn(String dependsOn) {
+        this.dependsOn = dependsOn;
     }
 }

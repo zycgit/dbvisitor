@@ -21,9 +21,7 @@ import net.hasor.db.dal.repository.RefMapper;
 import net.hasor.db.dal.session.DalSession;
 import net.hasor.db.dal.session.Mapper;
 
-import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.SQLException;
 
 /**
  * BeanFactory that enables injection of user mapper interfaces.
@@ -61,19 +59,20 @@ public class DalMapperBean extends AbstractSupportBean<Object> {
     private              Object                  mapperObject;
 
     @Override
-    public void afterPropertiesSet() throws SQLException, IOException {
+    public void afterPropertiesSet() throws IOException {
         if (this.mapperInterface == null) {
             throw new NullPointerException("mapperInterface is null.");
         }
-
         if (this.dalSession == null) {
-            DataSource dataSource = this.applicationContext.getBean(DataSource.class);
-            this.dalSession = new DalSession(new SpringDsAdapter(dataSource));
+            throw new IllegalStateException("dalSession is null.");
         }
 
         RefMapper refMapper = this.mapperInterface.getAnnotation(RefMapper.class);
         if (refMapper != null) {
-            this.dalSession.getDalRegistry().loadMapper(mapperInterface);
+            logger.info("mapper '" + this.mapperInterface + "' using '" + refMapper.value() + "'");
+            this.dalSession.getDalRegistry().loadMapper(this.mapperInterface);
+        } else {
+            logger.info("mapper '" + this.mapperInterface + "' using default.");
         }
 
         this.mapperObject = this.dalSession.createMapper(this.mapperInterface);

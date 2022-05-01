@@ -78,8 +78,8 @@ public class DalRegistry {
 
     public DalRegistry(ClassLoader classLoader, TypeHandlerRegistry typeRegistry, RuleRegistry ruleRegistry, MappingOptions mappingOptions) {
         this.classLoader = (classLoader == null) ? Thread.currentThread().getContextClassLoader() : classLoader;
-        this.typeRegistry = (classLoader == null) ? TypeHandlerRegistry.DEFAULT : typeRegistry;
-        this.ruleRegistry = (classLoader == null) ? RuleRegistry.DEFAULT : ruleRegistry;
+        this.typeRegistry = (typeRegistry == null) ? TypeHandlerRegistry.DEFAULT : typeRegistry;
+        this.ruleRegistry = (ruleRegistry == null) ? RuleRegistry.DEFAULT : ruleRegistry;
         this.mappingOptions = new MappingOptions(mappingOptions);
 
         for (String javaType : this.typeRegistry.getHandlerJavaTypes()) {

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.db.spring.mapper;
-
 import net.hasor.db.dal.session.DalSession;
 import net.hasor.db.spring.support.DalMapperBean;
 import org.springframework.beans.PropertyValue;
@@ -42,46 +41,6 @@ import java.util.Optional;
 import static org.springframework.util.Assert.notNull;
 
 /**
- * BeanDefinitionRegistryPostProcessor that searches recursively starting from a base package for interfaces and
- * registers them as {@code MapperFactoryBean}. Note that only interfaces with at least one method will be registered;
- * concrete classes will be ignored.
- * <p>
- * This class was a {code BeanFactoryPostProcessor} until 1.0.1 version. It changed to
- * {@code BeanDefinitionRegistryPostProcessor} in 1.0.2. See https://jira.springsource.org/browse/SPR-8269 for the
- * details.
- * <p>
- * The {@code basePackage} property can contain more than one package name, separated by either commas or semicolons.
- * <p>
- * This class supports filtering the mappers created by either specifying a marker interface or an annotation. The
- * {@code annotationClass} property specifies an annotation to search for. The {@code markerInterface} property
- * specifies a parent interface to search for. If both properties are specified, mappers are added for interfaces that
- * match <em>either</em> criteria. By default, these two properties are null, so all interfaces in the given
- * {@code basePackage} are added as mappers.
- * <p>
- * This configurer enables autowire for all the beans that it creates so that they are automatically autowired with the
- * proper {@code SqlSessionFactory} or {@code SqlSessionTemplate}. If there is more than one {@code SqlSessionFactory}
- * in the application, however, autowiring cannot be used. In this case you must explicitly specify either an
- * {@code SqlSessionFactory} or an {@code SqlSessionTemplate} to use via the <em>bean name</em> properties. Bean names
- * are used rather than actual objects because Spring does not initialize property placeholders until after this class
- * is processed.
- * <p>
- * Passing in an actual object which may require placeholders (i.e. DB user password) will fail. Using bean names defers
- * actual object creation until later in the startup process, after all placeholder substitution is completed. However,
- * note that this configurer does support property placeholders of its <em>own</em> properties. The
- * <code>basePackage</code> and bean name properties all support <code>${property}</code> style substitution.
- * <p>
- * Configuration sample:
- *
- * <pre class="code">
- * {@code
- *   <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
- *       <property name="basePackage" value="org.mybatis.spring.sample.mapper" />
- *       <!-- optional unless there are multiple session factories defined -->
- *       <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
- *   </bean>
- * }
- * </pre>
- *
  * @version 2022-04-29
  * @author 赵永春 (zyc@hasor.net)
  * @see DalMapperBean
@@ -95,10 +54,11 @@ public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProces
     private Class<?>                       markerInterface;
     private String                         dalSessionRef;
     private DalSession                     dalSession;
-    private Class<? extends DalMapperBean> mapperFactoryBeanClass = DalMapperBean.class;
+    private Class<? extends DalMapperBean> mapperFactoryBeanClass;
     private String                         lazyInitialization;
     private String                         defaultScope;
     private boolean                        processPropertyPlaceHolders;
+    private String                         dependsOn;
     private String                         beanName;
 
     @Override
@@ -112,7 +72,7 @@ public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProces
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         notNull(this.basePackage, "Property 'basePackage' is required");
     }
 
@@ -135,6 +95,7 @@ public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProces
         scanner.setResourceLoader(this.applicationContext);
         scanner.setBeanNameGenerator(this.nameGenerator);
         scanner.setMapperFactoryBeanClass(this.mapperFactoryBeanClass);
+        scanner.setDependsOn(this.dependsOn);
         if (StringUtils.hasText(this.lazyInitialization)) {
             scanner.setLazyInitialization(Boolean.parseBoolean(this.lazyInitialization));
         }
@@ -242,5 +203,9 @@ public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProces
 
     public void setProcessPropertyPlaceHolders(boolean processPropertyPlaceHolders) {
         this.processPropertyPlaceHolders = processPropertyPlaceHolders;
+    }
+
+    public void setDependsOn(String dependsOn) {
+        this.dependsOn = dependsOn;
     }
 }

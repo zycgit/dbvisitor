@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.db.spring.annotation;
+import net.hasor.db.spring.annotation.MapperScannerRegistrar.RepeatingRegistrar;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
@@ -34,7 +35,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(MapperScannerRegistrar.RepeatingRegistrar.class)
+@Import(RepeatingRegistrar.class)
 public @interface MapperScans {
     MapperScan[] value();
 }

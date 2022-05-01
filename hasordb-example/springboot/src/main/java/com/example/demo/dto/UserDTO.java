@@ -1,9 +1,13 @@
 package com.example.demo.dto;
 import java.util.Date;
 
-public class RoleDTO {
+public class UserDTO {
+
     private Long   id;
     private String name;
+    private String gender;
+    private String email;
+    private Long   roleId;
     private Date   createTime;
     private Date   modifyTime;
 
@@ -21,6 +25,30 @@ public class RoleDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Long getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
     }
 
     public Date getCreateTime() {

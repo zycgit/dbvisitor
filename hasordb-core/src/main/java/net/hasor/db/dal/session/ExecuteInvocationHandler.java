@@ -31,6 +31,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Mapper 代理接口类
@@ -44,6 +45,7 @@ class ExecuteInvocationHandler implements InvocationHandler {
     private final Map<String, Integer>              pageInfoMap   = new HashMap<>();
     private final Map<String, Map<String, Integer>> argNamesMap   = new HashMap<>();
     private final BaseMapperHandler                 mapperHandler;
+    private final AtomicBoolean                     atomicBoolean = new AtomicBoolean(false);
 
     public ExecuteInvocationHandler(DalSession dalSession, Class<?> dalType, DalRegistry dalRegistry, BaseMapperHandler mapperHandler) {
         this.space = dalType.getName();

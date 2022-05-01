@@ -3,11 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.hasor</groupId>
     <artifactId>hasordb-example-parent</artifactId>
-    <version>4.3.5-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <modules>
         <module>basic</module>
+        <module>spring</module>
         <module>springboot</module>
     </modules>
 </project>

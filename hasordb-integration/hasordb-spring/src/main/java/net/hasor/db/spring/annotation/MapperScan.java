@@ -162,4 +162,5 @@ public @interface MapperScan {
      */
     String defaultScope() default AbstractBeanDefinition.SCOPE_DEFAULT;
 
+    String[] mapperLocations() default "";
 }
