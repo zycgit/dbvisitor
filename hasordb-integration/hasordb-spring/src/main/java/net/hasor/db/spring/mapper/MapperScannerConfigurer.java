@@ -88,8 +88,7 @@ import static org.springframework.util.Assert.notNull;
  * @see ClassPathMapperScanner
  */
 public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProcessor, InitializingBean, ApplicationContextAware, BeanNameAware {
-    private ApplicationContext applicationContext;
-
+    private ApplicationContext             applicationContext;
     private String                         basePackage;
     private BeanNameGenerator              nameGenerator;
     private Class<? extends Annotation>    annotationClass;

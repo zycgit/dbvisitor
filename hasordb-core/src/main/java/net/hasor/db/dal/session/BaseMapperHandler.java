@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.db.dal.session;
+import net.hasor.db.dal.repository.DalRegistry;
 import net.hasor.db.lambda.EntityDeleteOperation;
 import net.hasor.db.lambda.EntityQueryOperation;
 import net.hasor.db.lambda.EntityUpdateOperation;
 import net.hasor.db.lambda.LambdaTemplate;
 import net.hasor.db.mapping.def.ColumnMapping;
+import net.hasor.db.mapping.def.TableDef;
 import net.hasor.db.mapping.def.TableMapping;
+import net.hasor.db.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.db.page.Page;
 import net.hasor.db.page.PageObject;
 import net.hasor.db.page.PageResult;
@@ -45,11 +48,16 @@ class BaseMapperHandler implements BaseMapper<Object> {
         this.space = space;
         this.entityType = (Class<Object>) entityType;
         this.dalSession = dalSession;
-        TableMapping<Object> tableMapping = dalSession.getDalRegistry().findTableMapping(space, this.entityType);
+        DalRegistry dalRegistry = dalSession.getDalRegistry();
+
+        TableMapping<Object> tableMapping = dalRegistry.findTableMapping(space, this.entityType);
         if (tableMapping == null) {
-            throw new IllegalStateException("entityType '" + entityType.getName() + "' tableMapping is null.");
+            TableDef<?> tableDef = new ClassTableMappingResolve().resolveTableMapping(//
+                    this.entityType, this.entityType.getClassLoader(), dalRegistry.getTypeRegistry(), dalRegistry.cloneOptions());
+            this.tableMapping = (TableMapping<Object>) tableDef;
+        } else {
+            this.tableMapping = tableMapping;
         }
-        this.tableMapping = tableMapping;
     }
 
     @Override

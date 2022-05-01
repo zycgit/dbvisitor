@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.db.spring.annotation;
-import net.hasor.db.dal.repository.DalMapper;
 import net.hasor.db.spring.mapper.MapperScannerConfigurer;
 import net.hasor.db.spring.support.DalMapperBean;
 import net.hasor.db.spring.support.DalRegistryBean;
@@ -111,7 +110,7 @@ public @interface MapperScan {
      *
      * @return the annotation that the scanner will search for
      */
-    Class<? extends Annotation> annotationClass() default DalMapper.class;
+    Class<? extends Annotation> annotationClass() default Annotation.class;
 
     /**
      * This property specifies the parent that the scanner will search for.

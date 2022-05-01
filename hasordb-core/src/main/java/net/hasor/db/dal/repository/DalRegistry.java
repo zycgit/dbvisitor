@@ -43,6 +43,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -107,6 +108,9 @@ public class DalRegistry {
         return new DalContext(space, this);
     }
 
+    public MappingOptions cloneOptions() {
+        return MappingOptions.buildNew(this.mappingOptions);
+    }
     // --------------------------------------------------------------------------------------------
 
     /** 根据 namespace 和 ID 查找 DynamicSql */
@@ -154,6 +158,9 @@ public class DalRegistry {
         }
 
         Map<String, TableMapping<?>> resultMap = this.tableMappingMap.get(space);
+        if (resultMap == null) {
+            return null;
+        }
         List<TableMapping<?>> mappings = resultMap.values().stream().filter(tableMapping -> {
             return mapType.isAssignableFrom(tableMapping.entityType());
         }).collect(Collectors.toList());
@@ -256,6 +263,9 @@ public class DalRegistry {
 
             if (StringUtils.isNotBlank(resource)) {
                 try (InputStream stream = this.classLoader.getResourceAsStream(resource)) {
+                    if (stream == null) {
+                        throw new FileNotFoundException("not found mapper file '" + resource + "'");
+                    }
 
                     Element root = loadXmlRoot(stream);
                     MappingOptions options = MappingOptions.resolveOptions(root, this.mappingOptions);

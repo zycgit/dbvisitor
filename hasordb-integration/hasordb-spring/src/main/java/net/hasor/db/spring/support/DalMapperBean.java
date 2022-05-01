@@ -15,10 +15,14 @@
  */
 package net.hasor.db.spring.support;
 
+import net.hasor.cobble.logging.Logger;
+import net.hasor.cobble.logging.LoggerFactory;
+import net.hasor.db.dal.repository.RefMapper;
 import net.hasor.db.dal.session.DalSession;
 import net.hasor.db.dal.session.Mapper;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.sql.SQLException;
 
 /**
@@ -51,12 +55,13 @@ import java.sql.SQLException;
  * @see Mapper
  */
 public class DalMapperBean extends AbstractSupportBean<Object> {
-    private DalSession              dalSession;
-    private Class<? extends Mapper> mapperInterface;
-    private Object                  mapperObject;
+    private static final Logger                  logger = LoggerFactory.getLogger(DalMapperBean.class);
+    private              DalSession              dalSession;
+    private              Class<? extends Mapper> mapperInterface;
+    private              Object                  mapperObject;
 
     @Override
-    public void afterPropertiesSet() throws SQLException {
+    public void afterPropertiesSet() throws SQLException, IOException {
         if (this.mapperInterface == null) {
             throw new NullPointerException("mapperInterface is null.");
         }
@@ -64,6 +69,11 @@ public class DalMapperBean extends AbstractSupportBean<Object> {
         if (this.dalSession == null) {
             DataSource dataSource = this.applicationContext.getBean(DataSource.class);
             this.dalSession = new DalSession(new SpringDsAdapter(dataSource));
+        }
+
+        RefMapper refMapper = this.mapperInterface.getAnnotation(RefMapper.class);
+        if (refMapper != null) {
+            this.dalSession.getDalRegistry().loadMapper(mapperInterface);
         }
 
         this.mapperObject = this.dalSession.createMapper(this.mapperInterface);

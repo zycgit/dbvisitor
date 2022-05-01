@@ -23,10 +23,15 @@ import net.hasor.db.mapping.resolve.MappingOptions;
 import net.hasor.db.types.TypeHandler;
 import net.hasor.db.types.TypeHandlerRegistry;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * BeanFactory that enables injection of DalRegistry.
@@ -47,6 +52,8 @@ import java.util.Objects;
  * @see Mapper
  */
 public class DalRegistryBean extends AbstractSupportBean<DalRegistry> {
+    private static final ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
+
     // - dalTypeRegistry
     private TypeHandlerRegistry   typeRegistry;
     private Map<Class<?>, Object> javaTypeHandlerMap;
@@ -64,6 +71,7 @@ public class DalRegistryBean extends AbstractSupportBean<DalRegistry> {
 
     // mappers
     private Resource[] mapperResources;
+    private String[]   mapperLocations;
     private Class<?>[] mapperInterfaces;
 
     @Override
@@ -106,6 +114,15 @@ public class DalRegistryBean extends AbstractSupportBean<DalRegistry> {
         // mapperResources
         if (this.mapperResources != null && this.mapperResources.length > 0) {
             for (Resource resource : this.mapperResources) {
+                try (InputStream ins = resource.getInputStream()) {
+                    this.dalRegistry.loadMapper(ins);
+                }
+            }
+        }
+        if (this.mapperLocations != null && this.mapperLocations.length > 0) {
+            Resource[] locationResources = Stream.of(Optional.of(this.mapperLocations).orElse(new String[0]))//
+                    .flatMap(location -> Stream.of(getResources(location))).toArray(Resource[]::new);
+            for (Resource resource : locationResources) {
                 try (InputStream ins = resource.getInputStream()) {
                     this.dalRegistry.loadMapper(ins);
                 }
@@ -178,6 +195,14 @@ public class DalRegistryBean extends AbstractSupportBean<DalRegistry> {
         }
     }
 
+    private Resource[] getResources(String location) {
+        try {
+            return resourceResolver.getResources(location);
+        } catch (IOException e) {
+            return new Resource[0];
+        }
+    }
+
     @Override
     public DalRegistry getObject() {
         return Objects.requireNonNull(this.dalRegistry, "dalRegistry not init.");
@@ -226,6 +251,10 @@ public class DalRegistryBean extends AbstractSupportBean<DalRegistry> {
      */
     public void setMapperResources(Resource[] mapperResources) {
         this.mapperResources = mapperResources;
+    }
+
+    public void setMapperLocations(String[] mapperLocations) {
+        this.mapperLocations = mapperLocations;
     }
 
     public void setMapperInterfaces(Class<?>[] mapperInterfaces) {
