@@ -16,6 +16,7 @@
 package net.hasor.db.spring.mapper;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
+import net.hasor.db.dal.repository.DalMapper;
 import net.hasor.db.dal.session.DalSession;
 import net.hasor.db.spring.support.DalMapperBean;
 import org.springframework.aop.scope.ScopedProxyFactoryBean;
@@ -72,7 +73,11 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
         // if specified, use the given annotation and / or marker interface
         if (this.annotationClass != null) {
-            addIncludeFilter(new AnnotationTypeFilter(this.annotationClass));
+            if (this.annotationClass == DalMapper.class) {
+                addIncludeFilter(new AnnotationTypeFilter(DalMapper.class, true));
+            } else {
+                addIncludeFilter(new AnnotationTypeFilter(this.annotationClass));
+            }
             acceptAllInterfaces = false;
         }
 

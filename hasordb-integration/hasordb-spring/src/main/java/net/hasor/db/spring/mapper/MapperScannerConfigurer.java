@@ -16,22 +16,16 @@
 package net.hasor.db.spring.mapper;
 import net.hasor.db.dal.session.DalSession;
 import net.hasor.db.spring.support.DalMapperBean;
-import org.springframework.beans.PropertyValue;
 import org.springframework.beans.PropertyValues;
-import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PropertyResourceConfigurer;
-import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
@@ -46,30 +40,22 @@ import static org.springframework.util.Assert.notNull;
  * @see DalMapperBean
  * @see ClassPathMapperScanner
  */
-public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProcessor, InitializingBean, ApplicationContextAware, BeanNameAware {
-    private ApplicationContext             applicationContext;
+public class MapperScannerConfigurer extends AbstractConfigurer implements BeanDefinitionRegistryPostProcessor, InitializingBean {
     private String                         basePackage;
+    private String                         nameGeneratorName;
     private BeanNameGenerator              nameGenerator;
+    private String                         annotationClassName;
     private Class<? extends Annotation>    annotationClass;
+    private String                         markerInterfaceName;
     private Class<?>                       markerInterface;
     private String                         dalSessionRef;
     private DalSession                     dalSession;
+    private String                         mapperFactoryBeanClassName;
     private Class<? extends DalMapperBean> mapperFactoryBeanClass;
     private String                         lazyInitialization;
     private String                         defaultScope;
     private boolean                        processPropertyPlaceHolders;
     private String                         dependsOn;
-    private String                         beanName;
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-    }
-
-    @Override
-    public void setBeanName(String name) {
-        this.beanName = name;
-    }
 
     @Override
     public void afterPropertiesSet() {
@@ -85,6 +71,25 @@ public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProces
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
         if (this.processPropertyPlaceHolders) {
             processPropertyPlaceHolders();
+        }
+        if (this.annotationClass == null && StringUtils.hasText(this.annotationClassName)) {
+            this.annotationClass = (Class<? extends Annotation>) tryToClass(this.annotationClassName);
+        }
+        if (this.markerInterface == null && StringUtils.hasText(this.markerInterfaceName)) {
+            this.markerInterface = tryToClass(this.markerInterfaceName);
+        }
+        if (this.mapperFactoryBeanClass == null && StringUtils.hasText(this.mapperFactoryBeanClassName)) {
+            this.mapperFactoryBeanClass = (Class<? extends DalMapperBean>) tryToClass(this.mapperFactoryBeanClassName);
+        }
+        if (this.nameGenerator == null && StringUtils.hasText(this.nameGeneratorName)) {
+            Class<?> nameGeneratorClass = tryToClass(this.nameGeneratorName);
+            if (nameGeneratorClass != null) {
+                try {
+                    this.nameGenerator = (BeanNameGenerator) nameGeneratorClass.newInstance();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
 
         ClassPathMapperScanner scanner = new ClassPathMapperScanner(registry);
@@ -129,7 +134,10 @@ public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProces
             }
 
             PropertyValues values = mapperScannerBean.getPropertyValues();
-
+            this.nameGeneratorName = getPropertyValue("nameGeneratorName", values);
+            this.annotationClassName = getPropertyValue("annotationClassName", values);
+            this.markerInterfaceName = getPropertyValue("markerInterfaceName", values);
+            this.mapperFactoryBeanClassName = getPropertyValue("mapperFactoryBeanClassName", values);
             this.basePackage = getPropertyValue("basePackage", values);
             this.dalSessionRef = getPropertyValue("dalSessionRef", values);
             this.lazyInitialization = getPropertyValue("lazyInitialization", values);
@@ -141,40 +149,28 @@ public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProces
         this.defaultScope = Optional.ofNullable(this.defaultScope).map(getEnvironment()::resolvePlaceholders).orElse(null);
     }
 
-    private Environment getEnvironment() {
-        return this.applicationContext.getEnvironment();
-    }
-
-    private String getPropertyValue(String propertyName, PropertyValues values) {
-        PropertyValue property = values.getPropertyValue(propertyName);
-
-        if (property == null) {
-            return null;
-        }
-
-        Object value = property.getValue();
-
-        if (value == null) {
-            return null;
-        } else if (value instanceof String) {
-            return value.toString();
-        } else if (value instanceof TypedStringValue) {
-            return ((TypedStringValue) value).getValue();
-        } else {
-            return null;
-        }
-    }
-
     public void setBasePackage(String basePackage) {
         this.basePackage = basePackage;
+    }
+
+    public void setNameGeneratorName(String nameGeneratorName) {
+        this.nameGeneratorName = nameGeneratorName;
     }
 
     public void setNameGenerator(BeanNameGenerator nameGenerator) {
         this.nameGenerator = nameGenerator;
     }
 
+    public void setAnnotationClassName(String annotationClassName) {
+        this.annotationClassName = annotationClassName;
+    }
+
     public void setAnnotationClass(Class<? extends Annotation> annotationClass) {
         this.annotationClass = annotationClass;
+    }
+
+    public void setMarkerInterfaceName(String markerInterfaceName) {
+        this.markerInterfaceName = markerInterfaceName;
     }
 
     public void setMarkerInterface(Class<?> markerInterface) {
@@ -187,6 +183,10 @@ public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProces
 
     public void setDalSession(DalSession dalSession) {
         this.dalSession = dalSession;
+    }
+
+    public void setMapperFactoryBeanClassName(String mapperFactoryBeanClassName) {
+        this.mapperFactoryBeanClassName = mapperFactoryBeanClassName;
     }
 
     public void setMapperFactoryBeanClass(Class<? extends DalMapperBean> mapperFactoryBeanClass) {

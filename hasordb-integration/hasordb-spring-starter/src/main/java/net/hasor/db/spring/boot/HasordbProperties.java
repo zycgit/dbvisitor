@@ -1,51 +1,27 @@
 package net.hasor.db.spring.boot;
-
 import net.hasor.db.spring.support.DalMapperBean;
+import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.util.Optional;
-import java.util.stream.Stream;
 
-import static net.hasor.db.spring.boot.HasordbProperties.HASOR_PREFIX;
-
-@ConfigurationProperties(prefix = HASOR_PREFIX)
+@ConfigurationProperties(prefix = "hasordb")
 public class HasordbProperties {
-    public static final  String                  HASOR_PREFIX     = "hasordb";
-    private static final ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
-
     @NestedConfigurationProperty
-    private Configuration                  configuration;
-    private String[]                       mapperLocations;
-    private String[]                       mapperPackages;
-    private Class<? extends DalMapperBean> mapperFactoryBean;
-    private String                         mapperScope;
-    private String                         mapperLazyInit;
+    private Configuration configuration;
+    private String[]      mapperPackages;
+    private String[]      mapperLocations;
+
+    private Class<? extends BeanNameGenerator> mapperNameGenerator;
+    private Class<? extends DalMapperBean>     mapperFactoryBean;
+    private String                             mapperLazyInit;
+    private String                             mapperScope;
 
     private Class<? extends Annotation> markerAnnotation;
     private Class<?>                    markerInterface;
-
-    private String[] typeHandlersPackages;
-    private String   refSessionBean;
-
-    public Resource[] resolveMapperLocations() {
-        return Stream.of(Optional.ofNullable(this.mapperLocations).orElse(new String[0]))//
-                .flatMap(location -> Stream.of(getResources(location))).toArray(Resource[]::new);
-    }
-
-    private Resource[] getResources(String location) {
-        try {
-            return resourceResolver.getResources(location);
-        } catch (IOException e) {
-            return new Resource[0];
-        }
-    }
+    private String                      refSessionBean;
 
     public Configuration getConfiguration() {
         return configuration;
@@ -53,14 +29,6 @@ public class HasordbProperties {
 
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
-    }
-
-    public String[] getMapperLocations() {
-        return mapperLocations;
-    }
-
-    public void setMapperLocations(String[] mapperLocations) {
-        this.mapperLocations = mapperLocations;
     }
 
     public String[] getMapperPackages() {
@@ -71,6 +39,22 @@ public class HasordbProperties {
         this.mapperPackages = mapperPackages;
     }
 
+    public String[] getMapperLocations() {
+        return mapperLocations;
+    }
+
+    public void setMapperLocations(String[] mapperLocations) {
+        this.mapperLocations = mapperLocations;
+    }
+
+    public Class<? extends BeanNameGenerator> getMapperNameGenerator() {
+        return mapperNameGenerator;
+    }
+
+    public void setMapperNameGenerator(Class<? extends BeanNameGenerator> mapperNameGenerator) {
+        this.mapperNameGenerator = mapperNameGenerator;
+    }
+
     public Class<? extends DalMapperBean> getMapperFactoryBean() {
         return mapperFactoryBean;
     }
@@ -79,20 +63,20 @@ public class HasordbProperties {
         this.mapperFactoryBean = mapperFactoryBean;
     }
 
-    public String getMapperScope() {
-        return mapperScope;
-    }
-
-    public void setMapperScope(String mapperScope) {
-        this.mapperScope = mapperScope;
-    }
-
     public String getMapperLazyInit() {
         return mapperLazyInit;
     }
 
     public void setMapperLazyInit(String mapperLazyInit) {
         this.mapperLazyInit = mapperLazyInit;
+    }
+
+    public String getMapperScope() {
+        return mapperScope;
+    }
+
+    public void setMapperScope(String mapperScope) {
+        this.mapperScope = mapperScope;
     }
 
     public Class<? extends Annotation> getMarkerAnnotation() {
@@ -111,14 +95,6 @@ public class HasordbProperties {
         this.markerInterface = markerInterface;
     }
 
-    public String[] getTypeHandlersPackages() {
-        return typeHandlersPackages;
-    }
-
-    public void setTypeHandlersPackages(String[] typeHandlersPackages) {
-        this.typeHandlersPackages = typeHandlersPackages;
-    }
-
     public String getRefSessionBean() {
         return refSessionBean;
     }
@@ -126,4 +102,5 @@ public class HasordbProperties {
     public void setRefSessionBean(String refSessionBean) {
         this.refSessionBean = refSessionBean;
     }
+
 }

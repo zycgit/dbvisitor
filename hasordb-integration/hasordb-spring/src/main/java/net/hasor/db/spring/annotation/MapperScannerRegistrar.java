@@ -14,36 +14,25 @@
  * limitations under the License.
  */
 package net.hasor.db.spring.annotation;
-import net.hasor.cobble.logging.Logger;
-import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.db.dal.session.DalSession;
 import net.hasor.db.spring.mapper.ClassPathMapperScanner;
+import net.hasor.db.spring.mapper.MapperFileConfigurer;
 import net.hasor.db.spring.mapper.MapperScannerConfigurer;
 import net.hasor.db.spring.support.DalMapperBean;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanNameGenerator;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.AnnotationAttributes;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
-import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * A {@link ImportBeanDefinitionRegistrar} to allow annotation configuration of HasorDB mapper scanning. Using
@@ -56,8 +45,6 @@ import java.util.stream.Stream;
  * @since 1.2.0
  */
 public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
-    private static final Logger logger = LoggerFactory.getLogger(MapperScannerRegistrar.class);
-
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         AnnotationAttributes mapperScanAttrs = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(MapperScan.class.getName()));
@@ -175,52 +162,4 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
         }
     }
 
-    /** A resource load for {@link MapperScan}. */
-    static class MapperFileConfigurer implements InitializingBean, ApplicationContextAware {
-        private static final PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        private              ApplicationContext                  applicationContext;
-        private              DalSession                          dalSession;
-        private              String                              mapperLocations;
-
-        public void setDalSession(DalSession dalSession) {
-            this.dalSession = dalSession;
-        }
-
-        public void setMapperLocations(String mapperLocations) {
-            this.mapperLocations = mapperLocations;
-        }
-
-        @Override
-        public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-            this.applicationContext = applicationContext;
-        }
-
-        @Override
-        public void afterPropertiesSet() throws Exception {
-            if (this.dalSession == null) {
-                this.dalSession = this.applicationContext.getBean(DalSession.class);
-            }
-
-            String[] mapperLocationsArrays = StringUtils.tokenizeToStringArray(this.mapperLocations, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
-            Resource[] mapperResources = Stream.of(Optional.ofNullable(mapperLocationsArrays).orElse(new String[0]))//
-                    .flatMap(location -> Stream.of(getResources(location))).toArray(Resource[]::new);
-            for (Resource resource : mapperResources) {
-                try (InputStream ins = resource.getInputStream()) {
-                    if (ins != null) {
-                        logger.info("loadMapper '" + resource + "'");
-                        this.dalSession.getDalRegistry().loadMapper(ins);
-                    }
-                }
-            }
-        }
-
-        private static Resource[] getResources(String location) {
-            try {
-                return resolver.getResources(location);
-            } catch (Exception e) {
-                return new Resource[0];
-            }
-        }
-
-    }
 }
