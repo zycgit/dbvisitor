@@ -45,12 +45,18 @@ public class MapperFileConfigurer extends AbstractConfigurer implements Initiali
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (this.dalSession == null) {
-            this.dalSession = this.applicationContext.getBean(DalSession.class);
-        }
-
         if (this.processPropertyPlaceHolders) {
             processPropertyPlaceHolders();
+        }
+
+        if (this.dalSession == null) {
+            if (StringUtils.hasText(this.dalSessionRef)) {
+                logger.info("load MapperFile to DalSession '" + this.dalSessionRef + "'");
+                this.dalSession = (DalSession) this.applicationContext.getBean(this.dalSessionRef);
+            } else {
+                logger.info("load MapperFile to default DalSession.");
+                this.dalSession = this.applicationContext.getBean(DalSession.class);
+            }
         }
 
         String[] mapperLocationsArrays = StringUtils.tokenizeToStringArray(this.mapperLocations, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);

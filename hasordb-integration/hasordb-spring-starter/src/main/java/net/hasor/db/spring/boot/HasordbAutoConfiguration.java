@@ -21,6 +21,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -36,10 +38,11 @@ import java.util.List;
 @ConditionalOnSingleCandidate(DataSource.class)
 @EnableConfigurationProperties(HasordbProperties.class)
 @AutoConfigureAfter(DataSourceAutoConfiguration.class)
-public class HasordbAutoConfiguration implements BeanClassLoaderAware, InitializingBean {
-    private static final Logger            logger = LoggerFactory.getLogger(HasordbAutoConfiguration.class);
-    private              ClassLoader       classLoader;
-    private final        HasordbProperties properties;
+public class HasordbAutoConfiguration implements BeanClassLoaderAware, ApplicationContextAware, InitializingBean {
+    private static final Logger             logger = LoggerFactory.getLogger(HasordbAutoConfiguration.class);
+    private              ApplicationContext applicationContext;
+    private              ClassLoader        classLoader;
+    private final        HasordbProperties  properties;
     //private final Interceptor[]     interceptors;
 
     public HasordbAutoConfiguration(HasordbProperties properties) {
@@ -52,13 +55,16 @@ public class HasordbAutoConfiguration implements BeanClassLoaderAware, Initializ
         this.classLoader = classLoader;
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
     public void afterPropertiesSet() {
         //
+        //hasordb.mapper-packages=com.example.demo.dao
         //hasordb.mapper-locations=classpath:hasordb/mapper/*.xml
-        //hasordb.mapper-packages=com.example.demo.dao.*
-        //
-        //hasordb.type-handlers-packages=com.example.demo.dao.*
-        //hasordb.type-handlers
+        //#hasordb.ref-session-bean=
     }
 
     @Bean
@@ -74,7 +80,12 @@ public class HasordbAutoConfiguration implements BeanClassLoaderAware, Initializ
     @Bean
     @ConditionalOnMissingBean
     public DalSession dalSession(DataSource dataSource, DalRegistry dalRegistry) throws Exception {
-        return new DalSession(dataSource, dalRegistry);
+        String refSessionBean = this.properties.getRefSessionBean();
+        if (StringUtils.hasText(refSessionBean)) {
+            return (DalSession) this.applicationContext.getBean(refSessionBean);
+        } else {
+            return new DalSession(dataSource, dalRegistry);
+        }
     }
 
     //  jdbcTemplate name of the conflict

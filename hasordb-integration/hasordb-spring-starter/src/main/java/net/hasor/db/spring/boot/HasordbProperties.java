@@ -7,12 +7,15 @@ import org.springframework.context.annotation.Configuration;
 
 import java.lang.annotation.Annotation;
 
-@ConfigurationProperties(prefix = "hasordb")
+import static net.hasor.db.spring.boot.HasordbProperties.PREFIX;
+
+@ConfigurationProperties(prefix = PREFIX)
 public class HasordbProperties {
+    public final static String        PREFIX = "hasordb";
     @NestedConfigurationProperty
-    private Configuration configuration;
-    private String[]      mapperPackages;
-    private String[]      mapperLocations;
+    private             Configuration configuration;
+    private             String[]      mapperPackages;
+    private             String[]      mapperLocations;
 
     private Class<? extends BeanNameGenerator> mapperNameGenerator;
     private Class<? extends DalMapperBean>     mapperFactoryBean;
