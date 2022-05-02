@@ -25,8 +25,8 @@
         <!-- hasordb -->
         <dependency>
             <groupId>net.hasor</groupId>
-            <artifactId>hasor-db</artifactId>
-            <version>4.3.4</version>
+            <artifactId>hasor-db</artifactId>·
+            <version>4.3.5</version>
         </dependency>
 
         <!-- driver -->

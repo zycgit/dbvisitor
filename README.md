@@ -43,7 +43,7 @@
 <dependency>
   <groupId>net.hasor</groupId>
   <artifactId>hasor-db</artifactId>
-  <version>4.3.4</version><!-- 查看最新版本：https://mvnrepository.com/artifact/net.hasor/hasor-db -->
+  <version>4.3.5</version><!-- 查看最新版本：https://mvnrepository.com/artifact/net.hasor/hasor-db -->
 </dependency>
 ```
 

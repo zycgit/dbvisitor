@@ -22,7 +22,7 @@
         <dependency>
             <groupId>net.hasor</groupId>
             <artifactId>hasordb-spring-starter</artifactId>
-            <version>4.3.5-SNAPSHOT</version>
+            <version>4.3.5</version>
         </dependency>
 
         <!-- driver -->
