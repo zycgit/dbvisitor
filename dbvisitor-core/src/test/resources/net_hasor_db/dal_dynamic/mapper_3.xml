@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.test.db.dal.Mapper1Dal">
+
+    <resultMap id="tb_user_resultMap" type="net.hasor.test.db.dto.TbUser2">
+        <id column="user_uuid" property="uid"/>
+        <result column="name" property="name"/>
+        <result column="login_name" property="account"/>
+        <result column="login_password" property="password"/>
+        <result column="email" property="mail"/>
+        <result column="index" property="index" javaType="int"/>
+        <result column="register_time" property="createTime"/>
+    </resultMap>
+
+    <sql id="projectInfoDO_allColumns">
+        id, owner_id
+    </sql>
+
+    <!-- dataqlMap="tb_user_dataqlMap"-->
+    <select id="testBind" resultMap="tb_user_resultMap">
+        SELECT
+        <include refid="projectInfoDO_allColumns"/>
+        FROM console_job
+        WHERE aac = #{abc}
+    </select>
+
+    <insert id="testInsert">
+        insert into auto_id (
+            userUUID, name
+        ) values (
+            #{uid}, #{name}
+        );
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+</mapper>

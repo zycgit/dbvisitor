@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.test.db.dal.execute.TestExecuteDal">
+    <resultMap id="tb_user_resultMap" type="net.hasor.test.db.dto.TbUser2">
+        <id column="user_uuid" property="uid"/>
+        <result column="name" property="name"/>
+        <result column="login_name" property="account"/>
+        <result column="login_password" property="password"/>
+        <result column="email" property="mail"/>
+        <result column="index" property="index" javaType="int"/>
+        <result column="register_time" property="createTime"/>
+    </resultMap>
+
+    <sql id="user_do_allColumns">
+        user_uuid,
+        name,
+        login_name,
+        login_password,
+        email,
+        `index`,
+        register_time
+    </sql>
+
+    <insert id="createUser">
+        insert into test_user (
+        <include refid="user_do_allColumns"/>
+        ) values (
+        #{uid},
+        #{name},
+        #{account},
+        #{password},
+        #{index},
+        #{createTime}
+        );
+    </insert>
+
+    <insert id="initUser">
+        insert into test_user (
+        <include refid="user_do_allColumns"/>
+        )
+        values ('11', '12', '13', '14', '15', 16, '2021-07-20 00:00:00'),
+        ('21', '22', '23', '24', '25', 26, '2021-07-20 00:00:00');
+    </insert>
+
+    <select id="listUserList_1"  resultMap="tb_user_resultMap" statementType="PREPARED">
+        select
+        <include refid="user_do_allColumns"/>
+        from test_user;
+    </select>
+
+    <select id="listUserList_2" resultType="net.hasor.test.db.dal.execute.TestUser" statementType="STATEMENT">
+        select
+        <include refid="user_do_allColumns"/>
+        from test_user;
+    </select>
+
+    <select id="callSelectUser" statementType="CALLABLE">
+        {call proc_select_user(#{abc, mode=out})}
+    </select>
+
+    <insert id="insertAutoID_1">
+        insert into auto_id (
+            userUUID, name
+        ) values (
+            #{uid}, #{name}
+        );
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <insert id="insertAutoID_2">
+        insert into auto_id (
+            userUUID, name
+        ) values (
+            #{uid}, #{name}
+        );
+        <selectKey keyProperty="id" keyColumn="cc" order="AFTER">
+            SELECT LAST_INSERT_ID() as cc
+        </selectKey>
+    </insert>
+</mapper>

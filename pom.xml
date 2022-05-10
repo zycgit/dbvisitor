@@ -2,8 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.hasor</groupId>
-    <artifactId>hasordb-parent</artifactId>
-    <version>4.3.6-SNAPSHOT</version>
+    <artifactId>dbvisitor-parent</artifactId>
+    <version>4.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <!-- 配置属性 -->
@@ -16,10 +16,10 @@
     </properties>
 
     <!-- Project Info -->
-    <name>HasorDB</name>
-    <description>the hasor DataBase project.</description>
-    <url>http://www.hasor.net/</url>
-    <inceptionYear>2021</inceptionYear>
+    <name>dbVisitor POM</name>
+    <description>the DataBase visitor ORM Tools.</description>
+    <url>http://www.dbvisitor.net/</url>
+    <inceptionYear>2022</inceptionYear>
 
     <!-- 授权协议 -->
     <licenses>
@@ -44,9 +44,9 @@
     </developers>
 
     <modules>
-        <module>hasordb-core</module>
-        <module>hasordb-integration/hasordb-spring</module>
-        <module>hasordb-integration/hasordb-spring-starter</module>
+        <module>dbvisitor-core</module>
+        <module>dbvisitor-integration/dbvisitor-spring</module>
+        <module>dbvisitor-integration/dbvisitor-spring-starter</module>
     </modules>
 
     <!-- 引用依赖 -->
@@ -59,15 +59,14 @@
             </dependency>
             <dependency>
                 <groupId>net.hasor</groupId>
-                <artifactId>hasor-db</artifactId>
-                <version>4.3.6-SNAPSHOT</version>
+                <artifactId>dbvisitor</artifactId>
+                <version>4.4.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>net.hasor</groupId>
-                <artifactId>hasordb-spring</artifactId>
-                <version>4.3.6-SNAPSHOT</version>
+                <artifactId>dbvisitor-spring</artifactId>
+                <version>4.4.0-SNAPSHOT</version>
             </dependency>
-
 
             <!-- test -->
             <dependency>

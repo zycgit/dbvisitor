@@ -6,9 +6,9 @@
 * [![QQ群:948706820](https://img.shields.io/badge/QQ%E7%BE%A4-948706820-orange)](https://qm.qq.com/cgi-bin/qm/qr?k=Qy3574A4VgI0ph4fqFbZW-w49gnyqu6p&jump_from=webapi)
   [![zyc@byshell.org](https://img.shields.io/badge/Email-zyc%40byshell.org-blue)](mailto:zyc@byshell.org)
   [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-  [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.hasor/hasor-db/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.hasor/hasor-db)
+  [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.hasor/dbvisitor/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.hasor/dbvisitor)
 
-&emsp;&emsp;HasorDB is a Full-featured database access tool, Providing object mapping,Richer type handling than Mybatis,
+&emsp;&emsp;dbVisitor is a database orm tool, Providing object mapping,Richer type handling than Mybatis,
 Dynamic SQL, stored procedures, more dialect 20+, nested transactions, multiple data sources, conditional constructors,
 INSERT strategies, multiple statements/multiple results. And compatible with Spring and MyBatis usage.
 
@@ -30,7 +30,7 @@ Features
 - Feature
   - Support for paging queries and multiple database dialects (20+)
   - Support for INSERT strategies (INTO, UPDATE, IGNORE)
-  - Richer TypeHandler（MyBatis 40+，HasorDB 60+）
+  - Richer TypeHandler（MyBatis 40+，dbVisitor 60+）
   - Mapper file supports multiple statements and multiple results
   - provides special '@{XXX, expr, XXXXX}' rule extension mechanism to make dynamic SQL simpler
   - Support for stored procedures
@@ -45,8 +45,8 @@ dependency
 ```xml
 <dependency>
   <groupId>net.hasor</groupId>
-  <artifactId>hasor-db</artifactId>
-  <version>4.3.5</version><!-- see new version https://mvnrepository.com/artifact/net.hasor/hasor-db -->
+  <artifactId>dbvisitor</artifactId>
+  <version>4.4.0</version><!-- 查看最新版本：https://mvnrepository.com/artifact/net.hasor/dbvisitor -->
 </dependency>
 ```
 
@@ -60,7 +60,7 @@ database drivers, for example:
 </dependency>
 ```
 
-HasorDB can be used without relying on database connection pools, 
+dbVisitor can be used without relying on database connection pools, 
 but having a database connection pool is standard for most projects. Druid of Alibaba
 
 ```xml
@@ -262,7 +262,7 @@ TestUserDAO userDAO = session.createMapper(TestUserDAO.class);
 
 ### using Mapper
 
-The best place for unified SQL management is still Mapper files, and HasorDB Mapper files are highly compatible with MyBatis at a very low learning cost.
+The best place for unified SQL management is still Mapper files, and dbVisitor Mapper files are highly compatible with MyBatis at a very low learning cost.
 
 ```java
 // Use the @RefMapper to associate Mapper files with interface classes (extends from BaseMapper is optional)
@@ -278,44 +278,50 @@ public interface TestUserDAO extends BaseMapper<TestUser> {
 }
 ```
 
-In order to better understand and use HasorDB Mapper files, it is recommended to add DTD validation.
-In addition HasorDB compatible with MyBatis3 DTD for most of the MyBatis project can be normally compatible.
+In order to better understand and use dbVisitor Mapper files, it is recommended to add DTD validation.
+In addition dbVisitor compatible with MyBatis3 DTD for most of the MyBatis project can be normally compatible.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//hasor.net//DTD Mapper 1.0//EN" "https://www.hasor.net/schema/hasordb-mapper.dtd">
-<mapper namespace="net.hasor.db.example.quick.dao3.TestUserDAO">
-  <resultMap id="testuser_resultMap" type="net.hasor.db.example.quick.dao3.TestUser">
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="com.example.demo.quick.dao3.TestUserDAO">
+  <resultMap id="testuser_resultMap" type="com.example.demo.quick.dao3.TestUser">
     <id column="id" property="id"/>
     <result column="name" property="name"/>
     <result column="age" property="age"/>
     <result column="create_time" property="createTime"/>
   </resultMap>
-  
+
   <sql id="testuser_columns">
     name,age,create_time
   </sql>
-  
+
   <insert id="insertUser">
     insert into `test_user` (
-      <include refid="testuser_columns"/>
+    <include refid="testuser_columns"/>
     ) values (
-      #{name}, #{age}, now()
+    #{name}, #{age}, now()
     )
   </insert>
-  
+
   <update id="updateAge">
     update `test_user` set age = #{age} where id = #{id}
   </update>
-  
+
   <delete id="deleteByAge"><![CDATA[
-    delete from `test_user` where age > #{age}
-  ]]></delete>
-  
+        delete from `test_user` where age > #{age}
+    ]]></delete>
+
   <select id="queryByAge" resultMap="testuser_resultMap">
     select id,<include refid="testuser_columns"/>
     from `test_user`
     where  #{beginAge} &lt; age and age &lt; #{endAge}
+  </select>
+
+  <select id="queryAll" resultMap="testuser_resultMap">
+    select id,<include refid="testuser_columns"/>
+    from `test_user`
   </select>
 </mapper>
 ```
@@ -371,7 +377,7 @@ If there are multiple simple conditions, fast writing can greatly reduce Mapper'
 
 ### Paging query
 
-HasorDB's paging capability is supported only at the 'LambdaTemplate', 'BaseMapper', and 'Mapper DAO' levels.
+dbVisitor's paging capability is supported only at the 'LambdaTemplate', 'BaseMapper', and 'Mapper DAO' levels.
 The following are different ways of using:
 
 Use 'LambdaTemplate' for paging queries
@@ -451,7 +457,7 @@ PageResult<TestUser> page2 = userDAO.queryByAge2(25, 100, pageInfo);
 
 ### using transaction
 
-HasorDB provides two ways to use transactions:
+dbVisitor provides two ways to use transactions:
 
 - ** using API **, by calling the 'TransactionManager' interface to achieve transaction control.
 - ** Template **, through the 'TransactionTemplate' interface to achieve transaction control.
@@ -535,25 +541,6 @@ Object result = template.execute(new TransactionCallback<Object>() {
     public Object doTransaction(TransactionStatus tranStatus) {
         ...
         return null;
-    }
-});
-
-// Using the Java8 Lambda syntax can be simplified as follows
-Object result = template.execute(tranStatus -> {
-    return ...;
-});
-```
-
-You can also set the transaction state to 'rollBack' or 'readOnly' to cause rollBack
-
-```java {3,5}
-Object result = template.execute(new TransactionCallback<Object>() {
-    public Object doTransaction(TransactionStatus tranStatus) {
-        tranStatus.setReadOnly();
-        // 或
-        tranStatus.setRollback();
-
-        return ...;
     }
 });
 ```

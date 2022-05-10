@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.test.db.dal.execute.PageExecuteDal">
+
+    <resultMap table="test_user" type="net.hasor.test.db.dto.TbUser2">
+        <id column="user_uuid" property="uid"/>
+        <result column="name" property="name"/>
+        <result column="login_name" property="account"/>
+        <result column="login_password" property="password"/>
+        <result column="email" property="mail"/>
+        <result column="index" property="index" javaType="int"/>
+        <result column="register_time" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="tb_user_resultMap" type="net.hasor.test.db.dto.TbUser2">
+        <id column="user_uuid" property="uid"/>
+        <result column="name" property="name"/>
+        <result column="login_name" property="account"/>
+        <result column="login_password" property="password"/>
+        <result column="email" property="mail"/>
+        <result column="index" property="index" javaType="int"/>
+        <result column="register_time" property="createTime"/>
+    </resultMap>
+
+    <sql id="user_do_allColumns">
+        user_uuid,
+        name,
+        login_name,
+        login_password,
+        email,
+        `index`,
+        register_time
+    </sql>
+
+    <delete id="deleteAll">
+        delete from test_user;
+    </delete>
+
+    <insert id="createUser">
+        insert into test_user (
+        <include refid="user_do_allColumns"/>
+        ) values (
+        #{uid},
+        #{name},
+        #{account},
+        #{password},
+        #{email},
+        #{index},
+        #{createTime}
+        )
+    </insert>
+
+    <select id="listByPage1" resultMap="tb_user_resultMap" statementType="PREPARED">
+        select
+        <include refid="user_do_allColumns"/>
+        from test_user
+        where
+        name like concat('%', #{name} ,'%')
+        order by `index`
+    </select>
+
+    <select id="listByPage2" resultMap="tb_user_resultMap" statementType="PREPARED">
+        select
+        <include refid="user_do_allColumns"/>
+        from test_user
+        where
+        name like concat('%', #{name} ,'%')
+        order by `index`
+    </select>
+</mapper>
