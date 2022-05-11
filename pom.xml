@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-parent</artifactId>
-    <version>4.4.0-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <!-- 配置属性 -->
@@ -60,12 +60,12 @@
             <dependency>
                 <groupId>net.hasor</groupId>
                 <artifactId>dbvisitor</artifactId>
-                <version>4.4.0-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.hasor</groupId>
                 <artifactId>dbvisitor-spring</artifactId>
-                <version>4.4.0-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
 
             <!-- test -->
@@ -227,7 +227,7 @@
                             <autoVersionSubmodules>true</autoVersionSubmodules>
                             <useReleaseProfile>false</useReleaseProfile>
                             <releaseProfiles>release</releaseProfiles>
-                            <tagNameFormat>Release.HasorDB-@{project.version}</tagNameFormat>
+                            <tagNameFormat>v@{project.version}</tagNameFormat>
                             <goals>deploy</goals>
                         </configuration>
                     </plugin>

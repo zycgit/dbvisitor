@@ -22,7 +22,7 @@
         <dependency>
             <groupId>net.hasor</groupId>
             <artifactId>dbvisitor-spring-starter</artifactId>
-            <version>4.4.0</version>
+            <version>5.0.0</version>
         </dependency>
 
         <!-- driver -->
