@@ -31,7 +31,7 @@ import java.io.IOException;
  * <pre class="code">
  * {@code
  *     <bean id="dalRegistry" class="net.hasor.dbvisitor.spring.support.DalRegistryBean">
- *         <property name="mapperResources" value="classpath*:hasordb/mapper/*Mapper.xml"/>
+ *         <property name="mapperResources" value="classpath*:dbvisitor/mapper/*Mapper.xml"/>
  *     </bean>
  *
  *     <bean id="dalSession" class="net.hasor.dbvisitor.spring.support.DalSessionBean">

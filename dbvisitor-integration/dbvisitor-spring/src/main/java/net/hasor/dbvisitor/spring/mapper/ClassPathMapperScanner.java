@@ -109,7 +109,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
         Set<BeanDefinitionHolder> beanDefinitions = super.doScan(basePackages);
 
         if (beanDefinitions.isEmpty()) {
-            logger.warn("No HasorDB mapper was found in '" + Arrays.toString(basePackages) + "' package. Please check your configuration.");
+            logger.warn("No dbVisitor mapper was found in '" + Arrays.toString(basePackages) + "' package. Please check your configuration.");
         } else {
             BeanDefinitionRegistry registry = getRegistry();
             for (BeanDefinitionHolder beanDef : beanDefinitions) {

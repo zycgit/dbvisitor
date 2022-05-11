@@ -36,7 +36,7 @@ import java.util.Objects;
  * <pre class="code">
  * {@code
  *     <bean id="dalRegistry" class="net.hasor.dbvisitor.spring.support.DalRegistryBean">
- *         <property name="mapperResources" value="classpath*:hasordb/mapper/*Mapper.xml"/>
+ *         <property name="mapperResources" value="classpath*:dbvisitor/mapper/*Mapper.xml"/>
  *         ...
  *     </bean>
  * }
@@ -222,8 +222,8 @@ public class DalRegistryBean extends AbstractSupportBean<DalRegistry> {
     }
 
     /**
-     * location of HasorDB mapper files e.g. "classpath*:sqlmap/*-mapper.xml".
-     * @param mapperResources location of HasorDB mapper files
+     * location of dbVisitor mapper files e.g. "classpath*:sqlmap/*-mapper.xml".
+     * @param mapperResources location of dbVisitor mapper files
      */
     public void setMapperResources(Resource[] mapperResources) {
         this.mapperResources = mapperResources;

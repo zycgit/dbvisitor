@@ -27,7 +27,7 @@ import java.sql.SQLException;
  * {@code
  *     <bean id="dalSession" class="net.hasor.dbvisitor.spring.support.DalSessionBean">
  *         ...
- *         <property name="dsAdapterClass" value="net.hasor.dbvisitor.spring.support.HasordbDsAdapter"/>
+ *         <property name="dsAdapterClass" value="net.hasor.dbvisitor.spring.support.DbVisitorDsAdapter"/>
  *         ...
  *     </bean>
  *
@@ -42,11 +42,11 @@ import java.sql.SQLException;
  * @author 赵永春 (zyc@hasor.net)
  * @see Mapper
  */
-public class HasordbDsAdapter extends AbstractDsAdapter {
-    public HasordbDsAdapter() {
+public class DbVisitorDsAdapter extends AbstractDsAdapter {
+    public DbVisitorDsAdapter() {
     }
 
-    public HasordbDsAdapter(DataSource dataSource) {
+    public DbVisitorDsAdapter(DataSource dataSource) {
         this.setDataSource(dataSource);
     }
 

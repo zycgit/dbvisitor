@@ -48,6 +48,8 @@ import org.springframework.util.StringUtils;
 import javax.sql.DataSource;
 import java.util.List;
 
+import static net.hasor.dbvisitor.spring.boot.DbVisitorProperties.PREFIX;
+
 @Configuration
 @ConditionalOnClass({ DalSession.class, DalRegistry.class })
 @ConditionalOnSingleCandidate(DataSource.class)
@@ -77,9 +79,9 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
 
     public void afterPropertiesSet() {
         //
-        //hasordb.mapper-packages=com.example.demo.dao
-        //hasordb.mapper-locations=classpath:hasordb/mapper/*.xml
-        //#hasordb.ref-session-bean=
+        //dbvisitor.mapper-packages=com.example.demo.dao
+        //dbvisitor.mapper-locations=classpath:dbvisitor/mapper/*.xml
+        //#dbvisitor.ref-session-bean=
     }
 
     @Bean
@@ -153,21 +155,21 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
 
             BeanDefinitionBuilder mapperBuilder = BeanDefinitionBuilder.genericBeanDefinition(MapperScannerConfigurer.class);
             mapperBuilder.addPropertyValue("processPropertyPlaceHolders", true);
-            mapperBuilder.addPropertyValue("basePackage", "${hasordb.mapper-packages:" + StringUtils.collectionToCommaDelimitedString(packages) + "}");
-            mapperBuilder.addPropertyValue("mapperFactoryBeanClassName", "${hasordb.mapper-factory-bean:}");
-            mapperBuilder.addPropertyValue("defaultScope", "${hasordb.mapper-scope:}");
-            mapperBuilder.addPropertyValue("lazyInitialization", "${hasordb.mapper-lazy-initialization:false}");
-            mapperBuilder.addPropertyValue("nameGeneratorName", "${hasordb.mapper-name-generator:}");
-            mapperBuilder.addPropertyValue("annotationClassName", "${hasordb.marker-annotation:" + DalMapper.class.getName() + "}");
-            mapperBuilder.addPropertyValue("markerInterfaceName", "${hasordb.marker-interface:}");
-            mapperBuilder.addPropertyValue("dalSessionRef", "${hasordb.ref-session-bean:}");
+            mapperBuilder.addPropertyValue("basePackage", "${" + PREFIX + ".mapper-packages:" + StringUtils.collectionToCommaDelimitedString(packages) + "}");
+            mapperBuilder.addPropertyValue("mapperFactoryBeanClassName", "${" + PREFIX + ".mapper-factory-bean:}");
+            mapperBuilder.addPropertyValue("defaultScope", "${" + PREFIX + ".mapper-scope:}");
+            mapperBuilder.addPropertyValue("lazyInitialization", "${" + PREFIX + ".mapper-lazy-initialization:false}");
+            mapperBuilder.addPropertyValue("nameGeneratorName", "${" + PREFIX + ".mapper-name-generator:}");
+            mapperBuilder.addPropertyValue("annotationClassName", "${" + PREFIX + ".marker-annotation:" + DalMapper.class.getName() + "}");
+            mapperBuilder.addPropertyValue("markerInterfaceName", "${" + PREFIX + ".marker-interface:}");
+            mapperBuilder.addPropertyValue("dalSessionRef", "${" + PREFIX + ".ref-session-bean:}");
             mapperBuilder.addPropertyValue("dependsOn", fileBeanName);
             registry.registerBeanDefinition(mapperBeanName, mapperBuilder.getBeanDefinition());
 
             BeanDefinitionBuilder fileBuilder = BeanDefinitionBuilder.genericBeanDefinition(MapperFileConfigurer.class);
             mapperBuilder.addPropertyValue("processPropertyPlaceHolders", true);
-            fileBuilder.addPropertyValue("mapperLocations", "${hasordb.mapper-locations:classpath:**/*.xml}");
-            fileBuilder.addPropertyValue("dalSessionRef", "${hasordb.ref-session-bean:}");
+            fileBuilder.addPropertyValue("mapperLocations", "${" + PREFIX + ".mapper-locations:classpath:**/*.xml}");
+            fileBuilder.addPropertyValue("dalSessionRef", "${" + PREFIX + ".ref-session-bean:}");
             registry.registerBeanDefinition(fileBeanName, fileBuilder.getBeanDefinition());
         }
     }

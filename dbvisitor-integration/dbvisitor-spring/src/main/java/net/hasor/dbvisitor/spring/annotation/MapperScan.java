@@ -76,7 +76,7 @@ public @interface MapperScan {
     String[] value() default {};
 
     /**
-     * Base packages to scan for HasorDB interfaces. Note that only interfaces with at least one method will be
+     * Base packages to scan for dbVisitor interfaces. Note that only interfaces with at least one method will be
      * registered; concrete classes will be ignored.
      *
      * @return base package names for scanning mapper interface
@@ -133,7 +133,7 @@ public @interface MapperScan {
     String dalSessionRef() default "";
 
     /**
-     * Specifies a custom DalMapperBean to return a HasorDB proxy as spring bean.
+     * Specifies a custom DalMapperBean to return a dbVisitor proxy as spring bean.
      *
      * @return the class of {@code DalMapperBean}
      */
