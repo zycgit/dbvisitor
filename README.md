@@ -43,7 +43,7 @@
 <dependency>
   <groupId>net.hasor</groupId>
   <artifactId>dbvisitor</artifactId>
-  <version>4.4.0</version><!-- 查看最新版本：https://mvnrepository.com/artifact/net.hasor/dbvisitor -->
+  <version>5.0.0</version><!-- 查看最新版本：https://mvnrepository.com/artifact/net.hasor/dbvisitor -->
 </dependency>
 ```
 
