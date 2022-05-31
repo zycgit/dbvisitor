@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//hasor.net//DTD Mapper 1.0//EN" "https://www.hasor.net/schema/hasordb-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="com.example.demo.dao.UserMapper">
 
     <resultMap id="userDTO" table="stb_user" type="com.example.demo.dto.UserDTO" autoMapping="true" mapUnderscoreToCamelCase="true" caseInsensitive="true"/>
