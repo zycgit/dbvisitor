@@ -19,7 +19,7 @@ import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.dal.repository.RefMapper;
 import net.hasor.dbvisitor.dal.session.DalSession;
-import net.hasor.dbvisitor.dal.session.Mapper;
+import net.hasor.dbvisitor.dal.mapper.Mapper;
 
 import java.io.IOException;
 

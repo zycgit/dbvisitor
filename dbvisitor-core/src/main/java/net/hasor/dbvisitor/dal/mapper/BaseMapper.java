@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.session;
+package net.hasor.dbvisitor.dal.mapper;
+import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.lambda.*;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageResult;

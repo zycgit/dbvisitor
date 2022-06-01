@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.transaction.interceptor;
-import net.hasor.dbvisitor.transaction.Isolation;
-import net.hasor.dbvisitor.transaction.Propagation;
-
+package net.hasor.dbvisitor.transaction;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 可以标记在：方法、类 上面
+ * 可以标记在：方法、类 上面。 通过 TransactionHelper 或者 TransactionalInterceptor 来使用该注解。
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-10-30
  */
-@Target({ ElementType.METHOD, ElementType.TYPE, ElementType.PACKAGE })
+@Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Transactional {
     /** 传播属性 */

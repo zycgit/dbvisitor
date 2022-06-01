@@ -16,7 +16,7 @@
 package net.hasor.test.db.dal.execute;
 import net.hasor.dbvisitor.dal.repository.Param;
 import net.hasor.dbvisitor.dal.repository.RefMapper;
-import net.hasor.dbvisitor.dal.session.BaseMapper;
+import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageResult;
 import net.hasor.test.db.dto.TbUser2;

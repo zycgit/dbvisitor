@@ -22,6 +22,7 @@ import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
@@ -38,25 +39,41 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
 
     @Override
     public final Set<String> keywords() {
-        if (keyWords == null) {
-            keyWords = new HashSet<>();
-            String keyWordsResource = keyWordsResource();
-            if (StringUtils.isBlank(keyWordsResource)) {
-                return keyWords;
-            }
+        if (this.keyWords == null) {
+            this.keyWords = new HashSet<>();
+
             try {
-                List<String> strings = IOUtils.readLines(ResourcesUtils.getResourceAsStream(keyWordsResource), StandardCharsets.UTF_8);
-                for (String term : strings) {
-                    term = term.trim().toUpperCase();
-                    if (!StringUtils.isBlank(term) && term.charAt(0) != '#') {
-                        keyWords.add(term);
-                    }
+                InputStream inputStream = ResourcesUtils.getResourceAsStream("/META-INF/custom.keywords");
+                if (inputStream != null) {
+                    List<String> strings = IOUtils.readLines(inputStream, StandardCharsets.UTF_8);
+                    this.loadKeyWords(strings);
                 }
             } catch (Exception e) {
-                logger.error("load " + this.keywords() + ".keywords failed." + e.getMessage(), e);
+                logger.error("load 'custom.keywords' failed." + e.getMessage());
+            }
+
+            String keyWordsResource = keyWordsResource();
+            if (StringUtils.isBlank(keyWordsResource)) {
+                return this.keyWords;
+            }
+
+            try {
+                List<String> strings = IOUtils.readLines(ResourcesUtils.getResourceAsStream(keyWordsResource), StandardCharsets.UTF_8);
+                this.loadKeyWords(strings);
+            } catch (Exception e) {
+                logger.error("load keywords '" + keyWordsResource + "' failed." + e.getMessage());
             }
         }
-        return keyWords;
+        return this.keyWords;
+    }
+
+    private void loadKeyWords(List<String> strings) {
+        for (String term : strings) {
+            term = term.trim().toUpperCase();
+            if (!StringUtils.isBlank(term) && term.charAt(0) != '#') {
+                this.keyWords.add(term);
+            }
+        }
     }
 
     protected String keyWordsResource() {

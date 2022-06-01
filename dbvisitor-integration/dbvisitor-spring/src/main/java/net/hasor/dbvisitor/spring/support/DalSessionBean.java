@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.spring.support;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
-import net.hasor.dbvisitor.dal.session.Mapper;
+import net.hasor.dbvisitor.dal.mapper.Mapper;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 
 import javax.sql.DataSource;

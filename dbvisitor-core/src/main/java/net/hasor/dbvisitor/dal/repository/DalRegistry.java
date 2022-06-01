@@ -25,7 +25,7 @@ import net.hasor.dbvisitor.dal.repository.parser.ClassDynamicResolve;
 import net.hasor.dbvisitor.dal.repository.parser.DynamicResolve;
 import net.hasor.dbvisitor.dal.repository.parser.XmlDynamicResolve;
 import net.hasor.dbvisitor.dal.repository.parser.XmlTableMappingResolve;
-import net.hasor.dbvisitor.dal.session.BaseMapper;
+import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableDef;
 import net.hasor.dbvisitor.mapping.def.TableMapping;

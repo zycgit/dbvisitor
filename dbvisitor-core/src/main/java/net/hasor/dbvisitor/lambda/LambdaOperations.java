@@ -95,7 +95,6 @@ public interface LambdaOperations extends JdbcOperations {
     // ----------------------------------------------------------------------------------
     //
     // ----------------------------------------------------------------------------------
-    //
 
     /** 相当于 select * form */
     default <T> EntityQueryOperation<T> lambdaQuery(Class<T> exampleType) {
@@ -112,5 +111,4 @@ public interface LambdaOperations extends JdbcOperations {
 
     /** 相当于 select ... */
     MapQueryOperation lambdaQuery(String schema, String table, MappingOptions options) throws SQLException;
-
 }

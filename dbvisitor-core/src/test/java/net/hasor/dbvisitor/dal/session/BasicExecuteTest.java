@@ -1,6 +1,8 @@
 package net.hasor.dbvisitor.dal.session;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
+import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.test.db.dal.Mapper3Dal;
 import net.hasor.test.db.dal.execute.TestExecuteDal;
 import net.hasor.test.db.dal.execute.TestUser;
 import net.hasor.test.db.dto.AutoId;
@@ -145,4 +147,14 @@ public class BasicExecuteTest {
         assert args.get("abc").toString().equals("123.123");
     }
 
+    @Test
+    public void defaultMethodTest() throws IOException {
+        this.dalSession.getDalRegistry().loadMapper(Mapper3Dal.class);
+        Mapper3Dal dalExecute = this.dalSession.createMapper(Mapper3Dal.class);
+
+        BoundSql boundSql = dalExecute.testBind("12345678");
+
+        assert boundSql.getSqlString().equals("SELECT * FROM tb_user WHERE name = ?");
+        assert boundSql.getArgs()[0].equals("12345678");
+    }
 }

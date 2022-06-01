@@ -20,6 +20,8 @@ import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dal.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dal.execute.ExecuteProxy;
+import net.hasor.dbvisitor.dal.mapper.BaseMapper;
+import net.hasor.dbvisitor.dal.mapper.Mapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;

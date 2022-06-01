@@ -19,6 +19,7 @@ import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.ref.BeanMap;
 import net.hasor.dbvisitor.dal.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dal.execute.ExecuteProxy;
+import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dal.repository.Param;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
@@ -27,11 +28,12 @@ import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageResult;
 
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Mapper 代理接口类
@@ -45,7 +47,6 @@ class ExecuteInvocationHandler implements InvocationHandler {
     private final Map<String, Integer>              pageInfoMap   = new HashMap<>();
     private final Map<String, Map<String, Integer>> argNamesMap   = new HashMap<>();
     private final BaseMapperHandler                 mapperHandler;
-    private final AtomicBoolean                     atomicBoolean = new AtomicBoolean(false);
 
     public ExecuteInvocationHandler(DalSession dalSession, Class<?> dalType, DalRegistry dalRegistry, BaseMapperHandler mapperHandler) {
         this.space = dalType.getName();
@@ -71,6 +72,7 @@ class ExecuteInvocationHandler implements InvocationHandler {
 
             int parameterCount = method.getParameterCount();
             Annotation[][] annotations = method.getParameterAnnotations();
+            Class<?>[] parameterTypes = method.getParameterTypes();
             for (int i = 0; i < parameterCount; i++) {
                 String fixedName = "arg" + i;
                 argNames.put(fixedName, i);
@@ -95,7 +97,7 @@ class ExecuteInvocationHandler implements InvocationHandler {
                     }
                 }
 
-                if (Page.class.isAssignableFrom(method.getParameterTypes()[i])) {
+                if (Page.class.isAssignableFrom(parameterTypes[i])) {
                     this.pageInfoMap.put(dynamicId, i);
                 }
             }
@@ -120,9 +122,7 @@ class ExecuteInvocationHandler implements InvocationHandler {
         MergedMap<String, Object> mergedMap = new MergedMap<>();
 
         Map<String, Object> argMap = new HashMap<>();
-        argNames.forEach((key, idx) -> {
-            argMap.put(key, objects[idx]);
-        });
+        argNames.forEach((key, idx) -> argMap.put(key, objects[idx]));
         mergedMap.appendMap(argMap, false);
 
         if (objects.length == 1) {
@@ -143,23 +143,36 @@ class ExecuteInvocationHandler implements InvocationHandler {
         if (this.mapperHandler != null && method.getDeclaringClass() == BaseMapper.class) {
             return method.invoke(this.mapperHandler, objects);
         }
-
         String dynamicId = method.getName();
+        final ExecuteProxy execute = this.dynamicSqlMap.get(dynamicId);
+        if (execute != null) {
+            // use xml mapper
+            Object result = executeByMapper(dynamicId, execute, method, objects);
+            return processResult(result, method.getReturnType());
+        } else if (method.isDefault()) {
+            // use interface default method
+            Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
+            constructor.setAccessible(true);
+            Class<?> declaringClass = method.getDeclaringClass();
+            int allModes = MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE;
+            return constructor.newInstance(declaringClass, allModes).unreflectSpecial(method, declaringClass).bindTo(o).invokeWithArguments(objects);
+        } else {
+            throw new NoSuchMethodException("method '" + method.getDeclaringClass().getName() + "." + method.getName() + "' does not exist in mapper.");
+        }
+    }
+
+    private Object executeByMapper(String dynamicId, ExecuteProxy execute, Method method, Object[] objects) throws SQLException {
         Page page = extractPage(dynamicId, objects);
         boolean pageResult = method.getReturnType() == PageResult.class;
         Map<String, Object> data = extractData(dynamicId, objects);
 
-        final ExecuteProxy execute = this.dynamicSqlMap.get(dynamicId);
-        if (execute == null) {
-            throw new NoSuchMethodException("method '" + method.getDeclaringClass().getName() + "." + method.getName() + "' does not exist in mapper.");
-        }
-
         PageSqlDialect dialect = this.dalSession.getDialect();
-        Object result = this.dalSession.lambdaTemplate().execute((ConnectionCallback<Object>) con -> {
+        return this.dalSession.lambdaTemplate().execute((ConnectionCallback<Object>) con -> {
             return execute.execute(con, data, page, pageResult, dialect);
         });
+    }
 
-        Class<?> returnType = method.getReturnType();
+    private Object processResult(Object result, Class<?> returnType) throws SQLException {
         if (List.class == returnType || Collection.class == returnType || Iterable.class == returnType) {
             if (result instanceof List) {
                 return result;

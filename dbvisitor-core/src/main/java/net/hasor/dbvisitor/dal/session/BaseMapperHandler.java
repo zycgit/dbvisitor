@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.session;
+import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.lambda.EntityDeleteOperation;
 import net.hasor.dbvisitor.lambda.EntityQueryOperation;

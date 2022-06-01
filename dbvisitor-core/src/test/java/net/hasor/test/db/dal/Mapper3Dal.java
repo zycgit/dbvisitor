@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2005 the original author or authors.
+ * Copyright 2008-2009 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.session;
+package net.hasor.test.db.dal;
+import net.hasor.dbvisitor.dal.mapper.BaseMapper;
+import net.hasor.dbvisitor.dal.repository.SimpleMapper;
+import net.hasor.dbvisitor.dialect.BoundSql;
+import net.hasor.test.db.dto.TbUser;
+
 /**
- * Mapper 标记接口所有 Mapper 都会是该接口的子类
- * @version : 2021-10-31
+ *
+ * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface Mapper {
+@SimpleMapper
+public interface Mapper3Dal extends BaseMapper<TbUser> {
+    default BoundSql testBind(String abc) {
+        return query().eq(TbUser::getName, abc).getBoundSql();
+    }
 }
