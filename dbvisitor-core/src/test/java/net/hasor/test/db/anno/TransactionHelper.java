@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.transaction;
-import net.hasor.cobble.dynamic.AopClassConfig;
-import net.hasor.cobble.dynamic.AopClassLoader;
-import net.hasor.cobble.dynamic.AopMatchers;
-import net.hasor.dbvisitor.transaction.support.TransactionalInterceptor;
+package net.hasor.test.db.anno;
+import net.hasor.cobble.dynamic.DynamicConfig;
+import net.hasor.cobble.dynamic.Matchers;
+import net.hasor.cobble.dynamic.Proxy;
 
 import javax.sql.DataSource;
-import java.io.IOException;
 
 /**
  * 可以标记在：方法、类 上面
@@ -29,16 +27,15 @@ import java.io.IOException;
  */
 public class TransactionHelper {
 
-    public static Object newProxyService(Object original, DataSource dataSource) throws IOException, ReflectiveOperationException {
+    public static Object newProxyService(ClassLoader loader, Object original, DataSource dataSource) throws ReflectiveOperationException {
         if (original == null) {
             return null;
         }
 
-        Class<?> originalType = AopClassLoader.isDynamic(original) ? AopClassLoader.getPrototypeType(original) : original.getClass();
+        Class<?> originalType = Proxy.getPrototypeType(original);
+        DynamicConfig classConfig = new DynamicConfig(originalType);
+        classConfig.addAopInterceptor(Matchers.annotatedWithMethod(Transactional.class), new TransactionalInterceptor(dataSource));
 
-        AopClassConfig classConfig = new AopClassConfig(originalType);
-        classConfig.addAopInterceptor(AopMatchers.annotatedWithMethod(Transactional.class), new TransactionalInterceptor(dataSource));
-
-        return classConfig.buildProxy(original);
+        return Proxy.newEnhanceInstance(loader, original);
     }
 }

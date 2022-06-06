@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.transaction;
+package net.hasor.test.db.anno;
+import net.hasor.dbvisitor.transaction.Isolation;
+import net.hasor.dbvisitor.transaction.Propagation;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

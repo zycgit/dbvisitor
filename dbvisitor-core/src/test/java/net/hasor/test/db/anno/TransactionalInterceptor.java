@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.transaction.support;
+package net.hasor.test.db.anno;
 import net.hasor.cobble.dynamic.MethodInterceptor;
 import net.hasor.cobble.dynamic.MethodInvocation;
 import net.hasor.dbvisitor.transaction.*;
@@ -28,7 +28,7 @@ import java.util.Objects;
  * @version : 2013-10-30
  */
 public class TransactionalInterceptor implements MethodInterceptor {
-    private DataSource dataSource = null;
+    private final DataSource dataSource;
 
     public TransactionalInterceptor(DataSource dataSource) {
         this.dataSource = Objects.requireNonNull(dataSource, "dataSource Provider is null.");
