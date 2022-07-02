@@ -55,6 +55,7 @@ import java.util.Set;
  */
 public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
     private static final Logger                         logger                 = LoggerFactory.getLogger(ClassPathMapperScanner.class);
+    private              boolean                        mapperDisabled;
     private              Class<? extends Annotation>    annotationClass;
     private              Class<?>                       markerInterface;
     private              String                         dalSessionRef;
@@ -121,6 +122,10 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
     }
 
     private void processBeanDefinitions(BeanDefinitionRegistry registry, BeanDefinitionHolder beanDef) {
+        if (this.mapperDisabled) {
+            return;
+        }
+
         AbstractBeanDefinition definition = (AbstractBeanDefinition) beanDef.getBeanDefinition();
         boolean scopedProxy = false;
         if (ScopedProxyFactoryBean.class.getName().equals(definition.getBeanClassName())) {
@@ -194,6 +199,10 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
             logger.warn("Skipping MapperFactoryBean with name '" + beanName + "' and '" + beanDefinition.getBeanClassName() + "' mapperInterface" + ". Bean already defined with the same name!");
             return false;
         }
+    }
+
+    public void setMapperDisabled(Boolean mapperDisabled) {
+        this.mapperDisabled = mapperDisabled;
     }
 
     public void setAnnotationClass(Class<? extends Annotation> annotationClass) {

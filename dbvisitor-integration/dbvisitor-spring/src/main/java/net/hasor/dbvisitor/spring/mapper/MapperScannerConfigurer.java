@@ -50,6 +50,7 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
     private Class<?>                       markerInterface;
     private String                         dalSessionRef;
     private DalSession                     dalSession;
+    private String                         mapperDisabled;
     private String                         mapperFactoryBeanClassName;
     private Class<? extends DalMapperBean> mapperFactoryBeanClass;
     private String                         lazyInitialization;
@@ -93,6 +94,9 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
         }
 
         ClassPathMapperScanner scanner = new ClassPathMapperScanner(registry);
+        if (StringUtils.hasText(this.mapperDisabled)) {
+            scanner.setMapperDisabled(Boolean.parseBoolean(this.mapperDisabled));
+        }
         scanner.setAnnotationClass(this.annotationClass);
         scanner.setMarkerInterface(this.markerInterface);
         scanner.setDalSessionRef(this.dalSessionRef);
@@ -140,6 +144,7 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
             this.mapperFactoryBeanClassName = getPropertyValue("mapperFactoryBeanClassName", values);
             this.basePackage = getPropertyValue("basePackage", values);
             this.dalSessionRef = getPropertyValue("dalSessionRef", values);
+            this.mapperDisabled = getPropertyValue("mapperDisabled", values);
             this.lazyInitialization = getPropertyValue("lazyInitialization", values);
             this.defaultScope = getPropertyValue("defaultScope", values);
         }
@@ -183,6 +188,10 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
 
     public void setDalSession(DalSession dalSession) {
         this.dalSession = dalSession;
+    }
+
+    public void setMapperDisabled(String mapperDisabled) {
+        this.mapperDisabled = mapperDisabled;
     }
 
     public void setMapperFactoryBeanClassName(String mapperFactoryBeanClassName) {

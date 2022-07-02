@@ -32,6 +32,7 @@ public class DbVisitorProperties {
     private             String[]      mapperPackages;
     private             String[]      mapperLocations;
 
+    private boolean                            mapperDisabled;
     private Class<? extends BeanNameGenerator> mapperNameGenerator;
     private Class<? extends DalMapperBean>     mapperFactoryBean;
     private String                             mapperLazyInit;
@@ -63,6 +64,14 @@ public class DbVisitorProperties {
 
     public void setMapperLocations(String[] mapperLocations) {
         this.mapperLocations = mapperLocations;
+    }
+
+    public boolean isMapperDisabled() {
+        return this.mapperDisabled;
+    }
+
+    public void setMapperDisabled(boolean mapperDisabled) {
+        this.mapperDisabled = mapperDisabled;
     }
 
     public Class<? extends BeanNameGenerator> getMapperNameGenerator() {

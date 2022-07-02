@@ -47,18 +47,43 @@ import java.util.stream.Collectors;
 public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+        AnnotationAttributes mappingScanAttrs = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(MappingScan.class.getName()));
         AnnotationAttributes mapperScanAttrs = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(MapperScan.class.getName()));
-        if (mapperScanAttrs == null) {
+        if (mappingScanAttrs != null && mapperScanAttrs != null) {
+            throw new IllegalStateException("@MappingScan and @MapperScan can only use one of them");
+        }
+        if (mappingScanAttrs == null && mapperScanAttrs == null) {
             return;
         }
 
         // add MapperFileConfigurer bean
         String scanMapperFileBean = generateBaseBeanName(importingClassMetadata, "resource", 0);
-        registerMapperFileScannerBean(importingClassMetadata, mapperScanAttrs, registry, scanMapperFileBean);
+        AnnotationAttributes mappingAttrs = mappingScanAttrs != null ? mappingScanAttrs : mapperScanAttrs;
+        registerMapperFileScannerBean(importingClassMetadata, mappingAttrs, registry, scanMapperFileBean);
 
         // add MapperScannerConfigurer bean
-        String scanMapperBean = generateBaseBeanName(importingClassMetadata, "mapper", 0);
-        registerMapperScannerBean(importingClassMetadata, mapperScanAttrs, registry, scanMapperBean, scanMapperFileBean);
+        if (mapperScanAttrs != null) {
+            String scanMapperBean = generateBaseBeanName(importingClassMetadata, "mapper", 0);
+            registerMapperScannerBean(importingClassMetadata, mapperScanAttrs, registry, scanMapperBean, scanMapperFileBean);
+        }
+    }
+
+    void registerMapperFileScannerBean(AnnotationMetadata annoMeta, AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry, String beanName) {
+        List<String> mapperFiles = Arrays.stream(annoAttrs.getStringArray("mapperLocations")).filter(StringUtils::hasText).collect(Collectors.toList());
+        Set<String> mapperLocations = new LinkedHashSet<>();
+        if (!mapperFiles.isEmpty()) {
+            mapperLocations.addAll(mapperFiles);
+        }
+
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(MapperFileConfigurer.class);
+        builder.addPropertyValue("mapperLocations", StringUtils.collectionToCommaDelimitedString(mapperLocations));
+
+        String dalSessionRef = annoAttrs.getString("dalSessionRef");
+        if (StringUtils.hasText(dalSessionRef)) {
+            builder.addPropertyValue("dalSession", new RuntimeBeanReference(dalSessionRef));
+        }
+
+        registry.registerBeanDefinition(beanName, builder.getBeanDefinition());
     }
 
     void registerMapperScannerBean(AnnotationMetadata annoMeta, AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry, String beanName, String dependsOn) {
@@ -122,24 +147,6 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
         registry.registerBeanDefinition(beanName, builder.getBeanDefinition());
     }
 
-    void registerMapperFileScannerBean(AnnotationMetadata annoMeta, AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry, String beanName) {
-        List<String> mapperFiles = Arrays.stream(annoAttrs.getStringArray("mapperLocations")).filter(StringUtils::hasText).collect(Collectors.toList());
-        Set<String> mapperLocations = new LinkedHashSet<>();
-        if (!mapperFiles.isEmpty()) {
-            mapperLocations.addAll(mapperFiles);
-        }
-
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(MapperFileConfigurer.class);
-        builder.addPropertyValue("mapperLocations", StringUtils.collectionToCommaDelimitedString(mapperLocations));
-
-        String dalSessionRef = annoAttrs.getString("dalSessionRef");
-        if (StringUtils.hasText(dalSessionRef)) {
-            builder.addPropertyValue("dalSession", new RuntimeBeanReference(dalSessionRef));
-        }
-
-        registry.registerBeanDefinition(beanName, builder.getBeanDefinition());
-    }
-
     private static String generateBaseBeanName(AnnotationMetadata importingClassMetadata, String subType, int index) {
         return importingClassMetadata.getClassName() + "#" + MapperScannerRegistrar.class.getSimpleName() + "#" + subType + "_" + index;
     }
@@ -148,7 +155,23 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
     static class RepeatingRegistrar extends MapperScannerRegistrar {
         @Override
         public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+            AnnotationAttributes mappingScansAttrs = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(MappingScans.class.getName()));
             AnnotationAttributes mapperScansAttrs = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(MapperScans.class.getName()));
+            if (mappingScansAttrs != null && mapperScansAttrs != null) {
+                throw new IllegalStateException("@MappingScans and @MapperScans can only use one of them");
+            }
+            if (mappingScansAttrs == null && mapperScansAttrs == null) {
+                return;
+            }
+
+            if (mappingScansAttrs != null) {
+                AnnotationAttributes[] annotations = mappingScansAttrs.getAnnotationArray("value");
+                for (int i = 0; i < annotations.length; i++) {
+                    String scanMapperFileBean = generateBaseBeanName(importingClassMetadata, "resource", i);
+                    registerMapperFileScannerBean(importingClassMetadata, annotations[i], registry, scanMapperFileBean);
+                }
+            }
+
             if (mapperScansAttrs != null) {
                 AnnotationAttributes[] annotations = mapperScansAttrs.getAnnotationArray("value");
                 for (int i = 0; i < annotations.length; i++) {
@@ -161,5 +184,4 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
             }
         }
     }
-
 }

@@ -154,6 +154,7 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
             String fileBeanName = MapperFileConfigurer.class.getName() + "#_auto";
 
             BeanDefinitionBuilder mapperBuilder = BeanDefinitionBuilder.genericBeanDefinition(MapperScannerConfigurer.class);
+            mapperBuilder.addPropertyValue("mapperDisabled", "${" + PREFIX + ".mapper-disabled:false}");
             mapperBuilder.addPropertyValue("processPropertyPlaceHolders", true);
             mapperBuilder.addPropertyValue("basePackage", "${" + PREFIX + ".mapper-packages:" + StringUtils.collectionToCommaDelimitedString(packages) + "}");
             mapperBuilder.addPropertyValue("mapperFactoryBeanClassName", "${" + PREFIX + ".mapper-factory-bean:}");
