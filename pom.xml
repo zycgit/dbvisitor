@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.hasor</groupId>
     <artifactId>hasor-parent</artifactId>
@@ -213,15 +213,16 @@
     <!-- 使用“-P release”启用下面配置 -->
     <profiles>
         <profile>
+            <id>jdk8</id>
             <activation>
-				<jdk>1.8</jdk>
-			</activation>
-			<properties>
-				<java_doc_additionalparam>-Xdoclint:none</java_doc_additionalparam>
-			</properties>
-		</profile>
-		<profile>
-			<id>release</id>
+                <jdk>1.8</jdk>
+            </activation>
+            <properties>
+                <java_doc_additionalparam>-Xdoclint:none</java_doc_additionalparam>
+            </properties>
+        </profile>
+        <profile>
+            <id>release</id>
             <properties>
                 <gpg.executable>gpg2</gpg.executable>
                 <gpg.passphrase>fubing220106</gpg.passphrase>
@@ -335,22 +336,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-</project>
-
-	<!-- Project Info -->
-	<name>Hasor</name>
-	<description>the parent pom for Hasor project.</description>
-
-	<!-- SCM -->
-	<scm>
-		<connection>scm:git:git@git.oschina.net:zycgit/hasor.git</connection>
-		<developerConnection>scm:git:git@git.oschina.net:zycgit/hasor.git</developerConnection>
-		<url>git@git.oschina.net:zycgit/hasor.git</url>
-	  	<tag>Release.Hasor-1.1.0</tag>
-  	</scm>
-
-	<!-- 模块 -->
-	<modules>
-		<module>hasor-core</module>
-	</modules>
 </project>
