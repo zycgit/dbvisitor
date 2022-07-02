@@ -1,6 +1,6 @@
 package com.example.demo.quick.dao2;
+import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.dal.repository.*;
-import net.hasor.dbvisitor.dal.session.BaseMapper;
 
 import java.util.List;
 

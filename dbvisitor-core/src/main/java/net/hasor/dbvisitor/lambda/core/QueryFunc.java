@@ -20,8 +20,10 @@ import net.hasor.dbvisitor.jdbc.RowMapper;
 import net.hasor.dbvisitor.page.Page;
 
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Query 复杂操作构造器。
@@ -100,4 +102,16 @@ public interface QueryFunc<R, T, P> extends BoundSqlBuilder {
     /** 生成 select count() 查询语句并查询总数。*/
     long queryForLargeCount() throws SQLException;
 
+    /** 迭代器方式获取 limit 条(-1 表示所有)，每批 200条。 */
+    default Iterator<T> queryForIterator(int limit) throws SQLException {
+        return this.queryForIterator(limit, r -> r, 200);
+    }
+
+    /** 迭代器方式获取 limit 条(-1 表示所有)，每批 200条。 */
+    default <D> Iterator<D> queryForIterator(int limit, Function<T, D> transform) throws SQLException {
+        return this.queryForIterator(limit, transform, 200);
+    }
+
+    /** 分页方式 获取每一条数据,并通过 transform 对变换 */
+    <D> Iterator<D> queryForIterator(int limit, Function<T, D> transform, int batchSize) throws SQLException;
 }

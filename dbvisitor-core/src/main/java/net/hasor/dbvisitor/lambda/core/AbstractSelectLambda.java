@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
+import net.hasor.cobble.ExceptionUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
@@ -32,9 +33,9 @@ import net.hasor.dbvisitor.page.PageObject;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import static net.hasor.dbvisitor.lambda.segment.OrderByKeyword.*;
 import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
@@ -311,9 +312,78 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
         }
 
         // if have any group by condition, then orderBy must be in groupBy
-
         String sqlQuery = sqlSegment.getSqlSegment();
         Object[] args = this.queryParam.toArray().clone();
         return new BoundSql.BoundSqlObj(sqlQuery, args);
+    }
+
+    @Override
+    public <D> Iterator<D> queryForIterator(int limit, Function<T, D> transform, int batchSize) {
+        Page pageInfo = new PageObject(batchSize, this::queryForCount);
+        pageInfo.setCurrentPage(0);
+        pageInfo.setPageNumberOffset(0);
+        return new StreamIterator<>(limit, pageInfo, this, transform);
+    }
+
+    private class StreamIterator<D> implements Iterator<D> {
+        private final Page                          pageInfo;
+        private final AbstractSelectLambda<R, T, P> lambda;
+        private       Iterator<T>                   currentIterator;
+        private final Function<T, D>                transform;
+        private final AtomicInteger                 counter;
+        private       boolean                       eof = false;
+
+        public StreamIterator(int limit, Page pageInfo, AbstractSelectLambda<R, T, P> lambda, Function<T, D> transform) {
+            this.counter = new AtomicInteger(limit);
+            this.pageInfo = pageInfo;
+            this.lambda = lambda;
+            this.transform = transform;
+        }
+
+        private synchronized void fetchData() {
+            try {
+                this.lambda.usePage(this.pageInfo);
+                List<T> queryResult = this.lambda.queryForList();
+                if (queryResult == null || queryResult.isEmpty()) {
+                    this.eof = true;
+                    this.currentIterator = Collections.emptyIterator();
+                } else {
+                    this.currentIterator = queryResult.iterator();
+                }
+            } catch (SQLException e) {
+                throw ExceptionUtils.toRuntime(e);
+            }
+        }
+
+        @Override
+        public synchronized boolean hasNext() {
+            if (this.counter.get() <= 0) {
+                return false;
+            }
+
+            if (this.currentIterator == null) {
+                this.fetchData();
+            }
+
+            if (this.currentIterator.hasNext()) {
+                return true;
+            } else if (!this.eof) {
+                this.pageInfo.nextPage();
+                this.fetchData();
+                return this.currentIterator.hasNext();
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public synchronized D next() {
+            if (this.hasNext()) {
+                this.counter.decrementAndGet();
+                return this.transform.apply(this.currentIterator.next());
+            } else {
+                throw new NoSuchElementException();
+            }
+        }
     }
 }

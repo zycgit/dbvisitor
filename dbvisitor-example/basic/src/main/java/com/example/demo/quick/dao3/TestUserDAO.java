@@ -1,7 +1,7 @@
 package com.example.demo.quick.dao3;
+import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.dal.repository.Param;
 import net.hasor.dbvisitor.dal.repository.RefMapper;
-import net.hasor.dbvisitor.dal.session.BaseMapper;
 
 import java.util.List;
 

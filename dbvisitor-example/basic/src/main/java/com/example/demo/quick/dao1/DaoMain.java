@@ -1,7 +1,7 @@
 package com.example.demo.quick.dao1;
 import com.example.demo.DsUtils;
 import com.example.demo.PrintUtils;
-import net.hasor.dbvisitor.dal.session.BaseMapper;
+import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.dal.session.DalSession;
 
 import javax.sql.DataSource;
