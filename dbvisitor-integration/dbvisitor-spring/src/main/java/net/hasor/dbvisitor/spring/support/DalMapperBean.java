@@ -53,10 +53,10 @@ import java.io.IOException;
  * @see Mapper
  */
 public class DalMapperBean extends AbstractSupportBean<Object> {
-    private static final Logger                  logger = LoggerFactory.getLogger(DalMapperBean.class);
-    private              DalSession              dalSession;
-    private              Class<? extends Mapper> mapperInterface;
-    private              Object                  mapperObject;
+    private static final Logger     logger = LoggerFactory.getLogger(DalMapperBean.class);
+    private              DalSession dalSession;
+    private              Class<?>   mapperInterface;
+    private              Object     mapperObject;
 
     @Override
     public void afterPropertiesSet() throws IOException {
@@ -92,7 +92,7 @@ public class DalMapperBean extends AbstractSupportBean<Object> {
         this.dalSession = dalSession;
     }
 
-    public void setMapperInterface(Class<? extends Mapper> mapperInterface) {
+    public void setMapperInterface(Class<?> mapperInterface) {
         this.mapperInterface = mapperInterface;
     }
 }

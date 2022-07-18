@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.spring.support;
+package net.hasor.dbvisitor.spring.adapter;
 import net.hasor.dbvisitor.dal.mapper.Mapper;
-import net.hasor.dbvisitor.transaction.ConnectionProxy;
-import net.hasor.dbvisitor.transaction.DataSourceUtils;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * <pre class="code">
  * {@code
  *     <bean id="dalSession" class="net.hasor.dbvisitor.spring.support.DalSessionBean">
  *         ...
- *         <property name="dsAdapterClass" value="net.hasor.dbvisitor.spring.support.DbVisitorDsAdapter"/>
+ *         <property name="dsAdapterClass" value="net.hasor.dbvisitor.spring.support.SpringDsAdapter"/>
  *         ...
  *     </bean>
  *
@@ -42,23 +40,22 @@ import java.sql.SQLException;
  * @author 赵永春 (zyc@hasor.net)
  * @see Mapper
  */
-public class DbVisitorDsAdapter extends AbstractDsAdapter {
-    public DbVisitorDsAdapter() {
+public class SpringDsAdapter extends AbstractDsAdapter {
+    public SpringDsAdapter() {
     }
 
-    public DbVisitorDsAdapter(DataSource dataSource) {
+    public SpringDsAdapter(DataSource dataSource) {
         this.setDataSource(dataSource);
     }
 
     @Override
     public Connection getConnection() {
         return DataSourceUtils.getConnection(this.getDataSource());
+
     }
 
     @Override
-    public void releaseConnection(Connection conn) throws SQLException {
-        if (conn instanceof ConnectionProxy) {
-            conn.close();
-        }
+    public void releaseConnection(Connection connection) {
+        DataSourceUtils.releaseConnection(connection, getDataSource());
     }
 }

@@ -19,6 +19,8 @@ import net.hasor.dbvisitor.dal.mapper.Mapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
+import net.hasor.dbvisitor.spring.adapter.AbstractDsAdapter;
+import net.hasor.dbvisitor.spring.adapter.SpringDsAdapter;
 
 import javax.sql.DataSource;
 import java.util.Objects;
