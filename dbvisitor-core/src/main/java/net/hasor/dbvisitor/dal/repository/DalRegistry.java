@@ -20,12 +20,12 @@ import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.dal.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dal.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dal.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.dal.repository.config.QuerySqlConfig;
 import net.hasor.dbvisitor.dal.repository.parser.ClassDynamicResolve;
 import net.hasor.dbvisitor.dal.repository.parser.DynamicResolve;
 import net.hasor.dbvisitor.dal.repository.parser.XmlDynamicResolve;
 import net.hasor.dbvisitor.dal.repository.parser.XmlTableMappingResolve;
-import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableDef;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
@@ -209,7 +209,8 @@ public class DalRegistry {
     public void loadMapper(InputStream stream) throws IOException {
         Objects.requireNonNull(stream, "load InputStream is null.");
         try {
-            Element root = loadXmlRoot(stream);
+            Document document = loadXmlRoot(stream);
+            Element root = document.getDocumentElement();
             NamedNodeMap rootAttributes = root.getAttributes();
 
             String namespace = "";
@@ -267,7 +268,9 @@ public class DalRegistry {
                         throw new FileNotFoundException("not found mapper file '" + resource + "'");
                     }
 
-                    Element root = loadXmlRoot(stream);
+                    Document document = loadXmlRoot(stream);
+                    Element root = document.getDocumentElement();
+
                     MappingOptions options = MappingOptions.resolveOptions(root, this.mappingOptions);
 
                     this.loadReader(namespace, root, options);
@@ -473,7 +476,7 @@ public class DalRegistry {
     // --------------------------------------------------------------------------------------------
     private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();
 
-    protected Element loadXmlRoot(InputStream stream) throws ParserConfigurationException, IOException, SAXException {
+    protected Document loadXmlRoot(InputStream stream) throws ParserConfigurationException, IOException, SAXException {
         if (stream == null) {
             throw new NullPointerException("stream is null.");
         }
@@ -495,8 +498,7 @@ public class DalRegistry {
                 return new DefaultHandler().resolveEntity(publicId, systemId);
             }
         });
-        Document document = documentBuilder.parse(new InputSource(stream));
-        return document.getDocumentElement();
+        return documentBuilder.parse(new InputSource(stream));
     }
 
     protected XmlTableMappingResolve getXmlTableMappingResolve() {

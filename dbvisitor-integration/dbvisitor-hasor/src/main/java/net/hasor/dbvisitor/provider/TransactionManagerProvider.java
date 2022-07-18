@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.transaction;
+package net.hasor.dbvisitor.provider;
+import net.hasor.dbvisitor.transaction.DataSourceUtils;
+import net.hasor.dbvisitor.transaction.TransactionManager;
+
 import javax.sql.DataSource;
 import java.util.function.Supplier;
 

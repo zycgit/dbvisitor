@@ -88,16 +88,4 @@ public class BaseLambdaTest extends AbstractDbTest {
             assert tbUser.get("account").equals("muhammad");
         }
     }
-
-    @Test
-    public void base_5() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplateProvider(dataSource).get();
-            Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
-                    .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
-                    .queryForMap();
-            assert tbUser.get("name").equals("默罕默德");
-            assert tbUser.get("account").equals("muhammad");
-        }
-    }
 }

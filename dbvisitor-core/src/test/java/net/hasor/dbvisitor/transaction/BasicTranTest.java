@@ -372,15 +372,4 @@ public class BasicTranTest extends AbstractDbTest {
             assert !DataSourceUtils.getHolder(dataSource).hasTransaction();
         }
     }
-
-    @Test
-    public void provider() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource()) {
-
-            TransactionManagerProvider managerProvider = new TransactionManagerProvider(dataSource);
-
-            assert managerProvider.get() == DataSourceUtils.getManager(dataSource);
-            assert managerProvider.get() == DataSourceUtils.getManager(dataSource);
-        }
-    }
 }

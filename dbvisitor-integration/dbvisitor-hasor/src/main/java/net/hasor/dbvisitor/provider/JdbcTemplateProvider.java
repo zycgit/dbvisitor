@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.jdbc.core;
+package net.hasor.dbvisitor.provider;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+
 import javax.sql.DataSource;
 import java.util.function.Supplier;
 
