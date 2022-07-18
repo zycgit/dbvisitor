@@ -54,16 +54,16 @@ import java.util.Set;
  * @since 1.2.0
  */
 public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
-    private static final Logger                         logger                 = LoggerFactory.getLogger(ClassPathMapperScanner.class);
-    private              boolean                        mapperDisabled;
-    private              Class<? extends Annotation>    annotationClass;
-    private              Class<?>                       markerInterface;
-    private              String                         dalSessionRef;
-    private              DalSession                     dalSession;
-    private              Class<? extends DalMapperBean> mapperFactoryBeanClass = DalMapperBean.class;
-    private              boolean                        lazyInitialization;
-    private              String                         defaultScope;
-    private              String                         dependsOn;
+    private static final Logger                      logger                 = LoggerFactory.getLogger(ClassPathMapperScanner.class);
+    private              boolean                     mapperDisabled;
+    private              Class<? extends Annotation> annotationClass;
+    private              Class<?>                    markerInterface;
+    private              String                      dalSessionRef;
+    private              DalSession                  dalSession;
+    private              Class<?>                    mapperFactoryBeanClass = DalMapperBean.class;
+    private              boolean                     lazyInitialization;
+    private              String                      defaultScope;
+    private              String                      dependsOn;
 
     public ClassPathMapperScanner(BeanDefinitionRegistry registry) {
         super(registry, false);
@@ -221,7 +221,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
         this.dalSession = dalSession;
     }
 
-    public void setMapperFactoryBeanClass(Class<? extends DalMapperBean> mapperFactoryBeanClass) {
+    public void setMapperFactoryBeanClass(Class<?> mapperFactoryBeanClass) {
         this.mapperFactoryBeanClass = mapperFactoryBeanClass;
     }
 

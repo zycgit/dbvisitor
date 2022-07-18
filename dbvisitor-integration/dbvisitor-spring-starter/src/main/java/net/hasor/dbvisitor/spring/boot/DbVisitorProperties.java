@@ -17,8 +17,6 @@ package net.hasor.dbvisitor.spring.boot;
 import net.hasor.dbvisitor.spring.support.DalMapperBean;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
-import org.springframework.context.annotation.Configuration;
 
 import java.lang.annotation.Annotation;
 
@@ -26,29 +24,19 @@ import static net.hasor.dbvisitor.spring.boot.DbVisitorProperties.PREFIX;
 
 @ConfigurationProperties(prefix = PREFIX)
 public class DbVisitorProperties {
-    public final static String        PREFIX = "dbvisitor";
-    @NestedConfigurationProperty
-    private             Configuration configuration;
-    private             String[]      mapperPackages;
-    private             String[]      mapperLocations;
+    public final static String   PREFIX = "dbvisitor";
+    private             String[] mapperPackages;
+    private             String[] mapperLocations;
 
-    private boolean                            mapperDisabled;
+    private Boolean                            mapperDisabled;
     private Class<? extends BeanNameGenerator> mapperNameGenerator;
     private Class<? extends DalMapperBean>     mapperFactoryBean;
-    private String                             mapperLazyInit;
+    private Boolean                            mapperLazyInit;
     private String                             mapperScope;
 
     private Class<? extends Annotation> markerAnnotation;
     private Class<?>                    markerInterface;
     private String                      refSessionBean;
-
-    public Configuration getConfiguration() {
-        return configuration;
-    }
-
-    public void setConfiguration(Configuration configuration) {
-        this.configuration = configuration;
-    }
 
     public String[] getMapperPackages() {
         return mapperPackages;
@@ -66,11 +54,11 @@ public class DbVisitorProperties {
         this.mapperLocations = mapperLocations;
     }
 
-    public boolean isMapperDisabled() {
+    public Boolean getMapperDisabled() {
         return this.mapperDisabled;
     }
 
-    public void setMapperDisabled(boolean mapperDisabled) {
+    public void setMapperDisabled(Boolean mapperDisabled) {
         this.mapperDisabled = mapperDisabled;
     }
 
@@ -90,11 +78,11 @@ public class DbVisitorProperties {
         this.mapperFactoryBean = mapperFactoryBean;
     }
 
-    public String getMapperLazyInit() {
+    public Boolean getMapperLazyInit() {
         return mapperLazyInit;
     }
 
-    public void setMapperLazyInit(String mapperLazyInit) {
+    public void setMapperLazyInit(Boolean mapperLazyInit) {
         this.mapperLazyInit = mapperLazyInit;
     }
 

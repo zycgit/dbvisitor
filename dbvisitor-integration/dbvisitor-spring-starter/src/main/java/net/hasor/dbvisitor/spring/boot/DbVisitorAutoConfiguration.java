@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.spring.boot;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.dal.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.dal.mapper.Mapper;
 import net.hasor.dbvisitor.dal.repository.DalMapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
@@ -79,9 +80,6 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
 
     public void afterPropertiesSet() {
         //
-        //dbvisitor.mapper-packages=com.example.demo.dao
-        //dbvisitor.mapper-locations=classpath:dbvisitor/mapper/*.xml
-        //#dbvisitor.ref-session-bean=
     }
 
     @Bean
@@ -150,29 +148,28 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
                 packages.forEach(pkg -> logger.debug("Using auto-configuration base package '" + pkg + "'"));
             }
 
-            String mapperBeanName = MapperScannerConfigurer.class.getName() + "#_auto";
-            String fileBeanName = MapperFileConfigurer.class.getName() + "#_auto";
+            String mapperBeanName = MapperScannerConfigurer.class.getName();
+            String fileBeanName = MapperFileConfigurer.class.getName();
 
             BeanDefinitionBuilder mapperBuilder = BeanDefinitionBuilder.genericBeanDefinition(MapperScannerConfigurer.class);
             mapperBuilder.addPropertyValue("mapperDisabled", "${" + PREFIX + ".mapper-disabled:false}");
             mapperBuilder.addPropertyValue("processPropertyPlaceHolders", true);
             mapperBuilder.addPropertyValue("basePackage", "${" + PREFIX + ".mapper-packages:" + StringUtils.collectionToCommaDelimitedString(packages) + "}");
             mapperBuilder.addPropertyValue("mapperFactoryBeanClassName", "${" + PREFIX + ".mapper-factory-bean:}");
-            mapperBuilder.addPropertyValue("defaultScope", "${" + PREFIX + ".mapper-scope:}");
+            mapperBuilder.addPropertyValue("defaultScope", "${" + PREFIX + ".mapper-scope:singleton}");
             mapperBuilder.addPropertyValue("lazyInitialization", "${" + PREFIX + ".mapper-lazy-initialization:false}");
             mapperBuilder.addPropertyValue("nameGeneratorName", "${" + PREFIX + ".mapper-name-generator:}");
             mapperBuilder.addPropertyValue("annotationClassName", "${" + PREFIX + ".marker-annotation:" + DalMapper.class.getName() + "}");
-            mapperBuilder.addPropertyValue("markerInterfaceName", "${" + PREFIX + ".marker-interface:}");
+            mapperBuilder.addPropertyValue("markerInterfaceName", "${" + PREFIX + ".marker-interface:" + Mapper.class.getName() + "}");
             mapperBuilder.addPropertyValue("dalSessionRef", "${" + PREFIX + ".ref-session-bean:}");
             mapperBuilder.addPropertyValue("dependsOn", fileBeanName);
             registry.registerBeanDefinition(mapperBeanName, mapperBuilder.getBeanDefinition());
 
             BeanDefinitionBuilder fileBuilder = BeanDefinitionBuilder.genericBeanDefinition(MapperFileConfigurer.class);
             mapperBuilder.addPropertyValue("processPropertyPlaceHolders", true);
-            fileBuilder.addPropertyValue("mapperLocations", "${" + PREFIX + ".mapper-locations:classpath:**/*.xml}");
+            fileBuilder.addPropertyValue("mapperLocations", "${" + PREFIX + ".mapper-locations:classpath*:/mapper/**/*.xml}");
             fileBuilder.addPropertyValue("dalSessionRef", "${" + PREFIX + ".ref-session-bean:}");
             registry.registerBeanDefinition(fileBeanName, fileBuilder.getBeanDefinition());
         }
     }
-
 }

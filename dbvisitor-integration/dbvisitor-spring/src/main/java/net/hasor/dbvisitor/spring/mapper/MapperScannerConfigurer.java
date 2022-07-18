@@ -41,22 +41,22 @@ import static org.springframework.util.Assert.notNull;
  * @see ClassPathMapperScanner
  */
 public class MapperScannerConfigurer extends AbstractConfigurer implements BeanDefinitionRegistryPostProcessor, InitializingBean {
-    private String                         basePackage;
-    private String                         nameGeneratorName;
-    private BeanNameGenerator              nameGenerator;
-    private String                         annotationClassName;
-    private Class<? extends Annotation>    annotationClass;
-    private String                         markerInterfaceName;
-    private Class<?>                       markerInterface;
-    private String                         dalSessionRef;
-    private DalSession                     dalSession;
-    private String                         mapperDisabled;
-    private String                         mapperFactoryBeanClassName;
-    private Class<? extends DalMapperBean> mapperFactoryBeanClass;
-    private String                         lazyInitialization;
-    private String                         defaultScope;
-    private boolean                        processPropertyPlaceHolders;
-    private String                         dependsOn;
+    private String                      basePackage;
+    private String                      nameGeneratorName;
+    private BeanNameGenerator           nameGenerator;
+    private String                      annotationClassName;
+    private Class<? extends Annotation> annotationClass;
+    private String                      markerInterfaceName;
+    private Class<?>                    markerInterface;
+    private String                      dalSessionRef;
+    private DalSession                  dalSession;
+    private String                      mapperDisabled;
+    private String                      mapperFactoryBeanClassName;
+    private Class<?>                    mapperFactoryBeanClass;
+    private String                      lazyInitialization;
+    private String                      defaultScope;
+    private boolean                     processPropertyPlaceHolders;
+    private String                      dependsOn;
 
     @Override
     public void afterPropertiesSet() {
@@ -80,7 +80,7 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
             this.markerInterface = tryToClass(this.markerInterfaceName);
         }
         if (this.mapperFactoryBeanClass == null && StringUtils.hasText(this.mapperFactoryBeanClassName)) {
-            this.mapperFactoryBeanClass = (Class<? extends DalMapperBean>) tryToClass(this.mapperFactoryBeanClassName);
+            this.mapperFactoryBeanClass = tryToClass(this.mapperFactoryBeanClassName);
         }
         if (this.nameGenerator == null && StringUtils.hasText(this.nameGeneratorName)) {
             Class<?> nameGeneratorClass = tryToClass(this.nameGeneratorName);

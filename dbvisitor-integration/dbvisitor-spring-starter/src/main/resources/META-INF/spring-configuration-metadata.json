@@ -1,0 +1,142 @@
+{
+  "groups": [
+    {
+      "name": "dbvisitor",
+      "type": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties"
+    },
+    {
+      "name": "dbvisitor.mapper-packages",
+      "type": "java.lang.String[]",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getMapperPackages()"
+    },
+    {
+      "name": "dbvisitor.mapper-locations",
+      "type": "java.lang.String[]",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getMapperLocations()"
+    },
+    {
+      "name": "dbvisitor.mapper-disabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getMapperDisabled()"
+    },
+    {
+      "name": "dbvisitor.mapper-factory-bean",
+      "type": "java.lang.Class",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getMapperFactoryBean()"
+    },
+    {
+      "name": "dbvisitor.mapper-scope",
+      "type": "java.lang.String",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getMapperScope()"
+    },
+    {
+      "name": "dbvisitor.mapper-lazy-initialization",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getMapperLazyInit()"
+    },
+    {
+      "name": "dbvisitor.mapper-name-generator",
+      "type": "java.lang.Class",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getMapperNameGenerator()"
+    },
+    {
+      "name": "dbvisitor.marker-annotation",
+      "type": "java.lang.Class",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getMarkerAnnotation()"
+    },
+    {
+      "name": "dbvisitor.marker-interface",
+      "type": "java.lang.Class",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getMarkerInterface()"
+    },
+    {
+      "name": "dbvisitor.ref-session-bean",
+      "type": "java.lang.String",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getRefSessionBean()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "dbvisitor.mapper-packages",
+      "type": "java.lang.String[]",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "auto-configuration base package.",
+      "defaultValue": ""
+    },
+    {
+      "name": "dbvisitor.mapper-locations",
+      "type": "java.lang.String[]",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "Location of dbVisitor xml mapper files.",
+      "defaultValue": "classpath*:/mapper/**/*.xml"
+    },
+    {
+      "name": "dbvisitor.mapper-disabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "don't add Mapper interface bean to Spring.",
+      "defaultValue": "false"
+    },
+    {
+      "name": "dbvisitor.mapper-factory-bean",
+      "type": "java.lang.Class",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "create mapper object factory bean.",
+      "defaultValue": "net.hasor.dbvisitor.spring.support.DalMapperBean"
+    },
+    {
+      "name": "dbvisitor.mapper-scope",
+      "type": "java.lang.String",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "create mapper object effective scope, default is 'singleton'",
+      "defaultValue": "net.hasor.dbvisitor.spring.support.DalMapperBean"
+    },
+    {
+      "name": "dbvisitor.mapper-lazy-initialization",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "create mapper object factory bean lazy init.",
+      "defaultValue": "false"
+    },
+    {
+      "name": "dbvisitor.mapper-name-generator",
+      "type": "java.lang.Class",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "mapper bean name generator.",
+      "defaultValue": ""
+    },
+    {
+      "name": "dbvisitor.marker-annotation",
+      "type": "java.lang.Class",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "mapper interface marker annotation type.",
+      "defaultValue": "net.hasor.dbvisitor.dal.repository.DalMapper"
+    },
+    {
+      "name": "dbvisitor.marker-interface",
+      "type": "java.lang.Class",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "mapper interface marker type.",
+      "defaultValue": "net.hasor.dbvisitor.dal.mapper.Mapper"
+    },
+    {
+      "name": "dbvisitor.ref-session-bean",
+      "type": "java.lang.String",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "mapper object use special DalSession.",
+      "defaultValue": ""
+    }
+  ],
+  "hints": []
+}
