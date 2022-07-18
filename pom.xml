@@ -48,6 +48,8 @@
         <module>dbvisitor-core</module>
         <module>dbvisitor-integration/dbvisitor-spring</module>
         <module>dbvisitor-integration/dbvisitor-spring-starter</module>
+        <module>dbvisitor-integration/dbvisitor-hasor</module>
+        <module>dbvisitor-integration/dbvisitor-guice</module>
     </modules>
 
     <!-- 引用依赖 -->

@@ -40,10 +40,7 @@ public class MultiDsTest {
 
     @Test
     public void getListTest() throws SQLException, IOException {
-        AppContext injector = Hasor.create().mainSettingWith("multi-hasor.properties").build(binder -> {
-            binder.installModule(new DbVisitorModule());
-        });
-
+        AppContext injector = Hasor.create().mainSettingWith("multi-hasor.properties").build(new DbVisitorModule());
         injector.justInject(this);
         this.dalSession.lambdaTemplate().loadSQL("CreateDB.sql");
 

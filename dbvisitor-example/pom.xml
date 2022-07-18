@@ -10,5 +10,7 @@
         <module>basic</module>
         <module>spring</module>
         <module>springboot</module>
+        <module>hasor</module>
+        <module>guice</module>
     </modules>
 </project>
