@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2010 the original author or authors.
+ * Copyright 2015-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker;
-import net.hasor.dbvisitor.faker.meta.JdbcSqlTypes;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
+import net.hasor.dbvisitor.faker.seed.SeedFactory;
 import net.hasor.dbvisitor.faker.seed.SeedType;
 
 /**
@@ -24,11 +24,13 @@ import net.hasor.dbvisitor.faker.seed.SeedType;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class FakerColumn {
-    private String       column;
-    private boolean      ignore;
-    private JdbcSqlTypes sqlType;
-    private SeedType     seedType;
-    private SeedConfig   seedConfig;
+    private String                          column;
+    private boolean                         ignore;
+    private Integer                         sqlType;
+    private Class<?>                        javaType;
+    private SeedType                        seedType;
+    private SeedConfig                      seedConfig;
+    private SeedFactory<SeedConfig, Object> seedFactory;
 
     public String getColumn() {
         return column;
@@ -46,12 +48,20 @@ public class FakerColumn {
         this.ignore = ignore;
     }
 
-    public JdbcSqlTypes getSqlType() {
+    public Integer getSqlType() {
         return sqlType;
     }
 
-    public void setSqlType(JdbcSqlTypes sqlType) {
+    public void setSqlType(Integer sqlType) {
         this.sqlType = sqlType;
+    }
+
+    public Class<?> getJavaType() {
+        return javaType;
+    }
+
+    public void setJavaType(Class<?> javaType) {
+        this.javaType = javaType;
     }
 
     public SeedType getSeedType() {
@@ -68,5 +78,13 @@ public class FakerColumn {
 
     public void setSeedConfig(SeedConfig seedConfig) {
         this.seedConfig = seedConfig;
+    }
+
+    public SeedFactory<SeedConfig, Object> getSeedFactory() {
+        return seedFactory;
+    }
+
+    public void setSeedFactory(SeedFactory<SeedConfig, Object> seedFactory) {
+        this.seedFactory = seedFactory;
     }
 }

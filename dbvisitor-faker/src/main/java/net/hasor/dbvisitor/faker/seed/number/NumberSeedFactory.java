@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2010 the original author or authors.
+ * Copyright 2015-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.faker.seed.RandomUtils;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
-import net.hasor.dbvisitor.faker.seed.string.characters.NumberCharacters;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -31,9 +30,6 @@ import java.util.function.Supplier;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class NumberSeedFactory implements SeedFactory<NumberSeedConfig, Number> {
-    private final NumberCharacters numberCharacters      = new NumberCharacters();
-    private final int              numberCharactersCount = numberCharacters.getSize();
-
     @Override
     public SeedConfig newConfig() {
         return new NumberSeedConfig();
@@ -96,7 +92,7 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig, Number> 
                 } else {
                     return decimal.byteValue();
                 }
-            case Sort:
+            case Short:
                 if (decimal.compareTo(BigDecimal.valueOf(Short.MIN_VALUE)) <= 0) {
                     return Short.MIN_VALUE;
                 } else {
@@ -141,7 +137,7 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig, Number> 
                 } else {
                     return decimal.byteValue();
                 }
-            case Sort:
+            case Short:
                 if (decimal.compareTo(BigDecimal.valueOf(Short.MAX_VALUE)) >= 0) {
                     return Short.MAX_VALUE;
                 } else {
@@ -182,7 +178,7 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig, Number> 
                 return (byte) (number.intValue() > 0 ? 1 : 0);
             case Byte:
                 return number.byteValue();
-            case Sort:
+            case Short:
                 return number.shortValue();
             case Integer:
                 return number.intValue();
@@ -201,7 +197,7 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig, Number> 
         switch (classType) {
             case Bool:
             case Byte:
-            case Sort:
+            case Short:
             case Integer:
             case Long:
                 long nextLong = 0;

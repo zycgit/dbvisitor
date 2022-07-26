@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2010 the original author or authors.
+ * Copyright 2015-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ package net.hasor.dbvisitor.faker.seed.string.characters;
  *       Latin Extended-E (U+AB30 to U+AB6F)
  */
 public class LatinCharacters extends AbstractUTF16Characters {
-
     private final Range[] ranges = new Range[] { new Range(0x0000, 0x007F), // Basic Latin (U+0000 to U+007F)
             new Range(0x0080, 0x00FF), // Latin-1 Supplement (U+0080 to U+00FF)
             new Range(0x0100, 0x017F), // Latin Extended-A (U+0100 to U+017F)

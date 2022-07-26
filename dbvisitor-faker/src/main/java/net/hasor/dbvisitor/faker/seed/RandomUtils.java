@@ -32,7 +32,6 @@ import java.util.Random;
  * @since 3.3
  */
 public class RandomUtils {
-
     /**
      * Random object used by random method. This has to be not local to the
      * random method so as to not return the same value in the same millisecond.

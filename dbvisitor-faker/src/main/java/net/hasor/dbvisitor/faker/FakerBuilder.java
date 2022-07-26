@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2010 the original author or authors.
+ * Copyright 2015-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,23 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.setting.SettingNode;
 import net.hasor.dbvisitor.faker.meta.*;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
+import net.hasor.dbvisitor.faker.seed.SeedFactory;
 import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedConfig;
+import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedFactory;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedConfig;
+import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedFactory;
 import net.hasor.dbvisitor.faker.seed.date.DateSeedConfig;
+import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
 import net.hasor.dbvisitor.faker.seed.date.DateType;
 import net.hasor.dbvisitor.faker.seed.number.NumberSeedConfig;
+import net.hasor.dbvisitor.faker.seed.number.NumberSeedFactory;
 import net.hasor.dbvisitor.faker.seed.number.NumberType;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedConfig;
+import net.hasor.dbvisitor.faker.seed.string.StringSeedFactory;
 import net.hasor.dbvisitor.faker.seed.string.characters.BitCharacters;
 import net.hasor.dbvisitor.faker.strategy.ConservativeStrategy;
 import net.hasor.dbvisitor.faker.strategy.Strategy;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -45,6 +52,7 @@ import static net.hasor.dbvisitor.faker.seed.string.StandardCharacterSet.*;
 public class FakerBuilder {
     private final JdbcFetchMetaProvider metaProvider;
     private final ClassLoader           classLoader;
+    private       TypeHandlerRegistry   typeHandlerRegistry;
 
     public FakerBuilder(Connection connection, ClassLoader classLoader) {
         this.metaProvider = new JdbcFetchMetaProvider(connection);
@@ -74,7 +82,8 @@ public class FakerBuilder {
         List<JdbcIndex> indexKeys = this.metaProvider.getIndexes(catalogName, schemaName, tableName);
 
         FakerTable fakerTable = new FakerTable();
-        fakerTable.setSchema(StringUtils.isNotBlank(table.getSchema()) ? table.getSchema() : table.getCatalog());
+        fakerTable.setSchema(table.getCatalog());
+        fakerTable.setSchema(table.getSchema());
         fakerTable.setTable(table.getTable());
 
         if (primaryKey != null) {
@@ -110,8 +119,8 @@ public class FakerBuilder {
 
         Strategy strategy = new ConservativeStrategy();
         if (StringUtils.isNotBlank(strategyType)) {
-            Class<?> seedFactoryType = this.classLoader.loadClass(strategyType);
-            strategy = (Strategy) seedFactoryType.newInstance();
+            Class<?> strategyClass = this.classLoader.loadClass(strategyType);
+            strategy = (Strategy) strategyClass.newInstance();
         }
 
         List<JdbcColumn> columns = this.metaProvider.getColumns(fakerTable.getCatalog(), fakerTable.getSchema(), fakerTable.getTable());
@@ -119,38 +128,28 @@ public class FakerBuilder {
         List<FakerColumn> columnList = new ArrayList<>();
         for (JdbcColumn jdbcColumn : columns) {
             SettingNode columnConfig = columnsConfig == null ? null : columnsConfig.getSubNode(jdbcColumn.getColumnName());
-            SeedConfig seedConfig = createSeedConfig(jdbcColumn, columnConfig, strategy);
-
-            FakerColumn fakerColumn = new FakerColumn();
-            fakerColumn.setColumn(jdbcColumn.getColumnName());
-            fakerColumn.setSqlType(jdbcColumn.getSqlType());
-            fakerColumn.setSeedType(seedConfig.getSeedType());
-            fakerColumn.setSeedConfig(seedConfig);
-            fakerColumn.setIgnore(ignoreSet.contains(jdbcColumn.getColumnName()));
-
+            FakerColumn fakerColumn = createFakerColumn(jdbcColumn, columnConfig, strategy, ignoreSet);
             columnList.add(fakerColumn);
         }
 
         return columnList;
     }
 
-    private SeedConfig createSeedConfig(JdbcColumn jdbcColumn, SettingNode columnConfig, Strategy strategy) throws Exception {
+    private FakerColumn createFakerColumn(JdbcColumn jdbcColumn, SettingNode columnConfig, Strategy strategy, Set<String> ignoreSet) throws Exception {
         // try use setting create it
-        SeedConfig seedConfig = this.createSeedConfig(columnConfig);
+        SeedFactory seedFactory = this.createSeedFactory(columnConfig);
+        SeedConfig seedConfig = null;
+        if (seedFactory != null) {
+            seedConfig = this.createSeedConfig(seedFactory, columnConfig);
+        }
 
         // use jdbcColumn create it
         if (seedConfig == null) {
-            seedConfig = this.createSeedConfig(jdbcColumn.getSqlType());
+            seedFactory = this.createSeedFactory(jdbcColumn.getSqlType());
+            seedConfig = this.createSeedConfig(seedFactory, jdbcColumn.getSqlType());
             if (seedConfig == null) {
-                throw new UnsupportedOperationException("默认不支持，同时没有找到对应的配置。");
+                throw new UnsupportedOperationException("SeedFactory not specified, or SqlType(" + jdbcColumn.getJdbcNumber() + ") Unsupported.");
             }
-
-            if (Boolean.TRUE.equals(jdbcColumn.getNullable())) {
-                seedConfig.setAllowNullable(true);
-                seedConfig.setNullableRatio(20f);
-            }
-
-            strategy.applyConfig(seedConfig, jdbcColumn); // first apply JdbcColumn strategy
         }
 
         // final apply form strategy
@@ -167,18 +166,20 @@ public class FakerBuilder {
             }
             BeanUtils.writeProperty(seedConfig, property, propertyValue);
         }
-        return seedConfig;
+
+        FakerColumn fakerColumn = new FakerColumn();
+        fakerColumn.setColumn(jdbcColumn.getColumnName());
+        fakerColumn.setSqlType(jdbcColumn.getJdbcNumber());
+        fakerColumn.setJavaType(confirmJavaType(seedConfig));
+        fakerColumn.setSeedType(seedConfig.getSeedType());
+        fakerColumn.setSeedConfig(seedConfig);
+        fakerColumn.setSeedFactory(seedFactory);
+        fakerColumn.setIgnore(ignoreSet.contains(jdbcColumn.getColumnName()));
+        return fakerColumn;
     }
 
-    private SeedConfig createSeedConfig(SettingNode settingConfig) throws ReflectiveOperationException {
-        String seedFactoryStr = settingConfig == null ? null : settingConfig.getSubValue("seedFactory");
-        if (StringUtils.isBlank(seedFactoryStr)) {
-            return null;
-        }
-
-        Class<?> seedFactoryType = this.classLoader.loadClass(seedFactoryStr);
-        SeedConfig seedConfig = (SeedConfig) seedFactoryType.newInstance();
-
+    private SeedConfig createSeedConfig(SeedFactory seedFactory, SettingNode settingConfig) {
+        SeedConfig seedConfig = seedFactory.newConfig();
         for (String subKey : settingConfig.getSubKeys()) {
             String[] subValue = settingConfig.getSubValues(subKey);
             if (subValue == null || subValue.length == 0) {
@@ -193,50 +194,53 @@ public class FakerBuilder {
         return seedConfig;
     }
 
-    private SeedConfig createSeedConfig(JdbcSqlTypes jdbcType) {
+    private SeedConfig createSeedConfig(SeedFactory seedFactory, JdbcSqlTypes jdbcType) {
+        if (jdbcType == null) {
+            return null;
+        }
         switch (jdbcType) {
             case BOOLEAN: {
-                return new BooleanSeedConfig();
+                return (BooleanSeedConfig) seedFactory.newConfig();
             }
             case BIT: {
-                StringSeedConfig config = new StringSeedConfig();
+                StringSeedConfig config = (StringSeedConfig) seedFactory.newConfig();
                 config.setCharacterSet(new HashSet<>(Collections.singletonList(new BitCharacters())));
                 return config;
             }
             case TINYINT: {
-                NumberSeedConfig config = new NumberSeedConfig();
+                NumberSeedConfig config = (NumberSeedConfig) seedFactory.newConfig();
                 config.setNumberType(NumberType.Byte);
                 return config;
             }
             case SMALLINT: {
-                NumberSeedConfig config = new NumberSeedConfig();
-                config.setNumberType(NumberType.Sort);
+                NumberSeedConfig config = (NumberSeedConfig) seedFactory.newConfig();
+                config.setNumberType(NumberType.Short);
                 return config;
             }
             case INTEGER: {
-                NumberSeedConfig config = new NumberSeedConfig();
+                NumberSeedConfig config = (NumberSeedConfig) seedFactory.newConfig();
                 config.setNumberType(NumberType.Integer);
                 return config;
             }
             case BIGINT: {
-                NumberSeedConfig config = new NumberSeedConfig();
+                NumberSeedConfig config = (NumberSeedConfig) seedFactory.newConfig();
                 config.setNumberType(NumberType.Long);
                 return config;
             }
             case FLOAT:
             case REAL: {
-                NumberSeedConfig config = new NumberSeedConfig();
+                NumberSeedConfig config = (NumberSeedConfig) seedFactory.newConfig();
                 config.setNumberType(NumberType.Float);
                 return config;
             }
             case DOUBLE: {
-                NumberSeedConfig config = new NumberSeedConfig();
+                NumberSeedConfig config = (NumberSeedConfig) seedFactory.newConfig();
                 config.setNumberType(NumberType.Double);
                 return config;
             }
             case NUMERIC:
             case DECIMAL: {
-                NumberSeedConfig config = new NumberSeedConfig();
+                NumberSeedConfig config = (NumberSeedConfig) seedFactory.newConfig();
                 config.setNumberType(NumberType.Decimal);
                 return config;
             }
@@ -248,7 +252,7 @@ public class FakerBuilder {
             case LONGNVARCHAR:
             case CLOB:
             case NCLOB: {
-                StringSeedConfig config = new StringSeedConfig();
+                StringSeedConfig config = (StringSeedConfig) seedFactory.newConfig();
                 config.setCharacterSet(new HashSet<>(Arrays.asList(CAPITAL_LETTER, SMALL_LETTER, NUMERIC)));
                 return config;
             }
@@ -256,30 +260,30 @@ public class FakerBuilder {
             case VARBINARY:
             case LONGVARBINARY:
             case BLOB: {
-                return new BytesSeedConfig();
+                return (BytesSeedConfig) seedFactory.newConfig();
             }
             case DATE: {
-                DateSeedConfig config = new DateSeedConfig();
+                DateSeedConfig config = (DateSeedConfig) seedFactory.newConfig();
                 config.setDateType(DateType.SqlDate);
                 return config;
             }
             case TIME: {
-                DateSeedConfig config = new DateSeedConfig();
+                DateSeedConfig config = (DateSeedConfig) seedFactory.newConfig();
                 config.setDateType(DateType.SqlTime);
                 return config;
             }
             case TIMESTAMP: {
-                DateSeedConfig config = new DateSeedConfig();
+                DateSeedConfig config = (DateSeedConfig) seedFactory.newConfig();
                 config.setDateType(DateType.SqlTimestamp);
                 return config;
             }
             case TIME_WITH_TIMEZONE: {
-                DateSeedConfig config = new DateSeedConfig();
+                DateSeedConfig config = (DateSeedConfig) seedFactory.newConfig();
                 config.setDateType(DateType.OffsetTime);
                 return config;
             }
             case TIMESTAMP_WITH_TIMEZONE: {
-                DateSeedConfig config = new DateSeedConfig();
+                DateSeedConfig config = (DateSeedConfig) seedFactory.newConfig();
                 config.setDateType(DateType.OffsetDateTime);
                 return config;
             }
@@ -294,6 +298,88 @@ public class FakerBuilder {
             case REF:
             case ROWID:
             case REF_CURSOR:
+            default:
+                return null;
+        }
+    }
+
+    private SeedFactory createSeedFactory(SettingNode settingConfig) throws ReflectiveOperationException {
+        String seedFactoryStr = settingConfig == null ? null : settingConfig.getSubValue("seedFactory");
+        if (StringUtils.isBlank(seedFactoryStr)) {
+            return null;
+        }
+
+        Class<?> seedFactoryType = this.classLoader.loadClass(seedFactoryStr);
+        return (SeedFactory) seedFactoryType.newInstance();
+    }
+
+    private SeedFactory createSeedFactory(JdbcSqlTypes jdbcType) {
+        switch (jdbcType) {
+            case BOOLEAN:
+                return new BooleanSeedFactory();
+            case TINYINT:
+            case SMALLINT:
+            case INTEGER:
+            case BIGINT:
+            case FLOAT:
+            case REAL:
+            case DOUBLE:
+            case NUMERIC:
+            case DECIMAL:
+                return new NumberSeedFactory();
+            case BIT:
+            case CHAR:
+            case NCHAR:
+            case VARCHAR:
+            case NVARCHAR:
+            case LONGVARCHAR:
+            case LONGNVARCHAR:
+            case CLOB:
+            case NCLOB:
+                return new StringSeedFactory();
+            case BINARY:
+            case VARBINARY:
+            case LONGVARBINARY:
+            case BLOB:
+                return new BytesSeedFactory();
+            case DATE:
+            case TIME:
+            case TIMESTAMP:
+            case TIME_WITH_TIMEZONE:
+            case TIMESTAMP_WITH_TIMEZONE:
+                return new DateSeedFactory();
+            case SQLXML:
+            case STRUCT:
+            case ARRAY:
+            case DATALINK:
+            case NULL:
+            case OTHER:
+            case JAVA_OBJECT:
+            case DISTINCT:
+            case REF:
+            case ROWID:
+            case REF_CURSOR:
+            default:
+                return null;
+        }
+    }
+
+    private Class<?> confirmJavaType(SeedConfig seedConfig) {
+        switch (seedConfig.getSeedType()) {
+            case Bytes:
+                return byte[].class;
+            case Date:
+                DateSeedConfig dateSeedConfig = (DateSeedConfig) seedConfig;
+                return dateSeedConfig.getDateType().getDateType();
+            case Number:
+                NumberSeedConfig numberSeedConfig = (NumberSeedConfig) seedConfig;
+                return numberSeedConfig.getNumberType().getDateType();
+            case String:
+            case Enums:
+                return String.class;
+            case Boolean:
+                return Boolean.class;
+            case Custom:
             default:
                 return null;
         }

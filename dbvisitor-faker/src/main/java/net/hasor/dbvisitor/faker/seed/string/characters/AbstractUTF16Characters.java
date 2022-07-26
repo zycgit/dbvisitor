@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2010 the original author or authors.
+ * Copyright 2015-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import java.util.Arrays;
  *   -  char 'A' utf16 code is '00 41' in range 0x00 -> 0xFF
  */
 public abstract class AbstractUTF16Characters implements Characters {
-
     public static class Range {
 
         private final int start;

@@ -48,7 +48,7 @@ public class NumberSeedFactoryTest {
     public void buildBytes_3() {
         NumberSeedFactory factory = new NumberSeedFactory();
         NumberSeedConfig genConfig = new NumberSeedConfig();
-        genConfig.setNumberType(NumberType.Sort);
+        genConfig.setNumberType(NumberType.Short);
         genConfig.setMin(BigDecimal.valueOf(202));
         genConfig.setMax(BigDecimal.valueOf(6400));
         genConfig.setAllowNullable(false);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2010 the original author or authors.
+ * Copyright 2015-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.util.Arrays;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class BoundSql {
-
     private final SqlType  sqlType;
     private final String   sqlString;
     private final SqlArg[] paramArray;
@@ -40,6 +39,10 @@ public class BoundSql {
         this.sqlType = sqlType;
         this.sqlString = sqlString;
         this.paramArray = paramArray;
+    }
+
+    public SqlType getSqlType() {
+        return this.sqlType;
     }
 
     public String getSqlString() {

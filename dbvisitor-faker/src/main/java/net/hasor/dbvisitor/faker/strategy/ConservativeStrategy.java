@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2010 the original author or authors.
+ * Copyright 2015-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,42 +46,12 @@ import static net.hasor.dbvisitor.faker.seed.string.StandardCharacterSet.*;
  */
 public class ConservativeStrategy implements Strategy {
     @Override
-    public void applyConfig(SeedConfig seedConfig) {
-        switch (seedConfig.getSeedType()) {
-            case Date:
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DateFormatType.s_yyyyMMdd_HHmmss.getDatePattern());
-                LocalDateTime now = LocalDateTime.now();
-                LocalDateTime rangeForm = now.plusYears(-200);
-                LocalDateTime rangeTo = now.plusYears(+200);
-
-                ((DateSeedConfig) seedConfig).setGenType(GenType.Random);
-                ((DateSeedConfig) seedConfig).setDateType(DateType.SqlDate);
-                ((DateSeedConfig) seedConfig).setRangeForm(formatter.format(rangeForm));
-                ((DateSeedConfig) seedConfig).setRangeTo(formatter.format(rangeTo));
-                break;
-            case String:
-                ((StringSeedConfig) seedConfig).setCharacterSet(new HashSet<>(Arrays.asList(CAPITAL_LETTER, SMALL_LETTER, NUMERIC)));
-                ((StringSeedConfig) seedConfig).setMinLength(10);
-                ((StringSeedConfig) seedConfig).setMaxLength(100);
-                break;
-            case Number:
-                ((NumberSeedConfig) seedConfig).setNumberType(NumberType.Integer);
-                ((NumberSeedConfig) seedConfig).setMin(BigDecimal.valueOf(0));
-                ((NumberSeedConfig) seedConfig).setMax(BigDecimal.valueOf(100));
-                break;
-            case Bytes:
-                ((BytesSeedConfig) seedConfig).setMinLength(10);
-                ((BytesSeedConfig) seedConfig).setMaxLength(100);
-                break;
-            case Boolean:
-            case Enums:
-            default:
-                break;
-        }
-    }
-
-    @Override
     public void applyConfig(SeedConfig seedConfig, JdbcColumn refer) {
+        if (Boolean.TRUE.equals(refer.getNullable())) {
+            seedConfig.setAllowNullable(true);
+            seedConfig.setNullableRatio(20f);
+        }
+
         switch (seedConfig.getSeedType()) {
             case Bytes: {
                 BytesSeedConfig bytesSeedConfig = (BytesSeedConfig) seedConfig;
