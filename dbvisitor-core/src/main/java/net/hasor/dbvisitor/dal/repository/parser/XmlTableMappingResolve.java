@@ -56,9 +56,11 @@ public class XmlTableMappingResolve implements TableMappingResolve<Node> {
         options = MappingOptions.resolveOptions(refData, options);
         NamedNodeMap nodeAttributes = refData.getAttributes();
         Node typeNode = nodeAttributes.getNamedItem("type");
+        Node catalogNode = nodeAttributes.getNamedItem("catalog");
         Node schemaNode = nodeAttributes.getNamedItem("schema");
         Node tableNode = nodeAttributes.getNamedItem("table");
         String type = (typeNode != null) ? typeNode.getNodeValue() : null;
+        String catalogName = (schemaNode != null) ? catalogNode.getNodeValue() : null;
         String schemaName = (schemaNode != null) ? schemaNode.getNodeValue() : null;
         String tableName = (tableNode != null) ? tableNode.getNodeValue() : null;
 
@@ -83,9 +85,8 @@ public class XmlTableMappingResolve implements TableMappingResolve<Node> {
                 tableName = humpToLine(entityType.getSimpleName(), options.getMapUnderscoreToCamelCase());
             }
 
-            TableDef<?> tableDef = new TableDef<>(schemaName, tableName, entityType, false, false, caseInsensitive, typeRegistry);
+            TableDef<?> tableDef = new TableDef<>(catalogName, schemaName, tableName, entityType, false, false, caseInsensitive, typeRegistry);
             loadTableMapping(tableDef, refData, classLoader, typeRegistry);
-
             return tableDef;
         }
     }

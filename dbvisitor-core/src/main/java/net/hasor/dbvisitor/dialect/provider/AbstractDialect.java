@@ -81,7 +81,7 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
     }
 
     @Override
-    public String tableName(boolean useQualifier, String schema, String table) {
+    public String tableName(boolean useQualifier, String catalog, String schema, String table) {
         if (StringUtils.isBlank(schema)) {
             return fmtName(useQualifier, table);
         } else {
@@ -90,7 +90,7 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
     }
 
     @Override
-    public String columnName(boolean useQualifier, String schema, String table, String column) {
+    public String columnName(boolean useQualifier, String catalog, String schema, String table, String column) {
         return fmtName(useQualifier, column);
     }
 

@@ -29,6 +29,9 @@ import java.util.Map;
  */
 public interface TableMapping<T> {
 
+    /** catalog */
+    String getCatalog();
+
     /** Schema */
     String getSchema();
 

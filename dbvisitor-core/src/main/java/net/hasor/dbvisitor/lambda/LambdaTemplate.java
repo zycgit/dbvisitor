@@ -219,13 +219,13 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         }
     }
 
-    protected TableMapping<?> getTableMapping(final String schema, final String table, MappingOptions options) throws SQLException {
+    protected TableMapping<?> getTableMapping(final String catalog, final String schema, final String table, MappingOptions options) throws SQLException {
         if (StringUtils.isBlank(table)) {
             throw new NullPointerException("table is blank.");
         }
 
-        String mappingName = String.format("'%s'.'%s'", schema, table);
-        TableMapping<?> mapping = this.mapMapping.get(mappingName);
+        String mappingKey = String.format("'%s'.'%s'.'%s'", catalog, schema, table); // mapping is map key
+        TableMapping<?> mapping = this.mapMapping.get(mappingKey);
         if (mapping != null) {
             return mapping;
         }
@@ -234,7 +234,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         opt.setCaseInsensitive(this.isResultsCaseInsensitive());
         boolean caseInsensitive = opt.getCaseInsensitive() == null || Boolean.TRUE.equals(opt.getCaseInsensitive());
 
-        final TableDef<?> defMap = new TableDef<>(schema, table, LinkedHashMap.class, true, true, caseInsensitive, getTypeRegistry());
+        final TableDef<?> defMap = new TableDef<>(catalog, schema, table, LinkedHashMap.class, true, true, caseInsensitive, getTypeRegistry());
         List<ColumnDef> columnDefs = execute((ConnectionCallback<List<ColumnDef>>) con -> {
             return fetchColumns(con, schema, table, opt);
         });
@@ -243,7 +243,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
             defMap.addMapping(cDef);
         }
 
-        this.mapMapping.put(mappingName, defMap);
+        this.mapMapping.put(mappingKey, defMap);
         return defMap;
     }
 
@@ -265,8 +265,8 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
     }
 
     @Override
-    public InsertOperation<Map<String, Object>> lambdaInsert(String schema, String table, MappingOptions options) throws SQLException {
-        return configDialect(new InsertLambdaForMap(getTableMapping(schema, table, options), this));
+    public InsertOperation<Map<String, Object>> lambdaInsert(String catalog, String schema, String table, MappingOptions options) throws SQLException {
+        return configDialect(new InsertLambdaForMap(getTableMapping(catalog, schema, table, options), this));
     }
 
     @Override
@@ -275,8 +275,8 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
     }
 
     @Override
-    public MapUpdateOperation lambdaUpdate(String schema, String table, MappingOptions options) throws SQLException {
-        return configDialect(new UpdateLambdaForMap(getTableMapping(schema, table, options), this));
+    public MapUpdateOperation lambdaUpdate(String catalog, String schema, String table, MappingOptions options) throws SQLException {
+        return configDialect(new UpdateLambdaForMap(getTableMapping(catalog, schema, table, options), this));
     }
 
     @Override
@@ -285,8 +285,8 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
     }
 
     @Override
-    public MapDeleteOperation lambdaDelete(String schema, String table, MappingOptions options) throws SQLException {
-        return configDialect(new DeleteLambdaForMap(getTableMapping(schema, table, options), this));
+    public MapDeleteOperation lambdaDelete(String catalog, String schema, String table, MappingOptions options) throws SQLException {
+        return configDialect(new DeleteLambdaForMap(getTableMapping(catalog, schema, table, options), this));
     }
 
     @Override
@@ -295,8 +295,8 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
     }
 
     @Override
-    public MapQueryOperation lambdaQuery(String schema, String table, MappingOptions options) throws SQLException {
-        return configDialect(new SelectLambdaForMap(getTableMapping(schema, table, options), this));
+    public MapQueryOperation lambdaQuery(String catalog, String schema, String table, MappingOptions options) throws SQLException {
+        return configDialect(new SelectLambdaForMap(getTableMapping(catalog, schema, table, options), this));
     }
 
 }

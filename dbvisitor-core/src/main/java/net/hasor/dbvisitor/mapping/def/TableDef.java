@@ -25,6 +25,7 @@ import java.util.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class TableDef<T> implements TableMapping<T> {
+    private       String              catalog;
     private       String              schema;
     private       String              table;
     private final Class<T>            entityType;
@@ -37,7 +38,8 @@ public class TableDef<T> implements TableMapping<T> {
     private final Map<String, ColumnMapping> mapByProperty;
     private final Map<String, ColumnMapping> mapByColumn;
 
-    public TableDef(String schema, String table, Class<T> entityType, boolean autoProperty, boolean useDelimited, boolean caseInsensitive, TypeHandlerRegistry typeHandlerRegistry) {
+    public TableDef(String catalog, String schema, String table, Class<T> entityType, boolean autoProperty, boolean useDelimited, boolean caseInsensitive, TypeHandlerRegistry typeHandlerRegistry) {
+        this.catalog = catalog;
         this.schema = schema;
         this.table = table;
         this.entityType = entityType;
@@ -48,6 +50,15 @@ public class TableDef<T> implements TableMapping<T> {
         this.mapByProperty = new HashMap<>();
         this.mapByColumn = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
         this.typeHandlerRegistry = typeHandlerRegistry;
+    }
+
+    @Override
+    public String getCatalog() {
+        return this.catalog;
+    }
+
+    public void setCatalog(String catalog) {
+        this.catalog = catalog;
     }
 
     @Override

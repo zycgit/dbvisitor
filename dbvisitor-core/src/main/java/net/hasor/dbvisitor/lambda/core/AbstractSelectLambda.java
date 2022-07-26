@@ -296,9 +296,10 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
         sqlSegment.addSegment(FROM);
         sqlSegment.addSegment(() -> {
             TableMapping<?> tableMapping = this.getTableMapping();
+            String catalogName = tableMapping.getCatalog();
             String schemaName = tableMapping.getSchema();
             String tableName = tableMapping.getTable();
-            return dialect.tableName(isQualifier(), schemaName, tableName);
+            return dialect.tableName(isQualifier(), catalogName, schemaName, tableName);
         });
 
         if (!this.queryTemplate.isEmpty()) {

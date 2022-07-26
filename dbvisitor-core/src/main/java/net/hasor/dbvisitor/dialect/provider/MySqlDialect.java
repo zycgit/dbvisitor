@@ -61,8 +61,8 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
     }
 
     @Override
-    public String insertWithInto(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
-        return buildSql("INSERT INTO ", useQualifier, schema, table, columns, "");
+    public String insertWithInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, "");
     }
 
     @Override
@@ -71,8 +71,8 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
     }
 
     @Override
-    public String insertWithIgnore(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
-        return buildSql("INSERT IGNORE ", useQualifier, schema, table, columns, "");
+    public String insertWithIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+        return buildSql("INSERT IGNORE ", useQualifier, catalog, schema, table, columns, "");
     }
 
     @Override
@@ -81,14 +81,14 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
     }
 
     @Override
-    public String insertWithUpsert(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
-        return buildSql("INSERT INTO ", useQualifier, schema, table, columns, " ON DUPLICATE KEY UPDATE");
+    public String insertWithUpsert(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, " ON DUPLICATE KEY UPDATE");
     }
 
-    protected String buildSql(String markString, boolean useQualifier, String schema, String table, List<String> columns, String appendSql) {
+    protected String buildSql(String markString, boolean useQualifier, String catalog, String schema, String table, List<String> columns, String appendSql) {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append(markString);
-        strBuilder.append(tableName(useQualifier, schema, table));
+        strBuilder.append(tableName(useQualifier, catalog, schema, table));
         strBuilder.append(" ");
         strBuilder.append("(");
 
@@ -98,7 +98,7 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
                 strBuilder.append(", ");
                 argBuilder.append(", ");
             }
-            strBuilder.append(columnName(useQualifier, schema, table, columns.get(i)));
+            strBuilder.append(columnName(useQualifier, catalog, schema, table, columns.get(i)));
             argBuilder.append("?");
         }
 

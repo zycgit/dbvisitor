@@ -169,10 +169,11 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     protected BoundSql dialectInsert(SqlDialect dialect) {
         boolean isInsertSqlDialect = dialect instanceof InsertSqlDialect;
         TableMapping<?> tableMapping = this.getTableMapping();
+        String catalogName = tableMapping.getCatalog();
         String schemaName = tableMapping.getSchema();
         String tableName = tableMapping.getTable();
         if (!isInsertSqlDialect) {
-            String sqlString = defaultDialectInsert(this.isQualifier(), schemaName, tableName, this.insertColumns, dialect);
+            String sqlString = defaultDialectInsert(this.isQualifier(), catalogName, schemaName, tableName, this.insertColumns, dialect);
             return buildBatchBoundSql(sqlString);
         }
 
@@ -180,7 +181,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
             case Into: {
                 InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
                 if (insertDialect.supportInsertInto(this.primaryKeys, this.insertColumns)) {
-                    String sqlString = insertDialect.insertWithInto(this.isQualifier(), schemaName, tableName, this.primaryKeys, this.insertColumns);
+                    String sqlString = insertDialect.insertWithInto(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns);
                     return buildBatchBoundSql(sqlString);
                 }
                 break;
@@ -188,7 +189,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
             case Ignore: {
                 InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
                 if (insertDialect.supportInsertIgnore(this.primaryKeys, this.insertColumns)) {
-                    String sqlString = insertDialect.insertWithIgnore(this.isQualifier(), schemaName, tableName, this.primaryKeys, this.insertColumns);
+                    String sqlString = insertDialect.insertWithIgnore(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns);
                     return buildBatchBoundSql(sqlString);
                 }
                 break;
@@ -196,7 +197,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
             case Update: {
                 InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
                 if (insertDialect.supportUpsert(this.primaryKeys, this.insertColumns)) {
-                    String sqlString = insertDialect.insertWithUpsert(this.isQualifier(), schemaName, tableName, this.primaryKeys, this.insertColumns);
+                    String sqlString = insertDialect.insertWithUpsert(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns);
                     return buildBatchBoundSql(sqlString);
                 }
                 break;
@@ -213,10 +214,10 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         return new BatchBoundSql.BatchBoundSqlObj(batchSql, args);
     }
 
-    protected String defaultDialectInsert(boolean useQualifier, String schema, String table, List<String> columns, SqlDialect dialect) {
+    protected String defaultDialectInsert(boolean useQualifier, String catalog, String schema, String table, List<String> columns, SqlDialect dialect) {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("INSERT INTO ");
-        strBuilder.append(dialect.tableName(useQualifier, schema, table));
+        strBuilder.append(dialect.tableName(useQualifier, catalog, schema, table));
         strBuilder.append(" ");
         strBuilder.append("(");
 
@@ -226,7 +227,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
                 strBuilder.append(", ");
                 argBuilder.append(", ");
             }
-            strBuilder.append(dialect.columnName(useQualifier, schema, table, columns.get(i)));
+            strBuilder.append(dialect.columnName(useQualifier, catalog, schema, table, columns.get(i)));
             argBuilder.append("?");
         }
 

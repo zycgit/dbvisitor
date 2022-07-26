@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
-import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
@@ -118,17 +117,18 @@ public abstract class BasicLambda<R, T, P> {
 
     protected Segment buildColumnByProperty(String propertyName) {
         TableMapping<?> tableMapping = this.getTableMapping();
+        String catalogName = tableMapping.getCatalog();
         String schemaName = tableMapping.getSchema();
         String tableName = tableMapping.getTable();
         ColumnMapping propertyInfo = tableMapping.getPropertyByName(propertyName);
 
         if (propertyInfo == null) {
-            String tab = StringUtils.isBlank(schemaName) ? ("'" + tableName + "'") : ("'" + schemaName + "'.'" + tableName + "'");
+            String tab = this.dialect.tableName(true, catalogName, schemaName, tableName);
             throw new NullPointerException("tableMapping '" + tab + "', property '" + propertyName + "' is not exist.");
         }
 
         String columnName = propertyInfo.getColumn();
-        return () -> dialect().columnName(isQualifier(), schemaName, tableName, columnName);
+        return () -> dialect().columnName(isQualifier(), catalogName, schemaName, tableName, columnName);
     }
 
     public final BoundSql getBoundSql() {
@@ -153,5 +153,4 @@ public abstract class BasicLambda<R, T, P> {
     protected abstract BoundSql buildBoundSql(SqlDialect dialect);
 
     protected abstract R getSelf();
-
 }

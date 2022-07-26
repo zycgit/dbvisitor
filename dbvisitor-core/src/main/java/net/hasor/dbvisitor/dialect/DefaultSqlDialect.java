@@ -44,7 +44,7 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     }
 
     @Override
-    public String tableName(boolean useQualifier, String schema, String table) {
+    public String tableName(boolean useQualifier, String catalog, String schema, String table) {
         if (StringUtils.isBlank(schema)) {
             return table;
         } else {
@@ -53,7 +53,7 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     }
 
     @Override
-    public String columnName(boolean useQualifier, String schema, String table, String column) {
+    public String columnName(boolean useQualifier, String catalog, String schema, String table, String column) {
         return column;
     }
 
@@ -73,10 +73,10 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     }
 
     @Override
-    public String insertWithInto(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertWithInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("INSERT INTO ");
-        strBuilder.append(tableName(useQualifier, schema, table));
+        strBuilder.append(tableName(useQualifier, catalog, schema, table));
         strBuilder.append(" ");
         strBuilder.append("(");
 
@@ -86,7 +86,7 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
                 strBuilder.append(", ");
                 argBuilder.append(", ");
             }
-            strBuilder.append(columnName(useQualifier, schema, table, columns.get(i)));
+            strBuilder.append(columnName(useQualifier, catalog, schema, table, columns.get(i)));
             argBuilder.append("?");
         }
 
@@ -102,7 +102,7 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     }
 
     @Override
-    public String insertWithIgnore(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertWithIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
         throw new UnsupportedOperationException();
     }
 
@@ -112,7 +112,7 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     }
 
     @Override
-    public String insertWithUpsert(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertWithUpsert(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
         throw new UnsupportedOperationException();
     }
 

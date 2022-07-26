@@ -83,6 +83,7 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
     protected TableDef<?> resolveTable(Class<?> entityType, MappingOptions options, TypeHandlerRegistry typeRegistry) {
         if (entityType.isAnnotationPresent(Table.class)) {
             Table defTable = entityType.getAnnotation(Table.class);
+            String catalog = defTable.catalog();
             String schema = defTable.schema();
             String table = StringUtils.isNotBlank(defTable.name()) ? defTable.name() : StringUtils.isNotBlank(defTable.value()) ? defTable.value() : entityType.getSimpleName();
 
@@ -95,11 +96,10 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
             boolean autoProperty = defTable.autoMapping();
             boolean useDelimited = defTable.useDelimited();
             boolean caseInsensitive = defTable.caseInsensitive() || options.getCaseInsensitive() == null || Boolean.TRUE.equals(options.getCaseInsensitive());
-            return new TableDef<>(schema, table, entityType, autoProperty, useDelimited, caseInsensitive, typeRegistry);
+            return new TableDef<>(catalog, schema, table, entityType, autoProperty, useDelimited, caseInsensitive, typeRegistry);
         } else {
-
             String tableName = hump2Line(entityType.getSimpleName(), options.getMapUnderscoreToCamelCase());
-            return new TableDef<>(null, tableName, entityType, true, false, true, typeRegistry);
+            return new TableDef<>(null, null, tableName, entityType, true, false, true, typeRegistry);
         }
     }
 

@@ -30,8 +30,8 @@ public interface SqlDialect {
     String rightQualifier();
 
     /** 生成 form 后面的表名 */
-    String tableName(boolean useQualifier, String schema, String table);
+    String tableName(boolean useQualifier, String catalog, String schema, String table);
 
     /** 生成 where 中用到的条件名（包括 group by、order by） */
-    String columnName(boolean useQualifier, String schema, String table, String column);
+    String columnName(boolean useQualifier, String catalog, String schema, String table, String column);
 }

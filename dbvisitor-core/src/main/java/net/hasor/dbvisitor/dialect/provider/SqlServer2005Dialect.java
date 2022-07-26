@@ -33,9 +33,12 @@ public class SqlServer2005Dialect extends AbstractDialect implements PageSqlDial
         if (this.keywords().contains(fmtString.toUpperCase()) || fmtString.contains(" ")) {
             useQualifier = true;
         }
-        String leftQualifier = useQualifier ? leftQualifier() : "";
-        String rightQualifier = useQualifier ? rightQualifier() : "";
-        return leftQualifier + fmtString.replace("]", "]]") + rightQualifier;
+
+        if (useQualifier) {
+            return leftQualifier() + fmtString.replace("]", "]]") + rightQualifier();
+        } else {
+            return fmtString;
+        }
     }
 
     public String leftQualifier() {

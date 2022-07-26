@@ -60,9 +60,10 @@ public abstract class AbstractDeleteLambda<R, T, P> extends BasicQueryCompare<R,
 
         // tableName
         TableMapping<?> tableMapping = this.getTableMapping();
+        String catalogName = tableMapping.getCatalog();
         String schemaName = tableMapping.getSchema();
         String tableName = tableMapping.getTable();
-        updateTemplate.addSegment(() -> dialect().tableName(isQualifier(), schemaName, tableName));
+        updateTemplate.addSegment(() -> dialect().tableName(isQualifier(), catalogName, schemaName, tableName));
 
         // WHERE
         if (!this.queryTemplate.isEmpty()) {

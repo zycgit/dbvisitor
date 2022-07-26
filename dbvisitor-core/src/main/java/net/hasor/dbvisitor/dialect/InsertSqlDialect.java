@@ -26,15 +26,15 @@ public interface InsertSqlDialect extends SqlDialect {
     /** 是否支持 insert into */
     boolean supportInsertInto(List<String> primaryKey, List<String> columns);
 
-    String insertWithInto(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
+    String insertWithInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns);
 
     /** 是否支持 insert ignore */
     boolean supportInsertIgnore(List<String> primaryKey, List<String> columns);
 
-    String insertWithIgnore(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
+    String insertWithIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns);
 
     /** 是否支持 insert replace */
     boolean supportUpsert(List<String> primaryKey, List<String> columns);
 
-    String insertWithUpsert(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns);
+    String insertWithUpsert(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns);
 }
