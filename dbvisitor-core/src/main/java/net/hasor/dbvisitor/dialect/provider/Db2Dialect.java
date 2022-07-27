@@ -29,7 +29,7 @@ public class Db2Dialect extends AbstractDialect implements PageSqlDialect {
     }
 
     @Override
-    public BoundSql pageSql(BoundSql boundSql, int start, int limit) {
+    public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("SELECT * FROM (SELECT TMP_PAGE.*,ROWNUMBER() OVER() AS ROW_ID FROM ( ");
         sqlBuilder.append(boundSql.getSqlString());

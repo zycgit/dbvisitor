@@ -27,43 +27,43 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class PageObject implements Page {
     /** 满足条件的总记录数 */
-    private       ESupplier<Integer, SQLException> totalCountSupplier = () -> 0;
-    private       int                              totalCount         = 0;
-    private final AtomicBoolean                    totalCountInited   = new AtomicBoolean(false);
+    private       ESupplier<Long, SQLException> totalCountSupplier = () -> 0L;
+    private       long                          totalCount         = 0;
+    private final AtomicBoolean                 totalCountInited   = new AtomicBoolean(false);
     /** 每页记录数（-1表示无限大）*/
-    private       int                              pageSize           = 0;
+    private       long                          pageSize           = 0;
     /** 当前页号 */
-    private       int                              currentPage        = 0;
+    private       long                          currentPage        = 0;
     /** 起始页码的偏移量 */
-    private       int                              pageNumberOffset   = 0;
+    private       long                          pageNumberOffset   = 0;
 
     public PageObject() {
-        this.totalCountSupplier = () -> 0;
+        this.totalCountSupplier = () -> 0L;
     }
 
-    public PageObject(int pageSize, int totalCount) {
+    public PageObject(long pageSize, long totalCount) {
         this.pageSize = pageSize;
         this.totalCount = totalCount;
         this.totalCountInited.set(true);
     }
 
-    public PageObject(int pageSize, ESupplier<Integer, SQLException> totalCountSupplier) {
+    public PageObject(long pageSize, ESupplier<Long, SQLException> totalCountSupplier) {
         Objects.requireNonNull(totalCountSupplier, "totalCountSupplier is null.");
         this.pageSize = pageSize;
         this.totalCountSupplier = totalCountSupplier;
     }
 
-    public int getPageSize() {
+    public long getPageSize() {
         return this.pageSize;
     }
 
     /** 设置分页的页大小 */
-    public void setPageSize(int pageSize) {
+    public void setPageSize(long pageSize) {
         this.pageSize = Math.max(pageSize, 0);
     }
 
     /**取当前页号 */
-    public int getCurrentPage() {
+    public long getCurrentPage() {
         if (this.pageSize > 0) {
             return this.currentPage + this.pageNumberOffset;
         } else {
@@ -72,7 +72,7 @@ public class PageObject implements Page {
     }
 
     /** 设置前页号 */
-    public void setCurrentPage(int currentPage) {
+    public void setCurrentPage(long currentPage) {
         if (currentPage <= this.pageNumberOffset) {
             this.currentPage = 0;
         } else {
@@ -80,17 +80,17 @@ public class PageObject implements Page {
         }
     }
 
-    public int getPageNumberOffset() {
+    public long getPageNumberOffset() {
         return this.pageNumberOffset;
     }
 
-    public void setPageNumberOffset(int pageNumberOffset) {
+    public void setPageNumberOffset(long pageNumberOffset) {
         this.pageNumberOffset = Math.max(pageNumberOffset, 0);
     }
 
     /** 获取本页第一个记录的索引位置 */
-    public int getFirstRecordPosition() {
-        int pgSize = getPageSize();
+    public long getFirstRecordPosition() {
+        long pgSize = getPageSize();
         if (pgSize <= 0) {
             return 0;
         }
@@ -98,20 +98,20 @@ public class PageObject implements Page {
     }
 
     /** 获取总页数 */
-    public int getTotalPage() throws SQLException {
-        int pgSize = getPageSize();
+    public long getTotalPage() throws SQLException {
+        long pgSize = getPageSize();
         if (pgSize > 0) {
-            int totalCount = getTotalCount();
+            long totalCount = getTotalCount();
             if (totalCount == 0) {
                 return this.pageNumberOffset;
             }
-            int result = totalCount / pgSize;
+            long result = totalCount / pgSize;
             if ((totalCount % pgSize) != 0) {
                 result++;
             }
             return result + this.pageNumberOffset;
         } else {
-            int totalCount = getTotalCount();
+            long totalCount = getTotalCount();
             if (totalCount > 0) {
                 return this.pageNumberOffset + 1;
             } else {
@@ -121,7 +121,7 @@ public class PageObject implements Page {
     }
 
     /** 获取记录总数 */
-    public int getTotalCount() throws SQLException {
+    public long getTotalCount() throws SQLException {
         if (this.totalCountInited.compareAndSet(false, true)) {
             this.totalCount = this.totalCountSupplier.eGet();
         }

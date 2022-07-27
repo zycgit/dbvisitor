@@ -34,7 +34,7 @@ import net.hasor.dbvisitor.page.PageObject;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 import static net.hasor.dbvisitor.lambda.segment.OrderByKeyword.*;
@@ -49,7 +49,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
     protected final MergeSqlSegment customSelect = new MergeSqlSegment();
     protected final MergeSqlSegment groupByList  = new MergeSqlSegment();
     protected final MergeSqlSegment orderByList  = new MergeSqlSegment();
-    private final   Page            pageInfo     = new PageObject(0, this::queryForCount);
+    private final   Page            pageInfo     = new PageObject(0, this::queryForLargeCount);
     private         boolean         lockGroupBy  = false;
     private         boolean         lockOrderBy  = false;
 
@@ -271,10 +271,10 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
 
     @Override
     protected BoundSql buildBoundSql(final SqlDialect dialect) {
-        int pageSize = pageInfo().getPageSize();
+        long pageSize = pageInfo().getPageSize();
         if (pageSize > 0) {
             BoundSql sqlWithoutPage = buildBoundSqlWithoutPage(dialect);
-            int position = pageInfo().getFirstRecordPosition();
+            long position = pageInfo().getFirstRecordPosition();
             return ((PageSqlDialect) dialect).pageSql(sqlWithoutPage, position, pageSize);
         } else {
             return buildBoundSqlWithoutPage(dialect);
@@ -319,8 +319,8 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
     }
 
     @Override
-    public <D> Iterator<D> queryForIterator(int limit, Function<T, D> transform, int batchSize) {
-        Page pageInfo = new PageObject(batchSize, this::queryForCount);
+    public <D> Iterator<D> queryForIterator(long limit, Function<T, D> transform, int batchSize) {
+        Page pageInfo = new PageObject(batchSize, this::queryForLargeCount);
         pageInfo.setCurrentPage(0);
         pageInfo.setPageNumberOffset(0);
         return new StreamIterator<>(limit, pageInfo, this, transform);
@@ -331,11 +331,11 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
         private final AbstractSelectLambda<R, T, P> lambda;
         private       Iterator<T>                   currentIterator;
         private final Function<T, D>                transform;
-        private final AtomicInteger                 counter;
+        private final AtomicLong                    counter;
         private       boolean                       eof = false;
 
-        public StreamIterator(int limit, Page pageInfo, AbstractSelectLambda<R, T, P> lambda, Function<T, D> transform) {
-            this.counter = new AtomicInteger(limit);
+        public StreamIterator(long limit, Page pageInfo, AbstractSelectLambda<R, T, P> lambda, Function<T, D> transform) {
+            this.counter = new AtomicLong(limit);
             this.pageInfo = pageInfo;
             this.lambda = lambda;
             this.transform = transform;

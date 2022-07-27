@@ -33,7 +33,7 @@ public class XuGuDialect extends AbstractDialect implements PageSqlDialect {
     }
 
     @Override
-    public BoundSql pageSql(BoundSql boundSql, int start, int limit) {
+    public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
         StringBuilder sqlBuilder = new StringBuilder(boundSql.getSqlString());
         List<Object> paramArrays = new ArrayList<>(Arrays.asList(boundSql.getArgs()));
 

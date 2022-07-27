@@ -33,7 +33,7 @@ public class HiveDialect extends AbstractDialect implements PageSqlDialect {
     }
 
     @Override
-    public BoundSql pageSql(BoundSql boundSql, int start, int limit) {
+    public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
         throw new UnsupportedOperationException();
     }
 }

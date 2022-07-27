@@ -45,7 +45,7 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
     }
 
     @Override
-    public BoundSql pageSql(BoundSql boundSql, int start, int limit) {
+    public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
         String sqlString = boundSql.getSqlString();
         List<Object> paramArrays = new ArrayList<>(Arrays.asList(boundSql.getArgs()));
 
@@ -68,7 +68,7 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
     public String insertWithInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("INSERT INTO ");
-        strBuilder.append(tableName(useQualifier, , schema, table));
+        strBuilder.append(tableName(useQualifier, catalog, schema, table));
         strBuilder.append(" (");
 
         StringBuilder argBuilder = new StringBuilder();
@@ -77,7 +77,7 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
                 strBuilder.append(", ");
                 argBuilder.append(", ");
             }
-            strBuilder.append(columnName(useQualifier, , schema, table, columns.get(i)));
+            strBuilder.append(columnName(useQualifier, catalog, schema, table, columns.get(i)));
             argBuilder.append("?");
         }
 
@@ -96,9 +96,9 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
     public String insertWithIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
         StringBuilder mergeBuilder = new StringBuilder();
 
-        buildMergeInfoBasic(useQualifier, schema, table, primaryKey, columns, mergeBuilder);
+        buildMergeInfoBasic(useQualifier, catalog, schema, table, primaryKey, columns, mergeBuilder);
 
-        buildMergeInfoWhenNotMatched(useQualifier, schema, table, columns, mergeBuilder);
+        buildMergeInfoWhenNotMatched(useQualifier, catalog, schema, table, columns, mergeBuilder);
 
         return mergeBuilder.toString();
     }
@@ -112,17 +112,17 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
     public String insertWithUpsert(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
         StringBuilder mergeBuilder = new StringBuilder();
 
-        buildMergeInfoBasic(useQualifier, schema, table, primaryKey, columns, mergeBuilder);
+        buildMergeInfoBasic(useQualifier, catalog, schema, table, primaryKey, columns, mergeBuilder);
 
-        buildMergeInfoWhenMatched(useQualifier, schema, table, columns, mergeBuilder);
-        buildMergeInfoWhenNotMatched(useQualifier, schema, table, columns, mergeBuilder);
+        buildMergeInfoWhenMatched(useQualifier, catalog, schema, table, columns, mergeBuilder);
+        buildMergeInfoWhenNotMatched(useQualifier, catalog, schema, table, columns, mergeBuilder);
 
         return mergeBuilder.toString();
     }
 
-    private void buildMergeInfoBasic(boolean useQualifier, String schema, String table, List<String> primaryKey, List<String> columns, StringBuilder mergeBuilder) {
+    private void buildMergeInfoBasic(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, StringBuilder mergeBuilder) {
         mergeBuilder.append("MERGE INTO ");
-        mergeBuilder.append(tableName(useQualifier, , schema, table));
+        mergeBuilder.append(tableName(useQualifier, catalog, schema, table));
         mergeBuilder.append(" TMP USING (SELECT ");
 
         for (int i = 0; i < columns.size(); i++) {
@@ -131,7 +131,7 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
             }
 
             mergeBuilder.append("? ");
-            mergeBuilder.append(columnName(useQualifier, , schema, table, columns.get(i)));
+            mergeBuilder.append(columnName(useQualifier, catalog, schema, table, columns.get(i)));
         }
 
         mergeBuilder.append(" FROM dual ) SRC ON (");
@@ -139,13 +139,13 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
             if (i != 0) {
                 mergeBuilder.append(" AND ");
             }
-            String pkColumn = columnName(useQualifier, , schema, table, primaryKey.get(i));
+            String pkColumn = columnName(useQualifier, catalog, schema, table, primaryKey.get(i));
             mergeBuilder.append("TMP." + pkColumn + " = SRC." + pkColumn);
         }
         mergeBuilder.append(") ");
     }
 
-    private void buildMergeInfoWhenNotMatched(boolean useQualifier, String schema, String table, List<String> allColumns, StringBuilder mergeBuilder) {
+    private void buildMergeInfoWhenNotMatched(boolean useQualifier, String catalog, String schema, String table, List<String> allColumns, StringBuilder mergeBuilder) {
         mergeBuilder.append("WHEN NOT MATCHED THEN ");
         mergeBuilder.append("INSERT (");
 
@@ -155,8 +155,8 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
                 mergeBuilder.append(", ");
                 argBuilder.append(", ");
             }
-            mergeBuilder.append(columnName(useQualifier, , schema, table, allColumns.get(i)));
-            argBuilder.append("SRC.").append(columnName(useQualifier, , schema, table, allColumns.get(i)));
+            mergeBuilder.append(columnName(useQualifier, catalog, schema, table, allColumns.get(i)));
+            argBuilder.append("SRC.").append(columnName(useQualifier, catalog, schema, table, allColumns.get(i)));
         }
 
         mergeBuilder.append(") VALUES( ");
@@ -164,7 +164,7 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
         mergeBuilder.append(") ");
     }
 
-    private void buildMergeInfoWhenMatched(boolean useQualifier, String schema, String table, List<String> allColumns, StringBuilder mergeBuilder) {
+    private void buildMergeInfoWhenMatched(boolean useQualifier, String catalog, String schema, String table, List<String> allColumns, StringBuilder mergeBuilder) {
         mergeBuilder.append("WHEN MATCHED THEN ");
         mergeBuilder.append("UPDATE SET ");
         for (int i = 0; i < allColumns.size(); i++) {
@@ -172,11 +172,28 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
             if (i != 0) {
                 mergeBuilder.append(", ");
             }
-            mergeBuilder.append(columnName(useQualifier, , schema, table, column));
+            mergeBuilder.append(columnName(useQualifier, catalog, schema, table, column));
             mergeBuilder.append(" = SRC.");
-            mergeBuilder.append(columnName(useQualifier, , schema, table, column));
+            mergeBuilder.append(columnName(useQualifier, catalog, schema, table, column));
         }
         mergeBuilder.append(" ");
     }
 
+    public String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, int recordSize) {
+        String tableName = this.tableName(useQualifier, catalog, schema, table);
+        StringBuilder select = new StringBuilder();
+
+        if (selectColumns == null || selectColumns.isEmpty()) {
+            select.append("*");
+        } else {
+            for (String col : selectColumns) {
+                if (select.length() > 0) {
+                    select.append(", ");
+                }
+                select.append(this.columnName(useQualifier, catalog, schema, table, col));
+            }
+        }
+
+        return "select " + select + " from (select " + select + " from " + tableName + " order by sys_guid()) where rownum <= " + recordSize;
+    }
 }

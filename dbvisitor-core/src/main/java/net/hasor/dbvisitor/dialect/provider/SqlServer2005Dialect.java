@@ -60,7 +60,7 @@ public class SqlServer2005Dialect extends AbstractDialect implements PageSqlDial
     }
 
     @Override
-    public BoundSql pageSql(BoundSql boundSql, int start, int limit) {
+    public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
         String sqlString = boundSql.getSqlString();
         List<Object> paramArrays = new ArrayList<>(Arrays.asList(boundSql.getArgs()));
         //
@@ -92,5 +92,23 @@ public class SqlServer2005Dialect extends AbstractDialect implements PageSqlDial
         paramArrays.add(firstParam);
         paramArrays.add(secondParam);
         return new BoundSql.BoundSqlObj(sqlString, paramArrays.toArray());
+    }
+
+    public String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, int recordSize) {
+        String tableName = this.tableName(useQualifier, catalog, schema, table);
+        StringBuilder select = new StringBuilder();
+
+        if (selectColumns == null || selectColumns.isEmpty()) {
+            select.append("*");
+        } else {
+            for (String col : selectColumns) {
+                if (select.length() > 0) {
+                    select.append(", ");
+                }
+                select.append(this.columnName(useQualifier, catalog, schema, table, col));
+            }
+        }
+
+        return "select top " + recordSize + " " + select + " from " + tableName + " order by newid()";
     }
 }

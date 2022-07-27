@@ -26,6 +26,6 @@ public interface PageSqlDialect extends SqlDialect {
         return new BoundSql.BoundSqlObj("SELECT COUNT(*) FROM (" + boundSql.getSqlString() + ") as TEMP_T", boundSql.getArgs());
     }
 
-    /** 生成分页查询 SQL */
-    BoundSql pageSql(BoundSql boundSql, int start, int limit);
+    /** 生成分页查询 SQL（基于 count 的） */
+    BoundSql pageSql(BoundSql boundSql, long start, long limit);
 }

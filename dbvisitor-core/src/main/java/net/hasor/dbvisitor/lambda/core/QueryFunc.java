@@ -103,15 +103,15 @@ public interface QueryFunc<R, T, P> extends BoundSqlBuilder {
     long queryForLargeCount() throws SQLException;
 
     /** 迭代器方式获取 limit 条(-1 表示所有)，每批 200条。 */
-    default Iterator<T> queryForIterator(int limit) throws SQLException {
+    default Iterator<T> queryForIterator(long limit) throws SQLException {
         return this.queryForIterator(limit, r -> r, 200);
     }
 
     /** 迭代器方式获取 limit 条(-1 表示所有)，每批 200条。 */
-    default <D> Iterator<D> queryForIterator(int limit, Function<T, D> transform) throws SQLException {
+    default <D> Iterator<D> queryForIterator(long limit, Function<T, D> transform) throws SQLException {
         return this.queryForIterator(limit, transform, 200);
     }
 
     /** 分页方式 获取每一条数据,并通过 transform 对变换 */
-    <D> Iterator<D> queryForIterator(int limit, Function<T, D> transform, int batchSize) throws SQLException;
+    <D> Iterator<D> queryForIterator(long limit, Function<T, D> transform, int batchSize) throws SQLException;
 }

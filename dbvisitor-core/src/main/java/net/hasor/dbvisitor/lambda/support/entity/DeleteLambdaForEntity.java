@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.lambda.support.entity;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.reflect.SFunction;
-import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
+import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
 import net.hasor.dbvisitor.lambda.EntityDeleteOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.core.AbstractDeleteLambda;
@@ -81,32 +81,32 @@ public class DeleteLambdaForEntity<T> extends AbstractDeleteLambda<EntityDeleteO
 
     @Override
     public EntityDeleteOperation<T> like(String property, Object value) {
-        return this.addCondition(buildColumnByProperty(property), LIKE, formatLikeValue(ConditionSqlDialect.SqlLike.DEFAULT, value));
+        return this.addCondition(buildColumnByProperty(property), LIKE, formatLikeValue(SqlLike.DEFAULT, value));
     }
 
     @Override
     public EntityDeleteOperation<T> notLike(String property, Object value) {
-        return this.addCondition(buildColumnByProperty(property), NOT, LIKE, formatLikeValue(ConditionSqlDialect.SqlLike.DEFAULT, value));
+        return this.addCondition(buildColumnByProperty(property), NOT, LIKE, formatLikeValue(SqlLike.DEFAULT, value));
     }
 
     @Override
     public EntityDeleteOperation<T> likeRight(String property, Object value) {
-        return this.addCondition(buildColumnByProperty(property), LIKE, formatLikeValue(ConditionSqlDialect.SqlLike.RIGHT, value));
+        return this.addCondition(buildColumnByProperty(property), LIKE, formatLikeValue(SqlLike.RIGHT, value));
     }
 
     @Override
     public EntityDeleteOperation<T> notLikeRight(String property, Object value) {
-        return this.addCondition(buildColumnByProperty(property), NOT, LIKE, formatLikeValue(ConditionSqlDialect.SqlLike.RIGHT, value));
+        return this.addCondition(buildColumnByProperty(property), NOT, LIKE, formatLikeValue(SqlLike.RIGHT, value));
     }
 
     @Override
     public EntityDeleteOperation<T> likeLeft(String property, Object value) {
-        return this.addCondition(buildColumnByProperty(property), LIKE, formatLikeValue(ConditionSqlDialect.SqlLike.LEFT, value));
+        return this.addCondition(buildColumnByProperty(property), LIKE, formatLikeValue(SqlLike.LEFT, value));
     }
 
     @Override
     public EntityDeleteOperation<T> notLikeLeft(String property, Object value) {
-        return this.addCondition(buildColumnByProperty(property), NOT, LIKE, formatLikeValue(ConditionSqlDialect.SqlLike.LEFT, value));
+        return this.addCondition(buildColumnByProperty(property), NOT, LIKE, formatLikeValue(SqlLike.LEFT, value));
     }
 
     @Override

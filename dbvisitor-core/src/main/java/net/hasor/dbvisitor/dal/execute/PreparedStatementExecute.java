@@ -57,8 +57,8 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
 
         if (usingPage(executeInfo)) {
             PageSqlDialect dialect = executeInfo.pageDialect;
-            int position = executeInfo.pageInfo.getFirstRecordPosition();
-            int pageSize = executeInfo.pageInfo.getPageSize();
+            long position = executeInfo.pageInfo.getFirstRecordPosition();
+            long pageSize = executeInfo.pageInfo.getPageSize();
             boundSql = dialect.pageSql(sqlBuilder, position, pageSize);
             if (executeInfo.pageResult) {
                 countSql = dialect.countSql(sqlBuilder);

@@ -39,7 +39,7 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
     }
 
     @Override
-    public BoundSql pageSql(BoundSql boundSql, int start, int limit) {
+    public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
         StringBuilder sqlBuilder = new StringBuilder(boundSql.getSqlString());
         List<Object> paramArrays = new ArrayList<>(Arrays.asList(boundSql.getArgs()));
 
@@ -109,4 +109,21 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
         return strBuilder.toString();
     }
 
+    public String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, int recordSize) {
+        String tableName = this.tableName(useQualifier, catalog, schema, table);
+        StringBuilder select = new StringBuilder();
+
+        if (selectColumns == null || selectColumns.isEmpty()) {
+            select.append("*");
+        } else {
+            for (String col : selectColumns) {
+                if (select.length() > 0) {
+                    select.append(", ");
+                }
+                select.append(this.columnName(useQualifier, catalog, schema, table, col));
+            }
+        }
+
+        return "select " + select + " from " + tableName + " order by rand() limit " + recordSize;
+    }
 }

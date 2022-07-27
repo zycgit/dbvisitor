@@ -125,8 +125,32 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         super(dynamicConn, typeRegistry);
     }
 
+    /**
+     * Construct a new JdbcTemplate, given a Connection to obtain JdbcTemplate from.
+     * <p>Note: This will not trigger initialization of the exception translator.
+     * @param jdbcTemplate the JdbcTemplate
+     */
+    public LambdaTemplate(JdbcTemplate jdbcTemplate) {
+        super();
+        this.setDataSource(jdbcTemplate.getDataSource());
+        this.setConnection(jdbcTemplate.getConnection());
+        this.setDynamic(jdbcTemplate.getDynamic());
+
+        this.setResultsCaseInsensitive(jdbcTemplate.isResultsCaseInsensitive());
+        this.setTypeRegistry(jdbcTemplate.getTypeRegistry());
+        this.setFetchSize(jdbcTemplate.getFetchSize());
+        this.setMaxRows(jdbcTemplate.getMaxRows());
+        this.setQueryTimeout(jdbcTemplate.getQueryTimeout());
+        this.setIgnoreWarnings(jdbcTemplate.isIgnoreWarnings());
+        this.setPrintStmtError(jdbcTemplate.isPrintStmtError());
+    }
+
     protected void init() {
 
+    }
+
+    public SqlDialect getDialect() {
+        return dialect;
     }
 
     public void setDialect(SqlDialect dialect) {

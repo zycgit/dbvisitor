@@ -25,13 +25,13 @@ import java.util.List;
 public class PageResult<T> extends PageObject {
     private List<T> data;
 
-    public PageResult(Page pageInfo, int totalCount) {
+    public PageResult(Page pageInfo, long totalCount) {
         super(pageInfo.getPageSize(), totalCount);
         this.setCurrentPage(pageInfo.getCurrentPage());
         this.setPageNumberOffset(pageInfo.getPageNumberOffset());
     }
 
-    public PageResult(Page pageInfo, int totalCount, List<T> data) {
+    public PageResult(Page pageInfo, long totalCount, List<T> data) {
         this(pageInfo, totalCount);
         this.data = data;
     }

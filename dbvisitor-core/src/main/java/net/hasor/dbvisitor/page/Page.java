@@ -25,31 +25,31 @@ import java.util.Map;
  */
 public interface Page {
     /** 获取页大小，默认是 -1 表示无穷大。 */
-    int getPageSize();
+    long getPageSize();
 
     /** 设置分页的页大小，-1 表示无穷大 */
-    void setPageSize(int pageSize);
+    void setPageSize(long pageSize);
 
     /**取当前页号 */
-    int getCurrentPage();
+    long getCurrentPage();
 
     /** 设置前页号 */
-    void setCurrentPage(int currentPage);
+    void setCurrentPage(long currentPage);
 
     /** 页码偏移量（例如：从1页作为起始页，可以设置为 1。否则第一页的页码是 0） */
-    int getPageNumberOffset();
+    long getPageNumberOffset();
 
     /** 设置页码偏移量（例如：从1页作为起始页，可以设置为 1。否则第一页的页码是 0） */
-    void setPageNumberOffset(int pageNumberOffset);
+    void setPageNumberOffset(long pageNumberOffset);
 
     /** 获取本页第一个记录的索引位置 */
-    int getFirstRecordPosition();
+    long getFirstRecordPosition();
 
     /** 获取总页数 */
-    int getTotalPage() throws SQLException;
+    long getTotalPage() throws SQLException;
 
     /** 获取记录总数 */
-    int getTotalCount() throws SQLException;
+    long getTotalCount() throws SQLException;
 
     /** 移动到第一页 */
     default void firstPage() {

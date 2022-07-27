@@ -16,6 +16,8 @@
 package net.hasor.dbvisitor.dialect;
 import net.hasor.cobble.StringUtils;
 
+import java.util.List;
+
 /**
  * SQL 条件方言
  * @version : 2020-10-31
@@ -44,5 +46,9 @@ public interface ConditionSqlDialect extends SqlDialect {
             default:
                 return "CONCAT('%', ? ,'%')";
         }
+    }
+
+    default String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, int recordSize) {
+        throw new UnsupportedOperationException();
     }
 }
