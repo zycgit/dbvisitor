@@ -222,18 +222,15 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig, Number> 
     }
 
     private Number randomDecimal(int precision, int scale) {
-
         StringBuilder builder = new StringBuilder();
         if (scale <= 0) {
             if (precision > 0) {
                 double nextDouble = RandomUtils.nextDouble();
                 int mulriple = Integer.parseInt("1" + StringUtils.repeat("0", precision));
                 builder.append((int) (nextDouble * mulriple));
-            }
-            if (builder.length() == 0) {
-                return BigInteger.ZERO;
-            } else {
                 return new BigInteger(builder.toString());
+            } else {
+                return BigInteger.ZERO;
             }
         } else {
             precision = precision - scale;

@@ -23,10 +23,67 @@
 // * @author 赵永春 (zyc@hasor.net)
 // */
 //public class ExtremeStrategy implements Strategy {
-//    @Override
-//    public void applyConfig(SeedConfig seedConfig) {
+//@Override
+//public void applyConfig(SeedConfig seedConfig, JdbcColumn refer) {
+//        if (Boolean.TRUE.equals(refer.getNullable())) {
+//        seedConfig.setAllowNullable(true);
+//        seedConfig.setNullableRatio(20f);
+//        }
 //
-//    }
+//        switch (seedConfig.getSeedType()) {
+//        case Bytes: {
+//        BytesSeedConfig bytesSeedConfig = (BytesSeedConfig) seedConfig;
+//        Integer columnSize = refer.getColumnSize();
+//
+//        if (columnSize == null || columnSize < 0) {
+//        columnSize = 200;
+//        } else if (columnSize > 4096) {
+//        columnSize = 4096;
+//        }
+//
+//        bytesSeedConfig.setMinLength(Math.min(columnSize / 10, 10));
+//        bytesSeedConfig.setMaxLength(columnSize);
+//        return;
+//        }
+//        case Date: {
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DateFormatType.s_yyyyMMdd_HHmmss.getDatePattern());
+//        LocalDateTime now = LocalDateTime.now();
+//        LocalDateTime rangeForm = now.plusYears(-200);
+//        LocalDateTime rangeTo = now.plusYears(+200);
+//
+//        DateSeedConfig dateSeedConfig = (DateSeedConfig) seedConfig;
+//        dateSeedConfig.setGenType(GenType.Random);
+//        dateSeedConfig.setDateType(DateType.SqlDate);
+//        dateSeedConfig.setRangeForm(formatter.format(rangeForm));
+//        dateSeedConfig.setRangeTo(formatter.format(rangeTo));
+//        return;
+//        }
+//        case Number: {
+//        NumberSeedConfig numberSeedConfig = (NumberSeedConfig) seedConfig;
+//        numberSeedConfig.setMin(BigDecimal.valueOf(0));
+//        numberSeedConfig.setMax(BigDecimal.valueOf(100));
+//        if (numberSeedConfig.getNumberType() == NumberType.Decimal) {
+//        numberSeedConfig.setPrecision(9);
+//        numberSeedConfig.setScale(4);
+//        }
+//        return;
+//        }
+//        case String: {
+//        StringSeedConfig stringSeedConfig = (StringSeedConfig) seedConfig;
+//        Set<Characters> characters = stringSeedConfig.getCharacterSet();
+//        if (characters == null || characters.isEmpty()) {
+//        stringSeedConfig.setCharacterSet(new HashSet<>(Arrays.asList(CAPITAL_LETTER, SMALL_LETTER, NUMERIC)));
+//        stringSeedConfig.setMinLength(10);
+//        stringSeedConfig.setMaxLength(100);
+//        }
+//        return;
+//        }
+//        case Enums:
+//        case Boolean:
+//default:
+//        return;
+//        }
+//        }
 //
 //    @Override
 //    public void applyConfig(SeedConfig seedConfig, JdbcColumn refer) {

@@ -30,5 +30,4 @@ public enum SeedType {
     //    Struts,
     //    RelationId,
     Custom;
-
 }

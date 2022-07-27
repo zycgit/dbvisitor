@@ -38,9 +38,11 @@ import static net.hasor.dbvisitor.faker.seed.string.StandardCharacterSet.*;
 /**
  * 保守的生成策略，该策略会用一个相对最小的范围涵盖住大多数类型的数据范围。
  * <li>Date：基于系统当前时间，+/- 200年</li>
- * <li>String：大写字母、小写字母、数字</li>
+ * <li>String：0 - 最大不超过 100 个字符（默认字符集：大写字母、小写字母、数字）</li>
  * <li>Number：0 - 100</li>
- * <li>Bytes：0 - 100 个字节</li>
+ * <li>Decimal：最大不超过 9 位精度，默认 4 位小数</li>
+ * <li>Bytes：0 - 最大不超过 100 个字节</li>
+ * <li>NULL：如果列允许为空，则生成的数据 20% 为空</li>
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -57,13 +59,11 @@ public class ConservativeStrategy implements Strategy {
                 BytesSeedConfig bytesSeedConfig = (BytesSeedConfig) seedConfig;
                 Integer columnSize = refer.getColumnSize();
 
-                if (columnSize == null || columnSize < 0) {
-                    columnSize = 200;
-                } else if (columnSize > 4096) {
-                    columnSize = 4096;
+                if (columnSize == null || columnSize > 100) {
+                    columnSize = 100;
                 }
 
-                bytesSeedConfig.setMinLength(Math.min(columnSize / 10, 10));
+                bytesSeedConfig.setMinLength(0);
                 bytesSeedConfig.setMaxLength(columnSize);
                 return;
             }
@@ -85,8 +85,17 @@ public class ConservativeStrategy implements Strategy {
                 numberSeedConfig.setMin(BigDecimal.valueOf(0));
                 numberSeedConfig.setMax(BigDecimal.valueOf(100));
                 if (numberSeedConfig.getNumberType() == NumberType.Decimal) {
-                    numberSeedConfig.setPrecision(5);
-                    numberSeedConfig.setScale(4);
+                    Integer precision = refer.getColumnSize();
+                    Integer scale = refer.getDecimalDigits();
+                    precision = precision == null ? 9 : Math.min(precision, 9);
+                    scale = scale == null ? 4 : scale;
+
+                    if ((precision - scale) < 0) {
+                        scale = precision / 2;
+                    }
+
+                    numberSeedConfig.setPrecision(precision);
+                    numberSeedConfig.setScale(scale);
                 }
                 return;
             }
@@ -95,9 +104,13 @@ public class ConservativeStrategy implements Strategy {
                 Set<Characters> characters = stringSeedConfig.getCharacterSet();
                 if (characters == null || characters.isEmpty()) {
                     stringSeedConfig.setCharacterSet(new HashSet<>(Arrays.asList(CAPITAL_LETTER, SMALL_LETTER, NUMERIC)));
-                    stringSeedConfig.setMinLength(10);
-                    stringSeedConfig.setMaxLength(100);
                 }
+                Integer columnSize = refer.getColumnSize();
+                if (columnSize == null || columnSize > 100 || columnSize < 0) {
+                    columnSize = 100;
+                }
+                stringSeedConfig.setMinLength(0);
+                stringSeedConfig.setMaxLength(columnSize);
                 return;
             }
             case Enums:
