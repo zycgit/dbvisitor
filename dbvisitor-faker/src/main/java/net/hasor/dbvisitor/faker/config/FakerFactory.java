@@ -13,12 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker;
+package net.hasor.dbvisitor.faker.config;
 import net.hasor.cobble.BeanUtils;
-import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.setting.SettingNode;
-import net.hasor.dbvisitor.faker.meta.*;
+import net.hasor.cobble.setting.data.TreeNode;
+import net.hasor.dbvisitor.JdbcUtils;
+import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dialect.SqlDialectRegister;
+import net.hasor.dbvisitor.faker.generator.DataLoader;
+import net.hasor.dbvisitor.faker.meta.JdbcColumn;
+import net.hasor.dbvisitor.faker.meta.JdbcFetchMetaProvider;
+import net.hasor.dbvisitor.faker.meta.JdbcSqlTypes;
+import net.hasor.dbvisitor.faker.meta.JdbcTable;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedConfig;
@@ -36,12 +43,16 @@ import net.hasor.dbvisitor.faker.seed.string.StringSeedFactory;
 import net.hasor.dbvisitor.faker.seed.string.characters.BitCharacters;
 import net.hasor.dbvisitor.faker.strategy.ConservativeStrategy;
 import net.hasor.dbvisitor.faker.strategy.Strategy;
+import net.hasor.dbvisitor.jdbc.ConnectionCallback;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
 
+import static net.hasor.dbvisitor.faker.config.FakerEnum.*;
 import static net.hasor.dbvisitor.faker.seed.string.StandardCharacterSet.*;
 
 /**
@@ -49,73 +60,114 @@ import static net.hasor.dbvisitor.faker.seed.string.StandardCharacterSet.*;
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class FakerBuilder {
+public class FakerFactory {
+    private final JdbcTemplate          jdbcTemplate;
     private final JdbcFetchMetaProvider metaProvider;
-    private final ClassLoader           classLoader;
-    private       TypeHandlerRegistry   typeHandlerRegistry;
+    private       ClassLoader           classLoader;
+    private       TypeHandlerRegistry   typeRegistry;
+    private       DataLoader            dataLoader;
+    private       SqlDialect            dialect;
 
-    public FakerBuilder(Connection connection, ClassLoader classLoader) {
+    public FakerFactory(Connection connection) throws SQLException {
+        this.jdbcTemplate = new JdbcTemplate(connection);
         this.metaProvider = new JdbcFetchMetaProvider(connection);
-        this.classLoader = classLoader == null ? Thread.currentThread().getContextClassLoader() : classLoader;
+        this.initFactory();
     }
 
-    public FakerBuilder(DataSource dataSource, ClassLoader classLoader) {
+    public FakerFactory(DataSource dataSource) throws SQLException {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.metaProvider = new JdbcFetchMetaProvider(dataSource);
-        this.classLoader = classLoader == null ? Thread.currentThread().getContextClassLoader() : classLoader;
+        this.initFactory();
     }
 
-    public FakerTable buildFakerTable(SettingNode tableConfig) throws Exception {
-        FakerTable fakerTable = buildTable(tableConfig);
-        List<FakerColumn> fakerColumns = buildColumns(tableConfig, fakerTable);
+    protected void initFactory() throws SQLException {
+        this.classLoader = Thread.currentThread().getContextClassLoader();
+        this.typeRegistry = TypeHandlerRegistry.DEFAULT;
+        this.dataLoader = null;
 
-        fakerTable.setColumns(fakerColumns);
-        return fakerTable;
+        this.dialect = this.jdbcTemplate.execute((ConnectionCallback<SqlDialect>) con -> {
+            String jdbcUrl = con.getMetaData().getURL();
+            String jdbcDriverName = con.getMetaData().getDriverName();
+            String dbType = JdbcUtils.getDbType(jdbcUrl, jdbcDriverName);
+            if (StringUtils.isBlank(dbType)) {
+                throw new IllegalArgumentException("Query dialect missing.");
+            }
+
+            return SqlDialectRegister.findOrCreate(dbType);
+        });
     }
 
-    protected FakerTable buildTable(SettingNode tableConfig) throws Exception {
-        String catalogName = tableConfig.getSubValue("catalog");
-        String schemaName = tableConfig.getSubValue("schema");
-        String tableName = tableConfig.getSubValue("table");
+    public JdbcTemplate getJdbcTemplate() {
+        return this.jdbcTemplate;
+    }
 
-        JdbcTable table = this.metaProvider.getTable(catalogName, schemaName, tableName);
-        JdbcPrimaryKey primaryKey = this.metaProvider.getPrimaryKey(catalogName, schemaName, tableName);
-        List<JdbcIndex> indexKeys = this.metaProvider.getIndexes(catalogName, schemaName, tableName);
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
 
-        FakerTable fakerTable = new FakerTable();
-        fakerTable.setSchema(table.getCatalog());
-        fakerTable.setSchema(table.getSchema());
-        fakerTable.setTable(table.getTable());
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
 
-        if (primaryKey != null) {
-            fakerTable.setPeggingCol(primaryKey.getColumns());
-        } else if (CollectionUtils.isNotEmpty(indexKeys)) {
-            List<List<String>> peggingUnique = new ArrayList<>();
-            List<List<String>> peggingIdx = new ArrayList<>();
-            for (JdbcIndex idx : indexKeys) {
-                if (idx.isUnique()) {
-                    peggingUnique.add(idx.getColumns());
-                } else {
-                    peggingIdx.add(idx.getColumns());
-                }
-            }
+    public TypeHandlerRegistry getTypeRegistry() {
+        return typeRegistry;
+    }
 
-            peggingUnique.sort(Comparator.comparingInt(List::size));
-            peggingIdx.sort(Comparator.comparingInt(List::size));
+    public void setTypeRegistry(TypeHandlerRegistry typeRegistry) {
+        this.typeRegistry = typeRegistry;
+    }
 
-            if (!peggingUnique.isEmpty()) {
-                fakerTable.setPeggingCol(peggingUnique.get(0));
-            } else if (!peggingIdx.isEmpty()) {
-                fakerTable.setPeggingCol(peggingIdx.get(0));
-            }
+    public DataLoader getDataLoader() {
+        return dataLoader;
+    }
+
+    public void setDataLoader(DataLoader dataLoader) {
+        this.dataLoader = dataLoader;
+    }
+
+    public SqlDialect getDialect() {
+        return dialect;
+    }
+
+    public void setDialect(SqlDialect dialect) {
+        this.dialect = dialect;
+    }
+
+    public FakerTable fetchTable(SettingNode tableConfig) throws Exception {
+        String catalog = tableConfig.getSubValue(TABLE_CATALOG.getConfigKey());
+        String schema = tableConfig.getSubValue(TABLE_SCHEMA.getConfigKey());
+        String table = tableConfig.getSubValue(TABLE_TABLE.getConfigKey());
+        return this.fetchTable(catalog, schema, table);
+    }
+
+    public FakerTable fetchTable(String catalog, String schema, String table) throws Exception {
+        JdbcTable jdbcTable = this.metaProvider.getTable(catalog, schema, table);
+        if (jdbcTable == null) {
+            String tabName = String.format("%s.%s.%s", catalog, schema, table);
+            throw new IllegalArgumentException("table '" + tabName + "' is not exist.");
         }
 
+        FakerTable fakerTable = new FakerTable();
+        fakerTable.setCatalog(catalog);
+        fakerTable.setSchema(schema);
+        fakerTable.setTable(table);
+        fakerTable.setColumns(buildColumns(new TreeNode(), fakerTable));
+        //
+        fakerTable.setTypeRegistry(this.typeRegistry);
         return fakerTable;
     }
 
     protected List<FakerColumn> buildColumns(SettingNode tableConfig, FakerTable fakerTable) throws Exception {
-        String strategyType = tableConfig.getSubValue("strategy");
-        String[] ignoreCols = tableConfig.getSubValues("ignoreCols");
-        SettingNode columnsConfig = tableConfig.getSubNode("columns");
+        SettingNode columnsConfig = tableConfig.getSubNode(TABLE_COLUMNS.getConfigKey());
+        String strategyType = tableConfig.getSubValue(TABLE_STRATEGY.getConfigKey());
+        String[] ignoreCols = tableConfig.getSubValues(TABLE_COL_IGNORE_ALL.getConfigKey());
+        String[] ignoreInsertCols = tableConfig.getSubValues(TABLE_COL_IGNORE_INSERT.getConfigKey());
+        String[] ignoreUpdateCols = tableConfig.getSubValues(TABLE_COL_IGNORE_UPDATE.getConfigKey());
+        String[] ignoreWhereCols = tableConfig.getSubValues(TABLE_COL_IGNORE_WHERE.getConfigKey());
+        Set<String> ignoreSet = new HashSet<>(Arrays.asList(ignoreCols));
+        Set<String> ignoreInsertSet = new HashSet<>(Arrays.asList(ignoreInsertCols));
+        Set<String> ignoreUpdateSet = new HashSet<>(Arrays.asList(ignoreUpdateCols));
+        Set<String> ignoreWhereSet = new HashSet<>(Arrays.asList(ignoreWhereCols));
 
         Strategy strategy = new ConservativeStrategy();
         if (StringUtils.isNotBlank(strategyType)) {
@@ -124,18 +176,19 @@ public class FakerBuilder {
         }
 
         List<JdbcColumn> columns = this.metaProvider.getColumns(fakerTable.getCatalog(), fakerTable.getSchema(), fakerTable.getTable());
-        Set<String> ignoreSet = new HashSet<>(Arrays.asList(ignoreCols));
+
         List<FakerColumn> columnList = new ArrayList<>();
         for (JdbcColumn jdbcColumn : columns) {
             SettingNode columnConfig = columnsConfig == null ? null : columnsConfig.getSubNode(jdbcColumn.getColumnName());
-            FakerColumn fakerColumn = createFakerColumn(jdbcColumn, columnConfig, strategy, ignoreSet);
+            FakerColumn fakerColumn = createFakerColumn(jdbcColumn, columnConfig, strategy, ignoreSet, ignoreInsertSet, ignoreUpdateSet, ignoreWhereSet);
             columnList.add(fakerColumn);
         }
 
         return columnList;
     }
 
-    private FakerColumn createFakerColumn(JdbcColumn jdbcColumn, SettingNode columnConfig, Strategy strategy, Set<String> ignoreSet) throws Exception {
+    private FakerColumn createFakerColumn(JdbcColumn jdbcColumn, SettingNode columnConfig, Strategy strategy,//
+            Set<String> ignoreSet, Set<String> ignoreInsertSet, Set<String> ignoreUpdateSet, Set<String> ignoreWhereSet) throws ReflectiveOperationException {
         // try use setting create it
         SeedFactory seedFactory = this.createSeedFactory(columnConfig);
         SeedConfig seedConfig = null;
@@ -157,14 +210,26 @@ public class FakerBuilder {
 
         // final apply form config
         Class<?> configClass = seedConfig.getClass();
-        String[] propertySet = columnConfig.getSubKeys();
-        for (String property : propertySet) {
-            Class<?> propertyType = BeanUtils.getPropertyType(configClass, property);
-            Object propertyValue = columnConfig.getSubValue(property);
-            if (propertyType == null) {
-                continue;
+        if (columnConfig != null) {
+            String[] propertySet = columnConfig.getSubKeys();
+            for (String property : propertySet) {
+                Class<?> propertyType = BeanUtils.getPropertyType(configClass, property);
+                Object propertyValue = columnConfig.getSubValue(property);
+                if (propertyType == null) {
+                    continue;
+                }
+                BeanUtils.writeProperty(seedConfig, property, propertyValue);
             }
-            BeanUtils.writeProperty(seedConfig, property, propertyValue);
+        }
+
+        Set<UseFor> ignoreAct = new HashSet<>();
+        ignoreAct.addAll(ignoreSet.contains(jdbcColumn.getColumnName()) ? Arrays.asList(UseFor.values()) : Collections.emptySet());
+        ignoreAct.addAll(ignoreInsertSet.contains(jdbcColumn.getColumnName()) ? Collections.singletonList(UseFor.Insert) : Collections.emptySet());
+        ignoreAct.addAll(ignoreUpdateSet.contains(jdbcColumn.getColumnName()) ? Collections.singletonList(UseFor.UpdateSet) : Collections.emptySet());
+        ignoreAct.addAll(ignoreWhereSet.contains(jdbcColumn.getColumnName()) ? Arrays.asList(UseFor.UpdateWhere, UseFor.DeleteWhere) : Collections.emptySet());
+
+        if (Boolean.TRUE.equals(jdbcColumn.getGeneratedColumn())) {
+            ignoreAct.add(UseFor.Insert);
         }
 
         FakerColumn fakerColumn = new FakerColumn();
@@ -174,14 +239,14 @@ public class FakerBuilder {
         fakerColumn.setSeedType(seedConfig.getSeedType());
         fakerColumn.setSeedConfig(seedConfig);
         fakerColumn.setSeedFactory(seedFactory);
-        fakerColumn.setIgnore(ignoreSet.contains(jdbcColumn.getColumnName()));
+        fakerColumn.setIgnoreAct(ignoreAct);
         return fakerColumn;
     }
 
-    private SeedConfig createSeedConfig(SeedFactory seedFactory, SettingNode settingConfig) {
+    private SeedConfig createSeedConfig(SeedFactory seedFactory, SettingNode columnConfig) {
         SeedConfig seedConfig = seedFactory.newConfig();
-        for (String subKey : settingConfig.getSubKeys()) {
-            String[] subValue = settingConfig.getSubValues(subKey);
+        for (String subKey : columnConfig.getSubKeys()) {
+            String[] subValue = columnConfig.getSubValues(subKey);
             if (subValue == null || subValue.length == 0) {
                 continue;
             }
@@ -303,8 +368,8 @@ public class FakerBuilder {
         }
     }
 
-    private SeedFactory createSeedFactory(SettingNode settingConfig) throws ReflectiveOperationException {
-        String seedFactoryStr = settingConfig == null ? null : settingConfig.getSubValue("seedFactory");
+    private SeedFactory createSeedFactory(SettingNode columnConfig) throws ReflectiveOperationException {
+        String seedFactoryStr = columnConfig == null ? null : columnConfig.getSubValue(COLUMN_SEED_FACTORY.getConfigKey());
         if (StringUtils.isBlank(seedFactoryStr)) {
             return null;
         }

@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker;
+package net.hasor.dbvisitor.faker.config;
+import net.hasor.dbvisitor.faker.generator.DataLoader;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
+
 import java.util.List;
 
 /**
@@ -22,11 +25,12 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class FakerTable {
-    private String            catalog;
-    private String            schema;
-    private String            table;
-    private List<FakerColumn> columns;
-    private List<String>      peggingCol;
+    private String              catalog;
+    private String              schema;
+    private String              table;
+    private List<FakerColumn>   columns;
+    private DataLoader          dataLoader;
+    private TypeHandlerRegistry typeRegistry;
 
     public String getCatalog() {
         return catalog;
@@ -60,11 +64,19 @@ public class FakerTable {
         this.columns = columns;
     }
 
-    public List<String> getPeggingCol() {
-        return peggingCol;
+    public DataLoader getDataLoader() {
+        return dataLoader;
     }
 
-    public void setPeggingCol(List<String> peggingCol) {
-        this.peggingCol = peggingCol;
+    public void setDataLoader(DataLoader dataLoader) {
+        this.dataLoader = dataLoader;
+    }
+
+    public TypeHandlerRegistry getTypeRegistry() {
+        return typeRegistry;
+    }
+
+    public void setTypeRegistry(TypeHandlerRegistry typeRegistry) {
+        this.typeRegistry = typeRegistry;
     }
 }
