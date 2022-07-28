@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.config;
-import net.hasor.dbvisitor.faker.generator.DataLoader;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
+package net.hasor.dbvisitor.faker.generator;
+import net.hasor.dbvisitor.faker.FakerConfig;
+import net.hasor.dbvisitor.faker.SqlPolitic;
 
 import java.util.List;
 
@@ -25,12 +25,15 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class FakerTable {
-    private String              catalog;
-    private String              schema;
-    private String              table;
-    private List<FakerColumn>   columns;
-    private DataLoader          dataLoader;
-    private TypeHandlerRegistry typeRegistry;
+    private String            catalog;
+    private String            schema;
+    private String            table;
+    private List<FakerColumn> columns;
+    private FakerConfig       fakerConfig;
+    private DataLoader        dataLoader;
+    private SqlPolitic        insertPolitic;
+    private SqlPolitic        updateSetPolitic;
+    private SqlPolitic        wherePolitic;
 
     public String getCatalog() {
         return catalog;
@@ -64,6 +67,14 @@ public class FakerTable {
         this.columns = columns;
     }
 
+    public FakerConfig getFakerConfig() {
+        return fakerConfig;
+    }
+
+    public void setFakerConfig(FakerConfig fakerConfig) {
+        this.fakerConfig = fakerConfig;
+    }
+
     public DataLoader getDataLoader() {
         return dataLoader;
     }
@@ -72,11 +83,27 @@ public class FakerTable {
         this.dataLoader = dataLoader;
     }
 
-    public TypeHandlerRegistry getTypeRegistry() {
-        return typeRegistry;
+    public SqlPolitic getInsertPolitic() {
+        return insertPolitic;
     }
 
-    public void setTypeRegistry(TypeHandlerRegistry typeRegistry) {
-        this.typeRegistry = typeRegistry;
+    public void setInsertPolitic(SqlPolitic insertPolitic) {
+        this.insertPolitic = insertPolitic;
+    }
+
+    public SqlPolitic getUpdateSetPolitic() {
+        return updateSetPolitic;
+    }
+
+    public void setUpdateSetPolitic(SqlPolitic updateSetPolitic) {
+        this.updateSetPolitic = updateSetPolitic;
+    }
+
+    public SqlPolitic getWherePolitic() {
+        return wherePolitic;
+    }
+
+    public void setWherePolitic(SqlPolitic wherePolitic) {
+        this.wherePolitic = wherePolitic;
     }
 }

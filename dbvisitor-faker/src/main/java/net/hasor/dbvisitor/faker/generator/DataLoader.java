@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.strategy;
-import net.hasor.dbvisitor.faker.generator.FakerTable;
-import net.hasor.dbvisitor.faker.meta.JdbcColumn;
-import net.hasor.dbvisitor.faker.seed.SeedConfig;
+package net.hasor.dbvisitor.faker.generator;
+
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 /**
- * 数据生成策略
+ * 用于 UPDATE、DELETE 的数据反查器
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface Strategy {
-    void applyConfig(FakerTable fakerTable, SeedConfig seedConfig, JdbcColumn refer);
+public interface DataLoader {
+    List<Map<String, Object>> loadSomeData(UseFor useFor, FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException;
 }

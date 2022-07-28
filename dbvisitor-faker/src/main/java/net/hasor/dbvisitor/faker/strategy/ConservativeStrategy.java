@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.faker.strategy;
 import net.hasor.cobble.DateFormatType;
+import net.hasor.dbvisitor.faker.generator.FakerTable;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedConfig;
@@ -48,7 +49,7 @@ import static net.hasor.dbvisitor.faker.seed.string.StandardCharacterSet.*;
  */
 public class ConservativeStrategy implements Strategy {
     @Override
-    public void applyConfig(SeedConfig seedConfig, JdbcColumn refer) {
+    public void applyConfig(FakerTable fakerTable, SeedConfig seedConfig, JdbcColumn refer) {
         if (Boolean.TRUE.equals(refer.getNullable())) {
             seedConfig.setAllowNullable(true);
             seedConfig.setNullableRatio(20f);

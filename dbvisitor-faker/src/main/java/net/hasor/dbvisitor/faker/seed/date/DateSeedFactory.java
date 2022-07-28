@@ -121,12 +121,12 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig, Serializable
             if (RandomUtils.nextBoolean()) {
                 randomZoned = -RandomUtils.nextInt(0, Math.abs(minZoned));
             } else {
-                randomZoned = RandomUtils.nextInt(0, Math.abs(maxZoned + 1));
+                randomZoned = RandomUtils.nextInt(0, Math.abs(maxZoned));
             }
             if (RandomUtils.nextBoolean()) {
                 randomTime = -RandomUtils.nextLong(0, Math.abs(minTime));
             } else {
-                randomTime = RandomUtils.nextLong(0, Math.abs(maxTime + 1));
+                randomTime = RandomUtils.nextLong(0, Math.abs(maxTime));
             }
 
             ZoneOffset zoneOffset = ZoneOffset.ofTotalSeconds(randomZoned);

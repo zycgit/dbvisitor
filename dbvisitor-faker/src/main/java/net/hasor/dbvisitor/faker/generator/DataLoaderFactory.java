@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2010 the original author or authors.
+ * Copyright 2015-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker;
+package net.hasor.dbvisitor.faker.generator;
 
-import java.util.List;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+
+import java.sql.SQLException;
 
 /**
- * 数据生成
+ * 用于 UPDATE、DELETE 的数据反查器
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface Generator {
-
-    List<BoundSql> buildInsert(FakerTable fakerTable, int batchSize);
-
-    List<BoundSql> buildDelete(FakerTable fakerTable, int batchSize);
-
-    List<BoundSql> buildUpdate(FakerTable fakerTable, int batchSize);
+public interface DataLoaderFactory {
+    DataLoader createDataLoader(JdbcTemplate jdbcTemplate) throws SQLException;
 }

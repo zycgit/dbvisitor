@@ -90,9 +90,7 @@ public class RandomUtils {
      *
      * @param startInclusive the smallest value that can be returned, must be non-negative
      * @param endExclusive the upper bound (not included)
-     * @throws IllegalArgumentException
-     *             if {@code startInclusive > endExclusive} or if
-     *             {@code startInclusive} is negative
+     * @throws IllegalArgumentException if {@code startInclusive > endExclusive} or if {@code startInclusive} is negative
      * @return the random integer
      */
     public static int nextInt(final int startInclusive, final int endExclusive) {
@@ -107,28 +105,11 @@ public class RandomUtils {
     }
 
     /**
-     * <p> Returns a random int within 0 - Integer.MAX_VALUE </p>
+     * <p>Returns a random long within the specified range.</p>
      *
-     * @return the random integer
-     * @see #nextInt(int, int)
-     * @since 3.5
-     */
-    public static int nextInt() {
-        return nextInt(0, Integer.MAX_VALUE);
-    }
-
-    /**
-     * <p>
-     * Returns a random long within the specified range.
-     * </p>
-     *
-     * @param startInclusive
-     *            the smallest value that can be returned, must be non-negative
-     * @param endExclusive
-     *            the upper bound (not included)
-     * @throws IllegalArgumentException
-     *             if {@code startInclusive > endExclusive} or if
-     *             {@code startInclusive} is negative
+     * @param startInclusive the smallest value that can be returned, must be non-negative
+     * @param endExclusive the upper bound (not included)
+     * @throws IllegalArgumentException if {@code startInclusive > endExclusive} or if {@code startInclusive} is negative
      * @return the random long
      */
     public static long nextLong(final long startInclusive, final long endExclusive) {
@@ -143,28 +124,10 @@ public class RandomUtils {
     }
 
     /**
-     * <p> Returns a random long within 0 - Long.MAX_VALUE </p>
-     *
-     * @return the random long
-     * @see #nextLong(long, long)
-     * @since 3.5
-     */
-    public static long nextLong() {
-        return nextLong(0, Long.MAX_VALUE);
-    }
-
-    /**
-     * <p>
-     * Returns a random double within the specified range.
-     * </p>
-     *
-     * @param startInclusive
-     *            the smallest value that can be returned, must be non-negative
-     * @param endInclusive
-     *            the upper bound (included)
-     * @throws IllegalArgumentException
-     *             if {@code startInclusive > endInclusive} or if
-     *             {@code startInclusive} is negative
+     * <p>Returns a random double within the specified range.</p>
+     * @param startInclusive the smallest value that can be returned, must be non-negative
+     * @param endInclusive the upper bound (included)
+     * @throws IllegalArgumentException if {@code startInclusive > endInclusive} or if {@code startInclusive} is negative
      * @return the random double
      */
     public static double nextDouble(final double startInclusive, final double endInclusive) {
@@ -179,8 +142,7 @@ public class RandomUtils {
     }
 
     /**
-     * <p> Returns a random double within 0 - Double.MAX_VALUE </p>
-     *
+     * <p> Returns a random double within 0 - Double.MAX_VALUE</p>
      * @return the random double
      * @see #nextDouble(double, double)
      * @since 3.5
@@ -190,17 +152,10 @@ public class RandomUtils {
     }
 
     /**
-     * <p>
-     * Returns a random float within the specified range.
-     * </p>
-     *
-     * @param startInclusive
-     *            the smallest value that can be returned, must be non-negative
-     * @param endInclusive
-     *            the upper bound (included)
-     * @throws IllegalArgumentException
-     *             if {@code startInclusive > endInclusive} or if
-     *             {@code startInclusive} is negative
+     * <p>Returns a random float within the specified range.</p>
+     * @param startInclusive the smallest value that can be returned, must be non-negative
+     * @param endInclusive the upper bound (included)
+     * @throws IllegalArgumentException if {@code startInclusive > endInclusive} or if {@code startInclusive} is negative
      * @return the random float
      */
     public static float nextFloat(final float startInclusive, final float endInclusive) {
@@ -212,16 +167,5 @@ public class RandomUtils {
         }
 
         return startInclusive + ((endInclusive - startInclusive) * RANDOM.nextFloat());
-    }
-
-    /**
-     * <p> Returns a random float within 0 - Float.MAX_VALUE </p>
-     *
-     * @return the random float
-     * @see #nextFloat()
-     * @since 3.5
-     */
-    public static float nextFloat() {
-        return nextFloat(0, Float.MAX_VALUE);
     }
 }

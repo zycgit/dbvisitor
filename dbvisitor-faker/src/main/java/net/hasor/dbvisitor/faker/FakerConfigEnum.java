@@ -13,27 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.config;
+package net.hasor.dbvisitor.faker;
 /**
  * FakerTable 构建器
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public enum FakerEnum {
+public enum FakerConfigEnum {
+    /** 表 处理 update/delete 生成 where 的存量数据加载器 */
+    GLOBAL_DATA_LOADER_FACTORY("dataLoaderFactory"),
+    /** 数据默认生成策略 */
+    GLOBAL_DIALECT("dialect"),
+    /** 数据默认生成策略 */
+    GLOBAL_STRATEGY("strategy"),
 
+    /** 表 catalog */
     TABLE_CATALOG("catalog"),
+    /** 表 schema */
     TABLE_SCHEMA("schema"),
+    /** 表 name */
     TABLE_TABLE("table"),
-    TABLE_STRATEGY("strategy"),
-    TABLE_DATA_LOADER("dataLoader"),
+    /** 列配置信息 */
     TABLE_COLUMNS("columns"),
+    /** 任何操作都不参与的列 */
     TABLE_COL_IGNORE_ALL("ignoreColsAll"),
+    /** 不参与 insert 的列 */
     TABLE_COL_IGNORE_INSERT("ignoreColsInsert"),
+    /** 不参与 update set 的列 */
     TABLE_COL_IGNORE_UPDATE("ignoreColsUpdate"),
+    /** 不参与 where 条件的列 */
     TABLE_COL_IGNORE_WHERE("ignoreColsWhere"),
+    /** INSERT 语句生成策略 */
+    TABLE_ACT_POLITIC_INSERT("actInsertPolitic"),
+    /** UPDATE SET 语句生成策略 */
+    TABLE_ACT_POLITIC_UPDATE("actUpdatePolitic"),
+    /** UPDATE/DELETE 语句的 WHERE 子句生成策略 */
+    TABLE_ACT_POLITIC_WHERE("actWherePolitic"),
 
+    /** 自定义数据发生器 */
     COLUMN_SEED_FACTORY("seedFactory"),
-
     ;
 
     private final String configKey;
@@ -42,7 +60,7 @@ public enum FakerEnum {
         return configKey;
     }
 
-    FakerEnum(String configKey) {
+    FakerConfigEnum(String configKey) {
         this.configKey = configKey;
     }
 }

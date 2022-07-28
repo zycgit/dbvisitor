@@ -13,35 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker;
-
-import net.hasor.dbvisitor.types.TypeHandler;
-
+package net.hasor.dbvisitor.faker.generator;
 /**
- * 生成的数据
+ * SQL 语句类型
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class SqlArg {
-    private final Integer        jdbcType;
-    private final TypeHandler<?> handler;
-    private final Object         object;
-
-    public SqlArg(Integer jdbcType, TypeHandler<?> handler, Object object) {
-        this.jdbcType = jdbcType;
-        this.handler = handler;
-        this.object = object;
-    }
-
-    public Integer getJdbcType() {
-        return jdbcType;
-    }
-
-    public TypeHandler<?> getHandler() {
-        return handler;
-    }
-
-    public Object getObject() {
-        return object;
-    }
+public enum UseFor {
+    Insert,
+    UpdateSet,
+    UpdateWhere,
+    DeleteWhere,
 }

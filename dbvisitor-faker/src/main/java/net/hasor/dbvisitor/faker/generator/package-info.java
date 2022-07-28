@@ -13,15 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.config;
 /**
- * SQL 语句类型
- * @version : 2022-07-25
- * @author 赵永春 (zyc@hasor.net)
+ * use BoundSql gen some IUD sql
  */
-public enum UseFor {
-    Insert,
-    UpdateSet,
-    UpdateWhere,
-    DeleteWhere,
-}
+package net.hasor.dbvisitor.faker.generator;

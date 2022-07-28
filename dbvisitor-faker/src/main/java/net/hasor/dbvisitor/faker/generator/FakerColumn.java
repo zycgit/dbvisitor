@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.config;
+package net.hasor.dbvisitor.faker.generator;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 import net.hasor.dbvisitor.faker.seed.SeedType;
@@ -27,7 +27,9 @@ import java.util.Set;
  */
 public class FakerColumn {
     private String                          column;
+    private boolean                         key;
     private Set<UseFor>                     ignoreAct;
+    private boolean                         canBeCut;
     private Integer                         sqlType;
     private Class<?>                        javaType;
     private SeedType                        seedType;
@@ -42,12 +44,28 @@ public class FakerColumn {
         this.column = column;
     }
 
+    public boolean isKey() {
+        return key;
+    }
+
+    public void setKey(boolean key) {
+        this.key = key;
+    }
+
     public Set<UseFor> getIgnoreAct() {
         return ignoreAct;
     }
 
     public void setIgnoreAct(Set<UseFor> ignoreAct) {
         this.ignoreAct = ignoreAct;
+    }
+
+    public boolean isCanBeCut() {
+        return canBeCut;
+    }
+
+    public void setCanBeCut(boolean canBeCut) {
+        this.canBeCut = canBeCut;
     }
 
     public Integer getSqlType() {

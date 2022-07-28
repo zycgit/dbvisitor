@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker;
-
-import net.hasor.dbvisitor.faker.generator.SqlType;
+package net.hasor.dbvisitor.faker.generator;
 
 import java.util.Arrays;
 
@@ -24,29 +22,17 @@ import java.util.Arrays;
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class BoundSql {
-    private final SqlType  sqlType;
-    private final String   sqlString;
-    private final SqlArg[] paramArray;
+public class BoundQuery {
+    private final StringBuilder sqlString;
+    private final SqlArg[]      paramArray;
 
-    public BoundSql(SqlType sqlType, String sqlString) {
-        this.sqlType = sqlType;
-        this.sqlString = sqlString;
-        this.paramArray = new SqlArg[0];
-    }
-
-    public BoundSql(SqlType sqlType, String sqlString, SqlArg[] paramArray) {
-        this.sqlType = sqlType;
+    public BoundQuery(StringBuilder sqlString, SqlArg[] paramArray) {
         this.sqlString = sqlString;
         this.paramArray = paramArray;
     }
 
-    public SqlType getSqlType() {
-        return this.sqlType;
-    }
-
     public String getSqlString() {
-        return this.sqlString;
+        return this.sqlString.toString();
     }
 
     public SqlArg[] getArgs() {
@@ -55,6 +41,6 @@ public class BoundSql {
 
     @Override
     public String toString() {
-        return "BoundSqlObj{'" + sqlString + '\'' + ", args=" + Arrays.toString(paramArray) + '}';
+        return "{'" + sqlString + '\'' + ", args=" + Arrays.toString(paramArray) + '}';
     }
 }
