@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import java.sql.SQLException;
 
 /**
- * 用于 UPDATE、DELETE 的数据反查器
+ * 用于 UPDATE、DELETE 的数据反查
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

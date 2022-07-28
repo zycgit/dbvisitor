@@ -22,7 +22,7 @@ package net.hasor.dbvisitor.faker;
 public enum FakerConfigEnum {
     /** 表 处理 update/delete 生成 where 的存量数据加载器 */
     GLOBAL_DATA_LOADER_FACTORY("dataLoaderFactory"),
-    /** 数据默认生成策略 */
+    /** sql 语句方言 */
     GLOBAL_DIALECT("dialect"),
     /** 数据默认生成策略 */
     GLOBAL_STRATEGY("strategy"),

@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 /**
- * 列数据生成器
+ * 负责列数据生成
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

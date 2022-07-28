@@ -15,12 +15,11 @@
  */
 package net.hasor.dbvisitor.faker.generator;
 import net.hasor.dbvisitor.faker.FakerConfig;
-import net.hasor.dbvisitor.faker.SqlPolitic;
 
 import java.util.List;
 
 /**
- * Table
+ * 要生成数据的表基本信息和配置信息
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

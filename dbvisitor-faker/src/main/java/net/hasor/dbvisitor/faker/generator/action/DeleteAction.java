@@ -1,3 +1,18 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.hasor.dbvisitor.faker.generator.action;
 
 import net.hasor.dbvisitor.dialect.SqlDialect;
@@ -11,8 +26,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * DELETE 生成器
+ * @version : 2022-07-25
+ * @author 赵永春 (zyc@hasor.net)
+ */
 public class DeleteAction implements Action {
     private final FakerTable            tableInfo;
+    private final boolean               useQualifier;
     private final SqlDialect            dialect;
     private final List<GeneratorColumn> whereFullCols;
     private final List<GeneratorColumn> whereKeyCols;
@@ -20,6 +41,7 @@ public class DeleteAction implements Action {
 
     public DeleteAction(GeneratorTable tableInfo, SqlDialect dialect, List<GeneratorColumn> whereColumns, DataLoader dataLoader) {
         this.tableInfo = tableInfo.getTableInfo();
+        this.useQualifier = tableInfo.getTableInfo().getFakerConfig().isUseQualifier();
         this.dialect = dialect;
         this.dataLoader = dataLoader;
         this.whereFullCols = whereColumns;
@@ -74,17 +96,19 @@ public class DeleteAction implements Action {
         String catalog = this.tableInfo.getCatalog();
         String schema = this.tableInfo.getSchema();
         String table = this.tableInfo.getTable();
+        String tableName = this.dialect.tableName(this.useQualifier, catalog, schema, table);
+
         StringBuilder where = new StringBuilder();
         for (GeneratorColumn colInfo : useColumns) {
             if (where.length() > 0) {
                 where.append(" and ");
             }
-            where.append(this.dialect.columnName(true, catalog, schema, table, colInfo.getColumnInfo().getColumn()));
+            where.append(this.dialect.columnName(this.useQualifier, catalog, schema, table, colInfo.getColumnInfo().getColumn()));
             where.append(" = ?");
         }
         StringBuilder builder = new StringBuilder();
         builder.append("delete from ");
-        builder.append(this.dialect.tableName(true, catalog, schema, table));
+        builder.append(tableName);
         builder.append(" where " + where);
 
         // build args

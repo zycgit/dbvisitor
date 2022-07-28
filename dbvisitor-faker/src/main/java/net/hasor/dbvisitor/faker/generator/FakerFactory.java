@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker;
+package net.hasor.dbvisitor.faker.generator;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.setting.SettingNode;
@@ -21,10 +21,7 @@ import net.hasor.cobble.setting.data.TreeNode;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
-import net.hasor.dbvisitor.faker.generator.FakerColumn;
-import net.hasor.dbvisitor.faker.generator.FakerTable;
-import net.hasor.dbvisitor.faker.generator.GeneratorTable;
-import net.hasor.dbvisitor.faker.generator.UseFor;
+import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
 import net.hasor.dbvisitor.faker.meta.JdbcFetchMetaProvider;
 import net.hasor.dbvisitor.faker.meta.JdbcSqlTypes;
@@ -146,9 +143,9 @@ public class FakerFactory {
             String updatePoliticStr = tableConfig.getSubValue(TABLE_ACT_POLITIC_UPDATE.getConfigKey());
             String wherePoliticStr = tableConfig.getSubValue(TABLE_ACT_POLITIC_WHERE.getConfigKey());
 
-            fakerTable.setInsertPolitic(SqlPolitic.valueOf(insertPoliticStr, SqlPolitic.FullCol));
-            fakerTable.setUpdateSetPolitic(SqlPolitic.valueOf(updatePoliticStr, SqlPolitic.FullCol));
-            fakerTable.setWherePolitic(SqlPolitic.valueOf(wherePoliticStr, SqlPolitic.KeyCol));
+            fakerTable.setInsertPolitic(SqlPolitic.valueOfCode(insertPoliticStr, SqlPolitic.FullCol));
+            fakerTable.setUpdateSetPolitic(SqlPolitic.valueOfCode(updatePoliticStr, SqlPolitic.FullCol));
+            fakerTable.setWherePolitic(SqlPolitic.valueOfCode(wherePoliticStr, SqlPolitic.KeyCol));
         }
 
         return fakerTable;

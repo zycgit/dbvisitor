@@ -31,7 +31,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 /**
- * 列数据生成器
+ * 负责表数据生成
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

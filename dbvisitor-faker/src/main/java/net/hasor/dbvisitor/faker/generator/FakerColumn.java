@@ -21,7 +21,7 @@ import net.hasor.dbvisitor.faker.seed.SeedType;
 import java.util.Set;
 
 /**
- * Column
+ * 要生成数据的列基本信息和配置信息
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

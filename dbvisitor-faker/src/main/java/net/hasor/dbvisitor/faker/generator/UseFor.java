@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.faker.generator;
 /**
- * SQL 语句类型
+ * 值的用途
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

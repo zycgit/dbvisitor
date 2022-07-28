@@ -37,12 +37,12 @@ import java.util.Set;
 import static net.hasor.dbvisitor.faker.seed.string.StandardCharacterSet.*;
 
 /**
- * 保守的生成策略，该策略会用一个相对最小的范围涵盖住大多数类型的数据范围。
+ * 保守的生成策略，该策略会用一个相对最小的范围涵盖住大多数类型的数据范围。以下带 * 的均视表字段情况为准
  * <li>Date：基于系统当前时间，+/- 200年</li>
- * <li>String：0 - 最大不超过 100 个字符（默认字符集：大写字母、小写字母、数字）</li>
+ * <li>String(*)：0 - 最大不超过 100 个字符（默认字符集：大写字母、小写字母、数字）</li>
  * <li>Number：0 - 100</li>
- * <li>Decimal：最大不超过 9 位精度，默认 4 位小数</li>
- * <li>Bytes：0 - 最大不超过 100 个字节</li>
+ * <li>Decimal(*)：最大不超过 9 位精度，默认 4 位小数</li>
+ * <li>Bytes(*)：0 - 最大不超过 100 个字节</li>
  * <li>NULL：如果列允许为空，则生成的数据 20% 为空</li>
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)

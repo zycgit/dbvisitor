@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker;
+package net.hasor.dbvisitor.faker.generator;
 import net.hasor.cobble.StringUtils;
 
 /**
- * sql 语句生成策略
+ * SQL 语句生成策略
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum SqlPolitic {
-    /** 随机列 */
+    /** 全部随机 */
     RandomCol,
-    /** KEY 列中进行随机(update/delete 有效) */
+    /** 随机 KEY 列，(update/delete 有效) */
     RandomKeyCol,
-    /** 含有全部列 */
+    /** 全部列 */
     FullCol,
-    /** KEY 列中进行随机(update/delete 有效) */
+    /** 仅 KEY 列，(update/delete 有效) */
     KeyCol,
     ;
 
-    public static SqlPolitic valueOf(String name, SqlPolitic defaultValue) {
+    public static SqlPolitic valueOfCode(String name, SqlPolitic defaultValue) {
         for (SqlPolitic politic : SqlPolitic.values()) {
             if (StringUtils.equalsIgnoreCase(politic.name(), name)) {
                 return politic;

@@ -21,7 +21,7 @@ import net.hasor.dbvisitor.faker.strategy.Strategy;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /**
- * FakerTable 构建器
+ * FakerTable 全局配置
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -32,6 +32,7 @@ public class FakerConfig {
     private Strategy            strategy;
     private SqlDialect          dialect;
     private boolean             useQualifier;
+    private String              opsRatio;
 
     public FakerConfig() {
         this.classLoader = Thread.currentThread().getContextClassLoader();
@@ -40,6 +41,7 @@ public class FakerConfig {
         this.strategy = new ConservativeStrategy();
         this.dialect = null;
         this.useQualifier = true;
+        this.opsRatio = "INSERT#50;UPDATE#50;DELETE#50";
     }
 
     public ClassLoader getClassLoader() {
@@ -88,5 +90,13 @@ public class FakerConfig {
 
     public void setUseQualifier(boolean useQualifier) {
         this.useQualifier = useQualifier;
+    }
+
+    public String getOpsRatio() {
+        return opsRatio;
+    }
+
+    public void setOpsRatio(String opsRatio) {
+        this.opsRatio = opsRatio;
     }
 }

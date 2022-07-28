@@ -1,3 +1,18 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.hasor.dbvisitor.faker.generator.action;
 
 import net.hasor.dbvisitor.dialect.SqlDialect;
@@ -8,14 +23,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * INSERT 生成器
+ * @version : 2022-07-25
+ * @author 赵永春 (zyc@hasor.net)
+ */
 public class InsertAction implements Action {
     private final FakerTable            tableInfo;
+    private final boolean               useQualifier;
     private final SqlDialect            dialect;
     private final List<GeneratorColumn> insertColumns;
     private final List<GeneratorColumn> canCutColumns;
 
     public InsertAction(GeneratorTable tableInfo, SqlDialect dialect, List<GeneratorColumn> insertColumns) {
         this.tableInfo = tableInfo.getTableInfo();
+        this.useQualifier = tableInfo.getTableInfo().getFakerConfig().isUseQualifier();
         this.dialect = dialect;
         this.insertColumns = insertColumns;
         this.canCutColumns = insertColumns.stream().filter(c -> c.getColumnInfo().isCanBeCut()).collect(Collectors.toList());
@@ -65,6 +87,7 @@ public class InsertAction implements Action {
         String catalog = this.tableInfo.getCatalog();
         String schema = this.tableInfo.getSchema();
         String table = this.tableInfo.getTable();
+        String tableName = this.dialect.tableName(this.useQualifier, catalog, schema, table);
 
         StringBuilder columns = new StringBuilder();
         StringBuilder values = new StringBuilder();
@@ -74,11 +97,10 @@ public class InsertAction implements Action {
                 values.append(", ");
             }
             String colName = colInfo.getColumnInfo().getColumn();
-            columns.append(this.dialect.columnName(true, catalog, schema, table, colName));
+            columns.append(this.dialect.columnName(this.useQualifier, catalog, schema, table, colName));
             values.append("?");
         }
 
-        String tableName = this.dialect.tableName(true, catalog, schema, table);
         StringBuilder builder = new StringBuilder();
         builder.append("insert into " + tableName);
         builder.append("(" + columns + ")");

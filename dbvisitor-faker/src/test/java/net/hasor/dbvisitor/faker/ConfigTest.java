@@ -1,6 +1,8 @@
 package net.hasor.dbvisitor.faker;
 import net.hasor.dbvisitor.faker.generator.BoundQuery;
+import net.hasor.dbvisitor.faker.generator.FakerFactory;
 import net.hasor.dbvisitor.faker.generator.GeneratorTable;
+import net.hasor.dbvisitor.faker.generator.SqlPolitic;
 import org.junit.Test;
 
 import java.util.List;

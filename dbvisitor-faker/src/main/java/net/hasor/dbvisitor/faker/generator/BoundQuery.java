@@ -18,7 +18,7 @@ package net.hasor.dbvisitor.faker.generator;
 import java.util.Arrays;
 
 /**
- * 可执行的 SQL
+ * 一条生成的 SQL
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
