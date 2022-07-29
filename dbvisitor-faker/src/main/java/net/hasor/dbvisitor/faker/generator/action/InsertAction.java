@@ -15,9 +15,9 @@
  */
 package net.hasor.dbvisitor.faker.generator.action;
 
+import net.hasor.cobble.RandomUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.generator.*;
-import net.hasor.dbvisitor.faker.seed.RandomUtils;
 
 import java.util.ArrayList;
 import java.util.List;

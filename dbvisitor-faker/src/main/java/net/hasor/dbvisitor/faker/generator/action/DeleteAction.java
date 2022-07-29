@@ -15,9 +15,10 @@
  */
 package net.hasor.dbvisitor.faker.generator.action;
 
+import net.hasor.cobble.CollectionUtils;
+import net.hasor.cobble.RandomUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.generator.*;
-import net.hasor.dbvisitor.faker.seed.RandomUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -88,7 +89,7 @@ public class DeleteAction implements Action {
         // fetch some data used for delete
         List<String> fetchCols = useColumns.stream().map(c -> c.getColumnInfo().getColumn()).collect(Collectors.toList());
         List<Map<String, Object>> fetchDataList = this.dataLoader.loadSomeData(UseFor.UpdateWhere, this.tableInfo, fetchCols, batchSize);
-        if (fetchDataList == null || fetchDataList.isEmpty()) {
+        if (CollectionUtils.isEmpty(fetchDataList)) {
             return Collections.emptyList();
         }
 

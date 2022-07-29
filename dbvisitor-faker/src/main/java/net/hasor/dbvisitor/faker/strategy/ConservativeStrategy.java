@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.strategy;
+import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.DateFormatType;
 import net.hasor.dbvisitor.faker.generator.FakerTable;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
@@ -103,7 +104,7 @@ public class ConservativeStrategy implements Strategy {
             case String: {
                 StringSeedConfig stringSeedConfig = (StringSeedConfig) seedConfig;
                 Set<Characters> characters = stringSeedConfig.getCharacterSet();
-                if (characters == null || characters.isEmpty()) {
+                if (CollectionUtils.isEmpty(characters)) {
                     stringSeedConfig.setCharacterSet(new HashSet<>(Arrays.asList(CAPITAL_LETTER, SMALL_LETTER, NUMERIC)));
                 }
                 Integer columnSize = refer.getColumnSize();

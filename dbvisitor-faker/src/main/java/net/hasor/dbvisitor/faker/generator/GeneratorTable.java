@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.faker.generator;
 
+import net.hasor.cobble.RandomUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
@@ -22,7 +23,6 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.generator.action.DeleteAction;
 import net.hasor.dbvisitor.faker.generator.action.InsertAction;
 import net.hasor.dbvisitor.faker.generator.action.UpdateAction;
-import net.hasor.dbvisitor.faker.seed.RandomUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.page.PageObject;

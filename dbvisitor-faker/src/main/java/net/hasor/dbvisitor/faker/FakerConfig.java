@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker;
+import net.hasor.cobble.RandomUtils;
+import net.hasor.cobble.ref.Ratio;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.generator.DataLoader;
 import net.hasor.dbvisitor.faker.strategy.ConservativeStrategy;
@@ -21,18 +23,27 @@ import net.hasor.dbvisitor.faker.strategy.Strategy;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /**
- * FakerTable 全局配置
+ * Faker 全局配置
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
 public class FakerConfig {
-    private ClassLoader         classLoader;
-    private TypeHandlerRegistry typeRegistry;
-    private DataLoader          dataLoader;
-    private Strategy            strategy;
-    private SqlDialect          dialect;
-    private boolean             useQualifier;
-    private String              opsRatio;
+    // generator
+    private       ClassLoader         classLoader;
+    private       TypeHandlerRegistry typeRegistry;
+    private       DataLoader          dataLoader;
+    private       Strategy            strategy;
+    private       SqlDialect          dialect;
+    private       boolean             useQualifier;
+    // engine
+    private       int                 minBatchSizePerOps;
+    private       int                 maxBatchSizePerOps;
+    private final Ratio<OpsType>      opsRatio;
+    private       boolean             transaction;
+    private       int                 minPausePerTransactionMs;
+    private       int                 maxPausePerTransactionMs;
+    private       int                 minOpsCountPerTransaction;
+    private       int                 maxOpsCountPerTransaction;
 
     public FakerConfig() {
         this.classLoader = Thread.currentThread().getContextClassLoader();
@@ -41,7 +52,23 @@ public class FakerConfig {
         this.strategy = new ConservativeStrategy();
         this.dialect = null;
         this.useQualifier = true;
-        this.opsRatio = "INSERT#50;UPDATE#50;DELETE#50";
+        this.opsRatio = RatioUtils.passerByConfig("INSERT#50;UPDATE#50;DELETE#50");
+    }
+
+    public int randomOpsCountPerTrans() {
+        return RandomUtils.nextInt(Math.min(1, this.minOpsCountPerTransaction), Math.max(1, this.maxOpsCountPerTransaction));
+    }
+
+    public int randomPausePerTransactionMs() {
+        return RandomUtils.nextInt(Math.min(1, this.minPausePerTransactionMs), Math.max(1, this.maxPausePerTransactionMs));
+    }
+
+    public int randomBatchSizePerOps() {
+        return RandomUtils.nextInt(Math.min(1, this.minBatchSizePerOps), Math.max(1, this.maxBatchSizePerOps));
+    }
+
+    public OpsType randomOps() {
+        return this.opsRatio.getByRandom();
     }
 
     public ClassLoader getClassLoader() {
@@ -92,11 +119,68 @@ public class FakerConfig {
         this.useQualifier = useQualifier;
     }
 
-    public String getOpsRatio() {
+    public Ratio<OpsType> getOpsRatio() {
         return opsRatio;
     }
 
     public void setOpsRatio(String opsRatio) {
-        this.opsRatio = opsRatio;
+        this.opsRatio.clearRatio();
+        RatioUtils.fillByConfig(opsRatio, this.opsRatio);
+    }
+
+    public int getMinBatchSizePerOps() {
+        return minBatchSizePerOps;
+    }
+
+    public void setMinBatchSizePerOps(int minBatchSizePerOps) {
+        this.minBatchSizePerOps = minBatchSizePerOps;
+    }
+
+    public int getMaxBatchSizePerOps() {
+        return maxBatchSizePerOps;
+    }
+
+    public void setMaxBatchSizePerOps(int maxBatchSizePerOps) {
+        this.maxBatchSizePerOps = maxBatchSizePerOps;
+    }
+
+    public boolean isTransaction() {
+        return transaction;
+    }
+
+    public void setTransaction(boolean transaction) {
+        this.transaction = transaction;
+    }
+
+    public int getMinPausePerTransactionMs() {
+        return minPausePerTransactionMs;
+    }
+
+    public void setMinPausePerTransactionMs(int minPausePerTransactionMs) {
+        this.minPausePerTransactionMs = minPausePerTransactionMs;
+    }
+
+    public int getMaxPausePerTransactionMs() {
+        return maxPausePerTransactionMs;
+    }
+
+    public void setMaxPausePerTransactionMs(int maxPausePerTransactionMs) {
+        this.maxPausePerTransactionMs = maxPausePerTransactionMs;
+    }
+
+    public int getMinOpsCountPerTransaction() {
+        return minOpsCountPerTransaction;
+    }
+
+    public void setMinOpsCountPerTransaction(int minOpsCountPerTransaction) {
+        this.minOpsCountPerTransaction = minOpsCountPerTransaction;
+    }
+
+    public int getMaxOpsCountPerTransaction() {
+        return maxOpsCountPerTransaction;
+    }
+
+    public void setMaxOpsCountPerTransaction(int maxOpsCountPerTransaction) {
+        this.maxOpsCountPerTransaction = maxOpsCountPerTransaction;
     }
 }

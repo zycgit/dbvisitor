@@ -102,11 +102,15 @@ public class FakerFactory {
         });
     }
 
+    public FakerConfig getFakerConfig() {
+        return this.fakerConfig;
+    }
+
     public JdbcTemplate getJdbcTemplate() {
         return this.jdbcTemplate;
     }
 
-    public GeneratorTable fetchTable(SettingNode tableConfig) throws Exception {
+    public GeneratorTable fetchTable(SettingNode tableConfig) throws SQLException, ReflectiveOperationException {
         String catalog = tableConfig.getSubValue(TABLE_CATALOG.getConfigKey());
         String schema = tableConfig.getSubValue(TABLE_SCHEMA.getConfigKey());
         String table = tableConfig.getSubValue(TABLE_TABLE.getConfigKey());
@@ -115,12 +119,12 @@ public class FakerFactory {
         return new GeneratorTable(tableInfo, this.dialect, this.jdbcTemplate);
     }
 
-    public GeneratorTable fetchTable(String catalog, String schema, String table) throws Exception {
+    public GeneratorTable fetchTable(String catalog, String schema, String table) throws SQLException, ReflectiveOperationException {
         FakerTable tableInfo = this.buildTable(catalog, schema, table, null);
         return new GeneratorTable(tableInfo, this.dialect, this.jdbcTemplate);
     }
 
-    public FakerTable buildTable(String catalog, String schema, String table, SettingNode tableConfig) throws Exception {
+    public FakerTable buildTable(String catalog, String schema, String table, SettingNode tableConfig) throws SQLException, ReflectiveOperationException {
         JdbcTable jdbcTable = this.metaProvider.getTable(catalog, schema, table);
         if (jdbcTable == null) {
             String tabName = String.format("%s.%s.%s", catalog, schema, table);
@@ -151,7 +155,7 @@ public class FakerFactory {
         return fakerTable;
     }
 
-    protected List<FakerColumn> buildColumns(SettingNode tableConfig, FakerTable fakerTable) throws Exception {
+    protected List<FakerColumn> buildColumns(SettingNode tableConfig, FakerTable fakerTable) throws SQLException, ReflectiveOperationException {
         SettingNode columnsConfig = tableConfig.getSubNode(TABLE_COLUMNS.getConfigKey());
         String[] ignoreCols = tableConfig.getSubValues(TABLE_COL_IGNORE_ALL.getConfigKey());
         String[] ignoreInsertCols = tableConfig.getSubValues(TABLE_COL_IGNORE_INSERT.getConfigKey());

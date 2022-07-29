@@ -16,8 +16,8 @@
 package net.hasor.dbvisitor.faker.seed.date;
 
 import net.hasor.cobble.DateFormatType;
+import net.hasor.cobble.RandomUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.faker.seed.RandomUtils;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 
