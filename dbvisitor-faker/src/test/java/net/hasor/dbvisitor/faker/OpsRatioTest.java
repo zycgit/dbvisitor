@@ -1,5 +1,5 @@
-package net.hasor.dbvisitor.faker.engine;
-import net.hasor.dbvisitor.faker.engine.ratio.OpsRatio;
+package net.hasor.dbvisitor.faker;
+import net.hasor.cobble.ref.Ratio;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -7,7 +7,7 @@ import java.io.IOException;
 public class OpsRatioTest {
     @Test
     public void iteratorlocks() throws IOException {
-        OpsRatio opsRatio = new OpsRatio("I#20,UPDATE# 12;d # 33");
+        Ratio<OpsType> opsRatio = RatioUtils.passerByConfig("I#20,UPDATE# 12;d # 33");
         System.out.println();
     }
 }

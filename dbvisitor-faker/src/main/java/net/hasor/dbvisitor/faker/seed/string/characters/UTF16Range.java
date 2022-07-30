@@ -15,20 +15,23 @@
  */
 package net.hasor.dbvisitor.faker.seed.string.characters;
 /**
- * 基于 UTF-16 的 符号字符集
+ * 基于 UTF-16 的 Bit 字符集，只含有 0，1 两个字符
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class SymbolCharacters extends AbstractUTF16Characters {
-    private final Range[] ranges = new Range[] {//
-            new Range(0x0021, 0x002f), //
-            new Range(0x003a, 0x0040), //
-            new Range(0x005b, 0x0060), //
-            new Range(0x007b, 0x007e) };
+public class UTF16Range extends AbstractUTF16Characters {
+    private final Range[] ranges;
+
+    public UTF16Range(Range... ranges) {
+        this.ranges = ranges;
+    }
 
     @Override
     protected Range[] getRanges() {
         return ranges;
     }
 
+    public static UTF16Range ofRanges(Range... ranges) {
+        return new UTF16Range(ranges);
+    }
 }

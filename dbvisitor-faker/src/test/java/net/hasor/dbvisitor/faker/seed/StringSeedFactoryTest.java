@@ -1,11 +1,10 @@
 package net.hasor.dbvisitor.faker.seed;
 
 import net.hasor.cobble.RandomUtils;
+import net.hasor.dbvisitor.faker.seed.string.CharacterSet;
 import net.hasor.dbvisitor.faker.seed.string.Characters;
-import net.hasor.dbvisitor.faker.seed.string.StandardCharacterSet;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedConfig;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedFactory;
-import net.hasor.dbvisitor.faker.seed.string.characters.*;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -17,7 +16,7 @@ public class StringSeedFactoryTest {
 
     @Test
     public void characters_1() {
-        AsciiCharacters characters = new AsciiCharacters();
+        Characters characters = CharacterSet.ASCII;
 
         for (int i = 0; i < 10; i++) {
             int nextInt = RandomUtils.nextInt(0, characters.getSize());
@@ -27,7 +26,7 @@ public class StringSeedFactoryTest {
 
     @Test
     public void characters_2() {
-        ControlCharacters characters = new ControlCharacters();
+        Characters characters = CharacterSet.CONTROL;
 
         for (int i = 0; i < 10; i++) {
             int nextInt = RandomUtils.nextInt(0, characters.getSize());
@@ -37,7 +36,7 @@ public class StringSeedFactoryTest {
 
     @Test
     public void characters_3() {
-        HexNumberCharacters characters = new HexNumberCharacters();
+        Characters characters = CharacterSet.HEX;
 
         for (int i = 0; i < 10; i++) {
             int nextInt = RandomUtils.nextInt(0, characters.getSize());
@@ -47,7 +46,7 @@ public class StringSeedFactoryTest {
 
     @Test
     public void characters_4() {
-        SmallLetterCharacters characters = new SmallLetterCharacters();
+        Characters characters = CharacterSet.SMALL_LETTER;
 
         for (int i = 0; i < 10; i++) {
             int nextInt = RandomUtils.nextInt(0, characters.getSize());
@@ -57,7 +56,7 @@ public class StringSeedFactoryTest {
 
     @Test
     public void characters_5() {
-        NumberCharacters characters = new NumberCharacters();
+        Characters characters = CharacterSet.NUMBER;
 
         for (int i = 0; i < 10; i++) {
             int nextInt = RandomUtils.nextInt(0, characters.getSize());
@@ -67,17 +66,7 @@ public class StringSeedFactoryTest {
 
     @Test
     public void characters_6() {
-        CapitalLetterCharacters characters = new CapitalLetterCharacters();
-
-        for (int i = 0; i < 10; i++) {
-            int nextInt = RandomUtils.nextInt(0, characters.getSize());
-            System.out.println(nextInt + " - " + characters.getChar(nextInt));
-        }
-    }
-
-    @Test
-    public void characters_7() {
-        CapitalLetterCharacters characters = new CapitalLetterCharacters();
+        Characters characters = CharacterSet.CAPITAL_LETTER;
 
         for (int i = 0; i < 10; i++) {
             int nextInt = RandomUtils.nextInt(0, characters.getSize());
@@ -88,11 +77,11 @@ public class StringSeedFactoryTest {
     @Test
     public void characters_8() {
 
-        Characters charPool = StandardCharacterSet.BASIC_LATIN;
+        Characters characters = CharacterSet.LATIN;
 
         for (int i = 0; i < 100; i++) {
-            int nextInt = RandomUtils.nextInt(0, charPool.getSize());
-            System.out.print(charPool.getChar(nextInt));
+            int nextInt = RandomUtils.nextInt(0, characters.getSize());
+            System.out.print(characters.getChar(nextInt));
         }
     }
 
@@ -103,7 +92,7 @@ public class StringSeedFactoryTest {
         genConfig.setMinLength(2);
         genConfig.setMaxLength(64);
         genConfig.setAllowNullable(false);
-        genConfig.setCharacterSet(new HashSet<>(Arrays.asList(StandardCharacterSet.CAPITAL_LETTER, StandardCharacterSet.NUMERIC)));
+        genConfig.setCharacterSet(new HashSet<>(Arrays.asList(CharacterSet.CAPITAL_LETTER, CharacterSet.NUMBER)));
 
         Supplier<String> stringSupplier = factory.createSeed(genConfig);
         for (int i = 0; i < 10; i++) {
@@ -118,7 +107,7 @@ public class StringSeedFactoryTest {
         genConfig.setMinLength(2);
         genConfig.setMaxLength(64);
         genConfig.setAllowNullable(false);
-        genConfig.setCharacterSet(new HashSet<>(Collections.singletonList(StandardCharacterSet.HEX)));
+        genConfig.setCharacterSet(new HashSet<>(Collections.singletonList(CharacterSet.HEX)));
 
         Supplier<String> stringSupplier = factory.createSeed(genConfig);
         for (int i = 0; i < 10; i++) {
@@ -135,7 +124,24 @@ public class StringSeedFactoryTest {
         genConfig.setAllowNullable(true);
         genConfig.setAllowEmpty(true);
         genConfig.setNullableRatio(20.0f);
-        genConfig.setCharacterSet(new HashSet<>(Arrays.asList(StandardCharacterSet.HEX)));
+        genConfig.setCharacterSet(new HashSet<>(Arrays.asList(CharacterSet.HEX)));
+
+        Supplier<String> stringSupplier = factory.createSeed(genConfig);
+        for (int i = 0; i < 10; i++) {
+            System.out.println(stringSupplier.get());
+        }
+    }
+
+    @Test
+    public void buildString_4() {
+        StringSeedFactory factory = new StringSeedFactory();
+        StringSeedConfig genConfig = new StringSeedConfig();
+        genConfig.setMinLength(2);
+        genConfig.setMaxLength(64);
+        genConfig.setAllowNullable(true);
+        genConfig.setAllowEmpty(true);
+        genConfig.setNullableRatio(20.0f);
+        genConfig.setCharacterSet(new HashSet<>(Arrays.asList(CharacterSet.CJK_UNIFIED_IDEOGRAPHS)));
 
         Supplier<String> stringSupplier = factory.createSeed(genConfig);
         for (int i = 0; i < 10; i++) {

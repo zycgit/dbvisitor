@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2022 the original author or authors.
+ * Copyright 2008-2009 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.seed.string.characters;
 /**
- * 基于 UTF-16 的 Bit 字符集，只含有 0，1 两个字符
- * @version : 2022-07-25
- * @author 赵永春 (zyc@hasor.net)
+ * 基于块的存储区层。
  */
-public class BitCharacters extends AbstractUTF16Characters {
-    private final Range[] ranges = new Range[] { new Range(0x0030, 0x0031) };
-
-    @Override
-    protected Range[] getRanges() {
-        return ranges;
-    }
-
-}
+package net.hasor.dbvisitor.faker.engine.storage;

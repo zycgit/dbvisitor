@@ -31,11 +31,11 @@ import net.hasor.dbvisitor.faker.seed.string.StringSeedConfig;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static net.hasor.dbvisitor.faker.seed.string.StandardCharacterSet.*;
+import static net.hasor.dbvisitor.faker.seed.string.CharacterSet.LETTER_NUMBER;
 
 /**
  * 保守的生成策略，该策略会用一个相对最小的范围涵盖住大多数类型的数据范围。以下带 * 的均视表字段情况为准
@@ -105,7 +105,7 @@ public class ConservativeStrategy implements Strategy {
                 StringSeedConfig stringSeedConfig = (StringSeedConfig) seedConfig;
                 Set<Characters> characters = stringSeedConfig.getCharacterSet();
                 if (CollectionUtils.isEmpty(characters)) {
-                    stringSeedConfig.setCharacterSet(new HashSet<>(Arrays.asList(CAPITAL_LETTER, SMALL_LETTER, NUMERIC)));
+                    stringSeedConfig.setCharacterSet(new HashSet<>(Collections.singletonList(LETTER_NUMBER)));
                 }
                 Integer columnSize = refer.getColumnSize();
                 if (columnSize == null || columnSize > 100 || columnSize < 0) {

@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.faker.engine;
+package net.hasor.dbvisitor.faker;
 import net.hasor.dbvisitor.faker.engine.storage.Block;
 import net.hasor.dbvisitor.faker.engine.storage.BlockChannel;
 import net.hasor.dbvisitor.faker.engine.storage.BlockFileAdapter;

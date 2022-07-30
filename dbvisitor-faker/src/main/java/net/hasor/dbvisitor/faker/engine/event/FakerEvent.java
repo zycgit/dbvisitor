@@ -13,18 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.seed.string.characters;
+package net.hasor.dbvisitor.faker.engine.event;
 /**
- * 基于 UTF-16 的 字符集，字符集中只含有 0-9，a-f，共计 16 个字符，可以用于生成 16 进制形式的 bytes 数据。
+ * 事件
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class HexNumberCharacters extends AbstractUTF16Characters {
-    private final Range[] ranges = new Range[] { new Range(0x0030, 0x0039), new Range(0x0041, 0x0046) };
-
-    @Override
-    protected Range[] getRanges() {
-        return ranges;
-    }
+public interface FakerEvent {
 
 }

@@ -40,7 +40,6 @@ import net.hasor.dbvisitor.faker.seed.number.NumberSeedFactory;
 import net.hasor.dbvisitor.faker.seed.number.NumberType;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedConfig;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedFactory;
-import net.hasor.dbvisitor.faker.seed.string.characters.BitCharacters;
 import net.hasor.dbvisitor.faker.strategy.Strategy;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
@@ -51,7 +50,8 @@ import java.sql.SQLException;
 import java.util.*;
 
 import static net.hasor.dbvisitor.faker.FakerConfigEnum.*;
-import static net.hasor.dbvisitor.faker.seed.string.StandardCharacterSet.*;
+import static net.hasor.dbvisitor.faker.seed.string.CharacterSet.BIT;
+import static net.hasor.dbvisitor.faker.seed.string.CharacterSet.LETTER_NUMBER;
 
 /**
  * FakerTable 构建器
@@ -263,7 +263,7 @@ public class FakerFactory {
             }
             case BIT: {
                 StringSeedConfig config = (StringSeedConfig) seedFactory.newConfig();
-                config.setCharacterSet(new HashSet<>(Collections.singletonList(new BitCharacters())));
+                config.setCharacterSet(new HashSet<>(Collections.singletonList(BIT)));
                 return config;
             }
             case TINYINT: {
@@ -312,7 +312,7 @@ public class FakerFactory {
             case CLOB:
             case NCLOB: {
                 StringSeedConfig config = (StringSeedConfig) seedFactory.newConfig();
-                config.setCharacterSet(new HashSet<>(Arrays.asList(CAPITAL_LETTER, SMALL_LETTER, NUMERIC)));
+                config.setCharacterSet(new HashSet<>(Collections.singletonList(LETTER_NUMBER)));
                 return config;
             }
             case BINARY:
