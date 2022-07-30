@@ -88,20 +88,4 @@ public class FakerColumn {
         String handlerType = this.seedConfig.getTypeHandler().getClass().toString();
         return this.column + ", ignoreAct=" + ignoreAct + ", jdbcType=" + this.jdbcType + ", javaType=" + handlerType + '}';
     }
-
-    public Integer getJdbcType() {
-        return jdbcType;
-    }
-
-    public void setJdbcType(Integer jdbcType) {
-        this.jdbcType = jdbcType;
-    }
-
-    public TypeHandler<?> getTypeHandler() {
-        return typeHandler;
-    }
-
-    public void setTypeHandler(TypeHandler<?> typeHandler) {
-        this.typeHandler = typeHandler;
-    }
 }

@@ -62,6 +62,7 @@ public class FakerFactory {
     private final JdbcTemplate          jdbcTemplate;
     private final JdbcFetchMetaProvider metaProvider;
     private final FakerConfig           fakerConfig;
+    private final String                dbType;
     private final SqlDialect            dialect;
 
     public FakerFactory(Connection connection) throws SQLException {
@@ -76,30 +77,35 @@ public class FakerFactory {
         this.jdbcTemplate = new JdbcTemplate(connection);
         this.metaProvider = new JdbcFetchMetaProvider(connection);
         this.fakerConfig = fakerConfig;
-        this.dialect = this.initDialect(fakerConfig);
+        this.dbType = initDbType();
+        this.dialect = this.initDialect(this.dbType, fakerConfig);
     }
 
     public FakerFactory(DataSource dataSource, FakerConfig fakerConfig) throws SQLException {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.metaProvider = new JdbcFetchMetaProvider(dataSource);
         this.fakerConfig = fakerConfig;
-        this.dialect = this.initDialect(fakerConfig);
+        this.dbType = initDbType();
+        this.dialect = this.initDialect(this.dbType, fakerConfig);
     }
 
-    protected SqlDialect initDialect(FakerConfig fakerConfig) throws SQLException {
+    protected String initDbType() throws SQLException {
+        return this.jdbcTemplate.execute((ConnectionCallback<String>) con -> {
+            String jdbcUrl = con.getMetaData().getURL();
+            String jdbcDriverName = con.getMetaData().getDriverName();
+            return JdbcUtils.getDbType(jdbcUrl, jdbcDriverName);
+        });
+    }
+
+    protected SqlDialect initDialect(String dbType, FakerConfig fakerConfig) {
         if (fakerConfig.getDialect() != null) {
             return fakerConfig.getDialect();
         }
-        return this.jdbcTemplate.execute((ConnectionCallback<SqlDialect>) con -> {
-            String jdbcUrl = con.getMetaData().getURL();
-            String jdbcDriverName = con.getMetaData().getDriverName();
-            String dbType = JdbcUtils.getDbType(jdbcUrl, jdbcDriverName);
-            if (StringUtils.isBlank(dbType)) {
-                throw new IllegalArgumentException("SqlDialect missing.");
-            }
-
+        if (StringUtils.isBlank(dbType)) {
+            throw new IllegalArgumentException("SqlDialect missing.");
+        } else {
             return SqlDialectRegister.findOrCreate(dbType);
-        });
+        }
     }
 
     public FakerConfig getFakerConfig() {
@@ -187,7 +193,7 @@ public class FakerFactory {
         }
 
         // final apply form strategy
-        strategy.applyConfig(fakerTable, seedConfig, jdbcColumn);
+        strategy.applyConfig(this.dbType, fakerTable, seedConfig, jdbcColumn);
 
         // final apply form config
         Class<?> configClass = seedConfig.getClass();

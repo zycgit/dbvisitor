@@ -16,6 +16,8 @@
 package net.hasor.dbvisitor.faker.strategy;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.DateFormatType;
+import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.faker.generator.FakerTable;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
@@ -30,6 +32,9 @@ import net.hasor.dbvisitor.faker.seed.string.StringSeedConfig;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashSet;
@@ -50,7 +55,7 @@ import static net.hasor.dbvisitor.faker.seed.string.CharacterSet.LETTER_NUMBER;
  */
 public class ConservativeStrategy implements Strategy {
     @Override
-    public void applyConfig(FakerTable fakerTable, SeedConfig seedConfig, JdbcColumn refer) {
+    public void applyConfig(String dbType, FakerTable fakerTable, SeedConfig seedConfig, JdbcColumn refer) {
         if (Boolean.TRUE.equals(refer.getNullable())) {
             seedConfig.setAllowNullable(true);
             seedConfig.setNullableRatio(20f);
@@ -80,6 +85,22 @@ public class ConservativeStrategy implements Strategy {
                 dateSeedConfig.setDateType(DateType.JavaDate);
                 dateSeedConfig.setRangeForm(formatter.format(rangeForm));
                 dateSeedConfig.setRangeTo(formatter.format(rangeTo));
+
+                // mysql TIMESTAMP has a range of '1970-01-01 00:00:01' UTC to '2038-01-19 03:14:07' UTC
+                if (StringUtils.equalsIgnoreCase(JdbcUtils.MYSQL, dbType)) {
+                    if (StringUtils.equalsIgnoreCase(refer.getColumnType(), "TIMESTAMP")) {
+                        OffsetDateTime utcStart = OffsetDateTime.of(LocalDateTime.of(1970, 1, 1, 0, 0, 1), ZoneOffset.UTC);
+                        OffsetDateTime utcEnd = OffsetDateTime.of(LocalDateTime.of(2038, 1, 19, 3, 14, 7), ZoneOffset.UTC);
+
+                        rangeForm = utcStart.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                        rangeTo = utcEnd.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+                        dateSeedConfig.setRangeForm(formatter.format(rangeForm));
+                        dateSeedConfig.setRangeTo(formatter.format(rangeTo));
+                        dateSeedConfig.setZoneForm("Z");
+                        dateSeedConfig.setZoneTo("Z");
+                    }
+                }
                 return;
             }
             case Number: {

@@ -107,8 +107,10 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig, Serializable
 
         int minZoned = startZoned.getTotalSeconds();
         int maxZoned = endZoned.getTotalSeconds();
-        long minTime = startTime.toInstant().toEpochMilli();
-        long maxTime = endTime.toInstant().toEpochMilli();
+        long minTimeSec = startTime.toEpochSecond();
+        long maxTimeSec = endTime.toEpochSecond();
+        int minTimeNano = startTime.getNano();
+        int maxTimeNano = endTime.getNano();
 
         return () -> {
             if (seedNull.get()) {
@@ -117,20 +119,18 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig, Serializable
 
             int randomZoned = 0;
             long randomTime = 0;
+            int randomNano = 0;
 
             if (RandomUtils.nextBoolean()) {
                 randomZoned = -RandomUtils.nextInt(0, Math.abs(minZoned));
             } else {
                 randomZoned = RandomUtils.nextInt(0, Math.abs(maxZoned));
             }
-            if (RandomUtils.nextBoolean()) {
-                randomTime = -RandomUtils.nextLong(0, Math.abs(minTime));
-            } else {
-                randomTime = RandomUtils.nextLong(0, Math.abs(maxTime));
-            }
+            randomTime = RandomUtils.nextLong(minTimeSec, maxTimeSec);
+            randomNano = RandomUtils.nextInt(minTimeNano, maxTimeNano);
 
             ZoneOffset zoneOffset = ZoneOffset.ofTotalSeconds(randomZoned);
-            ZonedDateTime passedTime = Instant.ofEpochMilli(randomTime).atZone(zoneOffset);
+            ZonedDateTime passedTime = Instant.ofEpochSecond(randomTime).plusNanos(randomNano).atZone(zoneOffset);
             return convertType(passedTime, seedConfig);
         };
     }
