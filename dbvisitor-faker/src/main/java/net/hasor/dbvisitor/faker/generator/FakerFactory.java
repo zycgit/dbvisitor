@@ -110,18 +110,16 @@ public class FakerFactory {
         return this.jdbcTemplate;
     }
 
-    public GeneratorTable fetchTable(SettingNode tableConfig) throws SQLException, ReflectiveOperationException {
+    public FakerTable fetchTable(SettingNode tableConfig) throws SQLException, ReflectiveOperationException {
         String catalog = tableConfig.getSubValue(TABLE_CATALOG.getConfigKey());
         String schema = tableConfig.getSubValue(TABLE_SCHEMA.getConfigKey());
         String table = tableConfig.getSubValue(TABLE_TABLE.getConfigKey());
 
-        FakerTable tableInfo = this.buildTable(catalog, schema, table, tableConfig);
-        return new GeneratorTable(tableInfo, this.dialect, this.jdbcTemplate);
+        return this.buildTable(catalog, schema, table, tableConfig);
     }
 
-    public GeneratorTable fetchTable(String catalog, String schema, String table) throws SQLException, ReflectiveOperationException {
-        FakerTable tableInfo = this.buildTable(catalog, schema, table, null);
-        return new GeneratorTable(tableInfo, this.dialect, this.jdbcTemplate);
+    public FakerTable fetchTable(String catalog, String schema, String table) throws SQLException, ReflectiveOperationException {
+        return this.buildTable(catalog, schema, table, null);
     }
 
     public FakerTable buildTable(String catalog, String schema, String table, SettingNode tableConfig) throws SQLException, ReflectiveOperationException {
@@ -131,31 +129,25 @@ public class FakerFactory {
             throw new IllegalArgumentException("table '" + tabName + "' is not exist.");
         }
 
-        FakerTable fakerTable = new FakerTable();
-        fakerTable.setCatalog(catalog);
-        fakerTable.setSchema(schema);
-        fakerTable.setTable(table);
-        fakerTable.setColumns(buildColumns(new TreeNode(), fakerTable));
-        fakerTable.setFakerConfig(this.fakerConfig);
-        fakerTable.setDataLoader(this.fakerConfig.getDataLoader());
-        fakerTable.setInsertPolitic(SqlPolitic.RandomCol);
-        fakerTable.setUpdateSetPolitic(SqlPolitic.RandomCol);
-        fakerTable.setWherePolitic(SqlPolitic.KeyCol);
+        FakerTable fakerTable = new FakerTable(catalog, schema, table);
+        fakerTable.setUseQualifier(this.fakerConfig.isUseQualifier());
 
-        if (tableConfig != null) {
-            String insertPoliticStr = tableConfig.getSubValue(TABLE_ACT_POLITIC_INSERT.getConfigKey());
-            String updatePoliticStr = tableConfig.getSubValue(TABLE_ACT_POLITIC_UPDATE.getConfigKey());
-            String wherePoliticStr = tableConfig.getSubValue(TABLE_ACT_POLITIC_WHERE.getConfigKey());
+        tableConfig = tableConfig == null ? new TreeNode() : tableConfig;
+        buildColumns(fakerTable, tableConfig);
 
-            fakerTable.setInsertPolitic(SqlPolitic.valueOfCode(insertPoliticStr, SqlPolitic.FullCol));
-            fakerTable.setUpdateSetPolitic(SqlPolitic.valueOfCode(updatePoliticStr, SqlPolitic.FullCol));
-            fakerTable.setWherePolitic(SqlPolitic.valueOfCode(wherePoliticStr, SqlPolitic.KeyCol));
-        }
+        String insertPoliticStr = tableConfig.getSubValue(TABLE_ACT_POLITIC_INSERT.getConfigKey());
+        String updatePoliticStr = tableConfig.getSubValue(TABLE_ACT_POLITIC_UPDATE.getConfigKey());
+        String wherePoliticStr = tableConfig.getSubValue(TABLE_ACT_POLITIC_WHERE.getConfigKey());
 
+        fakerTable.setInsertPolitic(SqlPolitic.valueOfCode(insertPoliticStr, SqlPolitic.RandomCol));
+        fakerTable.setUpdateSetPolitic(SqlPolitic.valueOfCode(updatePoliticStr, SqlPolitic.RandomCol));
+        fakerTable.setWherePolitic(SqlPolitic.valueOfCode(wherePoliticStr, SqlPolitic.KeyCol));
+
+        fakerTable.initTable(this, this.dialect);
         return fakerTable;
     }
 
-    protected List<FakerColumn> buildColumns(SettingNode tableConfig, FakerTable fakerTable) throws SQLException, ReflectiveOperationException {
+    protected void buildColumns(FakerTable fakerTable, SettingNode tableConfig) throws SQLException, ReflectiveOperationException {
         SettingNode columnsConfig = tableConfig.getSubNode(TABLE_COLUMNS.getConfigKey());
         String[] ignoreCols = tableConfig.getSubValues(TABLE_COL_IGNORE_ALL.getConfigKey());
         String[] ignoreInsertCols = tableConfig.getSubValues(TABLE_COL_IGNORE_INSERT.getConfigKey());
@@ -167,16 +159,13 @@ public class FakerFactory {
         Set<String> ignoreWhereSet = new HashSet<>(Arrays.asList(ignoreWhereCols));
 
         List<JdbcColumn> columns = this.metaProvider.getColumns(fakerTable.getCatalog(), fakerTable.getSchema(), fakerTable.getTable());
-        List<FakerColumn> columnList = new ArrayList<>();
         Strategy strategy = this.fakerConfig.getStrategy();
 
         for (JdbcColumn jdbcColumn : columns) {
             SettingNode columnConfig = columnsConfig == null ? null : columnsConfig.getSubNode(jdbcColumn.getColumnName());
             FakerColumn fakerColumn = createFakerColumn(fakerTable, jdbcColumn, columnConfig, strategy, ignoreSet, ignoreInsertSet, ignoreUpdateSet, ignoreWhereSet);
-            columnList.add(fakerColumn);
+            fakerTable.addColumn(fakerColumn);
         }
-
-        return columnList;
     }
 
     private FakerColumn createFakerColumn(FakerTable fakerTable, JdbcColumn jdbcColumn, SettingNode columnConfig, Strategy strategy,//
@@ -224,16 +213,8 @@ public class FakerFactory {
             ignoreAct.add(UseFor.Insert);
         }
 
-        FakerColumn fakerColumn = new FakerColumn();
-        fakerColumn.setColumn(jdbcColumn.getColumnName());
-        fakerColumn.setKey(jdbcColumn.isPrimaryKey() || jdbcColumn.isUniqueKey());
-        fakerColumn.setSqlType(jdbcColumn.getJdbcNumber());
-        fakerColumn.setJavaType(confirmJavaType(seedConfig));
-        fakerColumn.setSeedType(seedConfig.getSeedType());
-        fakerColumn.setSeedConfig(seedConfig);
-        fakerColumn.setSeedFactory(seedFactory);
-        fakerColumn.setCanBeCut(StringUtils.isNotBlank(jdbcColumn.getDefaultValue()) || Boolean.TRUE.equals(jdbcColumn.getNullable()));
-        fakerColumn.setIgnoreAct(ignoreAct);
+        FakerColumn fakerColumn = new FakerColumn(jdbcColumn, seedConfig);
+        fakerColumn.initColumn(ignoreAct, seedFactory);
         return fakerColumn;
     }
 

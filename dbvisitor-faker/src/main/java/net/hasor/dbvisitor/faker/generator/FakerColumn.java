@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.generator;
+import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.faker.meta.JdbcColumn;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
-import net.hasor.dbvisitor.faker.seed.SeedType;
+import net.hasor.dbvisitor.types.TypeHandler;
 
+import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * 要生成数据的列基本信息和配置信息
@@ -26,85 +30,78 @@ import java.util.Set;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class FakerColumn {
-    private String                          column;
-    private boolean                         key;
-    private Set<UseFor>                     ignoreAct;
-    private boolean                         canBeCut;
-    private Integer                         sqlType;
-    private Class<?>                        javaType;
-    private SeedType                        seedType;
-    private SeedConfig                      seedConfig;
-    private SeedFactory<SeedConfig, Object> seedFactory;
+    private final String           column;
+    private       Integer          jdbcType;
+    private       TypeHandler<?>   typeHandler;
+    private final boolean          key;
+    private final boolean          canBeCut;
+    private final Set<UseFor>      ignoreAct;
+    private final SeedConfig       seedConfig;
+    private       Supplier<Object> valueSeed;
+
+    FakerColumn(JdbcColumn jdbcColumn, SeedConfig seedConfig) {
+        this.column = jdbcColumn.getColumnName();
+        this.jdbcType = jdbcColumn.getJdbcNumber();
+        this.typeHandler = seedConfig.getTypeHandler();
+        this.key = jdbcColumn.isPrimaryKey() || jdbcColumn.isUniqueKey();
+        this.canBeCut = StringUtils.isNotBlank(jdbcColumn.getDefaultValue()) || Boolean.TRUE.equals(jdbcColumn.getNullable());
+        this.ignoreAct = new HashSet<>();
+        this.seedConfig = seedConfig;
+    }
 
     public String getColumn() {
         return column;
-    }
-
-    public void setColumn(String column) {
-        this.column = column;
     }
 
     public boolean isKey() {
         return key;
     }
 
-    public void setKey(boolean key) {
-        this.key = key;
-    }
-
-    public Set<UseFor> getIgnoreAct() {
-        return ignoreAct;
-    }
-
-    public void setIgnoreAct(Set<UseFor> ignoreAct) {
-        this.ignoreAct = ignoreAct;
-    }
-
     public boolean isCanBeCut() {
         return canBeCut;
     }
 
-    public void setCanBeCut(boolean canBeCut) {
-        this.canBeCut = canBeCut;
+    public boolean isGenerator(UseFor useFor) {
+        return !this.ignoreAct.contains(useFor);
     }
 
-    public Integer getSqlType() {
-        return sqlType;
+    public SqlArg generatorData() {
+        return new SqlArg(this.jdbcType, this.typeHandler, this.valueSeed.get());
     }
 
-    public void setSqlType(Integer sqlType) {
-        this.sqlType = sqlType;
+    public SqlArg buildData(Object value) {
+        return new SqlArg(this.jdbcType, this.typeHandler, value);
     }
 
-    public Class<?> getJavaType() {
-        return javaType;
+    void initColumn(Set<UseFor> ignoreAct, SeedFactory<SeedConfig, Object> seedFactory) {
+        this.ignoreAct.clear();
+        this.ignoreAct.addAll(ignoreAct);
+        this.valueSeed = seedFactory.createSeed(this.seedConfig);
     }
 
-    public void setJavaType(Class<?> javaType) {
-        this.javaType = javaType;
+    public void ignoreAct(UseFor ignoreAct) {
+        this.ignoreAct.add(ignoreAct);
     }
 
-    public SeedType getSeedType() {
-        return seedType;
+    @Override
+    public String toString() {
+        String handlerType = this.seedConfig.getTypeHandler().getClass().toString();
+        return this.column + ", ignoreAct=" + ignoreAct + ", jdbcType=" + this.jdbcType + ", javaType=" + handlerType + '}';
     }
 
-    public void setSeedType(SeedType seedType) {
-        this.seedType = seedType;
+    public Integer getJdbcType() {
+        return jdbcType;
     }
 
-    public SeedConfig getSeedConfig() {
-        return seedConfig;
+    public void setJdbcType(Integer jdbcType) {
+        this.jdbcType = jdbcType;
     }
 
-    public void setSeedConfig(SeedConfig seedConfig) {
-        this.seedConfig = seedConfig;
+    public TypeHandler<?> getTypeHandler() {
+        return typeHandler;
     }
 
-    public SeedFactory<SeedConfig, Object> getSeedFactory() {
-        return seedFactory;
-    }
-
-    public void setSeedFactory(SeedFactory<SeedConfig, Object> seedFactory) {
-        this.seedFactory = seedFactory;
+    public void setTypeHandler(TypeHandler<?> typeHandler) {
+        this.typeHandler = typeHandler;
     }
 }

@@ -26,7 +26,7 @@ public class Insert4Main {
         newValue.put("age", 88);
         newValue.put("createTime", DateFormatType.s_yyyyMMdd_HHmmss.toDate("2000-01-01 12:12:12"));
 
-        InsertOperation<Map<String, Object>> insert = lambdaTemplate.lambdaInsert(null, "test_user", MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+        InsertOperation<Map<String, Object>> insert = lambdaTemplate.lambdaInsert(null, null, "test_user", MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
         int result = insert.applyMap(newValue).executeSumResult();
 
         PrintUtils.printObjectList(lambdaTemplate.queryForList("select * from test_user"));

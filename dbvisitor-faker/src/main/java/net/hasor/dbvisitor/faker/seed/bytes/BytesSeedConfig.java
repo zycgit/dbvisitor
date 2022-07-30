@@ -17,6 +17,8 @@ package net.hasor.dbvisitor.faker.seed.bytes;
 
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedType;
+import net.hasor.dbvisitor.types.TypeHandler;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /**
  * byte[] 类型的 SeedConfig
@@ -24,11 +26,17 @@ import net.hasor.dbvisitor.faker.seed.SeedType;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class BytesSeedConfig extends SeedConfig {
-    private int minLength;
-    private int maxLength;
+    private final TypeHandler<?> TYPE_HANDLER = TypeHandlerRegistry.DEFAULT.getTypeHandler(byte[].class);
+    private       int            minLength;
+    private       int            maxLength;
 
     public final SeedType getSeedType() {
         return SeedType.Bytes;
+    }
+
+    @Override
+    public TypeHandler<?> getTypeHandler() {
+        return TYPE_HANDLER;
     }
 
     public int getMinLength() {

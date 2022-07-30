@@ -77,7 +77,7 @@ public class ConservativeStrategy implements Strategy {
 
                 DateSeedConfig dateSeedConfig = (DateSeedConfig) seedConfig;
                 dateSeedConfig.setGenType(GenType.Random);
-                dateSeedConfig.setDateType(DateType.SqlDate);
+                dateSeedConfig.setDateType(DateType.JavaDate);
                 dateSeedConfig.setRangeForm(formatter.format(rangeForm));
                 dateSeedConfig.setRangeTo(formatter.format(rangeTo));
                 return;

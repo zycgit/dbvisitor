@@ -17,6 +17,8 @@ package net.hasor.dbvisitor.faker.seed.number;
 
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedType;
+import net.hasor.dbvisitor.types.TypeHandler;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.math.BigDecimal;
 
@@ -26,7 +28,8 @@ import java.math.BigDecimal;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class NumberSeedConfig extends SeedConfig {
-    private NumberType numberType;
+    private TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();
+    private NumberType     numberType;
 
     private BigDecimal min;
     private BigDecimal max;
@@ -38,12 +41,18 @@ public class NumberSeedConfig extends SeedConfig {
         return SeedType.Number;
     }
 
+    @Override
+    public TypeHandler<?> getTypeHandler() {
+        return this.typeHandler;
+    }
+
     public NumberType getNumberType() {
         return numberType;
     }
 
     public void setNumberType(NumberType numberType) {
         this.numberType = numberType;
+        this.typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(numberType.getDateType());
     }
 
     public BigDecimal getMin() {

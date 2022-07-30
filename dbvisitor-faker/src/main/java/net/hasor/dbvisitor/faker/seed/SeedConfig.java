@@ -15,6 +15,8 @@
  */
 package net.hasor.dbvisitor.faker.seed;
 
+import net.hasor.dbvisitor.types.TypeHandler;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,4 +51,6 @@ public abstract class SeedConfig {
     }
 
     public abstract SeedType getSeedType();
+
+    public abstract TypeHandler<?> getTypeHandler();
 }

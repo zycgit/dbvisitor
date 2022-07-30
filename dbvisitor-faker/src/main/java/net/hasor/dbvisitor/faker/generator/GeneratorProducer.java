@@ -16,10 +16,8 @@
 package net.hasor.dbvisitor.faker.generator;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.RandomUtils;
-import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.OpsType;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 
 import java.sql.SQLException;
 import java.util.Collections;
@@ -32,12 +30,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class GeneratorTrans {
-    private final FakerConfig          fakerConfig;
-    private final FakerFactory         fakerFactory;
-    private final List<GeneratorTable> generatorTables;
+public class GeneratorProducer {
+    private final FakerConfig      fakerConfig;
+    private final FakerFactory     fakerFactory;
+    private final List<FakerTable> generatorTables;
 
-    public GeneratorTrans(FakerFactory fakerFactory) {
+    public GeneratorProducer(FakerFactory fakerFactory) {
         this.fakerConfig = fakerFactory.getFakerConfig();
         this.fakerFactory = fakerFactory;
         this.generatorTables = new CopyOnWriteArrayList<>();
@@ -48,7 +46,7 @@ public class GeneratorTrans {
     }
 
     public List<BoundQuery> generator(OpsType opsType) throws SQLException {
-        GeneratorTable table = randomTable();
+        FakerTable table = randomTable();
         if (table == null) {
             return Collections.emptyList();
         }
@@ -67,7 +65,7 @@ public class GeneratorTrans {
     }
 
     public List<BoundQuery> generatorOneTable(OpsType opsType) throws SQLException {
-        GeneratorTable table = randomTable();
+        FakerTable table = randomTable();
         if (table == null) {
             return Collections.emptyList();
         }
@@ -81,14 +79,14 @@ public class GeneratorTrans {
         return events;
     }
 
-    protected GeneratorTable randomTable() {
+    protected FakerTable randomTable() {
         if (!CollectionUtils.isEmpty(this.generatorTables)) {
             return this.generatorTables.get(RandomUtils.nextInt(0, this.generatorTables.size()));
         }
         return null;
     }
 
-    protected List<BoundQuery> generatorOps(GeneratorTable fakerTable, OpsType opsType) throws SQLException {
+    protected List<BoundQuery> generatorOps(FakerTable fakerTable, OpsType opsType) throws SQLException {
         opsType = opsType != null ? opsType : this.fakerConfig.randomOps();
         if (opsType == null) {
             throw new IllegalStateException("no any boundary were declared, please init one.");
@@ -110,26 +108,16 @@ public class GeneratorTrans {
 
     public FakerTable addTable(String catalog, String schema, String table) throws SQLException {
         try {
-            GeneratorTable fetchTable = this.fakerFactory.fetchTable(catalog, schema, table);
+            FakerTable fetchTable = this.fakerFactory.fetchTable(catalog, schema, table);
             this.addTable(fetchTable);
-            return fetchTable.getTableInfo();
+            return fetchTable;
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("init table failed : " + e.getMessage(), e);
         }
     }
 
     public FakerTable addTable(FakerTable table) {
-        SqlDialect dialect = this.fakerFactory.getFakerConfig().getDialect();
-        JdbcTemplate jdbcTemplate = this.fakerFactory.getJdbcTemplate();
-        this.addTable(new GeneratorTable(table, dialect, jdbcTemplate));
+        this.generatorTables.add(table);
         return table;
-    }
-
-    public FakerTable addTable(GeneratorTable table) {
-        if (table != null) {
-            this.generatorTables.add(table);
-            return table.getTableInfo();
-        }
-        return null;
     }
 }

@@ -32,33 +32,33 @@ import java.util.stream.Collectors;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class UpdateAction implements Action {
-    private final FakerTable            tableInfo;
-    private final boolean               useQualifier;
-    private final SqlDialect            dialect;
-    private final List<GeneratorColumn> updateSetColumns;
-    private final List<GeneratorColumn> whereFullColumns;
-    private final List<GeneratorColumn> whereKeyColumns;
-    private final DataLoader            dataLoader;
+    private final FakerTable        tableInfo;
+    private final boolean           useQualifier;
+    private final SqlDialect        dialect;
+    private final List<FakerColumn> updateSetColumns;
+    private final List<FakerColumn> whereFullColumns;
+    private final List<FakerColumn> whereKeyColumns;
+    private final DataLoader        dataLoader;
 
-    public UpdateAction(GeneratorTable tableInfo, SqlDialect dialect, List<GeneratorColumn> updateSetColumns, List<GeneratorColumn> whereColumns, DataLoader dataLoader) {
-        this.tableInfo = tableInfo.getTableInfo();
-        this.useQualifier = tableInfo.getTableInfo().getFakerConfig().isUseQualifier();
+    public UpdateAction(FakerTable tableInfo, SqlDialect dialect, List<FakerColumn> updateSetColumns, List<FakerColumn> whereColumns, DataLoader dataLoader) {
+        this.tableInfo = tableInfo;
+        this.useQualifier = tableInfo.isUseQualifier();
         this.dialect = dialect;
         this.dataLoader = dataLoader;
         this.updateSetColumns = updateSetColumns;
         this.whereFullColumns = whereColumns;
-        this.whereKeyColumns = whereColumns.stream().filter(c -> c.getColumnInfo().isKey()).collect(Collectors.toList());
+        this.whereKeyColumns = whereColumns.stream().filter(FakerColumn::isKey).collect(Collectors.toList());
     }
 
     @Override
     public List<BoundQuery> generatorAction(int batchSize) throws SQLException {
-        List<GeneratorColumn> setColumns = null;
+        List<FakerColumn> setColumns = null;
         switch (this.tableInfo.getUpdateSetPolitic()) {
             case RandomKeyCol:
             case RandomCol: {
                 setColumns = new ArrayList<>(this.updateSetColumns);
                 if (!this.updateSetColumns.isEmpty()) {
-                    List<GeneratorColumn> cutColumns = randomCol(this.updateSetColumns);
+                    List<FakerColumn> cutColumns = randomCol(this.updateSetColumns);
                     setColumns.removeAll(cutColumns);
                 }
                 // maker sure is not empty insert.
@@ -75,7 +75,7 @@ public class UpdateAction implements Action {
                 throw new UnsupportedOperationException("updateSetPolitic '" + this.tableInfo.getInsertPolitic() + "' Unsupported.");
         }
 
-        List<GeneratorColumn> whereColumns = null;
+        List<FakerColumn> whereColumns = null;
         switch (this.tableInfo.getWherePolitic()) {
             case RandomKeyCol:
                 if (!this.whereKeyColumns.isEmpty()) {
@@ -100,8 +100,8 @@ public class UpdateAction implements Action {
         return buildAction(batchSize, setColumns, whereColumns);
     }
 
-    private List<GeneratorColumn> randomCol(List<GeneratorColumn> useCols) {
-        List<GeneratorColumn> useColumns = new ArrayList<>(useCols);
+    private List<FakerColumn> randomCol(List<FakerColumn> useCols) {
+        List<FakerColumn> useColumns = new ArrayList<>(useCols);
 
         int maxCut = RandomUtils.nextInt(0, useColumns.size());
         for (int i = 0; i < maxCut; i++) {
@@ -116,9 +116,9 @@ public class UpdateAction implements Action {
         return useColumns;
     }
 
-    private List<BoundQuery> buildAction(int batchSize, List<GeneratorColumn> setColumns, List<GeneratorColumn> whereColumns) throws SQLException {
+    private List<BoundQuery> buildAction(int batchSize, List<FakerColumn> setColumns, List<FakerColumn> whereColumns) throws SQLException {
         // fetch some data used for delete
-        List<String> fetchCols = whereColumns.stream().map(c -> c.getColumnInfo().getColumn()).collect(Collectors.toList());
+        List<String> fetchCols = whereColumns.stream().map(FakerColumn::getColumn).collect(Collectors.toList());
         List<Map<String, Object>> fetchDataList = this.dataLoader.loadSomeData(UseFor.UpdateWhere, this.tableInfo, fetchCols, batchSize);
         if (fetchDataList == null || fetchDataList.isEmpty()) {
             return Collections.emptyList();
@@ -132,21 +132,21 @@ public class UpdateAction implements Action {
 
         // build set
         StringBuilder set = new StringBuilder();
-        for (GeneratorColumn colInfo : setColumns) {
+        for (FakerColumn colInfo : setColumns) {
             if (set.length() > 0) {
                 set.append(", ");
             }
-            set.append(this.dialect.columnName(this.useQualifier, catalog, schema, table, colInfo.getColumnInfo().getColumn()));
+            set.append(this.dialect.columnName(this.useQualifier, catalog, schema, table, colInfo.getColumn()));
             set.append(" = ?");
         }
 
         // build where
         StringBuilder where = new StringBuilder();
-        for (GeneratorColumn colInfo : whereColumns) {
+        for (FakerColumn colInfo : whereColumns) {
             if (where.length() > 0) {
                 where.append(" and ");
             }
-            where.append(this.dialect.columnName(this.useQualifier, catalog, schema, table, colInfo.getColumnInfo().getColumn()));
+            where.append(this.dialect.columnName(this.useQualifier, catalog, schema, table, colInfo.getColumn()));
             where.append(" = ?");
         }
         StringBuilder builder = new StringBuilder();
@@ -159,11 +159,11 @@ public class UpdateAction implements Action {
         for (Map<String, Object> objectMap : fetchDataList) {
             SqlArg[] args = new SqlArg[setColumns.size() + whereColumns.size()];
             int index = 0;
-            for (GeneratorColumn colInfo : setColumns) {
+            for (FakerColumn colInfo : setColumns) {
                 args[index++] = colInfo.generatorData();
             }
-            for (GeneratorColumn colInfo : whereColumns) {
-                Object value = objectMap.get(colInfo.getColumnInfo().getColumn());
+            for (FakerColumn colInfo : whereColumns) {
+                Object value = objectMap.get(colInfo.getColumn());
                 args[index++] = colInfo.buildData(value);
             }
 

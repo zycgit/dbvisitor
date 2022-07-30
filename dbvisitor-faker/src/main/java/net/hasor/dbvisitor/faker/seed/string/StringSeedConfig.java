@@ -17,6 +17,8 @@ package net.hasor.dbvisitor.faker.seed.string;
 
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedType;
+import net.hasor.dbvisitor.types.TypeHandler;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.util.Set;
 
@@ -26,13 +28,19 @@ import java.util.Set;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class StringSeedConfig extends SeedConfig {
-    private Set<Characters> characterSet;
-    private int             minLength;
-    private int             maxLength;
-    private boolean         allowEmpty;
+    private final TypeHandler<?>  TYPE_HANDLER = TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
+    private       Set<Characters> characterSet;
+    private       int             minLength;
+    private       int             maxLength;
+    private       boolean         allowEmpty;
 
     public final SeedType getSeedType() {
         return SeedType.String;
+    }
+
+    @Override
+    public TypeHandler<?> getTypeHandler() {
+        return TYPE_HANDLER;
     }
 
     public Set<Characters> getCharacterSet() {

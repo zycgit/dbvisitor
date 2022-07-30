@@ -29,18 +29,18 @@ import java.util.stream.Collectors;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class InsertAction implements Action {
-    private final FakerTable            tableInfo;
-    private final boolean               useQualifier;
-    private final SqlDialect            dialect;
-    private final List<GeneratorColumn> insertColumns;
-    private final List<GeneratorColumn> canCutColumns;
+    private final FakerTable        tableInfo;
+    private final boolean           useQualifier;
+    private final SqlDialect        dialect;
+    private final List<FakerColumn> insertColumns;
+    private final List<FakerColumn> canCutColumns;
 
-    public InsertAction(GeneratorTable tableInfo, SqlDialect dialect, List<GeneratorColumn> insertColumns) {
-        this.tableInfo = tableInfo.getTableInfo();
-        this.useQualifier = tableInfo.getTableInfo().getFakerConfig().isUseQualifier();
+    public InsertAction(FakerTable tableInfo, SqlDialect dialect, List<FakerColumn> insertColumns) {
+        this.tableInfo = tableInfo;
+        this.useQualifier = tableInfo.isUseQualifier();
         this.dialect = dialect;
         this.insertColumns = insertColumns;
-        this.canCutColumns = insertColumns.stream().filter(c -> c.getColumnInfo().isCanBeCut()).collect(Collectors.toList());
+        this.canCutColumns = insertColumns.stream().filter(FakerColumn::isCanBeCut).collect(Collectors.toList());
     }
 
     @Override
@@ -59,12 +59,12 @@ public class InsertAction implements Action {
 
     private List<BoundQuery> generatorByRandom(int batchSize) {
         // try use cut
-        List<GeneratorColumn> useColumns = new ArrayList<>(this.insertColumns);
-        List<GeneratorColumn> cutColumns = new ArrayList<>();
+        List<FakerColumn> useColumns = new ArrayList<>(this.insertColumns);
+        List<FakerColumn> cutColumns = new ArrayList<>();
 
         int maxCut = RandomUtils.nextInt(0, this.canCutColumns.size());
         while (cutColumns.size() < maxCut) {
-            GeneratorColumn cutColumn = this.canCutColumns.get(RandomUtils.nextInt(0, maxCut));
+            FakerColumn cutColumn = this.canCutColumns.get(RandomUtils.nextInt(0, maxCut));
             if (!cutColumns.contains(cutColumn)) {
                 cutColumns.add(cutColumn);
             }
@@ -83,7 +83,7 @@ public class InsertAction implements Action {
         return buildAction(batchSize, this.insertColumns);
     }
 
-    private List<BoundQuery> buildAction(int batchSize, List<GeneratorColumn> useColumns) {
+    private List<BoundQuery> buildAction(int batchSize, List<FakerColumn> useColumns) {
         String catalog = this.tableInfo.getCatalog();
         String schema = this.tableInfo.getSchema();
         String table = this.tableInfo.getTable();
@@ -91,12 +91,12 @@ public class InsertAction implements Action {
 
         StringBuilder columns = new StringBuilder();
         StringBuilder values = new StringBuilder();
-        for (GeneratorColumn colInfo : useColumns) {
+        for (FakerColumn colInfo : useColumns) {
             if (columns.length() > 0) {
                 columns.append(", ");
                 values.append(", ");
             }
-            String colName = colInfo.getColumnInfo().getColumn();
+            String colName = colInfo.getColumn();
             columns.append(this.dialect.columnName(this.useQualifier, catalog, schema, table, colName));
             values.append("?");
         }
@@ -111,7 +111,7 @@ public class InsertAction implements Action {
         for (int i = 0; i < batchSize; i++) {
             SqlArg[] args = new SqlArg[useColumns.size()];
             for (int argIdx = 0; argIdx < useColumns.size(); argIdx++) {
-                GeneratorColumn colInfo = useColumns.get(argIdx);
+                FakerColumn colInfo = useColumns.get(argIdx);
                 args[argIdx] = colInfo.generatorData();
             }
 

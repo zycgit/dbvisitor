@@ -33,20 +33,20 @@ import java.util.stream.Collectors;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class DeleteAction implements Action {
-    private final FakerTable            tableInfo;
-    private final boolean               useQualifier;
-    private final SqlDialect            dialect;
-    private final List<GeneratorColumn> whereFullCols;
-    private final List<GeneratorColumn> whereKeyCols;
-    private final DataLoader            dataLoader;
+    private final FakerTable        tableInfo;
+    private final boolean           useQualifier;
+    private final SqlDialect        dialect;
+    private final List<FakerColumn> whereFullCols;
+    private final List<FakerColumn> whereKeyCols;
+    private final DataLoader        dataLoader;
 
-    public DeleteAction(GeneratorTable tableInfo, SqlDialect dialect, List<GeneratorColumn> whereColumns, DataLoader dataLoader) {
-        this.tableInfo = tableInfo.getTableInfo();
-        this.useQualifier = tableInfo.getTableInfo().getFakerConfig().isUseQualifier();
+    public DeleteAction(FakerTable tableInfo, SqlDialect dialect, List<FakerColumn> whereColumns, DataLoader dataLoader) {
+        this.tableInfo = tableInfo;
+        this.useQualifier = tableInfo.isUseQualifier();
         this.dialect = dialect;
         this.dataLoader = dataLoader;
         this.whereFullCols = whereColumns;
-        this.whereKeyCols = whereColumns.stream().filter(c -> c.getColumnInfo().isKey()).collect(Collectors.toList());
+        this.whereKeyCols = whereColumns.stream().filter(FakerColumn::isKey).collect(Collectors.toList());
     }
 
     @Override
@@ -69,8 +69,8 @@ public class DeleteAction implements Action {
         }
     }
 
-    private List<BoundQuery> generatorByRandomCol(int batchSize, List<GeneratorColumn> useCols) throws SQLException {
-        List<GeneratorColumn> useColumns = new ArrayList<>(useCols);
+    private List<BoundQuery> generatorByRandomCol(int batchSize, List<FakerColumn> useCols) throws SQLException {
+        List<FakerColumn> useColumns = new ArrayList<>(useCols);
 
         int maxCut = RandomUtils.nextInt(0, useColumns.size());
         for (int i = 0; i < maxCut; i++) {
@@ -85,9 +85,9 @@ public class DeleteAction implements Action {
         return buildAction(batchSize, useColumns);
     }
 
-    private List<BoundQuery> buildAction(int batchSize, List<GeneratorColumn> useColumns) throws SQLException {
+    private List<BoundQuery> buildAction(int batchSize, List<FakerColumn> useColumns) throws SQLException {
         // fetch some data used for delete
-        List<String> fetchCols = useColumns.stream().map(c -> c.getColumnInfo().getColumn()).collect(Collectors.toList());
+        List<String> fetchCols = useColumns.stream().map(FakerColumn::getColumn).collect(Collectors.toList());
         List<Map<String, Object>> fetchDataList = this.dataLoader.loadSomeData(UseFor.UpdateWhere, this.tableInfo, fetchCols, batchSize);
         if (CollectionUtils.isEmpty(fetchDataList)) {
             return Collections.emptyList();
@@ -100,11 +100,11 @@ public class DeleteAction implements Action {
         String tableName = this.dialect.tableName(this.useQualifier, catalog, schema, table);
 
         StringBuilder where = new StringBuilder();
-        for (GeneratorColumn colInfo : useColumns) {
+        for (FakerColumn colInfo : useColumns) {
             if (where.length() > 0) {
                 where.append(" and ");
             }
-            where.append(this.dialect.columnName(this.useQualifier, catalog, schema, table, colInfo.getColumnInfo().getColumn()));
+            where.append(this.dialect.columnName(this.useQualifier, catalog, schema, table, colInfo.getColumn()));
             where.append(" = ?");
         }
         StringBuilder builder = new StringBuilder();
@@ -117,8 +117,8 @@ public class DeleteAction implements Action {
         for (Map<String, Object> objectMap : fetchDataList) {
             SqlArg[] args = new SqlArg[useColumns.size()];
             for (int i = 0; i < useColumns.size(); i++) {
-                GeneratorColumn colInfo = useColumns.get(i);
-                Object value = objectMap.get(colInfo.getColumnInfo().getColumn());
+                FakerColumn colInfo = useColumns.get(i);
+                Object value = objectMap.get(colInfo.getColumn());
                 args[i] = colInfo.buildData(value);
             }
 
