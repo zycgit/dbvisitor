@@ -35,15 +35,16 @@ public class FakerConfig {
     private       Strategy            strategy;
     private       SqlDialect          dialect;
     private       boolean             useQualifier;
-    // engine
+    // one trans
     private       int                 minBatchSizePerOps;
     private       int                 maxBatchSizePerOps;
     private final Ratio<OpsType>      opsRatio;
+    private       int                 minOpsCountPerTransaction;
+    private       int                 maxOpsCountPerTransaction;
+    // multiple trans
     private       boolean             transaction;
     private       int                 minPausePerTransactionMs;
     private       int                 maxPausePerTransactionMs;
-    private       int                 minOpsCountPerTransaction;
-    private       int                 maxOpsCountPerTransaction;
 
     public FakerConfig() {
         this.classLoader = Thread.currentThread().getContextClassLoader();
@@ -52,7 +53,12 @@ public class FakerConfig {
         this.strategy = new ConservativeStrategy();
         this.dialect = null;
         this.useQualifier = true;
-        this.opsRatio = RatioUtils.passerByConfig("INSERT#50;UPDATE#50;DELETE#50");
+        //
+        this.minBatchSizePerOps = 2;
+        this.maxBatchSizePerOps = 3;
+        this.opsRatio = RatioUtils.passerByConfig("INSERT#30;UPDATE#30;DELETE#30");
+        this.minOpsCountPerTransaction = 2;
+        this.maxOpsCountPerTransaction = 10;
     }
 
     public int randomOpsCountPerTrans() {

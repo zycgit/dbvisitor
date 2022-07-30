@@ -138,8 +138,8 @@ public class FakerFactory {
         fakerTable.setColumns(buildColumns(new TreeNode(), fakerTable));
         fakerTable.setFakerConfig(this.fakerConfig);
         fakerTable.setDataLoader(this.fakerConfig.getDataLoader());
-        fakerTable.setInsertPolitic(SqlPolitic.FullCol);
-        fakerTable.setUpdateSetPolitic(SqlPolitic.FullCol);
+        fakerTable.setInsertPolitic(SqlPolitic.RandomCol);
+        fakerTable.setUpdateSetPolitic(SqlPolitic.RandomCol);
         fakerTable.setWherePolitic(SqlPolitic.KeyCol);
 
         if (tableConfig != null) {
