@@ -35,7 +35,7 @@ import java.util.concurrent.ThreadFactory;
 public class FakerEngine {
     private final DataSource              dataSource;
     private final FakerConfig             fakerConfig;
-    private final FakerMonitor            monitor;
+    private       FakerMonitor            monitor;
     //
     private final ThreadFactory           threadFactory;
     private final Map<String, EventQueue> queueMap;
@@ -102,5 +102,15 @@ public class FakerEngine {
             this.workers.add(worker);
             this.threadFactory.newThread(worker).start();
         }
+    }
+
+    public void shutdown() {
+        this.monitor.exitSignal();
+        for (ShutdownHook hook : this.workers) {
+            hook.shutdown();
+        }
+        this.workers.clear();
+        this.queueMap.clear();
+        this.monitor = new FakerMonitor(this.fakerConfig);
     }
 }

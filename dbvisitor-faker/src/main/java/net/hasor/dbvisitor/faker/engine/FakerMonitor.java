@@ -33,16 +33,18 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class FakerMonitor {
     private static final AtomicLong               ZERO              = new AtomicLong(0);
-    // total
     private final static Logger                   logger            = Logger.getLogger(WriteWorker.class);
     private final        Map<OpsType, AtomicLong> succeedCounter    = new ConcurrentHashMap<>();
     private final        Map<OpsType, AtomicLong> failedCounter     = new ConcurrentHashMap<>();
     private final        AtomicLong               affectRowsCounter = new AtomicLong(0);
     private              QoSBucket                qosBucket         = null;
     private              long                     startMonitorTime  = 0;
-    // pre worker
     private final        Map<String, AtomicLong>  writerTotal       = new ConcurrentHashMap<>();
+    //
+    private final        List<Thread>             producerThreads   = new CopyOnWriteArrayList<>();
+    private final        List<Thread>             writerThreads     = new CopyOnWriteArrayList<>();
     private final        List<EventQueue>         queueList         = new CopyOnWriteArrayList<>();
+    private volatile     boolean                  presentExit       = false;
 
     FakerMonitor(FakerConfig fakerConfig) {
         if (fakerConfig.getWriteQps() > 0) {
@@ -75,7 +77,11 @@ public class FakerMonitor {
     }
 
     boolean ifPresentExit() {
-        return false;
+        return this.presentExit;
+    }
+
+    public void exitSignal() {
+        this.presentExit = true;
     }
 
     void checkQoS() {
@@ -101,10 +107,12 @@ public class FakerMonitor {
         logger.error(e.getMessage(), e);
     }
 
-    void writerStart(String writerID) {
+    void producerStart(String workID, Thread workThread) {
+        this.producerThreads.add(workThread);
     }
 
-    void producerStart(String workID) {
+    void writerStart(String writerID, Thread workThread) {
+        this.writerThreads.add(workThread);
     }
 
     void monitorQueue(EventQueue eventQueue) {
@@ -121,31 +129,31 @@ public class FakerMonitor {
         for (AtomicLong counter : this.failedCounter.values()) {
             failedTotal = failedTotal + counter.get();
         }
-
         long passedTimeSec = Math.max(1, (System.currentTimeMillis() - this.startMonitorTime) / 1000);
         long writerTotal = succeedTotal + failedTotal;
         long perWriterAvg = this.writerTotal.size() == 0 ? 0 : (writerTotal / this.writerTotal.size());
-
+        //
         int queueCapacity = 0;
         int queueSize = 0;
         for (EventQueue queue : this.queueList) {
             queueCapacity = queueCapacity + queue.getCapacity();
             queueSize = queueSize + queue.getQueueSize();
         }
+        int queueDutyRatio = (int) (((double) queueSize / (double) queueCapacity) * 100);
+
+        int producerRunningCnt = (int) this.producerThreads.stream().map(Thread::getState).filter(state -> state == Thread.State.RUNNABLE).count();
+        int writerRunningCnt = (int) this.writerThreads.stream().map(Thread::getState).filter(state -> state == Thread.State.RUNNABLE).count();
+        int producerDutyRatio = (int) (((double) producerRunningCnt / (double) this.producerThreads.size()) * 100);
+        int writerDutyRatio = (int) (((double) writerRunningCnt / (double) this.writerThreads.size()) * 100);
 
         StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append(String.format("Succeed[I/U/D] %s/%s/%s, Failed[I/U/D] %s/%s/%s, RPS(s)[perWriter/sum] %s/%s, total/affect %s/%s, queue %d%%",//
+        strBuilder.append(String.format("Succeed[I/U/D] %s/%s/%s, Failed[I/U/D] %s/%s/%s, RPS(s)[per/sum] %s/%s, total/affect %s/%s, load[Q/P/W] %d%%/%d%%/%d%%",//
                 getSucceedInsert(), getSucceedUpdate(), getSucceedDelete(),     // Succeed[I/U/D]
                 getFailedInsert(), getFailedUpdate(), getFailedDelete(),        // Failed[I/U/D]
                 (perWriterAvg / passedTimeSec), (writerTotal / passedTimeSec),  // RPS[perWriter/total]
                 writerTotal, affectRowsCounter,                                 // total/affect
-                ((int) (((double) queueSize / (double) queueCapacity) * 100))     // queue
+                queueDutyRatio, producerDutyRatio, writerDutyRatio              // dutyRatio[Q/P/W] -> queue/producer/writer
         ));
-
-        //this.queueList
-        //        String qpsString = qosBucket != null ? String.valueOf(qosBucket.getRate()) : "n";
-        //        strBuilder.append(String.format("QPS/QoS = %s/%s ,", affectRowsCounter, qpsString));
         return strBuilder.toString();
     }
-
 }

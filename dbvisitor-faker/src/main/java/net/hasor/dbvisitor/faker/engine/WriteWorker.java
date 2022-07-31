@@ -75,7 +75,7 @@ class WriteWorker implements ShutdownHook, Runnable {
     public void run() {
         this.workThread = Thread.currentThread();
         this.workThread.setName(this.threadName);
-        this.monitor.writerStart(this.threadName);
+        this.monitor.writerStart(this.threadName, this.workThread);
 
         while (this.testContinue()) {
             try {
