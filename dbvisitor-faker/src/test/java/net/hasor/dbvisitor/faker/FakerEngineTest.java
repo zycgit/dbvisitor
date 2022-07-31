@@ -10,8 +10,9 @@ import org.junit.Test;
 public class FakerEngineTest {
     @Test
     public void insertTest() throws Exception {
+        FakerConfig fakerConfig = new FakerConfig();
         // 工厂
-        FakerFactory fakerFactory = new FakerFactory(DsUtils.dsMySql());
+        FakerFactory fakerFactory = new FakerFactory(DsUtils.dsMySql(), fakerConfig);
         fakerFactory.getFakerConfig().addIgnoreError("Duplicate");
 
         // 引擎
@@ -24,8 +25,8 @@ public class FakerEngineTest {
         //        table.findColumns("registerTime").ignoreAct(UseFor.Insert);
         // table.apply();
 
-        fakerEngine.startProducer(generator, 8);
-        fakerEngine.startWriter(generator, 10);
+        fakerEngine.startProducer(generator, 16);
+        fakerEngine.startWriter(generator, 8);
 
         FakerMonitor monitor = fakerEngine.getMonitor();
         long t = System.currentTimeMillis();

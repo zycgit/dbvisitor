@@ -36,7 +36,7 @@ public class DsUtils {
         druid.setDriverClassName(driver);
         druid.setUsername(user);
         druid.setPassword(password);
-        druid.setMaxActive(5);
+        druid.setMaxActive(200);
         druid.setMaxWait(3 * 1000);
         druid.setInitialSize(1);
         druid.setConnectionErrorRetryAttempts(1);

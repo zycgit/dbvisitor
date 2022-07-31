@@ -61,6 +61,7 @@ class ProducerWorker implements ShutdownHook, Runnable {
     @Override
     public void run() {
         this.workThread = Thread.currentThread();
+        this.workThread.setName(this.threadName);
         this.monitor.producerStart(this.threadName);
 
         while (this.testContinue()) {

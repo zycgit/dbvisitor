@@ -24,5 +24,7 @@ import net.hasor.dbvisitor.faker.seed.SeedConfig;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface Strategy {
+    boolean ignoreColumn(String dbType, FakerTable fakerTable, JdbcColumn refer);
+
     void applyConfig(String dbType, FakerTable fakerTable, SeedConfig seedConfig, JdbcColumn refer);
 }

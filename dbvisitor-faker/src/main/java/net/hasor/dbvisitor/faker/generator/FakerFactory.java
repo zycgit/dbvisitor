@@ -168,6 +168,10 @@ public class FakerFactory {
         Strategy strategy = this.fakerConfig.getStrategy();
 
         for (JdbcColumn jdbcColumn : columns) {
+            if (strategy.ignoreColumn(dbType, fakerTable, jdbcColumn)) {
+                continue;
+            }
+
             SettingNode columnConfig = columnsConfig == null ? null : columnsConfig.getSubNode(jdbcColumn.getColumnName());
             FakerColumn fakerColumn = createFakerColumn(fakerTable, jdbcColumn, columnConfig, strategy, ignoreSet, ignoreInsertSet, ignoreUpdateSet, ignoreWhereSet);
             fakerTable.addColumn(fakerColumn);
@@ -405,27 +409,6 @@ public class FakerFactory {
             case REF:
             case ROWID:
             case REF_CURSOR:
-            default:
-                return null;
-        }
-    }
-
-    private Class<?> confirmJavaType(SeedConfig seedConfig) {
-        switch (seedConfig.getSeedType()) {
-            case Bytes:
-                return byte[].class;
-            case Date:
-                DateSeedConfig dateSeedConfig = (DateSeedConfig) seedConfig;
-                return dateSeedConfig.getDateType().getDateType();
-            case Number:
-                NumberSeedConfig numberSeedConfig = (NumberSeedConfig) seedConfig;
-                return numberSeedConfig.getNumberType().getDateType();
-            case String:
-            case Enums:
-                return String.class;
-            case Boolean:
-                return Boolean.class;
-            case Custom:
             default:
                 return null;
         }

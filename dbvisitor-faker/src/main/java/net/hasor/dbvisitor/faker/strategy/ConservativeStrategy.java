@@ -55,6 +55,11 @@ import static net.hasor.dbvisitor.faker.seed.string.CharacterSet.LETTER_NUMBER;
  */
 public class ConservativeStrategy implements Strategy {
     @Override
+    public boolean ignoreColumn(String dbType, FakerTable fakerTable, JdbcColumn refer) {
+        return false;
+    }
+
+    @Override
     public void applyConfig(String dbType, FakerTable fakerTable, SeedConfig seedConfig, JdbcColumn refer) {
         if (Boolean.TRUE.equals(refer.getNullable())) {
             seedConfig.setAllowNullable(true);

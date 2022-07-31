@@ -68,9 +68,9 @@ public class FakerConfig {
         this.useQualifier = true;
         //
         this.minBatchSizePerOps = 2;
-        this.maxBatchSizePerOps = 3;
+        this.maxBatchSizePerOps = 5;
         this.opsRatio = RatioUtils.passerByConfig("INSERT#30;UPDATE#30;DELETE#30");
-        this.minOpsCountPerTransaction = 2;
+        this.minOpsCountPerTransaction = 5;
         this.maxOpsCountPerTransaction = 10;
         //
         this.queueCapacity = 4096;

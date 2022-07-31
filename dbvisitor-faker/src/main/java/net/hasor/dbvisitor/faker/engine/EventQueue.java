@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.faker.engine;
 import net.hasor.dbvisitor.faker.generator.BoundQuery;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -26,10 +27,18 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class EventQueue {
+    private final String                          queueID;
+    private final int                             capacity;
     private final BlockingQueue<List<BoundQuery>> dataSet;
 
     public EventQueue(int capacity) {
+        this.queueID = UUID.randomUUID().toString().replace("-", "");
+        this.capacity = capacity;
         this.dataSet = new LinkedBlockingQueue<>(capacity);
+    }
+
+    public String getQueueID() {
+        return queueID;
     }
 
     public List<BoundQuery> tryPoll() {
@@ -38,5 +47,13 @@ public class EventQueue {
 
     public boolean tryOffer(List<BoundQuery> queries) {
         return this.dataSet.offer(queries);
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public int getQueueSize() {
+        return this.dataSet.size();
     }
 }

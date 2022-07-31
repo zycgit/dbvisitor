@@ -20,8 +20,10 @@ import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.OpsType;
 import net.hasor.dbvisitor.faker.generator.BoundQuery;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -40,8 +42,7 @@ public class FakerMonitor {
     private              long                     startMonitorTime  = 0;
     // pre worker
     private final        Map<String, AtomicLong>  writerTotal       = new ConcurrentHashMap<>();
-    // pre table
-    private final        Map<String, AtomicLong>  tableTotal        = new ConcurrentHashMap<>();
+    private final        List<EventQueue>         queueList         = new CopyOnWriteArrayList<>();
 
     FakerMonitor(FakerConfig fakerConfig) {
         if (fakerConfig.getWriteQps() > 0) {
@@ -98,13 +99,16 @@ public class FakerMonitor {
 
     void workExit(String writerID, Throwable e) {
         logger.error(e.getMessage(), e);
-
     }
 
     void writerStart(String writerID) {
     }
 
     void producerStart(String workID) {
+    }
+
+    void monitorQueue(EventQueue eventQueue) {
+        this.queueList.add(eventQueue);
     }
 
     @Override
@@ -122,16 +126,26 @@ public class FakerMonitor {
         long writerTotal = succeedTotal + failedTotal;
         long perWriterAvg = this.writerTotal.size() == 0 ? 0 : (writerTotal / this.writerTotal.size());
 
+        int queueCapacity = 0;
+        int queueSize = 0;
+        for (EventQueue queue : this.queueList) {
+            queueCapacity = queueCapacity + queue.getCapacity();
+            queueSize = queueSize + queue.getQueueSize();
+        }
+
         StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append(String.format("Succeed[I/U/D] %s/%s/%s, Failed[I/U/D] %s/%s/%s, RPS(s)[perWriter/sum] %s/%s, total/affect %s/%s",//
+        strBuilder.append(String.format("Succeed[I/U/D] %s/%s/%s, Failed[I/U/D] %s/%s/%s, RPS(s)[perWriter/sum] %s/%s, total/affect %s/%s, queue %d%%",//
                 getSucceedInsert(), getSucceedUpdate(), getSucceedDelete(),     // Succeed[I/U/D]
                 getFailedInsert(), getFailedUpdate(), getFailedDelete(),        // Failed[I/U/D]
                 (perWriterAvg / passedTimeSec), (writerTotal / passedTimeSec),  // RPS[perWriter/total]
-                writerTotal, affectRowsCounter                                  // total/affect
+                writerTotal, affectRowsCounter,                                 // total/affect
+                ((int) (((double) queueSize / (double) queueCapacity) * 100))     // queue
         ));
 
+        //this.queueList
         //        String qpsString = qosBucket != null ? String.valueOf(qosBucket.getRate()) : "n";
         //        strBuilder.append(String.format("QPS/QoS = %s/%s ,", affectRowsCounter, qpsString));
         return strBuilder.toString();
     }
+
 }

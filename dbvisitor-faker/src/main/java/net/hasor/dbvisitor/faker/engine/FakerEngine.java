@@ -79,6 +79,7 @@ public class FakerEngine {
 
         EventQueue eventQueue = new EventQueue(this.fakerConfig.getQueueCapacity());
         this.queueMap.put(producerID, eventQueue);
+        this.monitor.monitorQueue(eventQueue);
 
         for (int i = 0; i < threadCount; i++) {
             String workName = String.format("generator[%s-%s]", producerID, i);
