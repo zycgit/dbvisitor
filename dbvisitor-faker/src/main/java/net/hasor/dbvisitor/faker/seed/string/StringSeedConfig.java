@@ -15,12 +15,15 @@
  */
 package net.hasor.dbvisitor.faker.seed.string;
 
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedType;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -29,11 +32,29 @@ import java.util.Set;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class StringSeedConfig extends SeedConfig {
-    private final TypeHandler<?>  TYPE_HANDLER = TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
-    private       Set<Characters> characterSet;
-    private       int             minLength;
-    private       int             maxLength;
-    private       boolean         allowEmpty;
+    private static final TypeHandler<?>          TYPE_HANDLER   = TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
+    private static final Map<String, Characters> CHARACTERS_MAP = new LinkedCaseInsensitiveMap<>();
+
+    static {
+        Field[] charsField = CharacterSet.class.getFields();
+        for (Field field : charsField) {
+            if (!Characters.class.isAssignableFrom(field.getType())) {
+                continue;
+            }
+            try {
+                field.setAccessible(true);
+                Characters o = (Characters) field.get(null);
+                CHARACTERS_MAP.put(field.getName(), o);
+            } catch (Exception ignored) {
+
+            }
+        }
+    }
+
+    private Set<Characters> characterSet;
+    private int             minLength;
+    private int             maxLength;
+    private boolean         allowEmpty;
 
     public final SeedType getSeedType() {
         return SeedType.String;
@@ -42,6 +63,19 @@ public class StringSeedConfig extends SeedConfig {
     @Override
     public TypeHandler<?> getTypeHandler() {
         return TYPE_HANDLER;
+    }
+
+    public void setCharacters(String[] characters) {
+        if (characters == null || characters.length == 0) {
+            return;
+        }
+
+        for (String characterName : characters) {
+            Characters object = CHARACTERS_MAP.get(characterName);
+            if (object != null) {
+                this.addCharacter(object);
+            }
+        }
     }
 
     public Set<Characters> getCharacterSet() {

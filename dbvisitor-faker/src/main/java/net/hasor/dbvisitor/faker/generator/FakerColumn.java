@@ -43,7 +43,6 @@ public class FakerColumn {
     FakerColumn(JdbcColumn jdbcColumn, SeedConfig seedConfig) {
         this.column = jdbcColumn.getColumnName();
         this.jdbcType = jdbcColumn.getJdbcNumber();
-        this.typeHandler = seedConfig.getTypeHandler();
         this.key = jdbcColumn.isPrimaryKey() || jdbcColumn.isUniqueKey();
         this.canBeCut = StringUtils.isNotBlank(jdbcColumn.getDefaultValue()) || Boolean.TRUE.equals(jdbcColumn.getNullable());
         this.ignoreAct = new HashSet<>();
@@ -108,6 +107,7 @@ public class FakerColumn {
 
     /** 重新创建随机数据发生器 */
     void applyConfig() {
+        this.typeHandler = this.seedConfig.getTypeHandler();
         this.valueSeed = this.seedFactory.createSeed(this.seedConfig);
     }
 

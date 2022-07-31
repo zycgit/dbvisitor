@@ -73,6 +73,10 @@ public class FakerConfig {
         this.minOpsCountPerTransaction = 5;
         this.maxOpsCountPerTransaction = 10;
         //
+        this.transaction = true;
+        this.minPausePerTransactionMs = 0;
+        this.maxPausePerTransactionMs = 0;
+        //
         this.queueCapacity = 4096;
         this.writeQps = -1;
         this.queryTimeout = -1;

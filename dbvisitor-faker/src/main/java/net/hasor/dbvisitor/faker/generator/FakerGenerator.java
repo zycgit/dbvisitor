@@ -16,6 +16,12 @@
 package net.hasor.dbvisitor.faker.generator;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.RandomUtils;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.logging.Logger;
+import net.hasor.cobble.setting.DefaultSettings;
+import net.hasor.cobble.setting.SettingNode;
+import net.hasor.cobble.setting.provider.StreamType;
+import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.OpsType;
 
@@ -32,10 +38,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class FakerGenerator {
-    private final String           generatorID;
-    private final FakerConfig      fakerConfig;
-    private final FakerFactory     fakerFactory;
-    private final List<FakerTable> generatorTables;
+    private final static Logger           logger = Logger.getLogger(FakerGenerator.class);
+    private final        String           generatorID;
+    private final        FakerConfig      fakerConfig;
+    private final        FakerFactory     fakerFactory;
+    private final        List<FakerTable> generatorTables;
 
     public FakerGenerator(FakerFactory fakerFactory) {
         this.generatorID = UUID.randomUUID().toString().replace("-", "");
@@ -126,5 +133,31 @@ public class FakerGenerator {
     public FakerTable addTable(FakerTable table) {
         this.generatorTables.add(table);
         return table;
+    }
+
+    public FakerTable findTable(String catalog, String schema, String table) {
+        return this.generatorTables.stream().filter(fakerTable -> {
+            return StringUtils.equals(fakerTable.getCatalog(), catalog) &&  //
+                    StringUtils.equals(fakerTable.getSchema(), schema) &&   //
+                    StringUtils.equals(fakerTable.getTable(), table);
+        }).findFirst().orElse(null);
+    }
+
+    public void loadConfig(String config, StreamType streamType) throws Exception {
+        DefaultSettings settings = new DefaultSettings();
+        settings.addResource(config, streamType);
+        settings.loadSettings();
+
+        SettingNode[] tables = settings.getNodeArray("config.table");
+        if (tables != null) {
+            for (SettingNode table : tables) {
+                FakerTable fakerTable = this.fakerFactory.fetchTable(table);
+                if (fakerTable != null) {
+                    String tableName = DefaultSqlDialect.DEFAULT.tableName(true, fakerTable.getCatalog(), fakerTable.getSchema(), fakerTable.getTable());
+                    this.addTable(fakerTable);
+                    logger.info("found table '" + tableName + "'");
+                }
+            }
+        }
     }
 }

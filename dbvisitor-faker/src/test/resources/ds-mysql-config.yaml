@@ -1,0 +1,15 @@
+config:
+  - table:
+      catalog:
+      schema:
+      table: 'tb_user'
+      columns:
+        userUUID:
+          characters: [ 'letter_capital','letter_small' ]
+      ignoreColsAll:
+      ignoreColsInsert:
+      ignoreColsUpdate:
+      ignoreColsWhere:
+      insertPolitic: fullcol
+      updatePolitic:
+      wherePolitic:

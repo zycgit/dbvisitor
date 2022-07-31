@@ -204,12 +204,18 @@ public class FakerFactory {
         if (columnConfig != null) {
             String[] propertySet = columnConfig.getSubKeys();
             for (String property : propertySet) {
-                Class<?> propertyType = BeanUtils.getPropertyType(configClass, property);
-                Object propertyValue = columnConfig.getSubValue(property);
-                if (propertyType == null) {
+                List<String> propertyType = BeanUtils.getProperties(configClass);
+                Object[] propertyValue = columnConfig.getSubValues(property);
+                if (propertyValue == null || propertyValue.length == 0) {
                     continue;
                 }
-                BeanUtils.writeProperty(seedConfig, property, propertyValue);
+
+                Object writeValue = (propertyValue.length == 1) ? propertyValue[0] : propertyValue;
+                seedConfig.getConfigMap().put(property, writeValue);
+
+                if (propertyType.contains(property)) {
+                    BeanUtils.writeProperty(seedConfig, property, writeValue);
+                }
             }
         }
 
