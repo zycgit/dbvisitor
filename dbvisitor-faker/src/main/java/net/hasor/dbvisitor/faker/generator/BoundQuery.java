@@ -15,6 +15,8 @@
  */
 package net.hasor.dbvisitor.faker.generator;
 
+import net.hasor.dbvisitor.faker.OpsType;
+
 import java.util.Arrays;
 
 /**
@@ -23,12 +25,24 @@ import java.util.Arrays;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class BoundQuery {
+    private final FakerTable    tableInfo;
+    private final OpsType       opsType;
     private final StringBuilder sqlString;
     private final SqlArg[]      paramArray;
 
-    public BoundQuery(StringBuilder sqlString, SqlArg[] paramArray) {
+    public BoundQuery(FakerTable tableInfo, OpsType opsType, StringBuilder sqlString, SqlArg[] paramArray) {
+        this.tableInfo = tableInfo;
+        this.opsType = opsType;
         this.sqlString = sqlString;
         this.paramArray = paramArray;
+    }
+
+    public FakerTable getTableInfo() {
+        return tableInfo;
+    }
+
+    public OpsType getOpsType() {
+        return this.opsType;
     }
 
     public String getSqlString() {

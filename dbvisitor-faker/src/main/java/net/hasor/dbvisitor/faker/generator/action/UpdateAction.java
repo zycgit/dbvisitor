@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.faker.generator.action;
 
 import net.hasor.cobble.RandomUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.faker.OpsType;
 import net.hasor.dbvisitor.faker.generator.*;
 
 import java.sql.SQLException;
@@ -167,7 +168,7 @@ public class UpdateAction implements Action {
                 args[index++] = colInfo.buildData(value);
             }
 
-            boundQueries.add(new BoundQuery(builder, args));
+            boundQueries.add(new BoundQuery(this.tableInfo, OpsType.Update, builder, args));
         }
         return boundQueries;
     }

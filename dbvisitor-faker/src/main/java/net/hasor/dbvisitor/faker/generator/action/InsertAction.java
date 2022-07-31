@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.faker.generator.action;
 
 import net.hasor.cobble.RandomUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.faker.OpsType;
 import net.hasor.dbvisitor.faker.generator.*;
 
 import java.util.ArrayList;
@@ -115,7 +116,7 @@ public class InsertAction implements Action {
                 args[argIdx] = colInfo.generatorData();
             }
 
-            boundQueries.add(new BoundQuery(builder, args));
+            boundQueries.add(new BoundQuery(this.tableInfo, OpsType.Insert, builder, args));
         }
         return boundQueries;
     }

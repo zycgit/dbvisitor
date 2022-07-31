@@ -23,22 +23,29 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * GeneratorTrans
+ * FakerGenerator
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class GeneratorProducer {
+public class FakerGenerator {
+    private final String           generatorID;
     private final FakerConfig      fakerConfig;
     private final FakerFactory     fakerFactory;
     private final List<FakerTable> generatorTables;
 
-    public GeneratorProducer(FakerFactory fakerFactory) {
+    public FakerGenerator(FakerFactory fakerFactory) {
+        this.generatorID = UUID.randomUUID().toString().replace("-", "");
         this.fakerConfig = fakerFactory.getFakerConfig();
         this.fakerFactory = fakerFactory;
         this.generatorTables = new CopyOnWriteArrayList<>();
+    }
+
+    public String getGeneratorID() {
+        return this.generatorID;
     }
 
     public List<BoundQuery> generator() throws SQLException {

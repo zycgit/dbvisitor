@@ -35,9 +35,8 @@ class RatioUtils {
         return ratio;
     }
 
-    public static Ratio<OpsType> fillByConfig(String ratioConfig, Ratio<OpsType> ratio) {
+    public static void fillByConfig(String ratioConfig, Ratio<OpsType> ratio) {
         passerOpsRatio(ratioConfig).forEach(o -> ratio.addRatio(o.getRatio(), o.getOpsType()));
-        return ratio;
     }
 
     private static String[] split(final String str, final String[] separators) {
@@ -60,13 +59,9 @@ class RatioUtils {
                 if (item.length == 2) {
                     opsRatio.add(new InnerTwoObj(OpsType.valueOfCode(item[0].trim()), Integer.parseInt(item[1].trim())));
                 } else {
-                    throw new IllegalArgumentException("opsRatio config format illegal(legal one,e.g,INSERT#10;UPDATE#10;DELETE#10).value:" + opsRatioStr);
+                    throw new IllegalArgumentException("opsRatio config format illegal(legal one,e.g,INSERT#30;UPDATE#30;DELETE#30).value:" + opsRatioStr);
                 }
             }
-        } else {
-            opsRatio.add(new InnerTwoObj(OpsType.Insert, 10));
-            opsRatio.add(new InnerTwoObj(OpsType.Update, 10));
-            opsRatio.add(new InnerTwoObj(OpsType.Delete, 10));
         }
 
         return opsRatio;

@@ -18,6 +18,7 @@ package net.hasor.dbvisitor.faker.generator.action;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.RandomUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.faker.OpsType;
 import net.hasor.dbvisitor.faker.generator.*;
 
 import java.sql.SQLException;
@@ -122,7 +123,7 @@ public class DeleteAction implements Action {
                 args[i] = colInfo.buildData(value);
             }
 
-            boundQueries.add(new BoundQuery(builder, args));
+            boundQueries.add(new BoundQuery(this.tableInfo, OpsType.Delete, builder, args));
         }
         return boundQueries;
     }

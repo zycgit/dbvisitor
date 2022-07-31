@@ -15,12 +15,18 @@
  */
 package net.hasor.dbvisitor.faker;
 import net.hasor.cobble.RandomUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.Ratio;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.generator.DataLoader;
 import net.hasor.dbvisitor.faker.strategy.ConservativeStrategy;
 import net.hasor.dbvisitor.faker.strategy.Strategy;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Faker 全局配置
@@ -41,10 +47,17 @@ public class FakerConfig {
     private final Ratio<OpsType>      opsRatio;
     private       int                 minOpsCountPerTransaction;
     private       int                 maxOpsCountPerTransaction;
-    // multiple trans
+    // trans stream
     private       boolean             transaction;
     private       int                 minPausePerTransactionMs;
     private       int                 maxPausePerTransactionMs;
+    // worker
+    private       ThreadFactory       threadFactory;
+    private       int                 queueCapacity;
+    private       int                 writeQps;
+    private       int                 queryTimeout;
+    private final Set<String>         ignoreErrors;
+    private       boolean             ignoreAnyErrors;
 
     public FakerConfig() {
         this.classLoader = Thread.currentThread().getContextClassLoader();
@@ -59,6 +72,12 @@ public class FakerConfig {
         this.opsRatio = RatioUtils.passerByConfig("INSERT#30;UPDATE#30;DELETE#30");
         this.minOpsCountPerTransaction = 2;
         this.maxOpsCountPerTransaction = 10;
+        //
+        this.queueCapacity = 4096;
+        this.writeQps = -1;
+        this.queryTimeout = -1;
+        this.ignoreErrors = new HashSet<>(Collections.singletonList("Duplicate"));
+        this.ignoreAnyErrors = false;
     }
 
     public int randomOpsCountPerTrans() {
@@ -75,6 +94,29 @@ public class FakerConfig {
 
     public OpsType randomOps() {
         return this.opsRatio.getByRandom();
+    }
+
+    public boolean ignoreError(Exception e) {
+        if (this.ignoreAnyErrors) {
+            return true;
+        }
+
+        if (this.ignoreErrors.isEmpty()) {
+            return false;
+        }
+
+        for (String term : this.ignoreErrors) {
+            if (StringUtils.containsIgnoreCase(e.getMessage(), term)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void addIgnoreError(String keyWords) {
+        if (StringUtils.isNotBlank(keyWords)) {
+            this.ignoreErrors.add(keyWords);
+        }
     }
 
     public ClassLoader getClassLoader() {
@@ -188,5 +230,45 @@ public class FakerConfig {
 
     public void setMaxOpsCountPerTransaction(int maxOpsCountPerTransaction) {
         this.maxOpsCountPerTransaction = maxOpsCountPerTransaction;
+    }
+
+    public int getQueryTimeout() {
+        return queryTimeout;
+    }
+
+    public void setQueryTimeout(int queryTimeout) {
+        this.queryTimeout = queryTimeout;
+    }
+
+    public ThreadFactory getThreadFactory() {
+        return threadFactory;
+    }
+
+    public void setThreadFactory(ThreadFactory threadFactory) {
+        this.threadFactory = threadFactory;
+    }
+
+    public int getQueueCapacity() {
+        return queueCapacity;
+    }
+
+    public void setQueueCapacity(int queueCapacity) {
+        this.queueCapacity = queueCapacity;
+    }
+
+    public int getWriteQps() {
+        return writeQps;
+    }
+
+    public void setWriteQps(int writeQps) {
+        this.writeQps = writeQps;
+    }
+
+    public boolean isIgnoreAnyErrors() {
+        return ignoreAnyErrors;
+    }
+
+    public void setIgnoreAnyErrors(boolean ignoreAnyErrors) {
+        this.ignoreAnyErrors = ignoreAnyErrors;
     }
 }

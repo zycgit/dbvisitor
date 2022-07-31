@@ -8,7 +8,7 @@ public class ConfigTest {
     @Test
     public void insertTest() throws Exception {
         FakerFactory fakerFactory = new FakerFactory(DsUtils.dsMySql());
-        GeneratorProducer producer = new GeneratorProducer(fakerFactory);
+        FakerGenerator producer = new FakerGenerator(fakerFactory);
 
         FakerTable table = producer.addTable(null, null, "tb_user");
         table.setInsertPolitic(SqlPolitic.RandomCol);
@@ -25,7 +25,7 @@ public class ConfigTest {
     @Test
     public void deleteTest() throws Exception {
         FakerFactory fakerFactory = new FakerFactory(DsUtils.dsMySql());
-        GeneratorProducer producer = new GeneratorProducer(fakerFactory);
+        FakerGenerator producer = new FakerGenerator(fakerFactory);
 
         FakerTable table = producer.addTable(null, null, "tb_user");
         table.setWherePolitic(SqlPolitic.RandomCol);
@@ -42,7 +42,7 @@ public class ConfigTest {
     @Test
     public void updateTest() throws Exception {
         FakerFactory fakerFactory = new FakerFactory(DsUtils.dsMySql());
-        GeneratorProducer producer = new GeneratorProducer(fakerFactory);
+        FakerGenerator producer = new FakerGenerator(fakerFactory);
 
         FakerTable table = producer.addTable(null, null, "tb_user");
         table.setWherePolitic(SqlPolitic.RandomCol);

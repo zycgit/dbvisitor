@@ -13,36 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker;
-import net.hasor.cobble.StringUtils;
+package net.hasor.dbvisitor.faker.engine;
+import net.hasor.dbvisitor.faker.generator.BoundQuery;
+
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * 要执行的操作类型
+ * 生产者和消费者之间的 数据传输通道
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public enum OpsType {
-    Insert,
-    Update,
-    Delete,
-    ;
+public class EventQueue {
+    private final BlockingQueue<List<BoundQuery>> dataSet;
 
-    public String sortCode() {
-        return String.valueOf(name().charAt(0));
+    public EventQueue(int capacity) {
+        this.dataSet = new LinkedBlockingQueue<>(capacity);
     }
 
-    public static OpsType valueOfCode(String name) {
-        for (OpsType politic : OpsType.values()) {
-            if (StringUtils.equalsIgnoreCase(politic.name(), name)) {
-                return politic;
-            }
+    public List<BoundQuery> tryPoll() {
+        return this.dataSet.poll();
+    }
 
-            char charA = politic.name().charAt(0);
-            char charB = name.charAt(0);
-            if (charA == charB || charA == (charB - 32)) {
-                return politic;
-            }
-        }
-        return null;
+    public boolean tryOffer(List<BoundQuery> queries) {
+        return this.dataSet.offer(queries);
     }
 }
