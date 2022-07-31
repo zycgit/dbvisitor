@@ -30,14 +30,15 @@ import java.util.function.Supplier;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class FakerColumn {
-    private final String           column;
-    private       Integer          jdbcType;
-    private       TypeHandler<?>   typeHandler;
-    private final boolean          key;
-    private final boolean          canBeCut;
-    private final Set<UseFor>      ignoreAct;
-    private final SeedConfig       seedConfig;
-    private       Supplier<Object> valueSeed;
+    private final String                          column;
+    private       Integer                         jdbcType;
+    private       TypeHandler<?>                  typeHandler;
+    private final boolean                         key;
+    private final boolean                         canBeCut;
+    private final Set<UseFor>                     ignoreAct;
+    private final SeedConfig                      seedConfig;
+    private       SeedFactory<SeedConfig, Object> seedFactory;
+    private       Supplier<Object>                valueSeed;
 
     FakerColumn(JdbcColumn jdbcColumn, SeedConfig seedConfig) {
         this.column = jdbcColumn.getColumnName();
@@ -49,14 +50,37 @@ public class FakerColumn {
         this.seedConfig = seedConfig;
     }
 
+    /** 获取列名 */
     public String getColumn() {
         return column;
     }
 
+    /** 写入时用作的 jdbc type */
+    public Integer getJdbcType() {
+        return jdbcType;
+    }
+
+    /** 写入时用作的 jdbc type */
+    public void setJdbcType(Integer jdbcType) {
+        this.jdbcType = jdbcType;
+    }
+
+    /** 执行 ps set 的 TypeHandler */
+    public TypeHandler<?> getTypeHandler() {
+        return typeHandler;
+    }
+
+    /** 执行 ps set 的 TypeHandler */
+    public void setTypeHandler(TypeHandler<?> typeHandler) {
+        this.typeHandler = typeHandler;
+    }
+
+    /** 列是否为被当作 key（是 pk 或 uk）*/
     public boolean isKey() {
         return key;
     }
 
+    /** insert 操作中 列如果具有 默认值或者允许为空，则表示可以在生成语句中被裁剪掉，否则必须含有该列 */
     public boolean isCanBeCut() {
         return canBeCut;
     }
@@ -65,10 +89,12 @@ public class FakerColumn {
         return !this.ignoreAct.contains(useFor);
     }
 
+    /** 生成随机值 */
     public SqlArg generatorData() {
         return new SqlArg(this.jdbcType, this.typeHandler, this.valueSeed.get());
     }
 
+    /** 生成 value 值 */
     public SqlArg buildData(Object value) {
         return new SqlArg(this.jdbcType, this.typeHandler, value);
     }
@@ -76,11 +102,23 @@ public class FakerColumn {
     void initColumn(Set<UseFor> ignoreAct, SeedFactory<SeedConfig, Object> seedFactory) {
         this.ignoreAct.clear();
         this.ignoreAct.addAll(ignoreAct);
-        this.valueSeed = seedFactory.createSeed(this.seedConfig);
+        this.seedFactory = seedFactory;
+        this.applyConfig();
     }
 
+    /** 重新创建随机数据发生器 */
+    void applyConfig() {
+        this.valueSeed = this.seedFactory.createSeed(this.seedConfig);
+    }
+
+    /** 像列配置一个忽略规则 */
     public void ignoreAct(UseFor ignoreAct) {
         this.ignoreAct.add(ignoreAct);
+    }
+
+    /** 随机种子的配置 */
+    public <T extends SeedConfig> T seedConfig() {
+        return (T) this.seedConfig;
     }
 
     @Override

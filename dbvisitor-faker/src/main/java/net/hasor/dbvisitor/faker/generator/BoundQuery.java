@@ -37,18 +37,22 @@ public class BoundQuery {
         this.paramArray = paramArray;
     }
 
+    /** 表信息 */
     public FakerTable getTableInfo() {
         return tableInfo;
     }
 
+    /** 操作类型 UID */
     public OpsType getOpsType() {
         return this.opsType;
     }
 
+    /** SQL 文本 */
     public String getSqlString() {
         return this.sqlString.toString();
     }
 
+    /** 执行参数 */
     public SqlArg[] getArgs() {
         return this.paramArray;
     }

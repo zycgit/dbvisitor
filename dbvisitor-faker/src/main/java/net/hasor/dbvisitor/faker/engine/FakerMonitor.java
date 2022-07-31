@@ -27,7 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 监听写入状态
+ * 状态监听
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -52,44 +52,54 @@ public class FakerMonitor {
         }
     }
 
+    /** 获取成功执行的 insert 数 */
     public long getSucceedInsert() {
         return this.succeedCounter.getOrDefault(OpsType.Insert, ZERO).get();
     }
 
+    /** 获取成功执行的 update 数 */
     public long getSucceedUpdate() {
         return this.succeedCounter.getOrDefault(OpsType.Update, ZERO).get();
     }
 
+    /** 获取成功执行的 delete 数 */
     public long getSucceedDelete() {
         return this.succeedCounter.getOrDefault(OpsType.Delete, ZERO).get();
     }
 
+    /** 获取执行失败的 insert 数 */
     public long getFailedInsert() {
         return this.failedCounter.getOrDefault(OpsType.Insert, ZERO).get();
     }
 
+    /** 获取执行失败的 update 数 */
     public long getFailedUpdate() {
         return this.failedCounter.getOrDefault(OpsType.Update, ZERO).get();
     }
 
+    /** 获取执行失败的 delete 数 */
     public long getFailedDelete() {
         return this.failedCounter.getOrDefault(OpsType.Delete, ZERO).get();
     }
 
-    boolean ifPresentExit() {
+    /** 各 worker 否退出？ */
+    public boolean ifPresentExit() {
         return this.presentExit;
     }
 
+    /** 发送各个 worker 的退出信号 */
     public void exitSignal() {
         this.presentExit = true;
     }
 
+    /** 写入限流 */
     void checkQoS() {
         if (this.qosBucket != null) {
             this.qosBucket.check();
         }
     }
 
+    /** 一个 写入成功事件 */
     void recordMonitor(String writerID, String tranID, BoundQuery event, int affectRows) {
         if (this.startMonitorTime <= 0) {
             this.startMonitorTime = System.currentTimeMillis();
@@ -99,22 +109,29 @@ public class FakerMonitor {
         this.affectRowsCounter.getAndAdd(affectRows);
     }
 
+    /** 一个 写入失败事件 */
     void recordFailed(String writerID, String tranID, BoundQuery event, Exception e) {
         this.failedCounter.computeIfAbsent(event.getOpsType(), s -> new AtomicLong()).incrementAndGet();
     }
 
+    /** 一个 wokrer 退出了 */
     void workExit(String writerID, Throwable e) {
-        logger.error(e.getMessage(), e);
+        if (e != null) {
+            logger.error(e.getMessage(), e);
+        }
     }
 
+    /** 启动了一个数据发生器 */
     void producerStart(String workID, Thread workThread) {
         this.producerThreads.add(workThread);
     }
 
+    /** 启动了一个写入器 */
     void writerStart(String writerID, Thread workThread) {
         this.writerThreads.add(workThread);
     }
 
+    /** 需要监控的 EventQueue */
     void monitorQueue(EventQueue eventQueue) {
         this.queueList.add(eventQueue);
     }

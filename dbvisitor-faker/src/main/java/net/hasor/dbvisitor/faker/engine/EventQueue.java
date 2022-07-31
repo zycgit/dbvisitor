@@ -17,7 +17,6 @@ package net.hasor.dbvisitor.faker.engine;
 import net.hasor.dbvisitor.faker.generator.BoundQuery;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -27,32 +26,30 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class EventQueue {
-    private final String                          queueID;
     private final int                             capacity;
     private final BlockingQueue<List<BoundQuery>> dataSet;
 
     public EventQueue(int capacity) {
-        this.queueID = UUID.randomUUID().toString().replace("-", "");
         this.capacity = capacity;
         this.dataSet = new LinkedBlockingQueue<>(capacity);
     }
 
-    public String getQueueID() {
-        return queueID;
-    }
-
+    /** 拿一批数据，如果没有数据可拿返回 null */
     public List<BoundQuery> tryPoll() {
         return this.dataSet.poll();
     }
 
+    /** 放入数据，如果放入失败返回 false 否则返回 true */
     public boolean tryOffer(List<BoundQuery> queries) {
         return this.dataSet.offer(queries);
     }
 
+    /** 传输通道的队列的容量 */
     public int getCapacity() {
         return capacity;
     }
 
+    /** 传输通道上目前数据多少 */
     public int getQueueSize() {
         return this.dataSet.size();
     }

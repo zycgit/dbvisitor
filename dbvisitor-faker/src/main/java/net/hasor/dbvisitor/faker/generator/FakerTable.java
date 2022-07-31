@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.generator;
-import net.hasor.cobble.RandomUtils;
-import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
-import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.generator.action.DeleteAction;
 import net.hasor.dbvisitor.faker.generator.action.InsertAction;
 import net.hasor.dbvisitor.faker.generator.action.UpdateAction;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.page.PageObject;
+import net.hasor.dbvisitor.faker.generator.loader.DefaultDataLoaderFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -110,21 +104,24 @@ public class FakerTable {
         this.useQualifier = useQualifier;
     }
 
+    /** 添加一个列 */
     public void addColumn(FakerColumn fakerColumn) {
         this.columnMap.put(fakerColumn.getColumn(), fakerColumn);
         this.columnList.add(fakerColumn);
     }
 
+    /** 查找某个列 */
     public FakerColumn findColumns(String columnName) {
         return this.columnMap.get(columnName);
     }
 
-    public void initTable(FakerFactory fakerFactory, SqlDialect dialect) {
+    void initTable(FakerFactory fakerFactory, SqlDialect dialect) {
         this.fakerFactory = fakerFactory;
         this.dialect = dialect;
         this.apply();
     }
 
+    /** 应用最新配置，并且创建 IUD 生成器 */
     public void apply() {
         List<FakerColumn> insertColumns = new ArrayList<>();
         List<FakerColumn> updateSetColumns = new ArrayList<>();
@@ -144,83 +141,30 @@ public class FakerTable {
             if (fakerColumn.isGenerator(UseFor.DeleteWhere)) {
                 deleteWhereColumns.add(fakerColumn);
             }
+            fakerColumn.applyConfig();
         }
 
-        DataLoader dataLoader = this.fakerFactory.getFakerConfig().getDataLoader();
-        dataLoader = dataLoader != null ? dataLoader : defaultDataLoader(this.fakerFactory.getJdbcTemplate(), this.dialect);
+        DataLoaderFactory dataLoaderFactory = this.fakerFactory.getFakerConfig().getDataLoaderFactory();
+        dataLoaderFactory = dataLoaderFactory == null ? new DefaultDataLoaderFactory() : dataLoaderFactory;
+
+        DataLoader dataLoader = dataLoaderFactory.createDataLoader(this.fakerFactory.getFakerConfig(), this.fakerFactory.getJdbcTemplate(), this.dialect);
         this.insertGenerator = new InsertAction(this, this.dialect, insertColumns);
         this.updateGenerator = new UpdateAction(this, this.dialect, updateSetColumns, updateWhereColumns, dataLoader);
         this.deleteGenerator = new DeleteAction(this, this.dialect, deleteWhereColumns, dataLoader);
     }
 
-    private DataLoader defaultDataLoader(final JdbcTemplate jdbcTemplate, final SqlDialect dialect) {
-        return (useFor, fakerTable, includeColumns, batchSize) -> {
-            // type1 use randomQuery.
-            if (dialect instanceof ConditionSqlDialect) {
-                try {
-                    return loadForRandomQuery(dialect, jdbcTemplate, fakerTable, includeColumns, batchSize);
-                } catch (UnsupportedOperationException ignored) {
-                }
-            }
-
-            // type2 use random page
-            if (dialect instanceof PageSqlDialect) {
-                try {
-                    return loadForPageQuery(dialect, jdbcTemplate, fakerTable, includeColumns, batchSize);
-                } catch (UnsupportedOperationException ignored) {
-                }
-            }
-
-            // type3 use random data (there is a hit rate problem)
-            return loadForRandomData(dialect, jdbcTemplate, fakerTable, includeColumns, batchSize);
-        };
-    }
-
-    protected List<Map<String, Object>> loadForRandomQuery(SqlDialect dialect, JdbcTemplate jdbcTemplate,//
-            FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException {
-        String queryString = ((ConditionSqlDialect) dialect).randomQuery(true, catalog, schema, table, includeColumns, batchSize);
-        return jdbcTemplate.queryForList(queryString);
-    }
-
-    protected List<Map<String, Object>> loadForPageQuery(SqlDialect dialect, JdbcTemplate jdbcTemplate,//
-            FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException {
-        BoundSql boundSql = new LambdaTemplate(jdbcTemplate).lambdaQuery(catalog, schema, table).select(includeColumns.toArray(new String[0])).getBoundSql(dialect);
-
-        BoundSql countSql = ((PageSqlDialect) dialect).countSql(boundSql);
-        long count = jdbcTemplate.queryForLong(countSql.getSqlString(), countSql.getArgs());
-        PageObject pageInfo = new PageObject(batchSize, count);
-        pageInfo.setPageSize(batchSize);
-        long totalPage = pageInfo.getTotalPage();
-        pageInfo.setCurrentPage(RandomUtils.nextLong(0, totalPage));
-
-        BoundSql pageSql = ((PageSqlDialect) dialect).pageSql(boundSql, pageInfo.getFirstRecordPosition(), batchSize);
-        return jdbcTemplate.queryForList(pageSql.getSqlString(), pageSql.getArgs());
-    }
-
-    protected List<Map<String, Object>> loadForRandomData(SqlDialect dialect, JdbcTemplate jdbcTemplate,//
-            FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException {
-        List<Map<String, Object>> resultData = new ArrayList<>();
-        for (int i = 0; i < batchSize; i++) {
-            Map<String, Object> record = new LinkedHashMap<>();
-            for (String colName : includeColumns) {
-                FakerColumn col = this.columnMap.get(colName);
-                record.put(colName, col.generatorData());
-            }
-            resultData.add(record);
-        }
-        return resultData;
-    }
-
+    /** 生成一批 insert，每批语句都是相同的语句模版 */
     protected List<BoundQuery> buildInsert(int batchSize) throws SQLException {
         return this.insertGenerator.generatorAction(batchSize);
     }
 
+    /** 生成一批 update，每批语句都是相同的语句模版 */
     protected List<BoundQuery> buildUpdate(int batchSize) throws SQLException {
         return this.updateGenerator.generatorAction(batchSize);
     }
 
+    /** 生成一批 delete，每批语句都是相同的语句模版 */
     protected List<BoundQuery> buildDelete(int batchSize) throws SQLException {
         return this.deleteGenerator.generatorAction(batchSize);
     }
-
 }

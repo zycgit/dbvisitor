@@ -96,6 +96,7 @@ class WriteWorker implements ShutdownHook, Runnable {
             } catch (Throwable e) {
                 this.running.set(false);
                 this.monitor.workExit(this.threadName, e);
+                this.monitor.exitSignal();
                 return;
             }
         }

@@ -18,7 +18,7 @@ import net.hasor.cobble.RandomUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.Ratio;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.faker.generator.DataLoader;
+import net.hasor.dbvisitor.faker.generator.DataLoaderFactory;
 import net.hasor.dbvisitor.faker.strategy.ConservativeStrategy;
 import net.hasor.dbvisitor.faker.strategy.Strategy;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
@@ -37,7 +37,7 @@ public class FakerConfig {
     // generator
     private       ClassLoader         classLoader;
     private       TypeHandlerRegistry typeRegistry;
-    private       DataLoader          dataLoader;
+    private       DataLoaderFactory   dataLoaderFactory;
     private       Strategy            strategy;
     private       SqlDialect          dialect;
     private       boolean             useQualifier;
@@ -62,7 +62,7 @@ public class FakerConfig {
     public FakerConfig() {
         this.classLoader = Thread.currentThread().getContextClassLoader();
         this.typeRegistry = TypeHandlerRegistry.DEFAULT;
-        this.dataLoader = null;
+        this.dataLoaderFactory = null;
         this.strategy = new ConservativeStrategy();
         this.dialect = null;
         this.useQualifier = true;
@@ -135,12 +135,12 @@ public class FakerConfig {
         this.typeRegistry = typeRegistry;
     }
 
-    public DataLoader getDataLoader() {
-        return dataLoader;
+    public DataLoaderFactory getDataLoaderFactory() {
+        return dataLoaderFactory;
     }
 
-    public void setDataLoader(DataLoader dataLoader) {
-        this.dataLoader = dataLoader;
+    public void setDataLoaderFactory(DataLoaderFactory dataLoaderFactory) {
+        this.dataLoaderFactory = dataLoaderFactory;
     }
 
     public SqlDialect getDialect() {

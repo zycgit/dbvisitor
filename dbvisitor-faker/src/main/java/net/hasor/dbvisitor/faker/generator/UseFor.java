@@ -20,8 +20,12 @@ package net.hasor.dbvisitor.faker.generator;
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum UseFor {
+    /** 被用作 Insert */
     Insert,
+    /** 被用作 update 语句中 set 部分 */
     UpdateSet,
+    /** 被用作 update 语句中的 where 部分 */
     UpdateWhere,
+    /** 被用作 delete 语句的 where 部分 */
     DeleteWhere,
 }

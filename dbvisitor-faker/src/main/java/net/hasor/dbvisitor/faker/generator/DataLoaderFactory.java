@@ -15,9 +15,9 @@
  */
 package net.hasor.dbvisitor.faker.generator;
 
+import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-
-import java.sql.SQLException;
 
 /**
  * 用于 UPDATE、DELETE 的数据反查
@@ -25,5 +25,5 @@ import java.sql.SQLException;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface DataLoaderFactory {
-    DataLoader createDataLoader(JdbcTemplate jdbcTemplate) throws SQLException;
+    DataLoader createDataLoader(FakerConfig fakerConfig, JdbcTemplate jdbcTemplate, SqlDialect dialect);
 }

@@ -28,7 +28,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadFactory;
 
 /**
- * 包含若干事务的数据集
+ * 压力引擎
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -67,10 +67,12 @@ public class FakerEngine {
         return this.monitor;
     }
 
+    /** 启动数据集发生器 */
     public synchronized void startProducer(FakerGenerator generator, int threadCount) {
         this.startProducer(generator, threadCount, null);
     }
 
+    /** 启动数据集发生器 */
     public synchronized void startProducer(FakerGenerator generator, int threadCount, List<OpsType> specialOps) {
         String producerID = generator.getGeneratorID();
         if (this.queueMap.containsKey(producerID)) {
@@ -89,6 +91,7 @@ public class FakerEngine {
         }
     }
 
+    /** 启动数据写入器 */
     public synchronized void startWriter(FakerGenerator producer, int threadCount) {
         String producerID = producer.getGeneratorID();
         if (!this.queueMap.containsKey(producerID)) {
@@ -104,6 +107,7 @@ public class FakerEngine {
         }
     }
 
+    /** 停止引擎，并清空监控状态 */
     public void shutdown() {
         this.monitor.exitSignal();
         for (ShutdownHook hook : this.workers) {

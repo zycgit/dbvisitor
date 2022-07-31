@@ -13,12 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.engine;
+package net.hasor.dbvisitor.faker.generator.loader;
+
+import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.faker.FakerConfig;
+import net.hasor.dbvisitor.faker.generator.DataLoader;
+import net.hasor.dbvisitor.faker.generator.DataLoaderFactory;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+
 /**
- * 停止钩子
+ * 反查数据加载器
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-interface ShutdownHook extends Runnable {
-    void shutdown();
+public class DefaultDataLoaderFactory implements DataLoaderFactory {
+    @Override
+    public DataLoader createDataLoader(FakerConfig fakerConfig, JdbcTemplate jdbcTemplate, SqlDialect dialect) {
+        return new DefaultDataLoader(jdbcTemplate, dialect);
+    }
 }
