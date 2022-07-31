@@ -9,9 +9,6 @@ import net.hasor.dbvisitor.faker.generator.loader.PrecociousDataLoaderFactory;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedConfig;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.HashSet;
-
 import static net.hasor.dbvisitor.faker.seed.string.CharacterSet.CJK_UNIFIED_IDEOGRAPHS;
 
 public class FakerEngineTest {
@@ -31,7 +28,7 @@ public class FakerEngineTest {
         FakerGenerator generator = new FakerGenerator(fakerFactory);
         FakerTable table = generator.addTable(null, null, "tb_user");
         table.setInsertPolitic(SqlPolitic.RandomCol);
-        ((StringSeedConfig) table.findColumns("userUUID").seedConfig()).setCharacterSet(new HashSet<>(Collections.singletonList(CJK_UNIFIED_IDEOGRAPHS)));
+        ((StringSeedConfig) table.findColumns("userUUID").seedConfig()).addCharacter(CJK_UNIFIED_IDEOGRAPHS);
         table.apply();
 
         fakerEngine.startProducer(generator, 8);

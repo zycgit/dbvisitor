@@ -20,6 +20,7 @@ import net.hasor.dbvisitor.faker.seed.SeedType;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -45,6 +46,15 @@ public class StringSeedConfig extends SeedConfig {
 
     public Set<Characters> getCharacterSet() {
         return characterSet;
+    }
+
+    public void addCharacter(Characters character) {
+        if (this.characterSet == null) {
+            this.characterSet = new HashSet<>();
+        }
+        if (!this.characterSet.contains(character)) {
+            this.characterSet.add(character);
+        }
     }
 
     public void setCharacterSet(Set<Characters> characterSet) {
