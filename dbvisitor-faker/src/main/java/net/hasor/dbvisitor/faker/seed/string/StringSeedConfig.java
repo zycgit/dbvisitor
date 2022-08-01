@@ -32,8 +32,11 @@ import java.util.Set;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class StringSeedConfig extends SeedConfig {
-    private static final TypeHandler<?>          TYPE_HANDLER   = TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
     private static final Map<String, Characters> CHARACTERS_MAP = new LinkedCaseInsensitiveMap<>();
+    private              Set<Characters>         characterSet;
+    private              int                     minLength;
+    private              int                     maxLength;
+    private              boolean                 allowEmpty;
 
     static {
         Field[] charsField = CharacterSet.class.getFields();
@@ -51,44 +54,17 @@ public class StringSeedConfig extends SeedConfig {
         }
     }
 
-    private Set<Characters> characterSet;
-    private int             minLength;
-    private int             maxLength;
-    private boolean         allowEmpty;
-
     public final SeedType getSeedType() {
         return SeedType.String;
     }
 
     @Override
-    public TypeHandler<?> getTypeHandler() {
-        return TYPE_HANDLER;
-    }
-
-    public void setCharacters(String[] characters) {
-        if (characters == null || characters.length == 0) {
-            return;
-        }
-
-        for (String characterName : characters) {
-            Characters object = CHARACTERS_MAP.get(characterName);
-            if (object != null) {
-                this.addCharacter(object);
-            }
-        }
+    protected TypeHandler<?> defaultTypeHandler() {
+        return TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
     }
 
     public Set<Characters> getCharacterSet() {
         return characterSet;
-    }
-
-    public void addCharacter(Characters character) {
-        if (this.characterSet == null) {
-            this.characterSet = new HashSet<>();
-        }
-        if (!this.characterSet.contains(character)) {
-            this.characterSet.add(character);
-        }
     }
 
     public void setCharacterSet(Set<Characters> characterSet) {
@@ -117,5 +93,28 @@ public class StringSeedConfig extends SeedConfig {
 
     public void setAllowEmpty(boolean allowEmpty) {
         this.allowEmpty = allowEmpty;
+    }
+
+    public void setCharacters(String[] characters) {
+        if (characters == null || characters.length == 0) {
+            return;
+        }
+        
+        setCharacterSet(new HashSet<>());
+        for (String characterName : characters) {
+            Characters object = CHARACTERS_MAP.get(characterName);
+            if (object != null) {
+                this.addCharacter(object);
+            }
+        }
+    }
+
+    public void addCharacter(Characters character) {
+        if (this.characterSet == null) {
+            this.characterSet = new HashSet<>();
+        }
+        if (!this.characterSet.contains(character)) {
+            this.characterSet.add(character);
+        }
     }
 }

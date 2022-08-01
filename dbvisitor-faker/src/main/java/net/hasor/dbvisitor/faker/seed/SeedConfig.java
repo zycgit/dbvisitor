@@ -15,7 +15,9 @@
  */
 package net.hasor.dbvisitor.faker.seed;
 
+import net.hasor.cobble.ClassUtils;
 import net.hasor.dbvisitor.types.TypeHandler;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +30,7 @@ import java.util.Map;
 public abstract class SeedConfig {
     private       boolean             allowNullable;
     private       Float               nullableRatio;
+    private       TypeHandler<?>      typeHandler;
     private final Map<String, Object> configMap = new HashMap<>();
 
     public Map<String, Object> getConfigMap() {
@@ -50,7 +53,27 @@ public abstract class SeedConfig {
         this.nullableRatio = nullableRatio;
     }
 
-    public abstract SeedType getSeedType();
+    public TypeHandler<?> getTypeHandler() {
+        if (this.typeHandler == null) {
+            this.typeHandler = defaultTypeHandler();
+        }
+        return this.typeHandler;
+    }
 
-    public abstract TypeHandler<?> getTypeHandler();
+    public void setTypeHandler(TypeHandler<?> typeHandler) {
+        this.typeHandler = typeHandler;
+    }
+
+    public void setTypeHandlerType(String typeHandlerType) throws Exception {
+        if (TypeHandlerRegistry.DEFAULT.hasTypeHandler(typeHandlerType)) {
+            this.typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(typeHandlerType);
+        } else {
+            Class<?> typeHandlerClass = ClassUtils.getClass(typeHandlerType);
+            this.typeHandler = (TypeHandler<?>) typeHandlerClass.newInstance();
+        }
+    }
+
+    protected abstract TypeHandler<?> defaultTypeHandler();
+
+    public abstract SeedType getSeedType();
 }

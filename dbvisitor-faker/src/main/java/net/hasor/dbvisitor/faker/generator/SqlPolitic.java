@@ -38,7 +38,6 @@ public enum SqlPolitic {
                 return politic;
             }
         }
-
         return defaultValue;
     }
 }

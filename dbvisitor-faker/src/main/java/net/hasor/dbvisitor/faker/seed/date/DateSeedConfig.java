@@ -29,10 +29,9 @@ import java.time.format.DateTimeFormatter;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class DateSeedConfig extends SeedConfig {
-    private TypeHandler<?>    typeHandler = TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();
     private GenType           genType;
     private DateType          dateType;
-    private String            dateFormat  = DateFormatType.s_yyyyMMdd_HHmmss_SSSSSS.getDatePattern();
+    private String            dateFormat = DateFormatType.s_yyyyMMdd_HHmmss_SSSSSS.getDatePattern();
     private DateTimeFormatter dateFormatter;
     // in random
     private String            rangeForm;
@@ -56,8 +55,8 @@ public class DateSeedConfig extends SeedConfig {
     }
 
     @Override
-    public TypeHandler<?> getTypeHandler() {
-        return this.typeHandler;
+    protected TypeHandler<?> defaultTypeHandler() {
+        return TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();
     }
 
     public GenType getGenType() {
@@ -74,7 +73,7 @@ public class DateSeedConfig extends SeedConfig {
 
     public void setDateType(DateType dateType) {
         this.dateType = dateType;
-        this.typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(dateType.getDateType());
+        this.setTypeHandler(TypeHandlerRegistry.DEFAULT.getTypeHandler(dateType.getDateType()));
     }
 
     public String getRangeForm() {

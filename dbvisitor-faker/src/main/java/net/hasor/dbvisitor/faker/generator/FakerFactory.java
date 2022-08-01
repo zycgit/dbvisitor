@@ -28,6 +28,7 @@ import net.hasor.dbvisitor.faker.meta.JdbcSqlTypes;
 import net.hasor.dbvisitor.faker.meta.JdbcTable;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
+import net.hasor.dbvisitor.faker.seed.SeedType;
 import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedConfig;
 import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedFactory;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedConfig;
@@ -35,6 +36,7 @@ import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedFactory;
 import net.hasor.dbvisitor.faker.seed.date.DateSeedConfig;
 import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
 import net.hasor.dbvisitor.faker.seed.date.DateType;
+import net.hasor.dbvisitor.faker.seed.enums.EnumSeedFactory;
 import net.hasor.dbvisitor.faker.seed.number.NumberSeedConfig;
 import net.hasor.dbvisitor.faker.seed.number.NumberSeedFactory;
 import net.hasor.dbvisitor.faker.seed.number.NumberType;
@@ -202,9 +204,11 @@ public class FakerFactory {
         // final apply form config
         Class<?> configClass = seedConfig.getClass();
         if (columnConfig != null) {
-            String[] propertySet = columnConfig.getSubKeys();
-            for (String property : propertySet) {
-                List<String> propertyType = BeanUtils.getProperties(configClass);
+            List<String> properties = BeanUtils.getProperties(configClass);
+            Map<String, Class<?>> propertiesMap = BeanUtils.getPropertyType(configClass);
+
+            String[] configProperties = columnConfig.getSubKeys();
+            for (String property : configProperties) {
                 Object[] propertyValue = columnConfig.getSubValues(property);
                 if (propertyValue == null || propertyValue.length == 0) {
                     continue;
@@ -213,7 +217,12 @@ public class FakerFactory {
                 Object writeValue = (propertyValue.length == 1) ? propertyValue[0] : propertyValue;
                 seedConfig.getConfigMap().put(property, writeValue);
 
-                if (propertyType.contains(property)) {
+                Class<?> propertyType = propertiesMap.get(property);
+                if (propertyType != null && propertyType.isArray()) {
+                    writeValue = propertyValue;
+                }
+
+                if (properties.contains(property)) {
                     BeanUtils.writeProperty(seedConfig, property, writeValue);
                 }
             }
@@ -361,12 +370,32 @@ public class FakerFactory {
 
     private SeedFactory createSeedFactory(SettingNode columnConfig) throws ReflectiveOperationException {
         String seedFactoryStr = columnConfig == null ? null : columnConfig.getSubValue(COLUMN_SEED_FACTORY.getConfigKey());
-        if (StringUtils.isBlank(seedFactoryStr)) {
-            return null;
+        if (StringUtils.isNotBlank(seedFactoryStr)) {
+            Class<?> seedFactoryType = this.fakerConfig.getClassLoader().loadClass(seedFactoryStr);
+            return (SeedFactory) seedFactoryType.newInstance();
         }
 
-        Class<?> seedFactoryType = this.fakerConfig.getClassLoader().loadClass(seedFactoryStr);
-        return (SeedFactory) seedFactoryType.newInstance();
+        String seedTypeStr = columnConfig == null ? null : columnConfig.getSubValue(COLUMN_SEED_TYPE.getConfigKey());
+        SeedType seedType = SeedType.valueOfCode(seedTypeStr);
+        if (seedType != null) {
+            switch (seedType) {
+                case Boolean:
+                    return new BooleanSeedFactory();
+                case Date:
+                    return new DateSeedFactory();
+                case String:
+                    return new StringSeedFactory();
+                case Number:
+                    return new NumberSeedFactory();
+                case Enums:
+                    return new EnumSeedFactory();
+                case Bytes:
+                    return new BytesSeedFactory();
+                case Custom:
+                    throw new IllegalArgumentException("custom seedType must config seedFactory.");
+            }
+        }
+        return null;
     }
 
     private SeedFactory createSeedFactory(JdbcSqlTypes jdbcType) {

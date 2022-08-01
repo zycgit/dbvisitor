@@ -361,6 +361,11 @@ public final class TypeHandlerRegistry {
         return this.javaTypeHandlerMap.containsKey(typeClass.getName());
     }
 
+    public boolean hasTypeHandler(String typeName) {
+        Objects.requireNonNull(typeName, "typeName is null.");
+        return this.javaTypeHandlerMap.containsKey(typeName);
+    }
+
     public boolean hasTypeHandler(int jdbcType) {
         return this.jdbcTypeHandlerMap.containsKey(jdbcType);
     }

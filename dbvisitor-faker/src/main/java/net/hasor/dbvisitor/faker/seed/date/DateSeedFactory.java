@@ -246,7 +246,7 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig, Serializable
                 return defaultValue.toOffsetDateTime();
             case Instant:
                 return defaultValue.toInstant();
-            case StrWithFormat:
+            case String:
                 return seedConfig.getDateTimeFormatter().format(defaultValue);
             case ZonedDateTime:
             default:

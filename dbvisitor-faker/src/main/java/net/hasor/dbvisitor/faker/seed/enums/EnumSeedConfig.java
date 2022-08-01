@@ -20,6 +20,8 @@ import net.hasor.dbvisitor.faker.seed.SeedType;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -28,16 +30,15 @@ import java.util.Set;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class EnumSeedConfig extends SeedConfig {
-    private final TypeHandler<?> TYPE_HANDLER = TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
-    private       Set<String>    dict;
+    private Set<String> dict;
 
     public final SeedType getSeedType() {
         return SeedType.Enums;
     }
 
     @Override
-    public TypeHandler<?> getTypeHandler() {
-        return TYPE_HANDLER;
+    protected TypeHandler<?> defaultTypeHandler() {
+        return TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
     }
 
     public Set<String> getDict() {
@@ -46,5 +47,12 @@ public class EnumSeedConfig extends SeedConfig {
 
     public void setDict(Set<String> dict) {
         this.dict = dict;
+    }
+
+    public void setDictSet(String[] dictSet) {
+        if (dictSet == null || dictSet.length == 0) {
+            return;
+        }
+        setDict(new HashSet<>(Arrays.asList(dictSet)));
     }
 }

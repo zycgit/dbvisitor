@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed;
+import net.hasor.cobble.StringUtils;
+
 /**
  * 类型
  * @version : 2022-07-25
@@ -30,4 +32,13 @@ public enum SeedType {
     //    Struts,
     //    RelationId,
     Custom;
+
+    public static SeedType valueOfCode(String name) {
+        for (SeedType seedType : SeedType.values()) {
+            if (StringUtils.equalsIgnoreCase(seedType.name(), name)) {
+                return seedType;
+            }
+        }
+        return null;
+    }
 }

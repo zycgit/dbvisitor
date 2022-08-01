@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.number;
+import net.hasor.cobble.StringUtils;
+
 import java.math.BigDecimal;
 
 /**
@@ -40,5 +42,14 @@ public enum NumberType {
 
     public Class<?> getDateType() {
         return this.dateType;
+    }
+
+    public static NumberType valueOfCode(String name) {
+        for (NumberType numberType : NumberType.values()) {
+            if (StringUtils.equalsIgnoreCase(numberType.name(), name)) {
+                return numberType;
+            }
+        }
+        return null;
     }
 }

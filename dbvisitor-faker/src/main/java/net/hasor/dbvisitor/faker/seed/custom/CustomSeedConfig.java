@@ -25,14 +25,13 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class CustomSeedConfig extends SeedConfig {
-    private final TypeHandler<?> TYPE_HANDLER = TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();
 
     public final SeedType getSeedType() {
         return SeedType.Custom;
     }
 
     @Override
-    public TypeHandler<?> getTypeHandler() {
-        return TYPE_HANDLER;
+    protected TypeHandler<?> defaultTypeHandler() {
+        return TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();
     }
 }

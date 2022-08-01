@@ -28,8 +28,7 @@ import java.math.BigDecimal;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class NumberSeedConfig extends SeedConfig {
-    private TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();
-    private NumberType     numberType;
+    private NumberType numberType;
 
     private BigDecimal min;
     private BigDecimal max;
@@ -42,8 +41,8 @@ public class NumberSeedConfig extends SeedConfig {
     }
 
     @Override
-    public TypeHandler<?> getTypeHandler() {
-        return this.typeHandler;
+    protected TypeHandler<?> defaultTypeHandler() {
+        return TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();
     }
 
     public NumberType getNumberType() {
@@ -52,7 +51,7 @@ public class NumberSeedConfig extends SeedConfig {
 
     public void setNumberType(NumberType numberType) {
         this.numberType = numberType;
-        this.typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(numberType.getDateType());
+        this.setTypeHandler(TypeHandlerRegistry.DEFAULT.getTypeHandler(numberType.getDateType()));
     }
 
     public BigDecimal getMin() {

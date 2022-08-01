@@ -50,6 +50,8 @@ public enum FakerConfigEnum {
     /** UPDATE/DELETE 语句的 WHERE 子句生成策略 */
     TABLE_ACT_POLITIC_WHERE("wherePolitic"),
 
+    /** 自定义数据发生器类型 */
+    COLUMN_SEED_TYPE("seedType"),
     /** 自定义数据发生器 */
     COLUMN_SEED_FACTORY("seedFactory"),
     ;

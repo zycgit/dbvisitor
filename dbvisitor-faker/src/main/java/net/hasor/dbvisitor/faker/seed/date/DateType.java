@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.date;
+import net.hasor.cobble.StringUtils;
+
 /**
  * 生成的时间值最终转换的格式
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum DateType {
+    String(java.lang.String.class),
     JavaDate(java.util.Date.class),
     JavaLong(java.lang.Long.class),
     SqlDate(java.sql.Date.class),
@@ -38,8 +41,6 @@ public enum DateType {
     OffsetDateTime(java.time.OffsetDateTime.class),
     ZonedDateTime(java.time.ZonedDateTime.class),
     Instant(java.time.Instant.class),
-
-    StrWithFormat(java.lang.String.class),
     ;
 
     private final Class<?> dateType;
@@ -50,5 +51,14 @@ public enum DateType {
 
     public Class<?> getDateType() {
         return this.dateType;
+    }
+
+    public static DateType valueOfCode(String name) {
+        for (DateType scope : DateType.values()) {
+            if (StringUtils.equalsIgnoreCase(scope.name(), name)) {
+                return scope;
+            }
+        }
+        return null;
     }
 }

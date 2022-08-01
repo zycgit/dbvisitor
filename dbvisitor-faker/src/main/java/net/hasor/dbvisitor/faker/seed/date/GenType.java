@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.date;
+import net.hasor.cobble.StringUtils;
+
 /**
  * 时间类型生成方式
  * @version : 2022-07-25
@@ -23,5 +25,14 @@ public enum GenType {
     Random,
     Interval,
     Fixed,
-    SysData
+    SysData;
+
+    public static GenType valueOfCode(String name) {
+        for (GenType scope : GenType.values()) {
+            if (StringUtils.equalsIgnoreCase(scope.name(), name)) {
+                return scope;
+            }
+        }
+        return null;
+    }
 }

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.date;
+import net.hasor.cobble.StringUtils;
+
 /**
  * 时间增长步长
  * @version : 2022-07-25
@@ -29,4 +31,14 @@ public enum IntervalScope {
     Second,
     Milli,
     Micro,
+    ;
+
+    public static IntervalScope valueOfCode(String name) {
+        for (IntervalScope scope : IntervalScope.values()) {
+            if (StringUtils.equalsIgnoreCase(scope.name(), name)) {
+                return scope;
+            }
+        }
+        return null;
+    }
 }
