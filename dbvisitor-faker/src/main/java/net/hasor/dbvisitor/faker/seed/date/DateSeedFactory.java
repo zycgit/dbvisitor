@@ -117,17 +117,9 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig, Serializable
                 return null;
             }
 
-            int randomZoned = 0;
-            long randomTime = 0;
-            int randomNano = 0;
-
-            if (RandomUtils.nextBoolean()) {
-                randomZoned = -RandomUtils.nextInt(0, Math.abs(minZoned));
-            } else {
-                randomZoned = RandomUtils.nextInt(0, Math.abs(maxZoned));
-            }
-            randomTime = RandomUtils.nextLong(minTimeSec, maxTimeSec);
-            randomNano = RandomUtils.nextInt(minTimeNano, maxTimeNano);
+            int randomZoned = nextInt(minZoned, maxZoned);
+            long randomTime = nextLong(minTimeSec, maxTimeSec);
+            int randomNano = nextInt(minTimeNano, maxTimeNano);
 
             ZoneOffset zoneOffset = ZoneOffset.ofTotalSeconds(randomZoned);
             ZonedDateTime passedTime = Instant.ofEpochSecond(randomTime).plusNanos(randomNano).atZone(zoneOffset);
@@ -151,7 +143,7 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig, Serializable
     }
 
     private ZonedDateTime plusInterval(ZonedDateTime startTime, int maxInterval, IntervalScope scope) {
-        long interval = RandomUtils.nextInt(0, maxInterval);
+        long interval = nextInt(0, maxInterval);
         switch (scope) {
             case Year:
                 return startTime.plusYears(interval);
@@ -251,6 +243,34 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig, Serializable
             case ZonedDateTime:
             default:
                 return defaultValue;
+        }
+    }
+
+    protected long nextLong(final long minValue, final long maxValue) {
+        if (minValue <= 0 && maxValue <= 0) {
+            return -RandomUtils.nextLong(Math.abs(maxValue), Math.abs(minValue));
+        } else if (minValue <= 0) {
+            if (RandomUtils.nextBoolean()) {
+                return -RandomUtils.nextLong(0, Math.abs(minValue));
+            } else {
+                return RandomUtils.nextLong(0, Math.abs(maxValue));
+            }
+        } else {
+            return RandomUtils.nextLong(minValue, maxValue);
+        }
+    }
+
+    protected int nextInt(final int minValue, final int maxValue) {
+        if (minValue <= 0 && maxValue <= 0) {
+            return -RandomUtils.nextInt(Math.abs(maxValue), Math.abs(minValue));
+        } else if (minValue <= 0) {
+            if (RandomUtils.nextBoolean()) {
+                return -RandomUtils.nextInt(0, Math.abs(minValue));
+            } else {
+                return RandomUtils.nextInt(0, Math.abs(maxValue));
+            }
+        } else {
+            return RandomUtils.nextInt(minValue, maxValue);
         }
     }
 }

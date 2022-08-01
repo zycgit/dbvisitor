@@ -1,7 +1,7 @@
 config:
   - table:
-      catalog:
-      schema:
+      catalog: 'tester'
+      schema: 'dbo'
       table: 'tb_user'
       columns:
         userUUID:
@@ -14,7 +14,7 @@ config:
           minLength:        # 0 ~ 2147483647
           maxLength:        # 0 ~ 2147483647
           # string only
-          characters: [ 'cjk_unified_ideographs' ]   # 'ascii_full', 'ascii_symbol', 'ascii_control', 'latin_basic', 'letter_capital', 'letter_small', 'number_dec', 'number_hex', 'number_oct', 'cjk_unified_ideographs', 'bit', 'letter_number'
+          characters: [ ]   # 'ascii_full', 'ascii_symbol', 'ascii_control', 'latin_basic', 'letter_capital', 'letter_small', 'number_dec', 'number_hex', 'number_oct', 'cjk_unified_ideographs', 'bit', 'letter_number'
           allowEmpty:       # true | false
           # number
           numberType:      # bool | byte | short | integer | long | float | double | decimal

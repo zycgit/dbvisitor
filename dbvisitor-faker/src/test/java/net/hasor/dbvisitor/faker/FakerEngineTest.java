@@ -13,9 +13,10 @@ public class FakerEngineTest {
         FakerConfig fakerConfig = new FakerConfig();
         fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
         // 工厂
-        FakerFactory fakerFactory = new FakerFactory(DsUtils.dsMySql(), fakerConfig);
+        FakerFactory fakerFactory = new FakerFactory(DsUtils.dsSqlServer(), fakerConfig);
         fakerFactory.getFakerConfig().addIgnoreError("Duplicate");
         fakerFactory.getFakerConfig().addIgnoreError("restarting");
+        fakerFactory.getFakerConfig().addIgnoreError("deadlocked");
 
         // 引擎
         FakerEngine fakerEngine = new FakerEngine(fakerFactory);
