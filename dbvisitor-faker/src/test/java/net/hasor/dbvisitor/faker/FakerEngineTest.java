@@ -34,6 +34,10 @@ public class FakerEngineTest {
         FakerMonitor monitor = fakerEngine.getMonitor();
         long t = System.currentTimeMillis();
         while (!monitor.ifPresentExit()) {
+            if (fakerEngine.getMonitor().getSucceedInsert() > 10000) {
+                fakerEngine.shutdown();
+            }
+
             if ((t + 1000) < System.currentTimeMillis()) {
                 t = System.currentTimeMillis();
                 System.out.println(monitor);
