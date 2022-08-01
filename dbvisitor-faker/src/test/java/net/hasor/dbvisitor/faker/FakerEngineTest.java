@@ -14,7 +14,7 @@ public class FakerEngineTest {
         fakerConfig.setTransaction(false);
         fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
         // 工厂
-        FakerFactory fakerFactory = new FakerFactory(DsUtils.dsSqlServer(), fakerConfig);
+        FakerFactory fakerFactory = new FakerFactory(DsUtils.dsMySql(), fakerConfig);
         fakerFactory.getFakerConfig().addIgnoreError("Duplicate");
         fakerFactory.getFakerConfig().addIgnoreError("restarting");
         fakerFactory.getFakerConfig().addIgnoreError("deadlocked");
@@ -31,12 +31,12 @@ public class FakerEngineTest {
         //        table.apply();
 
         fakerEngine.startProducer(generator, 8);
-        fakerEngine.startWriter(generator, 120);
+        fakerEngine.startWriter(generator, 24);
 
         FakerMonitor monitor = fakerEngine.getMonitor();
         long t = System.currentTimeMillis();
         while (!monitor.ifPresentExit()) {
-            if (fakerEngine.getMonitor().getSucceedInsert() > 10000) {
+            if (fakerEngine.getMonitor().getSucceedInsert() > 100) {
                 fakerEngine.shutdown();
             }
 
