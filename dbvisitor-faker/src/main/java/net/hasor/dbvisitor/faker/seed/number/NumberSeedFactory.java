@@ -20,6 +20,7 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.function.Supplier;
@@ -29,23 +30,23 @@ import java.util.function.Supplier;
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class NumberSeedFactory implements SeedFactory<NumberSeedConfig, Number> {
+public class NumberSeedFactory implements SeedFactory<NumberSeedConfig, Serializable> {
     @Override
     public SeedConfig newConfig() {
         return new NumberSeedConfig();
     }
 
     @Override
-    public Supplier<Number> createSeed(NumberSeedConfig seedConfig) {
+    public Supplier<Serializable> createSeed(NumberSeedConfig seedConfig) {
         NumberType numberType = seedConfig.getNumberType();
 
-        boolean useDecimal = numberType == NumberType.Decimal;
+        boolean useDecimal = numberType == NumberType.BigDecimal;
         Integer precision = seedConfig.getPrecision();
         Integer scale = seedConfig.getScale();
         Number min;
         Number max;
 
-        if (numberType != NumberType.Decimal) {
+        if (numberType != NumberType.BigDecimal) {
             min = fixMin(seedConfig.getMin(), numberType);
             max = fixMax(seedConfig.getMax(), numberType);
         } else {
@@ -74,7 +75,7 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig, Number> 
                 return null;
             } else {
                 if (useDecimal) {
-                    return randomDecimal(precision, finalScale);
+                    return randomDecimal(precision, finalScale, numberType);
                 } else {
                     return randomNumber(min, max, numberType);
                 }
@@ -172,27 +173,6 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig, Number> 
         }
     }
 
-    private Number toNumber(Number number, NumberType classType) {
-        switch (classType) {
-            case Bool:
-                return (byte) (number.intValue() > 0 ? 1 : 0);
-            case Byte:
-                return number.byteValue();
-            case Short:
-                return number.shortValue();
-            case Integer:
-                return number.intValue();
-            case Long:
-                return number.longValue();
-            case Float:
-                return number.floatValue();
-            case Double:
-                return number.doubleValue();
-            default:
-                throw new UnsupportedOperationException(classType + " toNumber Unsupported.");
-        }
-    }
-
     private Number randomNumber(Number minNum, Number maxNum, NumberType classType) {
         switch (classType) {
             case Bool:
@@ -200,6 +180,8 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig, Number> 
             case Short:
             case Integer:
             case Long:
+            case BigInteger:
+            case BigDecimal:
                 long nextLong = 0;
                 if (RandomUtils.nextBoolean()) {
                     nextLong = -RandomUtils.nextLong(0, Math.abs(minNum.longValue()));
@@ -221,16 +203,16 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig, Number> 
         }
     }
 
-    private Number randomDecimal(int precision, int scale) {
+    private Number randomDecimal(int precision, int scale, NumberType classType) {
         StringBuilder builder = new StringBuilder();
         if (scale <= 0) {
             if (precision > 0) {
                 double nextDouble = RandomUtils.nextDouble();
                 int mulriple = Integer.parseInt("1" + StringUtils.repeat("0", precision));
                 builder.append((int) (nextDouble * mulriple));
-                return new BigInteger(builder.toString());
+                return toNumber(new BigInteger(builder.toString()), classType);
             } else {
-                return BigInteger.ZERO;
+                return toNumber(BigInteger.ZERO, classType);
             }
         } else {
             precision = precision - scale;
@@ -247,11 +229,48 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig, Number> 
             builder.append((int) (nextDouble * mulriple));
 
             if (builder.length() == 0) {
-                return BigDecimal.ZERO;
+                return toNumber(BigDecimal.ZERO, classType);
             } else {
                 BigDecimal decimal = new BigDecimal(builder.toString());
-                return RandomUtils.nextBoolean() ? decimal : decimal.negate();
+                return toNumber(RandomUtils.nextBoolean() ? decimal : decimal.negate(), classType);
             }
+        }
+    }
+
+    private Number toNumber(Number number, NumberType classType) {
+        switch (classType) {
+            case Bool:
+                return (byte) (number.intValue() > 0 ? 1 : 0);
+            case Byte:
+                return number.byteValue();
+            case Short:
+                return number.shortValue();
+            case Integer:
+                return number.intValue();
+            case Long:
+                return number.longValue();
+            case Float:
+                return number.floatValue();
+            case Double:
+                return number.doubleValue();
+            case BigInteger:
+                if (number instanceof BigInteger) {
+                    return number;
+                } else if (number instanceof BigDecimal) {
+                    return ((BigDecimal) number).toBigInteger();
+                } else {
+                    return BigInteger.valueOf(number.longValue());
+                }
+            case BigDecimal:
+                if (number instanceof BigDecimal) {
+                    return number;
+                } else if (number instanceof BigInteger) {
+                    return new BigDecimal((BigInteger) number);
+                } else {
+                    return BigDecimal.valueOf(number.doubleValue());
+                }
+            default:
+                throw new UnsupportedOperationException(classType + " toNumber Unsupported.");
         }
     }
 }

@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.faker.seed.number;
 import net.hasor.cobble.StringUtils;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * 数值 具体类型
@@ -31,7 +32,8 @@ public enum NumberType {
     Long(Long.class),
     Float(Float.class),
     Double(Double.class),
-    Decimal(BigDecimal.class),
+    BigInteger(BigInteger.class),
+    BigDecimal(BigDecimal.class),
     ;
 
     private final Class<?> dateType;

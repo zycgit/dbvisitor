@@ -5,6 +5,7 @@ import net.hasor.dbvisitor.faker.seed.number.NumberSeedFactory;
 import net.hasor.dbvisitor.faker.seed.number.NumberType;
 import org.junit.Test;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.function.Supplier;
 
@@ -19,10 +20,10 @@ public class NumberSeedFactoryTest {
         genConfig.setMax(BigDecimal.valueOf(64));
         genConfig.setAllowNullable(false);
 
-        Supplier<Number> bytesSupplier = factory.createSeed(genConfig);
+        Supplier<Serializable> bytesSupplier = factory.createSeed(genConfig);
 
         for (int i = 0; i < 10; i++) {
-            Number number = bytesSupplier.get();
+            Serializable number = bytesSupplier.get();
             System.out.println(number.getClass().getSimpleName() + " - " + number);
         }
     }
@@ -36,10 +37,10 @@ public class NumberSeedFactoryTest {
         genConfig.setMax(BigDecimal.valueOf(6400));
         genConfig.setAllowNullable(false);
 
-        Supplier<Number> bytesSupplier = factory.createSeed(genConfig);
+        Supplier<Serializable> bytesSupplier = factory.createSeed(genConfig);
 
         for (int i = 0; i < 10; i++) {
-            Number number = bytesSupplier.get();
+            Serializable number = bytesSupplier.get();
             System.out.println(number.getClass().getSimpleName() + " - " + number);
         }
     }
@@ -53,10 +54,10 @@ public class NumberSeedFactoryTest {
         genConfig.setMax(BigDecimal.valueOf(6400));
         genConfig.setAllowNullable(false);
 
-        Supplier<Number> bytesSupplier = factory.createSeed(genConfig);
+        Supplier<Serializable> bytesSupplier = factory.createSeed(genConfig);
 
         for (int i = 0; i < 10; i++) {
-            Number number = bytesSupplier.get();
+            Serializable number = bytesSupplier.get();
             System.out.println(number.getClass().getSimpleName() + " - " + number);
         }
     }
@@ -70,10 +71,10 @@ public class NumberSeedFactoryTest {
         genConfig.setMax(BigDecimal.valueOf(640000000));
         genConfig.setAllowNullable(false);
 
-        Supplier<Number> bytesSupplier = factory.createSeed(genConfig);
+        Supplier<Serializable> bytesSupplier = factory.createSeed(genConfig);
 
         for (int i = 0; i < 10; i++) {
-            Number number = bytesSupplier.get();
+            Serializable number = bytesSupplier.get();
             System.out.println(number.getClass().getSimpleName() + " - " + number);
         }
     }
@@ -88,10 +89,10 @@ public class NumberSeedFactoryTest {
         genConfig.setAllowNullable(true);
         genConfig.setNullableRatio(20.0f);
 
-        Supplier<Number> bytesSupplier = factory.createSeed(genConfig);
+        Supplier<Serializable> bytesSupplier = factory.createSeed(genConfig);
 
         for (int i = 0; i < 10; i++) {
-            Number number = bytesSupplier.get();
+            Serializable number = bytesSupplier.get();
             if (number == null) {
                 System.out.println("@@NULL@@");
             } else {
@@ -104,16 +105,16 @@ public class NumberSeedFactoryTest {
     public void buildBytes_6() {
         NumberSeedFactory factory = new NumberSeedFactory();
         NumberSeedConfig genConfig = new NumberSeedConfig();
-        genConfig.setNumberType(NumberType.Decimal);
+        genConfig.setNumberType(NumberType.BigDecimal);
         genConfig.setPrecision(10);
         genConfig.setScale(4);
         genConfig.setAllowNullable(true);
         genConfig.setNullableRatio(20.0f);
 
-        Supplier<Number> bytesSupplier = factory.createSeed(genConfig);
+        Supplier<Serializable> bytesSupplier = factory.createSeed(genConfig);
 
         for (int i = 0; i < 10; i++) {
-            Number number = bytesSupplier.get();
+            Serializable number = bytesSupplier.get();
             if (number == null) {
                 System.out.println("@@NULL@@");
             } else {
@@ -126,16 +127,16 @@ public class NumberSeedFactoryTest {
     public void buildBytes_7() {
         NumberSeedFactory factory = new NumberSeedFactory();
         NumberSeedConfig genConfig = new NumberSeedConfig();
-        genConfig.setNumberType(NumberType.Decimal);
+        genConfig.setNumberType(NumberType.BigDecimal);
         genConfig.setPrecision(0);
         genConfig.setScale(0);
         genConfig.setAllowNullable(true);
         genConfig.setNullableRatio(20.0f);
 
-        Supplier<Number> bytesSupplier = factory.createSeed(genConfig);
+        Supplier<Serializable> bytesSupplier = factory.createSeed(genConfig);
 
         for (int i = 0; i < 10; i++) {
-            Number number = bytesSupplier.get();
+            Serializable number = bytesSupplier.get();
             if (number == null) {
                 System.out.println("@@NULL@@");
             } else {

@@ -11,6 +11,7 @@ public class FakerEngineTest {
     @Test
     public void insertTest() throws Exception {
         FakerConfig fakerConfig = new FakerConfig();
+        fakerConfig.setTransaction(false);
         fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
         // 工厂
         FakerFactory fakerFactory = new FakerFactory(DsUtils.dsSqlServer(), fakerConfig);

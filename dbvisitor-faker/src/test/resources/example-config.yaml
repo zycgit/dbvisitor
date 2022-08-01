@@ -1,8 +1,8 @@
 config:
   - table:
       catalog: 'tester'
-      schema: 'dbo'
-      table: 'tb_user'
+      #      schema: 'TESTER'
+      table: 'TB_USER'
       columns:
         userUUID:
           # general config

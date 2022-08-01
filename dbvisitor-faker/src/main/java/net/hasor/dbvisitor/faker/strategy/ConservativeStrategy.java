@@ -112,7 +112,7 @@ public class ConservativeStrategy implements Strategy {
                 NumberSeedConfig numberSeedConfig = (NumberSeedConfig) seedConfig;
                 numberSeedConfig.setMin(BigDecimal.valueOf(0));
                 numberSeedConfig.setMax(BigDecimal.valueOf(100));
-                if (numberSeedConfig.getNumberType() == NumberType.Decimal) {
+                if (numberSeedConfig.getNumberType() == NumberType.BigDecimal) {
                     Integer precision = refer.getColumnSize();
                     Integer scale = refer.getDecimalDigits();
                     precision = precision == null ? 9 : Math.min(precision, 9);
@@ -139,6 +139,12 @@ public class ConservativeStrategy implements Strategy {
                 }
                 stringSeedConfig.setMinLength(0);
                 stringSeedConfig.setMaxLength(columnSize);
+
+                // oracle null and "" is same
+                if (StringUtils.equalsIgnoreCase(JdbcUtils.ORACLE, dbType) && stringSeedConfig.isAllowNullable()) {
+                    stringSeedConfig.setAllowEmpty(false);
+                }
+
                 return;
             }
             case Enums:

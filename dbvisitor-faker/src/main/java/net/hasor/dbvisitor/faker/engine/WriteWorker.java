@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.engine;
+import net.hasor.cobble.logging.Logger;
 import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.generator.BoundQuery;
 import net.hasor.dbvisitor.faker.generator.SqlArg;
@@ -36,14 +37,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author 赵永春 (zyc@hasor.net)
  */
 class WriteWorker implements ShutdownHook, Runnable {
-    private final    String        threadName;
-    private final    DataSource    dataSource;
-    private final    FakerConfig   fakerConfig;
-    private final    FakerMonitor  monitor;
-    private final    EventQueue    eventQueue;
+    private final static Logger        logger = Logger.getLogger(WriteWorker.class);
+    private final        String        threadName;
+    private final        DataSource    dataSource;
+    private final        FakerConfig   fakerConfig;
+    private final        FakerMonitor  monitor;
+    private final        EventQueue    eventQueue;
     //
-    private final    AtomicBoolean running;
-    private volatile Thread        workThread;
+    private final        AtomicBoolean running;
+    private volatile     Thread        workThread;
 
     WriteWorker(String threadName, DataSource dataSource, FakerConfig fakerConfig, FakerMonitor monitor, EventQueue eventQueue) {
         this.threadName = threadName;
@@ -117,6 +119,7 @@ class WriteWorker implements ShutdownHook, Runnable {
                 if (this.fakerConfig.ignoreError(e)) {
                     this.monitor.recordFailed(this.threadName, tranID, event, e);
                 } else {
+                    logger.error(e.getMessage() + " event is " + event, e);
                     throw e;
                 }
             }
@@ -139,5 +142,6 @@ class WriteWorker implements ShutdownHook, Runnable {
                 }
             }
         });
+
     }
 }

@@ -306,7 +306,7 @@ public class FakerFactory {
             case NUMERIC:
             case DECIMAL: {
                 NumberSeedConfig config = (NumberSeedConfig) seedFactory.newConfig();
-                config.setNumberType(NumberType.Decimal);
+                config.setNumberType(NumberType.BigDecimal);
                 return config;
             }
             case CHAR:
