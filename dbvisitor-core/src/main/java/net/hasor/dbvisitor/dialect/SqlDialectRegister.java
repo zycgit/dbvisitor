@@ -50,6 +50,7 @@ public class SqlDialectRegister {
         registerDialectAlias(JdbcUtils.POSTGRESQL, PostgreSqlDialect.class);
         registerDialectAlias(JdbcUtils.SQLITE, SqlLiteDialect.class);
         registerDialectAlias(JdbcUtils.SQL_SERVER, SqlServer2005Dialect.class);
+        registerDialectAlias(JdbcUtils.JTDS, SqlServer2005Dialect.class);
         registerDialectAlias(JdbcUtils.XUGU, XuGuDialect.class);
     }
 

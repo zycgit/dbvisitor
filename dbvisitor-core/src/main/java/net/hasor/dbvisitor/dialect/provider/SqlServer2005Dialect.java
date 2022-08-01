@@ -29,6 +29,14 @@ import java.util.List;
  */
 public class SqlServer2005Dialect extends AbstractDialect implements PageSqlDialect {
 
+    public String leftQualifier() {
+        return "[";
+    }
+
+    public String rightQualifier() {
+        return "]";
+    }
+
     protected String fmtName(boolean useQualifier, String fmtString) {
         if (this.keywords().contains(fmtString.toUpperCase()) || fmtString.contains(" ")) {
             useQualifier = true;
@@ -41,12 +49,21 @@ public class SqlServer2005Dialect extends AbstractDialect implements PageSqlDial
         }
     }
 
-    public String leftQualifier() {
-        return "[";
-    }
+    public String tableName(boolean useQualifier, String catalog, String schema, String table) {
+        StringBuilder strBuilder = new StringBuilder();
+        if (StringUtils.isNotBlank(catalog)) {
+            strBuilder.append(fmtName(useQualifier, catalog));
+            strBuilder.append(".");
+        }
+        if (StringUtils.isNotBlank(schema)) {
+            strBuilder.append(fmtName(useQualifier, schema));
+            strBuilder.append(".");
+        } else {
+            strBuilder.append("dbo.");
+        }
 
-    public String rightQualifier() {
-        return "]";
+        strBuilder.append(fmtName(useQualifier, table));
+        return strBuilder.toString();
     }
 
     private static String getOrderByPart(String sql) {
