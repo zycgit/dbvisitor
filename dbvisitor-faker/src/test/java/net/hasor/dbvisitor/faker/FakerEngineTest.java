@@ -23,7 +23,7 @@ public class FakerEngineTest {
 
         // 生成器
         FakerGenerator generator = new FakerGenerator(fakerFactory);
-        generator.loadConfig("ds-mysql-config.yaml", StreamType.Yaml);
+        generator.loadConfig("example-config.yaml", StreamType.Yaml);
         //        FakerTable table = generator.addTable(null, null, "tb_user");
         //        table.setInsertPolitic(SqlPolitic.RandomCol);
         //        ((StringSeedConfig) table.findColumns("userUUID").seedConfig()).addCharacter(CJK_UNIFIED_IDEOGRAPHS);

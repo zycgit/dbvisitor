@@ -15,11 +15,25 @@
  */
 package net.hasor.dbvisitor.faker.generator.loader;
 
+import net.hasor.cobble.RandomUtils;
+import net.hasor.dbvisitor.dialect.BoundSql;
+import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
+import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.generator.DataLoader;
 import net.hasor.dbvisitor.faker.generator.DataLoaderFactory;
+import net.hasor.dbvisitor.faker.generator.FakerColumn;
+import net.hasor.dbvisitor.faker.generator.FakerTable;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.page.PageObject;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 反查数据加载器
@@ -29,6 +43,66 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 public class DefaultDataLoaderFactory implements DataLoaderFactory {
     @Override
     public DataLoader createDataLoader(FakerConfig fakerConfig, JdbcTemplate jdbcTemplate, SqlDialect dialect) {
-        return new DefaultDataLoader(jdbcTemplate, dialect);
+        return (useFor, fakerTable, includeColumns, batchSize) -> {
+            // type1 use randomQuery.
+            if (dialect instanceof ConditionSqlDialect) {
+                try {
+                    return loadForRandomQuery(dialect, jdbcTemplate, fakerTable, includeColumns, batchSize);
+                } catch (UnsupportedOperationException ignored) {
+                }
+            }
+
+            // type2 use random page
+            if (dialect instanceof PageSqlDialect) {
+                try {
+                    return loadForPageQuery(dialect, jdbcTemplate, fakerTable, includeColumns, batchSize);
+                } catch (UnsupportedOperationException ignored) {
+                }
+            }
+
+            // type3 use random data (there is a hit rate problem)
+            return loadForRandomData(dialect, jdbcTemplate, fakerTable, includeColumns, batchSize);
+        };
+    }
+
+    protected List<Map<String, Object>> loadForRandomQuery(SqlDialect dialect, JdbcTemplate jdbcTemplate,//
+            FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException {
+        String catalog = fakerTable.getCatalog();
+        String schema = fakerTable.getSchema();
+        String table = fakerTable.getTable();
+        String queryString = ((ConditionSqlDialect) dialect).randomQuery(true, catalog, schema, table, includeColumns, batchSize);
+        return jdbcTemplate.queryForList(queryString);
+    }
+
+    protected List<Map<String, Object>> loadForPageQuery(SqlDialect dialect, JdbcTemplate jdbcTemplate,//
+            FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException {
+        String catalog = fakerTable.getCatalog();
+        String schema = fakerTable.getSchema();
+        String table = fakerTable.getTable();
+        BoundSql boundSql = new LambdaTemplate(jdbcTemplate).lambdaQuery(catalog, schema, table).select(includeColumns.toArray(new String[0])).getBoundSql(dialect);
+
+        BoundSql countSql = ((PageSqlDialect) dialect).countSql(boundSql);
+        long count = jdbcTemplate.queryForLong(countSql.getSqlString(), countSql.getArgs());
+        PageObject pageInfo = new PageObject(batchSize, count);
+        pageInfo.setPageSize(batchSize);
+        long totalPage = pageInfo.getTotalPage();
+        pageInfo.setCurrentPage(RandomUtils.nextLong(0, totalPage));
+
+        BoundSql pageSql = ((PageSqlDialect) dialect).pageSql(boundSql, pageInfo.getFirstRecordPosition(), batchSize);
+        return jdbcTemplate.queryForList(pageSql.getSqlString(), pageSql.getArgs());
+    }
+
+    protected List<Map<String, Object>> loadForRandomData(SqlDialect dialect, JdbcTemplate jdbcTemplate,//
+            FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException {
+        List<Map<String, Object>> resultData = new ArrayList<>();
+        for (int i = 0; i < batchSize; i++) {
+            Map<String, Object> record = new LinkedHashMap<>();
+            for (String colName : includeColumns) {
+                FakerColumn col = fakerTable.findColumns(colName);
+                record.put(colName, col.generatorData());
+            }
+            resultData.add(record);
+        }
+        return resultData;
     }
 }

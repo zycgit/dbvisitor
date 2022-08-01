@@ -29,7 +29,7 @@ public class DsUtils {
     public static String MYSQL_JDBC_URL  = "jdbc:mysql://127.0.0.1:3306/devtester?allowMultiQueries=true";
     public static String PG_JDBC_URL     = "jdbc:postgresql://127.0.0.1:5432/postgres";
     public static String ORACLE_JDBC_URL = "jdbc:oracle:thin:@127.0.0.1:1521:xe";
-    public static String MSSQL_JDBC_URL  = "jdbc:jtds:sqlserver://127.0.0.1:1433";
+    public static String MSSQL_JDBC_URL  = "jdbc:sqlserver://127.0.0.1:1433;databaseName=master;trustServerCertificate=true";
 
     private static DruidDataSource createDs(String driver, String url, String user, String password) throws SQLException {
         DruidDataSource druid = new DruidDataSource();
@@ -76,6 +76,6 @@ public class DsUtils {
     }
 
     public static DruidDataSource dsSqlServer() throws SQLException {
-        return createDs("net.sourceforge.jtds.jdbc.Driver", MSSQL_JDBC_URL, "sa", "Share123456!");
+        return createDs("com.microsoft.sqlserver.jdbc.SQLServerDriver", MSSQL_JDBC_URL, "sa", "Share123456!");
     }
 }

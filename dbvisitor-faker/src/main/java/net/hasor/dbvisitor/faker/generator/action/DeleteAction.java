@@ -33,18 +33,13 @@ import java.util.stream.Collectors;
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class DeleteAction implements Action {
-    private final FakerTable        tableInfo;
-    private final boolean           useQualifier;
-    private final SqlDialect        dialect;
+public class DeleteAction extends AbstractAction {
     private final List<FakerColumn> whereFullCols;
     private final List<FakerColumn> whereKeyCols;
     private final DataLoader        dataLoader;
 
     public DeleteAction(FakerTable tableInfo, SqlDialect dialect, List<FakerColumn> whereColumns, DataLoader dataLoader) {
-        this.tableInfo = tableInfo;
-        this.useQualifier = tableInfo.isUseQualifier();
-        this.dialect = dialect;
+        super(tableInfo, dialect);
         this.dataLoader = dataLoader;
         this.whereFullCols = whereColumns;
         this.whereKeyCols = whereColumns.stream().filter(FakerColumn::isKey).collect(Collectors.toList());
@@ -89,7 +84,7 @@ public class DeleteAction implements Action {
     private List<BoundQuery> buildAction(int batchSize, List<FakerColumn> useColumns) throws SQLException {
         // fetch some data used for delete
         List<String> fetchCols = useColumns.stream().map(FakerColumn::getColumn).collect(Collectors.toList());
-        List<Map<String, Object>> fetchDataList = this.dataLoader.loadSomeData(UseFor.UpdateWhere, this.tableInfo, fetchCols, batchSize);
+        List<Map<String, Object>> fetchDataList = this.retryLoad(this.dataLoader, UseFor.UpdateWhere, this.tableInfo, fetchCols, batchSize);
         if (CollectionUtils.isEmpty(fetchDataList)) {
             return Collections.emptyList();
         }

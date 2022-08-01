@@ -21,6 +21,13 @@ import net.hasor.dbvisitor.faker.generator.DataLoader;
 import net.hasor.dbvisitor.faker.generator.DataLoaderFactory;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 /**
  * 反查数据加载器
  * @version : 2022-07-25
@@ -29,6 +36,33 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 public class PrecociousDataLoaderFactory implements DataLoaderFactory {
     @Override
     public DataLoader createDataLoader(FakerConfig fakerConfig, JdbcTemplate jdbcTemplate, SqlDialect dialect) {
-        return new PrecociousDataLoader(jdbcTemplate, dialect);
+        final DataLoader defaultDataLoader = new DefaultDataLoaderFactory().createDataLoader(fakerConfig, jdbcTemplate, dialect);
+        final BlockingQueue<Map<String, Object>> precociousDataSet = new LinkedBlockingQueue<>();
+        final int precociousSize = 4096;
+
+        return (useFor, fakerTable, includeColumns, batchSize) -> {
+            if (precociousSize <= 1) {
+                return defaultDataLoader.loadSomeData(useFor, fakerTable, includeColumns, batchSize);
+            }
+
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (int i = 0; i < batchSize; i++) {
+                if (precociousDataSet.size() < batchSize) {
+                    synchronized (this) {
+                        if (precociousDataSet.size() < batchSize) {
+                            List<Map<String, Object>> someData = defaultDataLoader.loadSomeData(useFor, fakerTable, Collections.emptyList(), Math.max(precociousSize, batchSize));
+                            precociousDataSet.addAll(someData);
+                        }
+                    }
+                }
+
+                Map<String, Object> poll = precociousDataSet.poll();
+                if (poll != null) {
+                    result.add(poll);
+                }
+
+            }
+            return result;
+        };
     }
 }

@@ -18,7 +18,10 @@ package net.hasor.dbvisitor.faker.generator.action;
 import net.hasor.cobble.RandomUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.OpsType;
-import net.hasor.dbvisitor.faker.generator.*;
+import net.hasor.dbvisitor.faker.generator.BoundQuery;
+import net.hasor.dbvisitor.faker.generator.FakerColumn;
+import net.hasor.dbvisitor.faker.generator.FakerTable;
+import net.hasor.dbvisitor.faker.generator.SqlArg;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,17 +32,12 @@ import java.util.stream.Collectors;
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class InsertAction implements Action {
-    private final FakerTable        tableInfo;
-    private final boolean           useQualifier;
-    private final SqlDialect        dialect;
+public class InsertAction extends AbstractAction {
     private final List<FakerColumn> insertColumns;
     private final List<FakerColumn> canCutColumns;
 
     public InsertAction(FakerTable tableInfo, SqlDialect dialect, List<FakerColumn> insertColumns) {
-        this.tableInfo = tableInfo;
-        this.useQualifier = tableInfo.isUseQualifier();
-        this.dialect = dialect;
+        super(tableInfo, dialect);
         this.insertColumns = insertColumns;
         this.canCutColumns = insertColumns.stream().filter(FakerColumn::isCanBeCut).collect(Collectors.toList());
     }

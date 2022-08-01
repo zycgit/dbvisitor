@@ -32,19 +32,14 @@ import java.util.stream.Collectors;
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class UpdateAction implements Action {
-    private final FakerTable        tableInfo;
-    private final boolean           useQualifier;
-    private final SqlDialect        dialect;
+public class UpdateAction extends AbstractAction {
     private final List<FakerColumn> updateSetColumns;
     private final List<FakerColumn> whereFullColumns;
     private final List<FakerColumn> whereKeyColumns;
     private final DataLoader        dataLoader;
 
     public UpdateAction(FakerTable tableInfo, SqlDialect dialect, List<FakerColumn> updateSetColumns, List<FakerColumn> whereColumns, DataLoader dataLoader) {
-        this.tableInfo = tableInfo;
-        this.useQualifier = tableInfo.isUseQualifier();
-        this.dialect = dialect;
+        super(tableInfo, dialect);
         this.dataLoader = dataLoader;
         this.updateSetColumns = updateSetColumns;
         this.whereFullColumns = whereColumns;
@@ -120,7 +115,7 @@ public class UpdateAction implements Action {
     private List<BoundQuery> buildAction(int batchSize, List<FakerColumn> setColumns, List<FakerColumn> whereColumns) throws SQLException {
         // fetch some data used for delete
         List<String> fetchCols = whereColumns.stream().map(FakerColumn::getColumn).collect(Collectors.toList());
-        List<Map<String, Object>> fetchDataList = this.dataLoader.loadSomeData(UseFor.UpdateWhere, this.tableInfo, fetchCols, batchSize);
+        List<Map<String, Object>> fetchDataList = this.retryLoad(this.dataLoader, UseFor.UpdateWhere, this.tableInfo, fetchCols, batchSize);
         if (fetchDataList == null || fetchDataList.isEmpty()) {
             return Collections.emptyList();
         }
