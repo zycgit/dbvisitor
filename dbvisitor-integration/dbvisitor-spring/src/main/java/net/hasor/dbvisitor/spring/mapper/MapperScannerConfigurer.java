@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.mapper;
+import net.hasor.cobble.ExceptionUtils;
 import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.spring.support.DalMapperBean;
 import org.springframework.beans.PropertyValues;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -69,7 +71,7 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
     }
 
     @Override
-    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeanCreationException {
         if (this.processPropertyPlaceHolders) {
             processPropertyPlaceHolders();
         }
@@ -88,7 +90,7 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
                 try {
                     this.nameGenerator = (BeanNameGenerator) nameGeneratorClass.newInstance();
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    throw ExceptionUtils.toRuntime(e, ee -> new BeanCreationException(ee.getMessage(), ee));
                 }
             }
         }

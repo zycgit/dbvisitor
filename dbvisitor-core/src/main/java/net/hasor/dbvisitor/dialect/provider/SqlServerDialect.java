@@ -27,7 +27,7 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  * @since 2016-11-10
  */
-public class SqlServer2005Dialect extends AbstractDialect implements PageSqlDialect {
+public class SqlServerDialect extends AbstractDialect implements PageSqlDialect {
 
     public String leftQualifier() {
         return "[";

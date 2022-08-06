@@ -1,8 +1,8 @@
 config:
   - table:
-      catalog: 'tester'
+#      catalog: 'tester'
       #      schema: 'TESTER'
-      table: 'TB_USER'
+      table: 'tb_user'
       columns:
         userUUID:
           # general config

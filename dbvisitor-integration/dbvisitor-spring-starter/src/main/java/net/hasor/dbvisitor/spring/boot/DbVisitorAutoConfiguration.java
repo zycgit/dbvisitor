@@ -28,6 +28,7 @@ import net.hasor.dbvisitor.spring.mapper.MapperScannerConfigurer;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.*;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
@@ -156,7 +157,7 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
             mapperBuilder.addPropertyValue("processPropertyPlaceHolders", true);
             mapperBuilder.addPropertyValue("basePackage", "${" + PREFIX + ".mapper-packages:" + StringUtils.collectionToCommaDelimitedString(packages) + "}");
             mapperBuilder.addPropertyValue("mapperFactoryBeanClassName", "${" + PREFIX + ".mapper-factory-bean:}");
-            mapperBuilder.addPropertyValue("defaultScope", "${" + PREFIX + ".mapper-scope:singleton}");
+            mapperBuilder.addPropertyValue("defaultScope", "${" + PREFIX + ".mapper-scope:" + AbstractBeanDefinition.SCOPE_DEFAULT + "}");
             mapperBuilder.addPropertyValue("lazyInitialization", "${" + PREFIX + ".mapper-lazy-initialization:false}");
             mapperBuilder.addPropertyValue("nameGeneratorName", "${" + PREFIX + ".mapper-name-generator:}");
             mapperBuilder.addPropertyValue("annotationClassName", "${" + PREFIX + ".marker-annotation:" + DalMapper.class.getName() + "}");

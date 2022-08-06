@@ -10,14 +10,16 @@ import org.junit.Test;
 public class FakerEngineTest {
     @Test
     public void insertTest() throws Exception {
+        // 全局配置
         FakerConfig fakerConfig = new FakerConfig();
+        fakerConfig.addIgnoreError("Duplicate");
+        fakerConfig.addIgnoreError("restarting");
+        fakerConfig.addIgnoreError("deadlocked");
         fakerConfig.setTransaction(false);
         fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
+
         // 工厂
         FakerFactory fakerFactory = new FakerFactory(DsUtils.dsMySql(), fakerConfig);
-        fakerFactory.getFakerConfig().addIgnoreError("Duplicate");
-        fakerFactory.getFakerConfig().addIgnoreError("restarting");
-        fakerFactory.getFakerConfig().addIgnoreError("deadlocked");
 
         // 引擎
         FakerEngine fakerEngine = new FakerEngine(fakerFactory);
@@ -33,10 +35,11 @@ public class FakerEngineTest {
         fakerEngine.startProducer(generator, 8);
         fakerEngine.startWriter(generator, 24);
 
+        // 监听和退出
         FakerMonitor monitor = fakerEngine.getMonitor();
         long t = System.currentTimeMillis();
         while (!monitor.ifPresentExit()) {
-            if (fakerEngine.getMonitor().getSucceedInsert() > 100) {
+            if (fakerEngine.getMonitor().getSucceedInsert() > 1000) {
                 fakerEngine.shutdown();
             }
 

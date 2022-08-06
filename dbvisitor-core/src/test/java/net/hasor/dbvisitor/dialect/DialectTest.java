@@ -15,8 +15,8 @@
  */
 package net.hasor.dbvisitor.dialect;
 import net.hasor.dbvisitor.JdbcUtils;
-import net.hasor.dbvisitor.dialect.provider.Oracle12cDialect;
-import net.hasor.dbvisitor.dialect.provider.SqlServer2005Dialect;
+import net.hasor.dbvisitor.dialect.provider.OracleDialect;
+import net.hasor.dbvisitor.dialect.provider.SqlServerDialect;
 import net.hasor.test.db.AbstractDbTest;
 import org.junit.Test;
 
@@ -434,7 +434,7 @@ public class DialectTest extends AbstractDbTest {
 
     @Test
     public void dialect_oracle12c_1() {
-        PageSqlDialect dialect = new Oracle12cDialect();
+        PageSqlDialect dialect = new OracleDialect();
 
         BoundSql countSql = dialect.countSql(this.queryBoundSql);
         assert countSql.getSqlString().equals("SELECT COUNT(*) FROM (select * from tb_user where age > 12 and sex = ?) TEMP_T");
@@ -450,7 +450,7 @@ public class DialectTest extends AbstractDbTest {
 
     @Test
     public void dialect_sqlserver2005_1() {
-        PageSqlDialect dialect = new SqlServer2005Dialect();
+        PageSqlDialect dialect = new SqlServerDialect();
 
         BoundSql pageSql = dialect.pageSql(this.queryBoundSql, 1, 3);
         assert pageSql.getSqlString().equals("WITH selectTemp AS (SELECT TOP 100 PERCENT  ROW_NUMBER() OVER (ORDER BY CURRENT_TIMESTAMP) as __row_number__,  * from tb_user where age > 12 and sex = ?) SELECT * FROM selectTemp WHERE __row_number__ BETWEEN 2 AND 4 ORDER BY __row_number__");

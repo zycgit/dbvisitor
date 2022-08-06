@@ -44,13 +44,12 @@ public class SqlDialectRegister {
         registerDialectAlias(JdbcUtils.KINGBASE, KingbaseDialect.class);
         registerDialectAlias(JdbcUtils.MARIADB, MariaDBDialect.class);
         registerDialectAlias(JdbcUtils.MYSQL, MySqlDialect.class);
-        registerDialectAlias("oracle12c", Oracle12cDialect.class);
         registerDialectAlias(JdbcUtils.ORACLE, OracleDialect.class);
         registerDialectAlias(JdbcUtils.PHOENIX, PhoenixDialect.class);
         registerDialectAlias(JdbcUtils.POSTGRESQL, PostgreSqlDialect.class);
         registerDialectAlias(JdbcUtils.SQLITE, SqlLiteDialect.class);
-        registerDialectAlias(JdbcUtils.SQL_SERVER, SqlServer2005Dialect.class);
-        registerDialectAlias(JdbcUtils.JTDS, SqlServer2005Dialect.class);
+        registerDialectAlias(JdbcUtils.SQL_SERVER, SqlServerDialect.class);
+        registerDialectAlias(JdbcUtils.JTDS, SqlServerDialect.class);
         registerDialectAlias(JdbcUtils.XUGU, XuGuDialect.class);
     }
 

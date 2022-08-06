@@ -83,6 +83,8 @@ public @interface MapperScan {
      */
     String[] basePackages() default {};
 
+    String[] mapperLocations() default "";
+
     /**
      * Type-safe alternative to {@link #basePackages()} for specifying the packages to scan for annotated components. The
      * package of each class specified will be scanned.
@@ -161,6 +163,4 @@ public @interface MapperScan {
      * @return the default scope
      */
     String defaultScope() default AbstractBeanDefinition.SCOPE_DEFAULT;
-
-    String[] mapperLocations() default "";
 }

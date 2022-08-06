@@ -9,7 +9,8 @@
     <modules>
         <module>basic</module>
         <module>spring</module>
-        <module>springboot</module>
+        <module>springboot-1</module>
+        <module>springboot-2</module>
         <module>hasor</module>
         <module>guice</module>
     </modules>
