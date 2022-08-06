@@ -21,6 +21,10 @@
         </developer>
     </developers>
 
+    <properties>
+        <spring.version>4.0.0.RELEASE</spring.version>
+    </properties>
+
     <!-- 引用依赖 -->
     <dependencies>
         <dependency>
@@ -30,13 +34,13 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>4.0.0.RELEASE</version>
+            <version>${spring.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>4.0.0.RELEASE</version>
+            <version>${spring.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -50,7 +54,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>4.0.0.RELEASE</version>
+            <version>${spring.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
