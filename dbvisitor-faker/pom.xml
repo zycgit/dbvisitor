@@ -12,6 +12,7 @@
 
     <!-- Project Info -->
     <name>dbVisitor-faker</name>
+    <description>dbVisitor faker is Data generator. and generate Insert/Update/Delete randomly</description>
 
     <developers>
         <developer>

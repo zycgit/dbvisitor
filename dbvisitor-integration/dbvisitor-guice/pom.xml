@@ -13,6 +13,7 @@
 
     <!-- Project Info -->
     <name>dbVisitor-guice</name>
+    <description>integrate dbVisitor and Guice, make Guice easier to use JDBC/ORM.</description>
 
     <developers>
         <developer>

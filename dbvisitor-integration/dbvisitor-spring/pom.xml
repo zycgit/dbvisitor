@@ -13,6 +13,7 @@
 
     <!-- Project Info -->
     <name>dbVisitor-spring</name>
+    <description>integrate dbVisitor and Spring, make Spring easier to use JDBC/ORM.</description>
 
     <developers>
         <developer>
