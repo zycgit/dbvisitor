@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.generator.loader;
-
+import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.RandomUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.FakerConfig;
-import net.hasor.dbvisitor.faker.generator.DataLoader;
-import net.hasor.dbvisitor.faker.generator.DataLoaderFactory;
 import net.hasor.dbvisitor.faker.generator.FakerColumn;
 import net.hasor.dbvisitor.faker.generator.FakerTable;
+import net.hasor.dbvisitor.faker.generator.SqlArg;
+import net.hasor.dbvisitor.jdbc.RowMapper;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.page.PageObject;
@@ -65,16 +65,16 @@ public class DefaultDataLoaderFactory implements DataLoaderFactory {
         };
     }
 
-    protected List<Map<String, Object>> loadForRandomQuery(SqlDialect dialect, JdbcTemplate jdbcTemplate,//
+    protected List<Map<String, SqlArg>> loadForRandomQuery(SqlDialect dialect, JdbcTemplate jdbcTemplate, //
             FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException {
         String catalog = fakerTable.getCatalog();
         String schema = fakerTable.getSchema();
         String table = fakerTable.getTable();
         String queryString = ((ConditionSqlDialect) dialect).randomQuery(true, catalog, schema, table, includeColumns, batchSize);
-        return jdbcTemplate.queryForList(queryString);
+        return jdbcTemplate.query(queryString, convertRow(fakerTable, includeColumns));
     }
 
-    protected List<Map<String, Object>> loadForPageQuery(SqlDialect dialect, JdbcTemplate jdbcTemplate,//
+    protected List<Map<String, SqlArg>> loadForPageQuery(SqlDialect dialect, JdbcTemplate jdbcTemplate, //
             FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException {
         String catalog = fakerTable.getCatalog();
         String schema = fakerTable.getSchema();
@@ -89,20 +89,39 @@ public class DefaultDataLoaderFactory implements DataLoaderFactory {
         pageInfo.setCurrentPage(RandomUtils.nextLong(0, totalPage));
 
         BoundSql pageSql = ((PageSqlDialect) dialect).pageSql(boundSql, pageInfo.getFirstRecordPosition(), batchSize);
-        return jdbcTemplate.queryForList(pageSql.getSqlString(), pageSql.getArgs());
+        return jdbcTemplate.query(pageSql.getSqlString(), pageSql.getArgs(), convertRow(fakerTable, includeColumns));
     }
 
-    protected List<Map<String, Object>> loadForRandomData(SqlDialect dialect, JdbcTemplate jdbcTemplate,//
+    protected List<Map<String, SqlArg>> loadForRandomData(SqlDialect dialect, JdbcTemplate jdbcTemplate, //
             FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException {
-        List<Map<String, Object>> resultData = new ArrayList<>();
+        List<Map<String, SqlArg>> resultData = new ArrayList<>();
         for (int i = 0; i < batchSize; i++) {
-            Map<String, Object> record = new LinkedHashMap<>();
+            Map<String, SqlArg> record = new LinkedHashMap<>();
             for (String colName : includeColumns) {
-                FakerColumn col = fakerTable.findColumns(colName);
+                FakerColumn col = fakerTable.findColumn(colName);
                 record.put(colName, col.generatorData());
             }
             resultData.add(record);
         }
         return resultData;
+    }
+
+    protected RowMapper<Map<String, SqlArg>> convertRow(FakerTable fakerTable, List<String> includeColumns) {
+        List<String> selectColumns;
+        if (CollectionUtils.isEmpty(includeColumns)) {
+            selectColumns = fakerTable.getColumns();
+        } else {
+            selectColumns = includeColumns;
+        }
+
+        return (rs, rowNum) -> {
+            Map<String, SqlArg> row = new LinkedHashMap<>();
+            for (String column : selectColumns) {
+                FakerColumn tableColumn = fakerTable.findColumn(column);
+                SqlArg result = tableColumn.readData(rs);
+                row.put(column, result);
+            }
+            return row;
+        };
     }
 }

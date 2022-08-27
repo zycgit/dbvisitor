@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.generator.action;
-
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.generator.Action;
-import net.hasor.dbvisitor.faker.generator.DataLoader;
 import net.hasor.dbvisitor.faker.generator.FakerTable;
+import net.hasor.dbvisitor.faker.generator.SqlArg;
 import net.hasor.dbvisitor.faker.generator.UseFor;
+import net.hasor.dbvisitor.faker.generator.loader.DataLoader;
 
 import java.sql.SQLException;
 import java.util.Collections;
@@ -43,12 +43,12 @@ public abstract class AbstractAction implements Action {
         this.dialect = dialect;
     }
 
-    protected List<Map<String, Object>> retryLoad(DataLoader dataLoader, UseFor useFor, FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException {
+    protected List<Map<String, SqlArg>> retryLoad(DataLoader dataLoader, UseFor useFor, FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException {
         int tryTimes = 0;
         while (true) {
             tryTimes++;
             try {
-                List<Map<String, Object>> fetchDataList = dataLoader.loadSomeData(useFor, fakerTable, includeColumns, batchSize);
+                List<Map<String, SqlArg>> fetchDataList = dataLoader.loadSomeData(useFor, fakerTable, includeColumns, batchSize);
                 if (CollectionUtils.isEmpty(fetchDataList)) {
                     return Collections.emptyList();
                 } else {

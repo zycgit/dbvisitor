@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker;
+package net.hasor.dbvisitor.faker.realdb;
 import com.alibaba.druid.pool.DruidDataSource;
 
 import java.sql.Connection;
@@ -29,7 +29,7 @@ public class DsUtils {
     public static String MYSQL_JDBC_URL  = "jdbc:mysql://127.0.0.1:3306/devtester?allowMultiQueries=true";
     public static String PG_JDBC_URL     = "jdbc:postgresql://127.0.0.1:5432/postgres";
     public static String ORACLE_JDBC_URL = "jdbc:oracle:thin:@127.0.0.1:1521:xe";
-    public static String MSSQL_JDBC_URL  = "jdbc:sqlserver://127.0.0.1:1433;databaseName=master;trustServerCertificate=true";
+    public static String MSSQL_JDBC_URL  = "jdbc:sqlserver://127.0.0.1:1433;databaseName=tester;trustServerCertificate=true;sendTimeAsDateTime=false";
 
     private static DruidDataSource createDs(String driver, String url, String user, String password) throws SQLException {
         DruidDataSource druid = new DruidDataSource();
@@ -37,8 +37,8 @@ public class DsUtils {
         druid.setDriverClassName(driver);
         druid.setUsername(user);
         druid.setPassword(password);
-        druid.setMaxActive(200);
-        druid.setMaxWait(3 * 1000);
+        druid.setMaxActive(220);
+        druid.setMaxWait(30000);
         druid.setInitialSize(1);
         druid.setConnectionErrorRetryAttempts(1);
         druid.setBreakAfterAcquireFailure(true);

@@ -15,14 +15,16 @@
  */
 package net.hasor.dbvisitor.faker.generator;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.setting.SettingNode;
+import net.hasor.dbvisitor.faker.FakerConfigEnum;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
-import net.hasor.dbvisitor.faker.seed.SeedFactory;
-import net.hasor.dbvisitor.types.TypeHandler;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * 要生成数据的列基本信息和配置信息
@@ -30,23 +32,56 @@ import java.util.function.Supplier;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class FakerColumn {
-    private final String                          column;
-    private       Integer                         jdbcType;
-    private       TypeHandler<?>                  typeHandler;
-    private final boolean                         key;
-    private final boolean                         canBeCut;
-    private final Set<UseFor>                     ignoreAct;
-    private final SeedConfig                      seedConfig;
-    private       SeedFactory<SeedConfig, Object> seedFactory;
-    private       Supplier<Object>                valueSeed;
+    private final FakerTable   table;
+    private final String       column;
+    private final boolean      key;
+    private       boolean      canBeCut;
+    private final Set<UseFor>  ignoreAct;
+    private final TypeSrw      typeSrw;
+    private final FakerFactory factory;
+    //
+    private       String       insertTemplate;
+    private       String       setColTemplate;
+    private       String       setValueTemplate;
+    private       String       whereColTemplate;
+    private       String       whereValueTemplate;
 
-    FakerColumn(JdbcColumn jdbcColumn, SeedConfig seedConfig) {
+    FakerColumn(FakerTable table, JdbcColumn jdbcColumn, TypeSrw typeSrw, Set<UseFor> ignoreAct, FakerFactory factory, SettingNode columnConfig) {
+        this.table = table;
         this.column = jdbcColumn.getColumnName();
-        this.jdbcType = jdbcColumn.getJdbcNumber();
         this.key = jdbcColumn.isPrimaryKey() || jdbcColumn.isUniqueKey();
         this.canBeCut = StringUtils.isNotBlank(jdbcColumn.getDefaultValue()) || Boolean.TRUE.equals(jdbcColumn.getNullable());
-        this.ignoreAct = new HashSet<>();
-        this.seedConfig = seedConfig;
+        this.ignoreAct = new HashSet<>(ignoreAct);
+        this.typeSrw = typeSrw;
+        this.factory = factory;
+
+        if (columnConfig != null) {
+            this.insertTemplate = columnConfig.getSubValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey());
+            this.setColTemplate = columnConfig.getSubValue(FakerConfigEnum.SET_COL_TEMPLATE.getConfigKey());
+            this.setValueTemplate = columnConfig.getSubValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey());
+            this.whereColTemplate = columnConfig.getSubValue(FakerConfigEnum.WHERE_COL_TEMPLATE.getConfigKey());
+            this.whereValueTemplate = columnConfig.getSubValue(FakerConfigEnum.WHERE_VALUE_TEMPLATE.getConfigKey());
+        }
+
+        if (StringUtils.isBlank(this.insertTemplate)) {
+            this.insertTemplate = "?";
+        }
+        if (StringUtils.isBlank(this.setColTemplate)) {
+            this.setColTemplate = "{name}";
+        }
+        if (StringUtils.isBlank(this.setValueTemplate)) {
+            this.setValueTemplate = "?";
+        }
+        if (StringUtils.isBlank(this.whereColTemplate)) {
+            this.whereColTemplate = "{name}";
+        }
+        if (StringUtils.isBlank(this.whereValueTemplate)) {
+            this.whereValueTemplate = "?";
+        }
+
+        String colName = this.factory.getSqlDialect().columnName(table.isUseQualifier(), table.getCatalog(), table.getSchema(), table.getTable(), this.column);
+        this.setColTemplate = this.setColTemplate.replace("{name}", colName);
+        this.whereColTemplate = this.whereColTemplate.replace("{name}", colName);
     }
 
     /** 获取列名 */
@@ -54,24 +89,39 @@ public class FakerColumn {
         return column;
     }
 
-    /** 写入时用作的 jdbc type */
-    public Integer getJdbcType() {
-        return jdbcType;
+    /** 用于 insert 语句的参数 */
+    public String getInsertTemplate() {
+        return this.insertTemplate;
     }
 
-    /** 写入时用作的 jdbc type */
-    public void setJdbcType(Integer jdbcType) {
-        this.jdbcType = jdbcType;
+    /** 用于 update 语句的参数 列名 部分的拼写 */
+    public String getSetColTemplate() {
+        return setColTemplate;
     }
 
-    /** 执行 ps set 的 TypeHandler */
-    public TypeHandler<?> getTypeHandler() {
-        return typeHandler;
+    /** 用于 update 语句的参数 列名 部分的拼写 */
+    public void setSetColTemplate(String setColTemplate) {
+        this.setColTemplate = setColTemplate;
     }
 
-    /** 执行 ps set 的 TypeHandler */
-    public void setTypeHandler(TypeHandler<?> typeHandler) {
-        this.typeHandler = typeHandler;
+    /** 用于 update 语句的参数 列值 部分的拼写 */
+    public String getSetValueTemplate() {
+        return setValueTemplate;
+    }
+
+    /** 用于 update 语句的参数 列值 部分的拼写 */
+    public void setSetValueTemplate(String setValueTemplate) {
+        this.setValueTemplate = setValueTemplate;
+    }
+
+    /** 用于 update/delete 中 where 语句的参数 */
+    public String getWhereColTemplate() {
+        return this.whereColTemplate;
+    }
+
+    /** 用于 update/delete 中 where 语句的参数 */
+    public String getWhereValueTemplate() {
+        return this.whereValueTemplate;
     }
 
     /** 列是否为被当作 key（是 pk 或 uk）*/
@@ -79,7 +129,7 @@ public class FakerColumn {
         return key;
     }
 
-    /** insert 操作中 列如果具有 默认值或者允许为空，则表示可以在生成语句中被裁剪掉，否则必须含有该列 */
+    /** 表示在 insert 操作中该列是否允许被裁掉，通常具有 默认值或者允许为空 的列才可以被裁掉 */
     public boolean isCanBeCut() {
         return canBeCut;
     }
@@ -90,40 +140,51 @@ public class FakerColumn {
 
     /** 生成随机值 */
     public SqlArg generatorData() {
-        return new SqlArg(this.jdbcType, this.typeHandler, this.valueSeed.get());
+        return this.typeSrw.buildData(this.column);
     }
 
-    /** 生成 value 值 */
-    public SqlArg buildData(Object value) {
-        return new SqlArg(this.jdbcType, this.typeHandler, value);
-    }
-
-    void initColumn(Set<UseFor> ignoreAct, SeedFactory<SeedConfig, Object> seedFactory) {
-        this.ignoreAct.clear();
-        this.ignoreAct.addAll(ignoreAct);
-        this.seedFactory = seedFactory;
-        this.applyConfig();
-    }
-
-    /** 重新创建随机数据发生器 */
-    void applyConfig() {
-        this.typeHandler = this.seedConfig.getTypeHandler();
-        this.valueSeed = this.seedFactory.createSeed(this.seedConfig);
-    }
-
-    /** 像列配置一个忽略规则 */
-    public void ignoreAct(UseFor ignoreAct) {
-        this.ignoreAct.add(ignoreAct);
+    /** 从 RS 中读取并生成 SqlArg */
+    public SqlArg readData(ResultSet rs) throws SQLException {
+        return this.typeSrw.buildData(rs, this.column);
     }
 
     /** 随机种子的配置 */
     public <T extends SeedConfig> T seedConfig() {
-        return (T) this.seedConfig;
+        return (T) this.typeSrw.getSeedConfig();
     }
 
     @Override
     public String toString() {
-        String handlerType = this.seedConfig.getTypeHandler().getClass().toString();
-        return this.column + ", ignoreAct=" + ignoreAct + ", jdbcType=" + this.jdbcType + ", javaType=" + handlerType + '}';
+        String seedAndWriterString = this.typeSrw.toString();
+        return this.column + ", ignoreAct=" + ignoreAct + ", seedAndWriter=" + seedAndWriterString + '}';
+    }
+
+    /** 像列配置一个忽略规则 */
+    public FakerColumn ignoreAct(UseFor... ignoreAct) {
+        this.ignoreAct.addAll(Arrays.asList(ignoreAct));
+        return this;
+    }
+
+    /** 重置列忽略规则 */
+    public FakerColumn ignoreReset() {
+        this.ignoreAct.clear();
+        this.ignoreAct.addAll(this.typeSrw.getDefaultIgnoreAct());
+        return this;
+    }
+
+    public FakerColumn doNotCut() {
+        this.canBeCut = false;
+        return this;
+    }
+
+    public FakerColumn canBeCut() {
+        this.canBeCut = true;
+        return this;
+    }
+
+    /** 重新创建随机数据发生器 */
+    void applyConfig() {
+        this.typeSrw.applyConfig();
+        this.ignoreAct.addAll(this.typeSrw.getDefaultIgnoreAct());
     }
 }

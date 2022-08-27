@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.bool;
-
-import net.hasor.cobble.RandomUtils;
-import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 
+import java.io.Serializable;
 import java.util.function.Supplier;
+
+import static net.hasor.dbvisitor.faker.FakerRandomUtils.nextBoolean;
+import static net.hasor.dbvisitor.faker.FakerRandomUtils.nextFloat;
 
 /**
  * 布尔类型的 SeedFactory
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class BooleanSeedFactory implements SeedFactory<BooleanSeedConfig, Boolean> {
+public class BooleanSeedFactory implements SeedFactory<BooleanSeedConfig> {
     @Override
-    public SeedConfig newConfig() {
+    public BooleanSeedConfig newConfig() {
         return new BooleanSeedConfig();
     }
 
     @Override
-    public Supplier<Boolean> createSeed(BooleanSeedConfig seedConfig) {
-
+    public Supplier<Serializable> createSeed(BooleanSeedConfig seedConfig) {
         boolean allowNullable = seedConfig.isAllowNullable();
         Float nullableRatio = seedConfig.getNullableRatio();
         if (allowNullable && nullableRatio == null) {
@@ -42,12 +42,11 @@ public class BooleanSeedFactory implements SeedFactory<BooleanSeedConfig, Boolea
         }
 
         return () -> {
-            if (nullableRatio != null && RandomUtils.nextFloat(0, 100) < nullableRatio) {
+            if (allowNullable && nextFloat(0, 100) < nullableRatio) {
                 return null;
             } else {
-                return RandomUtils.nextBoolean();
+                return nextBoolean();
             }
         };
     }
-
 }

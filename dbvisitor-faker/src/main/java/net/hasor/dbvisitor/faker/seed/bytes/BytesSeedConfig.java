@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.bytes;
-
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedType;
 import net.hasor.dbvisitor.types.TypeHandler;

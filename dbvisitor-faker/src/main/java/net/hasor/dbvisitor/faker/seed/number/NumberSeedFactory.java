@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.number;
-
-import net.hasor.cobble.RandomUtils;
-import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 
 import java.io.Serializable;
@@ -25,14 +21,16 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.function.Supplier;
 
+import static net.hasor.dbvisitor.faker.FakerRandomUtils.*;
+
 /**
  * 数值类型的 SeedFactory
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class NumberSeedFactory implements SeedFactory<NumberSeedConfig, Serializable> {
+public class NumberSeedFactory implements SeedFactory<NumberSeedConfig> {
     @Override
-    public SeedConfig newConfig() {
+    public NumberSeedConfig newConfig() {
         return new NumberSeedConfig();
     }
 
@@ -40,28 +38,12 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig, Serializ
     public Supplier<Serializable> createSeed(NumberSeedConfig seedConfig) {
         NumberType numberType = seedConfig.getNumberType();
 
-        boolean useDecimal = numberType == NumberType.BigDecimal;
         Integer precision = seedConfig.getPrecision();
-        Integer scale = seedConfig.getScale();
-        Number min;
-        Number max;
+        Number min = fixNumber(seedConfig.getMin(), (numberType == NumberType.Decimal || numberType == NumberType.BigInt) ? null : 0);
+        Number max = fixNumber(seedConfig.getMax(), (numberType == NumberType.Decimal || numberType == NumberType.BigInt) ? null : 100);
 
-        if (numberType != NumberType.BigDecimal) {
-            min = fixMin(seedConfig.getMin(), numberType);
-            max = fixMax(seedConfig.getMax(), numberType);
-        } else {
-            min = 0;
-            max = 100;
-            if (precision == null || precision < 0) {
-                throw new IllegalStateException("useDecimal but precision missing or lt 0.");
-            }
-            if (scale == null) {
-                scale = precision / 2;
-            }
-            if (scale < 0 || scale > precision) {
-                throw new IllegalStateException("the S must be '0 <= S <= P'");
-            }
-        }
+        Integer scale = seedConfig.getScale();
+        boolean abs = seedConfig.isAbs();
 
         boolean allowNullable = seedConfig.isAllowNullable();
         Float nullableRatio = seedConfig.getNullableRatio();
@@ -69,206 +51,98 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig, Serializ
             throw new IllegalStateException("allowNullable is true but, nullableRatio missing.");
         }
 
-        Integer finalScale = scale;
         return () -> {
-            if (nullableRatio != null && RandomUtils.nextFloat(0, 100) < nullableRatio) {
+            if (allowNullable && nextFloat(0, 100) < nullableRatio) {
                 return null;
+            } else if (precision != null) {
+                return toNumber(randomNumber(precision, scale, numberType), numberType, abs);
             } else {
-                if (useDecimal) {
-                    return randomDecimal(precision, finalScale, numberType);
-                } else {
-                    return randomNumber(min, max, numberType);
-                }
+                return toNumber(randomNumber(min, max, scale, numberType), numberType, abs);
             }
         };
     }
 
-    private Number fixMin(BigDecimal decimal, NumberType classType) {
-        switch (classType) {
-            case Bool:
-                return 0;
-            case Byte:
-                if (decimal.compareTo(BigDecimal.valueOf(Byte.MIN_VALUE)) <= 0) {
-                    return Byte.MIN_VALUE;
-                } else {
-                    return decimal.byteValue();
-                }
-            case Short:
-                if (decimal.compareTo(BigDecimal.valueOf(Short.MIN_VALUE)) <= 0) {
-                    return Short.MIN_VALUE;
-                } else {
-                    return decimal.shortValue();
-                }
-            case Integer:
-                if (decimal.compareTo(BigDecimal.valueOf(Integer.MIN_VALUE)) <= 0) {
-                    return Integer.MIN_VALUE;
-                } else {
-                    return decimal.intValue();
-                }
-            case Long:
-                if (decimal.compareTo(BigDecimal.valueOf(Long.MIN_VALUE)) <= 0) {
-                    return Long.MIN_VALUE;
-                } else {
-                    return decimal.longValue();
-                }
-            case Float:
-                if (decimal.compareTo(BigDecimal.valueOf(Float.MIN_VALUE)) <= 0) {
-                    return Float.MIN_VALUE;
-                } else {
-                    return decimal.floatValue();
-                }
-            case Double:
-                if (decimal.compareTo(BigDecimal.valueOf(Double.MIN_VALUE)) <= 0) {
-                    return Double.MIN_VALUE;
-                } else {
-                    return decimal.doubleValue();
-                }
-            default:
-                throw new UnsupportedOperationException(classType + " fixMin Unsupported.");
-        }
-    }
-
-    private Number fixMax(BigDecimal decimal, NumberType classType) {
-        switch (classType) {
-            case Bool:
-                return 1;
-            case Byte:
-                if (decimal.compareTo(BigDecimal.valueOf(Byte.MAX_VALUE)) >= 0) {
-                    return Byte.MAX_VALUE;
-                } else {
-                    return decimal.byteValue();
-                }
-            case Short:
-                if (decimal.compareTo(BigDecimal.valueOf(Short.MAX_VALUE)) >= 0) {
-                    return Short.MAX_VALUE;
-                } else {
-                    return decimal.shortValue();
-                }
-            case Integer:
-                if (decimal.compareTo(BigDecimal.valueOf(Integer.MAX_VALUE)) >= 0) {
-                    return Integer.MAX_VALUE;
-                } else {
-                    return decimal.intValue();
-                }
-            case Long:
-                if (decimal.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) >= 0) {
-                    return Long.MAX_VALUE;
-                } else {
-                    return decimal.longValue();
-                }
-            case Float:
-                if (decimal.compareTo(BigDecimal.valueOf(Float.MAX_VALUE)) >= 0) {
-                    return Float.MAX_VALUE;
-                } else {
-                    return decimal.floatValue();
-                }
-            case Double:
-                if (decimal.compareTo(BigDecimal.valueOf(Double.MAX_VALUE)) >= 0) {
-                    return Double.MAX_VALUE;
-                } else {
-                    return decimal.doubleValue();
-                }
-            default:
-                throw new UnsupportedOperationException(classType + " fixMax Unsupported.");
-        }
-    }
-
-    private Number randomNumber(Number minNum, Number maxNum, NumberType classType) {
-        switch (classType) {
-            case Bool:
-            case Byte:
-            case Short:
-            case Integer:
-            case Long:
-            case BigInteger:
-            case BigDecimal:
-                long nextLong = 0;
-                if (RandomUtils.nextBoolean()) {
-                    nextLong = -RandomUtils.nextLong(0, Math.abs(minNum.longValue()));
-                } else {
-                    nextLong = RandomUtils.nextLong(0, Math.abs(maxNum.longValue() + 1));
-                }
-                return toNumber(nextLong, classType);
-            case Float:
-            case Double:
-                double nextDouble = 0;
-                if (RandomUtils.nextBoolean()) {
-                    nextDouble = -RandomUtils.nextDouble(0, Math.abs(minNum.doubleValue()));
-                } else {
-                    nextDouble = RandomUtils.nextDouble(0, Math.abs(maxNum.doubleValue() + 1));
-                }
-                return toNumber(nextDouble, classType);
-            default:
-                throw new UnsupportedOperationException(classType + " randomNumber Unsupported.");
-        }
-    }
-
-    private Number randomDecimal(int precision, int scale, NumberType classType) {
-        StringBuilder builder = new StringBuilder();
-        if (scale <= 0) {
-            if (precision > 0) {
-                double nextDouble = RandomUtils.nextDouble();
-                int mulriple = Integer.parseInt("1" + StringUtils.repeat("0", precision));
-                builder.append((int) (nextDouble * mulriple));
-                return toNumber(new BigInteger(builder.toString()), classType);
-            } else {
-                return toNumber(BigInteger.ZERO, classType);
-            }
+    private Number fixNumber(BigDecimal decimal, Number defaultValue) {
+        if (decimal == null) {
+            return defaultValue;
         } else {
-            precision = precision - scale;
-            if (precision > 0) {
-                double nextDouble = RandomUtils.nextDouble();
-                int mulriple = Integer.parseInt("1" + StringUtils.repeat("0", precision));
-                builder.append((int) (nextDouble * mulriple));
-            }
-
-            builder.append(".");
-
-            double nextDouble = RandomUtils.nextDouble();
-            int mulriple = Integer.parseInt("1" + StringUtils.repeat("0", scale));
-            builder.append((int) (nextDouble * mulriple));
-
-            if (builder.length() == 0) {
-                return toNumber(BigDecimal.ZERO, classType);
-            } else {
-                BigDecimal decimal = new BigDecimal(builder.toString());
-                return toNumber(RandomUtils.nextBoolean() ? decimal : decimal.negate(), classType);
-            }
+            return decimal;
         }
     }
 
-    private Number toNumber(Number number, NumberType classType) {
+    private Number randomNumber(Number min, Number max, Integer scale, NumberType numberType) {
+        switch (numberType) {
+            case Bool:
+            case Byte:
+            case Short:
+            case Integer:
+            case Long:
+            case BigInt:
+                return nextLong(min, max);
+            case Float:
+            case Double:
+            case Decimal:
+                return nextDouble(min, max, scale);
+            default:
+                throw new UnsupportedOperationException(numberType + " randomNumber Unsupported.");
+        }
+    }
+
+    private Number randomNumber(Integer precision, Integer scale, NumberType numberType) {
+        switch (numberType) {
+            case Bool:
+            case Byte:
+            case Short:
+            case Integer:
+            case Long:
+            case BigInt:
+            case Float:
+            case Double:
+            case Decimal:
+                return nextDecimal(precision, scale);
+            default:
+                throw new UnsupportedOperationException(numberType + " randomNumber Unsupported.");
+        }
+    }
+
+    private Number toNumber(Number number, NumberType classType, boolean abs) {
         switch (classType) {
             case Bool:
                 return (byte) (number.intValue() > 0 ? 1 : 0);
             case Byte:
-                return number.byteValue();
+                return abs ? (byte) Math.abs(number.byteValue()) : number.byteValue();
             case Short:
-                return number.shortValue();
+                return abs ? (short) Math.abs(number.shortValue()) : number.shortValue();
             case Integer:
-                return number.intValue();
+                return abs ? (int) Math.abs(number.intValue()) : number.intValue();
             case Long:
-                return number.longValue();
+                return abs ? (long) Math.abs(number.longValue()) : number.longValue();
             case Float:
-                return number.floatValue();
+                return abs ? (float) Math.abs(number.floatValue()) : number.floatValue();
             case Double:
-                return number.doubleValue();
-            case BigInteger:
+                return abs ? (double) Math.abs(number.doubleValue()) : number.doubleValue();
+            case BigInt: {
+                BigInteger result = null;
                 if (number instanceof BigInteger) {
-                    return number;
+                    result = (BigInteger) number;
                 } else if (number instanceof BigDecimal) {
-                    return ((BigDecimal) number).toBigInteger();
+                    result = ((BigDecimal) number).toBigInteger();
                 } else {
-                    return BigInteger.valueOf(number.longValue());
+                    result = BigInteger.valueOf(number.longValue());
                 }
-            case BigDecimal:
+                return abs ? result.abs() : result;
+            }
+            case Decimal: {
+                BigDecimal result = null;
                 if (number instanceof BigDecimal) {
-                    return number;
+                    result = (BigDecimal) number;
                 } else if (number instanceof BigInteger) {
-                    return new BigDecimal((BigInteger) number);
+                    result = new BigDecimal((BigInteger) number);
                 } else {
-                    return BigDecimal.valueOf(number.doubleValue());
+                    result = BigDecimal.valueOf(number.doubleValue());
                 }
+                return abs ? result.abs() : result;
+            }
             default:
                 throw new UnsupportedOperationException(classType + " toNumber Unsupported.");
         }

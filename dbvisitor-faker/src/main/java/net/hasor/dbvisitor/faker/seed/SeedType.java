@@ -28,6 +28,7 @@ public enum SeedType {
     Number,
     Enums,
     Bytes,
+    GID,
     //    Array,
     //    Struts,
     //    RelationId,

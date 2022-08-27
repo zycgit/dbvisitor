@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.string.characters;
-
 import net.hasor.cobble.codec.HexUtils;
 import net.hasor.dbvisitor.faker.seed.string.Characters;
 

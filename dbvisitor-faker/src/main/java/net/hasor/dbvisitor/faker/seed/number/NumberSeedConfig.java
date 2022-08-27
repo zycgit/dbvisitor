@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.number;
-
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedType;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -29,12 +28,13 @@ import java.math.BigDecimal;
  */
 public class NumberSeedConfig extends SeedConfig {
     private NumberType numberType;
-
-    private BigDecimal min;
-    private BigDecimal max;
-
-    private Integer precision;
-    private Integer scale;
+    //随机方式
+    private BigDecimal min; // 最小值
+    private BigDecimal max; // 最大值
+    private Integer    precision; //数的长度
+    //精度和选项
+    private Integer    scale;
+    private boolean    abs;
 
     public final SeedType getSeedType() {
         return SeedType.Number;
@@ -84,5 +84,13 @@ public class NumberSeedConfig extends SeedConfig {
 
     public void setScale(Integer scale) {
         this.scale = scale;
+    }
+
+    public boolean isAbs() {
+        return this.abs;
+    }
+
+    public void setAbs(boolean abs) {
+        this.abs = abs;
     }
 }

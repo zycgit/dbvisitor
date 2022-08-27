@@ -229,7 +229,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
                 TypeHandler<?> typeHandler = (jdbcType == null) ? typeRegistry.getDefaultTypeHandler() : typeRegistry.getTypeHandler(jdbcType);
                 Property mapHandler = BeanUtils.createMapPropertyFunc(propertyName);
 
-                result.add(new ColumnDef(columnName, propertyName, jdbcType, Object.class, typeHandler, mapHandler, !generated, !generated, primary));
+                result.add(new ColumnDef(columnName, propertyName, jdbcType, Object.class, typeHandler, mapHandler, !generated, !generated, primary, "?", "?", "?"));
             }
             return result;
         }
@@ -322,5 +322,4 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
     public MapQueryOperation lambdaQuery(String catalog, String schema, String table, MappingOptions options) throws SQLException {
         return configDialect(new SelectLambdaForMap(getTableMapping(catalog, schema, table, options), this));
     }
-
 }

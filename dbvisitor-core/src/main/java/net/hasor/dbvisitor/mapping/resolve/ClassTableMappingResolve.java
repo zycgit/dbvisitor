@@ -121,6 +121,9 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
         boolean insert;
         boolean update;
         boolean primary;
+        String insertTemplate;
+        String setTemplate;
+        String whereTemplate;
 
         if (info != null) {
             column = StringUtils.isNotBlank(info.name()) ? info.name() : info.value();
@@ -139,7 +142,9 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
             insert = info.insert();
             update = info.update();
             primary = info.primary();
-
+            insertTemplate = info.insertTemplate();
+            setTemplate = info.setTemplate();
+            whereTemplate = info.whereTemplate();
         } else if (tableDef.isAutoProperty()) {
 
             column = hump2Line(name, options.getMapUnderscoreToCamelCase());
@@ -149,11 +154,14 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
             insert = true;
             update = true;
             primary = false;
+            insertTemplate = "?";
+            setTemplate = "?";
+            whereTemplate = "?";
         } else {
             return;
         }
 
-        tableDef.addMapping(new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler, insert, update, primary));
+        tableDef.addMapping(new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler, insert, update, primary, insertTemplate, setTemplate, whereTemplate));
     }
 
     private String hump2Line(String str, Boolean mapUnderscoreToCamelCase) {

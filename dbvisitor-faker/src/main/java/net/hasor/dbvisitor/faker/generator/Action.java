@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.generator;
-
 import java.sql.SQLException;
 import java.util.List;
 

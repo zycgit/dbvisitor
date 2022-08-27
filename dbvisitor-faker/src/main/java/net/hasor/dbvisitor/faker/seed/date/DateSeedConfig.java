@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.date;
-
 import net.hasor.cobble.DateFormatType;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedType;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -31,21 +31,28 @@ import java.time.format.DateTimeFormatter;
 public class DateSeedConfig extends SeedConfig {
     private GenType           genType;
     private DateType          dateType;
-    private String            dateFormat = DateFormatType.s_yyyyMMdd_HHmmss_SSSSSS.getDatePattern();
+    private String            dateFormat;
     private DateTimeFormatter dateFormatter;
     // in random
     private String            rangeForm;
     private String            rangeTo;
-    private String            zoneForm; // see java.time.ZoneOffset.of(String offsetId)
-    private String            zoneTo;   // see java.time.ZoneOffset.of(String offsetId)
+    private String            zoneForm;     // see java.time.ZoneOffset.of(String offsetId)
+    private String            zoneTo;       // see java.time.ZoneOffset.of(String offsetId)
     // in interval
     private String            startTime;
-    private int               maxInterval;
+    private Integer           minInterval;
+    private Integer           maxInterval;
     private IntervalScope     intervalScope;
+    //
+    private Integer           precision; //时间小数精度
 
     public DateTimeFormatter getDateTimeFormatter() {
         if (this.dateFormatter == null) {
-            this.dateFormatter = DateTimeFormatter.ofPattern(this.dateFormat);
+            if (StringUtils.isNotBlank(this.dateFormat)) {
+                this.dateFormatter = DateTimeFormatter.ofPattern(this.dateFormat);
+            } else {
+                this.dateFormatter = DateTimeFormatter.ofPattern(DateFormatType.d_yyyyMMdd_HHmmss.getDatePattern());
+            }
         }
         return this.dateFormatter;
     }
@@ -72,8 +79,10 @@ public class DateSeedConfig extends SeedConfig {
     }
 
     public void setDateType(DateType dateType) {
-        this.dateType = dateType;
-        this.setTypeHandler(TypeHandlerRegistry.DEFAULT.getTypeHandler(dateType.getDateType()));
+        if (this.dateType != dateType) {
+            this.dateType = dateType;
+            this.setTypeHandler(TypeHandlerRegistry.DEFAULT.getTypeHandler(dateType.getDateType()));
+        }
     }
 
     public String getRangeForm() {
@@ -116,11 +125,19 @@ public class DateSeedConfig extends SeedConfig {
         this.startTime = startTime;
     }
 
-    public int getMaxInterval() {
+    public Integer getMinInterval() {
+        return minInterval;
+    }
+
+    public void setMinInterval(Integer minInterval) {
+        this.minInterval = minInterval;
+    }
+
+    public Integer getMaxInterval() {
         return maxInterval;
     }
 
-    public void setMaxInterval(int maxInterval) {
+    public void setMaxInterval(Integer maxInterval) {
         this.maxInterval = maxInterval;
     }
 
@@ -138,5 +155,13 @@ public class DateSeedConfig extends SeedConfig {
 
     public void setDateFormat(String dateFormat) {
         this.dateFormat = dateFormat;
+    }
+
+    public Integer getPrecision() {
+        return precision;
+    }
+
+    public void setPrecision(Integer precision) {
+        this.precision = precision;
     }
 }

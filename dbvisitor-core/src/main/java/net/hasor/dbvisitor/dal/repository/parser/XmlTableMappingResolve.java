@@ -125,6 +125,10 @@ public class XmlTableMappingResolve implements TableMappingResolve<Node> {
         Node javaTypeNode = nodeAttributes.getNamedItem("javaType");
         Node jdbcTypeNode = nodeAttributes.getNamedItem("jdbcType");
         Node typeHandlerNode = nodeAttributes.getNamedItem("typeHandler");
+        Node insertTemplateNode = nodeAttributes.getNamedItem("insertTemplate");
+        Node setTemplateNode = nodeAttributes.getNamedItem("setTemplate");
+        Node whereTemplateNode = nodeAttributes.getNamedItem("whereTemplate");
+
         String column = (columnNode != null) ? columnNode.getNodeValue() : null;
         String property = (propertyNode != null) ? propertyNode.getNodeValue() : null;
         String javaType = (javaTypeNode != null) ? javaTypeNode.getNodeValue() : null;
@@ -133,6 +137,9 @@ public class XmlTableMappingResolve implements TableMappingResolve<Node> {
         if (!propertyMap.containsKey(property)) {
             throw new IllegalStateException("property '" + property + "' undefined.");
         }
+        String insertTemplate = (insertTemplateNode != null) ? insertTemplateNode.getNodeValue() : "?";
+        String setTemplate = (setTemplateNode != null) ? setTemplateNode.getNodeValue() : "?";
+        String whereTemplate = (whereTemplateNode != null) ? whereTemplateNode.getNodeValue() : "?";
 
         Property propertyHandler = propertyMap.get(property);
         Class<?> columnJavaType = resolveJavaType(javaType, propertyHandler, classLoader);
@@ -141,7 +148,7 @@ public class XmlTableMappingResolve implements TableMappingResolve<Node> {
         boolean insert = true; // always is true
         boolean update = true; // always is true
 
-        return new ColumnDef(column, property, columnJdbcType, columnJavaType, columnTypeHandler, propertyHandler, insert, update, asPrimaryKey);
+        return new ColumnDef(column, property, columnJdbcType, columnJavaType, columnTypeHandler, propertyHandler, insert, update, asPrimaryKey, insertTemplate, setTemplate, whereTemplate);
     }
 
     private static Class<?> resolveJavaType(String javaType, Property property, ClassLoader classLoader) throws ClassNotFoundException {

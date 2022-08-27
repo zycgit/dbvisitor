@@ -32,9 +32,14 @@ public class ColumnDef implements ColumnMapping {
     private final boolean        insert;
     private final boolean        update;
     private final boolean        primary;
+    private final String         insertTemplate;
+    private final String         setTemplate;
+    private final String         whereTemplate;
 
     public ColumnDef(String columnName, String propertyName, Integer jdbcType, Class<?> javaType,//
-            TypeHandler<?> typeHandler, Property handler, boolean insert, boolean update, boolean primary) {
+            TypeHandler<?> typeHandler, Property handler, //
+            boolean insert, boolean update, boolean primary,//
+            String insertTemplate, String setTemplate, String whereTemplate) {
         this.columnName = columnName;
         this.propertyName = propertyName;
         this.jdbcType = jdbcType;
@@ -44,6 +49,9 @@ public class ColumnDef implements ColumnMapping {
         this.insert = insert;
         this.update = update;
         this.primary = primary;
+        this.insertTemplate = insertTemplate;
+        this.setTemplate = setTemplate;
+        this.whereTemplate = whereTemplate;
     }
 
     @Override
@@ -82,6 +90,21 @@ public class ColumnDef implements ColumnMapping {
     @Override
     public boolean isInsert() {
         return this.insert;
+    }
+
+    @Override
+    public String getInsertValueTemplate() {
+        return this.insertTemplate;
+    }
+
+    @Override
+    public String getSetValueTemplate() {
+        return this.setTemplate;
+    }
+
+    @Override
+    public String getWhereValueTemplate() {
+        return this.whereTemplate;
     }
 
     @Override

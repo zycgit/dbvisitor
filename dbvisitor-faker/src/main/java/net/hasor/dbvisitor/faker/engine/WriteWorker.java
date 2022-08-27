@@ -23,7 +23,6 @@ import net.hasor.dbvisitor.transaction.DataSourceUtils;
 import net.hasor.dbvisitor.transaction.TransactionCallbackWithoutResult;
 import net.hasor.dbvisitor.transaction.TransactionTemplate;
 import net.hasor.dbvisitor.transaction.TransactionTemplateManager;
-import net.hasor.dbvisitor.types.TypeHandler;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -133,15 +132,8 @@ class WriteWorker implements ShutdownHook, Runnable {
         final SqlArg[] sqlArgs = event.getArgs();
         return jdbcTemplate.executeUpdate(sqlString, ps -> {
             for (int i = 1; i <= sqlArgs.length; i++) {
-                SqlArg arg = sqlArgs[i - 1];
-                if (arg.getObject() == null) {
-                    ps.setNull(i, arg.getJdbcType());
-                } else {
-                    TypeHandler handler = arg.getHandler();
-                    handler.setParameter(ps, i, arg.getObject(), arg.getJdbcType());
-                }
+                sqlArgs[i - 1].setParameter(ps, i);
             }
         });
-
     }
 }

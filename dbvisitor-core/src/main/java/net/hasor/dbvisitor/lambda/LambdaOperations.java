@@ -26,7 +26,6 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface LambdaOperations extends JdbcOperations {
-
     // ----------------------------------------------------------------------------------
     // Insert
     // ----------------------------------------------------------------------------------

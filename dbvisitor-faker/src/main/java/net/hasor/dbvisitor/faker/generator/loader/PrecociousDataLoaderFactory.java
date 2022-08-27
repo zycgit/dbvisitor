@@ -17,8 +17,7 @@ package net.hasor.dbvisitor.faker.generator.loader;
 
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.FakerConfig;
-import net.hasor.dbvisitor.faker.generator.DataLoader;
-import net.hasor.dbvisitor.faker.generator.DataLoaderFactory;
+import net.hasor.dbvisitor.faker.generator.SqlArg;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 
 import java.util.ArrayList;
@@ -37,7 +36,7 @@ public class PrecociousDataLoaderFactory implements DataLoaderFactory {
     @Override
     public DataLoader createDataLoader(FakerConfig fakerConfig, JdbcTemplate jdbcTemplate, SqlDialect dialect) {
         final DataLoader defaultDataLoader = new DefaultDataLoaderFactory().createDataLoader(fakerConfig, jdbcTemplate, dialect);
-        final BlockingQueue<Map<String, Object>> precociousDataSet = new LinkedBlockingQueue<>();
+        final BlockingQueue<Map<String, SqlArg>> precociousDataSet = new LinkedBlockingQueue<>();
         final int precociousSize = 4096;
 
         return (useFor, fakerTable, includeColumns, batchSize) -> {
@@ -45,18 +44,18 @@ public class PrecociousDataLoaderFactory implements DataLoaderFactory {
                 return defaultDataLoader.loadSomeData(useFor, fakerTable, includeColumns, batchSize);
             }
 
-            List<Map<String, Object>> result = new ArrayList<>();
+            List<Map<String, SqlArg>> result = new ArrayList<>();
             for (int i = 0; i < batchSize; i++) {
                 if (precociousDataSet.size() < batchSize) {
                     synchronized (this) {
                         if (precociousDataSet.size() < batchSize) {
-                            List<Map<String, Object>> someData = defaultDataLoader.loadSomeData(useFor, fakerTable, Collections.emptyList(), Math.max(precociousSize, batchSize));
+                            List<Map<String, SqlArg>> someData = defaultDataLoader.loadSomeData(useFor, fakerTable, Collections.emptyList(), Math.max(precociousSize, batchSize));
                             precociousDataSet.addAll(someData);
                         }
                     }
                 }
 
-                Map<String, Object> poll = precociousDataSet.poll();
+                Map<String, SqlArg> poll = precociousDataSet.poll();
                 if (poll != null) {
                     result.add(poll);
                 }

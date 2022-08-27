@@ -90,5 +90,4 @@ class ProducerWorker implements ShutdownHook, Runnable {
 
         this.monitor.workExit(this.threadName, null);
     }
-
 }

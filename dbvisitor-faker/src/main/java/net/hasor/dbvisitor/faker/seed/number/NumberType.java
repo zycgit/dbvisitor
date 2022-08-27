@@ -32,9 +32,8 @@ public enum NumberType {
     Long(Long.class),
     Float(Float.class),
     Double(Double.class),
-    BigInteger(BigInteger.class),
-    BigDecimal(BigDecimal.class),
-    ;
+    BigInt(BigInteger.class),
+    Decimal(BigDecimal.class);
 
     private final Class<?> dateType;
 

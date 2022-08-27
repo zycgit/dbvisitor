@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.meta;
-import java.sql.JDBCType;
-
 /**
  * Jdbc Column
  * @version : 2020-04-25
@@ -27,16 +25,14 @@ public class JdbcColumn {
     private String           tableName;
     private String           columnName;
     private String           columnType;
-    private JdbcSqlTypes     sqlType;
-    private JDBCType         jdbcType;
-    private Integer          jdbcNumber;
+    private Integer          jdbcType;
     private JdbcNullableType nullableType;
     private Boolean          nullable;
     private Boolean          autoincrement;
     private Boolean          generatedColumn;
     private Integer          columnSize;
     private boolean          primaryKey;
-    private boolean          uniqueKey;//如若存在联合唯一索引需要借助 getUniqueKey 来查询具体信息，这里只会表示该列存在至少一个唯一索引的引用。
+    private boolean          uniqueKey;      //如若存在联合唯一索引需要借助 getUniqueKey 来查询具体信息，这里只会表示该列存在至少一个唯一索引的引用。
     private String           comment;
     private int              index;
     //
@@ -89,28 +85,12 @@ public class JdbcColumn {
         this.columnType = columnType;
     }
 
-    public JdbcSqlTypes getSqlType() {
-        return this.sqlType;
-    }
-
-    public void setSqlType(JdbcSqlTypes sqlType) {
-        this.sqlType = sqlType;
-    }
-
-    public JDBCType getJdbcType() {
+    public Integer getJdbcType() {
         return this.jdbcType;
     }
 
-    public void setJdbcType(JDBCType jdbcType) {
+    public void setJdbcType(Integer jdbcType) {
         this.jdbcType = jdbcType;
-    }
-
-    public Integer getJdbcNumber() {
-        return this.jdbcNumber;
-    }
-
-    public void setJdbcNumber(Integer jdbcNumber) {
-        this.jdbcNumber = jdbcNumber;
     }
 
     public JdbcNullableType getNullableType() {

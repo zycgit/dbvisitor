@@ -29,8 +29,7 @@ public enum SqlPolitic {
     /** 全部列 */
     FullCol,
     /** 仅 KEY 列，(update/delete 有效) */
-    KeyCol,
-    ;
+    KeyCol;
 
     public static SqlPolitic valueOfCode(String name, SqlPolitic defaultValue) {
         for (SqlPolitic politic : SqlPolitic.values()) {

@@ -18,9 +18,8 @@ import net.hasor.cobble.RandomUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.Ratio;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.faker.generator.DataLoaderFactory;
-import net.hasor.dbvisitor.faker.strategy.ConservativeStrategy;
-import net.hasor.dbvisitor.faker.strategy.Strategy;
+import net.hasor.dbvisitor.faker.generator.loader.DataLoaderFactory;
+import net.hasor.dbvisitor.faker.generator.provider.DefaultTypeSrwFactory;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.util.Collections;
@@ -35,36 +34,36 @@ import java.util.concurrent.ThreadFactory;
  */
 public class FakerConfig {
     // generator
-    private       ClassLoader         classLoader;
-    private       TypeHandlerRegistry typeRegistry;
-    private       DataLoaderFactory   dataLoaderFactory;
-    private       Strategy            strategy;
-    private       SqlDialect          dialect;
-    private       boolean             useQualifier;
+    private       ClassLoader           classLoader;
+    private       TypeHandlerRegistry   typeRegistry;
+    private       DataLoaderFactory     dataLoaderFactory;
+    private       SqlDialect            sqlDialect;
+    private       DefaultTypeSrwFactory typeDialect;
+    private       boolean               useQualifier;
     // one trans
-    private       int                 minBatchSizePerOps;
-    private       int                 maxBatchSizePerOps;
-    private final Ratio<OpsType>      opsRatio;
-    private       int                 minOpsCountPerTransaction;
-    private       int                 maxOpsCountPerTransaction;
+    private       int                   minBatchSizePerOps;
+    private       int                   maxBatchSizePerOps;
+    private final Ratio<OpsType>        opsRatio;
+    private       int                   minOpsCountPerTransaction;
+    private       int                   maxOpsCountPerTransaction;
     // trans stream
-    private       boolean             transaction;
-    private       int                 minPausePerTransactionMs;
-    private       int                 maxPausePerTransactionMs;
+    private       boolean               transaction;
+    private       int                   minPausePerTransactionMs;
+    private       int                   maxPausePerTransactionMs;
     // worker
-    private       ThreadFactory       threadFactory;
-    private       int                 queueCapacity;
-    private       int                 writeQps;
-    private       int                 queryTimeout;
-    private final Set<String>         ignoreErrors;
-    private       boolean             ignoreAnyErrors;
+    private       ThreadFactory         threadFactory;
+    private       int                   queueCapacity;
+    private       int                   writeQps;
+    private       int                   queryTimeout;
+    private final Set<String>           ignoreErrors;
+    private       boolean               ignoreAnyErrors;
 
     public FakerConfig() {
         this.classLoader = Thread.currentThread().getContextClassLoader();
         this.typeRegistry = TypeHandlerRegistry.DEFAULT;
         this.dataLoaderFactory = null;
-        this.strategy = new ConservativeStrategy();
-        this.dialect = null;
+        this.sqlDialect = null;
+        this.typeDialect = null;
         this.useQualifier = true;
         //
         this.minBatchSizePerOps = 2;
@@ -147,28 +146,28 @@ public class FakerConfig {
         this.dataLoaderFactory = dataLoaderFactory;
     }
 
-    public SqlDialect getDialect() {
-        return dialect;
-    }
-
-    public Strategy getStrategy() {
-        return strategy;
-    }
-
-    public void setStrategy(Strategy strategy) {
-        this.strategy = strategy;
-    }
-
-    public void setDialect(SqlDialect dialect) {
-        this.dialect = dialect;
-    }
-
     public boolean isUseQualifier() {
         return useQualifier;
     }
 
     public void setUseQualifier(boolean useQualifier) {
         this.useQualifier = useQualifier;
+    }
+
+    public SqlDialect getSqlDialect() {
+        return sqlDialect;
+    }
+
+    public void setSqlDialect(SqlDialect sqlDialect) {
+        this.sqlDialect = sqlDialect;
+    }
+
+    public DefaultTypeSrwFactory getTypeDialect() {
+        return typeDialect;
+    }
+
+    public void setTypeDialect(DefaultTypeSrwFactory typeDialect) {
+        this.typeDialect = typeDialect;
     }
 
     public Ratio<OpsType> getOpsRatio() {

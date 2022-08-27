@@ -14,36 +14,37 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.enums;
-
-import net.hasor.cobble.RandomUtils;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 
+import java.io.Serializable;
 import java.util.Set;
 import java.util.function.Supplier;
+
+import static net.hasor.dbvisitor.faker.FakerRandomUtils.nextFloat;
+import static net.hasor.dbvisitor.faker.FakerRandomUtils.nextInt;
 
 /**
  * 枚举类型的 SeedFactory
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class EnumSeedFactory implements SeedFactory<EnumSeedConfig, String> {
+public class EnumSeedFactory implements SeedFactory<EnumSeedConfig> {
     @Override
     public SeedConfig newConfig() {
         return new EnumSeedConfig();
     }
 
     @Override
-    public Supplier<String> createSeed(EnumSeedConfig seedConfig) {
-        Set<String> dict = seedConfig.getDict();
+    public Supplier<Serializable> createSeed(EnumSeedConfig seedConfig) {
         boolean allowNullable = seedConfig.isAllowNullable();
         Float nullableRatio = seedConfig.getNullableRatio();
-
-        if (!allowNullable && dict.isEmpty()) {
-            throw new IllegalStateException("allowNullable is false but, dict is empty");
+        if (allowNullable && nullableRatio == null) {
+            throw new IllegalStateException("allowNullable is true but, nullableRatio missing.");
         }
 
-        if (allowNullable && nullableRatio == null) {
+        Set<String> dict = seedConfig.getDict();
+        if (allowNullable) {
             dict.add(null);
         }
 
@@ -51,12 +52,11 @@ public class EnumSeedFactory implements SeedFactory<EnumSeedConfig, String> {
         int max = dictArrays.length;
 
         return () -> {
-            if (nullableRatio != null && RandomUtils.nextFloat(0, 100) < nullableRatio) {
+            if (allowNullable && nextFloat(0, 100) < nullableRatio) {
                 return null;
             } else {
-                return dictArrays[RandomUtils.nextInt(0, max)];
+                return dictArrays[nextInt(0, max + 1)];
             }
         };
     }
-
 }

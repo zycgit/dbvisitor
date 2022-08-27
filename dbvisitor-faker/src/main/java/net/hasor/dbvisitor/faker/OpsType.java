@@ -24,8 +24,7 @@ import net.hasor.cobble.StringUtils;
 public enum OpsType {
     Insert,
     Update,
-    Delete,
-    ;
+    Delete;
 
     public String sortCode() {
         return String.valueOf(name().charAt(0));

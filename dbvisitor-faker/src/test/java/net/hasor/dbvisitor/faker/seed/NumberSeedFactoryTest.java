@@ -105,7 +105,7 @@ public class NumberSeedFactoryTest {
     public void buildBytes_6() {
         NumberSeedFactory factory = new NumberSeedFactory();
         NumberSeedConfig genConfig = new NumberSeedConfig();
-        genConfig.setNumberType(NumberType.BigDecimal);
+        genConfig.setNumberType(NumberType.Decimal);
         genConfig.setPrecision(10);
         genConfig.setScale(4);
         genConfig.setAllowNullable(true);
@@ -127,7 +127,7 @@ public class NumberSeedFactoryTest {
     public void buildBytes_7() {
         NumberSeedFactory factory = new NumberSeedFactory();
         NumberSeedConfig genConfig = new NumberSeedConfig();
-        genConfig.setNumberType(NumberType.BigDecimal);
+        genConfig.setNumberType(NumberType.Decimal);
         genConfig.setPrecision(0);
         genConfig.setScale(0);
         genConfig.setAllowNullable(true);

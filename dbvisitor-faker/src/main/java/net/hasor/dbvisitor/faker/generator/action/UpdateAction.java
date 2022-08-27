@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.generator.action;
-
 import net.hasor.cobble.RandomUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.OpsType;
 import net.hasor.dbvisitor.faker.generator.*;
+import net.hasor.dbvisitor.faker.generator.loader.DataLoader;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -115,7 +115,7 @@ public class UpdateAction extends AbstractAction {
     private List<BoundQuery> buildAction(int batchSize, List<FakerColumn> setColumns, List<FakerColumn> whereColumns) throws SQLException {
         // fetch some data used for delete
         List<String> fetchCols = whereColumns.stream().map(FakerColumn::getColumn).collect(Collectors.toList());
-        List<Map<String, Object>> fetchDataList = this.retryLoad(this.dataLoader, UseFor.UpdateWhere, this.tableInfo, fetchCols, batchSize);
+        List<Map<String, SqlArg>> fetchDataList = this.retryLoad(this.dataLoader, UseFor.UpdateWhere, this.tableInfo, fetchCols, batchSize);
         if (fetchDataList == null || fetchDataList.isEmpty()) {
             return Collections.emptyList();
         }
@@ -132,8 +132,9 @@ public class UpdateAction extends AbstractAction {
             if (set.length() > 0) {
                 set.append(", ");
             }
-            set.append(this.dialect.columnName(this.useQualifier, catalog, schema, table, colInfo.getColumn()));
-            set.append(" = ?");
+            set.append(colInfo.getSetColTemplate());
+            set.append(" = ");
+            set.append(colInfo.getSetValueTemplate());
         }
 
         // build where
@@ -142,8 +143,9 @@ public class UpdateAction extends AbstractAction {
             if (where.length() > 0) {
                 where.append(" and ");
             }
-            where.append(this.dialect.columnName(this.useQualifier, catalog, schema, table, colInfo.getColumn()));
-            where.append(" = ?");
+            where.append(colInfo.getWhereColTemplate());
+            where.append(" = ");
+            where.append(colInfo.getWhereValueTemplate());
         }
         StringBuilder builder = new StringBuilder();
         builder.append("update " + tableName);
@@ -152,20 +154,18 @@ public class UpdateAction extends AbstractAction {
 
         // build args
         List<BoundQuery> boundQueries = new ArrayList<>();
-        for (Map<String, Object> objectMap : fetchDataList) {
+        for (Map<String, SqlArg> objectMap : fetchDataList) {
             SqlArg[] args = new SqlArg[setColumns.size() + whereColumns.size()];
             int index = 0;
             for (FakerColumn colInfo : setColumns) {
                 args[index++] = colInfo.generatorData();
             }
             for (FakerColumn colInfo : whereColumns) {
-                Object value = objectMap.get(colInfo.getColumn());
-                args[index++] = colInfo.buildData(value);
+                args[index++] = objectMap.get(colInfo.getColumn());
             }
 
             boundQueries.add(new BoundQuery(this.tableInfo, OpsType.Update, builder, args));
         }
         return boundQueries;
     }
-
 }

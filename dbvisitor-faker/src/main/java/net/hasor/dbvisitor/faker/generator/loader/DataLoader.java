@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.generator;
+package net.hasor.dbvisitor.faker.generator.loader;
+import net.hasor.dbvisitor.faker.generator.FakerTable;
+import net.hasor.dbvisitor.faker.generator.SqlArg;
+import net.hasor.dbvisitor.faker.generator.UseFor;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -25,5 +28,5 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface DataLoader {
-    List<Map<String, Object>> loadSomeData(UseFor useFor, FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException;
+    List<Map<String, SqlArg>> loadSomeData(UseFor useFor, FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException;
 }

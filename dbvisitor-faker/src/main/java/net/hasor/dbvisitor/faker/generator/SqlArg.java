@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.generator;
-
 import net.hasor.dbvisitor.types.TypeHandler;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 
 /**
  * 生成的数据
@@ -23,30 +30,62 @@ import net.hasor.dbvisitor.types.TypeHandler;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class SqlArg {
-    private final Integer        jdbcType;
-    private final TypeHandler<?> handler;
-    private final Object         object;
+    private final        String            column;
+    private final        Integer           jdbcType;
+    private final        TypeHandler       handler;
+    private final        Object            object;
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS");
 
-    public SqlArg(Integer jdbcType, TypeHandler<?> handler, Object object) {
+    public SqlArg(String column, Integer jdbcType, TypeHandler<?> handler, Object object) {
+        this.column = column;
         this.jdbcType = jdbcType;
         this.handler = handler;
         this.object = object;
     }
 
+    public String getColumn() {
+        return this.column;
+    }
+
     public Integer getJdbcType() {
-        return jdbcType;
+        return this.jdbcType;
     }
 
     public TypeHandler<?> getHandler() {
-        return handler;
+        return this.handler;
     }
 
     public Object getObject() {
-        return object;
+        return this.object;
     }
 
     @Override
     public String toString() {
-        return "[" + jdbcType + "]" + this.object;
+        if (this.object instanceof TemporalAccessor) {
+            try {
+                if (this.object instanceof OffsetDateTime) {
+                    LocalDateTime dateTime = ((OffsetDateTime) this.object).toLocalDateTime();
+                    ZoneOffset offset = ((OffsetDateTime) this.object).getOffset();
+                    return "[" + this.jdbcType + "]" + formatter.format(dateTime) + " " + offset;
+                } else {
+                    return "[" + this.jdbcType + "]" + formatter.format((TemporalAccessor) this.object);
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        return "[" + this.jdbcType + "]" + this.object;
+    }
+
+    public void setParameter(PreparedStatement ps, int i) throws SQLException {
+        try {
+            if (this.object == null) {
+                ps.setNull(i, this.jdbcType);
+            } else {
+                this.handler.setParameter(ps, i, this.object, this.jdbcType);
+            }
+        } catch (SQLException e) {
+            throw e;
+        }
     }
 }

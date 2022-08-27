@@ -41,6 +41,9 @@
         column CDATA #REQUIRED
         jdbcType CDATA #IMPLIED
         typeHandler CDATA #IMPLIED
+        insertTemplate CDATA #IMPLIED
+        setTemplate CDATA #IMPLIED
+        whereTemplate CDATA #IMPLIED
         >
 
 <!ELEMENT result EMPTY>

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.string;
-
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedType;
@@ -99,7 +98,7 @@ public class StringSeedConfig extends SeedConfig {
         if (characters == null || characters.length == 0) {
             return;
         }
-        
+
         setCharacterSet(new HashSet<>());
         for (String characterName : characters) {
             Characters object = CHARACTERS_MAP.get(characterName);

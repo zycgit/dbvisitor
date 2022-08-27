@@ -32,7 +32,7 @@
         <dependency>
             <groupId>ognl</groupId>
             <artifactId>ognl</artifactId>
-            <version>3.3.2</version>
+            <version>3.3.3</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
@@ -73,13 +73,13 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.29</version>
+            <version>8.0.30</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.3.6</version>
+            <version>42.4.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -103,7 +103,7 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
-            <version>10.2.1.jre8</version>
+            <version>11.2.0.jre8</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

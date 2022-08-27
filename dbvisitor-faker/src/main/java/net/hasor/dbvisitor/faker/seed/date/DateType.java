@@ -33,6 +33,7 @@ public enum DateType {
     LocalTime(java.time.LocalTime.class),
     LocalDateTime(java.time.LocalDateTime.class),
     Year(java.time.Year.class),
+    YearNumber(java.lang.Integer.class),
     YearMonth(java.time.YearMonth.class),
     Month(java.time.Month.class),
     MonthDay(java.time.MonthDay.class),
@@ -40,8 +41,7 @@ public enum DateType {
     OffsetTime(java.time.OffsetTime.class),
     OffsetDateTime(java.time.OffsetDateTime.class),
     ZonedDateTime(java.time.ZonedDateTime.class),
-    Instant(java.time.Instant.class),
-    ;
+    Instant(java.time.Instant.class);
 
     private final Class<?> dateType;
 

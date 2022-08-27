@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.string;
-
-import net.hasor.cobble.RandomUtils;
-import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 import net.hasor.dbvisitor.faker.seed.string.characters.GroupCharacters;
 
+import java.io.Serializable;
 import java.util.Set;
 import java.util.function.Supplier;
+
+import static net.hasor.dbvisitor.faker.FakerRandomUtils.*;
 
 /**
  * 字符串类型的 SeedFactory
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class StringSeedFactory implements SeedFactory<StringSeedConfig, String> {
+public class StringSeedFactory implements SeedFactory<StringSeedConfig> {
     @Override
-    public SeedConfig newConfig() {
+    public StringSeedConfig newConfig() {
         return new StringSeedConfig();
     }
 
     @Override
-    public Supplier<String> createSeed(StringSeedConfig seedConfig) {
+    public Supplier<Serializable> createSeed(StringSeedConfig seedConfig) {
         int maxLength = seedConfig.getMaxLength();
         int minLength = seedConfig.getMinLength();
 
@@ -56,23 +56,22 @@ public class StringSeedFactory implements SeedFactory<StringSeedConfig, String> 
         int characterCount = characters.getSize();
 
         return () -> {
-            if ((allowEmpty || allowNullable) && RandomUtils.nextFloat(0, 100) < nullableRatio) {
+            if ((allowEmpty || allowNullable) && nextFloat(0, 100) < nullableRatio) {
                 if (allowEmpty && allowNullable) {
-                    return RandomUtils.nextBoolean() ? "" : null;
+                    return nextBoolean() ? "" : null;
                 } else {
                     return allowEmpty ? "" : null;
                 }
             } else {
 
-                int length = RandomUtils.nextInt(minLength, maxLength);
+                int length = nextInt(minLength, maxLength + 1);
                 StringBuilder builder = new StringBuilder();
                 for (int i = 0; i < length; i++) {
-                    int codePoint = RandomUtils.nextInt(0, characterCount);
+                    int codePoint = nextInt(0, characterCount + 1);
                     builder.append(characters.getChar(codePoint));
                 }
                 return builder.toString();
             }
         };
     }
-
 }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.generator;
-
 import net.hasor.dbvisitor.faker.OpsType;
 
 import java.util.Arrays;

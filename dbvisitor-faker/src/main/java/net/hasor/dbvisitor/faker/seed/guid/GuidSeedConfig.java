@@ -13,18 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.strategy;
-import net.hasor.dbvisitor.faker.generator.FakerTable;
-import net.hasor.dbvisitor.faker.meta.JdbcColumn;
+package net.hasor.dbvisitor.faker.seed.guid;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
+import net.hasor.dbvisitor.faker.seed.SeedType;
+import net.hasor.dbvisitor.types.TypeHandler;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /**
- * 数据生成策略
+ * GUID/UUID SeedConfig
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface Strategy {
-    boolean ignoreColumn(String dbType, FakerTable fakerTable, JdbcColumn refer);
+public class GuidSeedConfig extends SeedConfig {
+    private GuidType dateType;
 
-    void applyConfig(String dbType, FakerTable fakerTable, SeedConfig seedConfig, JdbcColumn refer);
+    public final SeedType getSeedType() {
+        return SeedType.GID;
+    }
+
+    @Override
+    protected TypeHandler<?> defaultTypeHandler() {
+        return TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
+    }
+
+    public GuidType getDateType() {
+        return dateType;
+    }
+
+    public void setDateType(GuidType dateType) {
+        this.dateType = dateType;
+    }
 }

@@ -31,7 +31,7 @@ public enum IntervalScope {
     Second,
     Milli,
     Micro,
-    ;
+    Nano;
 
     public static IntervalScope valueOfCode(String name) {
         for (IntervalScope scope : IntervalScope.values()) {

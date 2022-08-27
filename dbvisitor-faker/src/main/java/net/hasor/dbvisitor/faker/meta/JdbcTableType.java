@@ -29,8 +29,8 @@ public enum JdbcTableType {
     LocalTemporary("LOCAL TEMPORARY"),
     Alias("ALIAS"),
     Synonym("SYNONYM"),
-    Other(null),
-    ;
+    Other(null);
+
     private final String typeName;
 
     JdbcTableType(String typeName) {

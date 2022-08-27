@@ -37,8 +37,8 @@ public class JdbcIndex {
     private Map<String, String> storageType = new HashMap<>();
     //
     private String              indexQualifier;
-    private long                cardinality;
-    private long                pages;
+    private Long                cardinality;
+    private Long                pages;
     private String              filterCondition;
 
     public String getTableCatalog() {
@@ -113,19 +113,19 @@ public class JdbcIndex {
         this.indexQualifier = indexQualifier;
     }
 
-    public long getCardinality() {
+    public Long getCardinality() {
         return this.cardinality;
     }
 
-    public void setCardinality(long cardinality) {
+    public void setCardinality(Long cardinality) {
         this.cardinality = cardinality;
     }
 
-    public long getPages() {
+    public Long getPages() {
         return this.pages;
     }
 
-    public void setPages(long pages) {
+    public void setPages(Long pages) {
         this.pages = pages;
     }
 

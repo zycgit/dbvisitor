@@ -23,8 +23,8 @@ public enum JdbcConstraintType {
     /** 主键 */
     PrimaryKey("PRIMARY KEY"),
     /** 外建 */
-    ForeignKey("FOREIGN KEY"),
-    ;
+    ForeignKey("FOREIGN KEY");
+
     private final String typeName;
 
     JdbcConstraintType(String typeName) {

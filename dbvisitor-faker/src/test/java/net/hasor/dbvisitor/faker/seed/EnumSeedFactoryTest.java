@@ -4,6 +4,7 @@ import net.hasor.dbvisitor.faker.seed.enums.EnumSeedConfig;
 import net.hasor.dbvisitor.faker.seed.enums.EnumSeedFactory;
 import org.junit.Test;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.function.Supplier;
@@ -17,7 +18,7 @@ public class EnumSeedFactoryTest {
         genConfig.setDict(new HashSet<>(Arrays.asList("One", "Two", "Three", "Four", "Five")));
         genConfig.setAllowNullable(false);
 
-        Supplier<String> enumSupplier = factory.createSeed(genConfig);
+        Supplier<Serializable> enumSupplier = factory.createSeed(genConfig);
 
         for (int i = 0; i < 10; i++) {
             System.out.println(enumSupplier.get());
@@ -31,7 +32,7 @@ public class EnumSeedFactoryTest {
         genConfig.setDict(new HashSet<>(Arrays.asList("One", "Two", "Three", "Four", "Five")));
         genConfig.setAllowNullable(true);
 
-        Supplier<String> enumSupplier = factory.createSeed(genConfig);
+        Supplier<Serializable> enumSupplier = factory.createSeed(genConfig);
 
         for (int i = 0; i < 10; i++) {
             System.out.println("val :" + enumSupplier.get());
@@ -46,7 +47,7 @@ public class EnumSeedFactoryTest {
         genConfig.setAllowNullable(true);
         genConfig.setNullableRatio(50.0f);
 
-        Supplier<String> enumSupplier = factory.createSeed(genConfig);
+        Supplier<Serializable> enumSupplier = factory.createSeed(genConfig);
 
         for (int i = 0; i < 10; i++) {
             System.out.println("val :" + enumSupplier.get());

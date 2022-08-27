@@ -27,7 +27,10 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -550,13 +553,7 @@ public class JdbcFetchMetaProvider {
         }
         jdbcColumn.setNullableType(JdbcNullableType.valueOfCode(safeToInteger(rs.get("NULLABLE"))));
         jdbcColumn.setColumnType(safeToString(rs.get("TYPE_NAME")));
-        jdbcColumn.setJdbcNumber(safeToInteger(rs.get("DATA_TYPE")));
-        JDBCType jdbcType = null;
-        try {
-            jdbcType = JDBCType.valueOf(safeToInteger(rs.get("DATA_TYPE")));
-        } catch (Exception e) { /**/ }
-        jdbcColumn.setJdbcType(jdbcType);
-        jdbcColumn.setSqlType(JdbcSqlTypes.valueOfCode(jdbcColumn.getJdbcNumber()));
+        jdbcColumn.setJdbcType(safeToInteger(rs.get("DATA_TYPE")));
         //
         jdbcColumn.setColumnSize(safeToInteger(rs.get("COLUMN_SIZE")));
         jdbcColumn.setComment(safeToString(rs.get("REMARKS")));

@@ -7,6 +7,7 @@ import net.hasor.dbvisitor.faker.seed.string.StringSeedConfig;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedFactory;
 import org.junit.Test;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -94,7 +95,7 @@ public class StringSeedFactoryTest {
         genConfig.setAllowNullable(false);
         genConfig.setCharacterSet(new HashSet<>(Arrays.asList(CharacterSet.LETTER_CAPITAL, CharacterSet.NUMBER_DEC)));
 
-        Supplier<String> stringSupplier = factory.createSeed(genConfig);
+        Supplier<Serializable> stringSupplier = factory.createSeed(genConfig);
         for (int i = 0; i < 10; i++) {
             System.out.println(stringSupplier.get());
         }
@@ -109,7 +110,7 @@ public class StringSeedFactoryTest {
         genConfig.setAllowNullable(false);
         genConfig.setCharacterSet(new HashSet<>(Collections.singletonList(CharacterSet.NUMBER_HEX)));
 
-        Supplier<String> stringSupplier = factory.createSeed(genConfig);
+        Supplier<Serializable> stringSupplier = factory.createSeed(genConfig);
         for (int i = 0; i < 10; i++) {
             System.out.println(stringSupplier.get());
         }
@@ -126,7 +127,7 @@ public class StringSeedFactoryTest {
         genConfig.setNullableRatio(20.0f);
         genConfig.setCharacterSet(new HashSet<>(Arrays.asList(CharacterSet.NUMBER_HEX)));
 
-        Supplier<String> stringSupplier = factory.createSeed(genConfig);
+        Supplier<Serializable> stringSupplier = factory.createSeed(genConfig);
         for (int i = 0; i < 10; i++) {
             System.out.println(stringSupplier.get());
         }
@@ -143,7 +144,7 @@ public class StringSeedFactoryTest {
         genConfig.setNullableRatio(20.0f);
         genConfig.setCharacterSet(new HashSet<>(Arrays.asList(CharacterSet.CJK_UNIFIED_IDEOGRAPHS)));
 
-        Supplier<String> stringSupplier = factory.createSeed(genConfig);
+        Supplier<Serializable> stringSupplier = factory.createSeed(genConfig);
         for (int i = 0; i < 10; i++) {
             System.out.println(stringSupplier.get());
         }

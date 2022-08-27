@@ -54,4 +54,13 @@ public @interface Column {
 
     /** (选填)参与新增（在配置了 @Table 注解时，通过 net.hasor.db.lambda.LambdaOperations 接口操作才有效） */
     boolean insert() default true;
+
+    /** (选填)用作 insert 语句时 value 的参数写法，默认是 ? */
+    String insertTemplate() default "?";
+
+    /** (选填)用作 update set 语句时 value 的参数写法，默认是 ? */
+    String setTemplate() default "?";
+
+    /** (选填)用作 update/delete 的 where 语句时 value 的参数写法，默认是 ? */
+    String whereTemplate() default "?";
 }

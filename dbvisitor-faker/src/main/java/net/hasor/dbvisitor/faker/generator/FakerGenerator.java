@@ -137,8 +137,8 @@ public class FakerGenerator {
 
     public FakerTable findTable(String catalog, String schema, String table) {
         return this.generatorTables.stream().filter(fakerTable -> {
-            return StringUtils.equals(fakerTable.getCatalog(), catalog) &&  //
-                    StringUtils.equals(fakerTable.getSchema(), schema) &&   //
+            return StringUtils.equals(fakerTable.getCatalog(), catalog) && //
+                    StringUtils.equals(fakerTable.getSchema(), schema) && //
                     StringUtils.equals(fakerTable.getTable(), table);
         }).findFirst().orElse(null);
     }

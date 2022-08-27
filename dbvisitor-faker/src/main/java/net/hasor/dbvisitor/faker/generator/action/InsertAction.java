@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.generator.action;
-
 import net.hasor.cobble.RandomUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.OpsType;
@@ -97,7 +96,7 @@ public class InsertAction extends AbstractAction {
             }
             String colName = colInfo.getColumn();
             columns.append(this.dialect.columnName(this.useQualifier, catalog, schema, table, colName));
-            values.append("?");
+            values.append(colInfo.getInsertTemplate());
         }
 
         StringBuilder builder = new StringBuilder();

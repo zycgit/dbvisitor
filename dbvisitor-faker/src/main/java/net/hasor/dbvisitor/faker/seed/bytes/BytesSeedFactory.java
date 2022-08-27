@@ -14,46 +14,44 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.bytes;
-
-import net.hasor.cobble.RandomUtils;
-import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 
+import java.io.Serializable;
 import java.util.function.Supplier;
+
+import static net.hasor.dbvisitor.faker.FakerRandomUtils.*;
 
 /**
  * byte[] 类型的 SeedFactory
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class BytesSeedFactory implements SeedFactory<BytesSeedConfig, byte[]> {
+public class BytesSeedFactory implements SeedFactory<BytesSeedConfig> {
     @Override
-    public SeedConfig newConfig() {
+    public BytesSeedConfig newConfig() {
         return new BytesSeedConfig();
     }
 
     @Override
-    public Supplier<byte[]> createSeed(BytesSeedConfig seedConfig) {
+    public Supplier<Serializable> createSeed(BytesSeedConfig seedConfig) {
         int maxLength = seedConfig.getMaxLength();
         int minLength = seedConfig.getMinLength();
 
         boolean allowNullable = seedConfig.isAllowNullable();
         Float nullableRatio = seedConfig.getNullableRatio();
-
         if (allowNullable && nullableRatio == null) {
             throw new IllegalStateException("allowNullable is true but, nullableRatio missing.");
         }
 
         return () -> {
             if (allowNullable) {
-                if (RandomUtils.nextFloat(0, 100) < nullableRatio) {
+                if (nextFloat(0, 100) < nullableRatio) {
                     return null;
                 }
             }
 
-            int length = RandomUtils.nextInt(minLength, maxLength);
-            return RandomUtils.nextBytes(length);
+            int length = nextInt(minLength, maxLength + 1);
+            return nextBytes(length);
         };
     }
-
 }

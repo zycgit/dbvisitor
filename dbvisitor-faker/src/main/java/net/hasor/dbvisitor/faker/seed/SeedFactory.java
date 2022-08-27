@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed;
-
+import java.io.Serializable;
 import java.util.function.Supplier;
 
 /**
@@ -22,8 +22,8 @@ import java.util.function.Supplier;
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface SeedFactory<C extends SeedConfig, V> {
-    Supplier<V> createSeed(C seedConfig);
+public interface SeedFactory<C extends SeedConfig> {
+    Supplier<Serializable> createSeed(C seedConfig);
 
     SeedConfig newConfig();
 }
