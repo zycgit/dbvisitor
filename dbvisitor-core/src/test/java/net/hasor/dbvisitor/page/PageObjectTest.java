@@ -188,20 +188,20 @@ public class PageObjectTest {
         Map<String, Object> pageInfo = page.toPageInfo();
         //
         assert pageInfo.get("enable").equals(true);
-        assert pageInfo.get("pageSize").equals(4);
-        assert pageInfo.get("totalCount").equals(15);
-        assert pageInfo.get("totalPage").equals(4);
-        assert pageInfo.get("currentPage").equals(6);
-        assert pageInfo.get("recordPosition").equals(24);
+        assert pageInfo.get("pageSize").equals(4L);
+        assert pageInfo.get("totalCount").equals(15L);
+        assert pageInfo.get("totalPage").equals(4L);
+        assert pageInfo.get("currentPage").equals(6L);
+        assert pageInfo.get("recordPosition").equals(24L);
         //
         page.setPageNumberOffset(2);
         pageInfo = page.toPageInfo();
         assert pageInfo.get("enable").equals(true);
-        assert pageInfo.get("pageSize").equals(4);
-        assert pageInfo.get("totalCount").equals(15);
-        assert pageInfo.get("totalPage").equals(6);// 4+2
-        assert pageInfo.get("currentPage").equals(8);// 6(CurrentPage) +2
-        assert pageInfo.get("recordPosition").equals(24);
+        assert pageInfo.get("pageSize").equals(4L);
+        assert pageInfo.get("totalCount").equals(15L);
+        assert pageInfo.get("totalPage").equals(6L);// 4+2
+        assert pageInfo.get("currentPage").equals(8L);// 6(CurrentPage) +2
+        assert pageInfo.get("recordPosition").equals(24L);
     }
 
     @Test
@@ -211,19 +211,19 @@ public class PageObjectTest {
         Map<String, Object> pageInfo = page.toPageInfo();
         //
         assert pageInfo.get("enable").equals(false);
-        assert pageInfo.get("pageSize").equals(0);
-        assert pageInfo.get("totalCount").equals(15);
-        assert pageInfo.get("totalPage").equals(1);
-        assert pageInfo.get("currentPage").equals(0);
-        assert pageInfo.get("recordPosition").equals(0);
+        assert pageInfo.get("pageSize").equals(0L);
+        assert pageInfo.get("totalCount").equals(15L);
+        assert pageInfo.get("totalPage").equals(1L);
+        assert pageInfo.get("currentPage").equals(0L);
+        assert pageInfo.get("recordPosition").equals(0L);
         //
         page.setPageNumberOffset(2);
         pageInfo = page.toPageInfo();
         assert pageInfo.get("enable").equals(false);
-        assert pageInfo.get("pageSize").equals(0);
-        assert pageInfo.get("totalCount").equals(15);
-        assert pageInfo.get("totalPage").equals(3);
-        assert pageInfo.get("currentPage").equals(2);
-        assert pageInfo.get("recordPosition").equals(0);
+        assert pageInfo.get("pageSize").equals(0L);
+        assert pageInfo.get("totalCount").equals(15L);
+        assert pageInfo.get("totalPage").equals(3L);
+        assert pageInfo.get("currentPage").equals(2L);
+        assert pageInfo.get("recordPosition").equals(0L);
     }
 }

@@ -32,14 +32,20 @@ public class ColumnDef implements ColumnMapping {
     private final boolean        insert;
     private final boolean        update;
     private final boolean        primary;
+    //
     private final String         insertTemplate;
-    private final String         setTemplate;
-    private final String         whereTemplate;
+    private final String         setValueTemplate;
+    private final String         whereColTemplate;
+    private final String         whereValueTemplate;
+
+    public ColumnDef(String columnName, String propertyName, Integer jdbcType, Class<?> javaType, TypeHandler<?> typeHandler, Property mapHandler, boolean insert, boolean update, boolean primary) {
+        this(columnName, propertyName, jdbcType, javaType, typeHandler, mapHandler, insert, update, primary, "?", "?", "", "?");
+    }
 
     public ColumnDef(String columnName, String propertyName, Integer jdbcType, Class<?> javaType,//
             TypeHandler<?> typeHandler, Property handler, //
             boolean insert, boolean update, boolean primary,//
-            String insertTemplate, String setTemplate, String whereTemplate) {
+            String insertTemplate, String setValueTemplate, String whereColTemplate, String whereValueTemplate) {
         this.columnName = columnName;
         this.propertyName = propertyName;
         this.jdbcType = jdbcType;
@@ -50,8 +56,9 @@ public class ColumnDef implements ColumnMapping {
         this.update = update;
         this.primary = primary;
         this.insertTemplate = insertTemplate;
-        this.setTemplate = setTemplate;
-        this.whereTemplate = whereTemplate;
+        this.setValueTemplate = setValueTemplate;
+        this.whereColTemplate = whereColTemplate.replace("{name}", this.columnName);
+        this.whereValueTemplate = whereValueTemplate;
     }
 
     @Override
@@ -93,18 +100,23 @@ public class ColumnDef implements ColumnMapping {
     }
 
     @Override
-    public String getInsertValueTemplate() {
-        return this.insertTemplate;
+    public String getInsertTemplate() {
+        return insertTemplate;
     }
 
     @Override
     public String getSetValueTemplate() {
-        return this.setTemplate;
+        return setValueTemplate;
+    }
+
+    @Override
+    public String getWhereColTemplate() {
+        return whereColTemplate;
     }
 
     @Override
     public String getWhereValueTemplate() {
-        return this.whereTemplate;
+        return whereValueTemplate;
     }
 
     @Override

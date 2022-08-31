@@ -65,22 +65,22 @@ public class DsUtils {
         jdbcTemplate.execute((ConnectionCallback<Object>) con -> {
             try {
                 jdbcTemplate.executeUpdate("drop table tb_user");
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             try {
                 jdbcTemplate.executeUpdate("drop table tb_h2types");
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             return null;
         });
         //
         try {
             jdbcTemplate.loadSQL("net_hasor_db/tb_user_for_h2.sql");
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         try {
             jdbcTemplate.loadSQL("net_hasor_db/all_types/tb_h2_types.sql");
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 
@@ -93,8 +93,6 @@ public class DsUtils {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         DsUtils.initDB(jdbcTemplate);
         if (initData) {
-            jdbcTemplate.execute("delete from tb_user");
-            jdbcTemplate.execute("delete from tb_h2_types");
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());

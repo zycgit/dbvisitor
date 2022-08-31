@@ -169,7 +169,7 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
             ColumnMapping mapping = allowUpdateProperties.get(propertyName);
             String columnName = dialect.columnName(isQualifier(), catalogName, schemaName, tableName, mapping.getColumn());
             Object columnValue = updateValueMap.get(propertyName);
-            updateTemplate.addSegment(() -> columnName, EQ, formatSegment(columnValue));
+            updateTemplate.addSegment(() -> columnName, EQ, formatSegment(mapping.getSetValueTemplate(), columnValue));
         }
 
         // WHERE

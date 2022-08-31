@@ -62,7 +62,7 @@ public class SqlServerTypeSrwFactory extends DefaultTypeSrwFactory {
         if (StringUtils.isBlank(columnType)) {
             return defaultSeedFactory(jdbcColumn);
         }
-        switch (columnType) {
+        switch (columnType.toLowerCase()) {
             case "bit": {
                 // 1,0,NULL.
                 BooleanSeedFactory seedFactory = new BooleanSeedFactory();
@@ -132,7 +132,7 @@ public class SqlServerTypeSrwFactory extends DefaultTypeSrwFactory {
                 seedConfig.setNumberType(NumberType.Double);
                 seedConfig.setMin(new BigDecimal("2.23E-308"));
                 seedConfig.setMax(new BigDecimal("1.79E+308"));
-                return new TypeSrw(seedFactory, seedConfig, Types.DECIMAL);
+                return new TypeSrw(seedFactory, seedConfig, Types.FLOAT);
             }
             case "real": {
                 // -3.40E+38 to -1.18E-38, 0 and 1.18E-38 to 3.40E+38
@@ -208,7 +208,6 @@ public class SqlServerTypeSrwFactory extends DefaultTypeSrwFactory {
                 seedConfig.setPrecision(Math.max(p, 0));
                 seedConfig.setRangeForm("00:00:00.0000000");
                 seedConfig.setRangeTo("23:59:59.9999999");
-                //columnConfig.addValue(FakerConfigEnum.WHERE_COL_TEMPLATE.getConfigKey(), "cast({name} as datetime2(7))");
                 return new TypeSrw(seedFactory, seedConfig, Types.TIME);
             }
             case "smalldatetime": {

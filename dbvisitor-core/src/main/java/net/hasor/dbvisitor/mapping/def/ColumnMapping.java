@@ -48,9 +48,11 @@ public interface ColumnMapping {
     /** 参与新增 */
     boolean isInsert();
 
-    String getInsertValueTemplate();
+    String getInsertTemplate();
 
     String getSetValueTemplate();
+
+    String getWhereColTemplate();
 
     String getWhereValueTemplate();
 }

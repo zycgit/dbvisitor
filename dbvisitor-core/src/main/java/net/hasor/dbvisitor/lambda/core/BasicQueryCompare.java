@@ -21,6 +21,7 @@ import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.lambda.segment.Segment;
+import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 import java.util.*;
@@ -73,7 +74,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
         this.queryTemplate.addSegment(() -> {
             if (args != null && args.length > 0) {
                 for (Object arg : args) {
-                    format(arg);
+                    format(null, arg);
                 }
             }
             return sqlString;
@@ -106,22 +107,28 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
         return this.getSelf();
     }
 
-    protected Segment formatLikeValue(SqlLike like, Object param) {
+    protected Segment formatLikeValue(String property, SqlLike like, Object param) {
+        ColumnMapping mapping = this.getTableMapping().getPropertyByName(property);
+        String whereValueTemplate = mapping.getWhereValueTemplate();
+
         return () -> {
-            format(param);
+            format(whereValueTemplate, param);
             return ((ConditionSqlDialect) this.dialect()).like(like, param);
         };
     }
 
-    protected Segment formatValue(Object... params) {
+    protected Segment formatValue(String property, Object... params) {
         if (ArrayUtils.isEmpty(params)) {
             return () -> "";
         }
 
+        ColumnMapping mapping = this.getTableMapping().getPropertyByName(property);
+        String whereValueTemplate = mapping.getWhereValueTemplate();
+
         MergeSqlSegment mergeSqlSegment = new MergeSqlSegment();
         Iterator<Object> iterator = Arrays.asList(params).iterator();
         while (iterator.hasNext()) {
-            mergeSqlSegment.addSegment(formatSegment(iterator.next()));
+            mergeSqlSegment.addSegment(formatSegment(whereValueTemplate, iterator.next()));
             if (iterator.hasNext()) {
                 mergeSqlSegment.addSegment(() -> ",");
             }
@@ -129,102 +136,118 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
         return mergeSqlSegment;
     }
 
-    protected Segment formatSegment(Object param) {
-        return () -> format(param);
+    protected Segment formatSegment(String argTemp, Object param) {
+        return () -> format(argTemp, param);
     }
 
-    protected String format(Object param) {
+    private String format(String argTemp, Object param) {
         this.queryParam.add(param);
-        return "?";
+        return (StringUtils.isBlank(argTemp) || "?".equals(argTemp)) ? "?" : argTemp;
     }
 
     @Override
     public R eq(P property, Object value) {
-        return this.addCondition(buildColumnByLambda(property), EQ, formatValue(value));
+        String propertyName = getPropertyName(property);
+        return this.addCondition(buildConditionByProperty(true, propertyName), EQ, formatValue(propertyName, value));
     }
 
     @Override
     public R ne(P property, Object value) {
-        return this.addCondition(buildColumnByLambda(property), NE, formatValue(value));
+        String propertyName = getPropertyName(property);
+        return this.addCondition(buildConditionByProperty(true, propertyName), NE, formatValue(propertyName, value));
     }
 
     @Override
     public R gt(P property, Object value) {
-        return this.addCondition(buildColumnByLambda(property), GT, formatValue(value));
+        String propertyName = getPropertyName(property);
+        return this.addCondition(buildConditionByProperty(true, propertyName), GT, formatValue(propertyName, value));
     }
 
     @Override
     public R ge(P property, Object value) {
-        return this.addCondition(buildColumnByLambda(property), GE, formatValue(value));
+        String propertyName = getPropertyName(property);
+        return this.addCondition(buildConditionByProperty(true, propertyName), GE, formatValue(propertyName, value));
     }
 
     @Override
     public R lt(P property, Object value) {
-        return this.addCondition(buildColumnByLambda(property), LT, formatValue(value));
+        String propertyName = getPropertyName(property);
+        return this.addCondition(buildConditionByProperty(true, propertyName), LT, formatValue(propertyName, value));
     }
 
     @Override
     public R le(P property, Object value) {
-        return this.addCondition(buildColumnByLambda(property), LE, formatValue(value));
+        String propertyName = getPropertyName(property);
+        return this.addCondition(buildConditionByProperty(true, propertyName), LE, formatValue(propertyName, value));
     }
 
     @Override
     public R like(P property, Object value) {
-        return this.addCondition(buildColumnByLambda(property), LIKE, formatLikeValue(SqlLike.DEFAULT, value));
+        String propertyName = getPropertyName(property);
+        return this.addCondition(buildConditionByProperty(true, propertyName), LIKE, formatLikeValue(propertyName, SqlLike.DEFAULT, value));
     }
 
     @Override
     public R notLike(P property, Object value) {
-        return this.addCondition(buildColumnByLambda(property), NOT, LIKE, formatLikeValue(SqlLike.DEFAULT, value));
+        String propertyName = getPropertyName(property);
+        return this.addCondition(buildConditionByProperty(true, propertyName), NOT, LIKE, formatLikeValue(propertyName, SqlLike.DEFAULT, value));
     }
 
     @Override
     public R likeRight(P property, Object value) {
-        return this.addCondition(buildColumnByLambda(property), LIKE, formatLikeValue(SqlLike.RIGHT, value));
+        String propertyName = getPropertyName(property);
+        return this.addCondition(buildConditionByProperty(true, propertyName), LIKE, formatLikeValue(propertyName, SqlLike.RIGHT, value));
     }
 
     @Override
     public R notLikeRight(P property, Object value) {
-        return this.addCondition(buildColumnByLambda(property), NOT, LIKE, formatLikeValue(SqlLike.RIGHT, value));
+        String propertyName = getPropertyName(property);
+        return this.addCondition(buildConditionByProperty(true, propertyName), NOT, LIKE, formatLikeValue(propertyName, SqlLike.RIGHT, value));
     }
 
     @Override
     public R likeLeft(P property, Object value) {
-        return this.addCondition(buildColumnByLambda(property), LIKE, formatLikeValue(SqlLike.LEFT, value));
+        String propertyName = getPropertyName(property);
+        return this.addCondition(buildConditionByProperty(true, propertyName), LIKE, formatLikeValue(propertyName, SqlLike.LEFT, value));
     }
 
     @Override
     public R notLikeLeft(P property, Object value) {
-        return this.addCondition(buildColumnByLambda(property), NOT, LIKE, formatLikeValue(SqlLike.LEFT, value));
+        String propertyName = getPropertyName(property);
+        return this.addCondition(buildConditionByProperty(true, propertyName), NOT, LIKE, formatLikeValue(propertyName, SqlLike.LEFT, value));
     }
 
     @Override
     public R isNull(P property) {
-        return this.addCondition(buildColumnByLambda(property), IS_NULL);
+        return this.addCondition(buildConditionByProperty(true, getPropertyName(property)), IS_NULL);
     }
 
     @Override
     public R isNotNull(P property) {
-        return this.addCondition(buildColumnByLambda(property), IS_NOT_NULL);
+        return this.addCondition(buildConditionByProperty(true, getPropertyName(property)), IS_NOT_NULL);
     }
 
     @Override
     public R in(P property, Collection<?> value) {
-        return this.addCondition(buildColumnByLambda(property), IN, LEFT, formatValue(value.toArray()), RIGHT);
+        String propertyName = getPropertyName(property);
+        return this.addCondition(buildConditionByProperty(true, propertyName), IN, LEFT, formatValue(propertyName, value.toArray()), RIGHT);
     }
 
     @Override
     public R notIn(P property, Collection<?> value) {
-        return this.addCondition(buildColumnByLambda(property), NOT, IN, LEFT, formatValue(value.toArray()), RIGHT);
+        String propertyName = getPropertyName(property);
+        return this.addCondition(buildConditionByProperty(true, propertyName), NOT, IN, LEFT, formatValue(propertyName, value.toArray()), RIGHT);
     }
 
     @Override
     public R between(P property, Object value1, Object value2) {
-        return this.addCondition(buildColumnByLambda(property), BETWEEN, formatValue(value1), AND, formatValue(value2));
+        String propertyName = getPropertyName(property);
+        return this.addCondition(buildConditionByProperty(true, propertyName), BETWEEN, formatValue(propertyName, value1), AND, formatValue(propertyName, value2));
     }
 
     @Override
     public R notBetween(P property, Object value1, Object value2) {
-        return this.addCondition(buildColumnByLambda(property), NOT, BETWEEN, formatValue(value1), AND, formatValue(value2));
+        String propertyName = getPropertyName(property);
+        return this.addCondition(buildConditionByProperty(true, propertyName), NOT, BETWEEN, formatValue(propertyName, value1), AND, formatValue(propertyName, value2));
     }
 }

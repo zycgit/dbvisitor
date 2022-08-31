@@ -57,10 +57,8 @@ public enum FakerConfigEnum {
 
     /** 用于 insert 语句的参数，默认是：? */
     INSERT_TEMPLATE("insertTemplate"),
-    /** 用于 update 语句的列名，默认是：{name} */
-    SET_COL_TEMPLATE("setColTemplate"),
     /** 用于 update 语句的参数，默认是：? */
-    SET_VALUE_TEMPLATE("setValueTemplate"),
+    SET_TEMPLATE("setTemplate"),
     /** 用于 update/delete 中 where 子语句的列名，默认是：{name} */
     WHERE_COL_TEMPLATE("whereColTemplate"),
     /** 用于 update/delete 中 where 子语句的参数，默认是：? */

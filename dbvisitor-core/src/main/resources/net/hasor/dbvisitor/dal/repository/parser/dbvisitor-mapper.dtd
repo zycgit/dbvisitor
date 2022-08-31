@@ -42,8 +42,9 @@
         jdbcType CDATA #IMPLIED
         typeHandler CDATA #IMPLIED
         insertTemplate CDATA #IMPLIED
-        setTemplate CDATA #IMPLIED
-        whereTemplate CDATA #IMPLIED
+        setValueTemplate CDATA #IMPLIED
+        whereColTemplate CDATA #IMPLIED
+        whereValueTemplate CDATA #IMPLIED
         >
 
 <!ELEMENT result EMPTY>
@@ -53,6 +54,10 @@
         column CDATA #REQUIRED
         jdbcType CDATA #IMPLIED
         typeHandler CDATA #IMPLIED
+        insertTemplate CDATA #IMPLIED
+        setValueTemplate CDATA #IMPLIED
+        whereColTemplate CDATA #IMPLIED
+        whereValueTemplate CDATA #IMPLIED
         >
 
 <!ELEMENT mapping EMPTY>
@@ -62,6 +67,10 @@
         column CDATA #REQUIRED
         jdbcType CDATA #IMPLIED
         typeHandler CDATA #IMPLIED
+        insertTemplate CDATA #IMPLIED
+        setValueTemplate CDATA #IMPLIED
+        whereColTemplate CDATA #IMPLIED
+        whereValueTemplate CDATA #IMPLIED
         >
 
 <!ELEMENT insert (#PCDATA | selectKey | include | trim | where | set | foreach | choose | if | bind)*>

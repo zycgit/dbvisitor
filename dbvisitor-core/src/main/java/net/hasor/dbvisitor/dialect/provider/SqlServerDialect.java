@@ -58,7 +58,7 @@ public class SqlServerDialect extends AbstractDialect implements PageSqlDialect 
         if (StringUtils.isNotBlank(schema)) {
             strBuilder.append(fmtName(useQualifier, schema));
             strBuilder.append(".");
-        } else {
+        } else if (StringUtils.isNotBlank(catalog)) {
             strBuilder.append("dbo.");
         }
 

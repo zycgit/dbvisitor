@@ -93,8 +93,9 @@
         <xs:attribute name="jdbcType"/>
         <xs:attribute name="typeHandler"/>
         <xs:attribute name="insertTemplate"/>
-        <xs:attribute name="setTemplate"/>
-        <xs:attribute name="whereTemplate"/>
+        <xs:attribute name="setValueTemplate"/>
+        <xs:attribute name="whereColTemplate"/>
+        <xs:attribute name="whereValueTemplate"/>
     </xs:complexType>
     <xs:element name="id" type="mapping_type"/>
     <xs:element name="result" type="mapping_type"/>

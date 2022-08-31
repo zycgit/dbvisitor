@@ -222,13 +222,14 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         strBuilder.append("(");
 
         StringBuilder argBuilder = new StringBuilder();
+        TableMapping<?> tableMapping = this.getTableMapping();
         for (int i = 0; i < columns.size(); i++) {
             if (i > 0) {
                 strBuilder.append(", ");
                 argBuilder.append(", ");
             }
             strBuilder.append(dialect.columnName(useQualifier, catalog, schema, table, columns.get(i)));
-            argBuilder.append("?");
+            argBuilder.append(tableMapping.getPropertyByColumn(columns.get(i)).getInsertTemplate());
         }
 
         strBuilder.append(") VALUES (");

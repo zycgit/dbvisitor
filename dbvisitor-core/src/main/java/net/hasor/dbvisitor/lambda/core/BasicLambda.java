@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
@@ -110,12 +111,7 @@ public abstract class BasicLambda<R, T, P> {
 
     protected abstract String getPropertyName(P property);
 
-    protected Segment buildColumnByLambda(P property) {
-        String propertyName = getPropertyName(property);
-        return buildColumnByProperty(propertyName);
-    }
-
-    protected Segment buildColumnByProperty(String propertyName) {
+    protected Segment buildConditionByProperty(boolean isWhere, String propertyName) {
         TableMapping<?> tableMapping = this.getTableMapping();
         String catalogName = tableMapping.getCatalog();
         String schemaName = tableMapping.getSchema();
@@ -128,7 +124,13 @@ public abstract class BasicLambda<R, T, P> {
         }
 
         String columnName = propertyInfo.getColumn();
-        return () -> dialect().columnName(isQualifier(), catalogName, schemaName, tableName, columnName);
+        String whereColTemplate = propertyInfo.getWhereColTemplate();
+
+        if (StringUtils.isNotBlank(whereColTemplate) && isWhere) {
+            return () -> whereColTemplate;
+        } else {
+            return () -> dialect().columnName(isQualifier(), catalogName, schemaName, tableName, columnName);
+        }
     }
 
     public final BoundSql getBoundSql() {

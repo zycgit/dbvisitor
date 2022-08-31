@@ -114,54 +114,37 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
             }
         }
 
-        String column;
-        Class<?> javaType;
-        int jdbcType;
-        TypeHandler<?> typeHandler;
-        boolean insert;
-        boolean update;
-        boolean primary;
-        String insertTemplate;
-        String setTemplate;
-        String whereTemplate;
-
         if (info != null) {
-            column = StringUtils.isNotBlank(info.name()) ? info.name() : info.value();
+            String column = StringUtils.isNotBlank(info.name()) ? info.name() : info.value();
             if (StringUtils.isBlank(column)) {
                 column = hump2Line(name, options.getMapUnderscoreToCamelCase());
             }
 
-            javaType = info.specialJavaType() == Object.class ? CLASS_MAPPING_MAP.getOrDefault(type, type) : info.specialJavaType();
+            Class<?> javaType = info.specialJavaType() == Object.class ? CLASS_MAPPING_MAP.getOrDefault(type, type) : info.specialJavaType();
 
-            jdbcType = info.jdbcType();
+            int jdbcType = info.jdbcType();
             if (info.jdbcType() == Types.JAVA_OBJECT) {
                 jdbcType = TypeHandlerRegistry.toSqlType(javaType);
             }
 
-            typeHandler = typeRegistry.getTypeHandler(javaType, jdbcType);
-            insert = info.insert();
-            update = info.update();
-            primary = info.primary();
-            insertTemplate = info.insertTemplate();
-            setTemplate = info.setTemplate();
-            whereTemplate = info.whereTemplate();
+            TypeHandler<?> typeHandler = typeRegistry.getTypeHandler(javaType, jdbcType);
+            boolean insert = info.insert();
+            boolean update = info.update();
+            boolean primary = info.primary();
+            String insertTemplate = info.insertTemplate();
+            String setValueTemplate = info.setValueTemplate();
+            String whereColTemplate = info.whereColTemplate();
+            String whereValueTemplate = info.whereValueTemplate();
+            tableDef.addMapping(new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler, insert, update, primary, insertTemplate, setValueTemplate, whereColTemplate, whereValueTemplate));
+
         } else if (tableDef.isAutoProperty()) {
 
-            column = hump2Line(name, options.getMapUnderscoreToCamelCase());
-            javaType = CLASS_MAPPING_MAP.getOrDefault(type, type);
-            jdbcType = TypeHandlerRegistry.toSqlType(javaType);
-            typeHandler = typeRegistry.getTypeHandler(javaType, jdbcType);
-            insert = true;
-            update = true;
-            primary = false;
-            insertTemplate = "?";
-            setTemplate = "?";
-            whereTemplate = "?";
-        } else {
-            return;
+            String column = hump2Line(name, options.getMapUnderscoreToCamelCase());
+            Class<?> javaType = CLASS_MAPPING_MAP.getOrDefault(type, type);
+            int jdbcType = TypeHandlerRegistry.toSqlType(javaType);
+            TypeHandler<?> typeHandler = typeRegistry.getTypeHandler(javaType, jdbcType);
+            tableDef.addMapping(new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler, true, true, false));
         }
-
-        tableDef.addMapping(new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler, insert, update, primary, insertTemplate, setTemplate, whereTemplate));
     }
 
     private String hump2Line(String str, Boolean mapUnderscoreToCamelCase) {

@@ -126,8 +126,9 @@ public class XmlTableMappingResolve implements TableMappingResolve<Node> {
         Node jdbcTypeNode = nodeAttributes.getNamedItem("jdbcType");
         Node typeHandlerNode = nodeAttributes.getNamedItem("typeHandler");
         Node insertTemplateNode = nodeAttributes.getNamedItem("insertTemplate");
-        Node setTemplateNode = nodeAttributes.getNamedItem("setTemplate");
-        Node whereTemplateNode = nodeAttributes.getNamedItem("whereTemplate");
+        Node setValueTemplateNode = nodeAttributes.getNamedItem("setValueTemplate");
+        Node whereColTemplateNode = nodeAttributes.getNamedItem("whereColTemplate");
+        Node whereValueTemplateNode = nodeAttributes.getNamedItem("whereValueTemplate");
 
         String column = (columnNode != null) ? columnNode.getNodeValue() : null;
         String property = (propertyNode != null) ? propertyNode.getNodeValue() : null;
@@ -138,8 +139,9 @@ public class XmlTableMappingResolve implements TableMappingResolve<Node> {
             throw new IllegalStateException("property '" + property + "' undefined.");
         }
         String insertTemplate = (insertTemplateNode != null) ? insertTemplateNode.getNodeValue() : "?";
-        String setTemplate = (setTemplateNode != null) ? setTemplateNode.getNodeValue() : "?";
-        String whereTemplate = (whereTemplateNode != null) ? whereTemplateNode.getNodeValue() : "?";
+        String setValueTemplate = (setValueTemplateNode != null) ? setValueTemplateNode.getNodeValue() : "?";
+        String whereColTemplate = (whereColTemplateNode != null) ? whereColTemplateNode.getNodeValue() : "";
+        String whereValueTemplate = (whereValueTemplateNode != null) ? whereValueTemplateNode.getNodeValue() : "?";
 
         Property propertyHandler = propertyMap.get(property);
         Class<?> columnJavaType = resolveJavaType(javaType, propertyHandler, classLoader);
@@ -148,7 +150,7 @@ public class XmlTableMappingResolve implements TableMappingResolve<Node> {
         boolean insert = true; // always is true
         boolean update = true; // always is true
 
-        return new ColumnDef(column, property, columnJdbcType, columnJavaType, columnTypeHandler, propertyHandler, insert, update, asPrimaryKey, insertTemplate, setTemplate, whereTemplate);
+        return new ColumnDef(column, property, columnJdbcType, columnJavaType, columnTypeHandler, propertyHandler, insert, update, asPrimaryKey, insertTemplate, setValueTemplate, whereColTemplate, whereValueTemplate);
     }
 
     private static Class<?> resolveJavaType(String javaType, Property property, ClassLoader classLoader) throws ClassNotFoundException {

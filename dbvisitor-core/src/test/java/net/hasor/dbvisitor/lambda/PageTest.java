@@ -42,8 +42,8 @@ public class PageTest extends AbstractDbTest {
                 .initPage(10, 2)//
                 .getBoundSql(SqlDialectRegister.findOrCreate(JdbcUtils.MYSQL));
         assert boundSql.getSqlString().equals("SELECT loginName FROM tb_user LIMIT ?, ?");
-        assert boundSql.getArgs()[0].equals(20);
-        assert boundSql.getArgs()[1].equals(10);
+        assert boundSql.getArgs()[0].equals(20L);
+        assert boundSql.getArgs()[1].equals(10L);
     }
 
     @Test
@@ -57,8 +57,8 @@ public class PageTest extends AbstractDbTest {
         assert boundSql.getArgs()[0].equals(1);
         assert boundSql.getArgs()[1].equals(2);
         assert boundSql.getArgs()[2].equals(3);
-        assert boundSql.getArgs()[3].equals(20);
-        assert boundSql.getArgs()[4].equals(10);
+        assert boundSql.getArgs()[3].equals(20L);
+        assert boundSql.getArgs()[4].equals(10L);
     }
 
     @Test
@@ -66,13 +66,13 @@ public class PageTest extends AbstractDbTest {
         BoundSql boundSql1 = new LambdaTemplate().lambdaQuery(TbUser.class).select(TbUser::getAccount)//
                 .orderBy(TbUser::getUid).initPage(5, 0).getBoundSql(SqlDialectRegister.findOrCreate(JdbcUtils.MYSQL));
         assert boundSql1.getSqlString().equals("SELECT loginName FROM tb_user ORDER BY userUUID LIMIT ?");
-        assert boundSql1.getArgs()[0].equals(5);
+        assert boundSql1.getArgs()[0].equals(5L);
         //
         BoundSql boundSql2 = new LambdaTemplate().lambdaQuery(TbUser.class).select(TbUser::getAccount)//
                 .orderBy(TbUser::getUid).initPage(5, 1).getBoundSql(SqlDialectRegister.findOrCreate(JdbcUtils.MYSQL));
         assert boundSql2.getSqlString().equals("SELECT loginName FROM tb_user ORDER BY userUUID LIMIT ?, ?");
-        assert boundSql2.getArgs()[0].equals(5);
-        assert boundSql2.getArgs()[1].equals(5);
+        assert boundSql2.getArgs()[0].equals(5L);
+        assert boundSql2.getArgs()[1].equals(5L);
     }
 
     @Test
