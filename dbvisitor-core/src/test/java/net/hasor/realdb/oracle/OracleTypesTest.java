@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.realdb.oracle;
+package net.hasor.realdb.oracle;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.test.db.utils.DsUtils;
 import org.junit.Test;

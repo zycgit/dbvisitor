@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.realdb.pg;
+package net.hasor.realdb.pg;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import org.junit.Test;

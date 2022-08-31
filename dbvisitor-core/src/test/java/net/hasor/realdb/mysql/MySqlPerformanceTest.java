@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.realdb.mysql;
+package net.hasor.realdb.mysql;
 import net.hasor.dbvisitor.lambda.InsertOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.test.db.dto.TbUser;

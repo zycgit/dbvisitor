@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.realdb.oracle;
+package net.hasor.realdb.oracle;
 import net.hasor.dbvisitor.lambda.InsertOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.test.db.dto.TbUser;

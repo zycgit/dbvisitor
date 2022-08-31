@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.realdb.pg;
+package net.hasor.realdb.pg;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.Table;
 
