@@ -62,8 +62,6 @@
             <version>1.2.11</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- driver -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>

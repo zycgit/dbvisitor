@@ -74,7 +74,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
         this.queryTemplate.addSegment(() -> {
             if (args != null && args.length > 0) {
                 for (Object arg : args) {
-                    format(null, arg);
+                    format("?", arg);
                 }
             }
             return sqlString;
@@ -142,7 +142,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
 
     private String format(String argTemp, Object param) {
         this.queryParam.add(param);
-        return (StringUtils.isBlank(argTemp) || "?".equals(argTemp)) ? "?" : argTemp;
+        return argTemp;
     }
 
     @Override

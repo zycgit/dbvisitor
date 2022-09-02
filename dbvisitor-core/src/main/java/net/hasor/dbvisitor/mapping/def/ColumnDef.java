@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.def;
+import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.dbvisitor.types.TypeHandler;
 
@@ -55,10 +56,10 @@ public class ColumnDef implements ColumnMapping {
         this.insert = insert;
         this.update = update;
         this.primary = primary;
-        this.insertTemplate = insertTemplate;
-        this.setValueTemplate = setValueTemplate;
+        this.insertTemplate = (StringUtils.isBlank(insertTemplate) || "?".equals(insertTemplate)) ? "?" : insertTemplate;
+        this.setValueTemplate = (StringUtils.isBlank(setValueTemplate) || "?".equals(setValueTemplate)) ? "?" : setValueTemplate;
         this.whereColTemplate = whereColTemplate.replace("{name}", this.columnName);
-        this.whereValueTemplate = whereValueTemplate;
+        this.whereValueTemplate = (StringUtils.isBlank(whereValueTemplate) || "?".equals(whereValueTemplate)) ? "?" : whereValueTemplate;
     }
 
     @Override
