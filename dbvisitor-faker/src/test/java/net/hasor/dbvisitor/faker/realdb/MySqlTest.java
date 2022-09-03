@@ -10,7 +10,7 @@ import net.hasor.dbvisitor.faker.generator.SqlPolitic;
 import net.hasor.dbvisitor.faker.generator.loader.PrecociousDataLoaderFactory;
 import org.junit.Test;
 
-public class SqlServerTest {
+public class MySqlTest {
     @Test
     public void workloadTest() throws Exception {
         // 全局配置
@@ -27,15 +27,15 @@ public class SqlServerTest {
         //        fakerConfig.setOpsRatio("INSERT#30");
 
         // 生成器，配置表
-        FakerFactory factory = new FakerFactory(DsUtils.dsSqlServer(), fakerConfig);
+        FakerFactory factory = new FakerFactory(DsUtils.dsMySql(), fakerConfig);
         FakerGenerator generator = new FakerGenerator(factory);
-        FakerTable table = generator.addTable("tester", "dbo", "tb_sqlserver_types");
+        FakerTable table = generator.addTable("devtester", null, "tb_mysql_types");
         table.setInsertPolitic(SqlPolitic.FullCol);
 
         // 生成数据
         FakerEngine fakerEngine = new FakerEngine(factory);
-        fakerEngine.startProducer(generator, 1);
-        fakerEngine.startWriter(generator, 20);
+        fakerEngine.startProducer(generator, 4);
+        fakerEngine.startWriter(generator, 40);
 
         // 监控信息
         FakerMonitor monitor = fakerEngine.getMonitor();

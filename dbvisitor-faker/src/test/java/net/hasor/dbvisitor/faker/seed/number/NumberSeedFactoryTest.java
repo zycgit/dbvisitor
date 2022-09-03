@@ -1,8 +1,5 @@
-package net.hasor.dbvisitor.faker.seed;
+package net.hasor.dbvisitor.faker.seed.number;
 
-import net.hasor.dbvisitor.faker.seed.number.NumberSeedConfig;
-import net.hasor.dbvisitor.faker.seed.number.NumberSeedFactory;
-import net.hasor.dbvisitor.faker.seed.number.NumberType;
 import org.junit.Test;
 
 import java.io.Serializable;

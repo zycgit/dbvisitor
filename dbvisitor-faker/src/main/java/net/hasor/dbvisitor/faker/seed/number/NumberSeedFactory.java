@@ -39,8 +39,13 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig> {
         NumberType numberType = seedConfig.getNumberType();
 
         Integer precision = seedConfig.getPrecision();
-        Number min = fixNumber(seedConfig.getMin(), (numberType == NumberType.Decimal || numberType == NumberType.BigInt) ? null : 0);
-        Number max = fixNumber(seedConfig.getMax(), (numberType == NumberType.Decimal || numberType == NumberType.BigInt) ? null : 100);
+        Ratio<MinMax> minmax = seedConfig.getMinMax();
+        minmax.forEach(minMax -> {
+            BigDecimal min = fixNumber(minMax.getMin(), (numberType == NumberType.Decimal || numberType == NumberType.BigInt) ? null : BigDecimal.ZERO);
+            BigDecimal max = fixNumber(minMax.getMax(), (numberType == NumberType.Decimal || numberType == NumberType.BigInt) ? null : BigDecimal.valueOf(100));
+            minMax.setMin(min);
+            minMax.setMax(max);
+        });
 
         Integer scale = seedConfig.getScale();
         boolean abs = seedConfig.isAbs();
@@ -57,12 +62,12 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig> {
             } else if (precision != null) {
                 return toNumber(randomNumber(precision, scale, numberType), numberType, abs);
             } else {
-                return toNumber(randomNumber(min, max, scale, numberType), numberType, abs);
+                return toNumber(randomNumber(minmax, scale, numberType), numberType, abs);
             }
         };
     }
 
-    private Number fixNumber(BigDecimal decimal, Number defaultValue) {
+    private BigDecimal fixNumber(BigDecimal decimal, BigDecimal defaultValue) {
         if (decimal == null) {
             return defaultValue;
         } else {
@@ -70,7 +75,11 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig> {
         }
     }
 
-    private Number randomNumber(Number min, Number max, Integer scale, NumberType numberType) {
+    private Number randomNumber(Ratio<MinMax> minmax, Integer scale, NumberType numberType) {
+        MinMax mm = minmax.getByRandom();
+        Number min = mm.getMin();
+        Number max = mm.getMax();
+
         switch (numberType) {
             case Bool:
             case Byte:

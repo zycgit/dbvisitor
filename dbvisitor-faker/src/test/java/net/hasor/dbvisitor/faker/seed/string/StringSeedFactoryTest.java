@@ -1,10 +1,6 @@
-package net.hasor.dbvisitor.faker.seed;
+package net.hasor.dbvisitor.faker.seed.string;
 
 import net.hasor.cobble.RandomUtils;
-import net.hasor.dbvisitor.faker.seed.string.CharacterSet;
-import net.hasor.dbvisitor.faker.seed.string.Characters;
-import net.hasor.dbvisitor.faker.seed.string.StringSeedConfig;
-import net.hasor.dbvisitor.faker.seed.string.StringSeedFactory;
 import org.junit.Test;
 
 import java.io.Serializable;

@@ -1,7 +1,5 @@
-package net.hasor.dbvisitor.faker.seed;
+package net.hasor.dbvisitor.faker.seed.enums;
 
-import net.hasor.dbvisitor.faker.seed.enums.EnumSeedConfig;
-import net.hasor.dbvisitor.faker.seed.enums.EnumSeedFactory;
 import org.junit.Test;
 
 import java.io.Serializable;

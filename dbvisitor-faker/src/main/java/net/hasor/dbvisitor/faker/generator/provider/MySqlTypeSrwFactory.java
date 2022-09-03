@@ -18,18 +18,28 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.setting.SettingNode;
 import net.hasor.dbvisitor.faker.generator.TypeSrw;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
+import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedConfig;
+import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedFactory;
+import net.hasor.dbvisitor.faker.seed.custom.special.MySqlTimeSeedConfig;
+import net.hasor.dbvisitor.faker.seed.custom.special.MySqlTimeSeedFactory;
 import net.hasor.dbvisitor.faker.seed.date.DateSeedConfig;
 import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
 import net.hasor.dbvisitor.faker.seed.date.DateType;
 import net.hasor.dbvisitor.faker.seed.date.GenType;
+import net.hasor.dbvisitor.faker.seed.enums.EnumSeedConfig;
+import net.hasor.dbvisitor.faker.seed.enums.EnumSeedFactory;
 import net.hasor.dbvisitor.faker.seed.number.NumberSeedConfig;
 import net.hasor.dbvisitor.faker.seed.number.NumberSeedFactory;
 import net.hasor.dbvisitor.faker.seed.number.NumberType;
 import net.hasor.dbvisitor.faker.seed.string.CharacterSet;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedConfig;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedFactory;
+import net.hasor.dbvisitor.types.handler.BigDecimalTypeHandler;
+import net.hasor.dbvisitor.types.handler.StringTypeHandler;
 
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,17 +52,18 @@ import java.util.HashSet;
 public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
     @Override
     public TypeSrw createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
-        String columnType = jdbcColumn.getColumnType();
+        String columnType = jdbcColumn.getColumnType().toLowerCase();
         if (StringUtils.isBlank(columnType)) {
             return defaultSeedFactory(jdbcColumn);
         }
-        switch (columnType.toLowerCase()) {
+        switch (columnType) {
             case "bit": {
                 StringSeedFactory seedFactory = new StringSeedFactory();
                 StringSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setMinLength(0);
+                seedConfig.setMinLength(1);
                 seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 24, 64));
                 seedConfig.setCharacterSet(new HashSet<>(Collections.singletonList(CharacterSet.BIT)));
+                seedConfig.setTypeHandler(new MySqlBitAsStringTypeHandler());
                 return new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
             }
             case "tinyint": {
@@ -60,8 +71,7 @@ public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
-                seedConfig.setMin(new BigDecimal("-128"));
-                seedConfig.setMax(new BigDecimal("127"));
+                seedConfig.addMinMax(new BigDecimal("-128"), new BigDecimal("127"));
                 return new TypeSrw(seedFactory, seedConfig, Types.TINYINT);
             }
             case "tinyint unsigned": {
@@ -69,8 +79,7 @@ public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
-                seedConfig.setMin(new BigDecimal("0"));
-                seedConfig.setMax(new BigDecimal("255"));
+                seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("255"));
                 return new TypeSrw(seedFactory, seedConfig, Types.SMALLINT);
             }
             case "smallint": {
@@ -78,17 +87,15 @@ public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
-                seedConfig.setMin(new BigDecimal("-32768"));
-                seedConfig.setMax(new BigDecimal("+32767"));
+                seedConfig.addMinMax(new BigDecimal("-32768"), new BigDecimal("+32767"));
                 return new TypeSrw(seedFactory, seedConfig, Types.SMALLINT);
             }
             case "smallint unsigned": {
-                // -32768 to 32767
+                // 0 to 65535
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
-                seedConfig.setMin(new BigDecimal("0"));
-                seedConfig.setMax(new BigDecimal("65535"));
+                seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("65535"));
                 return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
             }
             case "mediumint": {
@@ -96,8 +103,7 @@ public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
-                seedConfig.setMin(new BigDecimal("-8388608"));
-                seedConfig.setMax(new BigDecimal("+8388607"));
+                seedConfig.addMinMax(new BigDecimal("-8388608"), new BigDecimal("+8388607"));
                 return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
             }
             case "mediumint unsigned": {
@@ -105,8 +111,7 @@ public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
-                seedConfig.setMin(new BigDecimal("0"));
-                seedConfig.setMax(new BigDecimal("16777215"));
+                seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("16777215"));
                 return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
             }
             case "int": {
@@ -114,8 +119,7 @@ public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
-                seedConfig.setMin(new BigDecimal("-2147483648"));
-                seedConfig.setMax(new BigDecimal("+2147483647"));
+                seedConfig.addMinMax(new BigDecimal("-2147483648"), new BigDecimal("+2147483647"));
                 return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
             }
             case "int unsigned": {
@@ -123,8 +127,7 @@ public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Long);
-                seedConfig.setMin(new BigDecimal("0"));
-                seedConfig.setMax(new BigDecimal("4294967295"));
+                seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("4294967295"));
                 return new TypeSrw(seedFactory, seedConfig, Types.BIGINT);
             }
             case "bigint": {
@@ -132,8 +135,7 @@ public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.BigInt);
-                seedConfig.setMin(new BigDecimal("-9223372036854775808"));
-                seedConfig.setMax(new BigDecimal("+9223372036854775807"));
+                seedConfig.addMinMax(new BigDecimal("-9223372036854775808"), new BigDecimal("+9223372036854775807"));
                 return new TypeSrw(seedFactory, seedConfig, Types.BIGINT);
             }
             case "bigint unsigned": {
@@ -141,52 +143,139 @@ public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.BigInt);
-                seedConfig.setMin(new BigDecimal("0"));
-                seedConfig.setMax(new BigDecimal("18446744073709551615"));
+                seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("18446744073709551615"));
                 return new TypeSrw(seedFactory, seedConfig, Types.BIGINT);
             }
             case "decimal":
-            case "decimal unsigned":
-            case "float": {
+            case "decimal unsigned": {
+                NumberSeedFactory seedFactory = new NumberSeedFactory();
+                NumberSeedConfig seedConfig = seedFactory.newConfig();
+                seedConfig.setNumberType(NumberType.Decimal);
+                seedConfig.setPrecision(jdbcColumn.getColumnSize());
+                seedConfig.setScale(jdbcColumn.getDecimalDigits());
+                seedConfig.setAbs(columnType.contains("unsigned"));
+                return new TypeSrw(seedFactory, seedConfig, Types.DECIMAL);
+            }
+            case "float":
+            case "float unsigned": {
                 // -3.402823466E+38 to -1.175494351E-38, 0, and 1.175494351E-38 to 3.402823466E+38
+                NumberSeedFactory seedFactory = new NumberSeedFactory();
+                NumberSeedConfig seedConfig = seedFactory.newConfig();
+                seedConfig.setNumberType(NumberType.Decimal);
+                seedConfig.addMinMax(10, new BigDecimal("-3.402823466E+38"), new BigDecimal("-1.175494351E-38"));
+                seedConfig.addMinMax(10, new BigDecimal("1.175494351E-38"), new BigDecimal("3.402823466E+38"));
+                seedConfig.addMinMax(30, new BigDecimal("-999999999.999999999"), new BigDecimal("+999999999.999999999"));
+                seedConfig.addMinMax(30, new BigDecimal("-0.999999999"), new BigDecimal("+0.999999999"));
+                seedConfig.setPrecision(jdbcColumn.getColumnSize());
+                seedConfig.setScale(jdbcColumn.getDecimalDigits());
+                seedConfig.setAbs(columnType.contains("unsigned"));
+                return new TypeSrw(seedFactory, seedConfig, Types.FLOAT);
             }
-            case "float unsigned":
-            case "double": {
+            case "double":
+            case "double unsigned": {
                 // -1.7976931348623157E+308 to -2.2250738585072014E-308, 0, and 2.2250738585072014E-308 to 1.7976931348623157E+308.
+                NumberSeedFactory seedFactory = new NumberSeedFactory();
+                NumberSeedConfig seedConfig = seedFactory.newConfig();
+                seedConfig.setNumberType(NumberType.Decimal);
+                seedConfig.addMinMax(10, new BigDecimal("-2.2250738585072014E-308"), new BigDecimal("-1.7976931348623157E+308"));
+                seedConfig.addMinMax(10, new BigDecimal("2.2250738585072014E-308"), new BigDecimal("1.7976931348623157E+308"));
+                seedConfig.addMinMax(30, new BigDecimal("-999999999.999999999"), new BigDecimal("+999999999.999999999"));
+                seedConfig.addMinMax(30, new BigDecimal("-0.999999999"), new BigDecimal("+0.999999999"));
+                seedConfig.setTypeHandler(new MySqlBigDecimalAsStringTypeHandler());
+                seedConfig.setAbs(columnType.contains("unsigned"));
+                seedConfig.setPrecision(jdbcColumn.getColumnSize());
+                seedConfig.setScale(jdbcColumn.getDecimalDigits());
+                return new TypeSrw(seedFactory, seedConfig, Types.FLOAT);
             }
-            case "double unsigned":
-            case "date":
-            case "datetime":
-            case "timestamp": {
+            case "date": {
+                // '1000-01-01' to '9999-12-31'
                 DateSeedFactory seedFactory = new DateSeedFactory();
                 DateSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setDateType(DateType.SqlTimestamp);
+                seedConfig.setDateType(DateType.String);
                 seedConfig.setGenType(GenType.Random);
-                int p = safeMaxLength(jdbcColumn.getDecimalDigits(), 3, 7);
-                seedConfig.setDateFormat("HH:mm:ss" + ((p > 0) ? ("." + StringUtils.repeat("S", p)) : ""));
+                seedConfig.setDateFormat("yyyy-MM-dd");
+                seedConfig.setRangeForm("1000-01-01");
+                seedConfig.setRangeTo("9999-12-31");
+                return new TypeSrw(seedFactory, seedConfig, Types.DATE);
+            }
+            case "datetime": {
+                // '1000-01-01 00:00:00.000000' to '9999-12-31 23:59:59.999999'
+                DateSeedFactory seedFactory = new DateSeedFactory();
+                DateSeedConfig seedConfig = seedFactory.newConfig();
+                seedConfig.setDateType(DateType.LocalDateTime);
+                seedConfig.setGenType(GenType.Random);
+                int p = safeMaxLength(jdbcColumn.getDecimalDigits(), 3, 6);
+                seedConfig.setDateFormat("yyyy-MM-dd HH:mm:ss" + ((p > 0) ? ("." + StringUtils.repeat("S", p)) : ""));
                 seedConfig.setPrecision(Math.max(p, 0));
-                seedConfig.setRangeForm("1970-01-01 00:00:01");
-                seedConfig.setRangeTo("2038-01-19 03:14:07");
-                seedConfig.setZoneForm("00:00");
-                seedConfig.setZoneTo("00:00");
+                seedConfig.setRangeForm("1000-01-01 00:00:00.000000");
+                seedConfig.setRangeTo("9999-12-31 23:59:59.999999");
                 return new TypeSrw(seedFactory, seedConfig, Types.TIMESTAMP);
             }
-            case "time":
-            case "year":
+            case "timestamp": {
+                // '1970-01-01 00:00:01.000000' UTC to '2038-01-19 03:14:07.999999'
+                DateSeedFactory seedFactory = new DateSeedFactory();
+                DateSeedConfig seedConfig = seedFactory.newConfig();
+                seedConfig.setDateType(DateType.LocalDateTime);
+                seedConfig.setGenType(GenType.Random);
+                int p = safeMaxLength(jdbcColumn.getDecimalDigits(), 3, 6);
+                seedConfig.setDateFormat("yyyy-MM-dd HH:mm:ss" + ((p > 0) ? ("." + StringUtils.repeat("S", p)) : ""));
+                seedConfig.setPrecision(Math.max(p, 0));
+                seedConfig.setRangeForm("1970-01-01 00:00:01.000000");
+                seedConfig.setRangeTo("2038-01-19 03:14:07.999999");
+                return new TypeSrw(seedFactory, seedConfig, Types.TIMESTAMP);
+            }
+            case "time": {
+                // '-838:59:59.000000' to '838:59:59.000000'
+                MySqlTimeSeedFactory seedFactory = new MySqlTimeSeedFactory();
+                MySqlTimeSeedConfig seedConfig = seedFactory.newConfig();
+                seedConfig.setGenType(GenType.Random);
+                int p = safeMaxLength(jdbcColumn.getDecimalDigits(), 3, 6);
+                seedConfig.setPrecision(Math.max(p, 0));
+                seedConfig.setRangeForm("-838:59:59.000000");
+                seedConfig.setRangeTo("838:59:59.000000");
+                return new TypeSrw(seedFactory, seedConfig, Types.TIME);
+            }
+            case "year": {
+                // 1901 to 2155, and 0000
+                NumberSeedFactory seedFactory = new NumberSeedFactory();
+                NumberSeedConfig seedConfig = seedFactory.newConfig();
+                seedConfig.setNumberType(NumberType.Integer);
+                seedConfig.addMinMax(10, BigDecimal.ZERO, BigDecimal.ZERO);
+                seedConfig.addMinMax(90, new BigDecimal("1901"), new BigDecimal("2155"));
+                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
+            }
             case "char":
             case "varchar":
             case "tinytext":
             case "text":
             case "mediumtext":
-            case "longtext":
+            case "longtext": {
+                StringSeedFactory seedFactory = new StringSeedFactory();
+                StringSeedConfig seedConfig = seedFactory.newConfig();
+                seedConfig.setMinLength(0);
+                seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 100, 1000));
+                seedConfig.setCharacterSet(new HashSet<>(Collections.singletonList(CharacterSet.LETTER_NUMBER)));
+                return new TypeSrw(seedFactory, seedConfig, Types.LONGVARCHAR);
+            }
             case "binary":
             case "varbinary":
             case "mediumblob":
             case "tinyblob":
             case "blob":
-            case "longblob":
+            case "longblob": {
+                BytesSeedFactory seedFactory = new BytesSeedFactory();
+                BytesSeedConfig seedConfig = seedFactory.newConfig();
+                seedConfig.setMinLength(0);
+                seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 100, 4096));
+                return new TypeSrw(seedFactory, seedConfig, Types.VARBINARY);
+            }
             case "enum":
-            case "set":
+            case "set": {
+                EnumSeedFactory seedFactory = new EnumSeedFactory();
+                EnumSeedConfig seedConfig = seedFactory.newConfig();
+                seedConfig.setDict(new HashSet<>());
+                return new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
+            }
             case "json":
             case "geometry":
             default: {
@@ -203,6 +292,20 @@ public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
             return maxNum;
         } else {
             return number;
+        }
+    }
+
+    private static class MySqlBigDecimalAsStringTypeHandler extends BigDecimalTypeHandler {
+        @Override
+        public void setNonNullParameter(PreparedStatement ps, int i, BigDecimal parameter, Integer jdbcType) throws SQLException {
+            ps.setString(i, parameter.toPlainString());
+        }
+    }
+
+    private static class MySqlBitAsStringTypeHandler extends StringTypeHandler {
+        @Override
+        public void setNonNullParameter(PreparedStatement ps, int i, String parameter, Integer jdbcType) throws SQLException {
+            ps.setInt(i, Integer.parseInt(parameter, 2));
         }
     }
 }

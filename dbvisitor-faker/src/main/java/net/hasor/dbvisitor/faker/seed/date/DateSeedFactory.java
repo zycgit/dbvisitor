@@ -136,7 +136,7 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig> {
         };
     }
 
-    protected static LocalDateTime passerDateTime(String dateStr, LocalDateTime defaultDate) {
+    protected LocalDateTime passerDateTime(String dateStr, LocalDateTime defaultDate) {
         if (StringUtils.isBlank(dateStr)) {
             return defaultDate;
         }
@@ -179,6 +179,7 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig> {
                     String[] dataParts = dataTime[0].split("-");
                     String[] timeParts = dataTime[1].split(":");
                     String[] secondParts = timeParts[2].split("\\.");
+                    secondParts[1] = StringUtils.rightPad(secondParts[1], 9, "0");
                     return LocalDateTime.of(toInt(dataParts[0]), toInt(dataParts[1]), toInt(dataParts[2]), toInt(timeParts[0]), toInt(timeParts[1]), toInt(secondParts[0]), toInt(secondParts[1]));
                 }
             }
@@ -196,6 +197,7 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig> {
                 default: {
                     String[] timeParts = dateStr.split(":");
                     String[] secondParts = timeParts[2].split("\\.");
+                    secondParts[1] = StringUtils.rightPad(secondParts[1], 9, "0");
                     return LocalDateTime.of(0, 1, 1, toInt(timeParts[0]), toInt(timeParts[1]), toInt(secondParts[0]), toInt(secondParts[1]));
                 }
             }
@@ -204,7 +206,7 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig> {
         }
     }
 
-    protected static ZoneOffset passerZoned(String zonedStr, ZoneOffset defaultValue) {
+    protected ZoneOffset passerZoned(String zonedStr, ZoneOffset defaultValue) {
         if (StringUtils.isNotBlank(zonedStr)) {
             return ZoneOffset.of(zonedStr);
         } else {
@@ -212,7 +214,7 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig> {
         }
     }
 
-    private static LocalDateTime nextNanoTime(LocalDateTime startTime, LocalDateTime endTime) {
+    protected LocalDateTime nextNanoTime(LocalDateTime startTime, LocalDateTime endTime) {
         Instant startInstant = startTime.toInstant(ZoneOffset.UTC);
         Instant endInstant = endTime.toInstant(ZoneOffset.UTC);
 
@@ -236,7 +238,7 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig> {
         return LocalDateTime.ofEpochSecond(timeParts[0].longValue(), timeParts[1].abs().intValue(), ZoneOffset.UTC);
     }
 
-    private static OffsetDateTime nextZonedTime(LocalDateTime dateTime, ZoneOffset startZoned, ZoneOffset endZoned) {
+    protected OffsetDateTime nextZonedTime(LocalDateTime dateTime, ZoneOffset startZoned, ZoneOffset endZoned) {
         int startZonedSec = ((startZoned == null) ? ZoneOffset.UTC : startZoned).getTotalSeconds();
         int endZonedSec = ((endZoned == null) ? ZoneOffset.UTC : endZoned).getTotalSeconds();
         int randomZoned = nextLong(BigInteger.valueOf(startZonedSec), BigInteger.valueOf(endZonedSec)).intValue();
@@ -245,7 +247,7 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig> {
         return OffsetDateTime.of(dateTime, ZoneOffset.UTC).withOffsetSameInstant(zoneOffset);
     }
 
-    private static OffsetDateTime nextInterval(OffsetDateTime startTime, int minInterval, int maxInterval, IntervalScope scope) {
+    protected OffsetDateTime nextInterval(OffsetDateTime startTime, int minInterval, int maxInterval, IntervalScope scope) {
         long interval = nextLong(BigInteger.valueOf(minInterval), BigInteger.valueOf(maxInterval)).intValue();
         switch (scope) {
             case Year:
@@ -273,11 +275,11 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig> {
         }
     }
 
-    private static int toInt(String intStr) {
+    protected static int toInt(String intStr) {
         return Integer.parseInt(intStr);
     }
 
-    private int fixInt(Integer decimal, int defaultValue) {
+    protected static int fixInt(Integer decimal, int defaultValue) {
         if (decimal == null) {
             return defaultValue;
         } else {
@@ -285,7 +287,7 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig> {
         }
     }
 
-    private static Serializable convertType(OffsetDateTime defaultValue, DateSeedConfig seedConfig) {
+    protected Serializable convertType(OffsetDateTime defaultValue, DateSeedConfig seedConfig) {
         Integer precisionOfSecond = seedConfig.getPrecision();
         if (precisionOfSecond == null || precisionOfSecond > 9) {
             precisionOfSecond = 9;

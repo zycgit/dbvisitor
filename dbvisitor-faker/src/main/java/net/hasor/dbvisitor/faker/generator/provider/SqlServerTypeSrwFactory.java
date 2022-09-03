@@ -37,6 +37,7 @@ import net.hasor.dbvisitor.faker.seed.number.NumberType;
 import net.hasor.dbvisitor.faker.seed.string.CharacterSet;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedConfig;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedFactory;
+import net.hasor.dbvisitor.types.handler.BigDecimalTypeHandler;
 import net.hasor.dbvisitor.types.handler.OffsetDateTimeForSqlTypeHandler;
 
 import java.math.BigDecimal;
@@ -74,8 +75,7 @@ public class SqlServerTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
-                seedConfig.setMin(new BigDecimal("0"));
-                seedConfig.setMax(new BigDecimal("255"));
+                seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("255"));
                 return new TypeSrw(seedFactory, seedConfig, Types.TINYINT);
             }
             case "smallint": {
@@ -83,8 +83,7 @@ public class SqlServerTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
-                seedConfig.setMin(new BigDecimal("-32768"));
-                seedConfig.setMax(new BigDecimal("+32767"));
+                seedConfig.addMinMax(new BigDecimal("-32768"), new BigDecimal("+32767"));
                 return new TypeSrw(seedFactory, seedConfig, Types.SMALLINT);
             }
             case "int": {
@@ -92,8 +91,7 @@ public class SqlServerTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
-                seedConfig.setMin(new BigDecimal("-2147483648"));
-                seedConfig.setMax(new BigDecimal("+2147483647"));
+                seedConfig.addMinMax(new BigDecimal("-2147483648"), new BigDecimal("+2147483647"));
                 return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
             }
             case "bigint": {
@@ -101,8 +99,7 @@ public class SqlServerTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Long);
-                seedConfig.setMin(new BigDecimal("-9223372036854775808"));
-                seedConfig.setMax(new BigDecimal("+9223372036854775807"));
+                seedConfig.addMinMax(new BigDecimal("-9223372036854775808"), new BigDecimal("+9223372036854775807"));
                 return new TypeSrw(seedFactory, seedConfig, Types.BIGINT);
             }
             case "smallmoney": {
@@ -110,8 +107,7 @@ public class SqlServerTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Float);
-                seedConfig.setMin(new BigDecimal("-214748.3648"));//
-                seedConfig.setMax(new BigDecimal("+214748.3647"));
+                seedConfig.addMinMax(new BigDecimal("-214748.3648"), new BigDecimal("+214748.3647"));
                 seedConfig.setScale(4);
                 return new TypeSrw(seedFactory, seedConfig, Types.FLOAT);
             }
@@ -120,8 +116,7 @@ public class SqlServerTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Double);
-                seedConfig.setMin(new BigDecimal("-922337203685477.5808"));
-                seedConfig.setMax(new BigDecimal("+922337203685477.5807"));
+                seedConfig.addMinMax(new BigDecimal("-922337203685477.5808"), new BigDecimal("+922337203685477.5807"));
                 seedConfig.setScale(4);
                 return new TypeSrw(seedFactory, seedConfig, Types.DECIMAL);
             }
@@ -129,18 +124,24 @@ public class SqlServerTypeSrwFactory extends DefaultTypeSrwFactory {
                 // -1.79E+308 to -2.23E-308, 0 and 2.23E-308 to 1.79E+308
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setNumberType(NumberType.Double);
-                seedConfig.setMin(new BigDecimal("2.23E-308"));
-                seedConfig.setMax(new BigDecimal("1.79E+308"));
+                seedConfig.setNumberType(NumberType.Decimal);
+                seedConfig.addMinMax(10, new BigDecimal("-2.23E-308"), new BigDecimal("-1.79E+308"));
+                seedConfig.addMinMax(10, new BigDecimal("2.23E-308"), new BigDecimal("1.79E+308"));
+                seedConfig.addMinMax(30, new BigDecimal("-999999999.999999999"), new BigDecimal("+999999999.999999999"));
+                seedConfig.addMinMax(30, new BigDecimal("-0.999999999"), new BigDecimal("+0.999999999"));
+                seedConfig.setTypeHandler(new SqlServerBigDecimalAsStringTypeHandler());
                 return new TypeSrw(seedFactory, seedConfig, Types.FLOAT);
             }
             case "real": {
                 // -3.40E+38 to -1.18E-38, 0 and 1.18E-38 to 3.40E+38
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setNumberType(NumberType.Double);
-                seedConfig.setMin(new BigDecimal("1.18E-38"));
-                seedConfig.setMax(new BigDecimal("3.40E+38"));
+                seedConfig.setNumberType(NumberType.Decimal);
+                seedConfig.addMinMax(10, new BigDecimal("-1.18E-38"), new BigDecimal("-3.40E+38"));
+                seedConfig.addMinMax(10, new BigDecimal("1.18E-38"), new BigDecimal("3.40E+38"));
+                seedConfig.addMinMax(30, new BigDecimal("-999999999.999999999"), new BigDecimal("+999999999.999999999"));
+                seedConfig.addMinMax(30, new BigDecimal("-0.999999999"), new BigDecimal("+0.999999999"));
+                seedConfig.setTypeHandler(new SqlServerBigDecimalAsStringTypeHandler());
                 return new TypeSrw(seedFactory, seedConfig, Types.REAL);
             }
             case "numeric":
@@ -344,6 +345,13 @@ public class SqlServerTypeSrwFactory extends DefaultTypeSrwFactory {
                 microsoft.sql.DateTimeOffset offset = microsoft.sql.DateTimeOffset.valueOf(timestamp, minutesOffset);
                 ps.setObject(i, offset);
             }
+        }
+    }
+
+    private static class SqlServerBigDecimalAsStringTypeHandler extends BigDecimalTypeHandler {
+        @Override
+        public void setNonNullParameter(PreparedStatement ps, int i, BigDecimal parameter, Integer jdbcType) throws SQLException {
+            ps.setString(i, parameter.toPlainString());
         }
     }
 }

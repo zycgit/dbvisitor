@@ -58,20 +58,21 @@ public abstract class AbstractUTF16Characters implements Characters {
 
     @Override
     public char getChar(int index) {
-        for (Range range : getRanges()) {
-            int rangeSize = range.getSize();
-            if (index < rangeSize) {
-                int charCode = range.getStart() + index;
-                byte[] charBytes = HexUtils.hex2bytes(Integer.toHexString(charCode));
-                if (charBytes.length == 1) {
-                    charBytes = new byte[] { 0x00, charBytes[0] };
+        while (true) {
+            for (Range range : getRanges()) {
+                int rangeSize = range.getSize();
+                if (index < rangeSize) {
+                    int charCode = range.getStart() + index;
+                    byte[] charBytes = HexUtils.hex2bytes(Integer.toHexString(charCode));
+                    if (charBytes.length == 1) {
+                        charBytes = new byte[] { 0x00, charBytes[0] };
+                    }
+                    return new String(charBytes, StandardCharsets.UTF_16).charAt(0);
+                } else {
+                    index = index - rangeSize;
                 }
-                return new String(charBytes, StandardCharsets.UTF_16).charAt(0);
-            } else {
-                index = index - rangeSize;
             }
         }
-        return 0;
     }
 
 }

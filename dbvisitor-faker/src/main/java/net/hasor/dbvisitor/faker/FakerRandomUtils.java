@@ -35,8 +35,15 @@ public class FakerRandomUtils extends RandomUtils {
         BigInteger maxBig = (max instanceof BigInteger) ? (BigInteger) max : (max instanceof BigDecimal) ? ((BigDecimal) max).toBigInteger() : (BigInteger.valueOf(max.longValue()));
 
         int signum = minBig.signum() == maxBig.signum() ? minBig.signum() : 1;
-        BigInteger offset = minBig.abs();
-        BigInteger bigRange = minBig.abs().add(maxBig.abs());
+        BigInteger offset;
+        BigInteger bigRange;
+        if (signum == -1 || minBig.equals(BigInteger.ZERO)) {
+            offset = minBig.abs();
+            bigRange = minBig.abs().add(maxBig.abs());
+        } else {
+            offset = minBig.negate();
+            bigRange = maxBig.subtract(minBig);
+        }
 
         StringBuilder result = new StringBuilder();
         boolean inFree = false;

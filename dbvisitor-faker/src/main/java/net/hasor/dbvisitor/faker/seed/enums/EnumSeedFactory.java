@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.enums;
-import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 
 import java.io.Serializable;
@@ -31,7 +30,7 @@ import static net.hasor.dbvisitor.faker.FakerRandomUtils.nextInt;
  */
 public class EnumSeedFactory implements SeedFactory<EnumSeedConfig> {
     @Override
-    public SeedConfig newConfig() {
+    public EnumSeedConfig newConfig() {
         return new EnumSeedConfig();
     }
 
@@ -55,7 +54,7 @@ public class EnumSeedFactory implements SeedFactory<EnumSeedConfig> {
             if (allowNullable && nextFloat(0, 100) < nullableRatio) {
                 return null;
             } else {
-                return dictArrays[nextInt(0, max + 1)];
+                return dictArrays.length == 0 ? null : dictArrays[nextInt(0, max)];
             }
         };
     }

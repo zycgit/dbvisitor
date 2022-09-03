@@ -1,9 +1,5 @@
-package net.hasor.dbvisitor.faker.seed;
+package net.hasor.dbvisitor.faker.seed.date;
 
-import net.hasor.dbvisitor.faker.seed.date.DateSeedConfig;
-import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
-import net.hasor.dbvisitor.faker.seed.date.GenType;
-import net.hasor.dbvisitor.faker.seed.date.IntervalScope;
 import org.junit.Test;
 
 import java.io.Serializable;

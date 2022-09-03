@@ -27,14 +27,13 @@ import java.math.BigDecimal;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class NumberSeedConfig extends SeedConfig {
-    private NumberType numberType;
+    private       NumberType    numberType;
     //随机方式
-    private BigDecimal min; // 最小值
-    private BigDecimal max; // 最大值
-    private Integer    precision; //数的长度
+    private final Ratio<MinMax> minmax = new Ratio<>(); // 最小值/最大值
+    private       Integer       precision; //数的长度
     //精度和选项
-    private Integer    scale;
-    private boolean    abs;
+    private       Integer       scale;
+    private       boolean       abs;
 
     public final SeedType getSeedType() {
         return SeedType.Number;
@@ -54,20 +53,48 @@ public class NumberSeedConfig extends SeedConfig {
         this.setTypeHandler(TypeHandlerRegistry.DEFAULT.getTypeHandler(numberType.getDateType()));
     }
 
+    public void addMinMax(BigDecimal min, BigDecimal max) {
+        this.addMinMax(50, min, max);
+    }
+
+    public void addMinMax(int ratio, BigDecimal min, BigDecimal max) {
+        this.minmax.addRatio(ratio, new MinMax(min, max));
+    }
+
+    public Ratio<MinMax> getMinMax() {
+        return this.minmax;
+    }
+
     public BigDecimal getMin() {
-        return min;
+        if (this.minmax.isEmpty()) {
+            return null;
+        } else {
+            return this.minmax.getLast().getMin();
+        }
     }
 
     public void setMin(BigDecimal min) {
-        this.min = min;
+        if (this.minmax.isEmpty()) {
+            this.addMinMax(min, null);
+        } else {
+            this.minmax.getLast().setMin(min);
+        }
     }
 
     public BigDecimal getMax() {
-        return max;
+        if (this.minmax.isEmpty()) {
+            return null;
+        } else {
+            return this.minmax.getLast().getMax();
+        }
     }
 
     public void setMax(BigDecimal max) {
-        this.max = max;
+        if (this.minmax.isEmpty()) {
+            this.addMinMax(null, max);
+        } else {
+            this.minmax.getLast().setMax(max);
+        }
     }
 
     public Integer getPrecision() {

@@ -1,6 +1,6 @@
-package net.hasor.dbvisitor.faker;
-import net.hasor.dbvisitor.faker.generator.*;
-import net.hasor.dbvisitor.faker.realdb.DsUtils;
+package net.hasor.dbvisitor.faker.generator;
+import net.hasor.dbvisitor.faker.OpsType;
+import net.hasor.dbvisitor.faker.DsUtils;
 import org.junit.Test;
 
 import java.util.List;

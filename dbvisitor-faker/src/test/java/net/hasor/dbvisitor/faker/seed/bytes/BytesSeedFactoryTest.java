@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.seed;
+package net.hasor.dbvisitor.faker.seed.bytes;
 
 import net.hasor.cobble.codec.HexUtils;
-import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedConfig;
-import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedFactory;
 import org.junit.Test;
 
 import java.io.Serializable;
