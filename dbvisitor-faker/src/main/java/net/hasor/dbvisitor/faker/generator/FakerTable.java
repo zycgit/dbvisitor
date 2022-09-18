@@ -49,6 +49,7 @@ public class FakerTable {
     private       Action                   updateGenerator;
     private       Action                   deleteGenerator;
     private       boolean                  useQualifier;
+    private       boolean                  keyChanges;
 
     FakerTable(String catalog, String schema, String table, FakerFactory fakerFactory) {
         this.catalog = catalog;
@@ -107,6 +108,14 @@ public class FakerTable {
         this.useQualifier = useQualifier;
     }
 
+    public boolean isKeyChanges() {
+        return keyChanges;
+    }
+
+    public void setKeyChanges(boolean keyChanges) {
+        this.keyChanges = keyChanges;
+    }
+
     /** 添加一个列 */
     public void addColumn(FakerColumn fakerColumn) {
         this.columnMap.put(fakerColumn.getColumn(), fakerColumn);
@@ -135,7 +144,9 @@ public class FakerTable {
                 insertColumns.add(fakerColumn);
             }
             if (fakerColumn.isGenerator(UseFor.UpdateSet)) {
-                updateSetColumns.add(fakerColumn);
+                if (!(fakerColumn.isKey() && !this.keyChanges)) {
+                    updateSetColumns.add(fakerColumn);
+                }
             }
             if (fakerColumn.isGenerator(UseFor.UpdateWhere)) {
                 updateWhereColumns.add(fakerColumn);

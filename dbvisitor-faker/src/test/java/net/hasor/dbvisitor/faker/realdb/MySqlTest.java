@@ -31,6 +31,7 @@ public class MySqlTest {
         FakerGenerator generator = new FakerGenerator(factory);
         FakerTable table = generator.addTable("devtester", null, "tb_mysql_types");
         table.setInsertPolitic(SqlPolitic.FullCol);
+        table.apply();
 
         // 生成数据
         FakerEngine fakerEngine = new FakerEngine(factory);

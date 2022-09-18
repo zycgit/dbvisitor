@@ -161,6 +161,7 @@ public class FakerFactory {
 
         FakerTable fakerTable = new FakerTable(catalog, schema, table, this);
         fakerTable.setUseQualifier(this.fakerConfig.isUseQualifier());
+        fakerTable.setKeyChanges(this.fakerConfig.isKeyChanges());
 
         tableConfig = tableConfig == null ? new TreeNode() : tableConfig;
         buildColumns(fakerTable, tableConfig);

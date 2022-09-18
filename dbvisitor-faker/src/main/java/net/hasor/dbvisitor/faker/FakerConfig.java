@@ -40,6 +40,7 @@ public class FakerConfig {
     private       SqlDialect            sqlDialect;
     private       DefaultTypeSrwFactory typeDialect;
     private       boolean               useQualifier;
+    private       boolean               keyChanges;
     // one trans
     private       int                   minBatchSizePerOps;
     private       int                   maxBatchSizePerOps;
@@ -152,6 +153,14 @@ public class FakerConfig {
 
     public void setUseQualifier(boolean useQualifier) {
         this.useQualifier = useQualifier;
+    }
+
+    public boolean isKeyChanges() {
+        return keyChanges;
+    }
+
+    public void setKeyChanges(boolean keyChanges) {
+        this.keyChanges = keyChanges;
     }
 
     public SqlDialect getSqlDialect() {
