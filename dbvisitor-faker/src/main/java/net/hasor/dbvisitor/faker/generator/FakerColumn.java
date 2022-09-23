@@ -41,6 +41,7 @@ public class FakerColumn {
     private final FakerFactory factory;
     //
     private       String       insertTemplate;
+    private       String       setColTemplate;
     private       String       setValueTemplate;
     private       String       whereColTemplate;
     private       String       whereValueTemplate;
@@ -56,13 +57,17 @@ public class FakerColumn {
 
         if (columnConfig != null) {
             this.insertTemplate = columnConfig.getSubValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey());
-            this.setValueTemplate = columnConfig.getSubValue(FakerConfigEnum.SET_TEMPLATE.getConfigKey());
+            this.setColTemplate = columnConfig.getSubValue(FakerConfigEnum.SET_COL_TEMPLATE.getConfigKey());
+            this.setValueTemplate = columnConfig.getSubValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey());
             this.whereColTemplate = columnConfig.getSubValue(FakerConfigEnum.WHERE_COL_TEMPLATE.getConfigKey());
             this.whereValueTemplate = columnConfig.getSubValue(FakerConfigEnum.WHERE_VALUE_TEMPLATE.getConfigKey());
         }
 
         if (StringUtils.isBlank(this.insertTemplate)) {
             this.insertTemplate = "?";
+        }
+        if (StringUtils.isBlank(this.setColTemplate)) {
+            this.setColTemplate = "{name}";
         }
         if (StringUtils.isBlank(this.setValueTemplate)) {
             this.setValueTemplate = "?";
@@ -75,6 +80,7 @@ public class FakerColumn {
         }
 
         String colName = this.factory.getSqlDialect().columnName(table.isUseQualifier(), table.getCatalog(), table.getSchema(), table.getTable(), this.column);
+        this.setColTemplate = this.setColTemplate.replace("{name}", colName);
         this.whereColTemplate = this.whereColTemplate.replace("{name}", colName);
     }
 
@@ -86,6 +92,16 @@ public class FakerColumn {
     /** 用于 insert 语句的参数 */
     public String getInsertTemplate() {
         return this.insertTemplate;
+    }
+
+    /** 用于 update 语句的参数 列名 部分的拼写 */
+    public String getSetColTemplate() {
+        return setColTemplate;
+    }
+
+    /** 用于 update 语句的参数 列名 部分的拼写 */
+    public void setSetColTemplate(String setColTemplate) {
+        this.setColTemplate = setColTemplate;
     }
 
     /** 用于 update 语句的参数 列值 部分的拼写 */

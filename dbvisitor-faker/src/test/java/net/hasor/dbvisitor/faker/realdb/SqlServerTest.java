@@ -16,6 +16,7 @@ public class SqlServerTest {
         // 全局配置
         FakerConfig fakerConfig = new FakerConfig();
         fakerConfig.setTransaction(false);
+        //        fakerConfig.setUseRadical(true);
         fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
         fakerConfig.addIgnoreError("Duplicate");
         fakerConfig.addIgnoreError("restarting");
@@ -31,6 +32,7 @@ public class SqlServerTest {
         FakerGenerator generator = new FakerGenerator(factory);
         FakerTable table = generator.addTable("tester", "dbo", "tb_sqlserver_types");
         table.setInsertPolitic(SqlPolitic.FullCol);
+        table.apply();
 
         // 生成数据
         FakerEngine fakerEngine = new FakerEngine(factory);

@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.generator.provider;
+package net.hasor.dbvisitor.faker.generator.provider.radical;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.setting.SettingNode;
 import net.hasor.dbvisitor.faker.generator.TypeSrw;
+import net.hasor.dbvisitor.faker.generator.provider.DefaultTypeSrwFactory;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedConfig;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedFactory;
@@ -49,7 +50,7 @@ import java.util.HashSet;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
+public class MySqlRadicalTypeSrwFactory extends DefaultTypeSrwFactory {
     @Override
     public TypeSrw createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
         String columnType = jdbcColumn.getColumnType().toLowerCase();
@@ -134,7 +135,7 @@ public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
                 // -9223372036854775808 to 9223372036854775807
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setNumberType(NumberType.BigInt);
+                seedConfig.setNumberType(NumberType.Long);
                 seedConfig.addMinMax(new BigDecimal("-9223372036854775808"), new BigDecimal("+9223372036854775807"));
                 return new TypeSrw(seedFactory, seedConfig, Types.BIGINT);
             }
@@ -153,7 +154,7 @@ public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
                 seedConfig.setNumberType(NumberType.Decimal);
                 seedConfig.setPrecision(jdbcColumn.getColumnSize());
                 seedConfig.setScale(jdbcColumn.getDecimalDigits());
-                seedConfig.setAbs(columnType.contains("unsigned"));
+                seedConfig.setAbs(StringUtils.contains(columnType, "unsigned"));
                 return new TypeSrw(seedFactory, seedConfig, Types.DECIMAL);
             }
             case "float":
@@ -168,7 +169,7 @@ public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
                 seedConfig.addMinMax(30, new BigDecimal("-0.999999999"), new BigDecimal("+0.999999999"));
                 seedConfig.setPrecision(jdbcColumn.getColumnSize());
                 seedConfig.setScale(jdbcColumn.getDecimalDigits());
-                seedConfig.setAbs(columnType.contains("unsigned"));
+                seedConfig.setAbs(StringUtils.contains(columnType, "unsigned"));
                 return new TypeSrw(seedFactory, seedConfig, Types.FLOAT);
             }
             case "double":
@@ -182,7 +183,7 @@ public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
                 seedConfig.addMinMax(30, new BigDecimal("-999999999.999999999"), new BigDecimal("+999999999.999999999"));
                 seedConfig.addMinMax(30, new BigDecimal("-0.999999999"), new BigDecimal("+0.999999999"));
                 seedConfig.setTypeHandler(new MySqlBigDecimalAsStringTypeHandler());
-                seedConfig.setAbs(columnType.contains("unsigned"));
+                seedConfig.setAbs(StringUtils.contains(columnType, "unsigned"));
                 seedConfig.setPrecision(jdbcColumn.getColumnSize());
                 seedConfig.setScale(jdbcColumn.getDecimalDigits());
                 return new TypeSrw(seedFactory, seedConfig, Types.FLOAT);
@@ -296,6 +297,7 @@ public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
     }
 
     private static class MySqlBigDecimalAsStringTypeHandler extends BigDecimalTypeHandler {
+
         @Override
         public void setNonNullParameter(PreparedStatement ps, int i, BigDecimal parameter, Integer jdbcType) throws SQLException {
             ps.setString(i, parameter.toPlainString());
@@ -303,6 +305,7 @@ public class MySqlTypeSrwFactory extends DefaultTypeSrwFactory {
     }
 
     private static class MySqlBitAsStringTypeHandler extends StringTypeHandler {
+
         @Override
         public void setNonNullParameter(PreparedStatement ps, int i, String parameter, Integer jdbcType) throws SQLException {
             ps.setInt(i, Integer.parseInt(parameter, 2));

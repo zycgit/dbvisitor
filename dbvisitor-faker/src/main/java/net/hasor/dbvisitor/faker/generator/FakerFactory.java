@@ -25,21 +25,20 @@ import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.FakerConfigEnum;
 import net.hasor.dbvisitor.faker.generator.provider.DefaultTypeSrwFactory;
-import net.hasor.dbvisitor.faker.generator.provider.MySqlTypeSrwFactory;
-import net.hasor.dbvisitor.faker.generator.provider.OracleTypeSrwFactory;
-import net.hasor.dbvisitor.faker.generator.provider.SqlServerTypeSrwFactory;
+import net.hasor.dbvisitor.faker.generator.provider.carefully.MySqlCarefullyTypeSrwFactory;
+import net.hasor.dbvisitor.faker.generator.provider.carefully.OracleCarefullyTypeSrwFactory;
+import net.hasor.dbvisitor.faker.generator.provider.carefully.PostgresCarefullyTypeSrwFactory;
+import net.hasor.dbvisitor.faker.generator.provider.carefully.SqlServerCarefullyTypeSrwFactory;
+import net.hasor.dbvisitor.faker.generator.provider.radical.MySqlRadicalTypeSrwFactory;
+import net.hasor.dbvisitor.faker.generator.provider.radical.OracleRadicalTypeSrwFactory;
+import net.hasor.dbvisitor.faker.generator.provider.radical.PostgresRadicalTypeSrwFactory;
+import net.hasor.dbvisitor.faker.generator.provider.radical.SqlServerRadicalTypeSrwFactory;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
 import net.hasor.dbvisitor.faker.meta.JdbcFetchMetaProvider;
 import net.hasor.dbvisitor.faker.meta.JdbcTable;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 import net.hasor.dbvisitor.faker.seed.SeedType;
-import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedFactory;
-import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedFactory;
-import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
-import net.hasor.dbvisitor.faker.seed.enums.EnumSeedFactory;
-import net.hasor.dbvisitor.faker.seed.number.NumberSeedFactory;
-import net.hasor.dbvisitor.faker.seed.string.StringSeedFactory;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 
@@ -54,13 +53,13 @@ import java.util.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class FakerFactory {
-    private static Logger                logger = Logger.getLogger(FakerFactory.class);
-    private final  JdbcTemplate          jdbcTemplate;
-    private final  JdbcFetchMetaProvider metaProvider;
-    private final  FakerConfig           fakerConfig;
-    private final  String                dbType;
-    private final  SqlDialect            sqlDialect;
-    private final  DefaultTypeSrwFactory typeDialect;
+    private static final Logger                logger = Logger.getLogger(FakerFactory.class);
+    private final        JdbcTemplate          jdbcTemplate;
+    private final        JdbcFetchMetaProvider metaProvider;
+    private final        FakerConfig           fakerConfig;
+    private final        String                dbType;
+    private final        SqlDialect            sqlDialect;
+    private final        DefaultTypeSrwFactory typeDialect;
 
     public FakerFactory(Connection connection) throws SQLException {
         this(connection, new FakerConfig());
@@ -115,13 +114,16 @@ public class FakerFactory {
             throw new IllegalArgumentException("TypeDialect missing.");
         } else {
             switch (dbType) {
+                case JdbcUtils.JTDS:
                 case JdbcUtils.SQL_SERVER:
-                    return new SqlServerTypeSrwFactory();
+                    return fakerConfig.isUseRadical() ? new SqlServerRadicalTypeSrwFactory() : new SqlServerCarefullyTypeSrwFactory();
                 case JdbcUtils.MARIADB:
                 case JdbcUtils.MYSQL:
-                    return new MySqlTypeSrwFactory();
+                    return fakerConfig.isUseRadical() ? new MySqlRadicalTypeSrwFactory() : new MySqlCarefullyTypeSrwFactory();
                 case JdbcUtils.ORACLE:
-                    return new OracleTypeSrwFactory();
+                    return fakerConfig.isUseRadical() ? new OracleRadicalTypeSrwFactory() : new OracleCarefullyTypeSrwFactory();
+                case JdbcUtils.POSTGRESQL:
+                    return fakerConfig.isUseRadical() ? new PostgresRadicalTypeSrwFactory() : new PostgresCarefullyTypeSrwFactory();
                 default:
                     return new DefaultTypeSrwFactory();
             }
@@ -293,24 +295,10 @@ public class FakerFactory {
 
         String seedTypeStr = columnConfig == null ? null : columnConfig.getSubValue(FakerConfigEnum.COLUMN_SEED_TYPE.getConfigKey());
         SeedType seedType = SeedType.valueOfCode(seedTypeStr);
-        if (seedType != null) {
-            switch (seedType) {
-                case Boolean:
-                    return new BooleanSeedFactory();
-                case Date:
-                    return new DateSeedFactory();
-                case String:
-                    return new StringSeedFactory();
-                case Number:
-                    return new NumberSeedFactory();
-                case Enums:
-                    return new EnumSeedFactory();
-                case Bytes:
-                    return new BytesSeedFactory();
-                case Custom:
-                    throw new IllegalArgumentException("custom seedType must config seedFactory.");
-            }
+        if (seedType == SeedType.Custom) {
+            throw new IllegalArgumentException("custom seedType must config seedFactory.");
         }
-        return null;
+
+        return seedType != null ? seedType.getSupplier() : null;
     }
 }

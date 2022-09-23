@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedFactory;
 import net.hasor.dbvisitor.faker.seed.date.DateSeedConfig;
 import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
 import net.hasor.dbvisitor.faker.seed.date.DateType;
+import net.hasor.dbvisitor.faker.seed.date.GenType;
 import net.hasor.dbvisitor.faker.seed.number.NumberSeedConfig;
 import net.hasor.dbvisitor.faker.seed.number.NumberSeedFactory;
 import net.hasor.dbvisitor.faker.seed.number.NumberType;
@@ -31,14 +32,11 @@ import net.hasor.dbvisitor.faker.seed.string.CharacterSet;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedConfig;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedFactory;
 
+import java.math.BigDecimal;
 import java.sql.Types;
 import java.util.Collections;
 import java.util.HashSet;
 
-/**
- * @version : 2022-07-25
- * @author 赵永春 (zyc@hasor.net)
- */
 public class DefaultTypeSrwFactory {
     public TypeSrw createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
         return defaultSeedFactory(jdbcColumn);
@@ -51,60 +49,46 @@ public class DefaultTypeSrwFactory {
         }
 
         switch (jdbcType) {
-            case Types.BIT: {
-                StringSeedFactory seedFactory = new StringSeedFactory();
-                StringSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setCharacterSet(new HashSet<>(Collections.singletonList(CharacterSet.BIT)));
-                return new TypeSrw(seedFactory, seedConfig, jdbcType);
-            }
+            case Types.BIT:
             case Types.BOOLEAN: {
                 BooleanSeedFactory seedFactory = new BooleanSeedFactory();
                 BooleanSeedConfig seedConfig = seedFactory.newConfig();
                 return new TypeSrw(seedFactory, seedConfig, jdbcType);
             }
-            case Types.TINYINT: {
-                NumberSeedFactory seedFactory = new NumberSeedFactory();
-                NumberSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setNumberType(NumberType.Byte);
-                return new TypeSrw(seedFactory, seedConfig, jdbcType);
-            }
+            case Types.TINYINT:
             case Types.SMALLINT: {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setNumberType(NumberType.Short);
-                return new TypeSrw(seedFactory, seedConfig, jdbcType);
+                seedConfig.setNumberType(NumberType.Integer);
+                seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("100"));
+                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
             }
             case Types.INTEGER: {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
-                return new TypeSrw(seedFactory, seedConfig, jdbcType);
+                seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("10000"));
+                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
             }
             case Types.BIGINT: {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Long);
-                return new TypeSrw(seedFactory, seedConfig, jdbcType);
+                seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("1000000"));
+                return new TypeSrw(seedFactory, seedConfig, Types.BIGINT);
             }
             case Types.FLOAT:
-            case Types.REAL: {
-                NumberSeedFactory seedFactory = new NumberSeedFactory();
-                NumberSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setNumberType(NumberType.Float);
-                return new TypeSrw(seedFactory, seedConfig, jdbcType);
-            }
-            case Types.DOUBLE: {
-                NumberSeedFactory seedFactory = new NumberSeedFactory();
-                NumberSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setNumberType(NumberType.Double);
-                return new TypeSrw(seedFactory, seedConfig, jdbcType);
-            }
+            case Types.REAL:
+            case Types.DOUBLE:
             case Types.NUMERIC:
             case Types.DECIMAL: {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Decimal);
-                return new TypeSrw(seedFactory, seedConfig, jdbcType);
+                seedConfig.addMinMax(new BigDecimal("0.0"), new BigDecimal("9999.999"));
+                seedConfig.setScale(Math.min(jdbcColumn.getDecimalDigits(), 3));
+                seedConfig.setAbs(true);
+                return new TypeSrw(seedFactory, seedConfig, Types.DECIMAL);
             }
             case Types.CHAR:
             case Types.NCHAR:
@@ -127,34 +111,19 @@ public class DefaultTypeSrwFactory {
                 BytesSeedConfig seedConfig = seedFactory.newConfig();
                 return new TypeSrw(seedFactory, seedConfig, jdbcType);
             }
-            case Types.DATE: {
-                DateSeedFactory seedFactory = new DateSeedFactory();
-                DateSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setDateType(DateType.SqlDate);
-                return new TypeSrw(seedFactory, seedConfig, jdbcType);
-            }
-            case Types.TIME: {
-                DateSeedFactory seedFactory = new DateSeedFactory();
-                DateSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setDateType(DateType.SqlTime);
-                return new TypeSrw(seedFactory, seedConfig, jdbcType);
-            }
-            case Types.TIMESTAMP: {
-                DateSeedFactory seedFactory = new DateSeedFactory();
-                DateSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setDateType(DateType.SqlTimestamp);
-                return new TypeSrw(seedFactory, seedConfig, jdbcType);
-            }
-            case Types.TIME_WITH_TIMEZONE: {
-                DateSeedFactory seedFactory = new DateSeedFactory();
-                DateSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setDateType(DateType.OffsetTime);
-                return new TypeSrw(seedFactory, seedConfig, jdbcType);
-            }
+            case Types.DATE:
+            case Types.TIME:
+            case Types.TIMESTAMP:
+            case Types.TIME_WITH_TIMEZONE:
             case Types.TIMESTAMP_WITH_TIMEZONE: {
                 DateSeedFactory seedFactory = new DateSeedFactory();
                 DateSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setDateType(DateType.OffsetDateTime);
+                seedConfig.setDateType(DateType.JavaDate);
+                seedConfig.setGenType(GenType.Random);
+                seedConfig.setDateFormat("yyyy-MM-dd HH:mm:ss");
+                seedConfig.setPrecision(3);
+                seedConfig.setRangeForm("2000-01-01 00:00:00.000");
+                seedConfig.setRangeTo("2030-12-31 23:59:59.999");
                 return new TypeSrw(seedFactory, seedConfig, jdbcType);
             }
             case Types.SQLXML:

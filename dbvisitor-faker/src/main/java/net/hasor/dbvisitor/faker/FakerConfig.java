@@ -39,6 +39,7 @@ public class FakerConfig {
     private       DataLoaderFactory     dataLoaderFactory;
     private       SqlDialect            sqlDialect;
     private       DefaultTypeSrwFactory typeDialect;
+    private       boolean               useRadical;
     private       boolean               useQualifier;
     private       boolean               keyChanges;
     // one trans
@@ -65,6 +66,7 @@ public class FakerConfig {
         this.dataLoaderFactory = null;
         this.sqlDialect = null;
         this.typeDialect = null;
+        this.useRadical = false;
         this.useQualifier = true;
         //
         this.minBatchSizePerOps = 2;
@@ -145,6 +147,14 @@ public class FakerConfig {
 
     public void setDataLoaderFactory(DataLoaderFactory dataLoaderFactory) {
         this.dataLoaderFactory = dataLoaderFactory;
+    }
+
+    public boolean isUseRadical() {
+        return useRadical;
+    }
+
+    public void setUseRadical(boolean useRadical) {
+        this.useRadical = useRadical;
     }
 
     public boolean isUseQualifier() {

@@ -20,6 +20,7 @@ package net.hasor.dbvisitor.faker;
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum FakerConfigEnum {
+
     /** 表 处理 update/delete 生成 where 的存量数据加载器 */
     GLOBAL_DATA_LOADER_FACTORY("dataLoaderFactory"),
     /** sql 语句方言 */
@@ -57,8 +58,10 @@ public enum FakerConfigEnum {
 
     /** 用于 insert 语句的参数，默认是：? */
     INSERT_TEMPLATE("insertTemplate"),
+    /** 用于 update 语句的列名，默认是：{name} */
+    SET_COL_TEMPLATE("setColTemplate"),
     /** 用于 update 语句的参数，默认是：? */
-    SET_TEMPLATE("setTemplate"),
+    SET_VALUE_TEMPLATE("setValueTemplate"),
     /** 用于 update/delete 中 where 子语句的列名，默认是：{name} */
     WHERE_COL_TEMPLATE("whereColTemplate"),
     /** 用于 update/delete 中 where 子语句的参数，默认是：? */

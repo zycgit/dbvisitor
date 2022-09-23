@@ -16,15 +16,11 @@ public class MySqlTest {
         // 全局配置
         FakerConfig fakerConfig = new FakerConfig();
         fakerConfig.setTransaction(false);
+        //fakerConfig.setUseRadical(true);
         fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
         fakerConfig.addIgnoreError("Duplicate");
-        fakerConfig.addIgnoreError("restarting");
-        fakerConfig.addIgnoreError("deadlocked");
-        fakerConfig.addIgnoreError("was deadlocked on lock");
-        fakerConfig.addIgnoreError("违反了 PRIMARY KEY");
-        fakerConfig.addIgnoreError("违反了 UNIQUE KEY");
-        fakerConfig.addIgnoreError("The incoming tabular data stream (TDS) remote procedure call (RPC) protocol stream is incorrect");
-        //        fakerConfig.setOpsRatio("INSERT#30");
+        fakerConfig.addIgnoreError("Data truncation: Incorrect datetime value");
+        //fakerConfig.setOpsRatio("INSERT#30");
 
         // 生成器，配置表
         FakerFactory factory = new FakerFactory(DsUtils.dsMySql(), fakerConfig);

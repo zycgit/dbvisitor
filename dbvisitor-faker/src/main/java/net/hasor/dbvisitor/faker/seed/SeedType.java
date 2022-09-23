@@ -15,6 +15,15 @@
  */
 package net.hasor.dbvisitor.faker.seed;
 import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedFactory;
+import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedFactory;
+import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
+import net.hasor.dbvisitor.faker.seed.enums.EnumSeedFactory;
+import net.hasor.dbvisitor.faker.seed.guid.GuidSeedFactory;
+import net.hasor.dbvisitor.faker.seed.number.NumberSeedFactory;
+import net.hasor.dbvisitor.faker.seed.string.StringSeedFactory;
+
+import java.util.function.Supplier;
 
 /**
  * 类型
@@ -22,19 +31,32 @@ import net.hasor.cobble.StringUtils;
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum SeedType {
-    Boolean,
-    Date,
-    String,
-    Number,
-    Enums,
-    Bytes,
-    GID,
+    Boolean(BooleanSeedFactory::new),
+    Date(DateSeedFactory::new),
+    String(StringSeedFactory::new),
+    Number(NumberSeedFactory::new),
+    Enums(EnumSeedFactory::new),
+    Bytes(BytesSeedFactory::new),
+    GID(GuidSeedFactory::new),
     //    Array,
     //    Struts,
     //    RelationId,
-    Custom;
+    Custom(null);
+
+    private final Supplier<SeedFactory<? extends SeedConfig>> supplier;
+
+    SeedType(Supplier<SeedFactory<? extends SeedConfig>> supplier) {
+        this.supplier = supplier;
+    }
+
+    public SeedFactory<? extends SeedConfig> getSupplier() {
+        return this.supplier != null ? this.supplier.get() : null;
+    }
 
     public static SeedType valueOfCode(String name) {
+        if (StringUtils.isBlank(name)) {
+            return null;
+        }
         for (SeedType seedType : SeedType.values()) {
             if (StringUtils.equalsIgnoreCase(seedType.name(), name)) {
                 return seedType;
