@@ -101,6 +101,12 @@ public class DefaultTypeSrwFactory {
                 StringSeedFactory seedFactory = new StringSeedFactory();
                 StringSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setCharacterSet(new HashSet<>(Collections.singletonList(CharacterSet.LETTER_NUMBER)));
+                seedConfig.setMinLength(1);
+                if (jdbcColumn.getColumnSize() == null) {
+                    seedConfig.setMaxLength(10);
+                } else {
+                    seedConfig.setMaxLength(Math.min(jdbcColumn.getColumnSize(), 100));
+                }
                 return new TypeSrw(seedFactory, seedConfig, jdbcType);
             }
             case Types.BINARY:
@@ -141,6 +147,16 @@ public class DefaultTypeSrwFactory {
                 throw new UnsupportedOperationException("unsupported columnName " + jdbcColumn.getColumnName()//
                         + ", sqlType '" + jdbcColumn.getColumnType()//
                         + "' and jdbcType '" + jdbcType + "'");
+        }
+    }
+
+    private static int safeMaxLength(Integer number, int defaultNum, int maxNum) {
+        if (number == null || number < 0) {
+            return defaultNum;
+        } else if (number > maxNum) {
+            return maxNum;
+        } else {
+            return number;
         }
     }
 }
