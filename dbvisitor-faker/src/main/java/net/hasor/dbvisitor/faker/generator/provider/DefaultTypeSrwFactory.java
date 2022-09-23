@@ -149,14 +149,4 @@ public class DefaultTypeSrwFactory {
                         + "' and jdbcType '" + jdbcType + "'");
         }
     }
-
-    private static int safeMaxLength(Integer number, int defaultNum, int maxNum) {
-        if (number == null || number < 0) {
-            return defaultNum;
-        } else if (number > maxNum) {
-            return maxNum;
-        } else {
-            return number;
-        }
-    }
 }
