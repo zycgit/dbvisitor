@@ -183,6 +183,7 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                     return new TypeSrw(seedFactory, seedConfig, Types.TIME);
                 }
             }
+            case "interval":
             case "timestamp":
             case "timestamptz": {
                 DateSeedFactory seedFactory = new DateSeedFactory();
@@ -200,6 +201,12 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                     seedConfig.setZoneForm("-08:00");
                     seedConfig.setZoneTo("+08:00");
                     return new TypeSrw(seedFactory, seedConfig, Types.TIMESTAMP_WITH_TIMEZONE);
+                } else if (StringUtils.endsWith(columnType, "interval")) {
+                    seedConfig.setDateType(DateType.ISO8601);
+                    columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), "?::interval");
+                    columnConfig.addValue(FakerConfigEnum.WHERE_VALUE_TEMPLATE.getConfigKey(), "?::interval");
+                    columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), "?::interval");
+                    return new TypeSrw(seedFactory, seedConfig, Types.OTHER);
                 } else {
                     return new TypeSrw(seedFactory, seedConfig, Types.TIMESTAMP);
                 }
@@ -231,8 +238,6 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                 seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 32, 128));
                 return new TypeSrw(seedFactory, seedConfig, Types.VARBINARY);
             }
-            case "interval":
-                //P5Y4M3DT2H1M1S,https://www.learnfk.com/postgresql/postgresql-interval.html
             case "json":
             case "jsonb":
                 //86 = "json,jsonb,1111"

@@ -334,10 +334,33 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig> {
                 return defaultValue.toInstant();
             case String:
                 return seedConfig.getDateTimeFormatter().format(defaultValue);
+            case ISO8601: {
+                String pPart = String.format("P%s-%s-%s", defaultValue.getYear(), defaultValue.getMonthValue(), defaultValue.getDayOfMonth());
+                String tPart = String.format("T%s:%s:%s", defaultValue.getHour(), defaultValue.getMinute(), defaultValue.getSecond());
+                if (defaultValue.getNano() > 0) {
+                    tPart = tPart + "." + trimEnd(String.valueOf(defaultValue.getNano()), '0');
+                }
+                return pPart + tPart;
+            }
             case ZonedDateTime:
                 return defaultValue.toZonedDateTime();
             default:
                 return defaultValue;
         }
+    }
+
+    private static String trimEnd(final String str, char trimChar) {
+        if (str == null || str.equals("")) {
+            return str;
+        }
+
+        char[] val = str.toCharArray();
+        int len = val.length;
+        int st = 0;
+
+        while ((st < len) && (val[len - 1] == trimChar)) {
+            len--;
+        }
+        return len < val.length ? str.substring(st, len) : str;
     }
 }

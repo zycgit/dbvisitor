@@ -23,6 +23,7 @@ import net.hasor.cobble.StringUtils;
  */
 public enum DateType {
     String(java.lang.String.class),
+    ISO8601(java.lang.String.class),
     JavaDate(java.util.Date.class),
     JavaLong(java.lang.Long.class),
     SqlDate(java.sql.Date.class),

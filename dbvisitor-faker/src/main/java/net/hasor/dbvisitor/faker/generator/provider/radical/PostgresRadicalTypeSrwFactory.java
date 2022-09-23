@@ -208,33 +208,44 @@ public class PostgresRadicalTypeSrwFactory extends DefaultTypeSrwFactory {
                 columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), "?::uuid");
                 return new TypeSrw(seedFactory, seedConfig, Types.OTHER);
             }
-            case "timestamp": {
+            case "interval": {
+                // -178000000 years	178000000 years	1 microsecond
+                DateSeedFactory seedFactory = new DateSeedFactory();
+                DateSeedConfig seedConfig = seedFactory.newConfig();
+                seedConfig.setDateType(DateType.ISO8601);
+                seedConfig.setGenType(GenType.Random);
+                int p = safeMaxLength(jdbcColumn.getDecimalDigits(), 3, 6);
+                seedConfig.setDateFormat("yyyy-MM-dd HH:mm:ss" + ((p > 0) ? ("." + StringUtils.repeat("S", p)) : ""));
+                seedConfig.setPrecision(Math.max(p, 0));
+                seedConfig.setRangeForm("0000-01-01 00:00:00.000000");  // max is   -4713-01-01 00:00:00.000000
+                seedConfig.setRangeTo("9999-12-31 23:59:59.999999");    // max is  294276-12-31 23:59:59.999999
+
+                columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), "?::interval");
+                columnConfig.addValue(FakerConfigEnum.WHERE_VALUE_TEMPLATE.getConfigKey(), "?::interval");
+                columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), "?::interval");
+                return new TypeSrw(seedFactory, seedConfig, Types.OTHER);
+            }
+            case "timestamp":
+            case "timestamptz": {
                 // (BC)-4713-01-01 00:00:00.000000 to (AD)294276-12-31 23:59:59.999999 ,1 microsecond
                 DateSeedFactory seedFactory = new DateSeedFactory();
                 DateSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setDateType(DateType.LocalDateTime);
                 seedConfig.setGenType(GenType.Random);
-                int p = safeMaxLength(jdbcColumn.getDecimalDigits(), 3, 7);
+                int p = safeMaxLength(jdbcColumn.getDecimalDigits(), 3, 6);
                 seedConfig.setDateFormat("yyyy-MM-dd HH:mm:ss" + ((p > 0) ? ("." + StringUtils.repeat("S", p)) : ""));
-                seedConfig.setPrecision(Math.max(p, 0));
-                seedConfig.setRangeForm("0000-01-01");  // max is   -4713-01-01 00:00:00.000000
-                seedConfig.setRangeTo("9999-12-31");    // max is  294276-12-31 23:59:59.999999
-                return new TypeSrw(seedFactory, seedConfig, Types.TIMESTAMP);
-            }
-            case "timestamptz": {
-                // (BC)-4713-01-01 00:00:00.000000 to (AD)294276-12-31 23:59:59.999999 ,1 microsecond
-                DateSeedFactory seedFactory = new DateSeedFactory();
-                DateSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setDateType(DateType.OffsetDateTime);
-                seedConfig.setGenType(GenType.Random);
-                int p = safeMaxLength(jdbcColumn.getDecimalDigits(), 3, 7);
-                seedConfig.setDateFormat("yyyy-MM-dd HH:mm:ss" + ((p > 0) ? ("." + StringUtils.repeat("S", p)) : ""));
-                seedConfig.setPrecision(Math.max(p, 0));
-                seedConfig.setRangeForm("0000-01-01");  // max is   -4713-01-01 00:00:00.000000
-                seedConfig.setRangeTo("9999-12-31");    // max is  294276-12-31 23:59:59.999999
-                seedConfig.setZoneForm("-14:00");
-                seedConfig.setZoneTo("+14:00");
-                return new TypeSrw(seedFactory, seedConfig, Types.TIMESTAMP_WITH_TIMEZONE);
+                seedConfig.setPrecision(p);
+                seedConfig.setRangeForm("0000-01-01 00:00:00.000000");  // max is   -4713-01-01 00:00:00.000000
+                seedConfig.setRangeTo("9999-12-31 23:59:59.999999");    // max is  294276-12-31 23:59:59.999999
+
+                if (StringUtils.endsWith(columnType, "tz")) {
+                    seedConfig.setDateType(DateType.OffsetDateTime);
+                    seedConfig.setZoneForm("-14:00");
+                    seedConfig.setZoneTo("+14:00");
+                    return new TypeSrw(seedFactory, seedConfig, Types.TIMESTAMP_WITH_TIMEZONE);
+                } else {
+                    return new TypeSrw(seedFactory, seedConfig, Types.TIMESTAMP);
+                }
             }
             case "date": {
                 // 4713BC to 5874897AD ,1 day
@@ -243,51 +254,33 @@ public class PostgresRadicalTypeSrwFactory extends DefaultTypeSrwFactory {
                 seedConfig.setDateType(DateType.LocalDate);
                 seedConfig.setGenType(GenType.Random);
                 seedConfig.setDateFormat("yyyy-MM-dd");
-                seedConfig.setRangeForm("0000-01-01"); // max is   -4713-01-01
-                seedConfig.setRangeTo("9999-12-31"); // max is 5874897-12-31
+                seedConfig.setRangeForm("0000-01-01");  // max is   -4713-01-01
+                seedConfig.setRangeTo("9999-12-31");    // max is 5874897-12-31
                 return new TypeSrw(seedFactory, seedConfig, Types.DATE);
             }
-            case "time": {
-                // 00:00:00.000000 to 23:59:59.999999
+            case "time":
+            case "timetz": {
+                // 00:00:00.000000-15:59 to 23:59:59.999999+15:59
                 DateSeedFactory seedFactory = new DateSeedFactory();
                 DateSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setDateType(DateType.LocalTime);
                 seedConfig.setGenType(GenType.Random);
                 int p = safeMaxLength(jdbcColumn.getDecimalDigits(), 3, 6);
                 seedConfig.setDateFormat("HH:mm:ss" + ((p > 0) ? ("." + StringUtils.repeat("S", p)) : ""));
-                seedConfig.setPrecision(Math.max(p, 0));
+                seedConfig.setPrecision(p);
                 seedConfig.setRangeForm("00:00:00.000000");
                 seedConfig.setRangeTo("23:59:59.999999");
-                return new TypeSrw(seedFactory, seedConfig, Types.TIME);
-            }
-            case "timetz": {
-                // 00:00:00.000000-15:59 to 23:59:59.999999+15:59
-                DateSeedFactory seedFactory = new DateSeedFactory();
-                DateSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setDateType(DateType.OffsetTime);
-                seedConfig.setGenType(GenType.Random);
-                int p = safeMaxLength(jdbcColumn.getDecimalDigits(), 3, 6);
-                seedConfig.setDateFormat("HH:mm:ss" + ((p > 0) ? ("." + StringUtils.repeat("S", p)) : ""));
-                seedConfig.setPrecision(Math.max(p, 0));
-                seedConfig.setRangeForm("00:00:00.000000");
-                seedConfig.setRangeTo("23:59:59.999999");
-                seedConfig.setZoneForm("-15:59");
-                seedConfig.setZoneTo("+15:59");
-                return new TypeSrw(seedFactory, seedConfig, Types.TIME_WITH_TIMEZONE);
-            }
-            case "bit": {
-                StringSeedFactory seedFactory = new StringSeedFactory();
-                StringSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setMinLength(1);
-                seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 24, 512));
-                seedConfig.setCharacterSet(new HashSet<>(Collections.singletonList(CharacterSet.BIT)));
 
-                String temp = "?::bit(" + jdbcColumn.getColumnSize() + ")";
-                columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), temp);
-                columnConfig.addValue(FakerConfigEnum.WHERE_VALUE_TEMPLATE.getConfigKey(), temp);
-                columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), temp);
-                return new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
+                if (StringUtils.endsWith(columnType, "tz")) {
+                    seedConfig.setDateType(DateType.OffsetTime);
+                    seedConfig.setZoneForm("-15:59");
+                    seedConfig.setZoneTo("+15:59");
+                    return new TypeSrw(seedFactory, seedConfig, Types.TIME_WITH_TIMEZONE);
+                } else {
+                    return new TypeSrw(seedFactory, seedConfig, Types.TIME);
+                }
             }
+            case "bit":
             case "varbit": {
                 StringSeedFactory seedFactory = new StringSeedFactory();
                 StringSeedConfig seedConfig = seedFactory.newConfig();
@@ -295,7 +288,12 @@ public class PostgresRadicalTypeSrwFactory extends DefaultTypeSrwFactory {
                 seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 24, 512));
                 seedConfig.setCharacterSet(new HashSet<>(Collections.singletonList(CharacterSet.BIT)));
 
-                String temp = "?::bit varying(" + seedConfig.getMaxLength() + ")";
+                String temp = null;
+                if (StringUtils.equals(columnType, "bit")) {
+                    temp = "?::bit(" + jdbcColumn.getColumnSize() + ")";
+                } else {
+                    temp = "?::bit varying(" + seedConfig.getMaxLength() + ")";
+                }
                 columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), temp);
                 columnConfig.addValue(FakerConfigEnum.WHERE_VALUE_TEMPLATE.getConfigKey(), temp);
                 columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), temp);
@@ -307,11 +305,6 @@ public class PostgresRadicalTypeSrwFactory extends DefaultTypeSrwFactory {
                 seedConfig.setMinLength(0);
                 seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 100, 4096));
                 return new TypeSrw(seedFactory, seedConfig, Types.BINARY);
-            }
-            case "interval": {
-                // -178000000 years	178000000 years	1 microsecond
-                //48 = "interval,1111",
-                //P5Y4M3DT2H1M1S,https://www.learnfk.com/postgresql/postgresql-interval.html
             }
             case "json":
             case "jsonb": {

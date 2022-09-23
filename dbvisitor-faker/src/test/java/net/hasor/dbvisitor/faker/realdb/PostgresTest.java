@@ -17,7 +17,7 @@ public class PostgresTest {
             // 全局配置
             FakerConfig fakerConfig = new FakerConfig();
             fakerConfig.setTransaction(false);
-            fakerConfig.setUseRadical(true);
+            //            fakerConfig.setUseRadical(true);
             fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
             fakerConfig.addIgnoreError("Duplicate");
             fakerConfig.addIgnoreError("restarting");
@@ -33,20 +33,6 @@ public class PostgresTest {
             table.setInsertPolitic(SqlPolitic.FullCol);
             table.apply();
 
-            // c_interval, columnType 'interval'
-            // c_interval_year, columnType 'interval'
-            // c_interval_month, columnType 'interval'
-            // c_interval_day, columnType 'interval'
-            // c_interval_hour, columnType 'interval'
-            // c_interval_minute, columnType 'interval'
-            // c_interval_second, columnType 'interval'
-            // c_interval_year_to_month, columnType 'interval'
-            // c_interval_day_to_hour, columnType 'interval'
-            // c_interval_day_to_minute, columnType 'interval'
-            // c_interval_day_to_second, columnType 'interval'
-            // c_interval_hour_to_minute, columnType 'interval'
-            // c_interval_hour_to_second, columnType 'interval'
-            // c_interval_minute_to_second, columnType 'interval'
             // c_point, columnType 'point'
             // c_line, columnType 'line'
             // c_lseg, columnType 'lseg'
