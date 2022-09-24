@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.bool;
+import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 
 import java.io.Serializable;
@@ -29,7 +30,7 @@ import static net.hasor.dbvisitor.faker.FakerRandomUtils.nextFloat;
  */
 public class BooleanSeedFactory implements SeedFactory<BooleanSeedConfig> {
     @Override
-    public BooleanSeedConfig newConfig() {
+    public BooleanSeedConfig newConfig(SeedConfig contextType) {
         return new BooleanSeedConfig();
     }
 

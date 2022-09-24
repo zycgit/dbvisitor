@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.faker.seed.date;
 import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 
 import java.io.Serializable;
@@ -36,7 +37,7 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig> {
     private static final BigDecimal ONE_SEC_NANO = new BigDecimal("1000000000"); // 1 sec
 
     @Override
-    public DateSeedConfig newConfig() {
+    public DateSeedConfig newConfig(SeedConfig contextType) {
         return new DateSeedConfig();
     }
 

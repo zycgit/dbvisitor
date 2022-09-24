@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.enums;
+import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 
 import java.io.Serializable;
@@ -30,7 +31,7 @@ import static net.hasor.dbvisitor.faker.FakerRandomUtils.nextInt;
  */
 public class EnumSeedFactory implements SeedFactory<EnumSeedConfig> {
     @Override
-    public EnumSeedConfig newConfig() {
+    public EnumSeedConfig newConfig(SeedConfig contextType) {
         return new EnumSeedConfig();
     }
 

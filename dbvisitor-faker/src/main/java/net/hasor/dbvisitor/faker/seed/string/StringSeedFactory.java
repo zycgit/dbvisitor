@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.string;
+import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 import net.hasor.dbvisitor.faker.seed.string.characters.GroupCharacters;
 
@@ -30,7 +31,7 @@ import static net.hasor.dbvisitor.faker.FakerRandomUtils.*;
  */
 public class StringSeedFactory implements SeedFactory<StringSeedConfig> {
     @Override
-    public StringSeedConfig newConfig() {
+    public StringSeedConfig newConfig(SeedConfig contextType) {
         return new StringSeedConfig();
     }
 

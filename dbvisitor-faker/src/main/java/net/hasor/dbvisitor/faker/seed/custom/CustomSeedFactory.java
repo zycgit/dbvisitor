@@ -22,9 +22,9 @@ import net.hasor.dbvisitor.faker.seed.SeedFactory;
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public abstract class CustomSeedFactory implements SeedFactory<CustomSeedConfig> {
+public abstract class CustomSeedFactory implements SeedFactory<SeedConfig> {
     @Override
-    public SeedConfig newConfig() {
+    public SeedConfig newConfig(SeedConfig contextType) {
         return new CustomSeedConfig();
     }
 }

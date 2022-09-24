@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.faker.seed.custom.special;
 import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.date.DateSeedConfig;
 import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
 
@@ -29,6 +30,11 @@ import java.time.*;
 public class MySqlTimeSeedFactory extends DateSeedFactory {
     @Override
     public MySqlTimeSeedConfig newConfig() {
+        return new MySqlTimeSeedConfig();
+    }
+
+    @Override
+    public MySqlTimeSeedConfig newConfig(SeedConfig contextType) {
         return new MySqlTimeSeedConfig();
     }
 

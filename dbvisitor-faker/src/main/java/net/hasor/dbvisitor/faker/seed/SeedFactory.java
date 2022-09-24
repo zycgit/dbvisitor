@@ -25,5 +25,9 @@ import java.util.function.Supplier;
 public interface SeedFactory<C extends SeedConfig> {
     Supplier<Serializable> createSeed(C seedConfig);
 
-    SeedConfig newConfig();
+    default C newConfig() {
+        return this.newConfig(null);
+    }
+
+    C newConfig(SeedConfig contextType);
 }

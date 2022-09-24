@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.bytes;
+import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 
 import java.io.Serializable;
@@ -28,7 +29,7 @@ import static net.hasor.dbvisitor.faker.FakerRandomUtils.*;
  */
 public class BytesSeedFactory implements SeedFactory<BytesSeedConfig> {
     @Override
-    public BytesSeedConfig newConfig() {
+    public BytesSeedConfig newConfig(SeedConfig contextType) {
         return new BytesSeedConfig();
     }
 

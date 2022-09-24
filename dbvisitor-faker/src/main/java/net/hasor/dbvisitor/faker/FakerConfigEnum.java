@@ -55,6 +55,8 @@ public enum FakerConfigEnum {
     COLUMN_SEED_TYPE("seedType"),
     /** 自定义数据发生器 */
     COLUMN_SEED_FACTORY("seedFactory"),
+    /** 是一个数组 */
+    COLUMN_ARRAY_TYPE("isArray"),
 
     /** 用于 insert 语句的参数，默认是：? */
     INSERT_TEMPLATE("insertTemplate"),

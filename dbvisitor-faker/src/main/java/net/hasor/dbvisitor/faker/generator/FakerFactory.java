@@ -39,6 +39,7 @@ import net.hasor.dbvisitor.faker.meta.JdbcTable;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 import net.hasor.dbvisitor.faker.seed.SeedType;
+import net.hasor.dbvisitor.faker.seed.array.ArraySeedFactory;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 
@@ -293,12 +294,22 @@ public class FakerFactory {
             return (SeedFactory) seedFactoryType.newInstance();
         }
 
+        String array = columnConfig == null ? null : columnConfig.getSubValue(FakerConfigEnum.COLUMN_ARRAY_TYPE.getConfigKey());
         String seedTypeStr = columnConfig == null ? null : columnConfig.getSubValue(FakerConfigEnum.COLUMN_SEED_TYPE.getConfigKey());
         SeedType seedType = SeedType.valueOfCode(seedTypeStr);
+        boolean isArray = StringUtils.isNotBlank(array) && Boolean.parseBoolean(array);
+
         if (seedType == SeedType.Custom) {
             throw new IllegalArgumentException("custom seedType must config seedFactory.");
+        } else if (seedType == SeedType.Array) {
+            throw new IllegalArgumentException("arrays are specified by config.");
         }
 
-        return seedType != null ? seedType.getSupplier() : null;
+        SeedFactory<? extends SeedConfig> factory = seedType != null ? seedType.getSupplier() : null;
+        if (isArray) {
+            return factory == null ? null : new ArraySeedFactory(factory);
+        } else {
+            return factory;
+        }
     }
 }

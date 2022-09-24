@@ -17,7 +17,7 @@ public class PostgresTest {
             // 全局配置
             FakerConfig fakerConfig = new FakerConfig();
             fakerConfig.setTransaction(false);
-            //            fakerConfig.setUseRadical(true);
+            fakerConfig.setUseRadical(true);
             fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
             fakerConfig.addIgnoreError("Duplicate");
             fakerConfig.addIgnoreError("restarting");
@@ -33,30 +33,16 @@ public class PostgresTest {
             table.setInsertPolitic(SqlPolitic.FullCol);
             table.apply();
 
-            // c_point, columnType 'point'
-            // c_line, columnType 'line'
-            // c_lseg, columnType 'lseg'
-            // c_box, columnType 'box'
-            // c_path, columnType 'path'
-            // c_polygon, columnType 'polygon'
-            // c_circle, columnType 'circle'
-            // c_cidr, columnType 'cidr'
-            // c_inet, columnType 'inet'
-            // c_macaddr, columnType 'macaddr'
-            // c_macaddr8, columnType 'macaddr8'
-            // c_tsvector, columnType 'tsvector'
-            // c_tsquery, columnType 'tsquery'
-            // c_xml, columnType 'xml'
-            // c_json, columnType 'json'
-            // c_jsonb, columnType 'jsonb'
-            // c_int4range, columnType 'int4range'
-            // c_int8range, columnType 'int8range'
-            // c_numrange, columnType 'numrange'
-            // c_tsrange, columnType 'tsrange'
-            // c_tstzrange, columnType 'tstzrange'
-            // c_daterange, columnType 'daterange'
-            // c_pg_lsn, columnType 'pg_lsn'
-            // c_txid_snapshot, columnType 'txid_snapshot'
+            //            {
+            //                for (String col : table.getColumns()) {
+            //                    if (col.startsWith("a_")) {//
+            //                        table.findColumn(col).ignoreReset();
+            //                    } else {
+            //                        table.findColumn(col).ignoreAct(UseFor.values());
+            //                    }
+            //                }
+            //                table.apply();
+            //            }
 
             // 生成数据
             FakerEngine fakerEngine = new FakerEngine(factory);
@@ -79,3 +65,55 @@ public class PostgresTest {
         }
     }
 }
+//
+//严重: unsupported columnName c_point, columnType 'point'
+//严重: unsupported columnName c_line, columnType 'line'
+//严重: unsupported columnName c_lseg, columnType 'lseg'
+//严重: unsupported columnName c_box, columnType 'box'
+//严重: unsupported columnName c_path, columnType 'path'
+//严重: unsupported columnName c_polygon, columnType 'polygon'
+//严重: unsupported columnName c_circle, columnType 'circle'
+//
+//严重: unsupported columnName c_cidr, columnType 'cidr'
+//严重: unsupported columnName c_inet, columnType 'inet'
+//严重: unsupported columnName c_macaddr, columnType 'macaddr'
+//严重: unsupported columnName c_macaddr8, columnType 'macaddr8'
+//严重: unsupported columnName c_tsvector, columnType 'tsvector'
+//严重: unsupported columnName c_tsquery, columnType 'tsquery'
+//严重: unsupported columnName c_xml, columnType 'xml'
+//严重: unsupported columnName c_json, columnType 'json'
+//严重: unsupported columnName c_jsonb, columnType 'jsonb'
+//严重: unsupported columnName c_int4range, columnType 'int4range'
+//严重: unsupported columnName c_int8range, columnType 'int8range'
+//严重: unsupported columnName c_numrange, columnType 'numrange'
+//严重: unsupported columnName c_tsrange, columnType 'tsrange'
+//严重: unsupported columnName c_tstzrange, columnType 'tstzrange'
+//严重: unsupported columnName c_daterange, columnType 'daterange'
+//
+//严重: unsupported columnName c_pg_lsn, columnType 'pg_lsn'
+//严重: unsupported columnName c_txid_snapshot, columnType 'txid_snapshot'
+//
+//严重: unsupported columnName a_point, columnType 'point'
+//严重: unsupported columnName a_line, columnType 'line'
+//严重: unsupported columnName a_lseg, columnType 'lseg'
+//严重: unsupported columnName a_box, columnType 'box'
+//严重: unsupported columnName a_path, columnType 'path'
+//严重: unsupported columnName a_polygon, columnType 'polygon'
+//严重: unsupported columnName a_circle, columnType 'circle'
+//严重: unsupported columnName a_cidr, columnType 'cidr'
+//严重: unsupported columnName a_inet, columnType 'inet'
+//严重: unsupported columnName a_macaddr, columnType 'macaddr'
+//严重: unsupported columnName a_macaddr8, columnType 'macaddr8'
+//严重: unsupported columnName a_tsvector, columnType 'tsvector'
+//严重: unsupported columnName a_tsquery, columnType 'tsquery'
+//严重: unsupported columnName a_xml, columnType 'xml'
+//严重: unsupported columnName a_json, columnType 'json'
+//严重: unsupported columnName a_jsonb, columnType 'jsonb'
+//严重: unsupported columnName a_int4range, columnType 'int4range'
+//严重: unsupported columnName a_int8range, columnType 'int8range'
+//严重: unsupported columnName a_numrange, columnType 'numrange'
+//严重: unsupported columnName a_tsrange, columnType 'tsrange'
+//严重: unsupported columnName a_tstzrange, columnType 'tstzrange'
+//严重: unsupported columnName a_daterange, columnType 'daterange'
+//严重: unsupported columnName a_pg_lsn, columnType 'pg_lsn'
+//严重: unsupported columnName a_txid_snapshot, columnType 'txid_snapshot'

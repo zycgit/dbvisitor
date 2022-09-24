@@ -13,34 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.seed.guid;
+package net.hasor.dbvisitor.faker.seed.array;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 
 import java.io.Serializable;
-import java.nio.ByteBuffer;
-import java.util.UUID;
 import java.util.function.Supplier;
 
+import static net.hasor.cobble.RandomUtils.nextInt;
 import static net.hasor.dbvisitor.faker.FakerRandomUtils.nextFloat;
 
 /**
- * GUID/UUID SeedFactory
+ * 数组类型生成器 SeedFactory
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class GuidSeedFactory implements SeedFactory<GuidSeedConfig> {
-    @Override
-    public GuidSeedConfig newConfig(SeedConfig contextType) {
-        return new GuidSeedConfig();
+public class ArraySeedFactory implements SeedFactory<ArraySeedConfig> {
+    private SeedFactory elementFactory;
+
+    public ArraySeedFactory() {
+    }
+
+    public ArraySeedFactory(SeedFactory elementFactory) {
+        this.elementFactory = elementFactory;
     }
 
     @Override
-    public Supplier<Serializable> createSeed(GuidSeedConfig seedConfig) {
-        GuidType guidType = seedConfig.getDateType();
+    public ArraySeedConfig newConfig(SeedConfig contextType) {
+        return new ArraySeedConfig(this.elementFactory.newConfig());
+    }
+
+    @Override
+    public Supplier<Serializable> createSeed(ArraySeedConfig seedConfig) {
+        int minSize = seedConfig.getMinSize();
+        int maxSize = seedConfig.getMaxSize();
+        Supplier<Serializable> elementSeed = elementFactory.createSeed(seedConfig.getElementDef());
+
         boolean allowNullable = seedConfig.isAllowNullable();
         Float nullableRatio = seedConfig.getNullableRatio();
-
         if (allowNullable && nullableRatio == null) {
             throw new IllegalStateException("allowNullable is true but, nullableRatio missing.");
         }
@@ -48,24 +58,25 @@ public class GuidSeedFactory implements SeedFactory<GuidSeedConfig> {
         return () -> {
             if (allowNullable && nextFloat(0, 100) < nullableRatio) {
                 return null;
-            } else {
-                UUID randomUUID = UUID.randomUUID();
-                switch (guidType) {
-                    case Timestamp:
-                        return randomUUID.timestamp();
-                    case Bytes: {
-                        ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
-                        bb.putLong(randomUUID.getMostSignificantBits());
-                        bb.putLong(randomUUID.getLeastSignificantBits());
-                        return bb.array();
-                    }
-                    case String32:
-                        return randomUUID.toString().replace("-", "");
-                    case String36:
-                    default:
-                        return randomUUID.toString();
-                }
             }
+
+            return nextArray(nextInt(minSize, maxSize + 1), elementSeed);
         };
+    }
+
+    private Serializable[] nextArray(int size, Supplier<Serializable> elementSeed) {
+        Serializable[] result = new Serializable[size];
+        for (int i = 0; i < size; i++) {
+            result[i] = elementSeed.get();
+        }
+        return result;
+    }
+
+    public SeedFactory getElementFactory() {
+        return elementFactory;
+    }
+
+    public void setElementFactory(SeedFactory elementFactory) {
+        this.elementFactory = elementFactory;
     }
 }

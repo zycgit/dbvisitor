@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.faker.seed;
 import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.faker.seed.array.ArraySeedFactory;
 import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedFactory;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedFactory;
 import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
@@ -38,7 +39,7 @@ public enum SeedType {
     Enums(EnumSeedFactory::new),
     Bytes(BytesSeedFactory::new),
     GID(GuidSeedFactory::new),
-    //    Array,
+    Array(ArraySeedFactory::new),
     //    Struts,
     //    RelationId,
     Custom(null);

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.number;
+import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 
 import java.io.Serializable;
@@ -30,7 +31,7 @@ import static net.hasor.dbvisitor.faker.FakerRandomUtils.*;
  */
 public class NumberSeedFactory implements SeedFactory<NumberSeedConfig> {
     @Override
-    public NumberSeedConfig newConfig() {
+    public NumberSeedConfig newConfig(SeedConfig contextType) {
         return new NumberSeedConfig();
     }
 

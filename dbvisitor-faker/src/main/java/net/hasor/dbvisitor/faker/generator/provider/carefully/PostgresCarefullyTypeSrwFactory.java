@@ -15,11 +15,16 @@
  */
 package net.hasor.dbvisitor.faker.generator.provider.carefully;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.codec.HexUtils;
 import net.hasor.cobble.setting.SettingNode;
 import net.hasor.dbvisitor.faker.FakerConfigEnum;
 import net.hasor.dbvisitor.faker.generator.TypeSrw;
 import net.hasor.dbvisitor.faker.generator.provider.DefaultTypeSrwFactory;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
+import net.hasor.dbvisitor.faker.seed.SeedConfig;
+import net.hasor.dbvisitor.faker.seed.SeedFactory;
+import net.hasor.dbvisitor.faker.seed.array.ArraySeedConfig;
+import net.hasor.dbvisitor.faker.seed.array.ArraySeedFactory;
 import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedConfig;
 import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedFactory;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedConfig;
@@ -37,12 +42,15 @@ import net.hasor.dbvisitor.faker.seed.number.NumberType;
 import net.hasor.dbvisitor.faker.seed.string.CharacterSet;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedConfig;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedFactory;
+import net.hasor.dbvisitor.types.handler.ArrayTypeHandler;
 import net.hasor.dbvisitor.types.handler.BigDecimalTypeHandler;
 
 import java.math.BigDecimal;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * https://www.postgresql.org/docs/13/datatype.html
@@ -56,18 +64,17 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
         if (StringUtils.isBlank(columnType)) {
             return defaultSeedFactory(jdbcColumn);
         }
+
         boolean isArray = columnType.charAt(0) == '_';
         if (isArray) {
-            //97 = "_int2,2003"
             columnType = columnType.substring(1);
-            throw new UnsupportedOperationException("unsupported columnName " + jdbcColumn.getColumnName()//
-                    + ", columnType '" + columnType + "'");
         }
+
         switch (columnType) {
             case "bool": {
                 BooleanSeedFactory seedFactory = new BooleanSeedFactory();
                 BooleanSeedConfig seedConfig = seedFactory.newConfig();
-                return new TypeSrw(seedFactory, seedConfig, Types.BOOLEAN);
+                return finalSrw(seedFactory, seedConfig, Types.BOOLEAN, isArray, columnConfig, columnType);
             }
             case "smallserial":
             case "int2": {
@@ -75,7 +82,7 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("10000"));
-                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
+                return finalSrw(seedFactory, seedConfig, Types.INTEGER, isArray, columnConfig, columnType);
             }
             case "serial":
             case "int4": {
@@ -83,7 +90,7 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("1000000"));
-                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
+                return finalSrw(seedFactory, seedConfig, Types.INTEGER, isArray, columnConfig, columnType);
             }
             case "oid":
             case "bigserial":
@@ -92,7 +99,7 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("100000000"));
-                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
+                return finalSrw(seedFactory, seedConfig, Types.BIGINT, isArray, columnConfig, columnType);
             }
             case "numeric": {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
@@ -101,12 +108,15 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                 if (jdbcColumn.getColumnSize() == 0 && jdbcColumn.getDecimalDigits() == null) {
                     seedConfig.setPrecision(6);
                     seedConfig.setScale(2);
+                } else if (isArray && jdbcColumn.getColumnSize() > 300) {
+                    seedConfig.setPrecision(6);
+                    seedConfig.setScale(2);
                 } else {
                     seedConfig.setPrecision(jdbcColumn.getColumnSize());
                     seedConfig.setScale(jdbcColumn.getDecimalDigits());
                 }
                 seedConfig.setAbs(true);
-                return new TypeSrw(seedFactory, seedConfig, Types.DECIMAL);
+                return finalSrw(seedFactory, seedConfig, Types.DECIMAL, isArray, columnConfig, columnType);
             }
             case "float4":
             case "float8": {
@@ -116,7 +126,7 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                 seedConfig.addMinMax(new BigDecimal("0.0"), new BigDecimal("9999.999"));
                 seedConfig.setScale(3);
                 seedConfig.setAbs(true);
-                return new TypeSrw(seedFactory, seedConfig, Types.DOUBLE);
+                return finalSrw(seedFactory, seedConfig, Types.DOUBLE, isArray, columnConfig, columnType);
             }
             case "money": {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
@@ -127,10 +137,11 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                 seedConfig.setAbs(true);
                 seedConfig.setTypeHandler(new PostgresMoneyTypeHandler());
 
-                columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), "?::numeric::money");
-                columnConfig.addValue(FakerConfigEnum.WHERE_VALUE_TEMPLATE.getConfigKey(), "?::numeric::money");
-                columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), "?::numeric::money");
-                return new TypeSrw(seedFactory, seedConfig, Types.DECIMAL);
+                String fmtType = "?::" + fmtType(isArray, "numeric") + "::" + fmtType(isArray, "money");
+                columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), fmtType);
+                columnConfig.addValue(FakerConfigEnum.WHERE_VALUE_TEMPLATE.getConfigKey(), fmtType);
+                columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), fmtType);
+                return finalSrw(seedFactory, seedConfig, Types.DECIMAL, isArray, columnConfig, columnType);
             }
             case "name":
             case "bpchar":
@@ -141,16 +152,18 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                 seedConfig.setMinLength(1);
                 seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 10, 100));
                 seedConfig.setCharacterSet(new HashSet<>(Collections.singletonList(CharacterSet.LETTER_NUMBER)));
-                return new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
+                return finalSrw(seedFactory, seedConfig, Types.VARCHAR, isArray, columnConfig, columnType);
             }
             case "uuid": {
                 GuidSeedFactory seedFactory = new GuidSeedFactory();
                 GuidSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setDateType(GuidType.String36);
-                columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), "?::uuid");
-                columnConfig.addValue(FakerConfigEnum.WHERE_VALUE_TEMPLATE.getConfigKey(), "?::uuid");
-                columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), "?::uuid");
-                return new TypeSrw(seedFactory, seedConfig, Types.OTHER);
+
+                String fmtType = "?::" + fmtType(isArray, "uuid");
+                columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), fmtType);
+                columnConfig.addValue(FakerConfigEnum.WHERE_VALUE_TEMPLATE.getConfigKey(), fmtType);
+                columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), fmtType);
+                return finalSrw(seedFactory, seedConfig, Types.OTHER, isArray, columnConfig, columnType);
             }
             case "date": {
                 DateSeedFactory seedFactory = new DateSeedFactory();
@@ -160,7 +173,7 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                 seedConfig.setDateFormat("yyyy-MM-dd");
                 seedConfig.setRangeForm("2000-01-01");
                 seedConfig.setRangeTo("2030-12-31");
-                return new TypeSrw(seedFactory, seedConfig, Types.DATE);
+                return finalSrw(seedFactory, seedConfig, Types.DATE, isArray, columnConfig, columnType);
             }
             case "time":
             case "timetz": {
@@ -178,9 +191,9 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                     seedConfig.setDateType(DateType.OffsetTime);
                     seedConfig.setZoneForm("-08:00");
                     seedConfig.setZoneTo("+08:00");
-                    return new TypeSrw(seedFactory, seedConfig, Types.TIME_WITH_TIMEZONE);
+                    return finalSrw(seedFactory, seedConfig, Types.TIME_WITH_TIMEZONE, isArray, columnConfig, columnType);
                 } else {
-                    return new TypeSrw(seedFactory, seedConfig, Types.TIME);
+                    return finalSrw(seedFactory, seedConfig, Types.TIME, isArray, columnConfig, columnType);
                 }
             }
             case "interval":
@@ -200,15 +213,17 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                     seedConfig.setDateType(DateType.OffsetDateTime);
                     seedConfig.setZoneForm("-08:00");
                     seedConfig.setZoneTo("+08:00");
-                    return new TypeSrw(seedFactory, seedConfig, Types.TIMESTAMP_WITH_TIMEZONE);
+                    return finalSrw(seedFactory, seedConfig, Types.TIMESTAMP_WITH_TIMEZONE, isArray, columnConfig, columnType);
                 } else if (StringUtils.endsWith(columnType, "interval")) {
                     seedConfig.setDateType(DateType.ISO8601);
-                    columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), "?::interval");
-                    columnConfig.addValue(FakerConfigEnum.WHERE_VALUE_TEMPLATE.getConfigKey(), "?::interval");
-                    columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), "?::interval");
-                    return new TypeSrw(seedFactory, seedConfig, Types.OTHER);
+
+                    String fmtType = "?::" + fmtType(isArray, "interval");
+                    columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), fmtType);
+                    columnConfig.addValue(FakerConfigEnum.WHERE_VALUE_TEMPLATE.getConfigKey(), fmtType);
+                    columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), fmtType);
+                    return finalSrw(seedFactory, seedConfig, Types.OTHER, isArray, columnConfig, columnType);
                 } else {
-                    return new TypeSrw(seedFactory, seedConfig, Types.TIMESTAMP);
+                    return finalSrw(seedFactory, seedConfig, Types.TIMESTAMP, isArray, columnConfig, columnType);
                 }
             }
             case "bit":
@@ -216,7 +231,14 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                 StringSeedFactory seedFactory = new StringSeedFactory();
                 StringSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setMinLength(1);
-                seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 8, 24));
+
+                if (jdbcColumn.getColumnSize() == 0 && jdbcColumn.getDecimalDigits() == null) {
+                    seedConfig.setMaxLength(8);
+                } else if (isArray && jdbcColumn.getColumnSize() > 300) {
+                    seedConfig.setMaxLength(8);
+                } else {
+                    seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 8, 24));
+                }
                 seedConfig.setCharacterSet(new HashSet<>(Collections.singletonList(CharacterSet.BIT)));
 
                 String temp = null;
@@ -226,17 +248,17 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                     temp = "?::bit varying(" + seedConfig.getMaxLength() + ")";
                 }
 
-                columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), temp);
-                columnConfig.addValue(FakerConfigEnum.WHERE_VALUE_TEMPLATE.getConfigKey(), temp);
-                columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), temp);
-                return new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
+                columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), fmtType(isArray, temp));
+                columnConfig.addValue(FakerConfigEnum.WHERE_VALUE_TEMPLATE.getConfigKey(), fmtType(isArray, temp));
+                columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), fmtType(isArray, temp));
+                return finalSrw(seedFactory, seedConfig, Types.VARCHAR, isArray, columnConfig, columnType);
             }
             case "bytea": {
                 BytesSeedFactory seedFactory = new BytesSeedFactory();
                 BytesSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setMinLength(1);
                 seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 32, 128));
-                return new TypeSrw(seedFactory, seedConfig, Types.VARBINARY);
+                return finalSrw(seedFactory, seedConfig, Types.VARBINARY, isArray, columnConfig, columnType);
             }
             case "json":
             case "jsonb":
@@ -275,6 +297,37 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
         }
     }
 
+    private static TypeSrw finalSrw(SeedFactory<? extends SeedConfig> seedFactory, SeedConfig seedConfig, Integer jdbcType, //
+            boolean isArray, SettingNode columnConfig, String elementType) {
+        if (!isArray) {
+            return new TypeSrw(seedFactory, seedConfig, jdbcType);
+        }
+
+        ArraySeedFactory arrayFactory = new ArraySeedFactory(seedFactory);
+        ArraySeedConfig arrayConfig = new ArraySeedConfig(seedConfig);
+        arrayConfig.setMinSize(0);
+        arrayConfig.setMaxSize(10);
+
+        switch (elementType) {
+            case "money":
+                arrayConfig.setTypeHandler(new PostgresArrayTypeHandler("money", rs -> toNumber(rs.getString("VALUE"))));
+                break;
+            case "bit":
+                arrayConfig.setTypeHandler(new PostgresArrayTypeHandler("bit", rs -> rs.getString("VALUE")));
+                break;
+            case "varbit":
+                arrayConfig.setTypeHandler(new PostgresArrayTypeHandler("varbit", rs -> rs.getString("VALUE")));
+                break;
+            case "bytea":
+                arrayConfig.setTypeHandler(new PostgresArrayTypeHandler("bytea", rs -> rs.getBytes("VALUE")));
+                break;
+            default:
+                arrayConfig.setTypeHandler(new PostgresArrayTypeHandler(elementType, rs -> rs.getObject("VALUE")));
+                break;
+        }
+        return new TypeSrw(arrayFactory, arrayConfig, Types.ARRAY);
+    }
+
     private static int safeMaxLength(Integer number, int defaultNum, int maxNum) {
         if (number == null || number < 0) {
             return defaultNum;
@@ -285,32 +338,8 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
         }
     }
 
-    private static class PostgresMoneyTypeHandler extends BigDecimalTypeHandler {
-
-        @Override
-        public BigDecimal getNullableResult(ResultSet rs, String columnName) throws SQLException {
-            return toNumber(rs.getString(columnName));
-        }
-
-        @Override
-        public BigDecimal getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-            return toNumber(rs.getString(columnIndex));
-        }
-
-        @Override
-        public BigDecimal getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-            return toNumber(cs.getString(columnIndex));
-        }
-
-        private BigDecimal toNumber(String moneyValue) {
-            String moneySign = filerMoneySign(moneyValue);
-            return StringUtils.isBlank(moneySign) ? null : new BigDecimal(moneySign);
-        }
-
-        @Override
-        public void setNonNullParameter(PreparedStatement ps, int i, BigDecimal parameter, Integer jdbcType) throws SQLException {
-            ps.setString(i, parameter.toPlainString());
-        }
+    private static String fmtType(boolean isArray, String type) {
+        return isArray ? (type + "[]") : type;
     }
 
     private static String filerMoneySign(String mStr) {
@@ -331,5 +360,90 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
         } else {
             return StringUtils.replace(mStr.substring(index), ",", "");
         }
+    }
+
+    private static BigDecimal toNumber(String moneyValue) {
+        String moneySign = filerMoneySign(moneyValue);
+        return StringUtils.isBlank(moneySign) ? null : new BigDecimal(moneySign);
+    }
+
+    private static class PostgresMoneyTypeHandler extends BigDecimalTypeHandler {
+
+        @Override
+        public BigDecimal getNullableResult(ResultSet rs, String columnName) throws SQLException {
+            return toNumber(rs.getString(columnName));
+        }
+
+        @Override
+        public BigDecimal getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+            return toNumber(rs.getString(columnIndex));
+        }
+
+        @Override
+        public BigDecimal getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+            return toNumber(cs.getString(columnIndex));
+        }
+
+        @Override
+        public void setNonNullParameter(PreparedStatement ps, int i, BigDecimal parameter, Integer jdbcType) throws SQLException {
+            ps.setString(i, parameter.toPlainString());
+        }
+    }
+
+    private static class PostgresArrayTypeHandler extends ArrayTypeHandler {
+        private final String                   typeName;
+        private final PostgresReadArrayHandler readArrayHandler;
+
+        public PostgresArrayTypeHandler(String typeName, PostgresReadArrayHandler readArrayHandler) {
+            this.typeName = typeName;
+            this.readArrayHandler = readArrayHandler;
+        }
+
+        protected Object[] objects(Object parameter) {
+            Object[] oriData = (Object[]) parameter;
+
+            List<Object> copy = new ArrayList<>();
+            for (Object oriDatum : oriData) {
+                if (this.typeName.equals("bytea")) {
+                    copy.add(HexUtils.bytes2hex((byte[]) oriDatum));
+                } else {
+                    copy.add(oriDatum);
+                }
+            }
+            return copy.toArray();
+        }
+
+        @Override
+        public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, Integer jdbcType) throws SQLException {
+            if (parameter instanceof Array) {
+                ps.setArray(i, (Array) parameter);// it's the user's responsibility to properly free() the Array instance
+            } else {
+                Array array = ps.getConnection().createArrayOf(this.typeName, objects(parameter));
+                ps.setArray(i, array);
+                array.free();
+            }
+        }
+
+        protected Object extractArray(Array array) throws SQLException {
+            if (array == null) {
+                return null;
+            }
+            List<Object> data = new ArrayList<>();
+            try (ResultSet rs = array.getResultSet()) {
+                while (rs.next()) {
+                    if (readArrayHandler == null) {
+                        data.add(rs.getObject("VALUE"));
+                    } else {
+                        data.add(readArrayHandler.readElement(rs));
+                    }
+                }
+                array.free();
+                return data.toArray();
+            }
+        }
+    }
+
+    private static interface PostgresReadArrayHandler {
+        Object readElement(ResultSet rs) throws SQLException;
     }
 }
