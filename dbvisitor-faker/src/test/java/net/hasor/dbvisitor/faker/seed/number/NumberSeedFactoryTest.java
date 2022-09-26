@@ -13,8 +13,7 @@ public class NumberSeedFactoryTest {
         NumberSeedFactory factory = new NumberSeedFactory();
         NumberSeedConfig genConfig = new NumberSeedConfig();
         genConfig.setNumberType(NumberType.Bool);
-        genConfig.setMin(BigDecimal.valueOf(2));
-        genConfig.setMax(BigDecimal.valueOf(64));
+        genConfig.addMinMax(BigDecimal.valueOf(2), BigDecimal.valueOf(64));
         genConfig.setAllowNullable(false);
 
         Supplier<Serializable> bytesSupplier = factory.createSeed(genConfig);
@@ -30,8 +29,7 @@ public class NumberSeedFactoryTest {
         NumberSeedFactory factory = new NumberSeedFactory();
         NumberSeedConfig genConfig = new NumberSeedConfig();
         genConfig.setNumberType(NumberType.Byte);
-        genConfig.setMin(BigDecimal.valueOf(2));
-        genConfig.setMax(BigDecimal.valueOf(6400));
+        genConfig.addMinMax(BigDecimal.valueOf(2), BigDecimal.valueOf(6400));
         genConfig.setAllowNullable(false);
 
         Supplier<Serializable> bytesSupplier = factory.createSeed(genConfig);
@@ -47,8 +45,7 @@ public class NumberSeedFactoryTest {
         NumberSeedFactory factory = new NumberSeedFactory();
         NumberSeedConfig genConfig = new NumberSeedConfig();
         genConfig.setNumberType(NumberType.Short);
-        genConfig.setMin(BigDecimal.valueOf(202));
-        genConfig.setMax(BigDecimal.valueOf(6400));
+        genConfig.addMinMax(BigDecimal.valueOf(202), BigDecimal.valueOf(6400));
         genConfig.setAllowNullable(false);
 
         Supplier<Serializable> bytesSupplier = factory.createSeed(genConfig);
@@ -64,8 +61,7 @@ public class NumberSeedFactoryTest {
         NumberSeedFactory factory = new NumberSeedFactory();
         NumberSeedConfig genConfig = new NumberSeedConfig();
         genConfig.setNumberType(NumberType.Long);
-        genConfig.setMin(BigDecimal.valueOf(202));
-        genConfig.setMax(BigDecimal.valueOf(640000000));
+        genConfig.addMinMax(BigDecimal.valueOf(202), BigDecimal.valueOf(640000000));
         genConfig.setAllowNullable(false);
 
         Supplier<Serializable> bytesSupplier = factory.createSeed(genConfig);
@@ -81,8 +77,7 @@ public class NumberSeedFactoryTest {
         NumberSeedFactory factory = new NumberSeedFactory();
         NumberSeedConfig genConfig = new NumberSeedConfig();
         genConfig.setNumberType(NumberType.Long);
-        genConfig.setMin(BigDecimal.valueOf(202));
-        genConfig.setMax(BigDecimal.valueOf(640000000));
+        genConfig.addMinMax(BigDecimal.valueOf(202), BigDecimal.valueOf(640000000));
         genConfig.setAllowNullable(true);
         genConfig.setNullableRatio(20.0f);
 

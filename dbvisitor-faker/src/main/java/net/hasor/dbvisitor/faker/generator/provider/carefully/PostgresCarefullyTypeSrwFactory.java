@@ -15,16 +15,12 @@
  */
 package net.hasor.dbvisitor.faker.generator.provider.carefully;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.codec.HexUtils;
 import net.hasor.cobble.setting.SettingNode;
 import net.hasor.dbvisitor.faker.FakerConfigEnum;
 import net.hasor.dbvisitor.faker.generator.TypeSrw;
-import net.hasor.dbvisitor.faker.generator.provider.DefaultTypeSrwFactory;
+import net.hasor.dbvisitor.faker.generator.UseFor;
+import net.hasor.dbvisitor.faker.generator.provider.AbstractPostgresTypeSrwFactory;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
-import net.hasor.dbvisitor.faker.seed.SeedConfig;
-import net.hasor.dbvisitor.faker.seed.SeedFactory;
-import net.hasor.dbvisitor.faker.seed.array.ArraySeedConfig;
-import net.hasor.dbvisitor.faker.seed.array.ArraySeedFactory;
 import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedConfig;
 import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedFactory;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedConfig;
@@ -33,6 +29,9 @@ import net.hasor.dbvisitor.faker.seed.date.DateSeedConfig;
 import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
 import net.hasor.dbvisitor.faker.seed.date.DateType;
 import net.hasor.dbvisitor.faker.seed.date.GenType;
+import net.hasor.dbvisitor.faker.seed.geometry.GeometrySeedConfig;
+import net.hasor.dbvisitor.faker.seed.geometry.GeometrySeedFactory;
+import net.hasor.dbvisitor.faker.seed.geometry.GeometryType;
 import net.hasor.dbvisitor.faker.seed.guid.GuidSeedConfig;
 import net.hasor.dbvisitor.faker.seed.guid.GuidSeedFactory;
 import net.hasor.dbvisitor.faker.seed.guid.GuidType;
@@ -42,22 +41,18 @@ import net.hasor.dbvisitor.faker.seed.number.NumberType;
 import net.hasor.dbvisitor.faker.seed.string.CharacterSet;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedConfig;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedFactory;
-import net.hasor.dbvisitor.types.handler.ArrayTypeHandler;
-import net.hasor.dbvisitor.types.handler.BigDecimalTypeHandler;
 
 import java.math.BigDecimal;
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.Types;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 
 /**
  * https://www.postgresql.org/docs/13/datatype.html
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
+public class PostgresCarefullyTypeSrwFactory extends AbstractPostgresTypeSrwFactory {
     @Override
     public TypeSrw createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
         String columnType = jdbcColumn.getColumnType().toLowerCase();
@@ -260,6 +255,56 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                 seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 32, 128));
                 return finalSrw(seedFactory, seedConfig, Types.VARBINARY, isArray, columnConfig, columnType);
             }
+            case "point":
+            case "line":
+            case "lseg":
+            case "box":
+            case "path":
+            case "polygon":
+            case "circle":
+            case "geometry": {
+                GeometrySeedFactory seedFactory = new GeometrySeedFactory();
+                GeometrySeedConfig seedConfig = seedFactory.newConfig();
+                seedConfig.addRange(50, 0.0, 0.0, 1000, 1000);
+                seedConfig.setPrecision(5);
+                seedConfig.setMinPointSize(2);
+                seedConfig.setMaxPointSize(10);
+
+                switch (columnType) {
+                    case "point":
+                        seedConfig.setGeometryType(GeometryType.Point);
+                        break;
+                    case "line":
+                        seedConfig.setGeometryType(GeometryType.Line);
+                        break;
+                    case "lseg":
+                        seedConfig.setGeometryType(GeometryType.Lseg);
+                        break;
+                    case "box":
+                        seedConfig.setGeometryType(GeometryType.Box);
+                        break;
+                    case "circle":
+                        seedConfig.setGeometryType(GeometryType.Circle);
+                        break;
+                    case "path":
+                        seedConfig.setGeometryType(GeometryType.Path);
+                        break;
+                    case "polygon":
+                        seedConfig.setGeometryType(GeometryType.Polygon);
+                        break;
+                    case "geometry":
+                        seedConfig.setGeometryType(GeometryType.MultiPolygon);
+                        break;
+                }
+
+                String temp = "?::" + columnType;
+                columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), fmtType(isArray, temp));
+                columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), fmtType(isArray, temp));
+                TypeSrw typeSrw = finalSrw(seedFactory, seedConfig, Types.OTHER, isArray, columnConfig, columnType);
+                typeSrw.getDefaultIgnoreAct().add(UseFor.DeleteWhere);
+                typeSrw.getDefaultIgnoreAct().add(UseFor.UpdateWhere);
+                return typeSrw;
+            }
             case "json":
             case "jsonb":
                 //86 = "json,jsonb,1111"
@@ -270,14 +315,6 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
             case "macaddr":
             case "macaddr8":
                 // ip address,1111
-            case "point":
-            case "line":
-            case "lseg":
-            case "box":
-            case "path":
-            case "polygon":
-            case "circle":
-                // gis,1111
             case "int4range":
             case "int8range":
             case "numrange":
@@ -295,155 +332,5 @@ public class PostgresCarefullyTypeSrwFactory extends DefaultTypeSrwFactory {
                         + ", columnType '" + columnType + "'");
             }
         }
-    }
-
-    private static TypeSrw finalSrw(SeedFactory<? extends SeedConfig> seedFactory, SeedConfig seedConfig, Integer jdbcType, //
-            boolean isArray, SettingNode columnConfig, String elementType) {
-        if (!isArray) {
-            return new TypeSrw(seedFactory, seedConfig, jdbcType);
-        }
-
-        ArraySeedFactory arrayFactory = new ArraySeedFactory(seedFactory);
-        ArraySeedConfig arrayConfig = new ArraySeedConfig(seedConfig);
-        arrayConfig.setMinSize(0);
-        arrayConfig.setMaxSize(10);
-
-        switch (elementType) {
-            case "money":
-                arrayConfig.setTypeHandler(new PostgresArrayTypeHandler("money", rs -> toNumber(rs.getString("VALUE"))));
-                break;
-            case "bit":
-                arrayConfig.setTypeHandler(new PostgresArrayTypeHandler("bit", rs -> rs.getString("VALUE")));
-                break;
-            case "varbit":
-                arrayConfig.setTypeHandler(new PostgresArrayTypeHandler("varbit", rs -> rs.getString("VALUE")));
-                break;
-            case "bytea":
-                arrayConfig.setTypeHandler(new PostgresArrayTypeHandler("bytea", rs -> rs.getBytes("VALUE")));
-                break;
-            default:
-                arrayConfig.setTypeHandler(new PostgresArrayTypeHandler(elementType, rs -> rs.getObject("VALUE")));
-                break;
-        }
-        return new TypeSrw(arrayFactory, arrayConfig, Types.ARRAY);
-    }
-
-    private static int safeMaxLength(Integer number, int defaultNum, int maxNum) {
-        if (number == null || number < 0) {
-            return defaultNum;
-        } else if (number > maxNum) {
-            return maxNum;
-        } else {
-            return number;
-        }
-    }
-
-    private static String fmtType(boolean isArray, String type) {
-        return isArray ? (type + "[]") : type;
-    }
-
-    private static String filerMoneySign(String mStr) {
-        if (StringUtils.isBlank(mStr)) {
-            return null;
-        }
-        char[] chars = mStr.toCharArray();
-        int index = -1;
-        for (int i = 0; i < chars.length; i++) {
-            char c = chars[i];
-            if (Character.isDigit(c)) {
-                index = i;
-                break;
-            }
-        }
-        if (index == -1) {
-            return StringUtils.replace(mStr, ",", "");
-        } else {
-            return StringUtils.replace(mStr.substring(index), ",", "");
-        }
-    }
-
-    private static BigDecimal toNumber(String moneyValue) {
-        String moneySign = filerMoneySign(moneyValue);
-        return StringUtils.isBlank(moneySign) ? null : new BigDecimal(moneySign);
-    }
-
-    private static class PostgresMoneyTypeHandler extends BigDecimalTypeHandler {
-
-        @Override
-        public BigDecimal getNullableResult(ResultSet rs, String columnName) throws SQLException {
-            return toNumber(rs.getString(columnName));
-        }
-
-        @Override
-        public BigDecimal getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-            return toNumber(rs.getString(columnIndex));
-        }
-
-        @Override
-        public BigDecimal getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-            return toNumber(cs.getString(columnIndex));
-        }
-
-        @Override
-        public void setNonNullParameter(PreparedStatement ps, int i, BigDecimal parameter, Integer jdbcType) throws SQLException {
-            ps.setString(i, parameter.toPlainString());
-        }
-    }
-
-    private static class PostgresArrayTypeHandler extends ArrayTypeHandler {
-        private final String                   typeName;
-        private final PostgresReadArrayHandler readArrayHandler;
-
-        public PostgresArrayTypeHandler(String typeName, PostgresReadArrayHandler readArrayHandler) {
-            this.typeName = typeName;
-            this.readArrayHandler = readArrayHandler;
-        }
-
-        protected Object[] objects(Object parameter) {
-            Object[] oriData = (Object[]) parameter;
-
-            List<Object> copy = new ArrayList<>();
-            for (Object oriDatum : oriData) {
-                if (this.typeName.equals("bytea")) {
-                    copy.add(HexUtils.bytes2hex((byte[]) oriDatum));
-                } else {
-                    copy.add(oriDatum);
-                }
-            }
-            return copy.toArray();
-        }
-
-        @Override
-        public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, Integer jdbcType) throws SQLException {
-            if (parameter instanceof Array) {
-                ps.setArray(i, (Array) parameter);// it's the user's responsibility to properly free() the Array instance
-            } else {
-                Array array = ps.getConnection().createArrayOf(this.typeName, objects(parameter));
-                ps.setArray(i, array);
-                array.free();
-            }
-        }
-
-        protected Object extractArray(Array array) throws SQLException {
-            if (array == null) {
-                return null;
-            }
-            List<Object> data = new ArrayList<>();
-            try (ResultSet rs = array.getResultSet()) {
-                while (rs.next()) {
-                    if (readArrayHandler == null) {
-                        data.add(rs.getObject("VALUE"));
-                    } else {
-                        data.add(readArrayHandler.readElement(rs));
-                    }
-                }
-                array.free();
-                return data.toArray();
-            }
-        }
-    }
-
-    private static interface PostgresReadArrayHandler {
-        Object readElement(ResultSet rs) throws SQLException;
     }
 }

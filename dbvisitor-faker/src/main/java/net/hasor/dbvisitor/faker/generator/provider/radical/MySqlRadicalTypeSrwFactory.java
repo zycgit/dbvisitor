@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.faker.generator.provider.radical;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.setting.SettingNode;
 import net.hasor.dbvisitor.faker.generator.TypeSrw;
-import net.hasor.dbvisitor.faker.generator.provider.DefaultTypeSrwFactory;
+import net.hasor.dbvisitor.faker.generator.provider.AbstractMySqlTypeSrwFactory;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedConfig;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedFactory;
@@ -35,12 +35,8 @@ import net.hasor.dbvisitor.faker.seed.number.NumberType;
 import net.hasor.dbvisitor.faker.seed.string.CharacterSet;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedConfig;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedFactory;
-import net.hasor.dbvisitor.types.handler.BigDecimalTypeHandler;
-import net.hasor.dbvisitor.types.handler.StringTypeHandler;
 
 import java.math.BigDecimal;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Collections;
 import java.util.HashSet;
@@ -50,7 +46,7 @@ import java.util.HashSet;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class MySqlRadicalTypeSrwFactory extends DefaultTypeSrwFactory {
+public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
     @Override
     public TypeSrw createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
         String columnType = jdbcColumn.getColumnType().toLowerCase();
@@ -277,38 +273,12 @@ public class MySqlRadicalTypeSrwFactory extends DefaultTypeSrwFactory {
                 seedConfig.setDict(new HashSet<>());
                 return new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
             }
-            case "json":
             case "geometry":
+            case "json":
             default: {
                 throw new UnsupportedOperationException("unsupported columnName " + jdbcColumn.getColumnName()//
                         + ", columnType '" + columnType + "'");
             }
-        }
-    }
-
-    private static int safeMaxLength(Integer number, int defaultNum, int maxNum) {
-        if (number == null || number < 0) {
-            return defaultNum;
-        } else if (number > maxNum) {
-            return maxNum;
-        } else {
-            return number;
-        }
-    }
-
-    private static class MySqlBigDecimalAsStringTypeHandler extends BigDecimalTypeHandler {
-
-        @Override
-        public void setNonNullParameter(PreparedStatement ps, int i, BigDecimal parameter, Integer jdbcType) throws SQLException {
-            ps.setString(i, parameter.toPlainString());
-        }
-    }
-
-    private static class MySqlBitAsStringTypeHandler extends StringTypeHandler {
-
-        @Override
-        public void setNonNullParameter(PreparedStatement ps, int i, String parameter, Integer jdbcType) throws SQLException {
-            ps.setInt(i, Integer.parseInt(parameter, 2));
         }
     }
 }

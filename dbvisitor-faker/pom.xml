@@ -28,6 +28,14 @@
             <artifactId>dbvisitor</artifactId>
         </dependency>
 
+        <!-- gis tools -->
+        <dependency>
+            <groupId>org.locationtech.jts</groupId>
+            <artifactId>jts-core</artifactId>
+            <version>1.18.2</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- driver -->
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>

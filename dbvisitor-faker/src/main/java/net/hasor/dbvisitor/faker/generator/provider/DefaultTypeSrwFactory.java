@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.generator.provider;
+import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.setting.SettingNode;
 import net.hasor.dbvisitor.faker.generator.TypeSrw;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
@@ -38,6 +39,8 @@ import java.util.Collections;
 import java.util.HashSet;
 
 public class DefaultTypeSrwFactory {
+    protected final static Logger logger = Logger.getLogger(DefaultTypeSrwFactory.class);
+
     public TypeSrw createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
         return defaultSeedFactory(jdbcColumn);
     }

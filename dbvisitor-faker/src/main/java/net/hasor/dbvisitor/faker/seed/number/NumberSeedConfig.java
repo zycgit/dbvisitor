@@ -64,39 +64,7 @@ public class NumberSeedConfig extends SeedConfig {
     public Ratio<MinMax> getMinMax() {
         return this.minmax;
     }
-
-    public BigDecimal getMin() {
-        if (this.minmax.isEmpty()) {
-            return null;
-        } else {
-            return this.minmax.getLast().getMin();
-        }
-    }
-
-    public void setMin(BigDecimal min) {
-        if (this.minmax.isEmpty()) {
-            this.addMinMax(min, null);
-        } else {
-            this.minmax.getLast().setMin(min);
-        }
-    }
-
-    public BigDecimal getMax() {
-        if (this.minmax.isEmpty()) {
-            return null;
-        } else {
-            return this.minmax.getLast().getMax();
-        }
-    }
-
-    public void setMax(BigDecimal max) {
-        if (this.minmax.isEmpty()) {
-            this.addMinMax(null, max);
-        } else {
-            this.minmax.getLast().setMax(max);
-        }
-    }
-
+ 
     public Integer getPrecision() {
         return precision;
     }

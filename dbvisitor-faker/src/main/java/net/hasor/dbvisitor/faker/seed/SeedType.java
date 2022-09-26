@@ -20,6 +20,7 @@ import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedFactory;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedFactory;
 import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
 import net.hasor.dbvisitor.faker.seed.enums.EnumSeedFactory;
+import net.hasor.dbvisitor.faker.seed.geometry.GeometrySeedFactory;
 import net.hasor.dbvisitor.faker.seed.guid.GuidSeedFactory;
 import net.hasor.dbvisitor.faker.seed.number.NumberSeedFactory;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedFactory;
@@ -40,6 +41,7 @@ public enum SeedType {
     Bytes(BytesSeedFactory::new),
     GID(GuidSeedFactory::new),
     Array(ArraySeedFactory::new),
+    Geometry(GeometrySeedFactory::new),
     //    Struts,
     //    RelationId,
     Custom(null);

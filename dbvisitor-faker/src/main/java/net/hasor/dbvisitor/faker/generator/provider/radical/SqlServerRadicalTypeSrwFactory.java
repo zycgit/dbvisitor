@@ -19,7 +19,7 @@ import net.hasor.cobble.setting.SettingNode;
 import net.hasor.dbvisitor.faker.FakerConfigEnum;
 import net.hasor.dbvisitor.faker.generator.TypeSrw;
 import net.hasor.dbvisitor.faker.generator.UseFor;
-import net.hasor.dbvisitor.faker.generator.provider.DefaultTypeSrwFactory;
+import net.hasor.dbvisitor.faker.generator.provider.AbstractSqlServerTypeSrwFactory;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
 import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedConfig;
 import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedFactory;
@@ -38,16 +38,9 @@ import net.hasor.dbvisitor.faker.seed.number.NumberType;
 import net.hasor.dbvisitor.faker.seed.string.CharacterSet;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedConfig;
 import net.hasor.dbvisitor.faker.seed.string.StringSeedFactory;
-import net.hasor.dbvisitor.types.handler.BigDecimalTypeHandler;
-import net.hasor.dbvisitor.types.handler.OffsetDateTimeForSqlTypeHandler;
 
 import java.math.BigDecimal;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.sql.Types;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.HashSet;
 
@@ -57,7 +50,7 @@ import java.util.HashSet;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class SqlServerRadicalTypeSrwFactory extends DefaultTypeSrwFactory {
+public class SqlServerRadicalTypeSrwFactory extends AbstractSqlServerTypeSrwFactory {
     @Override
     public TypeSrw createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
         String columnType = jdbcColumn.getColumnType().toLowerCase();
@@ -300,61 +293,15 @@ public class SqlServerRadicalTypeSrwFactory extends DefaultTypeSrwFactory {
                 seedConfig.setCharacterSet(new HashSet<>(Collections.singletonList(CharacterSet.LETTER_SMALL)));
                 return new TypeSrw(seedFactory, seedConfig, Types.NVARCHAR);
             }
-            case "xml":
             case "geography":
             case "geometry":
+            case "xml":
             case "hierarchyid":
             case "sql_variant":
             default: {
                 throw new UnsupportedOperationException("unsupported columnName " + jdbcColumn.getColumnName()//
                         + ", columnType '" + columnType + "'");
             }
-        }
-    }
-
-    private static int safeMaxLength(Integer number, int defaultNum, int maxNum) {
-        if (number == null || number < 0) {
-            return defaultNum;
-        } else if (number > maxNum) {
-            return maxNum;
-        } else {
-            return number;
-        }
-    }
-
-    private static class SqlServerOffsetDateTimeTypeHandler extends OffsetDateTimeForSqlTypeHandler {
-
-        private static final boolean enableDriverType;
-
-        static {
-            boolean foundDriverType = false;
-            try {
-                foundDriverType = SqlServerOffsetDateTimeTypeHandler.class.getClassLoader().loadClass("microsoft.sql.DateTimeOffset") != null;
-            } catch (ClassNotFoundException ignored) {
-            } finally {
-                enableDriverType = foundDriverType;
-            }
-        }
-
-        @Override
-        public void setNonNullParameter(PreparedStatement ps, int i, OffsetDateTime parameter, Integer jdbcType) throws SQLException {
-            if (!enableDriverType) {
-                ps.setObject(i, parameter.atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
-                super.setNonNullParameter(ps, i, parameter, jdbcType);
-            } else {
-                Timestamp timestamp = new Timestamp(parameter.toInstant().toEpochMilli());
-                int minutesOffset = parameter.getOffset().getTotalSeconds() / 60;
-                microsoft.sql.DateTimeOffset offset = microsoft.sql.DateTimeOffset.valueOf(timestamp, minutesOffset);
-                ps.setObject(i, offset);
-            }
-        }
-    }
-
-    private static class SqlServerBigDecimalAsStringTypeHandler extends BigDecimalTypeHandler {
-
-        @Override
-        public void setNonNullParameter(PreparedStatement ps, int i, BigDecimal parameter, Integer jdbcType) throws SQLException {
-            ps.setString(i, parameter.toPlainString());
         }
     }
 }

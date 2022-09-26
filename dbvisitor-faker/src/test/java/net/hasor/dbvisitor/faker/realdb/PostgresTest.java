@@ -34,8 +34,16 @@ public class PostgresTest {
             table.apply();
 
             //            {
+            //                List<String> colNames = Arrays.asList("point", "line", "lseg", "box", "path", "polygon", "circle", "geometry");
             //                for (String col : table.getColumns()) {
-            //                    if (col.startsWith("a_")) {//
+            //                    boolean match = false;
+            //                    for (String p : colNames) {
+            //                        if (col.startsWith("c_") && StringUtils.contains(col, p)) {
+            //                            match = true;
+            //                            break;
+            //                        }
+            //                    }
+            //                    if (match) {
             //                        table.findColumn(col).ignoreReset();
             //                    } else {
             //                        table.findColumn(col).ignoreAct(UseFor.values());
