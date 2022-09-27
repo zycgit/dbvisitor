@@ -16,7 +16,9 @@
 package net.hasor.dbvisitor.faker.generator.provider.carefully;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.setting.SettingNode;
+import net.hasor.dbvisitor.faker.FakerConfigEnum;
 import net.hasor.dbvisitor.faker.generator.TypeSrw;
+import net.hasor.dbvisitor.faker.generator.UseFor;
 import net.hasor.dbvisitor.faker.generator.provider.AbstractMySqlTypeSrwFactory;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedConfig;
@@ -27,6 +29,10 @@ import net.hasor.dbvisitor.faker.seed.date.DateType;
 import net.hasor.dbvisitor.faker.seed.date.GenType;
 import net.hasor.dbvisitor.faker.seed.enums.EnumSeedConfig;
 import net.hasor.dbvisitor.faker.seed.enums.EnumSeedFactory;
+import net.hasor.dbvisitor.faker.seed.geometry.FormatType;
+import net.hasor.dbvisitor.faker.seed.geometry.GeometrySeedConfig;
+import net.hasor.dbvisitor.faker.seed.geometry.GeometrySeedFactory;
+import net.hasor.dbvisitor.faker.seed.geometry.GeometryType;
 import net.hasor.dbvisitor.faker.seed.number.NumberSeedConfig;
 import net.hasor.dbvisitor.faker.seed.number.NumberSeedFactory;
 import net.hasor.dbvisitor.faker.seed.number.NumberType;
@@ -191,7 +197,23 @@ public class MySqlCarefullyTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setDict(new HashSet<>());
                 return new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
             }
-            case "geometry":
+            case "geometry": {
+                GeometrySeedFactory seedFactory = new GeometrySeedFactory();
+                GeometrySeedConfig seedConfig = seedFactory.newConfig();
+                seedConfig.addRange(50, 0.0, 0.0, 1000, 1000);
+                seedConfig.setPrecision(5);
+                seedConfig.setMinPointSize(2);
+                seedConfig.setMaxPointSize(10);
+                seedConfig.setGeometryType(GeometryType.MultiPolygon);
+                seedConfig.setFormatType(FormatType.WKT);
+
+                columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), "ST_MultiPolygonFromText(?)");
+                columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), "ST_MultiPolygonFromText(?)");
+                TypeSrw typeSrw = new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
+                typeSrw.getDefaultIgnoreAct().add(UseFor.DeleteWhere);
+                typeSrw.getDefaultIgnoreAct().add(UseFor.UpdateWhere);
+                return typeSrw;
+            }
             case "json":
             default: {
                 throw new UnsupportedOperationException("unsupported columnName " + jdbcColumn.getColumnName()//

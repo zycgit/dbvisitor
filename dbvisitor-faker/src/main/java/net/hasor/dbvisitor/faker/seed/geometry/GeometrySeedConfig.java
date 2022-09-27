@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.geometry;
+import net.hasor.cobble.ref.Ratio;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedType;
-import net.hasor.dbvisitor.faker.seed.number.Ratio;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
@@ -27,6 +27,7 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  */
 public class GeometrySeedConfig extends SeedConfig {
     private       GeometryType      geometryType;
+    private       FormatType        formatType;
     private final Ratio<SpaceRange> range = new Ratio<>(); //图形将在这个矩形范围
     private       int               precision;
     private       int               minPointSize;
@@ -47,6 +48,19 @@ public class GeometrySeedConfig extends SeedConfig {
 
     public void setGeometryType(GeometryType geometryType) {
         this.geometryType = geometryType;
+    }
+
+    public FormatType getFormatType() {
+        return formatType;
+    }
+
+    public void setFormatType(FormatType formatType) {
+        if (formatType == FormatType.WKB) {
+            setTypeHandler(TypeHandlerRegistry.DEFAULT.getTypeHandler(byte[].class));
+        } else {
+            setTypeHandler(TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class));
+        }
+        this.formatType = formatType;
     }
 
     public void addRange(double axisXofA, double axisYofA, double axisXofB, double axisYofB) {

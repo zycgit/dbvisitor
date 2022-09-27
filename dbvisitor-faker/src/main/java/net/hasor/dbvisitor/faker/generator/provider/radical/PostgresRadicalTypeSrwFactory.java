@@ -29,6 +29,7 @@ import net.hasor.dbvisitor.faker.seed.date.DateSeedConfig;
 import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
 import net.hasor.dbvisitor.faker.seed.date.DateType;
 import net.hasor.dbvisitor.faker.seed.date.GenType;
+import net.hasor.dbvisitor.faker.seed.geometry.FormatType;
 import net.hasor.dbvisitor.faker.seed.geometry.GeometrySeedConfig;
 import net.hasor.dbvisitor.faker.seed.geometry.GeometrySeedFactory;
 import net.hasor.dbvisitor.faker.seed.geometry.GeometryType;
@@ -53,6 +54,7 @@ import java.util.HashSet;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class PostgresRadicalTypeSrwFactory extends AbstractPostgresTypeSrwFactory {
+
     @Override
     public TypeSrw createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
         String columnType = jdbcColumn.getColumnType();
@@ -337,6 +339,7 @@ public class PostgresRadicalTypeSrwFactory extends AbstractPostgresTypeSrwFactor
                 seedConfig.setPrecision(15);
                 seedConfig.setMinPointSize(5);
                 seedConfig.setMaxPointSize(100);
+                seedConfig.setFormatType(FormatType.WKT);
 
                 switch (columnType) {
                     case "point":
@@ -374,12 +377,10 @@ public class PostgresRadicalTypeSrwFactory extends AbstractPostgresTypeSrwFactor
                 return typeSrw;
             }
             case "json":
-            case "jsonb": {
+            case "jsonb":
                 //86 = "json,jsonb,1111"
-            }
-            case "xml": {
+            case "xml":
                 //84 = "xml,2009"
-            }
             case "cidr":
             case "inet":
             case "macaddr":

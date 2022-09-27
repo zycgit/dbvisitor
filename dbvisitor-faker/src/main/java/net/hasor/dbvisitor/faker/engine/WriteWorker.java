@@ -26,6 +26,7 @@ import net.hasor.dbvisitor.transaction.TransactionTemplateManager;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,6 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author 赵永春 (zyc@hasor.net)
  */
 class WriteWorker implements ShutdownHook, Runnable {
+
     private final static Logger        logger = Logger.getLogger(WriteWorker.class);
     private final        String        threadName;
     private final        DataSource    dataSource;
@@ -45,6 +47,7 @@ class WriteWorker implements ShutdownHook, Runnable {
     //
     private final        AtomicBoolean running;
     private volatile     Thread        workThread;
+    private              List<String>  sqlTemp;
 
     WriteWorker(String threadName, DataSource dataSource, FakerConfig fakerConfig, FakerMonitor monitor, EventQueue eventQueue) {
         this.threadName = threadName;
@@ -68,6 +71,7 @@ class WriteWorker implements ShutdownHook, Runnable {
 
     @Override
     public void run() {
+        this.sqlTemp = fakerConfig.isPrintSql() ? new ArrayList<>() : null;
         this.workThread = Thread.currentThread();
         this.workThread.setName(this.threadName);
         this.monitor.writerStart(this.threadName, this.workThread);
@@ -130,6 +134,12 @@ class WriteWorker implements ShutdownHook, Runnable {
 
         final String sqlString = event.getSqlString();
         final SqlArg[] sqlArgs = event.getArgs();
+
+        if (this.sqlTemp != null && !this.sqlTemp.contains(sqlString)) {
+            this.sqlTemp.add(sqlString);
+            logger.info(sqlString);
+        }
+
         return jdbcTemplate.executeUpdate(sqlString, ps -> {
             for (int i = 1; i <= sqlArgs.length; i++) {
                 sqlArgs[i - 1].setParameter(ps, i);

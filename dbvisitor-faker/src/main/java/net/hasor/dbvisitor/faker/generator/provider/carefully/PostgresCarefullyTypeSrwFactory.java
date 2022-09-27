@@ -29,6 +29,7 @@ import net.hasor.dbvisitor.faker.seed.date.DateSeedConfig;
 import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
 import net.hasor.dbvisitor.faker.seed.date.DateType;
 import net.hasor.dbvisitor.faker.seed.date.GenType;
+import net.hasor.dbvisitor.faker.seed.geometry.FormatType;
 import net.hasor.dbvisitor.faker.seed.geometry.GeometrySeedConfig;
 import net.hasor.dbvisitor.faker.seed.geometry.GeometrySeedFactory;
 import net.hasor.dbvisitor.faker.seed.geometry.GeometryType;
@@ -269,6 +270,7 @@ public class PostgresCarefullyTypeSrwFactory extends AbstractPostgresTypeSrwFact
                 seedConfig.setPrecision(5);
                 seedConfig.setMinPointSize(2);
                 seedConfig.setMaxPointSize(10);
+                seedConfig.setFormatType(FormatType.WKT);
 
                 switch (columnType) {
                     case "point":

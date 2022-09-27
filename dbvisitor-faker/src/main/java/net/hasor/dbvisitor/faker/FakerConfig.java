@@ -42,6 +42,7 @@ public class FakerConfig {
     private       boolean               useRadical;
     private       boolean               useQualifier;
     private       boolean               keyChanges;
+    private       boolean               printSql;
     // one trans
     private       int                   minBatchSizePerOps;
     private       int                   maxBatchSizePerOps;
@@ -171,6 +172,14 @@ public class FakerConfig {
 
     public void setKeyChanges(boolean keyChanges) {
         this.keyChanges = keyChanges;
+    }
+
+    public boolean isPrintSql() {
+        return printSql;
+    }
+
+    public void setPrintSql(boolean printSql) {
+        this.printSql = printSql;
     }
 
     public SqlDialect getSqlDialect() {
