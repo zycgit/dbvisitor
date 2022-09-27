@@ -39,7 +39,7 @@ public class ArraySeedConfig extends SeedConfig {
 
     @Override
     protected TypeHandler<?> defaultTypeHandler() {
-        return TypeHandlerRegistry.DEFAULT.getTypeHandler(Boolean.class);
+        return TypeHandlerRegistry.DEFAULT.getTypeHandler(Object.class);
     }
 
     public int getMinSize() {

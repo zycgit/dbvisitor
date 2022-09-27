@@ -17,14 +17,14 @@ package net.hasor.dbvisitor.faker.seed.geometry;
 import net.hasor.cobble.StringUtils;
 
 /**
- * 几何信息形态
+ * 几何形态
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum GeometryType {
     /** 点 */
     Point,
-    /** 线 */
+    /** 直线 */
     Line,
     /** 线段 */
     Lseg,

@@ -28,6 +28,7 @@ import java.util.function.Consumer;
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
+@Deprecated
 public class Ratio<T> {
     private final    List<Boundary<T>> opsBoundary = new CopyOnWriteArrayList<>();
     private volatile long              maxBoundary = 0;

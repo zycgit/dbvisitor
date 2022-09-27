@@ -72,7 +72,7 @@ public class GeometrySeedFactory implements SeedFactory<GeometrySeedConfig> {
         switch (type) {
             case Point: {
                 Point point = randomPoint(range.getPointA(), range.getPointB(), precision);
-                return "(" + fmtPoint(point, ",") + ")";
+                return "(" + fmtPoint(point) + ")";
             }
             case Line: {
                 // ax + by + c = 0
@@ -85,12 +85,12 @@ public class GeometrySeedFactory implements SeedFactory<GeometrySeedConfig> {
             case Box: {
                 Point pointA = randomPoint(range.getPointA(), range.getPointB(), precision);
                 Point pointB = randomPoint(range.getPointA(), range.getPointB(), precision);
-                return "((" + fmtPoint(pointA, ",") + "),(" + fmtPoint(pointB, ",") + "))";
+                return "((" + fmtPoint(pointA) + "),(" + fmtPoint(pointB) + "))";
             }
             case Path: {
                 String[] pathStr = new String[pointCount.intValue()];
                 for (int i = 0; i < pathStr.length; i++) {
-                    pathStr[i] = fmtPoint(randomPoint(range.getPointA(), range.getPointB(), precision), ",");
+                    pathStr[i] = fmtPoint(randomPoint(range.getPointA(), range.getPointB(), precision));
                 }
                 return "((" + StringUtils.join(pathStr, "),(") + "))";
             }
@@ -105,12 +105,12 @@ public class GeometrySeedFactory implements SeedFactory<GeometrySeedConfig> {
                 forMulti[points.length] = points[0];
 
                 String multiPolygon = "((" + StringUtils.join(forMulti, "),(") + "))";
-                return "MULTIPOLYGON(" + multiPolygon.toString() + ")"; // 生成的图形是没有挖洞的
+                return "MULTIPOLYGON(" + multiPolygon + ")"; // 生成的图形是没有挖洞的
             }
             case Circle: {
                 Point point = randomPoint(range.getPointA(), range.getPointB(), precision);
                 BigDecimal radius = nextRadius(point, range, precision);
-                return "((" + fmtPoint(point, ",") + ")," + radius.toPlainString() + ")";
+                return "((" + fmtPoint(point) + ")," + radius.toPlainString() + ")";
             }
             default: {
                 throw new UnsupportedOperationException("unsupported GeometryType " + type);
@@ -124,8 +124,8 @@ public class GeometrySeedFactory implements SeedFactory<GeometrySeedConfig> {
         return new Point(randomX, randomY);
     }
 
-    private String fmtPoint(Point point, String spacer) {
-        return point.getX().toPlainString() + spacer + point.getX().toPlainString();
+    private String fmtPoint(Point point) {
+        return point.getX().toPlainString() + "," + point.getX().toPlainString();
     }
 
     private String[] nextPolygon(SpaceRange range, int precision, BigInteger pointCount) {
@@ -139,7 +139,7 @@ public class GeometrySeedFactory implements SeedFactory<GeometrySeedConfig> {
             // 多边形上的点
             BigDecimal x = centrePoint.getX().add(curRadius.multiply(BigDecimal.valueOf(Math.sin(curAngle)))).setScale(precision, ROUND_DOWN);
             BigDecimal y = centrePoint.getY().add(curRadius.multiply(BigDecimal.valueOf(Math.cos(curAngle)))).setScale(precision, ROUND_DOWN);
-            pathStr[i] = fmtPoint(new Point(x, y), ",");
+            pathStr[i] = fmtPoint(new Point(x, y));
         }
         return pathStr;
     }
