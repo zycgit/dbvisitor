@@ -54,7 +54,6 @@ import java.util.HashSet;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class PostgresRadicalTypeSrwFactory extends AbstractPostgresTypeSrwFactory {
-
     @Override
     public TypeSrw createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
         String columnType = jdbcColumn.getColumnType();
@@ -93,7 +92,7 @@ public class PostgresRadicalTypeSrwFactory extends AbstractPostgresTypeSrwFactor
                 // 0 to 9223372036854775807
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setNumberType(NumberType.Integer);
+                seedConfig.setNumberType(NumberType.Long);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("9223372036854775807"));
                 return finalSrw(seedFactory, seedConfig, Types.BIGINT, isArray, columnConfig, columnType);
             }
@@ -124,7 +123,7 @@ public class PostgresRadicalTypeSrwFactory extends AbstractPostgresTypeSrwFactor
                 // -9223372036854775808 to +9223372036854775807
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setNumberType(NumberType.Integer);
+                seedConfig.setNumberType(NumberType.Long);
                 seedConfig.addMinMax(new BigDecimal("-9223372036854775808"), new BigDecimal("+9223372036854775807"));
                 return finalSrw(seedFactory, seedConfig, Types.BIGINT, isArray, columnConfig, columnType);
             }
@@ -225,8 +224,8 @@ public class PostgresRadicalTypeSrwFactory extends AbstractPostgresTypeSrwFactor
                 seedConfig.setDateType(DateType.LocalDate);
                 seedConfig.setGenType(GenType.Random);
                 seedConfig.setDateFormat("yyyy-MM-dd");
-                seedConfig.setRangeForm("0000-01-01");  // max is   -4713-01-01
-                seedConfig.setRangeTo("9999-12-31");    // max is 5874897-12-31
+                seedConfig.setRangeForm("0000-01-01"); // max is   -4713-01-01
+                seedConfig.setRangeTo("9999-12-31"); // max is 5874897-12-31
                 return finalSrw(seedFactory, seedConfig, Types.DATE, isArray, columnConfig, columnType);
             }
             case "time":
@@ -260,8 +259,8 @@ public class PostgresRadicalTypeSrwFactory extends AbstractPostgresTypeSrwFactor
                 int p = safeMaxLength(jdbcColumn.getDecimalDigits(), 3, 6);
                 seedConfig.setDateFormat("yyyy-MM-dd HH:mm:ss" + ((p > 0) ? ("." + StringUtils.repeat("S", p)) : ""));
                 seedConfig.setPrecision(Math.max(p, 0));
-                seedConfig.setRangeForm("0000-01-01 00:00:00.000000");  // max is   -4713-01-01 00:00:00.000000
-                seedConfig.setRangeTo("9999-12-31 23:59:59.999999");    // max is  294276-12-31 23:59:59.999999
+                seedConfig.setRangeForm("0000-01-01 00:00:00.000000"); // max is   -4713-01-01 00:00:00.000000
+                seedConfig.setRangeTo("9999-12-31 23:59:59.999999"); // max is  294276-12-31 23:59:59.999999
 
                 String fmtType = "?::" + fmtType(isArray, "interval");
                 columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), fmtType);

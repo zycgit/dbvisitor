@@ -93,7 +93,7 @@ public class PostgresCarefullyTypeSrwFactory extends AbstractPostgresTypeSrwFact
             case "int8": {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
-                seedConfig.setNumberType(NumberType.Integer);
+                seedConfig.setNumberType(NumberType.Long);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("100000000"));
                 return finalSrw(seedFactory, seedConfig, Types.BIGINT, isArray, columnConfig, columnType);
             }
