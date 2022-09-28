@@ -61,7 +61,7 @@ public class PostgresTest {
             FakerMonitor monitor = fakerEngine.getMonitor();
             long t = System.currentTimeMillis();
             while (!monitor.ifPresentExit()) {
-                if (fakerEngine.getMonitor().getSucceedInsert() > 1000000) {
+                if (fakerEngine.getMonitor().getSucceedInsert() > 10000) {
                     fakerEngine.shutdown();
                 }
 
