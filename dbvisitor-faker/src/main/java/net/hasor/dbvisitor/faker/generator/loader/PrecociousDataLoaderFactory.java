@@ -55,7 +55,7 @@ public class PrecociousDataLoaderFactory implements DataLoaderFactory {
                 }
 
                 Map<String, SqlArg> poll = precociousDataSet.poll();
-                if (poll != null) {
+                if (poll != null && !poll.isEmpty()) {
                     result.add(poll);
                 }
 

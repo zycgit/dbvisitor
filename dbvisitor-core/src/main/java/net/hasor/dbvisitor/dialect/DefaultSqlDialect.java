@@ -58,6 +58,11 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     }
 
     @Override
+    public String fmtName(boolean useQualifier, String name) {
+        return name;
+    }
+
+    @Override
     public BoundSql countSql(BoundSql boundSql) {
         throw new UnsupportedOperationException();
     }

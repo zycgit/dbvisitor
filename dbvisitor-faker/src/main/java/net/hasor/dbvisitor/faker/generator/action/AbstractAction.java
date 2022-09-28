@@ -15,13 +15,17 @@
  */
 package net.hasor.dbvisitor.faker.generator.action;
 import net.hasor.cobble.CollectionUtils;
-import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.faker.generator.*;
+import net.hasor.dbvisitor.faker.generator.Action;
+import net.hasor.dbvisitor.faker.generator.FakerTable;
+import net.hasor.dbvisitor.faker.generator.SqlArg;
+import net.hasor.dbvisitor.faker.generator.UseFor;
 import net.hasor.dbvisitor.faker.generator.loader.DataLoader;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 公共
@@ -29,44 +33,25 @@ import java.util.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public abstract class AbstractAction implements Action {
-    protected final FakerTable          tableInfo;
-    protected final boolean             useQualifier;
-    protected final SqlDialect          dialect;
-    protected final Map<String, String> colReplace;
+    protected final FakerTable tableInfo;
+    protected final boolean    useQualifier;
+    protected final SqlDialect dialect;
 
     public AbstractAction(FakerTable tableInfo, SqlDialect dialect) {
         this.tableInfo = tableInfo;
         this.useQualifier = tableInfo.isUseQualifier();
         this.dialect = dialect;
-        this.colReplace = new HashMap<>();
-
-        for (String col : tableInfo.getColumns()) {
-            FakerColumn column = tableInfo.findColumn(col);
-            String template = column.getSelectTemplate();
-            if (!StringUtils.isBlank(template) && !StringUtils.equals(template, col)) {
-                this.colReplace.put(col, template);
-            }
-        }
     }
 
     protected final List<Map<String, SqlArg>> retryLoad(DataLoader dataLoader, UseFor useFor, //
             FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException {
         includeColumns = includeColumns.isEmpty() ? fakerTable.getColumns() : includeColumns;
 
-        List<String> afterColumns = new ArrayList<>();
-        for (String col : includeColumns) {
-            String orDefault = this.colReplace.getOrDefault(col, col);
-            if (orDefault.charAt(0) == '\"' || orDefault.charAt(0) == '`' || orDefault.charAt(0) == '[') {
-                orDefault = orDefault.substring(1, orDefault.length() - 1);
-            }
-            afterColumns.add(orDefault);
-        }
-
         int tryTimes = 0;
         while (true) {
             tryTimes++;
             try {
-                List<Map<String, SqlArg>> fetchDataList = dataLoader.loadSomeData(useFor, fakerTable, afterColumns, batchSize);
+                List<Map<String, SqlArg>> fetchDataList = dataLoader.loadSomeData(useFor, fakerTable, includeColumns, batchSize);
                 if (CollectionUtils.isEmpty(fetchDataList)) {
                     return Collections.emptyList();
                 } else {

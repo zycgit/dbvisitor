@@ -29,23 +29,29 @@ import java.util.List;
  */
 public class SqlServerDialect extends AbstractDialect implements PageSqlDialect {
 
+    @Override
     public String leftQualifier() {
         return "[";
     }
 
+    @Override
     public String rightQualifier() {
         return "]";
     }
 
-    protected String fmtName(boolean useQualifier, String fmtString) {
-        if (this.keywords().contains(fmtString.toUpperCase()) || fmtString.contains(" ")) {
+    @Override
+    public String fmtName(boolean useQualifier, String name) {
+        if (StringUtils.isBlank(name)) {
+            return name;
+        }
+        if (this.keywords().contains(name.toUpperCase()) || name.contains(" ")) {
             useQualifier = true;
         }
 
         if (useQualifier) {
-            return leftQualifier() + fmtString.replace("]", "]]") + rightQualifier();
+            return leftQualifier() + name.replace("]", "]]") + rightQualifier();
         } else {
-            return fmtString;
+            return name;
         }
     }
 

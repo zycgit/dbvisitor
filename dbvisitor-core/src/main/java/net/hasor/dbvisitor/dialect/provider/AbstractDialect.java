@@ -94,13 +94,17 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
         return fmtName(useQualifier, column);
     }
 
-    protected String fmtName(boolean useQualifier, String fmtString) {
-        if (this.keywords().contains(fmtString.toUpperCase())) {
+    @Override
+    public String fmtName(boolean useQualifier, String name) {
+        if (StringUtils.isBlank(name)) {
+            return name;
+        }
+        if (this.keywords().contains(name.toUpperCase())) {
             useQualifier = true;
         }
         String leftQualifier = useQualifier ? leftQualifier() : "";
         String rightQualifier = useQualifier ? rightQualifier() : "";
-        return leftQualifier + fmtString + rightQualifier;
+        return leftQualifier + name + rightQualifier;
     }
 
     protected String defaultQualifier() {

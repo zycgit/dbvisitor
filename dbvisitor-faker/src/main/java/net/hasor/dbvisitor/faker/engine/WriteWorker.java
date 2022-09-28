@@ -142,7 +142,11 @@ class WriteWorker implements ShutdownHook, Runnable {
 
         return jdbcTemplate.executeUpdate(sqlString, ps -> {
             for (int i = 1; i <= sqlArgs.length; i++) {
-                sqlArgs[i - 1].setParameter(ps, i);
+                if (sqlArgs[i - 1] == null) {
+                    ps.setObject(i, null);
+                } else {
+                    sqlArgs[i - 1].setParameter(ps, i);
+                }
             }
         });
     }

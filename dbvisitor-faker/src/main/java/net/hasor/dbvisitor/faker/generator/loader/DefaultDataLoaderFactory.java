@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.faker.generator.loader;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.RandomUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
@@ -67,11 +68,24 @@ public class DefaultDataLoaderFactory implements DataLoaderFactory {
 
     protected List<Map<String, SqlArg>> loadForRandomQuery(SqlDialect dialect, JdbcTemplate jdbcTemplate, //
             FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException {
-        String catalog = fakerTable.getCatalog();
-        String schema = fakerTable.getSchema();
-        String table = fakerTable.getTable();
-        String queryString = ((ConditionSqlDialect) dialect).randomQuery(true, catalog, schema, table, includeColumns, batchSize);
-        return jdbcTemplate.query(queryString, convertRow(fakerTable, includeColumns));
+        boolean useQualifier = fakerTable.isUseQualifier();
+        String catalog = dialect.fmtName(useQualifier, fakerTable.getCatalog());
+        String schema = dialect.fmtName(useQualifier, fakerTable.getSchema());
+        String table = dialect.fmtName(useQualifier, fakerTable.getTable());
+
+        List<String> afterIncludeColumns = new ArrayList<>();
+        for (String col : includeColumns) {
+            FakerColumn column = fakerTable.findColumn(col);
+            String template = column.getSelectTemplate();
+            if (!StringUtils.isBlank(template) && !StringUtils.equals(template, col)) {
+                afterIncludeColumns.add(template);
+            } else {
+                afterIncludeColumns.add(dialect.fmtName(useQualifier, col));
+            }
+        }
+
+        String queryString = ((ConditionSqlDialect) dialect).randomQuery(false, catalog, schema, table, afterIncludeColumns, batchSize);
+        return jdbcTemplate.query(queryString, convertRow(fakerTable, fakerTable.getColumns()));
     }
 
     protected List<Map<String, SqlArg>> loadForPageQuery(SqlDialect dialect, JdbcTemplate jdbcTemplate, //
@@ -118,6 +132,9 @@ public class DefaultDataLoaderFactory implements DataLoaderFactory {
             Map<String, SqlArg> row = new LinkedHashMap<>();
             for (String column : selectColumns) {
                 FakerColumn tableColumn = fakerTable.findColumn(column);
+                if (tableColumn == null) {
+                    continue;
+                }
                 SqlArg result = tableColumn.readData(rs);
                 row.put(column, result);
             }
