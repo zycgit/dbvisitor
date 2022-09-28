@@ -58,6 +58,8 @@ public enum FakerConfigEnum {
     /** 是一个数组 */
     COLUMN_ARRAY_TYPE("isArray"),
 
+    /** 用于 select 语句的参数，默认是：{name} */
+    SELECT_TEMPLATE("selectTemplate"),
     /** 用于 insert 语句的参数，默认是：? */
     INSERT_TEMPLATE("insertTemplate"),
     /** 用于 update 语句的列名，默认是：{name} */

@@ -40,6 +40,7 @@ public class FakerColumn {
     private final TypeSrw      typeSrw;
     private final FakerFactory factory;
     //
+    private       String       selectTemplate;
     private       String       insertTemplate;
     private       String       setColTemplate;
     private       String       setValueTemplate;
@@ -56,6 +57,7 @@ public class FakerColumn {
         this.factory = factory;
 
         if (columnConfig != null) {
+            this.selectTemplate = columnConfig.getSubValue(FakerConfigEnum.SELECT_TEMPLATE.getConfigKey());
             this.insertTemplate = columnConfig.getSubValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey());
             this.setColTemplate = columnConfig.getSubValue(FakerConfigEnum.SET_COL_TEMPLATE.getConfigKey());
             this.setValueTemplate = columnConfig.getSubValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey());
@@ -63,6 +65,9 @@ public class FakerColumn {
             this.whereValueTemplate = columnConfig.getSubValue(FakerConfigEnum.WHERE_VALUE_TEMPLATE.getConfigKey());
         }
 
+        if (StringUtils.isBlank(this.selectTemplate)) {
+            this.selectTemplate = "{name}";
+        }
         if (StringUtils.isBlank(this.insertTemplate)) {
             this.insertTemplate = "?";
         }
@@ -80,6 +85,7 @@ public class FakerColumn {
         }
 
         String colName = this.factory.getSqlDialect().columnName(table.isUseQualifier(), table.getCatalog(), table.getSchema(), table.getTable(), this.column);
+        this.selectTemplate = this.selectTemplate.replace("{name}", colName);
         this.setColTemplate = this.setColTemplate.replace("{name}", colName);
         this.whereColTemplate = this.whereColTemplate.replace("{name}", colName);
     }
@@ -87,6 +93,16 @@ public class FakerColumn {
     /** 获取列名 */
     public String getColumn() {
         return column;
+    }
+
+    /** 用于 select 语句的列名拼写 */
+    public String getSelectTemplate() {
+        return selectTemplate;
+    }
+
+    /** 用于 select 语句的列名拼写 */
+    public void setSelectTemplate(String selectTemplate) {
+        this.selectTemplate = selectTemplate;
     }
 
     /** 用于 insert 语句的参数 */

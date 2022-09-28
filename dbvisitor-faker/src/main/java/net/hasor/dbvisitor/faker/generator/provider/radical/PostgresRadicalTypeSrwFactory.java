@@ -368,6 +368,7 @@ public class PostgresRadicalTypeSrwFactory extends AbstractPostgresTypeSrwFactor
                 }
 
                 String temp = "?::" + columnType;
+                columnConfig.addValue(FakerConfigEnum.SELECT_TEMPLATE.getConfigKey(), "ST_AsText({name})");
                 columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), fmtType(isArray, temp));
                 columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), fmtType(isArray, temp));
                 TypeSrw typeSrw = finalSrw(seedFactory, seedConfig, Types.OTHER, isArray, columnConfig, columnType);

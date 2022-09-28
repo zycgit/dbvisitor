@@ -207,6 +207,7 @@ public class MySqlCarefullyTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setGeometryType(GeometryType.MultiPolygon);
                 seedConfig.setFormatType(FormatType.WKT);
 
+                columnConfig.addValue(FakerConfigEnum.SELECT_TEMPLATE.getConfigKey(), "ST_AsWKT({name})");
                 columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), "ST_MultiPolygonFromText(?)");
                 columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), "ST_MultiPolygonFromText(?)");
                 TypeSrw typeSrw = new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);

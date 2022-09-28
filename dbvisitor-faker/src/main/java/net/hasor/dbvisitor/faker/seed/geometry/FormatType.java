@@ -24,8 +24,7 @@ import net.hasor.cobble.StringUtils;
  */
 public enum FormatType {
     WKT,
-    WKB,
-    WKBHEX;
+    WKB;
 
     public static FormatType valueOfCode(String name) {
         for (FormatType scope : FormatType.values()) {

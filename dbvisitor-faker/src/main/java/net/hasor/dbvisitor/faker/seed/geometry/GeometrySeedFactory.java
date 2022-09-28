@@ -15,7 +15,6 @@
  */
 package net.hasor.dbvisitor.faker.seed.geometry;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.codec.HexUtils;
 import net.hasor.cobble.ref.Ratio;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
@@ -141,14 +140,7 @@ public class GeometrySeedFactory implements SeedFactory<GeometrySeedConfig> {
         if (StringUtils.isBlank(wkt)) {
             return null;
         }
-        switch (fmt) {
-            case WKB:
-                return toWKB(wkt);
-            case WKBHEX:
-                return HexUtils.bytes2hex(toWKB(wkt));
-            default:
-                return wkt;
-        }
+        return fmt == FormatType.WKB ? toWKB(wkt) : wkt;
     }
 
     private Point randomPoint(Point formBorder, Point toBorder, int precision) {

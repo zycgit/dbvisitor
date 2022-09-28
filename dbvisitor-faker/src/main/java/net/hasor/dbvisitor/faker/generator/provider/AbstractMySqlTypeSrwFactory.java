@@ -27,7 +27,6 @@ import java.sql.SQLException;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class AbstractMySqlTypeSrwFactory extends DefaultTypeSrwFactory {
-
     protected static int safeMaxLength(Integer number, int defaultNum, int maxNum) {
         if (number == null || number < 0) {
             return defaultNum;

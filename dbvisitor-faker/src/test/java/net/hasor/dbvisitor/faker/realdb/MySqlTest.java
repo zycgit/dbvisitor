@@ -26,12 +26,12 @@ public class MySqlTest {
         // 生成器，配置表
         FakerFactory factory = new FakerFactory(DsUtils.dsMySql(), fakerConfig);
         FakerGenerator generator = new FakerGenerator(factory);
-        //        FakerTable table = generator.addTable("devtester", null, "tb_mysql_types");
-        FakerTable table = generator.addTable("devtester", null, "tb_mysql_geometry");
-        table.setInsertPolitic(SqlPolitic.FullCol);
+        //        FakerTable table1 = generator.addTable("devtester", null, "tb_mysql_types");
+        FakerTable table2 = generator.addTable("devtester", null, "tb_mysql_geometry");
+        table2.setInsertPolitic(SqlPolitic.FullCol);
 
         //        table.findColumn("c_geometrycollection").ignoreAct(UseFor.values());
-        table.apply();
+        table2.apply();
 
         // 生成数据
         FakerEngine fakerEngine = new FakerEngine(factory);
