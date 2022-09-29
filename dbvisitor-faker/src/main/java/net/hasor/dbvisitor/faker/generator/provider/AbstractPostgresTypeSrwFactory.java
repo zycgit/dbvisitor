@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.faker.generator.provider;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.codec.HexUtils;
+import net.hasor.cobble.codec.HexadecimalUtils;
 import net.hasor.cobble.setting.SettingNode;
 import net.hasor.dbvisitor.faker.generator.TypeSrw;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
@@ -116,7 +116,7 @@ public class AbstractPostgresTypeSrwFactory extends DefaultTypeSrwFactory {
 
     protected static String geometryString(String geometryString) {
         try {
-            byte[] geometryBytes = HexUtils.hex2bytes(geometryString);
+            byte[] geometryBytes = HexadecimalUtils.hex2bytes(geometryString);
             Geometry object = new WKBReader(factory).read(geometryBytes);
             return object.toText();
         } catch (Exception e) {
@@ -163,7 +163,7 @@ public class AbstractPostgresTypeSrwFactory extends DefaultTypeSrwFactory {
             List<Object> copy = new ArrayList<>();
             for (Object oriDatum : oriData) {
                 if (this.typeName.equals("bytea")) {
-                    copy.add(HexUtils.bytes2hex((byte[]) oriDatum));
+                    copy.add(HexadecimalUtils.bytes2hex((byte[]) oriDatum));
                 } else {
                     copy.add(oriDatum);
                 }

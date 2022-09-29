@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.string.characters;
-import net.hasor.cobble.codec.HexUtils;
+import net.hasor.cobble.codec.HexadecimalUtils;
 import net.hasor.dbvisitor.faker.seed.string.Characters;
 
 import java.nio.charset.StandardCharsets;
@@ -63,7 +63,7 @@ public abstract class AbstractUTF16Characters implements Characters {
                 int rangeSize = range.getSize();
                 if (index < rangeSize) {
                     int charCode = range.getStart() + index;
-                    byte[] charBytes = HexUtils.hex2bytes(Integer.toHexString(charCode));
+                    byte[] charBytes = HexadecimalUtils.hex2bytes(Integer.toHexString(charCode));
                     if (charBytes.length == 1) {
                         charBytes = new byte[] { 0x00, charBytes[0] };
                     }

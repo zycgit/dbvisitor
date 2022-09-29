@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.generator;
-import net.hasor.cobble.codec.HexUtils;
+import net.hasor.cobble.codec.HexadecimalUtils;
 import net.hasor.dbvisitor.types.TypeHandler;
 
 import java.sql.PreparedStatement;
@@ -74,9 +74,9 @@ public class SqlArg {
             } catch (Exception ignored) {
             }
         } else if (this.object instanceof Byte[]) {
-            return "[" + this.jdbcType + "]0x" + HexUtils.bytes2hex(convertToPrimitiveArray((Byte[]) this.object));
+            return "[" + this.jdbcType + "]0x" + HexadecimalUtils.bytes2hex(convertToPrimitiveArray((Byte[]) this.object));
         } else if (this.object instanceof byte[]) {
-            return "[" + this.jdbcType + "]0x" + HexUtils.bytes2hex((byte[]) this.object);
+            return "[" + this.jdbcType + "]0x" + HexadecimalUtils.bytes2hex((byte[]) this.object);
         }
         return "[" + this.jdbcType + "]" + this.object;
     }
