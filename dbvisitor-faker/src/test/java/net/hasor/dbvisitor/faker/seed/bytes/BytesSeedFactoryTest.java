@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.faker.seed.bytes;
 
-import net.hasor.cobble.codec.HexUtils;
+import net.hasor.cobble.codec.HexadecimalUtils;
 import org.junit.Test;
 
 import java.io.Serializable;
@@ -34,7 +34,7 @@ public class BytesSeedFactoryTest {
         Supplier<Serializable> bytesSupplier = factory.createSeed(genConfig);
 
         for (int i = 0; i < 10; i++) {
-            System.out.println(HexUtils.bytes2hex((byte[]) bytesSupplier.get()));
+            System.out.println(HexadecimalUtils.bytes2hex((byte[]) bytesSupplier.get()));
         }
     }
 
@@ -54,7 +54,7 @@ public class BytesSeedFactoryTest {
             if (bytes == null) {
                 System.out.println("@@NULL@@");
             } else {
-                System.out.println(HexUtils.bytes2hex(bytes));
+                System.out.println(HexadecimalUtils.bytes2hex(bytes));
             }
         }
     }

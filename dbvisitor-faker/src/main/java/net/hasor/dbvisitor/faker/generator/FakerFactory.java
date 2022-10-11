@@ -34,8 +34,10 @@ import net.hasor.dbvisitor.faker.generator.provider.radical.OracleRadicalTypeSrw
 import net.hasor.dbvisitor.faker.generator.provider.radical.PostgresRadicalTypeSrwFactory;
 import net.hasor.dbvisitor.faker.generator.provider.radical.SqlServerRadicalTypeSrwFactory;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
+import net.hasor.dbvisitor.faker.meta.JdbcFetchMeta;
 import net.hasor.dbvisitor.faker.meta.JdbcFetchMetaProvider;
 import net.hasor.dbvisitor.faker.meta.JdbcTable;
+import net.hasor.dbvisitor.faker.meta.special.mysql.MySqlFetchMeta;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 import net.hasor.dbvisitor.faker.seed.SeedType;
@@ -70,22 +72,22 @@ public class FakerFactory {
         this(dataSource, new FakerConfig());
     }
 
-    public FakerFactory(Connection connection, FakerConfig fakerConfig) throws SQLException {
+    public FakerFactory(Connection connection, FakerConfig config) throws SQLException {
         this.jdbcTemplate = new JdbcTemplate(connection);
-        this.metaProvider = new JdbcFetchMetaProvider(connection);
-        this.fakerConfig = fakerConfig;
+        this.fakerConfig = config;
         this.dbType = initDbType();
-        this.sqlDialect = this.initSqlDialect(this.dbType, fakerConfig);
-        this.typeDialect = this.initTypeDialect(this.dbType, fakerConfig);
+        this.metaProvider = new JdbcFetchMetaProvider(connection, initFetchMeta(this.dbType, config));
+        this.sqlDialect = this.initSqlDialect(this.dbType, config);
+        this.typeDialect = this.initTypeDialect(this.dbType, config);
     }
 
-    public FakerFactory(DataSource dataSource, FakerConfig fakerConfig) throws SQLException {
+    public FakerFactory(DataSource dataSource, FakerConfig config) throws SQLException {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.metaProvider = new JdbcFetchMetaProvider(dataSource);
-        this.fakerConfig = fakerConfig;
+        this.fakerConfig = config;
         this.dbType = initDbType();
-        this.sqlDialect = this.initSqlDialect(this.dbType, fakerConfig);
-        this.typeDialect = this.initTypeDialect(this.dbType, fakerConfig);
+        this.metaProvider = new JdbcFetchMetaProvider(dataSource, initFetchMeta(this.dbType, config));
+        this.sqlDialect = this.initSqlDialect(this.dbType, config);
+        this.typeDialect = this.initTypeDialect(this.dbType, config);
     }
 
     protected String initDbType() throws SQLException {
@@ -128,6 +130,20 @@ public class FakerFactory {
                 default:
                     return new DefaultTypeSrwFactory();
             }
+        }
+    }
+
+    protected JdbcFetchMeta initFetchMeta(String dbType, FakerConfig config) {
+        if (config.getCustomFetchMeta() != null) {
+            return config.getCustomFetchMeta();
+        }
+
+        switch (dbType) {
+            case JdbcUtils.MARIADB:
+            case JdbcUtils.MYSQL:
+                return new MySqlFetchMeta();
+            default:
+                return null;
         }
     }
 

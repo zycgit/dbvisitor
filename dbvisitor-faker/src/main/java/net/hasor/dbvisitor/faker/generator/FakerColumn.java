@@ -51,7 +51,7 @@ public class FakerColumn {
         this.table = table;
         this.column = jdbcColumn.getColumnName();
         this.key = jdbcColumn.isPrimaryKey() || jdbcColumn.isUniqueKey();
-        this.canBeCut = StringUtils.isNotBlank(jdbcColumn.getDefaultValue()) || Boolean.TRUE.equals(jdbcColumn.getNullable());
+        this.canBeCut = Boolean.TRUE.equals(jdbcColumn.isHasDefaultValue()) || Boolean.TRUE.equals(jdbcColumn.getNullable());
         this.ignoreAct = new HashSet<>(ignoreAct);
         this.typeSrw = typeSrw;
         this.factory = factory;

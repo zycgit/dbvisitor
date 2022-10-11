@@ -297,6 +297,13 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 typeSrw.getDefaultIgnoreAct().add(UseFor.UpdateWhere);
                 return typeSrw;
             }
+            case "point":
+            case "linestring":
+            case "polygon":
+            case "multipoint":
+            case "multilinestring":
+            case "multipolygon":
+            case "geomcollection":
             case "json":
             default: {
                 throw new UnsupportedOperationException("unsupported columnName " + jdbcColumn.getColumnName()//

@@ -21,6 +21,7 @@ import net.hasor.dbvisitor.faker.generator.SqlArg;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -48,7 +49,7 @@ public class PrecociousDataLoaderFactory implements DataLoaderFactory {
                 if (precociousDataSet.size() < batchSize) {
                     synchronized (this) {
                         if (precociousDataSet.size() < batchSize) {
-                            List<Map<String, SqlArg>> someData = defaultDataLoader.loadSomeData(useFor, fakerTable, includeColumns, Math.max(precociousSize, batchSize));
+                            List<Map<String, SqlArg>> someData = defaultDataLoader.loadSomeData(useFor, fakerTable, Collections.emptyList(), Math.max(precociousSize, batchSize));
                             precociousDataSet.addAll(someData);
                         }
                     }

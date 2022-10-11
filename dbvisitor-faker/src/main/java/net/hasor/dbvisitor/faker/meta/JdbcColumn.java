@@ -36,14 +36,9 @@ public class JdbcColumn {
     private String           comment;
     private int              index;
     //
-    private String           scopeCatalog;
-    private String           scopeSchema;
-    private String           scopeTable;
     private Integer          decimalDigits;
-    private Integer          numberPrecRadix;
-    private String           defaultValue;
+    private boolean          hasDefaultValue;
     private Integer          charOctetLength;
-    private Integer          sourceDataType;
 
     public String getTableCatalog() {
         return this.tableCatalog;
@@ -165,30 +160,6 @@ public class JdbcColumn {
         this.index = index;
     }
 
-    public String getScopeCatalog() {
-        return this.scopeCatalog;
-    }
-
-    public void setScopeCatalog(String scopeCatalog) {
-        this.scopeCatalog = scopeCatalog;
-    }
-
-    public String getScopeSchema() {
-        return this.scopeSchema;
-    }
-
-    public void setScopeSchema(String scopeSchema) {
-        this.scopeSchema = scopeSchema;
-    }
-
-    public String getScopeTable() {
-        return this.scopeTable;
-    }
-
-    public void setScopeTable(String scopeTable) {
-        this.scopeTable = scopeTable;
-    }
-
     public Integer getDecimalDigits() {
         return this.decimalDigits;
     }
@@ -197,20 +168,12 @@ public class JdbcColumn {
         this.decimalDigits = decimalDigits;
     }
 
-    public Integer getNumberPrecRadix() {
-        return this.numberPrecRadix;
+    public boolean isHasDefaultValue() {
+        return hasDefaultValue;
     }
 
-    public void setNumberPrecRadix(Integer numberPrecRadix) {
-        this.numberPrecRadix = numberPrecRadix;
-    }
-
-    public String getDefaultValue() {
-        return this.defaultValue;
-    }
-
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
+    public void setHasDefaultValue(boolean hasDefaultValue) {
+        this.hasDefaultValue = hasDefaultValue;
     }
 
     public Integer getCharOctetLength() {
@@ -221,11 +184,8 @@ public class JdbcColumn {
         this.charOctetLength = charOctetLength;
     }
 
-    public Integer getSourceDataType() {
-        return this.sourceDataType;
-    }
-
-    public void setSourceDataType(Integer sourceDataType) {
-        this.sourceDataType = sourceDataType;
+    @Override
+    public String toString() {
+        return "{name='" + this.columnName + "', type='" + this.columnType + "'}";
     }
 }

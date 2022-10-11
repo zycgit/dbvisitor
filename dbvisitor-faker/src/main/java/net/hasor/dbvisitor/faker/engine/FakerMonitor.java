@@ -82,6 +82,16 @@ public class FakerMonitor {
         return this.failedCounter.getOrDefault(OpsType.Delete, ZERO).get();
     }
 
+    /** 获取 IUD 成功总数 */
+    public long getSucceed() {
+        return getSucceedInsert() + getSucceedUpdate() + getSucceedDelete();
+    }
+
+    /** 获取 IUD 失败总数 */
+    public long getFailed() {
+        return getFailedInsert() + getFailedUpdate() + getFailedDelete();
+    }
+
     /** 各 worker 否退出？ */
     public boolean ifPresentExit() {
         return this.presentExit;

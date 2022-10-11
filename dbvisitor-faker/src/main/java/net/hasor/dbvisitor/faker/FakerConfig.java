@@ -20,6 +20,7 @@ import net.hasor.cobble.ref.Ratio;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.generator.loader.DataLoaderFactory;
 import net.hasor.dbvisitor.faker.generator.provider.DefaultTypeSrwFactory;
+import net.hasor.dbvisitor.faker.meta.JdbcFetchMeta;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.util.Collections;
@@ -38,6 +39,7 @@ public class FakerConfig {
     private       TypeHandlerRegistry   typeRegistry;
     private       DataLoaderFactory     dataLoaderFactory;
     private       SqlDialect            sqlDialect;
+    private       JdbcFetchMeta         customFetchMeta;
     private       DefaultTypeSrwFactory typeDialect;
     private       boolean               useRadical;
     private       boolean               useQualifier;
@@ -188,6 +190,14 @@ public class FakerConfig {
 
     public void setSqlDialect(SqlDialect sqlDialect) {
         this.sqlDialect = sqlDialect;
+    }
+
+    public JdbcFetchMeta getCustomFetchMeta() {
+        return customFetchMeta;
+    }
+
+    public void setCustomFetchMeta(JdbcFetchMeta customFetchMeta) {
+        this.customFetchMeta = customFetchMeta;
     }
 
     public DefaultTypeSrwFactory getTypeDialect() {

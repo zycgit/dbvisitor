@@ -16,7 +16,6 @@
 package net.hasor.dbvisitor.faker.meta;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.ESupplier;
-import net.hasor.dbvisitor.jdbc.DynamicConnection;
 import net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
@@ -43,21 +42,17 @@ import java.util.stream.Stream;
  */
 public class JdbcFetchMetaProvider {
     private final ESupplier<Connection, SQLException> connect;
+    private final JdbcFetchMeta                       jdbcFetchMeta;
 
-    public JdbcFetchMetaProvider(Connection connection) {
+    public JdbcFetchMetaProvider(Connection connection, JdbcFetchMeta jdbcFetchMeta) {
         Connection conn = newProxyConnection(connection, null);
         this.connect = () -> conn;
+        this.jdbcFetchMeta = jdbcFetchMeta;
     }
 
-    public JdbcFetchMetaProvider(DataSource dataSource) {
+    public JdbcFetchMetaProvider(DataSource dataSource, JdbcFetchMeta jdbcFetchMeta) {
         this.connect = dataSource::getConnection;
-    }
-
-    public JdbcFetchMetaProvider(DynamicConnection dynamicConnection) {
-        this.connect = () -> {
-            Connection newConn = dynamicConnection.getConnection();
-            return newProxyConnection(newConn, () -> dynamicConnection.releaseConnection(newConn));
-        };
+        this.jdbcFetchMeta = jdbcFetchMeta;
     }
 
     public String getVersion() throws SQLException {
@@ -265,28 +260,31 @@ public class JdbcFetchMetaProvider {
         if (StringUtils.isBlank(table)) {
             return Collections.emptyList();
         }
-        JdbcPrimaryKey primaryKey = getPrimaryKey(catalog, schemaName, table);
-        List<JdbcIndex> uniqueKey = getUniqueKey(catalog, schemaName, table);
-        Set<String> uniqueColumns = uniqueKey.stream().flatMap((Function<JdbcIndex, Stream<String>>) jdbcIndex -> {
-            return jdbcIndex.getColumns().stream();
-        }).collect(Collectors.toSet());
-        //
-        try (Connection conn = this.connect.eGet()) {
-            DatabaseMetaData metaData = conn.getMetaData();
-            //
-            List<JdbcColumn> jdbcColumns = null;
-            try (ResultSet resultSet = metaData.getColumns(catalog, schemaName, table, null)) {
-                final ColumnMapRowMapper rowMapper = new ColumnMapRowMapper();
-                jdbcColumns = new RowMapperResultSetExtractor<>((rs, rowNum) -> {
-                    return convertColumn(rowMapper.mapRow(rs, rowNum), primaryKey, uniqueColumns);
-                }).extractData(resultSet);
+
+        List<JdbcColumn> jdbcColumns = null;
+        if (this.jdbcFetchMeta != null) {
+            try (Connection conn = this.connect.eGet()) {
+                jdbcColumns = this.jdbcFetchMeta.getColumns(conn, catalog, schemaName, table);
             }
-            if (jdbcColumns == null) {
-                return Collections.emptyList();
-            } else {
-                return jdbcColumns;
+        } else {
+            JdbcPrimaryKey primaryKey = getPrimaryKey(catalog, schemaName, table);
+            List<JdbcIndex> uniqueKey = getUniqueKey(catalog, schemaName, table);
+            Set<String> uniqueColumns = uniqueKey.stream().flatMap((Function<JdbcIndex, Stream<String>>) jdbcIndex -> {
+                return jdbcIndex.getColumns().stream();
+            }).collect(Collectors.toSet());
+
+            try (Connection conn = this.connect.eGet()) {
+                DatabaseMetaData metaData = conn.getMetaData();
+                try (ResultSet resultSet = metaData.getColumns(catalog, schemaName, table, null)) {
+                    final ColumnMapRowMapper rowMapper = new ColumnMapRowMapper();
+                    jdbcColumns = new RowMapperResultSetExtractor<>((rs, rowNum) -> {
+                        return convertColumn(rowMapper.mapRow(rs, rowNum), primaryKey, uniqueColumns);
+                    }).extractData(resultSet);
+                }
             }
         }
+
+        return jdbcColumns == null ? Collections.emptyList() : jdbcColumns;
     }
 
     /**
@@ -557,9 +555,6 @@ public class JdbcFetchMetaProvider {
         //
         jdbcColumn.setColumnSize(safeToInteger(rs.get("COLUMN_SIZE")));
         jdbcColumn.setComment(safeToString(rs.get("REMARKS")));
-        jdbcColumn.setScopeCatalog(safeToString(rs.get("SCOPE_CATALOG")));
-        jdbcColumn.setScopeSchema(safeToString(rs.get("SCOPE_SCHEMA")));
-        jdbcColumn.setScopeTable(safeToString(rs.get("SCOPE_TABLE")));
         //
         String isAutoincrement = safeToString(rs.get("IS_AUTOINCREMENT"));
         if ("YES".equals(isAutoincrement)) {
@@ -579,11 +574,9 @@ public class JdbcFetchMetaProvider {
         }
         //
         jdbcColumn.setDecimalDigits(safeToInteger(rs.get("DECIMAL_DIGITS")));
-        jdbcColumn.setNumberPrecRadix(safeToInteger(rs.get("NUM_PREC_RADIX")));
-        jdbcColumn.setDefaultValue(safeToString(rs.get("COLUMN_DEF")));
+        jdbcColumn.setHasDefaultValue(safeToString(rs.get("COLUMN_DEF")) != null);
         jdbcColumn.setCharOctetLength(safeToInteger(rs.get("CHAR_OCTET_LENGTH")));
         jdbcColumn.setIndex(safeToInteger(rs.get("ORDINAL_POSITION")));
-        jdbcColumn.setSourceDataType(safeToInteger(rs.get("SOURCE_DATA_TYPE")));
         //
         if (primaryKey != null) {
             List<String> pkColumns = primaryKey.getColumns();
