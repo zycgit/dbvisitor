@@ -109,10 +109,11 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
 
     protected Segment formatLikeValue(String property, SqlLike like, Object param) {
         ColumnMapping mapping = this.getTableMapping().getPropertyByName(property);
-        String whereValueTemplate = mapping.getWhereValueTemplate();
+        String specialValue = mapping.getWhereValueTemplate();
+        String colValue = StringUtils.isNotBlank(specialValue) ? specialValue : "?";
 
         return () -> {
-            format(whereValueTemplate, param);
+            format(colValue, param);
             return ((ConditionSqlDialect) this.dialect()).like(like, param);
         };
     }
@@ -123,12 +124,13 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
         }
 
         ColumnMapping mapping = this.getTableMapping().getPropertyByName(property);
-        String whereValueTemplate = mapping.getWhereValueTemplate();
+        String specialValue = mapping.getWhereValueTemplate();
+        String colValue = StringUtils.isNotBlank(specialValue) ? specialValue : "?";
 
         MergeSqlSegment mergeSqlSegment = new MergeSqlSegment();
         Iterator<Object> iterator = Arrays.asList(params).iterator();
         while (iterator.hasNext()) {
-            mergeSqlSegment.addSegment(formatSegment(whereValueTemplate, iterator.next()));
+            mergeSqlSegment.addSegment(formatSegment(colValue, iterator.next()));
             if (iterator.hasNext()) {
                 mergeSqlSegment.addSegment(() -> ",");
             }
@@ -148,106 +150,106 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     @Override
     public R eq(P property, Object value) {
         String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(true, propertyName), EQ, formatValue(propertyName, value));
+        return this.addCondition(buildConditionByProperty(propertyName), EQ, formatValue(propertyName, value));
     }
 
     @Override
     public R ne(P property, Object value) {
         String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(true, propertyName), NE, formatValue(propertyName, value));
+        return this.addCondition(buildConditionByProperty(propertyName), NE, formatValue(propertyName, value));
     }
 
     @Override
     public R gt(P property, Object value) {
         String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(true, propertyName), GT, formatValue(propertyName, value));
+        return this.addCondition(buildConditionByProperty(propertyName), GT, formatValue(propertyName, value));
     }
 
     @Override
     public R ge(P property, Object value) {
         String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(true, propertyName), GE, formatValue(propertyName, value));
+        return this.addCondition(buildConditionByProperty(propertyName), GE, formatValue(propertyName, value));
     }
 
     @Override
     public R lt(P property, Object value) {
         String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(true, propertyName), LT, formatValue(propertyName, value));
+        return this.addCondition(buildConditionByProperty(propertyName), LT, formatValue(propertyName, value));
     }
 
     @Override
     public R le(P property, Object value) {
         String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(true, propertyName), LE, formatValue(propertyName, value));
+        return this.addCondition(buildConditionByProperty(propertyName), LE, formatValue(propertyName, value));
     }
 
     @Override
     public R like(P property, Object value) {
         String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(true, propertyName), LIKE, formatLikeValue(propertyName, SqlLike.DEFAULT, value));
+        return this.addCondition(buildConditionByProperty(propertyName), LIKE, formatLikeValue(propertyName, SqlLike.DEFAULT, value));
     }
 
     @Override
     public R notLike(P property, Object value) {
         String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(true, propertyName), NOT, LIKE, formatLikeValue(propertyName, SqlLike.DEFAULT, value));
+        return this.addCondition(buildConditionByProperty(propertyName), NOT, LIKE, formatLikeValue(propertyName, SqlLike.DEFAULT, value));
     }
 
     @Override
     public R likeRight(P property, Object value) {
         String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(true, propertyName), LIKE, formatLikeValue(propertyName, SqlLike.RIGHT, value));
+        return this.addCondition(buildConditionByProperty(propertyName), LIKE, formatLikeValue(propertyName, SqlLike.RIGHT, value));
     }
 
     @Override
     public R notLikeRight(P property, Object value) {
         String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(true, propertyName), NOT, LIKE, formatLikeValue(propertyName, SqlLike.RIGHT, value));
+        return this.addCondition(buildConditionByProperty(propertyName), NOT, LIKE, formatLikeValue(propertyName, SqlLike.RIGHT, value));
     }
 
     @Override
     public R likeLeft(P property, Object value) {
         String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(true, propertyName), LIKE, formatLikeValue(propertyName, SqlLike.LEFT, value));
+        return this.addCondition(buildConditionByProperty(propertyName), LIKE, formatLikeValue(propertyName, SqlLike.LEFT, value));
     }
 
     @Override
     public R notLikeLeft(P property, Object value) {
         String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(true, propertyName), NOT, LIKE, formatLikeValue(propertyName, SqlLike.LEFT, value));
+        return this.addCondition(buildConditionByProperty(propertyName), NOT, LIKE, formatLikeValue(propertyName, SqlLike.LEFT, value));
     }
 
     @Override
     public R isNull(P property) {
-        return this.addCondition(buildConditionByProperty(true, getPropertyName(property)), IS_NULL);
+        return this.addCondition(buildConditionByProperty(getPropertyName(property)), IS_NULL);
     }
 
     @Override
     public R isNotNull(P property) {
-        return this.addCondition(buildConditionByProperty(true, getPropertyName(property)), IS_NOT_NULL);
+        return this.addCondition(buildConditionByProperty(getPropertyName(property)), IS_NOT_NULL);
     }
 
     @Override
     public R in(P property, Collection<?> value) {
         String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(true, propertyName), IN, LEFT, formatValue(propertyName, value.toArray()), RIGHT);
+        return this.addCondition(buildConditionByProperty(propertyName), IN, LEFT, formatValue(propertyName, value.toArray()), RIGHT);
     }
 
     @Override
     public R notIn(P property, Collection<?> value) {
         String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(true, propertyName), NOT, IN, LEFT, formatValue(propertyName, value.toArray()), RIGHT);
+        return this.addCondition(buildConditionByProperty(propertyName), NOT, IN, LEFT, formatValue(propertyName, value.toArray()), RIGHT);
     }
 
     @Override
     public R between(P property, Object value1, Object value2) {
         String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(true, propertyName), BETWEEN, formatValue(propertyName, value1), AND, formatValue(propertyName, value2));
+        return this.addCondition(buildConditionByProperty(propertyName), BETWEEN, formatValue(propertyName, value1), AND, formatValue(propertyName, value2));
     }
 
     @Override
     public R notBetween(P property, Object value1, Object value2) {
         String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(true, propertyName), NOT, BETWEEN, formatValue(propertyName, value1), AND, formatValue(propertyName, value2));
+        return this.addCondition(buildConditionByProperty(propertyName), NOT, BETWEEN, formatValue(propertyName, value1), AND, formatValue(propertyName, value2));
     }
 }

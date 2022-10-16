@@ -131,11 +131,14 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
             boolean insert = info.insert();
             boolean update = info.update();
             boolean primary = info.primary();
+            String selectTemplate = info.selectTemplate();
             String insertTemplate = info.insertTemplate();
+            String setColTemplate = info.setColTemplate();
             String setValueTemplate = info.setValueTemplate();
             String whereColTemplate = info.whereColTemplate();
             String whereValueTemplate = info.whereValueTemplate();
-            tableDef.addMapping(new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler, insert, update, primary, insertTemplate, setValueTemplate, whereColTemplate, whereValueTemplate));
+            tableDef.addMapping(new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler, insert, update, primary,//
+                    selectTemplate, insertTemplate, setColTemplate, setValueTemplate, whereColTemplate, whereValueTemplate));
 
         } else if (tableDef.isAutoProperty()) {
 

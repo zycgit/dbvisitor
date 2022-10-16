@@ -33,20 +33,21 @@ public class ColumnDef implements ColumnMapping {
     private final boolean        insert;
     private final boolean        update;
     private final boolean        primary;
-    //
+    private final String         selectTemplate;
     private final String         insertTemplate;
+    private final String         setColTemplate;
     private final String         setValueTemplate;
     private final String         whereColTemplate;
     private final String         whereValueTemplate;
 
     public ColumnDef(String columnName, String propertyName, Integer jdbcType, Class<?> javaType, TypeHandler<?> typeHandler, Property mapHandler, boolean insert, boolean update, boolean primary) {
-        this(columnName, propertyName, jdbcType, javaType, typeHandler, mapHandler, insert, update, primary, "?", "?", "", "?");
+        this(columnName, propertyName, jdbcType, javaType, typeHandler, mapHandler, insert, update, primary, "", "?", "", "?", "", "?");
     }
 
     public ColumnDef(String columnName, String propertyName, Integer jdbcType, Class<?> javaType,//
             TypeHandler<?> typeHandler, Property handler, //
             boolean insert, boolean update, boolean primary,//
-            String insertTemplate, String setValueTemplate, String whereColTemplate, String whereValueTemplate) {
+            String selectTemplate, String insertTemplate, String setColTemplate, String setValueTemplate, String whereColTemplate, String whereValueTemplate) {
         this.columnName = columnName;
         this.propertyName = propertyName;
         this.jdbcType = jdbcType;
@@ -56,10 +57,13 @@ public class ColumnDef implements ColumnMapping {
         this.insert = insert;
         this.update = update;
         this.primary = primary;
-        this.insertTemplate = (StringUtils.isBlank(insertTemplate) || "?".equals(insertTemplate)) ? "?" : insertTemplate;
-        this.setValueTemplate = (StringUtils.isBlank(setValueTemplate) || "?".equals(setValueTemplate)) ? "?" : setValueTemplate;
-        this.whereColTemplate = whereColTemplate.replace("{name}", this.columnName);
-        this.whereValueTemplate = (StringUtils.isBlank(whereValueTemplate) || "?".equals(whereValueTemplate)) ? "?" : whereValueTemplate;
+
+        this.selectTemplate = StringUtils.isNotBlank(selectTemplate) ? selectTemplate : columnName;
+        this.insertTemplate = StringUtils.isNotBlank(insertTemplate) ? insertTemplate : "?";
+        this.setColTemplate = StringUtils.isNotBlank(setColTemplate) ? setColTemplate : columnName;
+        this.setValueTemplate = StringUtils.isNotBlank(setValueTemplate) ? setValueTemplate : "?";
+        this.whereColTemplate = StringUtils.isNotBlank(whereColTemplate) ? whereColTemplate : columnName;
+        this.whereValueTemplate = StringUtils.isNotBlank(whereValueTemplate) ? whereValueTemplate : "?";
     }
 
     @Override
@@ -101,8 +105,18 @@ public class ColumnDef implements ColumnMapping {
     }
 
     @Override
+    public String getSelectTemplate() {
+        return selectTemplate;
+    }
+
+    @Override
     public String getInsertTemplate() {
         return insertTemplate;
+    }
+
+    @Override
+    public String getSetColTemplate() {
+        return setColTemplate;
     }
 
     @Override

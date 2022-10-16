@@ -56,13 +56,14 @@
         <xs:complexType>
             <xs:choice maxOccurs="unbounded">
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="resultMap"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="entity"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="sql"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="insert"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="update"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="delete"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="select"/>
             </xs:choice>
-            <xs:attribute name="namespace" type="xs:string"/>
+            <xs:attribute name="namespace"/>
             <xs:attribute name="caseInsensitive" type="boolean_type"/>
             <xs:attribute name="mapUnderscoreToCamelCase" type="boolean_type"/>
             <xs:attribute name="autoMapping" type="boolean_type"/>
@@ -72,8 +73,32 @@
     <xs:element name="resultMap">
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="id"/>
-                <xs:element minOccurs="0" maxOccurs="unbounded" ref="result"/>
+                <xs:element name="result" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:attribute name="column" use="required"/>
+                        <xs:attribute name="property" use="required"/>
+                        <xs:attribute name="javaType"/>
+                        <xs:attribute name="jdbcType"/>
+                        <xs:attribute name="typeHandler"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute name="type" use="required"/>
+            <xs:attribute name="id"/>
+            <xs:attribute name="catalog"/>
+            <xs:attribute name="schema"/>
+            <xs:attribute name="table"/>
+            <xs:attribute name="caseInsensitive" type="boolean_type"/>
+            <xs:attribute name="mapUnderscoreToCamelCase" type="boolean_type"/>
+            <xs:attribute name="autoMapping" type="boolean_type"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="entity">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="id" minOccurs="0" maxOccurs="unbounded" type="mapping_type"/>
+                <xs:element name="mapping" minOccurs="0" maxOccurs="unbounded" type="mapping_type"/>
             </xs:sequence>
             <xs:attribute name="type" use="required"/>
             <xs:attribute name="id"/>
@@ -87,19 +112,20 @@
     </xs:element>
 
     <xs:complexType name="mapping_type">
+        <xs:attribute name="column" use="required"/>
         <xs:attribute name="property" use="required"/>
         <xs:attribute name="javaType"/>
-        <xs:attribute name="column" use="required"/>
         <xs:attribute name="jdbcType"/>
         <xs:attribute name="typeHandler"/>
+        <xs:attribute name="insert" type="boolean_type"/>
+        <xs:attribute name="update" type="boolean_type"/>
+        <xs:attribute name="selectTemplate"/>
         <xs:attribute name="insertTemplate"/>
+        <xs:attribute name="setColTemplate"/>
         <xs:attribute name="setValueTemplate"/>
         <xs:attribute name="whereColTemplate"/>
         <xs:attribute name="whereValueTemplate"/>
     </xs:complexType>
-    <xs:element name="id" type="mapping_type"/>
-    <xs:element name="result" type="mapping_type"/>
-    <xs:element name="mapping" type="mapping_type"/>
 
     <xs:element name="insert">
         <xs:complexType mixed="true">

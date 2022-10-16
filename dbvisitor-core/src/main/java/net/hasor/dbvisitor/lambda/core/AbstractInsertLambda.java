@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
@@ -229,7 +230,11 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
                 argBuilder.append(", ");
             }
             strBuilder.append(dialect.columnName(useQualifier, catalog, schema, table, columns.get(i)));
-            argBuilder.append(tableMapping.getPropertyByColumn(columns.get(i)).getInsertTemplate());
+
+            String specialValue = tableMapping.getPropertyByColumn(columns.get(i)).getInsertTemplate();
+            String colValue = StringUtils.isNotBlank(specialValue) ? specialValue : "?";
+
+            argBuilder.append(colValue);
         }
 
         strBuilder.append(") VALUES (");

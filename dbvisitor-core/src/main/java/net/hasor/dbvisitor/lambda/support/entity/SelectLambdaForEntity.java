@@ -59,91 +59,91 @@ public class SelectLambdaForEntity<T> extends AbstractSelectLambda<EntityQueryOp
 
     @Override
     public EntityQueryOperation<T> eq(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(true, property), EQ, formatValue(property, value));
+        return this.addCondition(buildConditionByProperty(property), EQ, formatValue(property, value));
     }
 
     @Override
     public EntityQueryOperation<T> ne(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(true, property), NE, formatValue(property, value));
+        return this.addCondition(buildConditionByProperty(property), NE, formatValue(property, value));
     }
 
     @Override
     public EntityQueryOperation<T> gt(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(true, property), GT, formatValue(property, value));
+        return this.addCondition(buildConditionByProperty(property), GT, formatValue(property, value));
     }
 
     @Override
     public EntityQueryOperation<T> ge(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(true, property), GE, formatValue(property, value));
+        return this.addCondition(buildConditionByProperty(property), GE, formatValue(property, value));
     }
 
     @Override
     public EntityQueryOperation<T> lt(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(true, property), LT, formatValue(property, value));
+        return this.addCondition(buildConditionByProperty(property), LT, formatValue(property, value));
     }
 
     @Override
     public EntityQueryOperation<T> le(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(true, property), LE, formatValue(property, value));
+        return this.addCondition(buildConditionByProperty(property), LE, formatValue(property, value));
     }
 
     @Override
     public EntityQueryOperation<T> like(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(true, property), LIKE, formatLikeValue(property, SqlLike.DEFAULT, value));
+        return this.addCondition(buildConditionByProperty(property), LIKE, formatLikeValue(property, SqlLike.DEFAULT, value));
     }
 
     @Override
     public EntityQueryOperation<T> notLike(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(true, property), NOT, LIKE, formatLikeValue(property, SqlLike.DEFAULT, value));
+        return this.addCondition(buildConditionByProperty(property), NOT, LIKE, formatLikeValue(property, SqlLike.DEFAULT, value));
     }
 
     @Override
     public EntityQueryOperation<T> likeRight(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(true, property), LIKE, formatLikeValue(property, SqlLike.RIGHT, value));
+        return this.addCondition(buildConditionByProperty(property), LIKE, formatLikeValue(property, SqlLike.RIGHT, value));
     }
 
     @Override
     public EntityQueryOperation<T> notLikeRight(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(true, property), NOT, LIKE, formatLikeValue(property, SqlLike.RIGHT, value));
+        return this.addCondition(buildConditionByProperty(property), NOT, LIKE, formatLikeValue(property, SqlLike.RIGHT, value));
     }
 
     @Override
     public EntityQueryOperation<T> likeLeft(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(true, property), LIKE, formatLikeValue(property, SqlLike.LEFT, value));
+        return this.addCondition(buildConditionByProperty(property), LIKE, formatLikeValue(property, SqlLike.LEFT, value));
     }
 
     @Override
     public EntityQueryOperation<T> notLikeLeft(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(true, property), NOT, LIKE, formatLikeValue(property, SqlLike.LEFT, value));
+        return this.addCondition(buildConditionByProperty(property), NOT, LIKE, formatLikeValue(property, SqlLike.LEFT, value));
     }
 
     @Override
     public EntityQueryOperation<T> isNull(String property) {
-        return this.addCondition(buildConditionByProperty(true, property), IS_NULL);
+        return this.addCondition(buildConditionByProperty(property), IS_NULL);
     }
 
     @Override
     public EntityQueryOperation<T> isNotNull(String property) {
-        return this.addCondition(buildConditionByProperty(true, property), IS_NOT_NULL);
+        return this.addCondition(buildConditionByProperty(property), IS_NOT_NULL);
     }
 
     @Override
     public EntityQueryOperation<T> in(String property, Collection<?> value) {
-        return this.addCondition(buildConditionByProperty(true, property), IN, LEFT, formatValue(property, value.toArray()), RIGHT);
+        return this.addCondition(buildConditionByProperty(property), IN, LEFT, formatValue(property, value.toArray()), RIGHT);
     }
 
     @Override
     public EntityQueryOperation<T> notIn(String property, Collection<?> value) {
-        return this.addCondition(buildConditionByProperty(true, property), NOT, IN, LEFT, formatValue(property, value.toArray()), RIGHT);
+        return this.addCondition(buildConditionByProperty(property), NOT, IN, LEFT, formatValue(property, value.toArray()), RIGHT);
     }
 
     @Override
     public EntityQueryOperation<T> between(String property, Object value1, Object value2) {
-        return this.addCondition(buildConditionByProperty(true, property), BETWEEN, formatValue(property, value1), AND, formatValue(property, value2));
+        return this.addCondition(buildConditionByProperty(property), BETWEEN, formatValue(property, value1), AND, formatValue(property, value2));
     }
 
     @Override
     public EntityQueryOperation<T> notBetween(String property, Object value1, Object value2) {
-        return this.addCondition(buildConditionByProperty(true, property), NOT, BETWEEN, formatValue(property, value1), AND, formatValue(property, value2));
+        return this.addCondition(buildConditionByProperty(property), NOT, BETWEEN, formatValue(property, value1), AND, formatValue(property, value2));
     }
 }

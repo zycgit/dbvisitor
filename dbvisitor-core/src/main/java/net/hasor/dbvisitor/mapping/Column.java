@@ -46,24 +46,30 @@ public @interface Column {
     /** 指定使用的 typeHandler（功效和 Mybatis 的 TypeHandler 相同） */
     Class<? extends TypeHandler<?>> typeHandler() default UnknownTypeHandler.class;
 
-    /** (选填)是否为主键 */
+    /** (选填) 是否为主键 */
     boolean primary() default false;
 
-    /** (选填)参与更新（在配置了 @Table 注解时，通过 net.hasor.db.lambda.LambdaOperations 接口操作才有效） */
+    /** (选填) 参与更新（在配置了 @Table 注解时，通过 net.hasor.db.lambda.LambdaOperations 接口操作才有效） */
     boolean update() default true;
 
-    /** (选填)参与新增（在配置了 @Table 注解时，通过 net.hasor.db.lambda.LambdaOperations 接口操作才有效） */
+    /** (选填) 参与新增（在配置了 @Table 注解时，通过 net.hasor.db.lambda.LambdaOperations 接口操作才有效） */
     boolean insert() default true;
 
-    /** (选填)用作 insert 语句时 value 的参数写法，默认是 ? */
+    /** (选填) 用作 select 语句时 column name 的写法，默认是空 */
+    String selectTemplate() default "";
+
+    /** (选填) 用作 insert 语句时 value 的参数写法，默认是 ? */
     String insertTemplate() default "?";
 
-    /** (选填)用作 update set 语句时 value 的参数写法，默认是 ? */
+    /** (选填) 用作 update 的 set 语句时 column name 的写法，默认是空 */
+    String setColTemplate() default "";
+
+    /** (选填) 用作 update set 语句时 value 的参数写法，默认是 ? */
     String setValueTemplate() default "?";
 
-    /** (选填)用作 update/delete 的 where 语句时 column name 的参数写法，默认是空 */
+    /** (选填) 用作 update/delete 的 where 语句时 column name 的写法，默认是空 */
     String whereColTemplate() default "";
 
-    /** (选填)用作 update/delete 的 where 语句时 value 的参数写法，默认是 ? */
+    /** (选填) 用作 update/delete 的 where 语句时 value 的参数写法，默认是 ? */
     String whereValueTemplate() default "?";
 }

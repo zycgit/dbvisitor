@@ -48,11 +48,21 @@ public interface ColumnMapping {
     /** 参与新增 */
     boolean isInsert();
 
+    /** 用作 select 语句时 column name 的写法，默认是空 */
+    String getSelectTemplate();
+
+    /** 用作 insert 语句时 value 的参数写法，默认是 ? */
     String getInsertTemplate();
 
+    /** 用作 update 的 set 语句时 column name 的写法，默认是空 */
+    String getSetColTemplate();
+
+    /** 用作 update set 语句时 value 的参数写法，默认是 ? */
     String getSetValueTemplate();
 
+    /** 用作 update/delete 的 where 语句时 column name 的写法，默认是空 */
     String getWhereColTemplate();
 
+    /** 用作 update/delete 的 where 语句时 value 的参数写法，默认是 ? */
     String getWhereValueTemplate();
 }

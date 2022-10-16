@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
@@ -167,9 +168,15 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
             }
 
             ColumnMapping mapping = allowUpdateProperties.get(propertyName);
-            String columnName = dialect.columnName(isQualifier(), catalogName, schemaName, tableName, mapping.getColumn());
+
+            String specialName = mapping.getSetColTemplate();
+            String colName = StringUtils.isNotBlank(specialName) ? specialName : dialect.columnName(isQualifier(), catalogName, schemaName, tableName, mapping.getColumn());
+
+            String specialValue = mapping.getSetValueTemplate();
+            String colValue = StringUtils.isNotBlank(specialValue) ? specialValue : "?";
+
             Object columnValue = updateValueMap.get(propertyName);
-            updateTemplate.addSegment(() -> columnName, EQ, formatSegment(mapping.getSetValueTemplate(), columnValue));
+            updateTemplate.addSegment(() -> colName, EQ, formatSegment(colValue, columnValue));
         }
 
         // WHERE

@@ -111,7 +111,19 @@ public abstract class BasicLambda<R, T, P> {
 
     protected abstract String getPropertyName(P property);
 
-    protected Segment buildConditionByProperty(boolean isWhere, String propertyName) {
+    protected Segment buildSelectByProperty(String propertyName) {
+        return buildColumnByProperty(false, true, propertyName);
+    }
+
+    protected Segment buildConditionByProperty(String propertyName) {
+        return buildColumnByProperty(true, false, propertyName);
+    }
+
+    protected Segment buildColumnByProperty(String propertyName) {
+        return buildColumnByProperty(false, false, propertyName);
+    }
+
+    private Segment buildColumnByProperty(boolean isWhere, boolean isSelect, String propertyName) {
         TableMapping<?> tableMapping = this.getTableMapping();
         String catalogName = tableMapping.getCatalog();
         String schemaName = tableMapping.getSchema();
@@ -123,14 +135,20 @@ public abstract class BasicLambda<R, T, P> {
             throw new NullPointerException("tableMapping '" + tab + "', property '" + propertyName + "' is not exist.");
         }
 
-        String columnName = propertyInfo.getColumn();
-        String whereColTemplate = propertyInfo.getWhereColTemplate();
-
-        if (StringUtils.isNotBlank(whereColTemplate) && isWhere) {
-            return () -> whereColTemplate;
-        } else {
-            return () -> dialect().columnName(isQualifier(), catalogName, schemaName, tableName, columnName);
+        if (!isSelect && isWhere) {
+            String specialWhereCol = propertyInfo.getWhereColTemplate();
+            if (StringUtils.isNotBlank(specialWhereCol)) {
+                return () -> specialWhereCol;
+            }
+        } else if (isSelect && !isWhere) {
+            String specialSelectCol = propertyInfo.getWhereColTemplate();
+            if (StringUtils.isNotBlank(specialSelectCol)) {
+                return () -> specialSelectCol;
+            }
         }
+
+        String columnName = propertyInfo.getColumn();
+        return () -> dialect().columnName(isQualifier(), catalogName, schemaName, tableName, columnName);
     }
 
     public final BoundSql getBoundSql() {

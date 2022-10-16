@@ -14,7 +14,7 @@
        See the License for the specific language governing permissions and
        limitations under the License.
 -->
-<!ELEMENT mapper ( resultMap* | sql* | insert* | update* | delete* | select* )+>
+<!ELEMENT mapper ( resultMap* | entity* | sql* | insert* | update* | delete* | select* )+>
 <!ATTLIST mapper
         namespace CDATA #IMPLIED
         caseInsensitive (true|false) #IMPLIED
@@ -22,8 +22,29 @@
         autoMapping (true|false) #IMPLIED
         >
 
-<!ELEMENT resultMap (id*, result*)>
+<!ELEMENT resultMap (result*)>
 <!ATTLIST resultMap
+        type CDATA #REQUIRED
+        id CDATA #IMPLIED
+        catalog CDATA #IMPLIED
+        schema CDATA #IMPLIED
+        table CDATA #IMPLIED
+        caseInsensitive (true|false) #IMPLIED
+        mapUnderscoreToCamelCase (true|false) #IMPLIED
+        autoMapping (true|false) #IMPLIED
+        >
+
+<!ELEMENT result EMPTY>
+<!ATTLIST result
+        column CDATA #REQUIRED
+        property CDATA #REQUIRED
+        javaType CDATA #IMPLIED
+        jdbcType CDATA #IMPLIED
+        typeHandler CDATA #IMPLIED
+        >
+
+<!ELEMENT entity (id*,mapping*)>
+<!ATTLIST entity
         type CDATA #REQUIRED
         id CDATA #IMPLIED
         catalog CDATA #IMPLIED
@@ -36,25 +57,16 @@
 
 <!ELEMENT id EMPTY>
 <!ATTLIST id
+        column CDATA #REQUIRED
         property CDATA #REQUIRED
         javaType CDATA #IMPLIED
-        column CDATA #REQUIRED
         jdbcType CDATA #IMPLIED
         typeHandler CDATA #IMPLIED
+        insert (true|false) #IMPLIED
+        update (true|false) #IMPLIED
+        selectTemplate CDATA #IMPLIED
         insertTemplate CDATA #IMPLIED
-        setValueTemplate CDATA #IMPLIED
-        whereColTemplate CDATA #IMPLIED
-        whereValueTemplate CDATA #IMPLIED
-        >
-
-<!ELEMENT result EMPTY>
-<!ATTLIST result
-        property CDATA #REQUIRED
-        javaType CDATA #IMPLIED
-        column CDATA #REQUIRED
-        jdbcType CDATA #IMPLIED
-        typeHandler CDATA #IMPLIED
-        insertTemplate CDATA #IMPLIED
+        setColTemplate CDATA #IMPLIED
         setValueTemplate CDATA #IMPLIED
         whereColTemplate CDATA #IMPLIED
         whereValueTemplate CDATA #IMPLIED
@@ -62,12 +74,16 @@
 
 <!ELEMENT mapping EMPTY>
 <!ATTLIST mapping
+        column CDATA #REQUIRED
         property CDATA #REQUIRED
         javaType CDATA #IMPLIED
-        column CDATA #REQUIRED
         jdbcType CDATA #IMPLIED
         typeHandler CDATA #IMPLIED
+        insert (true|false) #IMPLIED
+        update (true|false) #IMPLIED
+        selectTemplate CDATA #IMPLIED
         insertTemplate CDATA #IMPLIED
+        setColTemplate CDATA #IMPLIED
         setValueTemplate CDATA #IMPLIED
         whereColTemplate CDATA #IMPLIED
         whereValueTemplate CDATA #IMPLIED
