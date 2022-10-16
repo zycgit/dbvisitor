@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.transaction;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.utils.DefaultDs;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
 
-import static net.hasor.test.db.utils.TestUtils.*;
+import static net.hasor.test.utils.TestUtils.*;
 
 /**
  * NESTED
@@ -30,10 +30,9 @@ import static net.hasor.test.db.utils.TestUtils.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class PropagationNestedTest extends AbstractPropagationTest {
-
     @Test
     public void tran_rollback_test_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
              Connection conn = DsUtils.mysqlConnection()) {
             initTable(conn);
@@ -67,7 +66,7 @@ public class PropagationNestedTest extends AbstractPropagationTest {
 
     @Test
     public void tran_rollback_test_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
              Connection conn = DsUtils.mysqlConnection()) {
             initTable(conn);
@@ -98,7 +97,7 @@ public class PropagationNestedTest extends AbstractPropagationTest {
 
     @Test
     public void tran_commit_test_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
              Connection conn = DsUtils.mysqlConnection()) {
             initTable(conn);
@@ -135,7 +134,7 @@ public class PropagationNestedTest extends AbstractPropagationTest {
 
     @Test
     public void tran_commit_test_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
              Connection conn = DsUtils.mysqlConnection()) {
             initTable(conn);
@@ -166,7 +165,7 @@ public class PropagationNestedTest extends AbstractPropagationTest {
 
     @Test
     public void tran_commit_and_rollback_test_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
              Connection conn = DsUtils.mysqlConnection()) {
             initTable(conn);
@@ -200,7 +199,7 @@ public class PropagationNestedTest extends AbstractPropagationTest {
 
     @Test
     public void tran_rollback_and_commit_test_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
              Connection conn = DsUtils.mysqlConnection()) {
             initTable(conn);

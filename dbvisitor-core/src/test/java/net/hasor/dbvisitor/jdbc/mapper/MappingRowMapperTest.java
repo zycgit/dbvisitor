@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.mapper;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.dto.TbUser;
-import net.hasor.test.db.utils.DsUtils;
-import net.hasor.test.db.utils.TestUtils;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.TbUser;
+import net.hasor.test.utils.DsUtils;
+import net.hasor.test.utils.TestUtils;
 import org.junit.Test;
 
+import java.sql.Connection;
 import java.util.List;
 
 /***
@@ -32,8 +32,8 @@ import java.util.List;
 public class MappingRowMapperTest extends AbstractDbTest {
     @Test
     public void testBeanRowMapper_0() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TbUser> tbUsers = jdbcTemplate.query("select * from tb_user", new MappingRowMapper<>(TbUser.class));
             assert tbUsers.size() == 3;

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.BooleanTypeHandler;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -31,8 +30,8 @@ import java.util.Map;
 public class BooleanTypeTest {
     @Test
     public void testBooleanTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_boolean) values (true);");
             List<Boolean> dat = jdbcTemplate.query("select c_boolean from tb_h2_types where c_boolean is not null limit 1;", (rs, rowNum) -> {
@@ -44,8 +43,8 @@ public class BooleanTypeTest {
 
     @Test
     public void testBooleanTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_boolean) values (true);");
             List<Boolean> dat = jdbcTemplate.query("select c_boolean from tb_h2_types where c_boolean is not null limit 1;", (rs, rowNum) -> {
@@ -57,8 +56,8 @@ public class BooleanTypeTest {
 
     @Test
     public void testBooleanTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             boolean dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { true }, boolean.class);
             Boolean dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { true }, Boolean.class);

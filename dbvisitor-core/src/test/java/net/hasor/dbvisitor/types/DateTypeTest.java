@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.DateOnlyTypeHandler;
 import net.hasor.dbvisitor.types.handler.DateTypeHandler;
 import net.hasor.dbvisitor.types.handler.TimeOnlyTypeHandler;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -39,8 +38,8 @@ import java.util.Map;
 public class DateTypeTest {
     @Test
     public void testDateTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
@@ -54,8 +53,8 @@ public class DateTypeTest {
 
     @Test
     public void testDateTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
@@ -69,8 +68,8 @@ public class DateTypeTest {
 
     @Test
     public void testDateTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
             List<Date> dat = jdbcTemplate.query("select ?", ps -> {
@@ -104,8 +103,8 @@ public class DateTypeTest {
 
     @Test
     public void testTimeOnlyTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
@@ -126,8 +125,8 @@ public class DateTypeTest {
 
     @Test
     public void testTimeOnlyTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
@@ -148,8 +147,8 @@ public class DateTypeTest {
 
     @Test
     public void testTimeOnlyTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
             List<Date> dat = jdbcTemplate.query("select ?", ps -> {
@@ -189,8 +188,8 @@ public class DateTypeTest {
 
     @Test
     public void testDateOnlyTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
@@ -211,8 +210,8 @@ public class DateTypeTest {
 
     @Test
     public void testDateOnlyTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
@@ -233,8 +232,8 @@ public class DateTypeTest {
 
     @Test
     public void testDateOnlyTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
             List<Date> dat = jdbcTemplate.query("select ?", ps -> {

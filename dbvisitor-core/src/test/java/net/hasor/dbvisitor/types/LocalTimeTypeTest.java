@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.LocalDateTimeTypeHandler;
 import net.hasor.dbvisitor.types.handler.LocalDateTypeHandler;
 import net.hasor.dbvisitor.types.handler.LocalTimeTypeHandler;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -37,8 +36,8 @@ import java.util.Map;
 public class LocalTimeTypeTest {
     @Test
     public void testLocalDateTimeTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
             List<LocalDateTime> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
@@ -58,8 +57,8 @@ public class LocalTimeTypeTest {
 
     @Test
     public void testLocalDateTimeTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
             List<LocalDateTime> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
@@ -79,8 +78,8 @@ public class LocalTimeTypeTest {
 
     @Test
     public void testLocalDateTimeTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             LocalDateTime testData = LocalDateTime.of(1998, Month.APRIL, 12, 18, 33, 20, 123);
             List<LocalDateTime> dat = jdbcTemplate.query("select ?", ps -> {
@@ -126,8 +125,8 @@ public class LocalTimeTypeTest {
 
     @Test
     public void testLocalDateTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
             List<LocalDate> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
@@ -144,8 +143,8 @@ public class LocalTimeTypeTest {
 
     @Test
     public void testLocalDateTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
             List<LocalDate> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
@@ -162,8 +161,8 @@ public class LocalTimeTypeTest {
 
     @Test
     public void testLocalDateTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             LocalDate testData = LocalDate.of(1998, Month.APRIL, 12);
             List<LocalDate> dat = jdbcTemplate.query("select ?", ps -> {
@@ -202,8 +201,8 @@ public class LocalTimeTypeTest {
 
     @Test
     public void testLocalTimeTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
             List<LocalTime> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
@@ -221,8 +220,8 @@ public class LocalTimeTypeTest {
 
     @Test
     public void testLocalTimeTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
             List<LocalTime> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
@@ -240,8 +239,8 @@ public class LocalTimeTypeTest {
 
     @Test
     public void testLocalTimeTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             LocalTime testData = LocalTime.of(12, 33, 45, 1243);
             List<LocalTime> dat = jdbcTemplate.query("select ?", ps -> {

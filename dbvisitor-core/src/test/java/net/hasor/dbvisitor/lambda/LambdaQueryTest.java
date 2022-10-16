@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.dto.TB_User;
-import net.hasor.test.db.dto.TbUser;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.TB_User;
+import net.hasor.test.dto.TbUser;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static net.hasor.test.db.utils.TestUtils.*;
+import static net.hasor.test.utils.TestUtils.*;
 
 /***
  * Lambda 方式执行 Select 操作
@@ -38,8 +38,8 @@ import static net.hasor.test.db.utils.TestUtils.*;
 public class LambdaQueryTest extends AbstractDbTest {
     @Test
     public void lambda_select_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             List<TbUser> tbUsers1 = lambdaTemplate.lambdaQuery(TbUser.class).queryForList();
             List<String> collect1 = tbUsers1.stream().map(TbUser::getName).collect(Collectors.toList());
@@ -89,8 +89,8 @@ public class LambdaQueryTest extends AbstractDbTest {
 
     @Test
     public void lambdaQuery_select_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             List<TbUser> tbUsers1 = lambdaTemplate.lambdaQuery(TbUser.class).selectAll().queryForList();
             List<TbUser> tbUsers2 = lambdaTemplate.lambdaQuery(TbUser.class).queryForList();
@@ -109,8 +109,8 @@ public class LambdaQueryTest extends AbstractDbTest {
 
     @Test
     public void lambdaQuery_select_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             List<TB_User> tbUsers1 = lambdaTemplate.lambdaQuery(TB_User.class).selectAll().queryForList();
             List<TB_User> tbUsers2 = lambdaTemplate.lambdaQuery(TB_User.class).queryForList();
@@ -129,8 +129,8 @@ public class LambdaQueryTest extends AbstractDbTest {
 
     @Test
     public void lambdaQuery_select_4() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             TbUser tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
                     .eq(TbUser::getAccount, "muhammad").apply("limit 1").queryForObject();
@@ -141,8 +141,8 @@ public class LambdaQueryTest extends AbstractDbTest {
 
     @Test
     public void lambdaQuery_select_5() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
                     .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
@@ -155,8 +155,8 @@ public class LambdaQueryTest extends AbstractDbTest {
 
     @Test
     public void lambdaQuery_lambdaCount_6() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             int lambdaCount1 = lambdaTemplate.lambdaQuery(TbUser.class)//
                     .eq(TbUser::getAccount, "muhammad")//

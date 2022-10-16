@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.NumberTypeHandler;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -32,8 +31,8 @@ import java.util.Map;
 public class NumberTypeTest {
     @Test
     public void testNumberTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
@@ -47,8 +46,8 @@ public class NumberTypeTest {
 
     @Test
     public void testNumberTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
@@ -62,8 +61,8 @@ public class NumberTypeTest {
 
     @Test
     public void testNumberTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('123');");
             List<Number> dat = jdbcTemplate.query("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
@@ -76,8 +75,8 @@ public class NumberTypeTest {
 
     @Test
     public void testNumberTypeHandler_4() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('123');");
             List<Number> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {

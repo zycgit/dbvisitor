@@ -15,7 +15,7 @@
  */
 package net.hasor.realdb.mysql;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.io.IOException;

@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.extractor;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static net.hasor.test.db.utils.TestUtils.*;
+import static net.hasor.test.utils.TestUtils.*;
 
 /***
  * @version : 2020-11-12
@@ -35,8 +35,8 @@ import static net.hasor.test.db.utils.TestUtils.*;
 public class FilterNullResultSetExtractorTest extends AbstractDbTest {
     @Test
     public void testFilterNullResultSetExtractor_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData6());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData7());
@@ -56,8 +56,8 @@ public class FilterNullResultSetExtractorTest extends AbstractDbTest {
 
     @Test
     public void testFilterNullResultSetExtractor_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData6());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData7());
@@ -81,8 +81,8 @@ public class FilterNullResultSetExtractorTest extends AbstractDbTest {
 
     @Test
     public void testFilterNullResultSetExtractor_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData6()); // loginPassword is null
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData7()); // loginPassword is null

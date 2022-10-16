@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.StatementCallback;
 import net.hasor.dbvisitor.transaction.ConnectionProxy;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
 
@@ -80,10 +79,9 @@ public class BaseClassTest extends AbstractDbTest {
 
     @Test
     public void jdbcConnectionTest_4() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            //
+        try (Connection c = DsUtils.createConn()) {
             try {
-                new JdbcConnection(dataSource).execute((ConnectionCallback<Object>) con -> {
+                new JdbcConnection(c).execute((ConnectionCallback<Object>) con -> {
                     con.createStatement().execute("xxxxx");
                     return null;
                 });
@@ -92,10 +90,9 @@ public class BaseClassTest extends AbstractDbTest {
                 assert e.getMessage().contains("Syntax error in SQL");
                 assert e.getMessage().contains("xxxxx");
             }
-            //
-            //
+
             try {
-                new JdbcConnection(dataSource).execute((StatementCallback<Object>) stat -> {
+                new JdbcConnection(c).execute((StatementCallback<Object>) stat -> {
                     stat.execute("xxxxx");
                     return null;
                 });
@@ -109,12 +106,12 @@ public class BaseClassTest extends AbstractDbTest {
 
     @Test
     public void jdbcConnectionTest_5() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
+        try (Connection dataSource = DsUtils.createConn()) {
             JdbcConnection jdbcConnection = new JdbcConnection(dataSource);
             jdbcConnection.setMaxRows(123);
             jdbcConnection.setFetchSize(10);
             jdbcConnection.setQueryTimeout(1234567);
-            //
+
             jdbcConnection.execute((StatementCallback<Object>) stat -> {
                 assert stat.getMaxRows() == 123;
                 assert stat.getFetchSize() == 10;

@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.YearOfNumberTypeHandler;
 import net.hasor.dbvisitor.types.handler.YearOfStringTypeHandler;
 import net.hasor.dbvisitor.types.handler.YearOfTimeTypeHandler;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -33,8 +32,8 @@ import java.util.*;
 public class YearTypeTest {
     @Test
     public void testYearOfNumberTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_smallint) values (2020);");
             List<Year> dat = jdbcTemplate.query("select c_smallint from tb_h2_types where c_smallint is not null limit 1;", (rs, rowNum) -> {
@@ -46,8 +45,8 @@ public class YearTypeTest {
 
     @Test
     public void testYearOfNumberTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_smallint) values (2020);");
             List<Year> dat = jdbcTemplate.query("select c_smallint from tb_h2_types where c_smallint is not null limit 1;", (rs, rowNum) -> {
@@ -59,8 +58,8 @@ public class YearTypeTest {
 
     @Test
     public void testYearOfNumberTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Year dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { Year.of(2008) }, Year.class);
             assert dat1.getValue() == 2008;
@@ -93,8 +92,8 @@ public class YearTypeTest {
 
     @Test
     public void testYearOfStringTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('2008');");
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('2022');");
@@ -108,8 +107,8 @@ public class YearTypeTest {
 
     @Test
     public void testYearOfStringTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('1986');");
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('1998');");
@@ -123,8 +122,8 @@ public class YearTypeTest {
 
     @Test
     public void testYearOfStringTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Year dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { "0005" }, Year.class);
             assert dat1.getValue() == 5;
@@ -159,8 +158,8 @@ public class YearTypeTest {
 
     @Test
     public void testYearOfTimeTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
             List<Year> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
@@ -172,8 +171,8 @@ public class YearTypeTest {
 
     @Test
     public void testYearOfTimeTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
             List<Year> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
@@ -185,8 +184,8 @@ public class YearTypeTest {
 
     @Test
     public void testYearOfTimeTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Year dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { new Date() }, Year.class);
             assert dat1.getValue() == YearMonth.now().getYear();

@@ -1,7 +1,7 @@
 package net.hasor.dbvisitor.dal.repository;
 import net.hasor.dbvisitor.dal.repository.config.InsertSqlConfig;
 import net.hasor.dbvisitor.dialect.SqlBuilder;
-import net.hasor.test.db.dal.dynamic.TextBuilderContext;
+import net.hasor.test.dal.dynamic.TextBuilderContext;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -13,7 +13,7 @@ public class Mapper3DalTest {
         DalRegistry registry = new DalRegistry();
         registry.loadMapper("/net_hasor_db/dal_dynamic/mapper_3.xml");
 
-        InsertSqlConfig dynamicSql = (InsertSqlConfig) registry.findDynamicSql("net.hasor.test.db.dal.Mapper1Dal", "testInsert");
+        InsertSqlConfig dynamicSql = (InsertSqlConfig) registry.findDynamicSql("net.hasor.test.dal.Mapper1Dal", "testInsert");
 
         Map<String, Object> data1 = new HashMap<>();
         data1.put("name", "123");

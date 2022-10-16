@@ -16,8 +16,8 @@
 package net.hasor.dbvisitor.jdbc.core;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.extractor.MultipleResultSetExtractor;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Before;
 import org.junit.Test;
 

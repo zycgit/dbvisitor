@@ -15,8 +15,8 @@
  */
 package net.hasor.dbvisitor.jdbc.core;
 import net.hasor.dbvisitor.jdbc.paramer.MapSqlParameterSource;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static net.hasor.test.db.utils.TestUtils.*;
+import static net.hasor.test.utils.TestUtils.*;
 
 /***
  * @version : 2020-11-12

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
-import com.alibaba.druid.pool.DruidDataSource;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.dto.TB_User;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.TB_User;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static net.hasor.test.db.utils.TestUtils.*;
+import static net.hasor.test.utils.TestUtils.*;
 
 /***
  * Lambda 方式执行 Delete 操作
@@ -33,8 +33,8 @@ import static net.hasor.test.db.utils.TestUtils.*;
 public class LambdaDeleteTest extends AbstractDbTest {
     @Test
     public void lambda_delete_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             EntityDeleteOperation<TB_User> lambdaDelete = lambdaTemplate.lambdaDelete(TB_User.class);
             int delete = lambdaDelete.allowEmptyWhere().doDelete();
@@ -44,8 +44,8 @@ public class LambdaDeleteTest extends AbstractDbTest {
 
     @Test
     public void lambda_delete_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             EntityDeleteOperation<TB_User> lambdaDelete = lambdaTemplate.lambdaDelete(TB_User.class);
             int delete = lambdaDelete.eq(TB_User::getLoginName, beanForData1().getLoginName()).doDelete();

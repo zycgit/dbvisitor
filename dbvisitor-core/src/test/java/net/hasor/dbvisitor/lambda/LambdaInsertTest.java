@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.dialect.BatchBoundSql;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.dto.TB_User;
-import net.hasor.test.db.dto.TbUser;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.TB_User;
+import net.hasor.test.dto.TbUser;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
+import java.sql.Connection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static net.hasor.test.db.utils.TestUtils.newID;
+import static net.hasor.test.utils.TestUtils.newID;
 
 /***
  * Lambda 方式执行 Insert 操作
@@ -55,8 +55,8 @@ public class LambdaInsertTest extends AbstractDbTest {
         tbUser2.put("index", 2);
         tbUser2.put("createTime", new Date());
 
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             lambdaTemplate.execute("delete from tb_user");
             //
             InsertOperation<TbUser> lambdaInsert = lambdaTemplate.lambdaInsert(TbUser.class);

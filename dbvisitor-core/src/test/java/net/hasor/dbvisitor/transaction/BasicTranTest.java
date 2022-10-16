@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.transaction;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.utils.DefaultDs;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static net.hasor.test.db.utils.TestUtils.INSERT_ARRAY;
-import static net.hasor.test.db.utils.TestUtils.arrayForData4;
+import static net.hasor.test.utils.TestUtils.INSERT_ARRAY;
+import static net.hasor.test.utils.TestUtils.arrayForData4;
 
 /**
  * 基础 事务控制
@@ -35,7 +35,7 @@ import static net.hasor.test.db.utils.TestUtils.arrayForData4;
 public class BasicTranTest extends AbstractDbTest {
     @Test
     public void tran_basic_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs(false)) {
+        try (DefaultDs dataSource = DsUtils.createDs(false)) {
             TransactionManager transManager = new LocalTransactionManager(dataSource);
             assert !transManager.hasTransaction();
 
@@ -49,7 +49,7 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void tran_basic_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs(false)) {
+        try (DefaultDs dataSource = DsUtils.createDs(false)) {
             ConnectionHolder holder = DataSourceUtils.getHolder(dataSource);
 
             TransactionManager transManager = new LocalTransactionManager(dataSource);
@@ -71,7 +71,7 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void tran_basic_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs(false)) {
+        try (DefaultDs dataSource = DsUtils.createDs(false)) {
 
             TransactionManager transManager = new LocalTransactionManager(dataSource);
             ConnectionHolder holder1 = DataSourceUtils.getHolder(dataSource);
@@ -102,7 +102,7 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void tran_basic_4() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource()) {
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource()) {
             TransactionManager transManager = new LocalTransactionManager(dataSource);
 
             TransactionStatus tran1 = transManager.begin(Propagation.REQUIRED);
@@ -133,7 +133,7 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void tran_basic_5() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource()) {
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource()) {
             TransactionManager transManager = new LocalTransactionManager(dataSource);
             ConnectionHolder holder = DataSourceUtils.getHolder(dataSource);
 
@@ -157,7 +157,7 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void tran_basic_6() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource()) {
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource()) {
             TransactionManager transManager = new LocalTransactionManager(dataSource);
 
             TransactionStatus tran1 = transManager.begin(Propagation.REQUIRED);
@@ -174,7 +174,7 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void tran_basic_7() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource()) {
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource()) {
             LocalTransactionManager transManager = new LocalTransactionManager(dataSource);
             ConnectionHolder holder = DataSourceUtils.getHolder(dataSource);
 
@@ -196,7 +196,7 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void tran_required_test_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
              Connection conn = DsUtils.mysqlConnection();) {
 
             conn.setTransactionIsolation(Isolation.REPEATABLE_READ.getValue());
@@ -220,7 +220,7 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void tran_never_test_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager transManager = new LocalTransactionManager(dataSource)) {
 
             transManager.begin(Propagation.REQUIRED);
@@ -239,7 +239,7 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void tran_never_test_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager transManager = new LocalTransactionManager(dataSource)) {
 
             transManager.begin(Propagation.REQUIRED);
@@ -255,7 +255,7 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void tran_mandatory_test_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager transManager = new LocalTransactionManager(dataSource)) {
 
             transManager.begin(Propagation.REQUIRED);
@@ -267,7 +267,7 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void tran_mandatory_test_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager transManager = new LocalTransactionManager(dataSource)) {
 
             transManager.begin(Propagation.REQUIRED);
@@ -287,7 +287,7 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void tran_mandatory_test_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager transManager = new LocalTransactionManager(dataSource)) {
 
             try {
@@ -301,7 +301,7 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void tran_supports_test_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager transManager = new LocalTransactionManager(dataSource)) {
 
             assert !DataSourceUtils.getHolder(dataSource).hasTransaction();
@@ -319,7 +319,7 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void tran_supports_test_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager transManager = new LocalTransactionManager(dataSource)) {
 
             assert !DataSourceUtils.getHolder(dataSource).hasTransaction();
@@ -337,7 +337,7 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void tran_not_supported_test_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager transManager = new LocalTransactionManager(dataSource)) {
 
             assert !DataSourceUtils.getHolder(dataSource).hasTransaction();
@@ -355,7 +355,7 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void template() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
              LocalTransactionManager transManager = new LocalTransactionManager(dataSource)) {
             TransactionTemplate templateProvider = new TransactionTemplateManager(transManager);
 

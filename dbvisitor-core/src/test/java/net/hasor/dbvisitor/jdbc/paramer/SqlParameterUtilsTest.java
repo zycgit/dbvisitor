@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.jdbc.paramer;
 import net.hasor.dbvisitor.jdbc.*;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import net.hasor.test.db.AbstractDbTest;
+import net.hasor.test.AbstractDbTest;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
 

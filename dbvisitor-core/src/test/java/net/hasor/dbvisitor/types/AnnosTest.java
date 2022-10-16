@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import net.hasor.test.db.types.MyTypeHandler;
+import net.hasor.test.types.MyTypeHandler;
 import org.junit.Test;
 
 import java.io.InputStream;

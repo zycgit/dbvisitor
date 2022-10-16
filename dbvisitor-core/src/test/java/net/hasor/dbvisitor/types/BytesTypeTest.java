@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.cobble.codec.MD5;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
@@ -22,7 +21,7 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.BytesForWrapTypeHandler;
 import net.hasor.dbvisitor.types.handler.BytesInputStreamTypeHandler;
 import net.hasor.dbvisitor.types.handler.BytesTypeHandler;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -53,8 +52,8 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesForWrapTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
@@ -70,8 +69,8 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesForWrapTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
@@ -87,8 +86,8 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesForWrapTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             List<Byte[]> dat = jdbcTemplate.query("select ?", ps -> {
@@ -125,8 +124,8 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
@@ -142,8 +141,8 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
@@ -159,8 +158,8 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             List<byte[]> dat = jdbcTemplate.query("select ?", ps -> {
@@ -197,8 +196,8 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesInputStreamTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
@@ -214,8 +213,8 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesInputStreamTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
@@ -231,8 +230,8 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesInputStreamTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             List<InputStream> dat = jdbcTemplate.query("select ?", ps -> {

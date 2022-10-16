@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.DoubleTypeHandler;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -31,8 +30,8 @@ import java.util.Map;
 public class DoubleTypeTest {
     @Test
     public void testDoubleTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_double) values (123.123);");
             List<Double> dat = jdbcTemplate.query("select c_double from tb_h2_types where c_double is not null limit 1;", (rs, rowNum) -> {
@@ -44,8 +43,8 @@ public class DoubleTypeTest {
 
     @Test
     public void testDoubleTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_double) values (123.123);");
             List<Double> dat = jdbcTemplate.query("select c_double from tb_h2_types where c_double is not null limit 1;", (rs, rowNum) -> {
@@ -57,8 +56,8 @@ public class DoubleTypeTest {
 
     @Test
     public void testDoubleTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             double dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { 123.123d }, double.class);
             Double dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { 123.123d }, Double.class);

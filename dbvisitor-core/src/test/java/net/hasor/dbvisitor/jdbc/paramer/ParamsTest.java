@@ -16,15 +16,15 @@
 package net.hasor.dbvisitor.jdbc.paramer;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.dbvisitor.jdbc.core.ParameterDisposer;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.dto.TB_User;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.TB_User;
 import org.junit.Test;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-import static net.hasor.test.db.utils.TestUtils.beanForData1;
+import static net.hasor.test.utils.TestUtils.beanForData1;
 
 /***
  *

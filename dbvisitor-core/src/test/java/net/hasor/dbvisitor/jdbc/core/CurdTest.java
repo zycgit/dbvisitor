@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
-import com.alibaba.druid.pool.DruidDataSource;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.dto.TB_User;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.TB_User;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
+import java.sql.Connection;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static net.hasor.test.db.utils.TestUtils.*;
+import static net.hasor.test.utils.TestUtils.*;
 
 /***
  * CURD 基准测试
@@ -33,8 +33,8 @@ import static net.hasor.test.db.utils.TestUtils.*;
 public class CurdTest extends AbstractDbTest {
     @Test
     public void insertTest_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData4());
             //
@@ -47,8 +47,8 @@ public class CurdTest extends AbstractDbTest {
 
     @Test
     public void insertTest_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate(INSERT_MAP, mapForData4());
             //
@@ -61,8 +61,8 @@ public class CurdTest extends AbstractDbTest {
 
     @Test
     public void insertTest_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             assert jdbcTemplate.queryForInt("select count(1) from tb_user") == 3;
             //
             int count = 10;
@@ -85,8 +85,8 @@ public class CurdTest extends AbstractDbTest {
 
     @Test
     public void insertTest_4() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             assert jdbcTemplate.queryForInt("select count(1) from tb_user") == 3;
             //
             int count = 10;
@@ -109,8 +109,8 @@ public class CurdTest extends AbstractDbTest {
 
     @Test
     public void updateTest_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             assert jdbcTemplate.executeUpdate("update tb_user set name = '123'") == 3;
             //
             printMapList(jdbcTemplate.queryForList("select * from tb_user"));
@@ -123,8 +123,8 @@ public class CurdTest extends AbstractDbTest {
 
     @Test
     public void deleteTest_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             assert jdbcTemplate.executeUpdate("delete tb_user where loginName = 'muhammad'") == 1;
             //
             printMapList(jdbcTemplate.queryForList("select * from tb_user"));

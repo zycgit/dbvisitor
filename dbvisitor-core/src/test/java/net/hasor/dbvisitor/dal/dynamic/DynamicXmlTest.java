@@ -20,7 +20,8 @@ import net.hasor.dbvisitor.dal.repository.config.InsertSqlConfig;
 import net.hasor.dbvisitor.dialect.SqlBuilder;
 import net.hasor.dbvisitor.types.UnknownTypeHandler;
 import net.hasor.dbvisitor.types.handler.StringTypeHandler;
-import net.hasor.test.db.dal.dynamic.TextBuilderContext;
+import net.hasor.test.dal.dynamic.TextBuilderContext;
+import net.hasor.test.dto.TB_User;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -195,7 +196,7 @@ public class DynamicXmlTest {
         assert ((SqlArg) builder1.getArgs()[0]).getValue().equals("123");
         assert ((SqlArg) builder1.getArgs()[1]).getValue() == null;// mode = out not eval value.
         assert ((SqlArg) builder1.getArgs()[0]).getJavaType() == String.class;
-        assert ((SqlArg) builder1.getArgs()[1]).getJavaType() == net.hasor.test.db.dto.TB_User.class;
+        assert ((SqlArg) builder1.getArgs()[1]).getJavaType() == TB_User.class;
         assert ((SqlArg) builder1.getArgs()[0]).getTypeHandler() instanceof StringTypeHandler;
         assert ((SqlArg) builder1.getArgs()[1]).getTypeHandler() instanceof UnknownTypeHandler;
         assert ((SqlArg) builder1.getArgs()[0]).getSqlMode() == SqlMode.In;

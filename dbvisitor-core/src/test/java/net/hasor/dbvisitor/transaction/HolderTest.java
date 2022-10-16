@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.transaction;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.dto.TB_User;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.TB_User;
+import net.hasor.test.utils.DefaultDs;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Savepoint;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static net.hasor.test.db.utils.TestUtils.*;
+import static net.hasor.test.utils.TestUtils.*;
 
 public class HolderTest extends AbstractDbTest {
     @Test
     public void holder_basic_test_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.createDs()) {
             ConnectionHolder holder = new ConnectionHolderImpl(dataSource);
 
             assert !holder.isOpen();
@@ -54,7 +54,7 @@ public class HolderTest extends AbstractDbTest {
 
     @Test
     public void holder_basic_test_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.createDs()) {
             ConnectionHolder holder = new ConnectionHolderImpl(dataSource);
 
             assert holder.getConnection() == null;
@@ -84,7 +84,7 @@ public class HolderTest extends AbstractDbTest {
 
     @Test
     public void holder_tran_test_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.createDs()) {
             ConnectionHolder holder1 = new ConnectionHolderImpl(dataSource);    // tran1
             ConnectionHolder holder2 = new ConnectionHolderImpl(dataSource);    // tran2
 
@@ -126,7 +126,7 @@ public class HolderTest extends AbstractDbTest {
 
     @Test
     public void holder_tran_test_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.createDs()) {
             ConnectionHolder holder1 = new ConnectionHolderImpl(dataSource);    // tran1
             ConnectionHolder holder2 = new ConnectionHolderImpl(dataSource);    // tran2
 
@@ -160,7 +160,7 @@ public class HolderTest extends AbstractDbTest {
 
     @Test
     public void holder_savepoint_test_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.createDs()) {
             ConnectionHolder holder1 = new ConnectionHolderImpl(dataSource);    // tran1
             ConnectionHolder holder2 = new ConnectionHolderImpl(dataSource);    // tran2
 

@@ -1,0 +1,6 @@
+集成测试结构
+
+包 "net.hasor.dbvisitor" 偏向覆盖率
+包 "net.hasor.realdb"    偏向数据库的兼容性
+包 "net.hasor.scene"     偏向功能性、场景化
+包 "net.hasor.test"      测试材料，比如 Utils、DTO、接口

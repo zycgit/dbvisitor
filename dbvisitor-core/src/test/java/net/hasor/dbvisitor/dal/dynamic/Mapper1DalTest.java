@@ -3,8 +3,8 @@ import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dialect.SqlBuilder;
-import net.hasor.test.db.dal.Mapper1Dal;
-import net.hasor.test.db.dal.dynamic.TextBuilderContext;
+import net.hasor.test.dal.Mapper1Dal;
+import net.hasor.test.dal.dynamic.TextBuilderContext;
 import org.junit.Before;
 import org.junit.Test;
 

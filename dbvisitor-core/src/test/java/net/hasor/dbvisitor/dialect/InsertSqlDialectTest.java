@@ -20,7 +20,7 @@
 //import net.hasor.db.lambda.LambdaOperations.LambdaInsert;
 //import net.hasor.db.lambda.LambdaTemplate;
 //import net.hasor.test.db.AbstractDbTest;
-//import net.hasor.test.db.dto.TB_User;
+//import net.hasor.test.dto.TB_User;
 //import net.hasor.test.db.dto.TbUser;
 //import org.junit.Test;
 //

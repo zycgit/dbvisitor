@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.dal.repository;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.test.db.AbstractDbTest;
+import net.hasor.test.AbstractDbTest;
 import org.junit.Before;
 import org.junit.Test;
 

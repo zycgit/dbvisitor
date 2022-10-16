@@ -18,8 +18,8 @@ import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.dto.TB_User;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.TB_User;
 import org.junit.Test;
 
 /***

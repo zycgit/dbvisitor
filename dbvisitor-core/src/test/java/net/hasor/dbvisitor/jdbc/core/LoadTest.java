@@ -17,8 +17,8 @@ package net.hasor.dbvisitor.jdbc.core;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import static net.hasor.test.db.utils.DsUtils.MYSQL_SCHEMA_NAME;
+import static net.hasor.test.utils.DsUtils.MYSQL_SCHEMA_NAME;
 
 /***
  * execute 系列方法测试

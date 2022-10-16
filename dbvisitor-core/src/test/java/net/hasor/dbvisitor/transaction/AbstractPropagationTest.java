@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.transaction;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.test.db.AbstractDbTest;
+import net.hasor.test.AbstractDbTest;
 
 import javax.sql.DataSource;
 import java.io.IOException;

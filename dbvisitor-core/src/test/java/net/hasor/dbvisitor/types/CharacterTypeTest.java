@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.CharacterTypeHandler;
 import net.hasor.dbvisitor.types.handler.NCharacterTypeHandler;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -32,8 +31,8 @@ import java.util.Map;
 public class CharacterTypeTest {
     @Test
     public void testCharacterTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('1234567890');");
             List<Character> bigInteger = jdbcTemplate.query("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
@@ -45,8 +44,8 @@ public class CharacterTypeTest {
 
     @Test
     public void testCharacterTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('1234567890');");
             List<Character> bigInteger = jdbcTemplate.query("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
@@ -58,8 +57,8 @@ public class CharacterTypeTest {
 
     @Test
     public void testCharacterTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             char dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { "abc" }, char.class);
             Character dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { "abc" }, Character.class);
@@ -101,8 +100,8 @@ public class CharacterTypeTest {
 
     @Test
     public void testNCharacterTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('1234567890');");
             List<Character> bigInteger = jdbcTemplate.query("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
@@ -114,8 +113,8 @@ public class CharacterTypeTest {
 
     @Test
     public void testNCharacterTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('1234567890');");
             List<Character> bigInteger = jdbcTemplate.query("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
@@ -127,8 +126,8 @@ public class CharacterTypeTest {
 
     @Test
     public void testNCharacterTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             char dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { "abc" }, char.class);
             Character dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { "abc" }, Character.class);

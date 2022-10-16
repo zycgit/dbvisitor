@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.dto.TbUser;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.TbUser;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -31,8 +30,8 @@ import java.util.Map;
 public class BaseLambdaTest extends AbstractDbTest {
     @Test
     public void base_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
                     .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
@@ -44,31 +43,27 @@ public class BaseLambdaTest extends AbstractDbTest {
 
     @Test
     public void base_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            try (Connection conn = dataSource.getConnection()) {
-                LambdaTemplate lambdaTemplate = new LambdaTemplate(conn, TypeHandlerRegistry.DEFAULT);
-                Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
-                        .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
-                        .queryForMap();
-                assert tbUser.get("name").equals("默罕默德");
-                assert tbUser.get("account").equals("muhammad");
-            }
-            //
-            try (Connection conn = dataSource.getConnection()) {
-                LambdaTemplate lambdaTemplate = new LambdaTemplate(conn);
-                Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
-                        .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
-                        .queryForMap();
-                assert tbUser.get("name").equals("默罕默德");
-                assert tbUser.get("account").equals("muhammad");
-            }
+        try (Connection c = DsUtils.createConn()) {
+            LambdaTemplate lambdaTemplate1 = new LambdaTemplate(c, TypeHandlerRegistry.DEFAULT);
+            Map<String, Object> tbUser1 = lambdaTemplate1.lambdaQuery(TbUser.class)//
+                    .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
+                    .queryForMap();
+            assert tbUser1.get("name").equals("默罕默德");
+            assert tbUser1.get("account").equals("muhammad");
+
+            LambdaTemplate lambdaTemplate2 = new LambdaTemplate(c);
+            Map<String, Object> tbUser2 = lambdaTemplate2.lambdaQuery(TbUser.class)//
+                    .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
+                    .queryForMap();
+            assert tbUser2.get("name").equals("默罕默德");
+            assert tbUser2.get("account").equals("muhammad");
         }
     }
 
     @Test
     public void base_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource, TypeHandlerRegistry.DEFAULT);
+        try (Connection c = DsUtils.createConn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c, TypeHandlerRegistry.DEFAULT);
             Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
                     .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
                     .queryForMap();
@@ -79,8 +74,8 @@ public class BaseLambdaTest extends AbstractDbTest {
 
     @Test
     public void base_4() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
                     .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
                     .queryForMap();

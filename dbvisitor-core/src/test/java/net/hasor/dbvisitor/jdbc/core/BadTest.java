@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.jdbc.core;
 import net.hasor.dbvisitor.jdbc.SqlParameterSource;
-import net.hasor.test.db.AbstractDbTest;
+import net.hasor.test.AbstractDbTest;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;

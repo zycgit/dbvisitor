@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.SqlXmlForInputStreamTypeHandler;
 import net.hasor.dbvisitor.types.handler.SqlXmlForReaderTypeHandler;
 import net.hasor.dbvisitor.types.handler.SqlXmlTypeHandler;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -59,8 +59,8 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlTypeHandler_1() throws SQLException {
-        try (Connection conn = DsUtils.oracleConnection()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             preTable(jdbcTemplate);
 
             jdbcTemplate.executeUpdate("insert into tb_oracle_types_onlyxml (c_xml) values ('<xml>abc</xml>')");
@@ -73,8 +73,8 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlTypeHandler_2() throws SQLException {
-        try (Connection conn = DsUtils.oracleConnection()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             preTable(jdbcTemplate);
 
             jdbcTemplate.executeUpdate("insert into tb_oracle_types_onlyxml (c_xml) values ('<xml>abc</xml>')");
@@ -87,8 +87,8 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlTypeHandler_3() throws SQLException {
-        try (Connection conn = DsUtils.oracleConnection()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             List<String> dat = jdbcTemplate.query("select ? from dual", ps -> {
                 new SqlXmlTypeHandler().setParameter(ps, 1, "<xml>abc</xml>", JDBCType.SQLXML.getVendorTypeNumber());
@@ -101,8 +101,8 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.oracleConnection()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             preProc(jdbcTemplate);
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_xmltype(?)}",//
@@ -117,8 +117,8 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlForInputStreamTypeHandler_1() throws Exception {
-        try (Connection conn = DsUtils.oracleConnection()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             preTable(jdbcTemplate);
 
             jdbcTemplate.executeUpdate("insert into tb_oracle_types_onlyxml (c_xml) values ('<xml>abc</xml>')");
@@ -132,8 +132,8 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlForInputStreamTypeHandler_2() throws Exception {
-        try (Connection conn = DsUtils.oracleConnection()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             preTable(jdbcTemplate);
 
             jdbcTemplate.executeUpdate("insert into tb_oracle_types_onlyxml (c_xml) values ('<xml>abc</xml>')");
@@ -147,8 +147,8 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlForInputStreamTypeHandler_3() throws Exception {
-        try (Connection conn = DsUtils.oracleConnection()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             List<InputStream> dat = jdbcTemplate.query("select ? from dual", ps -> {
                 new SqlXmlForInputStreamTypeHandler().setParameter(ps, 1, new ByteArrayInputStream("<xml>abc</xml>".getBytes()), JDBCType.SQLXML.getVendorTypeNumber());
@@ -162,8 +162,8 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlForInputStreamTypeHandler_4() throws Exception {
-        try (Connection conn = DsUtils.oracleConnection()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             preProc(jdbcTemplate);
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_xmltype(?)}",//
@@ -179,8 +179,8 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlForReaderTypeHandler_1() throws Exception {
-        try (Connection conn = DsUtils.oracleConnection()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             preTable(jdbcTemplate);
 
             jdbcTemplate.executeUpdate("insert into tb_oracle_types_onlyxml (c_xml) values ('<xml>abc</xml>')");
@@ -194,8 +194,8 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlForReaderTypeHandler_2() throws Exception {
-        try (Connection conn = DsUtils.oracleConnection()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             preTable(jdbcTemplate);
 
             jdbcTemplate.executeUpdate("insert into tb_oracle_types_onlyxml (c_xml) values ('<xml>abc</xml>')");
@@ -209,8 +209,8 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlForReaderTypeHandler_3() throws Exception {
-        try (Connection conn = DsUtils.oracleConnection()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             List<Reader> dat = jdbcTemplate.query("select ? from dual", ps -> {
                 new SqlXmlForReaderTypeHandler().setParameter(ps, 1, new StringReader("<xml>abc</xml>"), JDBCType.SQLXML.getVendorTypeNumber());
@@ -224,8 +224,8 @@ public class SqlXmlTypeTest {
 
     @Test
     public void testSqlXmlForReaderTypeHandler_4() throws Exception {
-        try (Connection conn = DsUtils.oracleConnection()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             preProc(jdbcTemplate);
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_xmltype(?)}",//

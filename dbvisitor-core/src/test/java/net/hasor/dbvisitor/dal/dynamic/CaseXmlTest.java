@@ -17,9 +17,9 @@ package net.hasor.dbvisitor.dal.dynamic;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.dbvisitor.dialect.SqlBuilder;
-import net.hasor.test.db.dal.dynamic.TextBuilderContext;
-import net.hasor.test.db.dto.CharacterSensitiveEnum;
-import net.hasor.test.db.dto.LicenseOfCodeEnum;
+import net.hasor.test.dal.dynamic.TextBuilderContext;
+import net.hasor.test.dto.CharacterSensitiveEnum;
+import net.hasor.test.dto.LicenseOfCodeEnum;
 import org.junit.Test;
 
 import java.io.IOException;

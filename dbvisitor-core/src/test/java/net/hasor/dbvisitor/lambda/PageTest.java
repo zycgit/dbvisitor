@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.dto.TB_User;
-import net.hasor.test.db.dto.TbUser;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.TB_User;
+import net.hasor.test.dto.TbUser;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static net.hasor.test.db.utils.TestUtils.INSERT_ARRAY;
+import static net.hasor.test.utils.TestUtils.INSERT_ARRAY;
 
 /***
  *
@@ -77,8 +77,8 @@ public class PageTest extends AbstractDbTest {
 
     @Test
     public void pageTest_4() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             lambdaTemplate.execute("delete from tb_user");
             //
             int count = 13;
@@ -122,8 +122,8 @@ public class PageTest extends AbstractDbTest {
 
     @Test
     public void pageTest_5() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             lambdaTemplate.execute("delete from tb_user");
             //
             int count = 13;

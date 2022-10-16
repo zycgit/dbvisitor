@@ -4,9 +4,9 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.page.PageResult;
-import net.hasor.test.db.dal.execute.PageExecuteDal;
-import net.hasor.test.db.dto.TbUser2;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.dal.execute.PageExecuteDal;
+import net.hasor.test.dto.TbUser2;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Before;
 import org.junit.Test;
 

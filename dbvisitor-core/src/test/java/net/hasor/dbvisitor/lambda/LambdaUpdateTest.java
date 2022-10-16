@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
-import com.alibaba.druid.pool.DruidDataSource;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.dto.TB_User;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.TB_User;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
+import java.sql.Connection;
 import java.util.HashMap;
 
-import static net.hasor.test.db.utils.TestUtils.beanForData1;
+import static net.hasor.test.utils.TestUtils.beanForData1;
 
 /***
  * Lambda 方式执行 Update 操作
@@ -30,12 +30,10 @@ import static net.hasor.test.db.utils.TestUtils.beanForData1;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class LambdaUpdateTest extends AbstractDbTest {
-
     @Test
     public void lambda_update_2() throws Throwable {
-
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             EntityQueryOperation<TB_User> lambdaQuery = lambdaTemplate.lambdaQuery(TB_User.class);
             TB_User tbUser1 = lambdaQuery.eq(TB_User::getLoginName, beanForData1().getLoginName()).queryForObject();
             assert tbUser1.getName() != null;

@@ -2,12 +2,12 @@ package net.hasor.dbvisitor.dal.session;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.test.db.dal.Mapper3Dal;
-import net.hasor.test.db.dal.execute.TestExecuteDal;
-import net.hasor.test.db.dal.execute.TestUser;
-import net.hasor.test.db.dto.AutoId;
-import net.hasor.test.db.dto.TbUser2;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.dal.Mapper3Dal;
+import net.hasor.test.dal.execute.TestExecuteDal;
+import net.hasor.test.dal.execute.TestUser;
+import net.hasor.test.dto.AutoId;
+import net.hasor.test.dto.TbUser2;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Before;
 import org.junit.Test;
 

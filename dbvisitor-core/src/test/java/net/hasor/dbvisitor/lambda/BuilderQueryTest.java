@@ -15,8 +15,8 @@
  */
 package net.hasor.dbvisitor.lambda;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.dto.TbUser;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.TbUser;
 import org.junit.Test;
 
 import java.util.Arrays;

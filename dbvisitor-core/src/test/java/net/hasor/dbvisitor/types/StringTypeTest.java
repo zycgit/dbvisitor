@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.ClobTypeHandler;
 import net.hasor.dbvisitor.types.handler.NClobTypeHandler;
 import net.hasor.dbvisitor.types.handler.NStringTypeHandler;
 import net.hasor.dbvisitor.types.handler.StringTypeHandler;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -34,8 +33,8 @@ import java.util.Map;
 public class StringTypeTest {
     @Test
     public void testClobTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
             List<String> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
@@ -47,8 +46,8 @@ public class StringTypeTest {
 
     @Test
     public void testClobTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
             List<String> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
@@ -60,8 +59,8 @@ public class StringTypeTest {
 
     @Test
     public void testClobTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<String> dat = jdbcTemplate.query("select ?", ps -> {
                 new ClobTypeHandler().setParameter(ps, 1, "abcedfg", JDBCType.CLOB.getVendorTypeNumber());
@@ -90,8 +89,8 @@ public class StringTypeTest {
 
     @Test
     public void testNClobTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
             List<String> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
@@ -103,8 +102,8 @@ public class StringTypeTest {
 
     @Test
     public void testNClobTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
             List<String> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
@@ -116,8 +115,8 @@ public class StringTypeTest {
 
     @Test
     public void testNClobTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<String> dat = jdbcTemplate.query("select ?", ps -> {
                 new NClobTypeHandler().setParameter(ps, 1, "abcedfg", JDBCType.CLOB.getVendorTypeNumber());
@@ -146,8 +145,8 @@ public class StringTypeTest {
 
     @Test
     public void testStringTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
             List<String> dat = jdbcTemplate.query("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
@@ -159,8 +158,8 @@ public class StringTypeTest {
 
     @Test
     public void testStringTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
             List<String> dat = jdbcTemplate.query("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
@@ -172,8 +171,8 @@ public class StringTypeTest {
 
     @Test
     public void testStringTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             String dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { "abcdefg" }, String.class);
             String dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { null }, String.class);
@@ -207,8 +206,8 @@ public class StringTypeTest {
 
     @Test
     public void testNStringTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
             List<String> dat = jdbcTemplate.query("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
@@ -220,8 +219,8 @@ public class StringTypeTest {
 
     @Test
     public void testNStringTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
             List<String> dat = jdbcTemplate.query("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
@@ -233,8 +232,8 @@ public class StringTypeTest {
 
     @Test
     public void testNStringTypeHandler_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             String dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { "abcdefg" }, String.class);
             String dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { null }, String.class);

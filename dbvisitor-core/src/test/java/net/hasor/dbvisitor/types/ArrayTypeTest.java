@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.ArrayTypeHandler;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
+import java.sql.Connection;
 import java.sql.JDBCType;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -30,8 +30,8 @@ import java.util.Set;
 public class ArrayTypeTest {
     @Test
     public void testArrayTypeHandler_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Set<String> testSet = new HashSet<>(Arrays.asList("a", "b", "c"));
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_array) values (?);", ps -> {
@@ -51,8 +51,8 @@ public class ArrayTypeTest {
 
     @Test
     public void testArrayTypeHandler_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Set<String> testSet = new HashSet<>(Arrays.asList("a", "b", "c"));
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_array) values (?);", ps -> {

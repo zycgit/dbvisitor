@@ -1,8 +1,8 @@
 package net.hasor.dbvisitor.transaction;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.utils.DefaultDs;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -11,7 +11,7 @@ import java.sql.Statement;
 public class DsManagerTest {
     @Test
     public void manager_test_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.createDs()) {
             Connection conn1 = DataSourceUtils.getConnection(dataSource);
             Connection conn2 = DataSourceUtils.getConnection(dataSource);
 
@@ -22,7 +22,7 @@ public class DsManagerTest {
 
     @Test
     public void manager_test_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.createDs()) {
             try (Connection conn = DataSourceUtils.getConnection(dataSource)) {
                 int result = new JdbcTemplate(conn).queryForInt("select 123");
                 assert result == 123;
@@ -37,7 +37,7 @@ public class DsManagerTest {
 
     @Test
     public void manager_test_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.mysqlDataSource()) {
+        try (DefaultDs dataSource = DsUtils.mysqlDataSource()) {
             Connection conn1 = DataSourceUtils.getConnection(dataSource);
             Connection conn2 = DataSourceUtils.getConnection(dataSource);
 
@@ -50,7 +50,7 @@ public class DsManagerTest {
 
     @Test
     public void manager_test_4() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.createDs()) {
             Connection conn1 = DataSourceUtils.getConnection(dataSource);
             Connection conn2 = DataSourceUtils.getConnection(dataSource);
 
@@ -75,7 +75,7 @@ public class DsManagerTest {
 
     @Test
     public void manager_test_5() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.createDs()) {
             Connection conn = DataSourceUtils.getConnection(dataSource);
 
             assert conn instanceof ConnectionProxy;
@@ -90,7 +90,7 @@ public class DsManagerTest {
 
     @Test
     public void manager_test_6() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs(false)) {
+        try (DefaultDs dataSource = DsUtils.createDs(false)) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             jdbcTemplate.execute((ConnectionCallback<Object>) conn1 -> {
                 Connection conn2 = DataSourceUtils.getConnection(dataSource);

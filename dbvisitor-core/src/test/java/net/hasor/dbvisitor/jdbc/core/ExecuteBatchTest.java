@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.BatchPreparedStatementSetter;
 import net.hasor.dbvisitor.jdbc.SqlParameterSource;
 import net.hasor.dbvisitor.jdbc.paramer.BeanSqlParameterSource;
-import net.hasor.test.db.AbstractDbTest;
-import net.hasor.test.db.dto.TB_User;
-import net.hasor.test.db.utils.DsUtils;
-import net.hasor.test.db.utils.TestUtils;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.TB_User;
+import net.hasor.test.utils.DsUtils;
+import net.hasor.test.utils.TestUtils;
 import org.junit.Test;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -40,8 +40,8 @@ import java.util.stream.Collectors;
 public class ExecuteBatchTest extends AbstractDbTest {
     @Test
     public void executeUpdate_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
             Set<String> collect1 = tbUsers1.stream().map(TB_User::getName).collect(Collectors.toSet());
@@ -74,8 +74,8 @@ public class ExecuteBatchTest extends AbstractDbTest {
 
     @Test
     public void executeUpdate_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
             Set<String> collect1 = tbUsers1.stream().map(TB_User::getName).collect(Collectors.toSet());
@@ -108,8 +108,8 @@ public class ExecuteBatchTest extends AbstractDbTest {
 
     @Test
     public void executeUpdate_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
             Set<String> collect1 = tbUsers1.stream().map(TB_User::getName).collect(Collectors.toSet());
@@ -142,8 +142,8 @@ public class ExecuteBatchTest extends AbstractDbTest {
 
     @Test
     public void executeUpdate_4() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
             Set<String> collect1 = tbUsers1.stream().map(TB_User::getName).collect(Collectors.toSet());
@@ -176,8 +176,8 @@ public class ExecuteBatchTest extends AbstractDbTest {
 
     @Test
     public void executeUpdate_5() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
             Set<String> collect1 = tbUsers1.stream().map(TB_User::getName).collect(Collectors.toSet());

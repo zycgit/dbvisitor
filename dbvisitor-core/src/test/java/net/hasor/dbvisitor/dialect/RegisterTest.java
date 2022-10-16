@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
-import net.hasor.test.db.AbstractDbTest;
+import net.hasor.test.AbstractDbTest;
 import org.junit.Test;
 
 /***

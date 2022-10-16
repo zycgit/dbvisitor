@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.mapper;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -26,13 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static net.hasor.test.db.utils.TestUtils.*;
+import static net.hasor.test.utils.TestUtils.*;
 
 public class ColumnMapRowMapperTest {
     @Test
     public void testColumnMapRowMapper_1() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             List<Map<String, Object>> mapList = jdbcTemplate.query("select * from tb_user", new ColumnMapRowMapper());
             //
             List<String> collect = mapList.stream().map(stringObjectMap -> {

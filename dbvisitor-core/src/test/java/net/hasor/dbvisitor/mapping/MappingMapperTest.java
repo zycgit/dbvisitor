@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping;
-import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.jdbc.mapper.MappingResultSetExtractor;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.dbvisitor.mapping.resolve.TableMappingResolve;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import net.hasor.test.db.dto.TbUser;
-import net.hasor.test.db.utils.DsUtils;
+import net.hasor.test.dto.TbUser;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
@@ -45,8 +45,8 @@ public class MappingMapperTest {
 
     @Test
     public void testColumnMapRowMapper_2() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             TableMappingResolve resolve = new ClassTableMappingResolve();
 
             TableMapping<TbUser> tableMapping = resolve.resolveTableMapping(//
@@ -64,8 +64,8 @@ public class MappingMapperTest {
 
     @Test
     public void testColumnMapRowMapper_3() throws Throwable {
-        try (DruidDataSource dataSource = DsUtils.createDs()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        try (Connection c = DsUtils.createConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             TableMappingResolve resolve = new ClassTableMappingResolve();
 
             TableMapping<TbUser> tableMapping = resolve.resolveTableMapping(//
