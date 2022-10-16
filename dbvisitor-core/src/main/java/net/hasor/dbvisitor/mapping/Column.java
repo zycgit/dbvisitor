@@ -59,17 +59,17 @@ public @interface Column {
     String selectTemplate() default "";
 
     /** (选填) 用作 insert 语句时 value 的参数写法，默认是 ? */
-    String insertTemplate() default "?";
+    String insertTemplate() default "";
 
     /** (选填) 用作 update 的 set 语句时 column name 的写法，默认是空 */
     String setColTemplate() default "";
 
     /** (选填) 用作 update set 语句时 value 的参数写法，默认是 ? */
-    String setValueTemplate() default "?";
+    String setValueTemplate() default "";
 
     /** (选填) 用作 update/delete 的 where 语句时 column name 的写法，默认是空 */
     String whereColTemplate() default "";
 
     /** (选填) 用作 update/delete 的 where 语句时 value 的参数写法，默认是 ? */
-    String whereValueTemplate() default "?";
+    String whereValueTemplate() default "";
 }

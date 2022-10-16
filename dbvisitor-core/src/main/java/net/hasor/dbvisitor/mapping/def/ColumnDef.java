@@ -58,12 +58,12 @@ public class ColumnDef implements ColumnMapping {
         this.update = update;
         this.primary = primary;
 
-        this.selectTemplate = StringUtils.isNotBlank(selectTemplate) ? selectTemplate : columnName;
-        this.insertTemplate = StringUtils.isNotBlank(insertTemplate) ? insertTemplate : "?";
-        this.setColTemplate = StringUtils.isNotBlank(setColTemplate) ? setColTemplate : columnName;
-        this.setValueTemplate = StringUtils.isNotBlank(setValueTemplate) ? setValueTemplate : "?";
-        this.whereColTemplate = StringUtils.isNotBlank(whereColTemplate) ? whereColTemplate : columnName;
-        this.whereValueTemplate = StringUtils.isNotBlank(whereValueTemplate) ? whereValueTemplate : "?";
+        this.selectTemplate = StringUtils.isNotBlank(selectTemplate) ? selectTemplate : null;
+        this.insertTemplate = StringUtils.isNotBlank(insertTemplate) ? insertTemplate : null;
+        this.setColTemplate = StringUtils.isNotBlank(setColTemplate) ? setColTemplate : null;
+        this.setValueTemplate = StringUtils.isNotBlank(setValueTemplate) ? setValueTemplate : null;
+        this.whereColTemplate = StringUtils.isNotBlank(whereColTemplate) ? whereColTemplate : null;
+        this.whereValueTemplate = StringUtils.isNotBlank(whereValueTemplate) ? whereValueTemplate : null;
     }
 
     @Override

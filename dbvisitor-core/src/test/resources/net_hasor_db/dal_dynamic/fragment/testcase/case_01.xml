@@ -18,7 +18,7 @@
     <if test="state != null and state.size() >0">
         AND console_job.task_state in
         <foreach collection="state" item="item" separator="," open="(" close=")">
-            #{item,javaType=net.hasor.test.db.dto.CharacterSensitiveEnum}
+            #{item,javaType=net.hasor.test.dto.CharacterSensitiveEnum}
         </foreach>
     </if>
     <if test="consoleJobId != null and consoleJobId >0">

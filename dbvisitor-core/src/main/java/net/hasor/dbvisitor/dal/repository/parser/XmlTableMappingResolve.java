@@ -149,12 +149,12 @@ public class XmlTableMappingResolve implements TableMappingResolve<Node> {
         TypeHandler<?> columnTypeHandler = resolveTypeHandler(columnJavaType, columnJdbcType, classLoader, typeHandler, typeRegistry);
         boolean insert = insertNode == null || StringUtils.isBlank(insertNode.getNodeValue()) || Boolean.parseBoolean(insertNode.getNodeValue());
         boolean update = updateNode == null || StringUtils.isBlank(updateNode.getNodeValue()) || Boolean.parseBoolean(updateNode.getNodeValue());
-        String selectTemplate = (selectTemplateNode != null) ? selectTemplateNode.getNodeValue() : "";
-        String insertTemplate = (insertTemplateNode != null) ? insertTemplateNode.getNodeValue() : "?";
-        String setColTemplate = (setColTemplateNode != null) ? setColTemplateNode.getNodeValue() : "";
-        String setValueTemplate = (setValueTemplateNode != null) ? setValueTemplateNode.getNodeValue() : "?";
-        String whereColTemplate = (whereColTemplateNode != null) ? whereColTemplateNode.getNodeValue() : "";
-        String whereValueTemplate = (whereValueTemplateNode != null) ? whereValueTemplateNode.getNodeValue() : "?";
+        String selectTemplate = (selectTemplateNode != null) ? selectTemplateNode.getNodeValue() : null;
+        String insertTemplate = (insertTemplateNode != null) ? insertTemplateNode.getNodeValue() : null;
+        String setColTemplate = (setColTemplateNode != null) ? setColTemplateNode.getNodeValue() : null;
+        String setValueTemplate = (setValueTemplateNode != null) ? setValueTemplateNode.getNodeValue() : null;
+        String whereColTemplate = (whereColTemplateNode != null) ? whereColTemplateNode.getNodeValue() : null;
+        String whereValueTemplate = (whereValueTemplateNode != null) ? whereValueTemplateNode.getNodeValue() : null;
 
         return new ColumnDef(column, property, columnJdbcType, columnJavaType, columnTypeHandler, propertyHandler, insert, update, asPrimaryKey,//
                 selectTemplate, insertTemplate, setColTemplate, setValueTemplate, whereColTemplate, whereValueTemplate);

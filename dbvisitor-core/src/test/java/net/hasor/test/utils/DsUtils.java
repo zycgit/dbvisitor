@@ -40,7 +40,7 @@ public class DsUtils {
     //
     public static String ORACLE_JDBC_URL       = "jdbc:oracle:thin:@127.0.0.1:1521:xe";
 
-    public static DefaultDs createDs(String dbID) throws SQLException {
+    private static DefaultDs createDs(String dbID) {
         DefaultDs druid = new DefaultDs();
         druid.setUrl("jdbc:h2:mem:test_" + dbID);
         druid.setDriverClassName("org.h2.Driver");

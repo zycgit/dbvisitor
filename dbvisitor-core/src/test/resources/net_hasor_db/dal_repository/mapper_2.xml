@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="resultMap_test">
-    <resultMap id="blobResourceDO" type="net.hasor.test.db.dto.TB_User" autoMapping="true">
-        <id column="id" property="id"/>
+    <resultMap id="blobResourceDO" type="net.hasor.test.dto.TB_User" autoMapping="true">
+        <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
         <result column="gmt_modified" property="gmtModified"/>
         <result column="instance_id" property="instanceId"/>
@@ -12,8 +12,8 @@
         <result column="content" property="content"/>
     </resultMap>
 
-    <resultMap id="blobResourceDO" type="net.hasor.test.db.dto.TB_User" autoMapping="true">
-        <id column="id" property="id"/>
+    <resultMap id="blobResourceDO" type="net.hasor.test.dto.TB_User" autoMapping="true">
+        <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
         <result column="gmt_modified" property="gmtModified"/>
         <result column="instance_id" property="instanceId"/>

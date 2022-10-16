@@ -6,6 +6,6 @@
     WHERE
     alert_detail.event_type IN
     <foreach collection="eventTypes" item="eventType" separator="," open="(" close=")">
-        #{eventType,javaType=net.hasor.test.db.dto.CharacterSensitiveEnum}
+        #{eventType,javaType=net.hasor.test.dto.CharacterSensitiveEnum}
     </foreach>
 </select>

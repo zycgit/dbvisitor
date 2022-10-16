@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
-<mapper namespace="net.hasor.test.db.dal.execute.TestExecuteDal">
-    <resultMap id="tb_user_resultMap" type="net.hasor.test.db.dto.TbUser2">
+<mapper namespace="net.hasor.test.dal.execute.TestExecuteDal">
+    <resultMap id="tb_user_resultMap" type="net.hasor.test.dto.TbUser2">
         <id column="user_uuid" property="uid"/>
         <result column="name" property="name"/>
         <result column="login_name" property="account"/>
@@ -48,7 +48,7 @@
         from test_user;
     </select>
 
-    <select id="listUserList_2" resultType="net.hasor.test.db.dal.execute.TestUser" statementType="STATEMENT">
+    <select id="listUserList_2" resultType="net.hasor.test.dal.execute.TestUser" statementType="STATEMENT">
         select
         <include refid="user_do_allColumns"/>
         from test_user;

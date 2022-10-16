@@ -3,7 +3,7 @@
     <!-- 参数化 -->
     param2 = #{futures, mode = out,
                 typeHandler=net.hasor.dbvisitor.types.handler.BlobBytesTypeHandler,
-                javaType=net.hasor.test.db.dto.TB_User,
+                javaType=net.hasor.test.dto.TB_User,
                 jdbcType=INT}
     <!-- SQL 注入 -->
     param3 = ${orderBy}

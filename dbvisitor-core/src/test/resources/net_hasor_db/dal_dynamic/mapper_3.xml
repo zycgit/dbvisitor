@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
-<mapper namespace="net.hasor.test.db.dal.Mapper1Dal">
+<mapper namespace="net.hasor.test.dal.Mapper1Dal">
 
-    <resultMap id="tb_user_resultMap" type="net.hasor.test.db.dto.TbUser2">
+    <resultMap id="tb_user_resultMap" type="net.hasor.test.dto.TbUser2">
         <id column="user_uuid" property="uid"/>
         <result column="name" property="name"/>
         <result column="login_name" property="account"/>
