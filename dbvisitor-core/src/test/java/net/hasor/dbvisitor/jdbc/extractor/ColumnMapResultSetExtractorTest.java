@@ -34,7 +34,7 @@ import static net.hasor.test.utils.TestUtils.*;
 public class ColumnMapResultSetExtractorTest extends AbstractDbTest {
     @Test
     public void testColumnMapResultSetExtractor_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<Map<String, Object>> mapList1 = jdbcTemplate.query("select * from tb_user", new ColumnMapResultSetExtractor(1));
@@ -51,7 +51,7 @@ public class ColumnMapResultSetExtractorTest extends AbstractDbTest {
 
     @Test
     public void testRowMapperResultSetExtractor_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             ColumnMapRowMapper rowMapper = new ColumnMapRowMapper();
             List<Map<String, Object>> mapList1 = jdbcTemplate.query("select * from tb_user", new RowMapperResultSetExtractor<>(rowMapper, 1));
@@ -64,7 +64,7 @@ public class ColumnMapResultSetExtractorTest extends AbstractDbTest {
 
     @Test
     public void testColumnMapResultSetExtractor_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             String dataId = beanForData4().getUserUUID();

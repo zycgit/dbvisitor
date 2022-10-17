@@ -32,9 +32,9 @@ import static net.hasor.test.utils.TestUtils.*;
 public class ExtTranTest extends AbstractPropagationTest {
     @Test
     public void tran_rollback_test_1() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDs();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
-             Connection conn = DsUtils.mysqlConnection()) {
+             Connection conn = DsUtils.mysqlConn()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
@@ -72,9 +72,9 @@ public class ExtTranTest extends AbstractPropagationTest {
 
     @Test
     public void tran_commit_test_1() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDs();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
-             Connection conn = DsUtils.mysqlConnection()) {
+             Connection conn = DsUtils.mysqlConn()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             TransactionTemplate templateManager = new TransactionTemplateManager(tranManager);
@@ -110,9 +110,9 @@ public class ExtTranTest extends AbstractPropagationTest {
 
     @Test
     public void tran_commit_and_rollback_test_1() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDs();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
-             Connection conn = DsUtils.mysqlConnection()) {
+             Connection conn = DsUtils.mysqlConn()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             TransactionTemplate templateManager = new TransactionTemplateManager(tranManager);
@@ -149,9 +149,9 @@ public class ExtTranTest extends AbstractPropagationTest {
 
     @Test
     public void tran_rollback_and_commit_test_1() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDs();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
-             Connection conn = DsUtils.mysqlConnection()) {
+             Connection conn = DsUtils.mysqlConn()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             TransactionTemplate templateManager = new TransactionTemplateManager(tranManager);
@@ -188,9 +188,9 @@ public class ExtTranTest extends AbstractPropagationTest {
 
     @Test
     public void tran_readonly_and_commit_test_1() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDs();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
-             Connection conn = DsUtils.mysqlConnection()) {
+             Connection conn = DsUtils.mysqlConn()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             TransactionTemplate templateManager = new TransactionTemplateManager(tranManager);
@@ -227,9 +227,9 @@ public class ExtTranTest extends AbstractPropagationTest {
 
     @Test
     public void tran_throw_test_1() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDs();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
-             Connection conn = DsUtils.mysqlConnection()) {
+             Connection conn = DsUtils.mysqlConn()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             TransactionTemplate templateManager = new TransactionTemplateManager(tranManager);

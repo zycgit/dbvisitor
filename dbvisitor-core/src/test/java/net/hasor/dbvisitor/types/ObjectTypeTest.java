@@ -30,7 +30,7 @@ import java.util.Set;
 public class ObjectTypeTest {
     @Test
     public void testObjectTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Set<String> testSet = new HashSet<>(Arrays.asList("a", "b", "c"));
@@ -49,7 +49,7 @@ public class ObjectTypeTest {
 
     @Test
     public void testObjectTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Set<String> testSet = new HashSet<>(Arrays.asList("a", "b", "c"));
@@ -68,7 +68,7 @@ public class ObjectTypeTest {
 
     @Test
     public void testObjectTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Set<String> testSet = new HashSet<>(Arrays.asList("a", "b", "c"));

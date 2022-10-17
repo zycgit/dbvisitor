@@ -25,9 +25,10 @@ import java.util.Date;
 import java.util.List;
 
 public class SingleColumnRowMapperTest {
+
     @Test
     public void testSingleColumnRowMapper_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             String resultData = null;
             //
@@ -50,7 +51,7 @@ public class SingleColumnRowMapperTest {
 
     @Test
     public void testSingleColumnRowMapper_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_int) values (123);");
@@ -76,7 +77,7 @@ public class SingleColumnRowMapperTest {
 
     @Test
     public void testSingleColumnRowMapper_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TB_User2> tbUser2s = jdbcTemplate.queryForList("select *,'' as futures from tb_user", TB_User2.class);

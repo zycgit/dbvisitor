@@ -37,7 +37,7 @@ public class OracleTypesTest {
 
     @Test
     public void testOracleClob() throws Exception {
-        try (Connection conn = DsUtils.oracleConnection()) {
+        try (Connection conn = DsUtils.oracleConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             preTable(jdbcTemplate);
             //
@@ -52,7 +52,7 @@ public class OracleTypesTest {
 
     @Test
     public void testOracleTime() throws Exception {
-        try (Connection conn = DsUtils.oracleConnection()) {
+        try (Connection conn = DsUtils.oracleConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             preTable(jdbcTemplate);
             Date time = new Date(System.currentTimeMillis());

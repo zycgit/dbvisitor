@@ -30,7 +30,7 @@ import java.util.Map;
 public class BooleanTypeTest {
     @Test
     public void testBooleanTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_boolean) values (true);");
@@ -43,7 +43,7 @@ public class BooleanTypeTest {
 
     @Test
     public void testBooleanTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_boolean) values (true);");
@@ -56,7 +56,7 @@ public class BooleanTypeTest {
 
     @Test
     public void testBooleanTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             boolean dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { true }, boolean.class);
@@ -79,7 +79,7 @@ public class BooleanTypeTest {
 
     @Test
     public void testBooleanTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_boolean;");
             jdbcTemplate.execute("create procedure proc_boolean(out p_out boolean) begin set p_out=true; end;");

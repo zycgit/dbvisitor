@@ -30,7 +30,7 @@ import java.util.Map;
 public class LongTypeTest {
     @Test
     public void testLongTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_bigint) values (123);");
@@ -43,7 +43,7 @@ public class LongTypeTest {
 
     @Test
     public void testLongTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_bigint) values (123);");
@@ -56,7 +56,7 @@ public class LongTypeTest {
 
     @Test
     public void testLongTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             long dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { 123l }, long.class);
@@ -75,7 +75,7 @@ public class LongTypeTest {
 
     @Test
     public void testLongTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_bigint;");
             jdbcTemplate.execute("create procedure proc_bigint(out p_out bigint) begin set p_out=123123; end;");

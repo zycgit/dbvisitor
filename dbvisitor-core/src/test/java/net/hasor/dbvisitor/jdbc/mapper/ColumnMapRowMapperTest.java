@@ -30,7 +30,7 @@ import static net.hasor.test.utils.TestUtils.*;
 public class ColumnMapRowMapperTest {
     @Test
     public void testColumnMapRowMapper_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             List<Map<String, Object>> mapList = jdbcTemplate.query("select * from tb_user", new ColumnMapRowMapper());
             //
@@ -47,7 +47,7 @@ public class ColumnMapRowMapperTest {
 
     @Test
     public void testColumnMapRowMapper_2() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             Map<String, Object> objectMap1 = jdbcTemplate.queryForObject("select 1 as T, 2 as t", new ColumnMapRowMapper(false, TypeHandlerRegistry.DEFAULT));
             assert objectMap1.size() == 2;

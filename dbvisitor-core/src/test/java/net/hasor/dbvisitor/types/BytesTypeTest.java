@@ -52,7 +52,7 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesForWrapTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -69,7 +69,7 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesForWrapTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -86,7 +86,7 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesForWrapTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -104,7 +104,7 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesForWrapTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_bytes;");
             jdbcTemplate.execute("create procedure proc_bytes(out p_out varbinary(10)) begin set p_out= b'0111111100001111'; end;");
@@ -124,7 +124,7 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -141,7 +141,7 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -158,7 +158,7 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -176,7 +176,7 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_bytes;");
             jdbcTemplate.execute("create procedure proc_bytes(out p_out varbinary(10)) begin set p_out= b'0111111100001111'; end;");
@@ -196,7 +196,7 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesInputStreamTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -213,7 +213,7 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesInputStreamTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -230,7 +230,7 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesInputStreamTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -248,7 +248,7 @@ public class BytesTypeTest {
 
     @Test
     public void testBytesInputStreamTypeHandler_4() throws Exception {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_bytes;");
             jdbcTemplate.execute("create procedure proc_bytes(out p_out varbinary(10)) begin set p_out= b'0111111100001111'; end;");

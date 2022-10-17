@@ -34,7 +34,7 @@ import java.util.Map;
 public class Caller2Test extends AbstractDbTest {
     @Test
     public void mysqlCallCross_1() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists proc_table_forcaller;");
             jdbcTemplate.execute("create table proc_table_forcaller( c_id int primary key, c_name varchar(200));");

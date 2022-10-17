@@ -34,7 +34,7 @@ import java.util.Map;
 public class EnumTypeTest {
     @Test
     public void testEnumTypeHandler_CharacterSensitive_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('READ_UNCOMMITTED');");
@@ -50,7 +50,7 @@ public class EnumTypeTest {
 
     @Test
     public void testEnumTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('READ_UNCOMMITTED');");
@@ -64,7 +64,7 @@ public class EnumTypeTest {
 
     @Test
     public void testEnumTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('READ_UNCOMMITTED');");
@@ -78,7 +78,7 @@ public class EnumTypeTest {
 
     @Test
     public void testEnumTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             List<Isolation> dat = jdbcTemplate.query("select ?", ps -> {
@@ -93,7 +93,7 @@ public class EnumTypeTest {
 
     @Test
     public void testEnumTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_varchar;");
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(50)) begin set p_out='READ_UNCOMMITTED'; end;");
@@ -110,7 +110,7 @@ public class EnumTypeTest {
 
     @Test
     public void testEnumTypeHandler_ofCode_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('Apache 2.0');");
@@ -124,7 +124,7 @@ public class EnumTypeTest {
 
     @Test
     public void testEnumTypeHandler_ofCode_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('Apache 2.0');");
@@ -138,7 +138,7 @@ public class EnumTypeTest {
 
     @Test
     public void testEnumTypeHandler_ofCode_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             List<LicenseOfCodeEnum> dat = jdbcTemplate.query("select ?", ps -> {
@@ -153,7 +153,7 @@ public class EnumTypeTest {
 
     @Test
     public void testEnumTypeHandler_ofCode_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_varchar;");
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(50)) begin set p_out='Apache 2.0'; end;");
@@ -170,7 +170,7 @@ public class EnumTypeTest {
 
     @Test
     public void testEnumTypeHandler_ofValue_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_integer) values (4);");
@@ -184,7 +184,7 @@ public class EnumTypeTest {
 
     @Test
     public void testEnumTypeHandler_ofValue_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_integer) values (4);");
@@ -198,7 +198,7 @@ public class EnumTypeTest {
 
     @Test
     public void testEnumTypeHandler_ofValue_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             List<LicenseOfValueEnum> dat = jdbcTemplate.query("select ?", ps -> {
@@ -213,7 +213,7 @@ public class EnumTypeTest {
 
     @Test
     public void testEnumTypeHandler_ofValue_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_integer;");
             jdbcTemplate.execute("create procedure proc_integer(out p_out int) begin set p_out=4; end;");

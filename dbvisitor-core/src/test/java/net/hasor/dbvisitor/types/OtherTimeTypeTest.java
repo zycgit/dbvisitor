@@ -36,7 +36,7 @@ import java.util.Map;
 public class OtherTimeTypeTest {
     @Test
     public void testInstantTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
@@ -51,7 +51,7 @@ public class OtherTimeTypeTest {
 
     @Test
     public void testInstantTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
@@ -66,7 +66,7 @@ public class OtherTimeTypeTest {
 
     @Test
     public void testInstantTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
@@ -82,7 +82,7 @@ public class OtherTimeTypeTest {
 
     @Test
     public void testInstantTypeHandler_4() throws Exception {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_timestamp;");
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 10:11:12', '%Y-%m-%d %h:%i:%s'); end;");
@@ -100,7 +100,7 @@ public class OtherTimeTypeTest {
 
     @Test
     public void testJapaneseDateTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
@@ -115,7 +115,7 @@ public class OtherTimeTypeTest {
 
     @Test
     public void testJapaneseDateTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
@@ -130,7 +130,7 @@ public class OtherTimeTypeTest {
 
     @Test
     public void testJapaneseDateTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             LocalDate testData = LocalDate.of(1998, Month.APRIL, 12);
@@ -148,7 +148,7 @@ public class OtherTimeTypeTest {
 
     @Test
     public void testJapaneseDateTypeHandler_4() throws Exception {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_timestamp;");
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 10:11:12', '%Y-%m-%d %h:%i:%s'); end;");

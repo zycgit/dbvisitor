@@ -31,7 +31,7 @@ import java.util.Map;
 public class NumberTypeTest {
     @Test
     public void testNumberTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
@@ -46,7 +46,7 @@ public class NumberTypeTest {
 
     @Test
     public void testNumberTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Date testData = new Date();
@@ -61,7 +61,7 @@ public class NumberTypeTest {
 
     @Test
     public void testNumberTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('123');");
@@ -75,7 +75,7 @@ public class NumberTypeTest {
 
     @Test
     public void testNumberTypeHandler_4() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('123');");
@@ -89,7 +89,7 @@ public class NumberTypeTest {
 
     @Test
     public void testNumberTypeHandler_5() throws Exception {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_varchar;");
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(10)) begin set p_out='123.4'; end;");

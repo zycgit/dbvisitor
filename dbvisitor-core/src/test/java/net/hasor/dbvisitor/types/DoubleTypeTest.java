@@ -30,7 +30,7 @@ import java.util.Map;
 public class DoubleTypeTest {
     @Test
     public void testDoubleTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_double) values (123.123);");
@@ -43,7 +43,7 @@ public class DoubleTypeTest {
 
     @Test
     public void testDoubleTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_double) values (123.123);");
@@ -56,7 +56,7 @@ public class DoubleTypeTest {
 
     @Test
     public void testDoubleTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             double dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { 123.123d }, double.class);
@@ -75,7 +75,7 @@ public class DoubleTypeTest {
 
     @Test
     public void testCharacterTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_double;");
             jdbcTemplate.execute("create procedure proc_double(out p_out double) begin set p_out=123.123; end;");

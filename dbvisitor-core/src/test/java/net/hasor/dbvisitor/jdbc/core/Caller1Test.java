@@ -37,7 +37,7 @@ import java.util.Map;
 public class Caller1Test extends AbstractDbTest {
     @Before
     public void init() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists proc_table_forcaller;");
             jdbcTemplate.execute("create table proc_table_forcaller( c_id int primary key, c_name varchar(200));");
@@ -54,7 +54,7 @@ public class Caller1Test extends AbstractDbTest {
 
     @Test
     public void mysqlCallResultSet_1() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             Map<String, Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_table(?)}",//
                     Collections.singletonList(SqlParameterUtils.withInput("aaa", JDBCType.VARCHAR.getVendorTypeNumber())));
             //
@@ -69,7 +69,7 @@ public class Caller1Test extends AbstractDbTest {
 
     @Test
     public void mysqlCallResultSet_2() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             Map<String, Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_multiple_table(?)}",//
                     Collections.singletonList(SqlParameterUtils.withInput("aaa", JDBCType.VARCHAR.getVendorTypeNumber())));
             //
@@ -88,7 +88,7 @@ public class Caller1Test extends AbstractDbTest {
 
     @Test
     public void mysqlCallResultSet_3() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             List<Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_multiple_table(?)}", cs -> {
                 cs.setString(1, "aaa");
             }, new MultipleResultSetExtractor());
@@ -107,7 +107,7 @@ public class Caller1Test extends AbstractDbTest {
 
     @Test
     public void mysqlCallResultSet_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             List<Object> objectMap = new JdbcTemplate(conn).call(con -> {
                 return con.prepareCall("{call proc_select_multiple_table(?)}");
             }, cs -> {
@@ -129,7 +129,7 @@ public class Caller1Test extends AbstractDbTest {
 
     @Test
     public void mysqlCallResultSet_5() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             List<Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_multiple_table(?)}", cs -> {
                 cs.setString(1, "aaa");
                 return new MultipleResultSetExtractor().doInCallableStatement(cs);
@@ -149,7 +149,7 @@ public class Caller1Test extends AbstractDbTest {
 
     @Test
     public void mysqlCallResultSet_6() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             List<Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_multiple_table(?)}", cs -> {
                 cs.setString(1, "aaa");
                 return new MultipleResultSetExtractor().doInCallableStatement(cs);

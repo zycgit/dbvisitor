@@ -40,7 +40,7 @@ import static net.hasor.test.utils.TestUtils.beanForData1;
 public class ExecuteTest extends AbstractDbTest {
     @Test
     public void execute_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.execute((ConnectionCallback<Boolean>) con -> {
@@ -56,7 +56,7 @@ public class ExecuteTest extends AbstractDbTest {
 
     @Test
     public void execute_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.execute((StatementCallback<Boolean>) s -> {
@@ -72,7 +72,7 @@ public class ExecuteTest extends AbstractDbTest {
 
     @Test
     public void execute_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.execute(con -> {
@@ -91,7 +91,7 @@ public class ExecuteTest extends AbstractDbTest {
 
     @Test
     public void execute_4() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.execute("update tb_user set name = CONCAT(name, '~' ) where userUUID = ?", ps -> {
@@ -108,7 +108,7 @@ public class ExecuteTest extends AbstractDbTest {
 
     @Test
     public void execute_5() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.execute("update tb_user set name = CONCAT(name, '~' ) where userUUID = '" + beanForData1().getUserUUID() + "'");
@@ -122,7 +122,7 @@ public class ExecuteTest extends AbstractDbTest {
 
     @Test
     public void execute_6() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             Map<String, String> dat = Collections.singletonMap("uuid", beanForData1().getUserUUID());
@@ -137,7 +137,7 @@ public class ExecuteTest extends AbstractDbTest {
 
     @Test
     public void execute_7() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             Map<String, String> dat = Collections.singletonMap("uuid", beanForData1().getUserUUID());

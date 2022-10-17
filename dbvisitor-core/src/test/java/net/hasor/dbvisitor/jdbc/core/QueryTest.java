@@ -38,7 +38,7 @@ import java.util.Map;
 public class QueryTest extends AbstractDbTest {
     @Test
     public void query_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TbUser> tbUsers = jdbcTemplate.query(con -> {
@@ -55,7 +55,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void query_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TbUser> tbUsers = jdbcTemplate.query("select * from tb_user", rs -> {
@@ -70,7 +70,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void query_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
@@ -86,7 +86,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void query_4() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
@@ -100,7 +100,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void query_5() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
@@ -114,7 +114,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void query_6() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
@@ -130,7 +130,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void query_7() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
@@ -145,7 +145,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void queryVoid_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TbUser> tbUsers = new ArrayList<>();
@@ -163,7 +163,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void queryVoid2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TbUser> tbUsers = new ArrayList<>();
@@ -179,7 +179,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void queryVoid3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
@@ -196,7 +196,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void queryVoid4() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
@@ -211,7 +211,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void queryVoid5() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
@@ -226,7 +226,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void queryVoid6() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
@@ -243,7 +243,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void queryVoid7() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
@@ -259,7 +259,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void queryList_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TbUser> tbUsers = jdbcTemplate.query(con -> {
@@ -274,7 +274,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void queryList_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TbUser> tbUsers = jdbcTemplate.query("select * from tb_user", new MappingRowMapper<>(TbUser.class));
@@ -287,7 +287,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void queryList_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
@@ -301,7 +301,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void queryList_4() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
@@ -313,7 +313,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void queryList_5() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
@@ -325,7 +325,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void queryList_6() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
@@ -339,7 +339,7 @@ public class QueryTest extends AbstractDbTest {
 
     @Test
     public void queryList_7() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();

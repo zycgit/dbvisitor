@@ -53,7 +53,7 @@ public class LoadTest extends AbstractDbTest {
 
     @Test
     public void loadSQL_1() throws SQLException, IOException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
                 jdbcTemplate.executeUpdate("drop table tb_user");
@@ -67,7 +67,7 @@ public class LoadTest extends AbstractDbTest {
 
     @Test
     public void loadSQL_2() throws SQLException, IOException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
                 jdbcTemplate.executeUpdate("drop table tb_user");
@@ -85,7 +85,7 @@ public class LoadTest extends AbstractDbTest {
 
     @Test
     public void loadSQL_3() throws SQLException, IOException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
                 jdbcTemplate.executeUpdate("drop table tb_user");
@@ -99,7 +99,7 @@ public class LoadTest extends AbstractDbTest {
 
     @Test
     public void loadSplitSQL_1() throws SQLException, IOException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
                 jdbcTemplate.executeUpdate("drop table tb_user");
@@ -113,7 +113,7 @@ public class LoadTest extends AbstractDbTest {
 
     @Test
     public void loadSplitSQL_2() throws SQLException, IOException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
                 jdbcTemplate.executeUpdate("drop table tb_user");
@@ -127,7 +127,7 @@ public class LoadTest extends AbstractDbTest {
 
     @Test
     public void loadSplitSQL_3() throws SQLException, IOException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
                 jdbcTemplate.executeUpdate("drop table tb_user");

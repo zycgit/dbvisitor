@@ -49,7 +49,7 @@ public class MySqlPerformanceTest {
     @Test
     public void mysqlInsertQuery_1() throws SQLException {
         long t = System.currentTimeMillis();
-        try (Connection con = DsUtils.mysqlConnection()) {
+        try (Connection con = DsUtils.mysqlConn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(con);
             //
             reinit(con);
@@ -66,7 +66,7 @@ public class MySqlPerformanceTest {
     @Test
     public void mysqlInsertQuery_2() throws SQLException {
         long t = System.currentTimeMillis();
-        try (Connection con = DsUtils.mysqlConnection()) {
+        try (Connection con = DsUtils.mysqlConn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(con);
             //
             reinit(con);

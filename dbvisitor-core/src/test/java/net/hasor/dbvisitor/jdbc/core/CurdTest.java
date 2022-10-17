@@ -33,7 +33,7 @@ import static net.hasor.test.utils.TestUtils.*;
 public class CurdTest extends AbstractDbTest {
     @Test
     public void insertTest_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData4());
@@ -47,7 +47,7 @@ public class CurdTest extends AbstractDbTest {
 
     @Test
     public void insertTest_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate(INSERT_MAP, mapForData4());
@@ -61,7 +61,7 @@ public class CurdTest extends AbstractDbTest {
 
     @Test
     public void insertTest_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             assert jdbcTemplate.queryForInt("select count(1) from tb_user") == 3;
             //
@@ -85,7 +85,7 @@ public class CurdTest extends AbstractDbTest {
 
     @Test
     public void insertTest_4() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             assert jdbcTemplate.queryForInt("select count(1) from tb_user") == 3;
             //
@@ -109,7 +109,7 @@ public class CurdTest extends AbstractDbTest {
 
     @Test
     public void updateTest_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             assert jdbcTemplate.executeUpdate("update tb_user set name = '123'") == 3;
             //
@@ -123,7 +123,7 @@ public class CurdTest extends AbstractDbTest {
 
     @Test
     public void deleteTest_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             assert jdbcTemplate.executeUpdate("delete tb_user where loginName = 'muhammad'") == 1;
             //

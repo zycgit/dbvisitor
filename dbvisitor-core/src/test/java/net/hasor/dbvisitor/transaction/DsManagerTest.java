@@ -11,7 +11,7 @@ import java.sql.Statement;
 public class DsManagerTest {
     @Test
     public void manager_test_1() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.h2Ds()) {
             Connection conn1 = DataSourceUtils.getConnection(dataSource);
             Connection conn2 = DataSourceUtils.getConnection(dataSource);
 
@@ -22,7 +22,7 @@ public class DsManagerTest {
 
     @Test
     public void manager_test_2() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.h2Ds()) {
             try (Connection conn = DataSourceUtils.getConnection(dataSource)) {
                 int result = new JdbcTemplate(conn).queryForInt("select 123");
                 assert result == 123;
@@ -37,7 +37,7 @@ public class DsManagerTest {
 
     @Test
     public void manager_test_3() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.mysqlDataSource()) {
+        try (DefaultDs dataSource = DsUtils.mysqlDs()) {
             Connection conn1 = DataSourceUtils.getConnection(dataSource);
             Connection conn2 = DataSourceUtils.getConnection(dataSource);
 
@@ -50,7 +50,7 @@ public class DsManagerTest {
 
     @Test
     public void manager_test_4() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.h2Ds()) {
             Connection conn1 = DataSourceUtils.getConnection(dataSource);
             Connection conn2 = DataSourceUtils.getConnection(dataSource);
 
@@ -75,7 +75,7 @@ public class DsManagerTest {
 
     @Test
     public void manager_test_5() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.h2Ds()) {
             Connection conn = DataSourceUtils.getConnection(dataSource);
 
             assert conn instanceof ConnectionProxy;
@@ -90,7 +90,7 @@ public class DsManagerTest {
 
     @Test
     public void manager_test_6() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.createDs(false)) {
+        try (DefaultDs dataSource = DsUtils.h2Ds()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             jdbcTemplate.execute((ConnectionCallback<Object>) conn1 -> {
                 Connection conn2 = DataSourceUtils.getConnection(dataSource);

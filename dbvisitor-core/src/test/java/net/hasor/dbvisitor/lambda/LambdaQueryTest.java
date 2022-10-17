@@ -38,7 +38,7 @@ import static net.hasor.test.utils.TestUtils.*;
 public class LambdaQueryTest extends AbstractDbTest {
     @Test
     public void lambda_select_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             List<TbUser> tbUsers1 = lambdaTemplate.lambdaQuery(TbUser.class).queryForList();
@@ -89,7 +89,7 @@ public class LambdaQueryTest extends AbstractDbTest {
 
     @Test
     public void lambdaQuery_select_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             List<TbUser> tbUsers1 = lambdaTemplate.lambdaQuery(TbUser.class).selectAll().queryForList();
@@ -109,7 +109,7 @@ public class LambdaQueryTest extends AbstractDbTest {
 
     @Test
     public void lambdaQuery_select_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             List<TB_User> tbUsers1 = lambdaTemplate.lambdaQuery(TB_User.class).selectAll().queryForList();
@@ -129,7 +129,7 @@ public class LambdaQueryTest extends AbstractDbTest {
 
     @Test
     public void lambdaQuery_select_4() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             TbUser tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
@@ -141,7 +141,7 @@ public class LambdaQueryTest extends AbstractDbTest {
 
     @Test
     public void lambdaQuery_select_5() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
@@ -155,7 +155,7 @@ public class LambdaQueryTest extends AbstractDbTest {
 
     @Test
     public void lambdaQuery_lambdaCount_6() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             int lambdaCount1 = lambdaTemplate.lambdaQuery(TbUser.class)//

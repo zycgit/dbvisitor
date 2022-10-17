@@ -32,7 +32,7 @@ import java.util.*;
 public class MonthTypeTest {
     @Test
     public void testMonthOfNumberTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_tinyint) values (05);");
@@ -45,7 +45,7 @@ public class MonthTypeTest {
 
     @Test
     public void testMonthOfNumberTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_tinyint) values (05);");
@@ -58,7 +58,7 @@ public class MonthTypeTest {
 
     @Test
     public void testMonthOfNumberTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Month dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { 5 }, Month.class);
@@ -75,7 +75,7 @@ public class MonthTypeTest {
 
     @Test
     public void testMonthOfNumberTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_smallint;");
             jdbcTemplate.execute("create procedure proc_smallint(out p_out smallint) begin set p_out=1; end;");
@@ -92,7 +92,7 @@ public class MonthTypeTest {
 
     @Test
     public void testMonthOfStringTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('05');");
@@ -107,7 +107,7 @@ public class MonthTypeTest {
 
     @Test
     public void testMonthOfStringTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('05');");
@@ -122,7 +122,7 @@ public class MonthTypeTest {
 
     @Test
     public void testMonthOfStringTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Month dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { "5" }, Month.class);
@@ -141,7 +141,7 @@ public class MonthTypeTest {
 
     @Test
     public void testMonthOfStringTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_varchar;");
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(10)) begin set p_out='may'; end;");
@@ -158,7 +158,7 @@ public class MonthTypeTest {
 
     @Test
     public void testMonthOfTimeTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
@@ -171,7 +171,7 @@ public class MonthTypeTest {
 
     @Test
     public void testMonthOfTimeTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
@@ -184,7 +184,7 @@ public class MonthTypeTest {
 
     @Test
     public void testMonthOfTimeTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Month dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { new Date() }, Month.class);
@@ -210,7 +210,7 @@ public class MonthTypeTest {
 
     @Test
     public void testMonthOfTimeTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_timestamp;");
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 10:11:12', '%Y-%m-%d %h:%i:%s'); end;");

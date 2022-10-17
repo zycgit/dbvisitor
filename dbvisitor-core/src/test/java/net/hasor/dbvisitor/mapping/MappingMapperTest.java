@@ -45,7 +45,7 @@ public class MappingMapperTest {
 
     @Test
     public void testColumnMapRowMapper_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             TableMappingResolve resolve = new ClassTableMappingResolve();
 
@@ -64,7 +64,7 @@ public class MappingMapperTest {
 
     @Test
     public void testColumnMapRowMapper_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             TableMappingResolve resolve = new ClassTableMappingResolve();
 

@@ -30,7 +30,7 @@ import static net.hasor.test.utils.TestUtils.*;
 public class HolderTest extends AbstractDbTest {
     @Test
     public void holder_basic_test_1() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.h2Ds()) {
             ConnectionHolder holder = new ConnectionHolderImpl(dataSource);
 
             assert !holder.isOpen();
@@ -54,7 +54,7 @@ public class HolderTest extends AbstractDbTest {
 
     @Test
     public void holder_basic_test_2() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.h2Ds()) {
             ConnectionHolder holder = new ConnectionHolderImpl(dataSource);
 
             assert holder.getConnection() == null;
@@ -84,7 +84,7 @@ public class HolderTest extends AbstractDbTest {
 
     @Test
     public void holder_tran_test_1() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.h2Ds()) {
             ConnectionHolder holder1 = new ConnectionHolderImpl(dataSource);    // tran1
             ConnectionHolder holder2 = new ConnectionHolderImpl(dataSource);    // tran2
 
@@ -126,7 +126,7 @@ public class HolderTest extends AbstractDbTest {
 
     @Test
     public void holder_tran_test_2() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.h2Ds()) {
             ConnectionHolder holder1 = new ConnectionHolderImpl(dataSource);    // tran1
             ConnectionHolder holder2 = new ConnectionHolderImpl(dataSource);    // tran2
 
@@ -160,7 +160,7 @@ public class HolderTest extends AbstractDbTest {
 
     @Test
     public void holder_savepoint_test_1() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.createDs()) {
+        try (DefaultDs dataSource = DsUtils.h2Ds()) {
             ConnectionHolder holder1 = new ConnectionHolderImpl(dataSource);    // tran1
             ConnectionHolder holder2 = new ConnectionHolderImpl(dataSource);    // tran2
 

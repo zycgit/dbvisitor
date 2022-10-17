@@ -35,7 +35,7 @@ import static net.hasor.test.utils.TestUtils.*;
 public class FilterNullResultSetExtractorTest extends AbstractDbTest {
     @Test
     public void testFilterNullResultSetExtractor_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData6());
@@ -56,7 +56,7 @@ public class FilterNullResultSetExtractorTest extends AbstractDbTest {
 
     @Test
     public void testFilterNullResultSetExtractor_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData6());
@@ -81,7 +81,7 @@ public class FilterNullResultSetExtractorTest extends AbstractDbTest {
 
     @Test
     public void testFilterNullResultSetExtractor_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData6()); // loginPassword is null

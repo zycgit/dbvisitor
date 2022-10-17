@@ -30,7 +30,7 @@ import java.util.Map;
 public class ShortTypeTest {
     @Test
     public void testShortTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_smallint) values (123);");
@@ -43,7 +43,7 @@ public class ShortTypeTest {
 
     @Test
     public void testShortTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_smallint) values (123);");
@@ -56,7 +56,7 @@ public class ShortTypeTest {
 
     @Test
     public void testShortTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             short dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { 123 }, short.class);
@@ -75,7 +75,7 @@ public class ShortTypeTest {
 
     @Test
     public void testShortTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_integer;");
             jdbcTemplate.execute("create procedure proc_integer(out p_out integer) begin set p_out=123; end;");

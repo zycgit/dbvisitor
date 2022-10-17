@@ -31,7 +31,7 @@ import java.util.Map;
 public class CharacterTypeTest {
     @Test
     public void testCharacterTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('1234567890');");
@@ -44,7 +44,7 @@ public class CharacterTypeTest {
 
     @Test
     public void testCharacterTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('1234567890');");
@@ -57,7 +57,7 @@ public class CharacterTypeTest {
 
     @Test
     public void testCharacterTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             char dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { "abc" }, char.class);
@@ -83,7 +83,7 @@ public class CharacterTypeTest {
 
     @Test
     public void testCharacterTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_char;");
             jdbcTemplate.execute("create procedure proc_char(out p_out char) begin set p_out='A'; end;");
@@ -100,7 +100,7 @@ public class CharacterTypeTest {
 
     @Test
     public void testNCharacterTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('1234567890');");
@@ -113,7 +113,7 @@ public class CharacterTypeTest {
 
     @Test
     public void testNCharacterTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('1234567890');");
@@ -126,7 +126,7 @@ public class CharacterTypeTest {
 
     @Test
     public void testNCharacterTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             char dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { "abc" }, char.class);
@@ -152,7 +152,7 @@ public class CharacterTypeTest {
 
     @Test
     public void testNCharacterTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_char;");
             jdbcTemplate.execute("create procedure proc_char(out p_out char) begin set p_out='A'; end;");

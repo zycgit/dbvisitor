@@ -30,7 +30,7 @@ import java.util.Map;
 public class BaseLambdaTest extends AbstractDbTest {
     @Test
     public void base_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
@@ -43,7 +43,7 @@ public class BaseLambdaTest extends AbstractDbTest {
 
     @Test
     public void base_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate1 = new LambdaTemplate(c, TypeHandlerRegistry.DEFAULT);
             Map<String, Object> tbUser1 = lambdaTemplate1.lambdaQuery(TbUser.class)//
                     .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
@@ -62,7 +62,7 @@ public class BaseLambdaTest extends AbstractDbTest {
 
     @Test
     public void base_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c, TypeHandlerRegistry.DEFAULT);
             Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
                     .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
@@ -74,7 +74,7 @@ public class BaseLambdaTest extends AbstractDbTest {
 
     @Test
     public void base_4() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
                     .eq(TbUser::getAccount, "muhammad").apply("limit 1")//

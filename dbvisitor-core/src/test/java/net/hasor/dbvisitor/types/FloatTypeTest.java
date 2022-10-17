@@ -30,7 +30,7 @@ import java.util.Map;
 public class FloatTypeTest {
     @Test
     public void testFloatTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_float) values (123.123);");
@@ -43,7 +43,7 @@ public class FloatTypeTest {
 
     @Test
     public void testFloatTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_float) values (123.123);");
@@ -56,7 +56,7 @@ public class FloatTypeTest {
 
     @Test
     public void testFloatTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             float dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { 123.123f }, float.class);
@@ -75,7 +75,7 @@ public class FloatTypeTest {
 
     @Test
     public void testFloatTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_float;");
             jdbcTemplate.execute("create procedure proc_float(out p_out float) begin set p_out=123.123; end;");

@@ -79,7 +79,7 @@ public class BaseClassTest extends AbstractDbTest {
 
     @Test
     public void jdbcConnectionTest_4() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             try {
                 new JdbcConnection(c).execute((ConnectionCallback<Object>) con -> {
                     con.createStatement().execute("xxxxx");
@@ -106,7 +106,7 @@ public class BaseClassTest extends AbstractDbTest {
 
     @Test
     public void jdbcConnectionTest_5() throws Throwable {
-        try (Connection dataSource = DsUtils.createConn()) {
+        try (Connection dataSource = DsUtils.h2Conn()) {
             JdbcConnection jdbcConnection = new JdbcConnection(dataSource);
             jdbcConnection.setMaxRows(123);
             jdbcConnection.setFetchSize(10);

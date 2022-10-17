@@ -32,7 +32,7 @@ import static net.hasor.test.utils.TestUtils.beanForData1;
 public class LambdaUpdateTest extends AbstractDbTest {
     @Test
     public void lambda_update_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             EntityQueryOperation<TB_User> lambdaQuery = lambdaTemplate.lambdaQuery(TB_User.class);
             TB_User tbUser1 = lambdaQuery.eq(TB_User::getLoginName, beanForData1().getLoginName()).queryForObject();

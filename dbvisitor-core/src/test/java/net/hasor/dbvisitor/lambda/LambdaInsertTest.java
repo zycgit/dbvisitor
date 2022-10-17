@@ -55,7 +55,7 @@ public class LambdaInsertTest extends AbstractDbTest {
         tbUser2.put("index", 2);
         tbUser2.put("createTime", new Date());
 
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             lambdaTemplate.execute("delete from tb_user");
             //

@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 public class ExecuteUpdateTest extends AbstractDbTest {
     @Test
     public void executeUpdate_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
@@ -59,7 +59,7 @@ public class ExecuteUpdateTest extends AbstractDbTest {
 
     @Test
     public void executeUpdate_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
@@ -81,7 +81,7 @@ public class ExecuteUpdateTest extends AbstractDbTest {
 
     @Test
     public void executeUpdate_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
@@ -99,7 +99,7 @@ public class ExecuteUpdateTest extends AbstractDbTest {
 
     @Test
     public void executeUpdate_4() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
@@ -119,7 +119,7 @@ public class ExecuteUpdateTest extends AbstractDbTest {
 
     @Test
     public void executeUpdate_5() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
@@ -137,7 +137,7 @@ public class ExecuteUpdateTest extends AbstractDbTest {
 
     @Test
     public void executeUpdate_6() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
@@ -158,7 +158,7 @@ public class ExecuteUpdateTest extends AbstractDbTest {
 
     @Test
     public void executeUpdate_7() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);

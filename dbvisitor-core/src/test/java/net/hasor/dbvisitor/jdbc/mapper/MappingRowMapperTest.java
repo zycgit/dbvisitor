@@ -32,7 +32,7 @@ import java.util.List;
 public class MappingRowMapperTest extends AbstractDbTest {
     @Test
     public void testBeanRowMapper_0() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TbUser> tbUsers = jdbcTemplate.query("select * from tb_user", new MappingRowMapper<>(TbUser.class));

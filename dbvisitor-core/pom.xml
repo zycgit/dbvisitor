@@ -9,8 +9,6 @@
 
     <artifactId>dbvisitor</artifactId>
     <packaging>jar</packaging>
-
-    <!-- Project Info -->
     <name>dbVisitor</name>
     <description>dbVisitor is a full-featured access database tool, simplifies JDBC/ORM usage, and compatible with Spring JDBC, MyBatis style.</description>
 
@@ -21,13 +19,11 @@
         </developer>
     </developers>
 
-    <!-- 引用依赖 -->
     <dependencies>
         <dependency>
             <groupId>net.hasor</groupId>
             <artifactId>cobble-all</artifactId>
         </dependency>
-        <!-- shade -->
         <dependency>
             <groupId>ognl</groupId>
             <artifactId>ognl</artifactId>
@@ -68,6 +64,7 @@
             <version>1.4.200</version>
             <scope>test</scope>
         </dependency>
+        <!-- test drivers -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -106,7 +103,6 @@
         </dependency>
     </dependencies>
 
-    <!-- 构建描述 -->
     <build>
         <plugins>
             <plugin>

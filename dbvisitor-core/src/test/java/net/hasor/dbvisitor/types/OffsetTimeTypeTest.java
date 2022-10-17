@@ -31,7 +31,7 @@ import java.util.Map;
 public class OffsetTimeTypeTest {
     @Test
     public void testOffsetDateTimeForSqlTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
@@ -56,7 +56,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetDateTimeForSqlTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
@@ -81,7 +81,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetDateTimeForSqlTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             OffsetDateTime testData = LocalDateTime.of(1998, Month.APRIL, 12, 18, 33, 20, 123)//
@@ -107,7 +107,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetDateTimeForSqlTypeHandler_4() throws Exception {
-        try (Connection conn = DsUtils.oracleConnection()) {
+        try (Connection conn = DsUtils.oracleConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute(""//
                     + "create or replace procedure proc_timestamptz(p_out out timestamp with time zone)\n" //
@@ -127,7 +127,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetDateTimeForUTCTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
@@ -152,7 +152,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetDateTimeForUTCTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
@@ -177,7 +177,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetDateTimeForUTCTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             OffsetDateTime argOffsetTime = LocalDateTime.of(1998, Month.APRIL, 12, 18, 33, 20, 123)//
@@ -204,7 +204,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetDateTimeForUTCTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_timestamp;");
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");
@@ -231,7 +231,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetTimeForSqlTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
@@ -251,7 +251,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetTimeForSqlTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
@@ -271,7 +271,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetTimeForSqlTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             OffsetTime localTime = LocalTime.of(18, 33, 20, 123).atOffset(ZoneOffset.ofHours(8));
@@ -293,7 +293,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetTimeForSqlTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.oracleConnection()) {
+        try (Connection conn = DsUtils.oracleConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute(""//
                     + "create or replace procedure proc_timestamptz(p_out out timestamp with time zone)\n" //
@@ -313,7 +313,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetTimeForUTCTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
@@ -337,7 +337,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetTimeForUTCTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
@@ -361,7 +361,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetTimeForUTCTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             OffsetTime localTime = LocalTime.of(18, 33, 20, 123).atOffset(ZoneOffset.ofHours(8));//
@@ -387,7 +387,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testOffsetTimeForUTCTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConnection()) {
+        try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_timestamp;");
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");
@@ -411,7 +411,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testZonedDateTimeTypeHandler_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
@@ -432,7 +432,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testZonedDateTimeTypeHandler_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
@@ -453,7 +453,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testZonedDateTimeTypeHandler_3() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             ZonedDateTime localTime = ZonedDateTime.of(//
@@ -479,7 +479,7 @@ public class OffsetTimeTypeTest {
 
     @Test
     public void testZonedDateTimeTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.oracleConnection()) {
+        try (Connection conn = DsUtils.oracleConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute(""//
                     + "create or replace procedure proc_timestamptz(p_out out timestamp with time zone)\n" //

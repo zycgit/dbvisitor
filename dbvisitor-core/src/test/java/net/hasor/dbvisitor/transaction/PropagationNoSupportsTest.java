@@ -32,9 +32,9 @@ import static net.hasor.test.utils.TestUtils.*;
 public class PropagationNoSupportsTest extends AbstractPropagationTest {
     @Test
     public void tran_rollback_test_1() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDs();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
-             Connection conn = DsUtils.mysqlConnection()) {
+             Connection conn = DsUtils.mysqlConn()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
@@ -66,9 +66,9 @@ public class PropagationNoSupportsTest extends AbstractPropagationTest {
 
     @Test
     public void tran_rollback_test_2() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDs();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
-             Connection conn = DsUtils.mysqlConnection()) {
+             Connection conn = DsUtils.mysqlConn()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
@@ -97,9 +97,9 @@ public class PropagationNoSupportsTest extends AbstractPropagationTest {
 
     @Test
     public void tran_commit_test_1() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDs();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
-             Connection conn = DsUtils.mysqlConnection()) {
+             Connection conn = DsUtils.mysqlConn()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
@@ -134,9 +134,9 @@ public class PropagationNoSupportsTest extends AbstractPropagationTest {
 
     @Test
     public void tran_commit_test_2() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDs();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
-             Connection conn = DsUtils.mysqlConnection()) {
+             Connection conn = DsUtils.mysqlConn()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
@@ -165,9 +165,9 @@ public class PropagationNoSupportsTest extends AbstractPropagationTest {
 
     @Test
     public void tran_commit_and_rollback_test_1() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDs();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
-             Connection conn = DsUtils.mysqlConnection()) {
+             Connection conn = DsUtils.mysqlConn()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
@@ -199,9 +199,9 @@ public class PropagationNoSupportsTest extends AbstractPropagationTest {
 
     @Test
     public void tran_rollback_and_commit_test_1() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.mysqlDataSource();//
+        try (DefaultDs dataSource = DsUtils.mysqlDs();//
              LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);//
-             Connection conn = DsUtils.mysqlConnection()) {
+             Connection conn = DsUtils.mysqlConn()) {
             initTable(conn);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 

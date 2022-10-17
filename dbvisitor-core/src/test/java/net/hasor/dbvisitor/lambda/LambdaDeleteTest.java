@@ -33,7 +33,7 @@ import static net.hasor.test.utils.TestUtils.*;
 public class LambdaDeleteTest extends AbstractDbTest {
     @Test
     public void lambda_delete_1() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             EntityDeleteOperation<TB_User> lambdaDelete = lambdaTemplate.lambdaDelete(TB_User.class);
@@ -44,7 +44,7 @@ public class LambdaDeleteTest extends AbstractDbTest {
 
     @Test
     public void lambda_delete_2() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             EntityDeleteOperation<TB_User> lambdaDelete = lambdaTemplate.lambdaDelete(TB_User.class);

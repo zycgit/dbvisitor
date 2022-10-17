@@ -77,7 +77,7 @@ public class PageTest extends AbstractDbTest {
 
     @Test
     public void pageTest_4() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             lambdaTemplate.execute("delete from tb_user");
             //
@@ -122,7 +122,7 @@ public class PageTest extends AbstractDbTest {
 
     @Test
     public void pageTest_5() throws Throwable {
-        try (Connection c = DsUtils.createConn()) {
+        try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             lambdaTemplate.execute("delete from tb_user");
             //
