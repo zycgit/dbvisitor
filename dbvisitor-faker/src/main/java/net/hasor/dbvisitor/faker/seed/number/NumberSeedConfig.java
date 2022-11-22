@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.number;
+import net.hasor.cobble.ref.Ratio;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedType;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -64,7 +65,7 @@ public class NumberSeedConfig extends SeedConfig {
     public Ratio<MinMax> getMinMax() {
         return this.minmax;
     }
- 
+
     public Integer getPrecision() {
         return precision;
     }

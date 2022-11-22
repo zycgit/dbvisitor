@@ -23,6 +23,7 @@ import java.math.BigInteger;
  * @version : 2014-1-13
  * @author 赵永春 (zyc@hasor.net)
  */
+@Deprecated
 public class FakerRandomUtilsTest {
     @Test
     public void nextLongTest_01() {
