@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class MySqlTypesTest {
+public class MySqlTypesRWTest {
     protected void preTable(JdbcTemplate jdbcTemplate) throws SQLException, IOException {
         try {
             jdbcTemplate.executeUpdate("drop table tb_mysql_types");

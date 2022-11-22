@@ -45,7 +45,7 @@
     </developers>
 
     <modules>
-        <module>dbvisitor-core</module>
+        <module>dbvisitor</module>
         <module>dbvisitor-faker</module>
         <module>dbvisitor-integration/dbvisitor-spring</module>
         <module>dbvisitor-integration/dbvisitor-spring-starter</module>

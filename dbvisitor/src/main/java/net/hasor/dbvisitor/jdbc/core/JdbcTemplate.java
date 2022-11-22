@@ -158,30 +158,47 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         this.loadSplitSQL(null, sqlReader);
     }
 
-    public void loadSplitSQL(final String splitString, final String sqlResource) throws IOException, SQLException {
-        this.loadSplitSQL(splitString, StandardCharsets.UTF_8, sqlResource);
+    public void loadSplitSQL(final String splitChars, final String sqlResource) throws IOException, SQLException {
+        this.loadSplitSQL(splitChars, StandardCharsets.UTF_8, sqlResource);
     }
 
-    public void loadSplitSQL(final String splitString, final Charset charset, final String sqlResource) throws IOException, SQLException {
+    public void loadSplitSQL(final String splitChars, final Charset charset, final String sqlResource) throws IOException, SQLException {
         InputStream inStream = ResourcesUtils.getResourceAsStream(sqlResource);
         if (inStream == null) {
-            throw new IOException("can't find resource '" + sqlResource + "'");
+            String msg = "can't find resource '" + sqlResource + "'";
+            if (logger.isDebugEnabled()) {
+                logger.debug(msg);
+            }
+            throw new IOException(msg);
         }
-        InputStreamReader reader = new InputStreamReader(inStream, charset);
-        this.loadSplitSQL(splitString, reader);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("loadSplitSQL resource '" + sqlResource + "', splitChars = " + splitChars);
+        }
+
+        this.loadSplitSQL(splitChars, new InputStreamReader(inStream, charset));
     }
 
-    public void loadSplitSQL(final String splitString, final Reader sqlReader) throws IOException, SQLException {
+    public void loadSplitSQL(final String splitChars, final Reader sqlReader) throws IOException, SQLException {
+        if (sqlReader == null) {
+            logger.warn("loadSplitSQL by Reader, the Reader is null.");
+            return;
+        }
+
         StringWriter outWriter = new StringWriter();
         IOUtils.copy(sqlReader, outWriter);
 
-        List<String> taskList = null;
-        if (StringUtils.isBlank(splitString)) {
+        List<String> taskList;
+        if (StringUtils.isBlank(splitChars)) {
             taskList = Collections.singletonList(outWriter.toString());
         } else {
-            taskList = Arrays.asList(outWriter.toString().split(splitString));
+            taskList = Arrays.asList(outWriter.toString().split(splitChars));
         }
         taskList = taskList.parallelStream().filter(StringUtils::isNotBlank).collect(Collectors.toList());
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("loadSplitSQL by Reader, taskSQL = " + outWriter);
+        }
 
         for (String str : taskList) {
             if (str.trim().startsWith("--")) {
