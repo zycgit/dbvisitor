@@ -30,7 +30,7 @@ import java.util.function.Supplier;
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class TypeSrw {
+public class TypeProcessor {
     // seed
     private final SeedFactory<SeedConfig> seedFactory;
     private final SeedConfig              seedConfig;
@@ -40,7 +40,7 @@ public class TypeSrw {
     private       TypeHandler<?>          typeHandler;
     private       Supplier<Serializable>  valueSeed;
 
-    public TypeSrw(SeedFactory<? extends SeedConfig> seedFactory, SeedConfig seedConfig, Integer jdbcType) {
+    public TypeProcessor(SeedFactory<? extends SeedConfig> seedFactory, SeedConfig seedConfig, Integer jdbcType) {
         this.seedFactory = (SeedFactory<SeedConfig>) seedFactory;
         this.seedConfig = seedConfig;
         this.jdbcType = jdbcType;
@@ -86,5 +86,4 @@ public class TypeSrw {
     public String toString() {
         return "jdbcType=" + this.jdbcType + ", typeHandler=" + this.typeHandler.getClass().getSimpleName();
     }
-
 }

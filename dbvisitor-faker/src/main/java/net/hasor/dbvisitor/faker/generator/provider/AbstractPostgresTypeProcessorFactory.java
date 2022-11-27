@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.faker.generator.provider;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.codec.HexadecimalUtils;
 import net.hasor.cobble.setting.SettingNode;
-import net.hasor.dbvisitor.faker.generator.TypeSrw;
+import net.hasor.dbvisitor.faker.generator.TypeProcessor;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 import net.hasor.dbvisitor.faker.seed.array.ArraySeedConfig;
@@ -38,11 +38,11 @@ import java.util.List;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class AbstractPostgresTypeSrwFactory extends DefaultTypeSrwFactory {
-    protected static TypeSrw finalSrw(SeedFactory<? extends SeedConfig> seedFactory, SeedConfig seedConfig, Integer jdbcType, //
+public class AbstractPostgresTypeProcessorFactory extends DefaultTypeProcessorFactory {
+    protected static TypeProcessor finalSrw(SeedFactory<? extends SeedConfig> seedFactory, SeedConfig seedConfig, Integer jdbcType, //
             boolean isArray, SettingNode columnConfig, String elementType) {
         if (!isArray) {
-            return new TypeSrw(seedFactory, seedConfig, jdbcType);
+            return new TypeProcessor(seedFactory, seedConfig, jdbcType);
         }
 
         ArraySeedFactory arrayFactory = new ArraySeedFactory(seedFactory);
@@ -70,7 +70,7 @@ public class AbstractPostgresTypeSrwFactory extends DefaultTypeSrwFactory {
                 arrayConfig.setTypeHandler(new PostgresArrayTypeHandler(elementType, rs -> rs.getObject("VALUE")));
                 break;
         }
-        return new TypeSrw(arrayFactory, arrayConfig, Types.ARRAY);
+        return new TypeProcessor(arrayFactory, arrayConfig, Types.ARRAY);
     }
 
     protected static int safeMaxLength(Integer number, int defaultNum, int maxNum) {
@@ -126,7 +126,6 @@ public class AbstractPostgresTypeSrwFactory extends DefaultTypeSrwFactory {
     }
 
     public static class PostgresMoneyTypeHandler extends BigDecimalTypeHandler {
-
         @Override
         public BigDecimal getNullableResult(ResultSet rs, String columnName) throws SQLException {
             return toNumber(rs.getString(columnName));

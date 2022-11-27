@@ -24,19 +24,10 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.FakerConfigEnum;
-import net.hasor.dbvisitor.faker.generator.provider.DefaultTypeSrwFactory;
-import net.hasor.dbvisitor.faker.generator.provider.carefully.MySqlCarefullyTypeSrwFactory;
-import net.hasor.dbvisitor.faker.generator.provider.carefully.OracleCarefullyTypeSrwFactory;
-import net.hasor.dbvisitor.faker.generator.provider.carefully.PostgresCarefullyTypeSrwFactory;
-import net.hasor.dbvisitor.faker.generator.provider.carefully.SqlServerCarefullyTypeSrwFactory;
-import net.hasor.dbvisitor.faker.generator.provider.radical.MySqlRadicalTypeSrwFactory;
-import net.hasor.dbvisitor.faker.generator.provider.radical.OracleRadicalTypeSrwFactory;
-import net.hasor.dbvisitor.faker.generator.provider.radical.PostgresRadicalTypeSrwFactory;
-import net.hasor.dbvisitor.faker.generator.provider.radical.SqlServerRadicalTypeSrwFactory;
-import net.hasor.dbvisitor.faker.meta.JdbcColumn;
-import net.hasor.dbvisitor.faker.meta.JdbcFetchMeta;
-import net.hasor.dbvisitor.faker.meta.JdbcFetchMetaProvider;
-import net.hasor.dbvisitor.faker.meta.JdbcTable;
+import net.hasor.dbvisitor.faker.generator.provider.DefaultTypeProcessorFactory;
+import net.hasor.dbvisitor.faker.generator.provider.conservative.*;
+import net.hasor.dbvisitor.faker.generator.provider.radical.*;
+import net.hasor.dbvisitor.faker.meta.*;
 import net.hasor.dbvisitor.faker.meta.special.mysql.MySqlFetchMeta;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
@@ -56,13 +47,13 @@ import java.util.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class FakerFactory {
-    private static final Logger                logger = Logger.getLogger(FakerFactory.class);
-    private final        JdbcTemplate          jdbcTemplate;
-    private final        JdbcFetchMetaProvider metaProvider;
-    private final        FakerConfig           fakerConfig;
-    private final        String                dbType;
-    private final        SqlDialect            sqlDialect;
-    private final        DefaultTypeSrwFactory typeDialect;
+    private static final Logger                      logger = Logger.getLogger(FakerFactory.class);
+    private final        JdbcTemplate                jdbcTemplate;
+    private final        JdbcFetchMetaProvider       metaProvider;
+    private final        FakerConfig                 fakerConfig;
+    private final        String                      dbType;
+    private final        SqlDialect                  sqlDialect;
+    private final        DefaultTypeProcessorFactory typeDialect;
 
     public FakerFactory(Connection connection) throws SQLException {
         this(connection, new FakerConfig());
@@ -109,9 +100,9 @@ public class FakerFactory {
         }
     }
 
-    protected DefaultTypeSrwFactory initTypeDialect(String dbType, FakerConfig fakerConfig) {
-        if (fakerConfig.getTypeDialect() != null) {
-            return fakerConfig.getTypeDialect();
+    protected DefaultTypeProcessorFactory initTypeDialect(String dbType, FakerConfig fakerConfig) {
+        if (fakerConfig.getTypeProcessorFactory() != null) {
+            return fakerConfig.getTypeProcessorFactory();
         }
         if (StringUtils.isBlank(dbType)) {
             throw new IllegalArgumentException("TypeDialect missing.");
@@ -119,16 +110,16 @@ public class FakerFactory {
             switch (dbType) {
                 case JdbcUtils.JTDS:
                 case JdbcUtils.SQL_SERVER:
-                    return fakerConfig.isUseRadical() ? new SqlServerRadicalTypeSrwFactory() : new SqlServerCarefullyTypeSrwFactory();
+                    return fakerConfig.isUseRadical() ? new SqlServerRadicalTypeProcessorFactory() : new SqlServerConservativeTypeProcessorFactory();
                 case JdbcUtils.MARIADB:
                 case JdbcUtils.MYSQL:
-                    return fakerConfig.isUseRadical() ? new MySqlRadicalTypeSrwFactory() : new MySqlCarefullyTypeSrwFactory();
+                    return fakerConfig.isUseRadical() ? new MySqlRadicalTypeProcessorFactory() : new MySqlConservativeTypeProcessorFactory();
                 case JdbcUtils.ORACLE:
-                    return fakerConfig.isUseRadical() ? new OracleRadicalTypeSrwFactory() : new OracleCarefullyTypeSrwFactory();
+                    return fakerConfig.isUseRadical() ? new OracleRadicalTypeProcessorFactory() : new OracleConservativeTypeProcessorFactory();
                 case JdbcUtils.POSTGRESQL:
-                    return fakerConfig.isUseRadical() ? new PostgresRadicalTypeSrwFactory() : new PostgresCarefullyTypeSrwFactory();
+                    return fakerConfig.isUseRadical() ? new PostgresRadicalTypeProcessorFactory() : new PostgresConservativeTypeProcessorFactory();
                 default:
-                    return new DefaultTypeSrwFactory();
+                    return new DefaultTypeProcessorFactory();
             }
         }
     }
@@ -231,26 +222,26 @@ public class FakerFactory {
         }
 
         // use jdbcColumn create it
-        TypeSrw typeSrw = null;
+        TypeProcessor typeProcessor = null;
         if (seedConfig == null) {
             try {
-                typeSrw = this.typeDialect.createSeedFactory(jdbcColumn, columnConfig);
+                typeProcessor = this.typeDialect.createSeedFactory(jdbcColumn, columnConfig);
             } catch (UnsupportedOperationException e) {
                 logger.error(e.getMessage());
                 return null;
             }
         } else {
-            typeSrw = new TypeSrw(seedFactory, seedConfig, jdbcColumn.getJdbcType());
+            typeProcessor = new TypeProcessor(seedFactory, seedConfig, jdbcColumn.getJdbcType());
         }
 
         // final apply form strategy
         if (Boolean.TRUE.equals(jdbcColumn.getNullable())) {
-            typeSrw.getSeedConfig().setAllowNullable(true);
-            typeSrw.getSeedConfig().setNullableRatio(20f);
+            typeProcessor.getSeedConfig().setAllowNullable(true);
+            typeProcessor.getSeedConfig().setNullableRatio(20f);
         }
 
         // final apply form config
-        Class<?> configClass = typeSrw.getConfigType();
+        Class<?> configClass = typeProcessor.getConfigType();
         List<String> properties = BeanUtils.getProperties(configClass);
         Map<String, Class<?>> propertiesMap = BeanUtils.getPropertyType(configClass);
 
@@ -262,7 +253,7 @@ public class FakerFactory {
             }
 
             Object writeValue = (propertyValue.length == 1) ? propertyValue[0] : propertyValue;
-            typeSrw.putConfig(property, writeValue);
+            typeProcessor.putConfig(property, writeValue);
 
             Class<?> propertyType = propertiesMap.get(property);
             if (propertyType != null && propertyType.isArray()) {
@@ -270,11 +261,11 @@ public class FakerFactory {
             }
 
             if (properties.contains(property)) {
-                typeSrw.writeProperty(property, writeValue);
+                typeProcessor.writeProperty(property, writeValue);
             }
         }
 
-        Set<UseFor> ignoreAct = new HashSet<>(typeSrw.getDefaultIgnoreAct());
+        Set<UseFor> ignoreAct = new HashSet<>(typeProcessor.getDefaultIgnoreAct());
         ignoreAct.addAll(ignoreSet.contains(jdbcColumn.getColumnName()) ? Arrays.asList(UseFor.values()) : Collections.emptySet());
         ignoreAct.addAll(ignoreInsertSet.contains(jdbcColumn.getColumnName()) ? Collections.singletonList(UseFor.Insert) : Collections.emptySet());
         ignoreAct.addAll(ignoreUpdateSet.contains(jdbcColumn.getColumnName()) ? Collections.singletonList(UseFor.UpdateSet) : Collections.emptySet());
@@ -284,7 +275,7 @@ public class FakerFactory {
             ignoreAct.add(UseFor.Insert);
         }
 
-        return new FakerColumn(fakerTable, jdbcColumn, typeSrw, ignoreAct, this, columnConfig);
+        return new FakerColumn(fakerTable, jdbcColumn, typeProcessor, ignoreAct, this, columnConfig);
     }
 
     private SeedConfig createSeedConfig(SeedFactory seedFactory, SettingNode columnConfig) {

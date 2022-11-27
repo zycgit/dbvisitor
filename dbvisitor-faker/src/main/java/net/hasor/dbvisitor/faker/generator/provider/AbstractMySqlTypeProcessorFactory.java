@@ -26,7 +26,7 @@ import java.sql.SQLException;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class AbstractMySqlTypeSrwFactory extends DefaultTypeSrwFactory {
+public class AbstractMySqlTypeProcessorFactory extends DefaultTypeProcessorFactory {
     protected static int safeMaxLength(Integer number, int defaultNum, int maxNum) {
         if (number == null || number < 0) {
             return defaultNum;
@@ -38,7 +38,6 @@ public class AbstractMySqlTypeSrwFactory extends DefaultTypeSrwFactory {
     }
 
     public static class MySqlBigDecimalAsStringTypeHandler extends BigDecimalTypeHandler {
-
         @Override
         public void setNonNullParameter(PreparedStatement ps, int i, BigDecimal parameter, Integer jdbcType) throws SQLException {
             ps.setString(i, parameter.toPlainString());
@@ -46,7 +45,6 @@ public class AbstractMySqlTypeSrwFactory extends DefaultTypeSrwFactory {
     }
 
     public static class MySqlBitAsStringTypeHandler extends StringTypeHandler {
-
         @Override
         public void setNonNullParameter(PreparedStatement ps, int i, String parameter, Integer jdbcType) throws SQLException {
             ps.setInt(i, Integer.parseInt(parameter, 2));

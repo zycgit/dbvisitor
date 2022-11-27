@@ -32,28 +32,28 @@ import java.util.Set;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class FakerColumn {
-    private final FakerTable   table;
-    private final String       column;
-    private final boolean      key;
-    private       boolean      canBeCut;
-    private final Set<UseFor>  ignoreAct;
-    private final TypeSrw      typeSrw;
-    private final FakerFactory factory;
+    private final FakerTable    table;
+    private final String        column;
+    private final boolean       key;
+    private       boolean       canBeCut;
+    private final Set<UseFor>   ignoreAct;
+    private final TypeProcessor typeProcessor;
+    private final FakerFactory  factory;
     //
-    private       String       selectTemplate;
-    private       String       insertTemplate;
-    private       String       setColTemplate;
-    private       String       setValueTemplate;
-    private       String       whereColTemplate;
-    private       String       whereValueTemplate;
+    private       String        selectTemplate;
+    private       String        insertTemplate;
+    private       String        setColTemplate;
+    private       String        setValueTemplate;
+    private       String        whereColTemplate;
+    private       String        whereValueTemplate;
 
-    FakerColumn(FakerTable table, JdbcColumn jdbcColumn, TypeSrw typeSrw, Set<UseFor> ignoreAct, FakerFactory factory, SettingNode columnConfig) {
+    FakerColumn(FakerTable table, JdbcColumn jdbcColumn, TypeProcessor typeProcessor, Set<UseFor> ignoreAct, FakerFactory factory, SettingNode columnConfig) {
         this.table = table;
         this.column = jdbcColumn.getColumnName();
         this.key = jdbcColumn.isPrimaryKey() || jdbcColumn.isUniqueKey();
         this.canBeCut = Boolean.TRUE.equals(jdbcColumn.isHasDefaultValue()) || Boolean.TRUE.equals(jdbcColumn.getNullable());
         this.ignoreAct = new HashSet<>(ignoreAct);
-        this.typeSrw = typeSrw;
+        this.typeProcessor = typeProcessor;
         this.factory = factory;
 
         if (columnConfig != null) {
@@ -156,22 +156,22 @@ public class FakerColumn {
 
     /** 生成随机值 */
     public SqlArg generatorData() {
-        return this.typeSrw.buildData(this.column);
+        return this.typeProcessor.buildData(this.column);
     }
 
     /** 从 RS 中读取并生成 SqlArg */
     public SqlArg readData(ResultSet rs) throws SQLException {
-        return this.typeSrw.buildData(rs, this.column);
+        return this.typeProcessor.buildData(rs, this.column);
     }
 
     /** 随机种子的配置 */
     public <T extends SeedConfig> T seedConfig() {
-        return (T) this.typeSrw.getSeedConfig();
+        return (T) this.typeProcessor.getSeedConfig();
     }
 
     @Override
     public String toString() {
-        String seedAndWriterString = this.typeSrw.toString();
+        String seedAndWriterString = this.typeProcessor.toString();
         return this.column + ", ignoreAct=" + ignoreAct + ", seedAndWriter=" + seedAndWriterString + '}';
     }
 
@@ -184,7 +184,7 @@ public class FakerColumn {
     /** 重置列忽略规则 */
     public FakerColumn ignoreReset() {
         this.ignoreAct.clear();
-        this.ignoreAct.addAll(this.typeSrw.getDefaultIgnoreAct());
+        this.ignoreAct.addAll(this.typeProcessor.getDefaultIgnoreAct());
         return this;
     }
 
@@ -200,7 +200,7 @@ public class FakerColumn {
 
     /** 重新创建随机数据发生器 */
     void applyConfig() {
-        this.typeSrw.applyConfig();
-        this.ignoreAct.addAll(this.typeSrw.getDefaultIgnoreAct());
+        this.typeProcessor.applyConfig();
+        this.ignoreAct.addAll(this.typeProcessor.getDefaultIgnoreAct());
     }
 }

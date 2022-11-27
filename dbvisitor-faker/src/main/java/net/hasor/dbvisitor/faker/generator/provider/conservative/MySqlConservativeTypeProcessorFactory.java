@@ -13,26 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.generator.provider.carefully;
+package net.hasor.dbvisitor.faker.generator.provider.conservative;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.setting.SettingNode;
 import net.hasor.dbvisitor.faker.FakerConfigEnum;
-import net.hasor.dbvisitor.faker.generator.TypeSrw;
+import net.hasor.dbvisitor.faker.generator.TypeProcessor;
 import net.hasor.dbvisitor.faker.generator.UseFor;
-import net.hasor.dbvisitor.faker.generator.provider.AbstractMySqlTypeSrwFactory;
+import net.hasor.dbvisitor.faker.generator.provider.AbstractMySqlTypeProcessorFactory;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedConfig;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedFactory;
-import net.hasor.dbvisitor.faker.seed.date.DateSeedConfig;
-import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
-import net.hasor.dbvisitor.faker.seed.date.DateType;
-import net.hasor.dbvisitor.faker.seed.date.GenType;
+import net.hasor.dbvisitor.faker.seed.date.*;
 import net.hasor.dbvisitor.faker.seed.enums.EnumSeedConfig;
 import net.hasor.dbvisitor.faker.seed.enums.EnumSeedFactory;
-import net.hasor.dbvisitor.faker.seed.geometry.FormatType;
-import net.hasor.dbvisitor.faker.seed.geometry.GeometrySeedConfig;
-import net.hasor.dbvisitor.faker.seed.geometry.GeometrySeedFactory;
-import net.hasor.dbvisitor.faker.seed.geometry.GeometryType;
+import net.hasor.dbvisitor.faker.seed.geometry.*;
 import net.hasor.dbvisitor.faker.seed.number.NumberSeedConfig;
 import net.hasor.dbvisitor.faker.seed.number.NumberSeedFactory;
 import net.hasor.dbvisitor.faker.seed.number.NumberType;
@@ -50,9 +44,9 @@ import java.util.HashSet;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class MySqlCarefullyTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
+public class MySqlConservativeTypeProcessorFactory extends AbstractMySqlTypeProcessorFactory {
     @Override
-    public TypeSrw createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
+    public TypeProcessor createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
         String columnType = jdbcColumn.getColumnType().toLowerCase();
         if (StringUtils.isBlank(columnType)) {
             return defaultSeedFactory(jdbcColumn);
@@ -65,7 +59,7 @@ public class MySqlCarefullyTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 8, 24));
                 seedConfig.setCharacterSet(new HashSet<>(Collections.singletonList(CharacterSet.BIT)));
                 seedConfig.setTypeHandler(new MySqlBitAsStringTypeHandler());
-                return new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
+                return new TypeProcessor(seedFactory, seedConfig, Types.VARCHAR);
             }
             case "tinyint":
             case "tinyint unsigned": {
@@ -73,7 +67,7 @@ public class MySqlCarefullyTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("100"));
-                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
+                return new TypeProcessor(seedFactory, seedConfig, Types.INTEGER);
             }
             case "smallint":
             case "smallint unsigned":
@@ -83,7 +77,7 @@ public class MySqlCarefullyTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("10000"));
-                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
+                return new TypeProcessor(seedFactory, seedConfig, Types.INTEGER);
             }
             case "int":
             case "int unsigned": {
@@ -94,9 +88,9 @@ public class MySqlCarefullyTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
 
                 if (StringUtils.contains(columnType, "unsigned")) {
                     seedConfig.setNumberType(NumberType.Long);
-                    return new TypeSrw(seedFactory, seedConfig, Types.BIGINT);
+                    return new TypeProcessor(seedFactory, seedConfig, Types.BIGINT);
                 } else {
-                    return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
+                    return new TypeProcessor(seedFactory, seedConfig, Types.INTEGER);
                 }
             }
             case "bigint":
@@ -109,7 +103,7 @@ public class MySqlCarefullyTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 if (StringUtils.contains(columnType, "unsigned")) {
                     seedConfig.setNumberType(NumberType.BigInt);
                 }
-                return new TypeSrw(seedFactory, seedConfig, Types.BIGINT);
+                return new TypeProcessor(seedFactory, seedConfig, Types.BIGINT);
             }
             case "decimal":
             case "decimal unsigned":
@@ -123,7 +117,7 @@ public class MySqlCarefullyTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.addMinMax(new BigDecimal("0.0"), new BigDecimal("9999.999"));
                 seedConfig.setScale(Math.min(jdbcColumn.getDecimalDigits(), 3));
                 seedConfig.setAbs(true);
-                return new TypeSrw(seedFactory, seedConfig, Types.DECIMAL);
+                return new TypeProcessor(seedFactory, seedConfig, Types.DECIMAL);
             }
             case "date": {
                 DateSeedFactory seedFactory = new DateSeedFactory();
@@ -133,7 +127,7 @@ public class MySqlCarefullyTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setDateFormat("yyyy-MM-dd");
                 seedConfig.setRangeForm("2000-01-01");
                 seedConfig.setRangeTo("2030-12-31");
-                return new TypeSrw(seedFactory, seedConfig, Types.DATE);
+                return new TypeProcessor(seedFactory, seedConfig, Types.DATE);
             }
             case "datetime":
             case "timestamp": {
@@ -145,7 +139,7 @@ public class MySqlCarefullyTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setPrecision(0);
                 seedConfig.setRangeForm("2000-01-01 00:00:00");
                 seedConfig.setRangeTo("2030-12-31 23:59:59");
-                return new TypeSrw(seedFactory, seedConfig, Types.TIMESTAMP);
+                return new TypeProcessor(seedFactory, seedConfig, Types.TIMESTAMP);
             }
             case "time": {
                 DateSeedFactory seedFactory = new DateSeedFactory();
@@ -156,14 +150,14 @@ public class MySqlCarefullyTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setPrecision(0);
                 seedConfig.setRangeForm("00:00:00");
                 seedConfig.setRangeTo("23:59:59");
-                return new TypeSrw(seedFactory, seedConfig, Types.TIME);
+                return new TypeProcessor(seedFactory, seedConfig, Types.TIME);
             }
             case "year": {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("2000"), new BigDecimal("2030"));
-                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
+                return new TypeProcessor(seedFactory, seedConfig, Types.INTEGER);
             }
             case "char":
             case "varchar":
@@ -176,7 +170,7 @@ public class MySqlCarefullyTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setMinLength(1);
                 seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 10, 100));
                 seedConfig.setCharacterSet(new HashSet<>(Collections.singletonList(CharacterSet.LETTER_NUMBER)));
-                return new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
+                return new TypeProcessor(seedFactory, seedConfig, Types.VARCHAR);
             }
             case "binary":
             case "varbinary":
@@ -188,14 +182,14 @@ public class MySqlCarefullyTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 BytesSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setMinLength(1);
                 seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 4, 16));
-                return new TypeSrw(seedFactory, seedConfig, Types.VARBINARY);
+                return new TypeProcessor(seedFactory, seedConfig, Types.VARBINARY);
             }
             case "enum":
             case "set": {
                 EnumSeedFactory seedFactory = new EnumSeedFactory();
                 EnumSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setDict(new HashSet<>());
-                return new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
+                return new TypeProcessor(seedFactory, seedConfig, Types.VARCHAR);
             }
             case "geometry": {
                 GeometrySeedFactory seedFactory = new GeometrySeedFactory();
@@ -210,7 +204,7 @@ public class MySqlCarefullyTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 columnConfig.addValue(FakerConfigEnum.SELECT_TEMPLATE.getConfigKey(), "ST_AsWKT({name})");
                 columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), "ST_MultiPolygonFromText(?)");
                 columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), "ST_MultiPolygonFromText(?)");
-                TypeSrw typeSrw = new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
+                TypeProcessor typeSrw = new TypeProcessor(seedFactory, seedConfig, Types.VARCHAR);
                 typeSrw.getDefaultIgnoreAct().add(UseFor.DeleteWhere);
                 typeSrw.getDefaultIgnoreAct().add(UseFor.UpdateWhere);
                 return typeSrw;

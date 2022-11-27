@@ -19,7 +19,7 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.Ratio;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.generator.loader.DataLoaderFactory;
-import net.hasor.dbvisitor.faker.generator.provider.DefaultTypeSrwFactory;
+import net.hasor.dbvisitor.faker.generator.provider.DefaultTypeProcessorFactory;
 import net.hasor.dbvisitor.faker.meta.JdbcFetchMeta;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
@@ -35,40 +35,40 @@ import java.util.concurrent.ThreadFactory;
  */
 public class FakerConfig {
     // generator
-    private       ClassLoader           classLoader;
-    private       TypeHandlerRegistry   typeRegistry;
-    private       DataLoaderFactory     dataLoaderFactory;
-    private       SqlDialect            sqlDialect;
-    private       JdbcFetchMeta         customFetchMeta;
-    private       DefaultTypeSrwFactory typeDialect;
-    private       boolean               useRadical;
-    private       boolean               useQualifier;
-    private       boolean               keyChanges;
-    private       boolean               printSql;
+    private       ClassLoader                 classLoader;
+    private       TypeHandlerRegistry         typeRegistry;
+    private       DataLoaderFactory           dataLoaderFactory;
+    private       SqlDialect                  sqlDialect;
+    private       JdbcFetchMeta               customFetchMeta;
+    private       DefaultTypeProcessorFactory typeProcessorFactory;
+    private       boolean                     useRadical;
+    private       boolean                     useQualifier;
+    private       boolean                     keyChanges;
+    private       boolean                     printSql;
     // one trans
-    private       int                   minBatchSizePerOps;
-    private       int                   maxBatchSizePerOps;
-    private final Ratio<OpsType>        opsRatio;
-    private       int                   minOpsCountPerTransaction;
-    private       int                   maxOpsCountPerTransaction;
+    private       int                         minBatchSizePerOps;
+    private       int                         maxBatchSizePerOps;
+    private final Ratio<OpsType>              opsRatio;
+    private       int                         minOpsCountPerTransaction;
+    private       int                         maxOpsCountPerTransaction;
     // trans stream
-    private       boolean               transaction;
-    private       int                   minPausePerTransactionMs;
-    private       int                   maxPausePerTransactionMs;
+    private       boolean                     transaction;
+    private       int                         minPausePerTransactionMs;
+    private       int                         maxPausePerTransactionMs;
     // worker
-    private       ThreadFactory         threadFactory;
-    private       int                   queueCapacity;
-    private       int                   writeQps;
-    private       int                   queryTimeout;
-    private final Set<String>           ignoreErrors;
-    private       boolean               ignoreAnyErrors;
+    private       ThreadFactory               threadFactory;
+    private       int                         queueCapacity;
+    private       int                         writeQps;
+    private       int                         queryTimeout;
+    private final Set<String>                 ignoreErrors;
+    private       boolean                     ignoreAnyErrors;
 
     public FakerConfig() {
         this.classLoader = Thread.currentThread().getContextClassLoader();
         this.typeRegistry = TypeHandlerRegistry.DEFAULT;
         this.dataLoaderFactory = null;
         this.sqlDialect = null;
-        this.typeDialect = null;
+        this.typeProcessorFactory = null;
         this.useRadical = false;
         this.useQualifier = true;
         //
@@ -200,12 +200,12 @@ public class FakerConfig {
         this.customFetchMeta = customFetchMeta;
     }
 
-    public DefaultTypeSrwFactory getTypeDialect() {
-        return typeDialect;
+    public DefaultTypeProcessorFactory getTypeProcessorFactory() {
+        return typeProcessorFactory;
     }
 
-    public void setTypeDialect(DefaultTypeSrwFactory typeDialect) {
-        this.typeDialect = typeDialect;
+    public void setTypeProcessorFactory(DefaultTypeProcessorFactory typeProcessorFactory) {
+        this.typeProcessorFactory = typeProcessorFactory;
     }
 
     public Ratio<OpsType> getOpsRatio() {

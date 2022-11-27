@@ -19,4 +19,4 @@
  *  - 2：数值范围固定在 0 至 10^2、10^4、10^6、10^8
  *  - 3：时间范围：2000-01-01 00:00:00 ～ 2030-12-31 23:59:59
  */
-package net.hasor.dbvisitor.faker.generator.provider.carefully;
+package net.hasor.dbvisitor.faker.generator.provider.conservative;

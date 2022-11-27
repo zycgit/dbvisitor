@@ -30,8 +30,7 @@ import java.time.ZoneOffset;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class AbstractSqlServerTypeSrwFactory extends DefaultTypeSrwFactory {
-
+public class AbstractSqlServerTypeProcessorFactory extends DefaultTypeProcessorFactory {
     protected static int safeMaxLength(Integer number, int defaultNum, int maxNum) {
         if (number == null || number < 0) {
             return defaultNum;
@@ -43,7 +42,6 @@ public class AbstractSqlServerTypeSrwFactory extends DefaultTypeSrwFactory {
     }
 
     public static class SqlServerOffsetDateTimeTypeHandler extends OffsetDateTimeForSqlTypeHandler {
-
         private static final boolean enableDriverType;
 
         static {
@@ -71,7 +69,6 @@ public class AbstractSqlServerTypeSrwFactory extends DefaultTypeSrwFactory {
     }
 
     public static class SqlServerBigDecimalAsStringTypeHandler extends BigDecimalTypeHandler {
-
         @Override
         public void setNonNullParameter(PreparedStatement ps, int i, BigDecimal parameter, Integer jdbcType) throws SQLException {
             ps.setString(i, parameter.toPlainString());

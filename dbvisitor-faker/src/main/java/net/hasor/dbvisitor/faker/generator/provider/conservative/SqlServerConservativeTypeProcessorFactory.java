@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.generator.provider.carefully;
+package net.hasor.dbvisitor.faker.generator.provider.conservative;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.setting.SettingNode;
 import net.hasor.dbvisitor.faker.FakerConfigEnum;
-import net.hasor.dbvisitor.faker.generator.TypeSrw;
+import net.hasor.dbvisitor.faker.generator.TypeProcessor;
 import net.hasor.dbvisitor.faker.generator.UseFor;
-import net.hasor.dbvisitor.faker.generator.provider.AbstractSqlServerTypeSrwFactory;
+import net.hasor.dbvisitor.faker.generator.provider.AbstractSqlServerTypeProcessorFactory;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
 import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedConfig;
 import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedFactory;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedConfig;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedFactory;
-import net.hasor.dbvisitor.faker.seed.date.DateSeedConfig;
-import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
-import net.hasor.dbvisitor.faker.seed.date.DateType;
-import net.hasor.dbvisitor.faker.seed.date.GenType;
+import net.hasor.dbvisitor.faker.seed.date.*;
 import net.hasor.dbvisitor.faker.seed.guid.GuidSeedConfig;
 import net.hasor.dbvisitor.faker.seed.guid.GuidSeedFactory;
 import net.hasor.dbvisitor.faker.seed.guid.GuidType;
@@ -50,9 +47,9 @@ import java.util.HashSet;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class SqlServerCarefullyTypeSrwFactory extends AbstractSqlServerTypeSrwFactory {
+public class SqlServerConservativeTypeProcessorFactory extends AbstractSqlServerTypeProcessorFactory {
     @Override
-    public TypeSrw createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
+    public TypeProcessor createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
         String columnType = jdbcColumn.getColumnType().toLowerCase();
         if (StringUtils.isBlank(columnType)) {
             return defaultSeedFactory(jdbcColumn);
@@ -61,35 +58,35 @@ public class SqlServerCarefullyTypeSrwFactory extends AbstractSqlServerTypeSrwFa
             case "bit": {
                 BooleanSeedFactory seedFactory = new BooleanSeedFactory();
                 BooleanSeedConfig seedConfig = seedFactory.newConfig();
-                return new TypeSrw(seedFactory, seedConfig, Types.BOOLEAN);
+                return new TypeProcessor(seedFactory, seedConfig, Types.BOOLEAN);
             }
             case "tinyint": {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("100"));
-                return new TypeSrw(seedFactory, seedConfig, Types.TINYINT);
+                return new TypeProcessor(seedFactory, seedConfig, Types.TINYINT);
             }
             case "smallint": {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("10000"));
-                return new TypeSrw(seedFactory, seedConfig, Types.SMALLINT);
+                return new TypeProcessor(seedFactory, seedConfig, Types.SMALLINT);
             }
             case "int": {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("1000000"));
-                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
+                return new TypeProcessor(seedFactory, seedConfig, Types.INTEGER);
             }
             case "bigint": {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Long);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("100000000"));
-                return new TypeSrw(seedFactory, seedConfig, Types.BIGINT);
+                return new TypeProcessor(seedFactory, seedConfig, Types.BIGINT);
             }
             case "smallmoney":
             case "money":
@@ -103,7 +100,7 @@ public class SqlServerCarefullyTypeSrwFactory extends AbstractSqlServerTypeSrwFa
                 seedConfig.addMinMax(new BigDecimal("0.0"), new BigDecimal("9999.99"));
                 seedConfig.setScale(safeMaxLength(jdbcColumn.getDecimalDigits(), 2, 2));
                 seedConfig.setAbs(true);
-                return new TypeSrw(seedFactory, seedConfig, Types.DOUBLE);
+                return new TypeProcessor(seedFactory, seedConfig, Types.DOUBLE);
             }
             case "nchar":
             case "nvarchar":
@@ -120,7 +117,7 @@ public class SqlServerCarefullyTypeSrwFactory extends AbstractSqlServerTypeSrwFa
                 if (StringUtils.contains(columnType, "text")) {
                     columnConfig.addValue(FakerConfigEnum.WHERE_COL_TEMPLATE.getConfigKey(), "cast({name} as nvarchar(max))");
                 }
-                return new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
+                return new TypeProcessor(seedFactory, seedConfig, Types.VARCHAR);
             }
             case "date": {
                 DateSeedFactory seedFactory = new DateSeedFactory();
@@ -130,7 +127,7 @@ public class SqlServerCarefullyTypeSrwFactory extends AbstractSqlServerTypeSrwFa
                 seedConfig.setDateFormat("yyyy-MM-dd");
                 seedConfig.setRangeForm("2000-01-01");
                 seedConfig.setRangeTo("2030-12-31");
-                return new TypeSrw(seedFactory, seedConfig, Types.DATE);
+                return new TypeProcessor(seedFactory, seedConfig, Types.DATE);
             }
             case "time": {
                 DateSeedFactory seedFactory = new DateSeedFactory();
@@ -142,7 +139,7 @@ public class SqlServerCarefullyTypeSrwFactory extends AbstractSqlServerTypeSrwFa
                 seedConfig.setPrecision(p);
                 seedConfig.setRangeForm("00:00:00.000");
                 seedConfig.setRangeTo("23:59:59.999");
-                return new TypeSrw(seedFactory, seedConfig, Types.TIME);
+                return new TypeProcessor(seedFactory, seedConfig, Types.TIME);
             }
             case "smalldatetime": {
                 DateSeedFactory seedFactory = new DateSeedFactory();
@@ -152,7 +149,7 @@ public class SqlServerCarefullyTypeSrwFactory extends AbstractSqlServerTypeSrwFa
                 seedConfig.setDateFormat("yyyy-MM-dd HH:mm:ss");
                 seedConfig.setRangeForm("2000-01-01 00:00:00");
                 seedConfig.setRangeTo("2030-12-31 23:59:59");
-                return new TypeSrw(seedFactory, seedConfig, Types.TIMESTAMP);
+                return new TypeProcessor(seedFactory, seedConfig, Types.TIMESTAMP);
             }
             case "datetime":
             case "datetime2": {
@@ -165,7 +162,7 @@ public class SqlServerCarefullyTypeSrwFactory extends AbstractSqlServerTypeSrwFa
                 seedConfig.setPrecision(p);
                 seedConfig.setRangeForm("2000-01-01 00:00:00.000");
                 seedConfig.setRangeTo("2030-12-31 23:59:59.999");
-                return new TypeSrw(seedFactory, seedConfig, Types.TIMESTAMP);
+                return new TypeProcessor(seedFactory, seedConfig, Types.TIMESTAMP);
             }
             case "datetimeoffset": {
                 DateSeedFactory seedFactory = new DateSeedFactory();
@@ -180,12 +177,12 @@ public class SqlServerCarefullyTypeSrwFactory extends AbstractSqlServerTypeSrwFa
                 seedConfig.setRangeTo("2030-12-31 23:59:59.999");
                 seedConfig.setZoneForm("-08:00");
                 seedConfig.setZoneTo("+08:00");
-                return new TypeSrw(seedFactory, seedConfig, Types.TIMESTAMP_WITH_TIMEZONE);
+                return new TypeProcessor(seedFactory, seedConfig, Types.TIMESTAMP_WITH_TIMEZONE);
             }
             case "timestamp": {
                 BytesSeedFactory seedFactory = new BytesSeedFactory();
                 BytesSeedConfig seedConfig = seedFactory.newConfig();
-                TypeSrw seedAndWriter = new TypeSrw(seedFactory, seedConfig, Types.VARBINARY);
+                TypeProcessor seedAndWriter = new TypeProcessor(seedFactory, seedConfig, Types.VARBINARY);
                 seedAndWriter.getDefaultIgnoreAct().add(UseFor.Insert);
                 seedAndWriter.getDefaultIgnoreAct().add(UseFor.UpdateSet);
                 return seedAndWriter;
@@ -201,13 +198,13 @@ public class SqlServerCarefullyTypeSrwFactory extends AbstractSqlServerTypeSrwFa
                 if (StringUtils.contains(columnType, "image")) {
                     columnConfig.addValue(FakerConfigEnum.WHERE_COL_TEMPLATE.getConfigKey(), "cast({name} as varbinary(max))");
                 }
-                return new TypeSrw(seedFactory, seedConfig, Types.VARBINARY);
+                return new TypeProcessor(seedFactory, seedConfig, Types.VARBINARY);
             }
             case "uniqueidentifier": {
                 GuidSeedFactory seedFactory = new GuidSeedFactory();
                 GuidSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setDateType(GuidType.String36);
-                return new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
+                return new TypeProcessor(seedFactory, seedConfig, Types.VARCHAR);
             }
             case "sysname": {
                 StringSeedFactory seedFactory = new StringSeedFactory();
@@ -215,7 +212,7 @@ public class SqlServerCarefullyTypeSrwFactory extends AbstractSqlServerTypeSrwFa
                 seedConfig.setMinLength(4);
                 seedConfig.setMaxLength(64);
                 seedConfig.setCharacterSet(new HashSet<>(Collections.singletonList(CharacterSet.LETTER_SMALL)));
-                return new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
+                return new TypeProcessor(seedFactory, seedConfig, Types.VARCHAR);
             }
             case "geography":
             case "geometry":

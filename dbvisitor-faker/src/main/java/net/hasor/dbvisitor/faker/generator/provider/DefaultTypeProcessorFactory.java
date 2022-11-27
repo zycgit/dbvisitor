@@ -16,16 +16,13 @@
 package net.hasor.dbvisitor.faker.generator.provider;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.setting.SettingNode;
-import net.hasor.dbvisitor.faker.generator.TypeSrw;
+import net.hasor.dbvisitor.faker.generator.TypeProcessor;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
 import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedConfig;
 import net.hasor.dbvisitor.faker.seed.bool.BooleanSeedFactory;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedConfig;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedFactory;
-import net.hasor.dbvisitor.faker.seed.date.DateSeedConfig;
-import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
-import net.hasor.dbvisitor.faker.seed.date.DateType;
-import net.hasor.dbvisitor.faker.seed.date.GenType;
+import net.hasor.dbvisitor.faker.seed.date.*;
 import net.hasor.dbvisitor.faker.seed.number.NumberSeedConfig;
 import net.hasor.dbvisitor.faker.seed.number.NumberSeedFactory;
 import net.hasor.dbvisitor.faker.seed.number.NumberType;
@@ -38,14 +35,14 @@ import java.sql.Types;
 import java.util.Collections;
 import java.util.HashSet;
 
-public class DefaultTypeSrwFactory {
-    protected final static Logger logger = Logger.getLogger(DefaultTypeSrwFactory.class);
+public class DefaultTypeProcessorFactory {
+    protected final static Logger logger = Logger.getLogger(DefaultTypeProcessorFactory.class);
 
-    public TypeSrw createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
+    public TypeProcessor createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
         return defaultSeedFactory(jdbcColumn);
     }
 
-    protected TypeSrw defaultSeedFactory(JdbcColumn jdbcColumn) {
+    protected TypeProcessor defaultSeedFactory(JdbcColumn jdbcColumn) {
         Integer jdbcType = jdbcColumn.getJdbcType();
         if (jdbcType == null) {
             jdbcType = Types.OTHER;
@@ -56,7 +53,7 @@ public class DefaultTypeSrwFactory {
             case Types.BOOLEAN: {
                 BooleanSeedFactory seedFactory = new BooleanSeedFactory();
                 BooleanSeedConfig seedConfig = seedFactory.newConfig();
-                return new TypeSrw(seedFactory, seedConfig, jdbcType);
+                return new TypeProcessor(seedFactory, seedConfig, jdbcType);
             }
             case Types.TINYINT:
             case Types.SMALLINT: {
@@ -64,21 +61,21 @@ public class DefaultTypeSrwFactory {
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("100"));
-                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
+                return new TypeProcessor(seedFactory, seedConfig, Types.INTEGER);
             }
             case Types.INTEGER: {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("10000"));
-                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
+                return new TypeProcessor(seedFactory, seedConfig, Types.INTEGER);
             }
             case Types.BIGINT: {
                 NumberSeedFactory seedFactory = new NumberSeedFactory();
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Long);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("1000000"));
-                return new TypeSrw(seedFactory, seedConfig, Types.BIGINT);
+                return new TypeProcessor(seedFactory, seedConfig, Types.BIGINT);
             }
             case Types.FLOAT:
             case Types.REAL:
@@ -91,7 +88,7 @@ public class DefaultTypeSrwFactory {
                 seedConfig.addMinMax(new BigDecimal("0.0"), new BigDecimal("9999.999"));
                 seedConfig.setScale(Math.min(jdbcColumn.getDecimalDigits(), 3));
                 seedConfig.setAbs(true);
-                return new TypeSrw(seedFactory, seedConfig, Types.DECIMAL);
+                return new TypeProcessor(seedFactory, seedConfig, Types.DECIMAL);
             }
             case Types.CHAR:
             case Types.NCHAR:
@@ -110,7 +107,7 @@ public class DefaultTypeSrwFactory {
                 } else {
                     seedConfig.setMaxLength(Math.min(jdbcColumn.getColumnSize(), 100));
                 }
-                return new TypeSrw(seedFactory, seedConfig, jdbcType);
+                return new TypeProcessor(seedFactory, seedConfig, jdbcType);
             }
             case Types.BINARY:
             case Types.VARBINARY:
@@ -118,7 +115,7 @@ public class DefaultTypeSrwFactory {
             case Types.BLOB: {
                 BytesSeedFactory seedFactory = new BytesSeedFactory();
                 BytesSeedConfig seedConfig = seedFactory.newConfig();
-                return new TypeSrw(seedFactory, seedConfig, jdbcType);
+                return new TypeProcessor(seedFactory, seedConfig, jdbcType);
             }
             case Types.DATE:
             case Types.TIME:
@@ -133,7 +130,7 @@ public class DefaultTypeSrwFactory {
                 seedConfig.setPrecision(3);
                 seedConfig.setRangeForm("2000-01-01 00:00:00.000");
                 seedConfig.setRangeTo("2030-12-31 23:59:59.999");
-                return new TypeSrw(seedFactory, seedConfig, jdbcType);
+                return new TypeProcessor(seedFactory, seedConfig, jdbcType);
             }
             case Types.SQLXML:
             case Types.STRUCT:

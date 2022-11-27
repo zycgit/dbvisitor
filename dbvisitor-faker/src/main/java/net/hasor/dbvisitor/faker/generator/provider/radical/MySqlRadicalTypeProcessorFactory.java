@@ -17,24 +17,18 @@ package net.hasor.dbvisitor.faker.generator.provider.radical;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.setting.SettingNode;
 import net.hasor.dbvisitor.faker.FakerConfigEnum;
-import net.hasor.dbvisitor.faker.generator.TypeSrw;
+import net.hasor.dbvisitor.faker.generator.TypeProcessor;
 import net.hasor.dbvisitor.faker.generator.UseFor;
-import net.hasor.dbvisitor.faker.generator.provider.AbstractMySqlTypeSrwFactory;
+import net.hasor.dbvisitor.faker.generator.provider.AbstractMySqlTypeProcessorFactory;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedConfig;
 import net.hasor.dbvisitor.faker.seed.bytes.BytesSeedFactory;
 import net.hasor.dbvisitor.faker.seed.custom.special.MySqlTimeSeedConfig;
 import net.hasor.dbvisitor.faker.seed.custom.special.MySqlTimeSeedFactory;
-import net.hasor.dbvisitor.faker.seed.date.DateSeedConfig;
-import net.hasor.dbvisitor.faker.seed.date.DateSeedFactory;
-import net.hasor.dbvisitor.faker.seed.date.DateType;
-import net.hasor.dbvisitor.faker.seed.date.GenType;
+import net.hasor.dbvisitor.faker.seed.date.*;
 import net.hasor.dbvisitor.faker.seed.enums.EnumSeedConfig;
 import net.hasor.dbvisitor.faker.seed.enums.EnumSeedFactory;
-import net.hasor.dbvisitor.faker.seed.geometry.FormatType;
-import net.hasor.dbvisitor.faker.seed.geometry.GeometrySeedConfig;
-import net.hasor.dbvisitor.faker.seed.geometry.GeometrySeedFactory;
-import net.hasor.dbvisitor.faker.seed.geometry.GeometryType;
+import net.hasor.dbvisitor.faker.seed.geometry.*;
 import net.hasor.dbvisitor.faker.seed.number.NumberSeedConfig;
 import net.hasor.dbvisitor.faker.seed.number.NumberSeedFactory;
 import net.hasor.dbvisitor.faker.seed.number.NumberType;
@@ -52,9 +46,9 @@ import java.util.HashSet;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
+public class MySqlRadicalTypeProcessorFactory extends AbstractMySqlTypeProcessorFactory {
     @Override
-    public TypeSrw createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
+    public TypeProcessor createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) {
         String columnType = jdbcColumn.getColumnType().toLowerCase();
         if (StringUtils.isBlank(columnType)) {
             return defaultSeedFactory(jdbcColumn);
@@ -67,7 +61,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 24, 64));
                 seedConfig.setCharacterSet(new HashSet<>(Collections.singletonList(CharacterSet.BIT)));
                 seedConfig.setTypeHandler(new MySqlBitAsStringTypeHandler());
-                return new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
+                return new TypeProcessor(seedFactory, seedConfig, Types.VARCHAR);
             }
             case "tinyint": {
                 // -128 to 127
@@ -75,7 +69,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("-128"), new BigDecimal("127"));
-                return new TypeSrw(seedFactory, seedConfig, Types.TINYINT);
+                return new TypeProcessor(seedFactory, seedConfig, Types.TINYINT);
             }
             case "tinyint unsigned": {
                 // 0 to 255
@@ -83,7 +77,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("255"));
-                return new TypeSrw(seedFactory, seedConfig, Types.SMALLINT);
+                return new TypeProcessor(seedFactory, seedConfig, Types.SMALLINT);
             }
             case "smallint": {
                 // -32768 to 32767
@@ -91,7 +85,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("-32768"), new BigDecimal("+32767"));
-                return new TypeSrw(seedFactory, seedConfig, Types.SMALLINT);
+                return new TypeProcessor(seedFactory, seedConfig, Types.SMALLINT);
             }
             case "smallint unsigned": {
                 // 0 to 65535
@@ -99,7 +93,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("65535"));
-                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
+                return new TypeProcessor(seedFactory, seedConfig, Types.INTEGER);
             }
             case "mediumint": {
                 // -8388608 to 8388607
@@ -107,7 +101,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("-8388608"), new BigDecimal("+8388607"));
-                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
+                return new TypeProcessor(seedFactory, seedConfig, Types.INTEGER);
             }
             case "mediumint unsigned": {
                 // 0 to 16777215
@@ -115,7 +109,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("16777215"));
-                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
+                return new TypeProcessor(seedFactory, seedConfig, Types.INTEGER);
             }
             case "int": {
                 // -2147483648 to 2147483647
@@ -123,7 +117,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(new BigDecimal("-2147483648"), new BigDecimal("+2147483647"));
-                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
+                return new TypeProcessor(seedFactory, seedConfig, Types.INTEGER);
             }
             case "int unsigned": {
                 // 0 to 4294967295
@@ -131,7 +125,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Long);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("4294967295"));
-                return new TypeSrw(seedFactory, seedConfig, Types.BIGINT);
+                return new TypeProcessor(seedFactory, seedConfig, Types.BIGINT);
             }
             case "bigint": {
                 // -9223372036854775808 to 9223372036854775807
@@ -139,7 +133,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.Long);
                 seedConfig.addMinMax(new BigDecimal("-9223372036854775808"), new BigDecimal("+9223372036854775807"));
-                return new TypeSrw(seedFactory, seedConfig, Types.BIGINT);
+                return new TypeProcessor(seedFactory, seedConfig, Types.BIGINT);
             }
             case "bigint unsigned": {
                 // 0 to 18446744073709551615
@@ -147,7 +141,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 NumberSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setNumberType(NumberType.BigInt);
                 seedConfig.addMinMax(new BigDecimal("0"), new BigDecimal("18446744073709551615"));
-                return new TypeSrw(seedFactory, seedConfig, Types.BIGINT);
+                return new TypeProcessor(seedFactory, seedConfig, Types.BIGINT);
             }
             case "decimal":
             case "decimal unsigned": {
@@ -157,7 +151,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setPrecision(jdbcColumn.getColumnSize());
                 seedConfig.setScale(jdbcColumn.getDecimalDigits());
                 seedConfig.setAbs(StringUtils.contains(columnType, "unsigned"));
-                return new TypeSrw(seedFactory, seedConfig, Types.DECIMAL);
+                return new TypeProcessor(seedFactory, seedConfig, Types.DECIMAL);
             }
             case "float":
             case "float unsigned": {
@@ -172,7 +166,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setPrecision(jdbcColumn.getColumnSize());
                 seedConfig.setScale(jdbcColumn.getDecimalDigits());
                 seedConfig.setAbs(StringUtils.contains(columnType, "unsigned"));
-                return new TypeSrw(seedFactory, seedConfig, Types.FLOAT);
+                return new TypeProcessor(seedFactory, seedConfig, Types.FLOAT);
             }
             case "double":
             case "double unsigned": {
@@ -188,7 +182,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setAbs(StringUtils.contains(columnType, "unsigned"));
                 seedConfig.setPrecision(jdbcColumn.getColumnSize());
                 seedConfig.setScale(jdbcColumn.getDecimalDigits());
-                return new TypeSrw(seedFactory, seedConfig, Types.FLOAT);
+                return new TypeProcessor(seedFactory, seedConfig, Types.FLOAT);
             }
             case "date": {
                 // '1000-01-01' to '9999-12-31'
@@ -199,7 +193,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setDateFormat("yyyy-MM-dd");
                 seedConfig.setRangeForm("1000-01-01");
                 seedConfig.setRangeTo("9999-12-31");
-                return new TypeSrw(seedFactory, seedConfig, Types.DATE);
+                return new TypeProcessor(seedFactory, seedConfig, Types.DATE);
             }
             case "datetime": {
                 // '1000-01-01 00:00:00.000000' to '9999-12-31 23:59:59.999999'
@@ -212,7 +206,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setPrecision(Math.max(p, 0));
                 seedConfig.setRangeForm("1000-01-01 00:00:00.000000");
                 seedConfig.setRangeTo("9999-12-31 23:59:59.999999");
-                return new TypeSrw(seedFactory, seedConfig, Types.TIMESTAMP);
+                return new TypeProcessor(seedFactory, seedConfig, Types.TIMESTAMP);
             }
             case "timestamp": {
                 // '1970-01-01 00:00:01.000000' UTC to '2038-01-19 03:14:07.999999'
@@ -225,7 +219,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setPrecision(Math.max(p, 0));
                 seedConfig.setRangeForm("1970-01-01 00:00:01.000000");
                 seedConfig.setRangeTo("2038-01-19 03:14:07.999999");
-                return new TypeSrw(seedFactory, seedConfig, Types.TIMESTAMP);
+                return new TypeProcessor(seedFactory, seedConfig, Types.TIMESTAMP);
             }
             case "time": {
                 // '-838:59:59.000000' to '838:59:59.000000'
@@ -236,7 +230,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setPrecision(Math.max(p, 0));
                 seedConfig.setRangeForm("-838:59:59.000000");
                 seedConfig.setRangeTo("838:59:59.000000");
-                return new TypeSrw(seedFactory, seedConfig, Types.TIME);
+                return new TypeProcessor(seedFactory, seedConfig, Types.TIME);
             }
             case "year": {
                 // 1901 to 2155, and 0000
@@ -245,7 +239,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setNumberType(NumberType.Integer);
                 seedConfig.addMinMax(10, BigDecimal.ZERO, BigDecimal.ZERO);
                 seedConfig.addMinMax(90, new BigDecimal("1901"), new BigDecimal("2155"));
-                return new TypeSrw(seedFactory, seedConfig, Types.INTEGER);
+                return new TypeProcessor(seedFactory, seedConfig, Types.INTEGER);
             }
             case "char":
             case "varchar":
@@ -258,7 +252,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 seedConfig.setMinLength(0);
                 seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 100, 1000));
                 seedConfig.setCharacterSet(new HashSet<>(Collections.singletonList(CharacterSet.LETTER_NUMBER)));
-                return new TypeSrw(seedFactory, seedConfig, Types.LONGVARCHAR);
+                return new TypeProcessor(seedFactory, seedConfig, Types.LONGVARCHAR);
             }
             case "binary":
             case "varbinary":
@@ -270,14 +264,14 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 BytesSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setMinLength(0);
                 seedConfig.setMaxLength(safeMaxLength(jdbcColumn.getColumnSize(), 100, 4096));
-                return new TypeSrw(seedFactory, seedConfig, Types.VARBINARY);
+                return new TypeProcessor(seedFactory, seedConfig, Types.VARBINARY);
             }
             case "enum":
             case "set": {
                 EnumSeedFactory seedFactory = new EnumSeedFactory();
                 EnumSeedConfig seedConfig = seedFactory.newConfig();
                 seedConfig.setDict(new HashSet<>());
-                return new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
+                return new TypeProcessor(seedFactory, seedConfig, Types.VARCHAR);
             }
             case "geometry": {
                 GeometrySeedFactory seedFactory = new GeometrySeedFactory();
@@ -292,7 +286,7 @@ public class MySqlRadicalTypeSrwFactory extends AbstractMySqlTypeSrwFactory {
                 columnConfig.addValue(FakerConfigEnum.SELECT_TEMPLATE.getConfigKey(), "ST_AsWKT({name})");
                 columnConfig.addValue(FakerConfigEnum.INSERT_TEMPLATE.getConfigKey(), "ST_MultiPolygonFromText(?)");
                 columnConfig.addValue(FakerConfigEnum.SET_VALUE_TEMPLATE.getConfigKey(), "ST_MultiPolygonFromText(?)");
-                TypeSrw typeSrw = new TypeSrw(seedFactory, seedConfig, Types.VARCHAR);
+                TypeProcessor typeSrw = new TypeProcessor(seedFactory, seedConfig, Types.VARCHAR);
                 typeSrw.getDefaultIgnoreAct().add(UseFor.DeleteWhere);
                 typeSrw.getDefaultIgnoreAct().add(UseFor.UpdateWhere);
                 return typeSrw;
