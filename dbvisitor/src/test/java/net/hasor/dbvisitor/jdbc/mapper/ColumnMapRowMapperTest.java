@@ -32,7 +32,7 @@ public class ColumnMapRowMapperTest {
     public void testColumnMapRowMapper_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            List<Map<String, Object>> mapList = jdbcTemplate.query("select * from tb_user", new ColumnMapRowMapper());
+            List<Map<String, Object>> mapList = jdbcTemplate.queryForList("select * from tb_user", new ColumnMapRowMapper());
             //
             List<String> collect = mapList.stream().map(stringObjectMap -> {
                 return (String) stringObjectMap.get("name");

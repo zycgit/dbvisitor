@@ -34,7 +34,7 @@ public class DoubleTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_double) values (123.123);");
-            List<Double> dat = jdbcTemplate.query("select c_double from tb_h2_types where c_double is not null limit 1;", (rs, rowNum) -> {
+            List<Double> dat = jdbcTemplate.queryForList("select c_double from tb_h2_types where c_double is not null limit 1;", (rs, rowNum) -> {
                 return new DoubleTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0) == 123.123d;
@@ -47,7 +47,7 @@ public class DoubleTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_double) values (123.123);");
-            List<Double> dat = jdbcTemplate.query("select c_double from tb_h2_types where c_double is not null limit 1;", (rs, rowNum) -> {
+            List<Double> dat = jdbcTemplate.queryForList("select c_double from tb_h2_types where c_double is not null limit 1;", (rs, rowNum) -> {
                 return new DoubleTypeHandler().getResult(rs, "c_double");
             });
             assert dat.get(0) == 123.123d;
@@ -64,7 +64,7 @@ public class DoubleTypeTest {
             assert dat1 == 123.123d;
             assert dat2 == 123.123d;
 
-            List<Double> dat = jdbcTemplate.query("select ?", ps -> {
+            List<Double> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new DoubleTypeHandler().setParameter(ps, 1, 123.123d, JDBCType.DOUBLE.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new DoubleTypeHandler().getNullableResult(rs, 1);

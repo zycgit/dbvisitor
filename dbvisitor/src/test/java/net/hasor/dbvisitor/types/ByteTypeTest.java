@@ -34,7 +34,7 @@ public class ByteTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_tinyint) values (123);");
-            List<Byte> dat = jdbcTemplate.query("select c_tinyint from tb_h2_types where c_tinyint is not null limit 1;", (rs, rowNum) -> {
+            List<Byte> dat = jdbcTemplate.queryForList("select c_tinyint from tb_h2_types where c_tinyint is not null limit 1;", (rs, rowNum) -> {
                 return new ByteTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0) == 123;
@@ -47,7 +47,7 @@ public class ByteTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_tinyint) values (123);");
-            List<Byte> dat = jdbcTemplate.query("select c_tinyint from tb_h2_types where c_tinyint is not null limit 1;", (rs, rowNum) -> {
+            List<Byte> dat = jdbcTemplate.queryForList("select c_tinyint from tb_h2_types where c_tinyint is not null limit 1;", (rs, rowNum) -> {
                 return new ByteTypeHandler().getResult(rs, "c_tinyint");
             });
             assert dat.get(0) == 123;
@@ -64,7 +64,7 @@ public class ByteTypeTest {
             assert dat1 == 12;
             assert dat2 == 34;
 
-            List<Byte> dat = jdbcTemplate.query("select ?", ps -> {
+            List<Byte> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new ByteTypeHandler().setParameter(ps, 1, (byte) 123, JDBCType.SMALLINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new ByteTypeHandler().getNullableResult(rs, 1);

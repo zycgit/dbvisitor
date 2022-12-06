@@ -40,7 +40,7 @@ public class MonthDayTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_integer) values (0223);");
-            List<MonthDay> dat = jdbcTemplate.query("select c_integer from tb_h2_types where c_integer is not null limit 1;", (rs, rowNum) -> {
+            List<MonthDay> dat = jdbcTemplate.queryForList("select c_integer from tb_h2_types where c_integer is not null limit 1;", (rs, rowNum) -> {
                 return new MonthDayOfNumberTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0).getMonth() == Month.FEBRUARY;
@@ -54,7 +54,7 @@ public class MonthDayTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_integer) values (0223);");
-            List<MonthDay> dat = jdbcTemplate.query("select c_integer from tb_h2_types where c_integer is not null limit 1;", (rs, rowNum) -> {
+            List<MonthDay> dat = jdbcTemplate.queryForList("select c_integer from tb_h2_types where c_integer is not null limit 1;", (rs, rowNum) -> {
                 return new MonthDayOfNumberTypeHandler().getResult(rs, "c_integer");
             });
             assert dat.get(0).getMonth() == Month.FEBRUARY;
@@ -71,7 +71,7 @@ public class MonthDayTypeTest {
             assert dat1.getYear() == 2008;
             assert dat1.getMonth() == Month.FEBRUARY;
 
-            List<MonthDay> dat2 = jdbcTemplate.query("select ?", ps -> {
+            List<MonthDay> dat2 = jdbcTemplate.queryForList("select ?", ps -> {
                 new MonthDayOfNumberTypeHandler().setParameter(ps, 1, MonthDay.of(8, 2), JDBCType.SMALLINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new MonthDayOfNumberTypeHandler().getNullableResult(rs, 1);
@@ -107,7 +107,7 @@ public class MonthDayTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('08-01');");
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('09-03');");
-            List<MonthDay> dat = jdbcTemplate.query("select c_varchar from tb_h2_types where c_varchar is not null limit 2;", (rs, rowNum) -> {
+            List<MonthDay> dat = jdbcTemplate.queryForList("select c_varchar from tb_h2_types where c_varchar is not null limit 2;", (rs, rowNum) -> {
                 return new MonthDayOfStringTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0).getMonth() == Month.AUGUST;
@@ -124,7 +124,7 @@ public class MonthDayTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('08-01');");
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('09-03');");
-            List<MonthDay> dat = jdbcTemplate.query("select c_varchar from tb_h2_types where c_varchar is not null limit 2;", (rs, rowNum) -> {
+            List<MonthDay> dat = jdbcTemplate.queryForList("select c_varchar from tb_h2_types where c_varchar is not null limit 2;", (rs, rowNum) -> {
                 return new MonthDayOfStringTypeHandler().getResult(rs, "c_varchar");
             });
             assert dat.get(0).getMonth() == Month.AUGUST;
@@ -146,7 +146,7 @@ public class MonthDayTypeTest {
             assert dat2.getMonth() == Month.DECEMBER;
             assert dat2.getDayOfMonth() == 31;
 
-            List<MonthDay> dat3 = jdbcTemplate.query("select ?", ps -> {
+            List<MonthDay> dat3 = jdbcTemplate.queryForList("select ?", ps -> {
                 new MonthDayOfStringTypeHandler().setParameter(ps, 1, MonthDay.of(Month.FEBRUARY, 26), JDBCType.SMALLINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new MonthDayOfStringTypeHandler().getNullableResult(rs, 1);
@@ -181,7 +181,7 @@ public class MonthDayTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
-            List<MonthDay> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
+            List<MonthDay> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new MonthDayOfTimeTypeHandler().getResult(rs, 1);
             });
             MonthDay monthDay = MonthDay.now();
@@ -196,7 +196,7 @@ public class MonthDayTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
-            List<MonthDay> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
+            List<MonthDay> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new MonthDayOfTimeTypeHandler().getResult(rs, "c_timestamp");
             });
             MonthDay monthDay = MonthDay.now();
@@ -215,7 +215,7 @@ public class MonthDayTypeTest {
             assert dat1.getMonth() == monthDay.getMonth();
             assert dat1.getDayOfMonth() == monthDay.getDayOfMonth();
 
-            List<MonthDay> dat2 = jdbcTemplate.query("select ?", ps -> {
+            List<MonthDay> dat2 = jdbcTemplate.queryForList("select ?", ps -> {
                 new MonthDayOfTimeTypeHandler().setParameter(ps, 1, MonthDay.of(Month.APRIL, 23), JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new MonthDayOfTimeTypeHandler().getNullableResult(rs, 1);

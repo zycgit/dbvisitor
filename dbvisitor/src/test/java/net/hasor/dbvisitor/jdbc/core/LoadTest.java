@@ -60,7 +60,7 @@ public class LoadTest extends AbstractDbTest {
             }
             //
             assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
-            jdbcTemplate.loadSQL("/net_hasor_db/tb_user_for_mysql.sql");
+            jdbcTemplate.loadSQL("/dbvisitor_coverage/tb_user_for_mysql.sql");
             assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
         }
     }
@@ -74,7 +74,7 @@ public class LoadTest extends AbstractDbTest {
             }
             //
             assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
-            InputStream asStream = ResourcesUtils.getResourceAsStream("/net_hasor_db/tb_user_for_mysql.sql");
+            InputStream asStream = ResourcesUtils.getResourceAsStream("/dbvisitor_coverage/tb_user_for_mysql.sql");
             if (asStream == null) {
                 assert false;
             }
@@ -92,7 +92,7 @@ public class LoadTest extends AbstractDbTest {
             }
             //
             assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
-            jdbcTemplate.loadSQL(StandardCharsets.UTF_8, "/net_hasor_db/tb_user_for_mysql.sql");
+            jdbcTemplate.loadSQL(StandardCharsets.UTF_8, "/dbvisitor_coverage/tb_user_for_mysql.sql");
             assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
         }
     }
@@ -106,7 +106,7 @@ public class LoadTest extends AbstractDbTest {
             }
             //
             assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
-            jdbcTemplate.loadSplitSQL(";", "/net_hasor_db/tb_user_for_mysql.sql");
+            jdbcTemplate.loadSplitSQL(";", "/dbvisitor_coverage/tb_user_for_mysql.sql");
             assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
         }
     }
@@ -120,7 +120,7 @@ public class LoadTest extends AbstractDbTest {
             }
             //
             assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
-            jdbcTemplate.loadSplitSQL(";", StandardCharsets.UTF_8, "/net_hasor_db/tb_user_for_mysql.sql");
+            jdbcTemplate.loadSplitSQL(";", StandardCharsets.UTF_8, "/dbvisitor_coverage/tb_user_for_mysql.sql");
             assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
         }
     }
@@ -134,7 +134,7 @@ public class LoadTest extends AbstractDbTest {
             }
             //
             assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
-            InputStream asStream = ResourcesUtils.getResourceAsStream("/net_hasor_db/tb_user_for_mysql.sql");
+            InputStream asStream = ResourcesUtils.getResourceAsStream("/dbvisitor_coverage/tb_user_for_mysql.sql");
             if (asStream == null) {
                 assert false;
             }

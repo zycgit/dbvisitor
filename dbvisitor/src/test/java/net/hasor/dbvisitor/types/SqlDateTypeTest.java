@@ -44,7 +44,7 @@ public class SqlDateTypeTest {
 
             Date testData = new Date();
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
-            List<Date> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
+            List<Date> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new SqlTimestampTypeHandler().getResult(rs, 1);
             });
 
@@ -59,7 +59,7 @@ public class SqlDateTypeTest {
 
             Date testData = new Date();
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
-            List<Date> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
+            List<Date> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new SqlTimestampTypeHandler().getResult(rs, "c_timestamp");
             });
 
@@ -73,7 +73,7 @@ public class SqlDateTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Timestamp testData = new Timestamp(new Date().getTime());
-            List<Date> dat = jdbcTemplate.query("select ?", ps -> {
+            List<Date> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new SqlTimestampTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new SqlTimestampTypeHandler().getNullableResult(rs, 1);
@@ -108,7 +108,7 @@ public class SqlDateTypeTest {
 
             Date testData = new Date();
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
-            List<Time> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
+            List<Time> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new SqlTimeTypeHandler().getResult(rs, 1);
             });
 
@@ -127,7 +127,7 @@ public class SqlDateTypeTest {
 
             Date testData = new Date();
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
-            List<Time> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
+            List<Time> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new SqlTimeTypeHandler().getResult(rs, "c_timestamp");
             });
 
@@ -145,7 +145,7 @@ public class SqlDateTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Time testTime = new Time(new Date().getTime());
-            List<Time> dat = jdbcTemplate.query("select ?", ps -> {
+            List<Time> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new SqlTimeTypeHandler().setParameter(ps, 1, testTime, JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new SqlTimeTypeHandler().getNullableResult(rs, 1);
@@ -182,7 +182,7 @@ public class SqlDateTypeTest {
 
             Date testData = new Date();
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
-            List<java.sql.Date> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
+            List<java.sql.Date> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new SqlDateTypeHandler().getResult(rs, 1);
             });
 
@@ -200,7 +200,7 @@ public class SqlDateTypeTest {
 
             Date testData = new Date();
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
-            List<java.sql.Date> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
+            List<java.sql.Date> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new SqlDateTypeHandler().getResult(rs, "c_timestamp");
             });
 
@@ -217,7 +217,7 @@ public class SqlDateTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             java.sql.Date testData = new java.sql.Date(new Date().getTime());
-            List<java.sql.Date> dat = jdbcTemplate.query("select ?", ps -> {
+            List<java.sql.Date> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new SqlDateTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new SqlDateTypeHandler().getNullableResult(rs, 1);

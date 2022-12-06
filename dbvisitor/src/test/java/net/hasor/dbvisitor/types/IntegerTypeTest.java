@@ -34,7 +34,7 @@ public class IntegerTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_integer) values (123);");
-            List<Integer> dat = jdbcTemplate.query("select c_integer from tb_h2_types where c_integer is not null limit 1;", (rs, rowNum) -> {
+            List<Integer> dat = jdbcTemplate.queryForList("select c_integer from tb_h2_types where c_integer is not null limit 1;", (rs, rowNum) -> {
                 return new IntegerTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0) == 123;
@@ -47,7 +47,7 @@ public class IntegerTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_integer) values (123);");
-            List<Integer> dat = jdbcTemplate.query("select c_integer from tb_h2_types where c_integer is not null limit 1;", (rs, rowNum) -> {
+            List<Integer> dat = jdbcTemplate.queryForList("select c_integer from tb_h2_types where c_integer is not null limit 1;", (rs, rowNum) -> {
                 return new IntegerTypeHandler().getResult(rs, "c_integer");
             });
             assert dat.get(0) == 123;
@@ -64,7 +64,7 @@ public class IntegerTypeTest {
             assert dat1 == 123;
             assert dat2 == 123;
 
-            List<Integer> dat = jdbcTemplate.query("select ?", ps -> {
+            List<Integer> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new IntegerTypeHandler().setParameter(ps, 1, 123, JDBCType.INTEGER.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new IntegerTypeHandler().getNullableResult(rs, 1);

@@ -34,7 +34,7 @@ public class ShortTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_smallint) values (123);");
-            List<Short> dat = jdbcTemplate.query("select c_smallint from tb_h2_types where c_smallint is not null limit 1;", (rs, rowNum) -> {
+            List<Short> dat = jdbcTemplate.queryForList("select c_smallint from tb_h2_types where c_smallint is not null limit 1;", (rs, rowNum) -> {
                 return new ShortTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0) == 123;
@@ -47,7 +47,7 @@ public class ShortTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_smallint) values (123);");
-            List<Short> dat = jdbcTemplate.query("select c_smallint from tb_h2_types where c_smallint is not null limit 1;", (rs, rowNum) -> {
+            List<Short> dat = jdbcTemplate.queryForList("select c_smallint from tb_h2_types where c_smallint is not null limit 1;", (rs, rowNum) -> {
                 return new ShortTypeHandler().getResult(rs, "c_smallint");
             });
             assert dat.get(0) == 123;
@@ -64,7 +64,7 @@ public class ShortTypeTest {
             assert dat1 == 123;
             assert dat2 == 123;
             //
-            List<Short> dat = jdbcTemplate.query("select ?", ps -> {
+            List<Short> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new ShortTypeHandler().setParameter(ps, 1, (short) 123, JDBCType.SMALLINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new ShortTypeHandler().getNullableResult(rs, 1);

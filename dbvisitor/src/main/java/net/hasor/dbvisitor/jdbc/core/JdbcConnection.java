@@ -136,11 +136,11 @@ public class JdbcConnection extends JdbcAccessor {
         DataSource localDS = this.getDataSource();
         DynamicConnection localDynamic = this.getDynamic();
         boolean usingConn = (localConn != null);
-        boolean usingDynamic = (localDynamic != null);
-        boolean usingDS = (localDS != null);
+        boolean usingDynamic = !usingConn && (localDynamic != null);
+        boolean usingDS = !usingConn && !usingDynamic && (localDS != null);
 
         if (!usingConn && !usingDynamic && !usingDS) {
-            throw new IllegalArgumentException("Connection unavailable, any of (DataSource/Connection/DynamicConnection) is required.");
+            throw new IllegalArgumentException("Connection unavailable, any of (Connection/DynamicConnection/DataSource) is required.");
         }
         if (logger.isDebugEnabled()) {
             logger.trace("database connection using " + (usingConn ? "connection" : usingDynamic ? "dynamic" : "dataSource"));
@@ -173,10 +173,10 @@ public class JdbcConnection extends JdbcAccessor {
         return this.execute((ConnectionCallback<T>) con -> {
             String stmtSQL = "";
             try (Statement stmt = con.createStatement()) {
-                JdbcConnection.this.applyStatementSettings(stmt);
+                applyStatementSettings(stmt);
                 stmtSQL = stmt.toString();
                 T result = action.doInStatement(stmt);
-                JdbcConnection.this.handleWarnings(stmt);
+                handleWarnings(stmt);
                 return result;
             } catch (SQLException ex) {
                 if (this.printStmtError) {

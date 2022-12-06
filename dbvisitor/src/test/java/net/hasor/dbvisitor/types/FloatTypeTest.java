@@ -34,7 +34,7 @@ public class FloatTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_float) values (123.123);");
-            List<Float> dat = jdbcTemplate.query("select c_float from tb_h2_types where c_float is not null limit 1;", (rs, rowNum) -> {
+            List<Float> dat = jdbcTemplate.queryForList("select c_float from tb_h2_types where c_float is not null limit 1;", (rs, rowNum) -> {
                 return new FloatTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0) == 123.123f;
@@ -47,7 +47,7 @@ public class FloatTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_float) values (123.123);");
-            List<Float> dat = jdbcTemplate.query("select c_float from tb_h2_types where c_float is not null limit 1;", (rs, rowNum) -> {
+            List<Float> dat = jdbcTemplate.queryForList("select c_float from tb_h2_types where c_float is not null limit 1;", (rs, rowNum) -> {
                 return new FloatTypeHandler().getResult(rs, "c_float");
             });
             assert dat.get(0) == 123.123f;
@@ -64,7 +64,7 @@ public class FloatTypeTest {
             assert dat1 == 123.123f;
             assert dat2 == 123.123f;
 
-            List<Float> dat = jdbcTemplate.query("select ?", ps -> {
+            List<Float> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new FloatTypeHandler().setParameter(ps, 1, 123.123f, JDBCType.FLOAT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new FloatTypeHandler().getNullableResult(rs, 1);

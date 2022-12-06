@@ -35,7 +35,7 @@ public class CharacterTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('1234567890');");
-            List<Character> bigInteger = jdbcTemplate.query("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
+            List<Character> bigInteger = jdbcTemplate.queryForList("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
                 return new CharacterTypeHandler().getResult(rs, 1);
             });
             assert bigInteger.get(0).toString().equals("1");
@@ -48,7 +48,7 @@ public class CharacterTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('1234567890');");
-            List<Character> bigInteger = jdbcTemplate.query("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
+            List<Character> bigInteger = jdbcTemplate.queryForList("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
                 return new CharacterTypeHandler().getResult(rs, "c_char");
             });
             assert bigInteger.get(0).toString().equals("1");
@@ -65,14 +65,14 @@ public class CharacterTypeTest {
             assert dat1 == 'a';
             assert dat2 == 'a';
 
-            List<Character> character1 = jdbcTemplate.query("select ?", ps -> {
+            List<Character> character1 = jdbcTemplate.queryForList("select ?", ps -> {
                 new CharacterTypeHandler().setParameter(ps, 1, 'a', JDBCType.CHAR.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new CharacterTypeHandler().getNullableResult(rs, 1);
             });
             assert character1.get(0) == 'a';
 
-            List<Character> character2 = jdbcTemplate.query("select ? as ncr", ps -> {
+            List<Character> character2 = jdbcTemplate.queryForList("select ? as ncr", ps -> {
                 new CharacterTypeHandler().setParameter(ps, 1, 'a', JDBCType.CHAR.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new CharacterTypeHandler().getNullableResult(rs, "ncr");
@@ -104,7 +104,7 @@ public class CharacterTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('1234567890');");
-            List<Character> bigInteger = jdbcTemplate.query("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
+            List<Character> bigInteger = jdbcTemplate.queryForList("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
                 return new NCharacterTypeHandler().getResult(rs, 1);
             });
             assert bigInteger.get(0).toString().equals("1");
@@ -117,7 +117,7 @@ public class CharacterTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('1234567890');");
-            List<Character> bigInteger = jdbcTemplate.query("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
+            List<Character> bigInteger = jdbcTemplate.queryForList("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
                 return new NCharacterTypeHandler().getResult(rs, "c_char");
             });
             assert bigInteger.get(0).toString().equals("1");
@@ -134,14 +134,14 @@ public class CharacterTypeTest {
             assert dat1 == 'a';
             assert dat2 == 'a';
 
-            List<Character> character1 = jdbcTemplate.query("select ?", ps -> {
+            List<Character> character1 = jdbcTemplate.queryForList("select ?", ps -> {
                 new NCharacterTypeHandler().setParameter(ps, 1, 'a', JDBCType.NCHAR.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new NCharacterTypeHandler().getNullableResult(rs, 1);
             });
             assert character1.get(0) == 'a';
 
-            List<Character> character2 = jdbcTemplate.query("select ? as ncr", ps -> {
+            List<Character> character2 = jdbcTemplate.queryForList("select ? as ncr", ps -> {
                 new NCharacterTypeHandler().setParameter(ps, 1, 'a', JDBCType.NCHAR.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new NCharacterTypeHandler().getNullableResult(rs, "ncr");

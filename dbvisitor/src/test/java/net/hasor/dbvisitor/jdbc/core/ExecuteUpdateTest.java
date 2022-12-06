@@ -22,7 +22,6 @@ import net.hasor.test.utils.TestUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,52 +34,9 @@ import java.util.stream.Collectors;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class ExecuteUpdateTest extends AbstractDbTest {
+
     @Test
     public void executeUpdate_1() throws Throwable {
-        try (Connection c = DsUtils.h2Conn()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
-            Set<String> collect1 = tbUsers1.stream().map(TB_User::getName).collect(Collectors.toSet());
-            assert collect1.size() == 3;
-            //
-            assert jdbcTemplate.executeUpdate(con -> {
-                return con.prepareStatement("update tb_user set name = ?");
-            }, ps -> {
-                ps.setString(1, "123");
-            }) == 3;
-            //
-            List<TB_User> tbUsers2 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
-            Set<String> collect2 = tbUsers2.stream().map(TB_User::getName).collect(Collectors.toSet());
-            assert collect2.size() == 1;
-            assert collect2.contains("123");
-        }
-    }
-
-    @Test
-    public void executeUpdate_2() throws Throwable {
-        try (Connection c = DsUtils.h2Conn()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
-            Set<String> collect1 = tbUsers1.stream().map(TB_User::getName).collect(Collectors.toSet());
-            assert collect1.size() == 3;
-            //
-            assert jdbcTemplate.executeUpdate(con -> {
-                PreparedStatement ps = con.prepareStatement("update tb_user set name = ?");
-                ps.setString(1, "123");
-                return ps;
-            }) == 3;
-            //
-            List<TB_User> tbUsers2 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
-            Set<String> collect2 = tbUsers2.stream().map(TB_User::getName).collect(Collectors.toSet());
-            assert collect2.size() == 1;
-            assert collect2.contains("123");
-        }
-    }
-
-    @Test
-    public void executeUpdate_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
@@ -98,7 +54,7 @@ public class ExecuteUpdateTest extends AbstractDbTest {
     }
 
     @Test
-    public void executeUpdate_4() throws Throwable {
+    public void executeUpdate_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
@@ -118,7 +74,7 @@ public class ExecuteUpdateTest extends AbstractDbTest {
     }
 
     @Test
-    public void executeUpdate_5() throws Throwable {
+    public void executeUpdate_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
@@ -136,7 +92,7 @@ public class ExecuteUpdateTest extends AbstractDbTest {
     }
 
     @Test
-    public void executeUpdate_6() throws Throwable {
+    public void executeUpdate_4() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
@@ -157,7 +113,7 @@ public class ExecuteUpdateTest extends AbstractDbTest {
     }
 
     @Test
-    public void executeUpdate_7() throws Throwable {
+    public void executeUpdate_5() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //

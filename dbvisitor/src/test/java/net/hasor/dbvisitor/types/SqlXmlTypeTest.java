@@ -64,7 +64,7 @@ public class SqlXmlTypeTest {
             preTable(jdbcTemplate);
 
             jdbcTemplate.executeUpdate("insert into tb_oracle_types_onlyxml (c_xml) values ('<xml>abc</xml>')");
-            List<String> dat = jdbcTemplate.query("select c_xml from tb_oracle_types_onlyxml where c_xml is not null", (rs, rowNum) -> {
+            List<String> dat = jdbcTemplate.queryForList("select c_xml from tb_oracle_types_onlyxml where c_xml is not null", (rs, rowNum) -> {
                 return new SqlXmlTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0).trim().equals("<xml>abc</xml>");
@@ -78,7 +78,7 @@ public class SqlXmlTypeTest {
             preTable(jdbcTemplate);
 
             jdbcTemplate.executeUpdate("insert into tb_oracle_types_onlyxml (c_xml) values ('<xml>abc</xml>')");
-            List<String> dat = jdbcTemplate.query("select c_xml from tb_oracle_types_onlyxml where c_xml is not null", (rs, rowNum) -> {
+            List<String> dat = jdbcTemplate.queryForList("select c_xml from tb_oracle_types_onlyxml where c_xml is not null", (rs, rowNum) -> {
                 return new SqlXmlTypeHandler().getResult(rs, "c_xml");
             });
             assert dat.get(0).trim().equals("<xml>abc</xml>");
@@ -90,7 +90,7 @@ public class SqlXmlTypeTest {
         try (Connection c = DsUtils.oracleConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<String> dat = jdbcTemplate.query("select ? from dual", ps -> {
+            List<String> dat = jdbcTemplate.queryForList("select ? from dual", ps -> {
                 new SqlXmlTypeHandler().setParameter(ps, 1, "<xml>abc</xml>", JDBCType.SQLXML.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new SqlXmlTypeHandler().getNullableResult(rs, 1);
@@ -122,7 +122,7 @@ public class SqlXmlTypeTest {
             preTable(jdbcTemplate);
 
             jdbcTemplate.executeUpdate("insert into tb_oracle_types_onlyxml (c_xml) values ('<xml>abc</xml>')");
-            List<InputStream> dat = jdbcTemplate.query("select c_xml from tb_oracle_types_onlyxml where c_xml is not null", (rs, rowNum) -> {
+            List<InputStream> dat = jdbcTemplate.queryForList("select c_xml from tb_oracle_types_onlyxml where c_xml is not null", (rs, rowNum) -> {
                 return new SqlXmlForInputStreamTypeHandler().getResult(rs, 1);
             });
             String xmlBody = IOUtils.readToString(dat.get(0), "UTF-8");
@@ -137,7 +137,7 @@ public class SqlXmlTypeTest {
             preTable(jdbcTemplate);
 
             jdbcTemplate.executeUpdate("insert into tb_oracle_types_onlyxml (c_xml) values ('<xml>abc</xml>')");
-            List<InputStream> dat = jdbcTemplate.query("select c_xml from tb_oracle_types_onlyxml where c_xml is not null", (rs, rowNum) -> {
+            List<InputStream> dat = jdbcTemplate.queryForList("select c_xml from tb_oracle_types_onlyxml where c_xml is not null", (rs, rowNum) -> {
                 return new SqlXmlForInputStreamTypeHandler().getResult(rs, "c_xml");
             });
             String xmlBody = IOUtils.readToString(dat.get(0), "UTF-8");
@@ -150,7 +150,7 @@ public class SqlXmlTypeTest {
         try (Connection c = DsUtils.oracleConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<InputStream> dat = jdbcTemplate.query("select ? from dual", ps -> {
+            List<InputStream> dat = jdbcTemplate.queryForList("select ? from dual", ps -> {
                 new SqlXmlForInputStreamTypeHandler().setParameter(ps, 1, new ByteArrayInputStream("<xml>abc</xml>".getBytes()), JDBCType.SQLXML.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new SqlXmlForInputStreamTypeHandler().getNullableResult(rs, 1);
@@ -184,7 +184,7 @@ public class SqlXmlTypeTest {
             preTable(jdbcTemplate);
 
             jdbcTemplate.executeUpdate("insert into tb_oracle_types_onlyxml (c_xml) values ('<xml>abc</xml>')");
-            List<Reader> dat = jdbcTemplate.query("select c_xml from tb_oracle_types_onlyxml where c_xml is not null", (rs, rowNum) -> {
+            List<Reader> dat = jdbcTemplate.queryForList("select c_xml from tb_oracle_types_onlyxml where c_xml is not null", (rs, rowNum) -> {
                 return new SqlXmlForReaderTypeHandler().getResult(rs, 1);
             });
             String xmlBody = IOUtils.readToString(dat.get(0));
@@ -199,7 +199,7 @@ public class SqlXmlTypeTest {
             preTable(jdbcTemplate);
 
             jdbcTemplate.executeUpdate("insert into tb_oracle_types_onlyxml (c_xml) values ('<xml>abc</xml>')");
-            List<Reader> dat = jdbcTemplate.query("select c_xml from tb_oracle_types_onlyxml where c_xml is not null", (rs, rowNum) -> {
+            List<Reader> dat = jdbcTemplate.queryForList("select c_xml from tb_oracle_types_onlyxml where c_xml is not null", (rs, rowNum) -> {
                 return new SqlXmlForReaderTypeHandler().getResult(rs, "c_xml");
             });
             String xmlBody = IOUtils.readToString(dat.get(0));
@@ -212,7 +212,7 @@ public class SqlXmlTypeTest {
         try (Connection c = DsUtils.oracleConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<Reader> dat = jdbcTemplate.query("select ? from dual", ps -> {
+            List<Reader> dat = jdbcTemplate.queryForList("select ? from dual", ps -> {
                 new SqlXmlForReaderTypeHandler().setParameter(ps, 1, new StringReader("<xml>abc</xml>"), JDBCType.SQLXML.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new SqlXmlForReaderTypeHandler().getNullableResult(rs, 1);

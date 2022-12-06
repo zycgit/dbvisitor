@@ -39,7 +39,7 @@ public class MultipleExtractorTest extends AbstractDbTest {
         try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists tb_user;");
-            jdbcTemplate.loadSQL("net_hasor_db/tb_user_for_mysql.sql");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/tb_user_for_mysql.sql");
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
@@ -66,7 +66,7 @@ public class MultipleExtractorTest extends AbstractDbTest {
         try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists tb_user;");
-            jdbcTemplate.loadSQL("net_hasor_db/tb_user_for_mysql.sql");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/tb_user_for_mysql.sql");
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
@@ -94,7 +94,7 @@ public class MultipleExtractorTest extends AbstractDbTest {
         try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists tb_user;");
-            jdbcTemplate.loadSQL("net_hasor_db/tb_user_for_mysql.sql");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/tb_user_for_mysql.sql");
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
@@ -124,7 +124,7 @@ public class MultipleExtractorTest extends AbstractDbTest {
         try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists tb_user;");
-            jdbcTemplate.loadSQL("net_hasor_db/tb_user_for_mysql.sql");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/tb_user_for_mysql.sql");
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());

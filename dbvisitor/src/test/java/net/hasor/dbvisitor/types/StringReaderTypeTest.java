@@ -39,7 +39,7 @@ public class StringReaderTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
-            List<Reader> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
+            List<Reader> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
                 return new ClobReaderTypeHandler().getResult(rs, 1);
             });
             String readerDat = IOUtils.toString(dat.get(0));
@@ -53,7 +53,7 @@ public class StringReaderTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
-            List<Reader> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
+            List<Reader> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
                 return new ClobReaderTypeHandler().getResult(rs, "c_clob");
             });
             String readerDat = IOUtils.toString(dat.get(0));
@@ -66,7 +66,7 @@ public class StringReaderTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<Reader> dat = jdbcTemplate.query("select ?", ps -> {
+            List<Reader> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new ClobReaderTypeHandler().setParameter(ps, 1, new StringReader("abcedfg"), JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new ClobReaderTypeHandler().getNullableResult(rs, 1);
@@ -99,7 +99,7 @@ public class StringReaderTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
-            List<Reader> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
+            List<Reader> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
                 return new NClobReaderTypeHandler().getResult(rs, 1);
             });
             String readerDat = IOUtils.toString(dat.get(0));
@@ -113,7 +113,7 @@ public class StringReaderTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
-            List<Reader> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
+            List<Reader> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
                 return new NClobReaderTypeHandler().getResult(rs, "c_clob");
             });
             String readerDat = IOUtils.toString(dat.get(0));
@@ -126,7 +126,7 @@ public class StringReaderTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<Reader> dat = jdbcTemplate.query("select ?", ps -> {
+            List<Reader> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new NClobReaderTypeHandler().setParameter(ps, 1, new StringReader("abcedfg"), JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new NClobReaderTypeHandler().getNullableResult(rs, 1);
@@ -159,7 +159,7 @@ public class StringReaderTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
-            List<Reader> dat = jdbcTemplate.query("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
+            List<Reader> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
                 return new StringReaderTypeHandler().getResult(rs, 1);
             });
             String readerDat = IOUtils.toString(dat.get(0));
@@ -173,7 +173,7 @@ public class StringReaderTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
-            List<Reader> dat = jdbcTemplate.query("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
+            List<Reader> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
                 return new StringReaderTypeHandler().getResult(rs, "c_text");
             });
             String readerDat = IOUtils.toString(dat.get(0));
@@ -191,7 +191,7 @@ public class StringReaderTypeTest {
             assert dat1.equals("abcdefg");
             assert dat2 == null;
 
-            List<Reader> dat = jdbcTemplate.query("select ?", ps -> {
+            List<Reader> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new StringReaderTypeHandler().setParameter(ps, 1, new StringReader("abcdefg"), JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new StringReaderTypeHandler().getNullableResult(rs, 1);
@@ -224,7 +224,7 @@ public class StringReaderTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
-            List<Reader> dat = jdbcTemplate.query("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
+            List<Reader> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
                 return new NStringReaderTypeHandler().getResult(rs, 1);
             });
             String readerDat = IOUtils.toString(dat.get(0));
@@ -238,7 +238,7 @@ public class StringReaderTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
-            List<Reader> dat = jdbcTemplate.query("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
+            List<Reader> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
                 return new NStringReaderTypeHandler().getResult(rs, "c_text");
             });
             String readerDat = IOUtils.toString(dat.get(0));
@@ -256,7 +256,7 @@ public class StringReaderTypeTest {
             assert dat1.equals("abcdefg");
             assert dat2 == null;
 
-            List<Reader> dat = jdbcTemplate.query("select ?", ps -> {
+            List<Reader> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new NStringReaderTypeHandler().setParameter(ps, 1, new StringReader("abcdefg"), JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new NStringReaderTypeHandler().getNullableResult(rs, 1);

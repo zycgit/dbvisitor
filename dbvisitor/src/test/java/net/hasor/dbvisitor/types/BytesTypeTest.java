@@ -57,7 +57,7 @@ public class BytesTypeTest {
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
-            List<Byte[]> dat = jdbcTemplate.query("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
+            List<Byte[]> dat = jdbcTemplate.queryForList("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
                 return new BytesForWrapTypeHandler().getResult(rs, 1);
             });
 
@@ -74,7 +74,7 @@ public class BytesTypeTest {
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
-            List<Byte[]> dat = jdbcTemplate.query("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
+            List<Byte[]> dat = jdbcTemplate.queryForList("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
                 return new BytesForWrapTypeHandler().getResult(rs, "c_blob");
             });
 
@@ -90,7 +90,7 @@ public class BytesTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            List<Byte[]> dat = jdbcTemplate.query("select ?", ps -> {
+            List<Byte[]> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new BytesForWrapTypeHandler().setParameter(ps, 1, toWrapped(testData), JDBCType.BLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new BytesForWrapTypeHandler().getNullableResult(rs, 1);
@@ -129,7 +129,7 @@ public class BytesTypeTest {
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
-            List<byte[]> dat = jdbcTemplate.query("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
+            List<byte[]> dat = jdbcTemplate.queryForList("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
                 return new BytesTypeHandler().getResult(rs, 1);
             });
 
@@ -146,7 +146,7 @@ public class BytesTypeTest {
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
-            List<byte[]> dat = jdbcTemplate.query("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
+            List<byte[]> dat = jdbcTemplate.queryForList("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
                 return new BytesTypeHandler().getResult(rs, "c_blob");
             });
 
@@ -162,7 +162,7 @@ public class BytesTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            List<byte[]> dat = jdbcTemplate.query("select ?", ps -> {
+            List<byte[]> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new BytesTypeHandler().setParameter(ps, 1, testData, JDBCType.BLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new BytesTypeHandler().getNullableResult(rs, 1);
@@ -201,7 +201,7 @@ public class BytesTypeTest {
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
-            List<InputStream> dat = jdbcTemplate.query("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
+            List<InputStream> dat = jdbcTemplate.queryForList("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
                 return new BytesInputStreamTypeHandler().getResult(rs, 1);
             });
 
@@ -218,7 +218,7 @@ public class BytesTypeTest {
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
-            List<InputStream> dat = jdbcTemplate.query("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
+            List<InputStream> dat = jdbcTemplate.queryForList("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
                 return new BytesInputStreamTypeHandler().getResult(rs, "c_blob");
             });
 
@@ -234,7 +234,7 @@ public class BytesTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            List<InputStream> dat = jdbcTemplate.query("select ?", ps -> {
+            List<InputStream> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new BytesInputStreamTypeHandler().setParameter(ps, 1, new ByteArrayInputStream(testData), JDBCType.BLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new BytesInputStreamTypeHandler().getNullableResult(rs, 1);

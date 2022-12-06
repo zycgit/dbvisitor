@@ -35,7 +35,7 @@ public class MappingRowMapperTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
-            List<TbUser> tbUsers = jdbcTemplate.query("select * from tb_user", new MappingRowMapper<>(TbUser.class));
+            List<TbUser> tbUsers = jdbcTemplate.queryForList("select * from tb_user", new MappingRowMapper<>(TbUser.class));
             assert tbUsers.size() == 3;
             assert TestUtils.beanForData1().getUserUUID().equals(tbUsers.get(0).getUid());
             assert TestUtils.beanForData2().getUserUUID().equals(tbUsers.get(1).getUid());

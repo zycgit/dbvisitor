@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
+import net.hasor.dbvisitor.jdbc.CallableStatementCallback;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
+import net.hasor.dbvisitor.jdbc.PreparedStatementCallback;
 import net.hasor.dbvisitor.jdbc.StatementCallback;
 import net.hasor.dbvisitor.jdbc.paramer.MapSqlParameterSource;
 import net.hasor.test.AbstractDbTest;
@@ -23,7 +25,6 @@ import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -75,11 +76,11 @@ public class ExecuteTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
-            jdbcTemplate.execute(con -> {
+            jdbcTemplate.executeCall(con -> {
                 return con.prepareCall("update tb_user set name = CONCAT(name, '~' ) where userUUID = ?");
-            }, ps -> {
-                ps.setString(1, beanForData1().getUserUUID());
-                return ps.execute();
+            }, (CallableStatementCallback<Object>) cs -> {
+                cs.setString(1, beanForData1().getUserUUID());
+                return cs.execute();
             });
             //
             List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
@@ -94,7 +95,7 @@ public class ExecuteTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
-            jdbcTemplate.execute("update tb_user set name = CONCAT(name, '~' ) where userUUID = ?", ps -> {
+            jdbcTemplate.executeCallback("update tb_user set name = CONCAT(name, '~' ) where userUUID = ?", (PreparedStatementCallback<Object>) ps -> {
                 ps.setString(1, beanForData1().getUserUUID());
                 return ps.execute();
             });
@@ -126,7 +127,7 @@ public class ExecuteTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             Map<String, String> dat = Collections.singletonMap("uuid", beanForData1().getUserUUID());
-            jdbcTemplate.execute("update tb_user set name = CONCAT(name, '~' ) where userUUID = :uuid", dat, PreparedStatement::execute);
+            jdbcTemplate.executeUpdate("update tb_user set name = CONCAT(name, '~' ) where userUUID = :uuid", dat);
             //
             List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
             Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());
@@ -141,7 +142,7 @@ public class ExecuteTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             Map<String, String> dat = Collections.singletonMap("uuid", beanForData1().getUserUUID());
-            jdbcTemplate.execute("update tb_user set name = CONCAT(name, '~' ) where userUUID = :uuid", new MapSqlParameterSource(dat), PreparedStatement::execute);
+            jdbcTemplate.executeUpdate("update tb_user set name = CONCAT(name, '~' ) where userUUID = :uuid", new MapSqlParameterSource(dat));
             //
             List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
             Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());

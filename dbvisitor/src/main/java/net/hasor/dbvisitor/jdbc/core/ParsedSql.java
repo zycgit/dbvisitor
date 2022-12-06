@@ -89,6 +89,9 @@ public class ParsedSql {
                     if (value instanceof InSqlParameter) {
                         value = ((InSqlParameter) value).getValue();
                     }
+                    if (value != null && value.getClass().isArray()) {
+                        value = Arrays.asList((Object[]) value);
+                    }
                     if (value instanceof Iterable) {
                         Iterator<?> entryIter = ((Iterable<?>) value).iterator();
                         int k = 0;
@@ -132,6 +135,9 @@ public class ParsedSql {
             Object value = paramSource.getValue(paramName);
             if (value instanceof InSqlParameter) {
                 value = ((InSqlParameter) value).getValue();
+            }
+            if (value != null && value.getClass().isArray()) {
+                value = Arrays.asList((Object[]) value);
             }
             if (value instanceof Iterable) {
                 for (Object o : (Iterable<?>) value) {

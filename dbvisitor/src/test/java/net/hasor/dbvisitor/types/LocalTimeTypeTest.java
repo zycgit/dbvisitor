@@ -40,7 +40,7 @@ public class LocalTimeTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
-            List<LocalDateTime> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
+            List<LocalDateTime> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new LocalDateTimeTypeHandler().getResult(rs, 1);
             });
 
@@ -61,7 +61,7 @@ public class LocalTimeTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
-            List<LocalDateTime> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
+            List<LocalDateTime> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new LocalDateTimeTypeHandler().getResult(rs, "c_timestamp");
             });
 
@@ -82,7 +82,7 @@ public class LocalTimeTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             LocalDateTime testData = LocalDateTime.of(1998, Month.APRIL, 12, 18, 33, 20, 123);
-            List<LocalDateTime> dat = jdbcTemplate.query("select ?", ps -> {
+            List<LocalDateTime> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new LocalDateTimeTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new LocalDateTimeTypeHandler().getNullableResult(rs, 1);
@@ -129,7 +129,7 @@ public class LocalTimeTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
-            List<LocalDate> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
+            List<LocalDate> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new LocalDateTypeHandler().getResult(rs, 1);
             });
 
@@ -147,7 +147,7 @@ public class LocalTimeTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
-            List<LocalDate> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
+            List<LocalDate> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new LocalDateTypeHandler().getResult(rs, "c_timestamp");
             });
 
@@ -165,7 +165,7 @@ public class LocalTimeTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             LocalDate testData = LocalDate.of(1998, Month.APRIL, 12);
-            List<LocalDate> dat = jdbcTemplate.query("select ?", ps -> {
+            List<LocalDate> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new LocalDateTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new LocalDateTypeHandler().getNullableResult(rs, 1);
@@ -205,7 +205,7 @@ public class LocalTimeTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
-            List<LocalTime> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
+            List<LocalTime> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new LocalTimeTypeHandler().getResult(rs, 1);
             });
 
@@ -224,7 +224,7 @@ public class LocalTimeTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
-            List<LocalTime> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
+            List<LocalTime> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new LocalTimeTypeHandler().getResult(rs, "c_timestamp");
             });
 
@@ -243,7 +243,7 @@ public class LocalTimeTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             LocalTime testData = LocalTime.of(12, 33, 45, 1243);
-            List<LocalTime> dat = jdbcTemplate.query("select ?", ps -> {
+            List<LocalTime> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new LocalTimeTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new LocalTimeTypeHandler().getNullableResult(rs, 1);

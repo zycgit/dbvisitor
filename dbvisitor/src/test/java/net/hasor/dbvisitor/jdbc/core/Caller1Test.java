@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
+import net.hasor.dbvisitor.jdbc.CallableStatementCallback;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.extractor.MultipleResultSetExtractor;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.utils.DsUtils;
-import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.JDBCType;
 import java.sql.SQLException;
@@ -35,26 +36,25 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class Caller1Test extends AbstractDbTest {
-    @Before
-    public void init() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConn()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            jdbcTemplate.execute("drop table if exists proc_table_forcaller;");
-            jdbcTemplate.execute("create table proc_table_forcaller( c_id int primary key, c_name varchar(200));");
-            jdbcTemplate.execute("insert into proc_table_forcaller (c_id,c_name) values (1, 'aaa');");
-            jdbcTemplate.execute("insert into proc_table_forcaller (c_id,c_name) values (2, 'bbb');");
-            jdbcTemplate.execute("insert into proc_table_forcaller (c_id,c_name) values (3, 'ccc');");
-            //
-            jdbcTemplate.execute("drop procedure if exists proc_select_table;");
-            jdbcTemplate.execute("drop procedure if exists proc_select_multiple_table;");
-            jdbcTemplate.execute("create procedure proc_select_table(in p_name varchar(200)) begin select * from proc_table_forcaller where c_name = p_name ; end;");
-            jdbcTemplate.execute("create procedure proc_select_multiple_table(in p_name varchar(200)) begin select * from proc_table_forcaller where c_name = p_name ; select * from proc_table_forcaller where c_name = p_name ; end;");
-        }
+    public Connection initConnection() throws SQLException {
+        Connection conn = DsUtils.mysqlConn();
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+        jdbcTemplate.execute("drop table if exists proc_table_forcaller;");
+        jdbcTemplate.execute("create table proc_table_forcaller( c_id int primary key, c_name varchar(200));");
+        jdbcTemplate.execute("insert into proc_table_forcaller (c_id,c_name) values (1, 'aaa');");
+        jdbcTemplate.execute("insert into proc_table_forcaller (c_id,c_name) values (2, 'bbb');");
+        jdbcTemplate.execute("insert into proc_table_forcaller (c_id,c_name) values (3, 'ccc');");
+        //
+        jdbcTemplate.execute("drop procedure if exists proc_select_table;");
+        jdbcTemplate.execute("drop procedure if exists proc_select_multiple_table;");
+        jdbcTemplate.execute("create procedure proc_select_table(in p_name varchar(200)) begin select * from proc_table_forcaller where c_name = p_name ; end;");
+        jdbcTemplate.execute("create procedure proc_select_multiple_table(in p_name varchar(200)) begin select * from proc_table_forcaller where c_name = p_name ; select * from proc_table_forcaller where c_name = p_name ; end;");
+        return conn;
     }
 
     @Test
     public void mysqlCallResultSet_1() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConn()) {
+        try (Connection conn = initConnection()) {
             Map<String, Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_table(?)}",//
                     Collections.singletonList(SqlParameterUtils.withInput("aaa", JDBCType.VARCHAR.getVendorTypeNumber())));
             //
@@ -69,7 +69,7 @@ public class Caller1Test extends AbstractDbTest {
 
     @Test
     public void mysqlCallResultSet_2() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConn()) {
+        try (Connection conn = initConnection()) {
             Map<String, Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_multiple_table(?)}",//
                     Collections.singletonList(SqlParameterUtils.withInput("aaa", JDBCType.VARCHAR.getVendorTypeNumber())));
             //
@@ -88,7 +88,7 @@ public class Caller1Test extends AbstractDbTest {
 
     @Test
     public void mysqlCallResultSet_3() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConn()) {
+        try (Connection conn = initConnection()) {
             List<Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_multiple_table(?)}", cs -> {
                 cs.setString(1, "aaa");
             }, new MultipleResultSetExtractor());
@@ -107,13 +107,12 @@ public class Caller1Test extends AbstractDbTest {
 
     @Test
     public void mysqlCallResultSet_4() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConn()) {
-            List<Object> objectMap = new JdbcTemplate(conn).call(con -> {
-                return con.prepareCall("{call proc_select_multiple_table(?)}");
-            }, cs -> {
+        try (Connection conn = initConnection()) {
+            List<Object> objectMap = new JdbcTemplate(conn).executeCall(con -> {
+                CallableStatement cs = con.prepareCall("{call proc_select_multiple_table(?)}");
                 cs.setString(1, "aaa");
-                return new MultipleResultSetExtractor().doInCallableStatement(cs);
-            });
+                return cs;
+            }, new MultipleResultSetExtractor());
             //
             assert objectMap.size() == 3;
             assert objectMap.get(0) instanceof ArrayList;
@@ -129,28 +128,8 @@ public class Caller1Test extends AbstractDbTest {
 
     @Test
     public void mysqlCallResultSet_5() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConn()) {
-            List<Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_multiple_table(?)}", cs -> {
-                cs.setString(1, "aaa");
-                return new MultipleResultSetExtractor().doInCallableStatement(cs);
-            });
-            //
-            assert objectMap.size() == 3;
-            assert objectMap.get(0) instanceof ArrayList;
-            assert objectMap.get(1) instanceof ArrayList;
-            assert ((ArrayList<?>) objectMap.get(0)).size() == 1;
-            assert ((ArrayList<?>) objectMap.get(1)).size() == 1;
-            assert ((Map) ((ArrayList<?>) objectMap.get(0)).get(0)).get("c_name").equals("aaa");
-            assert ((Map) ((ArrayList<?>) objectMap.get(0)).get(0)).get("c_id").equals(1);
-            assert ((Map) ((ArrayList<?>) objectMap.get(1)).get(0)).get("c_name").equals("aaa");
-            assert ((Map) ((ArrayList<?>) objectMap.get(1)).get(0)).get("c_id").equals(1);
-        }
-    }
-
-    @Test
-    public void mysqlCallResultSet_6() throws SQLException {
-        try (Connection conn = DsUtils.mysqlConn()) {
-            List<Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_multiple_table(?)}", cs -> {
+        try (Connection conn = initConnection()) {
+            List<Object> objectMap = new JdbcTemplate(conn).executeCallback("{call proc_select_multiple_table(?)}", (CallableStatementCallback<List<Object>>) cs -> {
                 cs.setString(1, "aaa");
                 return new MultipleResultSetExtractor().doInCallableStatement(cs);
             });

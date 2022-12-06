@@ -36,7 +36,7 @@ public class NumberTypeTest {
 
             Date testData = new Date();
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
-            List<Number> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
+            List<Number> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new NumberTypeHandler().getResult(rs, 1);
             });
 
@@ -51,7 +51,7 @@ public class NumberTypeTest {
 
             Date testData = new Date();
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (?);", new Object[] { testData });
-            List<Number> dat = jdbcTemplate.query("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
+            List<Number> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
                 return new NumberTypeHandler().getResult(rs, "c_timestamp");
             });
 
@@ -65,7 +65,7 @@ public class NumberTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('123');");
-            List<Number> dat = jdbcTemplate.query("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
+            List<Number> dat = jdbcTemplate.queryForList("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
                 return new NumberTypeHandler().getResult(rs, "c_char");
             });
 
@@ -79,7 +79,7 @@ public class NumberTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('123');");
-            List<Number> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
+            List<Number> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
                 return new NumberTypeHandler().getResult(rs, "c_clob");
             });
 

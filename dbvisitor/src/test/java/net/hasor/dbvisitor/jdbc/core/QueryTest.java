@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
+import net.hasor.dbvisitor.jdbc.PreparedStatementCallback;
+import net.hasor.dbvisitor.jdbc.PreparedStatementCreator;
 import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.MappingRowMapper;
 import net.hasor.dbvisitor.jdbc.paramer.BeanSqlParameterSource;
@@ -25,6 +27,7 @@ import net.hasor.test.utils.TestUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,10 +44,12 @@ public class QueryTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
-            List<TbUser> tbUsers = jdbcTemplate.query(con -> {
+            List<TbUser> tbUsers = jdbcTemplate.executeCreator(con -> {
                 return con.prepareStatement("select * from tb_user");
-            }, rs -> {
-                return new RowMapperResultSetExtractor<>(new MappingRowMapper<>(TbUser.class)).extractData(rs);
+            }, (PreparedStatementCallback<List<TbUser>>) ps -> {
+                try (ResultSet rs = ps.executeQuery()) {
+                    return new RowMapperResultSetExtractor<>(new MappingRowMapper<>(TbUser.class)).extractData(rs);
+                }
             });
             assert tbUsers.size() == 3;
             assert TestUtils.beanForData1().getUserUUID().equals(tbUsers.get(0).getUid());
@@ -149,7 +154,7 @@ public class QueryTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<TbUser> tbUsers = new ArrayList<>();
-            jdbcTemplate.query(con -> {
+            jdbcTemplate.executeCreator((PreparedStatementCreator) con -> {
                 return con.prepareStatement("select * from tb_user");
             }, (rs, rowNum) -> {
                 tbUsers.add(new MappingRowMapper<>(TbUser.class).mapRow(rs, rowNum));
@@ -262,7 +267,7 @@ public class QueryTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
-            List<TbUser> tbUsers = jdbcTemplate.query(con -> {
+            List<TbUser> tbUsers = jdbcTemplate.executeCreator((PreparedStatementCreator) con -> {
                 return con.prepareStatement("select * from tb_user");
             }, new MappingRowMapper<>(TbUser.class));
             assert tbUsers.size() == 3;
@@ -277,7 +282,7 @@ public class QueryTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
-            List<TbUser> tbUsers = jdbcTemplate.query("select * from tb_user", new MappingRowMapper<>(TbUser.class));
+            List<TbUser> tbUsers = jdbcTemplate.queryForList("select * from tb_user", new MappingRowMapper<>(TbUser.class));
             assert tbUsers.size() == 3;
             assert TestUtils.beanForData1().getUserUUID().equals(tbUsers.get(0).getUid());
             assert TestUtils.beanForData2().getUserUUID().equals(tbUsers.get(1).getUid());
@@ -291,7 +296,7 @@ public class QueryTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
-            List<TbUser> tbUsers = jdbcTemplate.query("select * from tb_user where userUUID = ?", ps -> {
+            List<TbUser> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", ps -> {
                 ps.setString(1, tbUser.getUserUUID());
             }, new MappingRowMapper<>(TbUser.class));
             assert tbUsers.size() == 1;
@@ -305,7 +310,7 @@ public class QueryTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
-            List<TbUser> tbUsers = jdbcTemplate.query("select * from tb_user where userUUID = ?", new Object[] { tbUser.getUserUUID() }, new MappingRowMapper<>(TbUser.class));
+            List<TbUser> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { tbUser.getUserUUID() }, new MappingRowMapper<>(TbUser.class));
             assert tbUsers.size() == 1;
             assert tbUser.getUserUUID().equals(tbUsers.get(0).getUid());
         }
@@ -317,7 +322,7 @@ public class QueryTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             TB_User tbUser = TestUtils.beanForData1();
-            List<TbUser> tbUsers = jdbcTemplate.query("select * from tb_user where userUUID = ?", new Object[] { tbUser.getUserUUID() }, new MappingRowMapper<>(TbUser.class));
+            List<TbUser> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { tbUser.getUserUUID() }, new MappingRowMapper<>(TbUser.class));
             assert tbUsers.size() == 1;
             assert tbUser.getUserUUID().equals(tbUsers.get(0).getUid());
         }
@@ -331,7 +336,7 @@ public class QueryTest extends AbstractDbTest {
             TB_User tbUser = TestUtils.beanForData1();
             Map<String, String> mapParams = new HashMap<>();
             mapParams.put("uuid", tbUser.getUserUUID());
-            List<TbUser> tbUsers = jdbcTemplate.query("select * from tb_user where userUUID = :uuid", mapParams, new MappingRowMapper<>(TbUser.class));
+            List<TbUser> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = :uuid", mapParams, new MappingRowMapper<>(TbUser.class));
             assert tbUsers.size() == 1;
             assert tbUser.getUserUUID().equals(tbUsers.get(0).getUid());
         }
@@ -344,7 +349,7 @@ public class QueryTest extends AbstractDbTest {
             //
             TB_User tbUser = TestUtils.beanForData1();
             BeanSqlParameterSource beanSqlParameterSource = new BeanSqlParameterSource(tbUser);
-            List<TbUser> tbUsers = jdbcTemplate.query("select * from tb_user where userUUID = :userUUID", beanSqlParameterSource, new MappingRowMapper<>(TbUser.class));
+            List<TbUser> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = :userUUID", beanSqlParameterSource, new MappingRowMapper<>(TbUser.class));
             assert tbUsers.size() == 1;
             assert tbUser.getUserUUID().equals(tbUsers.get(0).getUid());
         }

@@ -15,6 +15,8 @@
  */
 package net.hasor.dbvisitor.jdbc.core;
 import net.hasor.dbvisitor.jdbc.PreparedStatementSetter;
+import net.hasor.dbvisitor.jdbc.SqlParameter.InSqlParameter;
+import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.sql.PreparedStatement;
@@ -52,7 +54,25 @@ public class ArgPreparedStatementSetter implements PreparedStatementSetter, Para
         }
     }
 
-    protected void doSetValue(final PreparedStatement ps, final int parameterPosition, final Object argValue) throws SQLException {
+    protected void doSetValue(final PreparedStatement ps, final int parameterPosition, Object argValue) throws SQLException {
+        if (argValue instanceof InSqlParameter) {
+            Object value = ((InSqlParameter) argValue).getValue();
+            Integer jdbcType = ((InSqlParameter) argValue).getJdbcType();
+            TypeHandler typeHandler = ((InSqlParameter) argValue).getTypeHandler();
+            if (typeHandler != null && jdbcType != null) {
+                typeHandler.setParameter(ps, parameterPosition, value, jdbcType);
+                return;
+            } else if (typeHandler != null) {
+                if (value == null) {
+                    ps.setObject(parameterPosition, null);
+                } else {
+                    typeHandler.setParameter(ps, parameterPosition, value, TypeHandlerRegistry.toSqlType(value.getClass()));
+                }
+                return;
+            } else {
+                argValue = value;
+            }
+        }
         this.typeHandlerRegistry.setParameterValue(ps, parameterPosition, argValue);
     }
 

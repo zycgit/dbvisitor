@@ -35,7 +35,7 @@ public class BigIntegerTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_bigint) values (1234567890);");
-            List<BigInteger> dat = jdbcTemplate.query("select c_bigint from tb_h2_types where c_bigint is not null limit 1;", (rs, rowNum) -> {
+            List<BigInteger> dat = jdbcTemplate.queryForList("select c_bigint from tb_h2_types where c_bigint is not null limit 1;", (rs, rowNum) -> {
                 return new BigIntegerTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0).toString().equals("1234567890");
@@ -48,7 +48,7 @@ public class BigIntegerTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_bigint) values (1234567890);");
-            List<BigInteger> dat = jdbcTemplate.query("select c_bigint from tb_h2_types where c_bigint is not null limit 1;", (rs, rowNum) -> {
+            List<BigInteger> dat = jdbcTemplate.queryForList("select c_bigint from tb_h2_types where c_bigint is not null limit 1;", (rs, rowNum) -> {
                 return new BigIntegerTypeHandler().getResult(rs, "c_bigint");
             });
             assert dat.get(0).toString().equals("1234567890");
@@ -60,7 +60,7 @@ public class BigIntegerTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<BigInteger> dat = jdbcTemplate.query("select ?", ps -> {
+            List<BigInteger> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new BigIntegerTypeHandler().setParameter(ps, 1, new BigInteger("1234567890"), JDBCType.BIGINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new BigIntegerTypeHandler().getNullableResult(rs, 1);

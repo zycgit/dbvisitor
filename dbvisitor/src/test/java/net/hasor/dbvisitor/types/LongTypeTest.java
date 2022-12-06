@@ -34,7 +34,7 @@ public class LongTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_bigint) values (123);");
-            List<Long> dat = jdbcTemplate.query("select c_bigint from tb_h2_types where c_bigint is not null limit 1;", (rs, rowNum) -> {
+            List<Long> dat = jdbcTemplate.queryForList("select c_bigint from tb_h2_types where c_bigint is not null limit 1;", (rs, rowNum) -> {
                 return new LongTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0) == 123l;
@@ -47,7 +47,7 @@ public class LongTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_bigint) values (123);");
-            List<Long> dat = jdbcTemplate.query("select c_bigint from tb_h2_types where c_bigint is not null limit 1;", (rs, rowNum) -> {
+            List<Long> dat = jdbcTemplate.queryForList("select c_bigint from tb_h2_types where c_bigint is not null limit 1;", (rs, rowNum) -> {
                 return new LongTypeHandler().getResult(rs, "c_bigint");
             });
             assert dat.get(0) == 123l;
@@ -64,7 +64,7 @@ public class LongTypeTest {
             assert dat1 == 123l;
             assert dat2 == 123l;
 
-            List<Long> dat = jdbcTemplate.query("select ?", ps -> {
+            List<Long> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new LongTypeHandler().setParameter(ps, 1, 123l, JDBCType.BIGINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new LongTypeHandler().getNullableResult(rs, 1);

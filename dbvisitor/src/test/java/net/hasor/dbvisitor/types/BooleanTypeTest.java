@@ -34,7 +34,7 @@ public class BooleanTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_boolean) values (true);");
-            List<Boolean> dat = jdbcTemplate.query("select c_boolean from tb_h2_types where c_boolean is not null limit 1;", (rs, rowNum) -> {
+            List<Boolean> dat = jdbcTemplate.queryForList("select c_boolean from tb_h2_types where c_boolean is not null limit 1;", (rs, rowNum) -> {
                 return new BooleanTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0);
@@ -47,7 +47,7 @@ public class BooleanTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_boolean) values (true);");
-            List<Boolean> dat = jdbcTemplate.query("select c_boolean from tb_h2_types where c_boolean is not null limit 1;", (rs, rowNum) -> {
+            List<Boolean> dat = jdbcTemplate.queryForList("select c_boolean from tb_h2_types where c_boolean is not null limit 1;", (rs, rowNum) -> {
                 return new BooleanTypeHandler().getResult(rs, "c_boolean");
             });
             assert dat.get(0);
@@ -68,7 +68,7 @@ public class BooleanTypeTest {
             assert !dat3;
             assert !dat4;
 
-            List<Boolean> dat = jdbcTemplate.query("select ?", ps -> {
+            List<Boolean> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new BooleanTypeHandler().setParameter(ps, 1, true, JDBCType.BOOLEAN.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new BooleanTypeHandler().getNullableResult(rs, 1);

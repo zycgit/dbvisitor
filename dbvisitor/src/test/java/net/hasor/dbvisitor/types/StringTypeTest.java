@@ -37,7 +37,7 @@ public class StringTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
-            List<String> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
+            List<String> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
                 return new ClobTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0).equals("abcdefg");
@@ -50,7 +50,7 @@ public class StringTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
-            List<String> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
+            List<String> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
                 return new ClobTypeHandler().getResult(rs, "c_clob");
             });
             assert dat.get(0).equals("abcdefg");
@@ -62,7 +62,7 @@ public class StringTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
-            List<String> dat = jdbcTemplate.query("select ?", ps -> {
+            List<String> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new ClobTypeHandler().setParameter(ps, 1, "abcedfg", JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new ClobTypeHandler().getNullableResult(rs, 1);
@@ -93,7 +93,7 @@ public class StringTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
-            List<String> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
+            List<String> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
                 return new NClobTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0).equals("abcdefg");
@@ -106,7 +106,7 @@ public class StringTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
-            List<String> dat = jdbcTemplate.query("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
+            List<String> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
                 return new NClobTypeHandler().getResult(rs, "c_clob");
             });
             assert dat.get(0).equals("abcdefg");
@@ -118,7 +118,7 @@ public class StringTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
-            List<String> dat = jdbcTemplate.query("select ?", ps -> {
+            List<String> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new NClobTypeHandler().setParameter(ps, 1, "abcedfg", JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new NClobTypeHandler().getNullableResult(rs, 1);
@@ -149,7 +149,7 @@ public class StringTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
-            List<String> dat = jdbcTemplate.query("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
+            List<String> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
                 return new StringTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0).equals("abcdefg");
@@ -162,7 +162,7 @@ public class StringTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
-            List<String> dat = jdbcTemplate.query("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
+            List<String> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
                 return new StringTypeHandler().getResult(rs, "c_text");
             });
             assert dat.get(0).equals("abcdefg");
@@ -179,7 +179,7 @@ public class StringTypeTest {
             assert dat1.equals("abcdefg");
             assert dat2 == null;
             //
-            List<String> dat = jdbcTemplate.query("select ?", ps -> {
+            List<String> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new StringTypeHandler().setParameter(ps, 1, "abcdefg", JDBCType.VARCHAR.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new StringTypeHandler().getNullableResult(rs, 1);
@@ -210,7 +210,7 @@ public class StringTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
-            List<String> dat = jdbcTemplate.query("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
+            List<String> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
                 return new NStringTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0).equals("abcdefg");
@@ -223,7 +223,7 @@ public class StringTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
-            List<String> dat = jdbcTemplate.query("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
+            List<String> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
                 return new NStringTypeHandler().getResult(rs, "c_text");
             });
             assert dat.get(0).equals("abcdefg");
@@ -240,7 +240,7 @@ public class StringTypeTest {
             assert dat1.equals("abcdefg");
             assert dat2 == null;
             //
-            List<String> dat = jdbcTemplate.query("select ?", ps -> {
+            List<String> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new NStringTypeHandler().setParameter(ps, 1, "abcdefg", JDBCType.SMALLINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
                 return new NStringTypeHandler().getNullableResult(rs, 1);

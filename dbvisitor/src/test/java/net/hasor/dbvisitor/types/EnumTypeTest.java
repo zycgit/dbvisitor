@@ -54,7 +54,7 @@ public class EnumTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('READ_UNCOMMITTED');");
-            List<Isolation> dat = jdbcTemplate.query("select c_varchar from tb_h2_types where c_varchar is not null limit 1;", (rs, rowNum) -> {
+            List<Isolation> dat = jdbcTemplate.queryForList("select c_varchar from tb_h2_types where c_varchar is not null limit 1;", (rs, rowNum) -> {
                 return new EnumTypeHandler<>(Isolation.class).getResult(rs, 1);
             });
 
@@ -68,7 +68,7 @@ public class EnumTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('READ_UNCOMMITTED');");
-            List<Isolation> dat = jdbcTemplate.query("select c_varchar from tb_h2_types where c_varchar is not null limit 1;", (rs, rowNum) -> {
+            List<Isolation> dat = jdbcTemplate.queryForList("select c_varchar from tb_h2_types where c_varchar is not null limit 1;", (rs, rowNum) -> {
                 return new EnumTypeHandler<>(Isolation.class).getResult(rs, "c_varchar");
             });
 
@@ -81,7 +81,7 @@ public class EnumTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<Isolation> dat = jdbcTemplate.query("select ?", ps -> {
+            List<Isolation> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new EnumTypeHandler<>(Isolation.class).setParameter(ps, 1, Isolation.READ_UNCOMMITTED, null);
             }, (rs, rowNum) -> {
                 return new EnumTypeHandler<>(Isolation.class).getNullableResult(rs, 1);
@@ -114,7 +114,7 @@ public class EnumTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('Apache 2.0');");
-            List<LicenseOfCodeEnum> dat = jdbcTemplate.query("select c_varchar from tb_h2_types where c_varchar is not null limit 1;", (rs, rowNum) -> {
+            List<LicenseOfCodeEnum> dat = jdbcTemplate.queryForList("select c_varchar from tb_h2_types where c_varchar is not null limit 1;", (rs, rowNum) -> {
                 return new EnumTypeHandler<>(LicenseOfCodeEnum.class).getResult(rs, 1);
             });
 
@@ -128,7 +128,7 @@ public class EnumTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('Apache 2.0');");
-            List<LicenseOfCodeEnum> dat = jdbcTemplate.query("select c_varchar from tb_h2_types where c_varchar is not null limit 1;", (rs, rowNum) -> {
+            List<LicenseOfCodeEnum> dat = jdbcTemplate.queryForList("select c_varchar from tb_h2_types where c_varchar is not null limit 1;", (rs, rowNum) -> {
                 return new EnumTypeHandler<>(LicenseOfCodeEnum.class).getResult(rs, "c_varchar");
             });
 
@@ -141,7 +141,7 @@ public class EnumTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<LicenseOfCodeEnum> dat = jdbcTemplate.query("select ?", ps -> {
+            List<LicenseOfCodeEnum> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new EnumTypeHandler<>(LicenseOfCodeEnum.class).setParameter(ps, 1, LicenseOfCodeEnum.Apache2, null);
             }, (rs, rowNum) -> {
                 return new EnumTypeHandler<>(LicenseOfCodeEnum.class).getNullableResult(rs, 1);
@@ -174,7 +174,7 @@ public class EnumTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_integer) values (4);");
-            List<LicenseOfValueEnum> dat = jdbcTemplate.query("select c_integer from tb_h2_types where c_integer is not null limit 1;", (rs, rowNum) -> {
+            List<LicenseOfValueEnum> dat = jdbcTemplate.queryForList("select c_integer from tb_h2_types where c_integer is not null limit 1;", (rs, rowNum) -> {
                 return new EnumTypeHandler<>(LicenseOfValueEnum.class).getResult(rs, 1);
             });
 
@@ -188,7 +188,7 @@ public class EnumTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_integer) values (4);");
-            List<LicenseOfValueEnum> dat = jdbcTemplate.query("select c_integer from tb_h2_types where c_integer is not null limit 1;", (rs, rowNum) -> {
+            List<LicenseOfValueEnum> dat = jdbcTemplate.queryForList("select c_integer from tb_h2_types where c_integer is not null limit 1;", (rs, rowNum) -> {
                 return new EnumTypeHandler<>(LicenseOfValueEnum.class).getResult(rs, "c_integer");
             });
 
@@ -201,7 +201,7 @@ public class EnumTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<LicenseOfValueEnum> dat = jdbcTemplate.query("select ?", ps -> {
+            List<LicenseOfValueEnum> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new EnumTypeHandler<>(LicenseOfValueEnum.class).setParameter(ps, 1, LicenseOfValueEnum.Apache2, null);
             }, (rs, rowNum) -> {
                 return new EnumTypeHandler<>(LicenseOfValueEnum.class).getNullableResult(rs, 1);
