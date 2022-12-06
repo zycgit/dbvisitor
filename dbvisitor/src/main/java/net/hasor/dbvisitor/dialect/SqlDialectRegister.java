@@ -17,7 +17,6 @@ package net.hasor.dbvisitor.dialect;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
-import net.hasor.cobble.supplier.TypeSupplier;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.provider.*;
 
@@ -62,14 +61,10 @@ public class SqlDialectRegister {
     }
 
     public static SqlDialect findOrCreate(String dialectName) {
-        return findOrCreate(dialectName, null, null);
+        return findOrCreate(dialectName, null);
     }
 
-    public static SqlDialect findOrCreate(String dialectName, TypeSupplier typeSupplier) {
-        return findOrCreate(dialectName, null, typeSupplier);
-    }
-
-    public static SqlDialect findOrCreate(final String dialectName, ClassLoader loader, TypeSupplier typeSupplier) {
+    public static SqlDialect findOrCreate(String dialectName, ClassLoader loader) {
         if (StringUtils.isBlank(dialectName)) {
             return DefaultSqlDialect.DEFAULT;
         }
@@ -88,20 +83,11 @@ public class SqlDialectRegister {
                 lastMessage = "load dialect '" + dialectName + "' class not found";
             }
         }
-        //
         if (aClass != null) {
-            if (typeSupplier != null) {
-                try {
-                    dialect = (SqlDialect) typeSupplier.get(aClass);
-                } catch (Exception e) {
-                    throw new IllegalStateException(e);
-                }
-            } else {
-                try {
-                    dialect = (SqlDialect) aClass.newInstance();
-                } catch (Exception e) {
-                    throw new IllegalStateException("load dialect '" + aClass.getName() + "' failed, " + e.getMessage(), e);
-                }
+            try {
+                dialect = (SqlDialect) aClass.newInstance();
+            } catch (Exception e) {
+                throw new IllegalStateException("load dialect '" + aClass.getName() + "' failed, " + e.getMessage(), e);
             }
         } else {
             if (StringUtils.isNotBlank(lastMessage)) {
