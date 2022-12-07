@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.mapping.def;
 import net.hasor.cobble.function.Property;
+import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.types.TypeHandler;
 
 /**
@@ -65,4 +66,9 @@ public interface ColumnMapping {
 
     /** 用作 update/delete 的 where 语句时 value 的参数写法，默认是 ? */
     String getWhereValueTemplate();
+
+    KeySeqHolder getKeySeqHolder();
+
+    /** 获取补充描述信息 */
+    ColumnDescription getDescription();
 }

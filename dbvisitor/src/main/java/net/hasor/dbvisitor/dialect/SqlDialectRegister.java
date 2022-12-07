@@ -58,6 +58,7 @@ public class SqlDialectRegister {
 
     public static void registerDialectAlias(String dialectName, Class<? extends SqlDialect> dialectClass) {
         dialectAliasMap.put(dialectName, dialectClass);
+        dialectAliasMap.put(dialectClass.getName(), dialectClass);
     }
 
     public static SqlDialect findOrCreate(String dialectName) {

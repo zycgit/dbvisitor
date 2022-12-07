@@ -834,7 +834,6 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         if (TypeHandlerRegistry.DEFAULT.hasTypeHandler(requiredType) || requiredType.isEnum()) {
             RowMapper<T> mapRowMapper = this.createSingleColumnRowMapper(requiredType);
             return new RowMapperResultSetExtractor<>(mapRowMapper);
-
         }
 
         return new MappingResultSetExtractor<>(requiredType, this.getTypeRegistry());

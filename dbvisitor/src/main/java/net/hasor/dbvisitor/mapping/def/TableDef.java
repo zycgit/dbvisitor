@@ -33,12 +33,14 @@ public class TableDef<T> implements TableMapping<T> {
     private final boolean             useDelimited;
     private final boolean             caseInsensitive;
     private final TypeHandlerRegistry typeHandlerRegistry;
+    private       TableDescription    description;
 
     private final List<ColumnMapping>        columnMappings;
     private final Map<String, ColumnMapping> mapByProperty;
     private final Map<String, ColumnMapping> mapByColumn;
 
-    public TableDef(String catalog, String schema, String table, Class<T> entityType, boolean autoProperty, boolean useDelimited, boolean caseInsensitive, TypeHandlerRegistry typeHandlerRegistry) {
+    public TableDef(String catalog, String schema, String table, Class<T> entityType, //
+            boolean autoProperty, boolean useDelimited, boolean caseInsensitive, TypeHandlerRegistry typeHandlerRegistry) {
         this.catalog = catalog;
         this.schema = schema;
         this.table = table;
@@ -96,6 +98,15 @@ public class TableDef<T> implements TableMapping<T> {
 
     public boolean isCaseInsensitive() {
         return this.caseInsensitive;
+    }
+
+    @Override
+    public TableDescription getDescription() {
+        return this.description;
+    }
+
+    public void setDescription(TableDescription description) {
+        this.description = description;
     }
 
     @Override

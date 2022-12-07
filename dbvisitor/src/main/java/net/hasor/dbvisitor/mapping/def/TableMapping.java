@@ -28,7 +28,6 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface TableMapping<T> {
-
     /** catalog */
     String getCatalog();
 
@@ -49,6 +48,9 @@ public interface TableMapping<T> {
     /** 结果处理是否大小写敏感 */
     boolean isCaseInsensitive();
 
+    /** 获取补充描述信息 */
+    TableDescription getDescription();
+
     Collection<ColumnMapping> getProperties();
 
     ColumnMapping getPropertyByColumn(String column);
@@ -64,5 +66,4 @@ public interface TableMapping<T> {
     }
 
     TypeHandlerRegistry getTypeHandlerRegistry();
-
 }

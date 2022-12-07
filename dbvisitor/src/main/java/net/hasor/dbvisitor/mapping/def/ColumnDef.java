@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.mapping.def;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.Property;
+import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.types.TypeHandler;
 
 /**
@@ -24,24 +25,27 @@ import net.hasor.dbvisitor.types.TypeHandler;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class ColumnDef implements ColumnMapping {
-    private final String         columnName;
-    private final String         propertyName;
-    private final Integer        jdbcType;
-    private final Class<?>       javaType;
-    private final TypeHandler<?> typeHandler;
-    private final Property       handler;
-    private final boolean        insert;
-    private final boolean        update;
-    private final boolean        primary;
-    private final String         selectTemplate;
-    private final String         insertTemplate;
-    private final String         setColTemplate;
-    private final String         setValueTemplate;
-    private final String         whereColTemplate;
-    private final String         whereValueTemplate;
+    private final String            columnName;
+    private final String            propertyName;
+    private final Integer           jdbcType;
+    private final Class<?>          javaType;
+    private final TypeHandler<?>    typeHandler;
+    private final Property          handler;
+    private final boolean           insert;
+    private final boolean           update;
+    private final boolean           primary;
+    private final String            selectTemplate;
+    private final String            insertTemplate;
+    private final String            setColTemplate;
+    private final String            setValueTemplate;
+    private final String            whereColTemplate;
+    private final String            whereValueTemplate;
+    private       KeySeqHolder      keySeqHolder;
+    private       ColumnDescription description;
 
-    public ColumnDef(String columnName, String propertyName, Integer jdbcType, Class<?> javaType, TypeHandler<?> typeHandler, Property mapHandler, boolean insert, boolean update, boolean primary) {
-        this(columnName, propertyName, jdbcType, javaType, typeHandler, mapHandler, insert, update, primary, "", "?", "", "?", "", "?");
+    public ColumnDef(String columnName, String propertyName, Integer jdbcType, Class<?> javaType,//
+            TypeHandler<?> typeHandler, Property mapHandler, boolean insert, boolean update, boolean primary) {
+        this(columnName, propertyName, jdbcType, javaType, typeHandler, mapHandler, insert, update, primary, null, null, null, null, null, null);
     }
 
     public ColumnDef(String columnName, String propertyName, Integer jdbcType, Class<?> javaType,//
@@ -137,6 +141,23 @@ public class ColumnDef implements ColumnMapping {
     @Override
     public boolean isPrimaryKey() {
         return this.primary;
+    }
+
+    public KeySeqHolder getKeySeqHolder() {
+        return this.keySeqHolder;
+    }
+
+    public void setKeySeqHolder(KeySeqHolder keySeqHolder) {
+        this.keySeqHolder = keySeqHolder;
+    }
+
+    @Override
+    public ColumnDescription getDescription() {
+        return this.description;
+    }
+
+    public void setDescription(ColumnDescription description) {
+        this.description = description;
     }
 
     @Override

@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.resolve;
-import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
+import net.hasor.cobble.asm.AnnotationVisitor;
+
+import java.util.Map;
 
 /**
- * TableMapping 解析器
+ * 注解属性挖掘
  * @version : 2021-06-21
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface TableMappingResolve<T> {
-    TableMapping<?> resolveTableMapping(T refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ClassNotFoundException;
+class TableDefaultVisitor extends AnnotationVisitor {
+    private final Map<String, String> allAnnoInfo;
+
+    public TableDefaultVisitor(int api, AnnotationVisitor av, Map<String, String> allAnnoInfo) {
+        super(api, av);
+        this.allAnnoInfo = allAnnoInfo;
+    }
+
+    public void visit(String name, Object value) {
+        allAnnoInfo.put(name, value.toString());
+    }
 }

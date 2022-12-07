@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping.resolve;
-import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-
+package net.hasor.dbvisitor.mapping.def;
 /**
- * TableMapping 解析器
- * @version : 2021-06-21
+ * 表的 DDL 补充信息，用于补充生成 DDL 语句
+ * @version : 2022-12-06
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface TableMappingResolve<T> {
-    TableMapping<?> resolveTableMapping(T refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ClassNotFoundException;
+public interface TableDescription {
+    /** 表备注 */
+    String getComment();
 }
