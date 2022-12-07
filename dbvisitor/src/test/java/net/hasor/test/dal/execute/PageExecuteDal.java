@@ -28,7 +28,7 @@ import java.util.List;
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-@RefMapper("/net_hasor_db/dal_dynamic/execute/page_execute.xml")
+@RefMapper("/dbvisitor_coverage/dal_dynamic/execute/page_execute.xml")
 public interface PageExecuteDal extends BaseMapper<TbUser2> {
     public void deleteAll();
 

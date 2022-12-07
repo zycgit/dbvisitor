@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.test.utils;
-import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 
 import java.sql.Connection;
@@ -35,32 +34,44 @@ public class DsUtils {
     public static String PG_JDBC_URL       = "jdbc:postgresql://127.0.0.1:5432/postgres";
     public static String ORACLE_JDBC_URL   = "jdbc:oracle:thin:@127.0.0.1:1521:xe";
 
-    private static void initH2(JdbcTemplate jdbcTemplate) throws SQLException {
-        // init table
-        jdbcTemplate.execute((ConnectionCallback<Object>) con -> {
-            try {
-                jdbcTemplate.executeUpdate("drop table tb_user");
-            } catch (Exception ignored) {
-            }
-            try {
-                jdbcTemplate.executeUpdate("drop table tb_h2types");
-            } catch (Exception ignored) {
-            }
-            return null;
-        });
-        //
+    private static void initH2(JdbcTemplate jdbcTemplate) {
         try {
-            jdbcTemplate.loadSQL("net_hasor_db/tb_user_for_h2.sql");
+            jdbcTemplate.execute("drop all objects delete files;");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/tb_user_for_h2.sql");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/all_types/tb_h2_types.sql");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/auto_id_for_h2.sql");
+            //
+            jdbcTemplate.loadSQL("/dbvisitor_scene/user_for_h2.sql");
+            jdbcTemplate.execute("insert into user values (1, 'mali', 26, now());");
+            jdbcTemplate.execute("insert into user values (2, 'dative', 32, now());");
+            jdbcTemplate.execute("insert into user values (3, 'jon wes', 41, now());");
+            jdbcTemplate.execute("insert into user values (4, 'mary', 66, now());");
+            jdbcTemplate.execute("insert into user values (5, 'matt', 25, now());");
         } catch (Exception ignored) {
         }
+    }
+
+    private static void initMySql(JdbcTemplate jdbcTemplate) {
         try {
-            jdbcTemplate.loadSQL("net_hasor_db/all_types/tb_h2_types.sql");
+            jdbcTemplate.execute("use information_schema;");
+            jdbcTemplate.execute("drop database devtester;");
+            jdbcTemplate.execute("create database devtester;");
+            jdbcTemplate.execute("use devtester;");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/tb_user_for_mysql.sql");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/all_types/tb_mysql_types.sql");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/auto_id_for_mysql.sql");
+            //
+            jdbcTemplate.loadSQL("/dbvisitor_scene/user_for_mysql.sql");
+            jdbcTemplate.execute("insert into user values (1, 'mali', 26, now());");
+            jdbcTemplate.execute("insert into user values (2, 'dative', 32, now());");
+            jdbcTemplate.execute("insert into user values (3, 'jon wes', 41, now());");
+            jdbcTemplate.execute("insert into user values (4, 'mary', 66, now());");
+            jdbcTemplate.execute("insert into user values (5, 'matt', 25, now());");
         } catch (Exception ignored) {
         }
     }
 
     // Connection
-
     public static Connection h2Conn() throws SQLException {
         DefaultDs ds = new DefaultDs();
         ds.setUrl("jdbc:h2:mem:test_single");
@@ -72,7 +83,6 @@ public class DsUtils {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
         initH2(jdbcTemplate);
 
-        jdbcTemplate.executeUpdate("delete from tb_h2_types");
         jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
         jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
         jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
@@ -81,7 +91,10 @@ public class DsUtils {
     }
 
     public static Connection mysqlConn() throws SQLException {
-        return DriverManager.getConnection(MYSQL_JDBC_URL, "root", "123456");
+        Connection conn = DriverManager.getConnection(MYSQL_JDBC_URL, "root", "123456");
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+        initMySql(jdbcTemplate);
+        return conn;
     }
 
     public static Connection oracleConn() throws SQLException {
@@ -95,7 +108,6 @@ public class DsUtils {
     }
 
     // DataSource
-
     public static DefaultDs h2Ds() throws Throwable {
         DefaultDs ds = new DefaultDs();
         ds.setUrl("jdbc:h2:mem:test_single");

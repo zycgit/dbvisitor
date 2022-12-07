@@ -31,7 +31,7 @@ public abstract class AbstractPropagationTest extends AbstractDbTest {
         conn.setTransactionIsolation(Isolation.REPEATABLE_READ.getValue());
         JdbcTemplate initJdbc = new JdbcTemplate(conn);
         initJdbc.execute("drop table if exists tb_user;");
-        initJdbc.loadSQL("net_hasor_db/tb_user_for_mysql.sql");
+        initJdbc.loadSQL("dbvisitor_coverage/tb_user_for_mysql.sql");
     }
 
     protected int selectCount(Connection conn) throws SQLException {

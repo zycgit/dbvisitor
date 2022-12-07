@@ -1,4 +1,4 @@
-package net.hasor.printlog;
+package net.hasor.scene.printlog;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import org.junit.Before;

@@ -13,22 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.execute.sequence;
-import net.hasor.dbvisitor.dal.execute.AbstractStatementExecute;
-import net.hasor.dbvisitor.dal.execute.KeySequenceHolder;
-import net.hasor.dbvisitor.dal.execute.KeySequenceHolderFactory;
-import net.hasor.dbvisitor.dal.repository.config.SelectKeySqlConfig;
+package net.hasor.scene;
+import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 
-import java.util.UUID;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * 使用 UUID 作为默认 Key 值
- * @version : 2022-04-29
+ *
+ * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-public class UUIDSequenceHolderFactory implements KeySequenceHolderFactory {
+public class UserNameResultSetExtractor implements ResultSetExtractor<List<String>> {
     @Override
-    public KeySequenceHolder createHolder(SelectKeySqlConfig keySqlConfig, AbstractStatementExecute<?> selectKeyExecute) {
-        return (conn, parameter) -> UUID.randomUUID().toString();
+    public List<String> extractData(ResultSet rs) throws SQLException {
+        List<String> results = new ArrayList<>();
+        while (rs.next()) {
+            results.add(rs.getString("name"));
+        }
+        return results;
     }
 }

@@ -18,7 +18,7 @@ public class OraclePerformanceTest {
             e.printStackTrace();
         }
         try {
-            lambdaTemplate.loadSQL("/net_hasor_db/tb_user_for_oracle.sql");
+            lambdaTemplate.loadSQL("/dbvisitor_coverage/tb_user_for_oracle.sql");
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -15,6 +15,7 @@
  */
 package net.hasor.test.dto;
 import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.KeyTypeEnum;
 import net.hasor.dbvisitor.mapping.Table;
 
 import java.util.Date;
@@ -26,7 +27,7 @@ import java.util.Date;
  */
 @Table("tb_user")
 public class TbUser {
-    @Column(value = "userUUID", primary = true)
+    @Column(value = "userUUID", primary = true, keyType = KeyTypeEnum.UUID32)
     private String uid;
     @Column()
     private String name;

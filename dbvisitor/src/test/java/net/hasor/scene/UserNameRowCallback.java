@@ -13,34 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.dal.execute;
-import net.hasor.dbvisitor.dal.repository.Param;
-import net.hasor.dbvisitor.dal.repository.RefMapper;
-import net.hasor.test.dto.AutoId;
-import net.hasor.test.dto.TbUser2;
+package net.hasor.scene;
+import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-@RefMapper("/dbvisitor_coverage/dal_dynamic/execute/basic_execute.xml")
-public interface TestExecuteDal {
-    public int createUser(TbUser2 tbUser);
+public class UserNameRowCallback implements RowCallbackHandler {
+    private final List<String> result = new ArrayList<>();
 
-    public int initUser();
+    public int size() {
+        return result.size();
+    }
 
-    public List<TbUser2> listUserList_1(@Param("abc") String name);
+    public String getName(int i) {
+        return result.get(i);
+    }
 
-    public List<TestUser> listUserList_2(@Param("abc") String name);
-
-    public Map<String, Object> callSelectUser(Map<String, Object> args);
-
-    public int insertAutoID_1(AutoId autoId);
-
-    public int insertAutoID_2(AutoId autoId);
-
+    @Override
+    public void processRow(ResultSet rs, int rowNum) throws SQLException {
+        this.result.add(rs.getString("name"));
+    }
 }

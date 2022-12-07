@@ -18,7 +18,7 @@ public class MySqlPerformanceTest {
             e.printStackTrace();
         }
         try {
-            lambdaTemplate.loadSQL("/net_hasor_db/tb_user_for_mysql.sql");
+            lambdaTemplate.loadSQL("/dbvisitor_coverage/tb_user_for_mysql.sql");
         } catch (Exception e) {
             e.printStackTrace();
         }

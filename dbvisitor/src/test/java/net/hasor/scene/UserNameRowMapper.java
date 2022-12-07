@@ -13,24 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.dal;
-import net.hasor.dbvisitor.dal.repository.RefMapper;
-import net.hasor.test.dto.TbUser;
+package net.hasor.scene;
+import net.hasor.dbvisitor.jdbc.RowMapper;
 
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  *
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-@RefMapper("/dbvisitor_coverage/dal_dynamic/mapper_1.xml")
-public interface Mapper1Dal {
-    public List<TbUser> testBind(String abc);
-
-    public List<TbUser> testChoose(String title, String content);
-
-    public List<TbUser> testForeach(List<String> eventTypes);
-
-    public List<TbUser> testIf(String ownerID, String ownerType);
+public class UserNameRowMapper implements RowMapper<String> {
+    @Override
+    public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return rs.getString("name");
+    }
 }

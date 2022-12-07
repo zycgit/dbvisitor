@@ -1,0 +1,22 @@
+package net.hasor.scene.connection;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.scene.UserDTO;
+import org.junit.Test;
+
+import java.sql.SQLException;
+import java.util.List;
+
+public class DynamicConnectionTestCase {
+    @Test
+    public void callBack_0() throws SQLException {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate();
+        jdbcTemplate.setDynamic(new H2DynamicConnection());
+
+        Object[] args = new Object[] { 40 };
+        List<UserDTO> result = jdbcTemplate.queryForList("select * from user where age > ? order by id", args, UserDTO.class);
+
+        assert result.size() == 2;
+        assert result.get(0).getName().equals("jon wes");
+        assert result.get(1).getName().equals("mary");
+    }
+}

@@ -18,6 +18,7 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.jdbc.mapper.MappingResultSetExtractor;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.mapping.resolve.TableMappingResolve;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.test.dto.TbUser;
@@ -31,10 +32,10 @@ import java.util.Map;
 public class MappingMapperTest {
     @Test
     public void testColumnMapRowMapper_1() throws ClassNotFoundException {
-        TableMappingResolve resolve = new ClassTableMappingResolve();
+        TableMappingResolve resolve = new ClassTableMappingResolve(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
 
         TableMapping<TbUser> tableMapping = resolve.resolveTableMapping(//
-                TbUser.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT, null);
+                TbUser.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
 
         assert tableMapping.getSchema().equals("");
         assert tableMapping.getTable().equals("tb_user");
@@ -50,7 +51,7 @@ public class MappingMapperTest {
             TableMappingResolve resolve = new ClassTableMappingResolve();
 
             TableMapping<TbUser> tableMapping = resolve.resolveTableMapping(//
-                    TbUser.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT, null);
+                    TbUser.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
 
             MappingResultSetExtractor<TbUser> extractor = new MappingResultSetExtractor<>(tableMapping.toReader());
 
@@ -69,7 +70,7 @@ public class MappingMapperTest {
             TableMappingResolve resolve = new ClassTableMappingResolve();
 
             TableMapping<TbUser> tableMapping = resolve.resolveTableMapping(//
-                    TbUser.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT, null);
+                    TbUser.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
 
             MappingResultSetExtractor<Map<String, Object>> extractor = new MappingResultSetExtractor<>(tableMapping.toMapReader());
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.anno;
+package net.hasor.scene.transaction;
 import net.hasor.cobble.dynamic.DynamicConfig;
 import net.hasor.cobble.dynamic.Matchers;
 import net.hasor.cobble.dynamic.Proxy;
@@ -36,6 +36,6 @@ public class TransactionHelper {
         DynamicConfig classConfig = new DynamicConfig(originalType);
         classConfig.addAopInterceptor(Matchers.annotatedWithMethod(Transactional.class), new TransactionalInterceptor(dataSource));
 
-        return Proxy.newEnhanceInstance(loader, original);
+        return Proxy.newProxyInstance(loader, original);
     }
 }

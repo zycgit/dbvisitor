@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.dal;
-import net.hasor.dbvisitor.dal.repository.RefMapper;
-import net.hasor.test.dto.TbUser;
+package net.hasor.scene.connection;
+import net.hasor.dbvisitor.jdbc.DynamicConnection;
+import net.hasor.test.utils.DsUtils;
 
-import java.util.List;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  *
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-@RefMapper("/dbvisitor_coverage/dal_dynamic/mapper_1.xml")
-public interface Mapper1Dal {
-    public List<TbUser> testBind(String abc);
+public class H2DynamicConnection implements DynamicConnection {
+    @Override
+    public Connection getConnection() throws SQLException {
+        return DsUtils.h2Conn();
+    }
 
-    public List<TbUser> testChoose(String title, String content);
-
-    public List<TbUser> testForeach(List<String> eventTypes);
-
-    public List<TbUser> testIf(String ownerID, String ownerType);
+    @Override
+    public void releaseConnection(Connection conn) throws SQLException {
+        conn.close();
+    }
 }

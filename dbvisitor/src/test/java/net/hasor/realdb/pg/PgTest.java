@@ -18,12 +18,13 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.sql.Timestamp;
 
 public class PgTest {
 
     @Test
-    public void testOracleClob() {
+    public void testOracleClob() throws SQLException {
         LambdaTemplate lambdaTemplate = new LambdaTemplate();
 
         ArchiveValidStatisticsResult result = new ArchiveValidStatisticsResult();
