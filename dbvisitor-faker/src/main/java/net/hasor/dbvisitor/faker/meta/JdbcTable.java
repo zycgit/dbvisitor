@@ -20,18 +20,10 @@ package net.hasor.dbvisitor.faker.meta;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class JdbcTable {
-    private String        catalog;
-    private String        schema;
-    private String        table;
-    private JdbcTableType tableType;
-    private String        tableTypeString;
-    private String        comment;
-    //
-    private String        typeCatalog;
-    private String        typeSchema;
-    private String        typeName;
-    private String        selfReferencingColName;
-    private String        refGeneration;
+    private String catalog;
+    private String schema;
+    private String table;
+    private String comment;
 
     public String getCatalog() {
         return this.catalog;
@@ -57,67 +49,11 @@ public class JdbcTable {
         this.table = table;
     }
 
-    public JdbcTableType getTableType() {
-        return this.tableType;
-    }
-
-    public void setTableType(JdbcTableType tableType) {
-        this.tableType = tableType;
-    }
-
-    public String getTableTypeString() {
-        return this.tableTypeString;
-    }
-
-    public void setTableTypeString(String tableTypeString) {
-        this.tableTypeString = tableTypeString;
-    }
-
     public String getComment() {
         return this.comment;
     }
 
     public void setComment(String comment) {
         this.comment = comment;
-    }
-
-    public String getTypeCatalog() {
-        return this.typeCatalog;
-    }
-
-    public void setTypeCatalog(String typeCatalog) {
-        this.typeCatalog = typeCatalog;
-    }
-
-    public String getTypeSchema() {
-        return this.typeSchema;
-    }
-
-    public void setTypeSchema(String typeSchema) {
-        this.typeSchema = typeSchema;
-    }
-
-    public String getTypeName() {
-        return this.typeName;
-    }
-
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
-    }
-
-    public String getSelfReferencingColName() {
-        return this.selfReferencingColName;
-    }
-
-    public void setSelfReferencingColName(String selfReferencingColName) {
-        this.selfReferencingColName = selfReferencingColName;
-    }
-
-    public String getRefGeneration() {
-        return this.refGeneration;
-    }
-
-    public void setRefGeneration(String refGeneration) {
-        this.refGeneration = refGeneration;
     }
 }

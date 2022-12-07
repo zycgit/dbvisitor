@@ -22,8 +22,44 @@ import java.util.List;
  * @version : 2020-04-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class JdbcPrimaryKey extends JdbcConstraint {
+public class JdbcPrimaryKey {
+    private String       catalog;
+    private String       schema;
+    private String       table;
+    private String       name;
     private List<String> columns = new ArrayList<>();
+
+    public String getCatalog() {
+        return catalog;
+    }
+
+    public void setCatalog(String catalog) {
+        this.catalog = catalog;
+    }
+
+    public String getSchema() {
+        return schema;
+    }
+
+    public void setSchema(String schema) {
+        this.schema = schema;
+    }
+
+    public String getTable() {
+        return table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public List<String> getColumns() {
         return this.columns;

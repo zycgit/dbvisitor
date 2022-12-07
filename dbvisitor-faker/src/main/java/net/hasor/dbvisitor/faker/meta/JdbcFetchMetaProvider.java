@@ -78,149 +78,6 @@ public class JdbcFetchMetaProvider {
         }
     }
 
-    public String getCurrentCatalog() throws SQLException {
-        try (Connection conn = this.connect.eGet()) {
-            return conn.getCatalog();
-        }
-    }
-
-    public String getCurrentSchema() throws SQLException {
-        try (Connection conn = this.connect.eGet()) {
-            return conn.getSchema();
-        }
-    }
-
-    public Map<String, JdbcColumn> getColumnMap(String catalog, String schema, String table) throws SQLException {
-        List<JdbcColumn> columns = this.getColumns(catalog, schema, table);
-        if (columns != null) {
-            return columns.stream().collect(Collectors.toMap(JdbcColumn::getColumnName, o -> o));
-        } else {
-            return Collections.emptyMap();
-        }
-    }
-
-    public List<String> getCatalogs() throws SQLException {
-        try (Connection conn = this.connect.eGet()) {
-            DatabaseMetaData metaData = conn.getMetaData();
-            try (ResultSet resultSet = metaData.getCatalogs()) {
-                return new RowMapperResultSetExtractor<>((rs, rowNum) -> {
-                    return rs.getString("TABLE_CAT");
-                }).extractData(resultSet);
-            }
-        }
-    }
-
-    public List<JdbcSchema> getSchemas() throws SQLException {
-        try (Connection conn = this.connect.eGet()) {
-            DatabaseMetaData metaData = conn.getMetaData();
-            try (ResultSet resultSet = metaData.getSchemas()) {
-                final ColumnMapRowMapper rowMapper = new ColumnMapRowMapper();
-                return new RowMapperResultSetExtractor<>((rs, rowNum) -> {
-                    return convertSchema(rowMapper.mapRow(rs, rowNum));
-                }).extractData(resultSet);
-            }
-        }
-    }
-
-    /**
-     * @param catalog a catalog name; must match the catalog name as it
-     *        is stored in the database; "" retrieves those without a catalog;
-     *        <code>null</code> means that the catalog name should not be used to narrow the search
-     */
-    public List<JdbcSchema> getSchemas(String catalog) throws SQLException {
-        try (Connection conn = this.connect.eGet()) {
-            DatabaseMetaData metaData = conn.getMetaData();
-            try (ResultSet resultSet = metaData.getSchemas(catalog, null)) {
-                final ColumnMapRowMapper rowMapper = new ColumnMapRowMapper();
-                return new RowMapperResultSetExtractor<>((rs, rowNum) -> {
-                    return convertSchema(rowMapper.mapRow(rs, rowNum));
-                }).extractData(resultSet);
-            }
-        }
-    }
-
-    /**
-     * @param schemaName a schema name; must match the schema name as it is stored in the database;
-     *        "" retrieves those without a schema;
-     *        <code>null</code> means that the schema name should not be used to narrow the search
-     */
-    public JdbcSchema getSchemaByName(String catalog, String schemaName) throws SQLException {
-        if (StringUtils.isBlank(schemaName)) {
-            return null;
-        }
-        try (Connection conn = this.connect.eGet()) {
-            DatabaseMetaData metaData = conn.getMetaData();
-            try (ResultSet resultSet = metaData.getSchemas(catalog, schemaName)) {
-                final ColumnMapRowMapper rowMapper = new ColumnMapRowMapper();
-                List<JdbcSchema> jdbcSchemas = new RowMapperResultSetExtractor<>((rs, rowNum) -> {
-                    return convertSchema(rowMapper.mapRow(rs, rowNum));
-                }).extractData(resultSet);
-                //
-                return jdbcSchemas.stream().filter(jdbcSchema -> {
-                    return StringUtils.equals(jdbcSchema.getSchema(), schemaName);
-                }).findFirst().orElse(null);
-            }
-        }
-    }
-
-    public List<JdbcTable> getAllTables() throws SQLException {
-        String catalog = null;
-        String schema = null;
-        try (Connection conn = this.connect.eGet()) {
-            catalog = conn.getCatalog();
-            schema = conn.getSchema();
-        }
-        return this.getAllTables(catalog, schema);
-    }
-
-    /**
-     * @param catalog a catalog name; must match the catalog name as it
-     *        is stored in the database; "" retrieves those without a catalog;
-     *        <code>null</code> means that the catalog name should not be used to narrow the search
-     * @param schemaName a schema name; must match the schema name as it is stored in the database;
-     *        "" retrieves those without a schema;
-     *        <code>null</code> means that the schema name should not be used to narrow the search
-     */
-    public List<JdbcTable> getAllTables(String catalog, String schemaName) throws SQLException {
-        try (Connection conn = this.connect.eGet()) {
-            DatabaseMetaData metaData = conn.getMetaData();
-            try (ResultSet resultSet = metaData.getTables(catalog, schemaName, null, null)) {
-                final ColumnMapRowMapper rowMapper = new ColumnMapRowMapper();
-                return new RowMapperResultSetExtractor<>((rs, rowNum) -> {
-                    return convertTable(rowMapper.mapRow(rs, rowNum));
-                }).extractData(resultSet);
-            }
-        }
-    }
-
-    /**
-     * @param catalog a catalog name; must match the catalog name as it
-     *        is stored in the database; "" retrieves those without a catalog;
-     *        <code>null</code> means that the catalog name should not be used to narrow the search
-     * @param schemaName a schema name; must match the schema name as it is stored in the database;
-     *        "" retrieves those without a schema;
-     *        <code>null</code> means that the schema name should not be used to narrow the search
-     */
-    public List<JdbcTable> findTables(String catalog, String schemaName, String[] tables) throws SQLException {
-        try (Connection conn = this.connect.eGet()) {
-            DatabaseMetaData metaData = conn.getMetaData();
-            try (ResultSet resultSet = metaData.getTables(catalog, schemaName, null, null)) {
-                final ColumnMapRowMapper rowMapper = new ColumnMapRowMapper();
-                List<JdbcTable> jdbcTables = new RowMapperResultSetExtractor<>((rs, rowNum) -> {
-                    return convertTable(rowMapper.mapRow(rs, rowNum));
-                }).extractData(resultSet);
-                if (jdbcTables == null) {
-                    return Collections.emptyList();
-                }
-                //
-                List<String> names = Arrays.asList(tables);
-                return jdbcTables.stream().filter(jdbcTable -> {
-                    return names.contains(jdbcTable.getTable());
-                }).collect(Collectors.toList());
-            }
-        }
-    }
-
     /**
      * @param catalog a catalog name; must match the catalog name as it
      *        is stored in the database; "" retrieves those without a catalog;
@@ -388,25 +245,6 @@ public class JdbcFetchMetaProvider {
      *        <code>null</code> means that the schema name should not be used to narrow the search
      * @param table a table name; must match the table name as it is stored in the database
      */
-    public JdbcIndex getIndexes(String catalog, String schemaName, String table, String indexName) throws SQLException {
-        List<JdbcIndex> indexList = getIndexes(catalog, schemaName, table);
-        if (indexList == null || indexList.isEmpty()) {
-            return null;
-        }
-        return indexList.stream().filter(indexItem -> {
-            return StringUtils.equals(indexItem.getName(), indexName);
-        }).findFirst().orElse(null);
-    }
-
-    /**
-     * @param catalog a catalog name; must match the catalog name as it
-     *        is stored in the database; "" retrieves those without a catalog;
-     *        <code>null</code> means that the catalog name should not be used to narrow the search
-     * @param schemaName a schema name; must match the schema name as it is stored in the database;
-     *        "" retrieves those without a schema;
-     *        <code>null</code> means that the schema name should not be used to narrow the search
-     * @param table a table name; must match the table name as it is stored in the database
-     */
     public List<JdbcIndex> getUniqueKey(String catalog, String schemaName, String table) throws SQLException {
         if (StringUtils.isBlank(table)) {
             return null;
@@ -415,122 +253,15 @@ public class JdbcFetchMetaProvider {
         if (indices == null || indices.isEmpty()) {
             return Collections.emptyList();
         }
-        //
         return indices.stream().filter(JdbcIndex::isUnique).collect(Collectors.toList());
     }
 
-    /**
-     * @param catalog a catalog name; must match the catalog name as it
-     *        is stored in the database; "" retrieves those without a catalog;
-     *        <code>null</code> means that the catalog name should not be used to narrow the search
-     * @param schemaName a schema name; must match the schema name as it is stored in the database;
-     *        "" retrieves those without a schema;
-     *        <code>null</code> means that the schema name should not be used to narrow the search
-     * @param table a table name; must match the table name as it is stored in the database
-     */
-    public List<JdbcForeignKey> getForeignKey(String catalog, String schemaName, String table) throws SQLException {
-        if (StringUtils.isBlank(table)) {
-            return Collections.emptyList();
-        }
-        try (Connection conn = this.connect.eGet()) {
-            DatabaseMetaData metaData = conn.getMetaData();
-            // try (ResultSet exportedKeys = metaData.getExportedKeys(catalog, schemaName, table)) {
-            //     List<Map<String, Object>> mapList = new ColumnMapResultSetExtractor().extractData(exportedKeys);
-            // }
-            try (ResultSet importedKeys = metaData.getImportedKeys(catalog, schemaName, table)) {
-                List<Map<String, Object>> mapList = new ColumnMapResultSetExtractor().extractData(importedKeys);
-                if (mapList == null || mapList.isEmpty()) {
-                    return Collections.emptyList();
-                }
-                //
-                return mapList.stream().sorted((o1, o2) -> {
-                    Integer o1KeySeq = safeToInteger(o1.get("KEY_SEQ"));
-                    Integer o2KeySeq = safeToInteger(o2.get("KEY_SEQ"));
-                    if (o1KeySeq != null && o2KeySeq != null) {
-                        return Integer.compare(o1KeySeq, o2KeySeq);
-                    } else {
-                        return 0;
-                    }
-                }).map(this::convertForeignKey).collect(Collectors.groupingBy(o -> {
-                    // group by (schema + name)
-                    return o.getSchema() + "," + o.getName();
-                }, Collectors.reducing((fk1, fk2) -> {
-                    // reducing group by data in to one.
-                    fk1.getColumns().addAll(fk2.getColumns());
-                    fk1.getReferenceMapping().putAll(fk2.getReferenceMapping());
-                    return fk1;
-                }))).values().stream().map(o -> {
-                    return o.orElse(null);
-                }).filter(Objects::nonNull).collect(Collectors.toList());
-            }
-        }
-    }
-
-    /**
-     * @param catalog a catalog name; must match the catalog name as it
-     *        is stored in the database; "" retrieves those without a catalog;
-     *        <code>null</code> means that the catalog name should not be used to narrow the search
-     * @param schemaName a schema name; must match the schema name as it is stored in the database;
-     *        "" retrieves those without a schema;
-     *        <code>null</code> means that the schema name should not be used to narrow the search
-     * @param table a table name; must match the table name as it is stored in the database
-     */
-    public List<JdbcConstraint> getConstraint(String catalog, String schemaName, String table) throws SQLException {
-        JdbcPrimaryKey primaryKey = getPrimaryKey(catalog, schemaName, table);
-        List<JdbcForeignKey> foreignKey = getForeignKey(catalog, schemaName, table);
-        List<JdbcConstraint> constraintList = new ArrayList<>();
-        if (primaryKey != null) {
-            constraintList.add(primaryKey);
-        }
-        constraintList.addAll(foreignKey);
-        return constraintList;
-    }
-
-    /**
-     * @param catalog a catalog name; must match the catalog name as it
-     *        is stored in the database; "" retrieves those without a catalog;
-     *        <code>null</code> means that the catalog name should not be used to narrow the search
-     * @param schemaName a schema name; must match the schema name as it is stored in the database;
-     *        "" retrieves those without a schema;
-     *        <code>null</code> means that the schema name should not be used to narrow the search
-     * @param table a table name; must match the table name as it is stored in the database
-     */
-    public List<JdbcConstraint> getConstraint(String catalog, String schemaName, String table, JdbcConstraintType... types) throws SQLException {
-        List<JdbcConstraint> constraintList = getConstraint(catalog, schemaName, table);
-        if (constraintList == null || constraintList.isEmpty()) {
-            return constraintList;
-        }
-        return constraintList.stream().filter(constraint -> {
-            for (JdbcConstraintType constraintType : types) {
-                if (constraintType == constraint.getConstraintType()) {
-                    return true;
-                }
-            }
-            return false;
-        }).collect(Collectors.toList());
-    }
-
-    protected JdbcSchema convertSchema(Map<String, Object> recordMap) {
-        JdbcSchema jdbcSchema = new JdbcSchema();
-        jdbcSchema.setSchema(safeToString(recordMap.get("TABLE_SCHEM")));
-        jdbcSchema.setCatalog(safeToString(recordMap.get("TABLE_CATALOG")));
-        return jdbcSchema;
-    }
-
-    protected JdbcTable convertTable(Map<String, Object> rs) throws SQLException {
+    protected JdbcTable convertTable(Map<String, Object> rs) {
         JdbcTable jdbcSchema = new JdbcTable();
         jdbcSchema.setCatalog(safeToString(rs.get("TABLE_CAT")));
         jdbcSchema.setSchema(safeToString(rs.get("TABLE_SCHEM")));
         jdbcSchema.setTable(safeToString(rs.get("TABLE_NAME")));
-        jdbcSchema.setTableTypeString(safeToString(rs.get("TABLE_TYPE")));
-        jdbcSchema.setTableType(JdbcTableType.valueOfCode(jdbcSchema.getTableTypeString()));
         jdbcSchema.setComment(safeToString(rs.get("REMARKS")));
-        //
-        jdbcSchema.setTypeCatalog(safeToString(rs.get("TYPE_CAT")));
-        jdbcSchema.setTypeSchema(safeToString(rs.get("TYPE_SCHEM")));
-        jdbcSchema.setTypeName(safeToString(rs.get("TYPE_NAME")));
-        jdbcSchema.setSelfReferencingColName(safeToString(rs.get("SELF_REFERENCING_COL_NAME")));
-        jdbcSchema.setRefGeneration(safeToString(rs.get("REF_GENERATION")));
         return jdbcSchema;
     }
 
@@ -552,6 +283,9 @@ public class JdbcFetchMetaProvider {
         jdbcColumn.setNullableType(JdbcNullableType.valueOfCode(safeToInteger(rs.get("NULLABLE"))));
         jdbcColumn.setColumnType(safeToString(rs.get("TYPE_NAME")));
         jdbcColumn.setJdbcType(safeToInteger(rs.get("DATA_TYPE")));
+        if (StringUtils.isNotBlank(jdbcColumn.getColumnType())) {
+            jdbcColumn.setColumnType(jdbcColumn.getColumnType().toLowerCase());
+        }
         //
         jdbcColumn.setColumnSize(safeToInteger(rs.get("COLUMN_SIZE")));
         jdbcColumn.setComment(safeToString(rs.get("REMARKS")));
@@ -594,7 +328,6 @@ public class JdbcFetchMetaProvider {
         primaryKey.setSchema(safeToString(recordMap.get("TABLE_SCHEM")));
         primaryKey.setTable(safeToString(recordMap.get("TABLE_NAME")));
         primaryKey.setName(safeToString(recordMap.get("PK_NAME")));
-        primaryKey.setConstraintType(JdbcConstraintType.PrimaryKey);
         //
         primaryKey.getColumns().add(safeToString(recordMap.get("COLUMN_NAME")));
         return primaryKey;
@@ -619,28 +352,6 @@ public class JdbcFetchMetaProvider {
         jdbcIndex.getColumns().add(columnName);
         jdbcIndex.getStorageType().put(columnName, ascOrDesc);
         return jdbcIndex;
-    }
-
-    protected JdbcForeignKey convertForeignKey(Map<String, Object> recordMap) {
-        JdbcForeignKey foreignKey = new JdbcForeignKey();
-        foreignKey.setCatalog(safeToString(recordMap.get("FKTABLE_CAT")));
-        foreignKey.setSchema(safeToString(recordMap.get("FKTABLE_SCHEM")));
-        foreignKey.setTable(safeToString(recordMap.get("FKTABLE_NAME")));
-        foreignKey.setName(safeToString(recordMap.get("FK_NAME")));
-        foreignKey.setConstraintType(JdbcConstraintType.ForeignKey);
-        foreignKey.setReferenceCatalog(safeToString(recordMap.get("PKTABLE_CAT")));
-        foreignKey.setReferenceSchema(safeToString(recordMap.get("PKTABLE_SCHEM")));
-        foreignKey.setReferenceTable(safeToString(recordMap.get("PKTABLE_NAME")));
-        //
-        foreignKey.setUpdateRule(JdbcForeignKeyRule.valueOfCode(safeToInteger(recordMap.get("UPDATE_RULE"))));
-        foreignKey.setDeleteRule(JdbcForeignKeyRule.valueOfCode(safeToInteger(recordMap.get("DELETE_RULE"))));
-        foreignKey.setDeferrability(JdbcDeferrability.valueOfCode(safeToInteger(recordMap.get("DEFERRABILITY"))));
-        //
-        String pkColumnName = safeToString(recordMap.get("PKCOLUMN_NAME"));
-        String fkColumnName = safeToString(recordMap.get("FKCOLUMN_NAME"));
-        foreignKey.getColumns().add(fkColumnName);
-        foreignKey.getReferenceMapping().put(fkColumnName, pkColumnName);
-        return foreignKey;
     }
 
     protected static String safeToString(Object obj) {
