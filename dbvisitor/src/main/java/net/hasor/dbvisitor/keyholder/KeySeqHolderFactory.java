@@ -13,19 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.meta;
+package net.hasor.dbvisitor.keyholder;
 /**
- * 大小写敏感类别
- * @version : 2020-10-31
+ * 主键生成器
+ * @version : 2022-12-01
  * @author 赵永春 (zyc@hasor.net)
  */
-public enum CaseSensitivity {
-    /** 大写 */
-    Upper,
-    /** 小写 */
-    Lower,
-    /** 精确的 */
-    Exact,
-    /** 模糊的（即可大写也可小写） */
-    Fuzzy
+public interface KeySeqHolderFactory {
+    KeySeqHolder createHolder(CreateContext context);
 }

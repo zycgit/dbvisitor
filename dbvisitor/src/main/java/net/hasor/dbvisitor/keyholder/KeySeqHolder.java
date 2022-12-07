@@ -13,34 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.faker.meta;
+package net.hasor.dbvisitor.keyholder;
+import net.hasor.dbvisitor.mapping.def.ColumnMapping;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 /**
- * Jdbc 约束类型
- * @version : 2020-04-25
+ * 主键生成器
+ * @version : 2022-12-01
  * @author 赵永春 (zyc@hasor.net)
  */
-public enum JdbcConstraintType {
-    /** 主键 */
-    PrimaryKey("PRIMARY KEY"),
-    /** 外建 */
-    ForeignKey("FOREIGN KEY");
+public interface KeySeqHolder {
 
-    private final String typeName;
-
-    JdbcConstraintType(String typeName) {
-        this.typeName = typeName;
+    default Object beforeApply(Connection conn, Object entity, ColumnMapping mapping) throws SQLException {
+        return null;
     }
 
-    public String getTypeName() {
-        return this.typeName;
-    }
-
-    public static JdbcConstraintType valueOfCode(String code) {
-        for (JdbcConstraintType constraintType : JdbcConstraintType.values()) {
-            if (constraintType.typeName.equals(code)) {
-                return constraintType;
-            }
-        }
+    default Object afterApply(ResultSet rs, Object entity, int argsIndex, ColumnMapping mapping) throws SQLException {
         return null;
     }
 }
