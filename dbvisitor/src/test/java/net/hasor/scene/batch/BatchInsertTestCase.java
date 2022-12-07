@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/** 批量插入的不同传参方式 */
 public class BatchInsertTestCase {
     @Test
     public void batchInsertArrays_0() throws SQLException {

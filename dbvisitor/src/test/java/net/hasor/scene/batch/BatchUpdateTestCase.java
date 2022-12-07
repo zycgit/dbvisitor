@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/** 批量更新的不同传参方式 */
 public class BatchUpdateTestCase {
     @Test
     public void batchUpdateArrays_0() throws SQLException {

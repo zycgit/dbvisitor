@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Map;
 
+/** 使用 RowCallbackHandler 接口来接收结果集 */
 public class RowCallbackHandlerTestCase {
     @Test
     public void noArgsExtractor_0() throws SQLException {

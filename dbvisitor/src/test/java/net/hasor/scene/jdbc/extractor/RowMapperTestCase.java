@@ -16,6 +16,7 @@ import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 
+/** 使用 RowMapper 接口来接收结果集 */
 public class RowMapperTestCase {
     @Test
     public void noArgsExtractor_0() throws SQLException {

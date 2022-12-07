@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+/** 使用 PreparedStatementCreator 接口创建 PreparedStatement 对象以执行参数化SQL查询 */
 public class PreparedStatementCreatorTestCase {
     @Test
     public void callBack_0() throws SQLException {

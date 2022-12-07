@@ -11,6 +11,7 @@ import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 
+/** 将参数封装为 SqlParameter 接口来传递 SQL 参数（使用 SqlParameterUtils 工具类） */
 public class SqlParamArgsTestCase {
     @Test
     public void paramArgs_0() throws SQLException {

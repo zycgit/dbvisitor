@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+/** 使用 Map 来传递 SQL 参数 */
 public class MapArgsTestCase {
     @Test
     public void mapArgs_0() throws SQLException {

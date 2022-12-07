@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/** 获取到原始的 Connection */
 public class ConnectionCallbackTestCase {
     @Test
     public void callBack_0() throws SQLException {

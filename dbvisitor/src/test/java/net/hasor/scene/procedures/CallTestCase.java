@@ -12,6 +12,7 @@
 //import java.sql.SQLException;
 //import java.util.*;
 //
+///** 存储过程的不同调用方式 */
 //public class CallTestCase {
 //    @Test
 //    public void mysqlCallResultSet_2() throws SQLException {

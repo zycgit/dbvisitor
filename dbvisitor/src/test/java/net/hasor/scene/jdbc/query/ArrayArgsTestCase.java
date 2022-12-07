@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+/** 使用对象数组来传递 SQL 参数 */
 public class ArrayArgsTestCase {
     @Test
     public void arrayArgs_0() throws SQLException {

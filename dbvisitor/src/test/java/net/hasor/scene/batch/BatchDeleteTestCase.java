@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/** 批量删除的不同传参方式 */
 public class BatchDeleteTestCase {
     @Test
     public void batchDeleteArrays_0() throws SQLException {

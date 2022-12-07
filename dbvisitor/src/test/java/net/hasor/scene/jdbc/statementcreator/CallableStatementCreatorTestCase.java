@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+/** 使用 CallableStatementCreator 接口创建 CallableStatement 对象以执行存储过程调用 */
 public class CallableStatementCreatorTestCase {
 
     @Test
@@ -35,7 +36,7 @@ public class CallableStatementCreatorTestCase {
 
     @Test
     public void callBack_1() throws SQLException {
-        // PreparedStatementCreator and ResultSetExtractor
+        // CallableStatementCreator and ResultSetExtractor
         try (Connection c = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
@@ -55,7 +56,7 @@ public class CallableStatementCreatorTestCase {
 
     @Test
     public void callBack_2() throws SQLException {
-        // PreparedStatementCreator and RowMapper
+        // CallableStatementCreator and RowMapper
         try (Connection c = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 

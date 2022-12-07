@@ -1,4 +1,4 @@
-package net.hasor.scene.printlog;
+package net.hasor.dbvisitor.printlog;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import org.junit.Before;

@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+/** 使用 SqlParameterSource 接口来传递 SQL 参数 */
 public class SourceArgsTestCase {
     @Test
     public void sourceArgs_0() throws SQLException {

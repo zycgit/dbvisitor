@@ -1,4 +1,4 @@
-package net.hasor.scene.printlog;
+package net.hasor.dbvisitor.printlog;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.test.utils.DsUtils;
@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/** 打印日志 */
 public class JdbcTemplateLogTest extends AbstractPrintLogTest {
 
     @Test

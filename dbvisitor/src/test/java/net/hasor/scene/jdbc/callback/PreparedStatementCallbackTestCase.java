@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+/** SQL 执行使用 PreparedStatementCallback 接口来处理 */
 public class PreparedStatementCallbackTestCase {
     @Test
     public void callBack_0() throws SQLException {

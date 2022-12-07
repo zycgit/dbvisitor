@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/** 存储过程调用使用 CallableStatementCallback 接口来处理 */
 public class CallableStatementCallbackTestCase {
     @Test
     public void callBack_0() throws SQLException {

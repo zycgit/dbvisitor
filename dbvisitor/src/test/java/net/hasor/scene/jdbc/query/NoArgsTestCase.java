@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+/** 没有参数的 SQL */
 public class NoArgsTestCase {
     @Test
     public void noArgs_0() throws SQLException {
