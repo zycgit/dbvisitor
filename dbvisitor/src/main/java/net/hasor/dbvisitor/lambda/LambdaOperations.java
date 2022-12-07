@@ -40,7 +40,7 @@ public interface LambdaOperations extends JdbcOperations {
 
     /** 相当于 insert ... */
     default InsertOperation<Map<String, Object>> lambdaInsert(String table) throws SQLException {
-        return lambdaInsert(null, table, null);
+        return lambdaInsert(null, null, table);
     }
 
     /** 相当于 insert ... */

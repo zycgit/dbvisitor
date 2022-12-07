@@ -1,6 +1,6 @@
 create table auto_id
 (
-    id       int auto_increment primary key,
-    userUUID varchar(50)  not null,
-    name     varchar(100) null
+    id   int auto_increment primary key,
+    uid  varchar(50) null,
+    name varchar(100) null
 );

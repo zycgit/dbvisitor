@@ -45,18 +45,18 @@ public interface InsertExecute<R, T> extends BoundSqlBuilder {
     R onDuplicateStrategy(DuplicateKeyStrategy strategy);
 
     /** 批量插入记录 */
-    default R applyEntity(T entity) {
+    default R applyEntity(T entity) throws SQLException {
         return applyEntity(Collections.singletonList(entity));
     }
 
     /** 批量插入记录 */
-    R applyEntity(List<T> entityList);
+    R applyEntity(List<T> entityList) throws SQLException;
 
     /** 批量插入记录 */
-    default R applyMap(Map<String, Object> entity) {
+    default R applyMap(Map<String, Object> entity) throws SQLException {
         return applyMap(Collections.singletonList(entity));
     }
 
     /** 批量插入记录 */
-    R applyMap(List<Map<String, Object>> entityList);
+    R applyMap(List<Map<String, Object>> entityList) throws SQLException;
 }

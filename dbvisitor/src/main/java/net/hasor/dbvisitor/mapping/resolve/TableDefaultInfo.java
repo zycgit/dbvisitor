@@ -30,24 +30,23 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  */
 class TableDefaultInfo implements TableDefault, Table {
-    private String     catalog;
-    private String     schema;
-    private String     table;
-    private boolean    autoMapping;
-    private boolean    mapUnderscoreToCamelCase;
-    private boolean    useDelimited;
-    private boolean    caseInsensitive;
-    private SqlDialect dialect;
-    private String     dialectName;
+    private final String     catalog;
+    private final String     schema;
+    private final String     table;
+    private final boolean    autoMapping;
+    private final boolean    mapUnderscoreToCamelCase;
+    private final boolean    useDelimited;
+    private final boolean    caseInsensitive;
+    private final SqlDialect dialect;
+    private final String     dialectName;
 
     TableDefaultInfo(Map<String, String> attrMaps, ClassLoader classLoader, MappingOptions options) {
-        if (attrMaps == null) {
-            return;
-        }
-
         String catalog = attrMaps.get("catalog");
         String schema = attrMaps.get("schema");
-        String table = attrMaps.get("table");
+        String table = attrMaps.get("value");
+        if (StringUtils.isBlank(table)) {
+            table = attrMaps.get("name");
+        }
         String autoMapping = attrMaps.get("autoMapping");
         String mapUnderscoreToCamelCase = attrMaps.get("mapUnderscoreToCamelCase");
         String useDelimited = attrMaps.get("useDelimited");

@@ -21,6 +21,8 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.DynamicConnection;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.keyholder.CreateContext;
+import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.lambda.core.BasicLambda;
 import net.hasor.dbvisitor.lambda.support.entity.DeleteLambdaForEntity;
 import net.hasor.dbvisitor.lambda.support.entity.InsertLambdaForEntity;
@@ -30,6 +32,7 @@ import net.hasor.dbvisitor.lambda.support.map.DeleteLambdaForMap;
 import net.hasor.dbvisitor.lambda.support.map.InsertLambdaForMap;
 import net.hasor.dbvisitor.lambda.support.map.SelectLambdaForMap;
 import net.hasor.dbvisitor.lambda.support.map.UpdateLambdaForMap;
+import net.hasor.dbvisitor.mapping.KeyTypeEnum;
 import net.hasor.dbvisitor.mapping.def.ColumnDef;
 import net.hasor.dbvisitor.mapping.def.TableDef;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
@@ -39,10 +42,9 @@ import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * 继承自 JdbcTemplate 并提供 lambda 方式生成 SQL。
@@ -150,7 +152,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
     }
 
     public SqlDialect getDialect() {
-        return dialect;
+        return this.dialect;
     }
 
     public void setDialect(SqlDialect dialect) {
@@ -177,13 +179,16 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         mapping = this.entMapping.computeIfAbsent(exampleType, key -> {
             MappingOptions opt = new MappingOptions(options);
             opt.setCaseInsensitive(this.isResultsCaseInsensitive());
-            return new ClassTableMappingResolve().resolveTableMapping(exampleType, exampleType.getClassLoader(), this.getTypeRegistry(), opt);
+            if (this.getDialect() != null) {
+                opt.setDefaultDialect(this.getDialect());
+            }
+            return new ClassTableMappingResolve(opt).resolveTableMapping(exampleType, exampleType.getClassLoader(), this.getTypeRegistry());
         });
         return (TableMapping<T>) mapping;
     }
 
-    private List<String> fetchPrimaryKeys(Connection con, String schema, String table) throws SQLException {
-        try (ResultSet primaryKeys = con.getMetaData().getPrimaryKeys(null, schema, table)) {
+    private List<String> fetchPrimaryKeys(Connection con, TableDef<?> tableDef) throws SQLException {
+        try (ResultSet primaryKeys = con.getMetaData().getPrimaryKeys(tableDef.getCatalog(), tableDef.getSchema(), tableDef.getTable())) {
             List<String> keys = new ArrayList<>();
             while (primaryKeys.next()) {
                 keys.add(primaryKeys.getString("COLUMN_NAME"));
@@ -192,8 +197,8 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         }
     }
 
-    private List<String> fetchUniqueKeys(Connection con, String schema, String table) throws SQLException {
-        try (ResultSet indexInfo = con.getMetaData().getIndexInfo(null, schema, table, false, false)) {
+    private List<String> fetchUniqueKeys(Connection con, TableDef<?> tableDef) throws SQLException {
+        try (ResultSet indexInfo = con.getMetaData().getIndexInfo(tableDef.getCatalog(), tableDef.getSchema(), tableDef.getTable(), false, false)) {
             List<String> keys = new ArrayList<>();
             while (indexInfo.next()) {
                 boolean nonUnique = indexInfo.getBoolean("NON_UNIQUE");
@@ -205,31 +210,47 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         }
     }
 
-    protected List<ColumnDef> fetchColumns(Connection con, String schema, String table, MappingOptions options) throws SQLException {
-        if (StringUtils.isBlank(schema)) {
-            schema = null;
-        }
-
-        List<String> primaryKey = fetchPrimaryKeys(con, schema, table);
-        List<String> uniqueKey = fetchUniqueKeys(con, schema, table);
+    protected List<ColumnDef> fetchColumns(Connection con, TableDef<?> tableDef, MappingOptions options, Function<String, String> fmtName) throws SQLException {
+        List<String> primaryKey = fetchPrimaryKeys(con, tableDef);
+        //List<String> uniqueKey = fetchUniqueKeys(con, schema, table);
         TypeHandlerRegistry typeRegistry = getTypeRegistry();
 
-        try (ResultSet columns = con.getMetaData().getColumns(null, schema, table, null)) {
+        try (ResultSet rs = con.getMetaData().getColumns(tableDef.getCatalog(), tableDef.getSchema(), tableDef.getTable(), null)) {
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            List<String> colNames = new ArrayList<>();
+            for (int i = 1; i <= columnCount; i++) {
+                colNames.add(metaData.getColumnName(i));
+            }
+
             List<ColumnDef> result = new ArrayList<>();
-            while (columns.next()) {
-                String columnName = columns.getString("COLUMN_NAME");
+            while (rs.next()) {
+                Map<String, Object> confMap = new HashMap<>();
+                for (String confName : colNames) {
+                    confMap.put(confName, rs.getString(confName));
+                }
+
+                String columnName = rs.getString("COLUMN_NAME");
                 String propertyName = lineToHump(columnName, options.getMapUnderscoreToCamelCase());
-                Integer jdbcType = columns.getInt("DATA_TYPE");
-                if (columns.wasNull()) {
+                Integer jdbcType = rs.getInt("DATA_TYPE");
+                if (rs.wasNull()) {
                     jdbcType = null;
                 }
-                boolean generated = StringUtils.equalsIgnoreCase("YES", columns.getString("IS_GENERATEDCOLUMN"));
-                boolean primary = primaryKey.contains(columnName);
+                boolean isAuto = StringUtils.equalsIgnoreCase("YES", rs.getString("IS_AUTOINCREMENT"));
+                boolean isVirtual = StringUtils.equalsIgnoreCase("YES", rs.getString("IS_GENERATEDCOLUMN"));
+                boolean isPrimary = primaryKey.contains(columnName);
 
                 TypeHandler<?> typeHandler = (jdbcType == null) ? typeRegistry.getDefaultTypeHandler() : typeRegistry.getTypeHandler(jdbcType);
                 Property mapHandler = BeanUtils.createMapPropertyFunc(propertyName);
 
-                result.add(new ColumnDef(columnName, propertyName, jdbcType, Object.class, typeHandler, mapHandler, !generated, !generated, primary));
+                ColumnDef colDef = new ColumnDef(columnName, propertyName, jdbcType, Object.class, typeHandler, mapHandler, !isVirtual, !isVirtual, isPrimary);
+
+                // init KeySeqHolder
+                if (isAuto) {
+                    KeySeqHolder sequenceHolder = KeyTypeEnum.Auto.createHolder(new CreateContext(options, tableDef, colDef, confMap));
+                    colDef.setKeySeqHolder(sequenceHolder);
+                }
+                result.add(colDef);
             }
             return result;
         }
@@ -243,7 +264,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         }
     }
 
-    protected TableMapping<?> getTableMapping(final String catalog, final String schema, final String table, MappingOptions options) throws SQLException {
+    protected TableMapping<?> getTableMapping(final String catalog, final String schema, final String table, MappingOptions opt) throws SQLException {
         if (StringUtils.isBlank(table)) {
             throw new NullPointerException("table is blank.");
         }
@@ -254,13 +275,24 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
             return mapping;
         }
 
-        MappingOptions opt = new MappingOptions(options);
-        opt.setCaseInsensitive(this.isResultsCaseInsensitive());
-        boolean caseInsensitive = opt.getCaseInsensitive() == null || Boolean.TRUE.equals(opt.getCaseInsensitive());
+        MappingOptions copyOpt = MappingOptions.buildNew(opt);
+        copyOpt.setCaseInsensitive(this.isResultsCaseInsensitive());
+        copyOpt.setUseDelimited(Boolean.TRUE.equals(copyOpt.getUseDelimited()));
+        if (this.getDialect() != null) {
+            copyOpt.setDefaultDialect(this.getDialect());
+        }
 
-        final TableDef<?> defMap = new TableDef<>(catalog, schema, table, LinkedHashMap.class, true, true, caseInsensitive, getTypeRegistry());
+        Function<String, String> fmtNameFoo = fmtNameFoo(copyOpt);
+
+        final String finalCatalog = StringUtils.isBlank(catalog) ? null : fmtNameFoo.apply(catalog);
+        final String finalSchema = StringUtils.isBlank(schema) ? null : fmtNameFoo.apply(schema);
+        final String finalTable = StringUtils.isBlank(table) ? null : fmtNameFoo.apply(table);
+        boolean useDelimited = copyOpt.getUseDelimited();
+        boolean caseInsensitive = copyOpt.getCaseInsensitive();
+
+        final TableDef<?> defMap = new TableDef<>(finalCatalog, finalSchema, finalTable, LinkedHashMap.class, true, useDelimited, caseInsensitive, getTypeRegistry());
         List<ColumnDef> columnDefs = execute((ConnectionCallback<List<ColumnDef>>) con -> {
-            return fetchColumns(con, schema, table, opt);
+            return fetchColumns(con, defMap, copyOpt, fmtNameFoo);
         });
 
         for (ColumnDef cDef : columnDefs) {
@@ -271,55 +303,70 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         return defMap;
     }
 
-    protected SqlDialect getDefaultDialect() {
-        return this.dialect;
-    }
-
-    private <E extends BasicLambda<R, T, P>, R, T, P> E configDialect(E execute) {
-        SqlDialect dialect = getDefaultDialect();
-        if (dialect != null) {
-            execute.setDialect(dialect);
-        }
+    protected <E extends BasicLambda<R, T, P>, R, T, P> E configLambda(E execute) {
         return execute;
     }
 
     @Override
     public <T> InsertOperation<T> lambdaInsert(Class<T> exampleType, MappingOptions options) {
-        return configDialect(new InsertLambdaForEntity<>(exampleType, getTableMapping(exampleType, options), this));
+        return configLambda(new InsertLambdaForEntity<>(exampleType, getTableMapping(exampleType, options), this));
     }
 
     @Override
     public InsertOperation<Map<String, Object>> lambdaInsert(String catalog, String schema, String table, MappingOptions options) throws SQLException {
-        return configDialect(new InsertLambdaForMap(getTableMapping(catalog, schema, table, options), this));
+        return configLambda(new InsertLambdaForMap(getTableMapping(catalog, schema, table, options), this));
     }
 
     @Override
     public <T> EntityUpdateOperation<T> lambdaUpdate(Class<T> exampleType, MappingOptions options) {
-        return configDialect(new UpdateLambdaForEntity<>(exampleType, getTableMapping(exampleType, options), this));
+        return configLambda(new UpdateLambdaForEntity<>(exampleType, getTableMapping(exampleType, options), this));
     }
 
     @Override
     public MapUpdateOperation lambdaUpdate(String catalog, String schema, String table, MappingOptions options) throws SQLException {
-        return configDialect(new UpdateLambdaForMap(getTableMapping(catalog, schema, table, options), this));
+        return configLambda(new UpdateLambdaForMap(getTableMapping(catalog, schema, table, options), this));
     }
 
     @Override
     public <T> EntityDeleteOperation<T> lambdaDelete(Class<T> exampleType, MappingOptions options) {
-        return configDialect(new DeleteLambdaForEntity<>(exampleType, getTableMapping(exampleType, options), this));
+        return configLambda(new DeleteLambdaForEntity<>(exampleType, getTableMapping(exampleType, options), this));
     }
 
     @Override
     public MapDeleteOperation lambdaDelete(String catalog, String schema, String table, MappingOptions options) throws SQLException {
-        return configDialect(new DeleteLambdaForMap(getTableMapping(catalog, schema, table, options), this));
+        return configLambda(new DeleteLambdaForMap(getTableMapping(catalog, schema, table, options), this));
     }
 
     @Override
     public <T> EntityQueryOperation<T> lambdaQuery(Class<T> exampleType, MappingOptions options) {
-        return configDialect(new SelectLambdaForEntity<>(exampleType, getTableMapping(exampleType, options), this));
+        return configLambda(new SelectLambdaForEntity<>(exampleType, getTableMapping(exampleType, options), this));
     }
 
     @Override
     public MapQueryOperation lambdaQuery(String catalog, String schema, String table, MappingOptions options) throws SQLException {
-        return configDialect(new SelectLambdaForMap(getTableMapping(catalog, schema, table, options), this));
+        return configLambda(new SelectLambdaForMap(getTableMapping(catalog, schema, table, options), this));
+    }
+
+    private Function<String, String> fmtNameFoo(MappingOptions options) throws SQLException {
+        if (!options.getCaseInsensitive()) {
+            return s -> s;
+        }
+        return execute((ConnectionCallback<Function<String, String>>) con -> {
+            DatabaseMetaData metaData = con.getMetaData();
+            if (options.getUseDelimited()) {
+                if (metaData.storesUpperCaseQuotedIdentifiers()) {
+                    return (Function<String, String>) String::toUpperCase;
+                } else if (metaData.storesLowerCaseQuotedIdentifiers()) {
+                    return (Function<String, String>) String::toLowerCase;
+                }
+            } else {
+                if (metaData.storesUpperCaseIdentifiers()) {
+                    return (Function<String, String>) String::toUpperCase;
+                } else if (metaData.storesLowerCaseIdentifiers()) {
+                    return (Function<String, String>) String::toLowerCase;
+                }
+            }
+            return (Function<String, String>) s -> s;
+        });
     }
 }

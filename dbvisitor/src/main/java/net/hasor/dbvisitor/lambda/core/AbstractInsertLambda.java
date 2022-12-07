@@ -19,14 +19,23 @@ import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.jdbc.ConnectionCallback;
+import net.hasor.dbvisitor.jdbc.PreparedStatementCallback;
+import net.hasor.dbvisitor.jdbc.core.ParameterDisposer;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 /**
  * 提供 lambda insert 基础能力。
@@ -36,11 +45,14 @@ import java.util.stream.Collectors;
 public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P> implements InsertExecute<R, T> {
     protected final List<ColumnMapping>  insertProperties;
     protected final List<ColumnMapping>  primaryKeyProperties;
-    protected final List<Object[]>       insertValues;
     protected       DuplicateKeyStrategy insertStrategy;
+    protected final List<String>         primaryKeys;
+    protected final List<String>         insertColumns;
+    protected final boolean              hasKeySeqHolderColumn;
 
-    protected final List<String> primaryKeys;
-    protected final List<String> insertColumns;
+    protected final List<Object[]>          insertValues;
+    protected final List<ParameterDisposer> parameterDisposers; // 只有 insert 需要
+    protected final List<FillBackEntity>    fillBackEntityList;
 
     public AbstractInsertLambda(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
         super(exampleType, tableMapping, jdbcTemplate);
@@ -49,8 +61,11 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         this.insertValues = new ArrayList<>();
         this.insertStrategy = DuplicateKeyStrategy.Into;
 
-        this.primaryKeys = this.primaryKeyProperties.parallelStream().map(ColumnMapping::getColumn).collect(Collectors.toList());
-        this.insertColumns = this.insertProperties.parallelStream().map(ColumnMapping::getColumn).collect(Collectors.toList());
+        this.primaryKeys = this.primaryKeyProperties.stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
+        this.insertColumns = this.insertProperties.stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
+        this.hasKeySeqHolderColumn = this.insertProperties.stream().anyMatch(c -> c.getKeySeqHolder() != null);
+        this.parameterDisposers = new ArrayList<>();
+        this.fillBackEntityList = new ArrayList<>();
     }
 
     protected List<ColumnMapping> getInsertProperties() {
@@ -106,34 +121,61 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     }
 
     @Override
-    public R applyEntity(List<T> entityList) {
+    public R applyEntity(List<T> entityList) throws SQLException {
+        if (this.hasKeySeqHolderColumn) {
+            return this.getJdbcTemplate().execute((ConnectionCallback<R>) con -> {
+                return applyEntity0(con, entityList, exampleIsMap());
+            });
+        } else {
+            return applyEntity0(null, entityList, exampleIsMap());
+        }
+    }
+
+    @Override
+    public R applyMap(List<Map<String, Object>> entityList) throws SQLException {
+        if (this.hasKeySeqHolderColumn) {
+            return this.getJdbcTemplate().execute((ConnectionCallback<R>) con -> {
+                return applyEntity0(con, entityList, true);
+            });
+        } else {
+            return applyEntity0(null, entityList, true);
+        }
+    }
+
+    private R applyEntity0(Connection conn, List<?> entityList, boolean isMap) throws SQLException {
+        boolean supportsGetGeneratedKeys = conn != null && conn.getMetaData().supportsGetGeneratedKeys();
         int propertyCount = this.insertProperties.size();
-        entityList.parallelStream().map(entity -> {
+
+        for (Object entity : entityList) {
             Object[] args = new Object[propertyCount];
             for (int i = 0; i < propertyCount; i++) {
-                ColumnMapping mapping = insertProperties.get(i);
-                if (exampleIsMap()) {
+                ColumnMapping mapping = this.insertProperties.get(i);
+                if (isMap) {
                     args[i] = ((Map) entity).get(mapping.getProperty());
                 } else {
                     args[i] = mapping.getHandler().get(entity);
                 }
-            }
-            return args;
-        }).forEach(insertValues::add);
-        return this.getSelf();
-    }
 
-    @Override
-    public R applyMap(List<Map<String, Object>> entityList) {
-        int propertyCount = this.insertProperties.size();
-        entityList.parallelStream().map(entity -> {
-            Object[] args = new Object[propertyCount];
-            for (int i = 0; i < propertyCount; i++) {
-                ColumnMapping mapping = insertProperties.get(i);
-                args[i] = entity.get(mapping.getProperty());
+                if (conn != null && args[i] == null && mapping.getKeySeqHolder() != null) {
+                    args[i] = mapping.getKeySeqHolder().beforeApply(conn, entity, mapping);
+
+                    if (isMap && args[i] != null) {
+                        ((Map) entity).put(mapping.getProperty(), args[i]);
+                    }
+                }
             }
-            return args;
-        }).forEach(insertValues::add);
+
+            if (supportsGetGeneratedKeys) {
+                this.fillBackEntityList.add(new FillBackEntity(entity, isMap));
+            }
+
+            this.insertValues.add(args);
+            for (Object arg : args) {
+                if (arg instanceof ParameterDisposer) {
+                    this.parameterDisposers.add((ParameterDisposer) arg);
+                }
+            }
+        }
         return this.getSelf();
     }
 
@@ -142,19 +184,93 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         try {
             BoundSql boundSql = getBoundSql();
             String sqlString = boundSql.getSqlString();
+
+            if (logger.isDebugEnabled()) {
+                logger.trace("Executing SQL statement [" + boundSql.getSqlString() + "].");
+            }
+
+            TypeHandlerRegistry typeRegistry = this.getJdbcTemplate().getTypeRegistry();
+
             if (boundSql instanceof BatchBoundSql) {
                 if (boundSql.getArgs().length > 1) {
-                    return this.getJdbcTemplate().executeBatch(sqlString, ((BatchBoundSql) boundSql).getArgs());
+                    return this.getJdbcTemplate().executeCreator(con -> {
+                        PreparedStatement ps = createPrepareStatement(con, sqlString);
+                        for (Object[] batchItem : ((BatchBoundSql) boundSql).getArgs()) {
+                            applyPreparedStatement(ps, batchItem, typeRegistry);
+                            ps.addBatch();
+                        }
+                        return ps;
+                    }, (PreparedStatementCallback<int[]>) ps -> {
+                        int[] res = ps.executeBatch();
+                        processFillBack(ps);
+                        return res;
+                    });
                 } else {
-                    int i = this.getJdbcTemplate().executeUpdate(sqlString, (Object[]) boundSql.getArgs()[0]);
-                    return new int[] { i };
+                    return this.getJdbcTemplate().executeCreator(con -> {
+                        PreparedStatement ps = createPrepareStatement(con, sqlString);
+                        applyPreparedStatement(ps, (Object[]) boundSql.getArgs()[0], typeRegistry);
+                        return ps;
+                    }, (PreparedStatementCallback<int[]>) ps -> {
+                        int res = ps.executeUpdate();
+                        processFillBack(ps);
+                        return new int[] { res };
+                    });
                 }
             } else {
-                int i = this.getJdbcTemplate().executeUpdate(sqlString, boundSql.getArgs());
-                return new int[] { i };
+                return this.getJdbcTemplate().executeCreator(con -> {
+                    PreparedStatement ps = createPrepareStatement(con, sqlString);
+                    applyPreparedStatement(ps, boundSql.getArgs(), typeRegistry);
+                    return ps;
+                }, (PreparedStatementCallback<int[]>) ps -> {
+                    int res = ps.executeUpdate();
+                    processFillBack(ps);
+                    return new int[] { res };
+                });
             }
         } finally {
+            for (ParameterDisposer obj : this.parameterDisposers) {
+                obj.cleanupParameters();
+            }
             this.insertValues.clear();
+            this.fillBackEntityList.clear();
+        }
+    }
+
+    protected PreparedStatement createPrepareStatement(Connection con, String sqlString) throws SQLException {
+        if (this.hasKeySeqHolderColumn) {
+            return con.prepareStatement(sqlString, RETURN_GENERATED_KEYS);
+        } else {
+            return con.prepareStatement(sqlString);
+        }
+    }
+
+    private void applyPreparedStatement(PreparedStatement ps, Object[] batchValues, TypeHandlerRegistry typeRegistry) throws SQLException {
+        int idx = 1;
+        for (Object value : batchValues) {
+            if (value == null) {
+                ps.setObject(idx, null);
+            } else {
+                typeRegistry.setParameterValue(ps, idx, value);
+            }
+            idx++;
+        }
+    }
+
+    private void processFillBack(PreparedStatement fillBack) throws SQLException {
+        ResultSet rs = fillBack.getGeneratedKeys();
+        for (FillBackEntity entity : this.fillBackEntityList) {
+            if (!rs.next()) {
+                break;
+            }
+            for (int i = 0; i < this.insertProperties.size(); i++) {
+                ColumnMapping mapping = this.insertProperties.get(i);
+                if (mapping.getKeySeqHolder() != null) {
+                    Object value = mapping.getKeySeqHolder().afterApply(rs, entity.object, i, mapping);
+                    if (entity.isMap && value != null) {
+                        ((Map) entity.object).put(mapping.getProperty(), value);
+                    }
+                }
+            }
         }
     }
 
@@ -241,5 +357,15 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         strBuilder.append(argBuilder);
         strBuilder.append(")");
         return strBuilder.toString();
+    }
+
+    private static class FillBackEntity {
+        public Object  object;
+        public boolean isMap;
+
+        public FillBackEntity(Object object, boolean isMap) {
+            this.object = object;
+            this.isMap = isMap;
+        }
     }
 }

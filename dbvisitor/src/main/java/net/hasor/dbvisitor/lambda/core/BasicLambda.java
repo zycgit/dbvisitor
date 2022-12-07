@@ -15,6 +15,8 @@
  */
 package net.hasor.dbvisitor.lambda.core;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.logging.Logger;
+import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
@@ -36,13 +38,14 @@ import java.util.Objects;
  * @author 赵永春 (zyc@hasor.net)
  */
 public abstract class BasicLambda<R, T, P> {
-    protected final String          dbType;
-    private         SqlDialect      dialect;
-    private final   Class<?>        exampleType;
-    private final   boolean         exampleIsMap;
-    private final   TableMapping<?> tableMapping;
-    private final   LambdaTemplate  jdbcTemplate;
-    private         boolean         qualifier;
+    protected static final Logger          logger = LoggerFactory.getLogger(BasicLambda.class);
+    protected final        String          dbType;
+    private                SqlDialect      dialect;
+    private final          Class<?>        exampleType;
+    private final          boolean         exampleIsMap;
+    private final          TableMapping<?> tableMapping;
+    private final          LambdaTemplate  jdbcTemplate;
+    private                boolean         qualifier;
 
     public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
         this.exampleType = Objects.requireNonNull(exampleType, "exampleType is null.");

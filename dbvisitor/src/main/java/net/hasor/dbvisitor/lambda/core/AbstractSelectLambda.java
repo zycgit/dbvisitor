@@ -196,7 +196,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
     @Override
     public <V> List<V> query(RowMapper<V> rowMapper) throws SQLException {
         BoundSql boundSql = getBoundSql();
-        return this.getJdbcTemplate().query(boundSql.getSqlString(), boundSql.getArgs(), rowMapper);
+        return this.getJdbcTemplate().queryForList(boundSql.getSqlString(), boundSql.getArgs(), rowMapper);
     }
 
     @Override

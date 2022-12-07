@@ -22,6 +22,8 @@ import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.TB_User;
 import org.junit.Test;
 
+import java.sql.SQLException;
+
 import static net.hasor.test.utils.TestUtils.beanForData1;
 import static net.hasor.test.utils.TestUtils.mapForData2;
 
@@ -31,7 +33,7 @@ import static net.hasor.test.utils.TestUtils.mapForData2;
  */
 public class BuilderInsertTest extends AbstractDbTest {
     @Test
-    public void insert_1() {
+    public void insert_1() throws SQLException {
         InsertOperation<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
@@ -47,7 +49,7 @@ public class BuilderInsertTest extends AbstractDbTest {
     }
 
     @Test
-    public void insertDuplicateKeyBlock_1() {
+    public void insertDuplicateKeyBlock_1() throws SQLException {
         InsertOperation<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
@@ -64,7 +66,7 @@ public class BuilderInsertTest extends AbstractDbTest {
     }
 
     @Test
-    public void insertDuplicateKeyUpdate_1() {
+    public void insertDuplicateKeyUpdate_1() throws SQLException {
         InsertOperation<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
@@ -81,7 +83,7 @@ public class BuilderInsertTest extends AbstractDbTest {
     }
 
     @Test
-    public void insertDuplicateKeyIgnore_1() {
+    public void insertDuplicateKeyIgnore_1() throws SQLException {
         InsertOperation<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());

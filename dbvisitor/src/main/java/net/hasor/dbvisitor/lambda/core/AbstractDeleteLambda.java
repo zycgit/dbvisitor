@@ -39,7 +39,13 @@ public abstract class AbstractDeleteLambda<R, T, P> extends BasicQueryCompare<R,
     @Override
     public int doDelete() throws SQLException {
         BoundSql boundSql = getBoundSql();
-        return this.getJdbcTemplate().executeUpdate(boundSql.getSqlString(), boundSql.getArgs());
+        String sqlString = boundSql.getSqlString();
+
+        if (logger.isDebugEnabled()) {
+            logger.trace("Executing SQL statement [" + sqlString + "].");
+        }
+
+        return this.getJdbcTemplate().executeUpdate(sqlString, boundSql.getArgs());
     }
 
     @Override

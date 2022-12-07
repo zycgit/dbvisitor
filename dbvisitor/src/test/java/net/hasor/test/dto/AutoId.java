@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 package net.hasor.test.dto;
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.KeyTypeEnum;
+import net.hasor.dbvisitor.mapping.Table;
+
 /**
  *
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
+@Table(mapUnderscoreToCamelCase = true)
 public class AutoId {
+    @Column(keyType = KeyTypeEnum.Auto)
     private Integer id;
+    @Column(keyType = KeyTypeEnum.UUID32)
     private String  uid;
     private String  name;
 
