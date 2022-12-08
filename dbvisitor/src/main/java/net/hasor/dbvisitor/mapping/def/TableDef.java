@@ -49,7 +49,7 @@ public class TableDef<T> implements TableMapping<T> {
         this.useDelimited = useDelimited;
         this.caseInsensitive = caseInsensitive;
         this.columnMappings = new ArrayList<>();
-        this.mapByProperty = new HashMap<>();
+        this.mapByProperty = (caseInsensitive && Map.class.isAssignableFrom(entityType)) ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
         this.mapByColumn = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
         this.typeHandlerRegistry = typeHandlerRegistry;
     }

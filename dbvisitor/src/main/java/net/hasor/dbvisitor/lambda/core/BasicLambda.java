@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.lambda.core;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
@@ -29,6 +30,7 @@ import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 import java.sql.DatabaseMetaData;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -152,6 +154,15 @@ public abstract class BasicLambda<R, T, P> {
 
         String columnName = propertyInfo.getColumn();
         return () -> dialect().columnName(isQualifier(), catalogName, schemaName, tableName, columnName);
+    }
+
+    protected Map<String, String> extractKeysMap(Map entity) {
+        Map<String, String> propertySet = getTableMapping().isCaseInsensitive() ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
+        for (Object key : entity.keySet()) {
+            String keyStr = key.toString();
+            propertySet.put(keyStr, keyStr);
+        }
+        return propertySet;
     }
 
     public final BoundSql getBoundSql() {

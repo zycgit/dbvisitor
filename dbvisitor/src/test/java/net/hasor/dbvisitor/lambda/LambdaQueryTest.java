@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -164,6 +165,36 @@ public class LambdaQueryTest extends AbstractDbTest {
             assert lambdaCount1 == 1;
             assert lambdaTemplate.lambdaQuery(TbUser.class).queryForCount() == 3;
             assert lambdaTemplate.lambdaQuery(TbUser.class).queryForLargeCount() == 3L;
+        }
+    }
+
+    @Test
+    public void lambdaQuery_stream_page_0() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            //
+            List<String> userIds = new ArrayList<>();
+            Iterator<TbUser> userIterator = lambdaTemplate.lambdaQuery(TbUser.class).queryForIterator(-1, 1);
+            while (userIterator.hasNext()) {
+                userIds.add(userIterator.next().getUid());
+            }
+
+            assert lambdaTemplate.lambdaQuery(TbUser.class).queryForCount() == userIds.size();
+        }
+    }
+
+    @Test
+    public void lambdaQuery_stream_page_1() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            //
+            List<String> userIds = new ArrayList<>();
+            Iterator<TbUser> userIterator = lambdaTemplate.lambdaQuery(TbUser.class).queryForIterator(2, 1);
+            while (userIterator.hasNext()) {
+                userIds.add(userIterator.next().getUid());
+            }
+
+            assert userIds.size() == 2;
         }
     }
 }

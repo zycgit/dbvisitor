@@ -13,19 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.scene.dto;
+package net.hasor.scene.singletable.dto;
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.Table;
+
 import java.util.Date;
 
 /**
- *
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
+@Table("user")
 public class UserDTO {
+    @Column(primary = true)
     private Integer id;
+    @Column
     private String  name;
+    @Column
     private Integer age;
-    private Date    create_time;
+    @Column("create_time")
+    private Date    createTime;
 
     public Integer getId() {
         return id;
@@ -51,11 +58,11 @@ public class UserDTO {
         this.age = age;
     }
 
-    public Date getCreate_time() {
-        return create_time;
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setCreate_time(Date create_time) {
-        this.create_time = create_time;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 }

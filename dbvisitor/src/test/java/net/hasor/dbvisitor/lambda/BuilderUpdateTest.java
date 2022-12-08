@@ -102,7 +102,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
         data.setLoginPassword("pwd");
         //
         EntityUpdateOperation<TB_User> lambdaUpdate = new LambdaTemplate().lambdaUpdate(TB_User.class);
-        lambdaUpdate.eq(TB_User::getLoginName, "admin").and().eq(TB_User::getLoginPassword, "pass").updateTo(data);
+        lambdaUpdate.eq(TB_User::getLoginName, "admin").and().eq(TB_User::getLoginPassword, "pass").allowReplaceRow().updateTo(data);
         //
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaUpdate.getBoundSql(dialect);
@@ -110,5 +110,21 @@ public class BuilderUpdateTest extends AbstractDbTest {
         //
         BoundSql boundSql2 = lambdaUpdate.useQualifier().getBoundSql(dialect);
         assert boundSql2.getSqlString().equals("UPDATE `TB_User` SET `registerTime` = ? , `loginName` = ? , `name` = ? , `loginPassword` = ? , `index` = ? , `userUUID` = ? , `email` = ? WHERE `loginName` = ? AND `loginPassword` = ?");
+    }
+
+    @Test
+    public void updateBuilder_5() {
+        TB_User data = new TB_User();
+        data.setLoginName("acc");
+        data.setLoginPassword("pwd");
+        //
+        try {
+            EntityUpdateOperation<TB_User> lambdaUpdate = new LambdaTemplate().lambdaUpdate(TB_User.class);
+            lambdaUpdate.eq(TB_User::getLoginName, "admin").and().eq(TB_User::getLoginPassword, "pass").updateTo(data);
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().contains("The dangerous UPDATE operation, You must call `allowReplaceRow()` to enable REPLACE row.");
+        }
+
     }
 }

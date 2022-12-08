@@ -26,13 +26,13 @@ public interface UpdateExecute<R, T, P> extends BoundSqlBuilder {
     /** 生成 select count() 查询语句并查询总数。*/
     int doUpdate() throws SQLException;
 
-    /** 允许空 Where条件（注意：空 Where 条件会导致更新整个数据库） */
+    /** 【危险操作】允许空 Where条件（注意：空 Where 条件会导致更新整个数据库） */
     R allowEmptyWhere();
 
-    /** 允许更新主键列 */
+    /** 【危险操作】允许更新主键列（主键不应具有业务含义，只是唯一标识数据） */
     R allowUpdateKey();
 
-    /** 允许更新整行 */
+    /** 【危险操作】允许更新整行（容易引发数据误覆盖） */
     R allowReplaceRow();
 
     /** 参照 sample 局部更新（只更新对象中属性不为空的）*/

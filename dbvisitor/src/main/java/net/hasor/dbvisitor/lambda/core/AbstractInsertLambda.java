@@ -16,7 +16,6 @@
 package net.hasor.dbvisitor.lambda.core;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BatchBoundSql;
-import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
@@ -142,40 +141,17 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         }
     }
 
-    private Map<String, String> extractKeysMap(Map entity) {
-        if (!getTableMapping().isCaseInsensitive()) {
-            return Collections.emptyMap(); // 大小写要求敏感
-        }
-
-        Map<String, String> propertySet = new HashMap<>();
-        Set keySet = entity.keySet();
-        for (Object key : keySet) {
-            String keyStr = key.toString();
-            propertySet.put(keyStr.toLowerCase(), keyStr);
-        }
-        if (propertySet.size() != keySet.size()) {
-            return Collections.emptyMap(); // 监测到数据中存在大小写敏感的情况
-        } else {
-            return propertySet;
-        }
-    }
-
     private R applyEntity0(Connection conn, List<?> entityList, boolean isMap) throws SQLException {
         boolean supportsGetGeneratedKeys = conn != null && conn.getMetaData().supportsGetGeneratedKeys();
         int propertyCount = this.insertProperties.size();
 
         for (Object entity : entityList) {
-            Map<String, String> propertySet = isMap ? extractKeysMap((Map) entity) : Collections.emptyMap();
-
             Object[] args = new Object[propertyCount];
             for (int i = 0; i < propertyCount; i++) {
                 ColumnMapping mapping = this.insertProperties.get(i);
                 if (isMap) {
-                    if (propertySet.isEmpty()) {
-                        args[i] = ((Map) entity).get(mapping.getProperty());
-                    } else {
-                        args[i] = ((Map) entity).get(propertySet.get(mapping.getProperty().toLowerCase()));
-                    }
+                    Map<String, String> entityKeyMap = extractKeysMap((Map) entity);
+                    args[i] = ((Map) entity).get(entityKeyMap.get(mapping.getProperty()));
                 } else {
                     args[i] = mapping.getHandler().get(entity);
                 }
@@ -206,7 +182,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     @Override
     public int[] executeGetResult() throws SQLException {
         try {
-            BoundSql boundSql = getBoundSql();
+            BatchBoundSql boundSql = (BatchBoundSql) getBoundSql();
             String sqlString = boundSql.getSqlString();
 
             if (logger.isDebugEnabled()) {
@@ -215,35 +191,23 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
 
             TypeHandlerRegistry typeRegistry = this.getJdbcTemplate().getTypeRegistry();
 
-            if (boundSql instanceof BatchBoundSql) {
-                if (boundSql.getArgs().length > 1) {
-                    return this.getJdbcTemplate().executeCreator(con -> {
-                        PreparedStatement ps = createPrepareStatement(con, sqlString);
-                        for (Object[] batchItem : ((BatchBoundSql) boundSql).getArgs()) {
-                            applyPreparedStatement(ps, batchItem, typeRegistry);
-                            ps.addBatch();
-                        }
-                        return ps;
-                    }, (PreparedStatementCallback<int[]>) ps -> {
-                        int[] res = ps.executeBatch();
-                        processFillBack(ps);
-                        return res;
-                    });
-                } else {
-                    return this.getJdbcTemplate().executeCreator(con -> {
-                        PreparedStatement ps = createPrepareStatement(con, sqlString);
-                        applyPreparedStatement(ps, (Object[]) boundSql.getArgs()[0], typeRegistry);
-                        return ps;
-                    }, (PreparedStatementCallback<int[]>) ps -> {
-                        int res = ps.executeUpdate();
-                        processFillBack(ps);
-                        return new int[] { res };
-                    });
-                }
+            if (boundSql.getArgs().length > 1) {
+                return this.getJdbcTemplate().executeCreator(con -> {
+                    PreparedStatement ps = createPrepareStatement(con, sqlString);
+                    for (Object[] batchItem : boundSql.getArgs()) {
+                        applyPreparedStatement(ps, batchItem, typeRegistry);
+                        ps.addBatch();
+                    }
+                    return ps;
+                }, (PreparedStatementCallback<int[]>) ps -> {
+                    int[] res = ps.executeBatch();
+                    processFillBack(ps);
+                    return res;
+                });
             } else {
                 return this.getJdbcTemplate().executeCreator(con -> {
                     PreparedStatement ps = createPrepareStatement(con, sqlString);
-                    applyPreparedStatement(ps, boundSql.getArgs(), typeRegistry);
+                    applyPreparedStatement(ps, boundSql.getArgs()[0], typeRegistry);
                     return ps;
                 }, (PreparedStatementCallback<int[]>) ps -> {
                     int res = ps.executeUpdate();
@@ -299,7 +263,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     }
 
     @Override
-    protected BoundSql buildBoundSql(SqlDialect dialect) {
+    protected BatchBoundSql buildBoundSql(SqlDialect dialect) {
         if (this.insertValues.size() == 0) {
             throw new IllegalStateException("there is no data to insert");
         } else {
@@ -307,7 +271,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         }
     }
 
-    protected BoundSql dialectInsert(SqlDialect dialect) {
+    protected BatchBoundSql dialectInsert(SqlDialect dialect) {
         boolean isInsertSqlDialect = dialect instanceof InsertSqlDialect;
         TableMapping<?> tableMapping = this.getTableMapping();
         String catalogName = tableMapping.getCatalog();

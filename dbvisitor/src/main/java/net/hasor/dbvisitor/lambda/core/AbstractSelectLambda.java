@@ -319,7 +319,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
     }
 
     @Override
-    public <D> Iterator<D> queryForIterator(long limit, Function<T, D> transform, int batchSize) {
+    public <D> Iterator<D> queryForIterator(long limit, int batchSize, Function<T, D> transform) {
         Page pageInfo = new PageObject(batchSize, this::queryForLargeCount);
         pageInfo.setCurrentPage(0);
         pageInfo.setPageNumberOffset(0);
@@ -331,11 +331,11 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
         private final AbstractSelectLambda<R, T, P> lambda;
         private       Iterator<T>                   currentIterator;
         private final Function<T, D>                transform;
-        private final AtomicLong                    counter;
+        private final AtomicLong                    limitCounter;
         private       boolean                       eof = false;
 
         public StreamIterator(long limit, Page pageInfo, AbstractSelectLambda<R, T, P> lambda, Function<T, D> transform) {
-            this.counter = new AtomicLong(limit);
+            this.limitCounter = limit < 0 ? null : new AtomicLong(limit);
             this.pageInfo = pageInfo;
             this.lambda = lambda;
             this.transform = transform;
@@ -358,7 +358,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
 
         @Override
         public synchronized boolean hasNext() {
-            if (this.counter.get() <= 0) {
+            if (this.limitCounter != null && this.limitCounter.get() <= 0) {
                 return false;
             }
 
@@ -380,7 +380,9 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
         @Override
         public synchronized D next() {
             if (this.hasNext()) {
-                this.counter.decrementAndGet();
+                if (this.limitCounter != null) {
+                    this.limitCounter.decrementAndGet();
+                }
                 return this.transform.apply(this.currentIterator.next());
             } else {
                 throw new NoSuchElementException();
