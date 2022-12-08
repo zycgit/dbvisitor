@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
+import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
@@ -34,10 +35,12 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
  * @version : 2020-10-27
  * @author 赵永春 (zyc@hasor.net)
  */
-public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R, T, P> implements UpdateExecute<R, T> {
+public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R, T, P> implements UpdateExecute<R, T, P> {
     protected final Map<String, ColumnMapping> allowUpdateProperties;
     protected final Map<String, Object>        updateValueMap;
     private         boolean                    allowEmptyWhere = false;
+    private         boolean                    allowUpdateKey  = false;
+    private         boolean                    allowReplaceRow = false;
 
     public AbstractUpdateLambda(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
         super(exampleType, tableMapping, jdbcTemplate);
@@ -55,6 +58,18 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
     @Override
     public R allowEmptyWhere() {
         this.allowEmptyWhere = true;
+        return this.getSelf();
+    }
+
+    @Override
+    public R allowUpdateKey() {
+        this.allowUpdateKey = true;
+        return this.getSelf();
+    }
+
+    @Override
+    public R allowReplaceRow() {
+        this.allowReplaceRow = true;
         return this.getSelf();
     }
 
@@ -88,7 +103,7 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
             }
         }
 
-        return this.updateToByCondition(tempData::containsKey, tempData::get);
+        return this.updateToByCondition(true, tempData::containsKey, tempData::get);
     }
 
     @Override
@@ -97,7 +112,7 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
             throw new NullPointerException("newValue is null.");
         }
 
-        return this.updateToByCondition(newValue::containsKey, newValue::get);
+        return this.updateToByCondition(true, newValue::containsKey, newValue::get);
     }
 
     @Override
@@ -106,7 +121,23 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
             throw new NullPointerException("newValue is null.");
         }
 
-        return this.updateToByCondition(p -> true, createPropertyReaderFunc(newValue));
+        if (!this.allowReplaceRow) {
+            throw new UnsupportedOperationException("The dangerous UPDATE operation, You must call `allowReplaceRow()` to enable REPLACE row.");
+        }
+
+        return this.updateToByCondition(true, p -> true, createPropertyReaderFunc(newValue));
+    }
+
+    @Override
+    public R updateTo(P property, Object value) {
+        Map<String, Object> newValue = CollectionUtils.asMap(getPropertyName(property), value);
+        return this.updateToByCondition(true, newValue::containsKey, newValue::get);
+    }
+
+    @Override
+    public R updateToAdd(P property, Object value) {
+        Map<String, Object> newValue = CollectionUtils.asMap(getPropertyName(property), value);
+        return this.updateToByCondition(false, newValue::containsKey, newValue::get);
     }
 
     private Function<String, Object> createPropertyReaderFunc(T newValue) {
@@ -121,8 +152,11 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
         }
     }
 
-    protected R updateToByCondition(Predicate<String> propertyTester, Function<String, Object> propertyReader) {
-        this.updateValueMap.clear();
+    protected R updateToByCondition(boolean doClear, Predicate<String> propertyTester, Function<String, Object> propertyReader) {
+        if (doClear) {
+            this.updateValueMap.clear();
+        }
+
         Set<String> updateColumns = new HashSet<>();
         for (Map.Entry<String, ColumnMapping> allowFieldEntry : this.allowUpdateProperties.entrySet()) {
             ColumnMapping allowProperty = allowFieldEntry.getValue();
@@ -134,6 +168,10 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
             String propertyName = allowProperty.getProperty();
             if (updateColumns.contains(columnName)) {
                 throw new IllegalStateException("Multiple property mapping to '" + columnName + "' column");
+            }
+
+            if (allowProperty.isPrimaryKey() && !this.allowUpdateKey) {
+                throw new UnsupportedOperationException("The dangerous UPDATE operation, You must call `allowUpdateKey()` to enable UPDATE PrimaryKey.");
             }
 
             updateColumns.add(columnName);

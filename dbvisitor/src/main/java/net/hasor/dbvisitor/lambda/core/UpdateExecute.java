@@ -22,19 +22,35 @@ import java.util.Map;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface UpdateExecute<R, T> extends BoundSqlBuilder {
+public interface UpdateExecute<R, T, P> extends BoundSqlBuilder {
     /** 生成 select count() 查询语句并查询总数。*/
     int doUpdate() throws SQLException;
 
     /** 允许空 Where条件（注意：空 Where 条件会导致更新整个数据库） */
     R allowEmptyWhere();
 
-    /** 更新数据，sample 对象中为空的属性不会参与更新 */
+    /** 允许更新主键列 */
+    R allowUpdateKey();
+
+    /** 允许更新整行 */
+    R allowReplaceRow();
+
+    /** 参照 sample 局部更新（只更新对象中属性不为空的）*/
     R updateBySample(T sample);
 
-    /** 更新数据 */
+    /** 参照 sample 局部更新（只更新 map 中在的列） */
     R updateByMap(Map<String, Object> sample);
 
-    /** 更新数据，map key 为列名 */
+    /**
+     * 整行更新
+     * - 注意1：主键会被自动忽略不参与更新，如果想变更主键需要启用 allowUpdateKey（需要依赖 @Column 注解、或者 map 模式才能识别主键）
+     * - 注意2：整行更新是危险操作，需要启用 allowReplaceRow
+     */
     R updateTo(T newValue);
+
+    /** 只更新一个字段 */
+    R updateTo(P property, Object value);
+
+    /** 反复调用 updateToAdd 可以添加多个 update set 字段 */
+    R updateToAdd(P property, Object value);
 }

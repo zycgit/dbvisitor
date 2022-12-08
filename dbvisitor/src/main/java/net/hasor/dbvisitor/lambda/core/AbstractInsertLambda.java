@@ -142,16 +142,40 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         }
     }
 
+    private Map<String, String> extractKeysMap(Map entity) {
+        if (!getTableMapping().isCaseInsensitive()) {
+            return Collections.emptyMap(); // 大小写要求敏感
+        }
+
+        Map<String, String> propertySet = new HashMap<>();
+        Set keySet = entity.keySet();
+        for (Object key : keySet) {
+            String keyStr = key.toString();
+            propertySet.put(keyStr.toLowerCase(), keyStr);
+        }
+        if (propertySet.size() != keySet.size()) {
+            return Collections.emptyMap(); // 监测到数据中存在大小写敏感的情况
+        } else {
+            return propertySet;
+        }
+    }
+
     private R applyEntity0(Connection conn, List<?> entityList, boolean isMap) throws SQLException {
         boolean supportsGetGeneratedKeys = conn != null && conn.getMetaData().supportsGetGeneratedKeys();
         int propertyCount = this.insertProperties.size();
 
         for (Object entity : entityList) {
+            Map<String, String> propertySet = isMap ? extractKeysMap((Map) entity) : Collections.emptyMap();
+
             Object[] args = new Object[propertyCount];
             for (int i = 0; i < propertyCount; i++) {
                 ColumnMapping mapping = this.insertProperties.get(i);
                 if (isMap) {
-                    args[i] = ((Map) entity).get(mapping.getProperty());
+                    if (propertySet.isEmpty()) {
+                        args[i] = ((Map) entity).get(mapping.getProperty());
+                    } else {
+                        args[i] = ((Map) entity).get(propertySet.get(mapping.getProperty().toLowerCase()));
+                    }
                 } else {
                     args[i] = mapping.getHandler().get(entity);
                 }
