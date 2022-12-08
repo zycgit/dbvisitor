@@ -13,9 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package net.hasor.dbvisitor.keyholder.sequence;
+import net.hasor.dbvisitor.keyholder.CreateContext;
+import net.hasor.dbvisitor.keyholder.KeySeqHolder;
+import net.hasor.dbvisitor.keyholder.KeySeqHolderFactory;
+
 /**
- * 试探性的生成各种数据，相比 carefully 更加激进增加了负数、有限的精度、以及中文字符
- *  - 1：数值范围固定在 +- 10^2、10^4、10^6、10^8
- *  - 2：时间范围：2000-01-01 00:00:00.000 ～ 2030-12-31 23:59:59.999
+ * 支持 @KeySequence 注解方式
+ * @version : 2022-12-01
+ * @author 赵永春 (zyc@hasor.net)
  */
-package net.hasor.dbvisitor.faker.generator.provider.tentative;
+public class SeqKeySeqHolderFactory implements KeySeqHolderFactory {
+    @Override
+    public KeySeqHolder createHolder(CreateContext context) {
+        return null;
+    }
+}
