@@ -57,7 +57,7 @@ public class OracleRadicalTypeProcessorFactory extends AbstractOracleTypeProcess
                 seedConfig.setDateType(DateType.String);
                 seedConfig.setGenType(GenType.Random);
                 seedConfig.setDateFormat("yyyy-MM-dd");
-                seedConfig.setRangeForm("1000-01-01");
+                seedConfig.setRangeForm("0001-01-01");
                 seedConfig.setRangeTo("9999-12-31");
                 TypeProcessor typeProcessor = new TypeProcessor(seedFactory, seedConfig, Types.DATE);
                 typeProcessor.getDefaultIgnoreAct().add(UseFor.DeleteWhere);
@@ -77,8 +77,8 @@ public class OracleRadicalTypeProcessorFactory extends AbstractOracleTypeProcess
                 int p = Math.max(jdbcColumn.getDecimalDigits(), 9);
                 seedConfig.setDateFormat("yyyy-MM-dd HH:mm:ss" + "." + StringUtils.repeat("S", p));
                 seedConfig.setPrecision(p);
-                seedConfig.setRangeForm("1000-01-01 00:00:00.000");
-                seedConfig.setRangeTo("9999-12-31 23:59:59.999");
+                seedConfig.setRangeForm("0001-01-01 00:00:00.000");
+                seedConfig.setRangeTo("9999-12-31 00:59:59.999");
                 if (columnType.endsWith("zone")) {
                     seedConfig.setZoneForm("-14:00");
                     seedConfig.setZoneTo("+14:00");
