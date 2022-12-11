@@ -90,11 +90,6 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
     }
 
     @Override
-    public String columnName(boolean useQualifier, String catalog, String schema, String table, String column) {
-        return fmtName(useQualifier, column);
-    }
-
-    @Override
     public String fmtName(boolean useQualifier, String name) {
         if (StringUtils.isBlank(name)) {
             return name;

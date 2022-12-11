@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.lambda;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.TB_User;
 import net.hasor.test.dto.TbUser;
 import org.junit.Test;
 
@@ -193,6 +194,13 @@ public class BuilderQueryTest extends AbstractDbTest {
         assert boundSql33.getArgs()[0].equals("a");
         assert boundSql33.getArgs()[1].equals("b");
         assert boundSql33.getArgs()[2].equals(123);
+
+        BoundSql boundSql34 = lambdaTemplate.lambdaQuery(TbUser.class).eqBySample(new TbUser()).getBoundSql();
+        assert boundSql34.getSqlString().equals("SELECT * FROM tb_user WHERE ( index = ? )");
+        assert boundSql34.getArgs()[0].equals(0);
+
+        BoundSql boundSql35 = lambdaTemplate.lambdaQuery(TB_User.class).eqBySample(new TB_User()).getBoundSql();
+        assert boundSql35.getSqlString().equals("SELECT * FROM TB_User");
     }
 
     @Test

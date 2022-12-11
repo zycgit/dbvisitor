@@ -17,7 +17,7 @@
         </layout>
     </appender>
 
-    <root level="INFO">
+    <root level="debug">
         <appender-ref ref="consoleOut"/>
         <appender-ref ref="fileOut"/>
     </root>

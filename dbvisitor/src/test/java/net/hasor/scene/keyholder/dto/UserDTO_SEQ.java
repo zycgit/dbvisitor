@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.scene.singletable.dto;
+package net.hasor.scene.keyholder.dto;
+import net.hasor.dbvisitor.keyholder.KeySeq;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.KeyTypeEnum;
 import net.hasor.dbvisitor.mapping.Table;
@@ -25,10 +26,11 @@ import java.util.Date;
  * @author 赵永春 (zyc@hasor.net)
  */
 @Table("user")
-public class UserDTO {
-    @Column(primary = true, keyType = KeyTypeEnum.Auto)
+public class UserDTO_SEQ {
+    @KeySeq("test_seq")
+    @Column(primary = true, keyType = KeyTypeEnum.Sequence)
     private Integer id;
-    @Column
+    @Column(keyType = KeyTypeEnum.UUID36)
     private String  name;
     @Column
     private Integer age;

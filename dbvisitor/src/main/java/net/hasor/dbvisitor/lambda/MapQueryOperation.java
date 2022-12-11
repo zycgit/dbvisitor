@@ -27,5 +27,5 @@ import java.util.Map;
 public interface MapQueryOperation extends //
         CommonOperation<MapQueryOperation>, //
         QueryFunc<MapQueryOperation, Map<String, Object>, String>, //
-        QueryCompare<MapQueryOperation, String> {
+        QueryCompare<MapQueryOperation, Map<String, Object>, String> {
 }

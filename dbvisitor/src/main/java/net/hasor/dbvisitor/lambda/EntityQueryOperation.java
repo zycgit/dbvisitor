@@ -27,6 +27,6 @@ import net.hasor.dbvisitor.lambda.support.entity.EntityQueryCompare;
 public interface EntityQueryOperation<T> extends //
         CommonOperation<EntityQueryOperation<T>>, //
         QueryFunc<EntityQueryOperation<T>, T, SFunction<T>>, //
-        QueryCompare<EntityQueryOperation<T>, SFunction<T>>,//
+        QueryCompare<EntityQueryOperation<T>, T, SFunction<T>>,//
         EntityQueryCompare<EntityQueryOperation<T>> {
 }

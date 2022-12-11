@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.mapping.def;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.util.*;
@@ -34,13 +35,14 @@ public class TableDef<T> implements TableMapping<T> {
     private final boolean             caseInsensitive;
     private final TypeHandlerRegistry typeHandlerRegistry;
     private       TableDescription    description;
+    private final SqlDialect          dialect;
 
     private final List<ColumnMapping>        columnMappings;
     private final Map<String, ColumnMapping> mapByProperty;
     private final Map<String, ColumnMapping> mapByColumn;
 
     public TableDef(String catalog, String schema, String table, Class<T> entityType, //
-            boolean autoProperty, boolean useDelimited, boolean caseInsensitive, TypeHandlerRegistry typeHandlerRegistry) {
+            boolean autoProperty, boolean useDelimited, boolean caseInsensitive, SqlDialect dialect, TypeHandlerRegistry typeHandlerRegistry) {
         this.catalog = catalog;
         this.schema = schema;
         this.table = table;
@@ -51,6 +53,7 @@ public class TableDef<T> implements TableMapping<T> {
         this.columnMappings = new ArrayList<>();
         this.mapByProperty = (caseInsensitive && Map.class.isAssignableFrom(entityType)) ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
         this.mapByColumn = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
+        this.dialect = dialect;
         this.typeHandlerRegistry = typeHandlerRegistry;
     }
 
@@ -96,6 +99,7 @@ public class TableDef<T> implements TableMapping<T> {
         return this.useDelimited;
     }
 
+    @Override
     public boolean isCaseInsensitive() {
         return this.caseInsensitive;
     }

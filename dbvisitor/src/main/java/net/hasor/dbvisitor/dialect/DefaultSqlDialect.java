@@ -53,11 +53,6 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     }
 
     @Override
-    public String columnName(boolean useQualifier, String catalog, String schema, String table, String column) {
-        return column;
-    }
-
-    @Override
     public String fmtName(boolean useQualifier, String name) {
         return name;
     }
@@ -91,7 +86,7 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
                 strBuilder.append(", ");
                 argBuilder.append(", ");
             }
-            strBuilder.append(columnName(useQualifier, catalog, schema, table, columns.get(i)));
+            strBuilder.append(fmtName(useQualifier, columns.get(i)));
             argBuilder.append("?");
         }
 

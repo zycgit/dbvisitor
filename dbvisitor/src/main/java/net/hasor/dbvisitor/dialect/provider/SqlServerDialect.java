@@ -128,7 +128,7 @@ public class SqlServerDialect extends AbstractDialect implements PageSqlDialect 
                 if (select.length() > 0) {
                     select.append(", ");
                 }
-                select.append(this.columnName(useQualifier, catalog, schema, table, col));
+                select.append(this.fmtName(useQualifier, col));
             }
         }
 

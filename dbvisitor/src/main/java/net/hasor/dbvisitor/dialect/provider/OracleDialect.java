@@ -77,7 +77,7 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
                 strBuilder.append(", ");
                 argBuilder.append(", ");
             }
-            strBuilder.append(columnName(useQualifier, catalog, schema, table, columns.get(i)));
+            strBuilder.append(fmtName(useQualifier, columns.get(i)));
             argBuilder.append("?");
         }
 
@@ -131,7 +131,7 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
             }
 
             mergeBuilder.append("? ");
-            mergeBuilder.append(columnName(useQualifier, catalog, schema, table, columns.get(i)));
+            mergeBuilder.append(fmtName(useQualifier, columns.get(i)));
         }
 
         mergeBuilder.append(" FROM dual ) SRC ON (");
@@ -139,7 +139,7 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
             if (i != 0) {
                 mergeBuilder.append(" AND ");
             }
-            String pkColumn = columnName(useQualifier, catalog, schema, table, primaryKey.get(i));
+            String pkColumn = fmtName(useQualifier, primaryKey.get(i));
             mergeBuilder.append("TMP." + pkColumn + " = SRC." + pkColumn);
         }
         mergeBuilder.append(") ");
@@ -155,8 +155,8 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
                 mergeBuilder.append(", ");
                 argBuilder.append(", ");
             }
-            mergeBuilder.append(columnName(useQualifier, catalog, schema, table, allColumns.get(i)));
-            argBuilder.append("SRC.").append(columnName(useQualifier, catalog, schema, table, allColumns.get(i)));
+            mergeBuilder.append(fmtName(useQualifier, allColumns.get(i)));
+            argBuilder.append("SRC.").append(fmtName(useQualifier, allColumns.get(i)));
         }
 
         mergeBuilder.append(") VALUES( ");
@@ -172,9 +172,9 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
             if (i != 0) {
                 mergeBuilder.append(", ");
             }
-            mergeBuilder.append(columnName(useQualifier, catalog, schema, table, column));
+            mergeBuilder.append(fmtName(useQualifier, column));
             mergeBuilder.append(" = SRC.");
-            mergeBuilder.append(columnName(useQualifier, catalog, schema, table, column));
+            mergeBuilder.append(fmtName(useQualifier, column));
         }
         mergeBuilder.append(" ");
     }
@@ -190,7 +190,7 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
                 if (select.length() > 0) {
                     select.append(", ");
                 }
-                select.append(this.columnName(useQualifier, catalog, schema, table, col));
+                select.append(this.fmtName(useQualifier, col));
             }
         }
 

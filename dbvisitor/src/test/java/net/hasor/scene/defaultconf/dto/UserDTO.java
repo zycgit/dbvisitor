@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.scene.singletable.dto;
-import net.hasor.dbvisitor.mapping.Column;
-import net.hasor.dbvisitor.mapping.KeyTypeEnum;
+package net.hasor.scene.defaultconf.dto;
 import net.hasor.dbvisitor.mapping.Table;
 
 import java.util.Date;
@@ -26,13 +24,9 @@ import java.util.Date;
  */
 @Table("user")
 public class UserDTO {
-    @Column(primary = true, keyType = KeyTypeEnum.Auto)
     private Integer id;
-    @Column
     private String  name;
-    @Column
     private Integer age;
-    @Column("create_time")
     private Date    createTime;
 
     public Integer getId() {

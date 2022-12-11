@@ -13,19 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.lambda;
-import net.hasor.dbvisitor.lambda.core.DeleteExecute;
-import net.hasor.dbvisitor.lambda.core.QueryCompare;
-
-import java.util.Map;
-
+package net.hasor.dbvisitor.dialect;
 /**
- * lambda Delete for Map.
- * @version : 2022-04-02
+ * 查询序列的方言
+ * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface MapDeleteOperation extends //
-        CommonOperation<MapDeleteOperation>, //
-        DeleteExecute<MapDeleteOperation>, //
-        QueryCompare<MapDeleteOperation, Map<String, Object>, String> {
+public interface SeqSqlDialect extends SqlDialect {
+    /** 查询序列 */
+    String selectSeq(boolean useQualifier, String catalog, String schema, String seqName);
 }

@@ -17,7 +17,10 @@ package net.hasor.dbvisitor.lambda;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.Property;
+import net.hasor.dbvisitor.JdbcUtils;
+import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.DynamicConnection;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
@@ -55,6 +58,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
     protected final Map<Class<?>, TableMapping<?>> entMapping = new HashMap<>();
     protected final Map<String, TableMapping<?>>   mapMapping = new HashMap<>();
     protected       SqlDialect                     dialect    = null;
+    protected       boolean                        useQualifier;
 
     /**
      * Construct a new JdbcTemplate for bean usage.
@@ -148,7 +152,25 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
     }
 
     protected void init() {
+        this.dialect = fetchDialect();
+    }
 
+    protected SqlDialect fetchDialect() {
+        if (getConnection() == null && getDynamic() == null && getDataSource() == null) {
+            return DefaultSqlDialect.DEFAULT;
+        }
+
+        String tmpDbType = "";
+        try {
+            tmpDbType = this.execute((ConnectionCallback<String>) con -> {
+                DatabaseMetaData metaData = con.getMetaData();
+                return JdbcUtils.getDbType(metaData.getURL(), metaData.getDriverName());
+            });
+        } catch (Exception e) {
+            tmpDbType = "";
+        }
+
+        return SqlDialectRegister.findOrCreate(tmpDbType);
     }
 
     public SqlDialect getDialect() {
@@ -159,32 +181,12 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         this.dialect = dialect;
     }
 
-    protected <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
-        if (exampleType == null) {
-            throw new NullPointerException("exampleType is null.");
-        }
-        if (exampleType == Map.class) {
-            throw new UnsupportedOperationException("Map cannot be used as lambda exampleType.");
-        }
+    public boolean isUseQualifier() {
+        return this.useQualifier;
+    }
 
-        TableMapping<?> mapping = this.entMapping.get(exampleType);
-        if (mapping != null) {
-            if (exampleType == mapping.entityType() || exampleType.isAssignableFrom(mapping.entityType())) {
-                return (TableMapping<T>) mapping;
-            } else {
-                throw new ClassCastException("exampleType is incompatible with TableMapping.");
-            }
-        }
-
-        mapping = this.entMapping.computeIfAbsent(exampleType, key -> {
-            MappingOptions opt = new MappingOptions(options);
-            opt.setCaseInsensitive(this.isResultsCaseInsensitive());
-            if (this.getDialect() != null) {
-                opt.setDefaultDialect(this.getDialect());
-            }
-            return new ClassTableMappingResolve(opt).resolveTableMapping(exampleType, exampleType.getClassLoader(), this.getTypeRegistry());
-        });
-        return (TableMapping<T>) mapping;
+    public void setUseQualifier(boolean useQualifier) {
+        this.useQualifier = useQualifier;
     }
 
     private List<String> fetchPrimaryKeys(Connection con, TableDef<?> tableDef) throws SQLException {
@@ -247,7 +249,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
 
                 // init KeySeqHolder
                 if (isAuto) {
-                    KeySeqHolder sequenceHolder = KeyTypeEnum.Auto.createHolder(new CreateContext(options, tableDef, colDef, confMap));
+                    KeySeqHolder sequenceHolder = KeyTypeEnum.Auto.createHolder(new CreateContext(options, this.getTypeRegistry(), tableDef, colDef, confMap));
                     colDef.setKeySeqHolder(sequenceHolder);
                 }
                 result.add(colDef);
@@ -264,6 +266,35 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         }
     }
 
+    protected <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
+        if (exampleType == null) {
+            throw new NullPointerException("exampleType is null.");
+        }
+        if (exampleType == Map.class) {
+            throw new UnsupportedOperationException("Map cannot be used as lambda exampleType.");
+        }
+
+        TableMapping<?> mapping = this.entMapping.get(exampleType);
+        if (mapping != null) {
+            if (exampleType == mapping.entityType() || exampleType.isAssignableFrom(mapping.entityType())) {
+                return (TableMapping<T>) mapping;
+            } else {
+                throw new ClassCastException("exampleType is incompatible with TableMapping.");
+            }
+        }
+
+        mapping = this.entMapping.computeIfAbsent(exampleType, key -> {
+            MappingOptions opt = new MappingOptions(options);
+            opt.setCaseInsensitive(this.isResultsCaseInsensitive());
+            if (this.getDialect() != null) {
+                opt.setDefaultDialect(this.getDialect());
+            }
+
+            return new ClassTableMappingResolve(opt).resolveTableMapping(exampleType, exampleType.getClassLoader(), this.getTypeRegistry());
+        });
+        return (TableMapping<T>) mapping;
+    }
+
     protected TableMapping<?> getTableMapping(final String catalog, final String schema, final String table, MappingOptions opt) throws SQLException {
         if (StringUtils.isBlank(table)) {
             throw new NullPointerException("table is blank.");
@@ -278,9 +309,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         MappingOptions copyOpt = MappingOptions.buildNew(opt);
         copyOpt.setCaseInsensitive(this.isResultsCaseInsensitive());
         copyOpt.setUseDelimited(Boolean.TRUE.equals(copyOpt.getUseDelimited()));
-        if (this.getDialect() != null) {
-            copyOpt.setDefaultDialect(this.getDialect());
-        }
+        copyOpt.setDefaultDialect(this.getDialect());
 
         Function<String, String> fmtNameFoo = fmtNameFoo(copyOpt);
 
@@ -290,7 +319,8 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         boolean useDelimited = copyOpt.getUseDelimited();
         boolean caseInsensitive = copyOpt.getCaseInsensitive();
 
-        final TableDef<?> defMap = new TableDef<>(finalCatalog, finalSchema, finalTable, LinkedHashMap.class, true, useDelimited, caseInsensitive, getTypeRegistry());
+        final TableDef<?> defMap = new TableDef<>(finalCatalog, finalSchema, finalTable, LinkedHashMap.class, //
+                true, useDelimited, caseInsensitive, copyOpt.getDefaultDialect(), getTypeRegistry());
         List<ColumnDef> columnDefs = execute((ConnectionCallback<List<ColumnDef>>) con -> {
             return fetchColumns(con, defMap, copyOpt, fmtNameFoo);
         });
@@ -304,6 +334,9 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
     }
 
     protected <E extends BasicLambda<R, T, P>, R, T, P> E configLambda(E execute) {
+        if (this.useQualifier) {
+            execute.useQualifier();
+        }
         return execute;
     }
 
@@ -345,6 +378,22 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
     @Override
     public MapQueryOperation lambdaQuery(String catalog, String schema, String table, MappingOptions options) throws SQLException {
         return configLambda(new SelectLambdaForMap(getTableMapping(catalog, schema, table, options), this));
+    }
+
+    public void resetMapping() {
+        this.entMapping.clear();
+        this.mapMapping.clear();
+    }
+
+    public void resetMapping(String catalog, String schema, String table) {
+        if (StringUtils.isBlank(table)) {
+            throw new NullPointerException("table is blank.");
+        }
+        this.mapMapping.remove(String.format("'%s'.'%s'.'%s'", catalog, schema, table));
+    }
+
+    public void resetMapping(Class<?> exampleType) {
+        this.entMapping.remove(exampleType);
     }
 
     private Function<String, String> fmtNameFoo(MappingOptions options) throws SQLException {

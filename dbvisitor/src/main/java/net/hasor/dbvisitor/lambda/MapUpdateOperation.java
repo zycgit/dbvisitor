@@ -27,5 +27,5 @@ import java.util.Map;
 public interface MapUpdateOperation extends //
         CommonOperation<MapUpdateOperation>, //
         UpdateExecute<MapUpdateOperation, Map<String, Object>, String>, //
-        QueryCompare<MapUpdateOperation, String> {
+        QueryCompare<MapUpdateOperation, Map<String, Object>, String> {
 }

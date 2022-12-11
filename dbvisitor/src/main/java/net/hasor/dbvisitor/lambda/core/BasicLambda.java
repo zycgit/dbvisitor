@@ -41,7 +41,6 @@ import java.util.Objects;
  */
 public abstract class BasicLambda<R, T, P> {
     protected static final Logger          logger = LoggerFactory.getLogger(BasicLambda.class);
-    protected final        String          dbType;
     private                SqlDialect      dialect;
     private final          Class<?>        exampleType;
     private final          boolean         exampleIsMap;
@@ -66,18 +65,7 @@ public abstract class BasicLambda<R, T, P> {
         }
 
         SqlDialect tempDialect = SqlDialectRegister.findOrCreate(tmpDbType);
-        this.dbType = tmpDbType;
         this.dialect = (tempDialect == null) ? DefaultSqlDialect.DEFAULT : tempDialect;
-        this.qualifier = tableMapping.useDelimited();
-    }
-
-    BasicLambda(Class<T> exampleType, TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate, String dbType, SqlDialect dialect) {
-        this.exampleType = Objects.requireNonNull(exampleType, "exampleType is null.");
-        this.exampleIsMap = Map.class.isAssignableFrom(this.exampleType());
-        this.tableMapping = Objects.requireNonNull(tableMapping, "tableMapping is null.");
-        this.jdbcTemplate = jdbcTemplate;
-        this.dbType = dbType;
-        this.dialect = (dialect == null) ? DefaultSqlDialect.DEFAULT : dialect;
         this.qualifier = tableMapping.useDelimited();
     }
 
@@ -136,7 +124,7 @@ public abstract class BasicLambda<R, T, P> {
         ColumnMapping propertyInfo = tableMapping.getPropertyByName(propertyName);
 
         if (propertyInfo == null) {
-            String tab = this.dialect.tableName(true, catalogName, schemaName, tableName);
+            String tab = this.dialect.tableName(isQualifier(), catalogName, schemaName, tableName);
             throw new NullPointerException("tableMapping '" + tab + "', property '" + propertyName + "' is not exist.");
         }
 
@@ -153,7 +141,7 @@ public abstract class BasicLambda<R, T, P> {
         }
 
         String columnName = propertyInfo.getColumn();
-        return () -> dialect().columnName(isQualifier(), catalogName, schemaName, tableName, columnName);
+        return () -> dialect().fmtName(isQualifier(), columnName);
     }
 
     protected Map<String, String> extractKeysMap(Map entity) {
@@ -172,6 +160,8 @@ public abstract class BasicLambda<R, T, P> {
     public final BoundSql getBoundSql(SqlDialect dialect) {
         if (dialect == null) {
             throw new IllegalStateException("dialect is null.");
+        } else if (dialect == this.dialect) {
+            return buildBoundSql(dialect);
         } else {
             SqlDialect oriDialect = dialect();
             try {
@@ -180,7 +170,6 @@ public abstract class BasicLambda<R, T, P> {
             } finally {
                 this.dialect = oriDialect;
             }
-
         }
     }
 

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.TbUser;
@@ -76,6 +77,19 @@ public class BaseLambdaTest extends AbstractDbTest {
     public void base_4() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
+                    .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
+                    .queryForMap();
+            assert tbUser.get("name").equals("默罕默德");
+            assert tbUser.get("account").equals("muhammad");
+        }
+    }
+
+    @Test
+    public void base_5() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(new JdbcTemplate(c));
+
             Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
                     .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
                     .queryForMap();

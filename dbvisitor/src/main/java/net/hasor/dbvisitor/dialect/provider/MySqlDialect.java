@@ -98,7 +98,7 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
                 strBuilder.append(", ");
                 argBuilder.append(", ");
             }
-            strBuilder.append(columnName(useQualifier, catalog, schema, table, columns.get(i)));
+            strBuilder.append(fmtName(useQualifier, columns.get(i)));
             argBuilder.append("?");
         }
 
@@ -120,7 +120,7 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
                 if (select.length() > 0) {
                     select.append(", ");
                 }
-                select.append(this.columnName(useQualifier, catalog, schema, table, col));
+                select.append(this.fmtName(useQualifier, col));
             }
         }
 

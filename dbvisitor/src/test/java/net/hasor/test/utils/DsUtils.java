@@ -47,6 +47,8 @@ public class DsUtils {
             jdbcTemplate.execute("insert into user values (3, 'jon wes', 41, now());");
             jdbcTemplate.execute("insert into user values (4, 'mary', 66, now());");
             jdbcTemplate.execute("insert into user values (5, 'matt', 25, now());");
+
+            jdbcTemplate.execute("create sequence test_seq;");
         } catch (Exception ignored) {
         }
     }

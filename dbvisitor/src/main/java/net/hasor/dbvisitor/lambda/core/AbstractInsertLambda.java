@@ -278,7 +278,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         String schemaName = tableMapping.getSchema();
         String tableName = tableMapping.getTable();
         if (!isInsertSqlDialect) {
-            String sqlString = defaultDialectInsert(this.isQualifier(), catalogName, schemaName, tableName, this.insertColumns, dialect);
+            String sqlString = defaultDialectInsert(catalogName, schemaName, tableName, this.insertColumns, dialect);
             return buildBatchBoundSql(sqlString);
         }
 
@@ -319,7 +319,8 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         return new BatchBoundSql.BatchBoundSqlObj(batchSql, args);
     }
 
-    protected String defaultDialectInsert(boolean useQualifier, String catalog, String schema, String table, List<String> columns, SqlDialect dialect) {
+    protected String defaultDialectInsert(String catalog, String schema, String table, List<String> columns, SqlDialect dialect) {
+        boolean useQualifier = isQualifier();
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("INSERT INTO ");
         strBuilder.append(dialect.tableName(useQualifier, catalog, schema, table));
@@ -333,7 +334,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
                 strBuilder.append(", ");
                 argBuilder.append(", ");
             }
-            strBuilder.append(dialect.columnName(useQualifier, catalog, schema, table, columns.get(i)));
+            strBuilder.append(dialect.fmtName(useQualifier, columns.get(i)));
 
             String specialValue = tableMapping.getPropertyByColumn(columns.get(i)).getInsertTemplate();
             String colValue = StringUtils.isNotBlank(specialValue) ? specialValue : "?";

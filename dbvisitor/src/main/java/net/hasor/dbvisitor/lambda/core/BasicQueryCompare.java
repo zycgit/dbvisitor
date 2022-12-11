@@ -34,7 +34,7 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
  * @version : 2020-10-27
  * @author 赵永春 (zyc@hasor.net)
  */
-public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> implements QueryCompare<R, P> {
+public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> implements QueryCompare<R, T, P> {
     protected MergeSqlSegment queryTemplate     = new MergeSqlSegment();
     protected List<Object>    queryParam        = new ArrayList<>();
     private   Segment         nextSegmentPrefix = null;
@@ -42,6 +42,30 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
 
     public BasicQueryCompare(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
         super(exampleType, tableMapping, jdbcTemplate);
+    }
+
+    @Override
+    public R ifTrue(boolean test, Consumer<QueryCompare<R, T, P>> lambda) {
+        if (test) {
+            lambda.accept(this);
+            return getSelf();
+        }
+        return getSelf();
+    }
+
+    @Override
+    public R ifTrueNested(boolean test, Consumer<R> lambda) {
+        return test ? nested(lambda) : getSelf();
+    }
+
+    @Override
+    public R ifTrueAnd(boolean test, Consumer<R> lambda) {
+        return test ? and(lambda) : getSelf();
+    }
+
+    @Override
+    public R ifTrueOr(boolean test, Consumer<R> lambda) {
+        return test ? or(lambda) : getSelf();
     }
 
     @Override
@@ -251,5 +275,69 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     public R notBetween(P property, Object value1, Object value2) {
         String propertyName = getPropertyName(property);
         return this.addCondition(buildConditionByProperty(propertyName), NOT, BETWEEN, formatValue(propertyName, value1), AND, formatValue(propertyName, value2));
+    }
+
+    @Override
+    public R eqBySample(T sample) {
+        if (sample == null) {
+            throw new NullPointerException("sample is null.");
+        }
+
+        if (exampleIsMap()) {
+            return this.eqBySampleMap((Map<String, Object>) sample);
+        }
+
+        boolean hasCondition = false;
+        TableMapping<?> tableMapping = this.getTableMapping();
+        for (ColumnMapping property : tableMapping.getProperties()) {
+            Object value = property.getHandler().get(sample);
+            if (value != null) {
+                if (!hasCondition) {
+                    this.addCondition(LEFT);
+                    this.nextSegmentPrefix = EMPTY;
+                    hasCondition = true;
+                }
+                String propertyName = property.getProperty();
+                this.addCondition(buildConditionByProperty(propertyName), EQ, formatValue(propertyName, value));
+            }
+        }
+
+        if (hasCondition) {
+            this.nextSegmentPrefix = EMPTY;
+            this.addCondition(RIGHT);
+        }
+
+        return this.getSelf();
+    }
+
+    @Override
+    public R eqBySampleMap(Map<String, Object> sample) {
+        if (sample == null) {
+            throw new NullPointerException("sample is null.");
+        }
+
+        Map<String, String> entityKeyMap = extractKeysMap(sample);
+
+        boolean hasCondition = false;
+        TableMapping<?> tableMapping = this.getTableMapping();
+        for (ColumnMapping property : tableMapping.getProperties()) {
+            String propertyName = property.getProperty();
+            Object value = sample.get(entityKeyMap.get(propertyName));
+            if (value != null) {
+                if (!hasCondition) {
+                    this.addCondition(LEFT);
+                    this.nextSegmentPrefix = EMPTY;
+                    hasCondition = true;
+                }
+                this.addCondition(buildConditionByProperty(propertyName), EQ, formatValue(propertyName, value));
+            }
+        }
+
+        if (hasCondition) {
+            this.nextSegmentPrefix = EMPTY;
+            this.addCondition(RIGHT);
+        }
+
+        return this.getSelf();
     }
 }

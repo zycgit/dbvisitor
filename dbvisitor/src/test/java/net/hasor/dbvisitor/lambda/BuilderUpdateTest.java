@@ -18,9 +18,17 @@ import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
+import net.hasor.scene.singletable.dto.User;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.TB_User;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /***
  * @version : 2021-3-22
@@ -125,6 +133,78 @@ public class BuilderUpdateTest extends AbstractDbTest {
         } catch (Exception e) {
             assert e.getMessage().contains("The dangerous UPDATE operation, You must call `allowReplaceRow()` to enable REPLACE row.");
         }
+    }
 
+    @Test
+    public void eqBySampleMapTest_0() throws SQLException {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+
+            Map<String, Object> whereValue = new HashMap<>();
+            whereValue.put("id", 1);
+            whereValue.put("name", "mali");
+            whereValue.put("abc", "abc");
+
+            Map<String, Object> setValue = new HashMap<>();
+            setValue.put("name", "mali");
+            setValue.put("abc", "abc");
+            setValue.put("create_time", new Date());
+
+            // delete from user where id = 1 and name = 'mail';
+            BoundSql boundSql = lambdaTemplate.lambdaUpdate("user")//
+                    .eqBySampleMap(whereValue)  // where ...
+                    .updateBySample(setValue)   // set ...
+                    .getBoundSql();
+
+            assert boundSql.getSqlString().equals("UPDATE USER SET CREATE_TIME = ? , NAME = ? WHERE ( ID = ? AND NAME = ? )");
+        }
+    }
+
+    @Test
+    public void eqBySampleMapTest_1() throws SQLException {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+
+            Map<String, Object> whereValue = new HashMap<>();
+            whereValue.put("id", 1);
+            whereValue.put("name", "mali");
+            whereValue.put("abc", "abc");
+
+            Map<String, Object> setValue = new HashMap<>();
+            setValue.put("name", "mali");
+            setValue.put("abc", "abc");
+            setValue.put("create_time", new Date());
+
+            // delete from user where id = 1 and name = 'mail';
+            BoundSql boundSql = lambdaTemplate.lambdaUpdate("user")//
+                    .eqBySampleMap(whereValue)  // where ...
+                    .updateByMap(setValue)      // set ...
+                    .getBoundSql();
+
+            assert boundSql.getSqlString().equals("UPDATE USER SET CREATE_TIME = ? , NAME = ? WHERE ( ID = ? AND NAME = ? )");
+        }
+    }
+
+    @Test
+    public void eqBySampleTest_0() {
+        LambdaTemplate lambdaTemplate = new LambdaTemplate();
+
+        Map<String, Object> whereValue = new HashMap<>();
+        whereValue.put("id", 1);
+        whereValue.put("name", "mali");
+        whereValue.put("abc", "abc");
+
+        Map<String, Object> setValue = new HashMap<>();
+        setValue.put("name", "mali");
+        setValue.put("abc", "abc");
+        setValue.put("create_time", new Date());
+
+        // delete from user where id = 1 and name = 'mail';
+        BoundSql boundSql1 = lambdaTemplate.lambdaUpdate(TB_User.class).eqBySampleMap(whereValue).updateByMap(setValue).getBoundSql();
+        assert boundSql1.getSqlString().equals("UPDATE TB_User SET name = ? WHERE ( name = ? )");
+
+        // delete from user where id = 1 and name = 'mail';
+        BoundSql boundSql2 = lambdaTemplate.lambdaUpdate(User.class).eqBySampleMap(whereValue).updateByMap(setValue).getBoundSql();
+        assert boundSql2.getSqlString().equals("UPDATE User SET create_time = ? , name = ? WHERE ( id = ? AND name = ? )");
     }
 }

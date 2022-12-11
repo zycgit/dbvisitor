@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect.provider;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.SeqSqlDialect;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +28,7 @@ import java.util.List;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class H2Dialect extends AbstractDialect implements PageSqlDialect {
+public class H2Dialect extends AbstractDialect implements PageSqlDialect, SeqSqlDialect {
     @Override
     protected String defaultQualifier() {
         return "\"";
@@ -47,5 +49,15 @@ public class H2Dialect extends AbstractDialect implements PageSqlDialect {
         }
 
         return new BoundSql.BoundSqlObj(sqlBuilder.toString(), paramArrays.toArray());
+    }
+
+    @Override
+    public String selectSeq(boolean useQualifier, String catalog, String schema, String seqName) {
+        StringBuilder sqlBuilder = new StringBuilder("values next value for ");
+        if (StringUtils.isNotBlank(schema)) {
+            sqlBuilder.append(fmtName(useQualifier, schema)).append(".");
+        }
+        sqlBuilder.append(fmtName(useQualifier, seqName));
+        return sqlBuilder.toString();
     }
 }

@@ -9,9 +9,8 @@ import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /** 使用标准的 pojo 来做 DTO 进行数据 插入 */
 public class PojoCrudTestCase {
@@ -26,10 +25,11 @@ public class PojoCrudTestCase {
             userData.setAge(36);
             userData.setName("default user");
             userData.setCreate_time(new Date());// 默认驼峰转换是关闭的，因此在没有任何配置的情况下普通 pojo 的列名需要和表名字段完全一致。
+            assert userData.getId() == null;
 
             InsertOperation<User> lambdaInsert = lambdaTemplate.lambdaInsert(User.class);
-            int res = lambdaInsert.applyEntity(userData).executeSumResult();
-            assert res == 1;
+            assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
+            assert userData.getId() == null; // POJO 没有 自增 ID 配置信息，因此不回填
 
             // 校验结果
             EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
@@ -50,8 +50,7 @@ public class PojoCrudTestCase {
             userData.put("create_time", new Date());// 默认驼峰转换是关闭的，因此在没有任何配置的情况下 key 需要和列名完全一致。
 
             InsertOperation<User> lambdaInsert = lambdaTemplate.lambdaInsert(User.class);
-            int res = lambdaInsert.applyMap(userData).executeSumResult();
-            assert res == 1;
+            assert 1 == lambdaInsert.applyMap(userData).executeSumResult();
 
             // 校验结果
             EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
@@ -177,6 +176,123 @@ public class PojoCrudTestCase {
             assert resultData.getName().equals("new name is abc");
             assert resultData.getAge() == null;
             assert resultData.getCreate_time() == null;
+        }
+    }
+
+    // 基于条件删除
+    @Test
+    public void deleteByID() throws SQLException {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+
+            // delete from user where id = 1;
+            int i = lambdaTemplate.lambdaDelete(User.class) //
+                    .eq(User::getId, 1) //
+                    .doDelete();
+            assert i == 1;
+
+            // 校验结果
+            EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
+            User resultData = lambdaQuery.eq(User::getId, 1).queryForObject();
+            assert resultData == null;
+        }
+    }
+
+    // 基于 map 样本的条件删除
+    @Test
+    public void deleteBySample() throws SQLException {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+
+            // 条件对象
+            User sample = new User();
+            sample.setId(1);
+            sample.setName("mali");
+
+            // delete from user where id = 1 and name = 'mail';
+            int i = lambdaTemplate.lambdaDelete(User.class) //
+                    .eqBySample(sample)//
+                    .doDelete();
+            assert i == 1;
+
+            // 校验结果
+            EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
+            User resultData = lambdaQuery.eq(User::getId, 1).queryForObject();
+            assert resultData == null;
+        }
+    }
+
+    // 基于 map 样本的条件删除
+    @Test
+    public void deleteBySampleMap() throws SQLException {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+
+            Map<String, Object> newValue = new HashMap<>();
+            newValue.put("id", 1);
+            newValue.put("name", "mali");
+
+            // delete from user where id = 1 and name = 'mail';
+            int i = lambdaTemplate.lambdaDelete(User.class) //
+                    .eqBySampleMap(newValue)//
+                    .doDelete();
+            assert i == 1;
+
+            // 校验结果
+            EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
+            User resultData = lambdaQuery.eq(User::getId, 1).queryForObject();
+            assert resultData == null;
+        }
+    }
+
+    // 全部删除
+    @Test
+    public void deleteALL() throws SQLException {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+
+            // delete from user;
+            int i = lambdaTemplate.lambdaDelete(User.class) //
+                    .allowEmptyWhere()// 无条件删除需要启用空条件
+                    .doDelete();
+            assert i == 5;
+
+            // 校验结果
+            assert lambdaTemplate.lambdaQuery(User.class).queryForCount() == 0;
+        }
+    }
+
+    // 简单的将普通 pojo 映射到表
+    @Test
+    public void batchInsertByPojo() throws SQLException {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+
+            InsertOperation<User> lambdaInsert = lambdaTemplate.lambdaInsert(User.class);
+            List<User> insertData = new ArrayList<>();
+            for (int i = 0; i < 10; i++) {
+                User userData = new User();
+                userData.setAge(36);
+                userData.setName("default user " + i);
+                userData.setCreate_time(new Date());
+                lambdaInsert.applyEntity(userData);
+                insertData.add(userData);
+            }
+            int res = lambdaInsert.executeSumResult();
+            assert res == 10;
+            for (int i = 0; i < 10; i++) {
+                assert insertData.get(i).getId() == null;// pojo 没有自增 id 信息，因此不会回填。
+            }
+
+            // 校验结果
+            EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
+            List<User> resultData = lambdaQuery.likeRight(User::getName, "default user ").queryForList();
+            List<String> result = resultData.stream().map(User::getName).collect(Collectors.toList());
+            assert result.size() == 10;
+
+            for (int i = 0; i < 10; i++) {
+                assert result.get(i).equals("default user " + i);
+            }
         }
     }
 }

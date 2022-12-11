@@ -26,6 +26,7 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import static net.hasor.test.utils.TestUtils.INSERT_ARRAY;
@@ -162,6 +163,36 @@ public class PageTest extends AbstractDbTest {
             for (int i = 0; i < count; i++) {
                 assert pageAll.get(i).getUserUUID().equals("id_" + i);
             }
+        }
+    }
+
+    @Test
+    public void lambdaQuery_stream_page_0() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            //
+            List<String> userIds = new ArrayList<>();
+            Iterator<TbUser> userIterator = lambdaTemplate.lambdaQuery(TbUser.class).queryForIterator(-1, 1);
+            while (userIterator.hasNext()) {
+                userIds.add(userIterator.next().getUid());
+            }
+
+            assert lambdaTemplate.lambdaQuery(TbUser.class).queryForCount() == userIds.size();
+        }
+    }
+
+    @Test
+    public void lambdaQuery_stream_page_1() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            //
+            List<String> userIds = new ArrayList<>();
+            Iterator<TbUser> userIterator = lambdaTemplate.lambdaQuery(TbUser.class).queryForIterator(2, 1);
+            while (userIterator.hasNext()) {
+                userIds.add(userIterator.next().getUid());
+            }
+
+            assert userIds.size() == 2;
         }
     }
 }

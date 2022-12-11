@@ -87,7 +87,7 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
 
     @Override
     public TableDef<?> resolveTableMapping(Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
-        Table tableInfo = fetchTableInfo(classLoader, entityType, this.options);
+        TableDefaultInfo tableInfo = fetchTableInfo(classLoader, entityType, this.options);
         return resolveTableMapping(tableInfo, entityType, classLoader, typeRegistry);
     }
 
@@ -112,7 +112,7 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
         for (String name : names) {
             Property property = properties.get(name);
             Class<?> type = BeanUtils.getPropertyType(property);
-            resolveProperty(def, name, type, property, typeRegistry, options);
+            resolveProperty(def, name, type, property, typeRegistry, tableInfo);
         }
 
         return def;
@@ -130,10 +130,10 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
         boolean autoProperty = tableInfo.autoMapping();
         boolean useDelimited = tableInfo.useDelimited();
         boolean caseInsensitive = tableInfo.caseInsensitive();
-        return new TableDef<>(catalog, schema, table, entityType, autoProperty, useDelimited, caseInsensitive, typeRegistry);
+        return new TableDef<>(catalog, schema, table, entityType, autoProperty, useDelimited, caseInsensitive, this.options.getDefaultDialect(), typeRegistry);
     }
 
-    private void resolveProperty(TableDef<?> tableDef, String name, Class<?> type, Property handler, TypeHandlerRegistry typeRegistry, MappingOptions options) {
+    private void resolveProperty(TableDef<?> tableDef, String name, Class<?> type, Property handler, TypeHandlerRegistry typeRegistry, Table tableInfo) {
         Annotation[] annotations = BeanUtils.getPropertyAnnotation(handler);
         Column info = null;
         for (Annotation a : annotations) {
@@ -147,7 +147,7 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
         if (info != null) {
             String column = StringUtils.isNotBlank(info.name()) ? info.name() : info.value();
             if (StringUtils.isBlank(column)) {
-                column = hump2Line(name, options.getMapUnderscoreToCamelCase());
+                column = hump2Line(name, tableInfo.mapUnderscoreToCamelCase());
             }
 
             Class<?> javaType = info.specialJavaType() == Object.class ? CLASS_MAPPING_MAP.getOrDefault(type, type) : info.specialJavaType();
@@ -171,12 +171,12 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
                     selectTemplate, insertTemplate, setColTemplate, setValueTemplate, whereColTemplate, whereValueTemplate);
 
             // init KeySeqHolder
-            colDef.setKeySeqHolder(this.resolveKeyType(tableDef, colDef, info.keyType(), annotations));
+            colDef.setKeySeqHolder(this.resolveKeyType(tableDef, colDef, info.keyType(), annotations, typeRegistry));
             tableDef.addMapping(colDef);
 
         } else if (tableDef.isAutoProperty()) {
 
-            String column = hump2Line(name, options.getMapUnderscoreToCamelCase());
+            String column = hump2Line(name, tableInfo.mapUnderscoreToCamelCase());
             Class<?> javaType = CLASS_MAPPING_MAP.getOrDefault(type, type);
             int jdbcType = TypeHandlerRegistry.toSqlType(javaType);
             TypeHandler<?> typeHandler = typeRegistry.getTypeHandler(javaType, jdbcType);
@@ -184,7 +184,7 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
         }
     }
 
-    private KeySeqHolder resolveKeyType(TableDef<?> tableDef, ColumnDef colDef, KeyTypeEnum keyTypeEnum, Annotation[] allAnnotations) {
+    private KeySeqHolder resolveKeyType(TableDef<?> tableDef, ColumnDef colDef, KeyTypeEnum keyTypeEnum, Annotation[] allAnnotations, TypeHandlerRegistry typeRegistry) {
         if (keyTypeEnum == KeyTypeEnum.None) {
             return null;
         }
@@ -196,7 +196,7 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
             }
         }
 
-        return keyTypeEnum.createHolder(new CreateContext(this.options, tableDef, colDef, envConfig));
+        return keyTypeEnum.createHolder(new CreateContext(this.options, typeRegistry, tableDef, colDef, envConfig));
     }
 
     private String hump2Line(String str, Boolean mapUnderscoreToCamelCase) {

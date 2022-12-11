@@ -17,6 +17,8 @@ package net.hasor.dbvisitor.keyholder;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.dbvisitor.types.TypeHandler;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.util.Map;
 
@@ -27,12 +29,14 @@ import java.util.Map;
  */
 public class CreateContext {
     private final MappingOptions      options;
+    private final TypeHandlerRegistry typeRegistry;
     private final TableMapping<?>     tableDef;
     private final ColumnMapping       colDef;
     private final Map<String, Object> context;
 
-    public CreateContext(MappingOptions options, TableMapping<?> tableDef, ColumnMapping colDef, Map<String, Object> context) {
+    public CreateContext(MappingOptions options, TypeHandlerRegistry typeRegistry, TableMapping<?> tableDef, ColumnMapping colDef, Map<String, Object> context) {
         this.options = options;
+        this.typeRegistry = typeRegistry;
         this.tableDef = tableDef;
         this.colDef = colDef;
         this.context = context;
@@ -40,6 +44,10 @@ public class CreateContext {
 
     public MappingOptions getOptions() {
         return this.options;
+    }
+
+    public TypeHandlerRegistry getTypeRegistry() {
+        return this.typeRegistry;
     }
 
     public String getCatalog() {
@@ -56,6 +64,26 @@ public class CreateContext {
 
     public String getColumn() {
         return this.colDef.getColumn();
+    }
+
+    public Class<?> getEntityType() {
+        return this.tableDef.entityType();
+    }
+
+    public String getProperty() {
+        return this.colDef.getProperty();
+    }
+
+    public TypeHandler<?> getTypeHandler() {
+        return this.colDef.getTypeHandler();
+    }
+
+    public Integer getJdbcType() {
+        return this.colDef.getJdbcType();
+    }
+
+    public Class<?> getJavaType() {
+        return this.colDef.getJavaType();
     }
 
     public Map<String, Object> getContext() {
