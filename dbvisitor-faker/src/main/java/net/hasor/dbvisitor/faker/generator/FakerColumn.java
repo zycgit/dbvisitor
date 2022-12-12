@@ -84,7 +84,7 @@ public class FakerColumn {
             this.whereValueTemplate = "?";
         }
 
-        String colName = this.factory.getSqlDialect().columnName(table.isUseQualifier(), table.getCatalog(), table.getSchema(), table.getTable(), this.column);
+        String colName = this.factory.getSqlDialect().fmtName(table.isUseQualifier(), this.column);
         this.selectTemplate = this.selectTemplate.replace("{name}", colName);
         this.setColTemplate = this.setColTemplate.replace("{name}", colName);
         this.whereColTemplate = this.whereColTemplate.replace("{name}", colName);

@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.faker;
 import net.hasor.cobble.RandomUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.ref.Ratio;
+import net.hasor.cobble.ref.RandomRatio;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.generator.loader.DataLoaderFactory;
 import net.hasor.dbvisitor.faker.generator.provider.DefaultTypeProcessorFactory;
@@ -48,7 +48,7 @@ public class FakerConfig {
     // one trans
     private       int                         minBatchSizePerOps;
     private       int                         maxBatchSizePerOps;
-    private final Ratio<OpsType>              opsRatio;
+    private final RandomRatio<OpsType>        opsRatio;
     private       int                         minOpsCountPerTransaction;
     private       int                         maxOpsCountPerTransaction;
     // trans stream
@@ -208,7 +208,7 @@ public class FakerConfig {
         this.typeProcessorFactory = typeProcessorFactory;
     }
 
-    public Ratio<OpsType> getOpsRatio() {
+    public RandomRatio<OpsType> getOpsRatio() {
         return opsRatio;
     }
 

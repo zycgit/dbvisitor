@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.number;
-import net.hasor.cobble.ref.Ratio;
+import net.hasor.cobble.RandomUtils;
+import net.hasor.cobble.ref.RandomRatio;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 
@@ -23,7 +24,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.function.Supplier;
 
-import static net.hasor.dbvisitor.faker.FakerRandomUtils.*;
+import static net.hasor.cobble.RandomUtils.nextDecimal;
 
 /**
  * 数值类型的 SeedFactory
@@ -41,7 +42,7 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig> {
         NumberType numberType = seedConfig.getNumberType();
 
         Integer precision = seedConfig.getPrecision();
-        Ratio<MinMax> minmax = seedConfig.getMinMax();
+        RandomRatio<MinMax> minmax = seedConfig.getMinMax();
         minmax.forEach(minMax -> {
             BigDecimal min = fixNumber(minMax.getMin(), (numberType == NumberType.Decimal || numberType == NumberType.BigInt) ? null : BigDecimal.ZERO);
             BigDecimal max = fixNumber(minMax.getMax(), (numberType == NumberType.Decimal || numberType == NumberType.BigInt) ? null : BigDecimal.valueOf(100));
@@ -59,7 +60,7 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig> {
         }
 
         return () -> {
-            if (allowNullable && nextFloat(0, 100) < nullableRatio) {
+            if (allowNullable && RandomUtils.nextFloat(0, 100) < nullableRatio) {
                 return null;
             } else if (precision != null) {
                 return toNumber(randomNumber(precision, scale, numberType), numberType, abs);
@@ -77,7 +78,7 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig> {
         }
     }
 
-    private Number randomNumber(Ratio<MinMax> minmax, Integer scale, NumberType numberType) {
+    private Number randomNumber(RandomRatio<MinMax> minmax, Integer scale, NumberType numberType) {
         MinMax mm = minmax.getByRandom();
         Number min = mm.getMin();
         Number max = mm.getMax();
@@ -89,11 +90,11 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig> {
             case Integer:
             case Long:
             case BigInt:
-                return nextLong(min, max);
+                return RandomUtils.nextBigInteger(min, max);
             case Float:
             case Double:
             case Decimal:
-                return nextDouble(min, max, scale);
+                return nextDecimal(min, max, scale);
             default:
                 throw new UnsupportedOperationException(numberType + " randomNumber Unsupported.");
         }

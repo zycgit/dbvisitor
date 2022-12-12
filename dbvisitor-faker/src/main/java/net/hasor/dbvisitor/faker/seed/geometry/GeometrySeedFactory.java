@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.faker.seed.geometry;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.ref.Ratio;
+import net.hasor.cobble.ref.RandomRatio;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 import org.locationtech.jts.geom.Geometry;
@@ -31,7 +31,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.math.BigDecimal.ROUND_DOWN;
-import static net.hasor.dbvisitor.faker.FakerRandomUtils.*;
+import static net.hasor.cobble.RandomUtils.*;
 
 /**
  * 几何信息 SeedFactory
@@ -58,7 +58,7 @@ public class GeometrySeedFactory implements SeedFactory<GeometrySeedConfig> {
     @Override
     public Supplier<Serializable> createSeed(GeometrySeedConfig seedConfig) {
         GeometryType geometryType = seedConfig.getGeometryType();
-        Ratio<SpaceRange> range = seedConfig.getRange();
+        RandomRatio<SpaceRange> range = seedConfig.getRange();
         int precision = Math.max(0, seedConfig.getPrecision());
         int minPointSize = Math.max(1, seedConfig.getMinPointSize());
         int maxPointSize = Math.max(1, seedConfig.getMaxPointSize());
@@ -74,7 +74,7 @@ public class GeometrySeedFactory implements SeedFactory<GeometrySeedConfig> {
             if (allowNullable && nextFloat(0, 100) < nullableRatio) {
                 return null;
             } else {
-                BigInteger pointCount = nextLong(BigInteger.valueOf(minPointSize), BigInteger.valueOf(maxPointSize));
+                BigInteger pointCount = nextBigInteger(BigInteger.valueOf(minPointSize), BigInteger.valueOf(maxPointSize));
                 return randomGeometry(geometryType, range.getByRandom(), precision, pointCount, fmt);
             }
         };
@@ -144,8 +144,8 @@ public class GeometrySeedFactory implements SeedFactory<GeometrySeedConfig> {
     }
 
     private Point randomPoint(Point formBorder, Point toBorder, int precision) {
-        BigDecimal randomX = nextDouble(formBorder.getX(), toBorder.getX(), precision);
-        BigDecimal randomY = nextDouble(formBorder.getY(), toBorder.getY(), precision);
+        BigDecimal randomX = nextDecimal(formBorder.getX(), toBorder.getX(), precision);
+        BigDecimal randomY = nextDecimal(formBorder.getY(), toBorder.getY(), precision);
         return new Point(randomX, randomY);
     }
 
@@ -182,7 +182,7 @@ public class GeometrySeedFactory implements SeedFactory<GeometrySeedConfig> {
         // 没有实现上面的逻辑，最多影响是 几何图形随机性不足或可能越出 range 的范围，不影响测试数据
         BigDecimal minRadius = BigDecimal.ONE.divide(new BigDecimal("1" + StringUtils.repeat("0", precision)));
         BigDecimal maxRadius = BigDecimal.valueOf(100);
-        return nextDouble(minRadius, maxRadius, precision);
+        return nextDecimal(minRadius, maxRadius, precision);
     }
 
     private BigDecimal nextRadius(Point point, SpaceRange range, int precision) {
@@ -193,6 +193,6 @@ public class GeometrySeedFactory implements SeedFactory<GeometrySeedConfig> {
         // 没有实现上面的逻辑，最多影响是 几何图形随机性不足或可能越出 range 的范围，不影响测试数据
         BigDecimal minRadius = BigDecimal.ONE.divide(new BigDecimal("1" + StringUtils.repeat("0", precision)));
         BigDecimal maxRadius = BigDecimal.valueOf(100);
-        return nextDouble(minRadius, maxRadius, precision);
+        return nextDecimal(minRadius, maxRadius, precision);
     }
 }

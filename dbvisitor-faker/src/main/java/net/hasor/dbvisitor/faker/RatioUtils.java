@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.faker;
 import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.ref.Ratio;
+import net.hasor.cobble.ref.RandomRatio;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,13 +29,13 @@ import java.util.stream.Stream;
  * @author 赵永春 (zyc@hasor.net)
  */
 class RatioUtils {
-    public static Ratio<OpsType> passerByConfig(String ratioConfig) {
-        Ratio<OpsType> ratio = new Ratio<>();
+    public static RandomRatio<OpsType> passerByConfig(String ratioConfig) {
+        RandomRatio<OpsType> ratio = new RandomRatio<>();
         passerOpsRatio(ratioConfig).forEach(o -> ratio.addRatio(o.getRatio(), o.getOpsType()));
         return ratio;
     }
 
-    public static void fillByConfig(String ratioConfig, Ratio<OpsType> ratio) {
+    public static void fillByConfig(String ratioConfig, RandomRatio<OpsType> ratio) {
         passerOpsRatio(ratioConfig).forEach(o -> ratio.addRatio(o.getRatio(), o.getOpsType()));
     }
 

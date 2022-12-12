@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static net.hasor.dbvisitor.faker.FakerRandomUtils.*;
+import static net.hasor.cobble.RandomUtils.*;
 
 /**
  * 字符串类型的 SeedFactory

@@ -20,8 +20,8 @@ import net.hasor.dbvisitor.faker.seed.SeedFactory;
 import java.io.Serializable;
 import java.util.function.Supplier;
 
-import static net.hasor.dbvisitor.faker.FakerRandomUtils.nextBoolean;
-import static net.hasor.dbvisitor.faker.FakerRandomUtils.nextFloat;
+import static net.hasor.cobble.RandomUtils.nextBoolean;
+import static net.hasor.cobble.RandomUtils.nextFloat;
 
 /**
  * 布尔类型的 SeedFactory

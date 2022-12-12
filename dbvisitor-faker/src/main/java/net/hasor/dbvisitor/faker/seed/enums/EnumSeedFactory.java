@@ -21,8 +21,8 @@ import java.io.Serializable;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static net.hasor.dbvisitor.faker.FakerRandomUtils.nextFloat;
-import static net.hasor.dbvisitor.faker.FakerRandomUtils.nextInt;
+import static net.hasor.cobble.RandomUtils.nextFloat;
+import static net.hasor.cobble.RandomUtils.nextInt;
 
 /**
  * 枚举类型的 SeedFactory

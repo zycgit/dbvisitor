@@ -95,7 +95,7 @@ public class InsertAction extends AbstractAction {
                 values.append(", ");
             }
             String colName = colInfo.getColumn();
-            columns.append(this.dialect.columnName(this.useQualifier, catalog, schema, table, colName));
+            columns.append(this.dialect.fmtName(this.useQualifier, colName));
             values.append(colInfo.getInsertTemplate());
         }
 

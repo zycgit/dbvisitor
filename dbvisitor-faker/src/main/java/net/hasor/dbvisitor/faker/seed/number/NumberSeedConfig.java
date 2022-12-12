@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.number;
-import net.hasor.cobble.ref.Ratio;
+import net.hasor.cobble.ref.RandomRatio;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedType;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -28,13 +28,13 @@ import java.math.BigDecimal;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class NumberSeedConfig extends SeedConfig {
-    private       NumberType    numberType;
+    private       NumberType          numberType;
     //随机方式
-    private final Ratio<MinMax> minmax = new Ratio<>(); // 最小值/最大值
-    private       Integer       precision; //数的长度
+    private final RandomRatio<MinMax> minmax = new RandomRatio<>(); // 最小值/最大值
+    private       Integer             precision; //数的长度
     //精度和选项
-    private       Integer       scale;
-    private       boolean       abs;
+    private       Integer             scale;
+    private       boolean             abs;
 
     public final SeedType getSeedType() {
         return SeedType.Number;
@@ -62,7 +62,7 @@ public class NumberSeedConfig extends SeedConfig {
         this.minmax.addRatio(ratio, new MinMax(min, max));
     }
 
-    public Ratio<MinMax> getMinMax() {
+    public RandomRatio<MinMax> getMinMax() {
         return this.minmax;
     }
 

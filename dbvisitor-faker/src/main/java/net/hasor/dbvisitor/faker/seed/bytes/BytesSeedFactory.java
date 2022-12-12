@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.faker.seed.SeedFactory;
 import java.io.Serializable;
 import java.util.function.Supplier;
 
-import static net.hasor.dbvisitor.faker.FakerRandomUtils.*;
+import static net.hasor.cobble.RandomUtils.*;
 
 /**
  * byte[] 类型的 SeedFactory

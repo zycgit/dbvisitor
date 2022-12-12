@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.geometry;
-import net.hasor.cobble.ref.Ratio;
+import net.hasor.cobble.ref.RandomRatio;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedType;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -28,12 +28,12 @@ import net.hasor.dbvisitor.types.handler.StringTypeHandler;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class GeometrySeedConfig extends SeedConfig {
-    private       GeometryType      geometryType;
-    private       FormatType        formatType;
-    private final Ratio<SpaceRange> range = new Ratio<>(); //图形将在这个矩形范围
-    private       int               precision;
-    private       int               minPointSize;
-    private       int               maxPointSize;
+    private       GeometryType            geometryType;
+    private       FormatType              formatType;
+    private final RandomRatio<SpaceRange> range = new RandomRatio<>(); //图形将在这个矩形范围
+    private       int                     precision;
+    private       int                     minPointSize;
+    private       int                     maxPointSize;
 
     public final SeedType getSeedType() {
         return SeedType.Geometry;
@@ -75,7 +75,7 @@ public class GeometrySeedConfig extends SeedConfig {
         this.range.addRatio(ratio, new SpaceRange(axisXofA, axisYofA, axisXofB, axisYofB));
     }
 
-    public Ratio<SpaceRange> getRange() {
+    public RandomRatio<SpaceRange> getRange() {
         return this.range;
     }
 

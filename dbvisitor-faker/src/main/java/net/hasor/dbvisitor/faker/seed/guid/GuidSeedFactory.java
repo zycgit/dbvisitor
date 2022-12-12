@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import static net.hasor.dbvisitor.faker.FakerRandomUtils.nextFloat;
+import static net.hasor.cobble.RandomUtils.nextFloat;
 
 /**
  * GUID/UUID SeedFactory

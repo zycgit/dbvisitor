@@ -85,7 +85,7 @@ public class DefaultDataLoaderFactory implements DataLoaderFactory {
         }
 
         String queryString = ((ConditionSqlDialect) dialect).randomQuery(false, catalog, schema, table, afterIncludeColumns, batchSize);
-        return jdbcTemplate.query(queryString, convertRow(fakerTable, fakerTable.getColumns()));
+        return jdbcTemplate.queryForList(queryString, convertRow(fakerTable, fakerTable.getColumns()));
     }
 
     protected List<Map<String, SqlArg>> loadForPageQuery(SqlDialect dialect, JdbcTemplate jdbcTemplate, //
@@ -103,7 +103,7 @@ public class DefaultDataLoaderFactory implements DataLoaderFactory {
         pageInfo.setCurrentPage(RandomUtils.nextLong(0, totalPage));
 
         BoundSql pageSql = ((PageSqlDialect) dialect).pageSql(boundSql, pageInfo.getFirstRecordPosition(), batchSize);
-        return jdbcTemplate.query(pageSql.getSqlString(), pageSql.getArgs(), convertRow(fakerTable, includeColumns));
+        return jdbcTemplate.queryForList(pageSql.getSqlString(), pageSql.getArgs(), convertRow(fakerTable, includeColumns));
     }
 
     protected List<Map<String, SqlArg>> loadForRandomData(SqlDialect dialect, JdbcTemplate jdbcTemplate, //

@@ -132,7 +132,7 @@ public class UpdateAction extends AbstractAction {
             if (set.length() > 0) {
                 set.append(", ");
             }
-            set.append(this.dialect.columnName(this.useQualifier, catalog, schema, table, colInfo.getColumn()));
+            set.append(this.dialect.fmtName(this.useQualifier, colInfo.getColumn()));
             set.append(" = ");
             set.append(colInfo.getSetValueTemplate());
         }

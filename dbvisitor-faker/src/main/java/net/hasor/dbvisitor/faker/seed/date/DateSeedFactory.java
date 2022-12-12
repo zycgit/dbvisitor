@@ -25,8 +25,8 @@ import java.time.*;
 import java.util.function.Supplier;
 
 import static java.math.BigDecimal.ROUND_DOWN;
-import static net.hasor.dbvisitor.faker.FakerRandomUtils.nextFloat;
-import static net.hasor.dbvisitor.faker.FakerRandomUtils.nextLong;
+import static net.hasor.cobble.RandomUtils.nextBigInteger;
+import static net.hasor.cobble.RandomUtils.nextFloat;
 
 /**
  * 时间类型的 SeedFactory
@@ -233,7 +233,7 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig> {
             endEpochNano = endEpochNano.add(BigDecimal.valueOf(endInstant.getNano()));
         }
 
-        BigDecimal randomNano = new BigDecimal(nextLong(startEpochNano, endEpochNano));
+        BigDecimal randomNano = new BigDecimal(nextBigInteger(startEpochNano, endEpochNano));
         BigDecimal[] timeParts = randomNano.divide(ONE_SEC_NANO, 9, ROUND_DOWN).divideAndRemainder(BigDecimal.ONE);
         timeParts[1] = timeParts[1].multiply(ONE_SEC_NANO);
         return LocalDateTime.ofEpochSecond(timeParts[0].longValue(), timeParts[1].abs().intValue(), ZoneOffset.UTC);
@@ -242,14 +242,14 @@ public class DateSeedFactory implements SeedFactory<DateSeedConfig> {
     protected OffsetDateTime nextZonedTime(LocalDateTime dateTime, ZoneOffset startZoned, ZoneOffset endZoned) {
         int startZonedSec = ((startZoned == null) ? ZoneOffset.UTC : startZoned).getTotalSeconds();
         int endZonedSec = ((endZoned == null) ? ZoneOffset.UTC : endZoned).getTotalSeconds();
-        int randomZoned = nextLong(BigInteger.valueOf(startZonedSec), BigInteger.valueOf(endZonedSec)).intValue();
+        int randomZoned = nextBigInteger(BigInteger.valueOf(startZonedSec), BigInteger.valueOf(endZonedSec)).intValue();
 
         ZoneOffset zoneOffset = ZoneOffset.ofTotalSeconds(randomZoned);
         return OffsetDateTime.of(dateTime, ZoneOffset.UTC).withOffsetSameInstant(zoneOffset);
     }
 
     protected OffsetDateTime nextInterval(OffsetDateTime startTime, int minInterval, int maxInterval, IntervalScope scope) {
-        long interval = nextLong(BigInteger.valueOf(minInterval), BigInteger.valueOf(maxInterval)).intValue();
+        long interval = nextBigInteger(BigInteger.valueOf(minInterval), BigInteger.valueOf(maxInterval)).intValue();
         switch (scope) {
             case Year:
                 return startTime.plusYears(interval);
