@@ -321,7 +321,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         boolean caseInsensitive = copyOpt.getCaseInsensitive();
 
         final TableDef<?> defMap = new TableDef<>(finalCatalog, finalSchema, finalTable, LinkedHashMap.class, //
-                true, useDelimited, caseInsensitive, copyOpt.getDefaultDialect(), getTypeRegistry());
+                true, useDelimited, caseInsensitive, copyOpt.getDefaultDialect());
         List<ColumnDef> columnDefs = execute((ConnectionCallback<List<ColumnDef>>) con -> {
             return fetchColumns(con, defMap, copyOpt, fmtNameFoo);
         });
@@ -397,7 +397,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         this.entMapping.remove(exampleType);
     }
 
-    private Function<String, String> fmtNameFoo(MappingOptions options) throws SQLException {
+    private Function<String, String> fmtNameFoo(final MappingOptions options) throws SQLException {
         if (!options.getCaseInsensitive()) {
             return s -> s;
         }

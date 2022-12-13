@@ -109,7 +109,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
                 if (!this.groupByList.isEmpty()) {
                     this.groupByList.addSegment(() -> ",");
                 }
-                this.groupByList.addSegment(buildColumnByProperty(getPropertyName(property)));
+                this.groupByList.addSegment(buildGroupOrderByProperty(getPropertyName(property)));
 
             }
         }
@@ -152,7 +152,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
                 if (!this.orderByList.isEmpty()) {
                     this.orderByList.addSegment(() -> ",");
                 }
-                this.orderByList.addSegment(buildColumnByProperty(getPropertyName(property)), keyword);
+                this.orderByList.addSegment(buildGroupOrderByProperty(getPropertyName(property)), keyword);
             }
         }
         return this.getSelf();

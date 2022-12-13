@@ -94,5 +94,4 @@ public interface EntityQueryCompare<R> {
 
     /** not between 语句，类似：'col not between ? and ?' */
     R notBetween(String property, Object value1, Object value2);
-
 }

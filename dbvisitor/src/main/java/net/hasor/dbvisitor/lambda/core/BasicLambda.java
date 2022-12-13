@@ -105,18 +105,18 @@ public abstract class BasicLambda<R, T, P> {
     protected abstract String getPropertyName(P property);
 
     protected Segment buildSelectByProperty(String propertyName) {
-        return buildColumnByProperty(false, true, propertyName);
+        return buildGroupOrderByProperty(false, true, propertyName);
     }
 
     protected Segment buildConditionByProperty(String propertyName) {
-        return buildColumnByProperty(true, false, propertyName);
+        return buildGroupOrderByProperty(true, false, propertyName);
     }
 
-    protected Segment buildColumnByProperty(String propertyName) {
-        return buildColumnByProperty(false, false, propertyName);
+    protected Segment buildGroupOrderByProperty(String propertyName) {
+        return buildGroupOrderByProperty(false, false, propertyName);
     }
 
-    private Segment buildColumnByProperty(boolean isWhere, boolean isSelect, String propertyName) {
+    private Segment buildGroupOrderByProperty(boolean isWhere, boolean isSelect, String propertyName) {
         TableMapping<?> tableMapping = this.getTableMapping();
         String catalogName = tableMapping.getCatalog();
         String schemaName = tableMapping.getSchema();
