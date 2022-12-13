@@ -19,7 +19,7 @@ import net.hasor.cobble.reflect.SFunction;
 import net.hasor.dbvisitor.lambda.InsertOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.core.AbstractInsertLambda;
-import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.TableMapping;
 
 /**
  * 提供 lambda insert 能力。是 InsertOperation 接口的实现类。

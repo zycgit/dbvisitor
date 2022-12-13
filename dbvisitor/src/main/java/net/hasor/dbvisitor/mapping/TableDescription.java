@@ -13,25 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.keyholder;
-import net.hasor.dbvisitor.mapping.ColumnMapping;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
+package net.hasor.dbvisitor.mapping;
 /**
- * 主键生成器
- * @version : 2022-12-01
+ * 表的 DDL 补充信息，用于补充生成 DDL 语句
+ * @version : 2022-12-06
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface KeySeqHolder {
-
-    default Object beforeApply(Connection conn, Object entity, ColumnMapping mapping) throws SQLException {
-        return null;
-    }
-
-    default Object afterApply(ResultSet rs, Object entity, int argsIndex, ColumnMapping mapping) throws SQLException {
-        return null;
-    }
+public interface TableDescription {
+    /** 表备注 */
+    String getComment();
 }

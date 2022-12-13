@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.keyholder;
-import net.hasor.dbvisitor.mapping.def.ColumnMapping;
-import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.ColumnMapping;
+import net.hasor.dbvisitor.mapping.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;

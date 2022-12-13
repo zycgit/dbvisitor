@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.keyholder.sequence;
 import net.hasor.dbvisitor.keyholder.CreateContext;
 import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.keyholder.KeySeqHolderFactory;
-import net.hasor.dbvisitor.mapping.def.ColumnMapping;
+import net.hasor.dbvisitor.mapping.ColumnMapping;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

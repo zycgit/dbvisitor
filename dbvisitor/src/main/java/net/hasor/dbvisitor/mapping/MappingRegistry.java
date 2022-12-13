@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping.def;
+package net.hasor.dbvisitor.mapping;
 /**
- * 表的 DDL 补充信息，用于补充生成 DDL 语句
- * @version : 2022-12-06
+ * TableMappingResolve 的公共方法
+ * @version : 2021-06-21
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface TableDescription {
-    /** 表备注 */
-    String getComment();
+public class MappingRegistry {
 }

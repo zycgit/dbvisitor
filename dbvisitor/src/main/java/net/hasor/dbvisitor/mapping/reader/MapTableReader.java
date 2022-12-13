@@ -15,9 +15,9 @@
  */
 package net.hasor.dbvisitor.mapping.reader;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
+import net.hasor.dbvisitor.mapping.ColumnMapping;
+import net.hasor.dbvisitor.mapping.TableMapping;
 import net.hasor.dbvisitor.mapping.TableReader;
-import net.hasor.dbvisitor.mapping.def.ColumnMapping;
-import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
 
 import java.sql.ResultSet;

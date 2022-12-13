@@ -23,8 +23,8 @@ import net.hasor.dbvisitor.jdbc.PreparedStatementCallback;
 import net.hasor.dbvisitor.jdbc.core.ParameterDisposer;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.mapping.def.ColumnMapping;
-import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.ColumnMapping;
+import net.hasor.dbvisitor.mapping.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.sql.Connection;

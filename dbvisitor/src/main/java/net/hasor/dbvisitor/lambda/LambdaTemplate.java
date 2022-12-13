@@ -36,9 +36,9 @@ import net.hasor.dbvisitor.lambda.support.map.InsertLambdaForMap;
 import net.hasor.dbvisitor.lambda.support.map.SelectLambdaForMap;
 import net.hasor.dbvisitor.lambda.support.map.UpdateLambdaForMap;
 import net.hasor.dbvisitor.mapping.KeyTypeEnum;
+import net.hasor.dbvisitor.mapping.TableMapping;
 import net.hasor.dbvisitor.mapping.def.ColumnDef;
 import net.hasor.dbvisitor.mapping.def.TableDef;
-import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -47,6 +47,7 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
@@ -55,8 +56,8 @@ import java.util.function.Function;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
-    protected final Map<Class<?>, TableMapping<?>> entMapping = new HashMap<>();
-    protected final Map<String, TableMapping<?>>   mapMapping = new HashMap<>();
+    protected final Map<Class<?>, TableMapping<?>> entMapping = new ConcurrentHashMap<>();
+    protected final Map<String, TableMapping<?>>   mapMapping = new ConcurrentHashMap<>();
     protected       SqlDialect                     dialect    = null;
     protected       boolean                        useQualifier;
 

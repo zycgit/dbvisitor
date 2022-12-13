@@ -16,11 +16,6 @@
 package net.hasor.dbvisitor.mapping.resolve;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.asm.AnnotationVisitor;
-import net.hasor.cobble.asm.ClassReader;
-import net.hasor.cobble.asm.ClassVisitor;
-import net.hasor.cobble.asm.Opcodes;
-import net.hasor.cobble.dynamic.AsmTools;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
@@ -28,17 +23,22 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.keyholder.CreateContext;
 import net.hasor.dbvisitor.keyholder.KeySeqHolder;
-import net.hasor.dbvisitor.mapping.*;
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.Ignore;
+import net.hasor.dbvisitor.mapping.KeyTypeEnum;
+import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.mapping.def.ColumnDef;
 import net.hasor.dbvisitor.mapping.def.TableDef;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
-import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.sql.Types;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -46,24 +46,15 @@ import java.util.stream.Collectors;
  * @version : 2021-06-21
  * @author 赵永春 (zyc@hasor.net)
  */
-public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
-    private static final Logger                  logger            = Logger.getLogger(ClassTableMappingResolve.class);
-    private static final Map<Class<?>, Class<?>> CLASS_MAPPING_MAP = new HashMap<>();
-    private final        MappingOptions          options;
-
-    static {
-        CLASS_MAPPING_MAP.put(Collection.class, ArrayList.class);
-        CLASS_MAPPING_MAP.put(List.class, ArrayList.class);
-        CLASS_MAPPING_MAP.put(Set.class, LinkedHashSet.class);
-        CLASS_MAPPING_MAP.put(Map.class, LinkedHashMap.class);
-    }
+public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<?>> {
+    private static final Logger logger = Logger.getLogger(ClassTableMappingResolve.class);
 
     public ClassTableMappingResolve() {
-        this(MappingOptions.buildNew());
+        super(MappingOptions.buildNew());
     }
 
     public ClassTableMappingResolve(MappingOptions options) {
-        this.options = options;
+        super(options);
     }
 
     public static TableDef<?> resolveTableDef(Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
@@ -197,77 +188,5 @@ public class ClassTableMappingResolve implements TableMappingResolve<Class<?>> {
         }
 
         return keyTypeEnum.createHolder(new CreateContext(this.options, typeRegistry, tableDef, colDef, envConfig));
-    }
-
-    private String hump2Line(String str, Boolean mapUnderscoreToCamelCase) {
-        if (StringUtils.isBlank(str) || mapUnderscoreToCamelCase == null || !mapUnderscoreToCamelCase) {
-            return str;
-        } else {
-            return StringUtils.humpToLine(str);
-        }
-    }
-
-    private static final Map<Class<?>, TableDefaultInfo> CACHE_TABLE_MAP = new WeakHashMap<>();
-
-    private synchronized static TableDefaultInfo fetchTableInfo(ClassLoader classLoader, Class<?> entityType, MappingOptions options) {
-        if (CACHE_TABLE_MAP.containsKey(entityType)) {
-            return CACHE_TABLE_MAP.get(entityType);
-        }
-
-        Map<String, String> confData = new HashMap<>();
-        fetchPackageInfo(confData, TableDefault.class, classLoader, entityType.getName());
-        fetchEntityInfo(confData, Table.class, classLoader, entityType.getName());
-
-        TableDefaultInfo tableInfo = new TableDefaultInfo(confData, classLoader, options);
-        CACHE_TABLE_MAP.put(entityType, tableInfo);
-        return tableInfo;
-    }
-
-    private static void fetchPackageInfo(final Map<String, String> confData, Class<?> matchType, final ClassLoader classLoader, final String className) {
-        if (StringUtils.isBlank(className)) {
-            return;
-        }
-
-        String packageName = StringUtils.substringBeforeLast(className, ".");
-
-        for (; ; ) {
-            fetchEntityInfo(confData, matchType, classLoader, packageName + ".package-info");
-            if (!confData.isEmpty()) {
-                break;
-            }
-            if (packageName.indexOf('.') == -1) {
-                break;
-            }
-            packageName = StringUtils.substringBeforeLast(packageName, ".");
-            if (StringUtils.isBlank(packageName)) {
-                break;
-            }
-        }
-    }
-
-    private static void fetchEntityInfo(final Map<String, String> confData, Class<?> matchType, final ClassLoader classLoader, final String className) {
-        if (StringUtils.isBlank(className)) {
-            return;
-        }
-
-        String packageName = className.replace(".", "/");
-        InputStream asStream = classLoader.getResourceAsStream(packageName + ".class");
-        if (asStream == null) {
-            return;
-        }
-
-        try {
-            ClassReader classReader = new ClassReader(asStream);
-            classReader.accept(new ClassVisitor(Opcodes.ASM9) {
-                public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
-                    if (!AsmTools.toAsmType(matchType).equals(desc)) {
-                        return super.visitAnnotation(desc, visible);
-                    }
-                    return new TableDefaultVisitor(Opcodes.ASM9, super.visitAnnotation(desc, visible), confData);
-                }
-            }, ClassReader.SKIP_CODE);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
     }
 }

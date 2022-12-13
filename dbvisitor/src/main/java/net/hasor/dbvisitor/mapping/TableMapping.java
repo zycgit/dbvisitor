@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping.def;
-import net.hasor.dbvisitor.mapping.TableReader;
+package net.hasor.dbvisitor.mapping;
 import net.hasor.dbvisitor.mapping.reader.DefaultTableReader;
 import net.hasor.dbvisitor.mapping.reader.MapTableReader;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
