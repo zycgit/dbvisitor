@@ -31,6 +31,6 @@ public interface SqlDialect {
 
     /** 生成 form 后面的表名 */
     String tableName(boolean useQualifier, String catalog, String schema, String table);
- 
+
     String fmtName(boolean useQualifier, String name);
 }

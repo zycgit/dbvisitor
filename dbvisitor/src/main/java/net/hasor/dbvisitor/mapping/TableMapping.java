@@ -16,7 +16,6 @@
 package net.hasor.dbvisitor.mapping;
 import net.hasor.dbvisitor.mapping.reader.DefaultTableReader;
 import net.hasor.dbvisitor.mapping.reader.MapTableReader;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.util.Collection;
 import java.util.Map;
@@ -63,6 +62,4 @@ public interface TableMapping<T> {
     default TableReader<T> toReader() {
         return new DefaultTableReader<>(this);
     }
-
-    TypeHandlerRegistry getTypeHandlerRegistry();
 }
