@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.keyholder.CreateContext;
 import net.hasor.dbvisitor.keyholder.KeySeq;
 import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.keyholder.KeySeqHolderFactory;
-import net.hasor.dbvisitor.mapping.ColumnMapping;
+import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
 
 import java.sql.Connection;

@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.lambda.support.map;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.MapDeleteOperation;
 import net.hasor.dbvisitor.lambda.core.AbstractDeleteLambda;
-import net.hasor.dbvisitor.mapping.TableMapping;
+import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 import java.util.Map;
 

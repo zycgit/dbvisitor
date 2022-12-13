@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping;
+package net.hasor.dbvisitor.mapping.def;
 import net.hasor.cobble.function.Property;
 import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.types.TypeHandler;

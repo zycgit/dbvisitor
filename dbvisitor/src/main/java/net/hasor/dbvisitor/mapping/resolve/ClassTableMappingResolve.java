@@ -82,7 +82,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         return resolveTableMapping(tableInfo, entityType, classLoader, typeRegistry);
     }
 
-    private TableDef<?> resolveTableMapping(Table tableInfo, Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
+    protected TableDef<?> resolveTableMapping(Table tableInfo, Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
         TableDef<?> def = this.resolveTable(tableInfo, entityType, typeRegistry);
         Map<String, Property> properties = BeanUtils.getPropertyFunc(entityType);
 
@@ -121,10 +121,10 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         boolean autoProperty = tableInfo.autoMapping();
         boolean useDelimited = tableInfo.useDelimited();
         boolean caseInsensitive = tableInfo.caseInsensitive();
-        return new TableDef<>(catalog, schema, table, entityType, autoProperty, useDelimited, caseInsensitive, this.options.getDefaultDialect(), typeRegistry);
+        return new TableDef<>(catalog, schema, table, entityType, autoProperty, useDelimited, caseInsensitive, this.options.getDefaultDialect());
     }
 
-    private void resolveProperty(TableDef<?> tableDef, String name, Class<?> type, Property handler, TypeHandlerRegistry typeRegistry, Table tableInfo) {
+    protected void resolveProperty(TableDef<?> tableDef, String name, Class<?> type, Property handler, TypeHandlerRegistry typeRegistry, Table tableInfo) {
         Annotation[] annotations = BeanUtils.getPropertyAnnotation(handler);
         Column info = null;
         for (Annotation a : annotations) {

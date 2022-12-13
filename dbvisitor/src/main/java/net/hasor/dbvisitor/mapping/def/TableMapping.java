@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping;
-import net.hasor.dbvisitor.mapping.reader.DefaultTableReader;
+package net.hasor.dbvisitor.mapping.def;
+import net.hasor.dbvisitor.mapping.TableReader;
+import net.hasor.dbvisitor.mapping.reader.BeanTableReader;
 import net.hasor.dbvisitor.mapping.reader.MapTableReader;
 
 import java.util.Collection;
@@ -60,6 +61,6 @@ public interface TableMapping<T> {
     }
 
     default TableReader<T> toReader() {
-        return new DefaultTableReader<>(this);
+        return new BeanTableReader<>(this);
     }
 }

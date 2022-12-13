@@ -16,10 +16,6 @@
 package net.hasor.dbvisitor.mapping.def;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.mapping.ColumnMapping;
-import net.hasor.dbvisitor.mapping.TableDescription;
-import net.hasor.dbvisitor.mapping.TableMapping;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.util.*;
 
@@ -29,23 +25,22 @@ import java.util.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class TableDef<T> implements TableMapping<T> {
-    private       String              catalog;
-    private       String              schema;
-    private       String              table;
-    private final Class<T>            entityType;
-    private final boolean             autoProperty;
-    private final boolean             useDelimited;
-    private final boolean             caseInsensitive;
-    private final TypeHandlerRegistry typeHandlerRegistry;
-    private       TableDescription    description;
-    private final SqlDialect          dialect;
+    private       String           catalog;
+    private       String           schema;
+    private       String           table;
+    private final Class<T>         entityType;
+    private final boolean          autoProperty;
+    private final boolean          useDelimited;
+    private final boolean          caseInsensitive;
+    private       TableDescription description;
+    private final SqlDialect       dialect;
 
     private final List<ColumnMapping>        columnMappings;
     private final Map<String, ColumnMapping> mapByProperty;
     private final Map<String, ColumnMapping> mapByColumn;
 
     public TableDef(String catalog, String schema, String table, Class<T> entityType, //
-            boolean autoProperty, boolean useDelimited, boolean caseInsensitive, SqlDialect dialect, TypeHandlerRegistry typeHandlerRegistry) {
+            boolean autoProperty, boolean useDelimited, boolean caseInsensitive, SqlDialect dialect) {
         this.catalog = catalog;
         this.schema = schema;
         this.table = table;
@@ -57,7 +52,6 @@ public class TableDef<T> implements TableMapping<T> {
         this.mapByProperty = (caseInsensitive && Map.class.isAssignableFrom(entityType)) ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
         this.mapByColumn = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
         this.dialect = dialect;
-        this.typeHandlerRegistry = typeHandlerRegistry;
     }
 
     @Override
@@ -129,11 +123,6 @@ public class TableDef<T> implements TableMapping<T> {
     @Override
     public ColumnMapping getPropertyByName(String property) {
         return this.mapByProperty.get(property);
-    }
-
-    @Override
-    public TypeHandlerRegistry getTypeHandlerRegistry() {
-        return this.typeHandlerRegistry;
     }
 
     public void addMapping(ColumnMapping mapping) {

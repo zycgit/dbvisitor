@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping;
+package net.hasor.dbvisitor.mapping.def;
 /**
  * 表的 DDL 补充信息，用于补充生成 DDL 语句
  * @version : 2022-12-06

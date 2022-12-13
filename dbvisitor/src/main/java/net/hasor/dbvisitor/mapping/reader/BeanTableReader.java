@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.reader;
-import net.hasor.dbvisitor.mapping.ColumnMapping;
-import net.hasor.dbvisitor.mapping.TableMapping;
 import net.hasor.dbvisitor.mapping.TableReader;
+import net.hasor.dbvisitor.mapping.def.ColumnMapping;
+import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
 
 import java.sql.ResultSet;
@@ -28,11 +28,11 @@ import java.util.List;
  * @version : 2021-04-13
  * @author 赵永春 (zyc@hasor.net)
  */
-public class DefaultTableReader<T> implements TableReader<T> {
+public class BeanTableReader<T> implements TableReader<T> {
     private final TableMapping<T> tableMapping;
 
     /** Create a new TableReader.*/
-    public DefaultTableReader(TableMapping<T> tableMapping) {
+    public BeanTableReader(TableMapping<T> tableMapping) {
         this.tableMapping = tableMapping;
     }
 

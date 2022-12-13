@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.keyholder;
-import net.hasor.dbvisitor.mapping.ColumnMapping;
+import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

@@ -21,8 +21,8 @@ import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.lambda.segment.Segment;
-import net.hasor.dbvisitor.mapping.ColumnMapping;
-import net.hasor.dbvisitor.mapping.TableMapping;
+import net.hasor.dbvisitor.mapping.def.ColumnMapping;
+import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 import java.util.*;
 import java.util.function.Consumer;

@@ -2,7 +2,7 @@ package net.hasor.scene;
 import net.hasor.dbvisitor.keyholder.CreateContext;
 import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.keyholder.KeySeqHolderFactory;
-import net.hasor.dbvisitor.mapping.ColumnMapping;
+import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 
 import java.sql.Connection;
 

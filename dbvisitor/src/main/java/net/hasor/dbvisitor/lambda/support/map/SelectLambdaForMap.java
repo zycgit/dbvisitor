@@ -17,8 +17,8 @@ package net.hasor.dbvisitor.lambda.support.map;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.MapQueryOperation;
 import net.hasor.dbvisitor.lambda.core.AbstractSelectLambda;
-import net.hasor.dbvisitor.mapping.TableMapping;
 import net.hasor.dbvisitor.mapping.TableReader;
+import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 import java.util.Map;
 

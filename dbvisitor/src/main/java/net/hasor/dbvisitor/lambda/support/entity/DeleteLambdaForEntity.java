@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
 import net.hasor.dbvisitor.lambda.EntityDeleteOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.core.AbstractDeleteLambda;
-import net.hasor.dbvisitor.mapping.TableMapping;
+import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 import java.util.Collection;
 

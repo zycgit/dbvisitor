@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping;
+package net.hasor.dbvisitor.mapping.def;
 import java.util.List;
 
 /**

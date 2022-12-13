@@ -15,8 +15,8 @@
  */
 package net.hasor.dbvisitor.jdbc.mapper;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
-import net.hasor.dbvisitor.mapping.TableMapping;
 import net.hasor.dbvisitor.mapping.TableReader;
+import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
