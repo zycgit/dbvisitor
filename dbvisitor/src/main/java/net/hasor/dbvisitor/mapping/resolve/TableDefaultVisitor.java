@@ -32,6 +32,6 @@ class TableDefaultVisitor extends AnnotationVisitor {
     }
 
     public void visit(String name, Object value) {
-        allAnnoInfo.put(name, value.toString());
+        this.allAnnoInfo.put(name, value.toString());
     }
 }

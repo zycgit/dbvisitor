@@ -20,7 +20,6 @@ import net.hasor.cobble.function.Property;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.keyholder.CreateContext;
 import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.mapping.Column;
@@ -29,16 +28,14 @@ import net.hasor.dbvisitor.mapping.KeyTypeEnum;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.mapping.def.ColumnDef;
 import net.hasor.dbvisitor.mapping.def.TableDef;
+import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -49,41 +46,41 @@ import java.util.stream.Collectors;
 public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<?>> {
     private static final Logger logger = Logger.getLogger(ClassTableMappingResolve.class);
 
-    public ClassTableMappingResolve() {
-        super(MappingOptions.buildNew());
-    }
-
     public ClassTableMappingResolve(MappingOptions options) {
         super(options);
     }
 
-    public static TableDef<?> resolveTableDef(Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
-        TableDefaultInfo tableInfo = fetchTableInfo(classLoader, entityType, MappingOptions.buildNew());
-
-        SqlDialect dialect = tableInfo.sqlDialect();
-        if (dialect == null && StringUtils.isNotBlank(tableInfo.dialect())) {
-            dialect = SqlDialectRegister.findOrCreate(tableInfo.dialect(), classLoader);
-        } else if (dialect == null) {
-            dialect = DefaultSqlDialect.DEFAULT;
-        }
-
-        MappingOptions options = MappingOptions.buildNew();
-        options.setDefaultDialect(dialect);
-        options.setAutoMapping(tableInfo.autoMapping());
-        options.setMapUnderscoreToCamelCase(tableInfo.mapUnderscoreToCamelCase());
-        options.setCaseInsensitive(tableInfo.caseInsensitive());
-
-        return new ClassTableMappingResolve(options).resolveTableMapping(tableInfo, entityType, classLoader, typeRegistry);
+    public static TableMapping<?> resolveTableMapping(Class<?> entityType, TypeHandlerRegistry typeRegistry) {
+        Table tableInfo = fetchDefaultInfoByEntity(entityType.getClassLoader(), entityType, MappingOptions.buildNew(), Collections.emptyMap());
+        return new ClassTableMappingResolve(null).resolveTableAndColumn(tableInfo, entityType, typeRegistry);
     }
 
     @Override
     public TableDef<?> resolveTableMapping(Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
-        TableDefaultInfo tableInfo = fetchTableInfo(classLoader, entityType, this.options);
-        return resolveTableMapping(tableInfo, entityType, classLoader, typeRegistry);
+        Table tableInfo = fetchDefaultInfoByEntity(classLoader, entityType, this.options, Collections.emptyMap());
+        return resolveTableAndColumn(tableInfo, entityType, typeRegistry);
     }
 
-    protected TableDef<?> resolveTableMapping(Table tableInfo, Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
-        TableDef<?> def = this.resolveTable(tableInfo, entityType, typeRegistry);
+    protected TableDef<?> resolveTable(Table tableInfo, Class<?> entityType) {
+        String catalog = tableInfo.catalog();
+        String schema = tableInfo.schema();
+        String table = StringUtils.isNotBlank(tableInfo.name()) ? tableInfo.name() : StringUtils.isNotBlank(tableInfo.value()) ? tableInfo.value() : entityType.getSimpleName();
+
+        if (tableInfo.mapUnderscoreToCamelCase()) {
+            schema = hump2Line(schema, true);
+            table = hump2Line(table, true);
+        }
+
+        boolean autoProperty = tableInfo.autoMapping();
+        boolean useDelimited = tableInfo.useDelimited();
+        boolean caseInsensitive = tableInfo.caseInsensitive();
+
+        SqlDialect dialect = (tableInfo instanceof TableDefaultInfo) ? ((TableDefaultInfo) tableInfo).getSqlDialect() : DefaultSqlDialect.DEFAULT;
+        return new TableDef<>(catalog, schema, table, entityType, autoProperty, useDelimited, caseInsensitive, dialect);
+    }
+
+    protected TableDef<?> resolveTableAndColumn(Table tableInfo, Class<?> entityType, TypeHandlerRegistry typeRegistry) {
+        TableDef<?> def = this.resolveTable(tableInfo, entityType);
         Map<String, Property> properties = BeanUtils.getPropertyFunc(entityType);
 
         // keep order by fields
@@ -107,21 +104,6 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         }
 
         return def;
-    }
-
-    protected TableDef<?> resolveTable(Table tableInfo, Class<?> entityType, TypeHandlerRegistry typeRegistry) {
-        String catalog = tableInfo.catalog();
-        String schema = tableInfo.schema();
-        String table = StringUtils.isNotBlank(tableInfo.name()) ? tableInfo.name() : StringUtils.isNotBlank(tableInfo.value()) ? tableInfo.value() : entityType.getSimpleName();
-
-        if (tableInfo.mapUnderscoreToCamelCase()) {
-            schema = hump2Line(schema, true);
-            table = hump2Line(table, true);
-        }
-        boolean autoProperty = tableInfo.autoMapping();
-        boolean useDelimited = tableInfo.useDelimited();
-        boolean caseInsensitive = tableInfo.caseInsensitive();
-        return new TableDef<>(catalog, schema, table, entityType, autoProperty, useDelimited, caseInsensitive, this.options.getDefaultDialect());
     }
 
     protected void resolveProperty(TableDef<?> tableDef, String name, Class<?> type, Property handler, TypeHandlerRegistry typeRegistry, Table tableInfo) {

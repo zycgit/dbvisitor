@@ -32,9 +32,9 @@ import java.util.Map;
  * @version : 2021-07-20
  * @author 赵永春 (zyc@hasor.net)
  */
-public class DynamicTableReader extends ColumnMapRowMapper implements TableReader<Map<String, Object>>, ResultSetExtractor<List<Map<String, Object>>> {
+public class ResultTableReader extends ColumnMapRowMapper implements TableReader<Map<String, Object>>, ResultSetExtractor<List<Map<String, Object>>> {
 
-    public DynamicTableReader(boolean caseInsensitive, TypeHandlerRegistry typeHandler) {
+    public ResultTableReader(boolean caseInsensitive, TypeHandlerRegistry typeHandler) {
         super(caseInsensitive, typeHandler);
     }
 
@@ -83,5 +83,4 @@ public class DynamicTableReader extends ColumnMapRowMapper implements TableReade
 
         return target;
     }
-
 }

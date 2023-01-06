@@ -286,8 +286,10 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
 
         mapping = this.entMapping.computeIfAbsent(exampleType, key -> {
             MappingOptions opt = new MappingOptions(options);
-            opt.setCaseInsensitive(this.isResultsCaseInsensitive());
-            if (this.getDialect() != null) {
+            if (opt.getCaseInsensitive() == null) {
+                opt.setCaseInsensitive(this.isResultsCaseInsensitive());
+            }
+            if (opt.getDefaultDialect() == null) {
                 opt.setDefaultDialect(this.getDialect());
             }
 

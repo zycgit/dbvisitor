@@ -41,7 +41,7 @@ public class MappingRowMapper<T> implements RowMapper<T> {
 
     /** Create a new ResultMapper.*/
     public MappingRowMapper(Class<T> mapperClass, TypeHandlerRegistry typeRegistry) {
-        TableMapping<?> tableMapping = ClassTableMappingResolve.resolveTableDef(mapperClass, mapperClass.getClassLoader(), typeRegistry);
+        TableMapping<?> tableMapping = ClassTableMappingResolve.resolveTableMapping(mapperClass, typeRegistry);
         this.tableReader = (TableReader<T>) tableMapping.toReader();
     }
 

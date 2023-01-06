@@ -135,7 +135,7 @@ class TableDefaultInfo implements TableDefault, Table {
         return this.dialectName;
     }
 
-    public SqlDialect sqlDialect() {
+    public SqlDialect getSqlDialect() {
         return this.dialect;
     }
 

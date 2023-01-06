@@ -85,9 +85,6 @@
             </xs:sequence>
             <xs:attribute name="type" use="required"/>
             <xs:attribute name="id"/>
-            <xs:attribute name="catalog"/>
-            <xs:attribute name="schema"/>
-            <xs:attribute name="table"/>
             <xs:attribute name="caseInsensitive" type="boolean_type"/>
             <xs:attribute name="mapUnderscoreToCamelCase" type="boolean_type"/>
             <xs:attribute name="autoMapping" type="boolean_type"/>
@@ -117,6 +114,7 @@
         <xs:attribute name="javaType"/>
         <xs:attribute name="jdbcType"/>
         <xs:attribute name="typeHandler"/>
+        <xs:attribute name="keyType"/>
         <xs:attribute name="insert" type="boolean_type"/>
         <xs:attribute name="update" type="boolean_type"/>
         <xs:attribute name="selectTemplate"/>
@@ -143,6 +141,9 @@
             <xs:attribute name="id" use="required"/>
             <xs:attribute name="statementType" type="statementType_type"/>
             <xs:attribute name="timeout"/>
+            <xs:attribute name="useGeneratedKeys" type="boolean_type"/>
+            <xs:attribute name="keyProperty"/>
+            <xs:attribute name="parameterType"/>
         </xs:complexType>
     </xs:element>
 

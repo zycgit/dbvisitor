@@ -26,9 +26,6 @@
 <!ATTLIST resultMap
         type CDATA #REQUIRED
         id CDATA #IMPLIED
-        catalog CDATA #IMPLIED
-        schema CDATA #IMPLIED
-        table CDATA #IMPLIED
         caseInsensitive (true|false) #IMPLIED
         mapUnderscoreToCamelCase (true|false) #IMPLIED
         autoMapping (true|false) #IMPLIED
@@ -62,6 +59,7 @@
         javaType CDATA #IMPLIED
         jdbcType CDATA #IMPLIED
         typeHandler CDATA #IMPLIED
+        keyType CDATA #IMPLIED
         insert (true|false) #IMPLIED
         update (true|false) #IMPLIED
         selectTemplate CDATA #IMPLIED
@@ -79,6 +77,7 @@
         javaType CDATA #IMPLIED
         jdbcType CDATA #IMPLIED
         typeHandler CDATA #IMPLIED
+        keyType CDATA #IMPLIED
         insert (true|false) #IMPLIED
         update (true|false) #IMPLIED
         selectTemplate CDATA #IMPLIED
@@ -94,6 +93,9 @@
         id CDATA #REQUIRED
         statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
         timeout CDATA #IMPLIED
+        useGeneratedKeys CDATA #IMPLIED
+        keyProperty CDATA #IMPLIED
+        parameterType CDATA #IMPLIED
         >
 
 <!ELEMENT update (#PCDATA | selectKey | include | trim | where | set | foreach | choose | if | bind)*>

@@ -48,7 +48,7 @@ public class MappingMapperTest {
     public void testColumnMapRowMapper_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            TableMappingResolve resolve = new ClassTableMappingResolve();
+            TableMappingResolve resolve = new ClassTableMappingResolve(null);
 
             TableMapping<TbUser> tableMapping = resolve.resolveTableMapping(//
                     TbUser.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
@@ -67,7 +67,7 @@ public class MappingMapperTest {
     public void testColumnMapRowMapper_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            TableMappingResolve resolve = new ClassTableMappingResolve();
+            TableMappingResolve resolve = new ClassTableMappingResolve(null);
 
             TableMapping<TbUser> tableMapping = resolve.resolveTableMapping(//
                     TbUser.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);

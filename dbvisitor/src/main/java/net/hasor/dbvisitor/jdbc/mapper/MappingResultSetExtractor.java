@@ -41,7 +41,7 @@ public class MappingResultSetExtractor<T> implements ResultSetExtractor<List<T>>
      */
     public MappingResultSetExtractor(final Class<T> mapperClass, TypeHandlerRegistry typeRegistry) {
         Objects.requireNonNull(mapperClass, "mapperClass is required");
-        TableMapping<?> tableMapping = ClassTableMappingResolve.resolveTableDef(mapperClass, mapperClass.getClassLoader(), typeRegistry);
+        TableMapping<?> tableMapping = ClassTableMappingResolve.resolveTableMapping(mapperClass, typeRegistry);
         this.tableReader = (TableReader<T>) tableMapping.toReader();
     }
 

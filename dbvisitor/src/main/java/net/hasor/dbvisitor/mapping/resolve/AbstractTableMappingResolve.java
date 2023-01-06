@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.resolve;
+import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.asm.AnnotationVisitor;
 import net.hasor.cobble.asm.ClassReader;
@@ -34,10 +35,11 @@ import java.util.*;
  */
 public abstract class AbstractTableMappingResolve<T> implements TableMappingResolve<T> {
     private static final   Logger                  logger            = Logger.getLogger(AbstractTableMappingResolve.class);
-    protected static final Map<Class<?>, Class<?>> CLASS_MAPPING_MAP = new HashMap<>();
     protected final        MappingOptions          options;
+    protected static final Map<Class<?>, Class<?>> CLASS_MAPPING_MAP = new HashMap<>();
 
     static {
+        CLASS_MAPPING_MAP.put(Iterable.class, ArrayList.class);
         CLASS_MAPPING_MAP.put(Collection.class, ArrayList.class);
         CLASS_MAPPING_MAP.put(List.class, ArrayList.class);
         CLASS_MAPPING_MAP.put(Set.class, LinkedHashSet.class);
@@ -45,7 +47,7 @@ public abstract class AbstractTableMappingResolve<T> implements TableMappingReso
     }
 
     public AbstractTableMappingResolve(MappingOptions options) {
-        this.options = options;
+        this.options = options == null ? MappingOptions.buildNew() : options;
     }
 
     protected String hump2Line(String str, Boolean mapUnderscoreToCamelCase) {
@@ -58,18 +60,31 @@ public abstract class AbstractTableMappingResolve<T> implements TableMappingReso
 
     private static final Map<Class<?>, TableDefaultInfo> CACHE_TABLE_MAP = new WeakHashMap<>();
 
-    protected static TableDefaultInfo fetchTableInfo(ClassLoader classLoader, Class<?> entityType, MappingOptions options) {
+    protected static TableDefaultInfo fetchDefaultInfoByEntity(ClassLoader classLoader, Class<?> entityType, MappingOptions options, Map<String, String> overwriteData) {
         if (CACHE_TABLE_MAP.containsKey(entityType)) {
             return CACHE_TABLE_MAP.get(entityType);
         }
 
         Map<String, String> confData = new HashMap<>();
+        fetchConfigXmlInfo(confData, classLoader);
         fetchPackageInfo(confData, TableDefault.class, classLoader, entityType.getName());
         fetchEntityInfo(confData, Table.class, classLoader, entityType.getName());
+
+        if (CollectionUtils.isNotEmpty(overwriteData)) {
+            overwriteData.forEach((key, val) -> {
+                if (StringUtils.isNotBlank(val)) {
+                    confData.put(key, val);
+                }
+            });
+        }
 
         TableDefaultInfo tableInfo = new TableDefaultInfo(confData, classLoader, options);
         CACHE_TABLE_MAP.put(entityType, tableInfo);
         return tableInfo;
+    }
+
+    private static void fetchConfigXmlInfo(final Map<String, String> confData, final ClassLoader classLoader) {
+        //TODO dbvisitor.xml or dbvisitor.yml or dbvisitor.yaml or dbvisitor.json
     }
 
     private static void fetchPackageInfo(final Map<String, String> confData, Class<?> matchType, final ClassLoader classLoader, final String className) {
