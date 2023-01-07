@@ -59,7 +59,7 @@ public class DalMapperBean extends AbstractSupportBean<Object> {
     private              Object     mapperObject;
 
     @Override
-    public void afterPropertiesSet() throws IOException {
+    public void afterPropertiesSet() throws IOException, ReflectiveOperationException {
         if (this.mapperInterface == null) {
             throw new NullPointerException("mapperInterface is null.");
         }

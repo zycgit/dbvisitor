@@ -45,7 +45,7 @@ class DalMapperSupplier implements Supplier<Object>, EventListener<AppContext> {
     }
 
     @Override
-    public void onEvent(String event, AppContext eventData) throws IOException {
+    public void onEvent(String event, AppContext eventData) throws IOException, ReflectiveOperationException {
         if (!ContextEvent_Started.equals(event)) {
             return;
         }

@@ -74,9 +74,9 @@ public class DalSessionBean extends AbstractSupportBean<DalSession> {
         initDialect();
 
         if (this.dalRegistry == null) {
-            this.dalSession = new DalSession(this.dsAdapter, DalRegistry.DEFAULT, this.dialect);
+            this.dalSession = new DalSession(this.dsAdapter, DalRegistry.DEFAULT);
         } else {
-            this.dalSession = new DalSession(this.dsAdapter, this.dalRegistry, this.dialect);
+            this.dalSession = new DalSession(this.dsAdapter, this.dalRegistry);
         }
     }
 
