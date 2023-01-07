@@ -24,19 +24,23 @@ import static net.hasor.dbvisitor.spring.boot.DbVisitorProperties.PREFIX;
 
 @ConfigurationProperties(prefix = PREFIX)
 public class DbVisitorProperties {
-    public final static String   PREFIX = "dbvisitor";
-    private             String[] mapperPackages;
-    private             String[] mapperLocations;
-
-    private Boolean                            mapperDisabled;
-    private Class<? extends BeanNameGenerator> mapperNameGenerator;
-    private Class<? extends DalMapperBean>     mapperFactoryBean;
-    private Boolean                            mapperLazyInit;
-    private String                             mapperScope;
-
-    private Class<? extends Annotation> markerAnnotation;
-    private Class<?>                    markerInterface;
-    private String                      refSessionBean;
+    public final static String                             PREFIX = "dbvisitor";
+    private             String[]                           mapperPackages;
+    private             String[]                           mapperLocations;
+    private             Boolean                            mapperDisabled;
+    private             Class<? extends BeanNameGenerator> mapperNameGenerator;
+    private             Class<? extends DalMapperBean>     mapperFactoryBean;
+    private             Boolean                            mapperLazyInit;
+    private             String                             mapperScope;
+    private             Class<? extends Annotation>        markerAnnotation;
+    private             Class<?>                           markerInterface;
+    private             String                             refSessionBean;
+    // opt
+    private             Boolean                            autoMapping;
+    private             Boolean                            camelCase;
+    private             Boolean                            caseInsensitive;
+    private             Boolean                            useDelimited;
+    private             String                             dialect;
 
     public String[] getMapperPackages() {
         return mapperPackages;
@@ -118,4 +122,43 @@ public class DbVisitorProperties {
         this.refSessionBean = refSessionBean;
     }
 
+    public Boolean getAutoMapping() {
+        return autoMapping;
+    }
+
+    public void setAutoMapping(Boolean autoMapping) {
+        this.autoMapping = autoMapping;
+    }
+
+    public Boolean getCamelCase() {
+        return camelCase;
+    }
+
+    public void setCamelCase(Boolean camelCase) {
+        this.camelCase = camelCase;
+    }
+
+    public Boolean getCaseInsensitive() {
+        return caseInsensitive;
+    }
+
+    public void setCaseInsensitive(Boolean caseInsensitive) {
+        this.caseInsensitive = caseInsensitive;
+    }
+
+    public Boolean getUseDelimited() {
+        return useDelimited;
+    }
+
+    public void setUseDelimited(Boolean useDelimited) {
+        this.useDelimited = useDelimited;
+    }
+
+    public String getDialect() {
+        return dialect;
+    }
+
+    public void setDialect(String dialect) {
+        this.dialect = dialect;
+    }
 }

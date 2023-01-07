@@ -2,7 +2,6 @@ package com.example.demo.dto;
 import java.util.Date;
 
 public class UserDTO {
-
     private Long   id;
     private String name;
     private String gender;

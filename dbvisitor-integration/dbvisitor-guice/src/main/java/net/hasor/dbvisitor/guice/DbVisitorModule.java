@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.guice;
-
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.Provider;
@@ -35,6 +34,7 @@ import net.hasor.cobble.setting.SettingNode;
 import net.hasor.cobble.setting.Settings;
 import net.hasor.dbvisitor.dal.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.guice.provider.JdbcTemplateProvider;
 import net.hasor.dbvisitor.guice.provider.LambdaTemplateProvider;
 import net.hasor.dbvisitor.guice.provider.TransactionManagerProvider;
@@ -44,6 +44,7 @@ import net.hasor.dbvisitor.jdbc.core.JdbcConnection;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaOperations;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.transaction.*;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -53,27 +54,51 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
+
+import static net.hasor.dbvisitor.guice.ConfigKeys.*;
 
 /**
  *
  */
 public class DbVisitorModule implements com.google.inject.Module {
-    private final Settings    settings;
-    private final ClassLoader classLoader;
+    private final Settings       settings;
+    private final ClassLoader    classLoader;
+    private final MappingOptions options;
 
     public DbVisitorModule(Properties properties) {
         this.settings = new BasicSettings();
         this.classLoader = DbVisitorModule.class.getClassLoader();
+        this.options = MappingOptions.buildNew();
         properties.forEach((key, value) -> settings.setSetting(key.toString(), value.toString()));
     }
 
     @Override
     public void configure(Binder binder) {
-        String multipleDs = this.settings.getString(ConfigKeys.MultipleDataSource.getConfigKey());
+        String multipleDs = this.settings.getString(MultipleDataSource.getConfigKey());
+        String optAutoMapping = this.settings.getString(OptAutoMapping.getConfigKey(), OptAutoMapping.getDefaultValue());
+        String optCamelCase = this.settings.getString(OptCamelCase.getConfigKey(), OptCamelCase.getDefaultValue());
+        String optCaseInsensitive = this.settings.getString(OptCaseInsensitive.getConfigKey(), OptCaseInsensitive.getDefaultValue());
+        String optUseDelimited = this.settings.getString(OptUseDelimited.getConfigKey(), OptUseDelimited.getDefaultValue());
+        String optSqlDialect = this.settings.getString(OptSqlDialect.getConfigKey(), OptSqlDialect.getDefaultValue());
+        if (StringUtils.isNotBlank(optAutoMapping)) {
+            this.options.setAutoMapping(Boolean.parseBoolean(optAutoMapping));
+        }
+        if (StringUtils.isNotBlank(optCamelCase)) {
+            this.options.setMapUnderscoreToCamelCase(Boolean.parseBoolean(optCamelCase));
+        }
+        if (StringUtils.isNotBlank(optCaseInsensitive)) {
+            this.options.setCaseInsensitive(Boolean.parseBoolean(optCaseInsensitive));
+        }
+        if (StringUtils.isNotBlank(optUseDelimited)) {
+            this.options.setUseDelimited(Boolean.parseBoolean(optUseDelimited));
+        }
+        if (StringUtils.isNotBlank(optSqlDialect)) {
+            this.options.setDefaultDialect(SqlDialectRegister.findOrCreate(optSqlDialect, null));
+        }
 
         try {
             if (StringUtils.isNotBlank(multipleDs)) {
@@ -104,8 +129,8 @@ public class DbVisitorModule implements com.google.inject.Module {
     }
 
     private Key<DataSource> configDataSource(String dbName, Binder binder) throws Exception {
-        String configKey = ConfigKeys.DataSourceType.buildConfigKey(dbName);
-        String dataSourceType = this.settings.getString(configKey, ConfigKeys.DataSourceType.getDefaultValue());
+        String configKey = DataSourceType.buildConfigKey(dbName);
+        String dataSourceType = this.settings.getString(configKey, DataSourceType.getDefaultValue());
         DataSource dataSource;
         if (StringUtils.isBlank(dataSourceType)) {
             dataSource = new DefaultDataSource();
@@ -170,8 +195,8 @@ public class DbVisitorModule implements com.google.inject.Module {
     }
 
     private Key<TypeHandlerRegistry> configTypeRegistry(String dbName, Binder binder) {
-        String configKey = ConfigKeys.NamedTypeRegistry.buildConfigKey(dbName);
-        String namedTypeRegistry = this.settings.getString(configKey, ConfigKeys.NamedTypeRegistry.getDefaultValue());
+        String configKey = NamedTypeRegistry.buildConfigKey(dbName);
+        String namedTypeRegistry = this.settings.getString(configKey, NamedTypeRegistry.getDefaultValue());
 
         Key<TypeHandlerRegistry> bindInfo;
         if (StringUtils.isNotBlank(namedTypeRegistry)) {
@@ -185,8 +210,8 @@ public class DbVisitorModule implements com.google.inject.Module {
     }
 
     private Key<RuleRegistry> configRuleRegistry(String dbName, Binder binder) {
-        String configKey = ConfigKeys.NamedRuleRegistry.buildConfigKey(dbName);
-        String namedRuleRegistry = this.settings.getString(configKey, ConfigKeys.NamedRuleRegistry.getDefaultValue());
+        String configKey = NamedRuleRegistry.buildConfigKey(dbName);
+        String namedRuleRegistry = this.settings.getString(configKey, NamedRuleRegistry.getDefaultValue());
 
         Key<RuleRegistry> bindInfo;
         if (StringUtils.isNotBlank(namedRuleRegistry)) {
@@ -201,9 +226,9 @@ public class DbVisitorModule implements com.google.inject.Module {
 
     private Key<DalSession> configDalSession(String dbName, Binder binder,//
             Key<DataSource> dsInfo, Key<TypeHandlerRegistry> typeInfo, Key<RuleRegistry> ruleInfo) throws IOException {
-        String configKey = ConfigKeys.MapperLocations.buildConfigKey(dbName);
-        String resources = this.settings.getString(configKey, ConfigKeys.MapperLocations.getDefaultValue());
-        Set<URL> mappers = new HashSet<>();
+        String configKey = MapperLocations.buildConfigKey(dbName);
+        String resources = this.settings.getString(configKey, MapperLocations.getDefaultValue());
+        Set<URI> mappers = new HashSet<>();
 
         if (StringUtils.isNotBlank(resources)) {
             ClassPathResourceLoader classScannerLoader = new ClassPathResourceLoader(this.classLoader);
@@ -215,12 +240,12 @@ public class DbVisitorModule implements com.google.inject.Module {
                 }
 
                 resMapper = MatchUtils.wildToRegex(resMapper);
-                List<URL> tmp = classScannerLoader.scanResources(MatchType.Regex, ResourceLoader.ScanEvent::getResource, new String[] { resMapper });
+                List<URI> tmp = classScannerLoader.scanResources(MatchType.Regex, ResourceLoader.ScanEvent::getResource, new String[] { resMapper });
                 mappers.addAll(tmp);
             }
         }
 
-        DalSessionSupplier sessionSupplier = new DalSessionSupplier(this.classLoader, dsInfo, typeInfo, ruleInfo, mappers);
+        DalSessionSupplier sessionSupplier = new DalSessionSupplier(this.classLoader, this.options, dsInfo, typeInfo, ruleInfo, mappers);
         binder.requestInjection(sessionSupplier);
 
         Key<DalSession> dalKey;
@@ -245,17 +270,17 @@ public class DbVisitorModule implements com.google.inject.Module {
     //    }
 
     private void loadMapper(String dbName, Binder binder, Key<DalSession> dalInfo) throws ClassNotFoundException {
-        String configMapperDisabled = ConfigKeys.MapperDisabled.buildConfigKey(dbName);
-        String configMapperPackages = ConfigKeys.MapperPackages.buildConfigKey(dbName);
-        String configMapperScope = ConfigKeys.MapperScope.buildConfigKey(dbName);
-        String configScanMarkerAnnotation = ConfigKeys.ScanMarkerAnnotation.buildConfigKey(dbName);
-        String configScanMarkerInterface = ConfigKeys.ScanMarkerInterface.buildConfigKey(dbName);
+        String configMapperDisabled = MapperDisabled.buildConfigKey(dbName);
+        String configMapperPackages = MapperPackages.buildConfigKey(dbName);
+        String configMapperScope = MapperScope.buildConfigKey(dbName);
+        String configScanMarkerAnnotation = ScanMarkerAnnotation.buildConfigKey(dbName);
+        String configScanMarkerInterface = ScanMarkerInterface.buildConfigKey(dbName);
 
-        Boolean mapperDisabled = this.settings.getBoolean(configMapperDisabled, Boolean.parseBoolean(ConfigKeys.MapperDisabled.getDefaultValue()));
-        String mapperPackageConfig = this.settings.getString(configMapperPackages, ConfigKeys.MapperPackages.getDefaultValue());
-        String mapperScope = this.settings.getString(configMapperScope, ConfigKeys.MapperScope.getDefaultValue());
-        String scanMarkerAnnotation = this.settings.getString(configScanMarkerAnnotation, ConfigKeys.ScanMarkerAnnotation.getDefaultValue());
-        String scanMarkerInterface = this.settings.getString(configScanMarkerInterface, ConfigKeys.ScanMarkerInterface.getDefaultValue());
+        Boolean mapperDisabled = this.settings.getBoolean(configMapperDisabled, Boolean.parseBoolean(MapperDisabled.getDefaultValue()));
+        String mapperPackageConfig = this.settings.getString(configMapperPackages, MapperPackages.getDefaultValue());
+        String mapperScope = this.settings.getString(configMapperScope, MapperScope.getDefaultValue());
+        String scanMarkerAnnotation = this.settings.getString(configScanMarkerAnnotation, ScanMarkerAnnotation.getDefaultValue());
+        String scanMarkerInterface = this.settings.getString(configScanMarkerInterface, ScanMarkerInterface.getDefaultValue());
 
         if (mapperDisabled) {
             return;

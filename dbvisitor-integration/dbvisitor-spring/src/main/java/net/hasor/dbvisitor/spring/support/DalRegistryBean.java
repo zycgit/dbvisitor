@@ -19,6 +19,8 @@ import net.hasor.dbvisitor.dal.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.dal.dynamic.rule.SqlBuildRule;
 import net.hasor.dbvisitor.dal.mapper.Mapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
+import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
@@ -59,9 +61,12 @@ public class DalRegistryBean extends AbstractSupportBean<DalRegistry> {
 
     // - dalRegistry
     private DalRegistry dalRegistry;
-    private Boolean     optionAutoMapping;
-    private Boolean     optionMapUnderscoreToCamelCase;
-    private Boolean     optionCaseInsensitive;
+    private Boolean     autoMapping;
+    private Boolean     camelCase;
+    private Boolean     caseInsensitive;
+    private Boolean     useDelimited;
+    private String      dialectName;
+    private SqlDialect  dialect;
 
     // mappers
     private Resource[] mapperResources;
@@ -74,9 +79,15 @@ public class DalRegistryBean extends AbstractSupportBean<DalRegistry> {
         ClassLoader classLoader = this.classLoader != null ? this.classLoader : Thread.currentThread().getContextClassLoader();
 
         MappingOptions options = MappingOptions.buildNew();
-        options.setAutoMapping(this.optionAutoMapping);
-        options.setMapUnderscoreToCamelCase(this.optionMapUnderscoreToCamelCase);
-        options.setCaseInsensitive(this.optionCaseInsensitive);
+        options.setAutoMapping(this.autoMapping);
+        options.setMapUnderscoreToCamelCase(this.camelCase);
+        options.setCaseInsensitive(this.caseInsensitive);
+        options.setUseDelimited(this.useDelimited);
+        if (this.dialect != null) {
+            options.setDefaultDialect(this.dialect);
+        } else if (StringUtils.isNotBlank(this.dialectName)) {
+            options.setDefaultDialect(SqlDialectRegister.findOrCreate(this.dialectName, this.classLoader));
+        }
 
         this.dalRegistry = new DalRegistry(classLoader, typeRegistry, ruleRegistry, options);
 
@@ -209,16 +220,28 @@ public class DalRegistryBean extends AbstractSupportBean<DalRegistry> {
         this.ruleHandlerMap = ruleHandlerMap;
     }
 
-    public void setOptionAutoMapping(Boolean optionAutoMapping) {
-        this.optionAutoMapping = optionAutoMapping;
+    public void setAutoMapping(Boolean autoMapping) {
+        this.autoMapping = autoMapping;
     }
 
-    public void setOptionMapUnderscoreToCamelCase(Boolean optionMapUnderscoreToCamelCase) {
-        this.optionMapUnderscoreToCamelCase = optionMapUnderscoreToCamelCase;
+    public void setCamelCase(Boolean camelCase) {
+        this.camelCase = camelCase;
     }
 
-    public void setOptionCaseInsensitive(Boolean optionCaseInsensitive) {
-        this.optionCaseInsensitive = optionCaseInsensitive;
+    public void setCaseInsensitive(Boolean caseInsensitive) {
+        this.caseInsensitive = caseInsensitive;
+    }
+
+    public void setUseDelimited(Boolean useDelimited) {
+        this.useDelimited = useDelimited;
+    }
+
+    public void setDialectName(String dialectName) {
+        this.dialectName = dialectName;
+    }
+
+    public void setDialect(SqlDialect dialect) {
+        this.dialect = dialect;
     }
 
     /**

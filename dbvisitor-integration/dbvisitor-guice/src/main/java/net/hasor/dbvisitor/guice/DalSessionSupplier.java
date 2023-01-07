@@ -23,13 +23,12 @@ import net.hasor.dbvisitor.dal.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.dal.mapper.Mapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
-import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -41,15 +40,17 @@ import java.util.Set;
  */
 class DalSessionSupplier implements Provider<DalSession> {
     private final ClassLoader              classLoader;
+    private final MappingOptions           options;
     private final Key<DataSource>          dsInfo;
     private final Key<TypeHandlerRegistry> typeInfo;
     private final Key<RuleRegistry>        ruleInfo;
-    private final Set<URL>                 mappers;
+    private final Set<URI>                 mappers;
 
     private DalSession dalSession = null;
 
-    public DalSessionSupplier(ClassLoader classLoader, Key<DataSource> dsInfo, Key<TypeHandlerRegistry> typeInfo, Key<RuleRegistry> ruleInfo, Set<URL> mappers) {
+    public DalSessionSupplier(ClassLoader classLoader, MappingOptions options, Key<DataSource> dsInfo, Key<TypeHandlerRegistry> typeInfo, Key<RuleRegistry> ruleInfo, Set<URI> mappers) {
         this.classLoader = classLoader;
+        this.options = options;
         this.dsInfo = dsInfo;
         this.typeInfo = typeInfo;
         this.ruleInfo = ruleInfo;
@@ -57,26 +58,24 @@ class DalSessionSupplier implements Provider<DalSession> {
     }
 
     @Inject
-    public void initDalSession(Injector injector) throws SQLException {
+    public void initDalSession(Injector injector) throws SQLException, ReflectiveOperationException {
         TypeHandlerRegistry typeRegistry = injector.getInstance(this.typeInfo);
         RuleRegistry ruleRegistry = injector.getInstance(this.ruleInfo);
-        MappingOptions options = MappingOptions.buildNew();
 
         DataSource dataSource = injector.getInstance(this.dsInfo);
-        DalRegistry dalRegistry = new DalRegistry(this.classLoader, typeRegistry, ruleRegistry, options);
-        PageSqlDialect dialect = null;// appContext.getInstance(this.ruleInfo);
+        DalRegistry dalRegistry = new DalRegistry(this.classLoader, typeRegistry, ruleRegistry, this.options);
 
         if (!(this.mappers == null || this.mappers.isEmpty())) {
             try {
-                for (URL mapper : this.mappers) {
-                    dalRegistry.loadMapper(mapper);
+                for (URI mapper : this.mappers) {
+                    dalRegistry.loadMapper(mapper.toURL());
                 }
             } catch (IOException e) {
                 throw ExceptionUtils.toRuntime(e);
             }
         }
 
-        this.dalSession = new DalSession(dataSource, dalRegistry, dialect);
+        this.dalSession = new DalSession(dataSource, dalRegistry);
     }
 
     @Override

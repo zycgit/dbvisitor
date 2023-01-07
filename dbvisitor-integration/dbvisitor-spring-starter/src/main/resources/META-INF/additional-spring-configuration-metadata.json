@@ -64,6 +64,36 @@
       "type": "java.lang.String",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
       "sourceMethod": "getRefSessionBean()"
+    },
+    {
+      "name": "dbvisitor.auto-mapping",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getAutoMapping()"
+    },
+    {
+      "name": "dbvisitor.camel-case",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getCamelCase()"
+    },
+    {
+      "name": "dbvisitor.case-insensitive",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getCaseInsensitive()"
+    },
+    {
+      "name": "dbvisitor.use-delimited",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getUseDelimited()"
+    },
+    {
+      "name": "dbvisitor.dialect",
+      "type": "java.lang.String",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getDialect()"
     }
   ],
   "properties": [
@@ -135,6 +165,41 @@
       "type": "java.lang.String",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
       "description": "mapper object use special DalSession.",
+      "defaultValue": ""
+    },
+    {
+      "name": "dbvisitor.auto-mapping",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "properties are mapped automatically without @Column.",
+      "defaultValue": ""
+    },
+    {
+      "name": "dbvisitor.camel-case",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "automatically infer column from properties, following the hump camel-case",
+      "defaultValue": ""
+    },
+    {
+      "name": "dbvisitor.case-insensitive",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "resultset are case insensitive",
+      "defaultValue": ""
+    },
+    {
+      "name": "dbvisitor.use-delimited",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "LambdaTemplate build sql use delimited.",
+      "defaultValue": ""
+    },
+    {
+      "name": "dbvisitor.dialect",
+      "type": "java.lang.String",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "SqlDialect for LambdaTemplate/DalSession",
       "defaultValue": ""
     }
   ],

@@ -163,7 +163,13 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
             mapperBuilder.addPropertyValue("annotationClassName", "${" + PREFIX + ".marker-annotation:" + DalMapper.class.getName() + "}");
             mapperBuilder.addPropertyValue("markerInterfaceName", "${" + PREFIX + ".marker-interface:" + Mapper.class.getName() + "}");
             mapperBuilder.addPropertyValue("dalSessionRef", "${" + PREFIX + ".ref-session-bean:}");
+            mapperBuilder.addPropertyValue("autoMapping", "${" + PREFIX + ".auto-mapping:}");
+            mapperBuilder.addPropertyValue("camelCase", "${" + PREFIX + ".camel-case:}");
+            mapperBuilder.addPropertyValue("caseInsensitive", "${" + PREFIX + ".case-insensitive:}");
+            mapperBuilder.addPropertyValue("useDelimited", "${" + PREFIX + ".use-delimited:}");
+            mapperBuilder.addPropertyValue("dialect", "${" + PREFIX + ".dialect:}");
             mapperBuilder.addPropertyValue("dependsOn", fileBeanName);
+
             registry.registerBeanDefinition(mapperBeanName, mapperBuilder.getBeanDefinition());
 
             BeanDefinitionBuilder fileBuilder = BeanDefinitionBuilder.genericBeanDefinition(MapperFileConfigurer.class);

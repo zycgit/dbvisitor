@@ -24,7 +24,6 @@ import net.hasor.dbvisitor.dal.repository.RefMapper;
 import net.hasor.dbvisitor.dal.session.DalSession;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
 /**
  * BeanFactory that enables injection of DalSession.
@@ -44,7 +43,7 @@ class DalMapperSupplier implements Provider<Object> {
     }
 
     @Inject
-    public void initDalSession(Injector injector) throws SQLException, IOException {
+    public void initDalSession(Injector injector) throws IOException, ReflectiveOperationException {
         if (this.mapperInterface == null) {
             throw new NullPointerException("mapperInterface is null.");
         }

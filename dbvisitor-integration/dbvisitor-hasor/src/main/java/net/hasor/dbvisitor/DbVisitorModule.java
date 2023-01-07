@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor;
-
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.MatchUtils;
 import net.hasor.cobble.StringUtils;
@@ -25,12 +24,14 @@ import net.hasor.core.*;
 import net.hasor.core.setting.SettingNode;
 import net.hasor.dbvisitor.dal.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.jdbc.core.JdbcAccessor;
 import net.hasor.dbvisitor.jdbc.core.JdbcConnection;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.LambdaOperations;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.provider.JdbcTemplateProvider;
 import net.hasor.dbvisitor.provider.LambdaTemplateProvider;
 import net.hasor.dbvisitor.provider.TransactionManagerProvider;
@@ -42,22 +43,45 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import static net.hasor.dbvisitor.ConfigKeys.*;
+
 /**
  *
  */
 public class DbVisitorModule implements net.hasor.core.Module {
+    private final MappingOptions options = MappingOptions.buildNew();
 
     @Override
     public void loadModule(ApiBinder apiBinder) throws Exception {
         Settings settings = apiBinder.getEnvironment().getSettings();
         String multipleDs = settings.getString(ConfigKeys.MultipleDataSource.getConfigKey());
+        String optAutoMapping = settings.getString(OptAutoMapping.getConfigKey(), OptAutoMapping.getDefaultValue());
+        String optCamelCase = settings.getString(OptCamelCase.getConfigKey(), OptCamelCase.getDefaultValue());
+        String optCaseInsensitive = settings.getString(OptCaseInsensitive.getConfigKey(), OptCaseInsensitive.getDefaultValue());
+        String optUseDelimited = settings.getString(OptUseDelimited.getConfigKey(), OptUseDelimited.getDefaultValue());
+        String optSqlDialect = settings.getString(OptSqlDialect.getConfigKey(), OptSqlDialect.getDefaultValue());
+        if (StringUtils.isNotBlank(optAutoMapping)) {
+            this.options.setAutoMapping(Boolean.parseBoolean(optAutoMapping));
+        }
+        if (StringUtils.isNotBlank(optCamelCase)) {
+            this.options.setMapUnderscoreToCamelCase(Boolean.parseBoolean(optCamelCase));
+        }
+        if (StringUtils.isNotBlank(optCaseInsensitive)) {
+            this.options.setCaseInsensitive(Boolean.parseBoolean(optCaseInsensitive));
+        }
+        if (StringUtils.isNotBlank(optUseDelimited)) {
+            this.options.setUseDelimited(Boolean.parseBoolean(optUseDelimited));
+        }
+        if (StringUtils.isNotBlank(optSqlDialect)) {
+            this.options.setDefaultDialect(SqlDialectRegister.findOrCreate(optSqlDialect, null));
+        }
 
         if (StringUtils.isNotBlank(multipleDs)) {
             String[] dsNames = multipleDs.split(",");
@@ -191,7 +215,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
             BindInfo<DataSource> dsInfo, BindInfo<TypeHandlerRegistry> typeInfo, BindInfo<RuleRegistry> ruleInfo) throws IOException {
         String configKey = ConfigKeys.MapperLocations.buildConfigKey(dbName);
         String resources = settings.getString(configKey, ConfigKeys.MapperLocations.getDefaultValue());
-        Set<URL> mappers = new HashSet<>();
+        Set<URI> mappers = new HashSet<>();
 
         if (StringUtils.isNotBlank(resources)) {
             ClassPathResourceLoader classScannerLoader = new ClassPathResourceLoader(apiBinder.getEnvironment().getClassLoader());
@@ -203,12 +227,12 @@ public class DbVisitorModule implements net.hasor.core.Module {
                 }
 
                 resMapper = MatchUtils.wildToRegex(resMapper);
-                List<URL> tmp = classScannerLoader.scanResources(MatchType.Regex, ResourceLoader.ScanEvent::getResource, new String[] { resMapper });
+                List<URI> tmp = classScannerLoader.scanResources(MatchType.Regex, ResourceLoader.ScanEvent::getResource, new String[] { resMapper });
                 mappers.addAll(tmp);
             }
         }
 
-        DalSessionSupplier sessionSupplier = HasorUtils.autoAware(apiBinder.getEnvironment(), new DalSessionSupplier(dsInfo, typeInfo, ruleInfo, mappers));
+        DalSessionSupplier sessionSupplier = HasorUtils.autoAware(apiBinder.getEnvironment(), new DalSessionSupplier(this.options, dsInfo, typeInfo, ruleInfo, mappers));
         if (StringUtils.isBlank(dbName)) {
             return apiBinder.bindType(DalSession.class).toProvider(sessionSupplier).toInfo();
         } else {

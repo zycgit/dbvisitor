@@ -42,6 +42,12 @@ public enum ConfigKeys {
     ScanMarkerAnnotation("dbvisitor", "marker-annotation", DalMapper.class.getName()),
     ScanMarkerInterface("dbvisitor", "marker-interface", Mapper.class.getName()),
     MapperScope("dbvisitor", "mapper-scope", Singleton.class.getName()),
+
+    OptAutoMapping("dbvisitor", "auto-mapping", null),
+    OptCamelCase("dbvisitor", "camel-case", null),
+    OptCaseInsensitive("dbvisitor", "case-insensitive", null),
+    OptUseDelimited("dbvisitor", "use-delimited", null),
+    OptSqlDialect("dbvisitor", "dialect", null),
     ;
 
     private final String prefix;
