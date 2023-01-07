@@ -24,7 +24,6 @@ import net.hasor.dbvisitor.mapping.KeyTypeEnum;
 import net.hasor.dbvisitor.mapping.def.ColumnDef;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableDef;
-import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.w3c.dom.NamedNodeMap;
@@ -32,6 +31,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -63,7 +63,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
     }
 
     @Override
-    public TableMapping<?> resolveTableMapping(Node refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ClassNotFoundException {
+    public TableDef<?> resolveTableMapping(Node refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ClassNotFoundException {
         NamedNodeMap nodeAttributes = refData.getAttributes();
         Node typeNode = nodeAttributes.getNamedItem("type");
         Node catalogNode = nodeAttributes.getNamedItem("catalog");
@@ -82,14 +82,26 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
 
         // overwrite data
         Class<?> entityType = classLoader.loadClass(type);
-        Map<String, String> overwriteData = CollectionUtils.asMap(      //
-                "catalog", catalogName,                                 //
-                "schema", schemaName,                                   //
-                "name", tableName,                                      //
-                "caseInsensitive", caseInsensitive,                     //
-                "mapUnderscoreToCamelCase", mapUnderscoreToCamelCase,   //
-                "autoMapping", autoMapping                              //
-        );
+        Map<String, String> overwriteData = new HashMap<>();
+        if (catalogName != null) {
+            overwriteData.put("catalog", catalogName);
+        }
+        if (schemaName != null) {
+            overwriteData.put("schema", schemaName);
+        }
+        if (tableName != null) {
+            overwriteData.put("table", tableName);
+        }
+        if (caseInsensitive != null) {
+            overwriteData.put("caseInsensitive", caseInsensitive);
+        }
+        if (mapUnderscoreToCamelCase != null) {
+            overwriteData.put("mapUnderscoreToCamelCase", mapUnderscoreToCamelCase);
+        }
+        if (autoMapping != null) {
+            overwriteData.put("autoMapping", autoMapping);
+        }
+
         TableDefaultInfo tableInfo = fetchDefaultInfoByEntity(classLoader, entityType, this.options, overwriteData);
 
         // passer tableDef

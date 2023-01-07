@@ -45,7 +45,7 @@ class TableDefaultInfo implements TableDefault, Table {
         String schema = attrMaps.get("schema");
         String table = attrMaps.get("value");
         if (StringUtils.isBlank(table)) {
-            table = attrMaps.get("name");
+            table = attrMaps.get("table");
         }
         String autoMapping = attrMaps.get("autoMapping");
         String mapUnderscoreToCamelCase = attrMaps.get("mapUnderscoreToCamelCase");
@@ -106,7 +106,7 @@ class TableDefaultInfo implements TableDefault, Table {
     }
 
     @Override
-    public String name() {
+    public String table() {
         return this.table;
     }
 

@@ -4,7 +4,7 @@ import net.hasor.dbvisitor.mapping.Table;
 
 import java.sql.Timestamp;
 
-@Table(name = "archive_valid_statistics_result", schema = "temp", autoMapping = false)
+@Table(table = "archive_valid_statistics_result", schema = "temp", autoMapping = false)
 public class ArchiveValidStatisticsResult {
     @Column(name = "archive_type", primary = true)
     private String archiveType;

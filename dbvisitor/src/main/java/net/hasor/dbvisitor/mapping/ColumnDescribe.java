@@ -13,30 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping.def;
-import java.util.List;
+package net.hasor.dbvisitor.mapping;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * 列的 DDL 补充信息，用于补充生成 DDL 语句
- * @version : 2022-12-06
+ * （可选）标记在字段或者 get/set 方法上表示列信息，用于生成 DDL 语句
+ * @version : 2023-01-07
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface ColumnDescription {
+@Target({ ElementType.FIELD, ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ColumnDescribe {
     /** 列备注 */
-    String getComment();
+    String comment() default "";
 
     /** 列数据类型 */
-    String getDdlType();
+    String ddlType();
 
     /** 列上具有的默认值 */
-    String getDefault();
+    String defaultValue() default "";
 
     /** 表示列是否允许为空 */
-    Boolean getNullable();
+    boolean nullable() default true;
 
     /** 这个列属于哪些索引（如果某个索引含有多个列，那么这些列的 belongIndex 属性都会含有这个索引的名字） */
-    List<String> getBelongIndex();
+    String[] belongIndex() default {};
 
     /** 这个列属于哪些唯一索引（如果某个索引含有多个列，那么这些列的 belongIndex 属性都会含有这个索引的名字） */
-    List<String> belongUnique();
+    String[] belongUnique() default {};
 }

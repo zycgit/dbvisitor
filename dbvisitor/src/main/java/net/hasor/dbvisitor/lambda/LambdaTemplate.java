@@ -310,8 +310,9 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         }
 
         MappingOptions copyOpt = MappingOptions.buildNew(opt);
-        copyOpt.setCaseInsensitive(this.isResultsCaseInsensitive());
         copyOpt.setUseDelimited(Boolean.TRUE.equals(copyOpt.getUseDelimited()));
+        copyOpt.setCaseInsensitive(this.isResultsCaseInsensitive());
+        copyOpt.setMapUnderscoreToCamelCase(Boolean.TRUE.equals(copyOpt.getMapUnderscoreToCamelCase()));
         copyOpt.setDefaultDialect(this.getDialect());
 
         Function<String, String> fmtNameFoo = fmtNameFoo(copyOpt);
@@ -321,9 +322,10 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         final String finalTable = StringUtils.isBlank(table) ? null : fmtNameFoo.apply(table);
         boolean useDelimited = copyOpt.getUseDelimited();
         boolean caseInsensitive = copyOpt.getCaseInsensitive();
+        boolean camelCase = copyOpt.getMapUnderscoreToCamelCase();
 
         final TableDef<?> defMap = new TableDef<>(finalCatalog, finalSchema, finalTable, LinkedHashMap.class, //
-                true, useDelimited, caseInsensitive, copyOpt.getDefaultDialect());
+                true, useDelimited, caseInsensitive, camelCase, copyOpt.getDefaultDialect());
         List<ColumnDef> columnDefs = execute((ConnectionCallback<List<ColumnDef>>) con -> {
             return fetchColumns(con, defMap, copyOpt, fmtNameFoo);
         });

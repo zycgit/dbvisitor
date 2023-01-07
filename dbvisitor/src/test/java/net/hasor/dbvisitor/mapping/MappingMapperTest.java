@@ -41,7 +41,6 @@ public class MappingMapperTest {
         assert tableMapping.getTable().equals("tb_user");
         assert tableMapping.getPropertyByColumn("loginPassword").getProperty().equals("password");
         assert tableMapping.getPropertyByName("password").getColumn().equals("loginPassword");
-
     }
 
     @Test
@@ -79,6 +78,26 @@ public class MappingMapperTest {
             assert userList.get(0).get("account").equals("belon");
             assert userList.get(1).get("account").equals("feiyan");
             assert userList.get(2).get("account").equals("muhammad");
+        }
+    }
+
+    @Test
+    public void errorCase_1() {
+        try {
+            new MappingRegistry().loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_1.xml");
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().equals("entity 'entityMap_5' table is not specified in default namespace");
+        }
+    }
+
+    @Test
+    public void errorCase_2() {
+        try {
+            new MappingRegistry().loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_2.xml");
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().equals("entity 'entityMap_1' table is not specified in default namespace");
         }
     }
 }

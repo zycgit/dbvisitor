@@ -22,13 +22,8 @@ import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.keyholder.CreateContext;
 import net.hasor.dbvisitor.keyholder.KeySeqHolder;
-import net.hasor.dbvisitor.mapping.Column;
-import net.hasor.dbvisitor.mapping.Ignore;
-import net.hasor.dbvisitor.mapping.KeyTypeEnum;
-import net.hasor.dbvisitor.mapping.Table;
-import net.hasor.dbvisitor.mapping.def.ColumnDef;
-import net.hasor.dbvisitor.mapping.def.TableDef;
-import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.*;
+import net.hasor.dbvisitor.mapping.def.*;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
@@ -44,15 +39,22 @@ import java.util.stream.Collectors;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<?>> {
-    private static final Logger logger = Logger.getLogger(ClassTableMappingResolve.class);
+    private static final Logger                         logger          = Logger.getLogger(ClassTableMappingResolve.class);
+    private static final Map<Class<?>, TableMapping<?>> CACHE_TABLE_MAP = new WeakHashMap<>();
 
     public ClassTableMappingResolve(MappingOptions options) {
         super(options);
     }
 
     public static TableMapping<?> resolveTableMapping(Class<?> entityType, TypeHandlerRegistry typeRegistry) {
-        Table tableInfo = fetchDefaultInfoByEntity(entityType.getClassLoader(), entityType, MappingOptions.buildNew(), Collections.emptyMap());
-        return new ClassTableMappingResolve(null).resolveTableAndColumn(tableInfo, entityType, typeRegistry);
+        if (CACHE_TABLE_MAP.containsKey(entityType)) {
+            return CACHE_TABLE_MAP.get(entityType);
+        } else {
+            Table tableInfo = fetchDefaultInfoByEntity(entityType.getClassLoader(), entityType, MappingOptions.buildNew(), Collections.emptyMap());
+            TableMapping<?> tableMapping = new ClassTableMappingResolve(null).resolveTableAndColumn(tableInfo, entityType, typeRegistry);
+            CACHE_TABLE_MAP.put(entityType, tableMapping);
+            return tableMapping;
+        }
     }
 
     @Override
@@ -64,19 +66,18 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
     protected TableDef<?> resolveTable(Table tableInfo, Class<?> entityType) {
         String catalog = tableInfo.catalog();
         String schema = tableInfo.schema();
-        String table = StringUtils.isNotBlank(tableInfo.name()) ? tableInfo.name() : StringUtils.isNotBlank(tableInfo.value()) ? tableInfo.value() : entityType.getSimpleName();
-
-        if (tableInfo.mapUnderscoreToCamelCase()) {
-            schema = hump2Line(schema, true);
-            table = hump2Line(table, true);
-        }
+        String table = StringUtils.isNotBlank(tableInfo.table()) ? tableInfo.table() : StringUtils.isNotBlank(tableInfo.value()) ? tableInfo.value() : "";
 
         boolean autoProperty = tableInfo.autoMapping();
         boolean useDelimited = tableInfo.useDelimited();
         boolean caseInsensitive = tableInfo.caseInsensitive();
+        boolean camelCase = tableInfo.mapUnderscoreToCamelCase();
 
         SqlDialect dialect = (tableInfo instanceof TableDefaultInfo) ? ((TableDefaultInfo) tableInfo).getSqlDialect() : DefaultSqlDialect.DEFAULT;
-        return new TableDef<>(catalog, schema, table, entityType, autoProperty, useDelimited, caseInsensitive, dialect);
+        TableDef<?> tableDef = new TableDef<>(catalog, schema, table, entityType, autoProperty, useDelimited, caseInsensitive, camelCase, dialect);
+
+        tableDef.setDescription(parseDesc(entityType.getAnnotation(TableDescribe.class)));
+        return tableDef;
     }
 
     protected TableDef<?> resolveTableAndColumn(Table tableInfo, Class<?> entityType, TypeHandlerRegistry typeRegistry) {
@@ -109,9 +110,12 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
     protected void resolveProperty(TableDef<?> tableDef, String name, Class<?> type, Property handler, TypeHandlerRegistry typeRegistry, Table tableInfo) {
         Annotation[] annotations = BeanUtils.getPropertyAnnotation(handler);
         Column info = null;
+        ColumnDescribe infoDesc = null;
         for (Annotation a : annotations) {
-            if (info == null && a instanceof Column) {
+            if (a instanceof Column) {
                 info = (Column) a;
+            } else if (a instanceof ColumnDescribe) {
+                infoDesc = (ColumnDescribe) a;
             } else if (a instanceof Ignore) {
                 return;
             }
@@ -143,6 +147,8 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
             ColumnDef colDef = new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler, insert, update, primary,//
                     selectTemplate, insertTemplate, setColTemplate, setValueTemplate, whereColTemplate, whereValueTemplate);
 
+            colDef.setDescription(parseDesc(infoDesc));
+
             // init KeySeqHolder
             colDef.setKeySeqHolder(this.resolveKeyType(tableDef, colDef, info.keyType(), annotations, typeRegistry));
             tableDef.addMapping(colDef);
@@ -155,6 +161,31 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
             TypeHandler<?> typeHandler = typeRegistry.getTypeHandler(javaType, jdbcType);
             tableDef.addMapping(new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler, true, true, false));
         }
+    }
+
+    private TableDescription parseDesc(TableDescribe tableDesc) {
+        if (tableDesc == null) {
+            return null;
+        }
+
+        TableDescDef descDef = new TableDescDef();
+        descDef.setComment(tableDesc.comment());
+        return descDef;
+    }
+
+    private ColumnDescription parseDesc(ColumnDescribe columnDesc) {
+        if (columnDesc == null) {
+            return null;
+        }
+
+        ColumnDescDef descDef = new ColumnDescDef();
+        descDef.setComment(columnDesc.comment());
+        descDef.setDdlType(columnDesc.ddlType());
+        descDef.setDefault(columnDesc.defaultValue());
+        descDef.setNullable(columnDesc.nullable());
+        descDef.setBelongIndex(Arrays.asList(columnDesc.belongIndex()));
+        descDef.setBelongUnique(Arrays.asList(columnDesc.belongUnique()));
+        return descDef;
     }
 
     private KeySeqHolder resolveKeyType(TableDef<?> tableDef, ColumnDef colDef, KeyTypeEnum keyTypeEnum, Annotation[] allAnnotations, TypeHandlerRegistry typeRegistry) {

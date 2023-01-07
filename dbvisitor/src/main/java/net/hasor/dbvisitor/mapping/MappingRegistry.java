@@ -15,11 +15,11 @@
  */
 package net.hasor.dbvisitor.mapping;
 import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.mapping.def.TableDef;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.mapping.reader.ResultTableReader;
+import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.mapping.resolve.XmlTableMappingResolve;
-import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
@@ -42,11 +42,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class MappingRegistry {
-    private final Map<String, Map<String, TableMapping<?>>> tableMappingMap  = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, TableMapping<?>>> tableMappingMap = new ConcurrentHashMap<>();
     private final ClassLoader                               classLoader;
     private final TypeHandlerRegistry                       typeRegistry;
+    private final MappingOptions                            options;
     private final XmlTableMappingResolve                    xmlMappingResolve;
-    private final Map<String, TableReader<?>>               typeHandlerCache = new ConcurrentHashMap<>();
+    private final ClassTableMappingResolve                  classMappingResolve;
 
     public MappingRegistry() {
         this(null, null, null);
@@ -55,16 +56,9 @@ public class MappingRegistry {
     public MappingRegistry(ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions options) {
         this.classLoader = (classLoader == null) ? Thread.currentThread().getContextClassLoader() : classLoader;
         this.typeRegistry = (typeRegistry == null) ? TypeHandlerRegistry.DEFAULT : typeRegistry;
+        this.options = options;
         this.xmlMappingResolve = new XmlTableMappingResolve(options);
-
-        for (String javaType : this.typeRegistry.getHandlerJavaTypes()) {
-            TypeHandler<?> typeHandler = this.typeRegistry.getTypeHandler(javaType);
-            TableReader<Object> tableReader = (columns, rs, rowNum) -> typeHandler.getResult(rs, 1);
-            this.typeHandlerCache.put(javaType, tableReader);
-        }
-
-        boolean caseInsensitive = options == null || options.getCaseInsensitive() == null || Boolean.TRUE.equals(options.getCaseInsensitive());
-        this.typeHandlerCache.put(Map.class.getName(), new ResultTableReader(caseInsensitive, this.typeRegistry));
+        this.classMappingResolve = new ClassTableMappingResolve(options);
     }
 
     public ClassLoader getClassLoader() {
@@ -138,20 +132,81 @@ public class MappingRegistry {
                 throw new IOException("the <" + (isResultMap ? "resultMap" : "entity") + "> tag, type is null.");
             }
 
-            TableMapping<?> tableMapping = this.xmlMappingResolve.resolveTableMapping(node, getClassLoader(), getTypeRegistry());
+            TableDef<?> tableDef = this.xmlMappingResolve.resolveTableMapping(node, getClassLoader(), getTypeRegistry());
+            configNames(true, isEntity, tableDef);
 
             if (isEntity) {
-                saveMapping(true, "", identify, tableMapping);
+                saveMapping(true, "", identify, tableDef);
                 if (!StringUtils.equals(identify, typeString)) {
-                    saveMapping(true, "", typeString, tableMapping);
+                    saveMapping(true, "", typeString, tableDef);
                 }
             } else {
-                saveMapping(false, space, identify, tableMapping);
+                saveMapping(false, space, identify, tableDef);
+            }
+        }
+    }
+
+    /** 解析 entityType 类型并作为实体载入 */
+    public void loadEntity(Class<?> entityType) {
+        loadEntity(entityType.getName(), entityType);
+    }
+
+    /** 解析 entityType 类型并作为实体载入 */
+    public void loadEntity(String identify, Class<?> entityType) {
+        Objects.requireNonNull(entityType, "entityType is null.");
+        String typeString = entityType.getName();
+        if (StringUtils.isBlank(identify)) {
+            identify = typeString;
+        }
+
+        TableDef<?> tableDef = this.classMappingResolve.resolveTableMapping(entityType, getClassLoader(), getTypeRegistry());
+        configNames(false, true, tableDef);
+
+        saveMapping(true, "", identify, tableDef);
+        if (!StringUtils.equals(identify, typeString)) {
+            saveMapping(true, "", typeString, tableDef);
+        }
+    }
+
+    /** 解析 entityType 类型并作为实体载入 */
+    public void loadResultMap(String space, String identify, Class<?> resultType) {
+        Objects.requireNonNull(resultType, "resultType is null.");
+        String typeString = resultType.getName();
+        if (StringUtils.isBlank(identify)) {
+            identify = typeString;
+        }
+
+        TableDef<?> tableDef = this.classMappingResolve.resolveTableMapping(resultType, getClassLoader(), getTypeRegistry());
+        configNames(false, false, tableDef);
+
+        saveMapping(false, space, identify, tableDef);
+    }
+
+    private void configNames(boolean isXml, boolean isEntity, TableDef<?> tableDef) {
+        if (!isEntity) {
+            tableDef.setCatalog("");
+            tableDef.setSchema("");
+            tableDef.setTable("");
+            return;
+        }
+
+        if (isXml) {
+            return;
+        }
+
+        Class<?> entityType = tableDef.entityType();
+        if (StringUtils.isBlank(tableDef.getTable())) {
+            if (tableDef.isMapUnderscoreToCamelCase()) {
+                tableDef.setTable(StringUtils.humpToLine(entityType.getSimpleName()));
+            } else {
+                tableDef.setTable(entityType.getSimpleName());
             }
         }
     }
 
     private void saveMapping(boolean isEntity, String space, String identify, TableMapping<?> tableMapping) {
+        space = StringUtils.isBlank(space) ? "" : space;
+
         if (!this.tableMappingMap.containsKey(space)) {
             this.tableMappingMap.put(space, new ConcurrentHashMap<>());
         }
@@ -160,9 +215,37 @@ public class MappingRegistry {
         if (mappingMap.containsKey(identify)) {
             String msg = isEntity ? "repeat entity" : "repeat resultMap";
             throw new IllegalStateException(msg + " '" + identify + "' in " + (StringUtils.isBlank(space) ? "default namespace" : ("'" + space + "' namespace.")));
-        } else {
-            mappingMap.put(identify, tableMapping);
         }
+
+        if (isEntity && StringUtils.isBlank(tableMapping.getTable())) {
+            throw new IllegalStateException("entity '" + identify + "' table is not specified in " + (StringUtils.isBlank(space) ? "default namespace" : ("'" + space + "' namespace.")));
+        }
+
+        mappingMap.put(identify, tableMapping);
+    }
+
+    public <T> TableMapping<T> findEntity(Class<?> entityType) {
+        return findMapping("", entityType.getName());
+    }
+
+    public <T> TableMapping<T> findEntity(String idOrType) {
+        return findMapping("", idOrType);
+    }
+
+    public <T> TableMapping<T> findMapping(String space, String identify) {
+        TableMapping<?> tableMapping = null;
+
+        if (StringUtils.isNotBlank(space) && this.tableMappingMap.containsKey(space)) {
+            Map<String, TableMapping<?>> mappingMap = this.tableMappingMap.get(space);
+            tableMapping = mappingMap.get(identify);
+        }
+
+        if (tableMapping == null) {
+            Map<String, TableMapping<?>> mappingMap = this.tableMappingMap.get("");
+            tableMapping = mappingMap.get(identify);
+        }
+
+        return (TableMapping<T>) tableMapping;
     }
 
     // --------------------------------------------------------------------------------------------

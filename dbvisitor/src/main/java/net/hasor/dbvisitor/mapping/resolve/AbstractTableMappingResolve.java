@@ -27,6 +27,7 @@ import net.hasor.dbvisitor.mapping.TableDefault;
 
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * TableMappingResolve 的公共方法
@@ -50,7 +51,7 @@ public abstract class AbstractTableMappingResolve<T> implements TableMappingReso
         this.options = options == null ? MappingOptions.buildNew() : options;
     }
 
-    protected String hump2Line(String str, Boolean mapUnderscoreToCamelCase) {
+    protected static String hump2Line(String str, Boolean mapUnderscoreToCamelCase) {
         if (StringUtils.isBlank(str) || mapUnderscoreToCamelCase == null || !mapUnderscoreToCamelCase) {
             return str;
         } else {
@@ -58,28 +59,24 @@ public abstract class AbstractTableMappingResolve<T> implements TableMappingReso
         }
     }
 
-    private static final Map<Class<?>, TableDefaultInfo> CACHE_TABLE_MAP = new WeakHashMap<>();
-
     protected static TableDefaultInfo fetchDefaultInfoByEntity(ClassLoader classLoader, Class<?> entityType, MappingOptions options, Map<String, String> overwriteData) {
-        if (CACHE_TABLE_MAP.containsKey(entityType)) {
-            return CACHE_TABLE_MAP.get(entityType);
-        }
-
         Map<String, String> confData = new HashMap<>();
         fetchConfigXmlInfo(confData, classLoader);
         fetchPackageInfo(confData, TableDefault.class, classLoader, entityType.getName());
-        fetchEntityInfo(confData, Table.class, classLoader, entityType.getName());
+        boolean hasTable = fetchEntityInfo(confData, Table.class, classLoader, entityType.getName());
 
         if (CollectionUtils.isNotEmpty(overwriteData)) {
-            overwriteData.forEach((key, val) -> {
-                if (StringUtils.isNotBlank(val)) {
-                    confData.put(key, val);
-                }
-            });
+            confData.putAll(overwriteData);
         }
 
         TableDefaultInfo tableInfo = new TableDefaultInfo(confData, classLoader, options);
-        CACHE_TABLE_MAP.put(entityType, tableInfo);
+        if (hasTable) {
+            String table = StringUtils.isNotBlank(tableInfo.table()) ? tableInfo.table() : StringUtils.isNotBlank(tableInfo.value()) ? tableInfo.value() : "";
+            if (StringUtils.isBlank(table) && !overwriteData.containsKey("table")) {
+                confData.put("table", hump2Line(entityType.getSimpleName(), tableInfo.mapUnderscoreToCamelCase()));
+                tableInfo = new TableDefaultInfo(confData, classLoader, options);
+            }
+        }
         return tableInfo;
     }
 
@@ -109,17 +106,18 @@ public abstract class AbstractTableMappingResolve<T> implements TableMappingReso
         }
     }
 
-    private static void fetchEntityInfo(final Map<String, String> confData, Class<?> matchType, final ClassLoader classLoader, final String className) {
+    static boolean fetchEntityInfo(final Map<String, String> confData, Class<?> matchType, final ClassLoader classLoader, final String className) {
         if (StringUtils.isBlank(className)) {
-            return;
+            return false;
         }
 
         String packageName = className.replace(".", "/");
         InputStream asStream = classLoader.getResourceAsStream(packageName + ".class");
         if (asStream == null) {
-            return;
+            return false;
         }
 
+        AtomicBoolean atomicBoolean = new AtomicBoolean(false);
         try {
             ClassReader classReader = new ClassReader(asStream);
             classReader.accept(new ClassVisitor(Opcodes.ASM9) {
@@ -127,11 +125,13 @@ public abstract class AbstractTableMappingResolve<T> implements TableMappingReso
                     if (!AsmTools.toAsmType(matchType).equals(desc)) {
                         return super.visitAnnotation(desc, visible);
                     }
+                    atomicBoolean.set(true);
                     return new TableDefaultVisitor(Opcodes.ASM9, super.visitAnnotation(desc, visible), confData);
                 }
             }, ClassReader.SKIP_CODE);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
+        return atomicBoolean.get();
     }
 }

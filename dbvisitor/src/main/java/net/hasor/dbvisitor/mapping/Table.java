@@ -21,6 +21,8 @@ import java.lang.annotation.Target;
 
 /**
  * 标记在类型上表示映射到的表
+ *  - 若注解与 xml 同时配置 XML 将会覆盖注解。
+ *  - 若xml 配置为 resultMap 会把 catalog/schema/table or value 设置为空。
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -33,11 +35,11 @@ public @interface Table {
     /** Schema */
     String schema() default "";
 
-    /** 表名，为空的话表示采用类名为表名 see: {@link #name()} */
+    /** 表名，为空的话表示采用类名为表名 see: {@link #table()} */
     String value() default "";
 
     /** 表名，为空的话表示采用类名为表名 see: {@link #value()} */
-    String name() default "";
+    String table() default "";
 
     /** 是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Column 注解声明 */
     boolean autoMapping() default true;

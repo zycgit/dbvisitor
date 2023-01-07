@@ -14,29 +14,20 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.def;
-import java.util.List;
-
 /**
- * 列的 DDL 补充信息，用于补充生成 DDL 语句
+ * 接口 TableDescription 的实现
  * @version : 2022-12-06
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface ColumnDescription {
-    /** 列备注 */
-    String getComment();
+public class TableDescDef implements TableDescription {
+    private String comment;
 
-    /** 列数据类型 */
-    String getDdlType();
+    @Override
+    public String getComment() {
+        return this.comment;
+    }
 
-    /** 列上具有的默认值 */
-    String getDefault();
-
-    /** 表示列是否允许为空 */
-    Boolean getNullable();
-
-    /** 这个列属于哪些索引（如果某个索引含有多个列，那么这些列的 belongIndex 属性都会含有这个索引的名字） */
-    List<String> getBelongIndex();
-
-    /** 这个列属于哪些唯一索引（如果某个索引含有多个列，那么这些列的 belongIndex 属性都会含有这个索引的名字） */
-    List<String> belongUnique();
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 }

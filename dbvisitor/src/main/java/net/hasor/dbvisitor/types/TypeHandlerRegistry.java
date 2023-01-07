@@ -358,6 +358,9 @@ public final class TypeHandlerRegistry {
 
     public boolean hasTypeHandler(Class<?> typeClass) {
         Objects.requireNonNull(typeClass, "typeClass is null.");
+        if (typeClass.isEnum()) {
+            return true;
+        }
         return this.javaTypeHandlerMap.containsKey(typeClass.getName());
     }
 
@@ -372,6 +375,9 @@ public final class TypeHandlerRegistry {
 
     public boolean hasTypeHandler(Class<?> typeClass, int jdbcType) {
         Objects.requireNonNull(typeClass, "typeClass is null.");
+        if (typeClass.isEnum()) {
+            return true;
+        }
         Map<Integer, TypeHandler<?>> jdbcHandlerMap = this.typeHandlerMap.get(typeClass.getName());
         if (jdbcHandlerMap != null) {
             return jdbcHandlerMap.containsKey(jdbcType);

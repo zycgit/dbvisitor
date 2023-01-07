@@ -25,13 +25,15 @@ import java.util.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class TableDef<T> implements TableMapping<T> {
-    private       String           catalog;
-    private       String           schema;
-    private       String           table;
-    private final Class<T>         entityType;
-    private final boolean          autoProperty;
-    private final boolean          useDelimited;
-    private final boolean          caseInsensitive;
+    private       String   catalog;
+    private       String   schema;
+    private       String   table;
+    private final Class<T> entityType;
+    private final boolean  autoProperty;
+    private final boolean  useDelimited;
+    private final boolean  caseInsensitive;
+    private final boolean  mapUnderscoreToCamelCase;
+
     private       TableDescription description;
     private final SqlDialect       dialect;
 
@@ -40,7 +42,7 @@ public class TableDef<T> implements TableMapping<T> {
     private final Map<String, ColumnMapping> mapByColumn;
 
     public TableDef(String catalog, String schema, String table, Class<T> entityType, //
-            boolean autoProperty, boolean useDelimited, boolean caseInsensitive, SqlDialect dialect) {
+            boolean autoProperty, boolean useDelimited, boolean caseInsensitive, boolean mapUnderscoreToCamelCase, SqlDialect dialect) {
         this.catalog = catalog;
         this.schema = schema;
         this.table = table;
@@ -51,6 +53,7 @@ public class TableDef<T> implements TableMapping<T> {
         this.columnMappings = new ArrayList<>();
         this.mapByProperty = (caseInsensitive && Map.class.isAssignableFrom(entityType)) ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
         this.mapByColumn = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
+        this.mapUnderscoreToCamelCase = mapUnderscoreToCamelCase;
         this.dialect = dialect;
     }
 
@@ -99,6 +102,10 @@ public class TableDef<T> implements TableMapping<T> {
     @Override
     public boolean isCaseInsensitive() {
         return this.caseInsensitive;
+    }
+
+    public boolean isMapUnderscoreToCamelCase() {
+        return this.mapUnderscoreToCamelCase;
     }
 
     @Override
