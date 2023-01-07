@@ -293,7 +293,15 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
                 opt.setDefaultDialect(this.getDialect());
             }
 
-            return new ClassTableMappingResolve(opt).resolveTableMapping(exampleType, exampleType.getClassLoader(), this.getTypeRegistry());
+            TableDef<?> tableDef = new ClassTableMappingResolve(opt).resolveTableMapping(exampleType, exampleType.getClassLoader(), this.getTypeRegistry());
+            if (StringUtils.isBlank(tableDef.getTable())) {
+                if (tableDef.isMapUnderscoreToCamelCase()) {
+                    tableDef.setTable(StringUtils.humpToLine(exampleType.getSimpleName()));
+                } else {
+                    tableDef.setTable(exampleType.getSimpleName());
+                }
+            }
+            return tableDef;
         });
         return (TableMapping<T>) mapping;
     }
@@ -324,18 +332,18 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         boolean caseInsensitive = copyOpt.getCaseInsensitive();
         boolean camelCase = copyOpt.getMapUnderscoreToCamelCase();
 
-        final TableDef<?> defMap = new TableDef<>(finalCatalog, finalSchema, finalTable, LinkedHashMap.class, //
+        final TableDef<?> tableDef = new TableDef<>(finalCatalog, finalSchema, finalTable, LinkedHashMap.class, //
                 true, useDelimited, caseInsensitive, camelCase, copyOpt.getDefaultDialect());
         List<ColumnDef> columnDefs = execute((ConnectionCallback<List<ColumnDef>>) con -> {
-            return fetchColumns(con, defMap, copyOpt, fmtNameFoo);
+            return fetchColumns(con, tableDef, copyOpt, fmtNameFoo);
         });
 
         for (ColumnDef cDef : columnDefs) {
-            defMap.addMapping(cDef);
+            tableDef.addMapping(cDef);
         }
 
-        this.mapMapping.put(mappingKey, defMap);
-        return defMap;
+        this.mapMapping.put(mappingKey, tableDef);
+        return tableDef;
     }
 
     protected <E extends BasicLambda<R, T, P>, R, T, P> E configLambda(E execute) {
