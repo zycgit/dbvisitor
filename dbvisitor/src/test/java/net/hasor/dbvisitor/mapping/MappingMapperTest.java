@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping;
+import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.jdbc.mapper.MappingResultSetExtractor;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
@@ -31,7 +32,7 @@ import java.util.Map;
 
 public class MappingMapperTest {
     @Test
-    public void testColumnMapRowMapper_1() throws ClassNotFoundException {
+    public void testColumnMapRowMapper_1() throws ReflectiveOperationException {
         TableMappingResolve resolve = new ClassTableMappingResolve(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
 
         TableMapping<TbUser> tableMapping = resolve.resolveTableMapping(//
@@ -82,6 +83,18 @@ public class MappingMapperTest {
     }
 
     @Test
+    public void errorCase_0() {
+        try {
+            MappingRegistry registry = new MappingRegistry();
+            registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
+            registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_2.xml");
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().startsWith("repeat resultMap ");
+        }
+    }
+
+    @Test
     public void errorCase_1() {
         try {
             new MappingRegistry().loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_1.xml");
@@ -98,6 +111,36 @@ public class MappingMapperTest {
             assert false;
         } catch (Exception e) {
             assert e.getMessage().equals("entity 'entityMap_1' table is not specified in default namespace");
+        }
+    }
+
+    @Test
+    public void errorCase_3() {
+        try {
+            new DalRegistry().loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_3.xml");
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().startsWith("property 'gmtCreate' undefined.");
+        }
+    }
+
+    @Test
+    public void errorCase_4() {
+        try {
+            new DalRegistry().loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_4.xml");
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().startsWith("repeat resultMap ");
+        }
+    }
+
+    @Test
+    public void errorCase_5() {
+        try {
+            new DalRegistry().loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_5.xml");
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().startsWith("com.cc.web.constants.ResourceType, location ");
         }
     }
 }

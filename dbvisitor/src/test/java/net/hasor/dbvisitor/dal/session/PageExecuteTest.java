@@ -1,6 +1,7 @@
 package net.hasor.dbvisitor.dal.session;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.page.PageResult;
@@ -21,8 +22,8 @@ public class PageExecuteTest {
     private DalSession dalSession;
 
     @Before
-    public void loadMapping() throws IOException, SQLException {
-        DalRegistry dalRegistry = new DalRegistry();
+    public void loadMapping() throws Exception {
+        DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
         dalRegistry.loadMapper(PageExecuteDal.class);
 
         this.dalSession = new DalSession(DsUtils.mysqlConn(), dalRegistry);
@@ -32,7 +33,7 @@ public class PageExecuteTest {
 
     protected void beforeTest(JdbcTemplate jdbcTemplate) throws SQLException, IOException {
         jdbcTemplate.execute("drop table if exists test_user");
-        jdbcTemplate.loadSplitSQL(";", StandardCharsets.UTF_8, "/net_hasor_db/dal_dynamic/execute/execute_for_mysql.sql");
+        jdbcTemplate.loadSplitSQL(";", StandardCharsets.UTF_8, "/dbvisitor_coverage/dal_session/execute_for_mysql.sql");
     }
 
     public TbUser2 buildData(int i) {

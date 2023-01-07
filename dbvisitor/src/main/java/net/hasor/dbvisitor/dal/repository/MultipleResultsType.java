@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.repository;
+import net.hasor.cobble.StringUtils;
+
 /**
  * 在处理多结果集的时结果集保留策略。
  * @version : 2021-06-19
@@ -38,7 +40,7 @@ public enum MultipleResultsType {
 
     public static MultipleResultsType valueOfCode(String code, MultipleResultsType defaultType) {
         for (MultipleResultsType tableType : MultipleResultsType.values()) {
-            if (tableType.typeName.equalsIgnoreCase(code)) {
+            if (StringUtils.equalsIgnoreCase(tableType.typeName, code)) {
                 return tableType;
             }
         }

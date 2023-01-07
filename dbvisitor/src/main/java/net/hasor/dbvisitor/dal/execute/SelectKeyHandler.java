@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.execute;
-import net.hasor.dbvisitor.dal.repository.config.SelectKeySqlConfig;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Map;
 
 /**
- * 主键生成器
+ * 负责执行 SelectKeyHandler
  * @version : 2021-11-05
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface KeySequenceHolderFactory {
-
-    KeySequenceHolder createHolder(SelectKeySqlConfig keySqlConfig, AbstractStatementExecute<?> execute);
+public interface SelectKeyHandler {
+    Object processSelectKey(Connection conn, Map<String, Object> parameter) throws SQLException;
 }

@@ -18,7 +18,6 @@ import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dal.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dal.dynamic.DynamicSql;
-import net.hasor.dbvisitor.dal.execute.sequence.SelectKeySequenceHolderFactory;
 import net.hasor.dbvisitor.dal.repository.StatementType;
 import net.hasor.dbvisitor.dal.repository.config.DmlSqlConfig;
 import net.hasor.dbvisitor.dal.repository.config.SelectKeySqlConfig;
@@ -27,6 +26,7 @@ import net.hasor.dbvisitor.page.Page;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,7 +37,7 @@ import java.util.Map;
 public class ExecuteProxy {
     private final DmlSqlConfig                dynamicSql;
     private final AbstractStatementExecute<?> execute;
-    private       KeySequenceExecute          selectKeyHolder;
+    private       SelectKeyExecute            selectKeyExecute;
 
     public ExecuteProxy(String dynamicId, DynamicContext context) {
         DynamicSql sqlConfig = context.findDynamic(dynamicId);
@@ -54,24 +54,23 @@ public class ExecuteProxy {
         SelectKeySqlConfig selectKey = ((DmlSqlConfig) sqlConfig).getSelectKey();
         if (selectKey != null) {
             AbstractStatementExecute<?> selectKeyExecute = buildExecute(selectKey.getStatementType(), context);
-            KeySequenceHolder sequenceHolder = null;
+            SelectKeyHandler selectKeyHandler = null;
 
             if (StringUtils.isBlank(selectKey.getHandler())) {
-                sequenceHolder = new SelectKeySequenceHolderFactory().createHolder(selectKey, selectKeyExecute);
+                selectKeyHandler = new SelectKeySequenceHolder(selectKey, selectKeyExecute);
             } else {
                 try {
                     Class<?> aClass = context.getClassLoader().loadClass(selectKey.getHandler());
-                    KeySequenceHolderFactory holderFactory = (KeySequenceHolderFactory) aClass.newInstance();
-                    sequenceHolder = holderFactory.createHolder(selectKey, selectKeyExecute);
-                    if (sequenceHolder == null) {
+                    SelectKeyHandlerFactory holderFactory = (SelectKeyHandlerFactory) aClass.newInstance();
+                    selectKeyHandler = holderFactory.createHandler(selectKey, selectKeyExecute);
+                    if (selectKeyHandler == null) {
                         throw new NullPointerException("createSelectKeyHolder result is null.");
                     }
                 } catch (Exception e) {
                     throw ExceptionUtils.toRuntime(e);
                 }
             }
-
-            this.selectKeyHolder = new KeySequenceExecute(selectKey, sequenceHolder);
+            this.selectKeyExecute = new SelectKeyExecute(selectKey, selectKeyHandler);
         }
     }
 
@@ -93,17 +92,44 @@ public class ExecuteProxy {
     }
 
     public Object execute(Connection conn, Map<String, Object> data, Page page, boolean pageResult, PageSqlDialect dialect) throws SQLException {
-
-        if (this.selectKeyHolder != null) {
-            this.selectKeyHolder.processBefore(conn, data);
+        if (this.selectKeyExecute != null) {
+            this.selectKeyExecute.processBefore(conn, data);
         }
 
         Object result = this.execute.execute(conn, this.dynamicSql, data, page, pageResult, dialect);
 
-        if (this.selectKeyHolder != null) {
-            this.selectKeyHolder.processAfter(conn, data);
+        if (this.selectKeyExecute != null) {
+            this.selectKeyExecute.processAfter(conn, data);
         }
 
         return result;
+    }
+
+    private static class SelectKeySequenceHolder implements SelectKeyHandler {
+        private final SelectKeySqlConfig          keySqlConfig;
+        private final AbstractStatementExecute<?> selectKeyExecute;
+
+        public SelectKeySequenceHolder(SelectKeySqlConfig keySqlConfig, AbstractStatementExecute<?> selectKeyExecute) {
+            this.keySqlConfig = keySqlConfig;
+            this.selectKeyExecute = selectKeyExecute;
+        }
+
+        public Object processSelectKey(Connection conn, Map<String, Object> parameter) throws SQLException {
+            String keyColumn = this.keySqlConfig.getKeyColumn();
+            Object resultValue = null;
+
+            if (StringUtils.isBlank(keyColumn)) {
+                // maybe is single value.
+                resultValue = this.selectKeyExecute.execute(conn, this.keySqlConfig, parameter, null, false, null);
+            } else {
+                resultValue = this.selectKeyExecute.execute(conn, this.keySqlConfig, parameter, null, false, null, true);
+            }
+
+            if (resultValue instanceof List) {
+                resultValue = ((List<?>) resultValue).get(0);
+            }
+
+            return resultValue;
+        }
     }
 }

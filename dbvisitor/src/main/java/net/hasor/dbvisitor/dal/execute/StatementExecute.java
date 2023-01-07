@@ -31,7 +31,6 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class StatementExecute extends AbstractStatementExecute<Object> {
-
     public StatementExecute(DynamicContext context) {
         super(context);
     }

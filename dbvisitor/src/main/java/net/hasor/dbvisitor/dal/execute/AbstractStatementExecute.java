@@ -25,6 +25,7 @@ import net.hasor.dbvisitor.dal.dynamic.SqlMode;
 import net.hasor.dbvisitor.dal.repository.MultipleResultsType;
 import net.hasor.dbvisitor.dal.repository.ResultSetType;
 import net.hasor.dbvisitor.dal.repository.config.DmlSqlConfig;
+import net.hasor.dbvisitor.dal.repository.config.InsertSqlConfig;
 import net.hasor.dbvisitor.dal.repository.config.QuerySqlConfig;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
@@ -32,7 +33,7 @@ import net.hasor.dbvisitor.dialect.SqlBuilder;
 import net.hasor.dbvisitor.jdbc.extractor.MultipleProcessType;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.mapping.reader.DynamicTableReader;
+import net.hasor.dbvisitor.mapping.reader.ResultTableReader;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
@@ -86,9 +87,11 @@ public abstract class AbstractStatementExecute<T> {
         executeInfo.pageDialect = dialect;
         executeInfo.pageResult = pageResult;
         executeInfo.data = data;
+        executeInfo.hasSelectKey = false;
 
         if (dynamicSql instanceof DmlSqlConfig) {
             executeInfo.timeout = ((DmlSqlConfig) dynamicSql).getTimeout();
+            executeInfo.hasSelectKey = ((DmlSqlConfig) dynamicSql).getSelectKey() != null;
         }
         if (dynamicSql instanceof QuerySqlConfig) {
             executeInfo.resultMap = ((QuerySqlConfig) dynamicSql).getResultMap();
@@ -96,6 +99,12 @@ public abstract class AbstractStatementExecute<T> {
             executeInfo.fetchSize = ((QuerySqlConfig) dynamicSql).getFetchSize();
             executeInfo.resultSetType = ((QuerySqlConfig) dynamicSql).getResultSetType();
             executeInfo.multipleResultType = ((QuerySqlConfig) dynamicSql).getMultipleResultType();
+        }
+
+        if (dynamicSql instanceof InsertSqlConfig && !executeInfo.hasSelectKey) {
+            executeInfo.useGeneratedKeys = ((InsertSqlConfig) dynamicSql).isUseGeneratedKeys();
+            executeInfo.keyProperty = ((InsertSqlConfig) dynamicSql).getKeyProperty();
+            executeInfo.parameterType = ((InsertSqlConfig) dynamicSql).getParameterType();
         }
 
         if (resultAsMap) {
@@ -168,8 +177,8 @@ public abstract class AbstractStatementExecute<T> {
         return new DalResultSetExtractor(executeInfo.caseInsensitive, this.context, multipleType, tableReaders);
     }
 
-    private DynamicTableReader getDefaultTableReader(ExecuteInfo executeInfo, DynamicContext context) {
-        return new DynamicTableReader(executeInfo.caseInsensitive, context.getTypeRegistry());
+    private ResultTableReader getDefaultTableReader(ExecuteInfo executeInfo, DynamicContext context) {
+        return new ResultTableReader(executeInfo.caseInsensitive, context.getTypeRegistry());
     }
 
     protected Object getResult(List<Object> result, ExecuteInfo executeInfo) {
@@ -274,6 +283,11 @@ public abstract class AbstractStatementExecute<T> {
         public String              resultMap;
         public boolean             caseInsensitive    = true;
         public MultipleResultsType multipleResultType = MultipleResultsType.LAST;
+        // key
+        public boolean             hasSelectKey;
+        public boolean             useGeneratedKeys;
+        public String              keyProperty;
+        public String              parameterType;
         // page
         public Page                pageInfo;
         public PageSqlDialect      pageDialect;

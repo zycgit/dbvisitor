@@ -15,15 +15,12 @@
  */
 package net.hasor.dbvisitor.dal.session;
 import net.hasor.dbvisitor.dal.mapper.BaseMapper;
-import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.lambda.EntityDeleteOperation;
 import net.hasor.dbvisitor.lambda.EntityQueryOperation;
 import net.hasor.dbvisitor.lambda.EntityUpdateOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
-import net.hasor.dbvisitor.mapping.def.TableDef;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.page.PageResult;
@@ -32,6 +29,7 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -49,16 +47,9 @@ class BaseMapperHandler implements BaseMapper<Object> {
         this.space = space;
         this.entityType = (Class<Object>) entityType;
         this.dalSession = dalSession;
-        DalRegistry dalRegistry = dalSession.getDalRegistry();
+        this.tableMapping = dalSession.getDalRegistry().findMapping(space, this.entityType);
 
-        TableMapping<Object> tableMapping = dalRegistry.findTableMapping(space, this.entityType);
-        if (tableMapping == null) {
-            TableDef<?> tableDef = new ClassTableMappingResolve().resolveTableMapping(//
-                    this.entityType, this.entityType.getClassLoader(), dalRegistry.getTypeRegistry(), dalRegistry.cloneOptions());
-            this.tableMapping = (TableMapping<Object>) tableDef;
-        } else {
-            this.tableMapping = tableMapping;
-        }
+        Objects.requireNonNull(this.tableMapping, "entityType '" + entityType + "' undefined.");
     }
 
     @Override

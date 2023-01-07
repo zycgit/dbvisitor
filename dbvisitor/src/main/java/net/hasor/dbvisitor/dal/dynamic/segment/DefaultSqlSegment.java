@@ -31,7 +31,7 @@ import static net.hasor.dbvisitor.dal.dynamic.ognl.OgnlUtils.evalOgnl;
 /**
  * 本处理器，兼容 @{...}、#{...}、${...} 三种写法。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-03-28
+ * @version : 2021-06-05
  */
 public class DefaultSqlSegment implements Cloneable, DynamicSql {
     private final StringBuilder   queryStringOri  = new StringBuilder("");

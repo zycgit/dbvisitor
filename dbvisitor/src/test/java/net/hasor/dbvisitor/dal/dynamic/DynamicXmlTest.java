@@ -38,10 +38,10 @@ public class DynamicXmlTest {
 
     @Test
     public void ifTest_01() throws Throwable {
-        String queryConfig = loadString("/net_hasor_db/dal_dynamic/fragment/if_01.xml");
+        String queryConfig = loadString("/dbvisitor_coverage/dal_dynamic/if_01.xml");
         DynamicSql parseXml = xmlParser.parseDynamicSql(queryConfig);
         //
-        String querySql1 = loadString("/net_hasor_db/dal_dynamic/fragment/if_01.xml.sql_1");
+        String querySql1 = loadString("/dbvisitor_coverage/dal_dynamic/if_01.xml.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("ownerID", "123");
         data1.put("ownerType", "SYSTEM");
@@ -50,7 +50,7 @@ public class DynamicXmlTest {
         assert ((SqlArg) builder1.getArgs()[0]).getValue().equals("123");
         assert ((SqlArg) builder1.getArgs()[1]).getValue().equals("SYSTEM");
         //
-        String querySql2 = loadString("/net_hasor_db/dal_dynamic/fragment/if_01.xml.sql_2");
+        String querySql2 = loadString("/dbvisitor_coverage/dal_dynamic/if_01.xml.sql_2");
         Map<String, Object> data2 = new HashMap<>();
         data1.put("ownerID", "123");
         data1.put("ownerType", null);
@@ -61,10 +61,10 @@ public class DynamicXmlTest {
 
     @Test
     public void includeTest_01() throws Throwable {
-        String queryConfig = loadString("/net_hasor_db/dal_dynamic/fragment/include_01.xml");
+        String queryConfig = loadString("/dbvisitor_coverage/dal_dynamic/include_01.xml");
         DynamicSql parseXml = xmlParser.parseDynamicSql(queryConfig);
         //
-        String querySql1 = loadString("/net_hasor_db/dal_dynamic/fragment/include_01.xml.sql_1");
+        String querySql1 = loadString("/dbvisitor_coverage/dal_dynamic/include_01.xml.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("eventType", "123");
         SqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
@@ -74,10 +74,10 @@ public class DynamicXmlTest {
 
     @Test
     public void foreachTest_01() throws Throwable {
-        String queryConfig = loadString("/net_hasor_db/dal_dynamic/fragment/foreach_03.xml");
+        String queryConfig = loadString("/dbvisitor_coverage/dal_dynamic/foreach_03.xml");
         DynamicSql parseXml = xmlParser.parseDynamicSql(queryConfig);
         //
-        String querySql1 = loadString("/net_hasor_db/dal_dynamic/fragment/foreach_03.xml.sql_1");
+        String querySql1 = loadString("/dbvisitor_coverage/dal_dynamic/foreach_03.xml.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("eventTypes", Arrays.asList("a", "b", "c", "d", "e"));
         SqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
@@ -91,10 +91,10 @@ public class DynamicXmlTest {
 
     @Test
     public void setTest_01() throws Throwable {
-        String queryConfig = loadString("/net_hasor_db/dal_dynamic/fragment/set_04.xml");
+        String queryConfig = loadString("/dbvisitor_coverage/dal_dynamic/set_04.xml");
         DynamicSql parseXml = xmlParser.parseDynamicSql(queryConfig);
         //
-        String querySql1 = loadString("/net_hasor_db/dal_dynamic/fragment/set_04.xml.sql_1");
+        String querySql1 = loadString("/dbvisitor_coverage/dal_dynamic/set_04.xml.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("phone", "1234");
         data1.put("email", "zyc@zyc");
@@ -109,7 +109,7 @@ public class DynamicXmlTest {
         assert ((SqlArg) builder1.getArgs()[3]).getValue().equals("~~~");
         assert ((SqlArg) builder1.getArgs()[4]).getValue().equals("1111");
         //
-        String querySql2 = loadString("/net_hasor_db/dal_dynamic/fragment/set_04.xml.sql_2");
+        String querySql2 = loadString("/dbvisitor_coverage/dal_dynamic/set_04.xml.sql_2");
         Map<String, Object> data2 = new HashMap<>();
         data2.put("id", "~~~");
         data2.put("uid", "1111");
@@ -121,10 +121,10 @@ public class DynamicXmlTest {
 
     @Test
     public void bindTest_01() throws Throwable {
-        String queryConfig = loadString("/net_hasor_db/dal_dynamic/fragment/bind_01.xml");
+        String queryConfig = loadString("/dbvisitor_coverage/dal_dynamic/bind_01.xml");
         DynamicSql parseXml = xmlParser.parseDynamicSql(queryConfig);
         //
-        String querySql1 = loadString("/net_hasor_db/dal_dynamic/fragment/bind_01.xml.sql_1");
+        String querySql1 = loadString("/dbvisitor_coverage/dal_dynamic/bind_01.xml.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("sellerId", "123");
         SqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
@@ -134,16 +134,16 @@ public class DynamicXmlTest {
 
     @Test
     public void whereTest_01() throws Throwable {
-        String queryConfig = loadString("/net_hasor_db/dal_dynamic/fragment/where_01.xml");
+        String queryConfig = loadString("/dbvisitor_coverage/dal_dynamic/where_01.xml");
         DynamicSql parseXml = xmlParser.parseDynamicSql(queryConfig);
         //
-        String querySql1 = loadString("/net_hasor_db/dal_dynamic/fragment/where_01.xml.sql_1");
+        String querySql1 = loadString("/dbvisitor_coverage/dal_dynamic/where_01.xml.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("sellerId", "123");
         SqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
         assert builder1.getSqlString().trim().equals(querySql1.trim());
         //
-        String querySql2 = loadString("/net_hasor_db/dal_dynamic/fragment/where_01.xml.sql_2");
+        String querySql2 = loadString("/dbvisitor_coverage/dal_dynamic/where_01.xml.sql_2");
         Map<String, Object> data2 = new HashMap<>();
         data2.put("state", "123");
         data2.put("title", "aaa");
@@ -155,10 +155,10 @@ public class DynamicXmlTest {
 
     @Test
     public void chooseTest_01() throws Throwable {
-        String queryConfig = loadString("/net_hasor_db/dal_dynamic/fragment/choose_01.xml");
+        String queryConfig = loadString("/dbvisitor_coverage/dal_dynamic/choose_01.xml");
         DynamicSql parseXml = xmlParser.parseDynamicSql(queryConfig);
         //
-        String querySql1 = loadString("/net_hasor_db/dal_dynamic/fragment/choose_01.xml.sql_1");
+        String querySql1 = loadString("/dbvisitor_coverage/dal_dynamic/choose_01.xml.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("title", "123");
         data1.put("content", "aaa");
@@ -169,10 +169,10 @@ public class DynamicXmlTest {
 
     @Test
     public void chooseTest_02() throws Throwable {
-        String queryConfig = loadString("/net_hasor_db/dal_dynamic/fragment/choose_01.xml");
+        String queryConfig = loadString("/dbvisitor_coverage/dal_dynamic/choose_01.xml");
         DynamicSql parseXml = xmlParser.parseDynamicSql(queryConfig);
         //
-        String querySql1 = loadString("/net_hasor_db/dal_dynamic/fragment/choose_01.xml.sql_2");
+        String querySql1 = loadString("/dbvisitor_coverage/dal_dynamic/choose_01.xml.sql_2");
         Map<String, Object> data1 = new HashMap<>();
         SqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
         assert builder1.getSqlString().trim().equals(querySql1.trim());
@@ -180,10 +180,10 @@ public class DynamicXmlTest {
 
     @Test
     public void tokenTest_01() throws Throwable {
-        String queryConfig = loadString("/net_hasor_db/dal_dynamic/fragment/token_01.xml");
+        String queryConfig = loadString("/dbvisitor_coverage/dal_dynamic/token_01.xml");
         DynamicSql parseXml = xmlParser.parseDynamicSql(queryConfig);
         //
-        String querySql1 = loadString("/net_hasor_db/dal_dynamic/fragment/token_01.xml.sql_1");
+        String querySql1 = loadString("/dbvisitor_coverage/dal_dynamic/token_01.xml.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("abc", "123");
         data1.put("futures", "11");
@@ -205,10 +205,10 @@ public class DynamicXmlTest {
 
     @Test
     public void selectKeyTest_01() throws Throwable {
-        String queryConfig = loadString("/net_hasor_db/dal_dynamic/fragment/selectkey_01.xml");
+        String queryConfig = loadString("/dbvisitor_coverage/dal_dynamic/selectkey_01.xml");
         DynamicSql parseXml = xmlParser.parseDynamicSql(queryConfig);
 
-        String querySql1 = loadString("/net_hasor_db/dal_dynamic/fragment/selectkey_01.xml.sql_1");
+        String querySql1 = loadString("/dbvisitor_coverage/dal_dynamic/selectkey_01.xml.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("uid", "zyc_uid");
         data1.put("name", "zyc_name");
@@ -218,7 +218,7 @@ public class DynamicXmlTest {
         InsertSqlConfig insertSqlConfig = new InsertSqlConfig(parseXml);
         assert insertSqlConfig.getSelectKey() != null;
 
-        String querySql2 = loadString("/net_hasor_db/dal_dynamic/fragment/selectkey_01.xml.sql_2");
+        String querySql2 = loadString("/dbvisitor_coverage/dal_dynamic/selectkey_01.xml.sql_2");
         SqlBuilder builder2 = insertSqlConfig.getSelectKey().buildQuery(data1, new TextBuilderContext());
         assert builder2.getSqlString().trim().equals(querySql2.trim());
     }

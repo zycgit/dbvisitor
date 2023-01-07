@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="net.hasor.test.dal.execute.PageExecuteDal">
 
-    <resultMap table="test_user" type="net.hasor.test.dto.TbUser2">
+    <entity table="test_user" type="net.hasor.test.dto.TbUser2">
         <id column="user_uuid" property="uid"/>
         <result column="name" property="name"/>
         <result column="login_name" property="account"/>
@@ -10,7 +10,7 @@
         <result column="email" property="mail"/>
         <result column="index" property="index" javaType="int"/>
         <result column="register_time" property="createTime"/>
-    </resultMap>
+    </entity>
 
     <resultMap id="tb_user_resultMap" type="net.hasor.test.dto.TbUser2">
         <id column="user_uuid" property="uid"/>
@@ -38,33 +38,35 @@
 
     <insert id="createUser">
         insert into test_user (
-        <include refid="user_do_allColumns"/>
+            <include refid="user_do_allColumns"/>
         ) values (
-        #{uid},
-        #{name},
-        #{account},
-        #{password},
-        #{email},
-        #{index},
-        #{createTime}
+            #{uid},
+            #{name},
+            #{account},
+            #{password},
+            #{email},
+            #{index},
+            #{createTime}
         )
     </insert>
 
     <select id="listByPage1" resultMap="tb_user_resultMap" statementType="PREPARED">
         select
-        <include refid="user_do_allColumns"/>
-        from test_user
+            <include refid="user_do_allColumns"/>
+        from
+            test_user
         where
-        name like concat('%', #{name} ,'%')
+            name like concat('%', #{name} ,'%')
         order by `index`
     </select>
 
     <select id="listByPage2" resultMap="tb_user_resultMap" statementType="PREPARED">
         select
-        <include refid="user_do_allColumns"/>
-        from test_user
+            <include refid="user_do_allColumns"/>
+        from
+            test_user
         where
-        name like concat('%', #{name} ,'%')
+            name like concat('%', #{name} ,'%')
         order by `index`
     </select>
 </mapper>

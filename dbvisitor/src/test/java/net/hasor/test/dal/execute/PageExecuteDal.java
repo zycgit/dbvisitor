@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.test.dal.execute;
+import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.dal.repository.Param;
 import net.hasor.dbvisitor.dal.repository.RefMapper;
-import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageResult;
 import net.hasor.test.dto.TbUser2;
@@ -28,13 +28,13 @@ import java.util.List;
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-@RefMapper("/dbvisitor_coverage/dal_dynamic/execute/page_execute.xml")
+@RefMapper("/dbvisitor_coverage/dal_session/page_execute.xml")
 public interface PageExecuteDal extends BaseMapper<TbUser2> {
-    public void deleteAll();
+    void deleteAll();
 
-    public int createUser(TbUser2 tbUser);
+    int createUser(TbUser2 tbUser);
 
-    public List<TbUser2> listByPage1(@Param("name") String name, Page pageInfo);
+    List<TbUser2> listByPage1(@Param("name") String name, Page pageInfo);
 
-    public PageResult<TbUser2> listByPage2(@Param("name") String name, Page pageInfo);
+    PageResult<TbUser2> listByPage2(@Param("name") String name, Page pageInfo);
 }

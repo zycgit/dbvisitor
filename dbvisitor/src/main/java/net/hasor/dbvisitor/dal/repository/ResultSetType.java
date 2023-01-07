@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.repository;
+import net.hasor.cobble.StringUtils;
+
 import java.sql.ResultSet;
 
 /**
@@ -45,7 +47,7 @@ public enum ResultSetType {
 
     public static ResultSetType valueOfCode(String code, ResultSetType defaultType) {
         for (ResultSetType tableType : ResultSetType.values()) {
-            if (tableType.typeName.equalsIgnoreCase(code)) {
+            if (StringUtils.equalsIgnoreCase(tableType.typeName, code)) {
                 return tableType;
             }
         }

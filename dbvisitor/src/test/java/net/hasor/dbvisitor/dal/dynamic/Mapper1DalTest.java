@@ -22,7 +22,7 @@ public class Mapper1DalTest {
     }
 
     @Before
-    public void loadMapping() throws IOException {
+    public void loadMapping() throws Exception {
         this.dalRegistry = new DalRegistry();
         this.dalRegistry.loadMapper(Mapper1Dal.class);
     }
@@ -31,7 +31,7 @@ public class Mapper1DalTest {
     public void bindTest_01() throws Throwable {
         DynamicSql parseXml = this.dalRegistry.findDynamicSql(Mapper1Dal.class, "testBind");
 
-        String querySql1 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper1Dal_testBind.sql_1");
+        String querySql1 = loadString("/dbvisitor_coverage/dal_dynamic/mapper/Mapper1Dal_testBind.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("sellerId", "123");
         SqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
@@ -55,7 +55,7 @@ public class Mapper1DalTest {
     public void chooseTest_01() throws Throwable {
         DynamicSql parseXml = this.dalRegistry.findDynamicSql(Mapper1Dal.class, "testChoose");
 
-        String querySql1 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper1Dal_testChoose.sql_1");
+        String querySql1 = loadString("/dbvisitor_coverage/dal_dynamic/mapper/Mapper1Dal_testChoose.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("title", "123");
         data1.put("content", "aaa");
@@ -68,7 +68,7 @@ public class Mapper1DalTest {
     public void chooseTest_02() throws Throwable {
         DynamicSql parseXml = this.dalRegistry.findDynamicSql(Mapper1Dal.class, "testChoose");
 
-        String querySql1 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper1Dal_testChoose.sql_2");
+        String querySql1 = loadString("/dbvisitor_coverage/dal_dynamic/mapper/Mapper1Dal_testChoose.sql_2");
         Map<String, Object> data1 = new HashMap<>();
         SqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
         assert builder1.getSqlString().trim().equals(querySql1.trim());
@@ -78,7 +78,7 @@ public class Mapper1DalTest {
     public void foreachTest_01() throws Throwable {
         DynamicSql parseXml = this.dalRegistry.findDynamicSql(Mapper1Dal.class, "testForeach");
 
-        String querySql1 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper1Dal_testForeach.sql_1");
+        String querySql1 = loadString("/dbvisitor_coverage/dal_dynamic/mapper/Mapper1Dal_testForeach.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("eventTypes", Arrays.asList("a", "b", "c", "d", "e"));
         SqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
@@ -94,7 +94,7 @@ public class Mapper1DalTest {
     public void ifTest_01() throws Throwable {
         DynamicSql parseXml = this.dalRegistry.findDynamicSql(Mapper1Dal.class, "testIf");
 
-        String querySql1 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper1Dal_testIf.sql_1");
+        String querySql1 = loadString("/dbvisitor_coverage/dal_dynamic/mapper/Mapper1Dal_testIf.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("ownerID", "123");
         data1.put("ownerType", "SYSTEM");
@@ -103,7 +103,7 @@ public class Mapper1DalTest {
         assert ((SqlArg) builder1.getArgs()[0]).getValue().equals("123");
         assert ((SqlArg) builder1.getArgs()[1]).getValue().equals("SYSTEM");
 
-        String querySql2 = loadString("/net_hasor_db/dal_dynamic/mapper_result/Mapper1Dal_testIf.sql_2");
+        String querySql2 = loadString("/dbvisitor_coverage/dal_dynamic/mapper/Mapper1Dal_testIf.sql_2");
         Map<String, Object> data2 = new HashMap<>();
         data1.put("ownerID", "123");
         data1.put("ownerType", null);

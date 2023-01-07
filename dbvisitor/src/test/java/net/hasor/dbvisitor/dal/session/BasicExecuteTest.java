@@ -23,7 +23,7 @@ public class BasicExecuteTest {
     private DalSession dalSession;
 
     @Before
-    public void loadMapping() throws IOException, SQLException {
+    public void loadMapping() throws Exception {
         DalRegistry dalRegistry = new DalRegistry();
         dalRegistry.loadMapper(TestExecuteDal.class);
         this.dalSession = new DalSession(DsUtils.mysqlConn(), dalRegistry);
@@ -32,9 +32,9 @@ public class BasicExecuteTest {
 
     protected void beforeTest(JdbcTemplate jdbcTemplate) throws SQLException, IOException {
         jdbcTemplate.execute("drop table if exists test_user");
-        jdbcTemplate.loadSplitSQL(";", StandardCharsets.UTF_8, "/net_hasor_db/dal_dynamic/execute/execute_for_mysql.sql");
+        jdbcTemplate.loadSplitSQL(";", StandardCharsets.UTF_8, "/dbvisitor_coverage/dal_session/execute_for_mysql.sql");
         jdbcTemplate.execute("drop table if exists auto_id");
-        jdbcTemplate.loadSplitSQL(";", StandardCharsets.UTF_8, "/net_hasor_db/auto_id_for_mysql.sql");
+        jdbcTemplate.loadSplitSQL(";", StandardCharsets.UTF_8, "/dbvisitor_coverage/auto_id_for_mysql.sql");
 
         jdbcTemplate.execute("drop procedure if exists proc_select_user;");
         jdbcTemplate.execute("create procedure proc_select_user(out p_out double) begin set p_out=123.123; select * from test_user; end;");
@@ -148,7 +148,7 @@ public class BasicExecuteTest {
     }
 
     @Test
-    public void defaultMethodTest() throws IOException {
+    public void defaultMethodTest() throws Exception {
         this.dalSession.getDalRegistry().loadMapper(Mapper3Dal.class);
         Mapper3Dal dalExecute = this.dalSession.createMapper(Mapper3Dal.class);
 

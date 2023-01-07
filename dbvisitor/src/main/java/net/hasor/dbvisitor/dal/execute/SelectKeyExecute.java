@@ -29,31 +29,31 @@ import java.util.Map;
  * @version : 2021-11-05
  * @author 赵永春 (zyc@hasor.net)
  */
-public class KeySequenceExecute {
+class SelectKeyExecute {
     private final SelectKeySqlConfig keySqlConfig;
-    private final KeySequenceHolder  sequenceHolder;
+    private final SelectKeyHandler   selectKeyHandler;
 
-    public KeySequenceExecute(SelectKeySqlConfig keySqlConfig, KeySequenceHolder sequenceHolder) {
+    SelectKeyExecute(SelectKeySqlConfig keySqlConfig, SelectKeyHandler selectKeyHandler) {
         this.keySqlConfig = keySqlConfig;
-        this.sequenceHolder = sequenceHolder;
+        this.selectKeyHandler = selectKeyHandler;
     }
 
     public void processBefore(Connection conn, Map<String, Object> parameter) throws SQLException {
         if (StringUtils.equalsIgnoreCase("BEFORE", this.keySqlConfig.getOrder())) {
-            this.processSelectKey(conn, parameter);
+            this.processSelectKey(conn, parameter, true);
         }
     }
 
     public void processAfter(Connection conn, Map<String, Object> parameter) throws SQLException {
         if (StringUtils.equalsIgnoreCase("AFTER", this.keySqlConfig.getOrder())) {
-            this.processSelectKey(conn, parameter);
+            this.processSelectKey(conn, parameter, false);
         }
     }
 
-    public void processSelectKey(Connection conn, Map<String, Object> parameter) throws SQLException {
+    private void processSelectKey(Connection conn, Map<String, Object> parameter, boolean isBefore) throws SQLException {
         String keyColumn = this.keySqlConfig.getKeyColumn();
         String keyProperty = this.keySqlConfig.getKeyProperty();
-        Object resultValue = this.sequenceHolder.processSelectKey(conn, parameter);
+        Object resultValue = this.selectKeyHandler.processSelectKey(conn, parameter);
 
         if (resultValue instanceof List) {
             resultValue = ((List<?>) resultValue).get(0);

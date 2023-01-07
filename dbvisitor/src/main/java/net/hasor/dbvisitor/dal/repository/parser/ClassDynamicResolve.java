@@ -83,6 +83,11 @@ public class ClassDynamicResolve extends DynamicParser implements DynamicResolve
             dynamicSqlBody = ((Insert) annotation).value();
             dynamicSqlAttribute.put("statementType", ((Insert) annotation).statementType().getTypeName());
             dynamicSqlAttribute.put("timeout", String.valueOf(((Insert) annotation).timeout()));
+            dynamicSqlAttribute.put("useGeneratedKeys", String.valueOf(((Insert) annotation).useGeneratedKeys()));
+            dynamicSqlAttribute.put("keyProperty", ((Insert) annotation).keyProperty());
+            if (((Insert) annotation).parameterType() != Object.class) {
+                dynamicSqlAttribute.put("parameterType", ((Insert) annotation).parameterType().getName());
+            }
             isXml = ((Insert) annotation).xml();
         } else if (annotation instanceof Delete) {
             queryType = QueryType.Delete;

@@ -34,10 +34,10 @@ public class CaseXmlTest {
 
     @Test
     public void caseTest_01() throws Throwable {
-        String queryConfig = loadString("/net_hasor_db/dal_dynamic/fragment/testcase/case_01.xml");
+        String queryConfig = loadString("/dbvisitor_coverage/dal_dynamic/testcase/case_01.xml");
         DynamicSql parseXml = xmlParser.parseDynamicSql(queryConfig);
         //
-        String querySql1 = loadString("/net_hasor_db/dal_dynamic/fragment/testcase/case_01.xml.sql_1");
+        String querySql1 = loadString("/dbvisitor_coverage/dal_dynamic/testcase/case_01.xml.sql_1");
         Map<String, Object> data1 = new HashMap<>();
         data1.put("startId", "33322");
         data1.put("label", new ArrayList<>(Arrays.asList(LicenseOfCodeEnum.Private, LicenseOfCodeEnum.GPLv3)));

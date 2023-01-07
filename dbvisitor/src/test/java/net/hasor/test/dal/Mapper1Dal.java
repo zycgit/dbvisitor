@@ -24,13 +24,15 @@ import java.util.List;
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-@RefMapper("/dbvisitor_coverage/dal_dynamic/mapper_1.xml")
+@RefMapper("/dbvisitor_coverage/dal_dynamic/mapper/mapper_1.xml")
 public interface Mapper1Dal {
-    public List<TbUser> testBind(String abc);
+    List<TbUser> testBind(String abc);
 
-    public List<TbUser> testChoose(String title, String content);
+    List<TbUser> testChoose(String title, String content);
 
-    public List<TbUser> testForeach(List<String> eventTypes);
+    List<TbUser> testForeach(List<String> eventTypes);
 
-    public List<TbUser> testIf(String ownerID, String ownerType);
+    List<TbUser> testIf(String ownerID, String ownerType);
+
+    List<TbUser> testInsert(String uid, String name);
 }

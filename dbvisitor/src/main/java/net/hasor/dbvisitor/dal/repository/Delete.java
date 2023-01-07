@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.repository;
-
 import java.lang.annotation.*;
 
 /**

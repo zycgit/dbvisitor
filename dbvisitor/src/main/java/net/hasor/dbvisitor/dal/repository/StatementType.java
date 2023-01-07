@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.repository;
+import net.hasor.cobble.StringUtils;
+
 /**
  * 使用 Statement 方式。
  * @version : 2021-06-19
@@ -39,7 +41,7 @@ public enum StatementType {
 
     public static StatementType valueOfCode(String code, StatementType defaultType) {
         for (StatementType tableType : StatementType.values()) {
-            if (tableType.typeName.equalsIgnoreCase(code)) {
+            if (StringUtils.equalsIgnoreCase(tableType.typeName, code)) {
                 return tableType;
             }
         }

@@ -27,20 +27,19 @@ import java.util.Map;
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-@RefMapper("/dbvisitor_coverage/dal_dynamic/execute/basic_execute.xml")
+@RefMapper("/dbvisitor_coverage/dal_session/basic_execute.xml")
 public interface TestExecuteDal {
-    public int createUser(TbUser2 tbUser);
+    int createUser(TbUser2 tbUser);
 
-    public int initUser();
+    int initUser();
 
-    public List<TbUser2> listUserList_1(@Param("abc") String name);
+    List<TbUser2> listUserList_1(@Param("abc") String name);
 
-    public List<TestUser> listUserList_2(@Param("abc") String name);
+    List<TestUser> listUserList_2(@Param("abc") String name);
 
-    public Map<String, Object> callSelectUser(Map<String, Object> args);
+    Map<String, Object> callSelectUser(Map<String, Object> args);
 
-    public int insertAutoID_1(AutoId autoId);
+    int insertAutoID_1(AutoId autoId);
 
-    public int insertAutoID_2(AutoId autoId);
-
+    int insertAutoID_2(AutoId autoId);
 }

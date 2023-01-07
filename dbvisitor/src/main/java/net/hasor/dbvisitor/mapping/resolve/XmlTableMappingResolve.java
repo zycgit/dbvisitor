@@ -26,6 +26,7 @@ import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableDef;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -63,7 +64,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
     }
 
     @Override
-    public TableDef<?> resolveTableMapping(Node refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ClassNotFoundException {
+    public TableDef<?> resolveTableMapping(Node refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ClassNotFoundException, NoSuchFieldException {
         NamedNodeMap nodeAttributes = refData.getAttributes();
         Node typeNode = nodeAttributes.getNamedItem("type");
         Node catalogNode = nodeAttributes.getNamedItem("catalog");
@@ -117,7 +118,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         return tableDef;
     }
 
-    private void loadTableMapping(TableDef<?> tableDef, Node refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ClassNotFoundException {
+    private void loadTableMapping(TableDef<?> tableDef, Node refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ClassNotFoundException, NoSuchFieldException {
         Map<String, Property> propertyMap = BeanUtils.getPropertyFunc(tableDef.entityType());
 
         NodeList childNodes = refData.getChildNodes();
@@ -144,7 +145,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         }
     }
 
-    private ColumnMapping resolveProperty(TableDef<?> tableDef, boolean asPrimaryKey, Node xmlNode, Map<String, Property> propertyMap, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ClassNotFoundException {
+    private ColumnMapping resolveProperty(TableDef<?> tableDef, boolean asPrimaryKey, Node xmlNode, Map<String, Property> propertyMap, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ClassNotFoundException, NoSuchFieldException {
         NamedNodeMap nodeAttributes = xmlNode.getAttributes();
         Node columnNode = nodeAttributes.getNamedItem("column");
         Node propertyNode = nodeAttributes.getNamedItem("property");
@@ -168,11 +169,11 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         String typeHandler = (typeHandlerNode != null) ? typeHandlerNode.getNodeValue() : null;
         String keyType = (keyTypeNode != null) ? keyTypeNode.getNodeValue() : null;
         if (!propertyMap.containsKey(property)) {
-            throw new IllegalStateException("property '" + property + "' undefined.");
+            throw new NoSuchFieldException("property '" + property + "' undefined. location= " + logMessage(xmlNode));
         }
 
         Property propertyHandler = propertyMap.get(property);
-        Class<?> columnJavaType = resolveJavaType(javaType, propertyHandler, classLoader);
+        Class<?> columnJavaType = resolveJavaType(xmlNode, javaType, propertyHandler, classLoader);
         Integer columnJdbcType = resolveJdbcType(jdbcType, columnJavaType, typeRegistry);
         TypeHandler<?> columnTypeHandler = resolveTypeHandler(columnJavaType, columnJdbcType, classLoader, typeHandler, typeRegistry);
         boolean insert = insertNode == null || StringUtils.isBlank(insertNode.getNodeValue()) || Boolean.parseBoolean(insertNode.getNodeValue());
@@ -215,15 +216,21 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         }
     }
 
-    private static Class<?> resolveJavaType(String javaType, Property property, ClassLoader classLoader) throws ClassNotFoundException {
+    private static Class<?> resolveJavaType(Node xmlNode, String javaType, Property property, ClassLoader classLoader) throws ClassNotFoundException {
         Class<?> columnJavaType = BeanUtils.getPropertyType(property);
 
         if (StringUtils.isNotBlank(javaType)) {
-            Class<?> configColumnJavaType = ClassUtils.getClass(classLoader, javaType);
-            if (configColumnJavaType.isAssignableFrom(columnJavaType)) {
-                columnJavaType = configColumnJavaType;
-            } else {
-                throw new ClassCastException(configColumnJavaType.getName() + " is not a subclass of " + columnJavaType.getName());
+            try {
+                Class<?> configColumnJavaType = ClassUtils.getClass(classLoader, javaType);
+                if (configColumnJavaType.isAssignableFrom(columnJavaType)) {
+                    columnJavaType = configColumnJavaType;
+                } else {
+                    String errorMessage = configColumnJavaType.getName() + " is not a subclass of " + columnJavaType.getName() + ", location= " + logMessage(xmlNode);
+                    throw new ClassCastException(errorMessage);
+                }
+            } catch (ClassNotFoundException e) {
+                String errorMessage = javaType + ", location " + logMessage(xmlNode);
+                throw new ClassNotFoundException(errorMessage);
             }
         }
 
@@ -265,5 +272,33 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         }
 
         return typeRegistry.getDefaultTypeHandler();
+    }
+
+    private static String logMessage(Node xmlNode) {
+        Node xpath = xmlNode;
+        StringBuilder xpathString = new StringBuilder();
+
+        do {
+            if (xpathString.length() > 0) {
+                xpathString.insert(0, "/");
+            }
+            xpathString.insert(0, xpath.getNodeName());
+            xpath = xpath.getParentNode();
+        } while ((xpath.getParentNode() != null));
+
+        Element documentElement = xmlNode.getOwnerDocument().getDocumentElement();
+        NamedNodeMap docAttr = documentElement.getAttributes();
+        Node spaceNode = docAttr.getNamedItem("namespace");
+        xpathString.insert(0, "namespace=" + ((spaceNode != null) ? spaceNode.getNodeValue() : null) + ", ");
+
+        NamedNodeMap mappingNodeAttr = xmlNode.getParentNode().getAttributes();
+        Node idNode = mappingNodeAttr.getNamedItem("id");
+        Node typeNode = mappingNodeAttr.getNamedItem("type");
+        xpathString.append("[");
+        xpathString.append("@id=" + ((idNode != null) ? idNode.getNodeValue() : null) + ", ");
+        xpathString.append("@type=" + ((typeNode != null) ? typeNode.getNodeValue() : null));
+        xpathString.append("]");
+
+        return xpathString.toString();
     }
 }

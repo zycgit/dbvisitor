@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.repository;
-import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.test.AbstractDbTest;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.sql.Types;
 
 /***
@@ -30,47 +28,26 @@ import java.sql.Types;
  */
 public class XmlMappingTest extends AbstractDbTest {
     @Test
-    public void mapperTest_01() {
-        LoggerFactory.useSlf4jLogger();
-        try {
-            DalRegistry dalRegistry = new DalRegistry();
-            dalRegistry.loadMapper("/net_hasor_db/dal_repository/mapper_1.xml");
-            dalRegistry.loadMapper("/net_hasor_db/dal_repository/mapper_1.xml");
-            assert false;
-        } catch (Exception e) {
-            assert true;
-        }
-
-        try {
-            DalRegistry dalRegistry = new DalRegistry();
-            dalRegistry.loadMapper("/net_hasor_db/dal_repository/mapper_2.xml");
-            assert false;
-        } catch (Exception e) {
-            assert true;
-        }
-    }
-
-    @Test
-    public void mapperTest_02() throws IOException {
+    public void loadMapperTest_02() throws Exception {
         DalRegistry dalRegistry = new DalRegistry();
-        dalRegistry.loadMapper("/net_hasor_db/dal_repository/mapper_1.xml");
+        dalRegistry.loadMapper("/dbvisitor_coverage/dal_repository/mapper_1.xml");
 
-        TableMapping<?> tableMapping1 = dalRegistry.findTableMapping("resultMap_test", "resultMap_1");
-        TableMapping<?> tableMapping2 = dalRegistry.findTableMapping("resultMap_test", "resultMap_1");
+        TableMapping<?> tableMapping1 = dalRegistry.findMapping("resultMap_test", "resultMap_1");
+        TableMapping<?> tableMapping2 = dalRegistry.findMapping("resultMap_test", "resultMap_1");
         assert tableMapping1 == tableMapping2;
     }
 
     private DalRegistry dalRegistry;
 
     @Before
-    public void loadMapping() throws IOException {
+    public void loadMapperTest_03() throws Exception {
         this.dalRegistry = new DalRegistry();
-        this.dalRegistry.loadMapper("/net_hasor_db/dal_repository/mapper_3.xml");
+        this.dalRegistry.loadMapper("/dbvisitor_coverage/dal_repository/mapper_3.xml");
     }
 
     @Test
-    public void mapperTest_03() {
-        TableMapping<?> tableMapping = this.dalRegistry.findTableMapping("", "mapper_2");
+    public void mapperTest_02() {
+        TableMapping<?> tableMapping = this.dalRegistry.findMapping("", "mapper_2");
 
         assert tableMapping.getPropertyByName("uid").getColumn().equals("userUUID");
         assert tableMapping.getPropertyByName("name").getColumn().equals("name");
@@ -80,15 +57,15 @@ public class XmlMappingTest extends AbstractDbTest {
         assert tableMapping.getPropertyByName("index").getColumn().equals("index");
         assert tableMapping.getPropertyByName("createTime").getColumn().equals("registerTime");
 
-        assert tableMapping.getTable().equals("tb_user");
+        assert tableMapping.getTable().equals("");
         assert tableMapping.getPropertyByName("mail").getJdbcType() == Types.VARCHAR;
         assert tableMapping.getPropertyByName("index").getJdbcType() == Types.INTEGER;
         assert tableMapping.getPropertyByName("createTime").getJdbcType() == Types.TIMESTAMP;
     }
 
     @Test
-    public void mapperTest_04() {
-        TableMapping<?> tableMapping = this.dalRegistry.findTableMapping("", "mapper_3");
+    public void mapperTest_03() {
+        TableMapping<?> tableMapping = this.dalRegistry.findMapping("", "mapper_3");
 
         assert tableMapping.getPropertyByName("uid").getColumn().equals("uid");
         assert tableMapping.getPropertyByName("name").getColumn().equals("name");
@@ -98,15 +75,15 @@ public class XmlMappingTest extends AbstractDbTest {
         assert tableMapping.getPropertyByName("index").getColumn().equals("index");
         assert tableMapping.getPropertyByName("createTime").getColumn().equals("createTime");
 
-        assert tableMapping.getTable().equals("TbUser2");
+        assert tableMapping.getTable().equals("");
         assert tableMapping.getPropertyByName("mail").getJdbcType() == Types.VARCHAR;
         assert tableMapping.getPropertyByName("index").getJdbcType() == Types.INTEGER;
         assert tableMapping.getPropertyByName("createTime").getJdbcType() == Types.TIMESTAMP;
     }
 
     @Test
-    public void mapperTest_05() {
-        TableMapping<?> tableMapping = this.dalRegistry.findTableMapping("", "mapper_4");
+    public void mapperTest_04() {
+        TableMapping<?> tableMapping = this.dalRegistry.findMapping("", "mapper_4");
 
         assert tableMapping.getPropertyByName("uid").getColumn().equals("user_uuid");
         assert tableMapping.getPropertyByName("name").getColumn().equals("name");
@@ -116,15 +93,15 @@ public class XmlMappingTest extends AbstractDbTest {
         assert tableMapping.getPropertyByName("index").getColumn().equals("index");
         assert tableMapping.getPropertyByName("createTime").getColumn().equals("register_time");
 
-        assert tableMapping.getTable().equals("TbUser2");
+        assert tableMapping.getTable().equals("");
         assert tableMapping.getPropertyByName("mail").getJdbcType() == Types.VARCHAR;
         assert tableMapping.getPropertyByName("index").getJdbcType() == Types.INTEGER;
         assert tableMapping.getPropertyByName("createTime").getJdbcType() == Types.TIMESTAMP;
     }
 
     @Test
-    public void mapperTest_06() {
-        TableMapping<?> tableMapping = this.dalRegistry.findTableMapping("", "mapper_5");
+    public void mapperTest_05() {
+        TableMapping<?> tableMapping = this.dalRegistry.findMapping("", "mapper_5");
 
         assert tableMapping.getPropertyByName("uid").getColumn().equals("uid");
         assert tableMapping.getPropertyByName("name").getColumn().equals("name");
@@ -134,7 +111,7 @@ public class XmlMappingTest extends AbstractDbTest {
         assert tableMapping.getPropertyByName("index").getColumn().equals("index");
         assert tableMapping.getPropertyByName("createTime").getColumn().equals("create_time");
 
-        assert tableMapping.getTable().equals("tb_user2");
+        assert tableMapping.getTable().equals("");
         assert tableMapping.getPropertyByName("mail").getJdbcType() == Types.VARCHAR;
         assert tableMapping.getPropertyByName("index").getJdbcType() == Types.INTEGER;
         assert tableMapping.getPropertyByName("createTime").getJdbcType() == Types.TIMESTAMP;

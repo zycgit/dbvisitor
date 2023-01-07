@@ -60,7 +60,7 @@
 
     <insert id="insertAutoID_1">
         insert into auto_id (
-            userUUID, name
+            uid, name
         ) values (
             #{uid}, #{name}
         );
@@ -71,7 +71,7 @@
 
     <insert id="insertAutoID_2">
         insert into auto_id (
-            userUUID, name
+            uid, name
         ) values (
             #{uid}, #{name}
         );

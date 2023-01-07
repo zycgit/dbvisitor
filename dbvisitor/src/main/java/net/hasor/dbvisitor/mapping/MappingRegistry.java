@@ -42,12 +42,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class MappingRegistry {
-    private final Map<String, Map<String, TableMapping<?>>> tableMappingMap = new ConcurrentHashMap<>();
-    private final ClassLoader                               classLoader;
-    private final TypeHandlerRegistry                       typeRegistry;
-    private final MappingOptions                            options;
-    private final XmlTableMappingResolve                    xmlMappingResolve;
-    private final ClassTableMappingResolve                  classMappingResolve;
+    private final   Map<String, Map<String, TableMapping<?>>> tableMappingMap = new ConcurrentHashMap<>();
+    protected final ClassLoader                               classLoader;
+    protected final TypeHandlerRegistry                       typeRegistry;
+    protected final MappingOptions                            options;
+    private final   XmlTableMappingResolve                    xmlMappingResolve;
+    private final   ClassTableMappingResolve                  classMappingResolve;
 
     public MappingRegistry() {
         this(null, null, null);
@@ -69,8 +69,12 @@ public class MappingRegistry {
         return this.typeRegistry;
     }
 
+    public MappingOptions getOptions() {
+        return this.options;
+    }
+
     /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
-    public void loadMapper(URL resource) throws IOException {
+    public void loadMapper(URL resource) throws IOException, ReflectiveOperationException {
         try (InputStream stream = resource.openStream()) {
             Objects.requireNonNull(stream, "resource '" + resource + "' is not exist.");
             this.loadMapper(stream);
@@ -78,7 +82,7 @@ public class MappingRegistry {
     }
 
     /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
-    public void loadMapper(String resource) throws IOException {
+    public void loadMapper(String resource) throws IOException, ReflectiveOperationException {
         if (resource.startsWith("/")) {
             resource = resource.substring(1);
         }
@@ -89,7 +93,7 @@ public class MappingRegistry {
     }
 
     /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
-    public void loadMapper(InputStream stream) throws IOException {
+    public void loadMapper(InputStream stream) throws IOException, ReflectiveOperationException {
         Objects.requireNonNull(stream, "load InputStream is null.");
         try {
             Document document = loadXmlRoot(stream);
@@ -99,12 +103,12 @@ public class MappingRegistry {
             String namespace = readAttribute("namespace", rootAttributes);
 
             this.loadReader(namespace, root);
-        } catch (ParserConfigurationException | SAXException | ClassNotFoundException e) {
+        } catch (ParserConfigurationException | SAXException | ClassNotFoundException | NoSuchFieldException e) {
             throw new IOException(e);
         }
     }
 
-    private void loadReader(String space, Element configRoot) throws IOException, ClassNotFoundException {
+    protected void loadReader(String space, Element configRoot) throws IOException, ClassNotFoundException, NoSuchFieldException {
         NodeList childNodes = configRoot.getChildNodes();
         for (int i = 0, len = childNodes.getLength(); i < len; i++) {
             Node node = childNodes.item(i);
@@ -168,7 +172,7 @@ public class MappingRegistry {
         }
     }
 
-    /** 解析 entityType 类型并作为实体载入 */
+    /** 解析 resultType 类型并作为映射载入 */
     public void loadResultMap(String space, String identify, Class<?> resultType) {
         Objects.requireNonNull(resultType, "resultType is null.");
         String typeString = resultType.getName();
@@ -240,7 +244,7 @@ public class MappingRegistry {
             tableMapping = mappingMap.get(identify);
         }
 
-        if (tableMapping == null) {
+        if (tableMapping == null && this.tableMappingMap.containsKey("")) {
             Map<String, TableMapping<?>> mappingMap = this.tableMappingMap.get("");
             tableMapping = mappingMap.get(identify);
         }
@@ -276,7 +280,7 @@ public class MappingRegistry {
         return documentBuilder.parse(new InputSource(stream));
     }
 
-    private String readAttribute(String attrName, NamedNodeMap rootAttributes) {
+    protected String readAttribute(String attrName, NamedNodeMap rootAttributes) {
         if (rootAttributes != null) {
             Node namespaceNode = rootAttributes.getNamedItem(attrName);
             if (namespaceNode != null) {

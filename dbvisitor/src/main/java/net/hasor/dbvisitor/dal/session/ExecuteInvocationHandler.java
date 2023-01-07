@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.dal.session;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.ref.BeanMap;
+import net.hasor.dbvisitor.dal.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dal.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dal.execute.ExecuteProxy;
 import net.hasor.dbvisitor.dal.mapper.BaseMapper;
@@ -67,7 +68,8 @@ class ExecuteInvocationHandler implements InvocationHandler {
                 continue;
             }
 
-            this.dynamicSqlMap.put(dynamicId, new ExecuteProxy(dynamicId, dalRegistry.createContext(this.space)));
+            DynamicContext context = new DalContext(this.space, dalRegistry);
+            this.dynamicSqlMap.put(dynamicId, new ExecuteProxy(dynamicId, context));
             Map<String, Integer> argNames = this.argNamesMap.computeIfAbsent(dynamicId, s -> new HashMap<>());
 
             int parameterCount = method.getParameterCount();
@@ -140,6 +142,9 @@ class ExecuteInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
+        if (method.getName().equals("toString") && method.getParameterCount() == 0) {
+            return "Mapper Proxy " + this.space + " [" + this.dalSession + "]";
+        }
         if (this.mapperHandler != null && method.getDeclaringClass() == BaseMapper.class) {
             return method.invoke(this.mapperHandler, objects);
         }

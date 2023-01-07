@@ -58,61 +58,56 @@ public class DalSession extends JdbcAccessor {
     private final Map<String, ExecuteProxy>        executeCache = new ConcurrentHashMap<>();
 
     public DalSession(Connection connection) throws SQLException {
-        this(connection, DalRegistry.DEFAULT, null);
+        this(connection, DalRegistry.DEFAULT);
     }
 
     public DalSession(DataSource dataSource) throws SQLException {
-        this(dataSource, DalRegistry.DEFAULT, null);
+        this(dataSource, DalRegistry.DEFAULT);
     }
 
     public DalSession(DynamicConnection dynamicConnection) throws SQLException {
-        this(dynamicConnection, DalRegistry.DEFAULT, null);
+        this(dynamicConnection, DalRegistry.DEFAULT);
     }
 
     public DalSession(Connection connection, DalRegistry dalRegistry) throws SQLException {
-        this(connection, dalRegistry, null);
+        this.setConnection(Objects.requireNonNull(connection, "connection is null."));
+        this.dalRegistry = Objects.requireNonNull(dalRegistry, "dalRegistry is null.");
+        this.defaultTemplate = new DalLambdaTemplate(connection);
+        this.spaceTemplateFactory = space -> this.defaultTemplate;
+
+        SqlDialect defaultDialect = this.dalRegistry.getOptions() != null ? this.dalRegistry.getOptions().getDefaultDialect() : null;
+        if (defaultDialect instanceof PageSqlDialect) {
+            this.dialect = (PageSqlDialect) defaultDialect;
+        } else {
+            this.dialect = this.lambdaTemplate().execute(this::findPageDialect);
+        }
+    }
+
+    public DalSession(DynamicConnection dynamicConn, DalRegistry dalRegistry) throws SQLException {
+        this.setDynamic(Objects.requireNonNull(dynamicConn, "dynamicConnection is null."));
+        this.dalRegistry = Objects.requireNonNull(dalRegistry, "dalRegistry is null.");
+        this.defaultTemplate = new DalLambdaTemplate(dynamicConn);
+        this.spaceTemplateFactory = space -> this.defaultTemplate;
+
+        SqlDialect defaultDialect = this.dalRegistry.getOptions() != null ? this.dalRegistry.getOptions().getDefaultDialect() : null;
+        if (defaultDialect instanceof PageSqlDialect) {
+            this.dialect = (PageSqlDialect) defaultDialect;
+        } else {
+            this.dialect = this.lambdaTemplate().execute(this::findPageDialect);
+        }
     }
 
     public DalSession(DataSource dataSource, DalRegistry dalRegistry) throws SQLException {
-        this(dataSource, dalRegistry, null);
-    }
-
-    public DalSession(Connection connection, DalRegistry dalRegistry, PageSqlDialect dialect) throws SQLException {
-        this.setConnection(Objects.requireNonNull(connection, "connection is null."));
-        this.dalRegistry = Objects.requireNonNull(dalRegistry, "dalRegistry is null.");
-        this.defaultTemplate = new DalLambdaTemplate(connection, null);
-        this.spaceTemplateFactory = space -> new DalLambdaTemplate(connection, space);
-
-        if (dialect == null) {
-            this.dialect = this.lambdaTemplate().execute(this::findPageDialect);
-        } else {
-            this.dialect = dialect;
-        }
-    }
-
-    public DalSession(DynamicConnection dynamicConn, DalRegistry dalRegistry, PageSqlDialect dialect) throws SQLException {
-        this.setDynamic(Objects.requireNonNull(dynamicConn, "dynamicConnection is null."));
-        this.dalRegistry = Objects.requireNonNull(dalRegistry, "dalRegistry is null.");
-        this.defaultTemplate = new DalLambdaTemplate(dynamicConn, null);
-        this.spaceTemplateFactory = space -> new DalLambdaTemplate(dynamicConn, space);
-
-        if (dialect == null) {
-            this.dialect = this.lambdaTemplate().execute(this::findPageDialect);
-        } else {
-            this.dialect = dialect;
-        }
-    }
-
-    public DalSession(DataSource dataSource, DalRegistry dalRegistry, PageSqlDialect dialect) throws SQLException {
         this.setDataSource(Objects.requireNonNull(dataSource, "dataSource is null."));
         this.dalRegistry = Objects.requireNonNull(dalRegistry, "dalRegistry is null.");
-        this.defaultTemplate = new DalLambdaTemplate(dataSource, null);
-        this.spaceTemplateFactory = space -> new DalLambdaTemplate(dataSource, space);
+        this.defaultTemplate = new DalLambdaTemplate(dataSource);
+        this.spaceTemplateFactory = space -> this.defaultTemplate;
 
-        if (dialect == null) {
-            this.dialect = this.lambdaTemplate().execute(this::findPageDialect);
+        SqlDialect defaultDialect = this.dalRegistry.getOptions() != null ? this.dalRegistry.getOptions().getDefaultDialect() : null;
+        if (defaultDialect instanceof PageSqlDialect) {
+            this.dialect = (PageSqlDialect) defaultDialect;
         } else {
-            this.dialect = dialect;
+            this.dialect = this.lambdaTemplate().execute(this::findPageDialect);
         }
     }
 
@@ -133,8 +128,8 @@ public class DalSession extends JdbcAccessor {
     }
 
     public <T> BaseMapper<T> createBaseMapper(Class<T> entityType) {
-        if (this.dalRegistry.findTableMapping(null, entityType.getName()) == null) {
-            this.dalRegistry.loadAsMapping(null, entityType);
+        if (this.dalRegistry.findEntity(entityType) == null) {
+            this.dalRegistry.loadEntity(entityType);
         }
 
         BaseMapperHandler mapperHandler = new BaseMapperHandler(null, entityType, this);
@@ -189,7 +184,7 @@ public class DalSession extends JdbcAccessor {
                 space = stId.substring(0, index);
                 dynamicId = stId.substring(index);
             }
-            DynamicContext context = dalRegistry.createContext(space);
+            DynamicContext context = new DalContext(space, this.dalRegistry);
             return new ExecuteProxy(dynamicId, context);
         });
 
@@ -222,30 +217,20 @@ public class DalSession extends JdbcAccessor {
     }
 
     private class DalLambdaTemplate extends LambdaTemplate {
-        private final String space;
-
-        public DalLambdaTemplate(Connection localConn, String space) {
+        public DalLambdaTemplate(Connection localConn) {
             super(localConn);
-            this.space = space;
         }
 
-        public DalLambdaTemplate(DynamicConnection dynamicConn, String space) {
+        public DalLambdaTemplate(DynamicConnection dynamicConn) {
             super(dynamicConn);
-            this.space = space;
         }
 
-        public DalLambdaTemplate(DataSource localDS, String space) {
+        public DalLambdaTemplate(DataSource localDS) {
             super(localDS);
-            this.space = space;
         }
 
         protected <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
-            return dalRegistry.findTableMapping(this.space, exampleType.getName());
-        }
-
-        @Override
-        protected SqlDialect getDefaultDialect() {
-            return dialect;
+            return dalRegistry.findEntity(exampleType);
         }
     }
 }

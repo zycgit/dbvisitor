@@ -22,7 +22,7 @@ import net.hasor.dbvisitor.jdbc.PreparedStatementCallback;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.extractor.MultipleProcessType;
 import net.hasor.dbvisitor.mapping.TableReader;
-import net.hasor.dbvisitor.mapping.reader.DynamicTableReader;
+import net.hasor.dbvisitor.mapping.reader.ResultTableReader;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class DalResultSetExtractor implements PreparedStatementCallback<List<Obj
     public DalResultSetExtractor(boolean defaultCaseInsensitive, DynamicContext context, MultipleProcessType processType, TableReader<?>[] tableReaders) {
         this.processType = processType == null ? MultipleProcessType.ALL : processType;
         this.tableReaders = Arrays.asList(tableReaders);
-        this.defaultTableReader = new DynamicTableReader(defaultCaseInsensitive, context.getTypeRegistry());
+        this.defaultTableReader = new ResultTableReader(defaultCaseInsensitive, context.getTypeRegistry());
     }
 
     @Override

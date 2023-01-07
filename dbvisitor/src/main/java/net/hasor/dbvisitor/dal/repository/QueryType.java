@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.repository;
+import net.hasor.cobble.StringUtils;
+
 /**
  * 查询类型
  * @version : 2021-06-19
@@ -43,7 +45,7 @@ public enum QueryType {
 
     public static QueryType valueOfTag(String xmlTag) {
         for (QueryType tableType : QueryType.values()) {
-            if (tableType.xmlTag.equalsIgnoreCase(xmlTag)) {
+            if (StringUtils.equalsIgnoreCase(tableType.xmlTag, xmlTag)) {
                 return tableType;
             }
         }

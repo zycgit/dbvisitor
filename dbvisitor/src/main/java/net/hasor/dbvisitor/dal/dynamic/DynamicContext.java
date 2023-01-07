@@ -17,8 +17,6 @@ package net.hasor.dbvisitor.dal.dynamic;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.dbvisitor.dal.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.dal.dynamic.rule.SqlBuildRule;
-import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
-import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -30,11 +28,6 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class DynamicContext {
-
-    public PageSqlDialect findDialect(String dbType) {
-        return DefaultSqlDialect.DEFAULT;
-    }
-
     public DynamicSql findDynamic(String dynamicId) {
         return null;
     }

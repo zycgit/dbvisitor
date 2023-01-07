@@ -23,7 +23,7 @@ import java.util.Map;
 
 /**
  * DynamicSql 解析器，仅支持：@{}、#{}、${} 三种写法。
- * @version : 2021-05-19
+ * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
  */
 public class SqlSegmentParser {

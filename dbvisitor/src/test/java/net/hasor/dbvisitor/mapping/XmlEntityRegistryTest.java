@@ -25,7 +25,6 @@ import net.hasor.test.entity.*;
 import net.hasor.test.entity2.*;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -36,7 +35,7 @@ import java.util.Date;
 public class XmlEntityRegistryTest {
 
     @Test
-    public void findEntityTest_1() throws IOException {
+    public void findEntityTest_1() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
         TableMapping<?> mapping = registry.findEntity("entityMap_1");
@@ -109,7 +108,7 @@ public class XmlEntityRegistryTest {
     }
 
     @Test
-    public void findEntityTest_2() throws IOException {
+    public void findEntityTest_2() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
         TableMapping<?> mapping = registry.findEntity("entityMap_2");
@@ -175,7 +174,7 @@ public class XmlEntityRegistryTest {
     }
 
     @Test
-    public void findEntityTest_3() throws IOException {
+    public void findEntityTest_3() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
         TableMapping<?> mapping = registry.findEntity("entityMap_3");
@@ -241,7 +240,7 @@ public class XmlEntityRegistryTest {
     }
 
     @Test
-    public void findEntityTest_4() throws IOException {
+    public void findEntityTest_4() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
         TableMapping<?> mapping = registry.findEntity("entityMap_4");
@@ -306,7 +305,7 @@ public class XmlEntityRegistryTest {
     }
 
     @Test
-    public void findEntityTest_5() throws IOException {
+    public void findEntityTest_5() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
         TableMapping<?> mapping = registry.findEntity("entityMap_5");
@@ -371,7 +370,7 @@ public class XmlEntityRegistryTest {
     }
 
     @Test
-    public void findEntityTest_6() throws IOException {
+    public void findEntityTest_6() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
         TableMapping<?> mapping = registry.findEntity("entityMap_6");
@@ -445,7 +444,7 @@ public class XmlEntityRegistryTest {
     }
 
     @Test
-    public void findEntityTest_7() throws IOException {
+    public void findEntityTest_7() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
         TableMapping<?> mapping = registry.findEntity("entityMap_7");
@@ -511,7 +510,7 @@ public class XmlEntityRegistryTest {
     }
 
     @Test
-    public void findEntityTest_8() throws IOException {
+    public void findEntityTest_8() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
         TableMapping<?> mapping = registry.findEntity("entityMap_8");
@@ -577,7 +576,7 @@ public class XmlEntityRegistryTest {
     }
 
     @Test
-    public void findEntityTest_9() throws IOException {
+    public void findEntityTest_9() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
         TableMapping<?> mapping = registry.findEntity("entityMap_9");
@@ -642,7 +641,7 @@ public class XmlEntityRegistryTest {
     }
 
     @Test
-    public void findEntityTest_10() throws IOException {
+    public void findEntityTest_10() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
         TableMapping<?> mapping = registry.findEntity("entityMap_10");
@@ -707,7 +706,7 @@ public class XmlEntityRegistryTest {
     }
 
     @Test
-    public void mapper2Test_1() throws IOException {
+    public void mapper2Test_1() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_2.xml");
         assert registry.findEntity("entityMap_1") == registry.findMapping("", "entityMap_1");
@@ -770,7 +769,7 @@ public class XmlEntityRegistryTest {
     }
 
     @Test
-    public void mapper2Test_2() throws IOException {
+    public void mapper2Test_2() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_2.xml");
         assert registry.findEntity("entityMap_2") == registry.findMapping("", "entityMap_2");
@@ -833,7 +832,7 @@ public class XmlEntityRegistryTest {
     }
 
     @Test
-    public void mapper2Test_5() throws IOException {
+    public void mapper2Test_5() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_2.xml");
         assert registry.findEntity("entityMap_5") == registry.findMapping("", "entityMap_5");
