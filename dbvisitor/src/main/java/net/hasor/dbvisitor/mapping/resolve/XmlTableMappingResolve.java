@@ -18,6 +18,7 @@ import net.hasor.cobble.*;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.dbvisitor.keyholder.CreateContext;
+import net.hasor.dbvisitor.keyholder.KeySeq;
 import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.keyholder.KeySeqHolderFactory;
 import net.hasor.dbvisitor.mapping.KeyTypeEnum;
@@ -31,6 +32,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -200,11 +202,22 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
 
         KeyTypeEnum keyTypeEnum = KeyTypeEnum.valueOfCode(keyType);
         if (keyTypeEnum != null) {
-            if (keyTypeEnum == KeyTypeEnum.None) {
-                return null;
-            } else {
-                return keyTypeEnum.createHolder(new CreateContext(this.options, typeRegistry, tableDef, colDef, Collections.emptyMap()));
+            switch (keyTypeEnum) {
+                case Auto:
+                case UUID32:
+                case UUID36:
+                    return keyTypeEnum.createHolder(new CreateContext(this.options, typeRegistry, tableDef, colDef, Collections.emptyMap()));
+                case None:
+                case Holder:
+                case Sequence:
+                default:
+                    return null;
             }
+        } else if (StringUtils.startsWithIgnoreCase(keyType, "KeySeq::")) {
+            keyType = keyType.substring("KeySeq::".length());
+            Map<String, Object> context = new HashMap<>();
+            context.put(KeySeq.class.getName(), new KeySeqImpl(keyType));
+            return KeyTypeEnum.Sequence.createHolder(new CreateContext(this.options, typeRegistry, tableDef, colDef, context));
         } else {
             try {
                 Class<?> aClass = classLoader.loadClass(keyType);
@@ -300,5 +313,23 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         xpathString.append("]");
 
         return xpathString.toString();
+    }
+
+    private static class KeySeqImpl implements KeySeq {
+        private final String keyType;
+
+        public KeySeqImpl(String keyType) {
+            this.keyType = keyType;
+        }
+
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return KeySeq.class;
+        }
+
+        @Override
+        public String value() {
+            return this.keyType;
+        }
     }
 }

@@ -46,7 +46,7 @@
         id CDATA #IMPLIED
         catalog CDATA #IMPLIED
         schema CDATA #IMPLIED
-        table CDATA #IMPLIED
+        table CDATA #REQUIRED
         caseInsensitive (true|false) #IMPLIED
         mapUnderscoreToCamelCase (true|false) #IMPLIED
         autoMapping (true|false) #IMPLIED

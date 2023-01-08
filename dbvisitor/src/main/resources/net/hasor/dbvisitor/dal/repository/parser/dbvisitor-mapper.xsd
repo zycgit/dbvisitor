@@ -101,7 +101,7 @@
             <xs:attribute name="id"/>
             <xs:attribute name="catalog"/>
             <xs:attribute name="schema"/>
-            <xs:attribute name="table"/>
+            <xs:attribute name="table" use="required"/>
             <xs:attribute name="caseInsensitive" type="boolean_type"/>
             <xs:attribute name="mapUnderscoreToCamelCase" type="boolean_type"/>
             <xs:attribute name="autoMapping" type="boolean_type"/>

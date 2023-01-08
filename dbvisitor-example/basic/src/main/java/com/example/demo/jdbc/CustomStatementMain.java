@@ -1,10 +1,8 @@
 package com.example.demo.jdbc;
 import com.example.demo.DsUtils;
-import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.PreparedStatementCreator;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.jdbc.extractor.RowCallbackHandlerResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.MappingRowMapper;
 
 import javax.sql.DataSource;
@@ -37,11 +35,6 @@ public class CustomStatementMain {
         };
 
         // 执行流式处理
-        jdbcTemplate.execute((ConnectionCallback<Object>) con -> {
-            try (PreparedStatement ps = creator.createPreparedStatement(con)) {
-                new RowCallbackHandlerResultSetExtractor(handler).extractData(ps.executeQuery());
-            }
-            return null;
-        });
+        jdbcTemplate.executeCreator(creator, handler);
     }
 }
