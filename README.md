@@ -43,7 +43,7 @@
 <dependency>
   <groupId>net.hasor</groupId>
   <artifactId>dbvisitor</artifactId>
-  <version>5.0.0</version><!-- 查看最新版本：https://mvnrepository.com/artifact/net.hasor/dbvisitor -->
+  <version>5.2.0</version><!-- 查看最新版本：https://mvnrepository.com/artifact/net.hasor/dbvisitor -->
 </dependency>
 ```
 
@@ -88,23 +88,21 @@ insert into `test_user` values (5, 'matt', 25, now());
 
 ### SQL 方式
 
-使用 SQL 的方式读取数据 `PrintUtils` 和 `DsUtils` 两个工具类可以在例子工程中找到
-
 ```java
 // 创建数据源
 DataSource dataSource = DsUtils.dsMySql();
+
 // 创建 JdbcTemplate 对象
 JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
 // 加载测试数据脚本
 jdbcTemplate.loadSQL("CreateDB.sql");
 
 // 查询数据并 Map 形式返回
 List<Map<String, Object>> mapList = jdbcTemplate.queryForList("select * from test_user");
-// 打印测试数据
-PrintUtils.printMapList(mapList);
 ```
 
-控制台可以得到如下结果
+将 `mapList` 打印到控制台可以得到如下结果
 
 ```text
 /--------------------------------------------\
@@ -118,12 +116,11 @@ PrintUtils.printMapList(mapList);
 \--------------------------------------------/
 ```
 
-如果想使用 DTO 对象接收数据，则需要创建一个 DTO 对象。
+使用 DTO 对象接收数据，则需要创建一个 DTO 对象
 
 ```java
-// 如果属性名和列名可以完全匹配，那么无需任何注解。
-//  - 本列中由于 `test_user` 的表名和列名符合驼峰转下划线，那么可以简单的通过 @Table 注解声明一下。
-//  - 如果需要映射表名和列名请参照注解 @Table、@Column 更多的属性
+// 通过 @Table 注解声明一下
+//  - `test_user` 通过驼峰转换后可以得到类名 `TestUser`
 @Table(mapUnderscoreToCamelCase = true)
   public class TestUser {
   private Integer id;
@@ -133,33 +130,35 @@ PrintUtils.printMapList(mapList);
   
   // getters and setters omitted
 }
+```
 
-// 然后通过 `queryForList` 方法直接查询，控制台就可以得到相同的结果
+然后通过 `queryForList` 方法直接查询
+
+```java
 List<TestUser> dtoList = jdbcTemplate.queryForList("select * from test_user", TestUser.class);
-PrintUtils.printObjectList(dtoList);
 ```
 
 ### 单表 CURD
+
 对于单表 CURD 操作可以使用 `JdbcTemplate` 的子类 `LambdaTemplate`
 
 ```java
 // 创建数据源
 DataSource dataSource = DsUtils.dsMySql();
+
 // 创建 LambdaTemplate 对象和创建 JdbcTemplate 一样
 LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
-// 初始化一些数据
-lambdaTemplate.loadSQL("CreateDB.sql");
 
 // 查询，所有数据
 List<TestUser> dtoList = lambdaTemplate.lambdaQuery(TestUser.class)
                 .queryForList();
-PrintUtils.printObjectList(dtoList);
 
 // 插入新数据
 TestUser newUser = new TestUser();
 newUser.setName("new User");
 newUser.setAge(33);
 newUser.setCreateTime(new Date());
+
 int result = lambdaTemplate.lambdaInsert(TestUser.class)
                 .applyEntity(newUser)
                 .executeSumResult();
@@ -167,6 +166,7 @@ int result = lambdaTemplate.lambdaInsert(TestUser.class)
 // 更新，将name 从 mali 更新为 mala
 TestUser sample = new TestUser();
 sample.setName("mala");
+
 int result = lambdaTemplate.lambdaUpdate(TestUser.class)
                 .eq(TestUser::getId, 1)
                 .updateBySample(sample)
@@ -178,102 +178,89 @@ int result = lambdaTemplate.lambdaUpdate(TestUser.class)
                 .doDelete();
 ```
 
-### 使用 DAO
-使用 DAO 可以继承 `BaseMapper<T>` 通用 DAO 接口来完成一些基本操作，仍然以单表 CRUD 为例。
+### 通用 Mapper
+
+通用 Mapper 接口来完成一些基本操作，仍然以单表 CRUD 为例。
 
 ```java
-// DAO 的一些接口需要识别 ID 属性，因此有必要在 DTO 对象上通过 @Column 注解标记出它们
-@Table(mapUnderscoreToCamelCase = true)
-  public class TestUser {
-  @Column(primary = true)
-  private Integer id;
-  private String  name;
-  private Integer age;
-  private Date    createTime;
-  
-  // getters and setters omitted
-}
-
 // 创建数据源
 DataSource dataSource = DsUtils.dsMySql();
-// 创建通用 DAO
+
+// 创建通用 Mapper
 DalSession session = new DalSession(dataSource);
 BaseMapper<TestUser> baseMapper = session.createBaseMapper(TestUser.class);
-// 初始化一些数据
-baseMapper.template().loadSQL("CreateDB.sql");
 
 // 查询数据
 List<TestUser> dtoList = baseMapper.query().queryForList();
-PrintUtils.printObjectList(dtoList);
 
 // 插入新数据
 TestUser newUser = new TestUser();
 newUser.setName("new User");
 newUser.setAge(33);
 newUser.setCreateTime(new Date());
+
 int result = baseMapper.insert(newUser);
 
 // 更新，将name 从 mali 更新为 mala
 TestUser sample = baseMapper.queryById(1);
 sample.setName("mala");
+
 int result = baseMapper.updateById(sample);
 
 // 删除，ID 为 2 的数据
 int result = baseMapper.deleteById(2);
-
 ```
 
-作为 DAO 可以定义自己的方法，并通过注解配置具体执行的 SQL 语句。
+### 注解化 Mapper
+
+作为 Mapper 可以定义自己的方法，并通过注解具体执行的 SQL 语句。
 
 ```java
 // BaseMapper 是可选的，继承它相当于多了一组单表 CURD 的扩展功能。
 @SimpleMapper
-public interface TestUserDAO extends BaseMapper<TestUser> {
+public interface TestUserMapper extends BaseMapper<TestUser> {
   @Insert("insert into `test_user` (name,age,create_time) values (#{name}, #{age}, now())")
-  public int insertUser(@Param("name") String name, @Param("age") int age);
+  int insertUser(@Param("name") String name, @Param("age") int age);
   
   @Update("update `test_user` set age = #{age} where id = #{id}")
-  public int updateAge(@Param("id") int userId, @Param("age") int newAge);
+  int updateAge(@Param("id") int userId, @Param("age") int newAge);
   
   @Delete("delete from `test_user` where age > #{age}")
-  public int deleteByAge(@Param("age") int age);
+  int deleteByAge(@Param("age") int age);
   
   @Query(value = "select * from `test_user` where  #{beginAge} < age and age < #{endAge}", resultType = TestUser.class)
-  public List<TestUser> queryByAge(@Param("beginAge") int beginAge, @Param("endAge") int endAge);
+  List<TestUser> queryByAge(@Param("beginAge") int beginAge, @Param("endAge") int endAge);
 }
 ```
 
 ```java
-// 创建 DalRegistry 并注册 TestUserDAO
-DalRegistry dalRegistry = new DalRegistry();
-dalRegistry.loadMapper(TestUserDAO.class);
+创建 Session
+DalSession session = new DalSession(dataSource);
 
-// 使用 DalRegistry 创建 Session
-DalSession session = new DalSession(dataSource, dalRegistry);
-
-// 创建 DAO 接口
-TestUserDAO userDAO = session.createMapper(TestUserDAO.class);
+// 创建 Mapper 接口
+TestUserMapper userMapper = session.createMapper(TestUserMapper.class);
 ```
 
-### 使用 Mapper
+### 使用 XML 管理 SQL
 
 统一管理 SQL 的最佳场所仍然是 Mapper 文件，而且 dbVisitor 的 Mapper 文件高度兼容 MyBatis 学习成本极低。
 
 ```java
 // 利用 @RefMapper 注解将 Mapper 文件和 接口类联系起来（继承 BaseMapper 是可选的）
 @RefMapper("/mapper/quick_dao3/TestUserMapper.xml")
-public interface TestUserDAO extends BaseMapper<TestUser> {
-    public int insertUser(@Param("name") String name, @Param("age") int age);
+public interface TestUserDAO {
+    int insertUser(@Param("name") String name, @Param("age") int age);
 
-    public int updateAge(@Param("id") int userId, @Param("age") int newAge);
+    int updateAge(@Param("id") int userId, @Param("age") int newAge);
 
-    public int deleteByAge(@Param("age") int age);
+    int deleteByAge(@Param("age") int age);
 
-    public List<TestUser> queryByAge(@Param("beginAge") int beginAge, @Param("endAge") int endAge);
+    List<TestUser> queryByAge(@Param("beginAge") int beginAge, @Param("endAge") int endAge);
 }
 ```
 
-为了更好了解和使用 dbVisitor 的 Mapper 文件建议增加 DTD加以验证。另外 dbVisitor 兼容 MyBatis3 的 DTD 对于绝大部分 MyBatis 工程都可以正常兼容。
+为了更好了解和使用 dbVisitor 的 Mapper 文件建议增加 DTD加以验证。
+另外 dbVisitor 兼容 MyBatis3 的 DTD 对于绝大部分 MyBatis 工程都可以正常兼容。
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -281,7 +268,7 @@ public interface TestUserDAO extends BaseMapper<TestUser> {
                         "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="com.example.demo.quick.dao3.TestUserDAO">
     <resultMap id="testuser_resultMap" type="com.example.demo.quick.dao3.TestUser">
-        <id column="id" property="id"/>
+        <result column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="age" property="age"/>
         <result column="create_time" property="createTime"/>
@@ -320,65 +307,41 @@ public interface TestUserDAO extends BaseMapper<TestUser> {
 </mapper>
 ```
 
-### 快速条件拼接
+### 利用规则简化 XML 配置
 
-快速条件拼接包含 `快速'与'条件` 和 `快速'或'条件` 它们是两个规则用于取代简单的 `if` 标签和简单的 `foreach` 标签。
-如下语句，当参数不为空时候才拼接 sql
+如下语句
 
-```xml
+```xml title='带有 if/foreach 的XML配置'
 <select id="queryUser">
     select * from `test_user`
     where 1 = 1
     <if test="age != null">
         and age = #{age}
     </if>
+    and id in <foreach item="item" index="index" collection="list"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  #{item}
 </select>
 ```
 
-可以简化为快速规则写法，其中 `:age` 为属性名。
-
-```xml
+```xml title='使用 and 规则替代 if 和 foreach'
 <select id="queryUser">
     select * from `test_user`
     @{and, age = :age}
-</select>
-```
-
-例如如下 `foreach` 操作：
-
-```xml
-<select id="queryUser">
-    select * from `test_user`
-    where
-    id in <foreach item="item" index="index" collection="list"
-             open="(" separator="," close=")">
-        #{item}
-    </foreach>
-</select>
-```
-
-可以简化为快速规则写法，其中 `:list` 为集合属性名。
-
-```xml
-<select id="queryUser">
-    select * from `test_user`
     @{and, id in (:list)}
 </select>
 ```
 
-如果多个简单条件，快速写法将会极大的减少 Mapper 的工作量。
-
 ### 分页查询
-
-dbVisitor 的分页能力仅在 `LambdaTemplate`、`BaseMapper`、`Mapper DAO` 三个层面上受到支持。下面为不同的使用方式：
 
 使用 `LambdaTemplate` 进行分页查询
 
 ```java
 // 构造 LambdaTemplate 和初始化一些数据
-DataSource dataSource = DsUtils.dsMySql();
+DataSource dataSource = ...
 LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
-lambdaTemplate.loadSQL("CreateDB.sql");
 
 // 构建分页对象，每页 3 条数据(默认第一页的页码为 0)
 Page pageInfo = new PageObject();
@@ -399,11 +362,7 @@ List<TestUser> pageData2 = lambdaTemplate.lambdaQuery(TestUser.class)
 用接口 `BaseMapper` 进行分页查询
 
 ```java
-// 构造 BaseMapper 和初始化一些数据
-DataSource dataSource = DsUtils.dsMySql();
-DalSession session = new DalSession(dataSource);
-BaseMapper<TestUser> baseMapper = session.createBaseMapper(TestUser.class);
-baseMapper.template().loadSQL("CreateDB.sql");
+BaseMapper<TestUser> baseMapper = ...
 
 // 构建分页对象，每页 3 条数据(默认第一页的页码为 0)
 Page pageInfo = new PageObject();
@@ -417,76 +376,37 @@ pageInfo.nextPage();
 PageResult<TestUser> pageData2 = baseMapper.queryByPage(pageInfo);
 ```
 
-若想分页查询 Mapper 文件中的查询，仅需在对应 DAO 接口方法中增加一个 Page 参数即可。
+若想分页查询 Mapper 文件中的查询，仅需在对应 Mapper 接口方法中增加一个 Page 参数即可。
 
 ```java
 @RefMapper("/mapper/quick_page3/TestUserMapper.xml")
-public interface TestUserDAO extends BaseMapper<TestUser> {
+public interface TestUserMapper extends BaseMapper<TestUser> {
     // 可以直接返回分页之后的数据结果
-    public List<TestUser> queryByAge(
+    List<TestUser> queryByAge(
               @Param("beginAge") int beginAge, 
               @Param("endAge") int endAge, 
               Page pageInfo);
     
     // 也可以返回包含分页信息的分页结果
-    public PageResult<TestUser> queryByAge2(
+    PageResult<TestUser> queryByAge2(
               @Param("beginAge") int beginAge, 
               @Param("endAge") int endAge, 
               Page pageInfo);
 }
 ```
 
-```java
-// 构建分页条件
-Page pageInfo = new PageObject();
-pageInfo.setPageSize(3);
+## 使用事务
 
-// 分页方式查询 mapper 中的查询
-List<TestUser> data1 = userDAO.queryByAge(25, 100, pageInfo);
-PageResult<TestUser> page1 = userDAO.queryByAge2(25, 100, pageInfo);
-
-// 分页方式查询 mapper 中的查询
-pageInfo.nextPage();
-List<TestUser> data2 = userDAO.queryByAge(25, 100, pageInfo);
-PageResult<TestUser> page2 = userDAO.queryByAge2(25, 100, pageInfo);
-```
-
-### 使用事务
-
-dbVisitor 提供了三种方式使用事务，分别为：
-
-- **声明式事务**，通过调用 `TransactionManager` 接口来实现事务控制。
-- **模版事务**，通过 `TransactionTemplate` 接口来实现事务控制。
-
-### 声明式事务
-
-启动和递交一个事务，例如：
+启动和递交一个事务，也可以连续启用多个事务，例如：
 
 ```java {4,8}
 DataSource dataSource = DsUtils.dsMySql();
 TransactionManager manager = DataSourceManager.getManager(dataSource);
 
 TransactionStatus tranA = manager.begin();
-
 ...
-
 manager.commit(tranA);
 ```
-
-或者使用快捷方式
-
-```java {4,8}
-DataSource dataSource = DsUtils.dsMySql();
-TransactionManager manager = DataSourceManager.getManager(dataSource);
-
-manager.begin(); // 开启一个事务
-
-...
-
-manager.commit(); //递交最近的一个事务
-```
-
-启动和递交多个事务，例如：
 
 ```java
 DataSource dataSource = DsUtils.dsMySql();
@@ -507,20 +427,7 @@ manager.commit(tranA);
 
 ```java
 TransactionStatus tranA = manager.begin(
-        Propagation.REQUIRES_NEW, // 传播属性
+        Propagation.REQUIRES_NEW, // Propagation
         Isolation.READ_COMMITTED  // 隔离级别
 );
-```
-
-### 模版事务
-
-使用模版事务的方式为：
-
-```java
-Object result = template.execute(new TransactionCallback<Object>() {
-    public Object doTransaction(TransactionStatus tranStatus) {
-        ...
-        return null;
-    }
-});
 ```

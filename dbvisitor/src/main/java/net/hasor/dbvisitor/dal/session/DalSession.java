@@ -22,6 +22,7 @@ import net.hasor.dbvisitor.dal.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dal.execute.ExecuteProxy;
 import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.dal.mapper.Mapper;
+import net.hasor.dbvisitor.dal.repository.DalMapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
@@ -36,6 +37,7 @@ import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.page.Page;
 
 import javax.sql.DataSource;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
@@ -145,9 +147,27 @@ public class DalSession extends JdbcAccessor {
 
         BaseMapperHandler mapperHandler = null;
         if (BaseMapper.class.isAssignableFrom(mapperType)) {
+            boolean simpleMapper = false;
+            Annotation[] annotations = mapperType.getDeclaredAnnotations();
+            for (Annotation annotation : annotations) {
+                if (annotation instanceof DalMapper || annotation.annotationType().getAnnotation(DalMapper.class) != null) {
+                    simpleMapper = true;
+                    break;
+                }
+            }
+
+            if (!simpleMapper) {
+                throw new UnsupportedOperationException("type '" + mapperType.getName() + "' need @RefMapper or @SimpleMapper or @DalMapper");
+            }
+
             ResolvableType type = ResolvableType.forClass(mapperType).as(BaseMapper.class);
             Class<?>[] generics = type.resolveGenerics(Object.class);
             Class<?> entityType = generics[0];
+
+            if (this.dalRegistry.findEntity(entityType) == null) {
+                this.dalRegistry.loadEntity(entityType);
+            }
+
             mapperHandler = new BaseMapperHandler(mapperType.getName(), entityType, this);
         }
 
