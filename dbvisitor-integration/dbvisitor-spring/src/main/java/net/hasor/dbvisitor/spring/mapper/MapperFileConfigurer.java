@@ -18,6 +18,7 @@ import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.spring.annotation.MapperScan;
+import net.hasor.dbvisitor.spring.annotation.MappingScan;
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -33,7 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-/** A resource load for {@link MapperScan}. */
+/** A resource load for {@link MappingScan}、{@link MapperScan}. */
 public class MapperFileConfigurer extends AbstractConfigurer implements InitializingBean {
     private static final Logger                              logger   = LoggerFactory.getLogger(MapperFileConfigurer.class);
     private static final PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();

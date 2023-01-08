@@ -18,7 +18,6 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dal.mapper.Mapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
-import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.spring.adapter.AbstractDsAdapter;
 import net.hasor.dbvisitor.spring.adapter.SpringDsAdapter;
 
@@ -48,18 +47,13 @@ import java.util.Objects;
  * @see Mapper
  */
 public class DalSessionBean extends AbstractSupportBean<DalSession> {
-    private DalRegistry dalRegistry;
-    private DalSession  dalSession;
-
+    private DalRegistry       dalRegistry;
+    private DalSession        dalSession;
     // - dsAdapter
     private AbstractDsAdapter dsAdapter;
     private Class<?>          dsAdapterClass;
     private String            dsAdapterName;
     private DataSource        dataSource;
-
-    // dialect
-    private PageSqlDialect dialect;
-    private String         dialectName;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -71,7 +65,6 @@ public class DalSessionBean extends AbstractSupportBean<DalSession> {
         }
 
         initDsAdapter();
-        initDialect();
 
         if (this.dalRegistry == null) {
             this.dalSession = new DalSession(this.dsAdapter, DalRegistry.DEFAULT);
@@ -108,17 +101,6 @@ public class DalSessionBean extends AbstractSupportBean<DalSession> {
         }
     }
 
-    private void initDialect() throws Exception {
-        if (this.dialect == null && StringUtils.isNotBlank(this.dialectName)) {
-            Class<?> dialectClass = this.classLoader.loadClass(dialectName);
-            if (this.applicationContext != null) {
-                this.dialect = (PageSqlDialect) createBeanByType(dialectClass, this.applicationContext);
-            } else {
-                this.dialect = (PageSqlDialect) dialectClass.newInstance();
-            }
-        }
-    }
-
     @Override
     public DalSession getObject() {
         return Objects.requireNonNull(this.dalSession, "dalSession not init.");
@@ -147,13 +129,5 @@ public class DalSessionBean extends AbstractSupportBean<DalSession> {
 
     public void setDsAdapterName(String dsAdapterName) {
         this.dsAdapterName = dsAdapterName;
-    }
-
-    public void setDialect(PageSqlDialect dialect) {
-        this.dialect = dialect;
-    }
-
-    public void setDialectName(String dialectName) {
-        this.dialectName = dialectName;
     }
 }

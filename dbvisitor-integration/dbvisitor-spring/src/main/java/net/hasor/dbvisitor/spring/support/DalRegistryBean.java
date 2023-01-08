@@ -19,6 +19,7 @@ import net.hasor.dbvisitor.dal.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.dal.dynamic.rule.SqlBuildRule;
 import net.hasor.dbvisitor.dal.mapper.Mapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
+import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
@@ -49,34 +50,42 @@ import java.util.Objects;
  * @see Mapper
  */
 public class DalRegistryBean extends AbstractSupportBean<DalRegistry> {
-
     // - dalTypeRegistry
     private TypeHandlerRegistry   typeRegistry;
     private Map<Class<?>, Object> javaTypeHandlerMap;
     private Map<Integer, Object>  jdbcTypeHandlerMap;
-
     // - dalRuleRegistry
-    private RuleRegistry        ruleRegistry;
-    private Map<String, Object> ruleHandlerMap;
-
+    private RuleRegistry          ruleRegistry;
+    private Map<String, Object>   ruleHandlerMap;
     // - dalRegistry
-    private DalRegistry dalRegistry;
-    private Boolean     autoMapping;
-    private Boolean     camelCase;
-    private Boolean     caseInsensitive;
-    private Boolean     useDelimited;
-    private String      dialectName;
-    private SqlDialect  dialect;
-
+    private DalRegistry           dalRegistry;
+    private Boolean               autoMapping;
+    private Boolean               camelCase;
+    private Boolean               caseInsensitive;
+    private Boolean               useDelimited;
+    private String                dialectName;
+    private SqlDialect            dialect;
     // mappers
-    private Resource[] mapperResources;
-    private Class<?>[] mapperInterfaces;
+    private Resource[]            mapperResources;
+    private Class<?>[]            mapperInterfaces;
+
+    private void initDialect() throws Exception {
+        if (this.dialect == null && StringUtils.isNotBlank(this.dialectName)) {
+            Class<?> dialectClass = this.classLoader.loadClass(dialectName);
+            if (this.applicationContext != null) {
+                this.dialect = (PageSqlDialect) createBeanByType(dialectClass, this.applicationContext);
+            } else {
+                this.dialect = (PageSqlDialect) dialectClass.newInstance();
+            }
+        }
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
         TypeHandlerRegistry typeRegistry = this.typeRegistry != null ? this.typeRegistry : new TypeHandlerRegistry();
         RuleRegistry ruleRegistry = this.ruleRegistry != null ? this.ruleRegistry : new RuleRegistry();
         ClassLoader classLoader = this.classLoader != null ? this.classLoader : Thread.currentThread().getContextClassLoader();
+        initDialect();
 
         MappingOptions options = MappingOptions.buildNew();
         options.setAutoMapping(this.autoMapping);

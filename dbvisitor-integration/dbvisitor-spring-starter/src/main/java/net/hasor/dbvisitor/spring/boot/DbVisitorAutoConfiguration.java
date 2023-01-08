@@ -21,6 +21,7 @@ import net.hasor.dbvisitor.dal.mapper.Mapper;
 import net.hasor.dbvisitor.dal.repository.DalMapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.spring.mapper.MapperFileConfigurer;
@@ -90,6 +91,13 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
         RuleRegistry ruleRegistry = ruleRegistryProvider.getIfAvailable();
 
         MappingOptions options = MappingOptions.buildNew();
+        options.setAutoMapping(this.properties.getAutoMapping());
+        options.setMapUnderscoreToCamelCase(this.properties.getCamelCase());
+        options.setCaseInsensitive(this.properties.getCaseInsensitive());
+        options.setUseDelimited(this.properties.getUseDelimited());
+        if (StringUtils.hasText(this.properties.getDialect())) {
+            options.setDefaultDialect(SqlDialectRegister.findOrCreate(this.properties.getDialect(), this.classLoader));
+        }
         return new DalRegistry(this.classLoader, typeHandlerRegistry, ruleRegistry, options);
     }
 
@@ -163,18 +171,13 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
             mapperBuilder.addPropertyValue("annotationClassName", "${" + PREFIX + ".marker-annotation:" + DalMapper.class.getName() + "}");
             mapperBuilder.addPropertyValue("markerInterfaceName", "${" + PREFIX + ".marker-interface:" + Mapper.class.getName() + "}");
             mapperBuilder.addPropertyValue("dalSessionRef", "${" + PREFIX + ".ref-session-bean:}");
-            mapperBuilder.addPropertyValue("autoMapping", "${" + PREFIX + ".auto-mapping:}");
-            mapperBuilder.addPropertyValue("camelCase", "${" + PREFIX + ".camel-case:}");
-            mapperBuilder.addPropertyValue("caseInsensitive", "${" + PREFIX + ".case-insensitive:}");
-            mapperBuilder.addPropertyValue("useDelimited", "${" + PREFIX + ".use-delimited:}");
-            mapperBuilder.addPropertyValue("dialect", "${" + PREFIX + ".dialect:}");
             mapperBuilder.addPropertyValue("dependsOn", fileBeanName);
 
             registry.registerBeanDefinition(mapperBeanName, mapperBuilder.getBeanDefinition());
 
             BeanDefinitionBuilder fileBuilder = BeanDefinitionBuilder.genericBeanDefinition(MapperFileConfigurer.class);
             mapperBuilder.addPropertyValue("processPropertyPlaceHolders", true);
-            fileBuilder.addPropertyValue("mapperLocations", "${" + PREFIX + ".mapper-locations:classpath*:/mapper/**/*.xml}");
+            fileBuilder.addPropertyValue("mapperLocations", "${" + PREFIX + ".mapper-locations:classpath*:/dbvisitor/mapper/**/*.xml}");
             fileBuilder.addPropertyValue("dalSessionRef", "${" + PREFIX + ".ref-session-bean:}");
             registry.registerBeanDefinition(fileBeanName, fileBuilder.getBeanDefinition());
         }
