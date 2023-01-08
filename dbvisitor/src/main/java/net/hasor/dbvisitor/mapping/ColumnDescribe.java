@@ -31,7 +31,10 @@ public @interface ColumnDescribe {
     String comment() default "";
 
     /** 列数据类型 */
-    String ddlType();
+    String dbType();
+
+    /** 长度 */
+    int length() default 0;
 
     /** 列上具有的默认值 */
     String defaultValue() default "";

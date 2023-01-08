@@ -180,7 +180,8 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
 
         ColumnDescDef descDef = new ColumnDescDef();
         descDef.setComment(columnDesc.comment());
-        descDef.setDdlType(columnDesc.ddlType());
+        descDef.setDbType(columnDesc.dbType());
+        descDef.setLength(columnDesc.length());
         descDef.setDefault(columnDesc.defaultValue());
         descDef.setNullable(columnDesc.nullable());
         descDef.setBelongIndex(Arrays.asList(columnDesc.belongIndex()));

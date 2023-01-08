@@ -23,7 +23,8 @@ import java.util.List;
  */
 public class ColumnDescDef implements ColumnDescription {
     private String       comment;
-    private String       ddlType;
+    private String       dbType;
+    private int          length;
     private String       defaultValue;
     private Boolean      nullable;
     private List<String> belongIndex;
@@ -39,12 +40,21 @@ public class ColumnDescDef implements ColumnDescription {
     }
 
     @Override
-    public String getDdlType() {
-        return this.ddlType;
+    public String getDbType() {
+        return this.dbType;
     }
 
-    public void setDdlType(String ddlType) {
-        this.ddlType = ddlType;
+    public void setDbType(String dbType) {
+        this.dbType = dbType;
+    }
+
+    @Override
+    public int getLength() {
+        return this.length;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
     }
 
     @Override

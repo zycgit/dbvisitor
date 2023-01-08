@@ -26,7 +26,10 @@ public interface ColumnDescription {
     String getComment();
 
     /** 列数据类型 */
-    String getDdlType();
+    String getDbType();
+
+    /** 长度 */
+    int getLength();
 
     /** 列上具有的默认值 */
     String getDefault();
