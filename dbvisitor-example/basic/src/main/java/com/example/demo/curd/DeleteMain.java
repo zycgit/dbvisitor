@@ -17,7 +17,7 @@ public class DeleteMain {
         EntityDeleteOperation<TestUser> update = lambdaTemplate.lambdaDelete(TestUser.class);
         int result = update.eq(TestUser::getId, 1).doDelete();
 
+        System.out.println("res = " + result);
         PrintUtils.printObjectList(lambdaTemplate.queryForList("select * from test_user"));
-
     }
 }

@@ -24,6 +24,7 @@ public class Update3Main {
         MapUpdateOperation update = lambdaTemplate.lambdaUpdate("test_user");
         int result = update.eq("id", 1).updateByMap(newValue).doUpdate();
 
+        System.out.println("res = " + result);
         PrintUtils.printObjectList(lambdaTemplate.queryForList("select * from test_user"));
 
     }

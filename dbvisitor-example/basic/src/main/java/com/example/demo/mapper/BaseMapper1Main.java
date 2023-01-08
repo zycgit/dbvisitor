@@ -18,20 +18,9 @@ public class BaseMapper1Main {
         BaseMapper<TestUser> baseMapper = dalSession.createBaseMapper(TestUser.class);
         baseMapper.query().queryForList();
 
-        Iterator<TestUser> iterator = baseMapper.query().queryForIterator(200, t -> t, 2);
+        Iterator<TestUser> iterator = baseMapper.query().queryForIterator(200, 2, t -> t);
         while (iterator.hasNext()) {
             System.out.println(iterator.next().getName());
         }
-        //
-        //        Map<String, Object> newValue = new HashMap<>();
-        //        newValue.put("id", 20);
-        //        newValue.put("name", "new name");
-        //        newValue.put("age", 88);
-        //        newValue.put("create_time", new Date());
-        //
-        //        LambdaInsert<TestUser> insert = lambdaTemplate.lambdaInsert(TestUser.class);
-        //        int result = insert.applyMap(newValue).executeSumResult();
-        //
-        //        PrintUtils.printObjectList(lambdaTemplate.queryForList("select * from test_user"));
     }
 }

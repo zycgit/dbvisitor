@@ -245,6 +245,9 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     }
 
     private void processFillBack(PreparedStatement fillBack) throws SQLException {
+        if (!this.hasKeySeqHolderColumn) {
+            return;
+        }
         ResultSet rs = fillBack.getGeneratedKeys();
         for (FillBackEntity entity : this.fillBackEntityList) {
             if (!rs.next()) {

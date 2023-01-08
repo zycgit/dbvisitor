@@ -59,6 +59,12 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
     private String                      defaultScope;
     private boolean                     processPropertyPlaceHolders;
     private String                      dependsOn;
+    // opt
+    private String                      autoMapping;
+    private String                      camelCase;
+    private String                      caseInsensitive;
+    private String                      useDelimited;
+    private String                      dialect;
 
     @Override
     public void afterPropertiesSet() {
@@ -149,11 +155,26 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
             this.mapperDisabled = getPropertyValue("mapperDisabled", values);
             this.lazyInitialization = getPropertyValue("lazyInitialization", values);
             this.defaultScope = getPropertyValue("defaultScope", values);
+            this.autoMapping = getPropertyValue("autoMapping", values);
+            this.camelCase = getPropertyValue("camelCase", values);
+            this.caseInsensitive = getPropertyValue("caseInsensitive", values);
+            this.useDelimited = getPropertyValue("useDelimited", values);
+            this.dialect = getPropertyValue("dialect", values);
         }
+        this.nameGeneratorName = Optional.ofNullable(this.nameGeneratorName).map(getEnvironment()::resolvePlaceholders).orElse(null);
+        this.annotationClassName = Optional.ofNullable(this.annotationClassName).map(getEnvironment()::resolvePlaceholders).orElse(null);
+        this.markerInterfaceName = Optional.ofNullable(this.markerInterfaceName).map(getEnvironment()::resolvePlaceholders).orElse(null);
+        this.mapperFactoryBeanClassName = Optional.ofNullable(this.mapperFactoryBeanClassName).map(getEnvironment()::resolvePlaceholders).orElse(null);
         this.basePackage = Optional.ofNullable(this.basePackage).map(getEnvironment()::resolvePlaceholders).orElse(null);
         this.dalSessionRef = Optional.ofNullable(this.dalSessionRef).map(getEnvironment()::resolvePlaceholders).orElse(null);
+        this.mapperDisabled = Optional.ofNullable(this.mapperDisabled).map(getEnvironment()::resolvePlaceholders).orElse(null);
         this.lazyInitialization = Optional.ofNullable(this.lazyInitialization).map(getEnvironment()::resolvePlaceholders).orElse(null);
         this.defaultScope = Optional.ofNullable(this.defaultScope).map(getEnvironment()::resolvePlaceholders).orElse(null);
+        this.autoMapping = Optional.ofNullable(this.autoMapping).map(getEnvironment()::resolvePlaceholders).orElse(null);
+        this.camelCase = Optional.ofNullable(this.camelCase).map(getEnvironment()::resolvePlaceholders).orElse(null);
+        this.caseInsensitive = Optional.ofNullable(this.caseInsensitive).map(getEnvironment()::resolvePlaceholders).orElse(null);
+        this.useDelimited = Optional.ofNullable(this.useDelimited).map(getEnvironment()::resolvePlaceholders).orElse(null);
+        this.dialect = Optional.ofNullable(this.dialect).map(getEnvironment()::resolvePlaceholders).orElse(null);
     }
 
     public void setBasePackage(String basePackage) {
@@ -218,5 +239,25 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
 
     public void setDependsOn(String dependsOn) {
         this.dependsOn = dependsOn;
+    }
+
+    public void setAutoMapping(String autoMapping) {
+        this.autoMapping = autoMapping;
+    }
+
+    public void setCamelCase(String camelCase) {
+        this.camelCase = camelCase;
+    }
+
+    public void setCaseInsensitive(String caseInsensitive) {
+        this.caseInsensitive = caseInsensitive;
+    }
+
+    public void setUseDelimited(String useDelimited) {
+        this.useDelimited = useDelimited;
+    }
+
+    public void setDialect(String dialect) {
+        this.dialect = dialect;
     }
 }

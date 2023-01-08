@@ -7,12 +7,10 @@ import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageObject;
 
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 
 public class PageMain1 {
-    public static void main(String[] args) throws SQLException, IOException {
+    public static void main(String[] args) throws Exception {
         // 创建 DalRegistry 并注册 TestUserDAO
         DalRegistry dalRegistry = new DalRegistry();
         dalRegistry.loadMapper(TestUserDAO.class);

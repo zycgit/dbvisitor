@@ -5,13 +5,11 @@ import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.dal.session.DalSession;
 
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
 public class DaoMain {
-    public static void main(String[] args) throws SQLException, IOException {
+    public static void main(String[] args) throws Exception {
         DataSource dataSource = DsUtils.dsMySql();
 
         DalSession session = new DalSession(dataSource);

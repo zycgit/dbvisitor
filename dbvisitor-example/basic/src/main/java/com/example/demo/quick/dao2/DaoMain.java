@@ -5,12 +5,10 @@ import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
 
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 
 public class DaoMain {
-    public static void main(String[] args) throws SQLException, IOException {
+    public static void main(String[] args) throws Exception {
         DataSource dataSource = DsUtils.dsMySql();
 
         // 创建 DalRegistry 并注册 TestUserDAO

@@ -17,7 +17,7 @@ public class RowMapper2Main {
         jdbcTemplate.loadSQL("CreateDB.sql");
 
         String queryString = "select * from test_user where age > 40";
-        List<TestUser> mapList = jdbcTemplate.query(queryString, new RowMapper<TestUser>() {
+        List<TestUser> mapList = jdbcTemplate.queryForList(queryString, new RowMapper<TestUser>() {
             public TestUser mapRow(ResultSet rs, int rowNum) throws SQLException {
                 TestUser testUser = new TestUser();
                 testUser.setAge(rs.getInt("age"));

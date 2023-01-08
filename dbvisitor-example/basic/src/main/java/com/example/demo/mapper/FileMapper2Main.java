@@ -4,15 +4,13 @@ import com.example.demo.PrintUtils;
 import net.hasor.dbvisitor.dal.session.DalSession;
 
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class FileMapper2Main {
-    public static void main(String[] args) throws SQLException, IOException {
+    public static void main(String[] args) throws Exception {
         DataSource dataSource = DsUtils.dsMySql();
         DalSession dalSession = new DalSession(dataSource);
         dalSession.lambdaTemplate().loadSQL("CreateDB.sql");
