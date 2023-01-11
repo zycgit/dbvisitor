@@ -34,7 +34,13 @@ public @interface ColumnDescribe {
     String dbType();
 
     /** 长度 */
-    int length() default 0;
+    String length() default "";
+
+    /** 精度 */
+    String precision() default "";
+
+    /** 小数位数 */
+    String scale() default "";
 
     /** 列上具有的默认值 */
     String defaultValue() default "";

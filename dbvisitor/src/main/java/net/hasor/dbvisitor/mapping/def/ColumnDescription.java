@@ -29,7 +29,13 @@ public interface ColumnDescription {
     String getDbType();
 
     /** 长度 */
-    int getLength();
+    String getLength();
+
+    /** 精度 */
+    String getPrecision();
+
+    /** 小数位数 */
+    String getScale();
 
     /** 列上具有的默认值 */
     String getDefault();
@@ -41,5 +47,5 @@ public interface ColumnDescription {
     List<String> getBelongIndex();
 
     /** 这个列属于哪些唯一索引（如果某个索引含有多个列，那么这些列的 belongIndex 属性都会含有这个索引的名字） */
-    List<String> belongUnique();
+    List<String> getBelongUnique();
 }

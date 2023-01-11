@@ -24,7 +24,9 @@ import java.util.List;
 public class ColumnDescDef implements ColumnDescription {
     private String       comment;
     private String       dbType;
-    private int          length;
+    private String       length;
+    private String       precision;
+    private String       scale;
     private String       defaultValue;
     private Boolean      nullable;
     private List<String> belongIndex;
@@ -49,12 +51,30 @@ public class ColumnDescDef implements ColumnDescription {
     }
 
     @Override
-    public int getLength() {
+    public String getLength() {
         return this.length;
     }
 
-    public void setLength(int length) {
+    public void setLength(String length) {
         this.length = length;
+    }
+
+    @Override
+    public String getPrecision() {
+        return this.precision;
+    }
+
+    public void setPrecision(String precision) {
+        this.precision = precision;
+    }
+
+    @Override
+    public String getScale() {
+        return this.scale;
+    }
+
+    public void setScale(String scale) {
+        this.scale = scale;
     }
 
     @Override
@@ -85,7 +105,7 @@ public class ColumnDescDef implements ColumnDescription {
     }
 
     @Override
-    public List<String> belongUnique() {
+    public List<String> getBelongUnique() {
         return this.belongUnique;
     }
 
