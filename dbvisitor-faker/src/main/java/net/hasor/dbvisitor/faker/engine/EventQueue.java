@@ -25,7 +25,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class EventQueue {
+class EventQueue {
     private final int                             capacity;
     private final BlockingQueue<List<BoundQuery>> dataSet;
 
@@ -52,5 +52,9 @@ public class EventQueue {
     /** 传输通道上目前数据多少 */
     public int getQueueSize() {
         return this.dataSet.size();
+    }
+
+    public void clear() {
+        this.dataSet.clear();
     }
 }

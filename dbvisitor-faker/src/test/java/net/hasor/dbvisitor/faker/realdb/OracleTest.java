@@ -1,4 +1,5 @@
 package net.hasor.dbvisitor.faker.realdb;
+
 import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.faker.DsUtils;
 import net.hasor.dbvisitor.faker.FakerConfig;
@@ -6,43 +7,38 @@ import net.hasor.dbvisitor.faker.engine.FakerEngine;
 import net.hasor.dbvisitor.faker.generator.FakerFactory;
 import net.hasor.dbvisitor.faker.generator.FakerRepository;
 import net.hasor.dbvisitor.faker.generator.FakerTable;
+import net.hasor.dbvisitor.faker.generator.SqlPolitic;
 import net.hasor.dbvisitor.faker.generator.loader.PrecociousDataLoaderFactory;
 import org.junit.Test;
 
-public class MySqlTest {
-
+public class OracleTest {
     @Test
     public void workloadTest() throws Exception {
         // 全局配置
         FakerConfig fakerConfig = new FakerConfig();
-        fakerConfig.setMinBatchSizePerOps(1);
-        fakerConfig.setMaxBatchSizePerOps(1);
-        fakerConfig.setMinOpsCountPerTransaction(1);
-        fakerConfig.setMaxOpsCountPerTransaction(1);
         fakerConfig.setTransaction(false);
-        //        fakerConfig.setUseRadical(true);
+        fakerConfig.setUseRadical(true);
         fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
-        fakerConfig.addIgnoreError("Duplicate");
-        fakerConfig.addIgnoreError("Data truncation: Incorrect datetime value");
-        //        fakerConfig.setOpsRatio("INSERT#30");
+        fakerConfig.addIgnoreError("ORA-00001");
+        //        fakerConfig.addIgnoreError("restarting");
+        //        fakerConfig.addIgnoreError("deadlocked");
+        //        fakerConfig.addIgnoreError("was deadlocked on lock");
+        //        fakerConfig.setOpsRatio("D#30");
 
         // 生成器，配置表
-        DruidDataSource dataDs = DsUtils.dsMySql();
+        DruidDataSource dataDs = DsUtils.dsOracle();
         FakerFactory factory = new FakerFactory(dataDs, fakerConfig);
         FakerRepository generator = new FakerRepository(factory);
-        FakerTable table1 = generator.addTable("devtester", null, "tb_mysql_types");
-        //        table1.setInsertPolitic(SqlPolitic.RandomKeyCol);
-        //        table1.setUpdateSetPolitic(SqlPolitic.RandomKeyCol);
-        //        table1.setWherePolitic(SqlPolitic.RandomKeyCol);
-        //        FakerTable table2 = generator.addTable("devtester", null, "tb_mysql_geometry");
-        //        table2.setInsertPolitic(SqlPolitic.FullCol);
+        // FakerTable table = generator.addTable("console", "dbo", "tb_sqlserver_types");
+        // FakerTable table = generator.addTable("console", "dbo", "stock");
+        FakerTable table = generator.addTable(null, "CANAL_TEST_CASE", "TB_ORACLE_TYPES");
 
-        //        table.findColumn("c_geometrycollection").ignoreAct(UseFor.values());
-        //        table2.apply();
+        table.setInsertPolitic(SqlPolitic.FullCol);
+        table.apply();
 
         // 生成数据
         FakerEngine engine = new FakerEngine(dataDs, generator);
-        engine.start(4, 40);
+        engine.start(1, 1);
 
         // 监控信息
         long t = System.currentTimeMillis();

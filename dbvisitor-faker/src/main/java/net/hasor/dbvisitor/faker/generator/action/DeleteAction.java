@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.faker.generator.action;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.RandomUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.OpsType;
 import net.hasor.dbvisitor.faker.generator.*;
@@ -70,12 +71,16 @@ public class DeleteAction extends AbstractAction {
 
         int maxCut = RandomUtils.nextInt(0, useColumns.size());
         for (int i = 0; i < maxCut; i++) {
-            useColumns.remove(RandomUtils.nextInt(0, useColumns.size()));
+            useColumns.remove(RandomUtils.nextInt(0, useColumns.size() - 1));
         }
 
         // maker sure is not empty delete.
-        if (useColumns.isEmpty()) {
-            useColumns.add(useCols.get(RandomUtils.nextInt(0, useCols.size())));
+        if (useColumns.isEmpty() && !useCols.isEmpty()) {
+            if (useCols.size() == 1) {
+                useColumns.add(useCols.get(0));
+            } else {
+                useColumns.add(useCols.get(RandomUtils.nextInt(0, useCols.size() - 1)));
+            }
         }
 
         return buildAction(batchSize, useColumns);
@@ -121,5 +126,24 @@ public class DeleteAction extends AbstractAction {
             boundQueries.add(new BoundQuery(this.tableInfo, OpsType.Delete, builder, args));
         }
         return boundQueries;
+    }
+
+    @Override
+    public String toString() {
+        SqlPolitic wherePolitic = this.tableInfo.getWherePolitic();
+        switch (wherePolitic) {
+            case KeyCol:
+            case RandomKeyCol: {
+                String whereCols = "'" + StringUtils.join(logCols(this.whereKeyCols), "','") + "'";
+                return "DelAct{politic='" + wherePolitic + "'," + "whereKCols= [" + whereCols + "]}";
+            }
+            case FullCol:
+            case RandomCol: {
+                String whereCols = "'" + StringUtils.join(logCols(this.whereFullCols), "','") + "'";
+                return "DelAct{politic='" + wherePolitic + "'," + "whereKCols= [" + whereCols + "]}";
+            }
+            default:
+                return "DelAct{politic='" + wherePolitic + "', whereCols= 'unknown'}";
+        }
     }
 }

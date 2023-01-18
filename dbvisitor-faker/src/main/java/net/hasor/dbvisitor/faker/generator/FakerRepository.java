@@ -26,10 +26,7 @@ import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.OpsType;
 
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -37,14 +34,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
-public class FakerGenerator {
-    private final static Logger           logger = Logger.getLogger(FakerGenerator.class);
+public class FakerRepository {
+    private final static Logger           logger = Logger.getLogger(FakerRepository.class);
     private final        String           generatorID;
     private final        FakerConfig      fakerConfig;
     private final        FakerFactory     fakerFactory;
     private final        List<FakerTable> generatorTables;
 
-    public FakerGenerator(FakerFactory fakerFactory) {
+    public FakerRepository(FakerFactory fakerFactory) {
         this.generatorID = UUID.randomUUID().toString().replace("-", "");
         this.fakerConfig = fakerFactory.getFakerConfig();
         this.fakerFactory = fakerFactory;
@@ -55,30 +52,17 @@ public class FakerGenerator {
         return this.generatorID;
     }
 
+    public FakerConfig getConfig() {
+        return this.fakerConfig;
+    }
+
+    /** 从生成器中随机选择一张 fakerTable 表，并为这张表生成一个事务的语句。语句类型随机 */
     public List<BoundQuery> generator() throws SQLException {
-        return generator(null);
+        return generator(this.fakerConfig.randomOps());
     }
 
+    /** 从生成器中随机选择一张 fakerTable 表，并为这张表生成一个事务的语句。语句类型由 opsType 决定 */
     public List<BoundQuery> generator(OpsType opsType) throws SQLException {
-        FakerTable table = randomTable();
-        if (table == null) {
-            return Collections.emptyList();
-        }
-
-        List<BoundQuery> events = new LinkedList<>();
-        int opsCountPerTransaction = this.fakerConfig.randomOpsCountPerTrans();
-        for (int i = 0; i < opsCountPerTransaction; i++) {
-            List<BoundQuery> dataSet = this.generatorOps(randomTable(), opsType);
-            events.addAll(dataSet);
-        }
-        return events;
-    }
-
-    public List<BoundQuery> generatorOneTable() throws SQLException {
-        return generatorOneTable(null);
-    }
-
-    public List<BoundQuery> generatorOneTable(OpsType opsType) throws SQLException {
         FakerTable table = randomTable();
         if (table == null) {
             return Collections.emptyList();
@@ -93,21 +77,24 @@ public class FakerGenerator {
         return events;
     }
 
+    /** 从生成器中随机选择一张 fakerTable 表 */
     protected FakerTable randomTable() {
         if (!CollectionUtils.isEmpty(this.generatorTables)) {
-            return this.generatorTables.get(RandomUtils.nextInt(0, this.generatorTables.size()));
+            if (this.generatorTables.size() == 1) {
+                return this.generatorTables.get(0);
+            } else {
+                return this.generatorTables.get(RandomUtils.nextInt(0, this.generatorTables.size() - 1));
+            }
         }
         return null;
     }
 
+    /** 为 fakerTable 生成一批 opsType 类型 DML 语句 */
     protected List<BoundQuery> generatorOps(FakerTable fakerTable, OpsType opsType) throws SQLException {
-        opsType = opsType != null ? opsType : this.fakerConfig.randomOps();
-        if (opsType == null) {
-            throw new IllegalStateException("no any boundary were declared, please init one.");
-        }
+        Objects.requireNonNull(fakerTable, "fakerTable is null.");
+        Objects.requireNonNull(opsType, "opsType is null.");
 
         int batchSize = this.fakerConfig.randomBatchSizePerOps();
-
         switch (opsType) {
             case Insert:
                 return fakerTable.buildInsert(batchSize);
@@ -120,6 +107,7 @@ public class FakerGenerator {
         }
     }
 
+    /** 添加一个表到生成器中，表的列信息通过元信息服务来补全。 */
     public FakerTable addTable(String catalog, String schema, String table) throws SQLException {
         try {
             FakerTable fetchTable = this.fakerFactory.fetchTable(catalog, schema, table);
@@ -130,11 +118,13 @@ public class FakerGenerator {
         }
     }
 
-    public FakerTable addTable(FakerTable table) {
+    /** 添加一个表到生成器中 */
+    protected FakerTable addTable(FakerTable table) {
         this.generatorTables.add(table);
         return table;
     }
 
+    /** 从生成器中查找某个表 */
     public FakerTable findTable(String catalog, String schema, String table) {
         return this.generatorTables.stream().filter(fakerTable -> {
             return StringUtils.equals(fakerTable.getCatalog(), catalog) && //

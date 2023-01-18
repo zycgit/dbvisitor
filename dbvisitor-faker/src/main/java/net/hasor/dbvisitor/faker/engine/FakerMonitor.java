@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.engine;
-import net.hasor.cobble.concurrent.QoSBucket;
 import net.hasor.cobble.logging.Logger;
-import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.OpsType;
 import net.hasor.dbvisitor.faker.generator.BoundQuery;
 
@@ -37,19 +35,16 @@ public class FakerMonitor {
     private final        Map<OpsType, AtomicLong> succeedCounter    = new ConcurrentHashMap<>();
     private final        Map<OpsType, AtomicLong> failedCounter     = new ConcurrentHashMap<>();
     private final        AtomicLong               affectRowsCounter = new AtomicLong(0);
-    private              QoSBucket                qosBucket         = null;
     private              long                     startMonitorTime  = 0;
     private final        Map<String, AtomicLong>  writerTotal       = new ConcurrentHashMap<>();
+    private final        Map<String, Long>        workerLastThrow   = new ConcurrentHashMap<>();
     //
     private final        List<Thread>             producerThreads   = new CopyOnWriteArrayList<>();
     private final        List<Thread>             writerThreads     = new CopyOnWriteArrayList<>();
-    private final        List<EventQueue>         queueList         = new CopyOnWriteArrayList<>();
-    private volatile     boolean                  presentExit       = false;
+    private final        EventQueue               eventQueue;
 
-    FakerMonitor(FakerConfig fakerConfig) {
-        if (fakerConfig.getWriteQps() > 0) {
-            this.qosBucket = new QoSBucket(fakerConfig.getWriteQps());
-        }
+    FakerMonitor(EventQueue eventQueue) {
+        this.eventQueue = eventQueue;
     }
 
     /** 获取成功执行的 insert 数 */
@@ -92,23 +87,6 @@ public class FakerMonitor {
         return getFailedInsert() + getFailedUpdate() + getFailedDelete();
     }
 
-    /** 各 worker 否退出？ */
-    public boolean ifPresentExit() {
-        return this.presentExit;
-    }
-
-    /** 发送各个 worker 的退出信号 */
-    public void exitSignal() {
-        this.presentExit = true;
-    }
-
-    /** 写入限流 */
-    void checkQoS() {
-        if (this.qosBucket != null) {
-            this.qosBucket.check();
-        }
-    }
-
     /** 一个 写入成功事件 */
     void recordMonitor(String writerID, String tranID, BoundQuery event, int affectRows) {
         if (this.startMonitorTime <= 0) {
@@ -124,11 +102,15 @@ public class FakerMonitor {
         this.failedCounter.computeIfAbsent(event.getOpsType(), s -> new AtomicLong()).incrementAndGet();
     }
 
-    /** 一个 wokrer 退出了 */
-    void workExit(String writerID, Throwable e) {
-        if (e != null) {
-            logger.error(e.getMessage(), e);
+    public void workThrowable(String writerID, Throwable e) {
+        long now = System.currentTimeMillis();
+        Long lastTime = this.workerLastThrow.get(writerID);
+        if (lastTime != null && (lastTime + 3000) > now) {
+            return;
         }
+
+        this.workerLastThrow.put(writerID, now);
+        logger.error("work " + writerID + ", throwable:" + e.getMessage(), e);
     }
 
     /** 启动了一个数据发生器 */
@@ -139,11 +121,6 @@ public class FakerMonitor {
     /** 启动了一个写入器 */
     void writerStart(String writerID, Thread workThread) {
         this.writerThreads.add(workThread);
-    }
-
-    /** 需要监控的 EventQueue */
-    void monitorQueue(EventQueue eventQueue) {
-        this.queueList.add(eventQueue);
     }
 
     @Override
@@ -159,13 +136,9 @@ public class FakerMonitor {
         long passedTimeSec = Math.max(1, (System.currentTimeMillis() - this.startMonitorTime) / 1000);
         long writerTotal = succeedTotal + failedTotal;
         long perWriterAvg = this.writerTotal.size() == 0 ? 0 : (writerTotal / this.writerTotal.size());
-        //
-        int queueCapacity = 0;
-        int queueSize = 0;
-        for (EventQueue queue : this.queueList) {
-            queueCapacity = queueCapacity + queue.getCapacity();
-            queueSize = queueSize + queue.getQueueSize();
-        }
+
+        int queueCapacity = this.eventQueue.getCapacity();
+        int queueSize = this.eventQueue.getQueueSize();
         int queueDutyRatio = (int) (((double) queueSize / (double) queueCapacity) * 100);
 
         int producerRunningCnt = (int) this.producerThreads.stream().map(Thread::getState).filter(state -> state == Thread.State.RUNNABLE).count();
@@ -173,14 +146,24 @@ public class FakerMonitor {
         int producerDutyRatio = (int) (((double) producerRunningCnt / (double) this.producerThreads.size()) * 100);
         int writerDutyRatio = (int) (((double) writerRunningCnt / (double) this.writerThreads.size()) * 100);
 
-        StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append(String.format("Succeed[I/U/D] %s/%s/%s, Failed[I/U/D] %s/%s/%s, RPS(s)[per/sum] %s/%s, total/affect %s/%s, load[Q/P/W] %d%%/%d%%/%d%%",//
+        return String.format("Succeed[I/U/D] %s/%s/%s, Failed[I/U/D] %s/%s/%s, RPS(s)[per/sum] %s/%s, total/affect %s/%s, load[Q/P/W] %d%%/%d%%/%d%%",//
                 getSucceedInsert(), getSucceedUpdate(), getSucceedDelete(),     // Succeed[I/U/D]
                 getFailedInsert(), getFailedUpdate(), getFailedDelete(),        // Failed[I/U/D]
                 (perWriterAvg / passedTimeSec), (writerTotal / passedTimeSec),  // RPS[perWriter/total]
                 writerTotal, affectRowsCounter,                                 // total/affect
                 queueDutyRatio, producerDutyRatio, writerDutyRatio              // dutyRatio[Q/P/W] -> queue/producer/writer
-        ));
-        return strBuilder.toString();
+        );
+    }
+
+    /** 重制状态 */
+    public void reset() {
+        this.succeedCounter.clear();
+        this.failedCounter.clear();
+        this.affectRowsCounter.set(0);
+        this.startMonitorTime = 0;
+        this.writerTotal.clear();
+        this.workerLastThrow.clear();
+        this.producerThreads.clear();
+        this.writerThreads.clear();
     }
 }

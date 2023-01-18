@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.faker.generator.action;
 import net.hasor.cobble.RandomUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.OpsType;
 import net.hasor.dbvisitor.faker.generator.*;
@@ -57,9 +58,14 @@ public class UpdateAction extends AbstractAction {
                     List<FakerColumn> cutColumns = randomCol(this.updateSetColumns);
                     setColumns.removeAll(cutColumns);
                 }
-                // maker sure is not empty insert.
-                if (setColumns.isEmpty()) {
-                    setColumns.add(this.updateSetColumns.get(RandomUtils.nextInt(0, this.updateSetColumns.size())));
+
+                // maker sure is not empty set.
+                if (setColumns.isEmpty() && !this.updateSetColumns.isEmpty()) {
+                    if (this.updateSetColumns.size() == 1) {
+                        setColumns.add(this.updateSetColumns.get(0));
+                    } else {
+                        setColumns.add(this.updateSetColumns.get(RandomUtils.nextInt(0, this.updateSetColumns.size() - 1)));
+                    }
                 }
                 break;
             }
@@ -101,12 +107,20 @@ public class UpdateAction extends AbstractAction {
 
         int maxCut = RandomUtils.nextInt(0, useColumns.size());
         for (int i = 0; i < maxCut; i++) {
-            useColumns.remove(RandomUtils.nextInt(0, useColumns.size()));
+            if (useColumns.size() == 1) {
+                useColumns.remove(0);
+            } else {
+                useColumns.remove(RandomUtils.nextInt(0, useColumns.size() - 1));
+            }
         }
 
         // maker sure is not empty delete.
-        if (useColumns.isEmpty()) {
-            useColumns.add(useCols.get(RandomUtils.nextInt(0, useCols.size())));
+        if (useColumns.isEmpty() && !useCols.isEmpty()) {
+            if (useCols.size() == 1) {
+                useColumns.add(useCols.get(0));
+            } else {
+                useColumns.add(useCols.get(RandomUtils.nextInt(0, useCols.size() - 1)));
+            }
         }
 
         return useColumns;
@@ -167,5 +181,23 @@ public class UpdateAction extends AbstractAction {
             boundQueries.add(new BoundQuery(this.tableInfo, OpsType.Update, builder, args));
         }
         return boundQueries;
+    }
+
+    @Override
+    public String toString() {
+        SqlPolitic updatePolitic = this.tableInfo.getUpdateSetPolitic();
+        String setCols = "'" + StringUtils.join(logCols(this.updateSetColumns), "','") + "'";
+        switch (updatePolitic) {
+            case KeyCol:
+            case RandomKeyCol:
+                String whereKCols = "'" + StringUtils.join(logCols(this.whereKeyColumns), "','") + "'";
+                return "UpdateAct{politic='" + updatePolitic + "'," + "setCols= [" + setCols + "], whereCols= [" + whereKCols + "]}";
+            case FullCol:
+            case RandomCol:
+                String whereFCols = "'" + StringUtils.join(logCols(this.whereFullColumns), "','") + "'";
+                return "UpdateAct{politic='" + updatePolitic + "'," + "setCols= [" + setCols + "], whereCols= [" + whereFCols + "]}";
+            default:
+                return "UpdateAct{politic='" + updatePolitic + "'," + "setCols= [" + setCols + "], whereCols= 'unknown'}";
+        }
     }
 }

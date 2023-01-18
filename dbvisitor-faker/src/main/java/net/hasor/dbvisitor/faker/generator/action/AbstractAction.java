@@ -16,10 +16,7 @@
 package net.hasor.dbvisitor.faker.generator.action;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.faker.generator.Action;
-import net.hasor.dbvisitor.faker.generator.FakerTable;
-import net.hasor.dbvisitor.faker.generator.SqlArg;
-import net.hasor.dbvisitor.faker.generator.UseFor;
+import net.hasor.dbvisitor.faker.generator.*;
 import net.hasor.dbvisitor.faker.generator.loader.DataLoader;
 
 import java.sql.SQLException;
@@ -63,5 +60,9 @@ public abstract class AbstractAction implements Action {
                 }
             }
         }
+    }
+
+    protected static String[] logCols(List<FakerColumn> cols) {
+        return cols.stream().map(c -> c.getColumn().replace("'", "\\'")).toArray(String[]::new);
     }
 }

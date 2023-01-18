@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.engine;
-import net.hasor.cobble.RandomUtils;
-import net.hasor.dbvisitor.faker.OpsType;
 import net.hasor.dbvisitor.faker.generator.BoundQuery;
-import net.hasor.dbvisitor.faker.generator.FakerGenerator;
+import net.hasor.dbvisitor.faker.generator.FakerRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -29,33 +26,40 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author 赵永春 (zyc@hasor.net)
  */
 class ProducerWorker implements ShutdownHook, Runnable {
-    private final    String         threadName;
-    private final    List<OpsType>  specialOps;
-    private final    FakerGenerator producer;
-    private final    FakerMonitor   monitor;
-    private final    EventQueue     eventQueue;
+    private final    String          threadName;
+    private final    FakerEngine     engine;
+    private final    FakerRepository repository;
+    private final    FakerMonitor    monitor;
+    private final    EventQueue      eventQueue;
     //
-    private final    AtomicBoolean  running;
-    private volatile Thread         workThread;
+    private final    AtomicBoolean   running;
+    private volatile Thread          workThread;
 
-    ProducerWorker(String threadName, List<OpsType> specialOps, FakerGenerator producer, FakerMonitor monitor, EventQueue eventQueue) {
+    ProducerWorker(String threadName, FakerEngine engine, FakerMonitor monitor, EventQueue eventQueue, FakerRepository repository) {
         this.threadName = threadName;
-        this.specialOps = specialOps == null ? new ArrayList<>() : specialOps;
-        this.producer = producer;
+        this.engine = engine;
+        this.repository = repository;
         this.monitor = monitor;
         this.eventQueue = eventQueue;
         this.running = new AtomicBoolean(true);
     }
 
+    @Override
     public void shutdown() {
-        this.running.set(false);
-        if (this.workThread != null) {
-            this.workThread.interrupt();
+        if (this.running.compareAndSet(true, false)) {
+            if (this.workThread != null) {
+                this.workThread.interrupt();
+            }
         }
     }
 
+    @Override
+    public boolean isRunning() {
+        return this.running.get();
+    }
+
     private boolean testContinue() {
-        return this.running.get() && !this.monitor.ifPresentExit() && !Thread.interrupted();
+        return this.running.get() && !this.engine.isExitSignal() && !Thread.interrupted();
     }
 
     @Override
@@ -66,14 +70,7 @@ class ProducerWorker implements ShutdownHook, Runnable {
 
         while (this.testContinue()) {
             try {
-                List<BoundQuery> queries = null;
-                if (this.specialOps.isEmpty()) {
-                    queries = this.producer.generator();
-                } else {
-                    OpsType randomOps = this.specialOps.get(RandomUtils.nextInt(0, this.specialOps.size()));
-                    queries = this.producer.generator(randomOps);
-                }
-
+                List<BoundQuery> queries = this.repository.generator();
                 while (this.testContinue()) {
                     if (!this.eventQueue.tryOffer(queries)) {
                         Thread.sleep(100); // prevent empty loop
@@ -81,14 +78,12 @@ class ProducerWorker implements ShutdownHook, Runnable {
                         break;
                     }
                 }
-            } catch (Throwable e) {
+            } catch (InterruptedException e) {
                 this.running.set(false);
-                this.monitor.workExit(this.threadName, e);
-                this.monitor.exitSignal();
                 return;
+            } catch (Throwable e) {
+                this.monitor.workThrowable(this.threadName, e);
             }
         }
-
-        this.monitor.workExit(this.threadName, null);
     }
 }

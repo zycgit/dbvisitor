@@ -181,4 +181,9 @@ public class FakerTable {
     protected List<BoundQuery> buildDelete(int batchSize) throws SQLException {
         return this.deleteGenerator.generatorAction(batchSize);
     }
+
+    @Override
+    public String toString() {
+        return "{catalog='" + this.catalog + "', schema='" + this.schema + "', table='" + this.table + "'}";
+    }
 }

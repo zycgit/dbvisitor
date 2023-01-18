@@ -15,12 +15,10 @@
  */
 package net.hasor.dbvisitor.faker.generator.action;
 import net.hasor.cobble.RandomUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.OpsType;
-import net.hasor.dbvisitor.faker.generator.BoundQuery;
-import net.hasor.dbvisitor.faker.generator.FakerColumn;
-import net.hasor.dbvisitor.faker.generator.FakerTable;
-import net.hasor.dbvisitor.faker.generator.SqlArg;
+import net.hasor.dbvisitor.faker.generator.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,9 +58,15 @@ public class InsertAction extends AbstractAction {
         List<FakerColumn> useColumns = new ArrayList<>(this.insertColumns);
         List<FakerColumn> cutColumns = new ArrayList<>();
 
-        int maxCut = RandomUtils.nextInt(0, this.canCutColumns.size());
+        int maxCut = RandomUtils.nextInt(0, this.canCutColumns.size() - 1);
         while (cutColumns.size() < maxCut) {
-            FakerColumn cutColumn = this.canCutColumns.get(RandomUtils.nextInt(0, maxCut));
+            FakerColumn cutColumn;
+            if (this.canCutColumns.size() == 1) {
+                cutColumn = this.canCutColumns.get(0);
+            } else {
+                cutColumn = this.canCutColumns.get(RandomUtils.nextInt(0, maxCut));
+            }
+
             if (!cutColumns.contains(cutColumn)) {
                 cutColumns.add(cutColumn);
             }
@@ -70,8 +74,12 @@ public class InsertAction extends AbstractAction {
         useColumns.removeAll(cutColumns);
 
         // maker sure is not empty insert.
-        if (useColumns.isEmpty()) {
-            useColumns.add(this.canCutColumns.get(RandomUtils.nextInt(0, this.canCutColumns.size())));
+        if (useColumns.isEmpty() && !this.canCutColumns.isEmpty()) {
+            if (this.canCutColumns.size() == 1) {
+                useColumns.add(this.canCutColumns.get(0));
+            } else {
+                useColumns.add(this.canCutColumns.get(RandomUtils.nextInt(0, this.canCutColumns.size() - 1)));
+            }
         }
 
         return buildAction(batchSize, useColumns);
@@ -116,5 +124,12 @@ public class InsertAction extends AbstractAction {
             boundQueries.add(new BoundQuery(this.tableInfo, OpsType.Insert, builder, args));
         }
         return boundQueries;
+    }
+
+    @Override
+    public String toString() {
+        SqlPolitic insertPolitic = this.tableInfo.getInsertPolitic();
+        String insertCols = "'" + StringUtils.join(logCols(this.insertColumns), "','") + "'";
+        return "InsertAct{politic='" + insertPolitic + "'," + "insertCols= [" + insertCols + "]}";
     }
 }

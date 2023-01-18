@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.engine;
+import net.hasor.cobble.concurrent.QoSBucket;
 import net.hasor.dbvisitor.faker.FakerConfig;
-import net.hasor.dbvisitor.faker.OpsType;
-import net.hasor.dbvisitor.faker.generator.FakerFactory;
-import net.hasor.dbvisitor.faker.generator.FakerGenerator;
+import net.hasor.dbvisitor.faker.generator.FakerRepository;
 
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 压力引擎
@@ -33,33 +32,44 @@ import java.util.concurrent.ThreadFactory;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class FakerEngine {
-    private final DataSource              dataSource;
-    private final FakerConfig             fakerConfig;
-    private       FakerMonitor            monitor;
+    private final DataSource         dataSource;
+    private final FakerConfig        fakerConfig;
+    private final FakerRepository    repository;
     //
-    private final ThreadFactory           threadFactory;
-    private final Map<String, EventQueue> queueMap;
-    private final List<ShutdownHook>      workers;
+    private final QoSBucket          qosBucket;
+    private final AtomicBoolean      exitSignal;
+    private final ThreadFactory      threadFactory;
+    private final EventQueue         eventQueue;
+    private final List<ShutdownHook> workers;
+    private final FakerMonitor       monitor;
 
-    public FakerEngine(FakerFactory fakerFactory) {
-        this(Objects.requireNonNull(fakerFactory.getJdbcTemplate().getDataSource(), "fakerFactory must be created by DataSource."), fakerFactory.getFakerConfig());
-    }
-
-    public FakerEngine(DataSource dataSource) {
-        this(dataSource, new FakerConfig());
-    }
-
-    public FakerEngine(DataSource dataSource, FakerConfig fakerConfig) {
+    public FakerEngine(DataSource dataSource, FakerRepository repository) {
         this.dataSource = dataSource;
-        this.fakerConfig = fakerConfig;
-        this.monitor = new FakerMonitor(fakerConfig);
-        this.queueMap = new ConcurrentHashMap<>();
-        this.workers = new CopyOnWriteArrayList<>();
+        this.fakerConfig = repository.getConfig();
+        this.repository = repository;
+        this.eventQueue = new EventQueue(this.fakerConfig.getQueueCapacity());
 
-        if (fakerConfig.getThreadFactory() != null) {
-            this.threadFactory = fakerConfig.getThreadFactory();
+        this.qosBucket = (this.fakerConfig.getWriteQps() > 0) ? new QoSBucket(fakerConfig.getWriteQps()) : null;
+        this.exitSignal = new AtomicBoolean(true);
+        this.workers = new CopyOnWriteArrayList<>();
+        this.monitor = new FakerMonitor(this.eventQueue);
+
+        if (this.fakerConfig.getThreadFactory() != null) {
+            this.threadFactory = this.fakerConfig.getThreadFactory();
         } else {
             this.threadFactory = Thread::new;
+        }
+    }
+
+    /** 各 worker 否退出？ */
+    public boolean isExitSignal() {
+        return this.exitSignal.get();
+    }
+
+    /** 写入限流 */
+    void checkQoS() {
+        if (this.qosBucket != null) {
+            this.qosBucket.check();
         }
     }
 
@@ -67,54 +77,73 @@ public class FakerEngine {
         return this.monitor;
     }
 
-    /** 启动数据集发生器 */
-    public synchronized void startProducer(FakerGenerator generator, int threadCount) {
-        this.startProducer(generator, threadCount, null);
-    }
-
-    /** 启动数据集发生器 */
-    public synchronized void startProducer(FakerGenerator generator, int threadCount, List<OpsType> specialOps) {
-        String producerID = generator.getGeneratorID();
-        if (this.queueMap.containsKey(producerID)) {
-            throw new IllegalStateException("generator '" + producerID + "' already exists.");
+    /** 启动引擎 */
+    public synchronized void start(int pThreadCnt, int wThreadCnt) {
+        if (!this.exitSignal.compareAndSet(true, false)) {
+            throw new IllegalStateException("the engine started.");
         }
 
-        EventQueue eventQueue = new EventQueue(this.fakerConfig.getQueueCapacity());
-        this.queueMap.put(producerID, eventQueue);
-        this.monitor.monitorQueue(eventQueue);
+        String repositoryID = this.repository.getGeneratorID();
 
-        for (int i = 0; i < threadCount; i++) {
-            String workName = String.format("generator[%s-%s]", producerID, i);
-            ShutdownHook worker = new ProducerWorker(workName, specialOps, generator, this.monitor, eventQueue);
-            this.workers.add(worker);
-            this.threadFactory.newThread(worker).start();
-        }
-    }
-
-    /** 启动数据写入器 */
-    public synchronized void startWriter(FakerGenerator producer, int threadCount) {
-        String producerID = producer.getGeneratorID();
-        if (!this.queueMap.containsKey(producerID)) {
-            throw new IllegalStateException("generator '" + producerID + "' is not exists.");
+        for (int i = 0; i < pThreadCnt; i++) {
+            String workName = String.format("generator[%s-%s]", repositoryID, i);
+            this.workers.add(new ProducerWorker(workName, this, this.monitor, this.eventQueue, this.repository));
         }
 
-        EventQueue eventQueue = this.queueMap.get(producerID);
-        for (int i = 0; i < threadCount; i++) {
-            String workName = String.format("writer[%s-%s]", producerID, i);
-            ShutdownHook worker = new WriteWorker(workName, this.dataSource, this.fakerConfig, this.monitor, eventQueue);
-            this.workers.add(worker);
+        for (int i = 0; i < wThreadCnt; i++) {
+            String workName = String.format("writer[%s-%s]", repositoryID, i);
+            this.workers.add(new WriteWorker(workName, this, this.monitor, this.eventQueue, this.dataSource, this.fakerConfig));
+        }
+
+        for (ShutdownHook worker : this.workers) {
             this.threadFactory.newThread(worker).start();
         }
     }
 
     /** 停止引擎，并清空监控状态 */
     public void shutdown() {
-        this.monitor.exitSignal();
+        try {
+            this.shutdown(-1, null);
+        } catch (TimeoutException ignored) {
+        }
+    }
+
+    /** 停止引擎，并清空监控状态 */
+    public void shutdown(int waitTime, TimeUnit timeUnit) throws TimeoutException {
+        if (!this.exitSignal.compareAndSet(false, true)) {
+            throw new IllegalStateException("the engine state is going to shutdown or not start");
+        }
+
+        // do stop
+        long timeout = (waitTime <= 0) ? (-1) : (System.currentTimeMillis() + timeUnit.toMillis(waitTime));
         for (ShutdownHook hook : this.workers) {
             hook.shutdown();
         }
+
+        while (true) {
+            boolean allStop = true;
+            for (ShutdownHook hook : this.workers) {
+                if (hook.isRunning()) {
+                    allStop = false;
+                    break;
+                }
+            }
+
+            if (allStop) {
+                break;
+            } else if (timeout > 0 && System.currentTimeMillis() > timeout) {
+                throw new TimeoutException();
+            } else {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ignored) {
+                    break;
+                }
+            }
+        }
+
         this.workers.clear();
-        this.queueMap.clear();
-        this.monitor = new FakerMonitor(this.fakerConfig);
+        this.eventQueue.clear();
+        this.monitor.reset();
     }
 }

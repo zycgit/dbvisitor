@@ -1,10 +1,10 @@
 package net.hasor.dbvisitor.faker.realdb;
+import com.alibaba.druid.pool.DruidDataSource;
 import net.hasor.dbvisitor.faker.DsUtils;
 import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.engine.FakerEngine;
-import net.hasor.dbvisitor.faker.engine.FakerMonitor;
 import net.hasor.dbvisitor.faker.generator.FakerFactory;
-import net.hasor.dbvisitor.faker.generator.FakerGenerator;
+import net.hasor.dbvisitor.faker.generator.FakerRepository;
 import net.hasor.dbvisitor.faker.generator.FakerTable;
 import net.hasor.dbvisitor.faker.generator.SqlPolitic;
 import net.hasor.dbvisitor.faker.generator.loader.PrecociousDataLoaderFactory;
@@ -27,8 +27,9 @@ public class PostgresTest {
             //        fakerConfig.setOpsRatio("INSERT#30");
 
             // 生成器，配置表
-            FakerFactory factory = new FakerFactory(DsUtils.dsPg(), fakerConfig);
-            FakerGenerator generator = new FakerGenerator(factory);
+            DruidDataSource dataDs = DsUtils.dsPg();
+            FakerFactory factory = new FakerFactory(dataDs, fakerConfig);
+            FakerRepository generator = new FakerRepository(factory);
             FakerTable table = generator.addTable("postgres", "public", "tb_postgre_types");
             table.setInsertPolitic(SqlPolitic.FullCol);
             table.apply();
@@ -53,21 +54,20 @@ public class PostgresTest {
             //            }
 
             // 生成数据
-            FakerEngine fakerEngine = new FakerEngine(factory);
-            fakerEngine.startProducer(generator, 1);
-            fakerEngine.startWriter(generator, 20);
+            FakerEngine engine = new FakerEngine(dataDs, generator);
+            engine.start(1, 20);
 
             // 监控信息
-            FakerMonitor monitor = fakerEngine.getMonitor();
             long t = System.currentTimeMillis();
-            while (!monitor.ifPresentExit()) {
-                if (fakerEngine.getMonitor().getSucceedInsert() > 10000) {
-                    fakerEngine.shutdown();
-                }
-
+            while (!engine.isExitSignal()) {
                 if ((t + 1000) < System.currentTimeMillis()) {
                     t = System.currentTimeMillis();
-                    System.out.println(monitor);
+                    System.out.println(engine.getMonitor());
+                }
+
+                if (engine.getMonitor().getSucceedInsert() > 100) {
+                    System.out.println(engine.getMonitor());
+                    engine.shutdown();
                 }
             }
         }

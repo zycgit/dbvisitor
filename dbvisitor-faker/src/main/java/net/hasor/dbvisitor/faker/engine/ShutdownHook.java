@@ -20,5 +20,7 @@ package net.hasor.dbvisitor.faker.engine;
  * @author 赵永春 (zyc@hasor.net)
  */
 interface ShutdownHook extends Runnable {
+    boolean isRunning();
+
     void shutdown();
 }

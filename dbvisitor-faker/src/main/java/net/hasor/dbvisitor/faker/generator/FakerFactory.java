@@ -25,9 +25,18 @@ import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.FakerConfigEnum;
 import net.hasor.dbvisitor.faker.generator.provider.DefaultTypeProcessorFactory;
-import net.hasor.dbvisitor.faker.generator.provider.conservative.*;
-import net.hasor.dbvisitor.faker.generator.provider.radical.*;
-import net.hasor.dbvisitor.faker.meta.*;
+import net.hasor.dbvisitor.faker.generator.provider.conservative.MySqlConservativeTypeProcessorFactory;
+import net.hasor.dbvisitor.faker.generator.provider.conservative.OracleConservativeTypeProcessorFactory;
+import net.hasor.dbvisitor.faker.generator.provider.conservative.PostgresConservativeTypeProcessorFactory;
+import net.hasor.dbvisitor.faker.generator.provider.conservative.SqlServerConservativeTypeProcessorFactory;
+import net.hasor.dbvisitor.faker.generator.provider.radical.MySqlRadicalTypeProcessorFactory;
+import net.hasor.dbvisitor.faker.generator.provider.radical.OracleRadicalTypeProcessorFactory;
+import net.hasor.dbvisitor.faker.generator.provider.radical.PostgresRadicalTypeProcessorFactory;
+import net.hasor.dbvisitor.faker.generator.provider.radical.SqlServerRadicalTypeProcessorFactory;
+import net.hasor.dbvisitor.faker.meta.JdbcColumn;
+import net.hasor.dbvisitor.faker.meta.JdbcFetchMeta;
+import net.hasor.dbvisitor.faker.meta.JdbcFetchMetaProvider;
+import net.hasor.dbvisitor.faker.meta.JdbcTable;
 import net.hasor.dbvisitor.faker.meta.special.mysql.MySqlFetchMeta;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
@@ -138,15 +147,15 @@ public class FakerFactory {
         }
     }
 
-    public FakerConfig getFakerConfig() {
+    protected FakerConfig getFakerConfig() {
         return this.fakerConfig;
     }
 
-    public JdbcTemplate getJdbcTemplate() {
+    protected JdbcTemplate getJdbcTemplate() {
         return this.jdbcTemplate;
     }
 
-    public SqlDialect getSqlDialect() {
+    protected SqlDialect getSqlDialect() {
         return this.sqlDialect;
     }
 
@@ -200,6 +209,9 @@ public class FakerFactory {
         Set<String> ignoreWhereSet = new HashSet<>(Arrays.asList(ignoreWhereCols));
 
         List<JdbcColumn> columns = this.metaProvider.getColumns(fakerTable.getCatalog(), fakerTable.getSchema(), fakerTable.getTable());
+        if (columns.isEmpty()) {
+            throw new UnsupportedOperationException(fakerTable + " no columns were found in the meta information.");
+        }
 
         for (JdbcColumn jdbcColumn : columns) {
             SettingNode columnConfig = columnsConfig == null ? null : columnsConfig.getSubNode(jdbcColumn.getColumnName());

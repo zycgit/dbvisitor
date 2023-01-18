@@ -55,7 +55,7 @@ public class EnumSeedFactory implements SeedFactory<EnumSeedConfig> {
             if (allowNullable && nextFloat(0, 100) < nullableRatio) {
                 return null;
             } else {
-                return dictArrays.length == 0 ? null : dictArrays[nextInt(0, max)];
+                return (dictArrays.length == 0) ? null : (dictArrays.length == 1) ? dictArrays[0] : dictArrays[nextInt(0, max)];
             }
         };
     }

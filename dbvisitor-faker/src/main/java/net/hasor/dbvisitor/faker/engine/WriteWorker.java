@@ -37,9 +37,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author 赵永春 (zyc@hasor.net)
  */
 class WriteWorker implements ShutdownHook, Runnable {
-
     private final static Logger        logger = Logger.getLogger(WriteWorker.class);
     private final        String        threadName;
+    private final        FakerEngine   engine;
     private final        DataSource    dataSource;
     private final        FakerConfig   fakerConfig;
     private final        FakerMonitor  monitor;
@@ -49,8 +49,9 @@ class WriteWorker implements ShutdownHook, Runnable {
     private volatile     Thread        workThread;
     private              List<String>  sqlTemp;
 
-    WriteWorker(String threadName, DataSource dataSource, FakerConfig fakerConfig, FakerMonitor monitor, EventQueue eventQueue) {
+    public WriteWorker(String threadName, FakerEngine engine, FakerMonitor monitor, EventQueue eventQueue, DataSource dataSource, FakerConfig fakerConfig) {
         this.threadName = threadName;
+        this.engine = engine;
         this.dataSource = dataSource;
         this.fakerConfig = fakerConfig;
         this.monitor = monitor;
@@ -58,20 +59,31 @@ class WriteWorker implements ShutdownHook, Runnable {
         this.running = new AtomicBoolean(true);
     }
 
+    @Override
     public void shutdown() {
-        this.running.set(false);
-        if (this.workThread != null) {
-            this.workThread.interrupt();
+        if (this.running.compareAndSet(true, false)) {
+            if (this.workThread != null) {
+                this.workThread.interrupt();
+            }
         }
     }
 
+    @Override
+    public boolean isRunning() {
+        return this.running.get();
+    }
+
     private boolean testContinue() {
-        return this.running.get() && !this.monitor.ifPresentExit() && !Thread.interrupted();
+        return this.running.get() && !this.engine.isExitSignal() && !Thread.interrupted();
+    }
+
+    private static String newTranID() {
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
     @Override
     public void run() {
-        this.sqlTemp = fakerConfig.isPrintSql() ? new ArrayList<>() : null;
+        this.sqlTemp = this.fakerConfig.isPrintSql() ? new ArrayList<>() : null;
         this.workThread = Thread.currentThread();
         this.workThread.setName(this.threadName);
         this.monitor.writerStart(this.threadName, this.workThread);
@@ -79,7 +91,7 @@ class WriteWorker implements ShutdownHook, Runnable {
         TransactionTemplate transTemplate = new TransactionTemplateManager(DataSourceUtils.getManager(this.dataSource));
 
         if (this.fakerConfig.getQueryTimeout() > 0) {
-            jdbcTemplate.setQueryTimeout(fakerConfig.getQueryTimeout());
+            jdbcTemplate.setQueryTimeout(this.fakerConfig.getQueryTimeout());
         }
 
         while (this.testContinue()) {
@@ -92,35 +104,38 @@ class WriteWorker implements ShutdownHook, Runnable {
 
                 if (this.fakerConfig.isTransaction()) {
                     Thread.sleep(this.fakerConfig.randomPausePerTransactionMs());
-                    String tranID = UUID.randomUUID().toString().replace("-", "");
+                    String tranID = newTranID();
 
                     transTemplate.execute((TransactionCallbackWithoutResult) tranStatus -> doBatch(tranID, jdbcTemplate, queries));
                 } else {
                     doBatch(null, jdbcTemplate, queries);
                 }
-            } catch (Throwable e) {
+            } catch (InterruptedException e) {
                 this.running.set(false);
-                this.monitor.workExit(this.threadName, e);
-                this.monitor.exitSignal();
                 return;
+            } catch (Throwable e) {
+                this.monitor.workThrowable(this.threadName, e);
             }
         }
-
-        this.monitor.workExit(this.threadName, null);
     }
 
-    private void doBatch(String tranID, JdbcTemplate jdbcTemplate, List<BoundQuery> batch) throws SQLException {
+    private void doBatch(final String tranID, JdbcTemplate jdbcTemplate, List<BoundQuery> batch) throws SQLException {
         for (BoundQuery event : batch) {
             if (!this.testContinue()) {
                 return;
             }
 
+            String useTranID = tranID;
+            if (useTranID == null) {
+                useTranID = newTranID();
+            }
+
             try {
                 int affectRows = doEvent(jdbcTemplate, event);
-                this.monitor.recordMonitor(this.threadName, tranID, event, affectRows);
+                this.monitor.recordMonitor(this.threadName, useTranID, event, affectRows);
             } catch (SQLException e) {
                 if (this.fakerConfig.ignoreError(e)) {
-                    this.monitor.recordFailed(this.threadName, tranID, event, e);
+                    this.monitor.recordFailed(this.threadName, useTranID, event, e);
                 } else {
                     logger.error(e.getMessage() + " event is " + event, e);
                     throw e;
@@ -130,7 +145,7 @@ class WriteWorker implements ShutdownHook, Runnable {
     }
 
     private int doEvent(JdbcTemplate jdbcTemplate, BoundQuery event) throws SQLException {
-        this.monitor.checkQoS(); // 写入限流
+        this.engine.checkQoS(); // 写入限流
 
         final String sqlString = event.getSqlString();
         final SqlArg[] sqlArgs = event.getArgs();
