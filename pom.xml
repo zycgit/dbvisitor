@@ -71,6 +71,11 @@
                 <artifactId>dbvisitor-spring</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>net.hasor</groupId>
+                <artifactId>dbvisitor-faker</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- test -->
             <dependency>
