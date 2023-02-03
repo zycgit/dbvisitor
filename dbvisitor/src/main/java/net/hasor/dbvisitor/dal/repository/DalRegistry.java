@@ -358,6 +358,7 @@ public class DalRegistry extends MappingRegistry {
             throw new IllegalStateException("identify cannot contain the character '.'");
         }
 
+        space = StringUtils.isBlank(space) ? "" : space;
         if (!this.dynamicMap.containsKey(space)) {
             this.dynamicMap.put(space, new ConcurrentHashMap<>());
         }
