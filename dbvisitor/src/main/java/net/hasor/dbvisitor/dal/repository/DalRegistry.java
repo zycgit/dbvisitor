@@ -92,11 +92,14 @@ public class DalRegistry extends MappingRegistry {
 
     /** 根据 namespace 和 ID 查找 DynamicSql */
     public DynamicSql findDynamicSql(Class<?> space, String dynamicId) {
-        return findDynamicSql(space == null ? null : space.getName(), dynamicId);
+        return findDynamicSql(space == null ? "" : space.getName(), dynamicId);
     }
 
     /** 根据 namespace 和 ID 查找 DynamicSql */
     public DynamicSql findDynamicSql(String space, String dynamicId) {
+        space = StringUtils.isBlank(space) ? "" : space;
+        Objects.requireNonNull(dynamicId, "'dynamicId' cannot be null.");
+
         Map<String, DynamicSql> dynamicSqlMap = this.dynamicMap.get(space);
         if (dynamicSqlMap == null) {
             return null;
@@ -108,8 +111,9 @@ public class DalRegistry extends MappingRegistry {
     /** 从类型中解析 TableMapping */
     public <T> TableMapping<T> findMapping(String space, String identify) {
         space = StringUtils.isBlank(space) ? "" : space;
-        TableMapping<T> mapping = super.findMapping(space, identify);
+        Objects.requireNonNull(identify, "'identify' cannot be null.");
 
+        TableMapping<T> mapping = super.findMapping(space, identify);
         if (mapping != null) {
             return mapping;
         } else if (StringUtils.isNotBlank(space)) {
@@ -122,6 +126,7 @@ public class DalRegistry extends MappingRegistry {
     /** 从类型中解析 TableMapping */
     public <T> TableMapping<T> findMapping(String space, Class<?> type) {
         space = StringUtils.isBlank(space) ? "" : space;
+
         String[] names = new String[] { //
                 type.getName(),         //
                 type.getSimpleName(),   //
@@ -141,6 +146,7 @@ public class DalRegistry extends MappingRegistry {
     /** 从类型中解析 TableReader */
     public <T> TableReader<T> findTableReader(String space, String identify) {
         space = StringUtils.isBlank(space) ? "" : space;
+        Objects.requireNonNull(identify, "'identify' cannot be null.");
 
         // form cache
         Map<String, TableReader<?>> readerMap;
@@ -272,6 +278,7 @@ public class DalRegistry extends MappingRegistry {
             NamedNodeMap rootAttributes = root.getAttributes();
 
             String namespace = readAttribute("namespace", rootAttributes);
+            namespace = StringUtils.isBlank(namespace) ? "" : namespace;
 
             this.loadReader(namespace, root);
             this.loadDynamic(namespace, root);
@@ -354,6 +361,7 @@ public class DalRegistry extends MappingRegistry {
     }
 
     protected void saveDynamic(String space, String identify, DynamicSql dynamicSql) throws IOException {
+        Objects.requireNonNull(identify, "'identify' cannot be null.");
         if (identify.contains(".")) {
             throw new IllegalStateException("identify cannot contain the character '.'");
         }
@@ -380,5 +388,4 @@ public class DalRegistry extends MappingRegistry {
     protected DynamicResolve<Node> getXmlDynamicResolve() {
         return new XmlDynamicResolve();
     }
-
 }
