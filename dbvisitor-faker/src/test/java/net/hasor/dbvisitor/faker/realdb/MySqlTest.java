@@ -7,12 +7,11 @@ import net.hasor.dbvisitor.faker.generator.FakerFactory;
 import net.hasor.dbvisitor.faker.generator.FakerRepository;
 import net.hasor.dbvisitor.faker.generator.FakerTable;
 import net.hasor.dbvisitor.faker.generator.loader.PrecociousDataLoaderFactory;
-import org.junit.Test;
+
+import java.sql.SQLException;
 
 public class MySqlTest {
-
-    @Test
-    public void workloadTest() throws Exception {
+    public static void main(String[] args) throws SQLException {
         // 全局配置
         FakerConfig fakerConfig = new FakerConfig();
         fakerConfig.setMinBatchSizePerOps(1);

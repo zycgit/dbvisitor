@@ -8,67 +8,66 @@ import net.hasor.dbvisitor.faker.generator.FakerRepository;
 import net.hasor.dbvisitor.faker.generator.FakerTable;
 import net.hasor.dbvisitor.faker.generator.SqlPolitic;
 import net.hasor.dbvisitor.faker.generator.loader.PrecociousDataLoaderFactory;
-import org.junit.Test;
+
+import java.sql.SQLException;
 
 public class PostgresTest {
-    @Test
-    public void workloadTest() throws Exception {
-        {
-            // 全局配置
-            FakerConfig fakerConfig = new FakerConfig();
-            fakerConfig.setTransaction(false);
-            fakerConfig.setUseRadical(true);
-            fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
-            fakerConfig.addIgnoreError("Duplicate");
-            fakerConfig.addIgnoreError("restarting");
-            fakerConfig.addIgnoreError("deadlocked");
-            fakerConfig.addIgnoreError("was deadlocked on lock");
-            fakerConfig.addIgnoreError("The incoming tabular data stream (TDS) remote procedure call (RPC) protocol stream is incorrect");
-            //        fakerConfig.setOpsRatio("INSERT#30");
+    public static void main(String[] args) throws SQLException {
 
-            // 生成器，配置表
-            DruidDataSource dataDs = DsUtils.dsPg();
-            FakerFactory factory = new FakerFactory(dataDs, fakerConfig);
-            FakerRepository generator = new FakerRepository(factory);
-            FakerTable table = generator.addTable("postgres", "public", "tb_postgre_types");
-            table.setInsertPolitic(SqlPolitic.FullCol);
-            table.apply();
+        // 全局配置
+        FakerConfig fakerConfig = new FakerConfig();
+        fakerConfig.setTransaction(false);
+        fakerConfig.setUseRadical(true);
+        fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
+        fakerConfig.addIgnoreError("Duplicate");
+        fakerConfig.addIgnoreError("restarting");
+        fakerConfig.addIgnoreError("deadlocked");
+        fakerConfig.addIgnoreError("was deadlocked on lock");
+        fakerConfig.addIgnoreError("The incoming tabular data stream (TDS) remote procedure call (RPC) protocol stream is incorrect");
+        //        fakerConfig.setOpsRatio("INSERT#30");
 
-            //            {
-            //                List<String> colNames = Arrays.asList("point", "line", "lseg", "box", "path", "polygon", "circle", "geometry");
-            //                for (String col : table.getColumns()) {
-            //                    boolean match = false;
-            //                    for (String p : colNames) {
-            //                        if (col.startsWith("c_") && StringUtils.contains(col, p)) {
-            //                            match = true;
-            //                            break;
-            //                        }
-            //                    }
-            //                    if (match) {
-            //                        table.findColumn(col).ignoreReset();
-            //                    } else {
-            //                        table.findColumn(col).ignoreAct(UseFor.values());
-            //                    }
-            //                }
-            //                table.apply();
-            //            }
+        // 生成器，配置表
+        DruidDataSource dataDs = DsUtils.dsPg();
+        FakerFactory factory = new FakerFactory(dataDs, fakerConfig);
+        FakerRepository generator = new FakerRepository(factory);
+        FakerTable table = generator.addTable("postgres", "public", "tb_postgre_types");
+        table.setInsertPolitic(SqlPolitic.FullCol);
+        table.apply();
 
-            // 生成数据
-            FakerEngine engine = new FakerEngine(dataDs, generator);
-            engine.start(1, 20);
+        //            {
+        //                List<String> colNames = Arrays.asList("point", "line", "lseg", "box", "path", "polygon", "circle", "geometry");
+        //                for (String col : table.getColumns()) {
+        //                    boolean match = false;
+        //                    for (String p : colNames) {
+        //                        if (col.startsWith("c_") && StringUtils.contains(col, p)) {
+        //                            match = true;
+        //                            break;
+        //                        }
+        //                    }
+        //                    if (match) {
+        //                        table.findColumn(col).ignoreReset();
+        //                    } else {
+        //                        table.findColumn(col).ignoreAct(UseFor.values());
+        //                    }
+        //                }
+        //                table.apply();
+        //            }
 
-            // 监控信息
-            long t = System.currentTimeMillis();
-            while (!engine.isExitSignal()) {
-                if ((t + 1000) < System.currentTimeMillis()) {
-                    t = System.currentTimeMillis();
-                    System.out.println(engine.getMonitor());
-                }
+        // 生成数据
+        FakerEngine engine = new FakerEngine(dataDs, generator);
+        engine.start(1, 20);
 
-                if (engine.getMonitor().getSucceedInsert() > 100) {
-                    System.out.println(engine.getMonitor());
-                    engine.shutdown();
-                }
+        // 监控信息
+        long t = System.currentTimeMillis();
+        while (!engine.isExitSignal()) {
+            if ((t + 1000) < System.currentTimeMillis()) {
+                t = System.currentTimeMillis();
+                System.out.println(engine.getMonitor());
+            }
+
+            if (engine.getMonitor().getSucceedInsert() > 100) {
+                System.out.println(engine.getMonitor());
+                engine.shutdown();
             }
         }
     }
