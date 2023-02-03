@@ -202,7 +202,7 @@ public class DalSession extends JdbcAccessor {
             if (stId.contains(".")) {
                 int index = stId.lastIndexOf(".");
                 space = stId.substring(0, index);
-                dynamicId = stId.substring(index);
+                dynamicId = stId.substring(index + 1);
             }
             DynamicContext context = new DalContext(space, this.dalRegistry);
             return new ExecuteProxy(dynamicId, context);
