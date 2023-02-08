@@ -206,6 +206,11 @@ public class DalRegistry extends MappingRegistry {
         RefMapper refMapper = refRepository.getAnnotation(RefMapper.class);
         if (refMapper != null) {
             String resource = refMapper.value();
+
+            if (StringUtils.isBlank(resource)) {
+                resource = refRepository.getName().replace('.', '/') + ".xml";
+            }
+
             if (resource.startsWith("/")) {
                 resource = resource.substring(1);
             }
