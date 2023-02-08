@@ -26,5 +26,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface RefMapper {
-    String value() default null;
+    String value() default "";
 }
