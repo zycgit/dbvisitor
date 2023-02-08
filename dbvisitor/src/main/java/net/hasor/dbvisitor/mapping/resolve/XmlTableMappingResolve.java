@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.resolve;
-import net.hasor.cobble.*;
+import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.ClassUtils;
+import net.hasor.cobble.NumberUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.dbvisitor.keyholder.CreateContext;
@@ -66,7 +69,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
     }
 
     @Override
-    public TableDef<?> resolveTableMapping(Node refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ClassNotFoundException, NoSuchFieldException {
+    public TableDef<?> resolveTableMapping(Node refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
         NamedNodeMap nodeAttributes = refData.getAttributes();
         Node typeNode = nodeAttributes.getNamedItem("type");
         Node catalogNode = nodeAttributes.getNamedItem("catalog");
@@ -120,7 +123,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         return tableDef;
     }
 
-    private void loadTableMapping(TableDef<?> tableDef, Node refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ClassNotFoundException, NoSuchFieldException {
+    private void loadTableMapping(TableDef<?> tableDef, Node refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
         Map<String, Property> propertyMap = BeanUtils.getPropertyFunc(tableDef.entityType());
 
         NodeList childNodes = refData.getChildNodes();
@@ -147,7 +150,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         }
     }
 
-    private ColumnMapping resolveProperty(TableDef<?> tableDef, boolean asPrimaryKey, Node xmlNode, Map<String, Property> propertyMap, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ClassNotFoundException, NoSuchFieldException {
+    private ColumnMapping resolveProperty(TableDef<?> tableDef, boolean asPrimaryKey, Node xmlNode, Map<String, Property> propertyMap, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
         NamedNodeMap nodeAttributes = xmlNode.getAttributes();
         Node columnNode = nodeAttributes.getNamedItem("column");
         Node propertyNode = nodeAttributes.getNamedItem("property");
@@ -195,7 +198,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         return colDef;
     }
 
-    private KeySeqHolder resolveKeyType(TableDef<?> tableDef, ColumnDef colDef, String keyType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
+    private KeySeqHolder resolveKeyType(TableDef<?> tableDef, ColumnDef colDef, String keyType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
         if (StringUtils.isBlank(keyType)) {
             return null;
         }
@@ -219,17 +222,13 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
             context.put(KeySeq.class.getName(), new KeySeqImpl(keyType));
             return KeyTypeEnum.Sequence.createHolder(new CreateContext(this.options, typeRegistry, tableDef, colDef, context));
         } else {
-            try {
-                Class<?> aClass = classLoader.loadClass(keyType);
-                KeySeqHolderFactory holderFactory = (KeySeqHolderFactory) aClass.newInstance();
-                return holderFactory.createHolder(new CreateContext(this.options, typeRegistry, tableDef, colDef, Collections.emptyMap()));
-            } catch (ReflectiveOperationException e) {
-                throw ExceptionUtils.toRuntime(e);
-            }
+            Class<?> aClass = classLoader.loadClass(keyType);
+            KeySeqHolderFactory holderFactory = (KeySeqHolderFactory) aClass.newInstance();
+            return holderFactory.createHolder(new CreateContext(this.options, typeRegistry, tableDef, colDef, Collections.emptyMap()));
         }
     }
 
-    private static Class<?> resolveJavaType(Node xmlNode, String javaType, Property property, ClassLoader classLoader) throws ClassNotFoundException {
+    private static Class<?> resolveJavaType(Node xmlNode, String javaType, Property property, ClassLoader classLoader) throws ReflectiveOperationException {
         Class<?> columnJavaType = BeanUtils.getPropertyType(property);
 
         if (StringUtils.isNotBlank(javaType)) {

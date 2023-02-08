@@ -103,12 +103,12 @@ public class MappingRegistry {
             String namespace = readAttribute("namespace", rootAttributes);
 
             this.loadReader(namespace, root);
-        } catch (ParserConfigurationException | SAXException | ClassNotFoundException | NoSuchFieldException e) {
+        } catch (ParserConfigurationException | SAXException | ReflectiveOperationException e) {
             throw new IOException(e);
         }
     }
 
-    protected void loadReader(String space, Element configRoot) throws IOException, ClassNotFoundException, NoSuchFieldException {
+    protected void loadReader(String space, Element configRoot) throws IOException, ReflectiveOperationException {
         NodeList childNodes = configRoot.getChildNodes();
         for (int i = 0, len = childNodes.getLength(); i < len; i++) {
             Node node = childNodes.item(i);
