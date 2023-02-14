@@ -17,12 +17,14 @@ package net.hasor.dbvisitor.dialect.provider;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
+import net.hasor.cobble.io.input.AutoCloseInputStream;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
@@ -43,10 +45,17 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
             this.keyWords = new HashSet<>();
 
             try {
-                InputStream inputStream = ResourcesUtils.getResourceAsStream("/META-INF/custom.keywords");
-                if (inputStream != null) {
-                    List<String> strings = IOUtils.readLines(inputStream, StandardCharsets.UTF_8);
-                    this.loadKeyWords(strings);
+                List<URL> ins = ResourcesUtils.getResources("/META-INF/custom.keywords");
+                if (ins != null) {
+                    for (URL in : ins) {
+                        try {
+                            InputStream input = new AutoCloseInputStream(in.openStream());
+                            List<String> strings = IOUtils.readLines(input, StandardCharsets.UTF_8);
+                            this.loadKeyWords(strings);
+                        } catch (Exception e) {
+                            logger.error("load '" + in + "' failed." + e.getMessage());
+                        }
+                    }
                 }
             } catch (Exception e) {
                 logger.error("load 'custom.keywords' failed." + e.getMessage());
