@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.def;
+import net.hasor.cobble.function.Property;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.types.TypeHandler;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.util.*;
 
@@ -37,6 +40,7 @@ public class TableDef<T> implements TableMapping<T> {
     private       TableDescription description;
     private final SqlDialect       dialect;
 
+    private final boolean                    mapBased;
     private final List<ColumnMapping>        columnMappings;
     private final Map<String, ColumnMapping> mapByProperty;
     private final Map<String, ColumnMapping> mapByColumn;
@@ -50,6 +54,7 @@ public class TableDef<T> implements TableMapping<T> {
         this.autoProperty = autoProperty;
         this.useDelimited = useDelimited;
         this.caseInsensitive = caseInsensitive;
+        this.mapBased = Map.class.isAssignableFrom(entityType);
         this.columnMappings = new ArrayList<>();
         this.mapByProperty = (caseInsensitive && Map.class.isAssignableFrom(entityType)) ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
         this.mapByColumn = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
@@ -122,16 +127,6 @@ public class TableDef<T> implements TableMapping<T> {
         return this.columnMappings;
     }
 
-    @Override
-    public ColumnMapping getPropertyByColumn(String column) {
-        return this.mapByColumn.get(column);
-    }
-
-    @Override
-    public ColumnMapping getPropertyByName(String property) {
-        return this.mapByProperty.get(property);
-    }
-
     public void addMapping(ColumnMapping mapping) {
         String columnName = mapping.getColumn();
         String propertyName = mapping.getProperty();
@@ -141,5 +136,68 @@ public class TableDef<T> implements TableMapping<T> {
         this.mapByColumn.put(columnName, mapping);
         this.mapByProperty.put(propertyName, mapping);
         this.columnMappings.add(mapping);
+    }
+
+    @Override
+    public ColumnMapping getPropertyByColumn(String column) {
+        if (this.mapByColumn.containsKey(column)) {
+            return this.mapByColumn.get(column);
+        } else if (this.mapBased) {
+            return initOrGetMapMapping(this.mapByColumn, column);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public ColumnMapping getPropertyByName(String property) {
+        if (this.mapByProperty.containsKey(property)) {
+            return this.mapByProperty.get(property);
+        } else if (this.mapBased) {
+            return initOrGetMapMapping(this.mapByProperty, property);
+        } else {
+            return null;
+        }
+    }
+
+    private ColumnMapping initOrGetMapMapping(Map<String, ColumnMapping> map, String name) {
+        if (map.containsKey(name)) {
+            return map.get(name);
+        }
+        synchronized (this) {
+            if (map.containsKey(name)) {
+                return map.get(name);
+            }
+
+            Class<?> javaType = Object.class;
+            int jdbcType = TypeHandlerRegistry.toSqlType(javaType);
+            TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();
+            ColumnDef columnDef = new ColumnDef(name, name, jdbcType, javaType, typeHandler, new MapProperty(name), true, true, false);
+            this.mapByColumn.put(name, columnDef);
+            return columnDef;
+        }
+    }
+
+    private final class MapProperty implements Property {
+        private final String name;
+
+        public MapProperty(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean isReadOnly() {
+            return false;
+        }
+
+        @Override
+        public Object get(Object instance) {
+            return ((Map) instance).get(this.name);
+        }
+
+        @Override
+        public void set(Object instance, Object value) {
+            ((Map) instance).put(this.name, value);
+        }
     }
 }
