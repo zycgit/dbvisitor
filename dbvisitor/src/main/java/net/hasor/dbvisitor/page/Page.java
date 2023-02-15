@@ -51,6 +51,15 @@ public interface Page {
     /** 获取记录总数 */
     long getTotalCount() throws SQLException;
 
+    /** 设置记录总数 */
+    void setTotalCount(long totalCount);
+
+    /** 是否返回总记录数 */
+    boolean isCountTotalRows();
+
+    /** 设置是否返回总记录数 */
+    void setCountTotalRows(boolean isCountTotalRows);
+
     /** 移动到第一页 */
     default void firstPage() {
         setCurrentPage(0);

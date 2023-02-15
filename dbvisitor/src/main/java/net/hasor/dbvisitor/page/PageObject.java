@@ -36,6 +36,16 @@ public class PageObject implements Page {
     private       long                          currentPage        = 0;
     /** 起始页码的偏移量 */
     private       long                          pageNumberOffset   = 0;
+    /** 是否返回总记录数 */
+    private       boolean                       isCountTotalRows   = false;
+
+    public boolean isCountTotalRows() {
+        return isCountTotalRows;
+    }
+
+    public void setCountTotalRows(boolean isCountTotalRows) {
+        this.isCountTotalRows = isCountTotalRows;
+    }
 
     public PageObject() {
         this.totalCountSupplier = () -> 0L;
@@ -43,8 +53,7 @@ public class PageObject implements Page {
 
     public PageObject(long pageSize, long totalCount) {
         this.pageSize = pageSize;
-        this.totalCount = totalCount;
-        this.totalCountInited.set(true);
+        this.setTotalCount(totalCount);
     }
 
     public PageObject(long pageSize, ESupplier<Long, SQLException> totalCountSupplier) {
@@ -126,5 +135,10 @@ public class PageObject implements Page {
             this.totalCount = this.totalCountSupplier.eGet();
         }
         return this.totalCount;
+    }
+
+    public void setTotalCount(long totalCount) {
+        this.totalCount = totalCount;
+        this.totalCountInited.set(true);
     }
 }

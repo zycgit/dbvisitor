@@ -60,7 +60,7 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
             long position = executeInfo.pageInfo.getFirstRecordPosition();
             long pageSize = executeInfo.pageInfo.getPageSize();
             boundSql = dialect.pageSql(sqlBuilder, position, pageSize);
-            if (executeInfo.pageResult) {
+            if (executeInfo.pageResult || executeInfo.pageInfo.isCountTotalRows()) {
                 countSql = dialect.countSql(sqlBuilder);
             }
         }
@@ -84,6 +84,16 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
         } catch (SQLException e) {
             logger.error("executeCount failed, " + ExceptionUtils.getRootCauseMessage(e) + ", " + fmtBoundSql(countSql, executeInfo.data), e);
             throw e;
+        }
+
+        if (usingPage(executeInfo)) {
+            if (executeInfo.pageInfo.isCountTotalRows()) {
+                executeInfo.pageInfo.setTotalCount(resultCount);
+            }
+
+            if (!executeInfo.pageResult) {
+                return resultData;
+            }
         }
 
         PageResult<Object> pageResult = new PageResult<>(executeInfo.pageInfo, resultCount);
