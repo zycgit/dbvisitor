@@ -16,10 +16,12 @@
 package net.hasor.dbvisitor.faker.seed.date;
 import net.hasor.cobble.DateFormatType;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.WellKnowFormat;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedType;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
+import net.hasor.dbvisitor.types.handler.*;
 
 import java.time.format.DateTimeFormatter;
 
@@ -31,7 +33,7 @@ import java.time.format.DateTimeFormatter;
 public class DateSeedConfig extends SeedConfig {
     private GenType           genType;
     private DateType          dateType;
-    private String            dateFormat;
+    private String            dateFormat;   // 首先搜索 DateTimeFormatter 中定义的 ISO 格式，其次在解析。
     private DateTimeFormatter dateFormatter;
     // in random
     private String            rangeForm;
@@ -49,7 +51,12 @@ public class DateSeedConfig extends SeedConfig {
     public DateTimeFormatter getDateTimeFormatter() {
         if (this.dateFormatter == null) {
             if (StringUtils.isNotBlank(this.dateFormat)) {
-                this.dateFormatter = DateTimeFormatter.ofPattern(this.dateFormat);
+                WellKnowFormat wkf = WellKnowFormat.valueOfCode(this.dateFormat, this.precision == null ? 0 : this.precision);
+                if (wkf != null) {
+                    this.dateFormatter = wkf.toPattern();
+                } else {
+                    this.dateFormatter = DateTimeFormatter.ofPattern(this.dateFormat);
+                }
             } else {
                 this.dateFormatter = DateTimeFormatter.ofPattern(DateFormatType.d_yyyyMMdd_HHmmss.getDatePattern());
             }
@@ -81,7 +88,25 @@ public class DateSeedConfig extends SeedConfig {
     public void setDateType(DateType dateType) {
         if (this.dateType != dateType) {
             this.dateType = dateType;
-            this.setTypeHandler(TypeHandlerRegistry.DEFAULT.getTypeHandler(dateType.getDateType()));
+            switch (dateType) {
+                case OffsetTime:
+                    this.setTypeHandler(new OffsetTimeForSqlTypeHandler());
+                    break;
+                case OffsetDateTime:
+                    this.setTypeHandler(new OffsetDateTimeForSqlTypeHandler());
+                    break;
+                case ZonedDateTime:
+                    this.setTypeHandler(new ZonedDateTimeTypeHandler());
+                    break;
+                case LocalDateTime:
+                    this.setTypeHandler(new LocalDateTimeTypeHandler());
+                    break;
+                case LocalTime:
+                    this.setTypeHandler(new LocalTimeForOriginalTypeHandler());
+                    break;
+                default:
+                    this.setTypeHandler(TypeHandlerRegistry.DEFAULT.getTypeHandler(dateType.getDateType()));
+            }
         }
     }
 
@@ -155,6 +180,7 @@ public class DateSeedConfig extends SeedConfig {
 
     public void setDateFormat(String dateFormat) {
         this.dateFormat = dateFormat;
+        this.dateFormatter = null;
     }
 
     public Integer getPrecision() {

@@ -45,6 +45,18 @@ public class NumberSeedConfig extends SeedConfig {
         return TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();
     }
 
+    public void addMinMax(BigDecimal min, BigDecimal max) {
+        this.addMinMax(50, min, max);
+    }
+
+    public void addMinMax(int ratio, BigDecimal min, BigDecimal max) {
+        this.minmax.addRatio(ratio, new MinMax(min, max));
+    }
+
+    public void clearMinMax() {
+        this.minmax.clearRatio();
+    }
+
     public NumberType getNumberType() {
         return numberType;
     }
@@ -52,14 +64,6 @@ public class NumberSeedConfig extends SeedConfig {
     public void setNumberType(NumberType numberType) {
         this.numberType = numberType;
         this.setTypeHandler(TypeHandlerRegistry.DEFAULT.getTypeHandler(numberType.getDateType()));
-    }
-
-    public void addMinMax(BigDecimal min, BigDecimal max) {
-        this.addMinMax(50, min, max);
-    }
-
-    public void addMinMax(int ratio, BigDecimal min, BigDecimal max) {
-        this.minmax.addRatio(ratio, new MinMax(min, max));
     }
 
     public RandomRatio<MinMax> getMinMax() {
@@ -89,4 +93,5 @@ public class NumberSeedConfig extends SeedConfig {
     public void setAbs(boolean abs) {
         this.abs = abs;
     }
+
 }

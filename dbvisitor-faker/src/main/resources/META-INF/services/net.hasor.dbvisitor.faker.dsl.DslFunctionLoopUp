@@ -1,0 +1,5 @@
+net.hasor.dbvisitor.faker.generator.processor.PublicSpiRegistry
+net.hasor.dbvisitor.faker.provider.postgresql.PostgresqlSpiRegistry
+net.hasor.dbvisitor.faker.provider.sqlserver.SqlServerSpiRegistry
+net.hasor.dbvisitor.faker.provider.oracle.OracleSpiRegistry
+net.hasor.dbvisitor.faker.provider.mysql.MySqlSpiRegistry

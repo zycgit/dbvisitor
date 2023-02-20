@@ -94,17 +94,10 @@ public class StringSeedConfig extends SeedConfig {
         this.allowEmpty = allowEmpty;
     }
 
-    public void setCharacters(String[] characters) {
-        if (characters == null || characters.length == 0) {
-            return;
-        }
-
-        setCharacterSet(new HashSet<>());
-        for (String characterName : characters) {
-            Characters object = CHARACTERS_MAP.get(characterName);
-            if (object != null) {
-                this.addCharacter(object);
-            }
+    public void addCharacter(String character) {
+        Characters object = CHARACTERS_MAP.get(character);
+        if (object != null) {
+            this.addCharacter(object);
         }
     }
 

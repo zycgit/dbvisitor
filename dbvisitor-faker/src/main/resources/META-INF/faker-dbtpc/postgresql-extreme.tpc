@@ -1,0 +1,254 @@
+# see https://www.postgresql.org/docs/13/datatype.html
+
+define postgresql {
+    priority     = 1
+    policy       = "extreme"
+    policyDesc   = "PostgreSQL TypeProcessor Policy(Extreme)"
+}
+
+[*]
+    arrayDimension = pgArrayDimension()
+    arrayMinSize   = 0
+    arrayMaxSize   = 10
+    arrayTypeHandler = net.hasor.dbvisitor.faker.provider.postgresql.typehandler.PgArrayTypeHandlerFactory
+
+[bool]
+    jdbcType       = boolean
+    seedType       = boolean
+
+[smallserial]
+    jdbcType       = tinyint
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 32767)
+
+[serial]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 2147483647)
+
+[bigserial]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = long
+    minMax         = range(0, 9223372036854775807)
+
+[int2]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(-32768, 32767)
+
+[int4]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(-2147483648, 2147483647)
+
+[int8]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = long
+    minMax         = range(-9223372036854775808, 9223372036854775807)
+
+[oid]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = long
+    minMax         = range(0, 100000000)
+
+[float4]
+    jdbcType       = double
+    seedType       = number
+    numberType     = double
+    minMax        += range(10, 1e-37               , 1e+37)
+    minMax        += range(10, -1e-37              , -1e+37)
+    minMax        += range(30, -999999999.999999999, 999999999.999999999)
+    minMax        += range(30, -0.999999999        , 0.999999999)
+    scale          = safeMaxLength(0, ${decimalDigits}, 6, 3)
+
+[float8]
+    jdbcType       = double
+    seedType       = number
+    numberType     = double
+    minMax        += range(10, 1e-307              , 1e+308)
+    minMax        += range(10, -1e-307             , -1e-308)
+    minMax        += range(30, -999999999.999999999, 999999999.999999999)
+    minMax        += range(30, -0.999999999        , 0.999999999)
+    scale          = safeMaxLength(0, ${decimalDigits}, 6, 3)
+
+[numeric]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    precision      = ifThen(pgNumericValid(), ${columnSize}, 64)
+    scale          = ifThen(pgNumericValid(), ${decimalDigits}, 12)
+
+[money]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    minMax         = range(-92233720368547758.08, 92233720368547758.07)
+    scale          = 2
+    typeHandler    =net.hasor.dbvisitor.types.handler.pg.PgMoneyAsBigDecimalTypeHandler
+    insertTemplate     = pgFmtType("?", "numeric", "money")
+    whereValueTemplate = pgFmtType("?", "numeric", "money")
+    setValueTemplate   = pgFmtType("?", "numeric", "money")
+
+[name]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${columnSize}, 100, 10)
+    characterSet   = [ letter_number ]
+
+[bpchar]
+[text]
+[varchar]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${columnSize}, 1000, 10)
+    characterSet   = [ letter_number ]
+
+[uuid]
+    jdbcType       = other
+    seedType       = gid
+    dateType       = string36
+    insertTemplate     = pgFmtType("?", "uuid")
+    whereValueTemplate = pgFmtType("?", "uuid")
+    setValueTemplate   = pgFmtType("?", "uuid")
+
+[date]
+    # 4713BC(-4713-01-01) to 5874897AD(5874897-12-31) ,1 day
+    jdbcType       = date
+    seedType       = date
+    dateType       = LocalDate
+    genType        = random
+    rangeForm      = "0000-01-01"
+    rangeTo        = "9999-12-31"
+
+[time]
+    jdbcType       = time
+    seedType       = date
+    dateType       = LocalTime
+    genType        = random
+    precision      = safeMaxLength(0, ${decimalDigits}, 6, 3)
+    rangeForm      = "00:00:00.000000"
+    rangeTo        = "23:59:59.999999"
+
+[timetz]
+    jdbcType       = time_with_timezone
+    seedType       = date
+    dateType       = OffsetTime
+    genType        = random
+    precision      = safeMaxLength(0, ${decimalDigits}, 7, 3)
+    rangeForm      = "00:00:00.0000000"
+    rangeTo        = "23:59:59.9999999"
+    zoneForm       = "-14:00"
+    zoneTo         = "+14:00"
+
+[interval]
+    # -178000000 years	178000000 years	1 microsecond
+    jdbcType       = other
+    seedType       = date
+    dateType       = iso8601
+    genType        = random
+    precision      = 0
+    rangeForm      = "0000-01-01 00:00:00.000000"
+    rangeTo        = "9999-12-31 23:59:59.999999"
+    insertTemplate     = pgFmtType("?", "interval")
+    whereValueTemplate = pgFmtType("?", "interval")
+    setValueTemplate   = pgFmtType("?", "interval")
+
+[timestamp]
+    # (BC)-4713-01-01 00:00:00.000000 to (AD)294276-12-31 23:59:59.999999 ,1 microsecond
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = LocalDateTime
+    genType        = random
+    precision      = safeMaxLength(0, ${decimalDigits}, 7, 3)
+    rangeForm      = "0000-01-01 00:00:00.000000"
+    rangeTo        = "9999-12-31 23:59:59.999999"
+
+[timestamptz]
+    # (BC)-4713-01-01 00:00:00.000000 to (AD)294276-12-31 23:59:59.999999 ,1 microsecond
+    jdbcType       = timestamp_with_timezone
+    seedType       = date
+    dateType       = OffsetDateTime
+    genType        = random
+    precision      = safeMaxLength(0, ${decimalDigits}, 7, 3)
+    rangeForm      = "0000-01-01 14:00:00.000000"
+    rangeTo        = "9999-12-31 09:59:59.999999"
+    zoneForm       = "-14:00"
+    zoneTo         = "+14:00"
+
+[bit]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${columnSize}, ifThen(pgColIsArray(), 8, 512), 4)
+    characterSet   = [ bit ]
+    insertTemplate     = pgFmtType("?", "bit")
+    whereValueTemplate = pgFmtType("?", "bit")
+    setValueTemplate   = pgFmtType("?", "bit")
+
+[varbit]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${columnSize}, ifThen(pgColIsArray(), 8, 512), 4)
+    characterSet   = [ bit ]
+    insertTemplate     = pgFmtType("?", "bit varying")
+    whereValueTemplate = pgFmtType("?", "bit varying")
+    setValueTemplate   = pgFmtType("?", "bit varying")
+
+[bytea]
+    jdbcType       = varbinary
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${columnSize}, 4096, 10)
+
+[point]
+[line]
+[lseg]
+[box]
+[path]
+[polygon]
+[circle]
+[geometry]
+    jdbcType       = other
+    seedType       = geometry
+    range          = range(50, 0.0, 0.0, 1000, 1000)
+    precision      = 15
+    minPointSize   = 2
+    maxPointSize   = 100
+    geometryType   = pgToGeoType(${columnType})
+    formatType     = WKT
+    insertTemplate   = pgFmtType("?", ifThen(pgColIsArray(), pgElementType(${columnType}), ${columnType}))
+    setValueTemplate = pgFmtType("?", ifThen(pgColIsArray(), pgElementType(${columnType}), ${columnType}))
+    ignoreAct      = [ DeleteWhere, UpdateWhere ]
+
+[json]
+[jsonb]
+    # 86 = "json,jsonb,1111"
+[xml]
+    # 84 = "xml,2009"
+[cidr]
+[inet]
+[macaddr]
+[macaddr8]
+    # ip address,1111
+[int4range]
+[int8range]
+[numrange]
+[tsrange]
+[tstzrange]
+[daterange]
+    # range,1111
+[tsvector]
+[tsquery]
+[pg_lsn]
+[txid_snapshot]
+    throw "this columnType Unsupported."

@@ -14,7 +14,7 @@ config:
           minLength:        # 0 ~ 2147483647
           maxLength:        # 0 ~ 2147483647
           # string only
-          characters: [ ]   # 'ascii_full', 'ascii_symbol', 'ascii_control', 'latin_basic', 'letter_capital', 'letter_small', 'number_dec', 'number_hex', 'number_oct', 'cjk_unified_ideographs', 'bit', 'letter_number'
+          characterSet: [ ] # 'ascii_full', 'ascii_symbol', 'ascii_control', 'latin_basic', 'letter_capital', 'letter_small', 'number_dec', 'number_hex', 'number_oct', 'cjk_unified_ideographs', 'bit', 'letter_number'
           allowEmpty:       # true | false
           # number            require (precision or min/max)
           numberType:       # bool | byte | short | integer | long | float | double | decimal | bigint
@@ -35,7 +35,7 @@ config:
           maxInterval:      # maximum number of interval, (i > 0). only in genType = interval
           intervalScope:    # the interval of each increment (year | month | day | week | hours | minute | second | milli | micro). only in genType = interval
           # enums
-          dictSet: [ ]      # [ 'enum1', 'enum2', 'enum3' ]
+          dict: [ ]         # [ 'enum1', 'enum2', 'enum3' ]
           # custom          # you can use any configuration, read from seedFactory
           seedFactory:      # ''
       ignoreColsAll: [ ]    #

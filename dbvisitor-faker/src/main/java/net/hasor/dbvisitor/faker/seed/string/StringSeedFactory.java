@@ -49,7 +49,7 @@ public class StringSeedFactory implements SeedFactory<StringSeedConfig> {
         }
 
         Set<Characters> characterSet = seedConfig.getCharacterSet();
-        if (characterSet.isEmpty()) {
+        if (characterSet == null || characterSet.isEmpty()) {
             throw new IllegalStateException("characterSet missing.");
         }
 
@@ -65,10 +65,10 @@ public class StringSeedFactory implements SeedFactory<StringSeedConfig> {
                 }
             } else {
 
-                int length = nextInt(minLength, maxLength + 1);
+                int length = nextInt(minLength, maxLength);
                 StringBuilder builder = new StringBuilder();
                 for (int i = 0; i < length; i++) {
-                    int codePoint = nextInt(0, characterCount + 1);
+                    int codePoint = nextInt(0, characterCount);
                     builder.append(characters.getChar(codePoint));
                 }
                 return builder.toString();

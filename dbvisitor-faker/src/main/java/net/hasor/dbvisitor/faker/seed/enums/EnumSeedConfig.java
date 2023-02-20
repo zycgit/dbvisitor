@@ -29,7 +29,7 @@ import java.util.Set;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class EnumSeedConfig extends SeedConfig {
-    private Set<String> dict;
+    private Set<String> dict = new HashSet<>();
 
     public final SeedType getSeedType() {
         return SeedType.Enums;
@@ -41,7 +41,7 @@ public class EnumSeedConfig extends SeedConfig {
     }
 
     public Set<String> getDict() {
-        return dict;
+        return this.dict;
     }
 
     public void setDict(Set<String> dict) {
@@ -53,5 +53,11 @@ public class EnumSeedConfig extends SeedConfig {
             return;
         }
         setDict(new HashSet<>(Arrays.asList(dictSet)));
+    }
+
+    public void addDict(String dict) {
+        if (dict != null) {
+            this.dict.add(dict);
+        }
     }
 }

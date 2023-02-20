@@ -51,7 +51,7 @@ public class BytesSeedFactory implements SeedFactory<BytesSeedConfig> {
                 }
             }
 
-            int length = nextInt(minLength, maxLength + 1);
+            int length = nextInt(minLength, maxLength);
             return nextBytes(length);
         };
     }

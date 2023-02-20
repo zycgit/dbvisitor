@@ -24,20 +24,13 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.FakerConfigEnum;
-import net.hasor.dbvisitor.faker.generator.provider.DefaultTypeProcessorFactory;
-import net.hasor.dbvisitor.faker.generator.provider.conservative.MySqlConservativeTypeProcessorFactory;
-import net.hasor.dbvisitor.faker.generator.provider.conservative.OracleConservativeTypeProcessorFactory;
-import net.hasor.dbvisitor.faker.generator.provider.conservative.PostgresConservativeTypeProcessorFactory;
-import net.hasor.dbvisitor.faker.generator.provider.conservative.SqlServerConservativeTypeProcessorFactory;
-import net.hasor.dbvisitor.faker.generator.provider.radical.MySqlRadicalTypeProcessorFactory;
-import net.hasor.dbvisitor.faker.generator.provider.radical.OracleRadicalTypeProcessorFactory;
-import net.hasor.dbvisitor.faker.generator.provider.radical.PostgresRadicalTypeProcessorFactory;
-import net.hasor.dbvisitor.faker.generator.provider.radical.SqlServerRadicalTypeProcessorFactory;
+import net.hasor.dbvisitor.faker.generator.processor.DefaultTypeProcessorFactory;
+import net.hasor.dbvisitor.faker.generator.processor.DslTypeProcessorFactory;
 import net.hasor.dbvisitor.faker.meta.JdbcColumn;
 import net.hasor.dbvisitor.faker.meta.JdbcFetchMeta;
 import net.hasor.dbvisitor.faker.meta.JdbcFetchMetaProvider;
 import net.hasor.dbvisitor.faker.meta.JdbcTable;
-import net.hasor.dbvisitor.faker.meta.special.mysql.MySqlFetchMeta;
+import net.hasor.dbvisitor.faker.provider.mysql.meta.MySqlFetchMeta;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
 import net.hasor.dbvisitor.faker.seed.SeedType;
@@ -46,7 +39,9 @@ import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -61,33 +56,36 @@ public class FakerFactory {
     private final        JdbcFetchMetaProvider       metaProvider;
     private final        FakerConfig                 fakerConfig;
     private final        String                      dbType;
+    private final        Map<String, Object>         variables;
     private final        SqlDialect                  sqlDialect;
     private final        DefaultTypeProcessorFactory typeDialect;
 
-    public FakerFactory(Connection connection) throws SQLException {
+    public FakerFactory(Connection connection) throws SQLException, IOException {
         this(connection, new FakerConfig());
     }
 
-    public FakerFactory(DataSource dataSource) throws SQLException {
+    public FakerFactory(DataSource dataSource) throws SQLException, IOException {
         this(dataSource, new FakerConfig());
     }
 
-    public FakerFactory(Connection connection, FakerConfig config) throws SQLException {
+    public FakerFactory(Connection connection, FakerConfig config) throws SQLException, IOException {
         this.jdbcTemplate = new JdbcTemplate(connection);
         this.fakerConfig = config;
         this.dbType = initDbType();
         this.metaProvider = new JdbcFetchMetaProvider(connection, initFetchMeta(this.dbType, config));
+        this.variables = this.initVariables(this.dbType, config);
         this.sqlDialect = this.initSqlDialect(this.dbType, config);
-        this.typeDialect = this.initTypeDialect(this.dbType, config);
+        this.typeDialect = this.initTypeDialect(this.dbType, config, this.variables);
     }
 
-    public FakerFactory(DataSource dataSource, FakerConfig config) throws SQLException {
+    public FakerFactory(DataSource dataSource, FakerConfig config) throws SQLException, IOException {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.fakerConfig = config;
         this.dbType = initDbType();
         this.metaProvider = new JdbcFetchMetaProvider(dataSource, initFetchMeta(this.dbType, config));
+        this.variables = this.initVariables(this.dbType, config);
         this.sqlDialect = this.initSqlDialect(this.dbType, config);
-        this.typeDialect = this.initTypeDialect(this.dbType, config);
+        this.typeDialect = this.initTypeDialect(this.dbType, config, this.variables);
     }
 
     protected String initDbType() throws SQLException {
@@ -96,6 +94,36 @@ public class FakerFactory {
             String jdbcDriverName = con.getMetaData().getDriverName();
             return JdbcUtils.getDbType(jdbcUrl, jdbcDriverName);
         });
+    }
+
+    protected Map<String, Object> initVariables(String dbType, FakerConfig fakerConfig) throws SQLException {
+        Map<String, Object> javaVars = new HashMap<>();
+        System.getProperties().forEach((k, v) -> {
+            javaVars.put(String.valueOf(k), v);
+        });
+
+        Map<String, Object> envVars = new HashMap<>();
+        System.getenv().forEach((k, v) -> envVars.put(String.valueOf(k), v));
+
+        Map<String, Object> globalVars = new HashMap<>();
+        globalVars.put("java", javaVars);
+        globalVars.put("env", envVars);
+        globalVars.put("dbType", dbType);
+        globalVars.put("policy", fakerConfig.getPolicy());
+
+        this.jdbcTemplate.execute((ConnectionCallback<Object>) con -> {
+            DatabaseMetaData metaData = con.getMetaData();
+            globalVars.put("jdbcUrl", metaData.getURL());
+            globalVars.put("driverName", metaData.getDriverName());
+            globalVars.put("driverVersion", metaData.getDriverVersion());
+            globalVars.put("dbMajorVersion", metaData.getDatabaseMajorVersion());
+            globalVars.put("dbMinorVersion", metaData.getDatabaseMinorVersion());
+            globalVars.put("dbProductName", metaData.getDatabaseProductName());
+            globalVars.put("dbProductVersion", metaData.getDatabaseProductVersion());
+            return null;
+        });
+
+        return globalVars;
     }
 
     protected SqlDialect initSqlDialect(String dbType, FakerConfig fakerConfig) {
@@ -109,27 +137,15 @@ public class FakerFactory {
         }
     }
 
-    protected DefaultTypeProcessorFactory initTypeDialect(String dbType, FakerConfig fakerConfig) {
+    protected DefaultTypeProcessorFactory initTypeDialect(String dbType, FakerConfig fakerConfig, Map<String, Object> variables) throws IOException {
         if (fakerConfig.getTypeProcessorFactory() != null) {
             return fakerConfig.getTypeProcessorFactory();
         }
+
         if (StringUtils.isBlank(dbType)) {
-            throw new IllegalArgumentException("TypeDialect missing.");
+            return new DefaultTypeProcessorFactory();
         } else {
-            switch (dbType) {
-                case JdbcUtils.JTDS:
-                case JdbcUtils.SQL_SERVER:
-                    return fakerConfig.isUseRadical() ? new SqlServerRadicalTypeProcessorFactory() : new SqlServerConservativeTypeProcessorFactory();
-                case JdbcUtils.MARIADB:
-                case JdbcUtils.MYSQL:
-                    return fakerConfig.isUseRadical() ? new MySqlRadicalTypeProcessorFactory() : new MySqlConservativeTypeProcessorFactory();
-                case JdbcUtils.ORACLE:
-                    return fakerConfig.isUseRadical() ? new OracleRadicalTypeProcessorFactory() : new OracleConservativeTypeProcessorFactory();
-                case JdbcUtils.POSTGRESQL:
-                    return fakerConfig.isUseRadical() ? new PostgresRadicalTypeProcessorFactory() : new PostgresConservativeTypeProcessorFactory();
-                default:
-                    return new DefaultTypeProcessorFactory();
-            }
+            return new DslTypeProcessorFactory(dbType, variables, fakerConfig);
         }
     }
 
@@ -248,8 +264,11 @@ public class FakerFactory {
 
         // final apply form strategy
         if (Boolean.TRUE.equals(jdbcColumn.getNullable())) {
-            typeProcessor.getSeedConfig().setAllowNullable(true);
-            typeProcessor.getSeedConfig().setNullableRatio(20f);
+            SeedConfig config = typeProcessor.getSeedConfig();
+            config.setAllowNullable(true);
+            if (config.getNullableRatio() == null) {
+                config.setNullableRatio(20f);
+            }
         }
 
         // final apply form config
@@ -324,7 +343,7 @@ public class FakerFactory {
             throw new IllegalArgumentException("arrays are specified by config.");
         }
 
-        SeedFactory<? extends SeedConfig> factory = seedType != null ? seedType.getSupplier() : null;
+        SeedFactory<? extends SeedConfig> factory = seedType != null ? seedType.newFactory() : null;
         if (isArray) {
             return factory == null ? null : new ArraySeedFactory(factory);
         } else {

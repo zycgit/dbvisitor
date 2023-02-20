@@ -6,12 +6,15 @@ import net.hasor.dbvisitor.faker.engine.FakerEngine;
 import net.hasor.dbvisitor.faker.generator.FakerFactory;
 import net.hasor.dbvisitor.faker.generator.FakerRepository;
 import net.hasor.dbvisitor.faker.generator.FakerTable;
+import net.hasor.dbvisitor.faker.generator.SqlPolitic;
 import net.hasor.dbvisitor.faker.generator.loader.PrecociousDataLoaderFactory;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 public class MySqlTest {
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws SQLException, IOException {
+        //                LoggerFactory.useStdOutLogger();
         // 全局配置
         FakerConfig fakerConfig = new FakerConfig();
         fakerConfig.setMinBatchSizePerOps(1);
@@ -19,11 +22,12 @@ public class MySqlTest {
         fakerConfig.setMinOpsCountPerTransaction(1);
         fakerConfig.setMaxOpsCountPerTransaction(1);
         fakerConfig.setTransaction(false);
-        //        fakerConfig.setUseRadical(true);
+        fakerConfig.setPolicy("extreme");
         fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
         fakerConfig.addIgnoreError("Duplicate");
         fakerConfig.addIgnoreError("Data truncation: Incorrect datetime value");
-        //        fakerConfig.setOpsRatio("INSERT#30");
+        fakerConfig.setOpsRatio("I#30;U#10;D#10");
+        //        fakerConfig.setOpsRatio("I#30");
 
         // 生成器，配置表
         DruidDataSource dataDs = DsUtils.dsMySql();
@@ -34,10 +38,26 @@ public class MySqlTest {
         //        table1.setUpdateSetPolitic(SqlPolitic.RandomKeyCol);
         //        table1.setWherePolitic(SqlPolitic.RandomKeyCol);
         //        FakerTable table2 = generator.addTable("devtester", null, "tb_mysql_geometry");
-        //        table2.setInsertPolitic(SqlPolitic.FullCol);
+        table1.setInsertPolitic(SqlPolitic.FullCol);
 
-        //        table.findColumn("c_geometrycollection").ignoreAct(UseFor.values());
-        //        table2.apply();
+        //        {
+        //            List<String> colNames = Arrays.asList("c_char_byte", "c_serial");
+        //            for (String col : table1.getColumns()) {
+        //                boolean match = false;
+        //                for (String p : colNames) {
+        //                    if (StringUtils.contains(col, p)) {
+        //                        match = true;
+        //                        break;
+        //                    }
+        //                }
+        //                if (match) {
+        //                    table1.findColumn(col).ignoreReset();
+        //                } else {
+        //                    table1.findColumn(col).ignoreAct(UseFor.values());
+        //                }
+        //            }
+        //            table1.apply();
+        //        }
 
         // 生成数据
         FakerEngine engine = new FakerEngine(dataDs, generator);
@@ -51,7 +71,7 @@ public class MySqlTest {
                 System.out.println(engine.getMonitor());
             }
 
-            if (engine.getMonitor().getSucceedInsert() > 100) {
+            if (engine.getMonitor().getSucceed() > 10000) {
                 System.out.println(engine.getMonitor());
                 engine.shutdown();
             }

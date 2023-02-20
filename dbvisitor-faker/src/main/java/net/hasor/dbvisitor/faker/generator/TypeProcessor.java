@@ -86,6 +86,7 @@ public class TypeProcessor {
 
     @Override
     public String toString() {
-        return "jdbcType=" + this.jdbcType + ", typeHandler=" + this.typeHandler.getClass().getSimpleName();
+        String typeHandlerStr = this.typeHandler == null ? "null" : this.typeHandler.getClass().getSimpleName();
+        return "jdbcType= " + this.jdbcType + ", typeHandler= " + typeHandlerStr;
     }
 }

@@ -9,14 +9,13 @@ import net.hasor.dbvisitor.faker.generator.FakerTable;
 import net.hasor.dbvisitor.faker.generator.SqlPolitic;
 import net.hasor.dbvisitor.faker.generator.loader.PrecociousDataLoaderFactory;
 
-import java.sql.SQLException;
-
 public class SqlServerTest {
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws Exception {
+        //        LoggerFactory.useStdOutLogger();
         // 全局配置
         FakerConfig fakerConfig = new FakerConfig();
         fakerConfig.setTransaction(false);
-        //        fakerConfig.setUseRadical(true);
+                fakerConfig.setPolicy("extreme");
         fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
         fakerConfig.addIgnoreError("Duplicate");
         fakerConfig.addIgnoreError("restarting");
@@ -47,7 +46,7 @@ public class SqlServerTest {
                 System.out.println(engine.getMonitor());
             }
 
-            if (engine.getMonitor().getSucceedInsert() > 100) {
+            if (engine.getMonitor().getSucceedInsert() > 10000) {
                 System.out.println(engine.getMonitor());
                 engine.shutdown();
             }

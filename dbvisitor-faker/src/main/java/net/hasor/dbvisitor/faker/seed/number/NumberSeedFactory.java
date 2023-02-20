@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.seed.number;
-import net.hasor.cobble.RandomUtils;
 import net.hasor.cobble.ref.RandomRatio;
 import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedFactory;
@@ -24,7 +23,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.function.Supplier;
 
-import static net.hasor.cobble.RandomUtils.nextDecimal;
+import static net.hasor.cobble.RandomUtils.*;
 
 /**
  * 数值类型的 SeedFactory
@@ -60,7 +59,7 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig> {
         }
 
         return () -> {
-            if (allowNullable && RandomUtils.nextFloat(0, 100) < nullableRatio) {
+            if (allowNullable && nextFloat(0, 100) < nullableRatio) {
                 return null;
             } else if (precision != null) {
                 return toNumber(randomNumber(precision, scale, numberType), numberType, abs);
@@ -88,9 +87,10 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig> {
             case Byte:
             case Short:
             case Integer:
+            case Int:
             case Long:
             case BigInt:
-                return RandomUtils.nextBigInteger(min, max);
+                return nextBigInteger(min, max);
             case Float:
             case Double:
             case Decimal:
@@ -106,6 +106,7 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig> {
             case Byte:
             case Short:
             case Integer:
+            case Int:
             case Long:
             case BigInt:
             case Float:
@@ -126,6 +127,7 @@ public class NumberSeedFactory implements SeedFactory<NumberSeedConfig> {
             case Short:
                 return abs ? (short) Math.abs(number.shortValue()) : number.shortValue();
             case Integer:
+            case Int:
                 return abs ? (int) Math.abs(number.intValue()) : number.intValue();
             case Long:
                 return abs ? (long) Math.abs(number.longValue()) : number.longValue();

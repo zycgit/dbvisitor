@@ -1,6 +1,7 @@
 package net.hasor.dbvisitor.faker.realdb;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.faker.DsUtils;
 import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.engine.FakerEngine;
@@ -10,16 +11,16 @@ import net.hasor.dbvisitor.faker.generator.FakerTable;
 import net.hasor.dbvisitor.faker.generator.SqlPolitic;
 import net.hasor.dbvisitor.faker.generator.loader.PrecociousDataLoaderFactory;
 
-import java.sql.SQLException;
-
 public class OracleTest {
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws Exception {
         // 全局配置
+//        LoggerFactory.useStdOutLogger();
         FakerConfig fakerConfig = new FakerConfig();
         fakerConfig.setTransaction(false);
-        fakerConfig.setUseRadical(true);
+                fakerConfig.setPolicy("extreme");
         fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
         fakerConfig.addIgnoreError("ORA-00001");
+        fakerConfig.setOpsRatio("I#30;U#10;D#10");
         //        fakerConfig.addIgnoreError("restarting");
         //        fakerConfig.addIgnoreError("deadlocked");
         //        fakerConfig.addIgnoreError("was deadlocked on lock");
@@ -31,8 +32,7 @@ public class OracleTest {
         FakerRepository generator = new FakerRepository(factory);
         // FakerTable table = generator.addTable("console", "dbo", "tb_sqlserver_types");
         // FakerTable table = generator.addTable("console", "dbo", "stock");
-        FakerTable table = generator.addTable(null, "CANAL_TEST_CASE", "TB_ORACLE_TYPES");
-
+        FakerTable table = generator.addTable(null, "SCOTT", "TB_ORACLE_TYPES");
         table.setInsertPolitic(SqlPolitic.FullCol);
         table.apply();
 
@@ -48,7 +48,7 @@ public class OracleTest {
                 System.out.println(engine.getMonitor());
             }
 
-            if (engine.getMonitor().getSucceedInsert() > 100) {
+            if (engine.getMonitor().getSucceedInsert() > 10000) {
                 System.out.println(engine.getMonitor());
                 engine.shutdown();
             }

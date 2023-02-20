@@ -29,6 +29,7 @@ public enum NumberType {
     Byte(Byte.class),
     Short(Short.class),
     Integer(Integer.class),
+    Int(Integer.class),
     Long(Long.class),
     Float(Float.class),
     Double(Double.class),

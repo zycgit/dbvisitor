@@ -52,7 +52,7 @@ public enum SeedType {
         this.supplier = supplier;
     }
 
-    public SeedFactory<? extends SeedConfig> getSupplier() {
+    public SeedFactory<? extends SeedConfig> newFactory() {
         return this.supplier != null ? this.supplier.get() : null;
     }
 

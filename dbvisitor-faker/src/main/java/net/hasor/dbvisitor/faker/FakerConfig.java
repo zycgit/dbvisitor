@@ -19,11 +19,11 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.RandomRatio;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.faker.generator.loader.DataLoaderFactory;
-import net.hasor.dbvisitor.faker.generator.provider.DefaultTypeProcessorFactory;
+import net.hasor.dbvisitor.faker.generator.processor.DefaultTypeProcessorFactory;
 import net.hasor.dbvisitor.faker.meta.JdbcFetchMeta;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ThreadFactory;
@@ -41,7 +41,7 @@ public class FakerConfig {
     private       SqlDialect                  sqlDialect;
     private       JdbcFetchMeta               customFetchMeta;
     private       DefaultTypeProcessorFactory typeProcessorFactory;
-    private       boolean                     useRadical;
+    private       String                      policy;
     private       boolean                     useQualifier;
     private       boolean                     keyChanges;
     private       boolean                     printSql;
@@ -69,7 +69,6 @@ public class FakerConfig {
         this.dataLoaderFactory = null;
         this.sqlDialect = null;
         this.typeProcessorFactory = null;
-        this.useRadical = false;
         this.useQualifier = true;
         //
         this.minBatchSizePerOps = 2;
@@ -85,7 +84,7 @@ public class FakerConfig {
         this.queueCapacity = 4096;
         this.writeQps = -1;
         this.queryTimeout = -1;
-        this.ignoreErrors = new HashSet<>(Collections.singletonList("Duplicate"));
+        this.ignoreErrors = new HashSet<>(Arrays.asList("Duplicate", "duplicate"));
         this.ignoreAnyErrors = false;
     }
 
@@ -152,12 +151,12 @@ public class FakerConfig {
         this.dataLoaderFactory = dataLoaderFactory;
     }
 
-    public boolean isUseRadical() {
-        return useRadical;
+    public String getPolicy() {
+        return this.policy;
     }
 
-    public void setUseRadical(boolean useRadical) {
-        this.useRadical = useRadical;
+    public void setPolicy(String policy) {
+        this.policy = policy;
     }
 
     public boolean isUseQualifier() {
