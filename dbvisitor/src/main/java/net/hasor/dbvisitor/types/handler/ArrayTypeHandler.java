@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class ArrayTypeHandler extends AbstractTypeHandler<Object> {
-    private static final ConcurrentHashMap<Class<?>, JDBCType> STANDARD_MAPPING;
+    protected static final ConcurrentHashMap<Class<?>, JDBCType> STANDARD_MAPPING;
 
     static {
         STANDARD_MAPPING = new ConcurrentHashMap<>();
@@ -112,8 +112,10 @@ public class ArrayTypeHandler extends AbstractTypeHandler<Object> {
         if (array == null) {
             return null;
         }
-        Object result = array.getArray();
-        array.free();
-        return result;
+        try {
+            return array.getArray();
+        } finally {
+            array.free();
+        }
     }
 }
