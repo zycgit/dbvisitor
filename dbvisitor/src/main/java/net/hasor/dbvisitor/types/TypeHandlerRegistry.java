@@ -79,8 +79,8 @@ public final class TypeHandlerRegistry {
         javaTypeToJdbcTypeMap.put(YearMonth.class.getName(), Types.VARCHAR);
         javaTypeToJdbcTypeMap.put(Year.class.getName(), Types.SMALLINT);
         javaTypeToJdbcTypeMap.put(Month.class.getName(), Types.SMALLINT);
-        javaTypeToJdbcTypeMap.put(OffsetDateTime.class.getName(), Types.TIMESTAMP);
-        javaTypeToJdbcTypeMap.put(OffsetTime.class.getName(), Types.TIMESTAMP);
+        javaTypeToJdbcTypeMap.put(OffsetDateTime.class.getName(), Types.TIMESTAMP_WITH_TIMEZONE);
+        javaTypeToJdbcTypeMap.put(OffsetTime.class.getName(), Types.TIME_WITH_TIMEZONE);
         // java extensions Types
         javaTypeToJdbcTypeMap.put(String.class.getName(), Types.VARCHAR);
         javaTypeToJdbcTypeMap.put(BigInteger.class.getName(), Types.BIGINT);
@@ -118,39 +118,40 @@ public final class TypeHandlerRegistry {
         this.register(float.class, createSingleTypeHandler(FloatTypeHandler.class));
         this.register(Double.class, createSingleTypeHandler(DoubleTypeHandler.class));
         this.register(double.class, createSingleTypeHandler(DoubleTypeHandler.class));
-        this.register(Character.class, createSingleTypeHandler(CharacterTypeHandler.class));
-        this.register(char.class, createSingleTypeHandler(CharacterTypeHandler.class));
+        this.register(Character.class, createSingleTypeHandler(StringAsCharTypeHandler.class));
+        this.register(char.class, createSingleTypeHandler(StringAsCharTypeHandler.class));
         // java time
-        this.register(Date.class, createSingleTypeHandler(DateTypeHandler.class));
+        this.register(Date.class, createSingleTypeHandler(SqlTimestampAsDateTypeHandler.class));
         this.register(java.sql.Date.class, createSingleTypeHandler(SqlDateTypeHandler.class));
         this.register(java.sql.Timestamp.class, createSingleTypeHandler(SqlTimestampTypeHandler.class));
         this.register(java.sql.Time.class, createSingleTypeHandler(SqlTimeTypeHandler.class));
-        this.register(Instant.class, createSingleTypeHandler(InstantTypeHandler.class));
-        this.register(JapaneseDate.class, createSingleTypeHandler(JapaneseDateTypeHandler.class));
-        this.register(Year.class, createSingleTypeHandler(YearOfTimeTypeHandler.class));
-        this.register(Month.class, createSingleTypeHandler(MonthOfTimeTypeHandler.class));
-        this.register(YearMonth.class, createSingleTypeHandler(YearMonthOfTimeTypeHandler.class));
-        this.register(MonthDay.class, createSingleTypeHandler(MonthDayOfTimeTypeHandler.class));
-        this.register(LocalDate.class, createSingleTypeHandler(LocalDateTypeHandler.class));
-        this.register(LocalTime.class, createSingleTypeHandler(LocalTimeTypeHandler.class));
+        this.register(Instant.class, createSingleTypeHandler(SqlTimestampAsInstantTypeHandler.class));
+        this.register(JapaneseDate.class, createSingleTypeHandler(JapaneseDateAsSqlDateTypeHandler.class));
+        this.register(Year.class, createSingleTypeHandler(SqlTimestampAsYearTypeHandler.class));
+        this.register(Month.class, createSingleTypeHandler(SqlTimestampAsMonthTypeHandler.class));
+        this.register(YearMonth.class, createSingleTypeHandler(SqlTimestampAsYearMonthTypeHandler.class));
+        this.register(MonthDay.class, createSingleTypeHandler(SqlTimestampAsMonthDayTypeHandler.class));
+        //
+        this.register(LocalDate.class, createSingleTypeHandler(LocalDateTimeAsLocalDateTypeHandler.class));
+        this.register(LocalTime.class, createSingleTypeHandler(LocalDateTimeAsLocalTimeTypeHandler.class));
         this.register(LocalDateTime.class, createSingleTypeHandler(LocalDateTimeTypeHandler.class));
-        this.register(ZonedDateTime.class, createSingleTypeHandler(ZonedDateTimeTypeHandler.class));
-        this.register(OffsetDateTime.class, createSingleTypeHandler(OffsetDateTimeForUTCTypeHandler.class));
-        this.register(OffsetTime.class, createSingleTypeHandler(OffsetTimeForUTCTypeHandler.class));
+        this.register(ZonedDateTime.class, createSingleTypeHandler(OffsetDateTimeAsZonedDateTimeTypeHandler.class));
+        this.register(OffsetDateTime.class, createSingleTypeHandler(OffsetDateTimeTypeHandler.class));
+        this.register(OffsetTime.class, createSingleTypeHandler(OffsetTimeTypeHandler.class));
         // java extensions Types
         this.register(String.class, createSingleTypeHandler(StringTypeHandler.class));
         this.register(BigInteger.class, createSingleTypeHandler(BigIntegerTypeHandler.class));
         this.register(BigDecimal.class, createSingleTypeHandler(BigDecimalTypeHandler.class));
         this.register(Reader.class, createSingleTypeHandler(StringReaderTypeHandler.class));
-        this.register(InputStream.class, createSingleTypeHandler(BytesInputStreamTypeHandler.class));
-        this.register(Byte[].class, createSingleTypeHandler(BytesForWrapTypeHandler.class));
+        this.register(InputStream.class, createSingleTypeHandler(BytesAsInputStreamTypeHandler.class));
+        this.register(Byte[].class, createSingleTypeHandler(BytesAsBytesWrapTypeHandler.class));
         this.register(byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
         this.register(Object[].class, createSingleTypeHandler(ArrayTypeHandler.class));
         this.register(Object.class, createSingleTypeHandler(UnknownTypeHandler.class));
         this.register(Number.class, createSingleTypeHandler(NumberTypeHandler.class));
-        this.register(Clob.class, createSingleTypeHandler(ClobTypeHandler.class));
-        this.register(NClob.class, createSingleTypeHandler(NClobTypeHandler.class));
-        this.register(Blob.class, createSingleTypeHandler(BlobBytesTypeHandler.class));
+        this.register(Clob.class, createSingleTypeHandler(ClobAsStringTypeHandler.class));
+        this.register(NClob.class, createSingleTypeHandler(NClobAsStringTypeHandler.class));
+        this.register(Blob.class, createSingleTypeHandler(BlobAsBytesTypeHandler.class));
 
         this.register(Types.BIT, createSingleTypeHandler(BooleanTypeHandler.class));
         this.register(Types.BOOLEAN, createSingleTypeHandler(BooleanTypeHandler.class));
@@ -163,23 +164,23 @@ public final class TypeHandlerRegistry {
         this.register(Types.REAL, createSingleTypeHandler(BigDecimalTypeHandler.class));
         this.register(Types.NUMERIC, createSingleTypeHandler(BigDecimalTypeHandler.class));
         this.register(Types.DECIMAL, createSingleTypeHandler(BigDecimalTypeHandler.class));
-        this.register(Types.CHAR, createSingleTypeHandler(CharacterTypeHandler.class));
-        this.register(Types.NCHAR, createSingleTypeHandler(NCharacterTypeHandler.class));
-        this.register(Types.CLOB, createSingleTypeHandler(ClobTypeHandler.class));
+        this.register(Types.CHAR, createSingleTypeHandler(StringAsCharTypeHandler.class));
+        this.register(Types.NCHAR, createSingleTypeHandler(NStringAsCharTypeHandler.class));
+        this.register(Types.CLOB, createSingleTypeHandler(ClobAsStringTypeHandler.class));
         this.register(Types.VARCHAR, createSingleTypeHandler(StringTypeHandler.class));
         this.register(Types.LONGVARCHAR, createSingleTypeHandler(StringTypeHandler.class));
-        this.register(Types.NCLOB, createSingleTypeHandler(NClobTypeHandler.class));
+        this.register(Types.NCLOB, createSingleTypeHandler(NClobAsStringTypeHandler.class));
         this.register(Types.NVARCHAR, createSingleTypeHandler(NStringTypeHandler.class));
         this.register(Types.LONGNVARCHAR, createSingleTypeHandler(NStringTypeHandler.class));
-        this.register(Types.TIMESTAMP, createSingleTypeHandler(DateTypeHandler.class));
-        this.register(Types.DATE, createSingleTypeHandler(DateOnlyTypeHandler.class));
-        this.register(Types.TIME, createSingleTypeHandler(TimeOnlyTypeHandler.class));
-        this.register(Types.TIME_WITH_TIMEZONE, createSingleTypeHandler(OffsetTimeForSqlTypeHandler.class));
-        this.register(Types.TIMESTAMP_WITH_TIMEZONE, createSingleTypeHandler(OffsetDateTimeForSqlTypeHandler.class));
+        this.register(Types.TIMESTAMP, createSingleTypeHandler(SqlTimestampAsDateTypeHandler.class));
+        this.register(Types.DATE, createSingleTypeHandler(SqlDateAsDateHandler.class));
+        this.register(Types.TIME, createSingleTypeHandler(SqlTimeAsDateTypeHandler.class));
+        this.register(Types.TIME_WITH_TIMEZONE, createSingleTypeHandler(OffsetTimeTypeHandler.class));
+        this.register(Types.TIMESTAMP_WITH_TIMEZONE, createSingleTypeHandler(OffsetDateTimeTypeHandler.class));
         this.register(Types.SQLXML, createSingleTypeHandler(SqlXmlTypeHandler.class));
         this.register(Types.BINARY, createSingleTypeHandler(BytesTypeHandler.class));
         this.register(Types.VARBINARY, createSingleTypeHandler(BytesTypeHandler.class));
-        this.register(Types.BLOB, createSingleTypeHandler(BlobBytesTypeHandler.class));
+        this.register(Types.BLOB, createSingleTypeHandler(BlobAsBytesTypeHandler.class));
         this.register(Types.LONGVARBINARY, createSingleTypeHandler(BytesTypeHandler.class));
         this.register(Types.JAVA_OBJECT, createSingleTypeHandler(ObjectTypeHandler.class));
         this.register(Types.ARRAY, createSingleTypeHandler(ArrayTypeHandler.class));
@@ -191,45 +192,45 @@ public final class TypeHandlerRegistry {
         // REF_CURSOR(Types.REF_CURSOR),
         this.register(Types.OTHER, createSingleTypeHandler(UnknownTypeHandler.class));
 
-        this.registerCrossChars(MonthDay.class, createSingleTypeHandler(MonthDayOfStringTypeHandler.class));
-        this.registerCrossNChars(MonthDay.class, createSingleTypeHandler(MonthDayOfStringTypeHandler.class));
-        this.registerCrossNumber(MonthDay.class, createSingleTypeHandler(MonthDayOfNumberTypeHandler.class));
-        this.registerCrossChars(YearMonth.class, createSingleTypeHandler(YearMonthOfStringTypeHandler.class));
-        this.registerCrossNChars(YearMonth.class, createSingleTypeHandler(YearMonthOfStringTypeHandler.class));
-        this.registerCrossNumber(YearMonth.class, createSingleTypeHandler(YearMonthOfNumberTypeHandler.class));
-        this.registerCrossChars(Year.class, createSingleTypeHandler(YearOfStringTypeHandler.class));
-        this.registerCrossNChars(Year.class, createSingleTypeHandler(YearOfStringTypeHandler.class));
-        this.registerCrossNumber(Year.class, createSingleTypeHandler(YearOfNumberTypeHandler.class));
-        this.registerCrossChars(Month.class, createSingleTypeHandler(MonthOfStringTypeHandler.class));
-        this.registerCrossNChars(Month.class, createSingleTypeHandler(MonthOfStringTypeHandler.class));
-        this.registerCrossNumber(Month.class, createSingleTypeHandler(MonthOfNumberTypeHandler.class));
+        this.registerCrossChars(MonthDay.class, createSingleTypeHandler(StringAsMonthDayTypeHandler.class));
+        this.registerCrossNChars(MonthDay.class, createSingleTypeHandler(StringAsMonthDayTypeHandler.class));
+        this.registerCrossNumber(MonthDay.class, createSingleTypeHandler(IntegerAsMonthDayTypeHandler.class));
+        this.registerCrossChars(YearMonth.class, createSingleTypeHandler(StringAsYearMonthTypeHandler.class));
+        this.registerCrossNChars(YearMonth.class, createSingleTypeHandler(StringAsYearMonthTypeHandler.class));
+        this.registerCrossNumber(YearMonth.class, createSingleTypeHandler(IntegerAsYearMonthTypeHandler.class));
+        this.registerCrossChars(Year.class, createSingleTypeHandler(StringAsYearTypeHandler.class));
+        this.registerCrossNChars(Year.class, createSingleTypeHandler(StringAsYearTypeHandler.class));
+        this.registerCrossNumber(Year.class, createSingleTypeHandler(IntegerAsYearTypeHandler.class));
+        this.registerCrossChars(Month.class, createSingleTypeHandler(StringAsMonthTypeHandler.class));
+        this.registerCrossNChars(Month.class, createSingleTypeHandler(StringAsMonthTypeHandler.class));
+        this.registerCrossNumber(Month.class, createSingleTypeHandler(IntegerAsMonthTypeHandler.class));
 
         this.registerCrossChars(String.class, createSingleTypeHandler(StringTypeHandler.class));
         this.registerCrossNChars(String.class, createSingleTypeHandler(NStringTypeHandler.class));
-        this.registerCross(Types.CLOB, String.class, createSingleTypeHandler(ClobTypeHandler.class));
-        this.registerCross(Types.NCLOB, String.class, createSingleTypeHandler(NClobTypeHandler.class));
+        this.registerCross(Types.CLOB, String.class, createSingleTypeHandler(ClobAsStringTypeHandler.class));
+        this.registerCross(Types.NCLOB, String.class, createSingleTypeHandler(NClobAsStringTypeHandler.class));
         this.registerCrossChars(Reader.class, createSingleTypeHandler(StringReaderTypeHandler.class));
-        this.registerCrossNChars(Reader.class, createSingleTypeHandler(NStringReaderTypeHandler.class));
-        this.registerCross(Types.CLOB, Reader.class, createSingleTypeHandler(ClobReaderTypeHandler.class));
-        this.registerCross(Types.NCLOB, Reader.class, createSingleTypeHandler(NClobReaderTypeHandler.class));
+        this.registerCrossNChars(Reader.class, createSingleTypeHandler(NStringAsReaderTypeHandler.class));
+        this.registerCross(Types.CLOB, Reader.class, createSingleTypeHandler(ClobAsReaderTypeHandler.class));
+        this.registerCross(Types.NCLOB, Reader.class, createSingleTypeHandler(NClobAsReaderTypeHandler.class));
 
         this.registerCross(Types.SQLXML, String.class, createSingleTypeHandler(SqlXmlTypeHandler.class));
         this.registerCross(Types.SQLXML, Reader.class, createSingleTypeHandler(SqlXmlForReaderTypeHandler.class));
         this.registerCross(Types.SQLXML, InputStream.class, createSingleTypeHandler(SqlXmlForInputStreamTypeHandler.class));
 
         this.registerCross(Types.BINARY, byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
-        this.registerCross(Types.BINARY, Byte[].class, createSingleTypeHandler(BytesForWrapTypeHandler.class));
+        this.registerCross(Types.BINARY, Byte[].class, createSingleTypeHandler(BytesAsBytesWrapTypeHandler.class));
         this.registerCross(Types.VARBINARY, byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
-        this.registerCross(Types.VARBINARY, Byte[].class, createSingleTypeHandler(BytesForWrapTypeHandler.class));
-        this.registerCross(Types.BLOB, byte[].class, createSingleTypeHandler(BlobBytesTypeHandler.class));
-        this.registerCross(Types.BLOB, Byte[].class, createSingleTypeHandler(BlobBytesForWrapTypeHandler.class));
+        this.registerCross(Types.VARBINARY, Byte[].class, createSingleTypeHandler(BytesAsBytesWrapTypeHandler.class));
+        this.registerCross(Types.BLOB, byte[].class, createSingleTypeHandler(BlobAsBytesTypeHandler.class));
+        this.registerCross(Types.BLOB, Byte[].class, createSingleTypeHandler(BlobAsBytesWrapTypeHandler.class));
         this.registerCross(Types.LONGVARBINARY, byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
-        this.registerCross(Types.LONGVARBINARY, Byte[].class, createSingleTypeHandler(BytesForWrapTypeHandler.class));
+        this.registerCross(Types.LONGVARBINARY, Byte[].class, createSingleTypeHandler(BytesAsBytesWrapTypeHandler.class));
 
-        this.registerCross(Types.BINARY, InputStream.class, createSingleTypeHandler(BytesInputStreamTypeHandler.class));
-        this.registerCross(Types.VARBINARY, InputStream.class, createSingleTypeHandler(BytesInputStreamTypeHandler.class));
-        this.registerCross(Types.BLOB, InputStream.class, createSingleTypeHandler(BlobInputStreamTypeHandler.class));
-        this.registerCross(Types.LONGVARBINARY, InputStream.class, createSingleTypeHandler(BytesInputStreamTypeHandler.class));
+        this.registerCross(Types.BINARY, InputStream.class, createSingleTypeHandler(BytesAsInputStreamTypeHandler.class));
+        this.registerCross(Types.VARBINARY, InputStream.class, createSingleTypeHandler(BytesAsInputStreamTypeHandler.class));
+        this.registerCross(Types.BLOB, InputStream.class, createSingleTypeHandler(BlobAsInputStreamTypeHandler.class));
+        this.registerCross(Types.LONGVARBINARY, InputStream.class, createSingleTypeHandler(BytesAsInputStreamTypeHandler.class));
 
         this.registerCross(Types.ARRAY, Object.class, createSingleTypeHandler(ArrayTypeHandler.class));
     }

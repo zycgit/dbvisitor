@@ -14,35 +14,35 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler;
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 /**
+ * 读写 {@link LocalDateTime} 类型数据。
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
 public class LocalDateTimeTypeHandler extends AbstractTypeHandler<LocalDateTime> {
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, LocalDateTime parameter, Integer jdbcType) throws SQLException {
-        Timestamp timestamp = Timestamp.valueOf(parameter);
-        ps.setTimestamp(i, timestamp);
+        ps.setObject(i, parameter);
     }
 
     @Override
     public LocalDateTime getNullableResult(ResultSet rs, String columnName) throws SQLException {
-        Timestamp timestamp = rs.getTimestamp(columnName);
-        return (timestamp == null) ? null : timestamp.toLocalDateTime();
+        return rs.getObject(columnName, LocalDateTime.class);
     }
 
     @Override
     public LocalDateTime getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-        Timestamp timestamp = rs.getTimestamp(columnIndex);
-        return (timestamp == null) ? null : timestamp.toLocalDateTime();
+        return rs.getObject(columnIndex, LocalDateTime.class);
     }
 
     @Override
     public LocalDateTime getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-        Timestamp timestamp = cs.getTimestamp(columnIndex);
-        return (timestamp == null) ? null : timestamp.toLocalDateTime();
+        return cs.getObject(columnIndex, LocalDateTime.class);
     }
 }

@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
+ * 使用 {@link BigInteger} 类型，读写 jdbc {@link BigDecimal} 类型数据
  * @author Paul Krause
  * @author 赵永春 (zyc@hasor.net)
  */

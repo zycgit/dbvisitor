@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.types.handler;
 import java.sql.*;
 
 /**
- * Convert <code>String</code> to/from <code>SQLXML</code>.
+ * 使用 string 类型读写 jdbc {@link java.sql.SQLXML} 数据。
  * @since 3.5.0
  * @author Iwao AVE!
  * @author 赵永春 (zyc@hasor.net)

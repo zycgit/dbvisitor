@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
+ * 读写 jdbc string 类型。
  * @author Clinton Begin
  * @author 赵永春 (zyc@hasor.net)
  */

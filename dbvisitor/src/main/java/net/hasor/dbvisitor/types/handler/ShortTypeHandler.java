@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
+ * 读写 short 类型数据。
  * @author Clinton Begin
  * @author 赵永春 (zyc@hasor.net)
  */

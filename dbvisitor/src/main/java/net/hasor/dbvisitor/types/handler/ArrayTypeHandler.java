@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * 读写 jdbc 数组类型
  * @author Clinton Begin
  * @author 赵永春 (zyc@hasor.net)
  */

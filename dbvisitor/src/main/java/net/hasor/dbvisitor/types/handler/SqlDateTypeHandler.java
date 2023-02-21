@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.types.handler;
 import java.sql.*;
 
 /**
+ * 读写 {@link java.sql.Date} 类型数据。
  * @author Clinton Begin
  * @author 赵永春 (zyc@hasor.net)
  */

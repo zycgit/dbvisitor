@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
+ * 以 string 方式读写 NString 数据。
  * @author Clinton Begin
  * @author 赵永春 (zyc@hasor.net)
  */

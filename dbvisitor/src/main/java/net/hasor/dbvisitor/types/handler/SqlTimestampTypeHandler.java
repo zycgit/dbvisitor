@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.types.handler;
 import java.sql.*;
 
 /**
+ * 读写 jdbc {@link java.sql.Timestamp} 数据。
  * @author Clinton Begin
  * @author 赵永春 (zyc@hasor.net)
  */
