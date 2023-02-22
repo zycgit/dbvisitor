@@ -29,7 +29,7 @@ import java.sql.SQLException;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class StringReaderTypeHandler extends AbstractTypeHandler<Reader> {
+public class StringAsReaderTypeHandler extends AbstractTypeHandler<Reader> {
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, Reader parameter, Integer jdbcType) throws SQLException {
         try {

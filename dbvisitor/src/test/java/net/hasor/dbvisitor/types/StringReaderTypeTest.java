@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.ClobAsReaderTypeHandler;
 import net.hasor.dbvisitor.types.handler.NClobAsReaderTypeHandler;
 import net.hasor.dbvisitor.types.handler.NStringAsReaderTypeHandler;
-import net.hasor.dbvisitor.types.handler.StringReaderTypeHandler;
+import net.hasor.dbvisitor.types.handler.StringAsReaderTypeHandler;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -160,7 +160,7 @@ public class StringReaderTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
             List<Reader> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
-                return new StringReaderTypeHandler().getResult(rs, 1);
+                return new StringAsReaderTypeHandler().getResult(rs, 1);
             });
             String readerDat = IOUtils.toString(dat.get(0));
             assert readerDat.equals("abcdefg");
@@ -174,7 +174,7 @@ public class StringReaderTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
             List<Reader> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
-                return new StringReaderTypeHandler().getResult(rs, "c_text");
+                return new StringAsReaderTypeHandler().getResult(rs, "c_text");
             });
             String readerDat = IOUtils.toString(dat.get(0));
             assert readerDat.equals("abcdefg");
@@ -192,9 +192,9 @@ public class StringReaderTypeTest {
             assert dat2 == null;
 
             List<Reader> dat = jdbcTemplate.queryForList("select ?", ps -> {
-                new StringReaderTypeHandler().setParameter(ps, 1, new StringReader("abcdefg"), JDBCType.CLOB.getVendorTypeNumber());
+                new StringAsReaderTypeHandler().setParameter(ps, 1, new StringReader("abcdefg"), JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
-                return new StringReaderTypeHandler().getNullableResult(rs, 1);
+                return new StringAsReaderTypeHandler().getNullableResult(rs, 1);
             });
             String readerDat = IOUtils.toString(dat.get(0));
             assert readerDat.equals("abcdefg");
@@ -209,7 +209,7 @@ public class StringReaderTypeTest {
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(10)) begin set p_out='abcdefg'; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_varchar(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARCHAR.getVendorTypeNumber(), new StringReaderTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARCHAR.getVendorTypeNumber(), new StringAsReaderTypeHandler())));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Reader;
