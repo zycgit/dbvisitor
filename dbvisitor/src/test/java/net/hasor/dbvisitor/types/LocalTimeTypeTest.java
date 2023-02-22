@@ -17,8 +17,8 @@ package net.hasor.dbvisitor.types;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.LocalDateTimeTypeHandler;
-import net.hasor.dbvisitor.types.handler.LocalDateTypeHandler;
-import net.hasor.dbvisitor.types.handler.LocalTimeTypeHandler;
+import net.hasor.dbvisitor.types.handler.LocalDateTimeAsLocalDateTypeHandler;
+import net.hasor.dbvisitor.types.handler.SqlTimestampAsLocalTimeTypeHandler;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -130,7 +130,7 @@ public class LocalTimeTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
             List<LocalDate> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
-                return new LocalDateTypeHandler().getResult(rs, 1);
+                return new LocalDateTimeAsLocalDateTypeHandler().getResult(rs, 1);
             });
 
             LocalDate localNow = LocalDate.now();
@@ -148,7 +148,7 @@ public class LocalTimeTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
             List<LocalDate> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
-                return new LocalDateTypeHandler().getResult(rs, "c_timestamp");
+                return new LocalDateTimeAsLocalDateTypeHandler().getResult(rs, "c_timestamp");
             });
 
             LocalDate localNow = LocalDate.now();
@@ -166,9 +166,9 @@ public class LocalTimeTypeTest {
 
             LocalDate testData = LocalDate.of(1998, Month.APRIL, 12);
             List<LocalDate> dat = jdbcTemplate.queryForList("select ?", ps -> {
-                new LocalDateTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP.getVendorTypeNumber());
+                new LocalDateTimeAsLocalDateTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
-                return new LocalDateTypeHandler().getNullableResult(rs, 1);
+                return new LocalDateTimeAsLocalDateTypeHandler().getNullableResult(rs, 1);
             });
 
             LocalDate dateTime = dat.get(0);
@@ -186,7 +186,7 @@ public class LocalTimeTypeTest {
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 10:11:12', '%Y-%m-%d %h:%i:%s'); end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new LocalDateTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new LocalDateTimeAsLocalDateTypeHandler())));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof LocalDate;
@@ -206,7 +206,7 @@ public class LocalTimeTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
             List<LocalTime> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
-                return new LocalTimeTypeHandler().getResult(rs, 1);
+                return new SqlTimestampAsLocalTimeTypeHandler().getResult(rs, 1);
             });
 
             LocalTime localNow = LocalTime.now();
@@ -225,7 +225,7 @@ public class LocalTimeTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp) values (CURRENT_TIMESTAMP(9));");
             List<LocalTime> dat = jdbcTemplate.queryForList("select c_timestamp from tb_h2_types where c_timestamp is not null limit 1;", (rs, rowNum) -> {
-                return new LocalTimeTypeHandler().getResult(rs, "c_timestamp");
+                return new SqlTimestampAsLocalTimeTypeHandler().getResult(rs, "c_timestamp");
             });
 
             LocalTime localNow = LocalTime.now();
@@ -244,9 +244,9 @@ public class LocalTimeTypeTest {
 
             LocalTime testData = LocalTime.of(12, 33, 45, 1243);
             List<LocalTime> dat = jdbcTemplate.queryForList("select ?", ps -> {
-                new LocalTimeTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP.getVendorTypeNumber());
+                new SqlTimestampAsLocalTimeTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP.getVendorTypeNumber());
             }, (rs, rowNum) -> {
-                return new LocalTimeTypeHandler().getNullableResult(rs, 1);
+                return new SqlTimestampAsLocalTimeTypeHandler().getNullableResult(rs, 1);
             });
 
             LocalTime dateTime = dat.get(0);
@@ -265,7 +265,7 @@ public class LocalTimeTypeTest {
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 10:11:12', '%Y-%m-%d %h:%i:%s'); end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new LocalTimeTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new SqlTimestampAsLocalTimeTypeHandler())));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof LocalTime;

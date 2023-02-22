@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.mapping;
 import net.hasor.dbvisitor.keyholder.sequence.JdbcKeySeqHolderFactory;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.types.handler.DateTypeHandler;
+import net.hasor.dbvisitor.types.handler.SqlTimestampAsDateTypeHandler;
 import net.hasor.dbvisitor.types.handler.EnumTypeHandler;
 import net.hasor.dbvisitor.types.handler.LongTypeHandler;
 import net.hasor.dbvisitor.types.handler.StringTypeHandler;
@@ -75,7 +75,7 @@ public class XmlResultRegistryTest {
         assert !mapping.getPropertyByName("gmtCreate").isUpdate();
         assert mapping.getPropertyByName("gmtCreate").isInsert();
         assert mapping.getPropertyByName("gmtCreate").getJavaType() == Date.class;
-        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == DateTypeHandler.class;
+        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmt_create");
         assert mapping.getPropertyByName("gmtCreate").getDescription().getDbType().equals("datetime");
@@ -147,7 +147,7 @@ public class XmlResultRegistryTest {
         assert !mapping.getPropertyByName("gmtCreate").isUpdate();
         assert mapping.getPropertyByName("gmtCreate").isInsert();
         assert mapping.getPropertyByName("gmtCreate").getJavaType() == Date.class;
-        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == DateTypeHandler.class;
+        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmt_create");
         assert mapping.getPropertyByName("gmtCreate").getDescription() == null;
@@ -213,7 +213,7 @@ public class XmlResultRegistryTest {
         assert !mapping.getPropertyByName("gmtCreate").isUpdate();
         assert mapping.getPropertyByName("gmtCreate").isInsert();
         assert mapping.getPropertyByName("gmtCreate").getJavaType() == Date.class;
-        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == DateTypeHandler.class;
+        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmt_create");
         assert mapping.getPropertyByName("gmtCreate").getDescription() == null;
@@ -278,7 +278,7 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("gmtCreate").isUpdate();
         assert mapping.getPropertyByName("gmtCreate").isInsert();
         assert mapping.getPropertyByName("gmtCreate").getJavaType() == Date.class;
-        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == DateTypeHandler.class;
+        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmtCreate");
         assert mapping.getPropertyByName("gmtCreate").getDescription() == null;
@@ -343,7 +343,7 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("gmtCreate").isUpdate();
         assert mapping.getPropertyByName("gmtCreate").isInsert();
         assert mapping.getPropertyByName("gmtCreate").getJavaType() == Date.class;
-        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == DateTypeHandler.class;
+        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmtCreate");
         assert mapping.getPropertyByName("gmtCreate").getDescription() == null;
@@ -410,7 +410,7 @@ public class XmlResultRegistryTest {
         assert !mapping.getPropertyByName("gmtCreate").isUpdate();
         assert mapping.getPropertyByName("gmtCreate").isInsert();
         assert mapping.getPropertyByName("gmtCreate").getJavaType() == Date.class;
-        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == DateTypeHandler.class;
+        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmt_create");
         assert mapping.getPropertyByName("gmtCreate").getDescription().getDbType().equals("datetime");
@@ -483,7 +483,7 @@ public class XmlResultRegistryTest {
         assert !mapping.getPropertyByName("gmtCreate").isUpdate();
         assert mapping.getPropertyByName("gmtCreate").isInsert();
         assert mapping.getPropertyByName("gmtCreate").getJavaType() == Date.class;
-        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == DateTypeHandler.class;
+        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmt_create");
         assert mapping.getPropertyByName("gmtCreate").getDescription() == null;
@@ -549,7 +549,7 @@ public class XmlResultRegistryTest {
         assert !mapping.getPropertyByName("gmtCreate").isUpdate();
         assert mapping.getPropertyByName("gmtCreate").isInsert();
         assert mapping.getPropertyByName("gmtCreate").getJavaType() == Date.class;
-        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == DateTypeHandler.class;
+        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmt_create");
         assert mapping.getPropertyByName("gmtCreate").getDescription() == null;
@@ -614,7 +614,7 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("gmtCreate").isUpdate();
         assert mapping.getPropertyByName("gmtCreate").isInsert();
         assert mapping.getPropertyByName("gmtCreate").getJavaType() == Date.class;
-        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == DateTypeHandler.class;
+        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmt_create");
         assert mapping.getPropertyByName("gmtCreate").getDescription() == null;
@@ -679,7 +679,7 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("gmtCreate").isUpdate();
         assert mapping.getPropertyByName("gmtCreate").isInsert();
         assert mapping.getPropertyByName("gmtCreate").getJavaType() == Date.class;
-        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == DateTypeHandler.class;
+        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmt_create");
         assert mapping.getPropertyByName("gmtCreate").getDescription() == null;
@@ -741,7 +741,7 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("gmtCreate").isUpdate();
         assert mapping.getPropertyByName("gmtCreate").isInsert();
         assert mapping.getPropertyByName("gmtCreate").getJavaType() == Date.class;
-        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == DateTypeHandler.class;
+        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmt_create");
         assert mapping.getPropertyByName("gmtCreate").getDescription() == null;
@@ -803,7 +803,7 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("gmtCreate").isUpdate();
         assert mapping.getPropertyByName("gmtCreate").isInsert();
         assert mapping.getPropertyByName("gmtCreate").getJavaType() == Date.class;
-        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == DateTypeHandler.class;
+        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmt_create");
         assert mapping.getPropertyByName("gmtCreate").getDescription() == null;
@@ -865,7 +865,7 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("gmtCreate").isUpdate();
         assert mapping.getPropertyByName("gmtCreate").isInsert();
         assert mapping.getPropertyByName("gmtCreate").getJavaType() == Date.class;
-        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == DateTypeHandler.class;
+        assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmt_create");
         assert mapping.getPropertyByName("gmtCreate").getDescription() == null;

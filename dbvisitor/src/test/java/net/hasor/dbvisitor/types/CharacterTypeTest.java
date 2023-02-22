@@ -16,8 +16,8 @@
 package net.hasor.dbvisitor.types;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.types.handler.CharacterTypeHandler;
-import net.hasor.dbvisitor.types.handler.NCharacterTypeHandler;
+import net.hasor.dbvisitor.types.handler.StringAsCharTypeHandler;
+import net.hasor.dbvisitor.types.handler.NStringAsCharTypeHandler;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public class CharacterTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('1234567890');");
             List<Character> bigInteger = jdbcTemplate.queryForList("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
-                return new CharacterTypeHandler().getResult(rs, 1);
+                return new StringAsCharTypeHandler().getResult(rs, 1);
             });
             assert bigInteger.get(0).toString().equals("1");
         }
@@ -49,7 +49,7 @@ public class CharacterTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('1234567890');");
             List<Character> bigInteger = jdbcTemplate.queryForList("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
-                return new CharacterTypeHandler().getResult(rs, "c_char");
+                return new StringAsCharTypeHandler().getResult(rs, "c_char");
             });
             assert bigInteger.get(0).toString().equals("1");
         }
@@ -66,16 +66,16 @@ public class CharacterTypeTest {
             assert dat2 == 'a';
 
             List<Character> character1 = jdbcTemplate.queryForList("select ?", ps -> {
-                new CharacterTypeHandler().setParameter(ps, 1, 'a', JDBCType.CHAR.getVendorTypeNumber());
+                new StringAsCharTypeHandler().setParameter(ps, 1, 'a', JDBCType.CHAR.getVendorTypeNumber());
             }, (rs, rowNum) -> {
-                return new CharacterTypeHandler().getNullableResult(rs, 1);
+                return new StringAsCharTypeHandler().getNullableResult(rs, 1);
             });
             assert character1.get(0) == 'a';
 
             List<Character> character2 = jdbcTemplate.queryForList("select ? as ncr", ps -> {
-                new CharacterTypeHandler().setParameter(ps, 1, 'a', JDBCType.CHAR.getVendorTypeNumber());
+                new StringAsCharTypeHandler().setParameter(ps, 1, 'a', JDBCType.CHAR.getVendorTypeNumber());
             }, (rs, rowNum) -> {
-                return new CharacterTypeHandler().getNullableResult(rs, "ncr");
+                return new StringAsCharTypeHandler().getNullableResult(rs, "ncr");
             });
             assert character2.get(0) == 'a';
         }
@@ -89,7 +89,7 @@ public class CharacterTypeTest {
             jdbcTemplate.execute("create procedure proc_char(out p_out char) begin set p_out='A'; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_char(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.CHAR.getVendorTypeNumber(), new CharacterTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.CHAR.getVendorTypeNumber(), new StringAsCharTypeHandler())));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Character;
@@ -105,7 +105,7 @@ public class CharacterTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('1234567890');");
             List<Character> bigInteger = jdbcTemplate.queryForList("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
-                return new NCharacterTypeHandler().getResult(rs, 1);
+                return new NStringAsCharTypeHandler().getResult(rs, 1);
             });
             assert bigInteger.get(0).toString().equals("1");
         }
@@ -118,7 +118,7 @@ public class CharacterTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char) values ('1234567890');");
             List<Character> bigInteger = jdbcTemplate.queryForList("select c_char from tb_h2_types where c_char is not null limit 1;", (rs, rowNum) -> {
-                return new NCharacterTypeHandler().getResult(rs, "c_char");
+                return new NStringAsCharTypeHandler().getResult(rs, "c_char");
             });
             assert bigInteger.get(0).toString().equals("1");
         }
@@ -135,16 +135,16 @@ public class CharacterTypeTest {
             assert dat2 == 'a';
 
             List<Character> character1 = jdbcTemplate.queryForList("select ?", ps -> {
-                new NCharacterTypeHandler().setParameter(ps, 1, 'a', JDBCType.NCHAR.getVendorTypeNumber());
+                new NStringAsCharTypeHandler().setParameter(ps, 1, 'a', JDBCType.NCHAR.getVendorTypeNumber());
             }, (rs, rowNum) -> {
-                return new NCharacterTypeHandler().getNullableResult(rs, 1);
+                return new NStringAsCharTypeHandler().getNullableResult(rs, 1);
             });
             assert character1.get(0) == 'a';
 
             List<Character> character2 = jdbcTemplate.queryForList("select ? as ncr", ps -> {
-                new NCharacterTypeHandler().setParameter(ps, 1, 'a', JDBCType.NCHAR.getVendorTypeNumber());
+                new NStringAsCharTypeHandler().setParameter(ps, 1, 'a', JDBCType.NCHAR.getVendorTypeNumber());
             }, (rs, rowNum) -> {
-                return new NCharacterTypeHandler().getNullableResult(rs, "ncr");
+                return new NStringAsCharTypeHandler().getNullableResult(rs, "ncr");
             });
             assert character2.get(0) == 'a';
         }
@@ -158,7 +158,7 @@ public class CharacterTypeTest {
             jdbcTemplate.execute("create procedure proc_char(out p_out char) begin set p_out='A'; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_char(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.NCHAR.getVendorTypeNumber(), new NCharacterTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.NCHAR.getVendorTypeNumber(), new NStringAsCharTypeHandler())));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Character;

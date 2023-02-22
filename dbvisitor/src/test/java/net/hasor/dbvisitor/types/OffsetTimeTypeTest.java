@@ -36,7 +36,7 @@ public class OffsetTimeTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
             List<OffsetDateTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
-                return new OffsetDateTimeForSqlTypeHandler().getResult(rs, 1);
+                return new OffsetDateTimeTypeHandler().getResult(rs, 1);
             });
 
             OffsetDateTime dateTime = dat.get(0);
@@ -61,7 +61,7 @@ public class OffsetTimeTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
             List<OffsetDateTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
-                return new OffsetDateTimeForSqlTypeHandler().getResult(rs, "c_timestamp_z");
+                return new OffsetDateTimeTypeHandler().getResult(rs, "c_timestamp_z");
             });
 
             OffsetDateTime dateTime = dat.get(0);
@@ -88,9 +88,9 @@ public class OffsetTimeTypeTest {
                     .atOffset(ZoneOffset.ofHours(8));
 
             List<OffsetDateTime> dat = jdbcTemplate.queryForList("select ?", ps -> {
-                new OffsetDateTimeForSqlTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber());
+                new OffsetDateTimeTypeHandler().setParameter(ps, 1, testData, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber());
             }, (rs, rowNum) -> {
-                return new OffsetDateTimeForSqlTypeHandler().getNullableResult(rs, 1);
+                return new OffsetDateTimeTypeHandler().getNullableResult(rs, 1);
             });
             OffsetDateTime dateTime = dat.get(0);
 
@@ -117,7 +117,7 @@ public class OffsetTimeTypeTest {
                     + "END;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamptz(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withInOutName("out", null, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber(), new OffsetDateTimeForSqlTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withInOutName("out", null, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber(), new OffsetDateTimeTypeHandler())));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof OffsetDateTime;
@@ -132,7 +132,7 @@ public class OffsetTimeTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
             List<OffsetDateTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
-                return new OffsetDateTimeForUTCTypeHandler().getResult(rs, 1);
+                return new SqlTimestampAsUTCOffsetDateTimeTypeHandler().getResult(rs, 1);
             });
             OffsetDateTime dateTime = dat.get(0);
             ZonedDateTime utcTime = LocalDateTime.of(1998, Month.APRIL, 12, 18, 33, 20, 123)//
@@ -157,7 +157,7 @@ public class OffsetTimeTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
             List<OffsetDateTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
-                return new OffsetDateTimeForUTCTypeHandler().getResult(rs, "c_timestamp_z");
+                return new SqlTimestampAsUTCOffsetDateTimeTypeHandler().getResult(rs, "c_timestamp_z");
             });
             OffsetDateTime dateTime = dat.get(0);
             ZonedDateTime utcTime = LocalDateTime.of(1998, Month.APRIL, 12, 18, 33, 20, 123)//
@@ -184,9 +184,9 @@ public class OffsetTimeTypeTest {
                     .atOffset(ZoneOffset.ofHours(8));
 
             List<OffsetDateTime> dat = jdbcTemplate.queryForList("select ?", ps -> {
-                new OffsetDateTimeForUTCTypeHandler().setParameter(ps, 1, argOffsetTime, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber());
+                new SqlTimestampAsUTCOffsetDateTimeTypeHandler().setParameter(ps, 1, argOffsetTime, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber());
             }, (rs, rowNum) -> {
-                return new OffsetDateTimeForUTCTypeHandler().getNullableResult(rs, 1);
+                return new SqlTimestampAsUTCOffsetDateTimeTypeHandler().getNullableResult(rs, 1);
             });
             OffsetDateTime dateTime = dat.get(0);
             ZonedDateTime testTime = argOffsetTime.atZoneSameInstant(ZoneOffset.UTC);
@@ -210,7 +210,7 @@ public class OffsetTimeTypeTest {
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new OffsetDateTimeForUTCTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new SqlTimestampAsUTCOffsetDateTimeTypeHandler())));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof OffsetDateTime;
@@ -236,7 +236,7 @@ public class OffsetTimeTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
             List<OffsetTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
-                return new OffsetTimeForSqlTypeHandler().getResult(rs, 1);
+                return new OffsetTimeTypeHandler().getResult(rs, 1);
             });
             OffsetTime dateTime = dat.get(0);
             OffsetTime localTime = LocalTime.of(18, 33, 20, 123).atOffset(ZoneOffset.ofHours(8));
@@ -256,7 +256,7 @@ public class OffsetTimeTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
             List<OffsetTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
-                return new OffsetTimeForSqlTypeHandler().getResult(rs, "c_timestamp_z");
+                return new OffsetTimeTypeHandler().getResult(rs, "c_timestamp_z");
             });
             OffsetTime dateTime = dat.get(0);
             OffsetTime localTime = LocalTime.of(18, 33, 20, 123).atOffset(ZoneOffset.ofHours(8));
@@ -277,9 +277,9 @@ public class OffsetTimeTypeTest {
             OffsetTime localTime = LocalTime.of(18, 33, 20, 123).atOffset(ZoneOffset.ofHours(8));
 
             List<OffsetTime> dat = jdbcTemplate.queryForList("select ?", ps -> {
-                new OffsetTimeForSqlTypeHandler().setParameter(ps, 1, localTime, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber());
+                new OffsetTimeTypeHandler().setParameter(ps, 1, localTime, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber());
             }, (rs, rowNum) -> {
-                return new OffsetTimeForSqlTypeHandler().getNullableResult(rs, 1);
+                return new OffsetTimeTypeHandler().getNullableResult(rs, 1);
             });
 
             OffsetTime dateTime = dat.get(0);
@@ -303,7 +303,7 @@ public class OffsetTimeTypeTest {
                     + "END;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamptz(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withInOutName("out", null, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber(), new OffsetTimeForSqlTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withInOutName("out", null, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber(), new OffsetTimeTypeHandler())));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof OffsetTime;
@@ -318,7 +318,7 @@ public class OffsetTimeTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
             List<OffsetTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
-                return new OffsetTimeForUTCTypeHandler().getResult(rs, 1);
+                return new SqlTimestampAsUTCOffsetTimeTypeHandler().getResult(rs, 1);
             });
             OffsetTime dateTime = dat.get(0);
             OffsetTime localTime = LocalTime.of(18, 33, 20, 123)//
@@ -342,7 +342,7 @@ public class OffsetTimeTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
             List<OffsetTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
-                return new OffsetTimeForUTCTypeHandler().getResult(rs, "c_timestamp_z");
+                return new SqlTimestampAsUTCOffsetTimeTypeHandler().getResult(rs, "c_timestamp_z");
             });
             OffsetTime dateTime = dat.get(0);
             OffsetTime localTime = LocalTime.of(18, 33, 20, 123)//
@@ -367,9 +367,9 @@ public class OffsetTimeTypeTest {
             OffsetTime localTime = LocalTime.of(18, 33, 20, 123).atOffset(ZoneOffset.ofHours(8));//
 
             List<OffsetTime> dat = jdbcTemplate.queryForList("select ?", ps -> {
-                new OffsetTimeForUTCTypeHandler().setParameter(ps, 1, localTime, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber());
+                new SqlTimestampAsUTCOffsetTimeTypeHandler().setParameter(ps, 1, localTime, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber());
             }, (rs, rowNum) -> {
-                return new OffsetTimeForUTCTypeHandler().getNullableResult(rs, 1);
+                return new SqlTimestampAsUTCOffsetTimeTypeHandler().getNullableResult(rs, 1);
             });
 
             OffsetTime dateTime = dat.get(0);
@@ -393,7 +393,7 @@ public class OffsetTimeTypeTest {
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new OffsetTimeForUTCTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new SqlTimestampAsUTCOffsetTimeTypeHandler())));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof OffsetTime;
@@ -416,7 +416,7 @@ public class OffsetTimeTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
             List<ZonedDateTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
-                return new ZonedDateTimeTypeHandler().getResult(rs, 1);
+                return new OffsetDateTimeAsZonedDateTimeTypeHandler().getResult(rs, 1);
             });
             ZonedDateTime dateTime = dat.get(0);
             OffsetDateTime localTime = LocalDateTime.of(1998, 4, 12, 18, 33, 20, 123)//
@@ -437,7 +437,7 @@ public class OffsetTimeTypeTest {
 
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
             List<ZonedDateTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
-                return new ZonedDateTimeTypeHandler().getResult(rs, "c_timestamp_z");
+                return new OffsetDateTimeAsZonedDateTimeTypeHandler().getResult(rs, "c_timestamp_z");
             });
             ZonedDateTime dateTime = dat.get(0);
             OffsetDateTime localTime = LocalDateTime.of(1998, 4, 12, 18, 33, 20, 123)//
@@ -462,9 +462,9 @@ public class OffsetTimeTypeTest {
                     ZoneOffset.ofHours(8));
 
             List<ZonedDateTime> dat = jdbcTemplate.queryForList("select ?", ps -> {
-                new ZonedDateTimeTypeHandler().setParameter(ps, 1, localTime, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber());
+                new OffsetDateTimeAsZonedDateTimeTypeHandler().setParameter(ps, 1, localTime, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber());
             }, (rs, rowNum) -> {
-                return new ZonedDateTimeTypeHandler().getNullableResult(rs, 1);
+                return new OffsetDateTimeAsZonedDateTimeTypeHandler().getNullableResult(rs, 1);
             });
 
             ZonedDateTime dateTime = dat.get(0);
@@ -489,7 +489,7 @@ public class OffsetTimeTypeTest {
                     + "END;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamptz(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withInOutName("out", null, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber(), new ZonedDateTimeTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withInOutName("out", null, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber(), new OffsetDateTimeAsZonedDateTimeTypeHandler())));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof ZonedDateTime;

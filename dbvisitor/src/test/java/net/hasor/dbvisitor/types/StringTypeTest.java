@@ -16,8 +16,8 @@
 package net.hasor.dbvisitor.types;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.types.handler.ClobTypeHandler;
-import net.hasor.dbvisitor.types.handler.NClobTypeHandler;
+import net.hasor.dbvisitor.types.handler.ClobAsStringTypeHandler;
+import net.hasor.dbvisitor.types.handler.NClobAsStringTypeHandler;
 import net.hasor.dbvisitor.types.handler.NStringTypeHandler;
 import net.hasor.dbvisitor.types.handler.StringTypeHandler;
 import net.hasor.test.utils.DsUtils;
@@ -38,7 +38,7 @@ public class StringTypeTest {
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
             List<String> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
-                return new ClobTypeHandler().getResult(rs, 1);
+                return new ClobAsStringTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0).equals("abcdefg");
         }
@@ -51,7 +51,7 @@ public class StringTypeTest {
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
             List<String> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
-                return new ClobTypeHandler().getResult(rs, "c_clob");
+                return new ClobAsStringTypeHandler().getResult(rs, "c_clob");
             });
             assert dat.get(0).equals("abcdefg");
         }
@@ -63,9 +63,9 @@ public class StringTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<String> dat = jdbcTemplate.queryForList("select ?", ps -> {
-                new ClobTypeHandler().setParameter(ps, 1, "abcedfg", JDBCType.CLOB.getVendorTypeNumber());
+                new ClobAsStringTypeHandler().setParameter(ps, 1, "abcedfg", JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
-                return new ClobTypeHandler().getNullableResult(rs, 1);
+                return new ClobAsStringTypeHandler().getNullableResult(rs, 1);
             });
             assert dat.get(0).equals("abcedfg");
         }
@@ -79,7 +79,7 @@ public class StringTypeTest {
             jdbcTemplate.execute("create procedure proc_text(out p_out text) begin set p_out='abcdefg'; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_text(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.CLOB.getVendorTypeNumber(), new ClobTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.CLOB.getVendorTypeNumber(), new ClobAsStringTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof String;
@@ -94,7 +94,7 @@ public class StringTypeTest {
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
             List<String> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
-                return new NClobTypeHandler().getResult(rs, 1);
+                return new NClobAsStringTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0).equals("abcdefg");
         }
@@ -107,7 +107,7 @@ public class StringTypeTest {
             //
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
             List<String> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
-                return new NClobTypeHandler().getResult(rs, "c_clob");
+                return new NClobAsStringTypeHandler().getResult(rs, "c_clob");
             });
             assert dat.get(0).equals("abcdefg");
         }
@@ -119,9 +119,9 @@ public class StringTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             //
             List<String> dat = jdbcTemplate.queryForList("select ?", ps -> {
-                new NClobTypeHandler().setParameter(ps, 1, "abcedfg", JDBCType.CLOB.getVendorTypeNumber());
+                new NClobAsStringTypeHandler().setParameter(ps, 1, "abcedfg", JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
-                return new NClobTypeHandler().getNullableResult(rs, 1);
+                return new NClobAsStringTypeHandler().getNullableResult(rs, 1);
             });
             assert dat.get(0).equals("abcedfg");
         }
@@ -135,7 +135,7 @@ public class StringTypeTest {
             jdbcTemplate.execute("create procedure proc_text(out p_out text) begin set p_out='abcdefg'; end;");
             //
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_text(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.CLOB.getVendorTypeNumber(), new NClobTypeHandler())));
+                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.CLOB.getVendorTypeNumber(), new NClobAsStringTypeHandler())));
             //
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof String;
