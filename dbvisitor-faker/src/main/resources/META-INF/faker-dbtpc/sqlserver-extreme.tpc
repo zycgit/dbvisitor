@@ -57,7 +57,7 @@ define sqlserver {
     minMax        += range(10, 2.23E-308           , 1.79E+308)
     minMax        += range(30, -999999999.999999999, 999999999.999999999)
     minMax        += range(30, -0.999999999        , 0.999999999)
-    typeHandler    = net.hasor.dbvisitor.types.handler.BigDecimalAsStringTypeHandler
+    typeHandler    = net.hasor.dbvisitor.types.handler.StringAsBigDecimalTypeHandler
 
 [real]
     jdbcType       = real
@@ -67,7 +67,7 @@ define sqlserver {
     minMax        += range(10, 1.18E-38            , 3.40E+38)
     minMax        += range(30, -999999999.999999999, 999999999.999999999)
     minMax        += range(30, -0.999999999        , 0.999999999)
-    typeHandler    = net.hasor.dbvisitor.types.handler.BigDecimalAsStringTypeHandler
+    typeHandler    = net.hasor.dbvisitor.types.handler.StringAsBigDecimalTypeHandler
 
 [numeric]
 [decimal]

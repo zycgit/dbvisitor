@@ -90,19 +90,19 @@ public class DateSeedConfig extends SeedConfig {
             this.dateType = dateType;
             switch (dateType) {
                 case OffsetTime:
-                    this.setTypeHandler(new OffsetTimeForSqlTypeHandler());
+                    this.setTypeHandler(new OffsetTimeTypeHandler());
                     break;
                 case OffsetDateTime:
-                    this.setTypeHandler(new OffsetDateTimeForSqlTypeHandler());
+                    this.setTypeHandler(new OffsetDateTimeTypeHandler());
                     break;
                 case ZonedDateTime:
-                    this.setTypeHandler(new ZonedDateTimeTypeHandler());
+                    this.setTypeHandler(new OffsetDateTimeAsZonedDateTimeTypeHandler());
                     break;
                 case LocalDateTime:
                     this.setTypeHandler(new LocalDateTimeTypeHandler());
                     break;
                 case LocalTime:
-                    this.setTypeHandler(new LocalTimeForOriginalTypeHandler());
+                    this.setTypeHandler(new LocalDateTimeAsLocalTimeTypeHandler());
                     break;
                 default:
                     this.setTypeHandler(TypeHandlerRegistry.DEFAULT.getTypeHandler(dateType.getDateType()));

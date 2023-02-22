@@ -6,29 +6,30 @@ import net.hasor.dbvisitor.faker.engine.FakerEngine;
 import net.hasor.dbvisitor.faker.generator.FakerFactory;
 import net.hasor.dbvisitor.faker.generator.FakerRepository;
 import net.hasor.dbvisitor.faker.generator.FakerTable;
+import net.hasor.dbvisitor.faker.generator.SqlPolitic;
 import net.hasor.dbvisitor.faker.generator.loader.PrecociousDataLoaderFactory;
 
 public class PostgresTest {
     public static void main(String[] args) throws Exception {
-        // LoggerFactory.useStdOutLogger();
+        //LoggerFactory.useStdOutLogger();
         // 全局配置
         FakerConfig fakerConfig = new FakerConfig();
         fakerConfig.setTransaction(false);
-        //        fakerConfig.setPolicy("extreme");
+        fakerConfig.setPolicy("extreme");
         fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
         fakerConfig.addIgnoreError("Duplicate");
         fakerConfig.addIgnoreError("restarting");
         fakerConfig.addIgnoreError("deadlocked");
         fakerConfig.addIgnoreError("was deadlocked on lock");
         fakerConfig.addIgnoreError("duplicate key");
-        fakerConfig.setOpsRatio("I#30;U#10;D#5");
+        //        fakerConfig.setOpsRatio("I#30;U#10;D#5");
 
         // 生成器，配置表
         DruidDataSource dataDs = DsUtils.dsPg();
         FakerFactory factory = new FakerFactory(dataDs, fakerConfig);
         FakerRepository generator = new FakerRepository(factory);
         FakerTable table = generator.addTable("postgres", "public", "tb_postgre_types");
-        //        table.setInsertPolitic(SqlPolitic.FullCol);
+        table.setInsertPolitic(SqlPolitic.FullCol);
         table.apply();
 
         // 生成数据

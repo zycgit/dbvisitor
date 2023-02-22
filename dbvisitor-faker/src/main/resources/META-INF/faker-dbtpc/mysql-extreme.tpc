@@ -108,7 +108,7 @@ define mysql {
     precision      = ${columnSize}
     scale          = ${decimalDigits}
     abs            = include(${columnType}, 'unsigned')
-    typeHandler    = net.hasor.dbvisitor.types.handler.BigDecimalAsStringTypeHandler
+    typeHandler    = net.hasor.dbvisitor.types.handler.StringAsBigDecimalTypeHandler
 
 [date]
     jdbcType       = date

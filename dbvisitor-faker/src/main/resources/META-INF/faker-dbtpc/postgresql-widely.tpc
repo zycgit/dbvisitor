@@ -95,6 +95,7 @@ define postgresql {
     genType        = random
     rangeForm      = "2000-01-01"
     rangeTo        = "2030-12-31"
+    typeHandler    = net.hasor.dbvisitor.types.handler.SqlTimestampAsLocalDateTypeHandler
 
 [time]
     jdbcType       = time
@@ -104,6 +105,7 @@ define postgresql {
     precision      = safeMaxLength(0, ${decimalDigits}, 7, 3)
     rangeForm      = "00:00:00.0000000"
     rangeTo        = "23:59:59.9999999"
+    typeHandler    = net.hasor.dbvisitor.types.handler.SqlTimestampAsLocalTimeTypeHandler
 
 [timetz]
     jdbcType       = time_with_timezone

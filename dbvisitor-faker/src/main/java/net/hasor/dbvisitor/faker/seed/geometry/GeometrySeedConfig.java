@@ -19,7 +19,7 @@ import net.hasor.dbvisitor.faker.seed.SeedConfig;
 import net.hasor.dbvisitor.faker.seed.SeedType;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import net.hasor.dbvisitor.types.handler.JtsGeometryWkbFormWktTypeHandler;
+import net.hasor.dbvisitor.types.handler.JtsGeometryWktAsWkbTypeHandler;
 import net.hasor.dbvisitor.types.handler.StringTypeHandler;
 
 /**
@@ -58,7 +58,7 @@ public class GeometrySeedConfig extends SeedConfig {
 
     public void setFormatType(FormatType formatType) {
         if (formatType == FormatType.WKB) {
-            setTypeHandler(new JtsGeometryWkbFormWktTypeHandler());
+            setTypeHandler(new JtsGeometryWktAsWkbTypeHandler());
         } else if (formatType == FormatType.WKT) {
             setTypeHandler(new StringTypeHandler());
         } else {

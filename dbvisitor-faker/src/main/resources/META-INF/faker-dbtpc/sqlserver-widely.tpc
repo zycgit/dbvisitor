@@ -51,7 +51,7 @@ define sqlserver {
     numberType     = double
     minMax         = range(0, 9999999.999)
     scale          = min(${decimalDigits}, 3)
-    typeHandler    = net.hasor.dbvisitor.types.handler.BigDecimalAsStringTypeHandler
+    typeHandler    = net.hasor.dbvisitor.types.handler.StringAsBigDecimalTypeHandler
 
 [numeric]
 [decimal]
