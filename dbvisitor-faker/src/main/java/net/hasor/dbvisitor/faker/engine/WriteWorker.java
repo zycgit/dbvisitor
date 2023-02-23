@@ -134,9 +134,8 @@ class WriteWorker implements ShutdownHook, Runnable {
                 int affectRows = doEvent(jdbcTemplate, event);
                 this.monitor.recordMonitor(this.threadName, useTranID, event, affectRows);
             } catch (SQLException e) {
-                if (this.fakerConfig.ignoreError(e)) {
-                    this.monitor.recordFailed(this.threadName, useTranID, event, e);
-                } else {
+                this.monitor.recordFailed(this.threadName, useTranID, event, e);
+                if (!this.fakerConfig.ignoreError(e)) {
                     logger.error(e.getMessage() + " event is " + event, e);
                     throw e;
                 }

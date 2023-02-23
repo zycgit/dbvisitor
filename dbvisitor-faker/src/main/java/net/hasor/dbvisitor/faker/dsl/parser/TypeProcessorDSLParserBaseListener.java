@@ -40,6 +40,18 @@ public class TypeProcessorDSLParserBaseListener implements TypeProcessorDSLParse
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDefineAlias(TypeProcessorDSLParser.DefineAliasContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDefineAlias(TypeProcessorDSLParser.DefineAliasContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterDefineConf(TypeProcessorDSLParser.DefineConfContext ctx) { }
 	/**
 	 * {@inheritDoc}

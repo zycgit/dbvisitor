@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.dsl;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.faker.dsl.model.DataModel;
 import net.hasor.dbvisitor.faker.dsl.parser.TypeProcessorDSLLexer;
 import net.hasor.dbvisitor.faker.dsl.parser.TypeProcessorDSLParser;
@@ -33,20 +34,13 @@ import java.util.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class TypeProcessConfSet {
-    private final List<TypeProcessConf>              all        = new ArrayList<>();
-    private final Map<String, List<TypeProcessConf>> columnConf = new HashMap<>();
+    private       URI                                source;
+    private final List<String>                       dbTypes    = new ArrayList<>();
+    //
     private final Map<String, DataModel>             defConf    = new HashMap<>();
     private final Map<String, String>                defThrow   = new HashMap<>();
-    private       String                             databaseType;
-    private       URI                                source;
-
-    public String getDatabaseType() {
-        return this.databaseType;
-    }
-
-    public void setDatabaseType(String databaseType) {
-        this.databaseType = databaseType;
-    }
+    private final List<TypeProcessConf>              all        = new ArrayList<>();
+    private final Map<String, List<TypeProcessConf>> columnConf = new HashMap<>();
 
     public URI getSource() {
         return this.source;
@@ -56,16 +50,22 @@ public class TypeProcessConfSet {
         this.source = source;
     }
 
-    public void putConfig(String colType, List<TypeProcessConf> lastConfList) {
-        if (colType.equals("*")) {
-            this.all.addAll(lastConfList);
-        } else {
-            this.columnConf.put(colType, lastConfList);
+    public void putDbType(String aliasName) {
+        if (StringUtils.isNotBlank(aliasName) && !this.dbTypes.contains(aliasName)) {
+            this.dbTypes.add(aliasName);
         }
+    }
+
+    public List<String> getDbTypes() {
+        return this.dbTypes;
     }
 
     public void putDefConfig(String defConfName, DataModel data) {
         this.defConf.put(defConfName, data);
+    }
+
+    public DataModel getDefConfig(String defConfName) {
+        return this.defConf.get(defConfName);
     }
 
     public void putThrow(String typeName, String throwString) {
@@ -76,20 +76,24 @@ public class TypeProcessConfSet {
         return this.defThrow.get(typeName);
     }
 
-    public Set<String> getConfigKeys() {
-        return this.columnConf.keySet();
-    }
-
     public Set<String> getThrowKeys() {
         return this.defThrow.keySet();
     }
 
-    public List<TypeProcessConf> getConfig(String colType) {
-        return this.columnConf.get(colType);
+    public void putConfig(String colType, List<TypeProcessConf> lastConfList) {
+        if (colType.equals("*")) {
+            this.all.addAll(lastConfList);
+        } else {
+            this.columnConf.put(colType, lastConfList);
+        }
     }
 
-    public DataModel getDefConfig(String defConfName) {
-        return this.defConf.get(defConfName);
+    public Set<String> getConfigKeys() {
+        return this.columnConf.keySet();
+    }
+
+    public List<TypeProcessConf> getConfig(String colType) {
+        return this.columnConf.get(colType);
     }
 
     void finishParser() {

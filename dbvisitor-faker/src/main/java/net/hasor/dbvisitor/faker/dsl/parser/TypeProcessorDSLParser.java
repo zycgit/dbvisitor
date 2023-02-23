@@ -17,40 +17,41 @@ public class TypeProcessorDSLParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		WS=1, COMMENT1=2, COMMENT2=3, COMMENT3=4, EOL=5, DEFINE=6, FOLLOW=7, THROW=8, 
-		TRUE=9, FALSE=10, NULL=11, SET=12, APPEND=13, SEM=14, ALL=15, COLON=16, 
-		COMMA=17, LBT=18, RBT=19, LSBT=20, RSBT=21, ENV=22, OCBR=23, CCBR=24, 
-		STRING=25, HEX_NUM=26, OCT_NUM=27, BIT_NUM=28, SIZE=29, INTEGER_NUM=30, 
-		DECIMAL_NUM=31, IDENTIFIER=32, TYPE=33;
+		WS=1, COMMENT1=2, COMMENT2=3, COMMENT3=4, EOL=5, DEFINE=6, ALIAS=7, FOLLOW=8, 
+		THROW=9, TRUE=10, FALSE=11, NULL=12, SET=13, APPEND=14, SEM=15, ALL=16, 
+		COLON=17, COMMA=18, LBT=19, RBT=20, LSBT=21, RSBT=22, ENV=23, OCBR=24, 
+		CCBR=25, STRING=26, HEX_NUM=27, OCT_NUM=28, BIT_NUM=29, SIZE=30, INTEGER_NUM=31, 
+		DECIMAL_NUM=32, IDENTIFIER=33, TYPE=34;
 	public static final int
-		RULE_rootInstSet = 0, RULE_defineInst = 1, RULE_defineConf = 2, RULE_typeSetInst = 3, 
-		RULE_typeInst = 4, RULE_colTypeName = 5, RULE_colTypeConf = 6, RULE_flowName = 7, 
-		RULE_anyValue = 8, RULE_funcCall = 9, RULE_baseValue = 10, RULE_extValue = 11, 
-		RULE_envValue = 12, RULE_listValue = 13, RULE_objectValue = 14, RULE_objectItem = 15, 
-		RULE_idStr = 16;
+		RULE_rootInstSet = 0, RULE_defineInst = 1, RULE_defineAlias = 2, RULE_defineConf = 3, 
+		RULE_typeSetInst = 4, RULE_typeInst = 5, RULE_colTypeName = 6, RULE_colTypeConf = 7, 
+		RULE_flowName = 8, RULE_anyValue = 9, RULE_funcCall = 10, RULE_baseValue = 11, 
+		RULE_extValue = 12, RULE_envValue = 13, RULE_listValue = 14, RULE_objectValue = 15, 
+		RULE_objectItem = 16, RULE_idStr = 17;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"rootInstSet", "defineInst", "defineConf", "typeSetInst", "typeInst", 
-			"colTypeName", "colTypeConf", "flowName", "anyValue", "funcCall", "baseValue", 
-			"extValue", "envValue", "listValue", "objectValue", "objectItem", "idStr"
+			"rootInstSet", "defineInst", "defineAlias", "defineConf", "typeSetInst", 
+			"typeInst", "colTypeName", "colTypeConf", "flowName", "anyValue", "funcCall", 
+			"baseValue", "extValue", "envValue", "listValue", "objectValue", "objectItem", 
+			"idStr"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, null, null, null, null, null, "'define'", "'follow'", "'throw'", 
-			"'true'", "'false'", "'null'", "'='", "'+='", "';'", "'*'", "':'", "','", 
-			"'('", "')'", "'['", "']'", "'${'", "'{'", "'}'"
+			null, null, null, null, null, null, "'define'", "'alias'", "'follow'", 
+			"'throw'", "'true'", "'false'", "'null'", "'='", "'+='", "';'", "'*'", 
+			"':'", "','", "'('", "')'", "'['", "']'", "'${'", "'{'", "'}'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "WS", "COMMENT1", "COMMENT2", "COMMENT3", "EOL", "DEFINE", "FOLLOW", 
-			"THROW", "TRUE", "FALSE", "NULL", "SET", "APPEND", "SEM", "ALL", "COLON", 
-			"COMMA", "LBT", "RBT", "LSBT", "RSBT", "ENV", "OCBR", "CCBR", "STRING", 
-			"HEX_NUM", "OCT_NUM", "BIT_NUM", "SIZE", "INTEGER_NUM", "DECIMAL_NUM", 
+			null, "WS", "COMMENT1", "COMMENT2", "COMMENT3", "EOL", "DEFINE", "ALIAS", 
+			"FOLLOW", "THROW", "TRUE", "FALSE", "NULL", "SET", "APPEND", "SEM", "ALL", 
+			"COLON", "COMMA", "LBT", "RBT", "LSBT", "RSBT", "ENV", "OCBR", "CCBR", 
+			"STRING", "HEX_NUM", "OCT_NUM", "BIT_NUM", "SIZE", "INTEGER_NUM", "DECIMAL_NUM", 
 			"IDENTIFIER", "TYPE"
 		};
 	}
@@ -142,31 +143,31 @@ public class TypeProcessorDSLParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(35);
+			setState(37);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DEFINE) {
 				{
-				setState(34);
+				setState(36);
 				defineInst();
 				}
 			}
 
-			setState(40);
+			setState(42);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==LSBT) {
 				{
 				{
-				setState(37);
+				setState(39);
 				typeSetInst();
 				}
 				}
-				setState(42);
+				setState(44);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(43);
+			setState(45);
 			match(EOF);
 			}
 		}
@@ -186,6 +187,12 @@ public class TypeProcessorDSLParser extends Parser {
 		public IdStrContext idStr() {
 			return getRuleContext(IdStrContext.class,0);
 		}
+		public TerminalNode ALIAS() { return getToken(TypeProcessorDSLParser.ALIAS, 0); }
+		public TerminalNode LSBT() { return getToken(TypeProcessorDSLParser.LSBT, 0); }
+		public DefineAliasContext defineAlias() {
+			return getRuleContext(DefineAliasContext.class,0);
+		}
+		public TerminalNode RSBT() { return getToken(TypeProcessorDSLParser.RSBT, 0); }
 		public TerminalNode OCBR() { return getToken(TypeProcessorDSLParser.OCBR, 0); }
 		public TerminalNode CCBR() { return getToken(TypeProcessorDSLParser.CCBR, 0); }
 		public List<DefineConfContext> defineConf() {
@@ -220,36 +227,112 @@ public class TypeProcessorDSLParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(45);
+			setState(47);
 			match(DEFINE);
-			setState(46);
+			setState(48);
 			idStr();
-			setState(55);
+			setState(54);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			if (_la==ALIAS) {
+				{
+				setState(49);
+				match(ALIAS);
+				setState(50);
+				match(LSBT);
+				setState(51);
+				defineAlias();
+				setState(52);
+				match(RSBT);
+				}
+			}
+
+			setState(64);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==OCBR) {
 				{
-				setState(47);
+				setState(56);
 				match(OCBR);
-				setState(51);
+				setState(60);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << STRING) | (1L << IDENTIFIER) | (1L << TYPE))) != 0)) {
 					{
 					{
-					setState(48);
+					setState(57);
 					defineConf();
 					}
 					}
-					setState(53);
+					setState(62);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
-				setState(54);
+				setState(63);
 				match(CCBR);
 				}
 			}
 
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class DefineAliasContext extends ParserRuleContext {
+		public List<IdStrContext> idStr() {
+			return getRuleContexts(IdStrContext.class);
+		}
+		public IdStrContext idStr(int i) {
+			return getRuleContext(IdStrContext.class,i);
+		}
+		public DefineAliasContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_defineAlias; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TypeProcessorDSLParserListener ) ((TypeProcessorDSLParserListener)listener).enterDefineAlias(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TypeProcessorDSLParserListener ) ((TypeProcessorDSLParserListener)listener).exitDefineAlias(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof TypeProcessorDSLParserVisitor ) return ((TypeProcessorDSLParserVisitor<? extends T>)visitor).visitDefineAlias(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final DefineAliasContext defineAlias() throws RecognitionException {
+		DefineAliasContext _localctx = new DefineAliasContext(_ctx, getState());
+		enterRule(_localctx, 4, RULE_defineAlias);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(67); 
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			do {
+				{
+				{
+				setState(66);
+				idStr();
+				}
+				}
+				setState(69); 
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << STRING) | (1L << IDENTIFIER) | (1L << TYPE))) != 0) );
 			}
 		}
 		catch (RecognitionException re) {
@@ -293,23 +376,23 @@ public class TypeProcessorDSLParser extends Parser {
 
 	public final DefineConfContext defineConf() throws RecognitionException {
 		DefineConfContext _localctx = new DefineConfContext(_ctx, getState());
-		enterRule(_localctx, 4, RULE_defineConf);
+		enterRule(_localctx, 6, RULE_defineConf);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(57);
+			setState(71);
 			idStr();
-			setState(58);
+			setState(72);
 			match(SET);
-			setState(59);
+			setState(73);
 			anyValue();
-			setState(61);
+			setState(75);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==SEM) {
 				{
-				setState(60);
+				setState(74);
 				match(SEM);
 				}
 			}
@@ -359,13 +442,13 @@ public class TypeProcessorDSLParser extends Parser {
 
 	public final TypeSetInstContext typeSetInst() throws RecognitionException {
 		TypeSetInstContext _localctx = new TypeSetInstContext(_ctx, getState());
-		enterRule(_localctx, 6, RULE_typeSetInst);
+		enterRule(_localctx, 8, RULE_typeSetInst);
 		int _la;
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(67); 
+			setState(81); 
 			_errHandler.sync(this);
 			_alt = 1;
 			do {
@@ -373,14 +456,14 @@ public class TypeProcessorDSLParser extends Parser {
 				case 1:
 					{
 					{
-					setState(63);
+					setState(77);
 					typeInst();
-					setState(65);
+					setState(79);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 					if (_la==SEM) {
 						{
-						setState(64);
+						setState(78);
 						match(SEM);
 						}
 					}
@@ -391,9 +474,9 @@ public class TypeProcessorDSLParser extends Parser {
 				default:
 					throw new NoViableAltException(this);
 				}
-				setState(69); 
+				setState(83); 
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,6,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,8,_ctx);
 			} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
 			}
 		}
@@ -445,31 +528,31 @@ public class TypeProcessorDSLParser extends Parser {
 
 	public final TypeInstContext typeInst() throws RecognitionException {
 		TypeInstContext _localctx = new TypeInstContext(_ctx, getState());
-		enterRule(_localctx, 8, RULE_typeInst);
+		enterRule(_localctx, 10, RULE_typeInst);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(71);
+			setState(85);
 			colTypeName();
-			setState(81);
+			setState(95);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case STRING:
 			case IDENTIFIER:
 			case TYPE:
 				{
-				setState(73); 
+				setState(87); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
 					{
 					{
-					setState(72);
+					setState(86);
 					colTypeConf();
 					}
 					}
-					setState(75); 
+					setState(89); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << STRING) | (1L << IDENTIFIER) | (1L << TYPE))) != 0) );
@@ -478,9 +561,9 @@ public class TypeProcessorDSLParser extends Parser {
 			case FOLLOW:
 				{
 				{
-				setState(77);
+				setState(91);
 				match(FOLLOW);
-				setState(78);
+				setState(92);
 				flowName();
 				}
 				}
@@ -488,9 +571,9 @@ public class TypeProcessorDSLParser extends Parser {
 			case THROW:
 				{
 				{
-				setState(79);
+				setState(93);
 				match(THROW);
-				setState(80);
+				setState(94);
 				match(STRING);
 				}
 				}
@@ -543,18 +626,18 @@ public class TypeProcessorDSLParser extends Parser {
 
 	public final ColTypeNameContext colTypeName() throws RecognitionException {
 		ColTypeNameContext _localctx = new ColTypeNameContext(_ctx, getState());
-		enterRule(_localctx, 10, RULE_colTypeName);
+		enterRule(_localctx, 12, RULE_colTypeName);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(83);
+			setState(97);
 			match(LSBT);
-			setState(86);
+			setState(100);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case ALL:
 				{
-				setState(84);
+				setState(98);
 				match(ALL);
 				}
 				break;
@@ -562,14 +645,14 @@ public class TypeProcessorDSLParser extends Parser {
 			case IDENTIFIER:
 			case TYPE:
 				{
-				setState(85);
+				setState(99);
 				idStr();
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(88);
+			setState(102);
 			match(RSBT);
 			}
 		}
@@ -614,14 +697,14 @@ public class TypeProcessorDSLParser extends Parser {
 
 	public final ColTypeConfContext colTypeConf() throws RecognitionException {
 		ColTypeConfContext _localctx = new ColTypeConfContext(_ctx, getState());
-		enterRule(_localctx, 12, RULE_colTypeConf);
+		enterRule(_localctx, 14, RULE_colTypeConf);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(90);
+			setState(104);
 			idStr();
-			setState(91);
+			setState(105);
 			_la = _input.LA(1);
 			if ( !(_la==SET || _la==APPEND) ) {
 			_errHandler.recoverInline(this);
@@ -631,7 +714,7 @@ public class TypeProcessorDSLParser extends Parser {
 				_errHandler.reportMatch(this);
 				consume();
 			}
-			setState(92);
+			setState(106);
 			anyValue();
 			}
 		}
@@ -671,11 +754,11 @@ public class TypeProcessorDSLParser extends Parser {
 
 	public final FlowNameContext flowName() throws RecognitionException {
 		FlowNameContext _localctx = new FlowNameContext(_ctx, getState());
-		enterRule(_localctx, 14, RULE_flowName);
+		enterRule(_localctx, 16, RULE_flowName);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(94);
+			setState(108);
 			colTypeName();
 			}
 		}
@@ -730,50 +813,50 @@ public class TypeProcessorDSLParser extends Parser {
 
 	public final AnyValueContext anyValue() throws RecognitionException {
 		AnyValueContext _localctx = new AnyValueContext(_ctx, getState());
-		enterRule(_localctx, 16, RULE_anyValue);
+		enterRule(_localctx, 18, RULE_anyValue);
 		try {
-			setState(102);
+			setState(116);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,10,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,12,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(96);
+				setState(110);
 				extValue();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(97);
+				setState(111);
 				baseValue();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(98);
+				setState(112);
 				listValue();
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(99);
+				setState(113);
 				objectValue();
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(100);
+				setState(114);
 				envValue();
 				}
 				break;
 			case 6:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(101);
+				setState(115);
 				funcCall();
 				}
 				break;
@@ -825,42 +908,42 @@ public class TypeProcessorDSLParser extends Parser {
 
 	public final FuncCallContext funcCall() throws RecognitionException {
 		FuncCallContext _localctx = new FuncCallContext(_ctx, getState());
-		enterRule(_localctx, 18, RULE_funcCall);
+		enterRule(_localctx, 20, RULE_funcCall);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(104);
+			setState(118);
 			match(IDENTIFIER);
-			setState(105);
+			setState(119);
 			match(LBT);
-			setState(114);
+			setState(128);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << TRUE) | (1L << FALSE) | (1L << NULL) | (1L << LSBT) | (1L << ENV) | (1L << OCBR) | (1L << STRING) | (1L << HEX_NUM) | (1L << OCT_NUM) | (1L << BIT_NUM) | (1L << SIZE) | (1L << INTEGER_NUM) | (1L << DECIMAL_NUM) | (1L << IDENTIFIER) | (1L << TYPE))) != 0)) {
 				{
-				setState(106);
+				setState(120);
 				anyValue();
-				setState(111);
+				setState(125);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(107);
+					setState(121);
 					match(COMMA);
-					setState(108);
+					setState(122);
 					anyValue();
 					}
 					}
-					setState(113);
+					setState(127);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
 				}
 			}
 
-			setState(116);
+			setState(130);
 			match(RBT);
 			}
 		}
@@ -979,17 +1062,17 @@ public class TypeProcessorDSLParser extends Parser {
 
 	public final BaseValueContext baseValue() throws RecognitionException {
 		BaseValueContext _localctx = new BaseValueContext(_ctx, getState());
-		enterRule(_localctx, 20, RULE_baseValue);
+		enterRule(_localctx, 22, RULE_baseValue);
 		int _la;
 		try {
-			setState(123);
+			setState(137);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case STRING:
 				_localctx = new StringValueContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(118);
+				setState(132);
 				match(STRING);
 				}
 				break;
@@ -997,7 +1080,7 @@ public class TypeProcessorDSLParser extends Parser {
 				_localctx = new NullValueContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(119);
+				setState(133);
 				match(NULL);
 				}
 				break;
@@ -1006,7 +1089,7 @@ public class TypeProcessorDSLParser extends Parser {
 				_localctx = new BooleanValueContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(120);
+				setState(134);
 				_la = _input.LA(1);
 				if ( !(_la==TRUE || _la==FALSE) ) {
 				_errHandler.recoverInline(this);
@@ -1026,7 +1109,7 @@ public class TypeProcessorDSLParser extends Parser {
 				_localctx = new NumberValueContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(121);
+				setState(135);
 				_la = _input.LA(1);
 				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << HEX_NUM) | (1L << OCT_NUM) | (1L << BIT_NUM) | (1L << INTEGER_NUM) | (1L << DECIMAL_NUM))) != 0)) ) {
 				_errHandler.recoverInline(this);
@@ -1042,7 +1125,7 @@ public class TypeProcessorDSLParser extends Parser {
 				_localctx = new TypeValueContext(_localctx);
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(122);
+				setState(136);
 				match(TYPE);
 				}
 				break;
@@ -1085,12 +1168,12 @@ public class TypeProcessorDSLParser extends Parser {
 
 	public final ExtValueContext extValue() throws RecognitionException {
 		ExtValueContext _localctx = new ExtValueContext(_ctx, getState());
-		enterRule(_localctx, 22, RULE_extValue);
+		enterRule(_localctx, 24, RULE_extValue);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(125);
+			setState(139);
 			_la = _input.LA(1);
 			if ( !(_la==SIZE || _la==IDENTIFIER) ) {
 			_errHandler.recoverInline(this);
@@ -1140,15 +1223,15 @@ public class TypeProcessorDSLParser extends Parser {
 
 	public final EnvValueContext envValue() throws RecognitionException {
 		EnvValueContext _localctx = new EnvValueContext(_ctx, getState());
-		enterRule(_localctx, 24, RULE_envValue);
+		enterRule(_localctx, 26, RULE_envValue);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(127);
+			setState(141);
 			match(ENV);
-			setState(128);
+			setState(142);
 			idStr();
-			setState(129);
+			setState(143);
 			match(CCBR);
 			}
 		}
@@ -1197,52 +1280,52 @@ public class TypeProcessorDSLParser extends Parser {
 
 	public final ListValueContext listValue() throws RecognitionException {
 		ListValueContext _localctx = new ListValueContext(_ctx, getState());
-		enterRule(_localctx, 26, RULE_listValue);
+		enterRule(_localctx, 28, RULE_listValue);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(131);
+			setState(145);
 			match(LSBT);
-			setState(144);
+			setState(158);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << TRUE) | (1L << FALSE) | (1L << NULL) | (1L << LSBT) | (1L << ENV) | (1L << OCBR) | (1L << STRING) | (1L << HEX_NUM) | (1L << OCT_NUM) | (1L << BIT_NUM) | (1L << SIZE) | (1L << INTEGER_NUM) | (1L << DECIMAL_NUM) | (1L << IDENTIFIER) | (1L << TYPE))) != 0)) {
 				{
-				setState(133); 
+				setState(147); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
 					{
 					{
-					setState(132);
+					setState(146);
 					anyValue();
 					}
 					}
-					setState(135); 
+					setState(149); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << TRUE) | (1L << FALSE) | (1L << NULL) | (1L << LSBT) | (1L << ENV) | (1L << OCBR) | (1L << STRING) | (1L << HEX_NUM) | (1L << OCT_NUM) | (1L << BIT_NUM) | (1L << SIZE) | (1L << INTEGER_NUM) | (1L << DECIMAL_NUM) | (1L << IDENTIFIER) | (1L << TYPE))) != 0) );
-				setState(141);
+				setState(155);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(137);
+					setState(151);
 					match(COMMA);
-					setState(138);
+					setState(152);
 					anyValue();
 					}
 					}
-					setState(143);
+					setState(157);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
 				}
 			}
 
-			setState(146);
+			setState(160);
 			match(RSBT);
 			}
 		}
@@ -1291,52 +1374,52 @@ public class TypeProcessorDSLParser extends Parser {
 
 	public final ObjectValueContext objectValue() throws RecognitionException {
 		ObjectValueContext _localctx = new ObjectValueContext(_ctx, getState());
-		enterRule(_localctx, 28, RULE_objectValue);
+		enterRule(_localctx, 30, RULE_objectValue);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(148);
+			setState(162);
 			match(OCBR);
-			setState(161);
+			setState(175);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << STRING) | (1L << IDENTIFIER) | (1L << TYPE))) != 0)) {
 				{
-				setState(150); 
+				setState(164); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
 					{
 					{
-					setState(149);
+					setState(163);
 					objectItem();
 					}
 					}
-					setState(152); 
+					setState(166); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << STRING) | (1L << IDENTIFIER) | (1L << TYPE))) != 0) );
-				setState(158);
+				setState(172);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(154);
+					setState(168);
 					match(COMMA);
-					setState(155);
+					setState(169);
 					objectItem();
 					}
 					}
-					setState(160);
+					setState(174);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
 				}
 			}
 
-			setState(163);
+			setState(177);
 			match(CCBR);
 			}
 		}
@@ -1380,15 +1463,15 @@ public class TypeProcessorDSLParser extends Parser {
 
 	public final ObjectItemContext objectItem() throws RecognitionException {
 		ObjectItemContext _localctx = new ObjectItemContext(_ctx, getState());
-		enterRule(_localctx, 30, RULE_objectItem);
+		enterRule(_localctx, 32, RULE_objectItem);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(165);
+			setState(179);
 			idStr();
-			setState(166);
+			setState(180);
 			match(COLON);
-			setState(167);
+			setState(181);
 			anyValue();
 			}
 		}
@@ -1428,12 +1511,12 @@ public class TypeProcessorDSLParser extends Parser {
 
 	public final IdStrContext idStr() throws RecognitionException {
 		IdStrContext _localctx = new IdStrContext(_ctx, getState());
-		enterRule(_localctx, 32, RULE_idStr);
+		enterRule(_localctx, 34, RULE_idStr);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(169);
+			setState(183);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << STRING) | (1L << IDENTIFIER) | (1L << TYPE))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -1457,58 +1540,63 @@ public class TypeProcessorDSLParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3#\u00ae\4\2\t\2\4"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3$\u00bc\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
-		"\3\2\5\2&\n\2\3\2\7\2)\n\2\f\2\16\2,\13\2\3\2\3\2\3\3\3\3\3\3\3\3\7\3"+
-		"\64\n\3\f\3\16\3\67\13\3\3\3\5\3:\n\3\3\4\3\4\3\4\3\4\5\4@\n\4\3\5\3\5"+
-		"\5\5D\n\5\6\5F\n\5\r\5\16\5G\3\6\3\6\6\6L\n\6\r\6\16\6M\3\6\3\6\3\6\3"+
-		"\6\5\6T\n\6\3\7\3\7\3\7\5\7Y\n\7\3\7\3\7\3\b\3\b\3\b\3\b\3\t\3\t\3\n\3"+
-		"\n\3\n\3\n\3\n\3\n\5\ni\n\n\3\13\3\13\3\13\3\13\3\13\7\13p\n\13\f\13\16"+
-		"\13s\13\13\5\13u\n\13\3\13\3\13\3\f\3\f\3\f\3\f\3\f\5\f~\n\f\3\r\3\r\3"+
-		"\16\3\16\3\16\3\16\3\17\3\17\6\17\u0088\n\17\r\17\16\17\u0089\3\17\3\17"+
-		"\7\17\u008e\n\17\f\17\16\17\u0091\13\17\5\17\u0093\n\17\3\17\3\17\3\20"+
-		"\3\20\6\20\u0099\n\20\r\20\16\20\u009a\3\20\3\20\7\20\u009f\n\20\f\20"+
-		"\16\20\u00a2\13\20\5\20\u00a4\n\20\3\20\3\20\3\21\3\21\3\21\3\21\3\22"+
-		"\3\22\3\22\2\2\23\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"\2\7\3\2\16"+
-		"\17\3\2\13\f\4\2\34\36 !\4\2\37\37\"\"\4\2\33\33\"#\2\u00b9\2%\3\2\2\2"+
-		"\4/\3\2\2\2\6;\3\2\2\2\bE\3\2\2\2\nI\3\2\2\2\fU\3\2\2\2\16\\\3\2\2\2\20"+
-		"`\3\2\2\2\22h\3\2\2\2\24j\3\2\2\2\26}\3\2\2\2\30\177\3\2\2\2\32\u0081"+
-		"\3\2\2\2\34\u0085\3\2\2\2\36\u0096\3\2\2\2 \u00a7\3\2\2\2\"\u00ab\3\2"+
-		"\2\2$&\5\4\3\2%$\3\2\2\2%&\3\2\2\2&*\3\2\2\2\')\5\b\5\2(\'\3\2\2\2),\3"+
-		"\2\2\2*(\3\2\2\2*+\3\2\2\2+-\3\2\2\2,*\3\2\2\2-.\7\2\2\3.\3\3\2\2\2/\60"+
-		"\7\b\2\2\609\5\"\22\2\61\65\7\31\2\2\62\64\5\6\4\2\63\62\3\2\2\2\64\67"+
-		"\3\2\2\2\65\63\3\2\2\2\65\66\3\2\2\2\668\3\2\2\2\67\65\3\2\2\28:\7\32"+
-		"\2\29\61\3\2\2\29:\3\2\2\2:\5\3\2\2\2;<\5\"\22\2<=\7\16\2\2=?\5\22\n\2"+
-		">@\7\20\2\2?>\3\2\2\2?@\3\2\2\2@\7\3\2\2\2AC\5\n\6\2BD\7\20\2\2CB\3\2"+
-		"\2\2CD\3\2\2\2DF\3\2\2\2EA\3\2\2\2FG\3\2\2\2GE\3\2\2\2GH\3\2\2\2H\t\3"+
-		"\2\2\2IS\5\f\7\2JL\5\16\b\2KJ\3\2\2\2LM\3\2\2\2MK\3\2\2\2MN\3\2\2\2NT"+
-		"\3\2\2\2OP\7\t\2\2PT\5\20\t\2QR\7\n\2\2RT\7\33\2\2SK\3\2\2\2SO\3\2\2\2"+
-		"SQ\3\2\2\2ST\3\2\2\2T\13\3\2\2\2UX\7\26\2\2VY\7\21\2\2WY\5\"\22\2XV\3"+
-		"\2\2\2XW\3\2\2\2YZ\3\2\2\2Z[\7\27\2\2[\r\3\2\2\2\\]\5\"\22\2]^\t\2\2\2"+
-		"^_\5\22\n\2_\17\3\2\2\2`a\5\f\7\2a\21\3\2\2\2bi\5\30\r\2ci\5\26\f\2di"+
-		"\5\34\17\2ei\5\36\20\2fi\5\32\16\2gi\5\24\13\2hb\3\2\2\2hc\3\2\2\2hd\3"+
-		"\2\2\2he\3\2\2\2hf\3\2\2\2hg\3\2\2\2i\23\3\2\2\2jk\7\"\2\2kt\7\24\2\2"+
-		"lq\5\22\n\2mn\7\23\2\2np\5\22\n\2om\3\2\2\2ps\3\2\2\2qo\3\2\2\2qr\3\2"+
-		"\2\2ru\3\2\2\2sq\3\2\2\2tl\3\2\2\2tu\3\2\2\2uv\3\2\2\2vw\7\25\2\2w\25"+
-		"\3\2\2\2x~\7\33\2\2y~\7\r\2\2z~\t\3\2\2{~\t\4\2\2|~\7#\2\2}x\3\2\2\2}"+
-		"y\3\2\2\2}z\3\2\2\2}{\3\2\2\2}|\3\2\2\2~\27\3\2\2\2\177\u0080\t\5\2\2"+
-		"\u0080\31\3\2\2\2\u0081\u0082\7\30\2\2\u0082\u0083\5\"\22\2\u0083\u0084"+
-		"\7\32\2\2\u0084\33\3\2\2\2\u0085\u0092\7\26\2\2\u0086\u0088\5\22\n\2\u0087"+
-		"\u0086\3\2\2\2\u0088\u0089\3\2\2\2\u0089\u0087\3\2\2\2\u0089\u008a\3\2"+
-		"\2\2\u008a\u008f\3\2\2\2\u008b\u008c\7\23\2\2\u008c\u008e\5\22\n\2\u008d"+
-		"\u008b\3\2\2\2\u008e\u0091\3\2\2\2\u008f\u008d\3\2\2\2\u008f\u0090\3\2"+
-		"\2\2\u0090\u0093\3\2\2\2\u0091\u008f\3\2\2\2\u0092\u0087\3\2\2\2\u0092"+
-		"\u0093\3\2\2\2\u0093\u0094\3\2\2\2\u0094\u0095\7\27\2\2\u0095\35\3\2\2"+
-		"\2\u0096\u00a3\7\31\2\2\u0097\u0099\5 \21\2\u0098\u0097\3\2\2\2\u0099"+
-		"\u009a\3\2\2\2\u009a\u0098\3\2\2\2\u009a\u009b\3\2\2\2\u009b\u00a0\3\2"+
-		"\2\2\u009c\u009d\7\23\2\2\u009d\u009f\5 \21\2\u009e\u009c\3\2\2\2\u009f"+
-		"\u00a2\3\2\2\2\u00a0\u009e\3\2\2\2\u00a0\u00a1\3\2\2\2\u00a1\u00a4\3\2"+
-		"\2\2\u00a2\u00a0\3\2\2\2\u00a3\u0098\3\2\2\2\u00a3\u00a4\3\2\2\2\u00a4"+
-		"\u00a5\3\2\2\2\u00a5\u00a6\7\32\2\2\u00a6\37\3\2\2\2\u00a7\u00a8\5\"\22"+
-		"\2\u00a8\u00a9\7\22\2\2\u00a9\u00aa\5\22\n\2\u00aa!\3\2\2\2\u00ab\u00ac"+
-		"\t\6\2\2\u00ac#\3\2\2\2\26%*\659?CGMSXhqt}\u0089\u008f\u0092\u009a\u00a0"+
-		"\u00a3";
+		"\4\23\t\23\3\2\5\2(\n\2\3\2\7\2+\n\2\f\2\16\2.\13\2\3\2\3\2\3\3\3\3\3"+
+		"\3\3\3\3\3\3\3\3\3\5\39\n\3\3\3\3\3\7\3=\n\3\f\3\16\3@\13\3\3\3\5\3C\n"+
+		"\3\3\4\6\4F\n\4\r\4\16\4G\3\5\3\5\3\5\3\5\5\5N\n\5\3\6\3\6\5\6R\n\6\6"+
+		"\6T\n\6\r\6\16\6U\3\7\3\7\6\7Z\n\7\r\7\16\7[\3\7\3\7\3\7\3\7\5\7b\n\7"+
+		"\3\b\3\b\3\b\5\bg\n\b\3\b\3\b\3\t\3\t\3\t\3\t\3\n\3\n\3\13\3\13\3\13\3"+
+		"\13\3\13\3\13\5\13w\n\13\3\f\3\f\3\f\3\f\3\f\7\f~\n\f\f\f\16\f\u0081\13"+
+		"\f\5\f\u0083\n\f\3\f\3\f\3\r\3\r\3\r\3\r\3\r\5\r\u008c\n\r\3\16\3\16\3"+
+		"\17\3\17\3\17\3\17\3\20\3\20\6\20\u0096\n\20\r\20\16\20\u0097\3\20\3\20"+
+		"\7\20\u009c\n\20\f\20\16\20\u009f\13\20\5\20\u00a1\n\20\3\20\3\20\3\21"+
+		"\3\21\6\21\u00a7\n\21\r\21\16\21\u00a8\3\21\3\21\7\21\u00ad\n\21\f\21"+
+		"\16\21\u00b0\13\21\5\21\u00b2\n\21\3\21\3\21\3\22\3\22\3\22\3\22\3\23"+
+		"\3\23\3\23\2\2\24\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$\2\7\3\2\17"+
+		"\20\3\2\f\r\4\2\35\37!\"\4\2  ##\4\2\34\34#$\2\u00c8\2\'\3\2\2\2\4\61"+
+		"\3\2\2\2\6E\3\2\2\2\bI\3\2\2\2\nS\3\2\2\2\fW\3\2\2\2\16c\3\2\2\2\20j\3"+
+		"\2\2\2\22n\3\2\2\2\24v\3\2\2\2\26x\3\2\2\2\30\u008b\3\2\2\2\32\u008d\3"+
+		"\2\2\2\34\u008f\3\2\2\2\36\u0093\3\2\2\2 \u00a4\3\2\2\2\"\u00b5\3\2\2"+
+		"\2$\u00b9\3\2\2\2&(\5\4\3\2\'&\3\2\2\2\'(\3\2\2\2(,\3\2\2\2)+\5\n\6\2"+
+		"*)\3\2\2\2+.\3\2\2\2,*\3\2\2\2,-\3\2\2\2-/\3\2\2\2.,\3\2\2\2/\60\7\2\2"+
+		"\3\60\3\3\2\2\2\61\62\7\b\2\2\628\5$\23\2\63\64\7\t\2\2\64\65\7\27\2\2"+
+		"\65\66\5\6\4\2\66\67\7\30\2\2\679\3\2\2\28\63\3\2\2\289\3\2\2\29B\3\2"+
+		"\2\2:>\7\32\2\2;=\5\b\5\2<;\3\2\2\2=@\3\2\2\2><\3\2\2\2>?\3\2\2\2?A\3"+
+		"\2\2\2@>\3\2\2\2AC\7\33\2\2B:\3\2\2\2BC\3\2\2\2C\5\3\2\2\2DF\5$\23\2E"+
+		"D\3\2\2\2FG\3\2\2\2GE\3\2\2\2GH\3\2\2\2H\7\3\2\2\2IJ\5$\23\2JK\7\17\2"+
+		"\2KM\5\24\13\2LN\7\21\2\2ML\3\2\2\2MN\3\2\2\2N\t\3\2\2\2OQ\5\f\7\2PR\7"+
+		"\21\2\2QP\3\2\2\2QR\3\2\2\2RT\3\2\2\2SO\3\2\2\2TU\3\2\2\2US\3\2\2\2UV"+
+		"\3\2\2\2V\13\3\2\2\2Wa\5\16\b\2XZ\5\20\t\2YX\3\2\2\2Z[\3\2\2\2[Y\3\2\2"+
+		"\2[\\\3\2\2\2\\b\3\2\2\2]^\7\n\2\2^b\5\22\n\2_`\7\13\2\2`b\7\34\2\2aY"+
+		"\3\2\2\2a]\3\2\2\2a_\3\2\2\2ab\3\2\2\2b\r\3\2\2\2cf\7\27\2\2dg\7\22\2"+
+		"\2eg\5$\23\2fd\3\2\2\2fe\3\2\2\2gh\3\2\2\2hi\7\30\2\2i\17\3\2\2\2jk\5"+
+		"$\23\2kl\t\2\2\2lm\5\24\13\2m\21\3\2\2\2no\5\16\b\2o\23\3\2\2\2pw\5\32"+
+		"\16\2qw\5\30\r\2rw\5\36\20\2sw\5 \21\2tw\5\34\17\2uw\5\26\f\2vp\3\2\2"+
+		"\2vq\3\2\2\2vr\3\2\2\2vs\3\2\2\2vt\3\2\2\2vu\3\2\2\2w\25\3\2\2\2xy\7#"+
+		"\2\2y\u0082\7\25\2\2z\177\5\24\13\2{|\7\24\2\2|~\5\24\13\2}{\3\2\2\2~"+
+		"\u0081\3\2\2\2\177}\3\2\2\2\177\u0080\3\2\2\2\u0080\u0083\3\2\2\2\u0081"+
+		"\177\3\2\2\2\u0082z\3\2\2\2\u0082\u0083\3\2\2\2\u0083\u0084\3\2\2\2\u0084"+
+		"\u0085\7\26\2\2\u0085\27\3\2\2\2\u0086\u008c\7\34\2\2\u0087\u008c\7\16"+
+		"\2\2\u0088\u008c\t\3\2\2\u0089\u008c\t\4\2\2\u008a\u008c\7$\2\2\u008b"+
+		"\u0086\3\2\2\2\u008b\u0087\3\2\2\2\u008b\u0088\3\2\2\2\u008b\u0089\3\2"+
+		"\2\2\u008b\u008a\3\2\2\2\u008c\31\3\2\2\2\u008d\u008e\t\5\2\2\u008e\33"+
+		"\3\2\2\2\u008f\u0090\7\31\2\2\u0090\u0091\5$\23\2\u0091\u0092\7\33\2\2"+
+		"\u0092\35\3\2\2\2\u0093\u00a0\7\27\2\2\u0094\u0096\5\24\13\2\u0095\u0094"+
+		"\3\2\2\2\u0096\u0097\3\2\2\2\u0097\u0095\3\2\2\2\u0097\u0098\3\2\2\2\u0098"+
+		"\u009d\3\2\2\2\u0099\u009a\7\24\2\2\u009a\u009c\5\24\13\2\u009b\u0099"+
+		"\3\2\2\2\u009c\u009f\3\2\2\2\u009d\u009b\3\2\2\2\u009d\u009e\3\2\2\2\u009e"+
+		"\u00a1\3\2\2\2\u009f\u009d\3\2\2\2\u00a0\u0095\3\2\2\2\u00a0\u00a1\3\2"+
+		"\2\2\u00a1\u00a2\3\2\2\2\u00a2\u00a3\7\30\2\2\u00a3\37\3\2\2\2\u00a4\u00b1"+
+		"\7\32\2\2\u00a5\u00a7\5\"\22\2\u00a6\u00a5\3\2\2\2\u00a7\u00a8\3\2\2\2"+
+		"\u00a8\u00a6\3\2\2\2\u00a8\u00a9\3\2\2\2\u00a9\u00ae\3\2\2\2\u00aa\u00ab"+
+		"\7\24\2\2\u00ab\u00ad\5\"\22\2\u00ac\u00aa\3\2\2\2\u00ad\u00b0\3\2\2\2"+
+		"\u00ae\u00ac\3\2\2\2\u00ae\u00af\3\2\2\2\u00af\u00b2\3\2\2\2\u00b0\u00ae"+
+		"\3\2\2\2\u00b1\u00a6\3\2\2\2\u00b1\u00b2\3\2\2\2\u00b2\u00b3\3\2\2\2\u00b3"+
+		"\u00b4\7\33\2\2\u00b4!\3\2\2\2\u00b5\u00b6\5$\23\2\u00b6\u00b7\7\23\2"+
+		"\2\u00b7\u00b8\5\24\13\2\u00b8#\3\2\2\2\u00b9\u00ba\t\6\2\2\u00ba%\3\2"+
+		"\2\2\30\',8>BGMQU[afv\177\u0082\u008b\u0097\u009d\u00a0\u00a8\u00ae\u00b1";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

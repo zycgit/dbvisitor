@@ -10,6 +10,7 @@ EOL     : [\n\r\f];
 
 /* key words */
 DEFINE  : 'define';
+ALIAS   : 'alias';
 FOLLOW  : 'follow';
 THROW   : 'throw';
 TRUE    : 'true';

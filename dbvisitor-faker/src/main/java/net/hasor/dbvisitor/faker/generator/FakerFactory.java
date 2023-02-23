@@ -71,7 +71,7 @@ public class FakerFactory {
     public FakerFactory(Connection connection, FakerConfig config) throws SQLException, IOException {
         this.jdbcTemplate = new JdbcTemplate(connection);
         this.fakerConfig = config;
-        this.dbType = initDbType();
+        this.dbType = initDbType(config);
         this.metaProvider = new JdbcFetchMetaProvider(connection, initFetchMeta(this.dbType, config));
         this.variables = this.initVariables(this.dbType, config);
         this.sqlDialect = this.initSqlDialect(this.dbType, config);
@@ -81,18 +81,23 @@ public class FakerFactory {
     public FakerFactory(DataSource dataSource, FakerConfig config) throws SQLException, IOException {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.fakerConfig = config;
-        this.dbType = initDbType();
+        this.dbType = initDbType(config);
         this.metaProvider = new JdbcFetchMetaProvider(dataSource, initFetchMeta(this.dbType, config));
         this.variables = this.initVariables(this.dbType, config);
         this.sqlDialect = this.initSqlDialect(this.dbType, config);
         this.typeDialect = this.initTypeDialect(this.dbType, config, this.variables);
     }
 
-    protected String initDbType() throws SQLException {
+    protected String initDbType(FakerConfig config) throws SQLException {
         return this.jdbcTemplate.execute((ConnectionCallback<String>) con -> {
             String jdbcUrl = con.getMetaData().getURL();
             String jdbcDriverName = con.getMetaData().getDriverName();
-            return JdbcUtils.getDbType(jdbcUrl, jdbcDriverName);
+            String confDbType = config.getDbType();
+            if (StringUtils.isNotBlank(confDbType)) {
+                return confDbType;
+            } else {
+                return JdbcUtils.getDbType(jdbcUrl, jdbcDriverName);
+            }
         });
     }
 

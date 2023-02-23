@@ -42,6 +42,8 @@ public class FakerConfig {
     private       JdbcFetchMeta               customFetchMeta;
     private       DefaultTypeProcessorFactory typeProcessorFactory;
     private       String                      policy;
+    private       String                      dbType;
+    private       String                      customTpcConf;
     private       boolean                     useQualifier;
     private       boolean                     keyChanges;
     private       boolean                     printSql;
@@ -149,6 +151,22 @@ public class FakerConfig {
 
     public void setDataLoaderFactory(DataLoaderFactory dataLoaderFactory) {
         this.dataLoaderFactory = dataLoaderFactory;
+    }
+
+    public String getDbType() {
+        return this.dbType;
+    }
+
+    public void setDbType(String dbType) {
+        this.dbType = dbType;
+    }
+
+    public String getCustomTpcConf() {
+        return this.customTpcConf;
+    }
+
+    public void setCustomTpcConf(String customTpcConf) {
+        this.customTpcConf = customTpcConf;
     }
 
     public String getPolicy() {

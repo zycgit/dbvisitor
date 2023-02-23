@@ -6,7 +6,8 @@ options { tokenVocab = TypeProcessorDSLLexer; }
 /* 入口 */
 rootInstSet : defineInst? typeSetInst* EOF;
 
-defineInst  : DEFINE idStr (OCBR defineConf* CCBR)?;
+defineInst  : DEFINE idStr (ALIAS LSBT defineAlias RSBT)? (OCBR defineConf* CCBR)?;
+defineAlias : idStr+;
 defineConf  : idStr SET anyValue SEM?;
 
 typeSetInst : (typeInst SEM?)+;

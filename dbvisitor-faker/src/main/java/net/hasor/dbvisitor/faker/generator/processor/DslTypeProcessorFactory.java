@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.faker.generator.processor;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.CollectionUtils;
+import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.convert.ConverterUtils;
 import net.hasor.cobble.io.input.AutoCloseInputStream;
@@ -27,6 +28,7 @@ import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.dsl.TypeProcessConf;
 import net.hasor.dbvisitor.faker.dsl.TypeProcessConfSet;
+import net.hasor.dbvisitor.faker.dsl.model.DataModel;
 import net.hasor.dbvisitor.faker.dsl.model.ValueModel;
 import net.hasor.dbvisitor.faker.generator.TypeProcessor;
 import net.hasor.dbvisitor.faker.generator.parameter.ParameterProcessor;
@@ -42,6 +44,7 @@ import net.hasor.dbvisitor.types.TypeHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.JDBCType;
 import java.sql.Types;
@@ -71,70 +74,22 @@ public class DslTypeProcessorFactory extends DefaultTypeProcessorFactory {
         this.initTypeProcessorPriority(dbType, fakerConfig);
     }
 
-    protected void initTypeProcessorPriority(String dbType, FakerConfig config) throws IOException {
+    private void initTypeProcessorPriority(String dbType, FakerConfig config) throws IOException {
         // all tpcConf
-        ClassLoader classLoader = config.getClassLoader();
-        List<URI> uriList = new ClassPathResourceLoader(classLoader).scanResources(MatchType.Prefix, event -> {
-            URI resource = event.getResource();
-            if (StringUtils.endsWithIgnoreCase(resource.toString(), ".tpc")) {
-                return resource;
-            } else {
-                return null;
-            }
-        }, new String[] { "META-INF/faker-dbtpc/" });
+        List<URI> uriList = loadTpcURIs(config);
 
         // read tpcConf
-        List<TypeProcessConfSet> allTpcConf = new ArrayList<>();
-        for (URI uri : uriList) {
-            InputStream tpcStream = new AutoCloseInputStream(uri.toURL().openStream());
-            TypeProcessConfSet dslConf = TypeProcessConfSet.parserTypeProcessConf(tpcStream, StandardCharsets.UTF_8);
-            dslConf.setSource(uri);
-            if (StringUtils.equalsIgnoreCase(dbType, dslConf.getDatabaseType())) {
-                allTpcConf.add(dslConf);
-            }
-        }
-
-        // sort tpcConf by priority
-        allTpcConf.sort((o1, o2) -> {
-            ValueModel o1Priority = (ValueModel) o1.getDefConfig("priority");
-            ValueModel o2Priority = (ValueModel) o2.getDefConfig("priority");
-            int o1Int = o1Priority == null ? 0 : (int) ConverterUtils.convert(Integer.TYPE, o1Priority.recover(globalVariables));
-            int o2Int = o2Priority == null ? 0 : (int) ConverterUtils.convert(Integer.TYPE, o2Priority.recover(globalVariables));
-            return -Integer.compare(o1Int, o2Int);
-        });
+        List<TypeProcessConfSet> allTpcConf = parseTypeProcessConf(dbType, uriList);
 
         // found final TypeProcessConfSet
-        TypeProcessConfSet useConfSet = null;
-        for (TypeProcessConfSet confSet : allTpcConf) {
-            ValueModel policyValue = (ValueModel) confSet.getDefConfig("policy");
-            Object policyName = policyValue == null ? null : policyValue.recover(globalVariables);
-            if (policyName == null) {
-                continue;
-            }
-
-            if (StringUtils.equalsIgnoreCase(policyName.toString(), config.getPolicy())) {
-                useConfSet = confSet;
-                break;
-            }
-        }
-        if (useConfSet == null) {
-            for (TypeProcessConfSet confSet : allTpcConf) {
-                ValueModel defaultValue = (ValueModel) confSet.getDefConfig("default");
-                Object isDefault = defaultValue == null ? null : defaultValue.recover(globalVariables);
-                if (isDefault == null) {
-                    continue;
-                }
-
-                if ((boolean) ConverterUtils.convert(Boolean.TYPE, isDefault)) {
-                    useConfSet = confSet;
-                    break;
-                }
-            }
-        }
+        TypeProcessConfSet useConfSet = chooseTypeProcessConf(config, allTpcConf);
 
         // init columnConf
         if (useConfSet != null) {
-            logger.info("DSL TypeProcessor use '" + useConfSet.getSource() + "'");
+            DataModel policyValue = useConfSet.getDefConfig("policy");
+            Object policyName = policyValue == null ? "" : policyValue.recover(globalVariables);
+
+            logger.info("DSL TypeProcessor policy['" + policyName + "'] use '" + useConfSet.getSource() + "'");
             for (String colType : useConfSet.getConfigKeys()) {
                 List<TypeProcessConf> colConfList = useConfSet.getConfig(colType);
                 if (colConfList == null || colConfList.isEmpty()) {
@@ -154,7 +109,112 @@ public class DslTypeProcessorFactory extends DefaultTypeProcessorFactory {
                     this.colTypeThrow.put(colType, throwMessage);
                 }
             }
+        } else {
+            logger.warn("DSL TypeProcessor not found use 'DefaultTypeProcessorFactory'");
         }
+    }
+
+    /** 查找可用的 tpcConfig 配置 */
+    protected List<URI> loadTpcURIs(FakerConfig config) throws IOException {
+        ClassLoader classLoader = config.getClassLoader();
+        String customTpcConf = config.getCustomTpcConf();
+
+        // custom TpcConf
+        if (StringUtils.isNotBlank(customTpcConf)) {
+            URL tpcConfURL = ResourcesUtils.getResource(config.getClassLoader(), customTpcConf);
+            if (tpcConfURL == null) {
+                String errorMsg = "custom tpcConf '" + customTpcConf + "' not found.";
+                logger.error(errorMsg);
+                throw new IOException(errorMsg);
+            } else {
+                try {
+                    URI tpcConfURI = tpcConfURL.toURI();
+                    logger.info("use custom tpcConf '" + customTpcConf + "' overwrite default.");
+                    return Collections.singletonList(tpcConfURI);
+                } catch (Exception e) {
+                    logger.error("parse custom tpcConf '" + customTpcConf + "' failed, msg is " + e.getMessage(), e);
+                }
+            }
+        }
+
+        // default TpcConf
+        return new ClassPathResourceLoader(classLoader).scanResources(MatchType.Prefix, event -> {
+            URI resource = event.getResource();
+            if (StringUtils.endsWithIgnoreCase(resource.toString(), ".tpc")) {
+                return resource;
+            } else {
+                return null;
+            }
+        }, new String[] { "META-INF/faker-default-dbtpc/" });
+    }
+
+    /** 解析 tpcConfig 配置 */
+    private List<TypeProcessConfSet> parseTypeProcessConf(String dbType, List<URI> uriList) throws IOException {
+        List<TypeProcessConfSet> allTpcConf = new ArrayList<>();
+        for (URI uri : uriList) {
+            InputStream tpcStream = new AutoCloseInputStream(uri.toURL().openStream());
+            TypeProcessConfSet dslConf = TypeProcessConfSet.parserTypeProcessConf(tpcStream, StandardCharsets.UTF_8);
+            dslConf.setSource(uri);
+
+            for (String defDbType : dslConf.getDbTypes()) {
+                if (StringUtils.equalsIgnoreCase(defDbType, dbType)) {
+                    allTpcConf.add(dslConf);
+                }
+            }
+        }
+
+        // sort tpcConf by priority
+        allTpcConf.sort((o1, o2) -> {
+            ValueModel o1Priority = (ValueModel) o1.getDefConfig("priority");
+            ValueModel o2Priority = (ValueModel) o2.getDefConfig("priority");
+            int o1Int = o1Priority == null ? 0 : (int) ConverterUtils.convert(Integer.TYPE, o1Priority.recover(globalVariables));
+            int o2Int = o2Priority == null ? 0 : (int) ConverterUtils.convert(Integer.TYPE, o2Priority.recover(globalVariables));
+            return -Integer.compare(o1Int, o2Int);
+        });
+
+        return allTpcConf;
+    }
+
+    /** 选择一个 tpcConfig 配置 */
+    protected TypeProcessConfSet chooseTypeProcessConf(FakerConfig config, List<TypeProcessConfSet> allTpcConf) throws IOException {
+        boolean isCustom = StringUtils.isNotBlank(config.getCustomTpcConf());
+        if (isCustom) {
+            if (!allTpcConf.isEmpty()) {
+                return allTpcConf.get(0);
+            } else {
+                throw new IOException("custom tpcConf '" + fakerConfig.getCustomTpcConf() + "' is exist, but database type does not match [" + dbType + "].");
+            }
+        }
+
+        TypeProcessConfSet useConfSet = null;
+        for (TypeProcessConfSet confSet : allTpcConf) {
+            DataModel policyValue = confSet.getDefConfig("policy");
+            Object policyName = policyValue == null ? null : policyValue.recover(globalVariables);
+            if (policyName == null) {
+                continue;
+            }
+
+            if (StringUtils.equalsIgnoreCase(policyName.toString(), config.getPolicy())) {
+                useConfSet = confSet;
+                break;
+            }
+        }
+
+        if (useConfSet == null) {
+            for (TypeProcessConfSet confSet : allTpcConf) {
+                DataModel defaultValue = confSet.getDefConfig("default");
+                Object isDefault = defaultValue == null ? null : defaultValue.recover(globalVariables);
+                if (isDefault == null) {
+                    continue;
+                }
+
+                if ((boolean) ConverterUtils.convert(Boolean.TYPE, isDefault)) {
+                    useConfSet = confSet;
+                    break;
+                }
+            }
+        }
+        return useConfSet;
     }
 
     public TypeProcessor createSeedFactory(JdbcColumn jdbcColumn, SettingNode columnConfig) throws ReflectiveOperationException {

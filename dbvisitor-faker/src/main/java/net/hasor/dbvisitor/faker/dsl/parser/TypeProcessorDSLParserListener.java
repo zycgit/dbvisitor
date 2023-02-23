@@ -28,6 +28,16 @@ public interface TypeProcessorDSLParserListener extends ParseTreeListener {
 	 */
 	void exitDefineInst(TypeProcessorDSLParser.DefineInstContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link TypeProcessorDSLParser#defineAlias}.
+	 * @param ctx the parse tree
+	 */
+	void enterDefineAlias(TypeProcessorDSLParser.DefineAliasContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TypeProcessorDSLParser#defineAlias}.
+	 * @param ctx the parse tree
+	 */
+	void exitDefineAlias(TypeProcessorDSLParser.DefineAliasContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link TypeProcessorDSLParser#defineConf}.
 	 * @param ctx the parse tree
 	 */

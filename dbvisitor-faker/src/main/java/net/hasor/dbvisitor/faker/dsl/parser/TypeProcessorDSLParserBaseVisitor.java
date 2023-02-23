@@ -31,6 +31,13 @@ public class TypeProcessorDSLParserBaseVisitor<T> extends AbstractParseTreeVisit
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitDefineAlias(TypeProcessorDSLParser.DefineAliasContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitDefineConf(TypeProcessorDSLParser.DefineConfContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}

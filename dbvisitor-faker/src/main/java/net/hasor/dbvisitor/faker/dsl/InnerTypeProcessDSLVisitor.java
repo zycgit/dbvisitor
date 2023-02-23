@@ -51,8 +51,16 @@ class InnerTypeProcessDSLVisitor extends TypeProcessorDSLParserBaseVisitor<TypeP
     @Override
     public TypeProcessConfSet visitDefineInst(DefineInstContext ctx) {
         ctx.idStr().accept(this);
-        String defConfName = (String) this.instStack.pop();
-        this.confSet.setDatabaseType(defConfName);
+        String dbType = (String) this.instStack.pop();
+        this.confSet.putDbType(dbType);
+
+        if (ctx.ALIAS() != null) {
+            for (IdStrContext aliasNames : ctx.defineAlias().idStr()) {
+                aliasNames.accept(this);
+                dbType = (String) this.instStack.pop();
+                this.confSet.putDbType(dbType);
+            }
+        }
 
         List<DefineConfContext> defConfList = ctx.defineConf();
         for (DefineConfContext conf : defConfList) {

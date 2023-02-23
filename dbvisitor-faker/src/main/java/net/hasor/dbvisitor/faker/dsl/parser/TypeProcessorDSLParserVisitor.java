@@ -23,6 +23,12 @@ public interface TypeProcessorDSLParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDefineInst(TypeProcessorDSLParser.DefineInstContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TypeProcessorDSLParser#defineAlias}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDefineAlias(TypeProcessorDSLParser.DefineAliasContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TypeProcessorDSLParser#defineConf}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
