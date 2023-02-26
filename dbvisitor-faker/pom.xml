@@ -4,7 +4,7 @@
     <parent>
         <groupId>net.hasor</groupId>
         <artifactId>dbvisitor-parent</artifactId>
-        <version>5.2.2</version>
+        <version>5.2.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>dbvisitor-faker</artifactId>
