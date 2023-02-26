@@ -86,9 +86,9 @@ define mysql {
     jdbcType       = varchar
     seedType       = net.hasor.dbvisitor.faker.provider.mysql.seed.MySqlTimeSeedFactory
     genType        = random
-    precision      = 0
-    rangeForm      = "00:00:00"
-    rangeTo        = "23:59:59"
+    precision      = safeMaxLength(0, ${columnSize}, 6, 3)
+    rangeForm      = "00:00:00.000000"
+    rangeTo        = "23:59:59.999999"
 
 [year]
     jdbcType       = integer

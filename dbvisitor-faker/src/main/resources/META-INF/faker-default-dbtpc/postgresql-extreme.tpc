@@ -91,7 +91,7 @@ define postgresql {
     numberType     = decimal
     minMax         = range(-92233720368547758.08, 92233720368547758.07)
     scale          = 2
-    typeHandler    =net.hasor.dbvisitor.types.handler.pg.PgMoneyAsBigDecimalTypeHandler
+    typeHandler    = net.hasor.dbvisitor.types.handler.pg.PgMoneyAsBigDecimalTypeHandler
     insertTemplate     = pgFmtType("?", "numeric", "money")
     whereValueTemplate = pgFmtType("?", "numeric", "money")
     setValueTemplate   = pgFmtType("?", "numeric", "money")
@@ -145,9 +145,9 @@ define postgresql {
     seedType       = date
     dateType       = OffsetTime
     genType        = random
-    precision      = safeMaxLength(0, ${decimalDigits}, 7, 3)
-    rangeForm      = "00:00:00.0000000"
-    rangeTo        = "23:59:59.9999999"
+    precision      = safeMaxLength(0, ${decimalDigits}, 6, 3)
+    rangeForm      = "00:00:00.000000"
+    rangeTo        = "23:59:59.999999"
     zoneForm       = "-14:00"
     zoneTo         = "+14:00"
 
@@ -170,7 +170,7 @@ define postgresql {
     seedType       = date
     dateType       = LocalDateTime
     genType        = random
-    precision      = safeMaxLength(0, ${decimalDigits}, 7, 3)
+    precision      = safeMaxLength(0, ${decimalDigits}, 6, 3)
     rangeForm      = "0000-01-01 00:00:00.000000"
     rangeTo        = "9999-12-31 23:59:59.999999"
 
@@ -180,7 +180,7 @@ define postgresql {
     seedType       = date
     dateType       = OffsetDateTime
     genType        = random
-    precision      = safeMaxLength(0, ${decimalDigits}, 7, 3)
+    precision      = safeMaxLength(0, ${decimalDigits}, 6, 3)
     rangeForm      = "0000-01-01 14:00:00.000000"
     rangeTo        = "9999-12-31 09:59:59.999999"
     zoneForm       = "-14:00"

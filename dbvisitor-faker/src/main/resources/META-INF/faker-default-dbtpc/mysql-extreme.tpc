@@ -98,7 +98,7 @@ define mysql {
 
 [double]
 ["double unsigned"]
-    jdbcType       = float
+    jdbcType       = double
     seedType       = number
     numberType     = decimal
     minMax        += range(10, -2.2250738585072014E-308, -1.7976931348623157E+308)

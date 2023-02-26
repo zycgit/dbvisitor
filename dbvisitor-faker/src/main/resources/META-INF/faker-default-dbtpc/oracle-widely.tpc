@@ -48,12 +48,6 @@ define oracle {
     ignoreAct      = [ DeleteWhere ]
 
 [blob]
-    jdbcType       = blob
-    seedType       = bytes
-    minLength      = 0
-    maxLength      = safeMaxLength(0, ${columnSize}, 4, 16)
-    ignoreAct      = [ DeleteWhere, UpdateWhere ]
-
 [raw]
 ["long raw"]
     jdbcType       = blob
@@ -83,9 +77,9 @@ define oracle {
     seedType       = date
     dateType       = LocalDateTime
     genType        = random
-    precision      = 0
-    rangeForm      = "2000-01-01 00:00:00"
-    rangeTo        = "2030-12-31 23:59:59"
+    precision      = safeMaxLength(0, ${decimalDigits}, 9, 3)
+    rangeForm      = "2000-01-01 00:00:00.000000000"
+    rangeTo        = "2030-12-31 23:59:59.999999999"
 
 ["timestamp with local time zone"]
 ["timestamp with time zone"]
@@ -94,11 +88,11 @@ define oracle {
     seedType       = date
     dateType       = OffsetDateTime
     genType        = random
-    precision      = 0
-    rangeForm      = "2000-01-01 00:00:00"
-    rangeTo        = "2030-12-31 23:59:59"
-    zoneForm       = "-14:00"
-    zoneTo         = "+14:00"
+    precision      = safeMaxLength(0, ${decimalDigits}, 9, 3)
+    rangeForm      = "2000-01-01 00:00:00.000000000"
+    rangeTo        = "2030-12-31 23:59:59.999999999"
+    zoneForm       = "-08:00"
+    zoneTo         = "+08:00"
 
 ["interval year to month"]
 ["interval day to second"]

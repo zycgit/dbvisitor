@@ -102,9 +102,9 @@ define postgresql {
     seedType       = date
     dateType       = LocalTime
     genType        = random
-    precision      = safeMaxLength(0, ${decimalDigits}, 7, 3)
-    rangeForm      = "00:00:00.0000000"
-    rangeTo        = "23:59:59.9999999"
+    precision      = safeMaxLength(0, ${decimalDigits}, 6, 3)
+    rangeForm      = "00:00:00.000000"
+    rangeTo        = "23:59:59.999999"
     typeHandler    = net.hasor.dbvisitor.types.handler.SqlTimestampAsLocalTimeTypeHandler
 
 [timetz]
@@ -112,9 +112,9 @@ define postgresql {
     seedType       = date
     dateType       = OffsetTime
     genType        = random
-    precision      = safeMaxLength(0, ${decimalDigits}, 7, 3)
-    rangeForm      = "00:00:00.0000000"
-    rangeTo        = "23:59:59.9999999"
+    precision      = safeMaxLength(0, ${decimalDigits}, 6, 3)
+    rangeForm      = "00:00:00.000000"
+    rangeTo        = "23:59:59.999999"
     zoneForm       = "-08:00"
     zoneTo         = "+08:00"
 
@@ -135,18 +135,18 @@ define postgresql {
     seedType       = date
     dateType       = LocalDateTime
     genType        = random
-    precision      = safeMaxLength(0, ${decimalDigits}, 7, 3)
-    rangeForm      = "2000-01-01 00:00:00"
-    rangeTo        = "2030-12-31 23:59:59"
+    precision      = safeMaxLength(0, ${decimalDigits}, 6, 3)
+    rangeForm      = "2000-01-01 00:00:00.000000"
+    rangeTo        = "2030-12-31 23:59:59.999999"
 
 [timestamptz]
     jdbcType       = timestamp_with_timezone
     seedType       = date
     dateType       = OffsetDateTime
     genType        = random
-    precision      = safeMaxLength(0, ${decimalDigits}, 7, 3)
-    rangeForm      = "2000-01-01 00:00:00"
-    rangeTo        = "2030-12-31 23:59:59"
+    precision      = safeMaxLength(0, ${decimalDigits}, 6, 3)
+    rangeForm      = "2000-01-01 00:00:00.000000"
+    rangeTo        = "2030-12-31 23:59:59.999999"
     zoneForm       = "-08:00"
     zoneTo         = "+08:00"
 

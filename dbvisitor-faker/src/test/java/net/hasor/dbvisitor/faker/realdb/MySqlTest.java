@@ -1,6 +1,5 @@
 package net.hasor.dbvisitor.faker.realdb;
 import com.alibaba.druid.pool.DruidDataSource;
-import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.faker.DsUtils;
 import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.engine.FakerEngine;
@@ -15,16 +14,15 @@ import java.sql.SQLException;
 
 public class MySqlTest {
     public static void main(String[] args) throws SQLException, IOException {
-        LoggerFactory.useStdOutLogger();
+        //        LoggerFactory.useStdOutLogger();
         // 全局配置
         FakerConfig fakerConfig = new FakerConfig();
-        //        fakerConfig.setCustomTpcConf("my-tpc.tpc");
+        fakerConfig.setPolicy("extreme");
         fakerConfig.setMinBatchSizePerOps(1);
         fakerConfig.setMaxBatchSizePerOps(1);
         fakerConfig.setMinOpsCountPerTransaction(1);
         fakerConfig.setMaxOpsCountPerTransaction(1);
         fakerConfig.setTransaction(false);
-        fakerConfig.setPolicy("extreme");
         fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
         fakerConfig.addIgnoreError("Duplicate");
         fakerConfig.addIgnoreError("Data truncation: Incorrect datetime value");

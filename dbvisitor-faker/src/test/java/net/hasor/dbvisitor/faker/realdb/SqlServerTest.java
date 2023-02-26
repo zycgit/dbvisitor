@@ -15,7 +15,7 @@ public class SqlServerTest {
         // 全局配置
         FakerConfig fakerConfig = new FakerConfig();
         fakerConfig.setTransaction(false);
-                fakerConfig.setPolicy("extreme");
+        fakerConfig.setPolicy("extreme");
         fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
         fakerConfig.addIgnoreError("Duplicate");
         fakerConfig.addIgnoreError("restarting");

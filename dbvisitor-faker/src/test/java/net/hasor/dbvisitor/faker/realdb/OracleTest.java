@@ -1,7 +1,6 @@
 package net.hasor.dbvisitor.faker.realdb;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.faker.DsUtils;
 import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.engine.FakerEngine;
@@ -14,10 +13,10 @@ import net.hasor.dbvisitor.faker.generator.loader.PrecociousDataLoaderFactory;
 public class OracleTest {
     public static void main(String[] args) throws Exception {
         // 全局配置
-//        LoggerFactory.useStdOutLogger();
+        //        LoggerFactory.useStdOutLogger();
         FakerConfig fakerConfig = new FakerConfig();
         fakerConfig.setTransaction(false);
-                fakerConfig.setPolicy("extreme");
+        fakerConfig.setPolicy("extreme");
         fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
         fakerConfig.addIgnoreError("ORA-00001");
         fakerConfig.setOpsRatio("I#30;U#10;D#10");

@@ -123,8 +123,8 @@ define sqlserver alias [ jtds ] {
     dateFormat     = WKF_DATE_TIME24
     genType        = random
     precision      = safeMaxLength(0, ${decimalDigits}, 3, 1)
-    rangeForm      = "2000-01-01 00:00:00.0000000"
-    rangeTo        = "2030-12-31 23:59:59.9999999"
+    rangeForm      = "2000-01-01 00:00:00.000"
+    rangeTo        = "2030-12-31 23:59:59.999"
 
 [datetimeoffset]
     jdbcType       = timestamp_with_timezone
