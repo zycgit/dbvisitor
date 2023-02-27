@@ -55,21 +55,23 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
         BoundSql boundSql = sqlBuilder;
         BoundSql countSql = null;
 
+        // prepare page
         if (usingPage(executeInfo)) {
             PageSqlDialect dialect = executeInfo.pageDialect;
             long position = executeInfo.pageInfo.getFirstRecordPosition();
             long pageSize = executeInfo.pageInfo.getPageSize();
             boundSql = dialect.pageSql(sqlBuilder, position, pageSize);
-            if (executeInfo.pageResult || executeInfo.pageInfo.isCountTotalRows()) {
+            if (refreshTotalCount(executeInfo)) {
                 countSql = dialect.countSql(sqlBuilder);
             }
         }
 
-        Object resultData = null;
+        // do query
+        Object resultData;
         try (PreparedStatement ps = createPreparedStatement(con, boundSql.getSqlString(), executeInfo.resultSetType)) {
             configStatement(executeInfo, ps);
             resultData = executeQuery(ps, executeInfo, boundSql);
-            if (countSql == null) {
+            if (!executeInfo.pageResult) {
                 return resultData;
             }
         } catch (SQLException e) {
@@ -77,25 +79,19 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
             throw e;
         }
 
-        int resultCount = 0;
-        try (PreparedStatement ps = createPreparedStatement(con, countSql.getSqlString(), executeInfo.resultSetType)) {
-            configStatement(executeInfo, ps);
-            resultCount = executeCount(ps, countSql);
-        } catch (SQLException e) {
-            logger.error("executeCount failed, " + ExceptionUtils.getRootCauseMessage(e) + ", " + fmtBoundSql(countSql, executeInfo.data), e);
-            throw e;
-        }
-
-        if (usingPage(executeInfo)) {
-            if (executeInfo.pageInfo.isCountTotalRows()) {
-                executeInfo.pageInfo.setTotalCount(resultCount);
-            }
-
-            if (!executeInfo.pageResult) {
-                return resultData;
+        // select count
+        long resultCount = executeInfo.pageInfo.getTotalCount(); // old value
+        if (countSql != null) {
+            try (PreparedStatement ps = createPreparedStatement(con, countSql.getSqlString(), executeInfo.resultSetType)) {
+                configStatement(executeInfo, ps);
+                resultCount = executeCount(ps, countSql);
+            } catch (SQLException e) {
+                logger.error("executeCount failed, " + ExceptionUtils.getRootCauseMessage(e) + ", " + fmtBoundSql(countSql, executeInfo.data), e);
+                throw e;
             }
         }
 
+        // page result
         PageResult<Object> pageResult = new PageResult<>(executeInfo.pageInfo, resultCount);
         pageResult.setData((resultData instanceof List) ? (List<Object>) resultData : Collections.singletonList(resultData));
         return pageResult;

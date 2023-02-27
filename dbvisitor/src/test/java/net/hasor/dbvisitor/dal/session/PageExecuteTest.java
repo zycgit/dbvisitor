@@ -74,7 +74,7 @@ public class PageExecuteTest {
     }
 
     @Test
-    public void listUserListPage_2() throws SQLException {
+    public void listUserListPage_2() {
         PageExecuteDal dalExecute = this.dalSession.createMapper(PageExecuteDal.class);
         dalExecute.deleteAll();
 

@@ -15,6 +15,8 @@
  */
 package net.hasor.scene.page;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.page.Page;
+import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.TbUser;
 import net.hasor.test.utils.DsUtils;
@@ -25,8 +27,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/***
- *
+/**
  * @version : 2021-3-22
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -59,5 +60,31 @@ public class PageTestCase extends AbstractDbTest {
 
             assert userIds.size() == 2;
         }
+    }
+
+    @Test
+    public void lambdaQuery_stream_page_2() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            //
+            Page userIterator = lambdaTemplate.lambdaQuery(TbUser.class).pageInfo();
+            assert userIterator.getTotalCount() == 3;
+        }
+    }
+
+    @Test
+    public void lambdaQuery_stream_page_3() {
+        LambdaTemplate lambdaTemplate = new LambdaTemplate();
+        Page userIterator = lambdaTemplate.lambdaQuery(TbUser.class).pageInfo();
+        userIterator.setTotalCount(123);
+        assert userIterator.getTotalCount() == 123;
+    }
+
+    @Test
+    public void lambdaQuery_stream_page_4() {
+        Page pageInfo = new PageObject(2, 10);
+        LambdaTemplate lambdaTemplate = new LambdaTemplate();
+        Page userIterator = lambdaTemplate.lambdaQuery(TbUser.class).usePage(pageInfo).pageInfo();
+        assert userIterator.getTotalCount() == 10;
     }
 }

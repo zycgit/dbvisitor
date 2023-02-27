@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.page;
-import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -46,19 +45,19 @@ public interface Page {
     long getFirstRecordPosition();
 
     /** 获取总页数 */
-    long getTotalPage() throws SQLException;
+    long getTotalPage();
 
     /** 获取记录总数 */
-    long getTotalCount() throws SQLException;
+    long getTotalCount();
 
     /** 设置记录总数 */
     void setTotalCount(long totalCount);
 
-    /** 是否返回总记录数 */
-    boolean isCountTotalRows();
+    /** 无论 totalCount 是否设置了值，分页查询都将会执行 select count 语句用以刷新总数 */
+    void refreshTotalCount();
 
-    /** 设置是否返回总记录数 */
-    void setCountTotalRows(boolean isCountTotalRows);
+    /** 获取是否刷新总记录数 */
+    boolean isRefreshTotalCount();
 
     /** 移动到第一页 */
     default void firstPage() {
@@ -76,12 +75,12 @@ public interface Page {
     }
 
     /** 移动到最后一页 */
-    default void lastPage() throws SQLException {
+    default void lastPage() {
         setCurrentPage(getTotalPage() - 1);
     }
 
     /** 获取分页信息 */
-    default Map<String, Object> toPageInfo() throws SQLException {
+    default Map<String, Object> toPageInfo() {
         return new LinkedHashMap<String, Object>() {{
             put("enable", getPageSize() > 0);
             put("pageSize", getPageSize());

@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.page;
-import net.hasor.cobble.function.ESupplier;
-
-import java.sql.SQLException;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 /**
  * 分页接口 Page 的实现类
  * @version : 2021-02-04
@@ -27,41 +21,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class PageObject implements Page {
     /** 满足条件的总记录数 */
-    private       ESupplier<Long, SQLException> totalCountSupplier = () -> 0L;
-    private       long                          totalCount         = 0;
-    private final AtomicBoolean                 totalCountInited   = new AtomicBoolean(false);
+    private long    totalCount        = 0;
     /** 每页记录数（-1表示无限大）*/
-    private       long                          pageSize           = 0;
+    private long    pageSize          = 0;
     /** 当前页号 */
-    private       long                          currentPage        = 0;
+    private long    currentPage       = 0;
     /** 起始页码的偏移量 */
-    private       long                          pageNumberOffset   = 0;
-    /** 是否返回总记录数 */
-    private       boolean                       isCountTotalRows   = false;
-
-    public boolean isCountTotalRows() {
-        return isCountTotalRows;
-    }
-
-    public void setCountTotalRows(boolean isCountTotalRows) {
-        this.isCountTotalRows = isCountTotalRows;
-    }
+    private long    pageNumberOffset  = 0;
+    /** 是否刷新总记录数 */
+    private boolean refreshTotalCount = false;
 
     public PageObject() {
-        this.totalCountSupplier = () -> 0L;
     }
 
     public PageObject(long pageSize, long totalCount) {
         this.pageSize = pageSize;
-        this.setTotalCount(totalCount);
+        this.totalCount = totalCount;
     }
 
-    public PageObject(long pageSize, ESupplier<Long, SQLException> totalCountSupplier) {
-        Objects.requireNonNull(totalCountSupplier, "totalCountSupplier is null.");
-        this.pageSize = pageSize;
-        this.totalCountSupplier = totalCountSupplier;
-    }
-
+    /** 获取分页的页大小 */
     public long getPageSize() {
         return this.pageSize;
     }
@@ -89,12 +67,29 @@ public class PageObject implements Page {
         }
     }
 
+    /** 获得分页的第一页的页码 */
     public long getPageNumberOffset() {
         return this.pageNumberOffset;
     }
 
+    /** 设置分页的第一页的页码，必须大于等于 0  */
     public void setPageNumberOffset(long pageNumberOffset) {
         this.pageNumberOffset = Math.max(pageNumberOffset, 0);
+    }
+
+    /** 获取是否刷新总记录数 */
+    public boolean isRefreshTotalCount() {
+        return this.refreshTotalCount;
+    }
+
+    /** 设置是否刷新总记录数 */
+    public void setRefreshTotalCount(boolean refreshTotalCount) {
+        this.refreshTotalCount = refreshTotalCount;
+    }
+
+    @Override
+    public void refreshTotalCount() {
+        this.setRefreshTotalCount(true);
     }
 
     /** 获取本页第一个记录的索引位置 */
@@ -107,7 +102,7 @@ public class PageObject implements Page {
     }
 
     /** 获取总页数 */
-    public long getTotalPage() throws SQLException {
+    public long getTotalPage() {
         long pgSize = getPageSize();
         if (pgSize > 0) {
             long totalCount = getTotalCount();
@@ -130,15 +125,12 @@ public class PageObject implements Page {
     }
 
     /** 获取记录总数 */
-    public long getTotalCount() throws SQLException {
-        if (this.totalCountInited.compareAndSet(false, true)) {
-            this.totalCount = this.totalCountSupplier.eGet();
-        }
+    public long getTotalCount() {
         return this.totalCount;
     }
 
+    /** 设置记录总数 */
     public void setTotalCount(long totalCount) {
         this.totalCount = totalCount;
-        this.totalCountInited.set(true);
     }
 }

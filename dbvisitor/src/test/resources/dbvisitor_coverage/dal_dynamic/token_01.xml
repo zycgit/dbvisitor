@@ -2,7 +2,7 @@
     param1 = #{abc}
     <!-- 参数化 -->
     param2 = #{futures, mode = out,
-                typeHandler=net.hasor.dbvisitor.types.handler.BlobBytesTypeHandler,
+                typeHandler=net.hasor.dbvisitor.types.handler.BlobAsBytesTypeHandler,
                 javaType=net.hasor.test.dto.TB_User,
                 jdbcType=INT}
     <!-- SQL 注入 -->

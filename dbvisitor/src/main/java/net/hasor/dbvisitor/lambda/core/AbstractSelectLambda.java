@@ -29,7 +29,6 @@ import net.hasor.dbvisitor.lambda.segment.Segment;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.page.Page;
-import net.hasor.dbvisitor.page.PageObject;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -49,7 +48,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
     protected final MergeSqlSegment customSelect = new MergeSqlSegment();
     protected final MergeSqlSegment groupByList  = new MergeSqlSegment();
     protected final MergeSqlSegment orderByList  = new MergeSqlSegment();
-    private final   Page            pageInfo     = new PageObject(0, this::queryForLargeCount);
+    private final   Page            pageInfo     = new PageObjectForLambda(0, this::queryForLargeCount);
     private         boolean         lockGroupBy  = false;
     private         boolean         lockOrderBy  = false;
 
@@ -162,6 +161,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
     public R usePage(Page pageInfo) {
         Page page = this.pageInfo();
         page.setPageSize(pageInfo.getPageSize());
+        page.setTotalCount(pageInfo.getTotalCount());
         page.setCurrentPage(pageInfo.getCurrentPage());
         page.setPageNumberOffset(pageInfo.getPageNumberOffset());
         return this.getSelf();
@@ -320,7 +320,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
 
     @Override
     public <D> Iterator<D> queryForIterator(long limit, int batchSize, Function<T, D> transform) {
-        Page pageInfo = new PageObject(batchSize, this::queryForLargeCount);
+        Page pageInfo = new PageObjectForLambda(batchSize, this::queryForLargeCount);
         pageInfo.setCurrentPage(0);
         pageInfo.setPageNumberOffset(0);
         return new StreamIterator<>(limit, pageInfo, this, transform);
