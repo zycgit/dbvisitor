@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect.provider;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
@@ -36,6 +37,23 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
     @Override
     protected String defaultQualifier() {
         return "`";
+    }
+
+    @Override
+    public String tableName(boolean useQualifier, String catalog, String schema, String table) {
+        boolean catalogBlank = StringUtils.isBlank(catalog);
+        boolean schemaBlank = StringUtils.isBlank(schema);
+
+        if (!catalogBlank && !schemaBlank) {
+            return fmtName(useQualifier, catalog) + "." + fmtName(useQualifier, table);
+        }
+        if (!catalogBlank) {
+            return fmtName(useQualifier, catalog) + "." + fmtName(useQualifier, table);
+        }
+        if (!schemaBlank) {
+            return fmtName(useQualifier, schema) + "." + fmtName(useQualifier, table);
+        }
+        return fmtName(useQualifier, table);
     }
 
     @Override
@@ -82,7 +100,18 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
 
     @Override
     public String insertWithUpsert(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
-        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, " ON DUPLICATE KEY UPDATE");
+        StringBuilder strBuffer = new StringBuilder(" ON DUPLICATE KEY UPDATE ");
+        boolean first = true;
+        for (String col : columns) {
+            if (!first) {
+                strBuffer.append(", ");
+            }
+
+            String colName = fmtName(useQualifier, col);
+            strBuffer.append(colName + "=VALUES(" + colName + ")");
+            first = false;
+        }
+        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, strBuffer.toString());
     }
 
     protected String buildSql(String markString, boolean useQualifier, String catalog, String schema, String table, List<String> columns, String appendSql) {

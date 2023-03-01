@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.def;
-import java.util.List;
-
 /**
  * 列的 DDL 补充信息，用于补充生成 DDL 语句
  * @version : 2022-12-06
@@ -43,9 +41,6 @@ public interface ColumnDescription {
     /** 表示列是否允许为空 */
     Boolean getNullable();
 
-    /** 这个列属于哪些索引（如果某个索引含有多个列，那么这些列的 belongIndex 属性都会含有这个索引的名字） */
-    List<String> getBelongIndex();
-
-    /** 这个列属于哪些唯一索引（如果某个索引含有多个列，那么这些列的 belongIndex 属性都会含有这个索引的名字） */
-    List<String> getBelongUnique();
+    /** 在生成建表语句的时候用于拼接的其它信息，开发者可以随意指定。会在 'create table' / 'alter table' 语句生成时自动追加 */
+    String getOther();
 }

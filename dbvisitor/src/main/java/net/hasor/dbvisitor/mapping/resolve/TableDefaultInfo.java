@@ -20,6 +20,7 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.mapping.TableDefault;
+import net.hasor.dbvisitor.mapping.TableDescribe;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -29,7 +30,7 @@ import java.util.Map;
  * @version : 2021-06-21
  * @author 赵永春 (zyc@hasor.net)
  */
-class TableDefaultInfo implements TableDefault, Table {
+class TableDefaultInfo implements TableDefault, Table, TableDescribe {
     private final String     catalog;
     private final String     schema;
     private final String     table;
@@ -39,6 +40,9 @@ class TableDefaultInfo implements TableDefault, Table {
     private final boolean    caseInsensitive;
     private final SqlDialect dialect;
     private final String     dialectName;
+    //
+    private final String     comment;
+    private final String     other;
 
     TableDefaultInfo(Map<String, String> attrMaps, ClassLoader classLoader, MappingOptions options) {
         String catalog = attrMaps.get("catalog");
@@ -52,6 +56,8 @@ class TableDefaultInfo implements TableDefault, Table {
         String useDelimited = attrMaps.get("useDelimited");
         String caseInsensitive = attrMaps.get("caseInsensitive");
         String dialect = attrMaps.get("dialect");
+        this.comment = attrMaps.get("comment");
+        this.other = attrMaps.get("other");
 
         this.catalog = (catalog == null) ? "" : catalog;
         this.schema = (schema == null) ? "" : schema;
@@ -142,5 +148,15 @@ class TableDefaultInfo implements TableDefault, Table {
     @Override
     public Class<? extends Annotation> annotationType() {
         return Table.class;
+    }
+
+    @Override
+    public String comment() {
+        return this.comment;
+    }
+
+    @Override
+    public String other() {
+        return this.other;
     }
 }

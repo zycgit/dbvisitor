@@ -18,6 +18,7 @@ import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.NumberUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.convert.ConverterUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.dbvisitor.keyholder.CreateContext;
@@ -26,6 +27,7 @@ import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.keyholder.KeySeqHolderFactory;
 import net.hasor.dbvisitor.mapping.KeyTypeEnum;
 import net.hasor.dbvisitor.mapping.def.ColumnDef;
+import net.hasor.dbvisitor.mapping.def.ColumnDescDef;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableDef;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -78,6 +80,9 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         Node caseInsensitiveNode = nodeAttributes.getNamedItem("caseInsensitive");
         Node mapUnderscoreToCamelCaseNode = nodeAttributes.getNamedItem("mapUnderscoreToCamelCase");
         Node autoMappingNode = nodeAttributes.getNamedItem("autoMapping");
+        Node commentNode = nodeAttributes.getNamedItem("comment");
+        Node otherNode = nodeAttributes.getNamedItem("other");
+
         String type = (typeNode != null) ? typeNode.getNodeValue() : null;
         String catalogName = (schemaNode != null) ? catalogNode.getNodeValue() : null;
         String schemaName = (schemaNode != null) ? schemaNode.getNodeValue() : null;
@@ -85,6 +90,8 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         String caseInsensitive = (caseInsensitiveNode != null) ? caseInsensitiveNode.getNodeValue() : null;
         String mapUnderscoreToCamelCase = (mapUnderscoreToCamelCaseNode != null) ? mapUnderscoreToCamelCaseNode.getNodeValue() : null;
         String autoMapping = (autoMappingNode != null) ? autoMappingNode.getNodeValue() : null;
+        String comment = (commentNode != null) ? commentNode.getNodeValue() : null;
+        String other = (otherNode != null) ? otherNode.getNodeValue() : null;
 
         // overwrite data
         Class<?> entityType = classLoader.loadClass(type);
@@ -106,6 +113,12 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         }
         if (autoMapping != null) {
             overwriteData.put("autoMapping", autoMapping);
+        }
+        if (comment != null) {
+            overwriteData.put("comment", comment);
+        }
+        if (other != null) {
+            overwriteData.put("other", other);
         }
 
         TableDefaultInfo tableInfo = fetchDefaultInfoByEntity(classLoader, entityType, this.options, overwriteData);
@@ -166,6 +179,14 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         Node setValueTemplateNode = nodeAttributes.getNamedItem("setValueTemplate");
         Node whereColTemplateNode = nodeAttributes.getNamedItem("whereColTemplate");
         Node whereValueTemplateNode = nodeAttributes.getNamedItem("whereValueTemplate");
+        Node commentNode = nodeAttributes.getNamedItem("comment");
+        Node dbTypeNode = nodeAttributes.getNamedItem("dbType");
+        Node lengthNode = nodeAttributes.getNamedItem("length");
+        Node precisionNode = nodeAttributes.getNamedItem("precision");
+        Node scaleNode = nodeAttributes.getNamedItem("scale");
+        Node defaultValueNode = nodeAttributes.getNamedItem("defaultValue");
+        Node nullableNode = nodeAttributes.getNamedItem("nullable");
+        Node otherNode = nodeAttributes.getNamedItem("other");
 
         String column = (columnNode != null) ? columnNode.getNodeValue() : null;
         String property = (propertyNode != null) ? propertyNode.getNodeValue() : null;
@@ -189,9 +210,23 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         String setValueTemplate = (setValueTemplateNode != null) ? setValueTemplateNode.getNodeValue() : null;
         String whereColTemplate = (whereColTemplateNode != null) ? whereColTemplateNode.getNodeValue() : null;
         String whereValueTemplate = (whereValueTemplateNode != null) ? whereValueTemplateNode.getNodeValue() : null;
+        String comment = (commentNode != null) ? commentNode.getNodeValue() : null;
+        String dbType = (dbTypeNode != null) ? dbTypeNode.getNodeValue() : null;
+        String length = (lengthNode != null) ? lengthNode.getNodeValue() : null;
+        String precision = (precisionNode != null) ? precisionNode.getNodeValue() : null;
+        String scale = (scaleNode != null) ? scaleNode.getNodeValue() : null;
+        String defaultValue = (defaultValueNode != null) ? defaultValueNode.getNodeValue() : null;
+        Boolean nullable = (nullableNode != null) ? (Boolean) ConverterUtils.convert(nullableNode.getNodeValue(), Boolean.TYPE) : null;
+        String other = (otherNode != null) ? otherNode.getNodeValue() : null;
 
         ColumnDef colDef = new ColumnDef(column, property, columnJdbcType, columnJavaType, columnTypeHandler, propertyHandler, insert, update, asPrimaryKey,//
                 selectTemplate, insertTemplate, setColTemplate, setValueTemplate, whereColTemplate, whereValueTemplate);
+
+        if (comment == null && dbType == null && length == null && precision == null && scale == null && defaultValue == null && nullable == null && other == null) {
+            colDef.setDescription(null);
+        } else {
+            colDef.setDescription(new ColumnDescDef(comment, dbType, length, precision, scale, defaultValue, nullable, other));
+        }
 
         // init KeySeqHolder
         colDef.setKeySeqHolder(resolveKeyType(tableDef, colDef, keyType, classLoader, typeRegistry));

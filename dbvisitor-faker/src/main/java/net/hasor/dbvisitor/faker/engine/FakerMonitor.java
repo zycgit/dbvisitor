@@ -34,6 +34,7 @@ public class FakerMonitor {
     private final static Logger                   logger            = Logger.getLogger(WriteWorker.class);
     private final        Map<OpsType, AtomicLong> succeedCounter    = new ConcurrentHashMap<>();
     private final        Map<OpsType, AtomicLong> failedCounter     = new ConcurrentHashMap<>();
+    private final        Map<OpsType, AtomicLong> ignoreCounter     = new ConcurrentHashMap<>();
     private final        AtomicLong               affectRowsCounter = new AtomicLong(0);
     private              long                     startMonitorTime  = 0;
     private final        Map<String, AtomicLong>  writerTotal       = new ConcurrentHashMap<>();
@@ -100,6 +101,11 @@ public class FakerMonitor {
     /** 一个 写入失败事件 */
     void recordFailed(String writerID, String tranID, BoundQuery event, Exception e) {
         this.failedCounter.computeIfAbsent(event.getOpsType(), s -> new AtomicLong()).incrementAndGet();
+    }
+
+    /** 一个 忽略事件 */
+    void recordIgnore(String writerID, String tranID, BoundQuery event, Exception e) {
+        this.ignoreCounter.computeIfAbsent(event.getOpsType(), s -> new AtomicLong()).incrementAndGet();
     }
 
     public void workThrowable(String writerID, Throwable e) {

@@ -83,8 +83,8 @@
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
-            <xs:attribute name="type" use="required"/>
             <xs:attribute name="id"/>
+            <xs:attribute name="type" use="required"/>
             <xs:attribute name="caseInsensitive" type="boolean_type"/>
             <xs:attribute name="mapUnderscoreToCamelCase" type="boolean_type"/>
             <xs:attribute name="autoMapping" type="boolean_type"/>
@@ -97,14 +97,17 @@
                 <xs:element name="id" minOccurs="0" maxOccurs="unbounded" type="mapping_type"/>
                 <xs:element name="mapping" minOccurs="0" maxOccurs="unbounded" type="mapping_type"/>
             </xs:sequence>
-            <xs:attribute name="type" use="required"/>
             <xs:attribute name="id"/>
             <xs:attribute name="catalog"/>
             <xs:attribute name="schema"/>
             <xs:attribute name="table" use="required"/>
+            <xs:attribute name="type" use="required"/>
             <xs:attribute name="caseInsensitive" type="boolean_type"/>
             <xs:attribute name="mapUnderscoreToCamelCase" type="boolean_type"/>
             <xs:attribute name="autoMapping" type="boolean_type"/>
+            <!-- META -->
+            <xs:attribute name="comment"/>
+            <xs:attribute name="other"/>
         </xs:complexType>
     </xs:element>
 
@@ -123,6 +126,15 @@
         <xs:attribute name="setValueTemplate"/>
         <xs:attribute name="whereColTemplate"/>
         <xs:attribute name="whereValueTemplate"/>
+        <!-- META -->
+        <xs:attribute name="comment"/>
+        <xs:attribute name="dbType"/>
+        <xs:attribute name="length"/>
+        <xs:attribute name="precision"/>
+        <xs:attribute name="scale"/>
+        <xs:attribute name="defaultValue"/>
+        <xs:attribute name="nullable" type="boolean_type"/>
+        <xs:attribute name="other"/>
     </xs:complexType>
 
     <xs:element name="insert">

@@ -18,7 +18,6 @@ import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.logging.Logger;
-import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.keyholder.CreateContext;
 import net.hasor.dbvisitor.keyholder.KeySeqHolder;
@@ -50,7 +49,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         if (CACHE_TABLE_MAP.containsKey(entityType)) {
             return CACHE_TABLE_MAP.get(entityType);
         } else {
-            Table tableInfo = fetchDefaultInfoByEntity(entityType.getClassLoader(), entityType, MappingOptions.buildNew(), Collections.emptyMap());
+            TableDefaultInfo tableInfo = fetchDefaultInfoByEntity(entityType.getClassLoader(), entityType, MappingOptions.buildNew(), Collections.emptyMap());
             TableMapping<?> tableMapping = new ClassTableMappingResolve(null).resolveTableAndColumn(tableInfo, entityType, typeRegistry);
             CACHE_TABLE_MAP.put(entityType, tableMapping);
             return tableMapping;
@@ -59,28 +58,36 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
 
     @Override
     public TableDef<?> resolveTableMapping(Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
-        Table tableInfo = fetchDefaultInfoByEntity(classLoader, entityType, this.options, Collections.emptyMap());
+        TableDefaultInfo tableInfo = fetchDefaultInfoByEntity(classLoader, entityType, this.options, Collections.emptyMap());
         return resolveTableAndColumn(tableInfo, entityType, typeRegistry);
     }
 
-    protected TableDef<?> resolveTable(Table tableInfo, Class<?> entityType) {
+    protected TableDef<?> resolveTable(TableDefaultInfo tableInfo, Class<?> entityType) {
         String catalog = tableInfo.catalog();
         String schema = tableInfo.schema();
         String table = StringUtils.isNotBlank(tableInfo.table()) ? tableInfo.table() : StringUtils.isNotBlank(tableInfo.value()) ? tableInfo.value() : "";
+        String comment = tableInfo.comment();
+        String other = tableInfo.other();
 
         boolean autoProperty = tableInfo.autoMapping();
         boolean useDelimited = tableInfo.useDelimited();
         boolean caseInsensitive = tableInfo.caseInsensitive();
         boolean camelCase = tableInfo.mapUnderscoreToCamelCase();
 
-        SqlDialect dialect = (tableInfo instanceof TableDefaultInfo) ? ((TableDefaultInfo) tableInfo).getSqlDialect() : DefaultSqlDialect.DEFAULT;
+        SqlDialect dialect = tableInfo.getSqlDialect();
         TableDef<?> tableDef = new TableDef<>(catalog, schema, table, entityType, autoProperty, useDelimited, caseInsensitive, camelCase, dialect);
 
-        tableDef.setDescription(parseDesc(entityType.getAnnotation(TableDescribe.class)));
+        // desc
+        if (StringUtils.isBlank(comment) && StringUtils.isBlank(other)) {
+            tableDef.setDescription(parseDesc(entityType.getAnnotation(TableDescribe.class)));
+        } else {
+            tableDef.setDescription(parseDesc(tableInfo));
+        }
+
         return tableDef;
     }
 
-    protected TableDef<?> resolveTableAndColumn(Table tableInfo, Class<?> entityType, TypeHandlerRegistry typeRegistry) {
+    protected TableDef<?> resolveTableAndColumn(TableDefaultInfo tableInfo, Class<?> entityType, TypeHandlerRegistry typeRegistry) {
         TableDef<?> def = this.resolveTable(tableInfo, entityType);
         Map<String, Property> properties = BeanUtils.getPropertyFunc(entityType);
 
@@ -170,6 +177,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
 
         TableDescDef descDef = new TableDescDef();
         descDef.setComment(tableDesc.comment());
+        descDef.setOther(tableDesc.other());
         return descDef;
     }
 
@@ -186,6 +194,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         descDef.setScale(columnDesc.scale());
         descDef.setDefault(columnDesc.defaultValue());
         descDef.setNullable(columnDesc.nullable());
+        descDef.setOther(columnDesc.other());
         descDef.setBelongIndex(Arrays.asList(columnDesc.belongIndex()));
         descDef.setBelongUnique(Arrays.asList(columnDesc.belongUnique()));
         return descDef;

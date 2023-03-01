@@ -48,9 +48,6 @@ public @interface ColumnDescribe {
     /** 表示列是否允许为空 */
     boolean nullable() default true;
 
-    /** 这个列属于哪些索引（如果某个索引含有多个列，那么这些列的 belongIndex 属性都会含有这个索引的名字） */
-    String[] belongIndex() default {};
-
-    /** 这个列属于哪些唯一索引（如果某个索引含有多个列，那么这些列的 belongIndex 属性都会含有这个索引的名字） */
-    String[] belongUnique() default {};
+    /** 在生成建表语句的时候用于拼接的其它信息，开发者可以随意指定。会在 'create table' / 'alter table' 语句生成时自动追加 */
+    String other() default "";
 }

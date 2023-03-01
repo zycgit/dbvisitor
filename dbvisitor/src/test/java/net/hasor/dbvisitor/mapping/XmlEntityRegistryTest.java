@@ -16,15 +16,16 @@
 package net.hasor.dbvisitor.mapping;
 import net.hasor.dbvisitor.keyholder.sequence.JdbcKeySeqHolderFactory;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.types.handler.SqlTimestampAsDateTypeHandler;
 import net.hasor.dbvisitor.types.handler.EnumTypeHandler;
 import net.hasor.dbvisitor.types.handler.LongTypeHandler;
+import net.hasor.dbvisitor.types.handler.SqlTimestampAsDateTypeHandler;
 import net.hasor.dbvisitor.types.handler.StringTypeHandler;
 import net.hasor.test.dto.ResourceType;
 import net.hasor.test.entity.*;
 import net.hasor.test.entity2.*;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -892,5 +893,28 @@ public class XmlEntityRegistryTest {
         assert mapping.getPropertyByName("ownerType").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("ownerType").getColumn().equals("owner_type");
         assert mapping.getPropertyByName("ownerType").getDescription() == null;
+    }
+
+    @Test
+    public void mapper2Test_6() throws ReflectiveOperationException, IOException {
+        MappingRegistry registry = new MappingRegistry();
+        registry.loadMapper("dbvisitor_coverage/dal_mapping/entity_1.xml");
+        TableMapping<BlobResourceV5> tableMapping = registry.findEntity(BlobResourceV5.class);
+
+        assert tableMapping.getDescription().getComment().equals("表备注");
+        assert tableMapping.getPropertyByName("id").getDescription().getDbType().equals("bigint");
+        assert tableMapping.getPropertyByName("id").getDescription().getComment().equals("ID列");
+        assert tableMapping.getPropertyByName("id").getDescription().getNullable() == null;
+        assert tableMapping.getPropertyByColumn("gmt_create").getDescription().getDbType().equals("timestamp");
+        assert !tableMapping.getPropertyByColumn("gmt_create").getDescription().getNullable();
+        assert tableMapping.getPropertyByColumn("gmt_create").getDescription().getDefault().equals("current_timestamp");
+        assert tableMapping.getPropertyByColumn("gmt_create").getDescription().getComment().equals("创建时间");
+        assert tableMapping.getPropertyByName("gmtModified").getDescription().getDbType().equals("timestamp");
+        assert !tableMapping.getPropertyByName("gmtModified").getDescription().getNullable();
+        assert tableMapping.getPropertyByName("gmtModified").getDescription().getDefault().equals("current_timestamp");
+        assert tableMapping.getPropertyByName("gmtModified").getDescription().getOther().equals("on update current_timestamp");
+        assert tableMapping.getPropertyByName("gmtModified").getDescription().getComment().equals("修改时间");
+        assert tableMapping.getPropertyByName("gmtModified").getDescription().getDbType().equals("timestamp");
+        assert tableMapping.getPropertyByName("content").getDescription().getLength().equals("32");
     }
 }

@@ -29,8 +29,24 @@ public class ColumnDescDef implements ColumnDescription {
     private String       scale;
     private String       defaultValue;
     private Boolean      nullable;
+    private String       other;
     private List<String> belongIndex;
     private List<String> belongUnique;
+
+    public ColumnDescDef() {
+
+    }
+
+    public ColumnDescDef(String comment, String dbType, String length, String precision, String scale, String defaultValue, Boolean nullable, String other) {
+        this.comment = comment;
+        this.dbType = dbType;
+        this.length = length;
+        this.precision = precision;
+        this.scale = scale;
+        this.defaultValue = defaultValue;
+        this.nullable = nullable;
+        this.other = other;
+    }
 
     @Override
     public String getComment() {
@@ -93,6 +109,14 @@ public class ColumnDescDef implements ColumnDescription {
 
     public void setNullable(Boolean nullable) {
         this.nullable = nullable;
+    }
+
+    public String getOther() {
+        return this.other;
+    }
+
+    public void setOther(String other) {
+        this.other = other;
     }
 
     @Override

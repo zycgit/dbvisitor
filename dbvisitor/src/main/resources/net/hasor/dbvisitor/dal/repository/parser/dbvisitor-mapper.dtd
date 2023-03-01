@@ -24,8 +24,8 @@
 
 <!ELEMENT resultMap (result*)>
 <!ATTLIST resultMap
-        type CDATA #REQUIRED
         id CDATA #IMPLIED
+        type CDATA #REQUIRED
         caseInsensitive (true|false) #IMPLIED
         mapUnderscoreToCamelCase (true|false) #IMPLIED
         autoMapping (true|false) #IMPLIED
@@ -42,14 +42,16 @@
 
 <!ELEMENT entity (id*,mapping*)>
 <!ATTLIST entity
-        type CDATA #REQUIRED
         id CDATA #IMPLIED
         catalog CDATA #IMPLIED
         schema CDATA #IMPLIED
         table CDATA #REQUIRED
+        type CDATA #REQUIRED
         caseInsensitive (true|false) #IMPLIED
         mapUnderscoreToCamelCase (true|false) #IMPLIED
         autoMapping (true|false) #IMPLIED
+        comment CDATA #IMPLIED
+        other CDATA #IMPLIED
         >
 
 <!ELEMENT id EMPTY>
@@ -68,6 +70,14 @@
         setValueTemplate CDATA #IMPLIED
         whereColTemplate CDATA #IMPLIED
         whereValueTemplate CDATA #IMPLIED
+        comment CDATA #IMPLIED
+        dbType CDATA #IMPLIED
+        length CDATA #IMPLIED
+        precision CDATA #IMPLIED
+        scale CDATA #IMPLIED
+        defaultValue CDATA #IMPLIED
+        nullable (true|false) #IMPLIED
+        other CDATA #IMPLIED
         >
 
 <!ELEMENT mapping EMPTY>
@@ -86,6 +96,14 @@
         setValueTemplate CDATA #IMPLIED
         whereColTemplate CDATA #IMPLIED
         whereValueTemplate CDATA #IMPLIED
+        comment CDATA #IMPLIED
+        dbType CDATA #IMPLIED
+        length CDATA #IMPLIED
+        precision CDATA #IMPLIED
+        scale CDATA #IMPLIED
+        defaultValue CDATA #IMPLIED
+        nullable (true|false) #IMPLIED
+        other CDATA #IMPLIED
         >
 
 <!ELEMENT insert (#PCDATA | selectKey | include | trim | where | set | foreach | choose | if | bind)*>

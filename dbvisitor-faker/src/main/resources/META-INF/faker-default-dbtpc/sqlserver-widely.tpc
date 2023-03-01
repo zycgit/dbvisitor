@@ -51,7 +51,6 @@ define sqlserver alias [ jtds ] {
     numberType     = double
     minMax         = range(0, 9999999.999)
     scale          = min(${decimalDigits}, 3)
-    typeHandler    = net.hasor.dbvisitor.types.handler.StringAsBigDecimalTypeHandler
 
 [numeric]
 [decimal]
@@ -129,7 +128,7 @@ define sqlserver alias [ jtds ] {
 [datetimeoffset]
     jdbcType       = timestamp_with_timezone
     seedType       = date
-    dateType       = string
+    dateType       = OffsetDateTime
     dateFormat     = WKF_OFFSET_DATE_TIME24_ZoneM
     genType        = random
     precision      = safeMaxLength(0, ${decimalDigits}, 7, 3)

@@ -21,6 +21,7 @@ package net.hasor.dbvisitor.mapping.def;
  */
 public class TableDescDef implements TableDescription {
     private String comment;
+    private String other;
 
     @Override
     public String getComment() {
@@ -29,5 +30,13 @@ public class TableDescDef implements TableDescription {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public String getOther() {
+        return this.other;
+    }
+
+    public void setOther(String other) {
+        this.other = other;
     }
 }

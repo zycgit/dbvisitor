@@ -1,5 +1,6 @@
 package net.hasor.dbvisitor.faker.realdb;
 import com.alibaba.druid.pool.DruidDataSource;
+import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.faker.DsUtils;
 import net.hasor.dbvisitor.faker.FakerConfig;
 import net.hasor.dbvisitor.faker.engine.FakerEngine;
@@ -11,11 +12,11 @@ import net.hasor.dbvisitor.faker.generator.loader.PrecociousDataLoaderFactory;
 
 public class SqlServerTest {
     public static void main(String[] args) throws Exception {
-        //        LoggerFactory.useStdOutLogger();
+        LoggerFactory.useStdOutLogger();
         // 全局配置
         FakerConfig fakerConfig = new FakerConfig();
         fakerConfig.setTransaction(false);
-        fakerConfig.setPolicy("extreme");
+        //        fakerConfig.setPolicy("extreme");
         fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
         fakerConfig.addIgnoreError("Duplicate");
         fakerConfig.addIgnoreError("restarting");

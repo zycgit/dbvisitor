@@ -29,4 +29,7 @@ import java.lang.annotation.Target;
 public @interface TableDescribe {
     /** 表备注 */
     String comment() default "";
+
+    /** 在生成建表语句的时候用于拼接的其它信息，开发者可以随意指定。会在 'create table' / 'alter table' 语句生成时自动追加在最后 */
+    String other() default "";
 }

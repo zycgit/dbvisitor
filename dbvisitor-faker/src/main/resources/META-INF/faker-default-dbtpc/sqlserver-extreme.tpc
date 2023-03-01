@@ -160,7 +160,7 @@ define sqlserver alias [ jtds ] {
 [datetimeoffset]
     jdbcType       = timestamp_with_timezone
     seedType       = date
-    dateType       = string
+    dateType       = OffsetDateTime
     dateFormat     = WKF_OFFSET_DATE_TIME24_ZoneM
     genType        = random
     precision      = safeMaxLength(0, ${decimalDigits}, 7, 3)
