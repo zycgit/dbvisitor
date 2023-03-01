@@ -195,8 +195,6 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         descDef.setDefault(columnDesc.defaultValue());
         descDef.setNullable(columnDesc.nullable());
         descDef.setOther(columnDesc.other());
-        descDef.setBelongIndex(Arrays.asList(columnDesc.belongIndex()));
-        descDef.setBelongUnique(Arrays.asList(columnDesc.belongUnique()));
         return descDef;
     }
 

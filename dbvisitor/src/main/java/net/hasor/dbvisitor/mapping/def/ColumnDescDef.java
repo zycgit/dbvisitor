@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.def;
-import java.util.List;
-
 /**
  * 接口 ColumnDescription 的实现类
  * @version : 2022-12-06
  * @author 赵永春 (zyc@hasor.net)
  */
 public class ColumnDescDef implements ColumnDescription {
-    private String       comment;
-    private String       dbType;
-    private String       length;
-    private String       precision;
-    private String       scale;
-    private String       defaultValue;
-    private Boolean      nullable;
-    private String       other;
-    private List<String> belongIndex;
-    private List<String> belongUnique;
+    private String  comment;
+    private String  dbType;
+    private String  length;
+    private String  precision;
+    private String  scale;
+    private String  defaultValue;
+    private Boolean nullable;
+    private String  other;
 
     public ColumnDescDef() {
 
@@ -117,23 +113,5 @@ public class ColumnDescDef implements ColumnDescription {
 
     public void setOther(String other) {
         this.other = other;
-    }
-
-    @Override
-    public List<String> getBelongIndex() {
-        return this.belongIndex;
-    }
-
-    public void setBelongIndex(List<String> belongIndex) {
-        this.belongIndex = belongIndex;
-    }
-
-    @Override
-    public List<String> getBelongUnique() {
-        return this.belongUnique;
-    }
-
-    public void setBelongUnique(List<String> belongUnique) {
-        this.belongUnique = belongUnique;
     }
 }
