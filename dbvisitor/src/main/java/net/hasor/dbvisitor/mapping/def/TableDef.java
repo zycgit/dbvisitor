@@ -44,6 +44,7 @@ public class TableDef<T> implements TableMapping<T> {
     private final List<ColumnMapping>        columnMappings;
     private final Map<String, ColumnMapping> mapByProperty;
     private final Map<String, ColumnMapping> mapByColumn;
+    private final List<IndexDescription>     indexList;
 
     public TableDef(String catalog, String schema, String table, Class<T> entityType, //
             boolean autoProperty, boolean useDelimited, boolean caseInsensitive, boolean mapUnderscoreToCamelCase, SqlDialect dialect) {
@@ -58,6 +59,7 @@ public class TableDef<T> implements TableMapping<T> {
         this.columnMappings = new ArrayList<>();
         this.mapByProperty = (caseInsensitive && Map.class.isAssignableFrom(entityType)) ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
         this.mapByColumn = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
+        this.indexList = new ArrayList<>();
         this.mapUnderscoreToCamelCase = mapUnderscoreToCamelCase;
         this.dialect = dialect;
     }
@@ -114,15 +116,6 @@ public class TableDef<T> implements TableMapping<T> {
     }
 
     @Override
-    public TableDescription getDescription() {
-        return this.description;
-    }
-
-    public void setDescription(TableDescription description) {
-        this.description = description;
-    }
-
-    @Override
     public Collection<ColumnMapping> getProperties() {
         return this.columnMappings;
     }
@@ -158,6 +151,24 @@ public class TableDef<T> implements TableMapping<T> {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public TableDescription getDescription() {
+        return this.description;
+    }
+
+    public void setDescription(TableDescription description) {
+        this.description = description;
+    }
+
+    @Override
+    public List<IndexDescription> getIndexes() {
+        return this.indexList;
+    }
+
+    public void addIndexDescription(IndexDescription index) {
+        this.indexList.add(index);
     }
 
     private ColumnMapping initOrGetMapMapping(Map<String, ColumnMapping> map, String name) {

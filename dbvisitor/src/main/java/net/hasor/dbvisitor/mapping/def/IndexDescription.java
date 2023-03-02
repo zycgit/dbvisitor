@@ -14,15 +14,26 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.def;
+import java.util.List;
+
 /**
- * 表的 DDL 补充信息，用于补充生成 DDL 语句
+ * 表的 Index 信息，用于补充生成 DDL 语句
  * @version : 2022-12-06
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface TableDescription {
-    /** 表备注 */
-    String getComment();
+public interface IndexDescription {
+    /** 索引名 */
+    String getName();
 
-    /** 在生成建表语句的时候用于拼接的其它信息，开发者可以随意指定。会在 'create table' / 'alter table' 语句生成时自动追加 */
+    /** 是否是唯一索引 */
+    boolean isUnique();
+
+    /** 索引包含的列 */
+    List<String> getColumns();
+
+    /** 创建索引语句生成后在整个语句的自后添加的自定义代码 */
     String getOther();
+
+    /** 索引备注 */
+    String getComment();
 }

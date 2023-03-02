@@ -40,7 +40,7 @@
         typeHandler CDATA #IMPLIED
         >
 
-<!ELEMENT entity (id*,mapping*)>
+<!ELEMENT entity (id*,mapping*,index*)>
 <!ATTLIST entity
         id CDATA #IMPLIED
         catalog CDATA #IMPLIED
@@ -105,6 +105,17 @@
         nullable (true|false) #IMPLIED
         other CDATA #IMPLIED
         >
+
+<!ELEMENT index (column* | EMPTY)>
+<!ATTLIST index
+        name CDATA #REQUIRED
+        columns CDATA #IMPLIED
+        unique (true|false) #IMPLIED
+        comment CDATA #IMPLIED
+        other CDATA #IMPLIED
+        >
+
+<!ELEMENT column (#PCDATA)>
 
 <!ELEMENT insert (#PCDATA | selectKey | include | trim | where | set | foreach | choose | if | bind)*>
 <!ATTLIST insert

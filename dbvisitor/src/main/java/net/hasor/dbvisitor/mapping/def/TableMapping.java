@@ -19,6 +19,7 @@ import net.hasor.dbvisitor.mapping.reader.BeanTableReader;
 import net.hasor.dbvisitor.mapping.reader.MapTableReader;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,9 +48,6 @@ public interface TableMapping<T> {
     /** 结果处理是否大小写敏感 */
     boolean isCaseInsensitive();
 
-    /** 获取补充描述信息 */
-    TableDescription getDescription();
-
     Collection<ColumnMapping> getProperties();
 
     ColumnMapping getPropertyByColumn(String column);
@@ -63,4 +61,10 @@ public interface TableMapping<T> {
     default TableReader<T> toReader() {
         return new BeanTableReader<>(this);
     }
+
+    /** 获取补充描述信息 */
+    TableDescription getDescription();
+
+    /** 获取索引描述信息 */
+    List<IndexDescription> getIndexes();
 }

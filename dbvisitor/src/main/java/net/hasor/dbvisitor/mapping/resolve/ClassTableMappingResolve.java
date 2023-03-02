@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.mapping.resolve;
 import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.logging.Logger;
@@ -82,6 +83,33 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
             tableDef.setDescription(parseDesc(entityType.getAnnotation(TableDescribe.class)));
         } else {
             tableDef.setDescription(parseDesc(tableInfo));
+        }
+
+        // index
+        IndexDescribe[] indexDescribes = entityType.getAnnotationsByType(IndexDescribe.class);
+        if (indexDescribes.length > 0) {
+            for (IndexDescribe idx : indexDescribes) {
+                String idxName = idx.name();
+                String idxComment = idx.comment();
+                String idxOther = idx.other();
+
+                List<String> columns = Arrays.stream(idx.columns()).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+                if (CollectionUtils.isEmpty(columns)) {
+                    throw new IllegalArgumentException("entityType " + entityType + " @IndexDescribe columns is empty.");
+                }
+
+                if (StringUtils.isBlank(idxName)) {
+                    throw new IllegalArgumentException("entityType " + tableDef.getTable() + " missing index name.");
+                }
+
+                IndexDef idxDef = new IndexDef();
+                idxDef.setName(idxName);
+                idxDef.setColumns(columns);
+                idxDef.setUnique(idx.unique());
+                idxDef.setComment(StringUtils.isBlank(idxComment) ? null : idxComment);
+                idxDef.setOther(StringUtils.isBlank(idxOther) ? null : idxOther);
+                tableDef.addIndexDescription(idxDef);
+            }
         }
 
         return tableDef;

@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.mapping;
 import net.hasor.dbvisitor.keyholder.sequence.JdbcKeySeqHolderFactory;
+import net.hasor.dbvisitor.mapping.def.IndexDescription;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.handler.EnumTypeHandler;
 import net.hasor.dbvisitor.types.handler.LongTypeHandler;
@@ -27,6 +28,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * TableMappingResolve 的公共方法
@@ -106,6 +110,14 @@ public class XmlEntityRegistryTest {
         assert mapping.getPropertyByName("ownerType").getDescription().getDbType().equals("varchar(64)");
         assert mapping.getPropertyByName("ownerType").getDescription().getDefault().equals("");
         assert mapping.getPropertyByName("ownerType").getDescription().getNullable();
+
+        List<IndexDescription> indexes = mapping.getIndexes();
+        Map<String, IndexDescription> idxMap = indexes.stream().collect(Collectors.toMap(IndexDescription::getName, i -> i));
+        assert idxMap.get("idx_a").getColumns().contains("gmt_modified");
+        assert idxMap.get("idx_a").getColumns().contains("instanceId");
+        assert !idxMap.get("idx_a").isUnique();
+        assert idxMap.get("uk_b").getColumns().contains("instanceId");
+        assert idxMap.get("uk_b").isUnique();
     }
 
     @Test
@@ -916,5 +928,44 @@ public class XmlEntityRegistryTest {
         assert tableMapping.getPropertyByName("gmtModified").getDescription().getComment().equals("修改时间");
         assert tableMapping.getPropertyByName("gmtModified").getDescription().getDbType().equals("timestamp");
         assert tableMapping.getPropertyByName("content").getDescription().getLength().equals("32");
+
+        List<IndexDescription> indexes = tableMapping.getIndexes();
+        Map<String, IndexDescription> idxMap = indexes.stream().collect(Collectors.toMap(IndexDescription::getName, i -> i));
+        assert idxMap.get("idx_a").getColumns().contains("gmt_modified");
+        assert idxMap.get("idx_a").getColumns().contains("instanceId");
+        assert !idxMap.get("idx_a").isUnique();
+        assert idxMap.get("uk_b").getColumns().contains("instanceId");
+        assert idxMap.get("uk_b").isUnique();
+    }
+
+    @Test
+    public void mapper2Test_7() throws ReflectiveOperationException, IOException {
+        MappingRegistry registry = new MappingRegistry();
+        registry.loadMapper("dbvisitor_coverage/dal_mapping/entity_2.xml");
+        TableMapping<BlobResourceV1> tableMapping = registry.findEntity(BlobResourceV1.class);
+
+        assert tableMapping.getDescription().getComment().equals("表备注");
+        assert tableMapping.getPropertyByName("id").getDescription().getDbType().equals("bigint");
+        assert tableMapping.getPropertyByName("id").getDescription().getComment().equals("ID列");
+        assert tableMapping.getPropertyByName("id").getDescription().getNullable() == null;
+        assert tableMapping.getPropertyByColumn("gmt_create").getDescription().getDbType().equals("timestamp");
+        assert !tableMapping.getPropertyByColumn("gmt_create").getDescription().getNullable();
+        assert tableMapping.getPropertyByColumn("gmt_create").getDescription().getDefault().equals("current_timestamp");
+        assert tableMapping.getPropertyByColumn("gmt_create").getDescription().getComment().equals("创建时间");
+        assert tableMapping.getPropertyByName("gmtModified").getDescription().getDbType().equals("timestamp");
+        assert !tableMapping.getPropertyByName("gmtModified").getDescription().getNullable();
+        assert tableMapping.getPropertyByName("gmtModified").getDescription().getDefault().equals("current_timestamp");
+        assert tableMapping.getPropertyByName("gmtModified").getDescription().getOther().equals("on update current_timestamp");
+        assert tableMapping.getPropertyByName("gmtModified").getDescription().getComment().equals("修改时间");
+        assert tableMapping.getPropertyByName("gmtModified").getDescription().getDbType().equals("timestamp");
+        assert tableMapping.getPropertyByName("content").getDescription().getLength().equals("32");
+
+        List<IndexDescription> indexes = tableMapping.getIndexes();
+        Map<String, IndexDescription> idxMap = indexes.stream().collect(Collectors.toMap(IndexDescription::getName, i -> i));
+        assert idxMap.get("idx_a").getColumns().contains("gmt_modified");
+        assert idxMap.get("idx_a").getColumns().contains("instanceId");
+        assert !idxMap.get("idx_a").isUnique();
+        assert idxMap.get("uk_b").getColumns().contains("instanceId");
+        assert idxMap.get("uk_b").isUnique();
     }
 }

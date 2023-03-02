@@ -13,5 +13,6 @@
             <column>instanceId</column>
         </index>
         <index name="idx_a" columns="gmt_modified,instanceId"/>
+        <index columns="content,owner_name"/> <!-- error -->
     </entity>
 </mapper>

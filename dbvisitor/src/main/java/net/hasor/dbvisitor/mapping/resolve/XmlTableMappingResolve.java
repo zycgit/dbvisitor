@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.resolve;
-import net.hasor.cobble.BeanUtils;
-import net.hasor.cobble.ClassUtils;
-import net.hasor.cobble.NumberUtils;
-import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.*;
 import net.hasor.cobble.convert.ConverterUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.logging.Logger;
@@ -26,10 +23,7 @@ import net.hasor.dbvisitor.keyholder.KeySeq;
 import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.keyholder.KeySeqHolderFactory;
 import net.hasor.dbvisitor.mapping.KeyTypeEnum;
-import net.hasor.dbvisitor.mapping.def.ColumnDef;
-import net.hasor.dbvisitor.mapping.def.ColumnDescDef;
-import net.hasor.dbvisitor.mapping.def.ColumnMapping;
-import net.hasor.dbvisitor.mapping.def.TableDef;
+import net.hasor.dbvisitor.mapping.def.*;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.w3c.dom.Element;
@@ -38,9 +32,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.lang.annotation.Annotation;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 通过 Xml 来解析 TableMapping
@@ -72,6 +65,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
 
     @Override
     public TableDef<?> resolveTableMapping(Node refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
+        NodeList childNodes = refData.getChildNodes();
         NamedNodeMap nodeAttributes = refData.getAttributes();
         Node typeNode = nodeAttributes.getNamedItem("type");
         Node catalogNode = nodeAttributes.getNamedItem("catalog");
@@ -125,13 +119,30 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
 
         // passer tableDef
         TableDef<?> tableDef;
-        if (hasAnyMapping(refData.getChildNodes())) {
+        if (hasAnyMapping(childNodes)) {
             // xmlNode 含有配置属性映射，仅解析 Table
             tableDef = this.classTableMappingResolve.resolveTable(tableInfo, entityType);
             loadTableMapping(tableDef, refData, classLoader, typeRegistry);
         } else {
             // xmlNode 没有配置属性映射，完整解析 Table + Column
             tableDef = this.classTableMappingResolve.resolveTableAndColumn(tableInfo, entityType, typeRegistry);
+        }
+
+        // passer index
+        boolean hasAnyIndex = false;
+        for (int i = 0, len = childNodes.getLength(); i < len; i++) {
+            Node node = childNodes.item(i);
+            if (node.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            if (!hasAnyIndex) {
+                tableDef.getIndexes().clear();// xml overwrite anno
+            }
+            hasAnyIndex = true;
+            String elementName = node.getNodeName().toLowerCase().trim();
+            if ("index".equalsIgnoreCase(elementName)) {
+                loadTableIndex(tableDef, node);
+            }
         }
         return tableDef;
     }
@@ -155,12 +166,63 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
                 columnMapping = this.resolveProperty(tableDef, true, node, propertyMap, classLoader, typeRegistry);
             } else if ("result".equalsIgnoreCase(elementName) || "mapping".equalsIgnoreCase(elementName)) {
                 columnMapping = this.resolveProperty(tableDef, false, node, propertyMap, classLoader, typeRegistry);
+            } else if ("index".equalsIgnoreCase(elementName)) {
+                continue; // ignore
             } else {
                 throw new UnsupportedOperationException("tag <" + elementName + "> Unsupported.");
             }
 
             tableDef.addMapping(columnMapping);
         }
+    }
+
+    private void loadTableIndex(TableDef<?> tableDef, Node refData) {
+        NamedNodeMap nodeAttributes = refData.getAttributes();
+        Node nameNode = nodeAttributes.getNamedItem("name");
+        Node columnsNode = nodeAttributes.getNamedItem("columns");
+        Node uniqueNode = nodeAttributes.getNamedItem("unique");
+        Node commentNode = nodeAttributes.getNamedItem("comment");
+        Node otherNode = nodeAttributes.getNamedItem("other");
+
+        String idxName = (nameNode != null) ? nameNode.getNodeValue() : null;
+        String columns = (columnsNode != null) ? columnsNode.getNodeValue() : null;
+        String idxUnique = (uniqueNode != null) ? uniqueNode.getNodeValue() : null;
+        String idxComment = (commentNode != null) ? commentNode.getNodeValue() : null;
+        String idxOther = (otherNode != null) ? otherNode.getNodeValue() : null;
+
+        if (StringUtils.isBlank(idxName)) {
+            throw new IllegalArgumentException("entityType " + tableDef.getTable() + " missing index name.");
+        }
+
+        List<String> columnList = null;
+        if (StringUtils.isNotBlank(columns)) {
+            columnList = Arrays.stream(columns.split(",")).filter(StringUtils::isNotBlank).map(String::trim).collect(Collectors.toList());
+        }
+        if (CollectionUtils.isEmpty(columnList)) {
+            columnList = new ArrayList<>();
+            NodeList columnNodes = refData.getChildNodes();
+            for (int i = 0, len = columnNodes.getLength(); i < len; i++) {
+                Node colNode = columnNodes.item(i);
+                if (colNode.getNodeType() != Node.ELEMENT_NODE || !StringUtils.equalsIgnoreCase(colNode.getNodeName(), "column")) {
+                    continue;
+                }
+                String columnName = colNode.getTextContent().trim();
+                if (StringUtils.isNotBlank(columnName)) {
+                    columnList.add(columnName);
+                }
+            }
+            if (CollectionUtils.isEmpty(columnList)) {
+                throw new IllegalArgumentException("entityType " + tableDef.getTable() + " columns is empty.");
+            }
+        }
+
+        IndexDef idxDef = new IndexDef();
+        idxDef.setName(idxName);
+        idxDef.setColumns(columnList);
+        idxDef.setUnique((Boolean) ConverterUtils.convert(idxUnique, Boolean.TYPE));
+        idxDef.setComment(StringUtils.isBlank(idxComment) ? null : idxComment);
+        idxDef.setOther(StringUtils.isBlank(idxOther) ? null : idxOther);
+        tableDef.addIndexDescription(idxDef);
     }
 
     private ColumnMapping resolveProperty(TableDef<?> tableDef, boolean asPrimaryKey, Node xmlNode, Map<String, Property> propertyMap, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {

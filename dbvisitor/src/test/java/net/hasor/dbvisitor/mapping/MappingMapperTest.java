@@ -143,4 +143,14 @@ public class MappingMapperTest {
             assert e.getMessage().startsWith("com.cc.web.constants.ResourceType, location ");
         }
     }
+
+    @Test
+    public void errorCase_6() {
+        try {
+            new DalRegistry().loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_6.xml");
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().endsWith("missing index name.");
+        }
+    }
 }

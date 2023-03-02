@@ -96,6 +96,7 @@
             <xs:sequence>
                 <xs:element name="id" minOccurs="0" maxOccurs="unbounded" type="mapping_type"/>
                 <xs:element name="mapping" minOccurs="0" maxOccurs="unbounded" type="mapping_type"/>
+                <xs:element name="index" minOccurs="0" maxOccurs="unbounded" type="index_type"/>
             </xs:sequence>
             <xs:attribute name="id"/>
             <xs:attribute name="catalog"/>
@@ -134,6 +135,17 @@
         <xs:attribute name="scale"/>
         <xs:attribute name="defaultValue"/>
         <xs:attribute name="nullable" type="boolean_type"/>
+        <xs:attribute name="other"/>
+    </xs:complexType>
+
+    <xs:complexType name="index_type">
+        <xs:sequence>
+            <xs:element name="column" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required"/>
+        <xs:attribute name="columns"/>
+        <xs:attribute name="unique" type="boolean_type"/>
+        <xs:attribute name="comment"/>
         <xs:attribute name="other"/>
     </xs:complexType>
 

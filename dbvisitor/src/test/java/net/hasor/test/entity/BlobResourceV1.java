@@ -7,6 +7,8 @@ import java.util.Date;
 
 @TableDescribe(comment = "test table")
 @Table(catalog = "master", schema = "dbo", table = "blob_resource")
+@IndexDescribe(name = "idx_a", columns = { "gmt_modified", "instanceId" })
+@IndexDescribe(name = "uk_b", columns = { "instanceId" }, unique = true)
 public class BlobResourceV1 {
 
     @ColumnDescribe(dbType = "bigint")

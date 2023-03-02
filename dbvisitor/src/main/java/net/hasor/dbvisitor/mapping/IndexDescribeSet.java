@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping.def;
+package net.hasor.dbvisitor.mapping;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
- * 表的 DDL 补充信息，用于补充生成 DDL 语句
+ * 可以标记多个索引。
  * @version : 2022-12-06
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface TableDescription {
-    /** 表备注 */
-    String getComment();
-
-    /** 在生成建表语句的时候用于拼接的其它信息，开发者可以随意指定。会在 'create table' / 'alter table' 语句生成时自动追加 */
-    String getOther();
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface IndexDescribeSet {
+    IndexDescribe[] value();
 }
