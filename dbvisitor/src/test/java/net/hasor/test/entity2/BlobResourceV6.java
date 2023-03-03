@@ -9,31 +9,31 @@ import java.util.Date;
 @Table(catalog = "master", schema = "dbo", table = "blob_resource")
 public class BlobResourceV6 {
 
-    @ColumnDescribe(dbType = "bigint")
+    @ColumnDescribe(sqlType = "bigint")
     @Column(name = "id", primary = true, keyType = KeyTypeEnum.Auto)
     private Long id;
 
-    @ColumnDescribe(dbType = "datetime", nullable = false, defaultValue = "CURRENT_TIMESTAMP")
+    @ColumnDescribe(sqlType = "datetime", nullable = false, defaultValue = "CURRENT_TIMESTAMP")
     @Column(name = "gmt_create", update = false)
     private Date gmtCreate;
 
-    @ColumnDescribe(dbType = "datetime", nullable = false, defaultValue = "CURRENT_TIMESTAMP")
+    @ColumnDescribe(sqlType = "datetime", nullable = false, defaultValue = "CURRENT_TIMESTAMP")
     @Column(name = "gmt_modified")
     private Date gmtModified;
 
-    @ColumnDescribe(dbType = "varchar(64)")
+    @ColumnDescribe(sqlType = "varchar(64)")
     @Column(name = "instanceId")
     private String instanceId;
 
-    @ColumnDescribe(dbType = "varchar(255)")
+    @ColumnDescribe(sqlType = "varchar(255)")
     @Column(name = "owner_name")
     private String ownerName;
 
-    @ColumnDescribe(dbType = "varchar(64)")
+    @ColumnDescribe(sqlType = "varchar(64)")
     @Column(name = "owner_type")
     private ResourceType ownerType;
 
-    @ColumnDescribe(dbType = "blob")
+    @ColumnDescribe(sqlType = "blob")
     @Column(name = "content")
     private byte[] content;
 

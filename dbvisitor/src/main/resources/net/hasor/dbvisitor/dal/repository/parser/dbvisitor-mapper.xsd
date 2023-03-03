@@ -94,7 +94,7 @@
     <xs:element name="entity">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="id" minOccurs="0" maxOccurs="unbounded" type="mapping_type"/>
+                <xs:element name="id" minOccurs="0" maxOccurs="unbounded" type="mapping_type_always_nonnull"/>
                 <xs:element name="mapping" minOccurs="0" maxOccurs="unbounded" type="mapping_type"/>
                 <xs:element name="index" minOccurs="0" maxOccurs="unbounded" type="index_type"/>
             </xs:sequence>
@@ -103,14 +103,43 @@
             <xs:attribute name="schema"/>
             <xs:attribute name="table" use="required"/>
             <xs:attribute name="type" use="required"/>
-            <xs:attribute name="caseInsensitive" type="boolean_type"/>
-            <xs:attribute name="mapUnderscoreToCamelCase" type="boolean_type"/>
             <xs:attribute name="autoMapping" type="boolean_type"/>
-            <!-- META -->
+            <xs:attribute name="useDelimited" type="boolean_type"/>
+            <xs:attribute name="mapUnderscoreToCamelCase" type="boolean_type"/>
+            <xs:attribute name="caseInsensitive" type="boolean_type"/>
+            <xs:attribute name="character-set"/>
+            <xs:attribute name="collation"/>
             <xs:attribute name="comment"/>
             <xs:attribute name="other"/>
         </xs:complexType>
     </xs:element>
+
+    <xs:complexType name="mapping_type_always_nonnull">
+        <xs:attribute name="column" use="required"/>
+        <xs:attribute name="property" use="required"/>
+        <xs:attribute name="javaType"/>
+        <xs:attribute name="jdbcType"/>
+        <xs:attribute name="typeHandler"/>
+        <xs:attribute name="keyType"/>
+        <xs:attribute name="insert" type="boolean_type"/>
+        <xs:attribute name="update" type="boolean_type"/>
+        <xs:attribute name="selectTemplate"/>
+        <xs:attribute name="insertTemplate"/>
+        <xs:attribute name="setColTemplate"/>
+        <xs:attribute name="setValueTemplate"/>
+        <xs:attribute name="whereColTemplate"/>
+        <xs:attribute name="whereValueTemplate"/>
+        <!-- META -->
+        <xs:attribute name="sqlType"/>
+        <xs:attribute name="length"/>
+        <xs:attribute name="precision"/>
+        <xs:attribute name="scale"/>
+        <xs:attribute name="character-set"/>
+        <xs:attribute name="collation"/>
+        <xs:attribute name="default"/>
+        <xs:attribute name="comment"/>
+        <xs:attribute name="other"/>
+    </xs:complexType>
 
     <xs:complexType name="mapping_type">
         <xs:attribute name="column" use="required"/>
@@ -128,13 +157,15 @@
         <xs:attribute name="whereColTemplate"/>
         <xs:attribute name="whereValueTemplate"/>
         <!-- META -->
-        <xs:attribute name="comment"/>
-        <xs:attribute name="dbType"/>
+        <xs:attribute name="sqlType"/>
         <xs:attribute name="length"/>
         <xs:attribute name="precision"/>
         <xs:attribute name="scale"/>
-        <xs:attribute name="defaultValue"/>
+        <xs:attribute name="character-set"/>
+        <xs:attribute name="collation"/>
         <xs:attribute name="nullable" type="boolean_type"/>
+        <xs:attribute name="default"/>
+        <xs:attribute name="comment"/>
         <xs:attribute name="other"/>
     </xs:complexType>
 

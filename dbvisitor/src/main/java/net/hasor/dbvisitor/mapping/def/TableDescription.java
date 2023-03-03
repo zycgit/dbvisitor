@@ -20,6 +20,12 @@ package net.hasor.dbvisitor.mapping.def;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface TableDescription {
+    /** 字符集 */
+    String getCharacterSet();
+
+    /** 排序规则 */
+    String getCollation();
+
     /** 表备注 */
     String getComment();
 

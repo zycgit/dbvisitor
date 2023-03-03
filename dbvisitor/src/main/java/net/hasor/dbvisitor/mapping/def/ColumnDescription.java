@@ -20,11 +20,9 @@ package net.hasor.dbvisitor.mapping.def;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface ColumnDescription {
-    /** 列备注 */
-    String getComment();
 
     /** 列数据类型 */
-    String getDbType();
+    String getSqlType();
 
     /** 长度 */
     String getLength();
@@ -35,11 +33,20 @@ public interface ColumnDescription {
     /** 小数位数 */
     String getScale();
 
+    /** 列字符集 */
+    String getCharacterSet();
+
+    /** 列排序规则 */
+    String getCollation();
+
+    /** 表示列是否允许为空 */
+    boolean isNullable();
+
     /** 列上具有的默认值 */
     String getDefault();
 
-    /** 表示列是否允许为空 */
-    Boolean getNullable();
+    /** 列备注 */
+    String getComment();
 
     /** 在生成建表语句的时候用于拼接的其它信息，开发者可以随意指定。会在 'create table' / 'alter table' 语句生成时自动追加 */
     String getOther();

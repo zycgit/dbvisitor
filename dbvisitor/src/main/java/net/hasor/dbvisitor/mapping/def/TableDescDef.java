@@ -20,8 +20,28 @@ package net.hasor.dbvisitor.mapping.def;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class TableDescDef implements TableDescription {
+    private String characterSet;
+    private String collation;
     private String comment;
     private String other;
+
+    @Override
+    public String getCharacterSet() {
+        return this.characterSet;
+    }
+
+    public void setCharacterSet(String characterSet) {
+        this.characterSet = characterSet;
+    }
+
+    @Override
+    public String getCollation() {
+        return this.collation;
+    }
+
+    public void setCollation(String collation) {
+        this.collation = collation;
+    }
 
     @Override
     public String getComment() {

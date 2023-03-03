@@ -27,11 +27,9 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ColumnDescribe {
-    /** 列备注 */
-    String comment() default "";
 
     /** 列数据类型 */
-    String dbType();
+    String sqlType();
 
     /** 长度 */
     String length() default "";
@@ -42,11 +40,20 @@ public @interface ColumnDescribe {
     /** 小数位数 */
     String scale() default "";
 
-    /** 列上具有的默认值 */
-    String defaultValue() default "";
+    /** 列字符集 */
+    String characterSet() default "";
+
+    /** 列排序规则 */
+    String collation() default "";
 
     /** 表示列是否允许为空 */
     boolean nullable() default true;
+
+    /** 列上具有的默认值 */
+    String defaultValue() default "";
+
+    /** 列备注 */
+    String comment() default "";
 
     /** 在生成建表语句的时候用于拼接的其它信息，开发者可以随意指定。会在 'create table' / 'alter table' 语句生成时自动追加 */
     String other() default "";

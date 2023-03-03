@@ -20,51 +20,45 @@ package net.hasor.dbvisitor.mapping.def;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class ColumnDescDef implements ColumnDescription {
-    private String  comment;
-    private String  dbType;
+    private String  sqlType;
     private String  length;
     private String  precision;
     private String  scale;
+    private String  characterSet;
+    private String  collation;
+    private boolean nullable;
     private String  defaultValue;
-    private Boolean nullable;
+    private String  comment;
     private String  other;
 
     public ColumnDescDef() {
 
     }
 
-    public ColumnDescDef(String comment, String dbType, String length, String precision, String scale, String defaultValue, Boolean nullable, String other) {
-        this.comment = comment;
-        this.dbType = dbType;
+    public ColumnDescDef(String sqlType, String length, String precision, String scale, String characterSet, String collation, boolean nullable, String defaultValue, String comment, String other) {
+        this.sqlType = sqlType;
         this.length = length;
         this.precision = precision;
         this.scale = scale;
-        this.defaultValue = defaultValue;
+        this.characterSet = characterSet;
+        this.collation = collation;
         this.nullable = nullable;
+        this.defaultValue = defaultValue;
+        this.comment = comment;
         this.other = other;
     }
 
-    @Override
-    public String getComment() {
-        return this.comment;
+    public String getSqlType() {
+        return sqlType;
     }
 
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
-    @Override
-    public String getDbType() {
-        return this.dbType;
-    }
-
-    public void setDbType(String dbType) {
-        this.dbType = dbType;
+    public void setSqlType(String sqlType) {
+        this.sqlType = sqlType;
     }
 
     @Override
     public String getLength() {
-        return this.length;
+        return length;
     }
 
     public void setLength(String length) {
@@ -73,7 +67,7 @@ public class ColumnDescDef implements ColumnDescription {
 
     @Override
     public String getPrecision() {
-        return this.precision;
+        return precision;
     }
 
     public void setPrecision(String precision) {
@@ -82,16 +76,39 @@ public class ColumnDescDef implements ColumnDescription {
 
     @Override
     public String getScale() {
-        return this.scale;
+        return scale;
     }
 
     public void setScale(String scale) {
         this.scale = scale;
     }
 
-    @Override
+    public String getCharacterSet() {
+        return characterSet;
+    }
+
+    public void setCharacterSet(String characterSet) {
+        this.characterSet = characterSet;
+    }
+
+    public String getCollation() {
+        return collation;
+    }
+
+    public void setCollation(String collation) {
+        this.collation = collation;
+    }
+
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
+    }
+
     public String getDefault() {
-        return this.defaultValue;
+        return defaultValue;
     }
 
     public void setDefault(String defaultValue) {
@@ -99,16 +116,17 @@ public class ColumnDescDef implements ColumnDescription {
     }
 
     @Override
-    public Boolean getNullable() {
-        return this.nullable;
+    public String getComment() {
+        return comment;
     }
 
-    public void setNullable(Boolean nullable) {
-        this.nullable = nullable;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
+    @Override
     public String getOther() {
-        return this.other;
+        return other;
     }
 
     public void setOther(String other) {

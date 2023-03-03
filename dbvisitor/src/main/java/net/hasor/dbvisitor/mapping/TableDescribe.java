@@ -27,6 +27,12 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TableDescribe {
+    /** 字符集合 */
+    String characterSet() default "";
+
+    /** 排序规则 */
+    String collation() default "";
+
     /** 表备注 */
     String comment() default "";
 

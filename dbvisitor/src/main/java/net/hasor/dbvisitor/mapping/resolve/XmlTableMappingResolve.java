@@ -63,57 +63,29 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         return false;
     }
 
+    private static String strFromXmlAttribute(NamedNodeMap nodeAttributes, String key) {
+        Node node = nodeAttributes.getNamedItem(key);
+        return (node != null) ? node.getNodeValue() : null;
+    }
+
     @Override
     public TableDef<?> resolveTableMapping(Node refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
         NodeList childNodes = refData.getChildNodes();
         NamedNodeMap nodeAttributes = refData.getAttributes();
-        Node typeNode = nodeAttributes.getNamedItem("type");
-        Node catalogNode = nodeAttributes.getNamedItem("catalog");
-        Node schemaNode = nodeAttributes.getNamedItem("schema");
-        Node tableNode = nodeAttributes.getNamedItem("table");
-        Node caseInsensitiveNode = nodeAttributes.getNamedItem("caseInsensitive");
-        Node mapUnderscoreToCamelCaseNode = nodeAttributes.getNamedItem("mapUnderscoreToCamelCase");
-        Node autoMappingNode = nodeAttributes.getNamedItem("autoMapping");
-        Node commentNode = nodeAttributes.getNamedItem("comment");
-        Node otherNode = nodeAttributes.getNamedItem("other");
-
-        String type = (typeNode != null) ? typeNode.getNodeValue() : null;
-        String catalogName = (schemaNode != null) ? catalogNode.getNodeValue() : null;
-        String schemaName = (schemaNode != null) ? schemaNode.getNodeValue() : null;
-        String tableName = (tableNode != null) ? tableNode.getNodeValue() : null;
-        String caseInsensitive = (caseInsensitiveNode != null) ? caseInsensitiveNode.getNodeValue() : null;
-        String mapUnderscoreToCamelCase = (mapUnderscoreToCamelCaseNode != null) ? mapUnderscoreToCamelCaseNode.getNodeValue() : null;
-        String autoMapping = (autoMappingNode != null) ? autoMappingNode.getNodeValue() : null;
-        String comment = (commentNode != null) ? commentNode.getNodeValue() : null;
-        String other = (otherNode != null) ? otherNode.getNodeValue() : null;
-
         // overwrite data
-        Class<?> entityType = classLoader.loadClass(type);
+        Class<?> entityType = classLoader.loadClass(strFromXmlAttribute(nodeAttributes, "type"));
         Map<String, String> overwriteData = new HashMap<>();
-        if (catalogName != null) {
-            overwriteData.put("catalog", catalogName);
-        }
-        if (schemaName != null) {
-            overwriteData.put("schema", schemaName);
-        }
-        if (tableName != null) {
-            overwriteData.put("table", tableName);
-        }
-        if (caseInsensitive != null) {
-            overwriteData.put("caseInsensitive", caseInsensitive);
-        }
-        if (mapUnderscoreToCamelCase != null) {
-            overwriteData.put("mapUnderscoreToCamelCase", mapUnderscoreToCamelCase);
-        }
-        if (autoMapping != null) {
-            overwriteData.put("autoMapping", autoMapping);
-        }
-        if (comment != null) {
-            overwriteData.put("comment", comment);
-        }
-        if (other != null) {
-            overwriteData.put("other", other);
-        }
+        overwriteData.compute("catalog", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "catalog"));
+        overwriteData.compute("schema", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "schema"));
+        overwriteData.compute("table", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "table"));
+        overwriteData.compute("autoMapping", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "autoMapping"));
+        overwriteData.compute("useDelimited", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "useDelimited"));
+        overwriteData.compute("mapUnderscoreToCamelCase", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "mapUnderscoreToCamelCase"));
+        overwriteData.compute("caseInsensitive", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "caseInsensitive"));
+        overwriteData.compute("character-set", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "character-set"));
+        overwriteData.compute("collation", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "collation"));
+        overwriteData.compute("comment", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "comment"));
+        overwriteData.compute("other", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "other"));
 
         TableDefaultInfo tableInfo = fetchDefaultInfoByEntity(classLoader, entityType, this.options, overwriteData);
 
@@ -178,17 +150,11 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
 
     private void loadTableIndex(TableDef<?> tableDef, Node refData) {
         NamedNodeMap nodeAttributes = refData.getAttributes();
-        Node nameNode = nodeAttributes.getNamedItem("name");
-        Node columnsNode = nodeAttributes.getNamedItem("columns");
-        Node uniqueNode = nodeAttributes.getNamedItem("unique");
-        Node commentNode = nodeAttributes.getNamedItem("comment");
-        Node otherNode = nodeAttributes.getNamedItem("other");
-
-        String idxName = (nameNode != null) ? nameNode.getNodeValue() : null;
-        String columns = (columnsNode != null) ? columnsNode.getNodeValue() : null;
-        String idxUnique = (uniqueNode != null) ? uniqueNode.getNodeValue() : null;
-        String idxComment = (commentNode != null) ? commentNode.getNodeValue() : null;
-        String idxOther = (otherNode != null) ? otherNode.getNodeValue() : null;
+        String idxName = strFromXmlAttribute(nodeAttributes, "name");
+        String columns = strFromXmlAttribute(nodeAttributes, "columns");
+        String idxUnique = strFromXmlAttribute(nodeAttributes, "unique");
+        String idxComment = strFromXmlAttribute(nodeAttributes, "comment");
+        String idxOther = strFromXmlAttribute(nodeAttributes, "other");
 
         if (StringUtils.isBlank(idxName)) {
             throw new IllegalArgumentException("entityType " + tableDef.getTable() + " missing index name.");
@@ -227,35 +193,31 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
 
     private ColumnMapping resolveProperty(TableDef<?> tableDef, boolean asPrimaryKey, Node xmlNode, Map<String, Property> propertyMap, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
         NamedNodeMap nodeAttributes = xmlNode.getAttributes();
-        Node columnNode = nodeAttributes.getNamedItem("column");
-        Node propertyNode = nodeAttributes.getNamedItem("property");
-        Node javaTypeNode = nodeAttributes.getNamedItem("javaType");
-        Node jdbcTypeNode = nodeAttributes.getNamedItem("jdbcType");
-        Node typeHandlerNode = nodeAttributes.getNamedItem("typeHandler");
-        Node keyTypeNode = nodeAttributes.getNamedItem("keyType");
-        Node insertNode = nodeAttributes.getNamedItem("insert");
-        Node updateNode = nodeAttributes.getNamedItem("update");
-        Node selectTemplateNode = nodeAttributes.getNamedItem("selectTemplate");
-        Node insertTemplateNode = nodeAttributes.getNamedItem("insertTemplate");
-        Node setColTemplateNode = nodeAttributes.getNamedItem("setColTemplate");
-        Node setValueTemplateNode = nodeAttributes.getNamedItem("setValueTemplate");
-        Node whereColTemplateNode = nodeAttributes.getNamedItem("whereColTemplate");
-        Node whereValueTemplateNode = nodeAttributes.getNamedItem("whereValueTemplate");
-        Node commentNode = nodeAttributes.getNamedItem("comment");
-        Node dbTypeNode = nodeAttributes.getNamedItem("dbType");
-        Node lengthNode = nodeAttributes.getNamedItem("length");
-        Node precisionNode = nodeAttributes.getNamedItem("precision");
-        Node scaleNode = nodeAttributes.getNamedItem("scale");
-        Node defaultValueNode = nodeAttributes.getNamedItem("defaultValue");
-        Node nullableNode = nodeAttributes.getNamedItem("nullable");
-        Node otherNode = nodeAttributes.getNamedItem("other");
+        String column = strFromXmlAttribute(nodeAttributes, "column");
+        String property = strFromXmlAttribute(nodeAttributes, "property");
+        String javaType = strFromXmlAttribute(nodeAttributes, "javaType");
+        String jdbcType = strFromXmlAttribute(nodeAttributes, "jdbcType");
+        String typeHandler = strFromXmlAttribute(nodeAttributes, "typeHandler");
+        String keyType = strFromXmlAttribute(nodeAttributes, "keyType");
+        String insertStr = strFromXmlAttribute(nodeAttributes, "insert");
+        String updateStr = strFromXmlAttribute(nodeAttributes, "update");
+        String selectTemplate = strFromXmlAttribute(nodeAttributes, "selectTemplate");
+        String insertTemplate = strFromXmlAttribute(nodeAttributes, "insertTemplate");
+        String setColTemplate = strFromXmlAttribute(nodeAttributes, "setColTemplate");
+        String setValueTemplate = strFromXmlAttribute(nodeAttributes, "setValueTemplate");
+        String whereColTemplate = strFromXmlAttribute(nodeAttributes, "whereColTemplate");
+        String whereValueTemplate = strFromXmlAttribute(nodeAttributes, "whereValueTemplate");
+        String sqlType = strFromXmlAttribute(nodeAttributes, "sqlType");
+        String length = strFromXmlAttribute(nodeAttributes, "length");
+        String precision = strFromXmlAttribute(nodeAttributes, "precision");
+        String scale = strFromXmlAttribute(nodeAttributes, "scale");
+        String characterSet = strFromXmlAttribute(nodeAttributes, "character-set");
+        String collation = strFromXmlAttribute(nodeAttributes, "collation");
+        String nullableStr = strFromXmlAttribute(nodeAttributes, "nullable");
+        String defaultValue = strFromXmlAttribute(nodeAttributes, "default");
+        String comment = strFromXmlAttribute(nodeAttributes, "comment");
+        String other = strFromXmlAttribute(nodeAttributes, "other");
 
-        String column = (columnNode != null) ? columnNode.getNodeValue() : null;
-        String property = (propertyNode != null) ? propertyNode.getNodeValue() : null;
-        String javaType = (javaTypeNode != null) ? javaTypeNode.getNodeValue() : null;
-        String jdbcType = (jdbcTypeNode != null) ? jdbcTypeNode.getNodeValue() : null;
-        String typeHandler = (typeHandlerNode != null) ? typeHandlerNode.getNodeValue() : null;
-        String keyType = (keyTypeNode != null) ? keyTypeNode.getNodeValue() : null;
         if (!propertyMap.containsKey(property)) {
             throw new NoSuchFieldException("property '" + property + "' undefined. location= " + logMessage(xmlNode));
         }
@@ -264,30 +226,18 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         Class<?> columnJavaType = resolveJavaType(xmlNode, javaType, propertyHandler, classLoader);
         Integer columnJdbcType = resolveJdbcType(jdbcType, columnJavaType, typeRegistry);
         TypeHandler<?> columnTypeHandler = resolveTypeHandler(columnJavaType, columnJdbcType, classLoader, typeHandler, typeRegistry);
-        boolean insert = insertNode == null || StringUtils.isBlank(insertNode.getNodeValue()) || Boolean.parseBoolean(insertNode.getNodeValue());
-        boolean update = updateNode == null || StringUtils.isBlank(updateNode.getNodeValue()) || Boolean.parseBoolean(updateNode.getNodeValue());
-        String selectTemplate = (selectTemplateNode != null) ? selectTemplateNode.getNodeValue() : null;
-        String insertTemplate = (insertTemplateNode != null) ? insertTemplateNode.getNodeValue() : null;
-        String setColTemplate = (setColTemplateNode != null) ? setColTemplateNode.getNodeValue() : null;
-        String setValueTemplate = (setValueTemplateNode != null) ? setValueTemplateNode.getNodeValue() : null;
-        String whereColTemplate = (whereColTemplateNode != null) ? whereColTemplateNode.getNodeValue() : null;
-        String whereValueTemplate = (whereValueTemplateNode != null) ? whereValueTemplateNode.getNodeValue() : null;
-        String comment = (commentNode != null) ? commentNode.getNodeValue() : null;
-        String dbType = (dbTypeNode != null) ? dbTypeNode.getNodeValue() : null;
-        String length = (lengthNode != null) ? lengthNode.getNodeValue() : null;
-        String precision = (precisionNode != null) ? precisionNode.getNodeValue() : null;
-        String scale = (scaleNode != null) ? scaleNode.getNodeValue() : null;
-        String defaultValue = (defaultValueNode != null) ? defaultValueNode.getNodeValue() : null;
-        Boolean nullable = (nullableNode != null) ? (Boolean) ConverterUtils.convert(nullableNode.getNodeValue(), Boolean.TYPE) : null;
-        String other = (otherNode != null) ? otherNode.getNodeValue() : null;
+        boolean insert = StringUtils.isBlank(insertStr) || Boolean.parseBoolean(insertStr);
+        boolean update = StringUtils.isBlank(updateStr) || Boolean.parseBoolean(updateStr);
+        boolean nullable = StringUtils.isBlank(nullableStr) || Boolean.parseBoolean(updateStr);
 
         ColumnDef colDef = new ColumnDef(column, property, columnJdbcType, columnJavaType, columnTypeHandler, propertyHandler, insert, update, asPrimaryKey,//
                 selectTemplate, insertTemplate, setColTemplate, setValueTemplate, whereColTemplate, whereValueTemplate);
 
-        if (comment == null && dbType == null && length == null && precision == null && scale == null && defaultValue == null && nullable == null && other == null) {
+        if (sqlType == null && length == null && precision == null && scale == null && characterSet == null && collation == null && defaultValue == null && comment == null && other == null) {
             colDef.setDescription(null);
         } else {
-            colDef.setDescription(new ColumnDescDef(comment, dbType, length, precision, scale, defaultValue, nullable, other));
+            nullable = !asPrimaryKey && nullable;
+            colDef.setDescription(new ColumnDescDef(sqlType, length, precision, scale, characterSet, collation, nullable, defaultValue, comment, other));
         }
 
         // init KeySeqHolder

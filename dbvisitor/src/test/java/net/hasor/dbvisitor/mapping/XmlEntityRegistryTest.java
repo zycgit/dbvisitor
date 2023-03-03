@@ -72,8 +72,8 @@ public class XmlEntityRegistryTest {
         assert mapping.getPropertyByName("id").getKeySeqHolder() != null;
         assert mapping.getPropertyByName("id").getKeySeqHolder().getClass() == new JdbcKeySeqHolderFactory().createHolder(null).getClass();
         assert mapping.getPropertyByName("id").getColumn().equals("id");
-        assert mapping.getPropertyByName("id").getDescription().getDbType().equals("bigint");
-        assert mapping.getPropertyByName("id").getDescription().getNullable();
+        assert mapping.getPropertyByName("id").getDescription().getSqlType().equals("bigint");
+        assert mapping.getPropertyByName("id").getDescription().isNullable();
 
         assert mapping.getPropertyByName("gmtCreate") != null;
         assert !mapping.getPropertyByName("gmtCreate").isPrimaryKey();
@@ -83,9 +83,9 @@ public class XmlEntityRegistryTest {
         assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmt_create");
-        assert mapping.getPropertyByName("gmtCreate").getDescription().getDbType().equals("datetime");
+        assert mapping.getPropertyByName("gmtCreate").getDescription().getSqlType().equals("datetime");
         assert mapping.getPropertyByName("gmtCreate").getDescription().getDefault().equals("CURRENT_TIMESTAMP");
-        assert !mapping.getPropertyByName("gmtCreate").getDescription().getNullable();
+        assert !mapping.getPropertyByName("gmtCreate").getDescription().isNullable();
 
         assert mapping.getPropertyByName("ownerName") != null;
         assert !mapping.getPropertyByName("ownerName").isPrimaryKey();
@@ -95,9 +95,9 @@ public class XmlEntityRegistryTest {
         assert mapping.getPropertyByName("ownerName").getTypeHandler().getClass() == StringTypeHandler.class;
         assert mapping.getPropertyByName("ownerName").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("ownerName").getColumn().equals("owner_name");
-        assert mapping.getPropertyByName("ownerName").getDescription().getDbType().equals("varchar(255)");
+        assert mapping.getPropertyByName("ownerName").getDescription().getSqlType().equals("varchar(255)");
         assert mapping.getPropertyByName("ownerName").getDescription().getDefault().equals("");
-        assert mapping.getPropertyByName("ownerName").getDescription().getNullable();
+        assert mapping.getPropertyByName("ownerName").getDescription().isNullable();
 
         assert mapping.getPropertyByName("ownerType") != null;
         assert !mapping.getPropertyByName("ownerType").isPrimaryKey();
@@ -107,9 +107,9 @@ public class XmlEntityRegistryTest {
         assert mapping.getPropertyByName("ownerType").getTypeHandler().getClass() == EnumTypeHandler.class;
         assert mapping.getPropertyByName("ownerType").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("ownerType").getColumn().equals("owner_type");
-        assert mapping.getPropertyByName("ownerType").getDescription().getDbType().equals("varchar(64)");
+        assert mapping.getPropertyByName("ownerType").getDescription().getSqlType().equals("varchar(64)");
         assert mapping.getPropertyByName("ownerType").getDescription().getDefault().equals("");
-        assert mapping.getPropertyByName("ownerType").getDescription().getNullable();
+        assert mapping.getPropertyByName("ownerType").getDescription().isNullable();
 
         List<IndexDescription> indexes = mapping.getIndexes();
         Map<String, IndexDescription> idxMap = indexes.stream().collect(Collectors.toMap(IndexDescription::getName, i -> i));
@@ -415,8 +415,8 @@ public class XmlEntityRegistryTest {
         assert mapping.getPropertyByName("id").getKeySeqHolder() != null;
         assert mapping.getPropertyByName("id").getKeySeqHolder().getClass() == new JdbcKeySeqHolderFactory().createHolder(null).getClass();
         assert mapping.getPropertyByName("id").getColumn().equals("id");
-        assert mapping.getPropertyByName("id").getDescription().getDbType().equals("bigint");
-        assert mapping.getPropertyByName("id").getDescription().getNullable();
+        assert mapping.getPropertyByName("id").getDescription().getSqlType().equals("bigint");
+        assert mapping.getPropertyByName("id").getDescription().isNullable();
 
         assert mapping.getPropertyByName("gmtCreate") != null;
         assert !mapping.getPropertyByName("gmtCreate").isPrimaryKey();
@@ -426,9 +426,9 @@ public class XmlEntityRegistryTest {
         assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmt_create");
-        assert mapping.getPropertyByName("gmtCreate").getDescription().getDbType().equals("datetime");
+        assert mapping.getPropertyByName("gmtCreate").getDescription().getSqlType().equals("datetime");
         assert mapping.getPropertyByName("gmtCreate").getDescription().getDefault().equals("CURRENT_TIMESTAMP");
-        assert !mapping.getPropertyByName("gmtCreate").getDescription().getNullable();
+        assert !mapping.getPropertyByName("gmtCreate").getDescription().isNullable();
 
         assert mapping.getPropertyByName("ownerName") != null;
         assert !mapping.getPropertyByName("ownerName").isPrimaryKey();
@@ -438,9 +438,9 @@ public class XmlEntityRegistryTest {
         assert mapping.getPropertyByName("ownerName").getTypeHandler().getClass() == StringTypeHandler.class;
         assert mapping.getPropertyByName("ownerName").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("ownerName").getColumn().equals("owner_name");
-        assert mapping.getPropertyByName("ownerName").getDescription().getDbType().equals("varchar(255)");
+        assert mapping.getPropertyByName("ownerName").getDescription().getSqlType().equals("varchar(255)");
         assert mapping.getPropertyByName("ownerName").getDescription().getDefault().equals("");
-        assert mapping.getPropertyByName("ownerName").getDescription().getNullable();
+        assert mapping.getPropertyByName("ownerName").getDescription().isNullable();
 
         assert mapping.getPropertyByName("ownerType") != null;
         assert !mapping.getPropertyByName("ownerType").isPrimaryKey();
@@ -450,9 +450,9 @@ public class XmlEntityRegistryTest {
         assert mapping.getPropertyByName("ownerType").getTypeHandler().getClass() == EnumTypeHandler.class;
         assert mapping.getPropertyByName("ownerType").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("ownerType").getColumn().equals("owner_type");
-        assert mapping.getPropertyByName("ownerType").getDescription().getDbType().equals("varchar(64)");
+        assert mapping.getPropertyByName("ownerType").getDescription().getSqlType().equals("varchar(64)");
         assert mapping.getPropertyByName("ownerType").getDescription().getDefault().equals("");
-        assert mapping.getPropertyByName("ownerType").getDescription().getNullable();
+        assert mapping.getPropertyByName("ownerType").getDescription().isNullable();
 
     }
 
@@ -914,20 +914,22 @@ public class XmlEntityRegistryTest {
         TableMapping<BlobResourceV5> tableMapping = registry.findEntity(BlobResourceV5.class);
 
         assert tableMapping.getDescription().getComment().equals("表备注");
-        assert tableMapping.getPropertyByName("id").getDescription().getDbType().equals("bigint");
+        assert tableMapping.getPropertyByName("id").getDescription().getSqlType().equals("bigint");
         assert tableMapping.getPropertyByName("id").getDescription().getComment().equals("ID列");
-        assert tableMapping.getPropertyByName("id").getDescription().getNullable() == null;
-        assert tableMapping.getPropertyByColumn("gmt_create").getDescription().getDbType().equals("timestamp");
-        assert !tableMapping.getPropertyByColumn("gmt_create").getDescription().getNullable();
+        assert !tableMapping.getPropertyByName("id").getDescription().isNullable();
+        assert tableMapping.getPropertyByColumn("gmt_create").getDescription().getSqlType().equals("timestamp");
+        assert !tableMapping.getPropertyByColumn("gmt_create").getDescription().isNullable();
         assert tableMapping.getPropertyByColumn("gmt_create").getDescription().getDefault().equals("current_timestamp");
         assert tableMapping.getPropertyByColumn("gmt_create").getDescription().getComment().equals("创建时间");
-        assert tableMapping.getPropertyByName("gmtModified").getDescription().getDbType().equals("timestamp");
-        assert !tableMapping.getPropertyByName("gmtModified").getDescription().getNullable();
+        assert tableMapping.getPropertyByName("gmtModified").getDescription().getSqlType().equals("timestamp");
+        assert !tableMapping.getPropertyByName("gmtModified").getDescription().isNullable();
         assert tableMapping.getPropertyByName("gmtModified").getDescription().getDefault().equals("current_timestamp");
         assert tableMapping.getPropertyByName("gmtModified").getDescription().getOther().equals("on update current_timestamp");
         assert tableMapping.getPropertyByName("gmtModified").getDescription().getComment().equals("修改时间");
-        assert tableMapping.getPropertyByName("gmtModified").getDescription().getDbType().equals("timestamp");
+        assert tableMapping.getPropertyByName("gmtModified").getDescription().getSqlType().equals("timestamp");
         assert tableMapping.getPropertyByName("content").getDescription().getLength().equals("32");
+        assert tableMapping.getPropertyByName("instanceId").getDescription().getCharacterSet().equals("utf-8");
+        assert tableMapping.getPropertyByName("instanceId").getDescription().getCollation().equals("abc");
 
         List<IndexDescription> indexes = tableMapping.getIndexes();
         Map<String, IndexDescription> idxMap = indexes.stream().collect(Collectors.toMap(IndexDescription::getName, i -> i));
@@ -945,19 +947,19 @@ public class XmlEntityRegistryTest {
         TableMapping<BlobResourceV1> tableMapping = registry.findEntity(BlobResourceV1.class);
 
         assert tableMapping.getDescription().getComment().equals("表备注");
-        assert tableMapping.getPropertyByName("id").getDescription().getDbType().equals("bigint");
+        assert tableMapping.getPropertyByName("id").getDescription().getSqlType().equals("bigint");
         assert tableMapping.getPropertyByName("id").getDescription().getComment().equals("ID列");
-        assert tableMapping.getPropertyByName("id").getDescription().getNullable() == null;
-        assert tableMapping.getPropertyByColumn("gmt_create").getDescription().getDbType().equals("timestamp");
-        assert !tableMapping.getPropertyByColumn("gmt_create").getDescription().getNullable();
+        assert !tableMapping.getPropertyByName("id").getDescription().isNullable();
+        assert tableMapping.getPropertyByColumn("gmt_create").getDescription().getSqlType().equals("timestamp");
+        assert !tableMapping.getPropertyByColumn("gmt_create").getDescription().isNullable();
         assert tableMapping.getPropertyByColumn("gmt_create").getDescription().getDefault().equals("current_timestamp");
         assert tableMapping.getPropertyByColumn("gmt_create").getDescription().getComment().equals("创建时间");
-        assert tableMapping.getPropertyByName("gmtModified").getDescription().getDbType().equals("timestamp");
-        assert !tableMapping.getPropertyByName("gmtModified").getDescription().getNullable();
+        assert tableMapping.getPropertyByName("gmtModified").getDescription().getSqlType().equals("timestamp");
+        assert !tableMapping.getPropertyByName("gmtModified").getDescription().isNullable();
         assert tableMapping.getPropertyByName("gmtModified").getDescription().getDefault().equals("current_timestamp");
         assert tableMapping.getPropertyByName("gmtModified").getDescription().getOther().equals("on update current_timestamp");
         assert tableMapping.getPropertyByName("gmtModified").getDescription().getComment().equals("修改时间");
-        assert tableMapping.getPropertyByName("gmtModified").getDescription().getDbType().equals("timestamp");
+        assert tableMapping.getPropertyByName("gmtModified").getDescription().getSqlType().equals("timestamp");
         assert tableMapping.getPropertyByName("content").getDescription().getLength().equals("32");
 
         List<IndexDescription> indexes = tableMapping.getIndexes();

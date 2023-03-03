@@ -67,6 +67,8 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         String catalog = tableInfo.catalog();
         String schema = tableInfo.schema();
         String table = StringUtils.isNotBlank(tableInfo.table()) ? tableInfo.table() : StringUtils.isNotBlank(tableInfo.value()) ? tableInfo.value() : "";
+        String characterSet = tableInfo.characterSet();
+        String collation = tableInfo.collation();
         String comment = tableInfo.comment();
         String other = tableInfo.other();
 
@@ -79,7 +81,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         TableDef<?> tableDef = new TableDef<>(catalog, schema, table, entityType, autoProperty, useDelimited, caseInsensitive, camelCase, dialect);
 
         // desc
-        if (StringUtils.isBlank(comment) && StringUtils.isBlank(other)) {
+        if (StringUtils.isBlank(characterSet) && StringUtils.isBlank(collation) && StringUtils.isBlank(comment) && StringUtils.isBlank(other)) {
             tableDef.setDescription(parseDesc(entityType.getAnnotation(TableDescribe.class)));
         } else {
             tableDef.setDescription(parseDesc(tableInfo));
@@ -204,6 +206,8 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         }
 
         TableDescDef descDef = new TableDescDef();
+        descDef.setCharacterSet(tableDesc.characterSet());
+        descDef.setCollation(tableDesc.collation());
         descDef.setComment(tableDesc.comment());
         descDef.setOther(tableDesc.other());
         return descDef;
@@ -215,13 +219,16 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         }
 
         ColumnDescDef descDef = new ColumnDescDef();
-        descDef.setComment(columnDesc.comment());
-        descDef.setDbType(columnDesc.dbType());
+        descDef.setSqlType(columnDesc.sqlType());
         descDef.setLength(columnDesc.length());
         descDef.setPrecision(columnDesc.precision());
         descDef.setScale(columnDesc.scale());
-        descDef.setDefault(columnDesc.defaultValue());
+        descDef.setCharacterSet(columnDesc.characterSet());
+        descDef.setCollation(columnDesc.collation());
+        descDef.setScale(columnDesc.scale());
         descDef.setNullable(columnDesc.nullable());
+        descDef.setDefault(columnDesc.defaultValue());
+        descDef.setComment(columnDesc.comment());
         descDef.setOther(columnDesc.other());
         return descDef;
     }

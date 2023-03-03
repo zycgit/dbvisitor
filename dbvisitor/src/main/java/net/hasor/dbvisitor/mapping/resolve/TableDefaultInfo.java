@@ -41,6 +41,8 @@ class TableDefaultInfo implements TableDefault, Table, TableDescribe {
     private final SqlDialect dialect;
     private final String     dialectName;
     //
+    private final String     characterSet;
+    private final String     collation;
     private final String     comment;
     private final String     other;
 
@@ -52,12 +54,14 @@ class TableDefaultInfo implements TableDefault, Table, TableDescribe {
             table = attrMaps.get("table");
         }
         String autoMapping = attrMaps.get("autoMapping");
-        String mapUnderscoreToCamelCase = attrMaps.get("mapUnderscoreToCamelCase");
         String useDelimited = attrMaps.get("useDelimited");
+        String mapUnderscoreToCamelCase = attrMaps.get("mapUnderscoreToCamelCase");
         String caseInsensitive = attrMaps.get("caseInsensitive");
+        String characterSet = attrMaps.get("character-set");
+        String collation = attrMaps.get("collation");
+        String comment = attrMaps.get("comment");
+        String other = attrMaps.get("other");
         String dialect = attrMaps.get("dialect");
-        this.comment = attrMaps.get("comment");
-        this.other = attrMaps.get("other");
 
         this.catalog = (catalog == null) ? "" : catalog;
         this.schema = (schema == null) ? "" : schema;
@@ -69,16 +73,16 @@ class TableDefaultInfo implements TableDefault, Table, TableDescribe {
             this.autoMapping = options.getAutoMapping() == null || options.getAutoMapping();
         }
 
-        if (StringUtils.isNotBlank(mapUnderscoreToCamelCase)) {
-            this.mapUnderscoreToCamelCase = Boolean.parseBoolean(mapUnderscoreToCamelCase);
-        } else {
-            this.mapUnderscoreToCamelCase = Boolean.TRUE.equals(options.getMapUnderscoreToCamelCase());
-        }
-
         if (StringUtils.isNotBlank(useDelimited)) {
             this.useDelimited = Boolean.parseBoolean(useDelimited);
         } else {
             this.useDelimited = Boolean.TRUE.equals(options.getUseDelimited());
+        }
+
+        if (StringUtils.isNotBlank(mapUnderscoreToCamelCase)) {
+            this.mapUnderscoreToCamelCase = Boolean.parseBoolean(mapUnderscoreToCamelCase);
+        } else {
+            this.mapUnderscoreToCamelCase = Boolean.TRUE.equals(options.getMapUnderscoreToCamelCase());
         }
 
         if (StringUtils.isNotBlank(caseInsensitive)) {
@@ -86,6 +90,11 @@ class TableDefaultInfo implements TableDefault, Table, TableDescribe {
         } else {
             this.caseInsensitive = options.getCaseInsensitive() == null || options.getCaseInsensitive();
         }
+
+        this.characterSet = characterSet;
+        this.collation = collation;
+        this.comment = comment;
+        this.other = other;
 
         if (StringUtils.isNotBlank(dialect)) {
             this.dialect = SqlDialectRegister.findOrCreate(dialect, classLoader);
@@ -148,6 +157,16 @@ class TableDefaultInfo implements TableDefault, Table, TableDescribe {
     @Override
     public Class<? extends Annotation> annotationType() {
         return Table.class;
+    }
+
+    @Override
+    public String characterSet() {
+        return this.characterSet;
+    }
+
+    @Override
+    public String collation() {
+        return this.collation;
     }
 
     @Override

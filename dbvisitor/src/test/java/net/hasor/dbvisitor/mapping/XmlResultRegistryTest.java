@@ -67,8 +67,8 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("id").getKeySeqHolder() != null;
         assert mapping.getPropertyByName("id").getKeySeqHolder().getClass() == new JdbcKeySeqHolderFactory().createHolder(null).getClass();
         assert mapping.getPropertyByName("id").getColumn().equals("id");
-        assert mapping.getPropertyByName("id").getDescription().getDbType().equals("bigint");
-        assert mapping.getPropertyByName("id").getDescription().getNullable();
+        assert mapping.getPropertyByName("id").getDescription().getSqlType().equals("bigint");
+        assert mapping.getPropertyByName("id").getDescription().isNullable();
 
         assert mapping.getPropertyByName("gmtCreate") != null;
         assert !mapping.getPropertyByName("gmtCreate").isPrimaryKey();
@@ -78,9 +78,9 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmt_create");
-        assert mapping.getPropertyByName("gmtCreate").getDescription().getDbType().equals("datetime");
+        assert mapping.getPropertyByName("gmtCreate").getDescription().getSqlType().equals("datetime");
         assert mapping.getPropertyByName("gmtCreate").getDescription().getDefault().equals("CURRENT_TIMESTAMP");
-        assert !mapping.getPropertyByName("gmtCreate").getDescription().getNullable();
+        assert !mapping.getPropertyByName("gmtCreate").getDescription().isNullable();
 
         assert mapping.getPropertyByName("ownerName") != null;
         assert !mapping.getPropertyByName("ownerName").isPrimaryKey();
@@ -90,9 +90,9 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("ownerName").getTypeHandler().getClass() == StringTypeHandler.class;
         assert mapping.getPropertyByName("ownerName").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("ownerName").getColumn().equals("owner_name");
-        assert mapping.getPropertyByName("ownerName").getDescription().getDbType().equals("varchar(255)");
+        assert mapping.getPropertyByName("ownerName").getDescription().getSqlType().equals("varchar(255)");
         assert mapping.getPropertyByName("ownerName").getDescription().getDefault().equals("");
-        assert mapping.getPropertyByName("ownerName").getDescription().getNullable();
+        assert mapping.getPropertyByName("ownerName").getDescription().isNullable();
 
         assert mapping.getPropertyByName("ownerType") != null;
         assert !mapping.getPropertyByName("ownerType").isPrimaryKey();
@@ -102,9 +102,9 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("ownerType").getTypeHandler().getClass() == EnumTypeHandler.class;
         assert mapping.getPropertyByName("ownerType").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("ownerType").getColumn().equals("owner_type");
-        assert mapping.getPropertyByName("ownerType").getDescription().getDbType().equals("varchar(64)");
+        assert mapping.getPropertyByName("ownerType").getDescription().getSqlType().equals("varchar(64)");
         assert mapping.getPropertyByName("ownerType").getDescription().getDefault().equals("");
-        assert mapping.getPropertyByName("ownerType").getDescription().getNullable();
+        assert mapping.getPropertyByName("ownerType").getDescription().isNullable();
     }
 
     @Test
@@ -402,8 +402,8 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("id").getKeySeqHolder() != null;
         assert mapping.getPropertyByName("id").getKeySeqHolder().getClass() == new JdbcKeySeqHolderFactory().createHolder(null).getClass();
         assert mapping.getPropertyByName("id").getColumn().equals("id");
-        assert mapping.getPropertyByName("id").getDescription().getDbType().equals("bigint");
-        assert mapping.getPropertyByName("id").getDescription().getNullable();
+        assert mapping.getPropertyByName("id").getDescription().getSqlType().equals("bigint");
+        assert mapping.getPropertyByName("id").getDescription().isNullable();
 
         assert mapping.getPropertyByName("gmtCreate") != null;
         assert !mapping.getPropertyByName("gmtCreate").isPrimaryKey();
@@ -413,9 +413,9 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("gmtCreate").getTypeHandler().getClass() == SqlTimestampAsDateTypeHandler.class;
         assert mapping.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("gmtCreate").getColumn().equals("gmt_create");
-        assert mapping.getPropertyByName("gmtCreate").getDescription().getDbType().equals("datetime");
+        assert mapping.getPropertyByName("gmtCreate").getDescription().getSqlType().equals("datetime");
         assert mapping.getPropertyByName("gmtCreate").getDescription().getDefault().equals("CURRENT_TIMESTAMP");
-        assert !mapping.getPropertyByName("gmtCreate").getDescription().getNullable();
+        assert !mapping.getPropertyByName("gmtCreate").getDescription().isNullable();
 
         assert mapping.getPropertyByName("ownerName") != null;
         assert !mapping.getPropertyByName("ownerName").isPrimaryKey();
@@ -425,9 +425,9 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("ownerName").getTypeHandler().getClass() == StringTypeHandler.class;
         assert mapping.getPropertyByName("ownerName").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("ownerName").getColumn().equals("owner_name");
-        assert mapping.getPropertyByName("ownerName").getDescription().getDbType().equals("varchar(255)");
+        assert mapping.getPropertyByName("ownerName").getDescription().getSqlType().equals("varchar(255)");
         assert mapping.getPropertyByName("ownerName").getDescription().getDefault().equals("");
-        assert mapping.getPropertyByName("ownerName").getDescription().getNullable();
+        assert mapping.getPropertyByName("ownerName").getDescription().isNullable();
 
         assert mapping.getPropertyByName("ownerType") != null;
         assert !mapping.getPropertyByName("ownerType").isPrimaryKey();
@@ -437,9 +437,9 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("ownerType").getTypeHandler().getClass() == EnumTypeHandler.class;
         assert mapping.getPropertyByName("ownerType").getKeySeqHolder() == null;
         assert mapping.getPropertyByName("ownerType").getColumn().equals("owner_type");
-        assert mapping.getPropertyByName("ownerType").getDescription().getDbType().equals("varchar(64)");
+        assert mapping.getPropertyByName("ownerType").getDescription().getSqlType().equals("varchar(64)");
         assert mapping.getPropertyByName("ownerType").getDescription().getDefault().equals("");
-        assert mapping.getPropertyByName("ownerType").getDescription().getNullable();
+        assert mapping.getPropertyByName("ownerType").getDescription().isNullable();
 
     }
 

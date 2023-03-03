@@ -47,9 +47,12 @@
         schema CDATA #IMPLIED
         table CDATA #REQUIRED
         type CDATA #REQUIRED
-        caseInsensitive (true|false) #IMPLIED
-        mapUnderscoreToCamelCase (true|false) #IMPLIED
         autoMapping (true|false) #IMPLIED
+        useDelimited (true|false) #IMPLIED
+        mapUnderscoreToCamelCase (true|false) #IMPLIED
+        caseInsensitive (true|false) #IMPLIED
+        character-set CDATA #IMPLIED
+        collation CDATA #IMPLIED
         comment CDATA #IMPLIED
         other CDATA #IMPLIED
         >
@@ -70,13 +73,14 @@
         setValueTemplate CDATA #IMPLIED
         whereColTemplate CDATA #IMPLIED
         whereValueTemplate CDATA #IMPLIED
-        comment CDATA #IMPLIED
-        dbType CDATA #IMPLIED
+        sqlType CDATA #IMPLIED
         length CDATA #IMPLIED
         precision CDATA #IMPLIED
         scale CDATA #IMPLIED
-        defaultValue CDATA #IMPLIED
-        nullable (true|false) #IMPLIED
+        character-set CDATA #IMPLIED
+        collation CDATA #IMPLIED
+        default CDATA #IMPLIED
+        comment CDATA #IMPLIED
         other CDATA #IMPLIED
         >
 
@@ -96,13 +100,15 @@
         setValueTemplate CDATA #IMPLIED
         whereColTemplate CDATA #IMPLIED
         whereValueTemplate CDATA #IMPLIED
-        comment CDATA #IMPLIED
-        dbType CDATA #IMPLIED
+        sqlType CDATA #IMPLIED
         length CDATA #IMPLIED
         precision CDATA #IMPLIED
         scale CDATA #IMPLIED
-        defaultValue CDATA #IMPLIED
+        character-set CDATA #IMPLIED
+        collation CDATA #IMPLIED
         nullable (true|false) #IMPLIED
+        default CDATA #IMPLIED
+        comment CDATA #IMPLIED
         other CDATA #IMPLIED
         >
 
