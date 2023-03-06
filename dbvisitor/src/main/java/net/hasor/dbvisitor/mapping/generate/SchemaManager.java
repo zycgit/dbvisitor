@@ -13,13 +13,21 @@
 // * See the License for the specific language governing permissions and
 // * limitations under the License.
 // */
-//package net.hasor.dbvisitor.mapping;
+//package net.hasor.dbvisitor.mapping.generate;
+//import net.hasor.dbvisitor.mapping.MappingRegistry;
 //
 ///**
-// * Java 类型映射到数据库的类型映射
+// * 数据库表结构管理器
 // * @version : 2020-10-31
 // * @author 赵永春 (zyc@hasor.net)
 // */
-//public interface TypeMapDialect {
-//    String mapType(Class<?> javaType, String dbType);
+//public class SchemaManager {
+//    private MappingRegistry registry;
+//
+//    public SchemaManager(MappingRegistry registry) {
+//    }
+//
+//    public void initSchemas() {
+//
+//    }
 //}

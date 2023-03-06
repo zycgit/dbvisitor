@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping.generate;
+package net.hasor.dbvisitor.mapping.generate.dialect;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.mapping.def.*;
+import net.hasor.dbvisitor.mapping.generate.SqlTableGenerate;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -38,9 +39,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version : 2023-03-04
  * @author 赵永春 (zyc@hasor.net)
  */
-public class MySqlTableGenerate extends SqlTableGenerate {
-    public MySqlTableGenerate() {
-        super(SqlDialectRegister.findOrCreate(JdbcUtils.MYSQL));
+public class OracleTableGenerate extends SqlTableGenerate {
+    public OracleTableGenerate() {
+        super(SqlDialectRegister.findOrCreate(JdbcUtils.ORACLE));
     }
 
     @Override
