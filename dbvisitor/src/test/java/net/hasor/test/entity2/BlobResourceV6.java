@@ -6,7 +6,7 @@ import net.hasor.test.dto.ResourceType;
 import java.util.Date;
 
 @TableDescribe(comment = "test table")
-@Table(catalog = "master", schema = "dbo", table = "blob_resource")
+@Table(catalog = "master", schema = "dbo", table = "blob_resource", ddlAuto = DdlAuto.CreateDrop)
 public class BlobResourceV6 {
 
     @ColumnDescribe(sqlType = "bigint")

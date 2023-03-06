@@ -53,6 +53,7 @@ public class XmlEntityRegistryTest {
         assert mapping.isAutoProperty();
         assert !mapping.useDelimited();
         assert mapping.isCaseInsensitive();
+        assert mapping.getDescription().getDdlAuto() == DdlAuto.None;
 
         assert mapping.getProperties().size() == 7;
         assert mapping.getPropertyByName("id") != null;
@@ -912,6 +913,8 @@ public class XmlEntityRegistryTest {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/entity_1.xml");
         TableMapping<BlobResourceV5> tableMapping = registry.findEntity(BlobResourceV5.class);
+
+        assert tableMapping.getDescription().getDdlAuto() == DdlAuto.CreateDrop;
 
         assert tableMapping.getDescription().getComment().equals("表备注");
         assert tableMapping.getPropertyByName("id").getDescription().getSqlType().equals("bigint");

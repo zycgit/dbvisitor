@@ -86,6 +86,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         overwriteData.compute("collation", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "collation"));
         overwriteData.compute("comment", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "comment"));
         overwriteData.compute("other", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "other"));
+        overwriteData.compute("ddlAuto", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "ddlAuto"));
 
         TableDefaultInfo tableInfo = fetchDefaultInfoByEntity(classLoader, entityType, this.options, overwriteData);
 

@@ -34,4 +34,9 @@ class TableDefaultVisitor extends AnnotationVisitor {
     public void visit(String name, Object value) {
         this.allAnnoInfo.put(name, value.toString());
     }
+
+    @Override
+    public void visitEnum(String name, String descriptor, String value) {
+        this.allAnnoInfo.put(name, value);
+    }
 }

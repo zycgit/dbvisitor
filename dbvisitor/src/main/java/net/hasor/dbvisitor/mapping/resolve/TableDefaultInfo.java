@@ -15,9 +15,7 @@
  */
 package net.hasor.dbvisitor.mapping.resolve;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
-import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.dialect.SqlDialectRegister;
+import net.hasor.dbvisitor.mapping.DdlAuto;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.mapping.TableDefault;
 import net.hasor.dbvisitor.mapping.TableDescribe;
@@ -31,20 +29,19 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  */
 class TableDefaultInfo implements TableDefault, Table, TableDescribe {
-    private final String     catalog;
-    private final String     schema;
-    private final String     table;
-    private final boolean    autoMapping;
-    private final boolean    mapUnderscoreToCamelCase;
-    private final boolean    useDelimited;
-    private final boolean    caseInsensitive;
-    private final SqlDialect dialect;
-    private final String     dialectName;
+    private final String  catalog;
+    private final String  schema;
+    private final String  table;
+    private final boolean autoMapping;
+    private final boolean useDelimited;
+    private final boolean caseInsensitive;
+    private final boolean mapUnderscoreToCamelCase;
+    private final DdlAuto ddlAuto;
     //
-    private final String     characterSet;
-    private final String     collation;
-    private final String     comment;
-    private final String     other;
+    private final String  characterSet;
+    private final String  collation;
+    private final String  comment;
+    private final String  other;
 
     TableDefaultInfo(Map<String, String> attrMaps, ClassLoader classLoader, MappingOptions options) {
         String catalog = attrMaps.get("catalog");
@@ -55,13 +52,13 @@ class TableDefaultInfo implements TableDefault, Table, TableDescribe {
         }
         String autoMapping = attrMaps.get("autoMapping");
         String useDelimited = attrMaps.get("useDelimited");
-        String mapUnderscoreToCamelCase = attrMaps.get("mapUnderscoreToCamelCase");
         String caseInsensitive = attrMaps.get("caseInsensitive");
+        String mapUnderscoreToCamelCase = attrMaps.get("mapUnderscoreToCamelCase");
         String characterSet = attrMaps.get("character-set");
         String collation = attrMaps.get("collation");
         String comment = attrMaps.get("comment");
         String other = attrMaps.get("other");
-        String dialect = attrMaps.get("dialect");
+        String ddlAuto = attrMaps.get("ddlAuto");
 
         this.catalog = (catalog == null) ? "" : catalog;
         this.schema = (schema == null) ? "" : schema;
@@ -79,30 +76,23 @@ class TableDefaultInfo implements TableDefault, Table, TableDescribe {
             this.useDelimited = Boolean.TRUE.equals(options.getUseDelimited());
         }
 
-        if (StringUtils.isNotBlank(mapUnderscoreToCamelCase)) {
-            this.mapUnderscoreToCamelCase = Boolean.parseBoolean(mapUnderscoreToCamelCase);
-        } else {
-            this.mapUnderscoreToCamelCase = Boolean.TRUE.equals(options.getMapUnderscoreToCamelCase());
-        }
-
         if (StringUtils.isNotBlank(caseInsensitive)) {
             this.caseInsensitive = Boolean.parseBoolean(caseInsensitive);
         } else {
             this.caseInsensitive = options.getCaseInsensitive() == null || options.getCaseInsensitive();
         }
 
+        if (StringUtils.isNotBlank(mapUnderscoreToCamelCase)) {
+            this.mapUnderscoreToCamelCase = Boolean.parseBoolean(mapUnderscoreToCamelCase);
+        } else {
+            this.mapUnderscoreToCamelCase = Boolean.TRUE.equals(options.getMapUnderscoreToCamelCase());
+        }
+
+        this.ddlAuto = DdlAuto.valueOfCode(ddlAuto);
         this.characterSet = characterSet;
         this.collation = collation;
         this.comment = comment;
         this.other = other;
-
-        if (StringUtils.isNotBlank(dialect)) {
-            this.dialect = SqlDialectRegister.findOrCreate(dialect, classLoader);
-            this.dialectName = dialect;
-        } else {
-            this.dialect = options.getDefaultDialect() == null ? DefaultSqlDialect.DEFAULT : options.getDefaultDialect();
-            this.dialectName = this.dialect.getClass().getName();
-        }
     }
 
     @Override
@@ -131,11 +121,6 @@ class TableDefaultInfo implements TableDefault, Table, TableDescribe {
     }
 
     @Override
-    public boolean mapUnderscoreToCamelCase() {
-        return this.mapUnderscoreToCamelCase;
-    }
-
-    @Override
     public boolean useDelimited() {
         return this.useDelimited;
     }
@@ -146,12 +131,13 @@ class TableDefaultInfo implements TableDefault, Table, TableDescribe {
     }
 
     @Override
-    public String dialect() {
-        return this.dialectName;
+    public boolean mapUnderscoreToCamelCase() {
+        return this.mapUnderscoreToCamelCase;
     }
 
-    public SqlDialect getSqlDialect() {
-        return this.dialect;
+    @Override
+    public DdlAuto ddlAuto() {
+        return this.ddlAuto;
     }
 
     @Override

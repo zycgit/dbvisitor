@@ -333,7 +333,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         boolean camelCase = copyOpt.getMapUnderscoreToCamelCase();
 
         final TableDef<?> tableDef = new TableDef<>(finalCatalog, finalSchema, finalTable, LinkedHashMap.class, //
-                true, useDelimited, caseInsensitive, camelCase, copyOpt.getDefaultDialect());
+                true, useDelimited, caseInsensitive, camelCase);
         List<ColumnDef> columnDefs = execute((ConnectionCallback<List<ColumnDef>>) con -> {
             return fetchColumns(con, tableDef, copyOpt, fmtNameFoo);
         });

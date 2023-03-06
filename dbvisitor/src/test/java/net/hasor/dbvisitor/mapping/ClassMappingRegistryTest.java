@@ -71,6 +71,7 @@ public class ClassMappingRegistryTest {
         assert mapping.isAutoProperty();
         assert !mapping.useDelimited();
         assert mapping.isCaseInsensitive();
+        assert mapping.getDescription().getDdlAuto() == DdlAuto.None;
 
         assert mapping.getProperties().size() == 7;
         assert mapping.getPropertyByName("id") != null;
@@ -145,6 +146,7 @@ public class ClassMappingRegistryTest {
         assert mapping.isAutoProperty();
         assert !mapping.useDelimited();
         assert mapping.isCaseInsensitive();
+        assert mapping.getDescription().getDdlAuto() == DdlAuto.None;
 
         assert mapping.getProperties().size() == 7;
         assert mapping.getPropertyByName("id") != null;
@@ -211,6 +213,7 @@ public class ClassMappingRegistryTest {
         assert mapping.isAutoProperty();
         assert !mapping.useDelimited();
         assert mapping.isCaseInsensitive();
+        assert mapping.getDescription().getDdlAuto() == DdlAuto.None;
 
         assert mapping.getProperties().size() == 7;
         assert mapping.getPropertyByName("id") != null;
@@ -277,6 +280,7 @@ public class ClassMappingRegistryTest {
         assert mapping.isAutoProperty();
         assert !mapping.useDelimited();
         assert mapping.isCaseInsensitive();
+        assert mapping.getDescription().getDdlAuto() == DdlAuto.None;
 
         assert mapping.getProperties().size() == 7;
         assert mapping.getPropertyByName("id") != null;
@@ -342,6 +346,7 @@ public class ClassMappingRegistryTest {
         assert mapping.isAutoProperty();
         assert !mapping.useDelimited();
         assert mapping.isCaseInsensitive();
+        assert mapping.getDescription().getDdlAuto() == DdlAuto.None;
 
         assert mapping.getProperties().size() == 7;
         assert mapping.getPropertyByName("id") != null;
@@ -407,6 +412,7 @@ public class ClassMappingRegistryTest {
         assert mapping.isAutoProperty();
         assert !mapping.useDelimited();
         assert mapping.isCaseInsensitive();
+        assert mapping.getDescription().getDdlAuto() == DdlAuto.CreateDrop;
 
         assert mapping.getProperties().size() == 7;
         assert mapping.getPropertyByName("id") != null;

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.keyholder.sequence;
+import net.hasor.cobble.ExceptionUtils;
 import net.hasor.dbvisitor.keyholder.CreateContext;
 import net.hasor.dbvisitor.keyholder.KeyHolder;
 import net.hasor.dbvisitor.keyholder.KeySeqHolder;
@@ -44,7 +45,7 @@ public class HolderKeySeqHolderFactory implements KeySeqHolderFactory {
             try {
                 HolderCache.put(keyHolderType, keyHolderType.newInstance());
             } catch (ReflectiveOperationException e) {
-                throw new RuntimeException(e);
+                throw ExceptionUtils.toRuntime(e);
             }
         }
 

@@ -111,6 +111,17 @@
             <xs:attribute name="collation"/>
             <xs:attribute name="comment"/>
             <xs:attribute name="other"/>
+            <xs:attribute name="ddlAuto">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="none"/>
+                        <xs:enumeration value="create"/>
+                        <xs:enumeration value="add"/>
+                        <xs:enumeration value="update"/>
+                        <xs:enumeration value="create-drop"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
         </xs:complexType>
     </xs:element>
 

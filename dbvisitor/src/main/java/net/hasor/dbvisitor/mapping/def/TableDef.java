@@ -16,7 +16,6 @@
 package net.hasor.dbvisitor.mapping.def;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
-import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
@@ -37,8 +36,7 @@ public class TableDef<T> implements TableMapping<T> {
     private final boolean  caseInsensitive;
     private final boolean  mapUnderscoreToCamelCase;
 
-    private       TableDescription description;
-    private final SqlDialect       dialect;
+    private TableDescription description;
 
     private final boolean                    mapBased;
     private final List<ColumnMapping>        columnMappings;
@@ -47,7 +45,7 @@ public class TableDef<T> implements TableMapping<T> {
     private final List<IndexDescription>     indexList;
 
     public TableDef(String catalog, String schema, String table, Class<T> entityType, //
-            boolean autoProperty, boolean useDelimited, boolean caseInsensitive, boolean mapUnderscoreToCamelCase, SqlDialect dialect) {
+            boolean autoProperty, boolean useDelimited, boolean caseInsensitive, boolean mapUnderscoreToCamelCase) {
         this.catalog = catalog;
         this.schema = schema;
         this.table = table;
@@ -61,7 +59,6 @@ public class TableDef<T> implements TableMapping<T> {
         this.mapByColumn = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
         this.indexList = new ArrayList<>();
         this.mapUnderscoreToCamelCase = mapUnderscoreToCamelCase;
-        this.dialect = dialect;
     }
 
     @Override

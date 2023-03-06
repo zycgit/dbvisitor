@@ -39,15 +39,15 @@ public @interface TableDefault {
     /** 是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Column 注解声明 */
     boolean autoMapping() default true;
 
-    /** 表名和属性名，根据驼峰规则转换为带有下划线的表名和列名 */
-    boolean mapUnderscoreToCamelCase() default false;
-
     /** 强制在生成 表名/列名/索引名 时候增加标识符限定，例如：通过设置该属性来解决列名为关键字的问题。默认是 false 不设置。*/
     boolean useDelimited() default false;
 
     /** 是否对表名列名敏感，默认 true 不敏感 */
     boolean caseInsensitive() default true;
 
-    /** 默认使用的数据库方言 */
-    String dialect() default "";
+    /** 表名和属性名，根据驼峰规则转换为带有下划线的表名和列名 */
+    boolean mapUnderscoreToCamelCase() default false;
+
+    /** DDL生成和执行规则，默认关闭 */
+    DdlAuto ddlAuto() default DdlAuto.None;
 }

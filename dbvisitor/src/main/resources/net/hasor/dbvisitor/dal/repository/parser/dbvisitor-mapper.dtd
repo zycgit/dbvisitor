@@ -55,6 +55,7 @@
         collation CDATA #IMPLIED
         comment CDATA #IMPLIED
         other CDATA #IMPLIED
+        ddlAuto (none|create|add|update|create-drop) #IMPLIED
         >
 
 <!ELEMENT id EMPTY>

@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ColumnDescribe {
 
-    /** 列数据类型 */
+    /** 列数据类型，如果配置了该值 length/precision/scale 都将会无效 */
     String sqlType();
 
     /** 长度 */

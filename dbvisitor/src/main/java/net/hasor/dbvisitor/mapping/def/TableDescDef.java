@@ -14,16 +14,28 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.def;
+import net.hasor.dbvisitor.mapping.DdlAuto;
+
 /**
  * 接口 TableDescription 的实现
  * @version : 2022-12-06
  * @author 赵永春 (zyc@hasor.net)
  */
 public class TableDescDef implements TableDescription {
-    private String characterSet;
-    private String collation;
-    private String comment;
-    private String other;
+    private DdlAuto ddlAuto;
+    private String  characterSet;
+    private String  collation;
+    private String  comment;
+    private String  other;
+
+    @Override
+    public DdlAuto getDdlAuto() {
+        return this.ddlAuto;
+    }
+
+    public void setDdlAuto(DdlAuto ddlAuto) {
+        this.ddlAuto = ddlAuto;
+    }
 
     @Override
     public String getCharacterSet() {

@@ -19,7 +19,6 @@ import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.logging.Logger;
-import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.keyholder.CreateContext;
 import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.mapping.*;
@@ -71,20 +70,20 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         String collation = tableInfo.collation();
         String comment = tableInfo.comment();
         String other = tableInfo.other();
+        DdlAuto ddlAuto = tableInfo.ddlAuto();
 
         boolean autoProperty = tableInfo.autoMapping();
         boolean useDelimited = tableInfo.useDelimited();
         boolean caseInsensitive = tableInfo.caseInsensitive();
         boolean camelCase = tableInfo.mapUnderscoreToCamelCase();
 
-        SqlDialect dialect = tableInfo.getSqlDialect();
-        TableDef<?> tableDef = new TableDef<>(catalog, schema, table, entityType, autoProperty, useDelimited, caseInsensitive, camelCase, dialect);
+        TableDef<?> tableDef = new TableDef<>(catalog, schema, table, entityType, autoProperty, useDelimited, caseInsensitive, camelCase);
 
         // desc
         if (StringUtils.isBlank(characterSet) && StringUtils.isBlank(collation) && StringUtils.isBlank(comment) && StringUtils.isBlank(other)) {
-            tableDef.setDescription(parseDesc(entityType.getAnnotation(TableDescribe.class)));
+            tableDef.setDescription(parseDesc(ddlAuto, entityType.getAnnotation(TableDescribe.class)));
         } else {
-            tableDef.setDescription(parseDesc(tableInfo));
+            tableDef.setDescription(parseDesc(ddlAuto, tableInfo));
         }
 
         // index
@@ -200,12 +199,13 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         }
     }
 
-    private TableDescription parseDesc(TableDescribe tableDesc) {
+    private TableDescription parseDesc(DdlAuto ddlAuto, TableDescribe tableDesc) {
         if (tableDesc == null) {
             return null;
         }
 
         TableDescDef descDef = new TableDescDef();
+        descDef.setDdlAuto(ddlAuto);
         descDef.setCharacterSet(tableDesc.characterSet());
         descDef.setCollation(tableDesc.collation());
         descDef.setComment(tableDesc.comment());

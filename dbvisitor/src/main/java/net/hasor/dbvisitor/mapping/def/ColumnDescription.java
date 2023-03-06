@@ -20,8 +20,7 @@ package net.hasor.dbvisitor.mapping.def;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface ColumnDescription {
-
-    /** 列数据类型 */
+    /** 列数据类型，如果配置了该值将会忽略其它属性项 */
     String getSqlType();
 
     /** 长度 */
