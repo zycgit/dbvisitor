@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.mapping.generate;
 import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.def.ColumnDescription;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
@@ -27,6 +28,10 @@ import java.sql.Types;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class Sql92TableGenerate extends SqlTableGenerate {
+    public Sql92TableGenerate(SqlDialect dialect) {
+        super(dialect);
+    }
+
     @Override
     protected String typeBuild(Class<?> javaType, ColumnDescription description) {
         description = description == null ? EMPTY : description;

@@ -15,6 +15,8 @@
  */
 package net.hasor.dbvisitor.mapping.generate;
 import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.JdbcUtils;
+import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.mapping.def.*;
 
 import java.io.InputStream;
@@ -37,6 +39,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class MySqlTableGenerate extends SqlTableGenerate {
+    public MySqlTableGenerate() {
+        super(SqlDialectRegister.findOrCreate(JdbcUtils.MYSQL));
+    }
+
     @Override
     protected void afterColum(List<String> beforeScripts, StringBuilder scriptBuild, List<String> afterScripts,//
             TableMapping<?> tableMapping, ColumnMapping colMapping) {

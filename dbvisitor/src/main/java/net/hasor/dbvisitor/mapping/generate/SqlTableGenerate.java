@@ -30,6 +30,10 @@ public abstract class SqlTableGenerate implements SchemaGenerate {
     protected static final ColumnDescription EMPTY = new ColumnDescDef();
     protected              SqlDialect        dialect;
 
+    public SqlTableGenerate(SqlDialect dialect) {
+        this.dialect = dialect;
+    }
+
     public List<String> buildCreate(TableMapping<?> tableMapping) {
         List<String> beforeScripts = new ArrayList<>();
         StringBuilder scriptBuild = new StringBuilder();
