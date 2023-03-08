@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.dialect.provider;
 import net.hasor.dbvisitor.dialect.BoundSql;
+import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ import java.util.List;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect {
+public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect, InsertSqlDialect {
     @Override
     protected String keyWordsResource() {
         return "/META-INF/db-keywords/postgresql.keywords";
@@ -52,6 +53,90 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
         }
 
         return new BoundSql.BoundSqlObj(sqlBuilder.toString(), paramArrays.toArray());
+    }
+
+    @Override
+    public boolean supportInto(List<String> primaryKey, List<String> columns) {
+        return true;
+    }
+
+    @Override
+    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, "");
+    }
+
+    @Override
+    public boolean supportIgnore(List<String> primaryKey, List<String> columns) {
+        return true;
+    }
+
+    @Override
+    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+        return buildSql("INSERT IGNORE ", useQualifier, catalog, schema, table, columns, " ON CONFLICT DO NOTHING");
+    }
+
+    @Override
+    public boolean supportReplace(List<String> primaryKey, List<String> columns) {
+        return !primaryKey.isEmpty();
+    }
+
+    // 主键冲突更新非主键列
+    @Override
+    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+        // ... ON CONFLICT (a) DO UPDATE SET (b, c, d) = (excluded.b, excluded.c, excluded.d);
+
+        StringBuilder strBuffer = new StringBuilder(" ON CONFLICT (");
+        boolean first = true;
+        for (String pk : primaryKey) {
+            if (!first) {
+                strBuffer.append(", ");
+            }
+
+            strBuffer.append(fmtName(useQualifier, pk));
+            first = false;
+        }
+        strBuffer.append(") DO UPDATE SET ");
+
+        //ON CONFLICT (a) DO UPDATE SET (b, c, d) = (excluded.b, excluded.c, excluded.d);
+        StringBuilder namesBuffer = new StringBuilder();
+        StringBuilder updateBuffer = new StringBuilder();
+        first = true;
+        for (String col : columns) {
+            if (!first) {
+                strBuffer.append(", ");
+            }
+            String wrapName = fmtName(useQualifier, col);
+            namesBuffer.append(wrapName);
+            updateBuffer.append("excluded.").append(wrapName);
+            first = false;
+        }
+        strBuffer.append("(" + namesBuffer + ") = (" + updateBuffer + ")");
+
+        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, strBuffer.toString());
+    }
+
+    protected String buildSql(String markString, boolean useQualifier, String catalog, String schema, String table, List<String> columns, String appendSql) {
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.append(markString);
+        strBuilder.append(tableName(useQualifier, catalog, schema, table));
+        strBuilder.append(" ");
+        strBuilder.append("(");
+
+        StringBuilder argBuilder = new StringBuilder();
+        for (int i = 0; i < columns.size(); i++) {
+            if (i > 0) {
+                strBuilder.append(", ");
+                argBuilder.append(", ");
+            }
+            strBuilder.append(fmtName(useQualifier, columns.get(i)));
+            argBuilder.append("?");
+        }
+
+        strBuilder.append(") VALUES (");
+        strBuilder.append(argBuilder);
+        strBuilder.append(")");
+        strBuilder.append(appendSql);
+        return strBuilder.toString();
     }
 
     public String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, int recordSize) {
