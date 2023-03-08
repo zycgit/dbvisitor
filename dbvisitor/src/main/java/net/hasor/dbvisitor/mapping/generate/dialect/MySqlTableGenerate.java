@@ -207,10 +207,24 @@ public class MySqlTableGenerate extends SqlTableGenerate {
             case "TIMESTAMP":
             case "DATETIME":
                 return sqlType + (StringUtils.isBlank(precision) ? "" : ("(" + precision + ")"));
-            case "VARBINARY":
-                return StringUtils.isBlank(length) ? "BLOB" : ("VARBINARY(" + length + ")");
-            case "BLOB":
-                return "BLOB" + (StringUtils.isBlank(length) ? "" : ("BLOB(" + length + ")"));
+            case "VARBINARY": {
+                if (StringUtils.equalsIgnoreCase(length, "small")) {
+                    return "TINYBLOB";
+                } else if (StringUtils.equalsIgnoreCase(length, "large")) {
+                    return "LONGBLOB";
+                } else {
+                    return StringUtils.isBlank(length) ? "BLOB" : ("VARBINARY(" + length + ")");
+                }
+            }
+            case "BLOB": {
+                if (StringUtils.equalsIgnoreCase(length, "small")) {
+                    return "TINYBLOB";
+                } else if (StringUtils.equalsIgnoreCase(length, "large")) {
+                    return "LONGBLOB";
+                } else {
+                    return "BLOB" + (StringUtils.isBlank(length) ? "" : ("BLOB(" + length + ")"));
+                }
+            }
             default:
                 return sqlType;
         }
