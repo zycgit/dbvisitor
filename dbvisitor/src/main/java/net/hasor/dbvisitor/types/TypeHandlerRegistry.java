@@ -446,10 +446,30 @@ public final class TypeHandlerRegistry {
     public void setParameterValue(final PreparedStatement ps, final int parameterPosition, final Object value) throws SQLException {
         if (value == null) {
             ps.setObject(parameterPosition, null);
-        } else {
-            Class<?> valueClass = value.getClass();
-            TypeHandler<Object> typeHandler = (TypeHandler<Object>) getTypeHandler(valueClass);
-            typeHandler.setParameter(ps, parameterPosition, value, toSqlType(valueClass));
+            return;
         }
+
+        if (value instanceof MappedArg) {
+            Integer argType = ((MappedArg) value).getJdbcType();
+            TypeHandler argHandler = ((MappedArg) value).getTypeHandler();
+            Object argValue = ((MappedArg) value).getValue();
+
+            if (argType == null && argValue != null) {
+                argType = TypeHandlerRegistry.toSqlType(argValue.getClass());
+            }
+
+            if (argHandler == null && argValue != null) {
+                argHandler = this.getTypeHandler(argValue.getClass());
+            }
+
+            if (argHandler != null) {
+                argHandler.setParameter(ps, parameterPosition, argValue, argType);
+                return;
+            }
+        }
+
+        Class<?> valueClass = value.getClass();
+        TypeHandler<Object> typeHandler = (TypeHandler<Object>) getTypeHandler(valueClass);
+        typeHandler.setParameter(ps, parameterPosition, value, toSqlType(valueClass));
     }
 }

@@ -23,6 +23,7 @@ import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.lambda.segment.Segment;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.types.MappedArg;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -154,7 +155,8 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
         MergeSqlSegment mergeSqlSegment = new MergeSqlSegment();
         Iterator<Object> iterator = Arrays.asList(params).iterator();
         while (iterator.hasNext()) {
-            mergeSqlSegment.addSegment(formatSegment(colValue, iterator.next()));
+            Object arg = new MappedArg(iterator.next(), mapping.getJdbcType(), mapping.getTypeHandler());
+            mergeSqlSegment.addSegment(formatSegment(colValue, arg));
             if (iterator.hasNext()) {
                 mergeSqlSegment.addSegment(() -> ",");
             }

@@ -48,9 +48,9 @@ public class DynamicContext {
         }
     }
 
-    public TypeHandler<?> findTypeHandler(Class<?> handlerType) {
-        if (getTypeRegistry().hasTypeHandler(handlerType)) {
-            return getTypeRegistry().getTypeHandler(handlerType);
+    public TypeHandler<?> findTypeHandler(Class<?> javaType) {
+        if (getTypeRegistry().hasTypeHandler(javaType)) {
+            return getTypeRegistry().getTypeHandler(javaType);
         } else {
             return null;
         }

@@ -18,6 +18,7 @@ package net.hasor.dbvisitor.lambda.core;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,11 @@ public interface InsertExecute<R, T> extends BoundSqlBuilder {
     /** 批量插入记录 */
     default R applyEntity(T entity) throws SQLException {
         return applyEntity(Collections.singletonList(entity));
+    }
+
+    /** 批量插入记录 */
+    default R applyEntity(T... entity) throws SQLException {
+        return applyEntity(Arrays.asList(entity));
     }
 
     /** 批量插入记录 */

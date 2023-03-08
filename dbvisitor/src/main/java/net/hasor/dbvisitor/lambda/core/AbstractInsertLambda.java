@@ -25,6 +25,7 @@ import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.types.MappedArg;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.sql.Connection;
@@ -49,7 +50,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     protected final List<String>         insertColumns;
     protected final boolean              hasKeySeqHolderColumn;
 
-    protected final List<Object[]>          insertValues;
+    protected final List<MappedArg[]>       insertValues;
     protected final List<ParameterDisposer> parameterDisposers; // 只有 insert 需要
     protected final List<FillBackEntity>    fillBackEntityList;
 
@@ -146,23 +147,26 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         int propertyCount = this.insertProperties.size();
 
         for (Object entity : entityList) {
-            Object[] args = new Object[propertyCount];
+            MappedArg[] args = new MappedArg[propertyCount];
             for (int i = 0; i < propertyCount; i++) {
+                Object arg = null;
                 ColumnMapping mapping = this.insertProperties.get(i);
                 if (isMap) {
                     Map<String, String> entityKeyMap = extractKeysMap((Map) entity);
-                    args[i] = ((Map) entity).get(entityKeyMap.get(mapping.getProperty()));
+                    arg = ((Map) entity).get(entityKeyMap.get(mapping.getProperty()));
                 } else {
-                    args[i] = mapping.getHandler().get(entity);
+                    arg = mapping.getHandler().get(entity);
                 }
 
-                if (conn != null && args[i] == null && mapping.getKeySeqHolder() != null) {
-                    args[i] = mapping.getKeySeqHolder().beforeApply(conn, entity, mapping);
+                if (conn != null && arg == null && mapping.getKeySeqHolder() != null) {
+                    arg = mapping.getKeySeqHolder().beforeApply(conn, entity, mapping);
 
-                    if (isMap && args[i] != null) {
-                        ((Map) entity).put(mapping.getProperty(), args[i]);
+                    if (isMap && arg != null) {
+                        ((Map) entity).put(mapping.getProperty(), arg);
                     }
                 }
+
+                args[i] = (arg == null) ? null : new MappedArg(arg, mapping.getJdbcType(), mapping.getTypeHandler());
             }
 
             if (supportsGetGeneratedKeys) {
@@ -170,9 +174,9 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
             }
 
             this.insertValues.add(args);
-            for (Object arg : args) {
-                if (arg instanceof ParameterDisposer) {
-                    this.parameterDisposers.add((ParameterDisposer) arg);
+            for (MappedArg arg : args) {
+                if (arg != null && arg.getValue() instanceof ParameterDisposer) {
+                    this.parameterDisposers.add((ParameterDisposer) arg.getValue());
                 }
             }
         }

@@ -22,6 +22,7 @@ import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.types.MappedArg;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -37,7 +38,7 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
  */
 public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R, T, P> implements UpdateExecute<R, T, P> {
     protected final Map<String, ColumnMapping> allowUpdateProperties;
-    protected final Map<String, Object>        updateValueMap;
+    protected final Map<String, MappedArg>     updateValueMap;
     private         boolean                    allowEmptyWhere = false;
     private         boolean                    allowUpdateKey  = false;
     private         boolean                    allowReplaceRow = false;
@@ -194,7 +195,9 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
             }
 
             updateColumns.add(columnName);
-            this.updateValueMap.put(propertyName, propertyValue);
+
+            MappedArg mappedArg = new MappedArg(propertyValue, allowProperty.getJdbcType(), allowProperty.getTypeHandler());
+            this.updateValueMap.put(propertyName, mappedArg);
         }
         return this.getSelf();
     }

@@ -312,7 +312,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
                 return typeRegistry.getTypeHandler(configTypeHandlerType);
             } else {
                 if (TypeHandler.class.isAssignableFrom(configTypeHandlerType)) {
-                    return ClassUtils.newInstance(configTypeHandlerType);
+                    return createTypeHandler(configTypeHandlerType, javaType);
                 } else {
                     throw new ClassCastException(configTypeHandlerType.getName() + " is not a subclass of " + TypeHandler.class.getName());
                 }

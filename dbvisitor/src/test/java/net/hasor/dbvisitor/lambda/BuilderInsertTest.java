@@ -75,11 +75,11 @@ public class BuilderInsertTest extends AbstractDbTest {
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaInsert.getBoundSql(dialect);
         assert boundSql1 instanceof BatchBoundSql;
-        assert boundSql1.getSqlString().equals("INSERT INTO TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE");
+        assert boundSql1.getSqlString().equals("INSERT INTO TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE userUUID=VALUES(userUUID), name=VALUES(name), loginName=VALUES(loginName), loginPassword=VALUES(loginPassword), email=VALUES(email), `index`=VALUES(`index`), registerTime=VALUES(registerTime)");
         //
         BoundSql boundSql2 = lambdaInsert.useQualifier().getBoundSql(dialect);
         assert boundSql2 instanceof BatchBoundSql;
-        assert boundSql2.getSqlString().equals("INSERT INTO `TB_User` (`userUUID`, `name`, `loginName`, `loginPassword`, `email`, `index`, `registerTime`) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE");
+        assert boundSql2.getSqlString().equals("INSERT INTO `TB_User` (`userUUID`, `name`, `loginName`, `loginPassword`, `email`, `index`, `registerTime`) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `userUUID`=VALUES(`userUUID`), `name`=VALUES(`name`), `loginName`=VALUES(`loginName`), `loginPassword`=VALUES(`loginPassword`), `email`=VALUES(`email`), `index`=VALUES(`index`), `registerTime`=VALUES(`registerTime`)");
     }
 
     @Test

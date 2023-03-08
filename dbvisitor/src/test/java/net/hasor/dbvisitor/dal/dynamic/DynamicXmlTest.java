@@ -18,7 +18,7 @@ import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.dbvisitor.dal.repository.config.InsertSqlConfig;
 import net.hasor.dbvisitor.dialect.SqlBuilder;
-import net.hasor.dbvisitor.types.UnknownTypeHandler;
+import net.hasor.dbvisitor.types.handler.BlobAsBytesTypeHandler;
 import net.hasor.dbvisitor.types.handler.StringTypeHandler;
 import net.hasor.test.dal.dynamic.TextBuilderContext;
 import net.hasor.test.dto.TB_User;
@@ -198,7 +198,7 @@ public class DynamicXmlTest {
         assert ((SqlArg) builder1.getArgs()[0]).getJavaType() == String.class;
         assert ((SqlArg) builder1.getArgs()[1]).getJavaType() == TB_User.class;
         assert ((SqlArg) builder1.getArgs()[0]).getTypeHandler() instanceof StringTypeHandler;
-        assert ((SqlArg) builder1.getArgs()[1]).getTypeHandler() instanceof UnknownTypeHandler;
+        assert ((SqlArg) builder1.getArgs()[1]).getTypeHandler() instanceof BlobAsBytesTypeHandler;
         assert ((SqlArg) builder1.getArgs()[0]).getSqlMode() == SqlMode.In;
         assert ((SqlArg) builder1.getArgs()[1]).getSqlMode() == SqlMode.Out;
     }

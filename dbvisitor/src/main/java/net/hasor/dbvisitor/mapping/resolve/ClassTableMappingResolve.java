@@ -25,6 +25,7 @@ import net.hasor.dbvisitor.mapping.*;
 import net.hasor.dbvisitor.mapping.def.*;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
+import net.hasor.dbvisitor.types.UnknownTypeHandler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -170,7 +171,13 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
                 jdbcType = TypeHandlerRegistry.toSqlType(javaType);
             }
 
-            TypeHandler<?> typeHandler = typeRegistry.getTypeHandler(javaType, jdbcType);
+            TypeHandler<?> typeHandler;
+            if (info.typeHandler() == UnknownTypeHandler.class) {
+                typeHandler = typeRegistry.getTypeHandler(javaType, jdbcType);
+            } else {
+                typeHandler = createTypeHandler(info.typeHandler(), javaType);
+            }
+
             boolean insert = info.insert();
             boolean update = info.update();
             boolean primary = info.primary();
