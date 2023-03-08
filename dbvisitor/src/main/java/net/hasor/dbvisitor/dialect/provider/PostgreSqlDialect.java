@@ -107,7 +107,7 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
             }
             String wrapName = fmtName(useQualifier, col);
             namesBuffer.append(wrapName);
-            updateBuffer.append("excluded.").append(wrapName);
+            updateBuffer.append("EXCLUDED.").append(wrapName);
             first = false;
         }
         strBuffer.append("(" + namesBuffer + ") = (" + updateBuffer + ")");
