@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.dal.mapper;
 import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.dal.session.RuntimeSQLException;
 import net.hasor.dbvisitor.lambda.*;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageResult;
@@ -57,71 +58,93 @@ public interface BaseMapper<T> extends Mapper {
     }
 
     /** 执行 Mapper 配置文件中的 SQL */
-    default int executeStatement(String stId, Object parameter) throws SQLException {
-        return this.getSession().executeStatement(stId, parameter);
+    default int executeStatement(String stId, Object parameter) throws RuntimeSQLException {
+        try {
+            return this.getSession().executeStatement(stId, parameter);
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
     }
 
     /** 执行 Mapper 配置文件中的 SQL */
-    default <E> List<E> queryStatement(String stId, Object parameter) throws SQLException {
+    default <E> List<E> queryStatement(String stId, Object parameter) throws RuntimeSQLException {
         return this.queryStatement(stId, parameter, null);
     }
 
     /** 执行 Mapper 配置文件中的 SQL */
-    default <E> List<E> queryStatement(String stId, Object parameter, Page page) throws SQLException {
-        return this.getSession().queryStatement(stId, parameter, page);
+    default <E> List<E> queryStatement(String stId, Object parameter, Page page) throws RuntimeSQLException {
+        try {
+            return this.getSession().queryStatement(stId, parameter, page);
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
     }
 
     /**
      * 插入一条记录
      * @param entity 实体对象
      */
-    default int save(T entity) throws SQLException {
-        return insert().applyEntity(entity).executeSumResult();
+    default int insert(T entity) throws RuntimeSQLException {
+        try {
+            return insert().applyEntity(entity).executeSumResult();
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
     }
 
     /**
      * 插入一组记录
      * @param entity 实体对象列表
      */
-    default int save(List<T> entity) throws SQLException {
-        return insert().applyEntity(entity).executeSumResult();
+    default int insert(List<T> entity) throws RuntimeSQLException {
+        try {
+            return insert().applyEntity(entity).executeSumResult();
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
     }
+
+    /**
+     * 修改
+     * @param entity 实体对象
+     */
+    int updateById(T entity) throws RuntimeSQLException;
 
     /**
      * 保存或修改
      * @param entity 实体对象
      */
-    int saveOrUpdate(T entity) throws SQLException;
+    int upsertById(T entity) throws RuntimeSQLException;
 
     /**
      * 删除
      * @param entity 实体对象
      */
-    int delete(T entity) throws SQLException;
+    int delete(T entity) throws RuntimeSQLException;
 
     /**
      * 根据 ID 删除
      * @param id 主键ID
      */
-    int deleteById(Serializable id) throws SQLException;
+    int deleteById(Serializable id) throws RuntimeSQLException;
 
     /**
      * 根据 ID 删除
      * @param idList 主键ID
      */
-    int deleteByIds(List<? extends Serializable> idList) throws SQLException;
+    int deleteByIds(List<? extends Serializable> idList) throws RuntimeSQLException;
 
     /**
      * 根据 ID 查询
      * @param id 主键ID
      */
-    T getById(Serializable id) throws SQLException;
+    T selectById(Serializable id) throws RuntimeSQLException;
 
     /**
      * 查询（根据ID 批量查询）
      * @param idList 主键ID列表
      */
-    List<T> getByIds(List<? extends Serializable> idList) throws SQLException;
+    List<T> selectByIds(List<? extends Serializable> idList) throws RuntimeSQLException;
 
     /**
      * 根据 entity 条件，作为样本 null 将不会被列入条件。
@@ -129,7 +152,7 @@ public interface BaseMapper<T> extends Mapper {
      * @param entity 实体对象
      * @return T
      */
-    List<T> listBySample(T entity) throws SQLException;
+    List<T> listBySample(T entity) throws RuntimeSQLException;
 
     /**
      * 根据 entity 条件，作为样本 null 将不会被列入条件。
@@ -137,22 +160,22 @@ public interface BaseMapper<T> extends Mapper {
      * @param entity 实体对象
      * @return T
      */
-    int countBySample(T entity) throws SQLException;
+    int countBySample(T entity) throws RuntimeSQLException;
 
     /**
      * 相当于 select count(1) form xxxx
      * @return int
      */
-    int countAll() throws SQLException;
+    int countAll() throws RuntimeSQLException;
 
     /** 分页查询 */
-    PageResult<T> pageBySample(Object sample, Page page) throws SQLException;
+    PageResult<T> pageBySample(Object sample, Page page) throws RuntimeSQLException;
 
     /** 初始化分页对象 */
-    default Page initPageBySample(Object sample, int pageSize) throws SQLException {
+    default Page initPageBySample(Object sample, int pageSize) throws RuntimeSQLException {
         return this.initPageBySample(sample, pageSize, 0);
     }
 
     /** 初始化分页对象 */
-    Page initPageBySample(Object sample, int pageSize, int pageNumberOffset) throws SQLException;
+    Page initPageBySample(Object sample, int pageSize, int pageNumberOffset) throws RuntimeSQLException;
 }

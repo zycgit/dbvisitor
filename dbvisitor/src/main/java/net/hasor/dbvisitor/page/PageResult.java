@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.page;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,15 +26,34 @@ import java.util.List;
 public class PageResult<T> extends PageObject {
     private List<T> data;
 
-    public PageResult(Page pageInfo, long totalCount) {
-        super(pageInfo.getPageSize(), totalCount);
-        this.setCurrentPage(pageInfo.getCurrentPage());
-        this.setPageNumberOffset(pageInfo.getPageNumberOffset());
+    /** 多用于首次分页结果构建 */
+    public PageResult() {
+        super(0, 0);
+        this.data = new ArrayList<>();
     }
 
-    public PageResult(Page pageInfo, long totalCount, List<T> data) {
-        this(pageInfo, totalCount);
-        this.data = data;
+    /** 多用于首次分页结果构建 */
+    public PageResult(long pageSize, long totalCount) {
+        this(pageSize, totalCount, null);
+    }
+
+    /** 多用于首次分页结果构建 */
+    public PageResult(long pageSize, long totalCount, List<T> data) {
+        super(pageSize, totalCount);
+        this.data = data == null ? new ArrayList<>() : data;
+    }
+
+    /** 多用于二次分页结果构建 */
+    public PageResult(Page pageInfo) {
+        this(pageInfo, new ArrayList<>());
+    }
+
+    /** 多用于二次分页结果构建 */
+    public PageResult(Page pageInfo, List<T> data) {
+        super(pageInfo.getPageSize(), pageInfo.getTotalCount());
+        this.setCurrentPage(pageInfo.getCurrentPage());
+        this.setPageNumberOffset(pageInfo.getPageNumberOffset());
+        this.data = data == null ? new ArrayList<>() : data;
     }
 
     public List<T> getData() {

@@ -77,14 +77,43 @@ class BaseMapperHandler implements BaseMapper<Object> {
     }
 
     @Override
-    public int saveOrUpdate(Object entity) throws SQLException {
+    public int updateById(Object entity) throws RuntimeSQLException {
         if (entity == null) {
             throw new NullPointerException("entity is null.");
         }
 
         List<ColumnMapping> pks = foundPrimaryKey();
         if (pks.isEmpty()) {
-            throw new SQLException(entityType() + " no primary key is identified");
+            throw new RuntimeSQLException(entityType() + " no primary key is identified");
+        }
+
+        EntityUpdateOperation<Object> update = update();
+
+        for (ColumnMapping pk : pks) {
+            Object o = pk.getHandler().get(entity);
+            if (o == null) {
+                update.and().isNull(pk.getColumn());
+            } else {
+                update.and().eq(pk.getColumn(), o);
+            }
+        }
+
+        try {
+            return update.updateTo(entity).doUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
+    }
+
+    @Override
+    public int upsertById(Object entity) throws RuntimeSQLException {
+        if (entity == null) {
+            throw new NullPointerException("entity is null.");
+        }
+
+        List<ColumnMapping> pks = foundPrimaryKey();
+        if (pks.isEmpty()) {
+            throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
         EntityQueryOperation<Object> query = query();
@@ -101,22 +130,26 @@ class BaseMapperHandler implements BaseMapper<Object> {
             }
         }
 
-        if (query.queryForCount() == 0) {
-            return insert().applyEntity(entity).executeSumResult();
-        } else {
-            return update.updateTo(entity).doUpdate();
+        try {
+            if (query.queryForCount() == 0) {
+                return insert().applyEntity(entity).executeSumResult();
+            } else {
+                return update.updateTo(entity).doUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
         }
     }
 
     @Override
-    public int delete(Object entity) throws SQLException {
+    public int delete(Object entity) throws RuntimeSQLException {
         if (entity == null) {
             throw new NullPointerException("entity is null.");
         }
 
         List<ColumnMapping> pks = foundPrimaryKey();
         if (pks.isEmpty()) {
-            throw new SQLException(entityType() + " no primary key is identified");
+            throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
         EntityDeleteOperation<Object> delete = delete();
@@ -129,18 +162,23 @@ class BaseMapperHandler implements BaseMapper<Object> {
                 delete.and().eq(pk.getColumn(), o);
             }
         }
-        return delete.doDelete();
+
+        try {
+            return delete.doDelete();
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
     }
 
     @Override
-    public int deleteById(Serializable id) throws SQLException {
+    public int deleteById(Serializable id) throws RuntimeSQLException {
         if (id == null) {
             return 0;
         }
 
         List<ColumnMapping> pks = foundPrimaryKey();
         if (pks.isEmpty()) {
-            throw new SQLException(entityType() + " no primary key is identified");
+            throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
         EntityDeleteOperation<Object> delete = delete();
@@ -157,23 +195,30 @@ class BaseMapperHandler implements BaseMapper<Object> {
             }
         }
 
-        return delete.doDelete();
+        try {
+            return delete.doDelete();
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
     }
 
     @Override
-    public int deleteByIds(List<? extends Serializable> idList) throws SQLException {
+    public int deleteByIds(List<? extends Serializable> idList) throws RuntimeSQLException {
         if (idList == null || idList.isEmpty()) {
             return 0;
         }
 
         List<ColumnMapping> pks = foundPrimaryKey();
         if (pks.isEmpty()) {
-            throw new SQLException(entityType() + " no primary key is identified");
+            throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
         if (pks.size() == 1) {
-            EntityDeleteOperation<Object> delete = delete();
-            return delete.and().in(pks.get(0).getColumn(), idList).doDelete();
+            try {
+                return delete().and().in(pks.get(0).getColumn(), idList).doDelete();
+            } catch (SQLException e) {
+                throw new RuntimeSQLException(e);
+            }
         } else {
             EntityDeleteOperation<Object> delete = delete();
             for (Object obj : idList) {
@@ -188,19 +233,24 @@ class BaseMapperHandler implements BaseMapper<Object> {
                     }
                 });
             }
-            return delete.doDelete();
+
+            try {
+                return delete.doDelete();
+            } catch (SQLException e) {
+                throw new RuntimeSQLException(e);
+            }
         }
     }
 
     @Override
-    public Object getById(Serializable id) throws SQLException {
+    public Object selectById(Serializable id) throws RuntimeSQLException {
         if (id == null) {
             return null;
         }
 
         List<ColumnMapping> pks = foundPrimaryKey();
         if (pks.isEmpty()) {
-            throw new SQLException(entityType() + " no primary key is identified");
+            throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
         EntityQueryOperation<Object> query = query();
@@ -217,22 +267,30 @@ class BaseMapperHandler implements BaseMapper<Object> {
             }
         }
 
-        return query.queryForObject();
+        try {
+            return query.queryForObject();
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
     }
 
     @Override
-    public List<Object> getByIds(List<? extends Serializable> idList) throws SQLException {
+    public List<Object> selectByIds(List<? extends Serializable> idList) throws RuntimeSQLException {
         if (idList == null || idList.isEmpty()) {
             return Collections.emptyList();
         }
 
         List<ColumnMapping> pks = foundPrimaryKey();
         if (pks.isEmpty()) {
-            throw new SQLException(entityType() + " no primary key is identified");
+            throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
         if (pks.size() == 1) {
-            return query().and().in(pks.get(0).getColumn(), idList).queryForList();
+            try {
+                return query().and().in(pks.get(0).getColumn(), idList).queryForList();
+            } catch (SQLException e) {
+                throw new RuntimeSQLException(e);
+            }
         } else {
             EntityQueryOperation<Object> query = query();
             for (Object obj : idList) {
@@ -247,7 +305,12 @@ class BaseMapperHandler implements BaseMapper<Object> {
                     }
                 });
             }
-            return query.queryForList();
+
+            try {
+                return query.queryForList();
+            } catch (SQLException e) {
+                throw new RuntimeSQLException(e);
+            }
         }
     }
 
@@ -267,28 +330,44 @@ class BaseMapperHandler implements BaseMapper<Object> {
     }
 
     @Override
-    public List<Object> listBySample(Object sample) throws SQLException {
-        return buildQueryBySample(sample).queryForList();
+    public List<Object> listBySample(Object sample) throws RuntimeSQLException {
+        try {
+            return buildQueryBySample(sample).queryForList();
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
     }
 
     @Override
-    public int countBySample(Object sample) throws SQLException {
-        return buildQueryBySample(sample).queryForCount();
+    public int countBySample(Object sample) throws RuntimeSQLException {
+        try {
+            return buildQueryBySample(sample).queryForCount();
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
     }
 
     @Override
-    public int countAll() throws SQLException {
-        return query().queryForCount();
+    public int countAll() throws RuntimeSQLException {
+        try {
+            return query().queryForCount();
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
     }
 
     @Override
-    public PageResult<Object> pageBySample(Object sample, Page page) throws SQLException {
-        List<Object> result = buildQueryBySample(sample).usePage(page).queryForList();
-        return new PageResult<>(page, page.getTotalCount(), result);
+    public PageResult<Object> pageBySample(Object sample, Page page) throws RuntimeSQLException {
+        try {
+            List<Object> result = buildQueryBySample(sample).usePage(page).queryForList();
+            return new PageResult<>(page, result);
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
     }
 
     @Override
-    public Page initPageBySample(Object sample, int pageSize, int pageNumberOffset) throws SQLException {
+    public Page initPageBySample(Object sample, int pageSize, int pageNumberOffset) throws RuntimeSQLException {
         int totalCount = countBySample(sample);
         PageObject pageObject = new PageObject(pageSize, totalCount);
         pageObject.setPageNumberOffset(pageNumberOffset);

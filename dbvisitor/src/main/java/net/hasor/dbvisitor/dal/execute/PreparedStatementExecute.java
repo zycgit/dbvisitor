@@ -92,8 +92,10 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
         }
 
         // page result
-        PageResult<Object> pageResult = new PageResult<>(executeInfo.pageInfo, resultCount);
-        pageResult.setData((resultData instanceof List) ? (List<Object>) resultData : Collections.singletonList(resultData));
+        List<Object> records = (resultData instanceof List) ? (List<Object>) resultData : Collections.singletonList(resultData);
+        PageResult<Object> pageResult = new PageResult<>(executeInfo.pageInfo.getPageSize(), resultCount, records);
+        pageResult.setPageNumberOffset(executeInfo.pageInfo.getPageNumberOffset());
+        pageResult.setCurrentPage(executeInfo.pageInfo.getCurrentPage());
         return pageResult;
     }
 
