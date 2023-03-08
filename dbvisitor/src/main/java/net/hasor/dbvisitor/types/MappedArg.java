@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
+import java.util.Objects;
+
 /**
  * 代表一个动态 SQL Build 之后的具体 SQL 和其参数
  * @version : 2021-06-05
@@ -43,7 +45,17 @@ public class MappedArg {
     }
 
     @Override
+    public boolean equals(Object o) {
+        return Objects.equals(o, this.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.value);
+    }
+
+    @Override
     public String toString() {
-        return "LambdaArg{" + "value=" + value + '}';
+        return String.valueOf(value);
     }
 }

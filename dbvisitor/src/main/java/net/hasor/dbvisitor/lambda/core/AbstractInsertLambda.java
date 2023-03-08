@@ -166,7 +166,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
                     }
                 }
 
-                args[i] = (arg == null) ? null : new MappedArg(arg, mapping.getJdbcType(), mapping.getTypeHandler());
+                args[i] = (arg == null) ? null : new MappedArg(arg, mapping.getJdbcType(), isMap ? null : mapping.getTypeHandler());
             }
 
             if (supportsGetGeneratedKeys) {

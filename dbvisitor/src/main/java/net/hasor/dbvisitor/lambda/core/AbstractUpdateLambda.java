@@ -196,8 +196,12 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
 
             updateColumns.add(columnName);
 
-            MappedArg mappedArg = new MappedArg(propertyValue, allowProperty.getJdbcType(), allowProperty.getTypeHandler());
-            this.updateValueMap.put(propertyName, mappedArg);
+            if (propertyValue == null) {
+                this.updateValueMap.put(propertyName, null);
+            } else {
+                MappedArg mappedArg = new MappedArg(propertyValue, allowProperty.getJdbcType(), exampleIsMap() ? null : allowProperty.getTypeHandler());
+                this.updateValueMap.put(propertyName, mappedArg);
+            }
         }
         return this.getSelf();
     }

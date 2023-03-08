@@ -465,6 +465,9 @@ public final class TypeHandlerRegistry {
             if (argHandler != null) {
                 argHandler.setParameter(ps, parameterPosition, argValue, argType);
                 return;
+            } else if (argValue == null) {
+                ps.setObject(parameterPosition, null);
+                return;
             }
         }
 

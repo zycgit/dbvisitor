@@ -155,7 +155,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
         MergeSqlSegment mergeSqlSegment = new MergeSqlSegment();
         Iterator<Object> iterator = Arrays.asList(params).iterator();
         while (iterator.hasNext()) {
-            Object arg = new MappedArg(iterator.next(), mapping.getJdbcType(), mapping.getTypeHandler());
+            Object arg = new MappedArg(iterator.next(), mapping.getJdbcType(), exampleIsMap() ? null : mapping.getTypeHandler());
             mergeSqlSegment.addSegment(formatSegment(colValue, arg));
             if (iterator.hasNext()) {
                 mergeSqlSegment.addSegment(() -> ",");
