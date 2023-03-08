@@ -24,12 +24,18 @@ import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
+import net.hasor.dbvisitor.jdbc.PreparedStatementCreator;
+import net.hasor.dbvisitor.jdbc.SqlProvider;
+import net.hasor.dbvisitor.jdbc.core.ParameterDisposer;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.segment.Segment;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
+import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -176,4 +182,32 @@ public abstract class BasicLambda<R, T, P> {
     protected abstract BoundSql buildBoundSql(SqlDialect dialect);
 
     protected abstract R getSelf();
+
+    /** 接口 {@link PreparedStatementCreator} 的包装用于实现 SqlProvider 接口，方便打印错误语句 */
+    protected static class PreparedStatementCreatorWrap implements PreparedStatementCreator, ParameterDisposer, SqlProvider {
+        private final String                   sql;
+        private final PreparedStatementCreator creator;
+
+        public PreparedStatementCreatorWrap(String sql, PreparedStatementCreator creator) {
+            this.sql = Objects.requireNonNull(sql, "SQL must not be null");
+            this.creator = creator;
+        }
+
+        @Override
+        public String getSql() {
+            return sql;
+        }
+
+        @Override
+        public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+            return this.creator.createPreparedStatement(con);
+        }
+
+        @Override
+        public void cleanupParameters() {
+            if (this.creator instanceof ParameterDisposer) {
+                ((ParameterDisposer) this.creator).cleanupParameters();
+            }
+        }
+    }
 }

@@ -192,24 +192,24 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
             TypeHandlerRegistry typeRegistry = this.getJdbcTemplate().getTypeRegistry();
 
             if (boundSql.getArgs().length > 1) {
-                return this.getJdbcTemplate().executeCreator(con -> {
+                return this.getJdbcTemplate().executeCreator(new PreparedStatementCreatorWrap(sqlString, con -> {
                     PreparedStatement ps = createPrepareStatement(con, sqlString);
                     for (Object[] batchItem : boundSql.getArgs()) {
                         applyPreparedStatement(ps, batchItem, typeRegistry);
                         ps.addBatch();
                     }
                     return ps;
-                }, (PreparedStatementCallback<int[]>) ps -> {
+                }), (PreparedStatementCallback<int[]>) ps -> {
                     int[] res = ps.executeBatch();
                     processFillBack(ps);
                     return res;
                 });
             } else {
-                return this.getJdbcTemplate().executeCreator(con -> {
+                return this.getJdbcTemplate().executeCreator(new PreparedStatementCreatorWrap(sqlString, con -> {
                     PreparedStatement ps = createPrepareStatement(con, sqlString);
                     applyPreparedStatement(ps, boundSql.getArgs()[0], typeRegistry);
                     return ps;
-                }, (PreparedStatementCallback<int[]>) ps -> {
+                }), (PreparedStatementCallback<int[]>) ps -> {
                     int res = ps.executeUpdate();
                     processFillBack(ps);
                     return new int[] { res };
