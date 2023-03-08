@@ -60,12 +60,12 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
     }
 
     @Override
-    public boolean supportInsertInto(List<String> primaryKey, List<String> columns) {
+    public boolean supportInto(List<String> primaryKey, List<String> columns) {
         return true;
     }
 
     @Override
-    public String insertWithInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("INSERT INTO ");
         strBuilder.append(tableName(useQualifier, catalog, schema, table));
@@ -88,12 +88,12 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
     }
 
     @Override
-    public boolean supportInsertIgnore(List<String> primaryKey, List<String> columns) {
+    public boolean supportIgnore(List<String> primaryKey, List<String> columns) {
         return !primaryKey.isEmpty();
     }
 
     @Override
-    public String insertWithIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
         StringBuilder mergeBuilder = new StringBuilder();
 
         buildMergeInfoBasic(useQualifier, catalog, schema, table, primaryKey, columns, mergeBuilder);
@@ -104,12 +104,12 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
     }
 
     @Override
-    public boolean supportUpsert(List<String> primaryKey, List<String> columns) {
+    public boolean supportReplace(List<String> primaryKey, List<String> columns) {
         return !primaryKey.isEmpty();
     }
 
     @Override
-    public String insertWithUpsert(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
         StringBuilder mergeBuilder = new StringBuilder();
 
         buildMergeInfoBasic(useQualifier, catalog, schema, table, primaryKey, columns, mergeBuilder);

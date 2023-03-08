@@ -292,24 +292,24 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         switch (this.insertStrategy) {
             case Into: {
                 InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
-                if (insertDialect.supportInsertInto(this.primaryKeys, this.insertColumns)) {
-                    String sqlString = insertDialect.insertWithInto(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns);
+                if (insertDialect.supportInto(this.primaryKeys, this.insertColumns)) {
+                    String sqlString = insertDialect.insertInto(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns);
                     return buildBatchBoundSql(sqlString);
                 }
                 break;
             }
             case Ignore: {
                 InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
-                if (insertDialect.supportInsertIgnore(this.primaryKeys, this.insertColumns)) {
-                    String sqlString = insertDialect.insertWithIgnore(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns);
+                if (insertDialect.supportIgnore(this.primaryKeys, this.insertColumns)) {
+                    String sqlString = insertDialect.insertIgnore(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns);
                     return buildBatchBoundSql(sqlString);
                 }
                 break;
             }
             case Update: {
                 InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
-                if (insertDialect.supportUpsert(this.primaryKeys, this.insertColumns)) {
-                    String sqlString = insertDialect.insertWithUpsert(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns);
+                if (insertDialect.supportReplace(this.primaryKeys, this.insertColumns)) {
+                    String sqlString = insertDialect.insertReplace(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns);
                     return buildBatchBoundSql(sqlString);
                 }
                 break;

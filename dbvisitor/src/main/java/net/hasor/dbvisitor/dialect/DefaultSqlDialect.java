@@ -68,12 +68,12 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     }
 
     @Override
-    public boolean supportInsertInto(List<String> primaryKey, List<String> columns) {
+    public boolean supportInto(List<String> primaryKey, List<String> columns) {
         return true;
     }
 
     @Override
-    public String insertWithInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("INSERT INTO ");
         strBuilder.append(tableName(useQualifier, catalog, schema, table));
@@ -97,22 +97,22 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     }
 
     @Override
-    public boolean supportInsertIgnore(List<String> primaryKey, List<String> columns) {
+    public boolean supportIgnore(List<String> primaryKey, List<String> columns) {
         return false;
     }
 
     @Override
-    public String insertWithIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean supportUpsert(List<String> primaryKey, List<String> columns) {
+    public boolean supportReplace(List<String> primaryKey, List<String> columns) {
         return false;
     }
 
     @Override
-    public String insertWithUpsert(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
         throw new UnsupportedOperationException();
     }
 

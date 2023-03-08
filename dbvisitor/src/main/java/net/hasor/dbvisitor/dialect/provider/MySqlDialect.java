@@ -74,32 +74,32 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
     }
 
     @Override
-    public boolean supportInsertInto(List<String> primaryKey, List<String> columns) {
+    public boolean supportInto(List<String> primaryKey, List<String> columns) {
         return true;
     }
 
     @Override
-    public String insertWithInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
         return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, "");
     }
 
     @Override
-    public boolean supportInsertIgnore(List<String> primaryKey, List<String> columns) {
+    public boolean supportIgnore(List<String> primaryKey, List<String> columns) {
         return true;
     }
 
     @Override
-    public String insertWithIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
         return buildSql("INSERT IGNORE ", useQualifier, catalog, schema, table, columns, "");
     }
 
     @Override
-    public boolean supportUpsert(List<String> primaryKey, List<String> columns) {
+    public boolean supportReplace(List<String> primaryKey, List<String> columns) {
         return true;
     }
 
     @Override
-    public String insertWithUpsert(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
         StringBuilder strBuffer = new StringBuilder(" ON DUPLICATE KEY UPDATE ");
         boolean first = true;
         for (String col : columns) {
