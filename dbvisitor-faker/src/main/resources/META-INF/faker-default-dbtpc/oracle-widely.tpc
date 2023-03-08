@@ -24,7 +24,7 @@ define oracle {
     jdbcType       = varchar
     seedType       = string
     minLength      = 1
-    maxLength      = safeMaxLength(1, ${columnSize}, 10, 250)
+    maxLength      = safeMaxLength(1, ${columnSize}, 250, 10)
     characterSet   = [ letter_number ]
     allowEmpty     = false
 
@@ -33,7 +33,7 @@ define oracle {
     jdbcType       = varchar
     seedType       = string
     minLength      = 1
-    maxLength      = safeMaxLength(1, ${columnSize}, 10, 250)
+    maxLength      = safeMaxLength(1, ${columnSize}, 250, 10)
     characterSet   = [ letter_number ]
     allowEmpty     = false
     ignoreAct      = [ DeleteWhere, UpdateWhere ]
@@ -42,7 +42,7 @@ define oracle {
     jdbcType       = varchar
     seedType       = string
     minLength      = 1
-    maxLength      = safeMaxLength(1, ${columnSize}, 10, 250)
+    maxLength      = safeMaxLength(1, ${columnSize}, 250, 10)
     characterSet   = [ letter_number ]
     allowEmpty     = false
     ignoreAct      = [ DeleteWhere ]
@@ -53,7 +53,7 @@ define oracle {
     jdbcType       = blob
     seedType       = bytes
     minLength      = 0
-    maxLength      = safeMaxLength(0, ${columnSize}, 4, 16)
+    maxLength      = safeMaxLength(0, ${columnSize}, 16, 4)
     ignoreAct      = [ DeleteWhere, UpdateWhere ]
 
 [rowid]
