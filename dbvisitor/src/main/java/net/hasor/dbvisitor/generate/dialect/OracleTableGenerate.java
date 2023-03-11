@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping.generate.dialect;
+package net.hasor.dbvisitor.generate.dialect;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
+import net.hasor.dbvisitor.generate.SqlTableGenerate;
 import net.hasor.dbvisitor.mapping.def.*;
-import net.hasor.dbvisitor.mapping.generate.SqlTableGenerate;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -39,9 +39,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version : 2023-03-04
  * @author 赵永春 (zyc@hasor.net)
  */
-public class MySqlTableGenerate extends SqlTableGenerate {
-    public MySqlTableGenerate() {
-        super(SqlDialectRegister.findOrCreate(JdbcUtils.MYSQL));
+public class OracleTableGenerate extends SqlTableGenerate {
+    public OracleTableGenerate() {
+        super(SqlDialectRegister.findOrCreate(JdbcUtils.ORACLE));
     }
 
     @Override
@@ -158,6 +158,59 @@ public class MySqlTableGenerate extends SqlTableGenerate {
         // javaTypeToJdbcTypeMap.put(Object.class, Types.JAVA_OBJECT);
     }
 
+    //CHAR
+    //NCHAR
+    //VARCHAR2
+    //NVARCHAR
+    //NVARCHAR2
+    //LONG
+    //NUMBER BIGINT
+    //NUMBER DECIMAL
+    //FLOAT
+    //BINARY FLOAT
+    //BINARY DOUBLE
+    //CLOB
+    //NCLOB
+    //BLOB
+    //BFILE
+    //DATE
+    //TIMESTAMP
+    //TIMESTAMP WITH TIME ZONE
+    //TIMESTAMP WITH LOCAL TIME ZONE
+    //INTERVAL YEAR TO MONTH
+    //INTERVAL DAY TO SECOND
+    //RAW
+    //LONG RAW
+    //ROWID
+    //UROWID
+    //OBJECT
+    //REF
+    //VARRAY
+    //NESTED_TABLE
+    //PLSQL_BOOLEAN
+    //ANYTYPE
+    //ANYDATA
+    //ANYDATASET
+    //XMLTYPE
+    //HTTPURITYPE
+    //XDBURITYPE
+    //DBURITYPE
+    //SDO_GEOMETRY
+    //SDO_TOPO_GEOMETRY
+    //SDO_GEORASTER
+    //ORDAUDIO
+    //ORDDICOM
+    //ORDDOC
+    //ORDIMAGE
+    //ORDVIDEO
+    //SI_AVERAGE_COLOR
+    //SI_COLOR
+    //SI_COLOR_HISTOGRAM
+    //SI_FEATURE_LIST
+    //SI_POSITIONAL_COLOR
+    //SI_STILL_IMAGE
+    //SI_TEXTURE
+    
     @Override
     protected String typeBuild(Class<?> javaType, ColumnDescription description) {
         description = description == null ? EMPTY : description;
@@ -207,24 +260,10 @@ public class MySqlTableGenerate extends SqlTableGenerate {
             case "TIMESTAMP":
             case "DATETIME":
                 return sqlType + (StringUtils.isBlank(precision) ? "" : ("(" + precision + ")"));
-            case "VARBINARY": {
-                if (StringUtils.equalsIgnoreCase(length, "small")) {
-                    return "TINYBLOB";
-                } else if (StringUtils.equalsIgnoreCase(length, "large")) {
-                    return "LONGBLOB";
-                } else {
-                    return StringUtils.isBlank(length) ? "BLOB" : ("VARBINARY(" + length + ")");
-                }
-            }
-            case "BLOB": {
-                if (StringUtils.equalsIgnoreCase(length, "small")) {
-                    return "TINYBLOB";
-                } else if (StringUtils.equalsIgnoreCase(length, "large")) {
-                    return "LONGBLOB";
-                } else {
-                    return "BLOB" + (StringUtils.isBlank(length) ? "" : ("BLOB(" + length + ")"));
-                }
-            }
+            case "VARBINARY":
+                return StringUtils.isBlank(length) ? "BLOB" : ("VARBINARY(" + length + ")");
+            case "BLOB":
+                return "BLOB" + (StringUtils.isBlank(length) ? "" : ("BLOB(" + length + ")"));
             default:
                 return sqlType;
         }

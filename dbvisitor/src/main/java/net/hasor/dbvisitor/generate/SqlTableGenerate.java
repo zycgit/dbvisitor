@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping.generate;
+package net.hasor.dbvisitor.generate;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.def.*;
@@ -188,6 +188,38 @@ public abstract class SqlTableGenerate implements SchemaGenerate {
 
     protected void afterTable(List<String> beforeScripts, StringBuilder scriptBuild, List<String> afterScripts,//
             TableMapping<?> tableMapping) {
+    }
+
+    protected static int enumNameLengthHelper(Class<?> enumType) {
+        int maxLength = 0;
+        for (Enum<?> item : ((Class<Enum<?>>) enumType).getEnumConstants()) {
+            maxLength = Math.max(maxLength, item.name().length());
+        }
+
+        //some consensus
+        int useLength = maxLength * 2;
+        if (useLength <= 32) {
+            useLength = 32;
+        } else if (useLength <= 64) {
+            useLength = 64;
+        } else if (useLength <= 100) {
+            useLength = 100;
+        } else if (useLength <= 128) {
+            useLength = 128;
+        } else if (useLength <= 150) {
+            useLength = 150;
+        } else if (useLength <= 200) {
+            useLength = 200;
+        } else if (useLength <= 255) {
+            useLength = 255;
+        } else if (useLength <= 300) {
+            useLength = 300;
+        } else if (useLength <= 400) {
+            useLength = 400;
+        } else if (useLength < 500) {
+            useLength = 500;
+        }
+        return useLength;
     }
 
     protected abstract String typeBuild(Class<?> javaType, ColumnDescription description);

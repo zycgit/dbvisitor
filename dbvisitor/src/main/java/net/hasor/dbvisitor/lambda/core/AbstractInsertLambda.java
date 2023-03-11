@@ -44,7 +44,6 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
  */
 public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P> implements InsertExecute<R, T> {
     protected final List<ColumnMapping>  insertProperties;
-    protected final List<ColumnMapping>  primaryKeyProperties;
     protected       DuplicateKeyStrategy insertStrategy;
     protected final List<String>         primaryKeys;
     protected final List<String>         insertColumns;
@@ -57,11 +56,10 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     public AbstractInsertLambda(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
         super(exampleType, tableMapping, jdbcTemplate);
         this.insertProperties = getInsertProperties();
-        this.primaryKeyProperties = getPrimaryKeyColumns();
         this.insertValues = new ArrayList<>();
         this.insertStrategy = DuplicateKeyStrategy.Into;
 
-        this.primaryKeys = this.primaryKeyProperties.stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
+        this.primaryKeys = this.getPrimaryKey().stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
         this.insertColumns = this.insertProperties.stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
         this.hasKeySeqHolderColumn = this.insertProperties.stream().anyMatch(c -> c.getKeySeqHolder() != null);
         this.parameterDisposers = new ArrayList<>();
@@ -91,27 +89,6 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
             throw new IllegalStateException("no column require INSERT.");
         }
         return toInsertProperties;
-    }
-
-    protected List<ColumnMapping> getPrimaryKeyColumns() {
-        TableMapping<?> tableMapping = this.getTableMapping();
-
-        List<ColumnMapping> pkProperties = new ArrayList<>();
-        Set<String> pkColumns = new HashSet<>();
-        for (ColumnMapping mapping : tableMapping.getProperties()) {
-            String columnName = mapping.getColumn();
-            if (!mapping.isPrimaryKey()) {
-                continue;
-            }
-
-            if (pkColumns.contains(columnName)) {
-                throw new IllegalStateException("Multiple property mapping to '" + columnName + "' column");
-            } else {
-                pkColumns.add(columnName);
-                pkProperties.add(mapping);
-            }
-        }
-        return pkProperties;
     }
 
     @Override

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping.generate;
+package net.hasor.dbvisitor.generate;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.def.ColumnDescription;
@@ -34,7 +34,7 @@ public class Sql99TableGenerate extends Sql92TableGenerate {
 
     @Override
     protected String typeBuild(Class<?> javaType, ColumnDescription description) {
-        int jdbcType = TypeHandlerRegistry.toSqlType(javaType);
+        int jdbcType = javaType.isEnum() ? Types.VARCHAR : TypeHandlerRegistry.toSqlType(javaType);
         switch (jdbcType) {
             case Types.BOOLEAN:
                 return "BOOLEAN";

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping.generate.dialect;
+package net.hasor.dbvisitor.generate.dialect;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.mapping.def.*;
-import net.hasor.dbvisitor.mapping.generate.SqlTableGenerate;
+import net.hasor.dbvisitor.generate.SqlTableGenerate;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -39,9 +39,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version : 2023-03-04
  * @author 赵永春 (zyc@hasor.net)
  */
-public class OracleTableGenerate extends SqlTableGenerate {
-    public OracleTableGenerate() {
-        super(SqlDialectRegister.findOrCreate(JdbcUtils.ORACLE));
+public class MySqlTableGenerate extends SqlTableGenerate {
+    public MySqlTableGenerate() {
+        super(SqlDialectRegister.findOrCreate(JdbcUtils.MYSQL));
     }
 
     @Override
@@ -156,6 +156,7 @@ public class OracleTableGenerate extends SqlTableGenerate {
         javaTypeToJdbcTypeMap.put(byte[].class, "VARBINARY");
         // javaTypeToJdbcTypeMap.put(Object[].class, Types.ARRAY);
         // javaTypeToJdbcTypeMap.put(Object.class, Types.JAVA_OBJECT);
+        // 枚举
     }
 
     @Override
@@ -172,7 +173,12 @@ public class OracleTableGenerate extends SqlTableGenerate {
 
         sqlType = javaTypeToJdbcTypeMap.get(javaType);
         if (StringUtils.isBlank(sqlType)) {
-            throw new UnsupportedOperationException(javaType + " Unsupported.");
+            if (javaType.isEnum()) {
+                sqlType = "VARCHAR";
+                length = StringUtils.isNotBlank(length) ? length : String.valueOf(enumNameLengthHelper(javaType));
+            } else {
+                throw new UnsupportedOperationException(javaType + " Unsupported.");
+            }
         }
 
         switch (sqlType) {
@@ -202,15 +208,43 @@ public class OracleTableGenerate extends SqlTableGenerate {
             case "CHAR":
                 return "CHAR" + (StringUtils.isBlank(length) ? "" : ("(" + length + ")"));
             case "VARCHAR":
-                return StringUtils.isBlank(length) ? "TEXT" : ("VARCHAR(" + length + ")");
+                if (StringUtils.equalsIgnoreCase(length, "small")) {
+                    return "TINYTEXT";
+                } else if (StringUtils.equalsIgnoreCase(length, "large")) {
+                    return "LONGTEXT";
+                } else {
+                    return StringUtils.isBlank(length) ? "TEXT" : ("VARCHAR(" + length + ")");
+                }
+            case "TEXT":
+                if (StringUtils.equalsIgnoreCase(length, "small")) {
+                    return "TINYTEXT";
+                } else if (StringUtils.equalsIgnoreCase(length, "large")) {
+                    return "LONGTEXT";
+                } else {
+                    return "TEXT";
+                }
             case "TIME":
             case "TIMESTAMP":
             case "DATETIME":
                 return sqlType + (StringUtils.isBlank(precision) ? "" : ("(" + precision + ")"));
-            case "VARBINARY":
-                return StringUtils.isBlank(length) ? "BLOB" : ("VARBINARY(" + length + ")");
-            case "BLOB":
-                return "BLOB" + (StringUtils.isBlank(length) ? "" : ("BLOB(" + length + ")"));
+            case "VARBINARY": {
+                if (StringUtils.equalsIgnoreCase(length, "small")) {
+                    return "TINYBLOB";
+                } else if (StringUtils.equalsIgnoreCase(length, "large")) {
+                    return "LONGBLOB";
+                } else {
+                    return StringUtils.isBlank(length) ? "BLOB" : ("VARBINARY(" + length + ")");
+                }
+            }
+            case "BLOB": {
+                if (StringUtils.equalsIgnoreCase(length, "small")) {
+                    return "TINYBLOB";
+                } else if (StringUtils.equalsIgnoreCase(length, "large")) {
+                    return "LONGBLOB";
+                } else {
+                    return "BLOB" + (StringUtils.isBlank(length) ? "" : ("BLOB(" + length + ")"));
+                }
+            }
             default:
                 return sqlType;
         }

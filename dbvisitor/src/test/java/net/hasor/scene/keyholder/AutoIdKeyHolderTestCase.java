@@ -91,5 +91,4 @@ public class AutoIdKeyHolderTestCase {
             assert userData.getName().length() == 36;
         }
     }
-
 }

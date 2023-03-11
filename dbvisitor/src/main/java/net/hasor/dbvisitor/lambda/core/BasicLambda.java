@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
+import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.function.Property;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
@@ -36,9 +38,8 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 所有 SQL 执行器必要的公共属性
@@ -46,18 +47,20 @@ import java.util.Objects;
  * @author 赵永春 (zyc@hasor.net)
  */
 public abstract class BasicLambda<R, T, P> {
-    protected static final Logger          logger = LoggerFactory.getLogger(BasicLambda.class);
-    private                SqlDialect      dialect;
-    private final          Class<?>        exampleType;
-    private final          boolean         exampleIsMap;
-    private final          TableMapping<?> tableMapping;
-    private final          LambdaTemplate  jdbcTemplate;
-    private                boolean         qualifier;
+    protected static final Logger              logger = LoggerFactory.getLogger(BasicLambda.class);
+    private                SqlDialect          dialect;
+    private final          Class<?>            exampleType;
+    private final          boolean             exampleIsMap;
+    private final          TableMapping<?>     tableMapping;
+    private final          List<ColumnMapping> primaryKey;
+    private final          LambdaTemplate      jdbcTemplate;
+    private                boolean             qualifier;
 
     public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
         this.exampleType = Objects.requireNonNull(exampleType, "exampleType is null.");
         this.exampleIsMap = Map.class == exampleType || Map.class.isAssignableFrom(this.exampleType());
         this.tableMapping = Objects.requireNonNull(tableMapping, "tableMapping is null.");
+        this.primaryKey = getPrimaryKeyColumns(this.tableMapping);
         this.jdbcTemplate = jdbcTemplate;
 
         String tmpDbType = "";
@@ -182,6 +185,56 @@ public abstract class BasicLambda<R, T, P> {
     protected abstract BoundSql buildBoundSql(SqlDialect dialect);
 
     protected abstract R getSelf();
+
+    protected List<ColumnMapping> getPrimaryKey() {
+        return this.primaryKey;
+    }
+
+    private List<ColumnMapping> getPrimaryKeyColumns(TableMapping<?> tableMapping) {
+        List<ColumnMapping> properties = new ArrayList<>();
+        Set<String> pkc = new HashSet<>();
+        for (ColumnMapping mapping : tableMapping.getProperties()) {
+            String columnName = mapping.getColumn();
+            if (!mapping.isPrimaryKey()) {
+                continue;
+            }
+
+            if (pkc.contains(columnName)) {
+                throw new IllegalStateException("Multiple property mapping to '" + columnName + "' column");
+            } else {
+                pkc.add(columnName);
+                properties.add(mapping);
+            }
+        }
+        return properties;
+    }
+
+    protected String objectMsg(Object object) {
+        if (object == null) {
+            return "null";
+        }
+
+        Map<String, Property> propertyFunc = BeanUtils.getPropertyFunc(this.exampleType());
+        List<String> primaryKeys = this.getPrimaryKey().stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
+
+        StringBuilder strBuffer = new StringBuilder();
+        for (String pk : primaryKeys) {
+            Property property = propertyFunc.get(pk);
+            if (property == null) {
+                continue;
+            }
+            if (strBuffer.length() > 0) {
+                strBuffer.append(", ");
+            }
+            strBuffer.append(pk).append("=").append(StringUtils.toString(property.get(object)));
+        }
+
+        if (strBuffer.length() == 0) {
+            strBuffer.append("hashCode=").append(Objects.hashCode(object));
+        }
+
+        return strBuffer.insert(0, "object[").append("]").toString();
+    }
 
     /** 接口 {@link PreparedStatementCreator} 的包装用于实现 SqlProvider 接口，方便打印错误语句 */
     protected static class PreparedStatementCreatorWrap implements PreparedStatementCreator, ParameterDisposer, SqlProvider {

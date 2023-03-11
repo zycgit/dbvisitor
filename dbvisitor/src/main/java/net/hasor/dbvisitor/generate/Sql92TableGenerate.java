@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping.generate;
+package net.hasor.dbvisitor.generate;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.def.ColumnDescription;
@@ -39,7 +39,14 @@ public class Sql92TableGenerate extends SqlTableGenerate {
         String precision = description.getPrecision();
         String scale = description.getScale();
 
-        int jdbcType = TypeHandlerRegistry.toSqlType(javaType);
+        int jdbcType;
+        if (javaType.isEnum()) {
+            jdbcType = Types.VARCHAR;
+            length = StringUtils.isNotBlank(length) ? length : String.valueOf(enumNameLengthHelper(javaType));
+        } else {
+            jdbcType = TypeHandlerRegistry.toSqlType(javaType);
+        }
+
         switch (jdbcType) {
             case Types.BIT:
                 return "BIT" + (StringUtils.isBlank(length) ? "" : (" VARYING(" + length + ")"));
