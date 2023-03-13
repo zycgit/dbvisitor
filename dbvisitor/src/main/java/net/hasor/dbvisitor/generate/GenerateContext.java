@@ -15,16 +15,32 @@
  */
 package net.hasor.dbvisitor.generate;
 
-import net.hasor.dbvisitor.mapping.def.TableMapping;
-
-import java.util.List;
+import net.hasor.dbvisitor.metadata.CaseSensitivityType;
 
 /**
- * 生成建表脚本
+ * DDL 生成过程中的环境信息
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface SchemaGenerate {
-    /** 生成建表语句 */
-    List<String> buildCreate(TableMapping<?> tableMapping, GenerateContext context);
+public class GenerateContext {
+    /** default sensitive type if meta not be quot */
+    private CaseSensitivityType plain;
+    /** fetch sensitive type if meta be quot */
+    private CaseSensitivityType delimited;
+
+    public CaseSensitivityType getPlain() {
+        return this.plain;
+    }
+
+    public void setPlain(CaseSensitivityType plain) {
+        this.plain = plain;
+    }
+
+    public CaseSensitivityType getDelimited() {
+        return this.delimited;
+    }
+
+    public void setDelimited(CaseSensitivityType delimited) {
+        this.delimited = delimited;
+    }
 }

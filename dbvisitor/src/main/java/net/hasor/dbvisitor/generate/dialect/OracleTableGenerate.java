@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.generate.dialect;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
+import net.hasor.dbvisitor.generate.GenerateContext;
 import net.hasor.dbvisitor.generate.SqlTableGenerate;
 import net.hasor.dbvisitor.mapping.def.*;
 
@@ -46,66 +47,96 @@ public class OracleTableGenerate extends SqlTableGenerate {
 
     @Override
     protected void afterColum(List<String> beforeScripts, StringBuilder scriptBuild, List<String> afterScripts,//
-            TableMapping<?> tableMapping, ColumnMapping colMapping) {
+            GenerateContext context, TableMapping<?> tableMapping, ColumnMapping colMapping) {
         ColumnDescription description = colMapping.getDescription();
+        boolean delimited = tableMapping.useDelimited();
+
         String characterSet = description.getCharacterSet();
         String collation = description.getCollation();
-        String comment = description.getComment();
-        String other = description.getOther();
-
         if (StringUtils.isNotBlank(characterSet)) {
-            scriptBuild.append(" CHARACTER SET '").append(characterSet).append("'");
+            scriptBuild.append(" CHARACTER SET ").append(characterSet);
         }
         if (StringUtils.isNotBlank(collation)) {
             scriptBuild.append(" COLLATE ").append(collation);
         }
-        if (StringUtils.isNotBlank(comment)) {
-            scriptBuild.append(" COMMENT '").append(comment.replace("'", "''")).append("'");
-        }
+
+        String other = description.getOther();
         if (StringUtils.isNotBlank(other)) {
-            scriptBuild.append(other);
+            scriptBuild.append(" ").append(other);
+        }
+
+        String comment = description.getComment();
+        if (StringUtils.isNotBlank(comment)) {
+            String catalog = tableMapping.getCatalog();
+            String schema = tableMapping.getSchema();
+            String table = tableMapping.getTable();
+            String column = colMapping.getColumn();
+
+            StringBuilder sqlBuild = new StringBuilder();
+            sqlBuild.append("COMMENT ON COLUMN ");
+            sqlBuild.append(this.tableName(delimited, context, catalog, schema, table));
+            sqlBuild.append(".");
+            sqlBuild.append(this.fmtName(delimited, context, column));
+            sqlBuild.append(" IS '" + comment.replace("'", "''") + "'");
+            afterScripts.add(sqlBuild.toString());
         }
     }
 
     @Override
     protected void afterTable(List<String> beforeScripts, StringBuilder scriptBuild, List<String> afterScripts,//
-            TableMapping<?> tableMapping) {
+            GenerateContext context, TableMapping<?> tableMapping) {
         TableDescription description = tableMapping.getDescription();
-        String characterSet = description.getCharacterSet();
-        String collation = description.getCollation();
-        String comment = description.getComment();
-        String other = description.getOther();
+        boolean delimited = tableMapping.useDelimited();
 
-        if (StringUtils.isNotBlank(characterSet)) {
-            scriptBuild.append(" DEFAULT CHARSET = ").append(characterSet);
-        }
-        if (StringUtils.isNotBlank(collation)) {
-            scriptBuild.append(" COLLATE = ").append(collation);
-        }
-        if (StringUtils.isNotBlank(comment)) {
-            scriptBuild.append(" COMMENT '").append(comment.replace("'", "''")).append("'");
-        }
+        String other = description.getOther();
         if (StringUtils.isNotBlank(other)) {
-            scriptBuild.append(other);
+            scriptBuild.append(" ").append(other);
+        }
+
+        String comment = description.getComment();
+        if (StringUtils.isNotBlank(comment)) {
+            String catalog = tableMapping.getCatalog();
+            String schema = tableMapping.getSchema();
+            String table = tableMapping.getTable();
+
+            StringBuilder sqlBuild = new StringBuilder();
+            sqlBuild.append("COMMENT ON TABLE ");
+            sqlBuild.append(this.tableName(delimited, context, catalog, schema, table));
+            sqlBuild.append(" IS '" + comment.replace("'", "''") + "'");
+            afterScripts.add(sqlBuild.toString());
         }
     }
 
     @Override
     protected boolean buildIndex(List<String> beforeScripts, StringBuilder scriptBuild, List<String> afterScripts,//
-            TableMapping<?> tableMapping, IndexDescription index) {
-        String name = index.getName();
+            GenerateContext context, TableMapping<?> tableMapping, IndexDescription index) {
+        String catalog = tableMapping.getCatalog();
+        String schema = tableMapping.getSchema();
+        String table = tableMapping.getTable();
         boolean delimited = tableMapping.useDelimited();
-        scriptBuild.append("KEY " + dialect.fmtName(delimited, name) + "(");
+        String indexName = index.getName();
+        List<String> columnList = index.getColumns();
 
-        List<String> ukColumns = index.getColumns();
-        for (int i = 0; i < ukColumns.size(); i++) {
-            String column = ukColumns.get(i);
+        StringBuilder sqlBuild = new StringBuilder();
+        sqlBuild.append("CREATE INDEX ");
+        sqlBuild.append(this.tableName(delimited, context, catalog, schema, indexName));
+        sqlBuild.append(" ON ");
+        sqlBuild.append(this.tableName(delimited, context, catalog, schema, table));
+        sqlBuild.append("(");
+        for (int i = 0; i < columnList.size(); i++) {
+            String column = columnList.get(i);
             if (i > 0) {
-                scriptBuild.append(", ");
+                sqlBuild.append(", ");
             }
-            scriptBuild.append(dialect.fmtName(delimited, column));
+            sqlBuild.append(this.fmtName(delimited, context, column));
         }
-        scriptBuild.append(")");
+        sqlBuild.append(")");
+        String other = index.getOther();
+        if (StringUtils.isNotBlank(other)) {
+            scriptBuild.append(" ").append(other);
+        }
+
+        afterScripts.add(sqlBuild.toString());
         return true;
     }
 
@@ -113,104 +144,52 @@ public class OracleTableGenerate extends SqlTableGenerate {
 
     static {
         // primitive and wrapper
-        javaTypeToJdbcTypeMap.put(Boolean.class, "BOOLEAN");
-        javaTypeToJdbcTypeMap.put(boolean.class, "BOOLEAN");
-        javaTypeToJdbcTypeMap.put(Byte.class, "TINYINT");
-        javaTypeToJdbcTypeMap.put(byte.class, "TINYINT");
+        javaTypeToJdbcTypeMap.put(Boolean.class, "SMALLINT");
+        javaTypeToJdbcTypeMap.put(boolean.class, "SMALLINT");
+        javaTypeToJdbcTypeMap.put(Byte.class, "SMALLINT");
+        javaTypeToJdbcTypeMap.put(byte.class, "SMALLINT");
         javaTypeToJdbcTypeMap.put(Short.class, "SMALLINT");
         javaTypeToJdbcTypeMap.put(short.class, "SMALLINT");
-        javaTypeToJdbcTypeMap.put(Integer.class, "INT");
-        javaTypeToJdbcTypeMap.put(int.class, "INT");
-        javaTypeToJdbcTypeMap.put(Long.class, "BIGINT");
-        javaTypeToJdbcTypeMap.put(long.class, "BIGINT");
+        javaTypeToJdbcTypeMap.put(Integer.class, "INTEGER");
+        javaTypeToJdbcTypeMap.put(int.class, "INTEGER");
+        javaTypeToJdbcTypeMap.put(Long.class, "NUMBER");
+        javaTypeToJdbcTypeMap.put(long.class, "NUMBER");
         javaTypeToJdbcTypeMap.put(Float.class, "FLOAT");
         javaTypeToJdbcTypeMap.put(float.class, "FLOAT");
-        javaTypeToJdbcTypeMap.put(Double.class, "DOUBLE");
-        javaTypeToJdbcTypeMap.put(double.class, "DOUBLE");
+
+        javaTypeToJdbcTypeMap.put(Double.class, "DOUBLE PRECISION");
+        javaTypeToJdbcTypeMap.put(double.class, "DOUBLE PRECISION");
         javaTypeToJdbcTypeMap.put(Character.class, "CHAR");
         javaTypeToJdbcTypeMap.put(char.class, "CHAR");
         // java time
-        javaTypeToJdbcTypeMap.put(Date.class, "DATE");
+        javaTypeToJdbcTypeMap.put(Date.class, "TIMESTAMP");
+        javaTypeToJdbcTypeMap.put(java.sql.Timestamp.class, "TIMESTAMP");
         javaTypeToJdbcTypeMap.put(java.sql.Date.class, "DATE");
-        javaTypeToJdbcTypeMap.put(java.sql.Timestamp.class, "DATETIME");
-        javaTypeToJdbcTypeMap.put(java.sql.Time.class, "TIME");
-        javaTypeToJdbcTypeMap.put(Instant.class, "DATETIME");
-        javaTypeToJdbcTypeMap.put(LocalDateTime.class, "DATETIME");
+        javaTypeToJdbcTypeMap.put(java.sql.Time.class, "TIMESTAMP");
         javaTypeToJdbcTypeMap.put(LocalDate.class, "DATE");
-        javaTypeToJdbcTypeMap.put(LocalTime.class, "TIME");
-        javaTypeToJdbcTypeMap.put(ZonedDateTime.class, "TIMESTAMP");
-        javaTypeToJdbcTypeMap.put(JapaneseDate.class, "DATETIME");
-        javaTypeToJdbcTypeMap.put(YearMonth.class, "MEDIUMINT");
-        javaTypeToJdbcTypeMap.put(Year.class, "YEAR");
-        javaTypeToJdbcTypeMap.put(Month.class, "TINYINT");
-        javaTypeToJdbcTypeMap.put(OffsetDateTime.class, "DATETIME");
-        javaTypeToJdbcTypeMap.put(OffsetTime.class, "TIME");
+        javaTypeToJdbcTypeMap.put(LocalTime.class, "TIMESTAMP");
+        javaTypeToJdbcTypeMap.put(LocalDateTime.class, "TIMESTAMP");
+        javaTypeToJdbcTypeMap.put(ZonedDateTime.class, "TIMESTAMP WITH TIME ZONE");
+        javaTypeToJdbcTypeMap.put(OffsetTime.class, "TIMESTAMP WITH TIME ZONE");
+        javaTypeToJdbcTypeMap.put(OffsetDateTime.class, "TIMESTAMP WITH TIME ZONE");
+        javaTypeToJdbcTypeMap.put(Instant.class, "TIMESTAMP");
+        javaTypeToJdbcTypeMap.put(JapaneseDate.class, "TIMESTAMP");
+        javaTypeToJdbcTypeMap.put(YearMonth.class, "INTEGER");
+        javaTypeToJdbcTypeMap.put(Year.class, "SMALLINT");
+        javaTypeToJdbcTypeMap.put(Month.class, "SMALLINT");
         // java extensions Types
-        javaTypeToJdbcTypeMap.put(String.class, "VARCHAR");
-        javaTypeToJdbcTypeMap.put(BigInteger.class, "BIGINT");
-        javaTypeToJdbcTypeMap.put(BigDecimal.class, "DECIMAL");
-        javaTypeToJdbcTypeMap.put(Reader.class, "TEXT");
+        javaTypeToJdbcTypeMap.put(String.class, "VARCHAR2");
+        javaTypeToJdbcTypeMap.put(BigInteger.class, "NUMBER");
+        javaTypeToJdbcTypeMap.put(BigDecimal.class, "NUMBER");
+        javaTypeToJdbcTypeMap.put(Reader.class, "CLOB");
         javaTypeToJdbcTypeMap.put(InputStream.class, "BLOB");
         javaTypeToJdbcTypeMap.put(URL.class, "VARCHAR");
-        javaTypeToJdbcTypeMap.put(Byte[].class, "VARBINARY");
-        javaTypeToJdbcTypeMap.put(byte[].class, "VARBINARY");
+        javaTypeToJdbcTypeMap.put(Byte[].class, "RAW");
+        javaTypeToJdbcTypeMap.put(byte[].class, "RAW");
         // javaTypeToJdbcTypeMap.put(Object[].class, Types.ARRAY);
         // javaTypeToJdbcTypeMap.put(Object.class, Types.JAVA_OBJECT);
     }
 
-    //CHAR
-    //NCHAR
-    //VARCHAR2
-    //NVARCHAR
-    //NVARCHAR2
-    //LONG
-    //NUMBER BIGINT
-    //NUMBER DECIMAL
-    //FLOAT
-    //BINARY FLOAT
-    //BINARY DOUBLE
-    //CLOB
-    //NCLOB
-    //BLOB
-    //BFILE
-    //DATE
-    //TIMESTAMP
-    //TIMESTAMP WITH TIME ZONE
-    //TIMESTAMP WITH LOCAL TIME ZONE
-    //INTERVAL YEAR TO MONTH
-    //INTERVAL DAY TO SECOND
-    //RAW
-    //LONG RAW
-    //ROWID
-    //UROWID
-    //OBJECT
-    //REF
-    //VARRAY
-    //NESTED_TABLE
-    //PLSQL_BOOLEAN
-    //ANYTYPE
-    //ANYDATA
-    //ANYDATASET
-    //XMLTYPE
-    //HTTPURITYPE
-    //XDBURITYPE
-    //DBURITYPE
-    //SDO_GEOMETRY
-    //SDO_TOPO_GEOMETRY
-    //SDO_GEORASTER
-    //ORDAUDIO
-    //ORDDICOM
-    //ORDDOC
-    //ORDIMAGE
-    //ORDVIDEO
-    //SI_AVERAGE_COLOR
-    //SI_COLOR
-    //SI_COLOR_HISTOGRAM
-    //SI_FEATURE_LIST
-    //SI_POSITIONAL_COLOR
-    //SI_STILL_IMAGE
-    //SI_TEXTURE
-    
     @Override
     protected String typeBuild(Class<?> javaType, ColumnDescription description) {
         description = description == null ? EMPTY : description;
@@ -229,41 +208,29 @@ public class OracleTableGenerate extends SqlTableGenerate {
         }
 
         switch (sqlType) {
-            case "TINYINT":
-            case "SMALLINT":
-            case "MEDIUMINT":
-            case "INT":
-            case "BIGINT":
-                return sqlType + (StringUtils.isBlank(precision) ? "" : ("(" + precision + ")"));
-            case "DOUBLE": {
-                if (StringUtils.isNotBlank(precision) && StringUtils.isNotBlank(scale)) {
-                    return "DOUBLE(" + precision + ", " + scale + ")";
-                } else {
-                    return "DOUBLE";
-                }
-            }
             case "FLOAT":
-            case "DECIMAL": {
+                return "FLOAT" + (StringUtils.isBlank(precision) ? "" : ("(" + precision + ")"));
+            case "NUMBER":
                 if (StringUtils.isNotBlank(precision) && StringUtils.isNotBlank(scale)) {
                     return sqlType + "(" + precision + ", " + scale + ")";
+                } else if (StringUtils.isBlank(precision) && StringUtils.isNotBlank(scale)) {
+                    return sqlType + "(*, " + scale + ")";
                 } else if (StringUtils.isNotBlank(precision)) {
                     return sqlType + "(" + precision + ")";
                 } else {
                     return sqlType;
                 }
-            }
             case "CHAR":
-                return "CHAR" + (StringUtils.isBlank(length) ? "" : ("(" + length + ")"));
+                return StringUtils.isBlank(length) ? "CHAR" : ("CHAR(" + length + ")");
             case "VARCHAR":
-                return StringUtils.isBlank(length) ? "TEXT" : ("VARCHAR(" + length + ")");
-            case "TIME":
+            case "VARCHAR2":
+                return StringUtils.isBlank(length) ? "CLOB" : (sqlType + "(" + length + ")");
+            case "RAW":
+                return StringUtils.isBlank(length) ? "RAW(2000)" : ("RAW(" + length + ")");
             case "TIMESTAMP":
-            case "DATETIME":
-                return sqlType + (StringUtils.isBlank(precision) ? "" : ("(" + precision + ")"));
-            case "VARBINARY":
-                return StringUtils.isBlank(length) ? "BLOB" : ("VARBINARY(" + length + ")");
-            case "BLOB":
-                return "BLOB" + (StringUtils.isBlank(length) ? "" : ("BLOB(" + length + ")"));
+                return StringUtils.isBlank(precision) ? "TIMESTAMP" : ("TIMESTAMP(" + precision + ")");
+            case "TIMESTAMP WITH TIME ZONE":
+                return (StringUtils.isBlank(precision) ? "TIMESTAMP" : ("TIMESTAMP(" + precision + ")")) + " WITH TIME ZONE";
             default:
                 return sqlType;
         }
@@ -271,30 +238,16 @@ public class OracleTableGenerate extends SqlTableGenerate {
 
     @Override
     protected String buildDefault(String sqlType, String defaultValue) {
-        boolean isBoolean = StringUtils.startsWithIgnoreCase(sqlType, "BOOLEAN");
-        boolean isNumber = StringUtils.startsWithIgnoreCase(sqlType, "TINYINT") //
+        boolean isNumber = StringUtils.startsWithIgnoreCase(sqlType, "FLOAT") //
+                || StringUtils.startsWithIgnoreCase(sqlType, "NUMBER") //
                 || StringUtils.startsWithIgnoreCase(sqlType, "SMALLINT") //
-                || StringUtils.startsWithIgnoreCase(sqlType, "MEDIUMINT") //
-                || StringUtils.startsWithIgnoreCase(sqlType, "INT") //
-                || StringUtils.startsWithIgnoreCase(sqlType, "BIGINT")//
-                || StringUtils.startsWithIgnoreCase(sqlType, "DOUBLE")//
-                || StringUtils.startsWithIgnoreCase(sqlType, "FLOAT")//
-                || StringUtils.startsWithIgnoreCase(sqlType, "DECIMAL")//
-                || StringUtils.startsWithIgnoreCase(sqlType, "YEAR");
-        boolean isChar = StringUtils.startsWithIgnoreCase(sqlType, "CHAR") //
-                || StringUtils.startsWithIgnoreCase(sqlType, "VARCHAR") //
-                || StringUtils.startsWithIgnoreCase(sqlType, "TEXT");
-        boolean isTime = StringUtils.startsWithIgnoreCase(sqlType, "DATE")//
-                || StringUtils.startsWithIgnoreCase(sqlType, "TIME")//
-                || StringUtils.startsWithIgnoreCase(sqlType, "TIMESTAMP")//
-                || StringUtils.startsWithIgnoreCase(sqlType, "DATETIME");
-        boolean isBlob = StringUtils.startsWithIgnoreCase(sqlType, "VARBINARY")//
-                || StringUtils.startsWithIgnoreCase(sqlType, "BLOB");
+                || StringUtils.startsWithIgnoreCase(sqlType, "INTEGER") //
+                || StringUtils.startsWithIgnoreCase(sqlType, "DOUBLE PRECISION");
 
-        if (isChar || isTime) {
-            return "'" + defaultValue.replace("'", "''") + "'";
-        } else {
+        if (isNumber) {
             return defaultValue;
+        } else {
+            return "'" + defaultValue.replace("'", "''") + "'";
         }
     }
 }

@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.generate;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.def.*;
+import net.hasor.dbvisitor.metadata.CaseSensitivityType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,13 +29,37 @@ import java.util.List;
  */
 public abstract class SqlTableGenerate implements SchemaGenerate {
     protected static final ColumnDescription EMPTY = new ColumnDescDef();
-    protected              SqlDialect        dialect;
+    private final          SqlDialect        dialect;
 
     public SqlTableGenerate(SqlDialect dialect) {
         this.dialect = dialect;
     }
 
-    public List<String> buildCreate(TableMapping<?> tableMapping) {
+    private String casedName(boolean delimited, GenerateContext context, String name) {
+        CaseSensitivityType type = delimited ? context.getDelimited() : context.getPlain();
+        switch (type) {
+            case Lower:
+                return name.toLowerCase();
+            case Upper:
+                return name.toUpperCase();
+            default:
+                return name;
+        }
+    }
+
+    protected String tableName(boolean delimited, GenerateContext context, String catalog, String schema, String table) {
+        catalog = casedName(delimited, context, catalog);
+        schema = casedName(delimited, context, schema);
+        table = casedName(delimited, context, table);
+        return this.dialect.tableName(delimited, catalog, schema, table);
+    }
+
+    protected String fmtName(boolean delimited, GenerateContext context, String name) {
+        name = casedName(delimited, context, name);
+        return this.dialect.fmtName(delimited, name);
+    }
+
+    public List<String> buildCreate(TableMapping<?> tableMapping, GenerateContext context) {
         List<String> beforeScripts = new ArrayList<>();
         StringBuilder scriptBuild = new StringBuilder();
         List<String> afterScripts = new ArrayList<>();
@@ -44,8 +69,8 @@ public abstract class SqlTableGenerate implements SchemaGenerate {
         String table = tableMapping.getTable();
         boolean delimited = tableMapping.useDelimited();
 
-        beforeTable(beforeScripts, scriptBuild, afterScripts, tableMapping);
-        scriptBuild.append("CREATE TABLE ").append(dialect.tableName(delimited, catalog, schema, table));
+        beforeTable(beforeScripts, scriptBuild, afterScripts, context, tableMapping);
+        scriptBuild.append("CREATE TABLE ").append(this.tableName(delimited, context, catalog, schema, table));
         scriptBuild.append("(");
 
         // columns
@@ -55,13 +80,13 @@ public abstract class SqlTableGenerate implements SchemaGenerate {
             if (i != 0) {
                 scriptBuild.append(", ");
             }
-            beforeColum(beforeScripts, scriptBuild, afterScripts, tableMapping, colMapping);
-            boolean finish = buildColumn(beforeScripts, scriptBuild, afterScripts, tableMapping, colMapping);
+            beforeColum(beforeScripts, scriptBuild, afterScripts, context, tableMapping, colMapping);
+            boolean finish = buildColumn(beforeScripts, scriptBuild, afterScripts, context, tableMapping, colMapping);
             if (i != 0 && !finish) {
                 int length = scriptBuild.length();
                 scriptBuild.delete(length - 2, length);
             }
-            afterColum(beforeScripts, scriptBuild, afterScripts, tableMapping, colMapping);
+            afterColum(beforeScripts, scriptBuild, afterScripts, context, tableMapping, colMapping);
             if (colMapping.isPrimaryKey()) {
                 pkColumns.add(colMapping.getColumn());
             }
@@ -71,7 +96,7 @@ public abstract class SqlTableGenerate implements SchemaGenerate {
         // PK
         if (!pkColumns.isEmpty()) {
             scriptBuild.append(", ");
-            boolean finish = buildPrimaryKey(beforeScripts, scriptBuild, afterScripts, tableMapping, pkColumns);
+            boolean finish = buildPrimaryKey(beforeScripts, scriptBuild, afterScripts, context, tableMapping, pkColumns);
             if (!finish) {
                 int length = scriptBuild.length();
                 scriptBuild.delete(length - 2, length);
@@ -82,7 +107,7 @@ public abstract class SqlTableGenerate implements SchemaGenerate {
         for (IndexDescription index : tableMapping.getIndexes()) {
             if (index.isUnique()) {
                 scriptBuild.append(", ");
-                boolean finish = buildUnique(beforeScripts, scriptBuild, afterScripts, tableMapping, index);
+                boolean finish = buildUnique(beforeScripts, scriptBuild, afterScripts, context, tableMapping, index);
                 if (!finish) {
                     int length = scriptBuild.length();
                     scriptBuild.delete(length - 2, length);
@@ -94,7 +119,7 @@ public abstract class SqlTableGenerate implements SchemaGenerate {
         for (IndexDescription index : tableMapping.getIndexes()) {
             if (!index.isUnique()) {
                 scriptBuild.append(", ");
-                boolean finish = buildIndex(beforeScripts, scriptBuild, afterScripts, tableMapping, index);
+                boolean finish = buildIndex(beforeScripts, scriptBuild, afterScripts, context, tableMapping, index);
                 if (!finish) {
                     int length = scriptBuild.length();
                     scriptBuild.delete(length - 2, length);
@@ -103,7 +128,7 @@ public abstract class SqlTableGenerate implements SchemaGenerate {
         }
 
         scriptBuild.append(")");
-        afterTable(beforeScripts, scriptBuild, afterScripts, tableMapping);
+        afterTable(beforeScripts, scriptBuild, afterScripts, context, tableMapping);
 
         ArrayList<String> finalScript = new ArrayList<>();
         finalScript.addAll(beforeScripts);
@@ -113,7 +138,7 @@ public abstract class SqlTableGenerate implements SchemaGenerate {
     }
 
     protected boolean buildColumn(List<String> beforeScripts, StringBuilder scriptBuild, List<String> afterScripts,//
-            TableMapping<?> tableMapping, ColumnMapping colMapping) {
+            GenerateContext context, TableMapping<?> tableMapping, ColumnMapping colMapping) {
         ColumnDescription description = colMapping.getDescription();
         boolean nullable = description == null || description.isNullable();
         String defaultValue = description == null ? null : description.getDefault();
@@ -123,7 +148,7 @@ public abstract class SqlTableGenerate implements SchemaGenerate {
             sqlType = typeBuild(colMapping.getJavaType(), description);
         }
 
-        scriptBuild.append(dialect.fmtName(tableMapping.useDelimited(), colMapping.getColumn()));
+        scriptBuild.append(this.fmtName(tableMapping.useDelimited(), context, colMapping.getColumn()));
         scriptBuild.append(" ").append(sqlType);
         scriptBuild.append(nullable ? " NULL" : " NOT NULL");
         scriptBuild.append(StringUtils.isBlank(defaultValue) ? "" : (" DEFAULT " + buildDefault(sqlType, defaultValue)));
@@ -131,7 +156,7 @@ public abstract class SqlTableGenerate implements SchemaGenerate {
     }
 
     protected boolean buildPrimaryKey(List<String> beforeScripts, StringBuilder scriptBuild, List<String> afterScripts,//
-            TableMapping<?> tableMapping, List<String> pkColumns) {
+            GenerateContext context, TableMapping<?> tableMapping, List<String> pkColumns) {
         boolean delimited = tableMapping.useDelimited();
 
         scriptBuild.append("PRIMARY KEY(");
@@ -140,19 +165,19 @@ public abstract class SqlTableGenerate implements SchemaGenerate {
             if (i > 0) {
                 scriptBuild.append(", ");
             }
-            scriptBuild.append(dialect.fmtName(delimited, column));
+            scriptBuild.append(this.fmtName(delimited, context, column));
         }
         scriptBuild.append(")");
         return true;
     }
 
     protected boolean buildUnique(List<String> beforeScripts, StringBuilder scriptBuild, List<String> afterScripts,//
-            TableMapping<?> tableMapping, IndexDescription index) {
+            GenerateContext context, TableMapping<?> tableMapping, IndexDescription index) {
         String name = index.getName();
         boolean delimited = tableMapping.useDelimited();
 
         if (StringUtils.isNotBlank(name)) {
-            scriptBuild.append("CONSTRAINT " + dialect.fmtName(delimited, name) + " UNIQUE (");
+            scriptBuild.append("CONSTRAINT " + this.fmtName(delimited, context, name) + " UNIQUE (");
         } else {
             scriptBuild.append("UNIQUE (");
         }
@@ -163,31 +188,31 @@ public abstract class SqlTableGenerate implements SchemaGenerate {
             if (i > 0) {
                 scriptBuild.append(", ");
             }
-            scriptBuild.append(dialect.fmtName(delimited, column));
+            scriptBuild.append(this.fmtName(delimited, context, column));
         }
         scriptBuild.append(")");
         return true;
     }
 
     protected boolean buildIndex(List<String> beforeScripts, StringBuilder scriptBuild, List<String> afterScripts,//
-            TableMapping<?> tableMapping, IndexDescription index) {
+            GenerateContext context, TableMapping<?> tableMapping, IndexDescription index) {
         return false;
     }
 
     protected void beforeTable(List<String> beforeScripts, StringBuilder scriptBuild, List<String> afterScripts,//
-            TableMapping<?> tableMapping) {
+            GenerateContext context, TableMapping<?> tableMapping) {
     }
 
     protected void beforeColum(List<String> beforeScripts, StringBuilder scriptBuild, List<String> afterScripts,//
-            TableMapping<?> tableMapping, ColumnMapping colMapping) {
+            GenerateContext context, TableMapping<?> tableMapping, ColumnMapping colMapping) {
     }
 
     protected void afterColum(List<String> beforeScripts, StringBuilder scriptBuild, List<String> afterScripts,//
-            TableMapping<?> tableMapping, ColumnMapping colMapping) {
+            GenerateContext context, TableMapping<?> tableMapping, ColumnMapping colMapping) {
     }
 
     protected void afterTable(List<String> beforeScripts, StringBuilder scriptBuild, List<String> afterScripts,//
-            TableMapping<?> tableMapping) {
+            GenerateContext context, TableMapping<?> tableMapping) {
     }
 
     protected static int enumNameLengthHelper(Class<?> enumType) {

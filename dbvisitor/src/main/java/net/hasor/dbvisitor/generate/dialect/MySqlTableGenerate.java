@@ -17,8 +17,9 @@ package net.hasor.dbvisitor.generate.dialect;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
-import net.hasor.dbvisitor.mapping.def.*;
+import net.hasor.dbvisitor.generate.GenerateContext;
 import net.hasor.dbvisitor.generate.SqlTableGenerate;
+import net.hasor.dbvisitor.mapping.def.*;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -46,7 +47,7 @@ public class MySqlTableGenerate extends SqlTableGenerate {
 
     @Override
     protected void afterColum(List<String> beforeScripts, StringBuilder scriptBuild, List<String> afterScripts,//
-            TableMapping<?> tableMapping, ColumnMapping colMapping) {
+            GenerateContext context, TableMapping<?> tableMapping, ColumnMapping colMapping) {
         ColumnDescription description = colMapping.getDescription();
         String characterSet = description.getCharacterSet();
         String collation = description.getCollation();
@@ -63,13 +64,13 @@ public class MySqlTableGenerate extends SqlTableGenerate {
             scriptBuild.append(" COMMENT '").append(comment.replace("'", "''")).append("'");
         }
         if (StringUtils.isNotBlank(other)) {
-            scriptBuild.append(other);
+            scriptBuild.append(" ").append(other);
         }
     }
 
     @Override
     protected void afterTable(List<String> beforeScripts, StringBuilder scriptBuild, List<String> afterScripts,//
-            TableMapping<?> tableMapping) {
+            GenerateContext context, TableMapping<?> tableMapping) {
         TableDescription description = tableMapping.getDescription();
         String characterSet = description.getCharacterSet();
         String collation = description.getCollation();
@@ -86,16 +87,16 @@ public class MySqlTableGenerate extends SqlTableGenerate {
             scriptBuild.append(" COMMENT '").append(comment.replace("'", "''")).append("'");
         }
         if (StringUtils.isNotBlank(other)) {
-            scriptBuild.append(other);
+            scriptBuild.append(" ").append(other);
         }
     }
 
     @Override
     protected boolean buildIndex(List<String> beforeScripts, StringBuilder scriptBuild, List<String> afterScripts,//
-            TableMapping<?> tableMapping, IndexDescription index) {
+            GenerateContext context, TableMapping<?> tableMapping, IndexDescription index) {
         String name = index.getName();
         boolean delimited = tableMapping.useDelimited();
-        scriptBuild.append("KEY " + dialect.fmtName(delimited, name) + "(");
+        scriptBuild.append("KEY " + this.fmtName(delimited, context, name) + "(");
 
         List<String> ukColumns = index.getColumns();
         for (int i = 0; i < ukColumns.size(); i++) {
@@ -103,7 +104,7 @@ public class MySqlTableGenerate extends SqlTableGenerate {
             if (i > 0) {
                 scriptBuild.append(", ");
             }
-            scriptBuild.append(dialect.fmtName(delimited, column));
+            scriptBuild.append(this.fmtName(delimited, context, column));
         }
         scriptBuild.append(")");
         return true;
