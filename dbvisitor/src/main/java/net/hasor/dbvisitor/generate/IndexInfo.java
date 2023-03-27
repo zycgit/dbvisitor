@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.metadata;
+package net.hasor.dbvisitor.generate;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +22,7 @@ import java.util.Map;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class IndexMeta {
+public class IndexInfo {
     private String              catalog;
     private String              schema;
     private String              name;

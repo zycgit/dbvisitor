@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.generate.dialect;
+package net.hasor.dbvisitor.generate.provider;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;

@@ -15,8 +15,6 @@
  */
 package net.hasor.dbvisitor.generate;
 
-import net.hasor.dbvisitor.metadata.CaseSensitivityType;
-
 /**
  * DDL 生成过程中的环境信息
  * @version : 2020-10-31
