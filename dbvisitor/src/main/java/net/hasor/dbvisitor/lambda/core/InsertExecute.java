@@ -18,6 +18,7 @@ package net.hasor.dbvisitor.lambda.core;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -32,11 +33,15 @@ public interface InsertExecute<R, T> extends BoundSqlBuilder {
     /** 执行插入，并且将返回的int结果相加。*/
     default int executeSumResult() throws SQLException {
         int[] results = this.executeGetResult();
-        int sumValue = 0;
-        for (int result : results) {
-            sumValue = sumValue + result;
-        }
-        return sumValue;
+        return Arrays.stream(results).map(v -> {
+            if (v == Statement.SUCCESS_NO_INFO) {
+                return 1;
+            } else if (v == Statement.EXECUTE_FAILED) {
+                return 0;
+            } else {
+                return v;
+            }
+        }).sum();
     }
 
     /** 执行插入，并返回所有结果*/
