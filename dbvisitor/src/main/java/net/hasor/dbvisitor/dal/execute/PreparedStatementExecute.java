@@ -54,6 +54,7 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
     protected Object executeQuery(Connection con, ExecuteInfo executeInfo, SqlBuilder sqlBuilder) throws SQLException {
         BoundSql boundSql = sqlBuilder;
         BoundSql countSql = null;
+        long resultCount = 0L;
 
         // prepare page
         if (usingPage(executeInfo)) {
@@ -63,6 +64,19 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
             boundSql = dialect.pageSql(sqlBuilder, position, pageSize);
             if (refreshTotalCount(executeInfo)) {
                 countSql = dialect.countSql(sqlBuilder);
+            }
+
+            // select count
+            resultCount = executeInfo.pageInfo.getTotalCount(); // old value
+            if (countSql != null) {
+                try (PreparedStatement ps = createPreparedStatement(con, countSql.getSqlString(), executeInfo.resultSetType)) {
+                    configStatement(executeInfo, ps);
+                    resultCount = executeCount(ps, countSql);
+                    executeInfo.pageInfo.setTotalCount(resultCount); // new value
+                } catch (SQLException e) {
+                    logger.error("executeCount failed, " + ExceptionUtils.getRootCauseMessage(e) + ", " + fmtBoundSql(countSql, executeInfo.data), e);
+                    throw e;
+                }
             }
         }
 
@@ -77,18 +91,6 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
         } catch (SQLException e) {
             logger.error("executeQuery failed, " + ExceptionUtils.getRootCauseMessage(e) + ", " + fmtBoundSql(boundSql, executeInfo.data), e);
             throw e;
-        }
-
-        // select count
-        long resultCount = executeInfo.pageInfo.getTotalCount(); // old value
-        if (countSql != null) {
-            try (PreparedStatement ps = createPreparedStatement(con, countSql.getSqlString(), executeInfo.resultSetType)) {
-                configStatement(executeInfo, ps);
-                resultCount = executeCount(ps, countSql);
-            } catch (SQLException e) {
-                logger.error("executeCount failed, " + ExceptionUtils.getRootCauseMessage(e) + ", " + fmtBoundSql(countSql, executeInfo.data), e);
-                throw e;
-            }
         }
 
         // page result

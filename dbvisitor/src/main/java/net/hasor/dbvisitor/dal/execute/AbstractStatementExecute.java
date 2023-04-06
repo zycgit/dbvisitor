@@ -120,7 +120,7 @@ public abstract class AbstractStatementExecute<T> {
     }
 
     protected boolean refreshTotalCount(ExecuteInfo executeInfo) {
-        return executeInfo.pageResult && (executeInfo.pageInfo.isRefreshTotalCount() || executeInfo.pageInfo.getTotalCount() <= 0);
+        return executeInfo.pageInfo.isRefreshTotalCount() || executeInfo.pageInfo.getTotalCount() <= 0;
     }
 
     protected abstract T executeQuery(Connection con, ExecuteInfo executeInfo, SqlBuilder sqlBuilder) throws SQLException;
