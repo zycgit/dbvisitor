@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +66,24 @@ public class MapArgsTestCase {
             assert result.size() == 2;
             assert result.get(0).getName().equals("jon wes");
             assert result.get(1).getName().equals("mary");
+        }
+    }
+
+    @Test
+    public void mapArgs_4() throws SQLException {
+        try (Connection c = DsUtils.h2Conn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
+
+            ArrayList<Map<String, Object>> arrayArg = new ArrayList<>();
+            arrayArg.add(CollectionUtils.asMap("age", 11));
+            arrayArg.add(CollectionUtils.asMap("age", 40));
+            Map<String, Object> args = CollectionUtils.asMap("p", CollectionUtils.asMap("cfg_id", CollectionUtils.asMap("array", arrayArg)));
+
+            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user where age > :p.cfg_id.array[1].age order by id", args);
+
+            assert result.size() == 2;
+            assert result.get(0).get("name").equals("jon wes");
+            assert result.get(1).get("name").equals("mary");
         }
     }
 }

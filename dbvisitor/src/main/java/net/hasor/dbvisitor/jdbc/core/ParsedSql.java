@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
+import net.hasor.dbvisitor.jars.OgnlUtils;
 import net.hasor.dbvisitor.jdbc.SqlParameter.InSqlParameter;
 import net.hasor.dbvisitor.jdbc.SqlParameterSource;
 
@@ -133,15 +134,9 @@ public class ParsedSql {
         }
         for (String paramName : parameterNames) {
             Object value = paramSource.getValue(paramName);
-            //处理类似：@{and, cfg_id = :p.cfg_id} 的情况
+            //处理类似：@{and, cfg_id = :p.cfg_id.array[1].name} 的情况
             if (value == null && paramName.contains(".")) {
-                String[] arr = paramName.split("\\.");
-                if (arr.length > 1) {
-                    Object po = paramSource.getValue(arr[0]);
-                    if (po instanceof Map) {
-                        value = ((Map)po).get(arr[1]);
-                    }
-                }
+                value = OgnlUtils.evalOgnl(paramName, paramSource.toMap());
             }
             if (value instanceof InSqlParameter) {
                 value = ((InSqlParameter) value).getValue();

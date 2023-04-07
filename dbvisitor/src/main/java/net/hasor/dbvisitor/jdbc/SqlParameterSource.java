@@ -16,6 +16,10 @@
 package net.hasor.dbvisitor.jdbc;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 
+import java.util.AbstractMap;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Interface that defines common functionality for objects that can
  * offer parameter values for named SQL parameters, serving as argument
@@ -54,4 +58,28 @@ public interface SqlParameterSource {
      * @return the array of parameter names, or {@code null} if not determinable
      */
     String[] getParameterNames();
+
+    default Map<String, Object> toMap() {
+        return new AbstractMap<String, Object>() {
+            @Override
+            public Object get(Object key) {
+                return getValue(key.toString());
+            }
+
+            @Override
+            public boolean containsKey(Object key) {
+                return hasValue(key.toString());
+            }
+
+            @Override
+            public Set<Entry<String, Object>> entrySet() {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public String toString() {
+                return SqlParameterSource.this.toString();
+            }
+        };
+    }
 }

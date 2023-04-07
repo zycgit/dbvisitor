@@ -26,7 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static net.hasor.dbvisitor.dal.dynamic.ognl.OgnlUtils.evalOgnl;
+import static net.hasor.dbvisitor.jars.OgnlUtils.evalOgnl;
 
 /**
  * 本处理器，兼容 @{...}、#{...}、${...} 三种写法。

@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.dialect.SqlBuilder;
 import java.sql.SQLException;
 import java.util.Map;
 
-import static net.hasor.dbvisitor.dal.dynamic.ognl.OgnlUtils.evalOgnl;
+import static net.hasor.dbvisitor.jars.OgnlUtils.evalOgnl;
 
 /**
  * 动态 SQL 中定义的规则。

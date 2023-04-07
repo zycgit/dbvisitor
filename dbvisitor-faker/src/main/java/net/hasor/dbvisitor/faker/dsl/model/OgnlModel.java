@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.faker.dsl.model;
-import net.hasor.dbvisitor.dal.dynamic.ognl.OgnlUtils;
+
+import net.hasor.dbvisitor.jars.OgnlUtils;
 
 import java.util.Map;
 

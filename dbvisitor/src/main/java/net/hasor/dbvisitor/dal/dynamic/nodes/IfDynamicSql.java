@@ -15,8 +15,8 @@
  */
 package net.hasor.dbvisitor.dal.dynamic.nodes;
 import net.hasor.dbvisitor.dal.dynamic.DynamicContext;
-import net.hasor.dbvisitor.dal.dynamic.ognl.OgnlUtils;
 import net.hasor.dbvisitor.dialect.SqlBuilder;
+import net.hasor.dbvisitor.jars.OgnlUtils;
 
 import java.sql.SQLException;
 import java.util.Map;

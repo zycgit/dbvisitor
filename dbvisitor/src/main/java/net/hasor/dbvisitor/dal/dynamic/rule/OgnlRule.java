@@ -17,8 +17,8 @@ package net.hasor.dbvisitor.dal.dynamic.rule;
 import net.hasor.dbvisitor.dal.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dal.dynamic.SqlArg;
 import net.hasor.dbvisitor.dal.dynamic.SqlMode;
-import net.hasor.dbvisitor.dal.dynamic.ognl.OgnlUtils;
 import net.hasor.dbvisitor.dialect.SqlBuilder;
+import net.hasor.dbvisitor.jars.OgnlUtils;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
