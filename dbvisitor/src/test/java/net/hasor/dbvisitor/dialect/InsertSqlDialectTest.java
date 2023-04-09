@@ -13,18 +13,14 @@
 // * See the License for the specific language governing permissions and
 // * limitations under the License.
 // */
-//package net.hasor.db.dialect;
-//import net.hasor.db.dialect.provider.MySqlDialect;
-//import net.hasor.db.dialect.provider.OracleDialect;
-//import net.hasor.db.lambda.DuplicateKeyStrategy;
-//import net.hasor.db.lambda.LambdaOperations.LambdaInsert;
-//import net.hasor.db.lambda.LambdaTemplate;
-//import net.hasor.test.db.AbstractDbTest;
+//package net.hasor.dbvisitor.dialect;
+//import net.hasor.dbvisitor.lambda.InsertOperation;
+//import net.hasor.dbvisitor.lambda.LambdaTemplate;
+//import net.hasor.test.AbstractDbTest;
 //import net.hasor.test.dto.TB_User;
-//import net.hasor.test.db.dto.TbUser;
 //import org.junit.Test;
 //
-//import static net.hasor.test.db.utils.TestUtils.*;
+//import static net.hasor.test.utils.TestUtils.beanForData1;
 //
 ///***
 // * 方言
@@ -34,7 +30,7 @@
 //public class InsertSqlDialectTest extends AbstractDbTest {
 //    @Test
 //    public void dialect_mysql_1() {
-//        LambdaInsert<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
+//        InsertOperation<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
 //        lambdaInsert.applyEntity(beanForData1());
 //        lambdaInsert.applyMap(mapForData2());
 //
@@ -64,39 +60,39 @@
 //        assert ((BatchBoundSql) boundSql).getArgs()[1][6].equals(beanForData2().getRegisterTime());
 //    }
 //
-//    @Test
-//    public void dialect_mysql_2() {
-//        LambdaInsert<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
-//        lambdaInsert.applyEntity(beanForData1());
-//
-//        SqlDialect dialect = new MySqlDialect();
-//        BoundSql boundSql1 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Into).getBoundSql(dialect);
-//        assert boundSql1.getSqlString().equals("INSERT INTO TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
-//
-//        BoundSql boundSql2 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Ignore).getBoundSql(dialect);
-//        assert boundSql2.getSqlString().equals("INSERT IGNORE TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
-//
-//        BoundSql boundSql3 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Update).getBoundSql(dialect);
-//        assert boundSql3.getSqlString().equals("INSERT INTO TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE");
-//    }
-//
-//    @Test
-//    public void dialect_oracle_1() {
-//        LambdaInsert<TbUser> lambdaInsert = new LambdaTemplate().lambdaInsert(TbUser.class);
-//        lambdaInsert.applyEntity(mappingBeanForData1());
-//        lambdaInsert.applyMap(mapForData2());
-//
-//        SqlDialect dialect = new OracleDialect();
-//        BoundSql boundSql1 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Into).getBoundSql(dialect);
-//        assert boundSql1.getSqlString().equals("INSERT INTO tb_user (userUUID, name, loginName, loginPassword, email, \"index\", registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
-//
-//        BoundSql boundSql2 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Ignore).getBoundSql(dialect);
-//        assert boundSql2.getSqlString().equals("MERGE INTO tb_user TMP USING (SELECT ? userUUID, ? name, ? loginName, ? loginPassword, ? email, ? \"index\", ? registerTime FROM dual ) SRC ON (TMP.userUUID = SRC.userUUID) "//
-//                + "WHEN NOT MATCHED THEN INSERT (userUUID, name, loginName, loginPassword, email, \"index\", registerTime) VALUES( SRC.userUUID, SRC.name, SRC.loginName, SRC.loginPassword, SRC.email, SRC.\"index\", SRC.registerTime) ");
-//
-//        BoundSql boundSql3 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Update).getBoundSql(dialect);
-//        assert boundSql3.getSqlString().equals("MERGE INTO tb_user TMP USING (SELECT ? userUUID, ? name, ? loginName, ? loginPassword, ? email, ? \"index\", ? registerTime FROM dual ) SRC ON (TMP.userUUID = SRC.userUUID) " //
-//                + "WHEN MATCHED THEN UPDATE SET userUUID = SRC.userUUID, name = SRC.name, loginName = SRC.loginName, loginPassword = SRC.loginPassword, email = SRC.email, \"index\" = SRC.\"index\", registerTime = SRC.registerTime " //
-//                + "WHEN NOT MATCHED THEN INSERT (userUUID, name, loginName, loginPassword, email, \"index\", registerTime) VALUES( SRC.userUUID, SRC.name, SRC.loginName, SRC.loginPassword, SRC.email, SRC.\"index\", SRC.registerTime) ");
-//    }
+//    //    @Test
+//    //    public void dialect_mysql_2() {
+//    //        LambdaInsert<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
+//    //        lambdaInsert.applyEntity(beanForData1());
+//    //
+//    //        SqlDialect dialect = new MySqlDialect();
+//    //        BoundSql boundSql1 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Into).getBoundSql(dialect);
+//    //        assert boundSql1.getSqlString().equals("INSERT INTO TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
+//    //
+//    //        BoundSql boundSql2 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Ignore).getBoundSql(dialect);
+//    //        assert boundSql2.getSqlString().equals("INSERT IGNORE TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
+//    //
+//    //        BoundSql boundSql3 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Update).getBoundSql(dialect);
+//    //        assert boundSql3.getSqlString().equals("INSERT INTO TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE");
+//    //    }
+//    //
+//    //    @Test
+//    //    public void dialect_oracle_1() {
+//    //        LambdaInsert<TbUser> lambdaInsert = new LambdaTemplate().lambdaInsert(TbUser.class);
+//    //        lambdaInsert.applyEntity(mappingBeanForData1());
+//    //        lambdaInsert.applyMap(mapForData2());
+//    //
+//    //        SqlDialect dialect = new OracleDialect();
+//    //        BoundSql boundSql1 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Into).getBoundSql(dialect);
+//    //        assert boundSql1.getSqlString().equals("INSERT INTO tb_user (userUUID, name, loginName, loginPassword, email, \"index\", registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
+//    //
+//    //        BoundSql boundSql2 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Ignore).getBoundSql(dialect);
+//    //        assert boundSql2.getSqlString().equals("MERGE INTO tb_user TMP USING (SELECT ? userUUID, ? name, ? loginName, ? loginPassword, ? email, ? \"index\", ? registerTime FROM dual ) SRC ON (TMP.userUUID = SRC.userUUID) "//
+//    //                + "WHEN NOT MATCHED THEN INSERT (userUUID, name, loginName, loginPassword, email, \"index\", registerTime) VALUES( SRC.userUUID, SRC.name, SRC.loginName, SRC.loginPassword, SRC.email, SRC.\"index\", SRC.registerTime) ");
+//    //
+//    //        BoundSql boundSql3 = lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Update).getBoundSql(dialect);
+//    //        assert boundSql3.getSqlString().equals("MERGE INTO tb_user TMP USING (SELECT ? userUUID, ? name, ? loginName, ? loginPassword, ? email, ? \"index\", ? registerTime FROM dual ) SRC ON (TMP.userUUID = SRC.userUUID) " //
+//    //                + "WHEN MATCHED THEN UPDATE SET userUUID = SRC.userUUID, name = SRC.name, loginName = SRC.loginName, loginPassword = SRC.loginPassword, email = SRC.email, \"index\" = SRC.\"index\", registerTime = SRC.registerTime " //
+//    //                + "WHEN NOT MATCHED THEN INSERT (userUUID, name, loginName, loginPassword, email, \"index\", registerTime) VALUES( SRC.userUUID, SRC.name, SRC.loginName, SRC.loginPassword, SRC.email, SRC.\"index\", SRC.registerTime) ");
+//    //    }
 //}

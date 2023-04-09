@@ -1,5 +1,6 @@
 package net.hasor.scene.jdbc.query;
 import net.hasor.cobble.CollectionUtils;
+import net.hasor.dbvisitor.jars.OgnlUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.scene.UserDTO;
 import net.hasor.test.utils.DsUtils;
@@ -8,6 +9,7 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -84,6 +86,18 @@ public class MapArgsTestCase {
             assert result.size() == 2;
             assert result.get(0).get("name").equals("jon wes");
             assert result.get(1).get("name").equals("mary");
+        }
+    }
+
+    @Test
+    public void mapArgs_5() {
+        OgnlUtils.evalOgnl("@java.lang.System@out.println('ss')", null);
+
+        try (Connection c = DsUtils.h2Conn()) {
+            new JdbcTemplate(c).queryForList("select * from user where age > :@java.lang.System@out.println('ss') order by id", new HashMap<>());
+            assert false;
+        } catch (SQLException e) {
+            assert e.getMessage().startsWith("expr string cannot include '#' or '@', paramExpr= ");
         }
     }
 }

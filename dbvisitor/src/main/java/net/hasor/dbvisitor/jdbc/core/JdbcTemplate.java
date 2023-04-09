@@ -245,7 +245,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                 if (this.isPrintStmtError()) {
                     logger.error("Failed SQL statement [" + sql + "].", ex);
                 }
-                throw new UncategorizedSQLException(sql, ex);
+                throw new UncategorizedSQLException(sql, ex.getMessage(), ex);
             }
         });
     }
@@ -267,7 +267,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                 if (this.isPrintStmtError()) {
                     logger.error("Failed SQL statement [" + sql + "].", ex);
                 }
-                throw new UncategorizedSQLException(sql, ex);
+                throw new UncategorizedSQLException(sql, ex.getMessage(), ex);
             } finally {
                 if (psc instanceof ParameterDisposer) {
                     ((ParameterDisposer) psc).cleanupParameters();
@@ -364,7 +364,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                 if (this.isPrintStmtError()) {
                     logger.error("Failed SQL statement [" + sql + "].", ex);
                 }
-                throw new UncategorizedSQLException(sql, ex);
+                throw new UncategorizedSQLException(sql, ex.getMessage(), ex);
             } finally {
                 if (csc instanceof ParameterDisposer) {
                     ((ParameterDisposer) csc).cleanupParameters();

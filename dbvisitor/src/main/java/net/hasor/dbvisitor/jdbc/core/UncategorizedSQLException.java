@@ -26,8 +26,8 @@ import java.sql.SQLException;
 public class UncategorizedSQLException extends SQLException implements SqlProvider {
     private final String sql;
 
-    public UncategorizedSQLException(String sql, SQLException ex) {
-        super(ex);
+    public UncategorizedSQLException(String sql, String message, SQLException ex) {
+        super(message, ex);
         this.sql = sql;
     }
 
