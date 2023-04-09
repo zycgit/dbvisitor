@@ -136,6 +136,9 @@ public class ParsedSql {
             Object value = paramSource.getValue(paramName);
             //处理类似：@{and, cfg_id = :p.cfg_id.array[1].name} 的情况
             if (value == null && paramName.contains(".")) {
+                if (paramName.contains("#") || paramName.contains("@")) {
+                    throw new SQLException("expr string cannot include '#' or '@', paramExpr= " + paramName);// 禁止可以造成安全隐患的 #,@操作符
+                }
                 value = OgnlUtils.evalOgnl(paramName, paramSource.toMap());
             }
             if (value instanceof InSqlParameter) {
