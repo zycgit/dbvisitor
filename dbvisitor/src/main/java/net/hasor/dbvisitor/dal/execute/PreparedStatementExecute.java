@@ -111,6 +111,9 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
     }
 
     protected Object executeQuery(PreparedStatement ps, ExecuteInfo executeInfo, BoundSql boundSql) throws SQLException {
+        if (logger.isTraceEnabled()) {
+            logger.trace(fmtBoundSql(boundSql).toString());
+        }
 
         statementSet(ps, boundSql);
         DalResultSetExtractor extractor = super.buildExtractor(executeInfo);
@@ -121,7 +124,10 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
     }
 
     protected int executeCount(PreparedStatement ps, BoundSql boundSql) throws SQLException {
-
+        if (logger.isTraceEnabled()) {
+            logger.trace(fmtBoundSql(boundSql).toString());
+        }
+        
         statementSet(ps, boundSql);
         try (ResultSet resultSet = ps.executeQuery()) {
             if (resultSet.next()) {

@@ -57,6 +57,10 @@ public class StatementExecute extends AbstractStatementExecute<Object> {
     }
 
     protected Object executeQuery(Statement statement, ExecuteInfo executeInfo, BoundSql boundSql) throws SQLException {
+        if (logger.isTraceEnabled()) {
+            logger.trace(fmtBoundSql(boundSql).toString());
+        }        
+
         String querySQL = boundSql.getSqlString();
 
         DalResultSetExtractor extractor = super.buildExtractor(executeInfo);

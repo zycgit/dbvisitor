@@ -219,7 +219,7 @@ public abstract class AbstractStatementExecute<T> {
         }).collect(Collectors.toList());
     }
 
-    protected static String fmtBoundSql(BoundSql boundSql, Map<String, Object> userData) {
+    protected static StringBuilder fmtBoundSql(BoundSql boundSql) {
         StringBuilder builder = new StringBuilder("querySQL: ");
 
         try {
@@ -244,6 +244,12 @@ public abstract class AbstractStatementExecute<T> {
             i++;
         }
         builder.append("] ");
+
+        return builder;
+    }
+
+    protected static String fmtBoundSql(BoundSql boundSql, Map<String, Object> userData) {
+        StringBuilder builder = fmtBoundSql(boundSql);
 
         builder.append(",userData: {");
         int j = 0;
