@@ -33,8 +33,8 @@ import java.util.List;
 
 /**
  * 负责参数化SQL调用的执行器
- * @version : 2021-07-20
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-07-20
  */
 public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
     public PreparedStatementExecute(DynamicContext context) {
@@ -127,7 +127,7 @@ public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
         if (logger.isTraceEnabled()) {
             logger.trace(fmtBoundSql(boundSql).toString());
         }
-        
+
         statementSet(ps, boundSql);
         try (ResultSet resultSet = ps.executeQuery()) {
             if (resultSet.next()) {

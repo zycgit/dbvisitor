@@ -50,8 +50,8 @@ import java.util.stream.Collectors;
 
 /**
  * 执行器基类
- * @version : 2021-07-20
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-07-20
  */
 public abstract class AbstractStatementExecute<T> {
     protected static final Logger         logger = LoggerFactory.getLogger(AbstractStatementExecute.class);

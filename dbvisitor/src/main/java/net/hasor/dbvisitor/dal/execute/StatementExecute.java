@@ -27,8 +27,8 @@ import java.util.List;
 
 /**
  * 负责一般SQL调用的执行器
- * @version : 2021-07-20
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-07-20
  */
 public class StatementExecute extends AbstractStatementExecute<Object> {
     public StatementExecute(DynamicContext context) {
@@ -59,7 +59,7 @@ public class StatementExecute extends AbstractStatementExecute<Object> {
     protected Object executeQuery(Statement statement, ExecuteInfo executeInfo, BoundSql boundSql) throws SQLException {
         if (logger.isTraceEnabled()) {
             logger.trace(fmtBoundSql(boundSql).toString());
-        }        
+        }
 
         String querySQL = boundSql.getSqlString();
 
