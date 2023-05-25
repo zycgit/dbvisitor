@@ -41,17 +41,10 @@ public class SqlServerDialect extends AbstractDialect implements PageSqlDialect 
 
     @Override
     public String fmtName(boolean useQualifier, String name) {
-        if (StringUtils.isBlank(name)) {
-            return name;
-        }
-        if (this.keywords().contains(name.toUpperCase()) || name.contains(" ")) {
-            useQualifier = true;
-        }
-
-        if (useQualifier) {
-            return leftQualifier() + name.replace("]", "]]") + rightQualifier();
+        if (name.contains("]")) {
+            return super.fmtName(true, name.replace("]", "]]"));
         } else {
-            return name;
+            return super.fmtName(useQualifier, name);
         }
     }
 

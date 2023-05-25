@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect.provider;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
@@ -23,21 +31,21 @@ import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 /**
  * 公共 SqlDialect 实现
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect {
-    private static final Logger      logger = LoggerFactory.getLogger(AbstractDialect.class);
-    private              Set<String> keyWords;
+    private static final Logger      logger     = LoggerFactory.getLogger(AbstractDialect.class);
+    private static final Set<String> FIRST_CHAR = new HashSet<>();
+    private Set<String>              keyWords;
+
+    static {
+        FIRST_CHAR.addAll(Arrays.asList("!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "=", "+", "~", "`", " "));
+        FIRST_CHAR.addAll(Arrays.asList("{", "}", "[", "]", "\\", "|", ";", ":", "\"", "'", ",", "<", ".", ">", "/", "?"));
+        FIRST_CHAR.addAll(Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"));
+    }
 
     @Override
     public final Set<String> keywords() {
@@ -105,6 +113,9 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
         }
         if (this.keywords().contains(name.toUpperCase())) {
             useQualifier = true;
+        }
+        if (!useQualifier && name.length() > 0) {
+            useQualifier = FIRST_CHAR.contains(String.valueOf(name.charAt(0)));
         }
         String leftQualifier = useQualifier ? leftQualifier() : "";
         String rightQualifier = useQualifier ? rightQualifier() : "";

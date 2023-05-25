@@ -10,8 +10,9 @@
     <artifactId>dbvisitor</artifactId>
     <packaging>jar</packaging>
     <name>dbVisitor</name>
-    <description>dbVisitor is a full-featured access database tool, simplifies JDBC/ORM usage, and compatible with
-        Spring JDBC, MyBatis style.
+    <description>
+        dbVisitor is a full-featured access database tool,
+        simplifies JDBC/ORM usage, and compatible with Spring JDBC, MyBatis style.
     </description>
 
     <developers>
