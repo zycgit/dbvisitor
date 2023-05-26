@@ -23,6 +23,7 @@ import net.hasor.dbvisitor.page.PageResult;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Mapper 继承该接口后，无需编写 mapper.xml 文件，即可获得 CRUD 功能
@@ -115,6 +116,12 @@ public interface BaseMapper<T> extends Mapper {
      * @param entity 实体对象
      */
     int upsertById(T entity) throws RuntimeSQLException;
+
+    /**
+     * 局部修改
+     * @param map 局部更新对象
+     */
+    int updateByMap(Map<String, Object> map) throws RuntimeSQLException;
 
     /**
      * 删除

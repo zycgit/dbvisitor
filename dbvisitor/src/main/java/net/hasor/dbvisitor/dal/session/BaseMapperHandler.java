@@ -27,10 +27,7 @@ import net.hasor.dbvisitor.page.PageResult;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
  * BaseMapper 接口的实现类。
@@ -92,14 +89,14 @@ class BaseMapperHandler implements BaseMapper<Object> {
         for (ColumnMapping pk : pks) {
             Object o = pk.getHandler().get(entity);
             if (o == null) {
-                update.and().isNull(pk.getColumn());
+                update.and().isNull(pk.getProperty());
             } else {
-                update.and().eq(pk.getColumn(), o);
+                update.and().eq(pk.getProperty(), o);
             }
         }
 
         try {
-            return update.updateTo(entity).doUpdate();
+            return update.updateBySample(entity).doUpdate();
         } catch (SQLException e) {
             throw new RuntimeSQLException(e);
         }
@@ -122,11 +119,11 @@ class BaseMapperHandler implements BaseMapper<Object> {
         for (ColumnMapping pk : pks) {
             Object o = pk.getHandler().get(entity);
             if (o == null) {
-                query.and().isNull(pk.getColumn());
-                update.and().isNull(pk.getColumn());
+                query.and().isNull(pk.getProperty());
+                update.and().isNull(pk.getProperty());
             } else {
-                query.and().eq(pk.getColumn(), o);
-                update.and().eq(pk.getColumn(), o);
+                query.and().eq(pk.getProperty(), o);
+                update.and().eq(pk.getProperty(), o);
             }
         }
 
@@ -134,8 +131,51 @@ class BaseMapperHandler implements BaseMapper<Object> {
             if (query.queryForCount() == 0) {
                 return insert().applyEntity(entity).executeSumResult();
             } else {
-                return update.updateTo(entity).doUpdate();
+                return update.updateBySample(entity).doUpdate();
             }
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
+    }
+
+    @Override
+    public int updateByMap(Map<String, Object> map) throws RuntimeSQLException {
+        if (map == null) {
+            throw new NullPointerException("map is null.");
+        }
+
+        List<ColumnMapping> pks = foundPrimaryKey();
+        if (pks.isEmpty()) {
+            throw new RuntimeSQLException(entityType() + " no primary key is identified");
+        }
+
+        EntityUpdateOperation<Object> update = update();
+
+        boolean isPrimaryKeyEmpty = true;
+        for (ColumnMapping pk : pks) {
+            String key = pk.getProperty();
+            Object o = map.get(key);
+
+            if (o == null) {
+                update.and().isNull(key);
+            } else {
+                update.and().eq(key, o);
+            }
+
+            map.remove(key);
+            isPrimaryKeyEmpty = false;
+        }
+
+        if (isPrimaryKeyEmpty) {
+            throw new NullPointerException("primary key is empty.");
+        }
+
+        if (map.size() <= 0) {
+            throw new NullPointerException("map is empty.");
+        }
+
+        try {
+            return update.updateByMap(map).doUpdate();
         } catch (SQLException e) {
             throw new RuntimeSQLException(e);
         }
@@ -157,9 +197,9 @@ class BaseMapperHandler implements BaseMapper<Object> {
         for (ColumnMapping pk : pks) {
             Object o = pk.getHandler().get(entity);
             if (o == null) {
-                delete.and().isNull(pk.getColumn());
+                delete.and().isNull(pk.getProperty());
             } else {
-                delete.and().eq(pk.getColumn(), o);
+                delete.and().eq(pk.getProperty(), o);
             }
         }
 
@@ -183,14 +223,14 @@ class BaseMapperHandler implements BaseMapper<Object> {
 
         EntityDeleteOperation<Object> delete = delete();
         if (pks.size() == 1) {
-            delete.and().eq(pks.get(0).getColumn(), id);
+            delete.and().eq(pks.get(0).getProperty(), id);
         } else {
             for (ColumnMapping pk : pks) {
                 Object o = pk.getHandler().get(id);
                 if (o == null) {
-                    delete.and().isNull(pk.getColumn());
+                    delete.and().isNull(pk.getProperty());
                 } else {
-                    delete.and().eq(pk.getColumn(), o);
+                    delete.and().eq(pk.getProperty(), o);
                 }
             }
         }
@@ -215,7 +255,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
 
         if (pks.size() == 1) {
             try {
-                return delete().and().in(pks.get(0).getColumn(), idList).doDelete();
+                return delete().and().in(pks.get(0).getProperty(), idList).doDelete();
             } catch (SQLException e) {
                 throw new RuntimeSQLException(e);
             }
@@ -226,9 +266,9 @@ class BaseMapperHandler implements BaseMapper<Object> {
                     for (ColumnMapping pkColumn : pks) {
                         Object keyValue = pkColumn.getHandler().get(obj);
                         if (keyValue == null) {
-                            queryCompare.and().isNull(pkColumn.getColumn());
+                            queryCompare.and().isNull(pkColumn.getProperty());
                         } else {
-                            queryCompare.and().eq(pkColumn.getColumn(), keyValue);
+                            queryCompare.and().eq(pkColumn.getProperty(), keyValue);
                         }
                     }
                 });
@@ -255,14 +295,14 @@ class BaseMapperHandler implements BaseMapper<Object> {
 
         EntityQueryOperation<Object> query = query();
         if (pks.size() == 1) {
-            query.and().eq(pks.get(0).getColumn(), id);
+            query.and().eq(pks.get(0).getProperty(), id);
         } else {
             for (ColumnMapping pk : pks) {
                 Object o = pk.getHandler().get(id);
                 if (o == null) {
-                    query.and().isNull(pk.getColumn());
+                    query.and().isNull(pk.getProperty());
                 } else {
-                    query.and().eq(pk.getColumn(), o);
+                    query.and().eq(pk.getProperty(), o);
                 }
             }
         }
@@ -287,7 +327,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
 
         if (pks.size() == 1) {
             try {
-                return query().and().in(pks.get(0).getColumn(), idList).queryForList();
+                return query().and().in(pks.get(0).getProperty(), idList).queryForList();
             } catch (SQLException e) {
                 throw new RuntimeSQLException(e);
             }
@@ -298,9 +338,9 @@ class BaseMapperHandler implements BaseMapper<Object> {
                     for (ColumnMapping pkColumn : pks) {
                         Object keyValue = pkColumn.getHandler().get(obj);
                         if (keyValue == null) {
-                            queryCompare.and().isNull(pkColumn.getColumn());
+                            queryCompare.and().isNull(pkColumn.getProperty());
                         } else {
-                            queryCompare.and().eq(pkColumn.getColumn(), keyValue);
+                            queryCompare.and().eq(pkColumn.getProperty(), keyValue);
                         }
                     }
                 });
@@ -321,7 +361,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             for (ColumnMapping mapping : getMapping().getProperties()) {
                 Object value = mapping.getHandler().get(sample);
                 if (value != null) {
-                    query.and().eq(mapping.getColumn(), value);
+                    query.and().eq(mapping.getProperty(), value);
                 }
             }
         }
