@@ -27,7 +27,11 @@ import net.hasor.dbvisitor.page.PageResult;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * BaseMapper 接口的实现类。
