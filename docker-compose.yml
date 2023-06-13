@@ -40,3 +40,16 @@ services:
     # User/Password：sa/oracle
     # https://hub.docker.com/_/microsoft-mssql-server?tab=description
     # https://mcr.microsoft.com/v2/mssql/server/tags/list
+
+  db2:
+    image: ibmcom/db2
+    environment:
+      - DB2INST1_PASSWORD=123456
+      - DBNAME=devtesterdb
+      - LICENSE=accept
+    ports:
+      - 50000:50000
+    privileged: true
+    restart: always
+    # User/Password：db2inst1/123456
+    # -v /usr/local/db2:/database
