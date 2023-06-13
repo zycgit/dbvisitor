@@ -1,0 +1,185 @@
+---
+sidebar_position: 6
+title: 注解化 Mapper
+description: 使用 dbVisitor ORM 框架的 @SimpleMapper @RefMapper 注解进行 SQL 查询配置
+---
+
+# 注解化 Mapper
+
+如果对于编写大量的 `Mapper` 文件比较反感可以采用注解方式，这种方式对于一些 `简单的查询` 和可以使用 `快速规则` 的查询来说，既可以减少复杂度也可以更灵活。
+
+由于注解化 `Mapper` 最大的特点就是无需 `Mapper` 文件，SQL 配置会集中在 Mapper 接口的注解上。因此作为 注解化 Mapper 需要标记 `@SimpleMapper` 注解。
+
+:::tip
+请注意 `@SimpleMapper` 和 `@RefMapper` 两个注解不能同时使用，但它们都能够正确处理注解化 Mapper。
+不过仍然要注意的是请避免 注解化 Mapper 和 Mapper 文件的定义冲突，遇到冲突 dbVisitor 也不能正确处理好它们。
+:::
+
+## @Query注解
+
+用于配置一个 `select` 查询，例如下列 Mapper 和接口可以简化成一个注解化 Mapper 方法。
+
+```xml
+<select id="queryUser">
+    select * from `test_user`
+    where
+    <if test="age != null">
+        and age = #{age}
+    </if>
+</select>
+```
+
+下面使用 `OR规则` 简化 `if` 之后在利用 `@Query` 注解化的结果（有关OR规则请 [点击这里](./rules.md)）
+
+```java
+@SimpleMapper()
+public interface UserMapper {
+    @Query(value = "select * from `test_user` where @{and, age = :age }",
+           resultType = TestUser.class)
+    List<TestUser> queryUser(@Param("age") int age);
+}
+```
+
+`@Query` 注解拥有很多属性，这些属性和 `<select>` 标签是相对应的
+
+| 属性名              | 描述                                                                                                                   |
+|------------------|----------------------------------------------------------------------------------------------------------------------|
+| `value`          | 必选，配置 SQL 查询                                                                                                         |
+| `xml`            | 可选，value 中的内容如果使用了 **[动态 SQL](./dynamic.md)** 中定义的动态SQL标签，那么需要设置为 `true`。表示这是 XML格式的片段。                              |
+| `statementType`  | 可选，`STATEMENT`、`PREPARED`、`CALLABLE` 对应了 `Statement`, `PreparedStatement` 或 `CallableStatement` 中的一种。默认值为 `PREPARED` |
+| `timeout`        | 可选，当配置的值大于 `0` 时会被设置到 `Statement.setQueryTimeout`，用于表示查询最长等待的超时时间。默认值是 `-1`                                          |
+| `resultMap`      | 可选，对于映射配置的引用。select 标签可以使用 `resultMap` 和 `resultType` 其中的一种，不应该同时使用它们。如果没有配置将会按照 `map` 来处理                           |
+| `resultType`     | 可选，将返回的预期类型的完全限定类名或别名。注意，在集合的情况下，这应该是集合包含的类型，而不是集合本身的类型，不应该同时使用`resultMap` 和 `resultType`                            |
+| `fetchSize`      | 可选，当配置的值大于 `0` 时会被设置到 `Statement.setQueryTimeout`，用于表示查询最长等待的超时时间。默认值是 `-1`                                          |
+| `resultSetType`  | 可选，`FORWARD_ONLY`、`SCROLL_INSENSITIVE`、`SCROLL_SENSITIVE` 和 `DEFAULT` 其中的一种。默认值是 `DEFAULT` 相当于未设置                    |
+| `multipleResult` | 可选，`FIRST`、`LAST`、`ALL` 用于处理多结果集的情况。它们对应的行为是 `保留第一个结果集`、`保留最后一个结果集`、`全部保留`。默认配置是 `LAST`                              |
+
+## @Insert注解
+
+`@Insert` 注解的功效和 `<insert>` 标签相同，下面是示例：
+
+```xml
+<insert id="insertUser">
+    insert into `test_user` (
+        `id`, `name`, `age`, `create_time`
+    ) values (
+        #{id}, #{name}, #{age}, #{createTime}
+    )
+</insert>
+```
+
+使用 `@Insert` 注解化方式。
+
+```java
+@SimpleMapper()
+public interface UserMapper {
+    @Insert(value = "insert into `test_user` ( `id`, `name`, `age`, `create_time` ) "+
+                     " values ( #{id}, #{name}, #{age}, #{createTime})")
+    int queryUser(TestUser user);
+}
+```
+
+`@Insert` 注解拥有很多属性，这些属性和 `<insert>` 标签是相对应的
+
+| 属性名                | 描述                                                                                                                   |
+|--------------------|----------------------------------------------------------------------------------------------------------------------|
+| `value`            | 必选，配置 SQL 查询                                                                                                         |
+| `xml`              | 可选，value 中的内容如果使用了 **[动态 SQL](./dynamic.md)** 中定义的动态SQL标签，那么需要设置为 `true`。表示这是 XML格式的片段。                              |
+| `statementType`    | 可选，`STATEMENT`、`PREPARED`、`CALLABLE` 对应了 `Statement`, `PreparedStatement` 或 `CallableStatement` 中的一种。默认值为 `PREPARED` |
+| `timeout`          | 可选，当配置的值大于 `0` 时会被设置到 `Statement.setQueryTimeout`，用于表示查询最长等待的超时时间。默认值是 `-1`                                          |
+| `useGeneratedKeys` | 可选(v5.2.0+)，是否使用自增属性，如果同时配置了 `SelectKey` 标签，那么该配置将会失效。                                                               |
+| `keyProperty`      | 可选(v5.2.0+)，回填自增属性值的 Bean 属性名，如果同时配置了 `SelectKey` 标签，那么该配置将会失效。                                                      |
+| `parameterType`    | 可选(v5.2.0+)，参数类型，可以用于回填自增属性。如果同时配置了 `SelectKey` 标签 或者 `useGeneratedKeys` 属性，那么该配置将会失效。                               |
+
+## @Update注解
+
+`@Update` 注解的功效和 `<update>` 标签相同，下面是示例：
+
+```xml
+<update id="updateAge">
+    update `test_user` set age = #{age} where id = #{id}
+</update>
+```
+
+使用 `@Update` 注解化方式。
+
+```java
+@SimpleMapper()
+public interface UserMapper {
+    @Update(value = "update `test_user` set age = #{age} where id = #{id}")
+    int updateAge(@Param("age") int age, @Param("id") int id);
+}
+```
+
+`@Update` 注解拥有很多属性，这些属性和 `<update>` 标签是相对应的
+
+| 属性名             | 描述                                                                                                                   |
+|-----------------|----------------------------------------------------------------------------------------------------------------------|
+| `value`         | 必选，配置 SQL 查询                                                                                                         |
+| `xml`           | 可选，value 中的内容如果使用了 **[动态 SQL](./dynamic.md)** 中定义的动态SQL标签，那么需要设置为 `true`。表示这是 XML格式的片段。                              |
+| `statementType` | 可选，`STATEMENT`、`PREPARED`、`CALLABLE` 对应了 `Statement`, `PreparedStatement` 或 `CallableStatement` 中的一种。默认值为 `PREPARED` |
+| `timeout`       | 可选，当配置的值大于 `0` 时会被设置到 `Statement.setQueryTimeout`，用于表示查询最长等待的超时时间。默认值是 `-1`                                          |
+
+## @Delete注解
+
+`@Delete` 注解的功效和 `<delete>` 标签相同，下面是示例：
+
+```xml
+<delete id="deleteById">
+    delete from `test_user` where id = #{id}
+</delete>
+```
+
+使用 `@Delete` 注解化方式。
+
+```java
+@SimpleMapper()
+public interface UserMapper {
+    @Update(value = "delete from `test_user` where id = #{id}")
+    int updateAge(@Param("id") int id);
+}
+```
+
+`@Delete` 注解拥有很多属性，这些属性和 `<delete>` 标签是相对应的
+
+| 属性名             | 描述                                                                                                                   |
+|-----------------|----------------------------------------------------------------------------------------------------------------------|
+| `value`         | 必选，配置 SQL 查询                                                                                                         |
+| `xml`           | 可选，value 中的内容如果使用了 **[动态 SQL](./dynamic.md)** 中定义的动态SQL标签，那么需要设置为 `true`。表示这是 XML格式的片段。                              |
+| `statementType` | 可选，`STATEMENT`、`PREPARED`、`CALLABLE` 对应了 `Statement`, `PreparedStatement` 或 `CallableStatement` 中的一种。默认值为 `PREPARED` |
+| `timeout`       | 可选，当配置的值大于 `0` 时会被设置到 `Statement.setQueryTimeout`，用于表示查询最长等待的超时时间。默认值是 `-1`                                          |
+
+## @Param注解
+
+`@Param` 注解只能标记在方法的参数上，用来在拼接动态 SQL 时候引用到对应的属性。
+
+比较常见的方式如下，`#{id}` 对应 `@Param("id")`
+
+```java
+@Update(value = "delete from `test_user` where id = #{id}")
+int updateAge(@Param("id") int id);
+```
+
+如果方法入参有且仅有一个对象，那么这个对象无需标记 `@Param` 注解，它的每一个属性都会被识别。例如：
+
+```java
+public class TestUser {
+    private Integer id;
+    private String  name;
+    private Integer age;
+    private Date    createTime;
+
+    // getters and setters omitted
+}
+
+@Insert(value = "insert into `test_user` "+
+                "values ( #{id}, #{name}, #{age}, #{createTime})")
+int queryUser(TestUser user);
+```
+
+如果参数没有标记 `@Param` 注解那么会以参数的所在顺序 前面加上固定的 `arg` 来替代，例如：
+
+```java
+@Update(value = "update `test_user` set age = #{arg0} where id = #{arg1}")
+int updateAge(int age, int id);
+```

@@ -1,0 +1,9 @@
+{
+  "label": "Archives",
+  "position": 999,
+  "className": "red",
+  "link": {
+    "type": "generated-index",
+    "title": "Archives"
+  }
+}

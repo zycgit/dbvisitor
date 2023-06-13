@@ -1,0 +1,108 @@
+---
+id: with-springboot
+sidebar_position: 2
+title: Spring Boot 整合
+description: dbVisitor ORM 工具和 Spring Boot 整合使用。
+---
+# 与 SpringBoot 集成
+
+通过 `dbvisitor-spring-starter` 工具包可以更加便捷的在 Spring Boot 中使用 dbVisitor ORM 工具。
+Spring Boot 工程需要引入如下依赖包：
+
+```xml
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>dbvisitor-spring-starter</artifactId>
+    <version>5.3.0</version>
+</dependency>
+```
+
+## 基于 application.properties 配置文件
+
+使用 `application.properties` 属性文件方式后就无需配置 `@MapperScan` 注解，它们的作用是相同的。
+
+[基于 application.properties 配置文件的 Demo 工程](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/springboot-1/)
+
+```properties
+# Spring JDBC 数据源配置
+spring.datasource.url=jdbc:mysql://127.0.0.1:3306/devtester
+spring.datasource.username=root
+spring.datasource.password=123456
+# 必选
+dbvisitor.mapper-packages=com.example.demo.dao
+dbvisitor.mapper-locations=classpath:dbvisitor/mapper/*.xml
+```
+
+## dbVisitor 配置项说明
+
+| 属性名                                    | 描述                                                                                                                                                          |
+|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `dbvisitor.mapper-locations`           | 可选，要扫描加载的 Mapper 映射文件所在路径，默认值为 `classpath*:/dbvisitor/mapper/**/*.xml`，如果有多个可以通过一下任意一个字符进行分割 `,; \t\n`                                                      |
+| `dbvisitor.mapper-packages`            | 可选，要扫描加载的 Mapper 接口定义所在的包名，如果有多个包使用 `,` 号分割                                                                                                                 |
+| `dbvisitor.mapper-disabled`            | 可选，使用 `true/false` 表示是否禁用 `dbvisitor.mapper-packages` 扫描到的 Mapper 接口。<br/>默认值为 false 当与某些框架合用同一个 mapper 文件时如果遇到冲突可考虑设置为 true                                |
+| `dbvisitor.marker-annotation`          | 可选，当 `dbvisitor.mapper-packages` 扫描到的 Mapper 接口身上标有 某个特定类型的注解时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.dal.repository.DalMapper`                           |
+| `dbvisitor.marker-interface`           | 可选，当 `dbvisitor.mapper-packages` 扫描到的 Mapper 接口实现了某个特定接口时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.dal.mapper.Mapper`                                       |
+| `dbvisitor.mapper-scope`               | 可选，Mapper Bean 所处的 Spring 作用域，默认作用域通过 `AbstractBeanDefinition.SCOPE_DEFAULT` 确定。<br/>建议设置为 singleton，dbVisitor 5.1.0 版本之前默认值被设置为 `singleton`，而非跟随 spring 配置 |
+| `dbvisitor.auto-mapping`               | 可选，是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Column 注解声明                                                                                          |                                                                                                                         
+| `dbvisitor.camel-case`                 | 可选，表名和属性名，根据驼峰规则转换为带有下划线的表名和列名                                                                                                                              |                                                                                                                        
+| `dbvisitor.case-insensitive`           | 可选，强制在生成 表名/列名/索引名 时候增加标识符限定，例如：通过设置该属性来解决列名为关键字的问题。默认是 false 不设置                                                                                           |                                                                                                                               
+| `dbvisitor.use-delimited`              | 可选，是否对表名列名敏感，默认 true 不敏感                                                                                                                                    |                                                                                                                               
+| `dbvisitor.dialect`                    | 可选，默认使用的数据库方言                                                                                                                                               |
+| `dbvisitor.mapper-factory-bean`        | 可选，创建 Mapper 的工厂类，默认为 `net.hasor.dbvisitor.spring.support.DalMapperBean`                                                                                    |
+| `dbvisitor.mapper-lazy-initialization` | 可选，Mapper Bean 的 `lazyInit` 属性，默认为 `false`                                                                                                                  |
+| `dbvisitor.mapper-name-generator`      | 可选，用于自定义生成 mapper bean 名字的生成器类名，默认为：空。需要实现 `org.springframework.beans.factory.support.BeanNameGenerator` 接口                                                 |
+| `dbvisitor.ref-session-bean`           | 可选，用于自定义 Mapper Bean 所使用的 DalSession Bean 的名字。                                                                                                              |                                   
+| `dbvisitor.named-type-registry`        | 不支持该配置                                                                                                                                                      |
+| `dbvisitor.named-rule-Registry`        | 不支持该配置                                                                                                                                                      |
+
+补充说明
+- 对于 `@DalMapper` 注解只可以用于注释另一个注释，因此可以使用 `@RefMapper` 或 `@SimpleMapper` 来代替。细节请参阅 **[注解化 Mapper](../guides/dal/anno-mapper.mdx)**
+- `dbvisitor.marker-annotation`、`dbvisitor.marker-interface` 两个属性配置满足其一即可
+- 一个 Mapper 接口可以继承下面两个接口其一
+    - net.hasor.dbvisitor.dal.mapper.Mapper （标记性接口）
+    - net.hasor.dbvisitor.dal.mapper.BaseMapper （有通用方法）
+
+## 基于注解化
+
+通过 `@MapperScan` 注解配置 Mapper 接口和对应的 Mapper File。
+
+- [基于 @MapperScan 注解的 Demo 工程](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/springboot-2/)
+
+:::tip
+注解配置优先级高于配置文件（推荐 "application.properties" 方式，配置更全面）
+:::
+
+```java {2,3}
+@MapperScan(
+    basePackages = "com.example.demo.dao",
+    mapperLocations = "classpath:dbvisitor/mapper/*.xml")
+@SpringBootApplication
+public class DemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+```
+
+`@MapperScan` 注解属性详解
+
+若要达到 `dbvisitor.mapper-disabled` 配置的效果请选用 `@MappingScan` 注解
+
+| 属性名                                         | 描述                                           |
+|---------------------------------------------|----------------------------------------------|
+| `value`、`basePackages`、`basePackageClasses` | 参考 `dbvisitor.mapper-packages` 配置            |
+| `mapperLocations`                           | 参考 `dbvisitor.mapper-locations` 配置           |
+| `factoryBean`                               | 参考 `dbvisitor.mapper-factory-bean` 配置        |
+| `defaultScope`                              | 参考 `dbvisitor.mapper-scope` 配置               |
+| `lazyInitialization`                        | 参考 `dbvisitor.mapper-lazy-initialization` 配置 |
+| `nameGenerator`                             | 参考 `dbvisitor.mapper-name-generator` 配置      |
+| `annotationClass`                           | 参考 `dbvisitor.marker-annotation` 配置          |
+| `markerInterface`                           | 参考 `dbvisitor.marker-interface` 配置           |
+| `dalSessionRef`                             | 参考 `ref-session-bean` 配置                     |
+
+`@MappingScan` 注解属性详解（该注解仅仅扫描加载 Mapper 文件不创建对应的 Mapper 接口对象）
+
+| 属性名               | 描述                                 |
+|-------------------|------------------------------------|
+| `mapperLocations` | 参考 `dbvisitor.mapper-locations` 配置 |
+| `dalSessionRef`   | 参考 `ref-session-bean` 配置           |

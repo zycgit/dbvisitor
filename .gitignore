@@ -29,3 +29,15 @@ target
 *.ntvs*
 *.njsproj
 *.sln
+pom.xml.versionsBackup
+pom.xml.releaseBackup
+release.properties
+
+# codes
+gen/
+logs/*
+
+# docs
+.docusaurus
+.cache-loader
+dbvisitor-doc/build/

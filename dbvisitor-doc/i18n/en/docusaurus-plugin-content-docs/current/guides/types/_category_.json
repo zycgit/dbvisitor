@@ -1,0 +1,9 @@
+{
+  "label": "类型",
+  "position": 5,
+  "className": "red",
+  "link": {
+    "type": "generated-index",
+    "title": "目录总揽"
+  }
+}

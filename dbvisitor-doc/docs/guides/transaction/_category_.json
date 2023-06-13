@@ -1,0 +1,9 @@
+{
+  "label": "资源与事务",
+  "position": 10,
+  "className": "red",
+  "link": {
+    "type": "generated-index",
+    "title": "目录总揽"
+  }
+}

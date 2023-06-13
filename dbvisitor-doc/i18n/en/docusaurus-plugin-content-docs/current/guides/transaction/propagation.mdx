@@ -1,0 +1,161 @@
+---
+sidebar_position: 3
+title: 事务传播行为
+description: 使用 dbVisitor ORM 的事务传播行为。
+---
+
+# 事务传播行为
+
+:::tip
+事务传播行为率先出现在 Spring 框架中，dbVisitor 对其思想并未有什么改进而是在 dbVisitor 中提供了一套完整的实现。
+:::
+
+简单的理解就是多个事务方法相互调用时，事务如何在这些方法间传播。举个例子：
+
+`方法A` 是一个事务的方法，在执行过程中调用了 `方法B`。
+接下来 `方法B` 有无事务以及 `方法B` 对事务的要求不同都会对 `方法A` 的事务具体执行造成影响。
+同时 `方法A` 的事务对 `方法B` 的事务执行也有影响，这种影响具体是什么就由两个方法所定义的事务传播行为所决定。
+
+## 加入已有事务 (REQUIRED)
+
+- dbVisitor 常量 `Propagation.REQUIRED`
+
+尝试加入已经存在的事务中，如果没有则开启一个新的事务。
+
+| 时间 | 事务1             | 事务2（REQUIRED）   | 效果    |
+|----|-----------------|-----------------|-------|
+| T1 | begin           |                 |       |
+| T2 | insert data1    |                 |       |
+| T3 |                 | begin           | 什么都不做 |
+| T4 |                 | insert data2    |       |
+| T5 |                 | commit/rollback | 什么都不做 |
+| T5 | insert data3    |                 |       |
+| T5 | commit/rollback |                 |       |
+
+## 独立事务 (REQUIRES_NEW)
+
+- dbVisitor 常量 `Propagation.REQUIRES_NEW`
+
+将挂起当前存在的事务挂起（如果存在的话）并且开启一个全新的事务，新事务与已存在的事务之间彼此没有关系。
+- **挂起会导致 `DataSourceManager` 中正在使用的同步资源被临时保存**
+- **在挂起之后访问 `DataSourceManager` 会得到一个全新的数据库连接。**
+
+| 时间 | 事务1             | 事务2（REQUIRES_NEW） | 效果                                                   |
+| ---- |-----------------|------------------|------------------------------------------------------|
+| T1 | begin           |                  |                                                      |
+| T2 | insert data1    |                  |                                                      |
+| T3 |                 | begin            | 产生新的连接并且和当前线程绑定，以满足 **[本地同步](./datasource.md#本地同步)** |
+| T4 |                 | insert data2     | 在新连接上写入                                              |
+| T5 |                 | commit/rollback  | 操作新的 `Connection`                                    |
+| T5 | insert data3    |                  |                                                      |
+| T5 | commit/rollback |                  |                                                      |
+
+## 嵌套事务 (NESTED)
+
+- dbVisitor 常量 `Propagation.NESTED`
+
+在当前事务中通过 `Savepoint` 方式开启一个子事务。
+
+| 时间 | 事务1 | 事务2（NESTED） | 效果 |
+| ---- | ---- | ---- | ---- |
+| T1 | begin |  |  |
+| T2 | insert data1 |  |  |
+| T3 |  | begin | 创建事务保存点 |
+| T4 |  | insert data2 |  |
+| T5 |  | commit/rollback | commit 会释放保存点、rollback 会回退到 T3 |
+| T5 | insert data3 |  |  |
+| T5 | commit/rollback |  |  |
+
+## 跟随环境 (SUPPORTS)
+
+- dbVisitor 常量 `Propagation.SUPPORTS`
+
+如果当前没有事务存在，就以非事务方式执行；如果有，就使用当前事务。以下面的执行为例：
+
+- `SUPPORTS` 行为是事务传播属性中最简单的一种行为，其行为本质上强调了 **不作为**
+
+export const HighTag1 = () => (
+<span style={{ backgroundColor: 'rgb(227 153 17)', color: '#fff', borderRadius: '2px', padding: '0.2rem'}}>注1</span>
+);
+
+| 时间  | 事务1             | 事务2（SUPPORTS）   | 效果                                        |
+|-----|-----------------|-----------------|-------------------------------------------|
+| T1  | begin           |                 |                                           |
+| T2  | insert data1    |                 |                                           |
+| T3  |                 | begin           |                                           | 什么都不做 |
+| T4  |                 | insert data2    | <HighTag1/> 若 T1 开启了事务，那么效果等同于 `REQUIRED` |
+| T5  |                 | commit/rollback | 什么都不做                                     |
+| T5  | insert data3    |                 |                                           |
+| T5  | commit/rollback |                 |                                           |
+
+- **<HighTag1/>** 开启了事务指的是 `Connection` 对象的 `autoCommit` 属性为 `false`。
+能够导致启动事务的传播行为有 `REQUIRED`、`REQUIRES_NEW` 和 `NESTED`，如果使用 **[低级别 API](./datasource.md#低级别-api)** 手动改变 `autoCommit` 状态也会导致进入事务状态。
+
+## 非事务方式 (NOT_SUPPORTED)
+
+- dbVisitor 常量 `Propagation.NOT_SUPPORTED`
+
+如果当前没有事务存在，就以非事务方式执行；如果有，就将当前事务挂起。以下面的执行为例：
+
+:::info
+将挂起当前存在的事务挂起（如果存在的话）并且开启一个全新的事务，新事务与已存在的事务之间彼此没有关系。
+- 挂起会导致 `DataSourceManager` 中正在使用的同步资源被临时保存。
+- 在挂起之后访问 `DataSourceManager` 会得到一个全新的数据库连接。
+:::
+
+export const HighTag2 = () => (
+    <span style={{ backgroundColor: 'rgb(227 153 17)', color: '#fff', borderRadius: '2px', padding: '0.2rem'}}>注2</span>
+);
+
+| 时间 | 事务1             | 事务2（NOT_SUPPORTED） | 效果                                        |
+|----|-----------------|-------------------|-------------------------------------------|
+| T1 | begin           |                   |                                           |
+| T2 | insert data1    |                   |                                           |
+| T3 |                 | begin             | <HighTag1/> 若 T1 开启了事务，那么会挂起当前事务。但不开启新的事务 |
+| T4 |                 | insert data2      |                                           |
+| T5 |                 | commit/rollback   | <HighTag2/> 若 T3 挂起了事务，那么会恢复它。            |
+| T5 | insert data3    |                   |                                           |
+| T5 | commit/rollback |                   |                                           |
+
+- **<HighTag1/>** 开启了事务指的是 `Connection` 对象的 `autoCommit` 属性为 `false`。
+能够导致启动事务的传播行为有 `REQUIRED`、`REQUIRES_NEW` 和 `NESTED`，如果使用 **[低级别 API](./datasource.md#低级别-api)** 手动改变 `autoCommit` 状态也会导致进入事务状态。
+- **<HighTag2/>** 恢复挂起的事务会更新 `DataSourceManager` 的当前绑定连接为之前的那一个。
+
+## 排除事务 (NEVER)
+
+- dbVisitor 常量 `Propagation.NEVER`
+
+如果当前没有事务存在，就以非事务方式执行；如果有就抛出异常。
+
+| 时间  | 事务1             | 事务2（NEVER）      | 效果                             |
+|-----|-----------------|-----------------|--------------------------------|
+| T1  | begin           |                 |                                |
+| T2  | insert data1    |                 |                                |
+| T3  |                 | begin           | <HighTag1/> 若 T1 开启了事务，那么会抛出异常 |
+| T4  |                 | insert data2    |                                |
+| T5  |                 | commit/rollback | 什么都不做                          |
+| T5  | insert data3    |                 |                                |
+| T5  | commit/rollback |                 |                                |
+
+- **<HighTag1/>** 若 T1 这个动作为 `NOT_SUPPORTED` 那么 T3 环节上 `NEVER` 行为就不会报错。它的行为会和 `SUPPORTS` 等价。
+若 T1 这个动作导致了 `Connection` 对象的 `autoCommit` 属性为 `false` 那么 T3 环节就会报错。
+- 能够导致 `autoCommit` 为 `false` 传播行为有 `REQUIRED`、`REQUIRES_NEW` 和 `NESTED`，也可以通过使用 **[低级别 API](./datasource.md#低级别-api)** 改变。
+
+## 要求事务 (MANDATORY)
+
+- dbVisitor 常量 `Propagation.MANDATORY`
+
+如果当前没有事务存在，就抛出异常；如果有，就使用当前事务。
+
+| 时间 | 事务1             | 事务2（NEVER）      | 效果                             |
+| ---- |-----------------|-----------------|--------------------------------|
+| T1 | begin           |                 |                                |
+| T2 | insert data1    |                 |                                |
+| T3 |                 | begin           | <HighTag1/> 若 T1 不存在事务，那么会抛出异常 |
+| T4 |                 | insert data2    |                                |
+| T5 |                 | commit/rollback | 什么都不做                          |
+| T5 | insert data3    |                 |                                |
+| T5 | commit/rollback |                 |                                |
+
+- **<HighTag1/>** 与上面刚刚好相反 `MANDATORY` 是要求必须 T1 环节产生了一个事务，否则会报错。
+因此若 T1 环节使用的是 `NOT_SUPPORTED` 行为，那么 T3 环节就会报错。

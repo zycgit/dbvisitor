@@ -1,0 +1,41 @@
+---
+sidebar_position: 2
+title: 快速上手
+description: 开箱即用的数据库数据生成工具快速上手教程。
+---
+
+# 快速上手
+
+## 引入依赖
+
+export const Highlight = ({children, color}) => (
+  <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+);
+
+截止到目前为止 Faker 的最新版本为：**<Highlight color="rgb(227 17 108)">5.3.0</Highlight>**
+- 在 https://mvnrepository.com/artifact/net.hasor/dbvisitor 上也可以查询到最新版本
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+  <TabItem value="Maven" label="Maven" default>
+
+```xml
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>dbvisitor-faker</artifactId>
+    <version>5.3.0</version>
+</dependency>
+```
+  </TabItem>
+  <TabItem value="Gradle" label="Gradle">
+
+```text
+// Gradle
+implementation 'net.hasor:dbvisitor-faker:5.3.0'
+```
+  </TabItem>
+</Tabs>
+
+编写中...

@@ -1,0 +1,9 @@
+{
+  "label": "SQL 执行",
+  "position": 6,
+  "className": "red",
+  "link": {
+    "type": "generated-index",
+    "title": "目录总揽"
+  }
+}

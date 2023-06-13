@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+       Copyright 2015-2022 the original author or authors.
+
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+-->
+<!ELEMENT mapper ( resultMap* | entity* | sql* | insert* | update* | delete* | select* )+>
+<!ATTLIST mapper
+        namespace CDATA #IMPLIED
+        caseInsensitive (true|false) #IMPLIED
+        mapUnderscoreToCamelCase (true|false) #IMPLIED
+        autoMapping (true|false) #IMPLIED
+        >
+
+<!ELEMENT resultMap (result*)>
+<!ATTLIST resultMap
+        id CDATA #IMPLIED
+        type CDATA #REQUIRED
+        caseInsensitive (true|false) #IMPLIED
+        mapUnderscoreToCamelCase (true|false) #IMPLIED
+        autoMapping (true|false) #IMPLIED
+        >
+
+<!ELEMENT result EMPTY>
+<!ATTLIST result
+        column CDATA #REQUIRED
+        property CDATA #REQUIRED
+        javaType CDATA #IMPLIED
+        jdbcType CDATA #IMPLIED
+        typeHandler CDATA #IMPLIED
+        >
+
+<!ELEMENT entity (id*,mapping*,index*)>
+<!ATTLIST entity
+        id CDATA #IMPLIED
+        catalog CDATA #IMPLIED
+        schema CDATA #IMPLIED
+        table CDATA #REQUIRED
+        type CDATA #REQUIRED
+        autoMapping (true|false) #IMPLIED
+        useDelimited (true|false) #IMPLIED
+        mapUnderscoreToCamelCase (true|false) #IMPLIED
+        caseInsensitive (true|false) #IMPLIED
+        character-set CDATA #IMPLIED
+        collation CDATA #IMPLIED
+        comment CDATA #IMPLIED
+        other CDATA #IMPLIED
+        ddlAuto (none|create|add|update|create-drop) #IMPLIED
+        >
+
+<!ELEMENT id EMPTY>
+<!ATTLIST id
+        column CDATA #REQUIRED
+        property CDATA #REQUIRED
+        javaType CDATA #IMPLIED
+        jdbcType CDATA #IMPLIED
+        typeHandler CDATA #IMPLIED
+        keyType CDATA #IMPLIED
+        insert (true|false) #IMPLIED
+        update (true|false) #IMPLIED
+        selectTemplate CDATA #IMPLIED
+        insertTemplate CDATA #IMPLIED
+        setColTemplate CDATA #IMPLIED
+        setValueTemplate CDATA #IMPLIED
+        whereColTemplate CDATA #IMPLIED
+        whereValueTemplate CDATA #IMPLIED
+        sqlType CDATA #IMPLIED
+        length CDATA #IMPLIED
+        precision CDATA #IMPLIED
+        scale CDATA #IMPLIED
+        character-set CDATA #IMPLIED
+        collation CDATA #IMPLIED
+        default CDATA #IMPLIED
+        comment CDATA #IMPLIED
+        other CDATA #IMPLIED
+        >
+
+<!ELEMENT mapping EMPTY>
+<!ATTLIST mapping
+        column CDATA #REQUIRED
+        property CDATA #REQUIRED
+        javaType CDATA #IMPLIED
+        jdbcType CDATA #IMPLIED
+        typeHandler CDATA #IMPLIED
+        keyType CDATA #IMPLIED
+        insert (true|false) #IMPLIED
+        update (true|false) #IMPLIED
+        selectTemplate CDATA #IMPLIED
+        insertTemplate CDATA #IMPLIED
+        setColTemplate CDATA #IMPLIED
+        setValueTemplate CDATA #IMPLIED
+        whereColTemplate CDATA #IMPLIED
+        whereValueTemplate CDATA #IMPLIED
+        sqlType CDATA #IMPLIED
+        length CDATA #IMPLIED
+        precision CDATA #IMPLIED
+        scale CDATA #IMPLIED
+        character-set CDATA #IMPLIED
+        collation CDATA #IMPLIED
+        nullable (true|false) #IMPLIED
+        default CDATA #IMPLIED
+        comment CDATA #IMPLIED
+        other CDATA #IMPLIED
+        >
+
+<!ELEMENT index (column* | EMPTY)>
+<!ATTLIST index
+        name CDATA #REQUIRED
+        columns CDATA #IMPLIED
+        unique (true|false) #IMPLIED
+        comment CDATA #IMPLIED
+        other CDATA #IMPLIED
+        >
+
+<!ELEMENT column (#PCDATA)>
+
+<!ELEMENT insert (#PCDATA | selectKey | include | trim | where | set | foreach | choose | if | bind)*>
+<!ATTLIST insert
+        id CDATA #REQUIRED
+        statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
+        timeout CDATA #IMPLIED
+        useGeneratedKeys CDATA #IMPLIED
+        keyProperty CDATA #IMPLIED
+        parameterType CDATA #IMPLIED
+        >
+
+<!ELEMENT update (#PCDATA | selectKey | include | trim | where | set | foreach | choose | if | bind)*>
+<!ATTLIST update
+        id CDATA #REQUIRED
+        statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
+        timeout CDATA #IMPLIED
+        >
+
+<!ELEMENT selectKey (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+<!ATTLIST selectKey
+        statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
+        timeout CDATA #IMPLIED
+        resultType CDATA #IMPLIED
+        fetchSize CDATA #IMPLIED
+        resultSetType CDATA #IMPLIED
+        keyProperty CDATA #REQUIRED
+        keyColumn CDATA #IMPLIED
+        order (BEFORE|AFTER) #IMPLIED
+        handler CDATA #IMPLIED
+        >
+
+<!ELEMENT delete (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+<!ATTLIST delete
+        id CDATA #REQUIRED
+        statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
+        timeout CDATA #IMPLIED
+        >
+
+<!ELEMENT select (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+<!ATTLIST select
+        id CDATA #REQUIRED
+        statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
+        timeout CDATA #IMPLIED
+        resultMap CDATA #IMPLIED
+        resultType CDATA #IMPLIED
+        fetchSize CDATA #IMPLIED
+        resultSetType (FORWARD_ONLY | SCROLL_INSENSITIVE | SCROLL_SENSITIVE | DEFAULT) #IMPLIED
+        multipleResult (FIRST|LAST|ALL) #IMPLIED
+        >
+
+<!-- Dynamic -->
+<!ELEMENT sql (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+<!ATTLIST sql
+        id CDATA #REQUIRED
+        >
+
+<!ELEMENT include EMPTY>
+<!ATTLIST include
+        refid CDATA #REQUIRED
+        >
+
+<!ELEMENT trim (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+<!ATTLIST trim
+        prefix CDATA #IMPLIED
+        prefixOverrides CDATA #IMPLIED
+        suffix CDATA #IMPLIED
+        suffixOverrides CDATA #IMPLIED
+        >
+
+<!ELEMENT where (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+
+<!ELEMENT set (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+
+<!ELEMENT foreach (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+<!ATTLIST foreach
+        collection CDATA #REQUIRED
+        item CDATA #REQUIRED
+        index CDATA #IMPLIED
+        open CDATA #IMPLIED
+        close CDATA #IMPLIED
+        separator CDATA #IMPLIED
+        >
+
+<!ELEMENT choose (when* , otherwise?)>
+
+<!ELEMENT when (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+<!ATTLIST when
+        test CDATA #REQUIRED
+        >
+
+<!ELEMENT otherwise (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+
+<!ELEMENT if (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+<!ATTLIST if
+        test CDATA #REQUIRED
+        >
+
+<!ELEMENT bind EMPTY>
+<!ATTLIST bind
+        name CDATA #REQUIRED
+        value CDATA #REQUIRED
+        >
