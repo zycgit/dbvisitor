@@ -85,8 +85,15 @@ public class ParsedSql {
             sqlToUse.append(originalSql, lastIndex, startIndex);
 
             if (paramSource != null) {
-                Object value = paramSource.getValue(parameterNames.get(i));
+                String paramName = parameterNames.get(i);
+                Object value = paramSource.getValue(paramName);
                 if (this.namedParameterCount > 0) {
+                    //处理类似：@{and, cfg_id = :p.cfg_id.array[1].name} 的情况
+                    if (value == null && paramName.contains(".")) {
+                        if (!paramName.contains("#") && !paramName.contains("@")) {
+                            value = OgnlUtils.evalOgnl(paramName, paramSource.toMap());
+                        }
+                    }
                     if (value instanceof InSqlParameter) {
                         value = ((InSqlParameter) value).getValue();
                     }
