@@ -26,16 +26,17 @@ import java.util.NoSuchElementException;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class RuntimeSQLException extends RuntimeException implements Iterable<Throwable> {
-    protected SQLException exception;
+    
+    protected SQLException getSQLException() {
+        return (SQLException) this.getCause();
+    }
 
     public RuntimeSQLException(SQLException e) {
         super(e);
-        this.exception = e;
     }
 
     public RuntimeSQLException(String s) {
         super(new SQLException(s));
-        this.exception = (SQLException) this.getCause();
     }
 
     /**
@@ -43,7 +44,7 @@ public class RuntimeSQLException extends RuntimeException implements Iterable<Th
      * @return the SQLState value
      */
     public String getSQLState() {
-        return this.exception.getSQLState();
+        return this.getSQLException().getSQLState();
     }
 
     /**
@@ -51,7 +52,7 @@ public class RuntimeSQLException extends RuntimeException implements Iterable<Th
      * @return the vendor's error code
      */
     public int getErrorCode() {
-        return this.exception.getErrorCode();
+        return this.getSQLException().getErrorCode();
     }
 
     /**
@@ -63,7 +64,7 @@ public class RuntimeSQLException extends RuntimeException implements Iterable<Th
      */
     public Iterator<Throwable> iterator() {
         return new Iterator<Throwable>() {
-            SQLException firstException = RuntimeSQLException.this.exception;
+            SQLException firstException = RuntimeSQLException.this.getSQLException();
             SQLException nextException = firstException.getNextException();
             Throwable cause = firstException.getCause();
 
@@ -92,60 +93,5 @@ public class RuntimeSQLException extends RuntimeException implements Iterable<Th
                 throw new UnsupportedOperationException();
             }
         };
-    }
-
-    @Override
-    public String getMessage() {
-        return this.exception.getMessage();
-    }
-
-    @Override
-    public String getLocalizedMessage() {
-        return this.exception.getLocalizedMessage();
-    }
-
-    @Override
-    public synchronized Throwable getCause() {
-        return this.exception;
-    }
-
-    @Override
-    public synchronized Throwable initCause(Throwable throwable) {
-        return this.exception.initCause(throwable);
-    }
-
-    @Override
-    public String toString() {
-        return this.exception.toString();
-    }
-
-    @Override
-    public void printStackTrace() {
-        this.exception.printStackTrace();
-    }
-
-    @Override
-    public void printStackTrace(PrintStream s) {
-        this.exception.printStackTrace(s);
-    }
-
-    @Override
-    public void printStackTrace(PrintWriter s) {
-        this.exception.printStackTrace(s);
-    }
-
-    @Override
-    public synchronized Throwable fillInStackTrace() {
-        return this.exception.fillInStackTrace();
-    }
-
-    @Override
-    public StackTraceElement[] getStackTrace() {
-        return this.exception.getStackTrace();
-    }
-
-    @Override
-    public void setStackTrace(StackTraceElement[] stackTrace) {
-        this.exception.setStackTrace(stackTrace);
     }
 }
