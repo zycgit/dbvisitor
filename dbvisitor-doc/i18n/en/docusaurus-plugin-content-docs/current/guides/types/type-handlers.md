@@ -21,8 +21,6 @@ dbVisitor 有着丰富的类型处理器，为了方便理解这些类型处理�
 3. `<xxx>TypeHandler`
 
 
-
-
 ## 类型处理器匹配表（第一优先级）
 
 :::tip 
@@ -93,7 +91,7 @@ dbVisitor 有着丰富的类型处理器，为了方便理解这些类型处理�
 | -                                                        | `java.time.YearMonth`           | `SqlTimestampAsYearMonthTypeHandler`       |
 | -                                                        | `java.time.MonthDay`            | `SqlTimestampAsMonthDayTypeHandler`        |
 | -                                                        | `java.time.LocalDate`           | `LocalDateTimeAsLocalDateTypeHandler`      |
-| -                                                        | `java.time.LocalTime`           | `LocalDateTimeAsLocalTimeTypeHandler`      |
+| -                                                        | `java.time.LocalTime`           | `LocalTimeTypeHandler`                     |
 | -                                                        | `java.time.LocalDateTime`       | `LocalDateTimeTypeHandler`                 |
 | -                                                        | `java.time.ZonedDateTime`       | `OffsetDateTimeAsZonedDateTimeTypeHandler` |
 | `Types.TIMESTAMP_WITH_TIMEZONE`                          | `java.time.OffsetDateTime`      | `OffsetDateTimeTypeHandler`                |
