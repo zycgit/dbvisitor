@@ -221,8 +221,7 @@ public class DalRegistry extends MappingRegistry {
             if (StringUtils.isNotBlank(resource)) {
                 try (InputStream stream = this.classLoader.getResourceAsStream(resource)) {
                     if (stream == null) {
-                        //throw new FileNotFoundException("not found mapper file '" + resource + "'");
-                        return;
+                        return;//throw new FileNotFoundException("not found mapper file '" + resource + "'"); // Don't block the app from launching
                     }
 
                     Document document = loadXmlRoot(stream);

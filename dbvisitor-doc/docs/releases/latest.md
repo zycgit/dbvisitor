@@ -20,7 +20,7 @@ title: 最新版本
 
 ## 最新版本
 
-v5.3.2 (2023-06-13)
+v5.3.3 (2023-07-12)
 
 ## 版本事件
 - `5.x` 及以后，dbVisitor 完全独立后的正式迭代版本
@@ -32,7 +32,7 @@ v5.3.2 (2023-06-13)
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor</artifactId>
-    <version>5.3.2</version>
+    <version>5.3.3</version>
 </dependency>
 ```
 ```text title='依赖关系'
@@ -45,7 +45,7 @@ net.hasor:dbvisitor:jar
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-spring-starter</artifactId>
-    <version>5.3.1</version>
+    <version>5.3.3</version>
 </dependency>
 ```
 ```text title='依赖关系'
@@ -62,7 +62,7 @@ net.hasor:dbvisitor-spring-starter:jar
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-spring</artifactId>
-    <version>5.3.1</version>
+    <version>5.3.3</version>
 </dependency>
 ```
 ```text title='依赖关系'
@@ -78,7 +78,7 @@ net.hasor:dbvisitor-spring:jar
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-guice</artifactId>
-    <version>5.3.1</version>
+    <version>5.3.3</version>
 </dependency>
 ```
 ```text title='依赖关系'
@@ -93,7 +93,7 @@ net.hasor:dbvisitor-guice:jar
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-hasor</artifactId>
-    <version>5.3.1</version>
+    <version>5.3.3</version>
 </dependency>
 ```
 ```text title='依赖关系'
