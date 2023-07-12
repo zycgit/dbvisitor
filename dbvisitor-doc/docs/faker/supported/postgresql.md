@@ -1,6 +1,6 @@
 ---
 id: postgresql
-sidebar_position: 3
+sidebar_position: 2
 title: PostgreSQL
 description: faker 对于 PostgreSQL 的数值生成支持特性
 ---

@@ -20,6 +20,10 @@ const DsIconList = [
         title: translate({id: 'homepage.feature1_title', message: 'Oracle'}),
         Svg: require('../../static/img/ds_icons/oracle.svg').default
     },
+    {
+        title: translate({id: 'homepage.feature1_title', message: '达梦数据库'}),
+        Svg: require('../../static/img/ds_icons/dm.svg').default
+    },
 //    {
 //        title: translate({id: 'homepage.feature3_title', message: 'IBM Db2'}),
 //        Svg: require('../../static/img/ds_icons/ibmdb2.svg').default

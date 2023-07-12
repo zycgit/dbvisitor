@@ -115,7 +115,7 @@ public class DialectTest extends AbstractDbTest {
         assert buildCondition.equals("\"userUUID\"");
 
         BoundSql countSql = dialect.countSql(this.queryBoundSql);
-        assert countSql.getSqlString().equals("SELECT COUNT(*) FROM (select * from tb_user where age > 12 and sex = ?) TEMP_T");
+        assert countSql.getSqlString().equals("SELECT COUNT(*) FROM (select * from tb_user where age > 12 and sex = ?) as TEMP_T");
         assert countSql.getArgs().length == 1;
 
         BoundSql pageSql = dialect.pageSql(this.queryBoundSql, 1, 3);

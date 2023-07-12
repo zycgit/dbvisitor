@@ -50,6 +50,7 @@ public class FakerTable {
     private       Action                   deleteGenerator;
     private       boolean                  useQualifier;
     private       boolean                  keyChanges;
+    private       boolean                  hasKey;
 
     FakerTable(String catalog, String schema, String table, FakerFactory fakerFactory) {
         this.catalog = catalog;
@@ -62,6 +63,7 @@ public class FakerTable {
         this.updateSetPolitic = SqlPolitic.RandomCol;
         this.wherePolitic = SqlPolitic.KeyCol;
         this.useQualifier = true;
+        this.hasKey = false;
     }
 
     public String getCatalog() {
@@ -116,10 +118,16 @@ public class FakerTable {
         this.keyChanges = keyChanges;
     }
 
+    /** 是否拥有主键 */
+    public boolean hasKey() {
+        return this.hasKey;
+    }
+
     /** 添加一个列 */
     public void addColumn(FakerColumn fakerColumn) {
         this.columnMap.put(fakerColumn.getColumn(), fakerColumn);
         this.columnList.add(fakerColumn);
+        this.hasKey = this.hasKey | fakerColumn.isKey();
     }
 
     /** 获取所有列 */

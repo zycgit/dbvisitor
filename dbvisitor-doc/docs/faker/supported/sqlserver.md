@@ -1,6 +1,6 @@
 ---
 id: sqlserver
-sidebar_position: 5
+sidebar_position: 4
 title: SQL SERVER
 description: faker 对于 SQL SERVER 的数值生成支持特性
 ---

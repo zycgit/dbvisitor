@@ -48,7 +48,7 @@ public abstract class AbstractAction implements Action {
         while (true) {
             tryTimes++;
             try {
-                List<Map<String, SqlArg>> fetchDataList = dataLoader.loadSomeData(useFor, fakerTable, includeColumns, batchSize);
+                List<Map<String, SqlArg>> fetchDataList = dataLoader.loadSomeData(useFor, fakerTable, batchSize);
                 if (CollectionUtils.isEmpty(fetchDataList)) {
                     return Collections.emptyList();
                 } else {

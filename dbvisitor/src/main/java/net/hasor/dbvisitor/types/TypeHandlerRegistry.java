@@ -133,7 +133,7 @@ public final class TypeHandlerRegistry {
         this.register(MonthDay.class, createSingleTypeHandler(SqlTimestampAsMonthDayTypeHandler.class));
         //
         this.register(LocalDate.class, createSingleTypeHandler(LocalDateTimeAsLocalDateTypeHandler.class));
-        this.register(LocalTime.class, createSingleTypeHandler(LocalDateTimeAsLocalTimeTypeHandler.class));
+        this.register(LocalTime.class, createSingleTypeHandler(LocalTimeTypeHandler.class));
         this.register(LocalDateTime.class, createSingleTypeHandler(LocalDateTimeTypeHandler.class));
         this.register(ZonedDateTime.class, createSingleTypeHandler(OffsetDateTimeAsZonedDateTimeTypeHandler.class));
         this.register(OffsetDateTime.class, createSingleTypeHandler(OffsetDateTimeTypeHandler.class));

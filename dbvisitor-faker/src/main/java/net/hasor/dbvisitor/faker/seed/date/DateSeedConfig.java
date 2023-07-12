@@ -102,7 +102,7 @@ public class DateSeedConfig extends SeedConfig {
                     this.setTypeHandler(new LocalDateTimeTypeHandler());
                     break;
                 case LocalTime:
-                    this.setTypeHandler(new LocalDateTimeAsLocalTimeTypeHandler());
+                    this.setTypeHandler(new LocalTimeTypeHandler());
                     break;
                 default:
                     this.setTypeHandler(TypeHandlerRegistry.DEFAULT.getTypeHandler(dateType.getDateType()));

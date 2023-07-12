@@ -115,6 +115,11 @@
             <version>21.5.0.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.dameng</groupId>
+            <artifactId>DmJdbcDriver18</artifactId>
+            <version>8.1.2.192</version>
+        </dependency>
     </dependencies>
 
     <!-- 构建描述 -->
