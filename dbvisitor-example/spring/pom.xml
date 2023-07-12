@@ -27,7 +27,7 @@
         <dependency>
             <groupId>net.hasor</groupId>
             <artifactId>dbvisitor-spring</artifactId>
-            <version>5.3.3</version>
+            <version>5.3.4-SNAPSHOT</version>
         </dependency>
 
         <!-- spring -->
