@@ -1,6 +1,6 @@
 ---
 id: mysql
-sidebar_position: 2
+sidebar_position: 1
 title: MySQL
 description: faker 对于 MySQL 的数值生成支持特性
 ---

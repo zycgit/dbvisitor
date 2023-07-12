@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.dialect;
 import net.hasor.cobble.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * SQL 条件方言
@@ -48,7 +49,7 @@ public interface ConditionSqlDialect extends SqlDialect {
         }
     }
 
-    default String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, int recordSize) {
+    default String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, Map<String, String> columnTerms, int recordSize) {
         throw new UnsupportedOperationException();
     }
 }

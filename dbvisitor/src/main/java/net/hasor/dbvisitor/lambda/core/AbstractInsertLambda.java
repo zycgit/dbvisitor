@@ -47,6 +47,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     protected       DuplicateKeyStrategy insertStrategy;
     protected final List<String>         primaryKeys;
     protected final List<String>         insertColumns;
+    protected final Map<String, String>  insertColumnTerms;
     protected final boolean              hasKeySeqHolderColumn;
 
     protected final List<MappedArg[]>       insertValues;
@@ -61,6 +62,12 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
 
         this.primaryKeys = this.getPrimaryKey().stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
         this.insertColumns = this.insertProperties.stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
+        this.insertColumnTerms = new LinkedHashMap<>();
+        for (ColumnMapping colMap : this.insertProperties) {
+            if (StringUtils.isNotBlank(colMap.getInsertTemplate())) {
+                this.insertColumnTerms.put(colMap.getColumn(), colMap.getInsertTemplate());
+            }
+        }
         this.hasKeySeqHolderColumn = this.insertProperties.stream().anyMatch(c -> c.getKeySeqHolder() != null);
         this.parameterDisposers = new ArrayList<>();
         this.fillBackEntityList = new ArrayList<>();
@@ -262,7 +269,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         String schemaName = tableMapping.getSchema();
         String tableName = tableMapping.getTable();
         if (!isInsertSqlDialect) {
-            String sqlString = defaultDialectInsert(catalogName, schemaName, tableName, this.insertColumns, dialect);
+            String sqlString = defaultDialectInsert(catalogName, schemaName, tableName, this.insertColumns, this.insertColumnTerms, dialect);
             return buildBatchBoundSql(sqlString);
         }
 
@@ -270,7 +277,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
             case Into: {
                 InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
                 if (insertDialect.supportInto(this.primaryKeys, this.insertColumns)) {
-                    String sqlString = insertDialect.insertInto(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns);
+                    String sqlString = insertDialect.insertInto(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns, this.insertColumnTerms);
                     return buildBatchBoundSql(sqlString);
                 }
                 break;
@@ -278,7 +285,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
             case Ignore: {
                 InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
                 if (insertDialect.supportIgnore(this.primaryKeys, this.insertColumns)) {
-                    String sqlString = insertDialect.insertIgnore(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns);
+                    String sqlString = insertDialect.insertIgnore(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns, this.insertColumnTerms);
                     return buildBatchBoundSql(sqlString);
                 }
                 break;
@@ -286,7 +293,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
             case Update: {
                 InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
                 if (insertDialect.supportReplace(this.primaryKeys, this.insertColumns)) {
-                    String sqlString = insertDialect.insertReplace(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns);
+                    String sqlString = insertDialect.insertReplace(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns, this.insertColumnTerms);
                     return buildBatchBoundSql(sqlString);
                 }
                 break;
@@ -303,35 +310,6 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         return new BatchBoundSql.BatchBoundSqlObj(batchSql, args);
     }
 
-    protected String defaultDialectInsert(String catalog, String schema, String table, List<String> columns, SqlDialect dialect) {
-        boolean useQualifier = isQualifier();
-        StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("INSERT INTO ");
-        strBuilder.append(dialect.tableName(useQualifier, catalog, schema, table));
-        strBuilder.append(" ");
-        strBuilder.append("(");
-
-        StringBuilder argBuilder = new StringBuilder();
-        TableMapping<?> tableMapping = this.getTableMapping();
-        for (int i = 0; i < columns.size(); i++) {
-            if (i > 0) {
-                strBuilder.append(", ");
-                argBuilder.append(", ");
-            }
-            strBuilder.append(dialect.fmtName(useQualifier, columns.get(i)));
-
-            String specialValue = tableMapping.getPropertyByColumn(columns.get(i)).getInsertTemplate();
-            String colValue = StringUtils.isNotBlank(specialValue) ? specialValue : "?";
-
-            argBuilder.append(colValue);
-        }
-
-        strBuilder.append(") VALUES (");
-        strBuilder.append(argBuilder);
-        strBuilder.append(")");
-        return strBuilder.toString();
-    }
-
     private static class FillBackEntity {
         public Object  object;
         public boolean isMap;
@@ -341,4 +319,36 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
             this.isMap = isMap;
         }
     }
+
+    private String defaultDialectInsert(String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms, SqlDialect dialect) {
+        boolean useQualifier = isQualifier();
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.append("INSERT INTO ");
+        strBuilder.append(dialect.tableName(useQualifier, catalog, schema, table));
+        strBuilder.append(" ");
+        strBuilder.append("(");
+
+        StringBuilder argBuilder = new StringBuilder();
+        for (int i = 0; i < columns.size(); i++) {
+            String colName = columns.get(i);
+            if (i > 0) {
+                strBuilder.append(", ");
+                argBuilder.append(", ");
+            }
+
+            strBuilder.append(dialect.fmtName(useQualifier, colName));
+            String valueTerm = columnValueTerms != null ? columnValueTerms.get(colName) : null;
+            if (StringUtils.isNotBlank(valueTerm)) {
+                argBuilder.append(valueTerm);
+            } else {
+                argBuilder.append("?");
+            }
+        }
+
+        strBuilder.append(") VALUES (");
+        strBuilder.append(argBuilder);
+        strBuilder.append(")");
+        return strBuilder.toString();
+    }
+
 }

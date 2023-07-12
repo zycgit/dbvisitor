@@ -1,6 +1,6 @@
 ---
 id: oracle
-sidebar_position: 4
+sidebar_position: 3
 title: Oracle
 description: faker 对于 Oracle 的数值生成支持特性
 ---

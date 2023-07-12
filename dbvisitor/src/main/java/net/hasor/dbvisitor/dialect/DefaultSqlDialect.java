@@ -18,6 +18,7 @@ import net.hasor.cobble.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -73,7 +74,7 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     }
 
     @Override
-    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("INSERT INTO ");
         strBuilder.append(tableName(useQualifier, catalog, schema, table));
@@ -82,12 +83,19 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
 
         StringBuilder argBuilder = new StringBuilder();
         for (int i = 0; i < columns.size(); i++) {
+            String colName = columns.get(i);
             if (i > 0) {
                 strBuilder.append(", ");
                 argBuilder.append(", ");
             }
-            strBuilder.append(fmtName(useQualifier, columns.get(i)));
-            argBuilder.append("?");
+
+            strBuilder.append(fmtName(useQualifier, colName));
+            String valueTerm = columnValueTerms != null ? columnValueTerms.get(colName) : null;
+            if (StringUtils.isNotBlank(valueTerm)) {
+                argBuilder.append(valueTerm);
+            } else {
+                argBuilder.append("?");
+            }
         }
 
         strBuilder.append(") VALUES (");
@@ -102,7 +110,7 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     }
 
     @Override
-    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         throw new UnsupportedOperationException();
     }
 
@@ -112,7 +120,7 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     }
 
     @Override
-    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         throw new UnsupportedOperationException();
     }
 

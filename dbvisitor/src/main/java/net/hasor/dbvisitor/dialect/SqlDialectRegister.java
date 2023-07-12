@@ -40,12 +40,12 @@ public class SqlDialectRegister {
         registerDialectAlias(JdbcUtils.HSQL, HSQLDialect.class);
         registerDialectAlias(JdbcUtils.IMPALA, ImpalaDialect.class);
         registerDialectAlias(JdbcUtils.INFORMIX, InformixDialect.class);
-        registerDialectAlias(JdbcUtils.KINGBASE, KingbaseDialect.class);
-        registerDialectAlias(JdbcUtils.MARIADB, MariaDBDialect.class);
+        registerDialectAlias(JdbcUtils.KINGBASE, PostgreSqlDialect.class);
+        registerDialectAlias(JdbcUtils.POSTGRESQL, PostgreSqlDialect.class);
+        registerDialectAlias(JdbcUtils.MARIADB, MySqlDialect.class);
         registerDialectAlias(JdbcUtils.MYSQL, MySqlDialect.class);
         registerDialectAlias(JdbcUtils.ORACLE, OracleDialect.class);
         registerDialectAlias(JdbcUtils.PHOENIX, PhoenixDialect.class);
-        registerDialectAlias(JdbcUtils.POSTGRESQL, PostgreSqlDialect.class);
         registerDialectAlias(JdbcUtils.SQLITE, SqlLiteDialect.class);
         registerDialectAlias(JdbcUtils.SQL_SERVER, SqlServerDialect.class);
         registerDialectAlias(JdbcUtils.JTDS, SqlServerDialect.class);

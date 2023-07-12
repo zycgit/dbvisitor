@@ -22,6 +22,7 @@ import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * MySQL 的 SqlDialect 实现
@@ -79,8 +80,8 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
     }
 
     @Override
-    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
-        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, "");
+    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms, "");
     }
 
     @Override
@@ -89,8 +90,8 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
     }
 
     @Override
-    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
-        return buildSql("INSERT IGNORE ", useQualifier, catalog, schema, table, columns, "");
+    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+        return buildSql("INSERT IGNORE ", useQualifier, catalog, schema, table, columns, columnValueTerms, "");
     }
 
     @Override
@@ -99,7 +100,7 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
     }
 
     @Override
-    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         StringBuilder strBuffer = new StringBuilder(" ON DUPLICATE KEY UPDATE ");
         boolean first = true;
         for (String col : columns) {
@@ -111,10 +112,10 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
             strBuffer.append(colName + "=VALUES(" + colName + ")");
             first = false;
         }
-        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, strBuffer.toString());
+        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms, strBuffer.toString());
     }
 
-    protected String buildSql(String markString, boolean useQualifier, String catalog, String schema, String table, List<String> columns, String appendSql) {
+    protected String buildSql(String markString, boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms, String appendSql) {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append(markString);
         strBuilder.append(tableName(useQualifier, catalog, schema, table));
@@ -123,12 +124,19 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
 
         StringBuilder argBuilder = new StringBuilder();
         for (int i = 0; i < columns.size(); i++) {
+            String colName = columns.get(i);
             if (i > 0) {
                 strBuilder.append(", ");
                 argBuilder.append(", ");
             }
-            strBuilder.append(fmtName(useQualifier, columns.get(i)));
-            argBuilder.append("?");
+
+            strBuilder.append(fmtName(useQualifier, colName));
+            String valueTerm = columnValueTerms != null ? columnValueTerms.get(colName) : null;
+            if (StringUtils.isNotBlank(valueTerm)) {
+                argBuilder.append(valueTerm);
+            } else {
+                argBuilder.append("?");
+            }
         }
 
         strBuilder.append(") VALUES (");
@@ -138,7 +146,7 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
         return strBuilder.toString();
     }
 
-    public String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, int recordSize) {
+    public String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, Map<String, String> columnTerms, int recordSize) {
         String tableName = this.tableName(useQualifier, catalog, schema, table);
         StringBuilder select = new StringBuilder();
 
@@ -149,7 +157,13 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
                 if (select.length() > 0) {
                     select.append(", ");
                 }
-                select.append(this.fmtName(useQualifier, col));
+
+                String valueTerm = columnTerms != null ? columnTerms.get(col) : null;
+                if (StringUtils.isNotBlank(valueTerm)) {
+                    select.append(valueTerm);
+                } else {
+                    select.append(this.fmtName(useQualifier, col));
+                }
             }
         }
 

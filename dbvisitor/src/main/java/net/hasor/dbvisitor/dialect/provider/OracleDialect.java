@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect.provider;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
@@ -21,6 +22,7 @@ import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Oracle 的 SqlDialect 实现
@@ -65,7 +67,7 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
     }
 
     @Override
-    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("INSERT INTO ");
         strBuilder.append(tableName(useQualifier, catalog, schema, table));
@@ -73,12 +75,19 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
 
         StringBuilder argBuilder = new StringBuilder();
         for (int i = 0; i < columns.size(); i++) {
+            String colName = columns.get(i);
             if (i > 0) {
                 strBuilder.append(", ");
                 argBuilder.append(", ");
             }
-            strBuilder.append(fmtName(useQualifier, columns.get(i)));
-            argBuilder.append("?");
+
+            strBuilder.append(fmtName(useQualifier, colName));
+            String valueTerm = columnValueTerms != null ? columnValueTerms.get(colName) : null;
+            if (StringUtils.isNotBlank(valueTerm)) {
+                argBuilder.append(valueTerm);
+            } else {
+                argBuilder.append("?");
+            }
         }
 
         strBuilder.append(") VALUES (");
@@ -93,10 +102,10 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
     }
 
     @Override
-    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         StringBuilder mergeBuilder = new StringBuilder();
 
-        buildMergeInfoBasic(useQualifier, catalog, schema, table, primaryKey, columns, mergeBuilder);
+        buildMergeInfoBasic(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms, mergeBuilder);
 
         buildMergeInfoWhenNotMatched(useQualifier, catalog, schema, table, columns, mergeBuilder);
 
@@ -109,10 +118,10 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
     }
 
     @Override
-    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         StringBuilder mergeBuilder = new StringBuilder();
 
-        buildMergeInfoBasic(useQualifier, catalog, schema, table, primaryKey, columns, mergeBuilder);
+        buildMergeInfoBasic(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms, mergeBuilder);
 
         buildMergeInfoWhenMatched(useQualifier, catalog, schema, table, columns, mergeBuilder);
         buildMergeInfoWhenNotMatched(useQualifier, catalog, schema, table, columns, mergeBuilder);
@@ -120,17 +129,23 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
         return mergeBuilder.toString();
     }
 
-    private void buildMergeInfoBasic(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, StringBuilder mergeBuilder) {
+    private void buildMergeInfoBasic(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms, StringBuilder mergeBuilder) {
         mergeBuilder.append("MERGE INTO ");
         mergeBuilder.append(tableName(useQualifier, catalog, schema, table));
         mergeBuilder.append(" TMP USING (SELECT ");
 
         for (int i = 0; i < columns.size(); i++) {
+            String colName = columns.get(i);
             if (i > 0) {
                 mergeBuilder.append(", ");
             }
 
-            mergeBuilder.append("? ");
+            String valueTerm = columnValueTerms != null ? columnValueTerms.get(colName) : null;
+            if (StringUtils.isNotBlank(valueTerm)) {
+                mergeBuilder.append(valueTerm);
+            } else {
+                mergeBuilder.append("?");
+            }
             mergeBuilder.append(fmtName(useQualifier, columns.get(i)));
         }
 
@@ -179,7 +194,7 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
         mergeBuilder.append(" ");
     }
 
-    public String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, int recordSize) {
+    public String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, Map<String, String> columnTerms, int recordSize) {
         String tableName = this.tableName(useQualifier, catalog, schema, table);
         StringBuilder select = new StringBuilder();
 
@@ -190,7 +205,13 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
                 if (select.length() > 0) {
                     select.append(", ");
                 }
-                select.append(this.fmtName(useQualifier, col));
+
+                String valueTerm = columnTerms != null ? columnTerms.get(col) : null;
+                if (StringUtils.isNotBlank(valueTerm)) {
+                    select.append(valueTerm);
+                } else {
+                    select.append(this.fmtName(useQualifier, col));
+                }
             }
         }
 

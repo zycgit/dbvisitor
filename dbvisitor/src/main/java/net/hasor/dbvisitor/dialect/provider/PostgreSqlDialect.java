@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect.provider;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
@@ -21,6 +22,7 @@ import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * PostgreSQL 对象名有大小写敏感不敏感的问题
@@ -61,8 +63,8 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
     }
 
     @Override
-    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
-        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, "");
+    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms, "");
     }
 
     @Override
@@ -71,8 +73,8 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
     }
 
     @Override
-    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
-        return buildSql("INSERT IGNORE ", useQualifier, catalog, schema, table, columns, " ON CONFLICT DO NOTHING");
+    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+        return buildSql("INSERT IGNORE ", useQualifier, catalog, schema, table, columns, columnValueTerms, " ON CONFLICT DO NOTHING");
     }
 
     @Override
@@ -82,7 +84,7 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
 
     // 主键冲突更新非主键列
     @Override
-    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns) {
+    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         // ... ON CONFLICT (a) DO UPDATE SET (b, c, d) = (excluded.b, excluded.c, excluded.d);
 
         StringBuilder strBuffer = new StringBuilder(" ON CONFLICT (");
@@ -112,10 +114,10 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
         }
         strBuffer.append("(" + namesBuffer + ") = (" + updateBuffer + ")");
 
-        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, strBuffer.toString());
+        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms, strBuffer.toString());
     }
 
-    protected String buildSql(String markString, boolean useQualifier, String catalog, String schema, String table, List<String> columns, String appendSql) {
+    protected String buildSql(String markString, boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms, String appendSql) {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append(markString);
         strBuilder.append(tableName(useQualifier, catalog, schema, table));
@@ -124,12 +126,19 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
 
         StringBuilder argBuilder = new StringBuilder();
         for (int i = 0; i < columns.size(); i++) {
+            String colName = columns.get(i);
             if (i > 0) {
                 strBuilder.append(", ");
                 argBuilder.append(", ");
             }
-            strBuilder.append(fmtName(useQualifier, columns.get(i)));
-            argBuilder.append("?");
+
+            strBuilder.append(fmtName(useQualifier, colName));
+            String valueTerm = columnValueTerms != null ? columnValueTerms.get(colName) : null;
+            if (StringUtils.isNotBlank(valueTerm)) {
+                argBuilder.append(valueTerm);
+            } else {
+                argBuilder.append("?");
+            }
         }
 
         strBuilder.append(") VALUES (");
@@ -139,7 +148,7 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
         return strBuilder.toString();
     }
 
-    public String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, int recordSize) {
+    public String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, Map<String, String> columnTerms, int recordSize) {
         String tableName = this.tableName(useQualifier, catalog, schema, table);
         StringBuilder select = new StringBuilder();
 
@@ -150,7 +159,13 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
                 if (select.length() > 0) {
                     select.append(", ");
                 }
-                select.append(this.fmtName(useQualifier, col));
+
+                String valueTerm = columnTerms != null ? columnTerms.get(col) : null;
+                if (StringUtils.isNotBlank(valueTerm)) {
+                    select.append(valueTerm);
+                } else {
+                    select.append(this.fmtName(useQualifier, col));
+                }
             }
         }
 

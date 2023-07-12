@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.dialect;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * SQL 插入数据方言。
@@ -26,15 +27,15 @@ public interface InsertSqlDialect extends SqlDialect {
     /** 是否支持 insert into */
     boolean supportInto(List<String> primaryKey, List<String> columns);
 
-    String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns);
+    String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms);
 
     /** 是否支持 insert ignore */
     boolean supportIgnore(List<String> primaryKey, List<String> columns);
 
-    String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns);
+    String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms);
 
     /** 是否支持 insert replace */
     boolean supportReplace(List<String> primaryKey, List<String> columns);
 
-    String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns);
+    String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms);
 }

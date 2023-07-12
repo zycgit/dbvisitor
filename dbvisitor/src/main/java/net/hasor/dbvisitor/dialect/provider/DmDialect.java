@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect.provider;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
+import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 达梦 的 SqlDialect 实现
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class DmDialect extends AbstractDialect implements PageSqlDialect/* , InsertSqlDialect */ {
+public class DmDialect extends AbstractDialect implements PageSqlDialect, InsertSqlDialect {
     @Override
     protected String keyWordsResource() {
         return "/META-INF/db-keywords/dm.keywords";
@@ -38,16 +41,27 @@ public class DmDialect extends AbstractDialect implements PageSqlDialect/* , Ins
     }
 
     @Override
-    public BoundSql countSql(BoundSql boundSql) {
-        String sqlBuilder = "SELECT COUNT(*) FROM (" + boundSql.getSqlString() + ") TEMP_T";
-        return new BoundSql.BoundSqlObj(sqlBuilder, boundSql.getArgs());
+    public String tableName(boolean useQualifier, String catalog, String schema, String table) {
+        boolean catalogBlank = StringUtils.isBlank(catalog);
+        boolean schemaBlank = StringUtils.isBlank(schema);
+
+        if (!catalogBlank && !schemaBlank) {
+            return fmtName(useQualifier, catalog) + "." + fmtName(useQualifier, table);
+        }
+        if (!catalogBlank) {
+            return fmtName(useQualifier, catalog) + "." + fmtName(useQualifier, table);
+        }
+        if (!schemaBlank) {
+            return fmtName(useQualifier, schema) + "." + fmtName(useQualifier, table);
+        }
+        return fmtName(useQualifier, table);
     }
 
     @Override
     public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
         StringBuilder sqlBuilder = new StringBuilder(boundSql.getSqlString());
         List<Object> paramArrays = new ArrayList<>(Arrays.asList(boundSql.getArgs()));
-        // DM7/
+
         if (start <= 0) {
             sqlBuilder.append(" LIMIT ?");
             paramArrays.add(limit);
@@ -56,38 +70,41 @@ public class DmDialect extends AbstractDialect implements PageSqlDialect/* , Ins
             paramArrays.add(start);
             paramArrays.add(limit);
         }
-        //
+
         return new BoundSql.BoundSqlObj(sqlBuilder.toString(), paramArrays.toArray());
     }
-    //    @Override
-    //    public boolean supportInsertIgnore(List<FieldInfo> pkFields) {
-    //        return !pkFields.isEmpty();
-    //    }
-    //
-    //    @Override
-    //    public String insertWithIgnore(boolean useQualifier, String category, String tableName, List<FieldInfo> pkFields, List<FieldInfo> insertFields) {
-    //        //        MERGE INTO DS_ENV TMP
-    //        //        USING (SELECT 3            "ID",
-    //        //                systimestamp GMT_CREATE,
-    //        //                systimestamp GMT_MODIFIED,
-    //        //                'abc'        OWNER_UID,
-    //        //                'dev'        ENV_NAME,
-    //        //                'dddddd'     DESCRIPTION
-    //        //                FROM dual) SRC
-    //        //        ON (TMP."ID" = SRC."ID")
-    //        //        WHEN NOT MATCHED THEN
-    //        //            INSERT ("ID", "GMT_CREATE", "GMT_MODIFIED", "OWNER_UID", "ENV_NAME", "DESCRIPTION")
-    //        //            VALUES (SRC."ID", SRC."GMT_CREATE", SRC."GMT_MODIFIED", SRC."OWNER_UID", SRC."ENV_NAME", SRC."DESCRIPTION");
-    //        List<FieldInfo> pkColumns = insertFields.stream().filter(FieldInfo::isPrimary).collect(Collectors.toList());
-    //        StringBuilder mergeBasic = buildMergeInfoBasic(useQualifier, category, tableName, insertFields, pkColumns);
-    //        StringBuilder mergeWhenNotMatched = buildMergeInfoWhenNotMatched(useQualifier, insertFields);
-    //        return mergeBasic.toString() + " " + mergeWhenNotMatched.toString();
-    //    }
-    //
-    //    @Override
-    //    public boolean supportInsertReplace(List<FieldInfo> pkFields) {
-    //        return !pkFields.isEmpty();
-    //    }
+
+    @Override
+    public boolean supportInto(List<String> primaryKey, List<String> columns) {
+        return true;
+    }
+
+    @Override
+    public String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+        return buildSql("INSERT INTO ", useQualifier, catalog, schema, table, columns, columnValueTerms);
+    }
+
+    @Override
+    public boolean supportIgnore(List<String> primaryKey, List<String> columns) {
+        return !primaryKey.isEmpty();
+    }
+
+    @Override
+    public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+        String ignoreHint = "/*+ IGNORE_ROW_ON_DUPKEY_INDEX(" + table + "(" + StringUtils.join(primaryKey.toArray(), ",") + ")) */ ";
+        return buildSql("INSERT " + ignoreHint, useQualifier, catalog, schema, table, columns, columnValueTerms);
+    }
+
+    @Override
+    public boolean supportReplace(List<String> primaryKey, List<String> columns) {
+        return false;//!primaryKey.isEmpty();
+    }
+
+    @Override
+    public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
+        throw new UnsupportedOperationException();
+    }
+
     //
     //    @Override
     //    public String insertWithReplace(boolean useQualifier, String category, String tableName, List<FieldInfo> pkFields, List<FieldInfo> insertFields) {
@@ -136,26 +153,6 @@ public class DmDialect extends AbstractDialect implements PageSqlDialect/* , Ins
     //        return mergeBuilder;
     //    }
     //
-    //    private static StringBuilder buildMergeInfoWhenNotMatched(boolean useQualifier, List<FieldInfo> allColumns) {
-    //        String allColumnString = allColumns.stream().map(fieldInfo -> {
-    //            return fmtQualifier(useQualifier, fieldInfo.getColumnName());
-    //        }).reduce((s1, s2) -> s1 + "," + s2).orElse("");
-    //        //
-    //        StringBuilder mergeBuilder = new StringBuilder();
-    //        mergeBuilder.append("WHEN NOT MATCHED THEN ");
-    //        mergeBuilder.append("INSERT(" + allColumnString + ") ");
-    //        mergeBuilder.append("VALUES( ");
-    //        for (int i = 0; i < allColumns.size(); i++) {
-    //            FieldInfo column = allColumns.get(i);
-    //            if (i != 0) {
-    //                mergeBuilder.append(",");
-    //            }
-    //            mergeBuilder.append("SRC." + fmtQualifier(useQualifier, column.getColumnName()));
-    //        }
-    //        mergeBuilder.append(") ");
-    //        //
-    //        return mergeBuilder;
-    //    }
     //
     //    private static StringBuilder buildMergeInfoWhenMatched(boolean useQualifier, List<FieldInfo> allColumns) {
     //        StringBuilder mergeBuilder = new StringBuilder();
@@ -172,4 +169,58 @@ public class DmDialect extends AbstractDialect implements PageSqlDialect/* , Ins
     //        mergeBuilder.append(" ");
     //        return mergeBuilder;
     //    }
+
+    protected String buildSql(String markString, boolean useQualifier, String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms) {
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.append(markString);
+        strBuilder.append(tableName(useQualifier, catalog, schema, table));
+        strBuilder.append(" ");
+        strBuilder.append("(");
+
+        StringBuilder argBuilder = new StringBuilder();
+        for (int i = 0; i < columns.size(); i++) {
+            String colName = columns.get(i);
+            if (i > 0) {
+                strBuilder.append(", ");
+                argBuilder.append(", ");
+            }
+
+            strBuilder.append(fmtName(useQualifier, colName));
+            String valueTerm = columnValueTerms != null ? columnValueTerms.get(colName) : null;
+            if (StringUtils.isNotBlank(valueTerm)) {
+                argBuilder.append(valueTerm);
+            } else {
+                argBuilder.append("?");
+            }
+        }
+
+        strBuilder.append(") VALUES (");
+        strBuilder.append(argBuilder);
+        strBuilder.append(")");
+        return strBuilder.toString();
+    }
+
+    public String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, Map<String, String> columnTerms, int recordSize) {
+        String tableName = this.tableName(useQualifier, catalog, schema, table);
+        StringBuilder select = new StringBuilder();
+
+        if (selectColumns == null || selectColumns.isEmpty()) {
+            select.append("*");
+        } else {
+            for (String col : selectColumns) {
+                if (select.length() > 0) {
+                    select.append(", ");
+                }
+
+                String valueTerm = columnTerms != null ? columnTerms.get(col) : null;
+                if (StringUtils.isNotBlank(valueTerm)) {
+                    select.append(valueTerm);
+                } else {
+                    select.append(this.fmtName(useQualifier, col));
+                }
+            }
+        }
+
+        return "select " + select + " from " + tableName + " order by rand() limit " + recordSize;
+    }
 }
