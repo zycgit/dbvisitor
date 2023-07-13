@@ -88,8 +88,7 @@ public class DeleteAction extends AbstractAction {
 
     private List<BoundQuery> buildAction(int batchSize, List<FakerColumn> useColumns) throws SQLException {
         // fetch some data used for delete
-        List<String> fetchCols = useColumns.stream().map(FakerColumn::getColumn).collect(Collectors.toList());
-        List<Map<String, SqlArg>> fetchDataList = this.retryLoad(this.dataLoader, UseFor.UpdateWhere, this.tableInfo, fetchCols, batchSize);
+        List<Map<String, SqlArg>> fetchDataList = this.retryLoad(this.dataLoader, UseFor.UpdateWhere, this.tableInfo, batchSize);
         if (CollectionUtils.isEmpty(fetchDataList)) {
             return Collections.emptyList();
         }

@@ -40,9 +40,7 @@ public abstract class AbstractAction implements Action {
         this.dialect = dialect;
     }
 
-    protected final List<Map<String, SqlArg>> retryLoad(DataLoader dataLoader, UseFor useFor, //
-            FakerTable fakerTable, List<String> includeColumns, int batchSize) throws SQLException {
-        includeColumns = includeColumns.isEmpty() ? fakerTable.getColumns() : includeColumns;
+    protected final List<Map<String, SqlArg>> retryLoad(DataLoader dataLoader, UseFor useFor, FakerTable fakerTable, int batchSize) throws SQLException {
 
         int tryTimes = 0;
         while (true) {
