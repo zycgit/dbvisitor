@@ -114,7 +114,7 @@ define mysql {
     jdbcType       = date
     seedType       = date
     dateType       = string
-    dateFormat     = WKF_DATE
+    dateFormat     = WKF_DATE10
     genType        = random
     rangeForm      = "1000-01-01"
     rangeTo        = "9999-12-31"

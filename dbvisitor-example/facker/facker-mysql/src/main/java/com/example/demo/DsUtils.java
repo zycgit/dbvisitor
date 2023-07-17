@@ -13,18 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.generate;
+package com.example.demo;
+import com.zaxxer.hikari.HikariDataSource;
 
-import net.hasor.dbvisitor.mapping.def.TableMapping;
+import javax.sql.DataSource;
 
-import java.util.List;
-
-/**
- * 生成建表脚本
- * @version : 2020-10-31
+/***
+ * 创建 JDBC
+ * @version : 2014-1-13
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface SchemaGenerate {
-    /** 生成建表语句 */
-    List<String> buildCreate(TableMapping<?> tableMapping, GenerateContext context);
+public class DsUtils {
+    public static DataSource dsMySql(String url, String user, String password) {
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        dataSource.setJdbcUrl(url);
+        dataSource.setUsername(user);
+        dataSource.setPassword(password);
+        dataSource.setMaximumPoolSize(100);
+        dataSource.setMinimumIdle(1);
+        return dataSource;
+    }
 }

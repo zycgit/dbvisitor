@@ -1,0 +1,13 @@
+version: '3.1'
+
+services:
+  mysql:
+    image: mysql:8.0.22
+    environment:
+      - MYSQL_DATABASE=devtester
+      - MYSQL_ROOT_PASSWORD=123456
+      - TZ=Asia/Shanghai
+    ports:
+      - 13306:3306
+    restart: always
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time_zone='+8:00'

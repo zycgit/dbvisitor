@@ -3,9 +3,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.example</groupId>
-    <artifactId>example-basic</artifactId>
+    <artifactId>example-facker-mysql</artifactId>
     <version>1.0.0</version>
-    <packaging>jar</packaging>
 
     <build>
         <plugins>
@@ -23,30 +22,21 @@
     </build>
 
     <dependencies>
-        <!-- hasordb -->
         <dependency>
             <groupId>net.hasor</groupId>
-            <artifactId>dbvisitor</artifactId>
-            <version>5.3.4-SNAPSHOT</version>
+            <artifactId>dbvisitor-faker</artifactId>
+            <version>5.3.3</version>
         </dependency>
 
-        <!-- driver -->
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-            <version>1.2.15</version>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>3.3.1</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.30</version>
-        </dependency>
-
-        <!-- test -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>2.0.22</version>
         </dependency>
     </dependencies>
 </project>

@@ -91,7 +91,7 @@ define sqlserver alias [ jtds ] {
     seedType       = date
     dateType       = string
     genType        = random
-    dateFormat     = WKF_DATE
+    dateFormat     = WKF_DATE10
     rangeForm      = "2000-01-01"
     rangeTo        = "2030-12-31"
 
