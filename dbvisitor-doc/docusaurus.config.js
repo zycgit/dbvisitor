@@ -7,8 +7,8 @@ const analyticsPlugin = require('./plugins/analytics.js');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-    title: 'dbVisitor/Faker - Java 数据库开发工具',
-    tagline: 'dbVisitor Java 数据库开发工具, Faker 数据库数据生成工具',
+    title: 'dbVisitor - Java 数据库开发工具',
+    tagline: 'dbVisitor Java 数据库开发工具',
     url: 'https://www.dbvisitor.net',
     baseUrl: '/',
     onBrokenLinks: 'throw',
@@ -29,7 +29,7 @@ const config = {
             ({
                 docs: {
                     sidebarPath: require.resolve('./sidebars.js'),
-                    editUrl: 'https://gitee.com/zycgit/dbvisitor-doc/tree/master/',
+                    editUrl: 'https://gitee.com/zycgit/dbvisitor/tree/master/dbvisitor-doc',
                 },
                 theme: {
                     customCss: require.resolve('./src/css/custom.css'),
@@ -56,11 +56,6 @@ const config = {
                     position: 'left',
                     label: 'dbVisitor 框架',
                     href: '/dbvisitor'
-                },
-                {
-                    position: 'left',
-                    label: 'Faker 工具',
-                    href: '/faker'
                 },
                 {
                     type: 'doc',

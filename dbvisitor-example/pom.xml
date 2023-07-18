@@ -14,7 +14,5 @@
         <module>springboot-2</module>
         <module>hasor</module>
         <module>guice</module>
-        <module>facker/facker-mysql</module>
-        <module>facker/facker-oracle</module>
     </modules>
 </project>

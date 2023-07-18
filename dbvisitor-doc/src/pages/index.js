@@ -5,53 +5,22 @@ import Link from '@docusaurus/Link';
 import Translate from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import styles from './index.module.css';
-import HomepageFeatures from '../components/homepageFeatures';
-
-const LabelList = [
-    {
-        alt: 'License',
-        Svg: require('../../static/img/labels/license.svg').default,
-        href: 'https://www.apache.org/licenses/LICENSE-2.0.html'
-    },
-    {
-        alt: 'Maven',
-        Svg: require('../../static/img/labels/license.svg').default,
-        href: 'https://maven-badges.herokuapp.com/maven-central/net.hasor/dbvisitor'
-    },
-    {
-        alt: 'License',
-        Svg: require('../../static/img/labels/email-zyc@byshell.svg').default,
-        href: 'mailto:zyc@byshell.org'
-    },
-    {
-        alt: '技术交流群',
-        Svg: require('../../static/img/labels/qqgroup-948706820.svg').default,
-        href: 'https://qm.qq.com/cgi-bin/qm/qr?k=Qy3574A4VgI0ph4fqFbZW-w49gnyqu6p&jump_from=webapi'
-    },
-];
-
-function Label({Svg, href, alt}) {
-    return (
-        <a className="button-padding" target="_blank" href={href}><Svg alt={alt}/></a>
-    );
-}
+import DbVisitorFeatures from '../components/dbVisitorFeatures';
 
 function HomepageHeader() {
     const {siteConfig} = useDocusaurusContext();
     return (
         <header className={clsx('hero hero--primary', styles.heroBanner)}>
             <div className="container">
-                <h1 className="hero__title">dbVisitor & Faker</h1>
-                <p className="hero__subtitle"><Translate id="homepage.tagline">轻量小巧的数据库开发工具</Translate>
+                <h1 className="hero__title">dbVisitor</h1>
+                <p className="hero__subtitle">
+                    <Translate id="dbv.tagline">轻量小巧、功能完备的数据库 ORM 工具</Translate>
                     <br/><br/>
-                    {LabelList.map((props, idx) => (
-                        <Label key={idx} {...props} />
-                    ))}
                 </p>
                 <div className={styles.buttons}>
-                    <Link className="button button--secondary button--lg" to="/dbvisitor">dbVisitor (ORM 框架)</Link>
+                    <Link className="button button--secondary button--lg" to="/docs/guides/quickstart"><Translate id="commons.quick_start">快速上手</Translate></Link>
                     <div style={{width: 20}}/>
-                    <Link className="button button--secondary button--lg" to="/faker">Faker (数据生成器)</Link>
+                    <Link className="button button--secondary button--lg" to="/docs/guides/overview"><Translate id="commons.document">使用手册</Translate></Link>
                 </div>
             </div>
         </header>
@@ -63,7 +32,7 @@ export default function Home() {
         <Layout>
             <HomepageHeader/>
             <main>
-                <HomepageFeatures/>
+                <DbVisitorFeatures/>
             </main>
         </Layout>
     );

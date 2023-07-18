@@ -47,7 +47,6 @@
 
     <modules>
         <module>dbvisitor</module>
-        <module>dbvisitor-faker</module>
         <module>dbvisitor-integration/dbvisitor-spring</module>
         <module>dbvisitor-integration/dbvisitor-spring-starter</module>
         <module>dbvisitor-integration/dbvisitor-hasor</module>
@@ -70,11 +69,6 @@
             <dependency>
                 <groupId>net.hasor</groupId>
                 <artifactId>dbvisitor-spring</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.hasor</groupId>
-                <artifactId>dbvisitor-faker</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
