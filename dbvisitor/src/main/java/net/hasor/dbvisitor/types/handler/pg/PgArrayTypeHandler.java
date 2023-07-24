@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.pg;
-import net.hasor.cobble.codec.HexadecimalUtils;
+import net.hasor.cobble.codec.HexUtils;
 import net.hasor.dbvisitor.types.handler.ArrayTypeHandler;
 
 import java.sql.Array;
@@ -26,8 +26,8 @@ import java.util.List;
 
 /**
  * PostgreSQL，数组类型
- * @version : 2023-02-19
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2023-02-19
  */
 public class PgArrayTypeHandler extends ArrayTypeHandler {
     protected final String                   elementType;
@@ -64,7 +64,7 @@ public class PgArrayTypeHandler extends ArrayTypeHandler {
         List<Object> copy = new ArrayList<>();
         for (Object oriDatum : oriData) {
             if (this.elementType.equals("bytea")) {
-                copy.add(HexadecimalUtils.bytes2hex((byte[]) oriDatum));
+                copy.add(HexUtils.bytes2hex((byte[]) oriDatum));
             } else {
                 copy.add(oriDatum);
             }

@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.types.handler;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.codec.HexadecimalUtils;
+import net.hasor.cobble.codec.HexUtils;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -31,7 +31,7 @@ public class JtsGeometryWkbHexAsWktTypeHandler extends AbstractJtsGeometryTypeHa
         if (wkb == null) {
             return null;
         } else {
-            return HexadecimalUtils.bytes2hex(wkb);
+            return HexUtils.bytes2hex(wkb);
         }
     }
 
@@ -42,7 +42,7 @@ public class JtsGeometryWkbHexAsWktTypeHandler extends AbstractJtsGeometryTypeHa
             if (hex.startsWith("0x") || hex.startsWith("0X")) {
                 hex = hex.substring(2);
             }
-            return HexadecimalUtils.hex2bytes(hex);
+            return HexUtils.hex2bytes(hex);
         }
     }
 
