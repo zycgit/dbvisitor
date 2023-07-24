@@ -59,7 +59,7 @@
             <dependency>
                 <groupId>net.hasor</groupId>
                 <artifactId>cobble-all</artifactId>
-                <version>4.5.3</version>
+                <version>4.5.4</version>
             </dependency>
             <dependency>
                 <groupId>net.hasor</groupId>
