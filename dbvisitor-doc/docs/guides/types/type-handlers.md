@@ -37,7 +37,7 @@ dbVisitor 有着丰富的类型处理器，为了方便理解这些类型处理�
 | `Types.TINYINT`, `Types.SMALLINT`, `Types.INTEGER`, `Types.BIGINT`, `Types.FLOAT`, `Types.DOUBLE`, `Types.REAL`, `Types.NUMERIC`, `Types.DECIMAL` | `java.time.Year`      | `IntegerAsYearTypeHandler`        |
 | `Types.CHAR`, `Types.VARCHAR`, `Types.LONGVARCHAR`, `Types.NCHAR`, `Types.NVARCHAR`, `Types.LONGNVARCHAR`                                         | `java.time.Month`     | `StringAsMonthTypeHandler`        |
 | `Types.TINYINT`, `Types.SMALLINT`, `Types.INTEGER`, `Types.BIGINT`, `Types.FLOAT`, `Types.DOUBLE`, `Types.REAL`, `Types.NUMERIC`, `Types.DECIMAL` | `java.time.Month`     | `IntegerAsMonthTypeHandler`       |
-| `Types.CHAR`, `Types.VARCHAR`, `Types.LONGVARCHAR`                                                                                                | `java.lang.String`    | `StringTypeHandler`               |
+| `Types.CHAR`, `Types.VARCHAR`, `Types.LONGVARCHAR`, `Types.DATALINK`, `Types.ROWID`                                                               | `java.lang.String`    | `StringTypeHandler`               |
 | `Types.NCHAR`, `Types.NVARCHAR`, `Types.LONGNVARCHAR`                                                                                             | `java.lang.String`    | `NStringTypeHandler`              |
 | `Types.CLOB`                                                                                                                                      | `java.lang.String`    | `ClobAsStringTypeHandler`         |
 | `Types.NCLOB`                                                                                                                                     | `java.lang.String`    | `NClobAsStringTypeHandler`        |
@@ -47,14 +47,16 @@ dbVisitor 有着丰富的类型处理器，为了方便理解这些类型处理�
 | `Types.CLOB`                                                                                                                                      | `java.io.Reader`      | `ClobAsReaderTypeHandler`         |
 | `Types.NCLOB`                                                                                                                                     | `java.io.Reader`      | `NClobAsReaderTypeHandler`        |
 | `Types.SQLXML`                                                                                                                                    | `java.io.Reader`      | `SqlXmlForReaderTypeHandler`      |
-| `Types.BINARY`, `Types.VARBINARY`, `Types.LONGVARBINARY`                                                                                          | `byte[]`              | `BytesTypeHandler`                |
+| `Types.BINARY`, `Types.VARBINARY`, `Types.LONGVARBINARY`, `Types.ROWID`                                                                           | `byte[]`              | `BytesTypeHandler`                |
 | `Types.BLOB`                                                                                                                                      | `byte[]`              | `BlobAsBytesTypeHandler`          |
-| `Types.BINARY`, `Types.VARBINARY`, `Types.LONGVARBINARY`                                                                                          | `java.lang.Byte[]`    | `BytesAsBytesWrapTypeHandler`     |
+| `Types.BINARY`, `Types.VARBINARY`, `Types.LONGVARBINARY`, `Types.ROWID`                                                                           | `java.lang.Byte[]`    | `BytesAsBytesWrapTypeHandler`     |
 | `Types.BLOB`                                                                                                                                      | `java.lang.Byte[]`    | `BlobAsBytesWrapTypeHandler`      |
 | `Types.BINARY`, `Types.VARBINARY`, `Types.LONGVARBINARY`                                                                                          | `java.io.InputStream` | `BytesAsInputStreamTypeHandler`   |
 | `Types.BLOB`                                                                                                                                      | `java.io.InputStream` | `BlobAsInputStreamTypeHandler`    |
 | `Types.SQLXML`                                                                                                                                    | `java.io.InputStream` | `SqlXmlForInputStreamTypeHandler` |
 | `Types.ARRAY`                                                                                                                                     | `java.lang.Object`    | `ArrayTypeHandler`                |
+| `Types.DATALINK`                                                                                                                                  | `java.net.URI`        | `URITypeHandler`                  |
+| `Types.DATALINK`                                                                                                                                  | `java.net.URL`        | `URLTypeHandler`                  |
 
 ## 类型处理器匹配表（第二、三优先级）
 
@@ -74,7 +76,7 @@ dbVisitor 有着丰富的类型处理器，为了方便理解这些类型处理�
 | -                                                        | `java.lang.Number`              | `NumberTypeHandler`                        |
 | `Types.CHAR`                                             | `java.lang.Character`, `char`   | `StringAsCharTypeHandler`                  |
 | `Types.NCHAR`                                            | -                               | `NStringAsCharTypeHandler`                 |
-| `Types.VARCHAR`, `Types.LONGVARCHAR`                     | `java.lang.String`              | `StringTypeHandler`                        |
+| `Types.VARCHAR`, `Types.LONGVARCHAR`, `Types.ROWID`      | `java.lang.String`              | `StringTypeHandler`                        |
 | `Types.NVARCHAR`, `Types.LONGNVARCHAR`                   | -                               | `NStringTypeHandler`                       |
 | `Types.CLOB`                                             | `java.sql.Clob`                 | `ClobAsStringTypeHandler`                  |
 | `Types.NCLOB`                                            | `java.sql.NClob`                | `NClobAsStringTypeHandler`                 |
@@ -102,6 +104,8 @@ dbVisitor 有着丰富的类型处理器，为了方便理解这些类型处理�
 | -                                                        | `java.lang.Byte[]`              | `BytesAsBytesWrapTypeHandler`              |
 | `Types.BINARY`, `Types.VARBINARY`, `Types.LONGVARBINARY` | `byte[]`                        | `BytesTypeHandler`                         |
 | `Types.BLOB`                                             | `java.sql.Blob`                 | `BlobAsBytesTypeHandler`                   |
+| `Types.DATALINK`                                         | `java.net.URI`                  | `URLTypeHandler`                           |
+| -                                                        | `java.net.URL`                  | `URLTypeHandler`                           |
 | `Types.JAVA_OBJECT`                                      | -                               | `ObjectTypeHandler`                        |
 | `Types.ARRAY`                                            | `java.lang.Object[]`            | `ArrayTypeHandler`                         |
 | `Types.SQLXML`                                           | -                               | `SqlXmlTypeHandler`                        |

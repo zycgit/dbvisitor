@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
+import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.reflect.TypeReference;
@@ -23,6 +24,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
 import java.net.URL;
 import java.sql.*;
 import java.time.*;
@@ -88,6 +90,7 @@ public final class TypeHandlerRegistry {
         javaTypeToJdbcTypeMap.put(Reader.class.getName(), Types.CLOB);
         javaTypeToJdbcTypeMap.put(InputStream.class.getName(), Types.BLOB);
         javaTypeToJdbcTypeMap.put(URL.class.getName(), Types.DATALINK);
+        javaTypeToJdbcTypeMap.put(URI.class.getName(), Types.DATALINK);
         javaTypeToJdbcTypeMap.put(Byte[].class.getName(), Types.VARBINARY);
         javaTypeToJdbcTypeMap.put(byte[].class.getName(), Types.VARBINARY);
         javaTypeToJdbcTypeMap.put(Object[].class.getName(), Types.ARRAY);
@@ -152,6 +155,8 @@ public final class TypeHandlerRegistry {
         this.register(Clob.class, createSingleTypeHandler(ClobAsStringTypeHandler.class));
         this.register(NClob.class, createSingleTypeHandler(NClobAsStringTypeHandler.class));
         this.register(Blob.class, createSingleTypeHandler(BlobAsBytesTypeHandler.class));
+        this.register(URL.class, createSingleTypeHandler(URLTypeHandler.class));
+        this.register(URI.class, createSingleTypeHandler(URITypeHandler.class));
 
         this.register(Types.BIT, createSingleTypeHandler(BooleanTypeHandler.class));
         this.register(Types.BOOLEAN, createSingleTypeHandler(BooleanTypeHandler.class));
@@ -184,11 +189,11 @@ public final class TypeHandlerRegistry {
         this.register(Types.BLOB, createSingleTypeHandler(BlobAsBytesTypeHandler.class));
         this.register(Types.JAVA_OBJECT, createSingleTypeHandler(ObjectTypeHandler.class));
         this.register(Types.ARRAY, createSingleTypeHandler(ArrayTypeHandler.class));
-        // DATALINK(Types.DATALINK)
+        this.register(Types.DATALINK, createSingleTypeHandler(URLTypeHandler.class));
+        this.register(Types.ROWID, createSingleTypeHandler(StringTypeHandler.class));
         // DISTINCT(Types.DISTINCT),
         // STRUCT(Types.STRUCT),
         // REF(Types.REF),
-        // ROWID(Types.ROWID),
         // REF_CURSOR(Types.REF_CURSOR),
         this.register(Types.OTHER, createSingleTypeHandler(UnknownTypeHandler.class));
 
@@ -233,6 +238,14 @@ public final class TypeHandlerRegistry {
         this.registerCross(Types.BLOB, InputStream.class, createSingleTypeHandler(BlobAsInputStreamTypeHandler.class));
 
         this.registerCross(Types.ARRAY, Object.class, createSingleTypeHandler(ArrayTypeHandler.class));
+
+        this.registerCross(Types.DATALINK, String.class, createSingleTypeHandler(StringTypeHandler.class));
+        this.registerCross(Types.DATALINK, URL.class, createSingleTypeHandler(URLTypeHandler.class));
+        this.registerCross(Types.DATALINK, URI.class, createSingleTypeHandler(URITypeHandler.class));
+
+        this.registerCross(Types.ROWID, byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
+        this.registerCross(Types.ROWID, Byte[].class, createSingleTypeHandler(BytesAsBytesWrapTypeHandler.class));
+        this.registerCross(Types.ROWID, String.class, createSingleTypeHandler(StringTypeHandler.class));
     }
 
     private TypeHandler<?> createSingleTypeHandler(Class<? extends TypeHandler<?>> typeHandler) {
@@ -362,6 +375,10 @@ public final class TypeHandlerRegistry {
         if (typeClass.isEnum()) {
             return true;
         }
+        if (typeClass.isAnnotationPresent(BindTypeHandler.class)) {
+            return true;
+        }
+
         return this.javaTypeHandlerMap.containsKey(typeClass.getName());
     }
 
@@ -383,7 +400,8 @@ public final class TypeHandlerRegistry {
         if (jdbcHandlerMap != null) {
             return jdbcHandlerMap.containsKey(jdbcType);
         }
-        return false;
+
+        return typeClass.isAnnotationPresent(BindTypeHandler.class);
     }
 
     public TypeHandler<?> getTypeHandler(String typeName) {
@@ -396,8 +414,37 @@ public final class TypeHandlerRegistry {
 
     public TypeHandler<?> getTypeHandler(Class<?> typeClass) {
         Objects.requireNonNull(typeClass, "typeClass is null.");
-        TypeHandler<?> typeHandler = this.javaTypeHandlerMap.get(typeClass.getName());
-        return (typeHandler != null) ? typeHandler : this.defaultTypeHandler;
+        String typeClassName = typeClass.getName();
+        TypeHandler<?> typeHandler = this.javaTypeHandlerMap.get(typeClassName);
+        if (typeHandler != null) {
+            return typeHandler;
+        }
+
+        // maybe classType include BindTypeHandler
+        if (typeClass.isAnnotationPresent(BindTypeHandler.class)) {
+            synchronized (this) {
+                if (this.javaTypeHandlerMap.containsKey(typeClassName)) {
+                    return this.javaTypeHandlerMap.get(typeClassName);
+                }
+
+                BindTypeHandler handler = typeClass.getAnnotation(BindTypeHandler.class);
+                typeHandler = ClassUtils.newInstance(handler.typeHandler());
+                this.javaTypeHandlerMap.put(typeClassName, typeHandler);
+                return typeHandler;
+            }
+        }
+
+        // maybe classType is enum
+        if (Enum.class.isAssignableFrom(typeClass)) {
+            return this.javaTypeHandlerMap.computeIfAbsent(typeClass.getName(), s -> {
+                Class<?> enumType = typeClass.isAnonymousClass() ? typeClass.getSuperclass() : typeClass;
+                return new EnumTypeHandler(enumType);
+            });
+        }
+
+        // register default
+        this.javaTypeHandlerMap.put(typeClassName, this.defaultTypeHandler);
+        return this.defaultTypeHandler;
     }
 
     public TypeHandler<?> getTypeHandler(int jdbcType) {
@@ -413,7 +460,10 @@ public final class TypeHandlerRegistry {
         if (typeClass == null) {
             return this.defaultTypeHandler;
         }
-        Map<Integer, TypeHandler<?>> handlerMap = this.typeHandlerMap.get(typeClass.getName());
+
+        // find by classType and jdbcType
+        String typeClassName = typeClass.getName();
+        Map<Integer, TypeHandler<?>> handlerMap = this.typeHandlerMap.get(typeClassName);
         if (handlerMap != null) {
             TypeHandler<?> typeHandler = handlerMap.get(jdbcType);
             if (typeHandler != null) {
@@ -421,20 +471,42 @@ public final class TypeHandlerRegistry {
             }
         }
 
-        TypeHandler<?> typeHandler = this.javaTypeHandlerMap.get(typeClass.getName());
+        // find by classType
+        TypeHandler<?> typeHandler = this.javaTypeHandlerMap.get(typeClassName);
         if (typeHandler != null) {
             return typeHandler;
         }
+
+        // maybe classType include BindTypeHandler
+        if (typeClass.isAnnotationPresent(BindTypeHandler.class)) {
+            synchronized (this) {
+                if (this.typeHandlerMap.containsKey(typeClassName)) {
+                    handlerMap = this.typeHandlerMap.get(typeClassName);
+                    if (handlerMap.containsKey(jdbcType)) {
+                        return handlerMap.get(jdbcType);
+                    }
+                }
+
+                BindTypeHandler handler = typeClass.getAnnotation(BindTypeHandler.class);
+                typeHandler = ClassUtils.newInstance(handler.typeHandler());
+                registerCross(jdbcType, typeClass, typeHandler);
+                return typeHandler;
+            }
+        }
+
+        // maybe classType is enum
         if (Enum.class.isAssignableFrom(typeClass)) {
             typeClass = typeClass.isAnonymousClass() ? typeClass.getSuperclass() : typeClass;
             typeHandler = this.javaTypeHandlerMap.get(typeClass.getName());
             if (typeHandler == null) {
                 EnumTypeHandler enumOfStringTypeHandler = new EnumTypeHandler(typeClass);
-                this.javaTypeHandlerMap.put(typeClass.getName(), enumOfStringTypeHandler);
+                registerCross(jdbcType, typeClass, enumOfStringTypeHandler);
                 return enumOfStringTypeHandler;
             }
         }
 
+        // register default
+        registerCross(jdbcType, typeClass, this.defaultTypeHandler);
         return this.defaultTypeHandler;
     }
 
