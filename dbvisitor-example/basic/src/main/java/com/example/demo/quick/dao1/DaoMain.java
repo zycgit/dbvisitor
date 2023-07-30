@@ -26,15 +26,15 @@ public class DaoMain {
         newUser.setName("new User");
         newUser.setAge(33);
         newUser.setCreateTime(new Date());
-        int result1 = baseMapper.save(newUser);
+        int result1 = baseMapper.insert(newUser);
 
         dtoList = baseMapper.query().queryForList();
         PrintUtils.printObjectList(dtoList);
 
         // 更新，将name 从 mali 更新为 mala
-        TestUser sample = baseMapper.getById(1);
+        TestUser sample = baseMapper.selectById(1);
         sample.setName("mala");
-        int result2 = baseMapper.saveOrUpdate(sample);
+        int result2 = baseMapper.updateById(sample);
 
         dtoList = baseMapper.query().queryForList();
         PrintUtils.printObjectList(dtoList);
