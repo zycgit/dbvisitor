@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.jdbc.mapper;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.test.dto.TB_User2;
+import net.hasor.test.dto.UserInfo3;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -31,17 +31,17 @@ public class SingleColumnRowMapperTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             String resultData = null;
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_varchar) values ('abc');");
             resultData = jdbcTemplate.queryForObject(//
                     "select c_varchar from tb_h2_types where c_varchar = 'abc';", String.class);
             assert "abc".equals(resultData);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_int) values (123);");
             resultData = jdbcTemplate.queryForObject(//
                     "select c_int from tb_h2_types where c_int = 123;", String.class);
             assert "123".equals(resultData);
-            //
+
             SingleColumnRowMapper<String> rowMapper = new SingleColumnRowMapper<>(String.class);
             resultData = jdbcTemplate.queryForObject(//
                     "select c_int from tb_h2_types where c_int = 123;", rowMapper);
@@ -53,18 +53,18 @@ public class SingleColumnRowMapperTest {
     public void testSingleColumnRowMapper_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_int) values (123);");
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_double) values (123.123);");
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_float) values (123.123);");
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_double) values (123.123);");
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_time) values (?)", new Object[] { new Date() });
-            //
+
             int num1 = jdbcTemplate.queryForObject("select c_int from tb_h2_types where c_int = 123;", Integer.class);
             Number num2 = jdbcTemplate.queryForObject("select c_int from tb_h2_types where c_int = 123;", Number.class);
             double num3 = jdbcTemplate.queryForObject("select c_int from tb_h2_types where c_int = 123;", double.class);
             BigDecimal num4 = jdbcTemplate.queryForObject("select c_int from tb_h2_types where c_int = 123;", BigDecimal.class);
             Number num5 = jdbcTemplate.queryForObject("select c_time from tb_h2_types where c_time is not null limit 1;", Number.class);
-            //
+
             assert num1 == 123;
             assert num2.intValue() == 123;
             assert num2 instanceof Integer;
@@ -79,11 +79,15 @@ public class SingleColumnRowMapperTest {
     public void testSingleColumnRowMapper_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            List<TB_User2> tbUser2s = jdbcTemplate.queryForList("select *,'' as futures from tb_user", TB_User2.class);
-            assert tbUser2s.size() == 3;
-            tbUser2s.forEach(tb_user2 -> {
-                assert tb_user2.getFutures() == null;
+
+            List<UserInfo3> users = jdbcTemplate.queryForList("select *,'{''ext1'':''abc'',''ext2'':123,''ext3'':true}' as futures from user_info", UserInfo3.class);
+            assert users.size() == 3;
+            users.forEach(user -> {
+                assert user.getFutures() != null;
+                assert user.getFutures().getExt1().equals("abc");
+                assert user.getFutures().getExt2().equals(123);
+                assert user.getFutures().getExt3().equals(true);
+                assert user.getFutures().getExt4() == null;
             });
         }
     }

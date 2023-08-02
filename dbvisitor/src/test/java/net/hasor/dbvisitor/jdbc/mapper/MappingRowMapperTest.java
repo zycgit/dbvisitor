@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.jdbc.mapper;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.TbUser;
+import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import net.hasor.test.utils.TestUtils;
 import org.junit.Test;
@@ -34,12 +34,12 @@ public class MappingRowMapperTest extends AbstractDbTest {
     public void testBeanRowMapper_0() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            List<TbUser> tbUsers = jdbcTemplate.queryForList("select * from tb_user", new MappingRowMapper<>(TbUser.class));
-            assert tbUsers.size() == 3;
-            assert TestUtils.beanForData1().getUserUUID().equals(tbUsers.get(0).getUid());
-            assert TestUtils.beanForData2().getUserUUID().equals(tbUsers.get(1).getUid());
-            assert TestUtils.beanForData3().getUserUUID().equals(tbUsers.get(2).getUid());
+
+            List<UserInfo2> users = jdbcTemplate.queryForList("select * from user_info", new MappingRowMapper<>(UserInfo2.class));
+            assert users.size() == 3;
+            assert TestUtils.beanForData1().getUserUuid().equals(users.get(0).getUid());
+            assert TestUtils.beanForData2().getUserUuid().equals(users.get(1).getUid());
+            assert TestUtils.beanForData3().getUserUuid().equals(users.get(2).getUid());
         }
     }
 }

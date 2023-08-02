@@ -6,7 +6,7 @@ import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.page.PageResult;
 import net.hasor.test.dal.execute.PageExecuteDal;
-import net.hasor.test.dto.TbUser2;
+import net.hasor.test.dto.UserInfo;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,15 +36,15 @@ public class PageExecuteTest {
         jdbcTemplate.loadSplitSQL(";", StandardCharsets.UTF_8, "/dbvisitor_coverage/dal_session/execute_for_mysql.sql");
     }
 
-    public TbUser2 buildData(int i) {
-        TbUser2 tbUser = new TbUser2();
-        tbUser.setUid(UUID.randomUUID().toString().replace("-", ""));
+    public UserInfo buildData(int i) {
+        UserInfo tbUser = new UserInfo();
+        tbUser.setUserUuid(UUID.randomUUID().toString().replace("-", ""));
         tbUser.setName("user_" + i);
-        tbUser.setAccount("acc_" + i);
-        tbUser.setPassword("pwd_" + i);
-        tbUser.setMail(i + "_mail@mail.com");
-        tbUser.setIndex(i);
-        tbUser.setCreateTime(new Date());
+        tbUser.setLoginName("acc_" + i);
+        tbUser.setLoginPassword("pwd_" + i);
+        tbUser.setEmail(i + "_mail@mail.com");
+        tbUser.setSeq(i);
+        tbUser.setRegisterTime(new Date());
         return tbUser;
     }
 
@@ -61,13 +61,13 @@ public class PageExecuteTest {
         pageInfo.setPageSize(2);
 
         pageInfo.setCurrentPage(1);
-        List<TbUser2> pageData1 = dalExecute.listByPage1("user_1", pageInfo);
+        List<UserInfo> pageData1 = dalExecute.listByPage1("user_1", pageInfo);
         assert pageData1.size() == 2;
         assert pageData1.get(0).getName().equals("user_11");
         assert pageData1.get(1).getName().equals("user_12");
 
         pageInfo.setCurrentPage(2);
-        List<TbUser2> pageData2 = dalExecute.listByPage1("user_1", pageInfo);
+        List<UserInfo> pageData2 = dalExecute.listByPage1("user_1", pageInfo);
         assert pageData2.size() == 2;
         assert pageData2.get(0).getName().equals("user_13");
         assert pageData2.get(1).getName().equals("user_14");
@@ -86,7 +86,7 @@ public class PageExecuteTest {
         pageInfo.setPageSize(2);
 
         pageInfo.setCurrentPage(1);
-        PageResult<TbUser2> pageData1 = dalExecute.listByPage2("user_1", pageInfo);
+        PageResult<UserInfo> pageData1 = dalExecute.listByPage2("user_1", pageInfo);
         assert pageData1.getData().size() == 2;
         assert pageData1.getData().get(0).getName().equals("user_11");
         assert pageData1.getData().get(1).getName().equals("user_12");
@@ -96,7 +96,7 @@ public class PageExecuteTest {
         assert pageData1.getTotalPage() == 6;
 
         pageInfo.setCurrentPage(2);
-        PageResult<TbUser2> pageData2 = dalExecute.listByPage2("user_1", pageInfo);
+        PageResult<UserInfo> pageData2 = dalExecute.listByPage2("user_1", pageInfo);
         assert pageData2.getData().size() == 2;
         assert pageData2.getData().get(0).getName().equals("user_13");
         assert pageData2.getData().get(1).getName().equals("user_14");
@@ -115,12 +115,12 @@ public class PageExecuteTest {
             dalExecute.createUser(buildData(i));
         }
 
-        TbUser2 tbUser2 = new TbUser2();
-        tbUser2.setIndex(1);
-        List<TbUser2> list = dalExecute.listBySample(tbUser2);
+        UserInfo tbUser2 = new UserInfo();
+        tbUser2.setSeq(1);
+        List<UserInfo> list = dalExecute.listBySample(tbUser2);
         assert list.size() == 1;
-        assert list.get(0).getIndex() == 1;
-        assert list.get(0).getAccount().equals("acc_1");
+        assert list.get(0).getSeq() == 1;
+        assert list.get(0).getLoginName().equals("acc_1");
 
         int delete = dalExecute.delete().eq("index", 1).doDelete();
         assert delete == 1;

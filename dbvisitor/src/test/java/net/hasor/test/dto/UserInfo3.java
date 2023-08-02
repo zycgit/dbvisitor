@@ -14,48 +14,26 @@
  * limitations under the License.
  */
 package net.hasor.test.dto;
-import java.util.Date;
+import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.Table;
+import net.hasor.dbvisitor.types.handler.JsonUseForFastjson2TypeHandler;
 
 /**
  *
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-public class UserFutures {
-    private String  ext1;
-    private Integer ext2;
-    private Boolean ext3;
-    private Date    ext4;
+@Table("user_info")
+public class UserInfo3 extends UserInfo2 {
 
-    public String getExt1() {
-        return ext1;
+    @Column(value = "futures", typeHandler = JsonUseForFastjson2TypeHandler.class)
+    private UserFutures futures;
+
+    public UserFutures getFutures() {
+        return this.futures;
     }
 
-    public void setExt1(String ext1) {
-        this.ext1 = ext1;
-    }
-
-    public Integer getExt2() {
-        return ext2;
-    }
-
-    public void setExt2(Integer ext2) {
-        this.ext2 = ext2;
-    }
-
-    public Boolean getExt3() {
-        return ext3;
-    }
-
-    public void setExt3(Boolean ext3) {
-        this.ext3 = ext3;
-    }
-
-    public Date getExt4() {
-        return ext4;
-    }
-
-    public void setExt4(Date ext4) {
-        this.ext4 = ext4;
+    public void setFutures(UserFutures futures) {
+        this.futures = futures;
     }
 }

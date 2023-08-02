@@ -16,7 +16,7 @@
 package net.hasor.test.dal;
 import net.hasor.dbvisitor.dal.repository.Query;
 import net.hasor.dbvisitor.dal.repository.SimpleMapper;
-import net.hasor.test.dto.TbUser;
+import net.hasor.test.dto.UserInfo2;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ import java.util.List;
 @SimpleMapper
 public interface Mapper2Dal {
     @Query(xml = true, value = "<bind name=\"abc\" value=\"sellerId + 'abc'\"/> SELECT * FROM console_job WHERE aac = #{abc}")
-    List<TbUser> testBind(String abc);
+    List<UserInfo2> testBind(String abc);
 
     @Query(xml = true, value = "select * from t_blog" + //
             "<where>" + //
@@ -38,18 +38,18 @@ public interface Mapper2Dal {
             "        <otherwise>and owner = \"owner1\"</otherwise>" + //
             "    </choose>" + //
             "</where>")
-    List<TbUser> testChoose(String title, String content);
+    List<UserInfo2> testChoose(String title, String content);
 
     @Query(xml = true, value = "SELECT * FROM alert_detail WHERE alert_detail.event_type IN " +//
             "<foreach collection='eventTypes' item='eventType' separator=',' open='(' close=')'>" +//
             "    #{eventType,javaType=net.hasor.test.dto.CharacterSensitiveEnum}" +//
             "</foreach>")
-    List<TbUser> testForeach(List<String> eventTypes);
+    List<UserInfo2> testForeach(List<String> eventTypes);
 
     @Query(xml = true, value = "select * from PROJECT_INFO where 1=1 and status = 2 " + //
             "<if test='ownerID != null and ownerType !=null'>" + //
             "    and owner_id = #{ownerID}" + //
             "    and owner_type = #{ownerType}" + //
             "</if> order by name asc")
-    List<TbUser> testIf(String ownerID, String ownerType);
+    List<UserInfo2> testIf(String ownerID, String ownerType);
 }

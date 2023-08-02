@@ -121,6 +121,10 @@ public abstract class BasicLambda<R, T, P> {
         return buildGroupOrderByProperty(true, false, propertyName);
     }
 
+    protected Segment buildConditionByColumn(String columnName) {
+        return () -> dialect().fmtName(isQualifier(), columnName);
+    }
+
     protected Segment buildGroupOrderByProperty(String propertyName) {
         return buildGroupOrderByProperty(false, false, propertyName);
     }

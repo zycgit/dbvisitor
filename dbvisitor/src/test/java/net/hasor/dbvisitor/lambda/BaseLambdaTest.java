@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.lambda;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.TbUser;
+import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -34,11 +34,11 @@ public class BaseLambdaTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
-                    .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
+            Map<String, Object> userInfo = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+                    .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
-            assert tbUser.get("name").equals("默罕默德");
-            assert tbUser.get("account").equals("muhammad");
+            assert userInfo.get("name").equals("默罕默德");
+            assert userInfo.get("loginName").equals("muhammad");
         }
     }
 
@@ -46,18 +46,18 @@ public class BaseLambdaTest extends AbstractDbTest {
     public void base_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate1 = new LambdaTemplate(c, TypeHandlerRegistry.DEFAULT);
-            Map<String, Object> tbUser1 = lambdaTemplate1.lambdaQuery(TbUser.class)//
-                    .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
+            Map<String, Object> userInfo1 = lambdaTemplate1.lambdaQuery(UserInfo2.class)//
+                    .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
-            assert tbUser1.get("name").equals("默罕默德");
-            assert tbUser1.get("account").equals("muhammad");
+            assert userInfo1.get("name").equals("默罕默德");
+            assert userInfo1.get("loginName").equals("muhammad");
 
             LambdaTemplate lambdaTemplate2 = new LambdaTemplate(c);
-            Map<String, Object> tbUser2 = lambdaTemplate2.lambdaQuery(TbUser.class)//
-                    .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
+            Map<String, Object> userInfo2 = lambdaTemplate2.lambdaQuery(UserInfo2.class)//
+                    .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
-            assert tbUser2.get("name").equals("默罕默德");
-            assert tbUser2.get("account").equals("muhammad");
+            assert userInfo2.get("name").equals("默罕默德");
+            assert userInfo2.get("loginName").equals("muhammad");
         }
     }
 
@@ -65,11 +65,11 @@ public class BaseLambdaTest extends AbstractDbTest {
     public void base_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c, TypeHandlerRegistry.DEFAULT);
-            Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
-                    .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
+            Map<String, Object> userInfo = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+                    .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
-            assert tbUser.get("name").equals("默罕默德");
-            assert tbUser.get("account").equals("muhammad");
+            assert userInfo.get("name").equals("默罕默德");
+            assert userInfo.get("loginName").equals("muhammad");
         }
     }
 
@@ -77,11 +77,11 @@ public class BaseLambdaTest extends AbstractDbTest {
     public void base_4() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
-                    .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
+            Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+                    .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
             assert tbUser.get("name").equals("默罕默德");
-            assert tbUser.get("account").equals("muhammad");
+            assert tbUser.get("loginName").equals("muhammad");
         }
     }
 
@@ -90,11 +90,11 @@ public class BaseLambdaTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(new JdbcTemplate(c));
 
-            Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
-                    .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
+            Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+                    .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
             assert tbUser.get("name").equals("默罕默德");
-            assert tbUser.get("account").equals("muhammad");
+            assert tbUser.get("loginName").equals("muhammad");
         }
     }
 }

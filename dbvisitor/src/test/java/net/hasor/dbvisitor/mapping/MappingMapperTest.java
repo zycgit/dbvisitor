@@ -22,7 +22,8 @@ import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.mapping.resolve.TableMappingResolve;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import net.hasor.test.dto.TbUser;
+import net.hasor.test.dto.UserInfo;
+import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -35,13 +36,13 @@ public class MappingMapperTest {
     public void testColumnMapRowMapper_1() throws ReflectiveOperationException {
         TableMappingResolve resolve = new ClassTableMappingResolve(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
 
-        TableMapping<TbUser> tableMapping = resolve.resolveTableMapping(//
-                TbUser.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
+        TableMapping<UserInfo> tableMapping = resolve.resolveTableMapping(//
+                UserInfo.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
 
         assert tableMapping.getSchema().equals("");
-        assert tableMapping.getTable().equals("tb_user");
-        assert tableMapping.getPropertyByColumn("loginPassword").getProperty().equals("password");
-        assert tableMapping.getPropertyByName("password").getColumn().equals("loginPassword");
+        assert tableMapping.getTable().equals("user_info");
+        assert tableMapping.getPropertyByColumn("login_password").getProperty().equals("loginPassword");
+        assert tableMapping.getPropertyByName("email").getColumn().equals("email");
     }
 
     @Test
@@ -50,16 +51,16 @@ public class MappingMapperTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             TableMappingResolve resolve = new ClassTableMappingResolve(null);
 
-            TableMapping<TbUser> tableMapping = resolve.resolveTableMapping(//
-                    TbUser.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
+            TableMapping<UserInfo2> tableMapping = resolve.resolveTableMapping(//
+                    UserInfo2.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
 
-            MappingResultSetExtractor<TbUser> extractor = new MappingResultSetExtractor<>(tableMapping.toReader());
+            MappingResultSetExtractor<UserInfo2> extractor = new MappingResultSetExtractor<>(tableMapping.toReader());
 
-            List<TbUser> userList = jdbcTemplate.query("select * from tb_user order by loginName", extractor);
+            List<UserInfo2> userList = jdbcTemplate.query("select * from user_info order by login_name", extractor);
 
-            assert userList.get(0).getAccount().equals("belon");
-            assert userList.get(1).getAccount().equals("feiyan");
-            assert userList.get(2).getAccount().equals("muhammad");
+            assert userList.get(0).getLoginName().equals("belon");
+            assert userList.get(1).getLoginName().equals("feiyan");
+            assert userList.get(2).getLoginName().equals("muhammad");
         }
     }
 
@@ -69,16 +70,16 @@ public class MappingMapperTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
             TableMappingResolve resolve = new ClassTableMappingResolve(null);
 
-            TableMapping<TbUser> tableMapping = resolve.resolveTableMapping(//
-                    TbUser.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
+            TableMapping<UserInfo2> tableMapping = resolve.resolveTableMapping(//
+                    UserInfo2.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
 
             MappingResultSetExtractor<Map<String, Object>> extractor = new MappingResultSetExtractor<>(tableMapping.toMapReader());
 
-            List<Map<String, Object>> userList = jdbcTemplate.query("select * from tb_user order by loginName", extractor);
+            List<Map<String, Object>> userList = jdbcTemplate.query("select * from user_info order by login_name", extractor);
 
-            assert userList.get(0).get("account").equals("belon");
-            assert userList.get(1).get("account").equals("feiyan");
-            assert userList.get(2).get("account").equals("muhammad");
+            assert userList.get(0).get("loginName").equals("belon");
+            assert userList.get(1).get("loginName").equals("feiyan");
+            assert userList.get(2).get("loginName").equals("muhammad");
         }
     }
 
@@ -97,7 +98,8 @@ public class MappingMapperTest {
     @Test
     public void errorCase_1() {
         try {
-            new MappingRegistry().loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_1.xml");
+            MappingRegistry registry = new MappingRegistry();
+            registry.loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_1.xml");
             assert false;
         } catch (Exception e) {
             assert e.getMessage().equals("entity 'entityMap_5' table is not specified in default namespace");
@@ -107,7 +109,8 @@ public class MappingMapperTest {
     @Test
     public void errorCase_2() {
         try {
-            new MappingRegistry().loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_2.xml");
+            MappingRegistry registry = new MappingRegistry();
+            registry.loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_2.xml");
             assert false;
         } catch (Exception e) {
             assert e.getMessage().equals("entity 'entityMap_1' table is not specified in default namespace");

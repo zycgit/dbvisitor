@@ -34,8 +34,8 @@ public class OffsetTimeTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
-            List<OffsetDateTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamptz) values ('1998-04-12T18:33:20.000000123+08:00');");
+            List<OffsetDateTime> dat = jdbcTemplate.queryForList("select c_timestamptz from tb_h2_types where c_timestamptz is not null limit 1;", (rs, rowNum) -> {
                 return new OffsetDateTimeTypeHandler().getResult(rs, 1);
             });
 
@@ -59,9 +59,9 @@ public class OffsetTimeTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
-            List<OffsetDateTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
-                return new OffsetDateTimeTypeHandler().getResult(rs, "c_timestamp_z");
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamptz) values ('1998-04-12T18:33:20.000000123+08:00');");
+            List<OffsetDateTime> dat = jdbcTemplate.queryForList("select c_timestamptz from tb_h2_types where c_timestamptz is not null limit 1;", (rs, rowNum) -> {
+                return new OffsetDateTimeTypeHandler().getResult(rs, "c_timestamptz");
             });
 
             OffsetDateTime dateTime = dat.get(0);
@@ -130,8 +130,8 @@ public class OffsetTimeTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
-            List<OffsetDateTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamptz) values ('1998-04-12T18:33:20.000000123+08:00');");
+            List<OffsetDateTime> dat = jdbcTemplate.queryForList("select c_timestamptz from tb_h2_types where c_timestamptz is not null limit 1;", (rs, rowNum) -> {
                 return new SqlTimestampAsUTCOffsetDateTimeTypeHandler().getResult(rs, 1);
             });
             OffsetDateTime dateTime = dat.get(0);
@@ -155,9 +155,9 @@ public class OffsetTimeTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
-            List<OffsetDateTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
-                return new SqlTimestampAsUTCOffsetDateTimeTypeHandler().getResult(rs, "c_timestamp_z");
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamptz) values ('1998-04-12T18:33:20.000000123+08:00');");
+            List<OffsetDateTime> dat = jdbcTemplate.queryForList("select c_timestamptz from tb_h2_types where c_timestamptz is not null limit 1;", (rs, rowNum) -> {
+                return new SqlTimestampAsUTCOffsetDateTimeTypeHandler().getResult(rs, "c_timestamptz");
             });
             OffsetDateTime dateTime = dat.get(0);
             ZonedDateTime utcTime = LocalDateTime.of(1998, Month.APRIL, 12, 18, 33, 20, 123)//
@@ -234,8 +234,8 @@ public class OffsetTimeTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
-            List<OffsetTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamptz) values ('1998-04-12T18:33:20.000000123+08:00');");
+            List<OffsetTime> dat = jdbcTemplate.queryForList("select c_timestamptz from tb_h2_types where c_timestamptz is not null limit 1;", (rs, rowNum) -> {
                 return new OffsetTimeTypeHandler().getResult(rs, 1);
             });
             OffsetTime dateTime = dat.get(0);
@@ -254,9 +254,9 @@ public class OffsetTimeTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
-            List<OffsetTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
-                return new OffsetTimeTypeHandler().getResult(rs, "c_timestamp_z");
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamptz) values ('1998-04-12T18:33:20.000000123+08:00');");
+            List<OffsetTime> dat = jdbcTemplate.queryForList("select c_timestamptz from tb_h2_types where c_timestamptz is not null limit 1;", (rs, rowNum) -> {
+                return new OffsetTimeTypeHandler().getResult(rs, "c_timestamptz");
             });
             OffsetTime dateTime = dat.get(0);
             OffsetTime localTime = LocalTime.of(18, 33, 20, 123).atOffset(ZoneOffset.ofHours(8));
@@ -316,8 +316,8 @@ public class OffsetTimeTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
-            List<OffsetTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamptz) values ('1998-04-12T18:33:20.000000123+08:00');");
+            List<OffsetTime> dat = jdbcTemplate.queryForList("select c_timestamptz from tb_h2_types where c_timestamptz is not null limit 1;", (rs, rowNum) -> {
                 return new SqlTimestampAsUTCOffsetTimeTypeHandler().getResult(rs, 1);
             });
             OffsetTime dateTime = dat.get(0);
@@ -340,9 +340,9 @@ public class OffsetTimeTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
-            List<OffsetTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
-                return new SqlTimestampAsUTCOffsetTimeTypeHandler().getResult(rs, "c_timestamp_z");
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamptz) values ('1998-04-12T18:33:20.000000123+08:00');");
+            List<OffsetTime> dat = jdbcTemplate.queryForList("select c_timestamptz from tb_h2_types where c_timestamptz is not null limit 1;", (rs, rowNum) -> {
+                return new SqlTimestampAsUTCOffsetTimeTypeHandler().getResult(rs, "c_timestamptz");
             });
             OffsetTime dateTime = dat.get(0);
             OffsetTime localTime = LocalTime.of(18, 33, 20, 123)//
@@ -414,8 +414,8 @@ public class OffsetTimeTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
-            List<ZonedDateTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamptz) values ('1998-04-12T18:33:20.000000123+08:00');");
+            List<ZonedDateTime> dat = jdbcTemplate.queryForList("select c_timestamptz from tb_h2_types where c_timestamptz is not null limit 1;", (rs, rowNum) -> {
                 return new OffsetDateTimeAsZonedDateTimeTypeHandler().getResult(rs, 1);
             });
             ZonedDateTime dateTime = dat.get(0);
@@ -435,9 +435,9 @@ public class OffsetTimeTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamp_z) values ('1998-04-12T18:33:20.000000123+08:00');");
-            List<ZonedDateTime> dat = jdbcTemplate.queryForList("select c_timestamp_z from tb_h2_types where c_timestamp_z is not null limit 1;", (rs, rowNum) -> {
-                return new OffsetDateTimeAsZonedDateTimeTypeHandler().getResult(rs, "c_timestamp_z");
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_timestamptz) values ('1998-04-12T18:33:20.000000123+08:00');");
+            List<ZonedDateTime> dat = jdbcTemplate.queryForList("select c_timestamptz from tb_h2_types where c_timestamptz is not null limit 1;", (rs, rowNum) -> {
+                return new OffsetDateTimeAsZonedDateTimeTypeHandler().getResult(rs, "c_timestamptz");
             });
             ZonedDateTime dateTime = dat.get(0);
             OffsetDateTime localTime = LocalDateTime.of(1998, 4, 12, 18, 33, 20, 123)//

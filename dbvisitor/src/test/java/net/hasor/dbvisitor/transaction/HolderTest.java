@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.transaction;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.TB_User;
+import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DefaultDs;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
@@ -48,7 +48,6 @@ public class HolderTest extends AbstractDbTest {
             assert holder.getConnection() == null;
             assert !holder.hasTransaction();
             assert holder.getDataSource() == dataSource;
-
         }
     }
 
@@ -66,12 +65,12 @@ public class HolderTest extends AbstractDbTest {
             assert !holder.hasTransaction();
             {
                 JdbcTemplate jdbcTemplate = new JdbcTemplate(holder.getConnection());
-                int executeUpdate = jdbcTemplate.queryForInt("select count(1) from tb_user");
-                List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
+                int executeUpdate = jdbcTemplate.queryForInt("select count(1) from user_info");
+                List<user_info> tbUsers = jdbcTemplate.queryForList("select * from user_info", user_info.class);
 
                 assert executeUpdate == 3;
                 assert tbUsers.size() == 3;
-                List<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toList());
+                List<String> collect = tbUsers.stream().map(user_info::getUser_name).collect(Collectors.toList());
                 assert collect.contains(beanForData1().getName());
                 assert collect.contains(beanForData2().getName());
                 assert collect.contains(beanForData3().getName());
@@ -105,16 +104,16 @@ public class HolderTest extends AbstractDbTest {
 
             // .查询 holder1 和 holder2
             {
-                int executeUpdate_h1 = jdbcTemplate_h1.queryForInt("select count(1) from tb_user");
-                int executeUpdate_h2 = jdbcTemplate_h2.queryForInt("select count(1) from tb_user");
+                int executeUpdate_h1 = jdbcTemplate_h1.queryForInt("select count(1) from user_info");
+                int executeUpdate_h2 = jdbcTemplate_h2.queryForInt("select count(1) from user_info");
                 assert executeUpdate_h1 == 4;   // 同一个会话中可以读取到未递交的数据
                 assert executeUpdate_h2 == 3;   // 不同会话无法读取另一个会话里未递交的数据
             }
 
             {
                 holder1.getConnection().commit();
-                int executeUpdate_h1 = jdbcTemplate_h1.queryForInt("select count(1) from tb_user");
-                int executeUpdate_h2 = jdbcTemplate_h2.queryForInt("select count(1) from tb_user");
+                int executeUpdate_h1 = jdbcTemplate_h1.queryForInt("select count(1) from user_info");
+                int executeUpdate_h2 = jdbcTemplate_h2.queryForInt("select count(1) from user_info");
                 assert executeUpdate_h1 == 4;
                 assert executeUpdate_h2 == 4;   // 事务已递交
             }
@@ -148,8 +147,8 @@ public class HolderTest extends AbstractDbTest {
             jdbcTemplate_h1.executeUpdate(INSERT_ARRAY, arrayForData4());
 
             // .查询 holder1 和 holder2
-            int executeUpdate_h1 = jdbcTemplate_h1.queryForInt("select count(1) from tb_user");
-            int executeUpdate_h2 = jdbcTemplate_h2.queryForInt("select count(1) from tb_user");
+            int executeUpdate_h1 = jdbcTemplate_h1.queryForInt("select count(1) from user_info");
+            int executeUpdate_h2 = jdbcTemplate_h2.queryForInt("select count(1) from user_info");
             assert executeUpdate_h1 == 4;
             assert executeUpdate_h2 == 4;   // 事务自动递交
 
@@ -182,18 +181,18 @@ public class HolderTest extends AbstractDbTest {
             jdbcTemplate_h1.executeUpdate(INSERT_ARRAY, arrayForData6());
 
             // .查询
-            assert jdbcTemplate_h1.queryForInt("select count(1) from tb_user") == 6; // holder1,未递交事务一共有 5 条记录
-            assert jdbcTemplate_h2.queryForInt("select count(1) from tb_user") == 3; // holder2,独立连接，只能读取到3条
+            assert jdbcTemplate_h1.queryForInt("select count(1) from user_info") == 6; // holder1,未递交事务一共有 5 条记录
+            assert jdbcTemplate_h2.queryForInt("select count(1) from user_info") == 3; // holder2,独立连接，只能读取到3条
 
             // .回滚sp_2
             holder1.getConnection().rollback(sp_2);
-            assert jdbcTemplate_h1.queryForInt("select count(1) from tb_user") == 5; // holder1,部分回滚一共有 5 条记录
-            assert jdbcTemplate_h2.queryForInt("select count(1) from tb_user") == 3; // holder2,独立连接，只能读取到3条
+            assert jdbcTemplate_h1.queryForInt("select count(1) from user_info") == 5; // holder1,部分回滚一共有 5 条记录
+            assert jdbcTemplate_h2.queryForInt("select count(1) from user_info") == 3; // holder2,独立连接，只能读取到3条
 
             // .递交
             holder1.getConnection().commit();
-            assert jdbcTemplate_h1.queryForInt("select count(1) from tb_user") == 5; // holder1,
-            assert jdbcTemplate_h2.queryForInt("select count(1) from tb_user") == 5; // holder2,
+            assert jdbcTemplate_h1.queryForInt("select count(1) from user_info") == 5; // holder1,
+            assert jdbcTemplate_h2.queryForInt("select count(1) from user_info") == 5; // holder2,
 
             holder1.released();
             holder2.released();

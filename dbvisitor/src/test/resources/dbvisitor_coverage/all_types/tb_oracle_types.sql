@@ -1,6 +1,7 @@
 /* https://docs.oracle.com/cd/B28359_01/server.111/b28286/sql_elements001.htm */
 create table tb_oracle_types
 (
+    id                           varchar(200) primary key,
     c_char                       char,
     c_char_n                     char(12),
     c_char_nb                    char(12 byte),
@@ -62,11 +63,11 @@ create table tb_oracle_types
     c_timestamp_n_lz             timestamp(9) with local time zone,
 
     c_interval_year              interval year to month,
-    c_interval_year_n            interval year (9) to month,
+    c_interval_year_n            interval year(9) to month,
     c_interval_day               interval day to second,
-    c_interval_day_n1            interval day (9) to second,
-    c_interval_day_n2            interval day to second (9),
-    c_interval_day_n1n2          interval day (9) to second (9),
+    c_interval_day_n1            interval day(9) to second,
+    c_interval_day_n2            interval day to second(9),
+    c_interval_day_n1n2          interval day(9) to second(9),
 
     c_raw                        raw(10),
     c_long_raw                   long raw,

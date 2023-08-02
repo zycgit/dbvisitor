@@ -21,6 +21,7 @@ import java.util.Date;
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
+@Deprecated
 public class TB_User {
     private String  userUUID;
     private String  name;

@@ -20,8 +20,8 @@ import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.AutoId;
-import net.hasor.test.dto.TB_User;
-import net.hasor.test.dto.TbUser;
+import net.hasor.test.dto.UserInfo2;
+import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -42,113 +42,113 @@ import static net.hasor.test.utils.TestUtils.newID;
 public class LambdaInsertTest extends AbstractDbTest {
     @Test
     public void lambda_insert_1() throws Throwable {
-        TbUser tbUser1 = new TbUser();
-        tbUser1.setUid(newID());
-        tbUser1.setName("默罕默德");
-        tbUser1.setAccount("muhammad");
-        tbUser1.setPassword("1");
-        tbUser1.setMail("muhammad@hasor.net");
-        tbUser1.setIndex(1);
-        tbUser1.setCreateTime(new Date());
-        Map<String, Object> tbUser2 = new HashMap<>();
-        tbUser2.put("uid", newID());
-        tbUser2.put("name", "安妮.贝隆");
-        tbUser2.put("account", "belon");
-        tbUser2.put("password", "2");
-        tbUser2.put("mail", "belon@hasor.net");
-        tbUser2.put("index", 2);
-        tbUser2.put("createTime", new Date());
+        UserInfo2 user1 = new UserInfo2();
+        user1.setUid(newID());
+        user1.setName("默罕默德");
+        user1.setLoginName("muhammad");
+        user1.setPassword("1");
+        user1.setEmail("muhammad@hasor.net");
+        user1.setSeq(1);
+        user1.setCreateTime(new Date());
+        Map<String, Object> user2 = new HashMap<>();
+        user2.put("uid", newID());
+        user2.put("name", "安妮.贝隆");
+        user2.put("loginName", "belon");
+        user2.put("password", "2");
+        user2.put("mail", "belon@hasor.net");
+        user2.put("index", 2);
+        user2.put("createTime", new Date());
 
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            lambdaTemplate.execute("delete from tb_user");
-            //
-            InsertOperation<TbUser> lambdaInsert = lambdaTemplate.lambdaInsert(TbUser.class);
-            lambdaInsert.applyEntity(tbUser1);
-            lambdaInsert.applyMap(tbUser2);
+            lambdaTemplate.execute("delete from user_info");
+
+            InsertOperation<UserInfo2> lambdaInsert = lambdaTemplate.lambdaInsert(UserInfo2.class);
+            lambdaInsert.applyEntity(user1);
+            lambdaInsert.applyMap(user2);
 
             assert lambdaInsert.getBoundSql() instanceof BatchBoundSql;
-            //
+
             int i = lambdaInsert.executeSumResult();
             assert i == 2;
-            //
-            List<TB_User> tbUsers = lambdaTemplate.lambdaQuery(TB_User.class).queryForList();
+
+            List<UserInfo2> tbUsers = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForList();
             assert tbUsers.size() == 2;
-            List<String> ids = tbUsers.stream().map(TB_User::getUserUUID).collect(Collectors.toList());
-            assert ids.contains(tbUser1.getUid());
-            assert ids.contains(tbUser2.get("uid"));
+            List<String> ids = tbUsers.stream().map(UserInfo2::getUid).collect(Collectors.toList());
+            assert ids.contains(user1.getUid());
+            assert ids.contains(user2.get("uid"));
         }
     }
 
     @Test
     public void lambda_insert_2() throws Throwable {
-        TbUser tbUser1 = new TbUser();
-        tbUser1.setName("默罕默德");
-        tbUser1.setAccount("muhammad");
-        tbUser1.setPassword("1");
-        tbUser1.setMail("muhammad@hasor.net");
-        tbUser1.setIndex(1);
-        tbUser1.setCreateTime(new Date());
-        Map<String, Object> tbUser2 = new HashMap<>();
-        tbUser2.put("name", "安妮.贝隆");
-        tbUser2.put("account", "belon");
-        tbUser2.put("password", "2");
-        tbUser2.put("mail", "belon@hasor.net");
-        tbUser2.put("index", 2);
-        tbUser2.put("createTime", new Date());
+        UserInfo2 user1 = new UserInfo2();
+        user1.setName("默罕默德");
+        user1.setLoginName("muhammad");
+        user1.setPassword("1");
+        user1.setEmail("muhammad@hasor.net");
+        user1.setSeq(1);
+        user1.setCreateTime(new Date());
+        Map<String, Object> user2 = new HashMap<>();
+        user2.put("name", "安妮.贝隆");
+        user2.put("loginName", "belon");
+        user2.put("password", "2");
+        user2.put("mail", "belon@hasor.net");
+        user2.put("seq", 2);
+        user2.put("createTime", new Date());
 
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            lambdaTemplate.execute("delete from tb_user");
-            //
-            InsertOperation<TbUser> lambdaInsert = lambdaTemplate.lambdaInsert(TbUser.class);
-            lambdaInsert.applyEntity(tbUser1);
-            lambdaInsert.applyMap(tbUser2);
+            lambdaTemplate.execute("delete from user_info");
+
+            InsertOperation<UserInfo2> lambdaInsert = lambdaTemplate.lambdaInsert(UserInfo2.class);
+            lambdaInsert.applyEntity(user1);
+            lambdaInsert.applyMap(user2);
 
             assert lambdaInsert.getBoundSql() instanceof BatchBoundSql;
-            //
+
             int i = lambdaInsert.executeSumResult();
             assert i == 2;
-            //
-            List<TB_User> tbUsers = lambdaTemplate.lambdaQuery(TB_User.class).queryForList();
+
+            List<user_info> tbUsers = lambdaTemplate.lambdaQuery(user_info.class).queryForList();
             assert tbUsers.size() == 2;
-            List<String> ids = tbUsers.stream().map(TB_User::getUserUUID).collect(Collectors.toList());
-            assert ids.contains(tbUser1.getUid());
-            assert ids.contains(tbUser2.get("uid"));
+            List<String> ids = tbUsers.stream().map(user_info::getUser_uuid).collect(Collectors.toList());
+            assert ids.contains(user1.getUid());
+            assert ids.contains(user2.get("uid"));
         }
     }
 
     @Test
     public void lambda_insert_3() throws Throwable {
-        AutoId tbUser1 = new AutoId();
-        tbUser1.setName("默罕默德");
-        Map<String, Object> tbUser2 = CollectionUtils.asMap("name", "安妮.贝隆");
+        AutoId autoId1 = new AutoId();
+        autoId1.setName("默罕默德");
+        Map<String, Object> autoId2 = CollectionUtils.asMap("name", "安妮.贝隆");
 
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             lambdaTemplate.execute("delete from auto_id");
-            //
+
             InsertOperation<AutoId> lambdaInsert = lambdaTemplate.lambdaInsert(AutoId.class);
-            lambdaInsert.applyEntity(tbUser1);
-            lambdaInsert.applyMap(tbUser2);
+            lambdaInsert.applyEntity(autoId1);
+            lambdaInsert.applyMap(autoId2);
 
             assert lambdaInsert.getBoundSql() instanceof BatchBoundSql;
-            //
+
             int i = lambdaInsert.executeSumResult();
             assert i == 2;
-            //
+
             List<AutoId> tbUsers = lambdaTemplate.lambdaQuery(AutoId.class).queryForList();
             assert tbUsers.size() == 2;
 
             List<String> uids = tbUsers.stream().map(AutoId::getUid).collect(Collectors.toList());
             assert StringUtils.isNotBlank(uids.get(0));
             assert StringUtils.isNotBlank(uids.get(1));
-            assert uids.contains(tbUser1.getUid());
-            assert uids.contains(tbUser2.get("uid"));
+            assert uids.contains(autoId1.getUid());
+            assert uids.contains(autoId2.get("uid"));
 
             List<Integer> ids = tbUsers.stream().map(AutoId::getId).collect(Collectors.toList());
-            assert ids.contains(tbUser1.getId());
-            assert ids.contains(tbUser2.get("id"));
+            assert ids.contains(autoId1.getId());
+            assert ids.contains(autoId2.get("id"));
         }
     }
 
@@ -160,16 +160,16 @@ public class LambdaInsertTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             lambdaTemplate.execute("delete from auto_id");
-            //
+
             InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.lambdaInsert("auto_id");
             lambdaInsert.applyMap(tbUser1);
             lambdaInsert.applyMap(tbUser2);
 
             assert lambdaInsert.getBoundSql() instanceof BatchBoundSql;
-            //
+
             int i = lambdaInsert.executeSumResult();
             assert i == 2;
-            //
+
             List<AutoId> tbUsers = lambdaTemplate.lambdaQuery(AutoId.class).queryForList();
             assert tbUsers.size() == 2;
 

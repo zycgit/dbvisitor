@@ -19,7 +19,7 @@ import net.hasor.dbvisitor.dal.repository.Param;
 import net.hasor.dbvisitor.dal.repository.RefMapper;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageResult;
-import net.hasor.test.dto.TbUser2;
+import net.hasor.test.dto.UserInfo;
 
 import java.util.List;
 
@@ -29,12 +29,12 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  */
 @RefMapper("/dbvisitor_coverage/dal_session/page_execute.xml")
-public interface PageExecuteDal extends BaseMapper<TbUser2> {
+public interface PageExecuteDal extends BaseMapper<UserInfo> {
     void deleteAll();
 
-    int createUser(TbUser2 tbUser);
+    int createUser(UserInfo tbUser);
 
-    List<TbUser2> listByPage1(@Param("name") String name, Page pageInfo);
+    List<UserInfo> listByPage1(@Param("name") String name, Page pageInfo);
 
-    PageResult<TbUser2> listByPage2(@Param("name") String name, Page pageInfo);
+    PageResult<UserInfo> listByPage2(@Param("name") String name, Page pageInfo);
 }

@@ -197,24 +197,24 @@ public class BasicTranTest extends AbstractDbTest {
     @Test
     public void tran_required_test_1() throws Throwable {
         try (DefaultDs dataSource = DsUtils.mysqlDs();//
-             Connection conn = DsUtils.mysqlConn();) {
+             Connection conn = DsUtils.mysqlConn()) {
 
             conn.setTransactionIsolation(Isolation.REPEATABLE_READ.getValue());
             JdbcTemplate initJdbc = new JdbcTemplate(conn);
-            initJdbc.execute("drop table if exists tb_user;");
-            initJdbc.loadSQL("dbvisitor_coverage/tb_user_for_mysql.sql");
+            initJdbc.execute("drop table if exists user_info;");
+            initJdbc.loadSQL("dbvisitor_coverage/user_info_for_mysql.sql");
 
             LocalTransactionManager tranManager = new LocalTransactionManager(dataSource);
             TransactionStatus tran1 = tranManager.begin(Propagation.REQUIRED, Isolation.REPEATABLE_READ);
 
-            assert new JdbcTemplate(dataSource).queryForInt("select count(*) from tb_user") == 0;
+            assert new JdbcTemplate(dataSource).queryForInt("select count(*) from user_info") == 0;
             new JdbcTemplate(dataSource).executeUpdate(INSERT_ARRAY, arrayForData4());
-            assert new JdbcTemplate(dataSource).queryForInt("select count(*) from tb_user") == 1;
+            assert new JdbcTemplate(dataSource).queryForInt("select count(*) from user_info") == 1;
 
-            assert new JdbcTemplate(conn).queryForInt("select count(*) from tb_user") == 0;
+            assert new JdbcTemplate(conn).queryForInt("select count(*) from user_info") == 0;
 
             tranManager.rollBack(tran1);
-            assert new JdbcTemplate(dataSource).queryForInt("select count(*) from tb_user") == 0;
+            assert new JdbcTemplate(dataSource).queryForInt("select count(*) from user_info") == 0;
         }
     }
 

@@ -78,9 +78,9 @@ public class NumberTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('123');");
-            List<Number> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
-                return new NumberTypeHandler().getResult(rs, "c_clob");
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('123');");
+            List<Number> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
+                return new NumberTypeHandler().getResult(rs, "c_char_lage");
             });
 
             assert dat.get(0).longValue() == 123;

@@ -50,7 +50,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         if (CACHE_TABLE_MAP.containsKey(entityType)) {
             return CACHE_TABLE_MAP.get(entityType);
         } else {
-            TableDefaultInfo tableInfo = fetchDefaultInfoByEntity(entityType.getClassLoader(), entityType, MappingOptions.buildNew(), Collections.emptyMap());
+            TableDefaultInfo tableInfo = fetchDefaultInfoByEntity(entityType.getClassLoader(), entityType, true, MappingOptions.buildNew(), Collections.emptyMap());
             TableMapping<?> tableMapping = new ClassTableMappingResolve(null).resolveTableAndColumn(tableInfo, entityType, typeRegistry);
             CACHE_TABLE_MAP.put(entityType, tableMapping);
             return tableMapping;
@@ -59,7 +59,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
 
     @Override
     public TableDef<?> resolveTableMapping(Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
-        TableDefaultInfo tableInfo = fetchDefaultInfoByEntity(classLoader, entityType, this.options, Collections.emptyMap());
+        TableDefaultInfo tableInfo = fetchDefaultInfoByEntity(classLoader, entityType, true, this.options, Collections.emptyMap());
         return resolveTableAndColumn(tableInfo, entityType, typeRegistry);
     }
 

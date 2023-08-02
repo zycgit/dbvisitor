@@ -30,6 +30,11 @@ import java.util.List;
  */
 public class H2Dialect extends AbstractDialect implements PageSqlDialect, SeqSqlDialect {
     @Override
+    protected String keyWordsResource() {
+        return "/META-INF/db-keywords/dm.keywords";
+    }
+
+    @Override
     protected String defaultQualifier() {
         return "\"";
     }

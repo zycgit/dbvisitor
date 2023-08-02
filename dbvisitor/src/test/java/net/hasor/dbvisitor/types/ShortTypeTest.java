@@ -32,7 +32,7 @@ public class ShortTypeTest {
     public void testShortTypeHandler_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_smallint) values (123);");
             List<Short> dat = jdbcTemplate.queryForList("select c_smallint from tb_h2_types where c_smallint is not null limit 1;", (rs, rowNum) -> {
                 return new ShortTypeHandler().getResult(rs, 1);
@@ -45,7 +45,7 @@ public class ShortTypeTest {
     public void testShortTypeHandler_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
+
             jdbcTemplate.executeUpdate("insert into tb_h2_types (c_smallint) values (123);");
             List<Short> dat = jdbcTemplate.queryForList("select c_smallint from tb_h2_types where c_smallint is not null limit 1;", (rs, rowNum) -> {
                 return new ShortTypeHandler().getResult(rs, "c_smallint");
@@ -58,12 +58,12 @@ public class ShortTypeTest {
     public void testShortTypeHandler_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
+
             short dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { 123 }, short.class);
             Short dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { 123 }, Short.class);
             assert dat1 == 123;
             assert dat2 == 123;
-            //
+
             List<Short> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new ShortTypeHandler().setParameter(ps, 1, (short) 123, JDBCType.SMALLINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -79,10 +79,10 @@ public class ShortTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_integer;");
             jdbcTemplate.execute("create procedure proc_integer(out p_out integer) begin set p_out=123; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_integer(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.INTEGER.getVendorTypeNumber(), new ShortTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Short;
             assert objectMap.get("out").equals(new Short("123"));

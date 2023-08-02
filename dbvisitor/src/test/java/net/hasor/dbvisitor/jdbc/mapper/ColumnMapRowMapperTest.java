@@ -32,12 +32,12 @@ public class ColumnMapRowMapperTest {
     public void testColumnMapRowMapper_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            List<Map<String, Object>> mapList = jdbcTemplate.queryForList("select * from tb_user", new ColumnMapRowMapper());
-            //
+            List<Map<String, Object>> mapList = jdbcTemplate.queryForList("select * from user_info", new ColumnMapRowMapper());
+
             List<String> collect = mapList.stream().map(stringObjectMap -> {
-                return (String) stringObjectMap.get("name");
+                return (String) stringObjectMap.get("user_name");
             }).collect(Collectors.toList());
-            //
+
             assert mapList.size() == 3;
             assert collect.contains(beanForData1().getName());
             assert collect.contains(beanForData2().getName());
@@ -51,7 +51,7 @@ public class ColumnMapRowMapperTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             Map<String, Object> objectMap1 = jdbcTemplate.queryForObject("select 1 as T, 2 as t", new ColumnMapRowMapper(false, TypeHandlerRegistry.DEFAULT));
             assert objectMap1.size() == 2;
-            //
+
             Map<String, Object> objectMap2 = jdbcTemplate.queryForObject("select 1 as T, 2 as t", new ColumnMapRowMapper(true, TypeHandlerRegistry.DEFAULT));
             assert objectMap2.size() == 1;
         }

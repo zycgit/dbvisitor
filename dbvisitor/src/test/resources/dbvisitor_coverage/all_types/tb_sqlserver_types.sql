@@ -1,6 +1,6 @@
 create table tb_sqlserver_types
 (
-    f_sys_guid         varchar(36) default newid(),
+    f_sys_guid         varchar(36) default newid() primary key,
     c_bit              bit,
     c_decimal          decimal,
     c_decimal_n        decimal(10),

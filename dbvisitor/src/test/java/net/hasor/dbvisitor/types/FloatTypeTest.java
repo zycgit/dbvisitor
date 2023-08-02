@@ -33,8 +33,8 @@ public class FloatTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_float) values (123.123);");
-            List<Float> dat = jdbcTemplate.queryForList("select c_float from tb_h2_types where c_float is not null limit 1;", (rs, rowNum) -> {
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_double) values (123.123);");
+            List<Float> dat = jdbcTemplate.queryForList("select c_double from tb_h2_types where c_double is not null limit 1;", (rs, rowNum) -> {
                 return new FloatTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0) == 123.123f;
@@ -46,9 +46,9 @@ public class FloatTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_float) values (123.123);");
-            List<Float> dat = jdbcTemplate.queryForList("select c_float from tb_h2_types where c_float is not null limit 1;", (rs, rowNum) -> {
-                return new FloatTypeHandler().getResult(rs, "c_float");
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_double) values (123.123);");
+            List<Float> dat = jdbcTemplate.queryForList("select c_double from tb_h2_types where c_double is not null limit 1;", (rs, rowNum) -> {
+                return new FloatTypeHandler().getResult(rs, "c_double");
             });
             assert dat.get(0) == 123.123f;
         }

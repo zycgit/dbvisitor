@@ -63,7 +63,7 @@ public abstract class AbstractTableMappingResolve<T> implements TableMappingReso
         }
     }
 
-    protected static TableDefaultInfo fetchDefaultInfoByEntity(ClassLoader classLoader, Class<?> entityType, MappingOptions options, Map<String, String> overwriteData) {
+    protected static TableDefaultInfo fetchDefaultInfoByEntity(ClassLoader classLoader, Class<?> entityType, boolean autoGenName, MappingOptions options, Map<String, String> overwriteData) {
         Map<String, String> confData = new HashMap<>();
         fetchConfigXmlInfo(confData, classLoader);
         fetchPackageInfo(confData, TableDefault.class, classLoader, entityType.getName());
@@ -74,11 +74,9 @@ public abstract class AbstractTableMappingResolve<T> implements TableMappingReso
         }
 
         TableDefaultInfo tableInfo = new TableDefaultInfo(confData, classLoader, options);
-        if (hasTable) {
-            String table = StringUtils.isNotBlank(tableInfo.table()) ? tableInfo.table() : StringUtils.isNotBlank(tableInfo.value()) ? tableInfo.value() : "";
-            if (StringUtils.isBlank(table) && !overwriteData.containsKey("table")) {
-                confData.put("table", hump2Line(entityType.getSimpleName(), tableInfo.mapUnderscoreToCamelCase()));
-                tableInfo = new TableDefaultInfo(confData, classLoader, options);
+        if (StringUtils.isBlank(tableInfo.value()) && (hasTable || autoGenName)) {
+            if (!overwriteData.containsKey("table")) {
+                tableInfo.setTable(hump2Line(entityType.getSimpleName(), tableInfo.mapUnderscoreToCamelCase()));
             }
         }
         return tableInfo;

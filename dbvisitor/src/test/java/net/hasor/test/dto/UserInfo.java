@@ -21,23 +21,21 @@ import java.util.Date;
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-@Deprecated
-public class TB_User2 {
-    private String      userUUID;
-    private String      name;
-    private String      loginName;
-    private String      loginPassword;
-    private String      email;
-    private int         index;
-    private UserFutures futures;
-    private Date        registerTime;
+public class UserInfo {
+    private String  userUuid;
+    private String  name;
+    private String  loginName;
+    private String  loginPassword;
+    private String  email;
+    private Integer seq;
+    private Date    registerTime;
 
-    public String getUserUUID() {
-        return userUUID;
+    public String getUserUuid() {
+        return userUuid;
     }
 
-    public void setUserUUID(String userUUID) {
-        this.userUUID = userUUID;
+    public void setUserUuid(String userUuid) {
+        this.userUuid = userUuid;
     }
 
     public String getName() {
@@ -72,20 +70,12 @@ public class TB_User2 {
         this.email = email;
     }
 
-    public int getIndex() {
-        return index;
+    public Integer getSeq() {
+        return seq;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
-    public UserFutures getFutures() {
-        return futures;
-    }
-
-    public void setFutures(UserFutures futures) {
-        this.futures = futures;
+    public void setSeq(Integer seq) {
+        this.seq = seq;
     }
 
     public Date getRegisterTime() {

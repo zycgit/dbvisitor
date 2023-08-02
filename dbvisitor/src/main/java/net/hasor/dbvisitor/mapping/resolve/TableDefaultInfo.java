@@ -31,7 +31,7 @@ import java.util.Map;
 class TableDefaultInfo implements TableDefault, Table, TableDescribe {
     private final String  catalog;
     private final String  schema;
-    private final String  table;
+    private       String  table;
     private final boolean autoMapping;
     private final boolean useDelimited;
     private final boolean caseInsensitive;
@@ -163,5 +163,9 @@ class TableDefaultInfo implements TableDefault, Table, TableDescribe {
     @Override
     public String other() {
         return this.other;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
     }
 }

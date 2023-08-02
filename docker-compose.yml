@@ -28,6 +28,8 @@ services:
     restart: always
     # User/Password：system/oracle
     # WebConsole：http://192.168.0.164:50102/em/login（sys/oracle）
+    # -- CREATE USER "TESTER" IDENTIFIED BY TESTER PROFILE "DEFAULT" ACCOUNT UNLOCK DEFAULT TABLESPACE  "USERS" TEMPORARY TABLESPACE "TEMP";
+    # -- GRANT "DBA" TO "TESTER";
 
   mssql_2017:
     image: mcr.microsoft.com/mssql/server:2017-latest

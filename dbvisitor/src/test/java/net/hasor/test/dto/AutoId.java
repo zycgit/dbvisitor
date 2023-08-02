@@ -25,7 +25,7 @@ import net.hasor.dbvisitor.mapping.Table;
  */
 @Table(mapUnderscoreToCamelCase = true)
 public class AutoId {
-    @Column(keyType = KeyTypeEnum.Auto)
+    @Column(keyType = KeyTypeEnum.Auto, insert = false)
     private Integer id;
     @Column(keyType = KeyTypeEnum.UUID32)
     private String  uid;

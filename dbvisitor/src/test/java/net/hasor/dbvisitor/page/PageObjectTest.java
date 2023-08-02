@@ -16,7 +16,6 @@
 package net.hasor.dbvisitor.page;
 import org.junit.Test;
 
-import java.sql.SQLException;
 import java.util.Map;
 
 /**
@@ -32,11 +31,11 @@ public class PageObjectTest {
         assert page.getFirstRecordPosition() == 0;
         assert page.getTotalPage() == 0;
         assert page.getTotalCount() == 0;
-        //
+
         Page page2 = new PageObject();
         page2.setPageSize(-1000);
         assert page2.getPageSize() == 0;
-        //
+
         Page page3 = new PageObject();
         page3.setCurrentPage(-1000);
         assert page3.getCurrentPage() == 0;
@@ -67,7 +66,7 @@ public class PageObjectTest {
         assert page1.getFirstRecordPosition() == 0;
         assert page1.getTotalPage() == 1;
         assert page1.getTotalCount() == 10;
-        //
+
         Page page2 = new PageObject(10, 7L);
         assert page2.getPageSize() == 10;
         assert page2.getCurrentPage() == 0;
@@ -75,7 +74,7 @@ public class PageObjectTest {
         assert page2.getFirstRecordPosition() == 0;
         assert page2.getTotalPage() == 1;
         assert page2.getTotalCount() == 7;
-        //
+
         Page page3 = new PageObject(0, 7L);
         assert page3.getPageSize() == 0;
         assert page3.getCurrentPage() == 0;
@@ -98,13 +97,13 @@ public class PageObjectTest {
     }
 
     @Test
-    public void pageTest_5() throws SQLException {
+    public void pageTest_5() {
         Page page1 = new PageObject(4, 15L);
         assert page1.getTotalPage() == 4;
-        //
+
         Page page2 = new PageObject(4, 16L);
         assert page2.getTotalPage() == 4;
-        //
+
         Page page3 = new PageObject(4, 17L);
         assert page3.getTotalPage() == 5;
     }
@@ -116,13 +115,13 @@ public class PageObjectTest {
         assert page1.getFirstRecordPosition() == 4;
         page1.setCurrentPage(4);
         assert page1.getFirstRecordPosition() == 16;
-        //
+
         Page page2 = new PageObject(4, 16L);
         page2.setCurrentPage(1);
         assert page2.getFirstRecordPosition() == 4;
         page2.setCurrentPage(4);
         assert page2.getFirstRecordPosition() == 16;
-        //
+
         Page page3 = new PageObject(4, 17L);
         page3.setCurrentPage(1);
         assert page3.getFirstRecordPosition() == 4;
@@ -134,7 +133,7 @@ public class PageObjectTest {
     public void pageTest_7() {
         Page page = new PageObject(4, 15L);
         assert page.getFirstRecordPosition() == 0;
-        //
+
         page.nextPage();
         assert page.getFirstRecordPosition() == 4;
         page.nextPage();
@@ -152,7 +151,7 @@ public class PageObjectTest {
         Page page = new PageObject(4, 15L);
         page.setCurrentPage(6);
         assert page.getFirstRecordPosition() == 24;
-        //
+
         page.previousPage();
         assert page.getFirstRecordPosition() == 20;
         page.previousPage();
@@ -170,11 +169,11 @@ public class PageObjectTest {
     }
 
     @Test
-    public void pageTest_9() throws SQLException {
+    public void pageTest_9() {
         Page page = new PageObject(4, 15L);
         page.setCurrentPage(6);
         assert page.getFirstRecordPosition() == 24;
-        //
+
         page.firstPage();
         assert page.getFirstRecordPosition() == 0;
         page.lastPage();
@@ -182,18 +181,18 @@ public class PageObjectTest {
     }
 
     @Test
-    public void pageTest_10() throws SQLException {
+    public void pageTest_10() {
         Page page = new PageObject(4, 15L);
         page.setCurrentPage(6);
         Map<String, Object> pageInfo = page.toPageInfo();
-        //
+
         assert pageInfo.get("enable").equals(true);
         assert pageInfo.get("pageSize").equals(4L);
         assert pageInfo.get("totalCount").equals(15L);
         assert pageInfo.get("totalPage").equals(4L);
         assert pageInfo.get("currentPage").equals(6L);
         assert pageInfo.get("recordPosition").equals(24L);
-        //
+
         page.setPageNumberOffset(2);
         pageInfo = page.toPageInfo();
         assert pageInfo.get("enable").equals(true);
@@ -205,18 +204,18 @@ public class PageObjectTest {
     }
 
     @Test
-    public void pageTest_11() throws SQLException {
+    public void pageTest_11() {
         Page page = new PageObject(0, 15L);
         page.setCurrentPage(6);
         Map<String, Object> pageInfo = page.toPageInfo();
-        //
+
         assert pageInfo.get("enable").equals(false);
         assert pageInfo.get("pageSize").equals(0L);
         assert pageInfo.get("totalCount").equals(15L);
         assert pageInfo.get("totalPage").equals(1L);
         assert pageInfo.get("currentPage").equals(0L);
         assert pageInfo.get("recordPosition").equals(0L);
-        //
+
         page.setPageNumberOffset(2);
         pageInfo = page.toPageInfo();
         assert pageInfo.get("enable").equals(false);

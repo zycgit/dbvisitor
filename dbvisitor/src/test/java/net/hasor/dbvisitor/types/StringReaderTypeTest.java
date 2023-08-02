@@ -38,8 +38,8 @@ public class StringReaderTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
-            List<Reader> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('abcdefg');");
+            List<Reader> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
                 return new ClobAsReaderTypeHandler().getResult(rs, 1);
             });
             String readerDat = IOUtils.toString(dat.get(0));
@@ -52,9 +52,9 @@ public class StringReaderTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
-            List<Reader> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
-                return new ClobAsReaderTypeHandler().getResult(rs, "c_clob");
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('abcdefg');");
+            List<Reader> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
+                return new ClobAsReaderTypeHandler().getResult(rs, "c_char_lage");
             });
             String readerDat = IOUtils.toString(dat.get(0));
             assert readerDat.equals("abcdefg");
@@ -98,8 +98,8 @@ public class StringReaderTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
-            List<Reader> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('abcdefg');");
+            List<Reader> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
                 return new NClobAsReaderTypeHandler().getResult(rs, 1);
             });
             String readerDat = IOUtils.toString(dat.get(0));
@@ -112,9 +112,9 @@ public class StringReaderTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
-            List<Reader> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
-                return new NClobAsReaderTypeHandler().getResult(rs, "c_clob");
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('abcdefg');");
+            List<Reader> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
+                return new NClobAsReaderTypeHandler().getResult(rs, "c_char_lage");
             });
             String readerDat = IOUtils.toString(dat.get(0));
             assert readerDat.equals("abcdefg");
@@ -158,8 +158,8 @@ public class StringReaderTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
-            List<Reader> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('abcdefg');");
+            List<Reader> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
                 return new StringAsReaderTypeHandler().getResult(rs, 1);
             });
             String readerDat = IOUtils.toString(dat.get(0));
@@ -172,9 +172,9 @@ public class StringReaderTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
-            List<Reader> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
-                return new StringAsReaderTypeHandler().getResult(rs, "c_text");
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('abcdefg');");
+            List<Reader> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
+                return new StringAsReaderTypeHandler().getResult(rs, "c_char_lage");
             });
             String readerDat = IOUtils.toString(dat.get(0));
             assert readerDat.equals("abcdefg");
@@ -223,8 +223,8 @@ public class StringReaderTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
-            List<Reader> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('abcdefg');");
+            List<Reader> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
                 return new NStringAsReaderTypeHandler().getResult(rs, 1);
             });
             String readerDat = IOUtils.toString(dat.get(0));
@@ -237,9 +237,9 @@ public class StringReaderTypeTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
-            List<Reader> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
-                return new NStringAsReaderTypeHandler().getResult(rs, "c_text");
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('abcdefg');");
+            List<Reader> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
+                return new NStringAsReaderTypeHandler().getResult(rs, "c_char_lage");
             });
             String readerDat = IOUtils.toString(dat.get(0));
             assert readerDat.equals("abcdefg");

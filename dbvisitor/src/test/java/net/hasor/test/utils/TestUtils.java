@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.test.utils;
-import net.hasor.test.dto.TB_User;
 import net.hasor.test.dto.TbUser;
+import net.hasor.test.dto.UserInfo;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -28,8 +28,8 @@ import java.util.UUID;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class TestUtils {
-    public static final  String   INSERT_ARRAY = "insert into tb_user (userUUID,name,loginName,loginPassword,email,`index`,registerTime) values (?,?,?,?,?,?,?);";
-    public static final  String   INSERT_MAP   = "insert into tb_user (userUUID,name,loginName,loginPassword,email,`index`,registerTime) values (:userUUID,:name,:loginName,:loginPassword,:email,:index,:registerTime);";
+    public static final  String   INSERT_ARRAY = "insert into user_info (user_uuid,user_name,login_name,login_password,email,seq,register_time) values (?,?,?,?,?,?,?);";
+    public static final  String   INSERT_MAP   = "insert into user_info (user_uuid,user_name,login_name,login_password,email,seq,register_time) values (:userUUID,:name,:loginName,:loginPassword,:email,:index,:registerTime);";
     private static final Object[] DATA_1       = new Object[] { newID(), "默罕默德", "muhammad", "1", "muhammad@hasor.net", 1, new Date() };
     private static final Object[] DATA_2       = new Object[] { newID(), "安妮.贝隆", "belon", "2", "belon@hasor.net", 2, new Date() };
     private static final Object[] DATA_3       = new Object[] { newID(), "赵飞燕", "feiyan", "3", "feiyan@hasor.net", 3, new Date() };
@@ -53,13 +53,13 @@ public class TestUtils {
         return tbUser;
     }
 
-    private static TB_User fillBean(Object[] data, TB_User tbUser) {
-        tbUser.setUserUUID((String) data[0]);
+    private static UserInfo fillBean(Object[] data, UserInfo tbUser) {
+        tbUser.setUserUuid((String) data[0]);
         tbUser.setName((String) data[1]);
         tbUser.setLoginName((String) data[2]);
         tbUser.setLoginPassword((String) data[3]);
         tbUser.setEmail((String) data[4]);
-        tbUser.setIndex((Integer) data[5]);
+        tbUser.setSeq((Integer) data[5]);
         tbUser.setRegisterTime((Date) data[6]);
         return tbUser;
     }
@@ -75,12 +75,8 @@ public class TestUtils {
         return map;
     }
 
-    public static TbUser mappingBeanForData1() {
-        return fillBean(DATA_1, new TbUser());
-    }
-
-    public static TB_User beanForData1() {
-        return fillBean(DATA_1, new TB_User());
+    public static UserInfo beanForData1() {
+        return fillBean(DATA_1, new UserInfo());
     }
 
     public static Object[] arrayForData1() {
@@ -91,8 +87,8 @@ public class TestUtils {
         return fillMap(DATA_1, new HashMap<>());
     }
 
-    public static TB_User beanForData2() {
-        return fillBean(DATA_2, new TB_User());
+    public static UserInfo beanForData2() {
+        return fillBean(DATA_2, new UserInfo());
     }
 
     public static Object[] arrayForData2() {
@@ -103,8 +99,8 @@ public class TestUtils {
         return fillMap(DATA_2, new HashMap<>());
     }
 
-    public static TB_User beanForData3() {
-        return fillBean(DATA_3, new TB_User());
+    public static UserInfo beanForData3() {
+        return fillBean(DATA_3, new UserInfo());
     }
 
     public static Object[] arrayForData3() {
@@ -115,8 +111,8 @@ public class TestUtils {
         return fillMap(DATA_3, new HashMap<>());
     }
 
-    public static TB_User beanForData4() {
-        return fillBean(DATA_4, new TB_User());
+    public static UserInfo beanForData4() {
+        return fillBean(DATA_4, new UserInfo());
     }
 
     public static Object[] arrayForData4() {
@@ -127,8 +123,8 @@ public class TestUtils {
         return fillMap(DATA_4, new HashMap<>());
     }
 
-    public static TB_User beanForData5() {
-        return fillBean(DATA_5, new TB_User());
+    public static UserInfo beanForData5() {
+        return fillBean(DATA_5, new UserInfo());
     }
 
     public static Object[] arrayForData5() {
@@ -139,8 +135,8 @@ public class TestUtils {
         return fillMap(DATA_5, new HashMap<>());
     }
 
-    public static TB_User beanForData6() {
-        return fillBean(DATA_6, new TB_User());
+    public static UserInfo beanForData6() {
+        return fillBean(DATA_6, new UserInfo());
     }
 
     public static Object[] arrayForData6() {
@@ -151,8 +147,8 @@ public class TestUtils {
         return fillMap(DATA_6, new HashMap<>());
     }
 
-    public static TB_User beanForData7() {
-        return fillBean(DATA_7, new TB_User());
+    public static UserInfo beanForData7() {
+        return fillBean(DATA_7, new UserInfo());
     }
 
     public static Object[] arrayForData7() {

@@ -17,7 +17,8 @@ package net.hasor.test.dal.execute;
 import net.hasor.dbvisitor.dal.repository.Param;
 import net.hasor.dbvisitor.dal.repository.RefMapper;
 import net.hasor.test.dto.AutoId;
-import net.hasor.test.dto.TbUser2;
+import net.hasor.test.dto.UserInfo;
+import net.hasor.test.dto.UserInfo2;
 
 import java.util.List;
 import java.util.Map;
@@ -29,13 +30,13 @@ import java.util.Map;
  */
 @RefMapper("/dbvisitor_coverage/dal_session/basic_execute.xml")
 public interface TestExecuteDal {
-    int createUser(TbUser2 tbUser);
+    int createUser(UserInfo tbUser);
 
     int initUser();
 
-    List<TbUser2> listUserList_1(@Param("abc") String name);
+    List<UserInfo> listUserList_1(@Param("abc") String name);
 
-    List<TestUser> listUserList_2(@Param("abc") String name);
+    List<UserInfo2> listUserList_2(@Param("abc") String name);
 
     Map<String, Object> callSelectUser(Map<String, Object> args);
 

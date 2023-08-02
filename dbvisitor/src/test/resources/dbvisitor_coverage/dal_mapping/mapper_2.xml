@@ -24,9 +24,9 @@
 
     <entity id="entityMap_1" type="net.hasor.test.entity.BlobResourceV1">
         <id property="id" column="id"/>
-        <result property="gmtCreate" column="gmt_create"/>
-        <result property="ownerName" column="owner_name"/>
-        <result property="ownerType" column="owner_type"/>
+        <mapping property="gmtCreate" column="gmt_create"/>
+        <mapping property="ownerName" column="owner_name"/>
+        <mapping property="ownerType" column="owner_type"/>
     </entity>
 
     <entity id="entityMap_2" type="net.hasor.test.entity.BlobResourceV2">

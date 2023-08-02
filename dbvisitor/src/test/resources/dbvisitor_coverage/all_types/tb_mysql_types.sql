@@ -2,7 +2,7 @@
  * https://dev.mysql.com/doc/refman/8.0/en/data-types.html */
 create table tb_mysql_types
 (
-    c_serial                     serial,
+    c_serial                     serial primary key,
 
     c_bit                        bit,
     c_bit_n                      bit(3),

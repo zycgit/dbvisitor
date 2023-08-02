@@ -14,48 +14,28 @@
  * limitations under the License.
  */
 package net.hasor.test.dto;
-import java.util.Date;
-
 /**
  *
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-public class UserFutures {
-    private String  ext1;
-    private Integer ext2;
-    private Boolean ext3;
-    private Date    ext4;
+public class keywords_table {
+    private String user;
+    private String index;
 
-    public String getExt1() {
-        return ext1;
+    public String getUser() {
+        return user;
     }
 
-    public void setExt1(String ext1) {
-        this.ext1 = ext1;
+    public void setUser(String user) {
+        this.user = user;
     }
 
-    public Integer getExt2() {
-        return ext2;
+    public String getIndex() {
+        return index;
     }
 
-    public void setExt2(Integer ext2) {
-        this.ext2 = ext2;
-    }
-
-    public Boolean getExt3() {
-        return ext3;
-    }
-
-    public void setExt3(Boolean ext3) {
-        this.ext3 = ext3;
-    }
-
-    public Date getExt4() {
-        return ext4;
-    }
-
-    public void setExt4(Date ext4) {
-        this.ext4 = ext4;
+    public void setIndex(String index) {
+        this.index = index;
     }
 }

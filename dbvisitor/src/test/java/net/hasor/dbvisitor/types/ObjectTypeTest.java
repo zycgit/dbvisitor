@@ -34,8 +34,8 @@ public class ObjectTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Set<String> testSet = new HashSet<>(Arrays.asList("a", "b", "c"));
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_other) values (?);", new Object[] { testSet });
-            List<Object> dat = jdbcTemplate.queryForList("select c_other from tb_h2_types where c_other is not null limit 1;", (rs, rowNum) -> {
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_object) values (?);", new Object[] { testSet });
+            List<Object> dat = jdbcTemplate.queryForList("select c_object from tb_h2_types where c_object is not null limit 1;", (rs, rowNum) -> {
                 return new ObjectTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0) != testSet;
@@ -53,9 +53,9 @@ public class ObjectTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Set<String> testSet = new HashSet<>(Arrays.asList("a", "b", "c"));
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_other) values (?);", new Object[] { testSet });
-            List<Object> dat = jdbcTemplate.queryForList("select c_other from tb_h2_types where c_other is not null limit 1;", (rs, rowNum) -> {
-                return new ObjectTypeHandler().getResult(rs, "c_other");
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_object) values (?);", new Object[] { testSet });
+            List<Object> dat = jdbcTemplate.queryForList("select c_object from tb_h2_types where c_object is not null limit 1;", (rs, rowNum) -> {
+                return new ObjectTypeHandler().getResult(rs, "c_object");
             });
             assert dat.get(0) != testSet;
             assert dat.get(0) instanceof Set;

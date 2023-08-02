@@ -16,7 +16,8 @@
 package net.hasor.dbvisitor.jdbc.core;
 import net.hasor.dbvisitor.jdbc.paramer.BeanSqlParameterSource;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.TB_User;
+import net.hasor.test.dto.UserInfo;
+import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
 import net.hasor.test.utils.TestUtils;
 import org.junit.Test;
@@ -39,15 +40,15 @@ public class ExecuteUpdateTest extends AbstractDbTest {
     public void executeUpdate_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
-            Set<String> collect1 = tbUsers1.stream().map(TB_User::getName).collect(Collectors.toSet());
+
+            List<user_info> tbUsers1 = jdbcTemplate.queryForList("select * from user_info", user_info.class);
+            Set<String> collect1 = tbUsers1.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect1.size() == 3;
-            //
-            assert jdbcTemplate.executeUpdate("update tb_user set name = '123'") == 3;
-            //
-            List<TB_User> tbUsers2 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
-            Set<String> collect2 = tbUsers2.stream().map(TB_User::getName).collect(Collectors.toSet());
+
+            assert jdbcTemplate.executeUpdate("update user_info set user_name = '123'") == 3;
+
+            List<user_info> tbUsers2 = jdbcTemplate.queryForList("select * from user_info", user_info.class);
+            Set<String> collect2 = tbUsers2.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect2.size() == 1;
             assert collect2.contains("123");
         }
@@ -57,17 +58,17 @@ public class ExecuteUpdateTest extends AbstractDbTest {
     public void executeUpdate_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
-            Set<String> collect1 = tbUsers1.stream().map(TB_User::getName).collect(Collectors.toSet());
+
+            List<user_info> tbUsers1 = jdbcTemplate.queryForList("select * from user_info", user_info.class);
+            Set<String> collect1 = tbUsers1.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect1.size() == 3;
-            //
-            assert jdbcTemplate.executeUpdate("update tb_user set name = ?", ps -> {
+
+            assert jdbcTemplate.executeUpdate("update user_info set user_name = ?", ps -> {
                 ps.setString(1, "123");
             }) == 3;
-            //
-            List<TB_User> tbUsers2 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
-            Set<String> collect2 = tbUsers2.stream().map(TB_User::getName).collect(Collectors.toSet());
+
+            List<user_info> tbUsers2 = jdbcTemplate.queryForList("select * from user_info", user_info.class);
+            Set<String> collect2 = tbUsers2.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect2.size() == 1;
             assert collect2.contains("123");
         }
@@ -77,15 +78,15 @@ public class ExecuteUpdateTest extends AbstractDbTest {
     public void executeUpdate_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
-            Set<String> collect1 = tbUsers1.stream().map(TB_User::getName).collect(Collectors.toSet());
+
+            List<user_info> tbUsers1 = jdbcTemplate.queryForList("select * from user_info", user_info.class);
+            Set<String> collect1 = tbUsers1.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect1.size() == 3;
-            //
-            assert jdbcTemplate.executeUpdate("update tb_user set name = ?", new Object[] { "123" }) == 3;
-            //
-            List<TB_User> tbUsers2 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
-            Set<String> collect2 = tbUsers2.stream().map(TB_User::getName).collect(Collectors.toSet());
+
+            assert jdbcTemplate.executeUpdate("update user_info set user_name = ?", new Object[] { "123" }) == 3;
+
+            List<user_info> tbUsers2 = jdbcTemplate.queryForList("select * from user_info", user_info.class);
+            Set<String> collect2 = tbUsers2.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect2.size() == 1;
             assert collect2.contains("123");
         }
@@ -95,17 +96,17 @@ public class ExecuteUpdateTest extends AbstractDbTest {
     public void executeUpdate_4() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
-            Set<String> collect1 = tbUsers1.stream().map(TB_User::getName).collect(Collectors.toSet());
+
+            List<user_info> tbUsers1 = jdbcTemplate.queryForList("select * from user_info", user_info.class);
+            Set<String> collect1 = tbUsers1.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect1.size() == 3;
-            //
-            TB_User tbUser = TestUtils.beanForData1();
+
+            UserInfo tbUser = TestUtils.beanForData1();
             BeanSqlParameterSource beanSqlParameterSource = new BeanSqlParameterSource(tbUser);
-            assert jdbcTemplate.executeUpdate("update tb_user set name = '123' where userUUID != :userUUID", beanSqlParameterSource) == 2;
-            //
-            List<TB_User> tbUsers2 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
-            Set<String> collect2 = tbUsers2.stream().map(TB_User::getName).collect(Collectors.toSet());
+            assert jdbcTemplate.executeUpdate("update user_info set user_name = '123' where user_uuid != :userUuid", beanSqlParameterSource) == 2;
+
+            List<user_info> tbUsers2 = jdbcTemplate.queryForList("select * from user_info", user_info.class);
+            Set<String> collect2 = tbUsers2.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect2.size() == 2;
             assert collect2.contains("123");
             assert collect2.contains(tbUser.getName());
@@ -116,18 +117,18 @@ public class ExecuteUpdateTest extends AbstractDbTest {
     public void executeUpdate_5() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            List<TB_User> tbUsers1 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
-            Set<String> collect1 = tbUsers1.stream().map(TB_User::getName).collect(Collectors.toSet());
+
+            List<user_info> tbUsers1 = jdbcTemplate.queryForList("select * from user_info", user_info.class);
+            Set<String> collect1 = tbUsers1.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect1.size() == 3;
-            //
-            TB_User tbUser = TestUtils.beanForData1();
+
+            UserInfo tbUser = TestUtils.beanForData1();
             Map<String, String> mapParams = new HashMap<>();
-            mapParams.put("uuid", tbUser.getUserUUID());
-            assert jdbcTemplate.executeUpdate("update tb_user set name = '123' where userUUID != :uuid", mapParams) == 2;
-            //
-            List<TB_User> tbUsers2 = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
-            Set<String> collect2 = tbUsers2.stream().map(TB_User::getName).collect(Collectors.toSet());
+            mapParams.put("uuid", tbUser.getUserUuid());
+            assert jdbcTemplate.executeUpdate("update user_info set user_name = '123' where user_uuid != :uuid", mapParams) == 2;
+
+            List<user_info> tbUsers2 = jdbcTemplate.queryForList("select * from user_info", user_info.class);
+            Set<String> collect2 = tbUsers2.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect2.size() == 2;
             assert collect2.contains("123");
             assert collect2.contains(tbUser.getName());

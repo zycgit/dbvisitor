@@ -1,57 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="net.hasor.test.dal.execute.TestExecuteDal">
-    <resultMap id="tb_user_resultMap" type="net.hasor.test.dto.TbUser2">
-        <id column="user_uuid" property="uid"/>
-        <result column="name" property="name"/>
-        <result column="login_name" property="account"/>
-        <result column="login_password" property="password"/>
-        <result column="email" property="mail"/>
-        <result column="index" property="index" javaType="int"/>
-        <result column="register_time" property="createTime"/>
+    <resultMap id="tb_user_resultMap" type="net.hasor.test.dto.UserInfo">
+        <result column="user_uuid" property="userUuid"/>
+        <result column="user_name" property="name"/>
+        <result column="login_name" property="loginName"/>
+        <result column="login_password" property="loginPassword"/>
+        <result column="email" property="email"/>
+        <result column="seq" property="seq" javaType="int"/>
+        <result column="register_time" property="registerTime"/>
     </resultMap>
 
     <sql id="user_do_allColumns">
         user_uuid,
-        name,
+        user_name,
         login_name,
         login_password,
         email,
-        `index`,
+        seq,
         register_time
     </sql>
 
     <insert id="createUser">
-        insert into test_user (
-        <include refid="user_do_allColumns"/>
+        insert into user_info (
+            <include refid="user_do_allColumns"/>
         ) values (
-        #{uid},
-        #{name},
-        #{account},
-        #{password},
-        #{index},
-        #{createTime}
+            #{userUuid},
+            #{name},
+            #{loginName},
+            #{loginPassword},
+            #{email},
+            #{seq},
+            #{registerTime}
         );
     </insert>
 
     <insert id="initUser">
-        insert into test_user (
-        <include refid="user_do_allColumns"/>
+        insert into user_info (
+            <include refid="user_do_allColumns"/>
         )
-        values ('11', '12', '13', '14', '15', 16, '2021-07-20 00:00:00'),
-        ('21', '22', '23', '24', '25', 26, '2021-07-20 00:00:00');
+        values
+        ('11', '12', '13', '14', '15', 16, '2021-07-20 00:00:00'),
+        ('21', '22', '23', '24', '25', 26, '2021-07-20 00:00:00')
     </insert>
 
-    <select id="listUserList_1"  resultMap="tb_user_resultMap" statementType="PREPARED">
+    <select id="listUserList_1" resultMap="tb_user_resultMap" statementType="PREPARED">
         select
-        <include refid="user_do_allColumns"/>
-        from test_user;
+            <include refid="user_do_allColumns"/>
+        from
+            user_info;
     </select>
 
-    <select id="listUserList_2" resultType="net.hasor.test.dal.execute.TestUser" statementType="STATEMENT">
+    <select id="listUserList_2" resultType="net.hasor.test.dto.UserInfo2" statementType="STATEMENT">
         select
-        <include refid="user_do_allColumns"/>
-        from test_user;
+            <include refid="user_do_allColumns"/>
+        from
+            user_info;
     </select>
 
     <select id="callSelectUser" statementType="CALLABLE">

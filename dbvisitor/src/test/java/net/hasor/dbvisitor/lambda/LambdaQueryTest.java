@@ -17,8 +17,8 @@ package net.hasor.dbvisitor.lambda;
 import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.TB_User;
-import net.hasor.test.dto.TbUser;
+import net.hasor.test.dto.UserInfo2;
+import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -40,45 +40,45 @@ public class LambdaQueryTest extends AbstractDbTest {
     public void lambda_select_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            //
-            List<TbUser> tbUsers1 = lambdaTemplate.lambdaQuery(TbUser.class).queryForList();
-            List<String> collect1 = tbUsers1.stream().map(TbUser::getName).collect(Collectors.toList());
+
+            List<UserInfo2> users1 = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForList();
+            List<String> collect1 = users1.stream().map(UserInfo2::getName).collect(Collectors.toList());
             assert collect1.size() == 3;
             assert collect1.contains(beanForData1().getName());
             assert collect1.contains(beanForData2().getName());
             assert collect1.contains(beanForData3().getName());
-            //
-            List<Map<String, Object>> tbUsers2 = lambdaTemplate.lambdaQuery(TbUser.class).queryForMapList();
-            List<String> collect2 = tbUsers2.stream().map(tbUser -> {
+
+            List<Map<String, Object>> users2 = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForMapList();
+            List<String> collect2 = users2.stream().map(tbUser -> {
                 return (String) tbUser.get("name");
             }).collect(Collectors.toList());
             assert collect2.size() == 3;
             assert collect2.contains(beanForData1().getName());
             assert collect2.contains(beanForData2().getName());
             assert collect2.contains(beanForData3().getName());
-            //
-            List<String> collect3 = new ArrayList<>();
-            lambdaTemplate.lambdaQuery(TbUser.class).query((rs, rowNum) -> {
-                collect3.add(rs.getString("name"));
+
+            List<String> users3 = new ArrayList<>();
+            lambdaTemplate.lambdaQuery(UserInfo2.class).query((rs, rowNum) -> {
+                users3.add(rs.getString("user_name"));
             });
-            assert collect3.size() == 3;
-            assert collect3.contains(beanForData1().getName());
-            assert collect3.contains(beanForData2().getName());
-            assert collect3.contains(beanForData3().getName());
-            //
-            List<Map<String, Object>> tbUsers4 = lambdaTemplate.lambdaQuery(TbUser.class)//
+            assert users3.size() == 3;
+            assert users3.contains(beanForData1().getName());
+            assert users3.contains(beanForData2().getName());
+            assert users3.contains(beanForData3().getName());
+
+            List<Map<String, Object>> users4 = lambdaTemplate.lambdaQuery(UserInfo2.class)//
                     .query(new RowMapperResultSetExtractor<>(new ColumnMapRowMapper()));
-            List<String> collect4 = tbUsers4.stream().map(tbUser -> {
-                return (String) tbUser.get("name");
+            List<String> collect4 = users4.stream().map(tbUser -> {
+                return (String) tbUser.get("user_name");
             }).collect(Collectors.toList());
             assert collect4.size() == 3;
             assert collect4.contains(beanForData1().getName());
             assert collect4.contains(beanForData2().getName());
             assert collect4.contains(beanForData3().getName());
-            //
-            List<Map<String, Object>> tbUsers5 = lambdaTemplate.lambdaQuery(TbUser.class).query(new ColumnMapRowMapper());
-            List<String> collect5 = tbUsers5.stream().map(tbUser -> {
-                return (String) tbUser.get("name");
+
+            List<Map<String, Object>> users5 = lambdaTemplate.lambdaQuery(UserInfo2.class).query(new ColumnMapRowMapper());
+            List<String> collect5 = users5.stream().map(tbUser -> {
+                return (String) tbUser.get("user_name");
             }).collect(Collectors.toList());
             assert collect5.size() == 3;
             assert collect5.contains(beanForData1().getName());
@@ -91,19 +91,19 @@ public class LambdaQueryTest extends AbstractDbTest {
     public void lambdaQuery_select_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            //
-            List<TbUser> tbUsers1 = lambdaTemplate.lambdaQuery(TbUser.class).selectAll().queryForList();
-            List<TbUser> tbUsers2 = lambdaTemplate.lambdaQuery(TbUser.class).queryForList();
-            assert tbUsers1.size() == 3;
-            assert tbUsers2.size() == 3;
-            //
+
+            List<UserInfo2> users1 = lambdaTemplate.lambdaQuery(UserInfo2.class).selectAll().queryForList();
+            List<UserInfo2> users2 = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForList();
+            assert users1.size() == 3;
+            assert users2.size() == 3;
+
             Map<String, Object> forData1 = mapForData1();
-            List<TbUser> tbUsers3 = lambdaTemplate.lambdaQuery(TbUser.class)//
-                    .eq(TbUser::getAccount, forData1.get("loginName")).queryForList();
-            assert tbUsers3.size() == 1;
-            assert tbUsers3.get(0).getAccount().equals("muhammad");
-            assert tbUsers3.get(0).getAccount().equals(forData1.get("loginName"));
-            assert tbUsers3.get(0).getUid().equals(forData1.get("userUUID"));
+            List<UserInfo2> users3 = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+                    .eq(UserInfo2::getLoginName, forData1.get("loginName")).queryForList();
+            assert users3.size() == 1;
+            assert users3.get(0).getLoginName().equals("muhammad");
+            assert users3.get(0).getLoginName().equals(forData1.get("loginName"));
+            assert users3.get(0).getUid().equals(forData1.get("userUUID"));
         }
     }
 
@@ -111,19 +111,19 @@ public class LambdaQueryTest extends AbstractDbTest {
     public void lambdaQuery_select_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            //
-            List<TB_User> tbUsers1 = lambdaTemplate.lambdaQuery(TB_User.class).selectAll().queryForList();
-            List<TB_User> tbUsers2 = lambdaTemplate.lambdaQuery(TB_User.class).queryForList();
-            assert tbUsers1.size() == 3;
-            assert tbUsers2.size() == 3;
-            //
+
+            List<user_info> users1 = lambdaTemplate.lambdaQuery(user_info.class).selectAll().queryForList();
+            List<user_info> users2 = lambdaTemplate.lambdaQuery(user_info.class).queryForList();
+            assert users1.size() == 3;
+            assert users2.size() == 3;
+
             Map<String, Object> forData1 = mapForData1();
-            List<TB_User> tbUsers3 = lambdaTemplate.lambdaQuery(TB_User.class)//
-                    .eq(TB_User::getLoginName, forData1.get("loginName")).queryForList();
-            assert tbUsers3.size() == 1;
-            assert tbUsers3.get(0).getLoginName().equals("muhammad");
-            assert tbUsers3.get(0).getLoginName().equals(forData1.get("loginName"));
-            assert tbUsers3.get(0).getUserUUID().equals(forData1.get("userUUID"));
+            List<user_info> users3 = lambdaTemplate.lambdaQuery(user_info.class)//
+                    .eq(user_info::getLogin_name, forData1.get("loginName")).queryForList();
+            assert users3.size() == 1;
+            assert users3.get(0).getLogin_name().equals("muhammad");
+            assert users3.get(0).getLogin_name().equals(forData1.get("loginName"));
+            assert users3.get(0).getUser_uuid().equals(forData1.get("userUUID"));
         }
     }
 
@@ -131,10 +131,10 @@ public class LambdaQueryTest extends AbstractDbTest {
     public void lambdaQuery_select_4() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            //
-            TbUser tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
-                    .eq(TbUser::getAccount, "muhammad").apply("limit 1").queryForObject();
-            //
+
+            UserInfo2 tbUser = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+                    .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1").queryForObject();
+
             assert tbUser.getName().equals("默罕默德");
         }
     }
@@ -143,13 +143,13 @@ public class LambdaQueryTest extends AbstractDbTest {
     public void lambdaQuery_select_5() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            //
-            Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(TbUser.class)//
-                    .eq(TbUser::getAccount, "muhammad").apply("limit 1")//
+
+            Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+                    .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
-            //
+
             assert tbUser.get("name").equals("默罕默德");
-            assert tbUser.get("account").equals("muhammad");
+            assert tbUser.get("loginName").equals("muhammad");
         }
     }
 
@@ -157,13 +157,13 @@ public class LambdaQueryTest extends AbstractDbTest {
     public void lambdaQuery_lambdaCount_6() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            //
-            int lambdaCount1 = lambdaTemplate.lambdaQuery(TbUser.class)//
-                    .eq(TbUser::getAccount, "muhammad")//
+
+            int lambdaCount1 = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+                    .eq(UserInfo2::getLoginName, "muhammad")//
                     .queryForCount();
             assert lambdaCount1 == 1;
-            assert lambdaTemplate.lambdaQuery(TbUser.class).queryForCount() == 3;
-            assert lambdaTemplate.lambdaQuery(TbUser.class).queryForLargeCount() == 3L;
+            assert lambdaTemplate.lambdaQuery(UserInfo2.class).queryForCount() == 3;
+            assert lambdaTemplate.lambdaQuery(UserInfo2.class).queryForLargeCount() == 3L;
         }
     }
 }

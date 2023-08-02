@@ -26,6 +26,7 @@ import java.util.Date;
  * @author 赵永春 (zyc@hasor.net)
  */
 @Table("tb_user")
+@Deprecated
 public class TbUser {
     @Column(value = "userUUID", primary = true, keyType = KeyTypeEnum.UUID32)
     private String uid;

@@ -5,13 +5,13 @@
         id, owner_id
     </sql>
 
-    <select id="testBind" resultType="net.hasor.test.dto.TbUser">
+    <select id="testBind" resultType="net.hasor.test.dto.UserInfo2">
         <bind name="abc" value="sellerId + 'abc'"/>
         SELECT * FROM console_job
         WHERE aac = #{abc}
     </select>
 
-    <select id="testChoose" resultType="net.hasor.test.dto.TbUser">
+    <select id="testChoose" resultType="net.hasor.test.dto.UserInfo2">
         select * from t_blog
         <where>
             <choose>
@@ -22,7 +22,7 @@
         </where>
     </select>
 
-    <select id="testForeach" resultType="net.hasor.test.dto.TbUser">
+    <select id="testForeach" resultType="net.hasor.test.dto.UserInfo2">
         SELECT
         <include refid="projectInfoDO_allColumns"/>
         FROM
@@ -34,7 +34,7 @@
         </foreach>
     </select>
 
-    <select id="testIf" resultType="net.hasor.test.dto.TbUser">
+    <select id="testIf" resultType="net.hasor.test.dto.UserInfo2">
         select
         <include refid="projectInfoDO_allColumns"/>
         from

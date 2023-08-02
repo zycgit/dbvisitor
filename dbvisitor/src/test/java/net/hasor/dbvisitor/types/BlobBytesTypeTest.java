@@ -18,8 +18,8 @@ import net.hasor.cobble.codec.MD5;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.types.handler.BlobAsBytesWrapTypeHandler;
 import net.hasor.dbvisitor.types.handler.BlobAsBytesTypeHandler;
+import net.hasor.dbvisitor.types.handler.BlobAsBytesWrapTypeHandler;
 import net.hasor.dbvisitor.types.handler.BlobAsInputStreamTypeHandler;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
@@ -56,8 +56,8 @@ public class BlobBytesTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
-            List<Byte[]> dat = jdbcTemplate.queryForList("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_binary_lage) values (?);", new Object[] { testData });
+            List<Byte[]> dat = jdbcTemplate.queryForList("select c_binary_lage from tb_h2_types where c_binary_lage is not null limit 1;", (rs, rowNum) -> {
                 return new BlobAsBytesWrapTypeHandler().getResult(rs, 1);
             });
 
@@ -73,9 +73,9 @@ public class BlobBytesTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
-            List<Byte[]> dat = jdbcTemplate.queryForList("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
-                return new BlobAsBytesWrapTypeHandler().getResult(rs, "c_blob");
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_binary_lage) values (?);", new Object[] { testData });
+            List<Byte[]> dat = jdbcTemplate.queryForList("select c_binary_lage from tb_h2_types where c_binary_lage is not null limit 1;", (rs, rowNum) -> {
+                return new BlobAsBytesWrapTypeHandler().getResult(rs, "c_binary_lage");
             });
 
             String s1 = MD5.encodeMD5(testData);
@@ -130,8 +130,8 @@ public class BlobBytesTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
-            List<byte[]> dat = jdbcTemplate.queryForList("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_binary_lage) values (?);", new Object[] { testData });
+            List<byte[]> dat = jdbcTemplate.queryForList("select c_binary_lage from tb_h2_types where c_binary_lage is not null limit 1;", (rs, rowNum) -> {
                 return new BlobAsBytesTypeHandler().getResult(rs, 1);
             });
 
@@ -147,9 +147,9 @@ public class BlobBytesTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
-            List<byte[]> dat = jdbcTemplate.queryForList("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
-                return new BlobAsBytesTypeHandler().getResult(rs, "c_blob");
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_binary_lage) values (?);", new Object[] { testData });
+            List<byte[]> dat = jdbcTemplate.queryForList("select c_binary_lage from tb_h2_types where c_binary_lage is not null limit 1;", (rs, rowNum) -> {
+                return new BlobAsBytesTypeHandler().getResult(rs, "c_binary_lage");
             });
 
             String s1 = MD5.encodeMD5(testData);
@@ -202,8 +202,8 @@ public class BlobBytesTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
-            List<InputStream> dat = jdbcTemplate.queryForList("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_binary_lage) values (?);", new Object[] { testData });
+            List<InputStream> dat = jdbcTemplate.queryForList("select c_binary_lage from tb_h2_types where c_binary_lage is not null limit 1;", (rs, rowNum) -> {
                 return new BlobAsInputStreamTypeHandler().getResult(rs, 1);
             });
 
@@ -219,9 +219,9 @@ public class BlobBytesTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             byte[] testData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_blob) values (?);", new Object[] { testData });
-            List<InputStream> dat = jdbcTemplate.queryForList("select c_blob from tb_h2_types where c_blob is not null limit 1;", (rs, rowNum) -> {
-                return new BlobAsInputStreamTypeHandler().getResult(rs, "c_blob");
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_binary_lage) values (?);", new Object[] { testData });
+            List<InputStream> dat = jdbcTemplate.queryForList("select c_binary_lage from tb_h2_types where c_binary_lage is not null limit 1;", (rs, rowNum) -> {
+                return new BlobAsInputStreamTypeHandler().getResult(rs, "c_binary_lage");
             });
 
             String s1 = MD5.encodeMD5(testData);

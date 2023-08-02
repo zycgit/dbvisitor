@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.jdbc.core;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.TB_User;
+import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -35,12 +35,12 @@ public class CurdTest extends AbstractDbTest {
     public void insertTest_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
+
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData4());
-            //
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID =?", //
-                    new Object[] { beanForData4().getUserUUID() }, TB_User.class);
-            List<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toList());
+
+            List<user_info> tbUsers = jdbcTemplate.queryForList("select * from user_info where user_uuid =?", //
+                    new Object[] { beanForData4().getUserUuid() }, user_info.class);
+            List<String> collect = tbUsers.stream().map(user_info::getUser_name).collect(Collectors.toList());
             assert collect.contains("赵子龙");
         }
     }
@@ -49,12 +49,12 @@ public class CurdTest extends AbstractDbTest {
     public void insertTest_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
+
             jdbcTemplate.executeUpdate(INSERT_MAP, mapForData4());
-            //
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID =?", //
-                    new Object[] { beanForData4().getUserUUID() }, TB_User.class);
-            List<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toList());
+
+            List<user_info> tbUsers = jdbcTemplate.queryForList("select * from user_info where user_uuid =?", //
+                    new Object[] { beanForData4().getUserUuid() }, user_info.class);
+            List<String> collect = tbUsers.stream().map(user_info::getUser_name).collect(Collectors.toList());
             assert collect.contains("赵子龙");
         }
     }
@@ -63,8 +63,8 @@ public class CurdTest extends AbstractDbTest {
     public void insertTest_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            assert jdbcTemplate.queryForInt("select count(1) from tb_user") == 3;
-            //
+            assert jdbcTemplate.queryForInt("select count(1) from user_info") == 3;
+
             int count = 10;
             Object[][] batchValues = new Object[count][];
             for (int i = 0; i < count; i++) {
@@ -78,8 +78,8 @@ public class CurdTest extends AbstractDbTest {
                 batchValues[i][6] = new Date();
             }
             jdbcTemplate.executeBatch(INSERT_ARRAY, batchValues);//批量执行执行插入语句
-            printMapList(jdbcTemplate.queryForList("select * from tb_user"));
-            assert jdbcTemplate.queryForInt("select count(1) from tb_user") == 13;
+            printMapList(jdbcTemplate.queryForList("select * from user_info"));
+            assert jdbcTemplate.queryForInt("select count(1) from user_info") == 13;
         }
     }
 
@@ -87,8 +87,8 @@ public class CurdTest extends AbstractDbTest {
     public void insertTest_4() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            assert jdbcTemplate.queryForInt("select count(1) from tb_user") == 3;
-            //
+            assert jdbcTemplate.queryForInt("select count(1) from user_info") == 3;
+
             int count = 10;
             Map<String, Object>[] batchValues = new Map[count];
             for (int i = 0; i < count; i++) {
@@ -102,8 +102,8 @@ public class CurdTest extends AbstractDbTest {
                 batchValues[i].put("registerTime", new Date());
             }
             jdbcTemplate.executeBatch(INSERT_MAP, batchValues);//批量执行执行插入语句
-            printMapList(jdbcTemplate.queryForList("select * from tb_user"));
-            assert jdbcTemplate.queryForInt("select count(1) from tb_user") == 13;
+            printMapList(jdbcTemplate.queryForList("select * from user_info"));
+            assert jdbcTemplate.queryForInt("select count(1) from user_info") == 13;
         }
     }
 
@@ -111,11 +111,11 @@ public class CurdTest extends AbstractDbTest {
     public void updateTest_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            assert jdbcTemplate.executeUpdate("update tb_user set name = '123'") == 3;
-            //
-            printMapList(jdbcTemplate.queryForList("select * from tb_user"));
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
-            Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());
+            assert jdbcTemplate.executeUpdate("update user_info set user_name = '123'") == 3;
+
+            printMapList(jdbcTemplate.queryForList("select * from user_info"));
+            List<user_info> tbUsers = jdbcTemplate.queryForList("select * from user_info", user_info.class);
+            Set<String> collect = tbUsers.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect.contains("123");
             assert collect.size() == 1;
         }
@@ -125,11 +125,11 @@ public class CurdTest extends AbstractDbTest {
     public void deleteTest_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            assert jdbcTemplate.executeUpdate("delete tb_user where loginName = 'muhammad'") == 1;
-            //
-            printMapList(jdbcTemplate.queryForList("select * from tb_user"));
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user", TB_User.class);
-            Set<String> collect = tbUsers.stream().map(TB_User::getLoginName).collect(Collectors.toSet());
+            assert jdbcTemplate.executeUpdate("delete user_info where login_name = 'muhammad'") == 1;
+
+            printMapList(jdbcTemplate.queryForList("select * from user_info"));
+            List<user_info> tbUsers = jdbcTemplate.queryForList("select * from user_info", user_info.class);
+            Set<String> collect = tbUsers.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert !collect.contains("muhammad");
             assert collect.size() == 2;
         }

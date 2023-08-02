@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.dal.execute;
+package net.hasor.test.dto;
 import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.KeyTypeEnum;
+import net.hasor.dbvisitor.mapping.Table;
 
 import java.util.Date;
 
@@ -23,28 +25,29 @@ import java.util.Date;
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-public class TestUser {
-    @Column("user_uuid")
-    private String userUUID;
-    @Column("name")
+@Table("user_info")
+public class UserInfo2 {
+    @Column(value = "user_uuid", primary = true, keyType = KeyTypeEnum.UUID32)
+    private String uid;
+    @Column("user_name")
     private String name;
     @Column("login_name")
     private String loginName;
     @Column("login_password")
-    private String loginPassword;
+    private String password;
     @Column("email")
     private String email;
-    @Column("index")
-    private int    index;
+    @Column("seq")
+    private int    seq;
     @Column("register_time")
-    private Date   registerTime;
+    private Date   createTime;
 
-    public String getUserUUID() {
-        return userUUID;
+    public String getUid() {
+        return uid;
     }
 
-    public void setUserUUID(String userUUID) {
-        this.userUUID = userUUID;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getName() {
@@ -63,12 +66,12 @@ public class TestUser {
         this.loginName = loginName;
     }
 
-    public String getLoginPassword() {
-        return loginPassword;
+    public String getPassword() {
+        return password;
     }
 
-    public void setLoginPassword(String loginPassword) {
-        this.loginPassword = loginPassword;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getEmail() {
@@ -79,19 +82,19 @@ public class TestUser {
         this.email = email;
     }
 
-    public int getIndex() {
-        return index;
+    public int getSeq() {
+        return seq;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
+    public void setSeq(int seq) {
+        this.seq = seq;
     }
 
-    public Date getRegisterTime() {
-        return registerTime;
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setRegisterTime(Date registerTime) {
-        this.registerTime = registerTime;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 }

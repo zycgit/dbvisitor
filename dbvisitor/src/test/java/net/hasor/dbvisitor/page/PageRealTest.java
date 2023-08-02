@@ -16,11 +16,9 @@
 package net.hasor.dbvisitor.page;
 import org.junit.Test;
 
-import java.sql.SQLException;
-
 public class PageRealTest {
     @Test
-    public void pageTest_1() throws SQLException {
+    public void pageTest_1() {
         Page page = new PageObject();
         assert page.getPageSize() == 0;
         assert page.getCurrentPage() == 0;
@@ -28,11 +26,11 @@ public class PageRealTest {
         assert page.getFirstRecordPosition() == 0;
         assert page.getTotalPage() == 0;
         assert page.getTotalCount() == 0;
-        //
+
         Page page2 = new PageObject();
         page2.setPageSize(-1000);
         assert page2.getPageSize() == 0;
-        //
+
         Page page3 = new PageObject();
         page3.setCurrentPage(-1000);
         assert page3.getCurrentPage() == 0;

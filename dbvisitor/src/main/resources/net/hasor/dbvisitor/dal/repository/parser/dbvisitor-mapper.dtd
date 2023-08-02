@@ -45,7 +45,7 @@
         id CDATA #IMPLIED
         catalog CDATA #IMPLIED
         schema CDATA #IMPLIED
-        table CDATA #REQUIRED
+        table CDATA #IMPLIED
         type CDATA #REQUIRED
         autoMapping (true|false) #IMPLIED
         useDelimited (true|false) #IMPLIED

@@ -361,15 +361,6 @@ public final class TypeHandlerRegistry {
         return Types.JAVA_OBJECT;
     }
 
-    public static boolean hasTypeHandlerType(Class<?> handlerType) {
-        Objects.requireNonNull(handlerType, "handlerType is null.");
-        return cachedSingleHandlers.containsKey(handlerType);
-    }
-
-    public static TypeHandler<?> getTypeHandlerByType(Class<?> handlerType) {
-        return cachedSingleHandlers.get(handlerType);
-    }
-
     public boolean hasTypeHandler(Class<?> typeClass) {
         Objects.requireNonNull(typeClass, "typeClass is null.");
         if (typeClass.isEnum()) {
@@ -428,7 +419,7 @@ public final class TypeHandlerRegistry {
                 }
 
                 BindTypeHandler handler = typeClass.getAnnotation(BindTypeHandler.class);
-                typeHandler = ClassUtils.newInstance(handler.typeHandler());
+                typeHandler = ClassUtils.newInstance(handler.value());
                 this.javaTypeHandlerMap.put(typeClassName, typeHandler);
                 return typeHandler;
             }
@@ -488,7 +479,7 @@ public final class TypeHandlerRegistry {
                 }
 
                 BindTypeHandler handler = typeClass.getAnnotation(BindTypeHandler.class);
-                typeHandler = ClassUtils.newInstance(handler.typeHandler());
+                typeHandler = ClassUtils.newInstance(handler.value());
                 registerCross(jdbcType, typeClass, typeHandler);
                 return typeHandler;
             }

@@ -2,51 +2,51 @@
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="net.hasor.test.dal.execute.PageExecuteDal">
 
-    <entity table="test_user" type="net.hasor.test.dto.TbUser2">
-        <id column="user_uuid" property="uid"/>
-        <result column="name" property="name"/>
-        <result column="login_name" property="account"/>
-        <result column="login_password" property="password"/>
-        <result column="email" property="mail"/>
-        <result column="index" property="index" javaType="int"/>
-        <result column="register_time" property="createTime"/>
+    <entity table="user_info" type="net.hasor.test.dto.UserInfo">
+        <id column="user_uuid" property="userUuid"/>
+        <mapping column="user_name" property="name"/>
+        <mapping column="login_name" property="loginName"/>
+        <mapping column="login_password" property="loginPassword"/>
+        <mapping column="email" property="email"/>
+        <mapping column="seq" property="seq" javaType="int"/>
+        <mapping column="register_time" property="registerTime"/>
     </entity>
 
-    <resultMap id="tb_user_resultMap" type="net.hasor.test.dto.TbUser2">
-        <id column="user_uuid" property="uid"/>
-        <result column="name" property="name"/>
-        <result column="login_name" property="account"/>
-        <result column="login_password" property="password"/>
-        <result column="email" property="mail"/>
-        <result column="index" property="index" javaType="int"/>
-        <result column="register_time" property="createTime"/>
+    <resultMap id="tb_user_resultMap" type="net.hasor.test.dto.UserInfo">
+        <result column="user_uuid" property="userUuid"/>
+        <result column="user_name" property="name"/>
+        <result column="login_name" property="loginName"/>
+        <result column="login_password" property="loginPassword"/>
+        <result column="email" property="email"/>
+        <result column="seq" property="seq" javaType="int"/>
+        <result column="register_time" property="registerTime"/>
     </resultMap>
 
     <sql id="user_do_allColumns">
         user_uuid,
-        name,
+        user_name,
         login_name,
         login_password,
         email,
-        `index`,
+        seq,
         register_time
     </sql>
 
     <delete id="deleteAll">
-        delete from test_user;
+        delete from user_info;
     </delete>
 
     <insert id="createUser">
-        insert into test_user (
+        insert into user_info (
             <include refid="user_do_allColumns"/>
         ) values (
-            #{uid},
+            #{userUuid},
             #{name},
-            #{account},
-            #{password},
+            #{loginName},
+            #{loginPassword},
             #{email},
-            #{index},
-            #{createTime}
+            #{seq},
+            #{registerTime}
         )
     </insert>
 
@@ -54,19 +54,19 @@
         select
             <include refid="user_do_allColumns"/>
         from
-            test_user
+            user_info
         where
-            name like concat('%', #{name} ,'%')
-        order by `index`
+            user_name like concat('%', #{name} ,'%')
+        order by seq
     </select>
 
     <select id="listByPage2" resultMap="tb_user_resultMap" statementType="PREPARED">
         select
             <include refid="user_do_allColumns"/>
         from
-            test_user
+            user_info
         where
-            name like concat('%', #{name} ,'%')
-        order by `index`
+            user_name like concat('%', #{name} ,'%')
+        order by seq
     </select>
 </mapper>

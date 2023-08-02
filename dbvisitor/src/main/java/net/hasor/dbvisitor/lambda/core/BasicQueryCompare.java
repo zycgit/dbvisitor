@@ -24,7 +24,10 @@ import net.hasor.dbvisitor.lambda.segment.Segment;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.MappedArg;
+import net.hasor.dbvisitor.types.TypeHandler;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
+import java.sql.Types;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -156,6 +159,33 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
         Iterator<Object> iterator = Arrays.asList(params).iterator();
         while (iterator.hasNext()) {
             Object arg = new MappedArg(iterator.next(), mapping.getJdbcType(), exampleIsMap() ? null : mapping.getTypeHandler());
+            mergeSqlSegment.addSegment(formatSegment(colValue, arg));
+            if (iterator.hasNext()) {
+                mergeSqlSegment.addSegment(() -> ",");
+            }
+        }
+        return mergeSqlSegment;
+    }
+
+    protected Segment formatValue(Object... params) {
+        if (ArrayUtils.isEmpty(params)) {
+            return () -> "";
+        }
+
+        String colValue = "?";
+        MergeSqlSegment mergeSqlSegment = new MergeSqlSegment();
+        Iterator<Object> iterator = Arrays.asList(params).iterator();
+        while (iterator.hasNext()) {
+            Object nextArg = iterator.next();
+            int sqlType = Types.OTHER;
+            TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();
+
+            if (nextArg != null) {
+                sqlType = TypeHandlerRegistry.toSqlType(nextArg.getClass());
+                typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(nextArg.getClass());
+            }
+
+            Object arg = new MappedArg(nextArg, sqlType, exampleIsMap() ? null : typeHandler);
             mergeSqlSegment.addSegment(formatSegment(colValue, arg));
             if (iterator.hasNext()) {
                 mergeSqlSegment.addSegment(() -> ",");
@@ -322,16 +352,33 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
 
         boolean hasCondition = false;
         TableMapping<?> tableMapping = this.getTableMapping();
-        for (ColumnMapping property : tableMapping.getProperties()) {
-            String propertyName = property.getProperty();
-            Object value = sample.get(entityKeyMap.get(propertyName));
-            if (value != null) {
-                if (!hasCondition) {
-                    this.addCondition(LEFT);
-                    this.nextSegmentPrefix = EMPTY;
-                    hasCondition = true;
+        if (!tableMapping.getProperties().isEmpty()) {
+            // use column def.
+            for (ColumnMapping property : tableMapping.getProperties()) {
+                String propertyName = property.getProperty();
+                Object value = sample.get(entityKeyMap.get(propertyName));
+                if (value != null) {
+                    if (!hasCondition) {
+                        this.addCondition(LEFT);
+                        this.nextSegmentPrefix = EMPTY;
+                        hasCondition = true;
+                    }
+
+                    this.addCondition(buildConditionByProperty(propertyName), EQ, formatValue(propertyName, value));
                 }
-                this.addCondition(buildConditionByProperty(propertyName), EQ, formatValue(propertyName, value));
+            }
+        } else {
+            // not found any column.
+            for (String column : sample.keySet()) {
+                Object value = sample.get(column);
+                if (value != null) {
+                    if (!hasCondition) {
+                        this.addCondition(LEFT);
+                        this.nextSegmentPrefix = EMPTY;
+                        hasCondition = true;
+                    }
+                    this.addCondition(buildConditionByColumn(column), EQ, formatValue(value));
+                }
             }
         }
 

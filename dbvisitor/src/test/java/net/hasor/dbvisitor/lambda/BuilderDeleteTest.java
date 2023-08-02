@@ -19,7 +19,9 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.TB_User;
+import net.hasor.test.dto.UserInfo;
+import net.hasor.test.dto.keywords_table;
+import net.hasor.test.dto.user_info;
 import org.junit.Test;
 
 /***
@@ -30,7 +32,7 @@ public class BuilderDeleteTest extends AbstractDbTest {
     @Test
     public void deleteBuilder_1() {
         try {
-            EntityDeleteOperation<TB_User> lambdaDelete = new LambdaTemplate().lambdaDelete(TB_User.class);
+            EntityDeleteOperation<UserInfo> lambdaDelete = new LambdaTemplate().lambdaDelete(UserInfo.class);
             SqlDialect dialect = new MySqlDialect();
             lambdaDelete.getBoundSql(dialect);
             assert false;
@@ -41,44 +43,57 @@ public class BuilderDeleteTest extends AbstractDbTest {
 
     @Test
     public void deleteBuilder_2() {
-        EntityDeleteOperation<TB_User> lambdaDelete = new LambdaTemplate().lambdaDelete(TB_User.class);
+        EntityDeleteOperation<user_info> lambdaDelete = new LambdaTemplate().lambdaDelete(user_info.class);
         lambdaDelete.allowEmptyWhere();
 
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaDelete.getBoundSql(dialect);
-        assert boundSql1.getSqlString().equals("DELETE FROM TB_User");
+        assert boundSql1.getSqlString().equals("DELETE FROM user_info");
 
         BoundSql boundSql2 = lambdaDelete.useQualifier().getBoundSql(dialect);
-        assert boundSql2.getSqlString().equals("DELETE FROM `TB_User`");
+        assert boundSql2.getSqlString().equals("DELETE FROM `user_info`");
     }
 
     @Test
     public void deleteBuilder_3() {
-        EntityDeleteOperation<TB_User> lambdaDelete = new LambdaTemplate().lambdaDelete(TB_User.class);
+        EntityDeleteOperation<UserInfo> lambdaDelete = new LambdaTemplate().lambdaDelete(UserInfo.class);
+        lambdaDelete.allowEmptyWhere();
+
+        SqlDialect dialect = new MySqlDialect();
+        BoundSql boundSql1 = lambdaDelete.getBoundSql(dialect);
+        assert boundSql1.getSqlString().equals("DELETE FROM UserInfo");
+
+        BoundSql boundSql2 = lambdaDelete.useQualifier().getBoundSql(dialect);
+        assert boundSql2.getSqlString().equals("DELETE FROM `UserInfo`");
+    }
+
+    @Test
+    public void deleteBuilder_4() {
+        EntityDeleteOperation<keywords_table> lambdaDelete = new LambdaTemplate().lambdaDelete(keywords_table.class);
         lambdaDelete.and(queryBuilder -> {
-            queryBuilder.eq(TB_User::getIndex, 123);
+            queryBuilder.eq(keywords_table::getIndex, 123);
         });
 
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaDelete.getBoundSql(dialect);
         assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("DELETE FROM TB_User WHERE ( `index` = ? )");
+        assert boundSql1.getSqlString().equals("DELETE FROM keywords_table WHERE ( `index` = ? )");
 
         BoundSql boundSql2 = lambdaDelete.useQualifier().getBoundSql(dialect);
         assert !(boundSql2 instanceof BatchBoundSql);
-        assert boundSql2.getSqlString().equals("DELETE FROM `TB_User` WHERE ( `index` = ? )");
+        assert boundSql2.getSqlString().equals("DELETE FROM `keywords_table` WHERE ( `index` = ? )");
     }
 
     @Test
-    public void deleteBuilder_4() {
-        EntityDeleteOperation<TB_User> lambdaDelete = new LambdaTemplate().lambdaDelete(TB_User.class);
-        lambdaDelete.eq(TB_User::getLoginName, "admin").and().eq(TB_User::getLoginPassword, "pass");
+    public void deleteBuilder_5() {
+        EntityDeleteOperation<UserInfo> lambdaDelete = new LambdaTemplate().lambdaDelete(UserInfo.class);
+        lambdaDelete.eq(UserInfo::getLoginName, "admin").and().eq(UserInfo::getLoginPassword, "pass");
 
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaDelete.getBoundSql(dialect);
-        assert boundSql1.getSqlString().equals("DELETE FROM TB_User WHERE loginName = ? AND loginPassword = ?");
+        assert boundSql1.getSqlString().equals("DELETE FROM UserInfo WHERE loginName = ? AND loginPassword = ?");
 
         BoundSql boundSql2 = lambdaDelete.useQualifier().getBoundSql(dialect);
-        assert boundSql2.getSqlString().equals("DELETE FROM `TB_User` WHERE `loginName` = ? AND `loginPassword` = ?");
+        assert boundSql2.getSqlString().equals("DELETE FROM `UserInfo` WHERE `loginName` = ? AND `loginPassword` = ?");
     }
 }

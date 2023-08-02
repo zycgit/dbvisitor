@@ -19,7 +19,7 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.TB_User;
+import net.hasor.test.dto.UserInfo;
 import org.junit.Test;
 
 import java.sql.SQLException;
@@ -34,68 +34,68 @@ import static net.hasor.test.utils.TestUtils.mapForData2;
 public class BuilderInsertTest extends AbstractDbTest {
     @Test
     public void insert_1() throws SQLException {
-        InsertOperation<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
+        InsertOperation<UserInfo> lambdaInsert = new LambdaTemplate().lambdaInsert(UserInfo.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
-        //
+
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaInsert.getBoundSql(dialect);
         assert boundSql1 instanceof BatchBoundSql;
-        assert boundSql1.getSqlString().equals("INSERT INTO TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        //
+        assert boundSql1.getSqlString().equals("INSERT INTO UserInfo (userUuid, name, loginName, loginPassword, email, seq, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
+
         BoundSql boundSql2 = lambdaInsert.useQualifier().getBoundSql(dialect);
         assert boundSql2 instanceof BatchBoundSql;
-        assert boundSql2.getSqlString().equals("INSERT INTO `TB_User` (`userUUID`, `name`, `loginName`, `loginPassword`, `email`, `index`, `registerTime`) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        assert boundSql2.getSqlString().equals("INSERT INTO `UserInfo` (`userUuid`, `name`, `loginName`, `loginPassword`, `email`, `seq`, `registerTime`) VALUES (?, ?, ?, ?, ?, ?, ?)");
     }
 
     @Test
     public void insertDuplicateKeyBlock_1() throws SQLException {
-        InsertOperation<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
+        InsertOperation<UserInfo> lambdaInsert = new LambdaTemplate().lambdaInsert(UserInfo.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Into);
-        //
+
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaInsert.getBoundSql(dialect);
         assert boundSql1 instanceof BatchBoundSql;
-        assert boundSql1.getSqlString().equals("INSERT INTO TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        //
+        assert boundSql1.getSqlString().equals("INSERT INTO UserInfo (userUuid, name, loginName, loginPassword, email, seq, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
+
         BoundSql boundSql2 = lambdaInsert.useQualifier().getBoundSql(dialect);
         assert boundSql2 instanceof BatchBoundSql;
-        assert boundSql2.getSqlString().equals("INSERT INTO `TB_User` (`userUUID`, `name`, `loginName`, `loginPassword`, `email`, `index`, `registerTime`) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        assert boundSql2.getSqlString().equals("INSERT INTO `UserInfo` (`userUuid`, `name`, `loginName`, `loginPassword`, `email`, `seq`, `registerTime`) VALUES (?, ?, ?, ?, ?, ?, ?)");
     }
 
     @Test
     public void insertDuplicateKeyUpdate_1() throws SQLException {
-        InsertOperation<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
+        InsertOperation<UserInfo> lambdaInsert = new LambdaTemplate().lambdaInsert(UserInfo.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Update);
-        //
+
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaInsert.getBoundSql(dialect);
         assert boundSql1 instanceof BatchBoundSql;
-        assert boundSql1.getSqlString().equals("INSERT INTO TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE userUUID=VALUES(userUUID), name=VALUES(name), loginName=VALUES(loginName), loginPassword=VALUES(loginPassword), email=VALUES(email), `index`=VALUES(`index`), registerTime=VALUES(registerTime)");
-        //
+        assert boundSql1.getSqlString().equals("INSERT INTO UserInfo (userUuid, name, loginName, loginPassword, email, seq, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE userUuid=VALUES(userUuid), name=VALUES(name), loginName=VALUES(loginName), loginPassword=VALUES(loginPassword), email=VALUES(email), seq=VALUES(seq), registerTime=VALUES(registerTime)");
+
         BoundSql boundSql2 = lambdaInsert.useQualifier().getBoundSql(dialect);
         assert boundSql2 instanceof BatchBoundSql;
-        assert boundSql2.getSqlString().equals("INSERT INTO `TB_User` (`userUUID`, `name`, `loginName`, `loginPassword`, `email`, `index`, `registerTime`) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `userUUID`=VALUES(`userUUID`), `name`=VALUES(`name`), `loginName`=VALUES(`loginName`), `loginPassword`=VALUES(`loginPassword`), `email`=VALUES(`email`), `index`=VALUES(`index`), `registerTime`=VALUES(`registerTime`)");
+        assert boundSql2.getSqlString().equals("INSERT INTO `UserInfo` (`userUuid`, `name`, `loginName`, `loginPassword`, `email`, `seq`, `registerTime`) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `userUuid`=VALUES(`userUuid`), `name`=VALUES(`name`), `loginName`=VALUES(`loginName`), `loginPassword`=VALUES(`loginPassword`), `email`=VALUES(`email`), `seq`=VALUES(`seq`), `registerTime`=VALUES(`registerTime`)");
     }
 
     @Test
     public void insertDuplicateKeyIgnore_1() throws SQLException {
-        InsertOperation<TB_User> lambdaInsert = new LambdaTemplate().lambdaInsert(TB_User.class);
+        InsertOperation<UserInfo> lambdaInsert = new LambdaTemplate().lambdaInsert(UserInfo.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Ignore);
-        //
+
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaInsert.getBoundSql(dialect);
         assert boundSql1 instanceof BatchBoundSql;
-        assert boundSql1.getSqlString().equals("INSERT IGNORE TB_User (userUUID, name, loginName, loginPassword, email, `index`, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        //
+        assert boundSql1.getSqlString().equals("INSERT IGNORE UserInfo (userUuid, name, loginName, loginPassword, email, seq, registerTime) VALUES (?, ?, ?, ?, ?, ?, ?)");
+
         BoundSql boundSql2 = lambdaInsert.useQualifier().getBoundSql(dialect);
         assert boundSql2 instanceof BatchBoundSql;
-        assert boundSql2.getSqlString().equals("INSERT IGNORE `TB_User` (`userUUID`, `name`, `loginName`, `loginPassword`, `email`, `index`, `registerTime`) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        assert boundSql2.getSqlString().equals("INSERT IGNORE `UserInfo` (`userUuid`, `name`, `loginName`, `loginPassword`, `email`, `seq`, `registerTime`) VALUES (?, ?, ?, ?, ?, ?, ?)");
     }
 }

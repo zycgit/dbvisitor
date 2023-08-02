@@ -15,7 +15,7 @@
  */
 package net.hasor.test.dal;
 import net.hasor.dbvisitor.dal.repository.RefMapper;
-import net.hasor.test.dto.TbUser;
+import net.hasor.test.dto.UserInfo2;
 
 import java.util.List;
 
@@ -26,13 +26,13 @@ import java.util.List;
  */
 @RefMapper("/dbvisitor_coverage/dal_dynamic/mapper/mapper_1.xml")
 public interface Mapper1Dal {
-    List<TbUser> testBind(String abc);
+    List<UserInfo2> testBind(String abc);
 
-    List<TbUser> testChoose(String title, String content);
+    List<UserInfo2> testChoose(String title, String content);
 
-    List<TbUser> testForeach(List<String> eventTypes);
+    List<UserInfo2> testForeach(List<String> eventTypes);
 
-    List<TbUser> testIf(String ownerID, String ownerType);
+    List<UserInfo2> testIf(String ownerID, String ownerType);
 
-    List<TbUser> testInsert(String uid, String name);
+    List<UserInfo2> testInsert(String uid, String name);
 }

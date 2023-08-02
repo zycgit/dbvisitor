@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.lambda;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.TB_User;
+import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -34,21 +34,21 @@ public class LambdaUpdateTest extends AbstractDbTest {
     public void lambda_update_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            EntityQueryOperation<TB_User> lambdaQuery = lambdaTemplate.lambdaQuery(TB_User.class);
-            TB_User tbUser1 = lambdaQuery.eq(TB_User::getLoginName, beanForData1().getLoginName()).queryForObject();
-            assert tbUser1.getName() != null;
+            EntityQueryOperation<user_info> lambdaQuery = lambdaTemplate.lambdaQuery(user_info.class);
+            user_info tbUser1 = lambdaQuery.eq(user_info::getLogin_name, beanForData1().getLoginName()).queryForObject();
+            assert tbUser1.getUser_name() != null;
 
             HashMap<String, Object> valueMap = new HashMap<>();
-            valueMap.put("name", null);
+            valueMap.put("user_name", null);
 
-            EntityUpdateOperation<TB_User> lambdaUpdate = lambdaTemplate.lambdaUpdate(TB_User.class);
-            int update = lambdaUpdate.eq(TB_User::getLoginName, "muhammad")//
+            EntityUpdateOperation<user_info> lambdaUpdate = lambdaTemplate.lambdaUpdate(user_info.class);
+            int update = lambdaUpdate.eq(user_info::getLogin_name, "muhammad")//
                     .updateByMap(valueMap)//
                     .doUpdate();
             assert update == 1;
 
-            TB_User tbUser2 = lambdaTemplate.lambdaQuery(TB_User.class).eq(TB_User::getLoginName, "muhammad").queryForObject();
-            assert tbUser2.getName() == null;
+            user_info tbUser2 = lambdaTemplate.lambdaQuery(user_info.class).eq(user_info::getLogin_name, "muhammad").queryForObject();
+            assert tbUser2.getUser_name() == null;
         }
     }
 
@@ -56,21 +56,21 @@ public class LambdaUpdateTest extends AbstractDbTest {
     public void lambda_update_pk_0() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            EntityQueryOperation<TB_User> lambdaQuery = lambdaTemplate.lambdaQuery(TB_User.class);
-            TB_User tbUser1 = lambdaQuery.eq(TB_User::getLoginName, beanForData1().getLoginName()).queryForObject();
-            assert tbUser1.getName() != null;
+            EntityQueryOperation<user_info> lambdaQuery = lambdaTemplate.lambdaQuery(user_info.class);
+            user_info tbUser1 = lambdaQuery.eq(user_info::getLogin_name, beanForData1().getLoginName()).queryForObject();
+            assert tbUser1.getUser_name() != null;
 
             HashMap<String, Object> valueMap = new HashMap<>();
-            valueMap.put("name", null);
+            valueMap.put("user_name", null);
 
-            EntityUpdateOperation<TB_User> lambdaUpdate = lambdaTemplate.lambdaUpdate(TB_User.class);
-            int update = lambdaUpdate.eq(TB_User::getLoginName, "muhammad")//
+            EntityUpdateOperation<user_info> lambdaUpdate = lambdaTemplate.lambdaUpdate(user_info.class);
+            int update = lambdaUpdate.eq(user_info::getLogin_name, "muhammad")//
                     .updateByMap(valueMap)//
                     .doUpdate();
             assert update == 1;
 
-            TB_User tbUser2 = lambdaTemplate.lambdaQuery(TB_User.class).eq(TB_User::getLoginName, "muhammad").queryForObject();
-            assert tbUser2.getName() == null;
+            user_info tbUser2 = lambdaTemplate.lambdaQuery(user_info.class).eq(user_info::getLogin_name, "muhammad").queryForObject();
+            assert tbUser2.getUser_name() == null;
         }
     }
 }

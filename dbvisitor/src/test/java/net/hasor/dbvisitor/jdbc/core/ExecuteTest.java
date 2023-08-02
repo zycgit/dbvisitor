@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.jdbc.PreparedStatementCallback;
 import net.hasor.dbvisitor.jdbc.StatementCallback;
 import net.hasor.dbvisitor.jdbc.paramer.MapSqlParameterSource;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.TB_User;
+import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -43,13 +43,13 @@ public class ExecuteTest extends AbstractDbTest {
     public void execute_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
+
             jdbcTemplate.execute((ConnectionCallback<Boolean>) con -> {
-                return con.createStatement().execute("update tb_user set name = CONCAT(name, '~' ) where userUUID = '" + beanForData1().getUserUUID() + "'");
+                return con.createStatement().execute("update user_info set user_name = CONCAT(user_name, '~' ) where user_uuid = '" + beanForData1().getUserUuid() + "'");
             });
-            //
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
-            Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());
+
+            List<user_info> tbUsers = jdbcTemplate.queryForList("select * from user_info where user_uuid = ?", new Object[] { beanForData1().getUserUuid() }, user_info.class);
+            Set<String> collect = tbUsers.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect.size() == 1;
             assert collect.contains(beanForData1().getName() + "~");
         }
@@ -59,13 +59,13 @@ public class ExecuteTest extends AbstractDbTest {
     public void execute_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
+
             jdbcTemplate.execute((StatementCallback<Boolean>) s -> {
-                return s.execute("update tb_user set name = CONCAT(name, '~' ) where userUUID = '" + beanForData1().getUserUUID() + "'");
+                return s.execute("update user_info set user_name = CONCAT(user_name, '~' ) where user_uuid = '" + beanForData1().getUserUuid() + "'");
             });
-            //
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
-            Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());
+
+            List<user_info> tbUsers = jdbcTemplate.queryForList("select * from user_info where user_uuid = ?", new Object[] { beanForData1().getUserUuid() }, user_info.class);
+            Set<String> collect = tbUsers.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect.size() == 1;
             assert collect.contains(beanForData1().getName() + "~");
         }
@@ -75,16 +75,16 @@ public class ExecuteTest extends AbstractDbTest {
     public void execute_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
+
             jdbcTemplate.executeCall(con -> {
-                return con.prepareCall("update tb_user set name = CONCAT(name, '~' ) where userUUID = ?");
+                return con.prepareCall("update user_info set user_name = CONCAT(user_name, '~' ) where user_uuid = ?");
             }, (CallableStatementCallback<Object>) cs -> {
-                cs.setString(1, beanForData1().getUserUUID());
+                cs.setString(1, beanForData1().getUserUuid());
                 return cs.execute();
             });
-            //
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
-            Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());
+
+            List<user_info> tbUsers = jdbcTemplate.queryForList("select * from user_info where user_uuid = ?", new Object[] { beanForData1().getUserUuid() }, user_info.class);
+            Set<String> collect = tbUsers.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect.size() == 1;
             assert collect.contains(beanForData1().getName() + "~");
         }
@@ -94,14 +94,14 @@ public class ExecuteTest extends AbstractDbTest {
     public void execute_4() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            jdbcTemplate.executeCallback("update tb_user set name = CONCAT(name, '~' ) where userUUID = ?", (PreparedStatementCallback<Object>) ps -> {
-                ps.setString(1, beanForData1().getUserUUID());
+
+            jdbcTemplate.executeCallback("update user_info set user_name = CONCAT(user_name, '~' ) where user_uuid = ?", (PreparedStatementCallback<Object>) ps -> {
+                ps.setString(1, beanForData1().getUserUuid());
                 return ps.execute();
             });
-            //
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
-            Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());
+
+            List<user_info> tbUsers = jdbcTemplate.queryForList("select * from user_info where user_uuid = ?", new Object[] { beanForData1().getUserUuid() }, user_info.class);
+            Set<String> collect = tbUsers.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect.size() == 1;
             assert collect.contains(beanForData1().getName() + "~");
         }
@@ -111,11 +111,11 @@ public class ExecuteTest extends AbstractDbTest {
     public void execute_5() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            jdbcTemplate.execute("update tb_user set name = CONCAT(name, '~' ) where userUUID = '" + beanForData1().getUserUUID() + "'");
-            //
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
-            Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());
+
+            jdbcTemplate.execute("update user_info set user_name = CONCAT(user_name, '~' ) where user_uuid = '" + beanForData1().getUserUuid() + "'");
+
+            List<user_info> tbUsers = jdbcTemplate.queryForList("select * from user_info where user_uuid = ?", new Object[] { beanForData1().getUserUuid() }, user_info.class);
+            Set<String> collect = tbUsers.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect.size() == 1;
             assert collect.contains(beanForData1().getName() + "~");
         }
@@ -125,12 +125,12 @@ public class ExecuteTest extends AbstractDbTest {
     public void execute_6() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            Map<String, String> dat = Collections.singletonMap("uuid", beanForData1().getUserUUID());
-            jdbcTemplate.executeUpdate("update tb_user set name = CONCAT(name, '~' ) where userUUID = :uuid", dat);
-            //
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
-            Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());
+
+            Map<String, String> dat = Collections.singletonMap("uuid", beanForData1().getUserUuid());
+            jdbcTemplate.executeUpdate("update user_info set user_name = CONCAT(user_name, '~' ) where user_uuid = :uuid", dat);
+
+            List<user_info> tbUsers = jdbcTemplate.queryForList("select * from user_info where user_uuid = ?", new Object[] { beanForData1().getUserUuid() }, user_info.class);
+            Set<String> collect = tbUsers.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect.size() == 1;
             assert collect.contains(beanForData1().getName() + "~");
         }
@@ -140,12 +140,12 @@ public class ExecuteTest extends AbstractDbTest {
     public void execute_7() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            Map<String, String> dat = Collections.singletonMap("uuid", beanForData1().getUserUUID());
-            jdbcTemplate.executeUpdate("update tb_user set name = CONCAT(name, '~' ) where userUUID = :uuid", new MapSqlParameterSource(dat));
-            //
-            List<TB_User> tbUsers = jdbcTemplate.queryForList("select * from tb_user where userUUID = ?", new Object[] { beanForData1().getUserUUID() }, TB_User.class);
-            Set<String> collect = tbUsers.stream().map(TB_User::getName).collect(Collectors.toSet());
+
+            Map<String, String> dat = Collections.singletonMap("uuid", beanForData1().getUserUuid());
+            jdbcTemplate.executeUpdate("update user_info set user_name = CONCAT(user_name, '~' ) where user_uuid = :uuid", new MapSqlParameterSource(dat));
+
+            List<user_info> tbUsers = jdbcTemplate.queryForList("select * from user_info where user_uuid = ?", new Object[] { beanForData1().getUserUuid() }, user_info.class);
+            Set<String> collect = tbUsers.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect.size() == 1;
             assert collect.contains(beanForData1().getName() + "~");
         }

@@ -17,7 +17,7 @@ package net.hasor.test.dal;
 import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.dal.repository.SimpleMapper;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.test.dto.TbUser;
+import net.hasor.test.dto.UserInfo2;
 
 /**
  *
@@ -25,8 +25,8 @@ import net.hasor.test.dto.TbUser;
  * @author 赵永春 (zyc@hasor.net)
  */
 @SimpleMapper
-public interface Mapper3Dal extends BaseMapper<TbUser> {
+public interface Mapper3Dal extends BaseMapper<UserInfo2> {
     default BoundSql testBind(String abc) {
-        return query().eq(TbUser::getName, abc).getBoundSql();
+        return query().eq(UserInfo2::getName, abc).getBoundSql();
     }
 }

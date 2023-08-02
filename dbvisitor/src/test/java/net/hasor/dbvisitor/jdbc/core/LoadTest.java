@@ -55,13 +55,13 @@ public class LoadTest extends AbstractDbTest {
     public void loadSQL_1() throws SQLException, IOException {
         try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
-                jdbcTemplate.executeUpdate("drop table tb_user");
+            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info")) {
+                jdbcTemplate.executeUpdate("drop table user_info");
             }
-            //
-            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
-            jdbcTemplate.loadSQL("/dbvisitor_coverage/tb_user_for_mysql.sql");
-            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
+
+            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info");
+            jdbcTemplate.loadSQL("/dbvisitor_coverage/user_info_for_mysql.sql");
+            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info");
         }
     }
 
@@ -69,17 +69,17 @@ public class LoadTest extends AbstractDbTest {
     public void loadSQL_2() throws SQLException, IOException {
         try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
-                jdbcTemplate.executeUpdate("drop table tb_user");
+            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info")) {
+                jdbcTemplate.executeUpdate("drop table user_info");
             }
-            //
-            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
-            InputStream asStream = ResourcesUtils.getResourceAsStream("/dbvisitor_coverage/tb_user_for_mysql.sql");
+
+            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info");
+            InputStream asStream = ResourcesUtils.getResourceAsStream("/dbvisitor_coverage/user_info_for_mysql.sql");
             if (asStream == null) {
                 assert false;
             }
             jdbcTemplate.loadSQL(new InputStreamReader(asStream));
-            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
+            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info");
         }
     }
 
@@ -87,13 +87,13 @@ public class LoadTest extends AbstractDbTest {
     public void loadSQL_3() throws SQLException, IOException {
         try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
-                jdbcTemplate.executeUpdate("drop table tb_user");
+            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info")) {
+                jdbcTemplate.executeUpdate("drop table user_info");
             }
-            //
-            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
-            jdbcTemplate.loadSQL(StandardCharsets.UTF_8, "/dbvisitor_coverage/tb_user_for_mysql.sql");
-            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
+
+            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info");
+            jdbcTemplate.loadSQL(StandardCharsets.UTF_8, "/dbvisitor_coverage/user_info_for_mysql.sql");
+            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info");
         }
     }
 
@@ -101,13 +101,13 @@ public class LoadTest extends AbstractDbTest {
     public void loadSplitSQL_1() throws SQLException, IOException {
         try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
-                jdbcTemplate.executeUpdate("drop table tb_user");
+            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info")) {
+                jdbcTemplate.executeUpdate("drop table user_info");
             }
-            //
-            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
-            jdbcTemplate.loadSplitSQL(";", "/dbvisitor_coverage/tb_user_for_mysql.sql");
-            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
+
+            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info");
+            jdbcTemplate.loadSplitSQL(";", "/dbvisitor_coverage/user_info_for_mysql.sql");
+            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info");
         }
     }
 
@@ -115,13 +115,13 @@ public class LoadTest extends AbstractDbTest {
     public void loadSplitSQL_2() throws SQLException, IOException {
         try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
-                jdbcTemplate.executeUpdate("drop table tb_user");
+            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info")) {
+                jdbcTemplate.executeUpdate("drop table user_info");
             }
-            //
-            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
-            jdbcTemplate.loadSplitSQL(";", StandardCharsets.UTF_8, "/dbvisitor_coverage/tb_user_for_mysql.sql");
-            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
+
+            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info");
+            jdbcTemplate.loadSplitSQL(";", StandardCharsets.UTF_8, "/dbvisitor_coverage/user_info_for_mysql.sql");
+            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info");
         }
     }
 
@@ -129,17 +129,17 @@ public class LoadTest extends AbstractDbTest {
     public void loadSplitSQL_3() throws SQLException, IOException {
         try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user")) {
-                jdbcTemplate.executeUpdate("drop table tb_user");
+            if (hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info")) {
+                jdbcTemplate.executeUpdate("drop table user_info");
             }
-            //
-            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
-            InputStream asStream = ResourcesUtils.getResourceAsStream("/dbvisitor_coverage/tb_user_for_mysql.sql");
+
+            assert !hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info");
+            InputStream asStream = ResourcesUtils.getResourceAsStream("/dbvisitor_coverage/user_info_for_mysql.sql");
             if (asStream == null) {
                 assert false;
             }
             jdbcTemplate.loadSplitSQL(";", new InputStreamReader(asStream));
-            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "tb_user");
+            assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info");
         }
     }
 }

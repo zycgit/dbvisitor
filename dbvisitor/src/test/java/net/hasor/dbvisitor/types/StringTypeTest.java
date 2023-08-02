@@ -35,9 +35,9 @@ public class StringTypeTest {
     public void testClobTypeHandler_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
-            List<String> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
+
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('abcdefg');");
+            List<String> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
                 return new ClobAsStringTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0).equals("abcdefg");
@@ -48,10 +48,10 @@ public class StringTypeTest {
     public void testClobTypeHandler_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
-            List<String> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
-                return new ClobAsStringTypeHandler().getResult(rs, "c_clob");
+
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('abcdefg');");
+            List<String> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
+                return new ClobAsStringTypeHandler().getResult(rs, "c_char_lage");
             });
             assert dat.get(0).equals("abcdefg");
         }
@@ -61,7 +61,7 @@ public class StringTypeTest {
     public void testClobTypeHandler_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
+
             List<String> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new ClobAsStringTypeHandler().setParameter(ps, 1, "abcedfg", JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -77,10 +77,10 @@ public class StringTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_text;");
             jdbcTemplate.execute("create procedure proc_text(out p_out text) begin set p_out='abcdefg'; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_text(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.CLOB.getVendorTypeNumber(), new ClobAsStringTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof String;
             assert objectMap.get("out").equals("abcdefg");
@@ -91,9 +91,9 @@ public class StringTypeTest {
     public void testNClobTypeHandler_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
-            List<String> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
+
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('abcdefg');");
+            List<String> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
                 return new NClobAsStringTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0).equals("abcdefg");
@@ -104,10 +104,10 @@ public class StringTypeTest {
     public void testNClobTypeHandler_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_clob) values ('abcdefg');");
-            List<String> dat = jdbcTemplate.queryForList("select c_clob from tb_h2_types where c_clob is not null limit 1;", (rs, rowNum) -> {
-                return new NClobAsStringTypeHandler().getResult(rs, "c_clob");
+
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('abcdefg');");
+            List<String> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
+                return new NClobAsStringTypeHandler().getResult(rs, "c_char_lage");
             });
             assert dat.get(0).equals("abcdefg");
         }
@@ -117,7 +117,7 @@ public class StringTypeTest {
     public void testNClobTypeHandler_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
+
             List<String> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new NClobAsStringTypeHandler().setParameter(ps, 1, "abcedfg", JDBCType.CLOB.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -133,10 +133,10 @@ public class StringTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_text;");
             jdbcTemplate.execute("create procedure proc_text(out p_out text) begin set p_out='abcdefg'; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_text(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.CLOB.getVendorTypeNumber(), new NClobAsStringTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof String;
             assert objectMap.get("out").equals("abcdefg");
@@ -147,9 +147,9 @@ public class StringTypeTest {
     public void testStringTypeHandler_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
-            List<String> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
+
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('abcdefg');");
+            List<String> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
                 return new StringTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0).equals("abcdefg");
@@ -160,10 +160,10 @@ public class StringTypeTest {
     public void testStringTypeHandler_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
-            List<String> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
-                return new StringTypeHandler().getResult(rs, "c_text");
+
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('abcdefg');");
+            List<String> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
+                return new StringTypeHandler().getResult(rs, "c_char_lage");
             });
             assert dat.get(0).equals("abcdefg");
         }
@@ -173,12 +173,12 @@ public class StringTypeTest {
     public void testStringTypeHandler_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
+
             String dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { "abcdefg" }, String.class);
             String dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { null }, String.class);
             assert dat1.equals("abcdefg");
             assert dat2 == null;
-            //
+
             List<String> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new StringTypeHandler().setParameter(ps, 1, "abcdefg", JDBCType.VARCHAR.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -194,10 +194,10 @@ public class StringTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_varchar;");
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(10)) begin set p_out='abcdefg'; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_varchar(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARCHAR.getVendorTypeNumber(), new StringTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof String;
             assert objectMap.get("out").equals("abcdefg");
@@ -208,9 +208,9 @@ public class StringTypeTest {
     public void testNStringTypeHandler_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
-            List<String> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
+
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('abcdefg');");
+            List<String> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
                 return new NStringTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0).equals("abcdefg");
@@ -221,10 +221,10 @@ public class StringTypeTest {
     public void testNStringTypeHandler_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_text) values ('abcdefg');");
-            List<String> dat = jdbcTemplate.queryForList("select c_text from tb_h2_types where c_text is not null limit 1;", (rs, rowNum) -> {
-                return new NStringTypeHandler().getResult(rs, "c_text");
+
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_char_lage) values ('abcdefg');");
+            List<String> dat = jdbcTemplate.queryForList("select c_char_lage from tb_h2_types where c_char_lage is not null limit 1;", (rs, rowNum) -> {
+                return new NStringTypeHandler().getResult(rs, "c_char_lage");
             });
             assert dat.get(0).equals("abcdefg");
         }
@@ -234,12 +234,12 @@ public class StringTypeTest {
     public void testNStringTypeHandler_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            //
+
             String dat1 = jdbcTemplate.queryForObject("select ?", new Object[] { "abcdefg" }, String.class);
             String dat2 = jdbcTemplate.queryForObject("select ?", new Object[] { null }, String.class);
             assert dat1.equals("abcdefg");
             assert dat2 == null;
-            //
+
             List<String> dat = jdbcTemplate.queryForList("select ?", ps -> {
                 new NStringTypeHandler().setParameter(ps, 1, "abcdefg", JDBCType.SMALLINT.getVendorTypeNumber());
             }, (rs, rowNum) -> {
@@ -255,10 +255,10 @@ public class StringTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop procedure if exists proc_nvarchar;");
             jdbcTemplate.execute("create procedure proc_nvarchar(out p_out nvarchar(10)) begin set p_out='abcdefg'; end;");
-            //
+
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_nvarchar(?)}",//
                     Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.NVARCHAR.getVendorTypeNumber(), new NStringTypeHandler())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof String;
             assert objectMap.get("out").equals("abcdefg");

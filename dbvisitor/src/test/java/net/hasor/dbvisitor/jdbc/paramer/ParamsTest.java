@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.jdbc.paramer;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.dbvisitor.jdbc.core.ParameterDisposer;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.TB_User;
+import net.hasor.test.dto.UserInfo;
 import org.junit.Test;
 
 import java.util.*;
@@ -34,37 +34,37 @@ import static net.hasor.test.utils.TestUtils.beanForData1;
 public class ParamsTest extends AbstractDbTest {
     @Test
     public void testParams_1() {
-        TB_User tb_user = beanForData1();
+        UserInfo tb_user = beanForData1();
         BeanSqlParameterSource beanParams = new BeanSqlParameterSource(tb_user);
         //
         String[] parameterNames = beanParams.getParameterNames();
         Set<String> params = new HashSet<>(Arrays.asList(parameterNames));
-        assert params.contains("userUUID");
+        assert params.contains("userUuid");
         assert params.contains("name");
         assert params.contains("loginName");
         assert params.contains("loginPassword");
         assert params.contains("email");
-        assert params.contains("index");
+        assert params.contains("seq");
         assert params.contains("registerTime");
         assert !params.contains("hashCode");
         //
-        assert beanParams.hasValue("userUUID");
+        assert beanParams.hasValue("userUuid");
         assert beanParams.hasValue("name");
         assert beanParams.hasValue("loginName");
         assert beanParams.hasValue("loginPassword");
         assert beanParams.hasValue("email");
-        assert beanParams.hasValue("index");
+        assert beanParams.hasValue("seq");
         assert beanParams.hasValue("registerTime");
         assert !beanParams.hasValue("hashCode");
         //
-        assert tb_user.getUserUUID().equals(beanParams.getValue("userUUID"));
+        assert tb_user.getUserUuid().equals(beanParams.getValue("userUuid"));
         //
         beanParams.cleanupParameters();
     }
 
     @Test
     public void testParams_2() {
-        TB_User tb_user = beanForData1();
+        UserInfo tb_user = beanForData1();
         Map<String, Object> dataMap = new HashMap<>();
         BeanUtils.copyProperties(dataMap, tb_user);
         //
@@ -72,25 +72,25 @@ public class ParamsTest extends AbstractDbTest {
         //
         String[] parameterNames = beanParams.getParameterNames();
         Set<String> params = new HashSet<>(Arrays.asList(parameterNames));
-        assert params.contains("userUUID");
+        assert params.contains("userUuid");
         assert params.contains("name");
         assert params.contains("loginName");
         assert params.contains("loginPassword");
         assert params.contains("email");
-        assert params.contains("index");
+        assert params.contains("seq");
         assert params.contains("registerTime");
         assert !params.contains("hashCode");
         //
-        assert beanParams.hasValue("userUUID");
+        assert beanParams.hasValue("userUuid");
         assert beanParams.hasValue("name");
         assert beanParams.hasValue("loginName");
         assert beanParams.hasValue("loginPassword");
         assert beanParams.hasValue("email");
-        assert beanParams.hasValue("index");
+        assert beanParams.hasValue("seq");
         assert beanParams.hasValue("registerTime");
         assert !beanParams.hasValue("hashCode");
         //
-        assert tb_user.getUserUUID().equals(beanParams.getValue("userUUID"));
+        assert tb_user.getUserUuid().equals(beanParams.getValue("userUuid"));
         //
         beanParams.cleanupParameters();
     }

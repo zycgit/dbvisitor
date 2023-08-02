@@ -34,10 +34,10 @@ public class ArrayTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Set<String> testSet = new HashSet<>(Arrays.asList("a", "b", "c"));
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_array) values (?);", ps -> {
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (a_char) values (?);", ps -> {
                 new ArrayTypeHandler().setParameter(ps, 1, testSet.toArray(), JDBCType.ARRAY.getVendorTypeNumber());
             });
-            List<Object> dat = jdbcTemplate.queryForList("select c_array from tb_h2_types where c_array is not null limit 1;", (rs, rowNum) -> {
+            List<Object> dat = jdbcTemplate.queryForList("select a_char from tb_h2_types where a_char is not null limit 1;", (rs, rowNum) -> {
                 return new ArrayTypeHandler().getResult(rs, 1);
             });
             assert dat.get(0) != testSet;
@@ -55,11 +55,11 @@ public class ArrayTypeTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Set<String> testSet = new HashSet<>(Arrays.asList("a", "b", "c"));
-            jdbcTemplate.executeUpdate("insert into tb_h2_types (c_array) values (?);", ps -> {
+            jdbcTemplate.executeUpdate("insert into tb_h2_types (a_char) values (?);", ps -> {
                 new ArrayTypeHandler().setParameter(ps, 1, testSet.toArray(), JDBCType.ARRAY.getVendorTypeNumber());
             });
-            List<Object> dat = jdbcTemplate.queryForList("select c_array from tb_h2_types where c_array is not null limit 1;", (rs, rowNum) -> {
-                return new ArrayTypeHandler().getResult(rs, "c_array");
+            List<Object> dat = jdbcTemplate.queryForList("select a_char from tb_h2_types where a_char is not null limit 1;", (rs, rowNum) -> {
+                return new ArrayTypeHandler().getResult(rs, "a_char");
             });
             assert dat.get(0) != testSet;
             assert dat.get(0) instanceof Object[];

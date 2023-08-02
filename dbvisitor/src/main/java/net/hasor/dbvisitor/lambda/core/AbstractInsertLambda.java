@@ -44,6 +44,7 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
  */
 public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P> implements InsertExecute<R, T> {
     protected final List<ColumnMapping>  insertProperties;
+    protected final List<ColumnMapping>  fillBackProperties;
     protected       DuplicateKeyStrategy insertStrategy;
     protected final List<String>         primaryKeys;
     protected final List<String>         insertColumns;
@@ -56,29 +57,40 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
 
     public AbstractInsertLambda(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
         super(exampleType, tableMapping, jdbcTemplate);
-        this.insertProperties = getInsertProperties();
-        this.insertValues = new ArrayList<>();
-        this.insertStrategy = DuplicateKeyStrategy.Into;
+        this.insertProperties = new ArrayList<>();
+        this.fillBackProperties = new ArrayList<>();
+        initProperties(this.insertProperties, this.fillBackProperties);
 
-        this.primaryKeys = this.getPrimaryKey().stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
-        this.insertColumns = this.insertProperties.stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
+        if (this.insertProperties.size() == 0) {
+            throw new IllegalStateException("no column require INSERT.");
+        }
+
+        this.insertColumns = new ArrayList<>();
         this.insertColumnTerms = new LinkedHashMap<>();
         for (ColumnMapping colMap : this.insertProperties) {
+            this.insertColumns.add(colMap.getColumn());
             if (StringUtils.isNotBlank(colMap.getInsertTemplate())) {
                 this.insertColumnTerms.put(colMap.getColumn(), colMap.getInsertTemplate());
             }
         }
-        this.hasKeySeqHolderColumn = this.insertProperties.stream().anyMatch(c -> c.getKeySeqHolder() != null);
+
+        this.insertValues = new ArrayList<>();
+        this.insertStrategy = DuplicateKeyStrategy.Into;
+        this.primaryKeys = this.getPrimaryKey().stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
+        this.hasKeySeqHolderColumn = !this.fillBackProperties.isEmpty();
         this.parameterDisposers = new ArrayList<>();
         this.fillBackEntityList = new ArrayList<>();
     }
 
-    protected List<ColumnMapping> getInsertProperties() {
+    protected void initProperties(List<ColumnMapping> insert, List<ColumnMapping> fillBack) {
         TableMapping<?> tableMapping = this.getTableMapping();
-        List<ColumnMapping> toInsertProperties = new ArrayList<>();
         Set<String> insertColumns = new HashSet<>();
 
         for (ColumnMapping mapping : tableMapping.getProperties()) {
+            if (mapping.getKeySeqHolder() != null) {
+                fillBack.add(mapping);
+            }
+
             String columnName = mapping.getColumn();
             if (!mapping.isInsert()) {
                 continue;
@@ -88,14 +100,9 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
                 throw new IllegalStateException("Multiple property mapping to '" + columnName + "' column");
             } else {
                 insertColumns.add(columnName);
-                toInsertProperties.add(mapping);
+                insert.add(mapping);
             }
         }
-
-        if (toInsertProperties.size() == 0) {
-            throw new IllegalStateException("no column require INSERT.");
-        }
-        return toInsertProperties;
     }
 
     @Override
@@ -241,8 +248,8 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
             if (!rs.next()) {
                 break;
             }
-            for (int i = 0; i < this.insertProperties.size(); i++) {
-                ColumnMapping mapping = this.insertProperties.get(i);
+            for (int i = 0; i < this.fillBackProperties.size(); i++) {
+                ColumnMapping mapping = this.fillBackProperties.get(i);
                 if (mapping.getKeySeqHolder() != null) {
                     Object value = mapping.getKeySeqHolder().afterApply(rs, entity.object, i, mapping);
                     if (entity.isMap && value != null) {

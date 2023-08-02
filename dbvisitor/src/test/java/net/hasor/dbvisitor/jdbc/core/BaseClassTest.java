@@ -51,11 +51,11 @@ public class BaseClassTest extends AbstractDbTest {
         Connection connection = PowerMockito.mock(Connection.class);
         JdbcConnection jdbcTemplate = new JdbcConnection(connection);
         jdbcTemplate.setIgnoreWarnings(false);
-        //
+
         Statement statement = PowerMockito.mock(Statement.class);
         SQLWarning warning = new SQLWarning("abc");
         PowerMockito.when(statement.getWarnings()).thenReturn(warning);
-        //
+
         try {
             jdbcTemplate.handleWarnings(statement);
             assert false;
@@ -125,14 +125,14 @@ public class BaseClassTest extends AbstractDbTest {
     public void jdbcConnectionTest_6() throws SQLException {
         Connection connection = PowerMockito.mock(Connection.class);
         JdbcConnection jdbcConnection = new JdbcConnection(connection);
-        //
+
         jdbcConnection.execute((ConnectionCallback<Object>) con -> {
             assert con instanceof ConnectionProxy;
             assert ((ConnectionProxy) con).getTargetConnection() == connection;
             assert con != connection;
             assert con.equals(con);
             assert !con.equals(connection);
-            //
+
             con.hashCode();
             con.close();
             return null;

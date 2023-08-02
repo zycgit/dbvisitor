@@ -44,7 +44,7 @@ public class Caller1Test extends AbstractDbTest {
         jdbcTemplate.execute("insert into proc_table_forcaller (c_id,c_name) values (1, 'aaa');");
         jdbcTemplate.execute("insert into proc_table_forcaller (c_id,c_name) values (2, 'bbb');");
         jdbcTemplate.execute("insert into proc_table_forcaller (c_id,c_name) values (3, 'ccc');");
-        //
+
         jdbcTemplate.execute("drop procedure if exists proc_select_table;");
         jdbcTemplate.execute("drop procedure if exists proc_select_multiple_table;");
         jdbcTemplate.execute("create procedure proc_select_table(in p_name varchar(200)) begin select * from proc_table_forcaller where c_name = p_name ; end;");
@@ -57,7 +57,7 @@ public class Caller1Test extends AbstractDbTest {
         try (Connection conn = initConnection()) {
             Map<String, Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_table(?)}",//
                     Collections.singletonList(SqlParameterUtils.withInput("aaa", JDBCType.VARCHAR.getVendorTypeNumber())));
-            //
+
             assert objectMap.size() == 2;
             assert objectMap.get("#result-set-1") instanceof ArrayList;
             assert objectMap.get("#update-count-2").equals(0);
@@ -72,7 +72,7 @@ public class Caller1Test extends AbstractDbTest {
         try (Connection conn = initConnection()) {
             Map<String, Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_multiple_table(?)}",//
                     Collections.singletonList(SqlParameterUtils.withInput("aaa", JDBCType.VARCHAR.getVendorTypeNumber())));
-            //
+
             assert objectMap.size() == 3;
             assert objectMap.get("#result-set-1") instanceof ArrayList;
             assert objectMap.get("#result-set-2") instanceof ArrayList;
@@ -92,7 +92,7 @@ public class Caller1Test extends AbstractDbTest {
             List<Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_multiple_table(?)}", cs -> {
                 cs.setString(1, "aaa");
             }, new MultipleResultSetExtractor());
-            //
+
             assert objectMap.size() == 3;
             assert objectMap.get(0) instanceof ArrayList;
             assert objectMap.get(1) instanceof ArrayList;
@@ -113,7 +113,7 @@ public class Caller1Test extends AbstractDbTest {
                 cs.setString(1, "aaa");
                 return cs;
             }, new MultipleResultSetExtractor());
-            //
+
             assert objectMap.size() == 3;
             assert objectMap.get(0) instanceof ArrayList;
             assert objectMap.get(1) instanceof ArrayList;
@@ -133,7 +133,7 @@ public class Caller1Test extends AbstractDbTest {
                 cs.setString(1, "aaa");
                 return new MultipleResultSetExtractor().doInCallableStatement(cs);
             });
-            //
+
             assert objectMap.size() == 3;
             assert objectMap.get(0) instanceof ArrayList;
             assert objectMap.get(1) instanceof ArrayList;
