@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.dynamic.rule;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dal.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dal.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dialect.SqlBuilder;
@@ -36,12 +37,21 @@ public class IncludeRule implements SqlBuildRule {
         if (includeSql == null) {
             throw new SQLException("include sql '" + ruleValue + "' not found.");
         }
+
         SqlBuilder includeBuilder = includeSql.buildQuery(data, context);
+        if (StringUtils.isBlank(includeBuilder.getSqlString())) {
+            return;
+        }
+
         if (!sqlBuilder.lastSpaceCharacter()) {
             sqlBuilder.appendSql(" ");
         }
+
         sqlBuilder.appendBuilder(includeBuilder);
-        sqlBuilder.appendSql(" ");
+
+        if (!includeBuilder.lastSpaceCharacter()) {
+            sqlBuilder.appendSql(" ");
+        }
     }
 
     @Override
