@@ -45,7 +45,7 @@ public class MappingRegistry {
     private final   Map<String, Map<String, TableMapping<?>>> tableMappingMap = new ConcurrentHashMap<>();
     protected final ClassLoader                               classLoader;
     protected final TypeHandlerRegistry                       typeRegistry;
-    protected final MappingOptions                            options;
+    protected final MappingOptions                            global;
     private final   XmlTableMappingResolve                    xmlMappingResolve;
     private final   ClassTableMappingResolve                  classMappingResolve;
 
@@ -53,12 +53,12 @@ public class MappingRegistry {
         this(null, null, null);
     }
 
-    public MappingRegistry(ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions options) {
+    public MappingRegistry(ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions global) {
         this.classLoader = (classLoader == null) ? Thread.currentThread().getContextClassLoader() : classLoader;
         this.typeRegistry = (typeRegistry == null) ? TypeHandlerRegistry.DEFAULT : typeRegistry;
-        this.options = options;
-        this.xmlMappingResolve = new XmlTableMappingResolve(options);
-        this.classMappingResolve = new ClassTableMappingResolve(options);
+        this.global = global;
+        this.xmlMappingResolve = new XmlTableMappingResolve(global);
+        this.classMappingResolve = new ClassTableMappingResolve(global);
     }
 
     public ClassLoader getClassLoader() {
@@ -69,8 +69,8 @@ public class MappingRegistry {
         return this.typeRegistry;
     }
 
-    public MappingOptions getOptions() {
-        return this.options;
+    public MappingOptions getGlobalOptions() {
+        return this.global;
     }
 
     /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
@@ -101,7 +101,6 @@ public class MappingRegistry {
             NamedNodeMap rootAttributes = root.getAttributes();
 
             String namespace = readAttribute("namespace", rootAttributes);
-
             this.loadReader(namespace, root);
         } catch (ParserConfigurationException | SAXException | ReflectiveOperationException e) {
             throw new IOException(e);
@@ -109,6 +108,18 @@ public class MappingRegistry {
     }
 
     protected void loadReader(String space, Element configRoot) throws IOException, ReflectiveOperationException {
+        NamedNodeMap rootAttributes = configRoot.getAttributes();
+        String caseInsensitive = readAttribute("caseInsensitive", rootAttributes);
+        String mapUnderscoreToCamelCase = readAttribute("mapUnderscoreToCamelCase", rootAttributes);
+        String autoMapping = readAttribute("autoMapping", rootAttributes);
+        String useDelimited = readAttribute("useDelimited", rootAttributes);
+
+        MappingOptions fileScope = MappingOptions.buildNew(this.global);
+        fileScope.setCaseInsensitive(StringUtils.isBlank(caseInsensitive) ? null : Boolean.parseBoolean(caseInsensitive));
+        fileScope.setMapUnderscoreToCamelCase(StringUtils.isBlank(mapUnderscoreToCamelCase) ? null : Boolean.parseBoolean(mapUnderscoreToCamelCase));
+        fileScope.setAutoMapping(StringUtils.isBlank(autoMapping) ? null : Boolean.parseBoolean(autoMapping));
+        fileScope.setUseDelimited(StringUtils.isBlank(useDelimited) ? null : Boolean.parseBoolean(useDelimited));
+
         NodeList childNodes = configRoot.getChildNodes();
         for (int i = 0, len = childNodes.getLength(); i < len; i++) {
             Node node = childNodes.item(i);
@@ -136,7 +147,7 @@ public class MappingRegistry {
                 throw new IOException("the <" + (isResultMap ? "resultMap" : "entity") + "> tag, type is null.");
             }
 
-            TableDef<?> tableDef = this.xmlMappingResolve.resolveTableMapping(node, getClassLoader(), getTypeRegistry());
+            TableDef<?> tableDef = this.xmlMappingResolve.resolveTableMapping(node, fileScope, getClassLoader(), getTypeRegistry());
             configNames(true, isEntity, tableDef);
 
             if (isEntity) {
@@ -163,7 +174,7 @@ public class MappingRegistry {
             identify = typeString;
         }
 
-        TableDef<?> tableDef = this.classMappingResolve.resolveTableMapping(entityType, getClassLoader(), getTypeRegistry());
+        TableDef<?> tableDef = this.classMappingResolve.resolveTableMapping(entityType, null, getClassLoader(), getTypeRegistry());
         configNames(false, true, tableDef);
 
         saveMapping(true, "", identify, tableDef);
@@ -180,7 +191,7 @@ public class MappingRegistry {
             identify = typeString;
         }
 
-        TableDef<?> tableDef = this.classMappingResolve.resolveTableMapping(resultType, getClassLoader(), getTypeRegistry());
+        TableDef<?> tableDef = this.classMappingResolve.resolveTableMapping(resultType, null, getClassLoader(), getTypeRegistry());
         configNames(false, false, tableDef);
 
         saveMapping(false, space, identify, tableDef);

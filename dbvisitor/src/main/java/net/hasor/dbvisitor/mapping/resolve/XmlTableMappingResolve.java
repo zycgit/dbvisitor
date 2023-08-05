@@ -44,9 +44,9 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
     private static final Logger                   logger = Logger.getLogger(XmlTableMappingResolve.class);
     private final        ClassTableMappingResolve classTableMappingResolve;
 
-    public XmlTableMappingResolve(MappingOptions options) {
-        super(options);
-        this.classTableMappingResolve = new ClassTableMappingResolve(this.options);
+    public XmlTableMappingResolve(MappingOptions global) {
+        super(global);
+        this.classTableMappingResolve = new ClassTableMappingResolve(this.global);
     }
 
     protected boolean hasAnyMapping(NodeList childNodes) {
@@ -69,7 +69,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
     }
 
     @Override
-    public TableDef<?> resolveTableMapping(Node refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
+    public TableDef<?> resolveTableMapping(Node refData, MappingOptions refFile, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
         NodeList childNodes = refData.getChildNodes();
         NamedNodeMap nodeAttributes = refData.getAttributes();
         // overwrite data
@@ -88,7 +88,8 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         overwriteData.compute("other", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "other"));
         overwriteData.compute("ddlAuto", (key, oldValue) -> strFromXmlAttribute(nodeAttributes, "ddlAuto"));
 
-        TableDefaultInfo tableInfo = fetchDefaultInfoByEntity(classLoader, entityType, false, this.options, overwriteData);
+        MappingOptions use = refFile == null ? this.global : refFile;
+        TableDefaultInfo tableInfo = fetchDefaultInfoByEntity(classLoader, entityType, false, use, overwriteData);
 
         // passer tableDef
         TableDef<?> tableDef;
@@ -257,7 +258,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
                 case Auto:
                 case UUID32:
                 case UUID36:
-                    return keyTypeEnum.createHolder(new CreateContext(this.options, typeRegistry, tableDef, colDef, Collections.emptyMap()));
+                    return keyTypeEnum.createHolder(new CreateContext(this.global, typeRegistry, tableDef, colDef, Collections.emptyMap()));
                 case None:
                 case Holder:
                 case Sequence:
@@ -268,11 +269,11 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
             keyType = keyType.substring("KeySeq::".length());
             Map<String, Object> context = new HashMap<>();
             context.put(KeySeq.class.getName(), new KeySeqImpl(keyType));
-            return KeyTypeEnum.Sequence.createHolder(new CreateContext(this.options, typeRegistry, tableDef, colDef, context));
+            return KeyTypeEnum.Sequence.createHolder(new CreateContext(this.global, typeRegistry, tableDef, colDef, context));
         } else {
             Class<?> aClass = classLoader.loadClass(keyType);
             KeySeqHolderFactory holderFactory = (KeySeqHolderFactory) aClass.newInstance();
-            return holderFactory.createHolder(new CreateContext(this.options, typeRegistry, tableDef, colDef, Collections.emptyMap()));
+            return holderFactory.createHolder(new CreateContext(this.global, typeRegistry, tableDef, colDef, Collections.emptyMap()));
         }
     }
 

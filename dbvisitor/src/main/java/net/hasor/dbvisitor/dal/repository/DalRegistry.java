@@ -76,7 +76,7 @@ public class DalRegistry extends MappingRegistry {
             cacheMap.put(javaType, tableReader);
         }
 
-        boolean caseInsensitive = this.options == null || this.options.getCaseInsensitive() == null || Boolean.TRUE.equals(this.options.getCaseInsensitive());
+        boolean caseInsensitive = this.global == null || this.global.getCaseInsensitive() == null || Boolean.TRUE.equals(this.global.getCaseInsensitive());
         ResultTableReader mapReader = new ResultTableReader(caseInsensitive, this.typeRegistry);
         cacheMap.put(Map.class.getName(), mapReader);
         cacheMap.put(Map.class.getSimpleName(), mapReader);

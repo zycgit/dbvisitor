@@ -293,7 +293,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
                 opt.setDefaultDialect(this.getDialect());
             }
 
-            TableDef<?> tableDef = new ClassTableMappingResolve(opt).resolveTableMapping(exampleType, exampleType.getClassLoader(), this.getTypeRegistry());
+            TableDef<?> tableDef = new ClassTableMappingResolve(opt).resolveTableMapping(exampleType, null, exampleType.getClassLoader(), this.getTypeRegistry());
             if (StringUtils.isBlank(tableDef.getTable())) {
                 if (tableDef.isMapUnderscoreToCamelCase()) {
                     tableDef.setTable(StringUtils.humpToLine(exampleType.getSimpleName()));

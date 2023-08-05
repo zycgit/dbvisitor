@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class AbstractTableMappingResolve<T> implements TableMappingResolve<T> {
     private static final   Logger                  logger            = Logger.getLogger(AbstractTableMappingResolve.class);
-    protected final        MappingOptions          options;
+    protected final        MappingOptions          global;
     protected static final Map<Class<?>, Class<?>> CLASS_MAPPING_MAP = new HashMap<>();
 
     static {
@@ -51,8 +51,8 @@ public abstract class AbstractTableMappingResolve<T> implements TableMappingReso
         CLASS_MAPPING_MAP.put(Map.class, LinkedHashMap.class);
     }
 
-    public AbstractTableMappingResolve(MappingOptions options) {
-        this.options = options == null ? MappingOptions.buildNew() : options;
+    public AbstractTableMappingResolve(MappingOptions global) {
+        this.global = global == null ? MappingOptions.buildNew() : global;
     }
 
     protected static String hump2Line(String str, Boolean mapUnderscoreToCamelCase) {

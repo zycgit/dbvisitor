@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.session;
-import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -26,7 +24,7 @@ import java.util.NoSuchElementException;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class RuntimeSQLException extends RuntimeException implements Iterable<Throwable> {
-    
+
     protected SQLException getSQLException() {
         return (SQLException) this.getCause();
     }

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
-<mapper>
-    <entity id="entityMap_1" table="" type="net.hasor.test.entity.BlobResourceV1"/>
+<mapper namespace="resultMap_test">
+    <resultMap id="blobResourceDO" type="net.hasor.test.dto.UserInfo" autoMapping="true">
+        <result column="id" property="userUuid"/>
+        <result column="gmt_create" property="gmtCreate"/>
+    </resultMap>
 </mapper>

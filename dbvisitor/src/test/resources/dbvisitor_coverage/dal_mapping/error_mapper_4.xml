@@ -3,9 +3,6 @@
 <mapper namespace="resultMap_test">
     <resultMap id="blobResourceDO" type="net.hasor.test.dto.user_info" autoMapping="true">
         <result column="id" property="user_uuid"/>
-    </resultMap>
-
-    <resultMap id="blobResourceDO" type="net.hasor.test.dto.user_info" autoMapping="true">
-        <result column="id" property="user_uuid"/>
+        <result column="owner_type" property="login_name" javaType="com.cc.web.constants.ResourceType"/>
     </resultMap>
 </mapper>

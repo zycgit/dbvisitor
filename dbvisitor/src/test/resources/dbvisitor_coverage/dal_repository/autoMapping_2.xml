@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper autoMapping="true">
+    <resultMap id="resultMap_1" type="net.hasor.test.dto.user_info"/>
+
+    <resultMap id="resultMap_2" type="net.hasor.test.dto.UserInfo2"/>
+
+    <resultMap id="resultMap_3" type="net.hasor.test.dto.UserInfo">
+        <result column="user_uuid" property="userUuid"/>
+        <result column="user_name" property="name"/>
+        <result column="login_name" property="loginName"/>
+        <result column="login_password" property="loginPassword"/>
+        <result column="email" property="email"/>
+        <result column="seq" property="seq" javaType="java.lang.Integer"/>
+        <result column="register_time" property="registerTime"/>
+    </resultMap>
+
+    <resultMap id="resultMap_4" type="net.hasor.test.dto.UserInfo" mapUnderscoreToCamelCase="true"/>
+</mapper>

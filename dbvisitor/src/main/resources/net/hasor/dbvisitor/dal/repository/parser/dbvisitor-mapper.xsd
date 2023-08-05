@@ -67,6 +67,7 @@
             <xs:attribute name="caseInsensitive" type="boolean_type"/>
             <xs:attribute name="mapUnderscoreToCamelCase" type="boolean_type"/>
             <xs:attribute name="autoMapping" type="boolean_type"/>
+            <xs:attribute name="useDelimited" type="boolean_type"/>
         </xs:complexType>
     </xs:element>
 

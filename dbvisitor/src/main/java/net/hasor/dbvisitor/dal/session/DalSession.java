@@ -77,7 +77,7 @@ public class DalSession extends JdbcAccessor {
         this.defaultTemplate = new DalLambdaTemplate(connection);
         this.spaceTemplateFactory = space -> this.defaultTemplate;
 
-        SqlDialect defaultDialect = this.dalRegistry.getOptions() != null ? this.dalRegistry.getOptions().getDefaultDialect() : null;
+        SqlDialect defaultDialect = this.dalRegistry.getGlobalOptions() != null ? this.dalRegistry.getGlobalOptions().getDefaultDialect() : null;
         if (defaultDialect instanceof PageSqlDialect) {
             this.dialect = (PageSqlDialect) defaultDialect;
         } else {
@@ -91,7 +91,7 @@ public class DalSession extends JdbcAccessor {
         this.defaultTemplate = new DalLambdaTemplate(dynamicConn);
         this.spaceTemplateFactory = space -> this.defaultTemplate;
 
-        SqlDialect defaultDialect = this.dalRegistry.getOptions() != null ? this.dalRegistry.getOptions().getDefaultDialect() : null;
+        SqlDialect defaultDialect = this.dalRegistry.getGlobalOptions() != null ? this.dalRegistry.getGlobalOptions().getDefaultDialect() : null;
         if (defaultDialect instanceof PageSqlDialect) {
             this.dialect = (PageSqlDialect) defaultDialect;
         } else {
@@ -105,7 +105,7 @@ public class DalSession extends JdbcAccessor {
         this.defaultTemplate = new DalLambdaTemplate(dataSource);
         this.spaceTemplateFactory = space -> this.defaultTemplate;
 
-        SqlDialect defaultDialect = this.dalRegistry.getOptions() != null ? this.dalRegistry.getOptions().getDefaultDialect() : null;
+        SqlDialect defaultDialect = this.dalRegistry.getGlobalOptions() != null ? this.dalRegistry.getGlobalOptions().getDefaultDialect() : null;
         if (defaultDialect instanceof PageSqlDialect) {
             this.dialect = (PageSqlDialect) defaultDialect;
         } else {

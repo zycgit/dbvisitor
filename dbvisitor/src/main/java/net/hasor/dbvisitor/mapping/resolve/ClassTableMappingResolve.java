@@ -42,8 +42,8 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
     private static final Logger                         logger          = Logger.getLogger(ClassTableMappingResolve.class);
     private static final Map<Class<?>, TableMapping<?>> CACHE_TABLE_MAP = new WeakHashMap<>();
 
-    public ClassTableMappingResolve(MappingOptions options) {
-        super(options);
+    public ClassTableMappingResolve(MappingOptions global) {
+        super(global);
     }
 
     public static TableMapping<?> resolveTableMapping(Class<?> entityType, TypeHandlerRegistry typeRegistry) {
@@ -58,8 +58,9 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
     }
 
     @Override
-    public TableDef<?> resolveTableMapping(Class<?> entityType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
-        TableDefaultInfo tableInfo = fetchDefaultInfoByEntity(classLoader, entityType, true, this.options, Collections.emptyMap());
+    public TableDef<?> resolveTableMapping(Class<?> entityType, MappingOptions refFile, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
+        MappingOptions use = refFile == null ? this.global : refFile;
+        TableDefaultInfo tableInfo = fetchDefaultInfoByEntity(classLoader, entityType, true, use, Collections.emptyMap());
         return resolveTableAndColumn(tableInfo, entityType, typeRegistry);
     }
 
@@ -252,6 +253,6 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
             }
         }
 
-        return keyTypeEnum.createHolder(new CreateContext(this.options, typeRegistry, tableDef, colDef, envConfig));
+        return keyTypeEnum.createHolder(new CreateContext(this.global, typeRegistry, tableDef, colDef, envConfig));
     }
 }

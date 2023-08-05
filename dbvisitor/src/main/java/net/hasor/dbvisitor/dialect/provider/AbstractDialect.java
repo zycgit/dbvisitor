@@ -14,14 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect.provider;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
@@ -31,6 +23,14 @@ import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * 公共 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
@@ -39,7 +39,7 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect {
     private static final Logger      logger     = LoggerFactory.getLogger(AbstractDialect.class);
     private static final Set<String> FIRST_CHAR = new HashSet<>();
-    private Set<String>              keyWords;
+    private              Set<String> keyWords;
 
     static {
         FIRST_CHAR.addAll(Arrays.asList("!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "=", "+", "~", "`", " "));

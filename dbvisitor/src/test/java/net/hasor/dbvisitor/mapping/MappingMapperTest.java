@@ -37,7 +37,7 @@ public class MappingMapperTest {
         TableMappingResolve resolve = new ClassTableMappingResolve(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
 
         TableMapping<UserInfo> tableMapping = resolve.resolveTableMapping(//
-                UserInfo.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
+                UserInfo.class, null, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
 
         assert tableMapping.getSchema().equals("");
         assert tableMapping.getTable().equals("user_info");
@@ -52,7 +52,7 @@ public class MappingMapperTest {
             TableMappingResolve resolve = new ClassTableMappingResolve(null);
 
             TableMapping<UserInfo2> tableMapping = resolve.resolveTableMapping(//
-                    UserInfo2.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
+                    UserInfo2.class, null, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
 
             MappingResultSetExtractor<UserInfo2> extractor = new MappingResultSetExtractor<>(tableMapping.toReader());
 
@@ -71,7 +71,7 @@ public class MappingMapperTest {
             TableMappingResolve resolve = new ClassTableMappingResolve(null);
 
             TableMapping<UserInfo2> tableMapping = resolve.resolveTableMapping(//
-                    UserInfo2.class, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
+                    UserInfo2.class, null, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
 
             MappingResultSetExtractor<Map<String, Object>> extractor = new MappingResultSetExtractor<>(tableMapping.toMapReader());
 
@@ -93,6 +93,15 @@ public class MappingMapperTest {
         } catch (Exception e) {
             assert e.getMessage().startsWith("repeat resultMap ");
         }
+
+        try {
+            MappingRegistry registry = new MappingRegistry();
+            registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
+            registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().startsWith("repeat resultMap ");
+        }
     }
 
     @Test
@@ -109,11 +118,10 @@ public class MappingMapperTest {
     @Test
     public void errorCase_2() {
         try {
-            MappingRegistry registry = new MappingRegistry();
-            registry.loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_2.xml");
+            new DalRegistry().loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_2.xml");
             assert false;
         } catch (Exception e) {
-            assert e.getMessage().equals("entity 'entityMap_1' table is not specified in default namespace");
+            assert e.getMessage().startsWith("property 'gmtCreate' undefined.");
         }
     }
 
@@ -123,7 +131,7 @@ public class MappingMapperTest {
             new DalRegistry().loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_3.xml");
             assert false;
         } catch (Exception e) {
-            assert e.getMessage().startsWith("property 'gmtCreate' undefined.");
+            assert e.getMessage().startsWith("repeat resultMap ");
         }
     }
 
@@ -133,7 +141,7 @@ public class MappingMapperTest {
             new DalRegistry().loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_4.xml");
             assert false;
         } catch (Exception e) {
-            assert e.getMessage().startsWith("repeat resultMap ");
+            assert e.getMessage().startsWith("com.cc.web.constants.ResourceType, location ");
         }
     }
 
@@ -141,16 +149,6 @@ public class MappingMapperTest {
     public void errorCase_5() {
         try {
             new DalRegistry().loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_5.xml");
-            assert false;
-        } catch (Exception e) {
-            assert e.getMessage().startsWith("com.cc.web.constants.ResourceType, location ");
-        }
-    }
-
-    @Test
-    public void errorCase_6() {
-        try {
-            new DalRegistry().loadMapper("dbvisitor_coverage/dal_mapping/error_mapper_6.xml");
             assert false;
         } catch (Exception e) {
             assert e.getMessage().endsWith("missing index name.");

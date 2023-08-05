@@ -23,5 +23,5 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface TableMappingResolve<T> {
-    TableMapping<?> resolveTableMapping(T refData, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException;
+    TableMapping<?> resolveTableMapping(T refData, MappingOptions refFile, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException;
 }
