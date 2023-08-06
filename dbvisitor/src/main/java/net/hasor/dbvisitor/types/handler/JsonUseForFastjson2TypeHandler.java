@@ -23,10 +23,10 @@ import net.hasor.cobble.logging.Logger;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class JsonUseForFastjson2TypeHandler extends AbstractJsonTypeHandler<Object> {
-    private static final Logger        logger = Logger.getLogger(JsonUseForFastjson2TypeHandler.class);
-    private final        Class<Object> type;
+    private static final Logger   logger = Logger.getLogger(JsonUseForFastjson2TypeHandler.class);
+    private final        Class<?> type;
 
-    public JsonUseForFastjson2TypeHandler(Class<Object> type) {
+    public JsonUseForFastjson2TypeHandler(Class<?> type) {
         if (logger.isTraceEnabled()) {
             logger.trace("JsonUseForFastjson2TypeHandler(" + type + ")");
         }

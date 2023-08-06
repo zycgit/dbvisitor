@@ -23,10 +23,10 @@ import net.hasor.cobble.logging.Logger;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class JsonTypeHandler extends AbstractJsonTypeHandler<Object> {
-    private static final Logger        logger = Logger.getLogger(JsonTypeHandler.class);
-    private final        Class<Object> type;
+    private static final Logger   logger = Logger.getLogger(JsonTypeHandler.class);
+    private final        Class<?> type;
 
-    public JsonTypeHandler(Class<Object> type) {
+    public JsonTypeHandler(Class<?> type) {
         if (logger.isTraceEnabled()) {
             logger.trace("JsonUseForFastjsonTypeHandler(" + type + ")");
         }

@@ -7,7 +7,7 @@
         <result column="login_name" property="loginName"/>
         <result column="login_password" property="loginPassword"/>
         <result column="email" property="email"/>
-        <result column="seq" property="seq" javaType="int"/>
+        <result column="seq" property="seq"/>
         <result column="register_time" property="registerTime"/>
     </resultMap>
 

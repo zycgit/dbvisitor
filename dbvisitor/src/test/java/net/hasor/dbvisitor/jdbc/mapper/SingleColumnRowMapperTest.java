@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.jdbc.mapper;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.test.dto.UserInfo3;
+import net.hasor.test.dto.UserInfo4;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -80,9 +81,19 @@ public class SingleColumnRowMapperTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<UserInfo3> users = jdbcTemplate.queryForList("select *,'{''ext1'':''abc'',''ext2'':123,''ext3'':true}' as futures from user_info", UserInfo3.class);
-            assert users.size() == 3;
-            users.forEach(user -> {
+            List<UserInfo3> users1 = jdbcTemplate.queryForList("select *,'{''ext1'':''abc'',''ext2'':123,''ext3'':true}' as futures from user_info", UserInfo3.class);
+            assert users1.size() == 3;
+            users1.forEach(user -> {
+                assert user.getFutures() != null;
+                assert user.getFutures().getExt1().equals("abc");
+                assert user.getFutures().getExt2().equals(123);
+                assert user.getFutures().getExt3().equals(true);
+                assert user.getFutures().getExt4() == null;
+            });
+
+            List<UserInfo4> users2 = jdbcTemplate.queryForList("select *,'{''ext1'':''abc'',''ext2'':123,''ext3'':true}' as futures from user_info", UserInfo4.class);
+            assert users2.size() == 3;
+            users2.forEach(user -> {
                 assert user.getFutures() != null;
                 assert user.getFutures().getExt1().equals("abc");
                 assert user.getFutures().getExt2().equals(123);

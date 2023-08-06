@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
+import net.hasor.dbvisitor.types.handler.JsonUseForFastjson2TypeHandler;
+import net.hasor.test.dto.UserFutures2;
 import net.hasor.test.types.MyTypeHandler;
 import org.junit.Test;
 
@@ -36,6 +38,13 @@ public class AnnosTest {
         assert TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class, Types.DATALINK) instanceof MyTypeHandler;
         assert TypeHandlerRegistry.DEFAULT.getTypeHandler(StringBuffer.class, Types.VARCHAR) instanceof MyTypeHandler;
         assert TypeHandlerRegistry.DEFAULT.getTypeHandler(InputStream.class, Types.BIGINT) instanceof MyTypeHandler;
+    }
+
+    @Test
+    public void testBindTypeHandler_2() {
+        assert TypeHandlerRegistry.DEFAULT.hasTypeHandler(UserFutures2.class);
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(UserFutures2.class) instanceof JsonUseForFastjson2TypeHandler;
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(UserFutures2.class) == TypeHandlerRegistry.DEFAULT.getTypeHandler(UserFutures2.class);
     }
 
 }

@@ -8,7 +8,7 @@
         <mapping column="login_name" property="loginName"/>
         <mapping column="login_password" property="loginPassword"/>
         <mapping column="email" property="email"/>
-        <mapping column="seq" property="seq" javaType="int"/>
+        <mapping column="seq" property="seq"/>
         <mapping column="register_time" property="registerTime"/>
     </entity>
 
@@ -18,7 +18,7 @@
         <result column="login_name" property="loginName"/>
         <result column="login_password" property="loginPassword"/>
         <result column="email" property="email"/>
-        <result column="seq" property="seq" javaType="int"/>
+        <result column="seq" property="seq"/>
         <result column="register_time" property="registerTime"/>
     </resultMap>
 

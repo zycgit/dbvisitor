@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.reflect.ConstructorUtils;
 import net.hasor.cobble.reflect.TypeReference;
 import net.hasor.dbvisitor.types.handler.*;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -418,8 +419,18 @@ public final class TypeHandlerRegistry {
                     return this.javaTypeHandlerMap.get(typeClassName);
                 }
 
-                BindTypeHandler handler = typeClass.getAnnotation(BindTypeHandler.class);
-                typeHandler = ClassUtils.newInstance(handler.value());
+                try {
+                    BindTypeHandler handler = typeClass.getAnnotation(BindTypeHandler.class);
+                    Constructor<?> constructor = ConstructorUtils.getAccessibleConstructor(handler.value(), Class.class);
+                    if (constructor == null) {
+                        typeHandler = (TypeHandler<?>) handler.value().newInstance();
+                    } else {
+                        typeHandler = (TypeHandler<?>) ConstructorUtils.invokeConstructor(handler.value(), typeClass);
+                    }
+                } catch (Exception e) {
+                    throw ExceptionUtils.toRuntime(e);
+                }
+
                 this.javaTypeHandlerMap.put(typeClassName, typeHandler);
                 return typeHandler;
             }
@@ -478,8 +489,18 @@ public final class TypeHandlerRegistry {
                     }
                 }
 
-                BindTypeHandler handler = typeClass.getAnnotation(BindTypeHandler.class);
-                typeHandler = ClassUtils.newInstance(handler.value());
+                try {
+                    BindTypeHandler handler = typeClass.getAnnotation(BindTypeHandler.class);
+                    Constructor<?> constructor = ConstructorUtils.getAccessibleConstructor(handler.value(), Class.class);
+                    if (constructor == null) {
+                        typeHandler = (TypeHandler<?>) handler.value().newInstance();
+                    } else {
+                        typeHandler = (TypeHandler<?>) ConstructorUtils.invokeConstructor(handler.value(), typeClass);
+                    }
+                } catch (Exception e) {
+                    throw ExceptionUtils.toRuntime(e);
+                }
+
                 registerCross(jdbcType, typeClass, typeHandler);
                 return typeHandler;
             }
