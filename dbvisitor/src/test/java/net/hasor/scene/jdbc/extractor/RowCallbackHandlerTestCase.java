@@ -24,7 +24,7 @@ public class RowCallbackHandlerTestCase {
 
             UserNameRowCallback callback = new UserNameRowCallback();
             Object[] args = new Object[] { SqlParameterUtils.withInput(40) };
-            jdbcTemplate.query("select * from user where age > ? order by id", args, callback);
+            jdbcTemplate.query("select * from user_table where age > ? order by id", args, callback);
 
             assert callback.size() == 2;
             assert callback.getName(0).equals("jon wes");
@@ -38,7 +38,7 @@ public class RowCallbackHandlerTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             UserNameRowCallback callback = new UserNameRowCallback();
-            jdbcTemplate.query("select * from user where age > 40 order by id", callback);
+            jdbcTemplate.query("select * from user_table where age > 40 order by id", callback);
 
             assert callback.size() == 2;
             assert callback.getName(0).equals("jon wes");
@@ -53,7 +53,7 @@ public class RowCallbackHandlerTestCase {
 
             UserNameRowCallback callback = new UserNameRowCallback();
             Map<String, Object> args = CollectionUtils.asMap("age", 40);
-            jdbcTemplate.query("select * from user where age > :age order by id", args, callback);
+            jdbcTemplate.query("select * from user_table where age > :age order by id", args, callback);
 
             assert callback.size() == 2;
             assert callback.getName(0).equals("jon wes");
@@ -68,7 +68,7 @@ public class RowCallbackHandlerTestCase {
 
             UserNameRowCallback callback = new UserNameRowCallback();
             PreparedStatementSetter setter = new ArgPreparedStatementSetter(new Object[] { 40 });
-            jdbcTemplate.query("select * from user where age > ? order by id", setter, callback);
+            jdbcTemplate.query("select * from user_table where age > ? order by id", setter, callback);
 
             assert callback.size() == 2;
             assert callback.getName(0).equals("jon wes");
@@ -83,7 +83,7 @@ public class RowCallbackHandlerTestCase {
 
             UserNameRowCallback callback = new UserNameRowCallback();
             SqlParameterSource argSource = new MapSqlParameterSource(CollectionUtils.asMap("arg", 40));
-            jdbcTemplate.query("select * from user where age > :arg order by id", argSource, callback);
+            jdbcTemplate.query("select * from user_table where age > :arg order by id", argSource, callback);
 
             assert callback.size() == 2;
             assert callback.getName(0).equals("jon wes");
@@ -98,7 +98,7 @@ public class RowCallbackHandlerTestCase {
 
             UserNameRowCallback callback = new UserNameRowCallback();
             Object[] args = new Object[] { SqlParameterUtils.withInOut(40, Types.INTEGER) };
-            jdbcTemplate.query("select * from user where age > ? order by id", args, callback);
+            jdbcTemplate.query("select * from user_table where age > ? order by id", args, callback);
 
             assert callback.size() == 2;
             assert callback.getName(0).equals("jon wes");

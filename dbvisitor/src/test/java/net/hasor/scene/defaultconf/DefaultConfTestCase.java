@@ -3,8 +3,9 @@ import net.hasor.dbvisitor.lambda.EntityQueryOperation;
 import net.hasor.dbvisitor.lambda.InsertOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.MapQueryOperation;
-import net.hasor.scene.defaultconf.dto.User;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.scene.defaultconf.dto.UserDTO;
+import net.hasor.scene.defaultconf.dto.UserTable;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DefaultConfTestCase {
+    private static final MappingOptions options = MappingOptions.buildNew().mapUnderscoreToCamelCase(true);
 
     // 普通 pojo
     @Test
@@ -22,18 +24,18 @@ public class DefaultConfTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            User userData = new User();
+            UserTable userData = new UserTable();
             userData.setId(128);
             userData.setAge(36);
             userData.setName("default user");
             userData.setCreateTime(new Date());// 驼峰由 @TableDefault 进行启用
 
-            InsertOperation<User> lambdaInsert = lambdaTemplate.lambdaInsert(User.class);
+            InsertOperation<UserTable> lambdaInsert = lambdaTemplate.lambdaInsert(UserTable.class, options);
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
 
             // 校验结果
-            EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
-            User resultData = lambdaQuery.eq(User::getId, 128).queryForObject();
+            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.lambdaQuery(UserTable.class, options);
+            UserTable resultData = lambdaQuery.eq(UserTable::getId, 128).queryForObject();
 
             assert resultData.getId() == 128;
             assert resultData.getAge() == 36;
@@ -54,11 +56,11 @@ public class DefaultConfTestCase {
             userData.setName("default user");
             userData.setCreateTime(new Date());// 驼峰由 @TableDefault 进行启用
 
-            InsertOperation<UserDTO> lambdaInsert = lambdaTemplate.lambdaInsert(UserDTO.class);
+            InsertOperation<UserDTO> lambdaInsert = lambdaTemplate.lambdaInsert(UserDTO.class, options);
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
 
             // 校验结果
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class);
+            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class, options);
             UserDTO resultData = lambdaQuery.eq(UserDTO::getId, 128).queryForObject();
 
             assert resultData.getId() == 128;
@@ -80,11 +82,11 @@ public class DefaultConfTestCase {
             userData.put("name", "default user");
             userData.put("create_time", new Date());// 默认驼峰转换是关闭的，因此在没有任何配置的情况下 key 需要和列名完全一致。
 
-            InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.lambdaInsert("user");
+            InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.lambdaInsert("user_table");
             assert 1 == lambdaInsert.applyMap(userData).executeSumResult();
 
             // 校验结果
-            MapQueryOperation lambdaQuery = lambdaTemplate.lambdaQuery("user");
+            MapQueryOperation lambdaQuery = lambdaTemplate.lambdaQuery("user_table");
             Map<String, Object> resultData = lambdaQuery.eq("id", 128).queryForObject();
 
             assert resultData.get("id").equals(128);

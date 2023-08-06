@@ -3,7 +3,8 @@ import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.lambda.EntityQueryOperation;
 import net.hasor.dbvisitor.lambda.InsertOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.scene.singletable.dto.User;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.scene.singletable.dto.UserTable;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -15,25 +16,27 @@ import java.util.stream.Collectors;
 /** 使用标准的 pojo 来做 DTO 进行数据 插入 */
 public class PojoCrudTestCase {
 
+    private static final MappingOptions options = MappingOptions.buildNew().mapUnderscoreToCamelCase(true);
+
     // 简单的将普通 Bean 映射到表
     @Test
     public void insertByBean() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            User userData = new User();
+            UserTable userData = new UserTable();
             userData.setAge(36);
             userData.setName("default user");
             userData.setCreate_time(new Date());// 默认驼峰转换是关闭的，因此在没有任何配置的情况下普通 pojo 的列名需要和表名字段完全一致。
             assert userData.getId() == null;
 
-            InsertOperation<User> lambdaInsert = lambdaTemplate.lambdaInsert(User.class);
+            InsertOperation<UserTable> lambdaInsert = lambdaTemplate.lambdaInsert(UserTable.class, options);
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
             assert userData.getId() == null; // POJO 没有 自增 ID 配置信息，因此不回填
 
             // 校验结果
-            EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
-            User resultData = lambdaQuery.eq(User::getName, "default user").queryForObject();
+            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.lambdaQuery(UserTable.class, options);
+            UserTable resultData = lambdaQuery.eq(UserTable::getName, "default user").queryForObject();
             assert resultData.getName().equals(userData.getName());
         }
     }
@@ -49,12 +52,12 @@ public class PojoCrudTestCase {
             userData.put("name", "default user");
             userData.put("create_time", new Date());// 默认驼峰转换是关闭的，因此在没有任何配置的情况下 key 需要和列名完全一致。
 
-            InsertOperation<User> lambdaInsert = lambdaTemplate.lambdaInsert(User.class);
+            InsertOperation<UserTable> lambdaInsert = lambdaTemplate.lambdaInsert(UserTable.class, options);
             assert 1 == lambdaInsert.applyMap(userData).executeSumResult();
 
             // 校验结果
-            EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
-            User resultData = lambdaQuery.eq(User::getName, "default user").queryForObject();
+            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.lambdaQuery(UserTable.class, options);
+            UserTable resultData = lambdaQuery.eq(UserTable::getName, "default user").queryForObject();
             assert resultData.getName().equals(userData.get("name"));
         }
     }
@@ -66,14 +69,14 @@ public class PojoCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             // update user set name = 'new name is abc' where id = 1
-            lambdaTemplate.lambdaUpdate(User.class) //
-                    .eq(User::getId, 1)         //
-                    .updateTo(User::getName, "new name is abc")//
+            lambdaTemplate.lambdaUpdate(UserTable.class, options) //
+                    .eq(UserTable::getId, 1)         //
+                    .updateTo(UserTable::getName, "new name is abc")//
                     .doUpdate();
 
             // 校验结果
-            EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
-            User resultData = lambdaQuery.eq(User::getId, 1).queryForObject();
+            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.lambdaQuery(UserTable.class, options);
+            UserTable resultData = lambdaQuery.eq(UserTable::getId, 1).queryForObject();
             assert resultData.getName().equals("new name is abc");
         }
     }
@@ -85,15 +88,15 @@ public class PojoCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            lambdaTemplate.lambdaUpdate(User.class) //
-                    .eq(User::getId, 1)         //
-                    .updateToAdd(User::getName, "new name is abc")//
-                    .updateToAdd(User::getAge, 120)//
+            lambdaTemplate.lambdaUpdate(UserTable.class, options) //
+                    .eq(UserTable::getId, 1)         //
+                    .updateToAdd(UserTable::getName, "new name is abc")//
+                    .updateToAdd(UserTable::getAge, 120)//
                     .doUpdate();
 
             // 校验结果
-            EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
-            User resultData = lambdaQuery.eq(User::getId, 1).queryForObject();
+            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.lambdaQuery(UserTable.class, options);
+            UserTable resultData = lambdaQuery.eq(UserTable::getId, 1).queryForObject();
             assert resultData.getName().equals("new name is abc");
             assert resultData.getAge() == 120;
         }
@@ -110,14 +113,14 @@ public class PojoCrudTestCase {
             newValue.put("age", 120);
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            lambdaTemplate.lambdaUpdate(User.class) //
-                    .eq(User::getId, 1)//
+            lambdaTemplate.lambdaUpdate(UserTable.class, options) //
+                    .eq(UserTable::getId, 1)//
                     .updateByMap(newValue)   //
                     .doUpdate();
 
             // 校验结果
-            EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
-            User resultData = lambdaQuery.eq(User::getId, 1).queryForObject();
+            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.lambdaQuery(UserTable.class, options);
+            UserTable resultData = lambdaQuery.eq(UserTable::getId, 1).queryForObject();
             assert resultData.getName().equals("new name is abc");
             assert resultData.getAge() == 120;
         }
@@ -129,19 +132,19 @@ public class PojoCrudTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            User newData = new User();
+            UserTable newData = new UserTable();
             newData.setName("new name is abc");
             newData.setAge(120);
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            lambdaTemplate.lambdaUpdate(User.class) //
-                    .eq(User::getId, 1) //
+            lambdaTemplate.lambdaUpdate(UserTable.class, options) //
+                    .eq(UserTable::getId, 1) //
                     .updateBySample(newData)  //
                     .doUpdate();
 
             // 校验结果
-            EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
-            User resultData = lambdaQuery.eq(User::getId, 1).queryForObject();
+            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.lambdaQuery(UserTable.class, options);
+            UserTable resultData = lambdaQuery.eq(UserTable::getId, 1).queryForObject();
             assert resultData.getName().equals("new name is abc");
             assert resultData.getAge() == 120;
         }
@@ -155,20 +158,20 @@ public class PojoCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             // 除了 name 和 pk 之外，其它列应该都是 null。
-            User newData = new User();
+            UserTable newData = new UserTable();
             newData.setName("new name is abc");
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            int i = lambdaTemplate.lambdaUpdate(User.class) //
-                    .eq(User::getId, 1) //
+            int i = lambdaTemplate.lambdaUpdate(UserTable.class, options) //
+                    .eq(UserTable::getId, 1) //
                     .allowReplaceRow()  // 需要启用整行更新才能使用
                     .updateTo(newData)  //
                     .doUpdate();
             assert i == 1;
 
             // 校验结果
-            EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
-            User resultData = lambdaQuery.eq(User::getName, "new name is abc").queryForObject();
+            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.lambdaQuery(UserTable.class, options);
+            UserTable resultData = lambdaQuery.eq(UserTable::getName, "new name is abc").queryForObject();
 
             //  -- 因为 User.class 并没有标记 id 属性为主键，因此整行更新造成了主键被设置为 null
             //  -- H2,在 id 被设置为 null 之后，会为其重新生成一个新的 id。
@@ -186,14 +189,14 @@ public class PojoCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             // delete from user where id = 1;
-            int i = lambdaTemplate.lambdaDelete(User.class) //
-                    .eq(User::getId, 1) //
+            int i = lambdaTemplate.lambdaDelete(UserTable.class, options) //
+                    .eq(UserTable::getId, 1) //
                     .doDelete();
             assert i == 1;
 
             // 校验结果
-            EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
-            User resultData = lambdaQuery.eq(User::getId, 1).queryForObject();
+            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.lambdaQuery(UserTable.class, options);
+            UserTable resultData = lambdaQuery.eq(UserTable::getId, 1).queryForObject();
             assert resultData == null;
         }
     }
@@ -205,19 +208,19 @@ public class PojoCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             // 条件对象
-            User sample = new User();
+            UserTable sample = new UserTable();
             sample.setId(1);
             sample.setName("mali");
 
             // delete from user where id = 1 and name = 'mail';
-            int i = lambdaTemplate.lambdaDelete(User.class) //
+            int i = lambdaTemplate.lambdaDelete(UserTable.class, options) //
                     .eqBySample(sample)//
                     .doDelete();
             assert i == 1;
 
             // 校验结果
-            EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
-            User resultData = lambdaQuery.eq(User::getId, 1).queryForObject();
+            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.lambdaQuery(UserTable.class, options);
+            UserTable resultData = lambdaQuery.eq(UserTable::getId, 1).queryForObject();
             assert resultData == null;
         }
     }
@@ -233,14 +236,14 @@ public class PojoCrudTestCase {
             newValue.put("name", "mali");
 
             // delete from user where id = 1 and name = 'mail';
-            int i = lambdaTemplate.lambdaDelete(User.class) //
+            int i = lambdaTemplate.lambdaDelete(UserTable.class, options) //
                     .eqBySampleMap(newValue)//
                     .doDelete();
             assert i == 1;
 
             // 校验结果
-            EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
-            User resultData = lambdaQuery.eq(User::getId, 1).queryForObject();
+            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.lambdaQuery(UserTable.class, options);
+            UserTable resultData = lambdaQuery.eq(UserTable::getId, 1).queryForObject();
             assert resultData == null;
         }
     }
@@ -252,13 +255,13 @@ public class PojoCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             // delete from user;
-            int i = lambdaTemplate.lambdaDelete(User.class) //
+            int i = lambdaTemplate.lambdaDelete(UserTable.class, options) //
                     .allowEmptyWhere()// 无条件删除需要启用空条件
                     .doDelete();
             assert i == 5;
 
             // 校验结果
-            assert lambdaTemplate.lambdaQuery(User.class).queryForCount() == 0;
+            assert lambdaTemplate.lambdaQuery(UserTable.class, options).queryForCount() == 0;
         }
     }
 
@@ -268,10 +271,10 @@ public class PojoCrudTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            InsertOperation<User> lambdaInsert = lambdaTemplate.lambdaInsert(User.class);
-            List<User> insertData = new ArrayList<>();
+            InsertOperation<UserTable> lambdaInsert = lambdaTemplate.lambdaInsert(UserTable.class, options);
+            List<UserTable> insertData = new ArrayList<>();
             for (int i = 0; i < 10; i++) {
-                User userData = new User();
+                UserTable userData = new UserTable();
                 userData.setAge(36);
                 userData.setName("default user " + i);
                 userData.setCreate_time(new Date());
@@ -285,9 +288,9 @@ public class PojoCrudTestCase {
             }
 
             // 校验结果
-            EntityQueryOperation<User> lambdaQuery = lambdaTemplate.lambdaQuery(User.class);
-            List<User> resultData = lambdaQuery.likeRight(User::getName, "default user ").queryForList();
-            List<String> result = resultData.stream().map(User::getName).collect(Collectors.toList());
+            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.lambdaQuery(UserTable.class, options);
+            List<UserTable> resultData = lambdaQuery.likeRight(UserTable::getName, "default user ").queryForList();
+            List<String> result = resultData.stream().map(UserTable::getName).collect(Collectors.toList());
             assert result.size() == 10;
 
             for (int i = 0; i < 10; i++) {

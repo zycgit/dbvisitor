@@ -21,7 +21,7 @@ public class MapArgsTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Map<String, Object> args = CollectionUtils.asMap("age", 40);
-            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user where age > :age order by id", args);
+            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user_table where age > :age order by id", args);
 
             assert result.size() == 2;
             assert result.get(0).get("name").equals("jon wes");
@@ -35,7 +35,7 @@ public class MapArgsTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Map<String, Object> args = CollectionUtils.asMap("age", new Object[] { 41, 66 });
-            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user where age in (:age) order by id", args);
+            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user_table where age in (:age) order by id", args);
 
             assert result.size() == 2;
             assert result.get(0).get("name").equals("jon wes");
@@ -49,7 +49,7 @@ public class MapArgsTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Map<String, Object> args = CollectionUtils.asMap("age", 40);
-            List<UserDTO> result = jdbcTemplate.queryForList("select * from user where age > :age order by id", args, UserDTO.class);
+            List<UserDTO> result = jdbcTemplate.queryForList("select * from user_table where age > :age order by id", args, UserDTO.class);
 
             assert result.size() == 2;
             assert result.get(0).getName().equals("jon wes");
@@ -63,7 +63,7 @@ public class MapArgsTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Map<String, Object> args = CollectionUtils.asMap("age", new Object[] { 41, 66 });
-            List<UserDTO> result = jdbcTemplate.queryForList("select * from user where age in (:age) order by id", args, UserDTO.class);
+            List<UserDTO> result = jdbcTemplate.queryForList("select * from user_table where age in (:age) order by id", args, UserDTO.class);
 
             assert result.size() == 2;
             assert result.get(0).getName().equals("jon wes");
@@ -81,7 +81,7 @@ public class MapArgsTestCase {
             arrayArg.add(CollectionUtils.asMap("age", 40));
             Map<String, Object> args = CollectionUtils.asMap("p", CollectionUtils.asMap("cfg_id", CollectionUtils.asMap("array", arrayArg)));
 
-            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user where age > :p.cfg_id.array[1].age order by id", args);
+            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user_table where age > :p.cfg_id.array[1].age order by id", args);
 
             assert result.size() == 2;
             assert result.get(0).get("name").equals("jon wes");
@@ -94,7 +94,7 @@ public class MapArgsTestCase {
         OgnlUtils.evalOgnl("@java.lang.System@out.println('ss')", null);
 
         try (Connection c = DsUtils.h2Conn()) {
-            new JdbcTemplate(c).queryForList("select * from user where age > :@java.lang.System@out.println('ss') order by id", new HashMap<>());
+            new JdbcTemplate(c).queryForList("select * from user_table where age > :@java.lang.System@out.println('ss') order by id", new HashMap<>());
             assert false;
         } catch (SQLException e) {
             assert e.getMessage().startsWith("expr string cannot include '#' or '@', paramExpr= ");

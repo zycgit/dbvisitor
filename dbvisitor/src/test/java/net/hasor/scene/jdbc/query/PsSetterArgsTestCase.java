@@ -19,7 +19,7 @@ public class PsSetterArgsTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             PreparedStatementSetter setter = new ArgPreparedStatementSetter(new Object[] { 40 });
-            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user where age > ? order by id", setter);
+            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user_table where age > ? order by id", setter);
 
             assert result.size() == 2;
             assert result.get(0).get("name").equals("jon wes");
@@ -33,7 +33,7 @@ public class PsSetterArgsTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             PreparedStatementSetter setter = new ArgPreparedStatementSetter(new Object[] { 40 });
-            List<UserDTO> result = jdbcTemplate.queryForList("select * from user where age > ? order by id", setter, UserDTO.class);
+            List<UserDTO> result = jdbcTemplate.queryForList("select * from user_table where age > ? order by id", setter, UserDTO.class);
 
             assert result.size() == 2;
             assert result.get(0).getName().equals("jon wes");

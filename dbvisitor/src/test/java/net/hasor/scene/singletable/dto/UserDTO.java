@@ -24,9 +24,9 @@ import java.util.Date;
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-@Table("user")
+@Table("user_table")
 public class UserDTO {
-    @Column(primary = true, keyType = KeyTypeEnum.Auto)
+    @Column(primary = true, keyType = KeyTypeEnum.Auto, insert = false)
     private Integer id;
     @Column
     private String  name;

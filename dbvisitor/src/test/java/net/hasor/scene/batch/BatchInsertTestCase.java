@@ -27,11 +27,11 @@ public class BatchInsertTestCase {
                     { 8, "person 3", 55, new Date() },  //
             };
 
-            int[] ints = jdbcTemplate.executeBatch("insert into user values (?, ?, ?, ?);", args);
+            int[] ints = jdbcTemplate.executeBatch("insert into user_table values (?, ?, ?, ?);", args);
             assert ints.length == 3;
             assert Arrays.stream(ints).sum() == 3;
 
-            List<UserDTO> users = jdbcTemplate.queryForList("select * from user where id in (6,7,8);", UserDTO.class);
+            List<UserDTO> users = jdbcTemplate.queryForList("select * from user_table where id in (6,7,8);", UserDTO.class);
             Set<String> ids = users.stream().map(UserDTO::getName).collect(Collectors.toSet());
 
             assert ids.size() == 3;
@@ -52,11 +52,11 @@ public class BatchInsertTestCase {
                     new MapSqlParameterSource(CollectionUtils.asMap("id", 8, "name", "person 3", "age", 55, "date", new Date())),//
             };
 
-            int[] ints = jdbcTemplate.executeBatch("insert into user values (:id, :name, :age, :date);", args);
+            int[] ints = jdbcTemplate.executeBatch("insert into user_table values (:id, :name, :age, :date);", args);
             assert ints.length == 3;
             assert Arrays.stream(ints).sum() == 3;
 
-            List<UserDTO> users = jdbcTemplate.queryForList("select * from user where id in (6,7,8);", UserDTO.class);
+            List<UserDTO> users = jdbcTemplate.queryForList("select * from user_table where id in (6,7,8);", UserDTO.class);
             Set<String> ids = users.stream().map(UserDTO::getName).collect(Collectors.toSet());
 
             assert ids.size() == 3;
@@ -77,11 +77,11 @@ public class BatchInsertTestCase {
                     CollectionUtils.asMap("id", 8, "name", "person 3", "age", 55, "date", new Date()),//
             };
 
-            int[] ints = jdbcTemplate.executeBatch("insert into user values (:id, :name, :age, :date);", args);
+            int[] ints = jdbcTemplate.executeBatch("insert into user_table values (:id, :name, :age, :date);", args);
             assert ints.length == 3;
             assert Arrays.stream(ints).sum() == 3;
 
-            List<UserDTO> users = jdbcTemplate.queryForList("select * from user where id in (6,7,8);", UserDTO.class);
+            List<UserDTO> users = jdbcTemplate.queryForList("select * from user_table where id in (6,7,8);", UserDTO.class);
             Set<String> ids = users.stream().map(UserDTO::getName).collect(Collectors.toSet());
 
             assert ids.size() == 3;
@@ -117,11 +117,11 @@ public class BatchInsertTestCase {
                 }
             };
 
-            int[] ints = jdbcTemplate.executeBatch("insert into user values (?, ?, ?, ?);", setter);
+            int[] ints = jdbcTemplate.executeBatch("insert into user_table values (?, ?, ?, ?);", setter);
             assert ints.length == 3;
             assert Arrays.stream(ints).sum() == 3;
 
-            List<UserDTO> users = jdbcTemplate.queryForList("select * from user where id in (6,7,8);", UserDTO.class);
+            List<UserDTO> users = jdbcTemplate.queryForList("select * from user_table where id in (6,7,8);", UserDTO.class);
             Set<String> ids = users.stream().map(UserDTO::getName).collect(Collectors.toSet());
 
             assert ids.size() == 3;

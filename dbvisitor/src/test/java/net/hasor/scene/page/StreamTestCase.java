@@ -16,7 +16,7 @@
 package net.hasor.scene.page;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.TbUser;
+import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -36,12 +36,12 @@ public class StreamTestCase extends AbstractDbTest {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             List<String> userIds = new ArrayList<>();
-            Iterator<TbUser> userIterator = lambdaTemplate.lambdaQuery(TbUser.class).queryForIterator(-1, 1);
+            Iterator<UserInfo2> userIterator = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForIterator(-1, 1);
             while (userIterator.hasNext()) {
                 userIds.add(userIterator.next().getUid());
             }
 
-            assert lambdaTemplate.lambdaQuery(TbUser.class).queryForCount() == userIds.size();
+            assert lambdaTemplate.lambdaQuery(UserInfo2.class).queryForCount() == userIds.size();
         }
     }
 
@@ -51,7 +51,7 @@ public class StreamTestCase extends AbstractDbTest {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             List<String> userIds = new ArrayList<>();
-            Iterator<TbUser> userIterator = lambdaTemplate.lambdaQuery(TbUser.class).queryForIterator(2, 1);
+            Iterator<UserInfo2> userIterator = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForIterator(2, 1);
             while (userIterator.hasNext()) {
                 userIds.add(userIterator.next().getUid());
             }

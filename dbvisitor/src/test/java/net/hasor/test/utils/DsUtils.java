@@ -40,13 +40,13 @@ public class DsUtils {
             jdbcTemplate.loadSQL("dbvisitor_coverage/user_info_for_h2.sql");
             jdbcTemplate.loadSQL("dbvisitor_coverage/all_types/tb_h2_types.sql");
             jdbcTemplate.loadSQL("dbvisitor_coverage/auto_id_for_h2.sql");
-            //
-            //            jdbcTemplate.loadSQL("/dbvisitor_scene/user_for_h2.sql");
-            //            jdbcTemplate.execute("insert into user values (1, 'mali', 26, now());");
-            //            jdbcTemplate.execute("insert into user values (2, 'dative', 32, now());");
-            //            jdbcTemplate.execute("insert into user values (3, 'jon wes', 41, now());");
-            //            jdbcTemplate.execute("insert into user values (4, 'mary', 66, now());");
-            //            jdbcTemplate.execute("insert into user values (5, 'matt', 25, now());");
+
+            jdbcTemplate.loadSQL("/dbvisitor_scene/user_table_for_h2.sql");
+            jdbcTemplate.execute("insert into user_table values (1, 'mali', 26, now());");
+            jdbcTemplate.execute("insert into user_table values (2, 'dative', 32, now());");
+            jdbcTemplate.execute("insert into user_table values (3, 'jon wes', 41, now());");
+            jdbcTemplate.execute("insert into user_table values (4, 'mary', 66, now());");
+            jdbcTemplate.execute("insert into user_table values (5, 'matt', 25, now());");
 
             jdbcTemplate.execute("create sequence test_seq;");
         } catch (Exception ignored) {
@@ -63,8 +63,8 @@ public class DsUtils {
             jdbcTemplate.loadSQL("dbvisitor_coverage/user_info_for_mysql.sql");
             jdbcTemplate.loadSQL("dbvisitor_coverage/all_types/tb_mysql_types.sql");
             jdbcTemplate.loadSQL("dbvisitor_coverage/auto_id_for_mysql.sql");
-            //
-            jdbcTemplate.loadSQL("/dbvisitor_scene/user_for_mysql.sql");
+
+            jdbcTemplate.loadSQL("/dbvisitor_scene/user_table_for_mysql.sql");
             jdbcTemplate.execute("insert into user values (1, 'mali', 26, now());");
             jdbcTemplate.execute("insert into user values (2, 'dative', 32, now());");
             jdbcTemplate.execute("insert into user values (3, 'jon wes', 41, now());");

@@ -19,7 +19,7 @@ public class SqlParamArgsTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Object[] args = new Object[] { SqlParameterUtils.withInput(40) };
-            List<UserDTO> result = jdbcTemplate.queryForList("select * from user where age > ? order by id", args, UserDTO.class);
+            List<UserDTO> result = jdbcTemplate.queryForList("select * from user_table where age > ? order by id", args, UserDTO.class);
 
             assert result.size() == 2;
             assert result.get(0).getName().equals("jon wes");
@@ -33,7 +33,7 @@ public class SqlParamArgsTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Object[] args = new Object[] { SqlParameterUtils.withInOut(40, Types.INTEGER) };
-            List<UserDTO> result = jdbcTemplate.queryForList("select * from user where age > ? order by id", args, UserDTO.class);
+            List<UserDTO> result = jdbcTemplate.queryForList("select * from user_table where age > ? order by id", args, UserDTO.class);
 
             assert result.size() == 2;
             assert result.get(0).getName().equals("jon wes");
@@ -47,7 +47,7 @@ public class SqlParamArgsTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Object[] args = new Object[] { SqlParameterUtils.withInput(40) };
-            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user where age > ? order by id", args);
+            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user_table where age > ? order by id", args);
 
             assert result.size() == 2;
             assert result.get(0).get("name").equals("jon wes");
@@ -61,7 +61,7 @@ public class SqlParamArgsTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Object[] args = new Object[] { SqlParameterUtils.withInOut(40, Types.INTEGER) };
-            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user where age > ? order by id", args);
+            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user_table where age > ? order by id", args);
 
             assert result.size() == 2;
             assert result.get(0).get("name").equals("jon wes");

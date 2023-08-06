@@ -22,7 +22,7 @@ public class PreparedStatementCreatorTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             List<String> result = jdbcTemplate.executeCreator(con -> {
-                PreparedStatement ps = con.prepareStatement("select * from user where age > ? order by id");
+                PreparedStatement ps = con.prepareStatement("select * from user_table where age > ? order by id");
                 ps.setInt(1, 40);
                 return ps;
             }, new UserNameResultSetExtractor());
@@ -42,7 +42,7 @@ public class PreparedStatementCreatorTestCase {
             UserNameRowCallback callback = new UserNameRowCallback();
 
             jdbcTemplate.executeCreator(con -> {
-                PreparedStatement ps = con.prepareStatement("select * from user where age > ? order by id");
+                PreparedStatement ps = con.prepareStatement("select * from user_table where age > ? order by id");
                 ps.setInt(1, 40);
                 return ps;
             }, callback);
@@ -60,7 +60,7 @@ public class PreparedStatementCreatorTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             List<String> result = jdbcTemplate.executeCreator(con -> {
-                PreparedStatement ps = con.prepareStatement("select * from user where age > ? order by id");
+                PreparedStatement ps = con.prepareStatement("select * from user_table where age > ? order by id");
                 ps.setInt(1, 40);
                 return ps;
             }, new UserNameRowMapper());
@@ -78,7 +78,7 @@ public class PreparedStatementCreatorTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             List<String> result = jdbcTemplate.executeCreator(con -> {
-                PreparedStatement ps = con.prepareStatement("select * from user where age > ? order by id");
+                PreparedStatement ps = con.prepareStatement("select * from user_table where age > ? order by id");
                 ps.setInt(1, 40);
                 return ps;
             }, (PreparedStatementCallback<List<String>>) ps -> {

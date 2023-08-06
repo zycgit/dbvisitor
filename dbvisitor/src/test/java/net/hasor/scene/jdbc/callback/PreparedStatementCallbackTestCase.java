@@ -17,7 +17,7 @@ public class PreparedStatementCallbackTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<String> result = jdbcTemplate.executeCallback("select * from user where age > ? order by id", (PreparedStatementCallback<List<String>>) ps -> {
+            List<String> result = jdbcTemplate.executeCallback("select * from user_table where age > ? order by id", (PreparedStatementCallback<List<String>>) ps -> {
                 ps.setInt(1, 40);
                 try (ResultSet rs = ps.executeQuery()) {
                     return new UserNameResultSetExtractor().extractData(rs);

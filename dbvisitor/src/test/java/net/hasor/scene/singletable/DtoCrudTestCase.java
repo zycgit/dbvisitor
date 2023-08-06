@@ -19,6 +19,7 @@ public class DtoCrudTestCase {
     public void insertByBean() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            lambdaTemplate.lambdaDelete(UserDTO.class).allowEmptyWhere().doDelete();
 
             UserDTO userData = new UserDTO();
             userData.setAge(36);
@@ -42,6 +43,7 @@ public class DtoCrudTestCase {
     public void insertByMap() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            lambdaTemplate.lambdaDelete(UserDTO.class).allowEmptyWhere().doDelete();
 
             Map<String, Object> userData = new HashMap<>();
             userData.put("age", 36);
@@ -295,6 +297,7 @@ public class DtoCrudTestCase {
     public void batchInsertByDTO() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            lambdaTemplate.lambdaDelete(UserDTO.class).allowEmptyWhere().doDelete();
 
             InsertOperation<UserDTO> lambdaInsert = lambdaTemplate.lambdaInsert(UserDTO.class);
             List<UserDTO> insertData = new ArrayList<>();

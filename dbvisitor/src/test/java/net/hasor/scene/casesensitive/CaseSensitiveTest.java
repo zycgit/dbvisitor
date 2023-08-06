@@ -22,12 +22,12 @@ public class CaseSensitiveTest {
             userData.put("NAME", "default user");
             userData.put("CREATE_TIME", "2022-01-01 12:12:12");
 
-            InsertOperation<Map<String, Object>> insert = lambdaTemplate.lambdaInsert("user").applyMap(userData);
-            insert.getBoundSql().getSqlString().equals("INSERT INTO USER (ID, NAME, AGE, CREATE_TIME) VALUES (?, ?, ?, ?)");
+            InsertOperation<Map<String, Object>> insert = lambdaTemplate.lambdaInsert("USER_TABLE").applyMap(userData);
+            insert.getBoundSql().getSqlString().equals("INSERT INTO USER_TABLE (\"ID\", \"NAME\", AGE, CREATE_TIME) VALUES (?, ?, ?, ?)");
             assert insert.executeSumResult() == 1;
 
             // 校验结果
-            MapQueryOperation lambdaQuery = lambdaTemplate.lambdaQuery("user");
+            MapQueryOperation lambdaQuery = lambdaTemplate.lambdaQuery("USER_TABLE");
             Map<String, Object> resultData = lambdaQuery.eq("AGE", 120).queryForObject();
             assert resultData.get("name").equals("default user");
         }
@@ -44,12 +44,12 @@ public class CaseSensitiveTest {
             userData.put("name", "default user");
             userData.put("create_time", "2022-01-01 12:12:12");
 
-            InsertOperation<Map<String, Object>> insert = lambdaTemplate.lambdaInsert("user").applyMap(userData);
-            insert.getBoundSql().getSqlString().equals("INSERT INTO USER (ID, NAME, AGE, CREATE_TIME) VALUES (?, ?, ?, ?)");
+            InsertOperation<Map<String, Object>> insert = lambdaTemplate.lambdaInsert("user_table").applyMap(userData);
+            insert.getBoundSql().getSqlString().equals("INSERT INTO USER_TABLE (\"ID\", \"NAME\", AGE, CREATE_TIME) VALUES (?, ?, ?, ?)");
             assert insert.executeSumResult() == 1;
 
             // 校验结果
-            MapQueryOperation lambdaQuery = lambdaTemplate.lambdaQuery("user");
+            MapQueryOperation lambdaQuery = lambdaTemplate.lambdaQuery("user_table");
             Map<String, Object> resultData = lambdaQuery.eq("age", 120).queryForObject();
             assert resultData.get("name").equals("default user");
         }
@@ -64,7 +64,7 @@ public class CaseSensitiveTest {
             lambdaTemplate.setResultsCaseInsensitive(false); //设置为敏感
 
             // H2 列名/表名 默认都是大写的
-            Map<String, Object> resultData = lambdaTemplate.lambdaQuery("USER")//
+            Map<String, Object> resultData = lambdaTemplate.lambdaQuery("USER_TABLE")//
                     .eq("ID", 1).queryForObject();
 
             // H2 列名默认都是大写的
@@ -80,13 +80,13 @@ public class CaseSensitiveTest {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             lambdaTemplate.setUseQualifier(true); //请求参数使用限定符
 
-            String sqlString1 = lambdaTemplate.lambdaQuery("USER").eq("ID", 1).getBoundSql().getSqlString();
-            assert sqlString1.equals("SELECT * FROM \"USER\" WHERE \"ID\" = ?");
+            String sqlString1 = lambdaTemplate.lambdaQuery("USER_TABLE").eq("ID", 1).getBoundSql().getSqlString();
+            assert sqlString1.equals("SELECT * FROM \"USER_TABLE\" WHERE \"ID\" = ?");
 
             lambdaTemplate.setUseQualifier(false); //请求参数不使用限定符
 
-            String sqlString2 = lambdaTemplate.lambdaQuery("USER").eq("ID", 1).getBoundSql().getSqlString();
-            assert sqlString2.equals("SELECT * FROM USER WHERE ID = ?");
+            String sqlString2 = lambdaTemplate.lambdaQuery("USER_TABLE").eq("ID", 1).getBoundSql().getSqlString();
+            assert sqlString2.equals("SELECT * FROM USER_TABLE WHERE ID = ?");
         }
     }
 }

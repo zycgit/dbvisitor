@@ -13,30 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.dto;
+package net.hasor.scene.defaultconf.dto;
 import java.util.Date;
 
 /**
- *
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-@Deprecated
-public class TbUser2 {
-    private String uid;
-    private String name;
-    private String account;
-    private String password;
-    private String mail;
-    private int    index;
-    private Date   createTime;
+public class UserTable {
+    private Integer id;
+    private String  name;
+    private Integer age;
+    private Date    createTime;
 
-    public String getUid() {
-        return uid;
+    public Integer getId() {
+        return id;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -47,36 +42,12 @@ public class TbUser2 {
         this.name = name;
     }
 
-    public String getAccount() {
-        return account;
+    public Integer getAge() {
+        return age;
     }
 
-    public void setAccount(String account) {
-        this.account = account;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getMail() {
-        return mail;
-    }
-
-    public void setMail(String mail) {
-        this.mail = mail;
-    }
-
-    public int getIndex() {
-        return index;
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
+    public void setAge(Integer age) {
+        this.age = age;
     }
 
     public Date getCreateTime() {

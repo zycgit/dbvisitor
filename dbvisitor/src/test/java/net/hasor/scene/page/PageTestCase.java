@@ -18,7 +18,7 @@ import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.TbUser;
+import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -38,12 +38,12 @@ public class PageTestCase extends AbstractDbTest {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             List<String> userIds = new ArrayList<>();
-            Iterator<TbUser> userIterator = lambdaTemplate.lambdaQuery(TbUser.class).queryForIterator(-1, 1);
+            Iterator<UserInfo2> userIterator = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForIterator(-1, 1);
             while (userIterator.hasNext()) {
                 userIds.add(userIterator.next().getUid());
             }
 
-            assert lambdaTemplate.lambdaQuery(TbUser.class).queryForCount() == userIds.size();
+            assert lambdaTemplate.lambdaQuery(UserInfo2.class).queryForCount() == userIds.size();
         }
     }
 
@@ -51,9 +51,9 @@ public class PageTestCase extends AbstractDbTest {
     public void lambdaQuery_stream_page_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            //
+
             List<String> userIds = new ArrayList<>();
-            Iterator<TbUser> userIterator = lambdaTemplate.lambdaQuery(TbUser.class).queryForIterator(2, 1);
+            Iterator<UserInfo2> userIterator = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForIterator(2, 1);
             while (userIterator.hasNext()) {
                 userIds.add(userIterator.next().getUid());
             }
@@ -66,8 +66,8 @@ public class PageTestCase extends AbstractDbTest {
     public void lambdaQuery_stream_page_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            //
-            Page userIterator = lambdaTemplate.lambdaQuery(TbUser.class).pageInfo();
+
+            Page userIterator = lambdaTemplate.lambdaQuery(UserInfo2.class).pageInfo();
             assert userIterator.getTotalCount() == 3;
         }
     }
@@ -75,7 +75,7 @@ public class PageTestCase extends AbstractDbTest {
     @Test
     public void lambdaQuery_stream_page_3() {
         LambdaTemplate lambdaTemplate = new LambdaTemplate();
-        Page userIterator = lambdaTemplate.lambdaQuery(TbUser.class).pageInfo();
+        Page userIterator = lambdaTemplate.lambdaQuery(UserInfo2.class).pageInfo();
         userIterator.setTotalCount(123);
         assert userIterator.getTotalCount() == 123;
     }
@@ -84,7 +84,7 @@ public class PageTestCase extends AbstractDbTest {
     public void lambdaQuery_stream_page_4() {
         Page pageInfo = new PageObject(2, 10);
         LambdaTemplate lambdaTemplate = new LambdaTemplate();
-        Page userIterator = lambdaTemplate.lambdaQuery(TbUser.class).usePage(pageInfo).pageInfo();
+        Page userIterator = lambdaTemplate.lambdaQuery(UserInfo2.class).usePage(pageInfo).pageInfo();
         assert userIterator.getTotalCount() == 10;
     }
 }

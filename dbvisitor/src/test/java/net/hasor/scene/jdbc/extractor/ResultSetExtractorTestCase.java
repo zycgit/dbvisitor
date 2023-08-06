@@ -24,7 +24,7 @@ public class ResultSetExtractorTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Object[] args = new Object[] { SqlParameterUtils.withInput(40) };
-            List<String> result = jdbcTemplate.query("select * from user where age > ? order by id", args, new UserNameResultSetExtractor());
+            List<String> result = jdbcTemplate.query("select * from user_table where age > ? order by id", args, new UserNameResultSetExtractor());
 
             assert result.size() == 2;
             assert result.get(0).equals("jon wes");
@@ -37,7 +37,7 @@ public class ResultSetExtractorTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<String> result = jdbcTemplate.query("select * from user where age > 40 order by id", new UserNameResultSetExtractor());
+            List<String> result = jdbcTemplate.query("select * from user_table where age > 40 order by id", new UserNameResultSetExtractor());
 
             assert result.size() == 2;
             assert result.get(0).equals("jon wes");
@@ -51,7 +51,7 @@ public class ResultSetExtractorTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Map<String, Object> args = CollectionUtils.asMap("age", 40);
-            List<String> result = jdbcTemplate.query("select * from user where age > :age order by id", args, new UserNameResultSetExtractor());
+            List<String> result = jdbcTemplate.query("select * from user_table where age > :age order by id", args, new UserNameResultSetExtractor());
 
             assert result.size() == 2;
             assert result.get(0).equals("jon wes");
@@ -65,7 +65,7 @@ public class ResultSetExtractorTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             PreparedStatementSetter setter = new ArgPreparedStatementSetter(new Object[] { 40 });
-            List<String> result = jdbcTemplate.query("select * from user where age > ? order by id", setter, new UserNameResultSetExtractor());
+            List<String> result = jdbcTemplate.query("select * from user_table where age > ? order by id", setter, new UserNameResultSetExtractor());
 
             assert result.size() == 2;
             assert result.get(0).equals("jon wes");
@@ -79,7 +79,7 @@ public class ResultSetExtractorTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             SqlParameterSource argSource = new MapSqlParameterSource(CollectionUtils.asMap("arg", 40));
-            List<String> result = jdbcTemplate.query("select * from user where age > :arg order by id", argSource, new UserNameResultSetExtractor());
+            List<String> result = jdbcTemplate.query("select * from user_table where age > :arg order by id", argSource, new UserNameResultSetExtractor());
 
             assert result.size() == 2;
             assert result.get(0).equals("jon wes");
@@ -93,7 +93,7 @@ public class ResultSetExtractorTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Object[] args = new Object[] { SqlParameterUtils.withInOut(40, Types.INTEGER) };
-            List<String> result = jdbcTemplate.query("select * from user where age > ? order by id", args, new UserNameResultSetExtractor());
+            List<String> result = jdbcTemplate.query("select * from user_table where age > ? order by id", args, new UserNameResultSetExtractor());
 
             assert result.size() == 2;
             assert result.get(0).equals("jon wes");

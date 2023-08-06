@@ -25,11 +25,11 @@ public class BatchDeleteTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Object[][] args = new Object[][] { { 1 }, { 2 }, { 3 }, };
-            int[] ints = jdbcTemplate.executeBatch("delete user where id = ?;", args);
+            int[] ints = jdbcTemplate.executeBatch("delete user_table where id = ?;", args);
             assert ints.length == 3;
             assert Arrays.stream(ints).sum() == 3;
 
-            List<UserDTO> users = jdbcTemplate.queryForList("select * from user where id in (1,2,3);", UserDTO.class);
+            List<UserDTO> users = jdbcTemplate.queryForList("select * from user_table where id in (1,2,3);", UserDTO.class);
             Set<String> ids = users.stream().map(UserDTO::getName).collect(Collectors.toSet());
 
             assert ids.size() == 0;
@@ -47,11 +47,11 @@ public class BatchDeleteTestCase {
                     new MapSqlParameterSource(CollectionUtils.asMap("id", 3)),//
             };
 
-            int[] ints = jdbcTemplate.executeBatch("delete user where id = :id;", args);
+            int[] ints = jdbcTemplate.executeBatch("delete user_table where id = :id;", args);
             assert ints.length == 3;
             assert Arrays.stream(ints).sum() == 3;
 
-            List<UserDTO> users = jdbcTemplate.queryForList("select * from user where id in (1,2,3);", UserDTO.class);
+            List<UserDTO> users = jdbcTemplate.queryForList("select * from user_table where id in (1,2,3);", UserDTO.class);
             Set<String> ids = users.stream().map(UserDTO::getName).collect(Collectors.toSet());
 
             assert ids.size() == 0;
@@ -69,11 +69,11 @@ public class BatchDeleteTestCase {
                     CollectionUtils.asMap("id", 3),//
             };
 
-            int[] ints = jdbcTemplate.executeBatch("delete user where id = :id;", args);
+            int[] ints = jdbcTemplate.executeBatch("delete user_table where id = :id;", args);
             assert ints.length == 3;
             assert Arrays.stream(ints).sum() == 3;
 
-            List<UserDTO> users = jdbcTemplate.queryForList("select * from user where id in (1,2,3);", UserDTO.class);
+            List<UserDTO> users = jdbcTemplate.queryForList("select * from user_table where id in (1,2,3);", UserDTO.class);
             Set<String> ids = users.stream().map(UserDTO::getName).collect(Collectors.toSet());
 
             assert ids.size() == 0;
@@ -99,11 +99,11 @@ public class BatchDeleteTestCase {
                 }
             };
 
-            int[] ints = jdbcTemplate.executeBatch("delete user where id = ?;", setter);
+            int[] ints = jdbcTemplate.executeBatch("delete user_table where id = ?;", setter);
             assert ints.length == 3;
             assert Arrays.stream(ints).sum() == 3;
 
-            List<UserDTO> users = jdbcTemplate.queryForList("select * from user where id in (1,2,3);", UserDTO.class);
+            List<UserDTO> users = jdbcTemplate.queryForList("select * from user_table where id in (1,2,3);", UserDTO.class);
             Set<String> ids = users.stream().map(UserDTO::getName).collect(Collectors.toSet());
 
             assert ids.size() == 0;

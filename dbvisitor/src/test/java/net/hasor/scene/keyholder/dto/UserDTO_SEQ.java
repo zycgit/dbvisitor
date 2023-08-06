@@ -25,7 +25,7 @@ import java.util.Date;
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-@Table("user")
+@Table("user_table")
 public class UserDTO_SEQ {
     @KeySeq("test_seq")
     @Column(primary = true, keyType = KeyTypeEnum.Sequence)

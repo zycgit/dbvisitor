@@ -20,7 +20,7 @@ public class SourceArgsTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             SqlParameterSource argSource = new MapSqlParameterSource(CollectionUtils.asMap("arg", 40));
-            List<UserDTO> result = jdbcTemplate.queryForList("select * from user where age > :arg order by id", argSource, UserDTO.class);
+            List<UserDTO> result = jdbcTemplate.queryForList("select * from user_table where age > :arg order by id", argSource, UserDTO.class);
 
             assert result.size() == 2;
             assert result.get(0).getName().equals("jon wes");
@@ -34,7 +34,7 @@ public class SourceArgsTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             SqlParameterSource argSource = new MapSqlParameterSource(CollectionUtils.asMap("arg", 40));
-            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user where age > :arg order by id", argSource);
+            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user_table where age > :arg order by id", argSource);
 
             assert result.size() == 2;
             assert result.get(0).get("name").equals("jon wes");

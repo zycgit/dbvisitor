@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.test.utils;
-import net.hasor.test.dto.TbUser;
 import net.hasor.test.dto.UserInfo;
 
 import java.util.Date;
@@ -40,17 +39,6 @@ public class TestUtils {
 
     public static String newID() {
         return UUID.randomUUID().toString();
-    }
-
-    private static TbUser fillBean(Object[] data, TbUser tbUser) {
-        tbUser.setUid((String) data[0]);
-        tbUser.setName((String) data[1]);
-        tbUser.setAccount((String) data[2]);
-        tbUser.setPassword((String) data[3]);
-        tbUser.setMail((String) data[4]);
-        tbUser.setIndex((Integer) data[5]);
-        tbUser.setCreateTime((Date) data[6]);
-        return tbUser;
     }
 
     private static UserInfo fillBean(Object[] data, UserInfo tbUser) {

@@ -30,11 +30,11 @@ public class BatchUpdateTestCase {
                     { "person 3", 3 },  //
             };
 
-            int[] ints = jdbcTemplate.executeBatch("update user set name = ? where id = ?;", args);
+            int[] ints = jdbcTemplate.executeBatch("update user_table set name = ? where id = ?;", args);
             assert ints.length == 3;
             assert Arrays.stream(ints).sum() == 3;
 
-            List<UserDTO> users = jdbcTemplate.queryForList("select * from user where id in (1,2,3);", UserDTO.class);
+            List<UserDTO> users = jdbcTemplate.queryForList("select * from user_table where id in (1,2,3);", UserDTO.class);
             Set<String> ids = users.stream().map(UserDTO::getName).collect(Collectors.toSet());
 
             assert ids.size() == 3;
@@ -55,11 +55,11 @@ public class BatchUpdateTestCase {
                     new MapSqlParameterSource(CollectionUtils.asMap("id", 3, "name", "person 3")),//
             };
 
-            int[] ints = jdbcTemplate.executeBatch("update user set name =:name where id = :id;", args);
+            int[] ints = jdbcTemplate.executeBatch("update user_table set name =:name where id = :id;", args);
             assert ints.length == 3;
             assert Arrays.stream(ints).sum() == 3;
 
-            List<UserDTO> users = jdbcTemplate.queryForList("select * from user where id in (1,2,3);", UserDTO.class);
+            List<UserDTO> users = jdbcTemplate.queryForList("select * from user_table where id in (1,2,3);", UserDTO.class);
             Set<String> ids = users.stream().map(UserDTO::getName).collect(Collectors.toSet());
 
             assert ids.size() == 3;
@@ -80,11 +80,11 @@ public class BatchUpdateTestCase {
                     CollectionUtils.asMap("id", 3, "name", "person 3"),//
             };
 
-            int[] ints = jdbcTemplate.executeBatch("update user set name =:name where id = :id;", args);
+            int[] ints = jdbcTemplate.executeBatch("update user_table set name =:name where id = :id;", args);
             assert ints.length == 3;
             assert Arrays.stream(ints).sum() == 3;
 
-            List<UserDTO> users = jdbcTemplate.queryForList("select * from user where id in (1,2,3);", UserDTO.class);
+            List<UserDTO> users = jdbcTemplate.queryForList("select * from user_table where id in (1,2,3);", UserDTO.class);
             Set<String> ids = users.stream().map(UserDTO::getName).collect(Collectors.toSet());
 
             assert ids.size() == 3;
@@ -118,11 +118,11 @@ public class BatchUpdateTestCase {
                 }
             };
 
-            int[] ints = jdbcTemplate.executeBatch("update user set name = ? where id = ?;", setter);
+            int[] ints = jdbcTemplate.executeBatch("update user_table set name = ? where id = ?;", setter);
             assert ints.length == 3;
             assert Arrays.stream(ints).sum() == 3;
 
-            List<UserDTO> users = jdbcTemplate.queryForList("select * from user where id in (1,2,3);", UserDTO.class);
+            List<UserDTO> users = jdbcTemplate.queryForList("select * from user_table where id in (1,2,3);", UserDTO.class);
             Set<String> ids = users.stream().map(UserDTO::getName).collect(Collectors.toSet());
 
             assert ids.size() == 3;

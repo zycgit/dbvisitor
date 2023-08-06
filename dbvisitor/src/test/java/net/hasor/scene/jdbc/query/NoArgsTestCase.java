@@ -15,7 +15,7 @@ public class NoArgsTestCase {
     public void noArgs_0() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            List<UserDTO> result = jdbcTemplate.queryForList("select * from user where age > 40 order by id", UserDTO.class);
+            List<UserDTO> result = jdbcTemplate.queryForList("select * from user_table where age > 40 order by id", UserDTO.class);
 
             assert result.size() == 2;
             assert result.get(0).getName().equals("jon wes");
@@ -27,7 +27,7 @@ public class NoArgsTestCase {
     public void noArgs_1() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user where age > 40 order by id");
+            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user_table where age > 40 order by id");
 
             assert result.size() == 2;
             assert result.get(0).get("name").equals("jon wes");

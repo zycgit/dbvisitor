@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.scene.defaultconf.dto;
+package net.hasor.scene.singletable.dto;
 import java.util.Date;
 
 /**
  * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
  */
-public class User {
+public class UserTable {
     private Integer id;
     private String  name;
     private Integer age;
-    private Date    createTime;
+    private Date    create_time; // 没有启用驼峰参数之前，列名需要严格和数据库保持一致
 
     public Integer getId() {
         return id;
@@ -50,11 +50,11 @@ public class User {
         this.age = age;
     }
 
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreate_time() {
+        return create_time;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreate_time(Date create_time) {
+        this.create_time = create_time;
     }
 }
