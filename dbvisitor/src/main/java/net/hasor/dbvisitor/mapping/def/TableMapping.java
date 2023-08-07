@@ -39,6 +39,9 @@ public interface TableMapping<T> {
 
     Class<T> entityType();
 
+    /** 映射的实体是否是基于 Map */
+    boolean isMapEntity();
+
     /** 是否将类型下的所有属性都当作数据库字段进行映射，true 表示自动。false 表示必须通过 @Column 注解声明 */
     boolean isAutoProperty();
 

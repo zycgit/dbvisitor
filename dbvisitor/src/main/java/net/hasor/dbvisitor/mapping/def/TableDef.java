@@ -112,6 +112,11 @@ public class TableDef<T> implements TableMapping<T> {
         return this.mapUnderscoreToCamelCase;
     }
 
+    /** 映射的实体是否是基于 Map */
+    public boolean isMapEntity() {
+        return this.mapBased;
+    }
+
     @Override
     public Collection<ColumnMapping> getProperties() {
         return this.columnMappings;

@@ -157,7 +157,7 @@ public class LambdaInsertTest extends AbstractDbTest {
         Map<String, Object> tbUser1 = new LinkedCaseInsensitiveMap<>(CollectionUtils.asMap("name", "默罕默德", "uid", "uuid-1"));
         Map<String, Object> tbUser2 = new LinkedCaseInsensitiveMap<>(CollectionUtils.asMap("name", "安妮.贝隆", "uid", "uuid-2"));
 
-        try (Connection c = DsUtils.h2Conn()) {
+        try (Connection c = DsUtils.mysqlConn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             lambdaTemplate.execute("delete from auto_id");
 

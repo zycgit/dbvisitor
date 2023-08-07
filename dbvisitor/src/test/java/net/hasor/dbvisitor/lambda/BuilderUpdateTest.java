@@ -29,6 +29,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /***
@@ -148,12 +149,12 @@ public class BuilderUpdateTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            Map<String, Object> whereValue = new HashMap<>();
+            Map<String, Object> whereValue = new LinkedHashMap<>();
             whereValue.put("id", 1);
             whereValue.put("name", "mali");
             whereValue.put("abc", "abc");
 
-            Map<String, Object> setValue = new HashMap<>();
+            Map<String, Object> setValue = new LinkedHashMap<>();
             setValue.put("name", "mali2");
             setValue.put("abc", "abc");
             setValue.put("uid", "the new uid");
@@ -163,24 +164,13 @@ public class BuilderUpdateTest extends AbstractDbTest {
                     .eqBySampleMap(whereValue)  // where ...
                     .updateBySample(setValue)   // set ...
                     .getBoundSql();
-            assert boundSql1.getSqlString().equals("UPDATE AUTO_ID SET UID = ? , NAME = ? WHERE ( ID = ? AND NAME = ? )");
+            assert boundSql1.getSqlString().equals("UPDATE auto_id SET uid = ? , abc = ? , name = ? WHERE ( id = ? AND name = ? AND abc = ? )");
             assert ((MappedArg) boundSql1.getArgs()[0]).getValue().equals("the new uid");
-            assert ((MappedArg) boundSql1.getArgs()[1]).getValue().equals("mali2");
-            assert ((MappedArg) boundSql1.getArgs()[2]).getValue().equals(1);
-            assert ((MappedArg) boundSql1.getArgs()[3]).getValue().equals("mali");
-
-            // update auto_id set uid = 'the new uid' , name = 'mali2' where id = 1 and name = 'mali'
-            BoundSql boundSql2 = lambdaTemplate.lambdaUpdate("auto_id")//
-                    .eqBySampleMap(whereValue)  // where ...
-                    .updateByMap(setValue)      // set ...
-                    .getBoundSql();
-
-            // UPDATE AUTO_ID SET UID = ? , NAME = ? WHERE ( ID = ? AND NAME = ? )
-            assert boundSql2.getSqlString().equals("UPDATE AUTO_ID SET UID = ? , NAME = ? WHERE ( ID = ? AND NAME = ? )");
-            assert ((MappedArg) boundSql2.getArgs()[0]).getValue().equals("the new uid");
-            assert ((MappedArg) boundSql2.getArgs()[1]).getValue().equals("mali2");
-            assert ((MappedArg) boundSql2.getArgs()[2]).getValue().equals(1);
-            assert ((MappedArg) boundSql2.getArgs()[3]).getValue().equals("mali");
+            assert ((MappedArg) boundSql1.getArgs()[1]).getValue().equals("abc");
+            assert ((MappedArg) boundSql1.getArgs()[2]).getValue().equals("mali2");
+            assert ((MappedArg) boundSql1.getArgs()[3]).getValue().equals(1);
+            assert ((MappedArg) boundSql1.getArgs()[4]).getValue().equals("mali");
+            assert ((MappedArg) boundSql1.getArgs()[5]).getValue().equals("abc");
         }
     }
 
@@ -204,7 +194,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
                     .eqBySampleMap(whereValue)  // where ...
                     .updateBySample(setValue)   // set ...
                     .getBoundSql();
-            assert boundSql1.getSqlString().equals("UPDATE NOT_EXIST_TABLE SET uid = ? , abc = ? , name = ? WHERE ( abc = ? AND name = ? AND id = ? )");
+            assert boundSql1.getSqlString().equals("UPDATE not_exist_table SET uid = ? , abc = ? , name = ? WHERE ( abc = ? AND name = ? AND id = ? )");
             assert ((MappedArg) boundSql1.getArgs()[0]).getValue().equals("the new uid");
             assert ((MappedArg) boundSql1.getArgs()[1]).getValue().equals("abc");
             assert ((MappedArg) boundSql1.getArgs()[2]).getValue().equals("mali2");
@@ -219,7 +209,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
                     .getBoundSql();
 
             //UPDATE AUTO_ID SET UID = ? , NAME = ? WHERE ( ID = ? AND NAME = ? )
-            assert boundSql2.getSqlString().equals("UPDATE NOT_EXIST_TABLE SET uid = ? , abc = ? , name = ? WHERE ( abc = ? AND name = ? AND id = ? )");
+            assert boundSql2.getSqlString().equals("UPDATE not_exist_table SET uid = ? , abc = ? , name = ? WHERE ( abc = ? AND name = ? AND id = ? )");
             assert ((MappedArg) boundSql2.getArgs()[0]).getValue().equals("the new uid");
             assert ((MappedArg) boundSql2.getArgs()[1]).getValue().equals("abc");
             assert ((MappedArg) boundSql2.getArgs()[2]).getValue().equals("mali2");

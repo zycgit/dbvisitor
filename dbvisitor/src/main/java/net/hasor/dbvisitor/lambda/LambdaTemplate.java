@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
-import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.function.Property;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
@@ -24,8 +22,6 @@ import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.DynamicConnection;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.keyholder.CreateContext;
-import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.lambda.core.BasicLambda;
 import net.hasor.dbvisitor.lambda.support.entity.DeleteLambdaForEntity;
 import net.hasor.dbvisitor.lambda.support.entity.InsertLambdaForEntity;
@@ -35,20 +31,19 @@ import net.hasor.dbvisitor.lambda.support.map.DeleteLambdaForMap;
 import net.hasor.dbvisitor.lambda.support.map.InsertLambdaForMap;
 import net.hasor.dbvisitor.lambda.support.map.SelectLambdaForMap;
 import net.hasor.dbvisitor.lambda.support.map.UpdateLambdaForMap;
-import net.hasor.dbvisitor.mapping.KeyTypeEnum;
-import net.hasor.dbvisitor.mapping.def.ColumnDef;
 import net.hasor.dbvisitor.mapping.def.TableDef;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
-import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import javax.sql.DataSource;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 /**
  * 继承自 JdbcTemplate 并提供 lambda 方式生成 SQL。
@@ -190,83 +185,6 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         this.useQualifier = useQualifier;
     }
 
-    private List<String> fetchPrimaryKeys(Connection con, TableDef<?> tableDef) throws SQLException {
-        try (ResultSet primaryKeys = con.getMetaData().getPrimaryKeys(tableDef.getCatalog(), tableDef.getSchema(), tableDef.getTable())) {
-            List<String> keys = new ArrayList<>();
-            while (primaryKeys.next()) {
-                keys.add(primaryKeys.getString("COLUMN_NAME"));
-            }
-            return keys;
-        }
-    }
-
-    private List<String> fetchUniqueKeys(Connection con, TableDef<?> tableDef) throws SQLException {
-        try (ResultSet indexInfo = con.getMetaData().getIndexInfo(tableDef.getCatalog(), tableDef.getSchema(), tableDef.getTable(), false, false)) {
-            List<String> keys = new ArrayList<>();
-            while (indexInfo.next()) {
-                boolean nonUnique = indexInfo.getBoolean("NON_UNIQUE");
-                if (!nonUnique) {
-                    keys.add(indexInfo.getString("COLUMN_NAME"));
-                }
-            }
-            return keys;
-        }
-    }
-
-    protected List<ColumnDef> fetchColumns(Connection con, TableDef<?> tableDef, MappingOptions options, Function<String, String> fmtName) throws SQLException {
-        List<String> primaryKey = fetchPrimaryKeys(con, tableDef);
-        //List<String> uniqueKey = fetchUniqueKeys(con, schema, table);
-        TypeHandlerRegistry typeRegistry = getTypeRegistry();
-
-        try (ResultSet rs = con.getMetaData().getColumns(tableDef.getCatalog(), tableDef.getSchema(), tableDef.getTable(), null)) {
-            ResultSetMetaData metaData = rs.getMetaData();
-            int columnCount = metaData.getColumnCount();
-            List<String> colNames = new ArrayList<>();
-            for (int i = 1; i <= columnCount; i++) {
-                colNames.add(metaData.getColumnName(i));
-            }
-
-            List<ColumnDef> result = new ArrayList<>();
-            while (rs.next()) {
-                Map<String, Object> confMap = new HashMap<>();
-                for (String confName : colNames) {
-                    confMap.put(confName, rs.getString(confName));
-                }
-
-                String columnName = rs.getString("COLUMN_NAME");
-                String propertyName = lineToHump(columnName, options.getMapUnderscoreToCamelCase());
-                Integer jdbcType = rs.getInt("DATA_TYPE");
-                if (rs.wasNull()) {
-                    jdbcType = null;
-                }
-                boolean isAuto = StringUtils.equalsIgnoreCase("YES", rs.getString("IS_AUTOINCREMENT"));
-                boolean isVirtual = StringUtils.equalsIgnoreCase("YES", rs.getString("IS_GENERATEDCOLUMN"));
-                boolean isPrimary = primaryKey.contains(columnName);
-
-                TypeHandler<?> typeHandler = (jdbcType == null) ? typeRegistry.getDefaultTypeHandler() : typeRegistry.getTypeHandler(jdbcType);
-                Property mapHandler = BeanUtils.createMapPropertyFunc(propertyName);
-
-                ColumnDef colDef = new ColumnDef(columnName, propertyName, jdbcType, Object.class, typeHandler, mapHandler, !isVirtual, !isVirtual, isPrimary);
-
-                // init KeySeqHolder
-                if (isAuto) {
-                    KeySeqHolder sequenceHolder = KeyTypeEnum.Auto.createHolder(new CreateContext(options, this.getTypeRegistry(), tableDef, colDef, confMap));
-                    colDef.setKeySeqHolder(sequenceHolder);
-                }
-                result.add(colDef);
-            }
-            return result;
-        }
-    }
-
-    private String lineToHump(String str, Boolean mapUnderscoreToCamelCase) {
-        if (StringUtils.isBlank(str) || mapUnderscoreToCamelCase == null || !mapUnderscoreToCamelCase) {
-            return str;
-        } else {
-            return StringUtils.lineToHump(str);
-        }
-    }
-
     protected <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
         if (exampleType == null) {
             throw new NullPointerException("exampleType is null.");
@@ -323,24 +241,15 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         copyOpt.setMapUnderscoreToCamelCase(Boolean.TRUE.equals(copyOpt.getMapUnderscoreToCamelCase()));
         copyOpt.setDefaultDialect(this.getDialect());
 
-        Function<String, String> fmtNameFoo = fmtNameFoo(copyOpt);
-
-        final String finalCatalog = StringUtils.isBlank(catalog) ? null : fmtNameFoo.apply(catalog);
-        final String finalSchema = StringUtils.isBlank(schema) ? null : fmtNameFoo.apply(schema);
-        final String finalTable = StringUtils.isBlank(table) ? null : fmtNameFoo.apply(table);
+        final String finalCatalog = StringUtils.isBlank(catalog) ? null : catalog;
+        final String finalSchema = StringUtils.isBlank(schema) ? null : schema;
+        final String finalTable = StringUtils.isBlank(table) ? null : table;
         boolean useDelimited = copyOpt.getUseDelimited();
         boolean caseInsensitive = copyOpt.getCaseInsensitive();
         boolean camelCase = copyOpt.getMapUnderscoreToCamelCase();
 
         final TableDef<?> tableDef = new TableDef<>(finalCatalog, finalSchema, finalTable, LinkedHashMap.class, //
                 true, useDelimited, caseInsensitive, camelCase);
-        List<ColumnDef> columnDefs = execute((ConnectionCallback<List<ColumnDef>>) con -> {
-            return fetchColumns(con, tableDef, copyOpt, fmtNameFoo);
-        });
-
-        for (ColumnDef cDef : columnDefs) {
-            tableDef.addMapping(cDef);
-        }
 
         this.mapMapping.put(mappingKey, tableDef);
         return tableDef;
@@ -407,28 +316,5 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
 
     public void resetMapping(Class<?> exampleType) {
         this.entMapping.remove(exampleType);
-    }
-
-    private Function<String, String> fmtNameFoo(final MappingOptions options) throws SQLException {
-        if (!options.getCaseInsensitive()) {
-            return s -> s;
-        }
-        return execute((ConnectionCallback<Function<String, String>>) con -> {
-            DatabaseMetaData metaData = con.getMetaData();
-            if (options.getUseDelimited()) {
-                if (metaData.storesUpperCaseQuotedIdentifiers()) {
-                    return (Function<String, String>) String::toUpperCase;
-                } else if (metaData.storesLowerCaseQuotedIdentifiers()) {
-                    return (Function<String, String>) String::toLowerCase;
-                }
-            } else {
-                if (metaData.storesUpperCaseIdentifiers()) {
-                    return (Function<String, String>) String::toUpperCase;
-                } else if (metaData.storesLowerCaseIdentifiers()) {
-                    return (Function<String, String>) String::toLowerCase;
-                }
-            }
-            return (Function<String, String>) s -> s;
-        });
     }
 }
