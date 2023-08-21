@@ -15,22 +15,18 @@
  */
 package net.hasor.dbvisitor.lambda.core;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dialect.BatchBoundSql;
+import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.jdbc.ConnectionCallback;
-import net.hasor.dbvisitor.jdbc.PreparedStatementCallback;
 import net.hasor.dbvisitor.jdbc.core.ParameterDisposer;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.types.MappedArg;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -51,9 +47,9 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     protected final Map<String, String>  insertColumnTerms;
     protected final boolean              hasKeySeqHolderColumn;
 
-    protected final List<MappedArg[]>       insertValues;
+    protected final List<InsertEntity>      insertValues;
     protected final List<ParameterDisposer> parameterDisposers; // 只有 insert 需要
-    protected final List<FillBackEntity>    fillBackEntityList;
+    protected final List<InsertEntity>      fillBackEntityList;
 
     public AbstractInsertLambda(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
         super(exampleType, tableMapping, jdbcTemplate);
@@ -61,7 +57,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         this.fillBackProperties = new ArrayList<>();
         initProperties(this.insertProperties, this.fillBackProperties);
 
-        if (this.insertProperties.size() == 0) {
+        if (!tableMapping.isMapEntity() && this.insertProperties.size() == 0) {
             throw new IllegalStateException("no column require INSERT.");
         }
 
@@ -113,110 +109,60 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
 
     @Override
     public R applyEntity(List<T> entityList) throws SQLException {
-        if (this.hasKeySeqHolderColumn) {
-            return this.getJdbcTemplate().execute((ConnectionCallback<R>) con -> {
-                return applyEntity0(con, entityList, exampleIsMap());
-            });
-        } else {
-            return applyEntity0(null, entityList, exampleIsMap());
-        }
-    }
-
-    @Override
-    public R applyMap(List<Map<String, Object>> entityList) throws SQLException {
-        if (this.hasKeySeqHolderColumn) {
-            return this.getJdbcTemplate().execute((ConnectionCallback<R>) con -> {
-                return applyEntity0(con, entityList, true);
-            });
-        } else {
-            return applyEntity0(null, entityList, true);
-        }
-    }
-
-    private R applyEntity0(Connection conn, List<?> entityList, boolean isMap) throws SQLException {
-        boolean supportsGetGeneratedKeys = conn != null && conn.getMetaData().supportsGetGeneratedKeys();
-        int propertyCount = this.insertProperties.size();
-
         for (Object entity : entityList) {
-            MappedArg[] args = new MappedArg[propertyCount];
-            for (int i = 0; i < propertyCount; i++) {
-                Object arg = null;
-                ColumnMapping mapping = this.insertProperties.get(i);
-                if (isMap) {
-                    Map<String, String> entityKeyMap = extractKeysMap((Map) entity);
-                    arg = ((Map) entity).get(entityKeyMap.get(mapping.getProperty()));
-                } else {
-                    arg = mapping.getHandler().get(entity);
-                }
-
-                if (conn != null && arg == null && mapping.getKeySeqHolder() != null) {
-                    arg = mapping.getKeySeqHolder().beforeApply(conn, entity, mapping);
-
-                    if (isMap && arg != null) {
-                        ((Map) entity).put(mapping.getProperty(), arg);
-                    }
-                }
-
-                args[i] = (arg == null) ? null : new MappedArg(arg, mapping.getJdbcType(), isMap ? null : mapping.getTypeHandler());
-            }
-
-            if (supportsGetGeneratedKeys) {
-                this.fillBackEntityList.add(new FillBackEntity(entity, isMap));
-            }
-
-            this.insertValues.add(args);
-            for (MappedArg arg : args) {
-                if (arg != null && arg.getValue() instanceof ParameterDisposer) {
-                    this.parameterDisposers.add((ParameterDisposer) arg.getValue());
-                }
-            }
+            InsertEntity ent = new InsertEntity();
+            ent.isMap = exampleIsMap();
+            ent.object = entity;
+            this.insertValues.add(ent);
         }
         return this.getSelf();
     }
 
     @Override
-    public int[] executeGetResult() throws SQLException {
-        try {
-            BatchBoundSql boundSql = (BatchBoundSql) getBoundSql();
-            String sqlString = boundSql.getSqlString();
-
-            if (logger.isDebugEnabled()) {
-                logger.trace("Executing SQL statement [" + boundSql.getSqlString() + "].");
-            }
-
-            TypeHandlerRegistry typeRegistry = this.getJdbcTemplate().getTypeRegistry();
-
-            if (boundSql.getArgs().length > 1) {
-                return this.getJdbcTemplate().executeCreator(new PreparedStatementCreatorWrap(sqlString, con -> {
-                    PreparedStatement ps = createPrepareStatement(con, sqlString);
-                    for (Object[] batchItem : boundSql.getArgs()) {
-                        applyPreparedStatement(ps, batchItem, typeRegistry);
-                        ps.addBatch();
-                    }
-                    return ps;
-                }), (PreparedStatementCallback<int[]>) ps -> {
-                    int[] res = ps.executeBatch();
-                    processFillBack(ps);
-                    return res;
-                });
-            } else {
-                return this.getJdbcTemplate().executeCreator(new PreparedStatementCreatorWrap(sqlString, con -> {
-                    PreparedStatement ps = createPrepareStatement(con, sqlString);
-                    applyPreparedStatement(ps, boundSql.getArgs()[0], typeRegistry);
-                    return ps;
-                }), (PreparedStatementCallback<int[]>) ps -> {
-                    int res = ps.executeUpdate();
-                    processFillBack(ps);
-                    return new int[] { res };
-                });
-            }
-        } finally {
-            for (ParameterDisposer obj : this.parameterDisposers) {
-                obj.cleanupParameters();
-            }
-            this.insertValues.clear();
-            this.fillBackEntityList.clear();
+    public R applyMap(List<Map<String, Object>> entityList) throws SQLException {
+        for (Object entity : entityList) {
+            InsertEntity ent = new InsertEntity();
+            ent.isMap = true;
+            ent.object = entity;
+            this.insertValues.add(ent);
         }
+        return this.getSelf();
+    }
+
+    protected String buildInsert(SqlDialect dialect, List<String> primaryKeys, List<String> insertColumns, Map<String, String> insertColumnTerms) {
+        boolean isInsertSqlDialect = dialect instanceof InsertSqlDialect;
+        TableMapping<?> tableMapping = this.getTableMapping();
+        String catalogName = tableMapping.getCatalog();
+        String schemaName = tableMapping.getSchema();
+        String tableName = tableMapping.getTable();
+        if (!isInsertSqlDialect) {
+            return DefaultSqlDialect.DEFAULT.insertInto(this.isQualifier(), catalogName, schemaName, tableName, primaryKeys, insertColumns, insertColumnTerms);
+        }
+
+        switch (this.insertStrategy) {
+            case Into: {
+                InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
+                if (insertDialect.supportInto(primaryKeys, insertColumns)) {
+                    return insertDialect.insertInto(this.isQualifier(), catalogName, schemaName, tableName, primaryKeys, insertColumns, insertColumnTerms);
+                }
+                break;
+            }
+            case Ignore: {
+                InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
+                if (insertDialect.supportIgnore(primaryKeys, insertColumns)) {
+                    return insertDialect.insertIgnore(this.isQualifier(), catalogName, schemaName, tableName, primaryKeys, insertColumns, insertColumnTerms);
+                }
+                break;
+            }
+            case Update: {
+                InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
+                if (insertDialect.supportReplace(primaryKeys, insertColumns)) {
+                    return insertDialect.insertReplace(this.isQualifier(), catalogName, schemaName, tableName, primaryKeys, insertColumns, insertColumnTerms);
+                }
+                break;
+            }
+        }
+        throw new UnsupportedOperationException(this.insertStrategy + " Unsupported.");
     }
 
     protected PreparedStatement createPrepareStatement(Connection con, String sqlString) throws SQLException {
@@ -227,7 +173,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         }
     }
 
-    private void applyPreparedStatement(PreparedStatement ps, Object[] batchValues, TypeHandlerRegistry typeRegistry) throws SQLException {
+    protected void applyPreparedStatement(PreparedStatement ps, Object[] batchValues, TypeHandlerRegistry typeRegistry) throws SQLException {
         int idx = 1;
         for (Object value : batchValues) {
             if (value == null) {
@@ -239,123 +185,8 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         }
     }
 
-    private void processFillBack(PreparedStatement fillBack) throws SQLException {
-        if (!this.hasKeySeqHolderColumn) {
-            return;
-        }
-        ResultSet rs = fillBack.getGeneratedKeys();
-        for (FillBackEntity entity : this.fillBackEntityList) {
-            if (!rs.next()) {
-                break;
-            }
-            for (int i = 0; i < this.fillBackProperties.size(); i++) {
-                ColumnMapping mapping = this.fillBackProperties.get(i);
-                if (mapping.getKeySeqHolder() != null) {
-                    Object value = mapping.getKeySeqHolder().afterApply(rs, entity.object, i, mapping);
-                    if (entity.isMap && value != null) {
-                        ((Map) entity.object).put(mapping.getProperty(), value);
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    protected BatchBoundSql buildBoundSql(SqlDialect dialect) {
-        if (this.insertValues.size() == 0) {
-            throw new IllegalStateException("there is no data to insert");
-        } else {
-            return dialectInsert(dialect);
-        }
-    }
-
-    protected BatchBoundSql dialectInsert(SqlDialect dialect) {
-        boolean isInsertSqlDialect = dialect instanceof InsertSqlDialect;
-        TableMapping<?> tableMapping = this.getTableMapping();
-        String catalogName = tableMapping.getCatalog();
-        String schemaName = tableMapping.getSchema();
-        String tableName = tableMapping.getTable();
-        if (!isInsertSqlDialect) {
-            String sqlString = defaultDialectInsert(catalogName, schemaName, tableName, this.insertColumns, this.insertColumnTerms, dialect);
-            return buildBatchBoundSql(sqlString);
-        }
-
-        switch (this.insertStrategy) {
-            case Into: {
-                InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
-                if (insertDialect.supportInto(this.primaryKeys, this.insertColumns)) {
-                    String sqlString = insertDialect.insertInto(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns, this.insertColumnTerms);
-                    return buildBatchBoundSql(sqlString);
-                }
-                break;
-            }
-            case Ignore: {
-                InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
-                if (insertDialect.supportIgnore(this.primaryKeys, this.insertColumns)) {
-                    String sqlString = insertDialect.insertIgnore(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns, this.insertColumnTerms);
-                    return buildBatchBoundSql(sqlString);
-                }
-                break;
-            }
-            case Update: {
-                InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
-                if (insertDialect.supportReplace(this.primaryKeys, this.insertColumns)) {
-                    String sqlString = insertDialect.insertReplace(this.isQualifier(), catalogName, schemaName, tableName, this.primaryKeys, this.insertColumns, this.insertColumnTerms);
-                    return buildBatchBoundSql(sqlString);
-                }
-                break;
-            }
-        }
-        throw new UnsupportedOperationException(this.insertStrategy + " Unsupported.");
-    }
-
-    protected BatchBoundSql buildBatchBoundSql(String batchSql) {
-        Object[][] args = new Object[this.insertValues.size()][];
-        for (int i = 0; i < this.insertValues.size(); i++) {
-            args[i] = this.insertValues.get(i);
-        }
-        return new BatchBoundSql.BatchBoundSqlObj(batchSql, args);
-    }
-
-    private static class FillBackEntity {
+    protected static class InsertEntity {
         public Object  object;
         public boolean isMap;
-
-        public FillBackEntity(Object object, boolean isMap) {
-            this.object = object;
-            this.isMap = isMap;
-        }
     }
-
-    private String defaultDialectInsert(String catalog, String schema, String table, List<String> columns, Map<String, String> columnValueTerms, SqlDialect dialect) {
-        boolean useQualifier = isQualifier();
-        StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("INSERT INTO ");
-        strBuilder.append(dialect.tableName(useQualifier, catalog, schema, table));
-        strBuilder.append(" ");
-        strBuilder.append("(");
-
-        StringBuilder argBuilder = new StringBuilder();
-        for (int i = 0; i < columns.size(); i++) {
-            String colName = columns.get(i);
-            if (i > 0) {
-                strBuilder.append(", ");
-                argBuilder.append(", ");
-            }
-
-            strBuilder.append(dialect.fmtName(useQualifier, colName));
-            String valueTerm = columnValueTerms != null ? columnValueTerms.get(colName) : null;
-            if (StringUtils.isNotBlank(valueTerm)) {
-                argBuilder.append(valueTerm);
-            } else {
-                argBuilder.append("?");
-            }
-        }
-
-        strBuilder.append(") VALUES (");
-        strBuilder.append(argBuilder);
-        strBuilder.append(")");
-        return strBuilder.toString();
-    }
-
 }

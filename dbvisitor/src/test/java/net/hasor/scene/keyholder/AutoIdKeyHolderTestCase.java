@@ -18,6 +18,7 @@ public class AutoIdKeyHolderTestCase {
     public void autoUUID32TestCase() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            lambdaTemplate.lambdaDelete(UserDTO_32.class).allowEmptyWhere().doDelete();
 
             UserDTO_32 userData = new UserDTO_32();
             userData.setAge(36);
@@ -37,6 +38,7 @@ public class AutoIdKeyHolderTestCase {
     public void autoUUID36TestCase() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            lambdaTemplate.lambdaDelete(UserDTO_36.class).allowEmptyWhere().doDelete();
 
             UserDTO_36 userData = new UserDTO_36();
             userData.setAge(36);

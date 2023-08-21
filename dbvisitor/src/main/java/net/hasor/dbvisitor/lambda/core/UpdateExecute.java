@@ -43,7 +43,7 @@ public interface UpdateExecute<R, T, P> extends BoundSqlBuilder {
 
     /**
      * 整行更新
-     * - 注意1：主键会被自动忽略不参与更新，如果想变更主键需要启用 allowUpdateKey（需要依赖 @Column 注解、或者 map 模式才能识别主键）
+     * - 注意1：主键会被自动忽略不参与更新，如果想变更主键需要启用 allowUpdateKey（需要依赖 @Column 注解标识出主键列）
      * - 注意2：整行更新是危险操作，需要启用 allowReplaceRow
      */
     R updateTo(T newValue);

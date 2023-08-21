@@ -2,7 +2,7 @@ package net.hasor.scene.singletable;
 import net.hasor.dbvisitor.lambda.EntityQueryOperation;
 import net.hasor.dbvisitor.lambda.InsertOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.scene.singletable.dto.UserDTO;
+import net.hasor.scene.singletable.dto.UserTableDTO;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -19,21 +19,21 @@ public class DtoCrudTestCase {
     public void insertByBean() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            lambdaTemplate.lambdaDelete(UserDTO.class).allowEmptyWhere().doDelete();
+            lambdaTemplate.lambdaDelete(UserTableDTO.class).allowEmptyWhere().doDelete();
 
-            UserDTO userData = new UserDTO();
+            UserTableDTO userData = new UserTableDTO();
             userData.setAge(36);
             userData.setName("default user");
             userData.setCreateTime(new Date());
             assert userData.getId() == null;
 
-            InsertOperation<UserDTO> lambdaInsert = lambdaTemplate.lambdaInsert(UserDTO.class);
+            InsertOperation<UserTableDTO> lambdaInsert = lambdaTemplate.lambdaInsert(UserTableDTO.class);
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
             assert userData.getId() != null;// 自增 ID 回填
 
             // 根据 ID 反查
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class);
-            UserDTO resultData = lambdaQuery.eq(UserDTO::getId, userData.getId()).queryForObject();
+            EntityQueryOperation<UserTableDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserTableDTO.class);
+            UserTableDTO resultData = lambdaQuery.eq(UserTableDTO::getId, userData.getId()).queryForObject();
             assert resultData.getName().equals("default user");
         }
     }
@@ -43,7 +43,7 @@ public class DtoCrudTestCase {
     public void insertByMap() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            lambdaTemplate.lambdaDelete(UserDTO.class).allowEmptyWhere().doDelete();
+            lambdaTemplate.lambdaDelete(UserTableDTO.class).allowEmptyWhere().doDelete();
 
             Map<String, Object> userData = new HashMap<>();
             userData.put("age", 36);
@@ -51,14 +51,14 @@ public class DtoCrudTestCase {
             userData.put("create_time", new Date());// 默认驼峰转换是关闭的，因此在没有任何配置的情况下 key 需要和列名完全一致。
             assert userData.get("id") == null;
 
-            InsertOperation<UserDTO> lambdaInsert = lambdaTemplate.lambdaInsert(UserDTO.class);
+            InsertOperation<UserTableDTO> lambdaInsert = lambdaTemplate.lambdaInsert(UserTableDTO.class);
             int res = lambdaInsert.applyMap(userData).executeSumResult();
             assert res == 1;
             assert userData.get("id") != null;// 根据 UserDTO 属性信息，自增 ID 回填
 
             // 校验结果
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class);
-            UserDTO resultData = lambdaQuery.eq(UserDTO::getId, userData.get("id")).queryForObject();
+            EntityQueryOperation<UserTableDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserTableDTO.class);
+            UserTableDTO resultData = lambdaQuery.eq(UserTableDTO::getId, userData.get("id")).queryForObject();
             assert resultData.getName().equals("default user");
         }
     }
@@ -70,14 +70,14 @@ public class DtoCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             // update user set name = 'new name is abc' where id = 1
-            lambdaTemplate.lambdaUpdate(UserDTO.class) //
-                    .eq(UserDTO::getId, 1)       //
-                    .updateTo(UserDTO::getName, "new name is abc")//
+            lambdaTemplate.lambdaUpdate(UserTableDTO.class) //
+                    .eq(UserTableDTO::getId, 1)       //
+                    .updateTo(UserTableDTO::getName, "new name is abc")//
                     .doUpdate();
 
             // 校验结果
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class);
-            UserDTO resultData = lambdaQuery.eq(UserDTO::getId, 1).queryForObject();
+            EntityQueryOperation<UserTableDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserTableDTO.class);
+            UserTableDTO resultData = lambdaQuery.eq(UserTableDTO::getId, 1).queryForObject();
             assert resultData.getName().equals("new name is abc");
         }
     }
@@ -89,15 +89,15 @@ public class DtoCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            lambdaTemplate.lambdaUpdate(UserDTO.class) //
-                    .eq(UserDTO::getId, 1)       //
-                    .updateToAdd(UserDTO::getName, "new name is abc")//
-                    .updateToAdd(UserDTO::getAge, 120)//
+            lambdaTemplate.lambdaUpdate(UserTableDTO.class) //
+                    .eq(UserTableDTO::getId, 1)       //
+                    .updateToAdd(UserTableDTO::getName, "new name is abc")//
+                    .updateToAdd(UserTableDTO::getAge, 120)//
                     .doUpdate();
 
             // 校验结果
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class);
-            UserDTO resultData = lambdaQuery.eq(UserDTO::getId, 1).queryForObject();
+            EntityQueryOperation<UserTableDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserTableDTO.class);
+            UserTableDTO resultData = lambdaQuery.eq(UserTableDTO::getId, 1).queryForObject();
             assert resultData.getName().equals("new name is abc");
             assert resultData.getAge() == 120;
         }
@@ -114,14 +114,14 @@ public class DtoCrudTestCase {
             newValue.put("age", 120);
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            lambdaTemplate.lambdaUpdate(UserDTO.class) //
-                    .eq(UserDTO::getId, 1)//
+            lambdaTemplate.lambdaUpdate(UserTableDTO.class) //
+                    .eq(UserTableDTO::getId, 1)//
                     .updateByMap(newValue)   //
                     .doUpdate();
 
             // 校验结果
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class);
-            UserDTO resultData = lambdaQuery.eq(UserDTO::getId, 1).queryForObject();
+            EntityQueryOperation<UserTableDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserTableDTO.class);
+            UserTableDTO resultData = lambdaQuery.eq(UserTableDTO::getId, 1).queryForObject();
             assert resultData.getName().equals("new name is abc");
             assert resultData.getAge() == 120;
         }
@@ -133,19 +133,19 @@ public class DtoCrudTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            UserDTO newData = new UserDTO();
+            UserTableDTO newData = new UserTableDTO();
             newData.setName("new name is abc");
             newData.setAge(120);
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            lambdaTemplate.lambdaUpdate(UserDTO.class) //
-                    .eq(UserDTO::getId, 1) //
+            lambdaTemplate.lambdaUpdate(UserTableDTO.class) //
+                    .eq(UserTableDTO::getId, 1) //
                     .updateBySample(newData)  //
                     .doUpdate();
 
             // 校验结果
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class);
-            UserDTO resultData = lambdaQuery.eq(UserDTO::getId, 1).queryForObject();
+            EntityQueryOperation<UserTableDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserTableDTO.class);
+            UserTableDTO resultData = lambdaQuery.eq(UserTableDTO::getId, 1).queryForObject();
             assert resultData.getName().equals("new name is abc");
             assert resultData.getAge() == 120;
         }
@@ -158,20 +158,20 @@ public class DtoCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             // 除了 name 和 pk 之外，其它列应该都是 null。
-            UserDTO newData = new UserDTO();
+            UserTableDTO newData = new UserTableDTO();
             newData.setName("new name is abc");
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            int i = lambdaTemplate.lambdaUpdate(UserDTO.class) //
-                    .eq(UserDTO::getId, 1) //
+            int i = lambdaTemplate.lambdaUpdate(UserTableDTO.class) //
+                    .eq(UserTableDTO::getId, 1) //
                     .allowReplaceRow()  // 整行更新需要通过 allowReplaceRow 开启
                     .updateTo(newData)  //
                     .doUpdate();
             assert i == 1;
 
             // 校验结果（除 id 和 name 外全部都被设置为空了）
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class);
-            UserDTO resultData = lambdaQuery.eq(UserDTO::getId, 1).queryForObject();
+            EntityQueryOperation<UserTableDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserTableDTO.class);
+            UserTableDTO resultData = lambdaQuery.eq(UserTableDTO::getId, 1).queryForObject();
             assert resultData.getId() == 1;
             assert resultData.getName().equals("new name is abc");
             assert resultData.getAge() == null;
@@ -186,21 +186,21 @@ public class DtoCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             // 除了 name 和 pk 之外，其它列应该都是 null。
-            UserDTO newData = new UserDTO();
+            UserTableDTO newData = new UserTableDTO();
             newData.setId(112);
             newData.setName("new name is abc");
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            int i = lambdaTemplate.lambdaUpdate(UserDTO.class) //
-                    .eq(UserDTO::getId, 1) //
+            int i = lambdaTemplate.lambdaUpdate(UserTableDTO.class) //
+                    .eq(UserTableDTO::getId, 1) //
                     .allowUpdateKey()  // 需要启用 allowUpdateKey
                     .updateBySample(newData)  //
                     .doUpdate();
             assert i == 1;
 
             // 校验结果
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class);
-            UserDTO resultData = lambdaQuery.eq(UserDTO::getId, 112).queryForObject();
+            EntityQueryOperation<UserTableDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserTableDTO.class);
+            UserTableDTO resultData = lambdaQuery.eq(UserTableDTO::getId, 112).queryForObject();
             assert resultData.getId() == 112;
             assert resultData.getName().equals("new name is abc");
             assert resultData.getAge() != null;
@@ -215,14 +215,14 @@ public class DtoCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             // delete from user where id = 1;
-            int i = lambdaTemplate.lambdaDelete(UserDTO.class) //
-                    .eq(UserDTO::getId, 1) //
+            int i = lambdaTemplate.lambdaDelete(UserTableDTO.class) //
+                    .eq(UserTableDTO::getId, 1) //
                     .doDelete();
             assert i == 1;
 
             // 校验结果
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class);
-            UserDTO resultData = lambdaQuery.eq(UserDTO::getId, 1).queryForObject();
+            EntityQueryOperation<UserTableDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserTableDTO.class);
+            UserTableDTO resultData = lambdaQuery.eq(UserTableDTO::getId, 1).queryForObject();
             assert resultData == null;
         }
     }
@@ -234,19 +234,19 @@ public class DtoCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             // 条件对象
-            UserDTO sample = new UserDTO();
+            UserTableDTO sample = new UserTableDTO();
             sample.setId(1);
             sample.setName("mali");
 
             // delete from user where id = 1 and name = 'mail';
-            int i = lambdaTemplate.lambdaDelete(UserDTO.class) //
+            int i = lambdaTemplate.lambdaDelete(UserTableDTO.class) //
                     .eqBySample(sample)//
                     .doDelete();
             assert i == 1;
 
             // 校验结果
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class);
-            UserDTO resultData = lambdaQuery.eq(UserDTO::getId, 1).queryForObject();
+            EntityQueryOperation<UserTableDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserTableDTO.class);
+            UserTableDTO resultData = lambdaQuery.eq(UserTableDTO::getId, 1).queryForObject();
             assert resultData == null;
         }
     }
@@ -262,14 +262,14 @@ public class DtoCrudTestCase {
             newValue.put("name", "mali");
 
             // delete from user where id = 1 and name = 'mail';
-            int i = lambdaTemplate.lambdaDelete(UserDTO.class) //
+            int i = lambdaTemplate.lambdaDelete(UserTableDTO.class) //
                     .eqBySampleMap(newValue)//
                     .doDelete();
             assert i == 1;
 
             // 校验结果
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class);
-            UserDTO resultData = lambdaQuery.eq(UserDTO::getId, 1).queryForObject();
+            EntityQueryOperation<UserTableDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserTableDTO.class);
+            UserTableDTO resultData = lambdaQuery.eq(UserTableDTO::getId, 1).queryForObject();
             assert resultData == null;
         }
     }
@@ -281,13 +281,13 @@ public class DtoCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             // delete from user;
-            int i = lambdaTemplate.lambdaDelete(UserDTO.class) //
+            int i = lambdaTemplate.lambdaDelete(UserTableDTO.class) //
                     .allowEmptyWhere()// 无条件删除需要启用空条件
                     .doDelete();
             assert i == 5;
 
             // 校验结果
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class);
+            EntityQueryOperation<UserTableDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserTableDTO.class);
             assert lambdaQuery.queryForCount() == 0;
         }
     }
@@ -297,12 +297,12 @@ public class DtoCrudTestCase {
     public void batchInsertByDTO() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            lambdaTemplate.lambdaDelete(UserDTO.class).allowEmptyWhere().doDelete();
+            lambdaTemplate.lambdaDelete(UserTableDTO.class).allowEmptyWhere().doDelete();
 
-            InsertOperation<UserDTO> lambdaInsert = lambdaTemplate.lambdaInsert(UserDTO.class);
-            List<UserDTO> insertData = new ArrayList<>();
+            InsertOperation<UserTableDTO> lambdaInsert = lambdaTemplate.lambdaInsert(UserTableDTO.class);
+            List<UserTableDTO> insertData = new ArrayList<>();
             for (int i = 0; i < 10; i++) {
-                UserDTO userData = new UserDTO();
+                UserTableDTO userData = new UserTableDTO();
                 userData.setAge(36);
                 userData.setName("default user " + i);
                 userData.setCreateTime(new Date());
@@ -316,9 +316,9 @@ public class DtoCrudTestCase {
             }
 
             // 校验结果
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class);
-            List<UserDTO> resultData = lambdaQuery.likeRight(UserDTO::getName, "default user ").queryForList();
-            List<String> result = resultData.stream().map(UserDTO::getName).collect(Collectors.toList());
+            EntityQueryOperation<UserTableDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserTableDTO.class);
+            List<UserTableDTO> resultData = lambdaQuery.likeRight(UserTableDTO::getName, "default user ").queryForList();
+            List<String> result = resultData.stream().map(UserTableDTO::getName).collect(Collectors.toList());
             assert result.size() == 10;
 
             for (int i = 0; i < 10; i++) {

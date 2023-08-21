@@ -147,7 +147,7 @@ public abstract class BasicLambda<R, T, P> {
                 return () -> specialWhereCol;
             }
         } else if (isSelect && !isWhere) {
-            String specialSelectCol = propertyInfo.getWhereColTemplate();
+            String specialSelectCol = propertyInfo.getSelectTemplate();
             if (StringUtils.isNotBlank(specialSelectCol)) {
                 return () -> specialSelectCol;
             }

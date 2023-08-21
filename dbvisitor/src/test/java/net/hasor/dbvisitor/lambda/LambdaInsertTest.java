@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 
 import static net.hasor.test.utils.TestUtils.newID;
 
-/***
+/**
  * Lambda 方式执行 Insert 操作
  * @version : 2021-3-22
  * @author 赵永春 (zyc@hasor.net)
@@ -165,7 +165,12 @@ public class LambdaInsertTest extends AbstractDbTest {
             lambdaInsert.applyMap(tbUser1);
             lambdaInsert.applyMap(tbUser2);
 
-            assert lambdaInsert.getBoundSql() instanceof BatchBoundSql;
+            try {
+                lambdaInsert.getBoundSql();
+                assert false;
+            } catch (IllegalStateException e) {
+                assert e.getMessage().equals("require single record.");
+            }
 
             int i = lambdaInsert.executeSumResult();
             assert i == 2;
@@ -179,9 +184,35 @@ public class LambdaInsertTest extends AbstractDbTest {
             assert uids.contains(tbUser1.get("uid"));
             assert uids.contains(tbUser2.get("uid"));
 
-            List<Integer> ids = tbUsers.stream().map(AutoId::getId).collect(Collectors.toList());
-            assert ids.contains(tbUser1.get("id"));
-            assert ids.contains(tbUser2.get("id"));
+            assert tbUser1.get("id") == null;
+            assert tbUser2.get("id") == null;
+        }
+    }
+
+    @Test
+    public void lambda_insert_5() throws Throwable {
+        Map<String, Object> tbUser1 = new LinkedCaseInsensitiveMap<>(CollectionUtils.asMap("name", "默罕默德", "uid", "uuid-1"));
+
+        try (Connection c = DsUtils.mysqlConn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            lambdaTemplate.execute("delete from auto_id");
+
+            InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.lambdaInsert("auto_id");
+            lambdaInsert.applyMap(tbUser1);
+
+            assert lambdaInsert.getBoundSql() instanceof BatchBoundSql;
+
+            int i = lambdaInsert.executeSumResult();
+            assert i == 1;
+
+            List<AutoId> tbUsers = lambdaTemplate.lambdaQuery(AutoId.class).queryForList();
+            assert tbUsers.size() == 1;
+
+            List<String> uids = tbUsers.stream().map(AutoId::getUid).collect(Collectors.toList());
+            assert StringUtils.isNotBlank(uids.get(0));
+            assert uids.contains(tbUser1.get("uid"));
+
+            assert tbUser1.get("id") == null;
         }
     }
 }

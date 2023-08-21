@@ -179,7 +179,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
                 typeHandler = createTypeHandler(info.typeHandler(), javaType);
             }
 
-            boolean insert = info.insert();
+            boolean insert = info.insert();//&& info.keyType() != KeyTypeEnum.Auto;
             boolean update = info.update();
             boolean primary = info.primary();
             String selectTemplate = info.selectTemplate();

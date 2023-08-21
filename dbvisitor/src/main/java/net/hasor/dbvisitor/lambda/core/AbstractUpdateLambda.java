@@ -153,7 +153,12 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
         Map<String, Object> newValue = CollectionUtils.asMap(getPropertyName(property), value);
         Map<String, String> entityKeyMap = extractKeysMap(newValue);
         boolean useMapping = !exampleIsMap() && !this.allowUpdateProperties.isEmpty();
-        return this.updateToByCondition(useMapping, this.allowUpdateKeys, true, entityKeyMap::containsKey, s -> newValue.get(entityKeyMap.get(s)));
+
+        if (exampleIsMap()) {
+            return this.updateToByCondition(useMapping, entityKeyMap.keySet(), true, entityKeyMap::containsKey, s -> newValue.get(entityKeyMap.get(s)));
+        } else {
+            return this.updateToByCondition(useMapping, this.allowUpdateKeys, true, entityKeyMap::containsKey, s -> newValue.get(entityKeyMap.get(s)));
+        }
     }
 
     @Override
@@ -161,7 +166,12 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
         Map<String, Object> newValue = CollectionUtils.asMap(getPropertyName(property), value);
         Map<String, String> entityKeyMap = extractKeysMap(newValue);
         boolean useMapping = !exampleIsMap() && !this.allowUpdateProperties.isEmpty();
-        return this.updateToByCondition(useMapping, this.allowUpdateKeys, false, entityKeyMap::containsKey, s -> newValue.get(entityKeyMap.get(s)));
+
+        if (exampleIsMap()) {
+            return this.updateToByCondition(useMapping, entityKeyMap.keySet(), false, entityKeyMap::containsKey, s -> newValue.get(entityKeyMap.get(s)));
+        } else {
+            return this.updateToByCondition(useMapping, this.allowUpdateKeys, false, entityKeyMap::containsKey, s -> newValue.get(entityKeyMap.get(s)));
+        }
     }
 
     private Function<String, Object> createPropertyReaderFunc(T newValue) {

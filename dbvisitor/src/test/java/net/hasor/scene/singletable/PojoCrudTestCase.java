@@ -10,7 +10,10 @@ import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /** 使用标准的 pojo 来做 DTO 进行数据 插入 */
@@ -25,14 +28,13 @@ public class PojoCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             UserTable userData = new UserTable();
+            userData.setId(100);// POJO 由于没有配置忽略信息，因此无法享受自增ID，必须指定ID
             userData.setAge(36);
             userData.setName("default user");
             userData.setCreate_time(new Date());// 默认驼峰转换是关闭的，因此在没有任何配置的情况下普通 pojo 的列名需要和表名字段完全一致。
-            assert userData.getId() == null;
 
             InsertOperation<UserTable> lambdaInsert = lambdaTemplate.lambdaInsert(UserTable.class, options);
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
-            assert userData.getId() == null; // POJO 没有 自增 ID 配置信息，因此不回填
 
             // 校验结果
             EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.lambdaQuery(UserTable.class, options);
@@ -48,6 +50,7 @@ public class PojoCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             Map<String, Object> userData = new HashMap<>();
+            userData.put("id", 100);// POJO 由于没有配置忽略信息，因此无法享受自增ID，必须指定ID
             userData.put("age", 36);
             userData.put("name", "default user");
             userData.put("create_time", new Date());// 默认驼峰转换是关闭的，因此在没有任何配置的情况下 key 需要和列名完全一致。
@@ -159,6 +162,7 @@ public class PojoCrudTestCase {
 
             // 除了 name 和 pk 之外，其它列应该都是 null。
             UserTable newData = new UserTable();
+            newData.setId(1);
             newData.setName("new name is abc");
 
             // update user set name = 'new name is abc', age = 120 where id = 1
@@ -173,9 +177,7 @@ public class PojoCrudTestCase {
             EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.lambdaQuery(UserTable.class, options);
             UserTable resultData = lambdaQuery.eq(UserTable::getName, "new name is abc").queryForObject();
 
-            //  -- 因为 User.class 并没有标记 id 属性为主键，因此整行更新造成了主键被设置为 null
-            //  -- H2,在 id 被设置为 null 之后，会为其重新生成一个新的 id。
-            assert resultData.getId() == 6;
+            assert resultData.getId() == 1;
             assert resultData.getName().equals("new name is abc");
             assert resultData.getAge() == null;
             assert resultData.getCreate_time() == null;
@@ -272,20 +274,16 @@ public class PojoCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             InsertOperation<UserTable> lambdaInsert = lambdaTemplate.lambdaInsert(UserTable.class, options);
-            List<UserTable> insertData = new ArrayList<>();
             for (int i = 0; i < 10; i++) {
                 UserTable userData = new UserTable();
+                userData.setId(i + 10);
                 userData.setAge(36);
                 userData.setName("default user " + i);
                 userData.setCreate_time(new Date());
                 lambdaInsert.applyEntity(userData);
-                insertData.add(userData);
             }
             int res = lambdaInsert.executeSumResult();
             assert res == 10;
-            for (int i = 0; i < 10; i++) {
-                assert insertData.get(i).getId() == null;// pojo 没有自增 id 信息，因此不会回填。
-            }
 
             // 校验结果
             EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.lambdaQuery(UserTable.class, options);

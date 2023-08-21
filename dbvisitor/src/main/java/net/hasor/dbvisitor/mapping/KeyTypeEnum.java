@@ -29,7 +29,7 @@ public enum KeyTypeEnum {
     /** 不指定 */
     None(null),
     /** 不会主动生成自增，但会接收来自数据库的自增 */
-    Auto(new JdbcKeySeqHolderFactory()),
+    Auto(new AutoKeySeqHolderFactory()),
     /** 使用 32 位字符串的 UUID 填充数据 */
     UUID32(new Uuid32KeySeqHolderFactory()),
     /** 使用 36 位字符串的 UUID 填充数据 */

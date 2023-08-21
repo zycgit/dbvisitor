@@ -1,5 +1,6 @@
 version: '3.1'
 
+# use this yml for docker-compose up -d
 services:
   mysql:
     image: mysql:8.0.22

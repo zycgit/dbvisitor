@@ -23,11 +23,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * 使用 UUID 作为默认 Key 值
+ * 使用 jdbc 接受来自数据库的自增回填值
  * @version : 2022-12-01
  * @author 赵永春 (zyc@hasor.net)
  */
-public class JdbcKeySeqHolderFactory implements KeySeqHolderFactory {
+public class AutoKeySeqHolderFactory implements KeySeqHolderFactory {
     @Override
     public KeySeqHolder createHolder(CreateContext context) {
         return new KeySeqHolder() {

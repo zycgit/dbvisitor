@@ -3,7 +3,7 @@ import net.hasor.dbvisitor.lambda.EntityQueryOperation;
 import net.hasor.dbvisitor.lambda.InsertOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.MapQueryOperation;
-import net.hasor.scene.singletable.dto.UserDTO;
+import net.hasor.scene.singletable.dto.UserTableDTO;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -21,24 +21,23 @@ public class MapCrudTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            Map<String, Object> userData = new HashMap<>();
+            Map<String, Object> userData = new LinkedHashMap<>();
+            userData.put("id", 100);
             userData.put("age", 36);
             userData.put("name", "default user");
             userData.put("create_time", new Date());// Map 方式下 key 就是列名
-            assert userData.get("id") == null;
 
             InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.lambdaInsert("user_table");
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
-            assert userData.get("ID") != null; // H2 列名默认大写，回填id 根据 数据库元信息
 
             // 校验结果（默认大小写不敏感，使用小写ID属性名反查）
             MapQueryOperation lambdaQuery1 = lambdaTemplate.lambdaQuery("user_table");
-            Map<String, Object> resultData1 = lambdaQuery1.eq("id", userData.get("ID")).queryForObject();
+            Map<String, Object> resultData1 = lambdaQuery1.eq("ID", userData.get("id")).queryForObject();
             assert resultData1.get("name").equals(userData.get("name"));
 
             // 校验结果（默认大小写不敏感，使用大写ID属性名反查）
             MapQueryOperation lambdaQuery2 = lambdaTemplate.lambdaQuery("user_table");
-            Map<String, Object> resultData2 = lambdaQuery2.eq("ID", userData.get("ID")).queryForObject();
+            Map<String, Object> resultData2 = lambdaQuery2.eq("ID", userData.get("id")).queryForObject();
             assert resultData2.get("name").equals(userData.get("name"));
         }
     }
@@ -49,25 +48,24 @@ public class MapCrudTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            Map<String, Object> userData = new HashMap<>();
+            Map<String, Object> userData = new LinkedHashMap<>();
+            userData.put("id", 100);
             userData.put("age", 36);
             userData.put("name", "default user");
-            userData.put("create_time", new Date()); // Map 方式下 key 就是列名
+            userData.put("create_time", new Date());// Map 方式下 key 就是列名
 
             InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.lambdaInsert("user_table");
             assert 1 == lambdaInsert.applyMap(userData).executeSumResult();
-            assert userData.get("ID") != null; // H2 列名默认大写，回填id 根据 数据库元信息
 
             // 校验结果（默认大小写不敏感，使用小写ID属性名反查）
             MapQueryOperation lambdaQuery1 = lambdaTemplate.lambdaQuery("user_table");
-            Map<String, Object> resultData1 = lambdaQuery1.eq("id", userData.get("ID")).queryForObject();
+            Map<String, Object> resultData1 = lambdaQuery1.eq("ID", userData.get("id")).queryForObject();
             assert resultData1.get("name").equals(userData.get("name"));
 
             // 校验结果（默认大小写不敏感，使用大写ID属性名反查）
             MapQueryOperation lambdaQuery2 = lambdaTemplate.lambdaQuery("user_table");
-            Map<String, Object> resultData2 = lambdaQuery2.eq("ID", userData.get("ID")).queryForObject();
+            Map<String, Object> resultData2 = lambdaQuery2.eq("ID", userData.get("id")).queryForObject();
             assert resultData2.get("name").equals(userData.get("name"));
-
         }
     }
 
@@ -79,7 +77,7 @@ public class MapCrudTestCase {
 
             // update user set name = 'new name is abc' where id = 1
             lambdaTemplate.lambdaUpdate("user_table") //
-                    .eq("id", 1)         //
+                    .eq("id", 1)             //
                     .updateTo("name", "new name is abc")//
                     .doUpdate();
 
@@ -168,6 +166,7 @@ public class MapCrudTestCase {
 
             // 除了 name 和 pk 之外，其它列应该都是 null。
             Map<String, Object> newData = new HashMap<>();
+            newData.put("id", 1);
             newData.put("name", "new name is abc");
 
             // update user set name = 'new name is abc', age = 120 where id = 1
@@ -178,13 +177,13 @@ public class MapCrudTestCase {
                     .doUpdate();
             assert i == 1;
 
-            // 校验结果（除 id 和 name 外全部都被设置为空了）
+            // 校验结果（不同于 DTO 模式，只会更新 newData 中包含的列）
             MapQueryOperation lambdaQuery = lambdaTemplate.lambdaQuery("user_table");
             Map<String, Object> resultData = lambdaQuery.eq("id", 1).queryForObject();
             assert resultData.get("id").equals(1);
             assert resultData.get("name").equals("new name is abc");
-            assert resultData.get("age") == null;
-            assert resultData.get("create_time") == null;
+            assert resultData.get("age").equals(26);
+            assert resultData.get("create_time") != null;
         }
     }
 
@@ -307,25 +306,21 @@ public class MapCrudTestCase {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.lambdaInsert("user_table");
-            List<Map<String, Object>> insertData = new ArrayList<>();
             for (int i = 0; i < 10; i++) {
                 Map<String, Object> userData = new HashMap<>();
+                userData.put("id", i + 10);
                 userData.put("age", 36);
                 userData.put("name", "default user " + i);
                 userData.put("create_time", new Date());
                 lambdaInsert.applyEntity(userData);
-                insertData.add(userData);
             }
             int res = lambdaInsert.executeSumResult();
             assert res == 10;
-            for (int i = 0; i < 10; i++) {
-                assert insertData.get(i).get("ID") != null;// 自增 id 自动回填
-            }
 
             // 校验结果
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class);
-            List<UserDTO> resultData = lambdaQuery.likeRight(UserDTO::getName, "default user ").queryForList();
-            List<String> result = resultData.stream().map(UserDTO::getName).collect(Collectors.toList());
+            EntityQueryOperation<UserTableDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserTableDTO.class);
+            List<UserTableDTO> resultData = lambdaQuery.likeRight(UserTableDTO::getName, "default user ").queryForList();
+            List<String> result = resultData.stream().map(UserTableDTO::getName).collect(Collectors.toList());
             assert result.size() == 10;
 
             for (int i = 0; i < 10; i++) {

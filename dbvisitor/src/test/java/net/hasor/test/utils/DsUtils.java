@@ -65,11 +65,11 @@ public class DsUtils {
             jdbcTemplate.loadSQL("dbvisitor_coverage/auto_id_for_mysql.sql");
 
             jdbcTemplate.loadSQL("/dbvisitor_scene/user_table_for_mysql.sql");
-            jdbcTemplate.execute("insert into user values (1, 'mali', 26, now());");
-            jdbcTemplate.execute("insert into user values (2, 'dative', 32, now());");
-            jdbcTemplate.execute("insert into user values (3, 'jon wes', 41, now());");
-            jdbcTemplate.execute("insert into user values (4, 'mary', 66, now());");
-            jdbcTemplate.execute("insert into user values (5, 'matt', 25, now());");
+            jdbcTemplate.execute("insert into user_table values (1, 'mali', 26, now());");
+            jdbcTemplate.execute("insert into user_table values (2, 'dative', 32, now());");
+            jdbcTemplate.execute("insert into user_table values (3, 'jon wes', 41, now());");
+            jdbcTemplate.execute("insert into user_table values (4, 'mary', 66, now());");
+            jdbcTemplate.execute("insert into user_table values (5, 'matt', 25, now());");
         } catch (Exception ignored) {
         }
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping;
-import net.hasor.dbvisitor.keyholder.sequence.JdbcKeySeqHolderFactory;
+import net.hasor.dbvisitor.keyholder.sequence.AutoKeySeqHolderFactory;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.handler.SqlTimestampAsDateTypeHandler;
 import net.hasor.dbvisitor.types.handler.EnumTypeHandler;
@@ -65,7 +65,7 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("id").getJavaType() == Long.class;
         assert mapping.getPropertyByName("id").getTypeHandler().getClass() == LongTypeHandler.class;
         assert mapping.getPropertyByName("id").getKeySeqHolder() != null;
-        assert mapping.getPropertyByName("id").getKeySeqHolder().getClass() == new JdbcKeySeqHolderFactory().createHolder(null).getClass();
+        assert mapping.getPropertyByName("id").getKeySeqHolder().getClass() == new AutoKeySeqHolderFactory().createHolder(null).getClass();
         assert mapping.getPropertyByName("id").getColumn().equals("id");
         assert mapping.getPropertyByName("id").getDescription().getSqlType().equals("bigint");
         assert mapping.getPropertyByName("id").getDescription().isNullable();
@@ -138,7 +138,7 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("id").getJavaType() == Long.class;
         assert mapping.getPropertyByName("id").getTypeHandler().getClass() == LongTypeHandler.class;
         assert mapping.getPropertyByName("id").getKeySeqHolder() != null;
-        assert mapping.getPropertyByName("id").getKeySeqHolder().getClass() == new JdbcKeySeqHolderFactory().createHolder(null).getClass();
+        assert mapping.getPropertyByName("id").getKeySeqHolder().getClass() == new AutoKeySeqHolderFactory().createHolder(null).getClass();
         assert mapping.getPropertyByName("id").getColumn().equals("id");
         assert mapping.getPropertyByName("id").getDescription() == null;
 
@@ -204,7 +204,7 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("id").getJavaType() == Long.class;
         assert mapping.getPropertyByName("id").getTypeHandler().getClass() == LongTypeHandler.class;
         assert mapping.getPropertyByName("id").getKeySeqHolder() != null;
-        assert mapping.getPropertyByName("id").getKeySeqHolder().getClass() == new JdbcKeySeqHolderFactory().createHolder(null).getClass();
+        assert mapping.getPropertyByName("id").getKeySeqHolder().getClass() == new AutoKeySeqHolderFactory().createHolder(null).getClass();
         assert mapping.getPropertyByName("id").getColumn().equals("id");
         assert mapping.getPropertyByName("id").getDescription() == null;
 
@@ -400,7 +400,7 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("id").getJavaType() == Long.class;
         assert mapping.getPropertyByName("id").getTypeHandler().getClass() == LongTypeHandler.class;
         assert mapping.getPropertyByName("id").getKeySeqHolder() != null;
-        assert mapping.getPropertyByName("id").getKeySeqHolder().getClass() == new JdbcKeySeqHolderFactory().createHolder(null).getClass();
+        assert mapping.getPropertyByName("id").getKeySeqHolder().getClass() == new AutoKeySeqHolderFactory().createHolder(null).getClass();
         assert mapping.getPropertyByName("id").getColumn().equals("id");
         assert mapping.getPropertyByName("id").getDescription().getSqlType().equals("bigint");
         assert mapping.getPropertyByName("id").getDescription().isNullable();
@@ -474,7 +474,7 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("id").getJavaType() == Long.class;
         assert mapping.getPropertyByName("id").getTypeHandler().getClass() == LongTypeHandler.class;
         assert mapping.getPropertyByName("id").getKeySeqHolder() != null;
-        assert mapping.getPropertyByName("id").getKeySeqHolder().getClass() == new JdbcKeySeqHolderFactory().createHolder(null).getClass();
+        assert mapping.getPropertyByName("id").getKeySeqHolder().getClass() == new AutoKeySeqHolderFactory().createHolder(null).getClass();
         assert mapping.getPropertyByName("id").getColumn().equals("id");
         assert mapping.getPropertyByName("id").getDescription() == null;
 
@@ -540,7 +540,7 @@ public class XmlResultRegistryTest {
         assert mapping.getPropertyByName("id").getJavaType() == Long.class;
         assert mapping.getPropertyByName("id").getTypeHandler().getClass() == LongTypeHandler.class;
         assert mapping.getPropertyByName("id").getKeySeqHolder() != null;
-        assert mapping.getPropertyByName("id").getKeySeqHolder().getClass() == new JdbcKeySeqHolderFactory().createHolder(null).getClass();
+        assert mapping.getPropertyByName("id").getKeySeqHolder().getClass() == new AutoKeySeqHolderFactory().createHolder(null).getClass();
         assert mapping.getPropertyByName("id").getColumn().equals("id");
         assert mapping.getPropertyByName("id").getDescription() == null;
 
