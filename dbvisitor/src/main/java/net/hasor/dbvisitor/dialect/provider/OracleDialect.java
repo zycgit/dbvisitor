@@ -217,4 +217,8 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
 
         return "select " + select + " from (select " + select + " from " + tableName + " order by sys_guid()) where rownum <= " + recordSize;
     }
+
+    public boolean supportBatch() {
+        return false;
+    }
 }

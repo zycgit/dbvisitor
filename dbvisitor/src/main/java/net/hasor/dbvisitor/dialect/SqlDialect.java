@@ -33,4 +33,8 @@ public interface SqlDialect {
     String tableName(boolean useQualifier, String catalog, String schema, String table);
 
     String fmtName(boolean useQualifier, String name);
+
+    default boolean supportBatch() {
+        return true;
+    }
 }

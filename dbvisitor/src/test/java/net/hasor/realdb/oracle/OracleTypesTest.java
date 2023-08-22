@@ -40,10 +40,10 @@ public class OracleTypesTest {
         try (Connection conn = DsUtils.oracleConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             preTable(jdbcTemplate);
-            //
-            jdbcTemplate.execute("insert into tb_oracle_types (c_clob,c_nclob) values ('123','456')");
-            //
-            List<Map<String, Object>> list = jdbcTemplate.queryForList("select c_clob,c_nclob from tb_oracle_types");
+
+            jdbcTemplate.execute("insert into tb_oracle_types (id,c_clob,c_nclob) values ('1','123','456')");
+
+            List<Map<String, Object>> list = jdbcTemplate.queryForList("select c_clob,c_nclob from tb_oracle_types where id = '1'");
             assert list.size() == 1;
             assert list.get(0).get("c_clob").equals("123");
             assert list.get(0).get("c_nclob").equals("456");
@@ -56,9 +56,9 @@ public class OracleTypesTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             preTable(jdbcTemplate);
             Date time = new Date(System.currentTimeMillis());
-            jdbcTemplate.executeUpdate("insert into tb_oracle_types (c_timestamp,c_timestamp_n) values (?,?)", new Object[] { time, time });
-            //
-            List<Map<String, Object>> list = jdbcTemplate.queryForList("select c_timestamp,c_timestamp_n from tb_oracle_types");
+            jdbcTemplate.executeUpdate("insert into tb_oracle_types (id,c_timestamp,c_timestamp_n) values (?,?,?)", new Object[] { "1", time, time });
+
+            List<Map<String, Object>> list = jdbcTemplate.queryForList("select c_timestamp,c_timestamp_n from tb_oracle_types where id = '1'");
             assert list.size() == 1;
             assert list.get(0).get("c_timestamp") instanceof Date;
             assert list.get(0).get("c_timestamp_n") instanceof Date;

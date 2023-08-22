@@ -52,10 +52,10 @@ public class OraclePerformanceTest {
         long t = System.currentTimeMillis();
         try (Connection con = DsUtils.oracleConn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(con);
-            //
+
             reinit(con);
             initData(con, 2000);
-            //
+
             int tbUsersCount = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForCount();
             System.out.println("query for list/map.");
             lambdaTemplate.lambdaQuery(UserInfo2.class).queryForMapList();
