@@ -32,6 +32,11 @@ public class Uuid32KeySeqHolderFactory implements KeySeqHolderFactory {
     public KeySeqHolder createHolder(CreateContext context) {
         return new KeySeqHolder() {
             @Override
+            public boolean onBefore() {
+                return true;
+            }
+
+            @Override
             public Object beforeApply(Connection conn, Object entity, ColumnMapping mapping) {
                 String genUUID = UUID.randomUUID().toString().replace("-", "");
                 mapping.getHandler().set(entity, genUUID);

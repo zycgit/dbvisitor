@@ -73,6 +73,11 @@ public class SeqKeySeqHolderFactory implements KeySeqHolderFactory {
         TypeHandler<?> finalTypeHandler = typeHandler;
         return new KeySeqHolder() {
             @Override
+            public boolean onBefore() {
+                return true;
+            }
+
+            @Override
             public Object beforeApply(Connection conn, Object entity, ColumnMapping mapping) throws SQLException {
                 Object var = selectSeq(seqQuery, conn, finalTypeHandler);
                 mapping.getHandler().set(entity, var);

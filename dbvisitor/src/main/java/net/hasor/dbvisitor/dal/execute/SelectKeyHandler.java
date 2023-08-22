@@ -24,5 +24,5 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface SelectKeyHandler {
-    Object processSelectKey(Connection conn, Map<String, Object> parameter) throws SQLException;
+    Object processSelectKey(Connection conn, Map<String, Object> parameter, boolean onBefore) throws SQLException;
 }

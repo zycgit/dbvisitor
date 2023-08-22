@@ -32,6 +32,11 @@ public class AutoKeySeqHolderFactory implements KeySeqHolderFactory {
     public KeySeqHolder createHolder(CreateContext context) {
         return new KeySeqHolder() {
             @Override
+            public boolean onAfter() {
+                return true;
+            }
+
+            @Override
             public Object afterApply(ResultSet rs, Object entity, int argsIndex, ColumnMapping mapping) throws SQLException {
                 Object value = mapping.getTypeHandler().getResult(rs, argsIndex + 1);
                 mapping.getHandler().set(entity, value);

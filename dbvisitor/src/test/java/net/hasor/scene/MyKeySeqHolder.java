@@ -12,6 +12,11 @@ public class MyKeySeqHolder implements KeySeqHolderFactory {
     public KeySeqHolder createHolder(CreateContext context) {
         return new KeySeqHolder() {
             @Override
+            public boolean onBefore() {
+                return true;
+            }
+
+            @Override
             public Object beforeApply(Connection conn, Object entity, ColumnMapping mapping) {
                 mapping.getHandler().set(entity, 111111);
                 return 111111;

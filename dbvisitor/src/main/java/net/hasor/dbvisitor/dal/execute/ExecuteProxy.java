@@ -114,7 +114,7 @@ public class ExecuteProxy {
             this.selectKeyExecute = selectKeyExecute;
         }
 
-        public Object processSelectKey(Connection conn, Map<String, Object> parameter) throws SQLException {
+        public Object processSelectKey(Connection conn, Map<String, Object> parameter, boolean onBefore) throws SQLException {
             String keyColumn = this.keySqlConfig.getKeyColumn();
             Object resultValue = null;
 

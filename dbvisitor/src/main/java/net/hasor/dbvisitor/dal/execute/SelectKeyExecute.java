@@ -53,7 +53,7 @@ class SelectKeyExecute {
     private void processSelectKey(Connection conn, Map<String, Object> parameter, boolean isBefore) throws SQLException {
         String keyColumn = this.keySqlConfig.getKeyColumn();
         String keyProperty = this.keySqlConfig.getKeyProperty();
-        Object resultValue = this.selectKeyHandler.processSelectKey(conn, parameter);
+        Object resultValue = this.selectKeyHandler.processSelectKey(conn, parameter, isBefore);
 
         if (resultValue instanceof List) {
             resultValue = ((List<?>) resultValue).get(0);

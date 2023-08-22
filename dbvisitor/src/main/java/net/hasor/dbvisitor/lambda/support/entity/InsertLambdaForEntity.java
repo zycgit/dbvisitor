@@ -22,6 +22,7 @@ import net.hasor.dbvisitor.dialect.BatchBoundSql.BatchBoundSqlObj;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.jdbc.PreparedStatementCallback;
 import net.hasor.dbvisitor.jdbc.core.ParameterDisposer;
+import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.lambda.InsertOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.core.AbstractInsertLambda;
@@ -38,6 +39,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 提供 lambda insert 能力。是 InsertOperation 接口的实现类。
@@ -62,7 +64,8 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
     @Override
     public int[] executeGetResult() throws SQLException {
         try {
-            String insertSql = super.buildInsert(this.dialect(), this.primaryKeys, this.insertColumns, this.insertColumnTerms);
+            List<String> useColumns = this.findInsertColumns();
+            String insertSql = super.buildInsert(this.dialect(), this.primaryKeys, useColumns, this.insertColumnTerms);
             if (logger.isDebugEnabled()) {
                 logger.trace("Executing SQL statement [" + insertSql + "].");
             }
@@ -72,7 +75,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
             if (this.insertValues.size() > 1) {
                 return this.getJdbcTemplate().executeCreator(new PreparedStatementCreatorWrap(insertSql, con -> {
                     boolean supportsGetGeneratedKeys = con != null && con.getMetaData().supportsGetGeneratedKeys();
-                    MappedArg[][] batchBoundSql = buildInsertArgs(supportsGetGeneratedKeys, con);
+                    MappedArg[][] batchBoundSql = buildInsertArgs(useColumns, supportsGetGeneratedKeys, con);
 
                     PreparedStatement ps = createPrepareStatement(con, insertSql);
                     for (Object[] batchItem : batchBoundSql) {
@@ -88,7 +91,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
             } else {
                 return this.getJdbcTemplate().executeCreator(new PreparedStatementCreatorWrap(insertSql, con -> {
                     boolean supportsGetGeneratedKeys = con != null && con.getMetaData().supportsGetGeneratedKeys();
-                    MappedArg[][] batchBoundSql = buildInsertArgs(supportsGetGeneratedKeys, con);
+                    MappedArg[][] batchBoundSql = buildInsertArgs(useColumns, supportsGetGeneratedKeys, con);
 
                     PreparedStatement ps = createPrepareStatement(con, insertSql);
                     applyPreparedStatement(ps, batchBoundSql[0], typeRegistry);
@@ -113,20 +116,41 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
     @Override
     protected BatchBoundSql buildBoundSql(SqlDialect dialect) {
         try {
-            String insertSql = super.buildInsert(this.dialect(), this.primaryKeys, this.insertColumns, this.insertColumnTerms);
-            MappedArg[][] batchBoundSql = buildInsertArgs(false, null);
+            List<String> useColumns = this.findInsertColumns();
+            String insertSql = super.buildInsert(this.dialect(), this.primaryKeys, useColumns, this.insertColumnTerms);
+            MappedArg[][] batchBoundSql = buildInsertArgs(useColumns, false, null);
             return new BatchBoundSqlObj(insertSql, batchBoundSql);
         } catch (SQLException e) {
             throw ExceptionUtils.toRuntime(e); // never in effect
         }
     }
 
-    protected MappedArg[][] buildInsertArgs(boolean forExecute, Connection executeConn) throws SQLException {
-        boolean hasFillBack = !this.fillBackProperties.isEmpty();
+    private List<String> findInsertColumns() {
+        if (this.insertValues.size() != 1) {
+            return this.insertColumns;
+        }
+
+        InsertEntity entity = this.insertValues.get(0);
+        if (entity.isMap) {
+            Map<String, String> entityKeyMap = extractKeysMap((Map) entity.object);
+            return this.insertProperties.stream().filter(c -> {
+                KeySeqHolder holder = c.getKeySeqHolder();
+                return entityKeyMap.containsKey(c.getProperty()) || (holder != null && holder.onBefore());
+            }).map(ColumnMapping::getColumn).collect(Collectors.toList());
+        } else {
+            return this.insertProperties.stream().filter(c -> {
+                KeySeqHolder holder = c.getKeySeqHolder();
+                return c.getHandler().get(entity.object) != null || (holder != null && holder.onBefore());
+            }).map(ColumnMapping::getColumn).collect(Collectors.toList());
+        }
+    }
+
+    protected MappedArg[][] buildInsertArgs(List<String> useColumns, boolean forExecute, Connection executeConn) throws SQLException {
+        boolean hasFillBack = !this.fillAfterProperties.isEmpty();
 
         TableMapping<?> tableMapping = this.getTableMapping();
         List<ColumnMapping> mappings = new ArrayList<>();
-        for (String column : this.insertColumns) {
+        for (String column : useColumns) {
             mappings.add(tableMapping.getPropertyByColumn(column));
         }
 
@@ -212,8 +236,8 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
             if (!rs.next()) {
                 break;
             }
-            for (int i = 0; i < this.fillBackProperties.size(); i++) {
-                ColumnMapping mapping = this.fillBackProperties.get(i);
+            for (int i = 0; i < this.fillAfterProperties.size(); i++) {
+                ColumnMapping mapping = this.fillAfterProperties.get(i);
                 if (mapping.getKeySeqHolder() != null) {
                     Object value = mapping.getKeySeqHolder().afterApply(rs, entity.object, i, mapping);
                     if (entity.isMap && value != null) {

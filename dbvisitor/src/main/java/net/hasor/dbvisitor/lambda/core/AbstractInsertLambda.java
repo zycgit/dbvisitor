@@ -19,6 +19,7 @@ import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.jdbc.core.ParameterDisposer;
+import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
@@ -40,7 +41,8 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
  */
 public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P> implements InsertExecute<R, T> {
     protected final List<ColumnMapping>  insertProperties;
-    protected final List<ColumnMapping>  fillBackProperties;
+    protected final List<ColumnMapping>  fillBeforeProperties;
+    protected final List<ColumnMapping>  fillAfterProperties;
     protected       DuplicateKeyStrategy insertStrategy;
     protected final List<String>         primaryKeys;
     protected final List<String>         insertColumns;
@@ -54,8 +56,9 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     public AbstractInsertLambda(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
         super(exampleType, tableMapping, jdbcTemplate);
         this.insertProperties = new ArrayList<>();
-        this.fillBackProperties = new ArrayList<>();
-        initProperties(this.insertProperties, this.fillBackProperties);
+        this.fillBeforeProperties = new ArrayList<>();
+        this.fillAfterProperties = new ArrayList<>();
+        initProperties(this.insertProperties, this.fillBeforeProperties, this.fillAfterProperties);
 
         if (!tableMapping.isMapEntity() && this.insertProperties.size() == 0) {
             throw new IllegalStateException("no column require INSERT.");
@@ -73,18 +76,24 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         this.insertValues = new ArrayList<>();
         this.insertStrategy = DuplicateKeyStrategy.Into;
         this.primaryKeys = this.getPrimaryKey().stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
-        this.hasKeySeqHolderColumn = !this.fillBackProperties.isEmpty();
+        this.hasKeySeqHolderColumn = !this.fillBeforeProperties.isEmpty() || !this.fillAfterProperties.isEmpty();
         this.parameterDisposers = new ArrayList<>();
         this.fillBackEntityList = new ArrayList<>();
     }
 
-    protected void initProperties(List<ColumnMapping> insert, List<ColumnMapping> fillBack) {
+    protected void initProperties(List<ColumnMapping> insert, List<ColumnMapping> fillBefore, List<ColumnMapping> fillAfter) {
         TableMapping<?> tableMapping = this.getTableMapping();
         Set<String> insertColumns = new HashSet<>();
 
         for (ColumnMapping mapping : tableMapping.getProperties()) {
-            if (mapping.getKeySeqHolder() != null) {
-                fillBack.add(mapping);
+            KeySeqHolder keySeqHolder = mapping.getKeySeqHolder();
+            if (keySeqHolder != null) {
+                if (keySeqHolder.onBefore()) {
+                    fillBefore.add(mapping);
+                }
+                if (keySeqHolder.onAfter()) {
+                    fillAfter.add(mapping);
+                }
             }
 
             String columnName = mapping.getColumn();

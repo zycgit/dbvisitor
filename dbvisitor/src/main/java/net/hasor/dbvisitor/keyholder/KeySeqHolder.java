@@ -26,9 +26,16 @@ import java.sql.SQLException;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface KeySeqHolder {
+    default boolean onBefore() {
+        return false;
+    }
 
     default Object beforeApply(Connection conn, Object entity, ColumnMapping mapping) throws SQLException {
         return null;
+    }
+
+    default boolean onAfter() {
+        return false;
     }
 
     default Object afterApply(ResultSet rs, Object entity, int argsIndex, ColumnMapping mapping) throws SQLException {
