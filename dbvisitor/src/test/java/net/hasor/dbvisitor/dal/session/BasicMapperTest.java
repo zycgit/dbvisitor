@@ -12,9 +12,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BasicMapperTest {
@@ -287,6 +285,38 @@ public class BasicMapperTest {
     }
 
     @Test
+    public void updateByMap_1() throws Exception {
+        try (Connection con = DsUtils.h2Conn()) {
+            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            DalSession dalSession = new DalSession(con, dalRegistry);
+            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+
+            assert mapper.countAll() == 3;
+            List<UserInfo2> all = mapper.query().queryForList();
+            UserInfo2 userInfo = all.get(0);
+
+            Map<String, Object> user1 = new HashMap<>();
+            user1.put("uid", userInfo.getUid());
+            user1.put("name", "12");
+            user1.put("loginName", "13");
+            user1.put("password", "14");
+            user1.put("seq", 16);
+            user1.put("createTime", passer("2021-07-20 12:34:56"));
+
+            assert mapper.updateByMap(user1) == 1;
+            assert mapper.countAll() == 3;
+
+            UserInfo2 tbUser1 = mapper.selectById(userInfo.getUid());
+            assert tbUser1.getUid().equals(userInfo.getUid());
+            assert tbUser1.getName().equals("12");
+            assert tbUser1.getLoginName().equals("13");
+            assert tbUser1.getPassword().equals("14");
+            assert tbUser1.getEmail().equals(userInfo.getEmail());
+            assert tbUser1.getSeq() == 16;
+        }
+    }
+
+    @Test
     public void deleteById_1() throws Exception {
         try (Connection con = DsUtils.h2Conn()) {
             DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
@@ -316,6 +346,54 @@ public class BasicMapperTest {
             assert mapper.deleteByIds(all.stream().map(UserInfo2::getUid).collect(Collectors.toList())) == 3;
 
             assert mapper.countAll() == 0;
+        }
+    }
+
+    @Test
+    public void delete_1() throws Exception {
+        try (Connection con = DsUtils.h2Conn()) {
+            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            DalSession dalSession = new DalSession(con, dalRegistry);
+            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+
+            assert mapper.countAll() == 3;
+            List<UserInfo2> all = mapper.query().queryForList();
+
+            assert mapper.delete(all.get(0)) == 1;
+            assert mapper.countAll() == 2;
+            assert mapper.selectById(all.get(0).getUid()) == null;
+        }
+    }
+
+    @Test
+    public void selectById_1() throws Exception {
+        try (Connection con = DsUtils.h2Conn()) {
+            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            DalSession dalSession = new DalSession(con, dalRegistry);
+            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+
+            assert mapper.countAll() == 3;
+            List<UserInfo2> all = mapper.query().queryForList();
+
+            assert mapper.selectById(all.get(0).getUid()).getUid().equals(all.get(0).getUid());
+        }
+    }
+
+    @Test
+    public void selectById_2() throws Exception {
+        try (Connection con = DsUtils.h2Conn()) {
+            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            DalSession dalSession = new DalSession(con, dalRegistry);
+            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+
+            assert mapper.countAll() == 3;
+            List<UserInfo2> all = mapper.query().queryForList();
+            List<UserInfo2> all2 = mapper.selectByIds(all.stream().map(UserInfo2::getUid).collect(Collectors.toList()));
+
+            List<String> all2Str = all2.stream().map(UserInfo2::getUid).collect(Collectors.toList());
+            assert all2Str.contains(all.get(0).getUid());
+            assert all2Str.contains(all.get(1).getUid());
+            assert all2Str.contains(all.get(2).getUid());
         }
     }
 }
