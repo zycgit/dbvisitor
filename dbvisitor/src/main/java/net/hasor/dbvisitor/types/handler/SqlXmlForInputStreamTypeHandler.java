@@ -28,8 +28,7 @@ public class SqlXmlForInputStreamTypeHandler extends AbstractTypeHandler<InputSt
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, InputStream parameter, Integer jdbcType) throws SQLException {
         SQLXML sqlxml = ps.getConnection().createSQLXML();
-        try {
-            OutputStream writer = sqlxml.setBinaryStream();
+        try (OutputStream writer = sqlxml.setBinaryStream()) {
             IOUtils.copy(parameter, writer);
             ps.setSQLXML(i, sqlxml);
         } catch (IOException e) {

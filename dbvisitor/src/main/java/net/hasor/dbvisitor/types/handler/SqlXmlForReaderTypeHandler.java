@@ -28,9 +28,13 @@ public class SqlXmlForReaderTypeHandler extends AbstractTypeHandler<Reader> {
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, Reader parameter, Integer jdbcType) throws SQLException {
         SQLXML sqlxml = ps.getConnection().createSQLXML();
-        try {
-            Writer writer = sqlxml.setCharacterStream();
-            IOUtils.copy(parameter, writer);
+        try (OutputStream writer = sqlxml.setBinaryStream()) {
+            BufferedReader reader = new BufferedReader(parameter);
+            String body = null;
+            while ((body = reader.readLine()) != null) {
+                writer.write(body.getBytes());
+            }
+            writer.flush();
             ps.setSQLXML(i, sqlxml);
         } catch (IOException e) {
             throw new SQLException("Error copy xml data to SQLXML for parameter #" + i + " with JdbcType " + jdbcType + ", Cause: " + e.getMessage(), e);

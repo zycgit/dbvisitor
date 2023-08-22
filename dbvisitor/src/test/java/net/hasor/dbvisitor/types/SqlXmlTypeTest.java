@@ -211,11 +211,14 @@ public class SqlXmlTypeTest {
     public void testSqlXmlForReaderTypeHandler_3() throws Exception {
         try (Connection c = DsUtils.oracleConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
+            preTable(jdbcTemplate);
 
-            List<Reader> dat = jdbcTemplate.queryForList("select ? from dual", ps -> {
+            jdbcTemplate.executeUpdate("insert into tb_oracle_types_onlyxml (c_xml) values (?)", ps -> {
                 new SqlXmlForReaderTypeHandler().setParameter(ps, 1, new StringReader("<xml>abc</xml>"), JDBCType.SQLXML.getVendorTypeNumber());
-            }, (rs, rowNum) -> {
-                return new SqlXmlForReaderTypeHandler().getNullableResult(rs, 1);
+            });
+
+            List<Reader> dat = jdbcTemplate.queryForList("select c_xml from tb_oracle_types_onlyxml where c_xml is not null", (rs, rowNum) -> {
+                return new SqlXmlForReaderTypeHandler().getResult(rs, "c_xml");
             });
             String xmlBody = IOUtils.readToString(dat.get(0));
             assert xmlBody.equals("<xml>abc</xml>");
