@@ -118,7 +118,7 @@ public class PojoCrudTestCase {
             // update user set name = 'new name is abc', age = 120 where id = 1
             lambdaTemplate.lambdaUpdate(UserTable.class, options) //
                     .eq(UserTable::getId, 1)//
-                    .updateByMap(newValue)   //
+                    .updateToMap(newValue)   //
                     .doUpdate();
 
             // 校验结果
@@ -142,7 +142,7 @@ public class PojoCrudTestCase {
             // update user set name = 'new name is abc', age = 120 where id = 1
             lambdaTemplate.lambdaUpdate(UserTable.class, options) //
                     .eq(UserTable::getId, 1) //
-                    .updateBySample(newData)  //
+                    .updateToSample(newData)  //
                     .doUpdate();
 
             // 校验结果

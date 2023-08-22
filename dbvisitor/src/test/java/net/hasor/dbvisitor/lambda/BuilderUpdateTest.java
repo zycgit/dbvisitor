@@ -50,7 +50,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
         }
 
         try {
-            new LambdaTemplate().lambdaUpdate(user_info.class).updateBySample(null);
+            new LambdaTemplate().lambdaUpdate(user_info.class).updateToSample(null);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().contains("newValue is null.");
@@ -94,7 +94,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
         EntityUpdateOperation<user_info> lambdaUpdate = new LambdaTemplate().lambdaUpdate(user_info.class);
         lambdaUpdate.and(queryBuilder -> {
             queryBuilder.eq(user_info::getSeq, 123);
-        }).updateBySample(data);
+        }).updateToSample(data);
 
         SqlDialect dialect = new MySqlDialect();
         BoundSql boundSql1 = lambdaUpdate.getBoundSql(dialect);
@@ -162,7 +162,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
             // update auto_id set uid = 'the new uid' , name = 'mali2' where id = 1 and name = 'mali'
             BoundSql boundSql1 = lambdaTemplate.lambdaUpdate("auto_id")//
                     .eqBySampleMap(whereValue)  // where ...
-                    .updateBySample(setValue)   // set ...
+                    .updateToSample(setValue)   // set ...
                     .getBoundSql();
             assert boundSql1.getSqlString().equals("UPDATE auto_id SET uid = ? , abc = ? , name = ? WHERE ( id = ? AND name = ? AND abc = ? )");
             assert ((MappedArg) boundSql1.getArgs()[0]).getValue().equals("the new uid");
@@ -192,7 +192,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
             // update not_exist_table set uid = 'the new uid', name = 'mali2' where id = 1 and name = 'mali' and abc = 'abc'
             BoundSql boundSql1 = lambdaTemplate.lambdaUpdate("not_exist_table")//
                     .eqBySampleMap(whereValue)  // where ...
-                    .updateBySample(setValue)   // set ...
+                    .updateToSample(setValue)   // set ...
                     .getBoundSql();
             assert boundSql1.getSqlString().equals("UPDATE not_exist_table SET uid = ? , abc = ? , name = ? WHERE ( abc = ? AND name = ? AND id = ? )");
             assert ((MappedArg) boundSql1.getArgs()[0]).getValue().equals("the new uid");
@@ -205,7 +205,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
             // delete from user where id = 1 and name = 'mail';
             BoundSql boundSql2 = lambdaTemplate.lambdaUpdate("not_exist_table")//
                     .eqBySampleMap(whereValue)  // where ...
-                    .updateByMap(setValue)      // set ...
+                    .updateToMap(setValue)      // set ...
                     .getBoundSql();
 
             //UPDATE AUTO_ID SET UID = ? , NAME = ? WHERE ( ID = ? AND NAME = ? )
@@ -236,13 +236,13 @@ public class BuilderUpdateTest extends AbstractDbTest {
         setValue.put("create_time", new Date());
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql1 = lambdaTemplate.lambdaUpdate(user_info.class).eqBySampleMap(whereValue).updateByMap(setValue).getBoundSql();
+        BoundSql boundSql1 = lambdaTemplate.lambdaUpdate(user_info.class).eqBySampleMap(whereValue).updateToMap(setValue).getBoundSql();
         assert boundSql1.getSqlString().equals("UPDATE user_info SET user_name = ? WHERE ( user_name = ? )");
         assert ((MappedArg) boundSql1.getArgs()[0]).getValue().equals("mali2");
         assert ((MappedArg) boundSql1.getArgs()[1]).getValue().equals("mali1");
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql2 = lambdaTemplate.lambdaUpdate(UserInfo2.class).eqBySampleMap(whereValue).updateByMap(setValue).getBoundSql();
+        BoundSql boundSql2 = lambdaTemplate.lambdaUpdate(UserInfo2.class).eqBySampleMap(whereValue).updateToMap(setValue).getBoundSql();
         assert boundSql2.getSqlString().equals("UPDATE user_info SET user_name = ? WHERE ( user_name = ? )");
         assert ((MappedArg) boundSql2.getArgs()[0]).getValue().equals("321");
         assert ((MappedArg) boundSql2.getArgs()[1]).getValue().equals("123");

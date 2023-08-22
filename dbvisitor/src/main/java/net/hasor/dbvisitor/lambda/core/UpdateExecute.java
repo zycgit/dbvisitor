@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.lambda.core;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * lambda Update 执行器
@@ -36,10 +37,16 @@ public interface UpdateExecute<R, T, P> extends BoundSqlBuilder {
     R allowReplaceRow();
 
     /** 参照 sample 局部更新（只更新对象中属性不为空的）*/
-    R updateBySample(T sample);
+    R updateToSample(T sample);
+
+    /** 增强 updateToSample 方法，通过 condition 可以进一步过滤某些列是否参与更新 */
+    R updateToSampleCondition(T sample, Predicate<String> condition);
 
     /** 参照 sample 局部更新（只更新 map 中在的列） */
-    R updateByMap(Map<String, Object> sample);
+    R updateToMap(Map<String, Object> sample);
+
+    /** 增强 updateToMap 方法，通过 condition 可以进一步过滤某些列是否参与更新 */
+    R updateToMapCondition(Map<String, Object> sample, Predicate<String> condition);
 
     /**
      * 整行更新
@@ -47,6 +54,9 @@ public interface UpdateExecute<R, T, P> extends BoundSqlBuilder {
      * - 注意2：整行更新是危险操作，需要启用 allowReplaceRow
      */
     R updateTo(T newValue);
+
+    /** 增强 updateTo 方法，通过 condition 可以进一步过滤某些列是否参与更新 */
+    R updateToCondition(T newValue, Predicate<String> condition);
 
     /** 只更新一个字段 */
     R updateTo(P property, Object value);

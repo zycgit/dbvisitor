@@ -195,8 +195,8 @@ public class BuilderQueryTest extends AbstractDbTest {
         assert boundSql33.getArgs()[2].equals(123);
 
         BoundSql boundSql34 = lambdaTemplate.lambdaQuery(UserInfo2.class).eqBySample(new UserInfo2()).getBoundSql();
-        assert boundSql34.getSqlString().equals("SELECT * FROM user_info WHERE ( seq = ? )");
-        assert boundSql34.getArgs()[0].equals(0);
+        assert boundSql34.getSqlString().equals("SELECT * FROM user_info");
+        assert boundSql34.getArgs().length == 0;
 
         BoundSql boundSql35 = lambdaTemplate.lambdaQuery(user_info.class).eqBySample(new user_info()).getBoundSql();
         assert boundSql35.getSqlString().equals("SELECT * FROM user_info");

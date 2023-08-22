@@ -8,7 +8,7 @@
         <result column="login_name" property="loginName"/>
         <result column="login_password" property="password"/>
         <result column="email" property="email"/>
-        <result column="index" property="seq" javaType="int"/>
+        <result column="index" property="seq" javaType="java.lang.Integer"/>
         <result column="register_time" property="createTime"/>
     </resultMap>
 

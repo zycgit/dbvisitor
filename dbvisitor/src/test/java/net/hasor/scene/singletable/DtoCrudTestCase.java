@@ -116,7 +116,7 @@ public class DtoCrudTestCase {
             // update user set name = 'new name is abc', age = 120 where id = 1
             lambdaTemplate.lambdaUpdate(UserTableDTO.class) //
                     .eq(UserTableDTO::getId, 1)//
-                    .updateByMap(newValue)   //
+                    .updateToMap(newValue)   //
                     .doUpdate();
 
             // 校验结果
@@ -140,7 +140,7 @@ public class DtoCrudTestCase {
             // update user set name = 'new name is abc', age = 120 where id = 1
             lambdaTemplate.lambdaUpdate(UserTableDTO.class) //
                     .eq(UserTableDTO::getId, 1) //
-                    .updateBySample(newData)  //
+                    .updateToSample(newData)  //
                     .doUpdate();
 
             // 校验结果
@@ -194,7 +194,7 @@ public class DtoCrudTestCase {
             int i = lambdaTemplate.lambdaUpdate(UserTableDTO.class) //
                     .eq(UserTableDTO::getId, 1) //
                     .allowUpdateKey()  // 需要启用 allowUpdateKey
-                    .updateBySample(newData)  //
+                    .updateToSample(newData)  //
                     .doUpdate();
             assert i == 1;
 

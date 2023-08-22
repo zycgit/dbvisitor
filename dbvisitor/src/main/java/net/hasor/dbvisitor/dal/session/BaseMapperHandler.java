@@ -100,7 +100,10 @@ class BaseMapperHandler implements BaseMapper<Object> {
         }
 
         try {
-            return update.updateBySample(entity).doUpdate();
+            TableMapping<Object> tableMapping = getMapping();
+            return update.updateToSampleCondition(entity, property -> {
+                return !tableMapping.getPropertyByName(property).isPrimaryKey();
+            }).doUpdate();
         } catch (SQLException e) {
             throw new RuntimeSQLException(e);
         }
@@ -135,7 +138,10 @@ class BaseMapperHandler implements BaseMapper<Object> {
             if (query.queryForCount() == 0) {
                 return insert().applyEntity(entity).executeSumResult();
             } else {
-                return update.updateBySample(entity).doUpdate();
+                TableMapping<Object> tableMapping = getMapping();
+                return update.updateToSampleCondition(entity, property -> {
+                    return !tableMapping.getPropertyByName(property).isPrimaryKey();
+                }).doUpdate();
             }
         } catch (SQLException e) {
             throw new RuntimeSQLException(e);
@@ -174,12 +180,15 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new NullPointerException("primary key is empty.");
         }
 
-        if (map.size() <= 0) {
+        if (map.size() == 0) {
             throw new NullPointerException("map is empty.");
         }
 
         try {
-            return update.updateByMap(map).doUpdate();
+            TableMapping<Object> tableMapping = getMapping();
+            return update.updateToMapCondition(map, property -> {
+                return !tableMapping.getPropertyByName(property).isPrimaryKey();
+            }).doUpdate();
         } catch (SQLException e) {
             throw new RuntimeSQLException(e);
         }

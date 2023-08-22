@@ -43,7 +43,7 @@ public class LambdaUpdateTest extends AbstractDbTest {
 
             EntityUpdateOperation<user_info> lambdaUpdate = lambdaTemplate.lambdaUpdate(user_info.class);
             int update = lambdaUpdate.eq(user_info::getLogin_name, "muhammad")//
-                    .updateByMap(valueMap)//
+                    .updateToMap(valueMap)//
                     .doUpdate();
             assert update == 1;
 
@@ -65,7 +65,7 @@ public class LambdaUpdateTest extends AbstractDbTest {
 
             EntityUpdateOperation<user_info> lambdaUpdate = lambdaTemplate.lambdaUpdate(user_info.class);
             int update = lambdaUpdate.eq(user_info::getLogin_name, "muhammad")//
-                    .updateByMap(valueMap)//
+                    .updateToMap(valueMap)//
                     .doUpdate();
             assert update == 1;
 

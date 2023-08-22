@@ -28,19 +28,19 @@ import java.util.Date;
 @Table("user_info")
 public class UserInfo2 {
     @Column(value = "user_uuid", primary = true, keyType = KeyTypeEnum.UUID32)
-    private String uid;
+    private String  uid;
     @Column("user_name")
-    private String name;
+    private String  name;
     @Column("login_name")
-    private String loginName;
+    private String  loginName;
     @Column("login_password")
-    private String password;
+    private String  password;
     @Column("email")
-    private String email;
+    private String  email;
     @Column("seq")
-    private int    seq;
+    private Integer seq;
     @Column("register_time")
-    private Date   createTime;
+    private Date    createTime;
 
     public String getUid() {
         return uid;
@@ -82,11 +82,11 @@ public class UserInfo2 {
         this.email = email;
     }
 
-    public int getSeq() {
+    public Integer getSeq() {
         return seq;
     }
 
-    public void setSeq(int seq) {
+    public void setSeq(Integer seq) {
         this.seq = seq;
     }
 

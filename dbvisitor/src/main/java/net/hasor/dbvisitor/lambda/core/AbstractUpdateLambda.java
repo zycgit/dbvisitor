@@ -96,13 +96,18 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
     }
 
     @Override
-    public R updateBySample(final T newValue) {
+    public R updateToSample(final T newValue) {
+        return updateToSampleCondition(newValue, t -> true);
+    }
+
+    @Override
+    public R updateToSampleCondition(T newValue, Predicate<String> condition) {
         if (newValue == null) {
             throw new NullPointerException("newValue is null.");
         }
 
         if (exampleIsMap()) {
-            return this.updateByMap((Map<String, Object>) newValue);
+            return this.updateToMapCondition((Map<String, Object>) newValue, condition);
         }
 
         Map<String, Object> tempData = new HashMap<>();
@@ -113,11 +118,18 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
             }
         }
 
-        return this.updateToByCondition(true, this.allowUpdateKeys, true, tempData::containsKey, tempData::get);
+        return this.updateToByCondition(true, this.allowUpdateKeys, true, s -> {
+            return tempData.containsKey(s) && condition.test(s);
+        }, tempData::get);
     }
 
     @Override
-    public R updateByMap(Map<String, Object> newValue) {
+    public R updateToMap(Map<String, Object> newValue) {
+        return this.updateToMapCondition(newValue, t -> true);
+    }
+
+    @Override
+    public R updateToMapCondition(Map<String, Object> newValue, Predicate<String> condition) {
         if (newValue == null) {
             throw new NullPointerException("newValue is null.");
         }
@@ -125,11 +137,19 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
         Map<String, String> entityKeyMap = extractKeysMap(newValue);
         boolean useMapping = !this.allowUpdateProperties.isEmpty();
         Set<String> keySet = useMapping ? this.allowUpdateKeys : entityKeyMap.keySet();
-        return this.updateToByCondition(useMapping, keySet, true, entityKeyMap::containsKey, s -> newValue.get(entityKeyMap.get(s)));
+
+        return this.updateToByCondition(useMapping, keySet, true, s -> {
+            return entityKeyMap.containsKey(s) && condition.test(s);
+        }, s -> newValue.get(entityKeyMap.get(s)));
     }
 
     @Override
     public R updateTo(T newValue) {
+        return this.updateToCondition(newValue, t -> true);
+    }
+
+    @Override
+    public R updateToCondition(T newValue, Predicate<String> condition) {
         if (newValue == null) {
             throw new NullPointerException("newValue is null.");
         }
@@ -142,9 +162,9 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
             Map<String, Object> newValueMap = (Map<String, Object>) newValue;
             Map<String, String> entityKeyMap = extractKeysMap((Map) newValue);
             boolean useMapping = !this.allowUpdateProperties.isEmpty();
-            return this.updateToByCondition(useMapping, entityKeyMap.keySet(), true, p -> true, s -> newValueMap.get(entityKeyMap.get(s)));
+            return this.updateToByCondition(useMapping, entityKeyMap.keySet(), true, condition, s -> newValueMap.get(entityKeyMap.get(s)));
         } else {
-            return this.updateToByCondition(true, this.allowUpdateKeys, true, p -> true, createPropertyReaderFunc(newValue));
+            return this.updateToByCondition(true, this.allowUpdateKeys, true, condition, createPropertyReaderFunc(newValue));
         }
     }
 

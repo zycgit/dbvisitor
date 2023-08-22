@@ -122,7 +122,7 @@ public class MapCrudTestCase {
             // update user set name = 'new name is abc', age = 120 where id = 1
             lambdaTemplate.lambdaUpdate("user_table") //
                     .eq("id", 1)//
-                    .updateByMap(newValue)   //
+                    .updateToMap(newValue)   //
                     .doUpdate();
 
             // 校验结果
@@ -146,7 +146,7 @@ public class MapCrudTestCase {
             // update user set name = 'new name is abc', age = 120 where id = 1
             lambdaTemplate.lambdaUpdate("user_table") //
                     .eq("id", 1) //
-                    .updateBySample(newData)  // updateBySample 在 map 模式下和 updateByMap 行为一样；
+                    .updateToSample(newData)  // updateBySample 在 map 模式下和 updateByMap 行为一样；
                     .doUpdate();
 
             // 校验结果
@@ -202,7 +202,7 @@ public class MapCrudTestCase {
             int i = lambdaTemplate.lambdaUpdate("user_table") //
                     .eq("id", 1) //
                     .allowUpdateKey()  // 需要启用 allowUpdateKey
-                    .updateBySample(newData)  //
+                    .updateToSample(newData)  //
                     .doUpdate();
             assert i == 1;
 
