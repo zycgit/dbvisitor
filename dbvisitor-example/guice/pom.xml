@@ -23,7 +23,7 @@
     </build>
 
     <dependencies>
-        <!-- hasordb for spring -->
+        <!-- dbvisitor for guice -->
         <dependency>
             <groupId>net.hasor</groupId>
             <artifactId>dbvisitor-guice</artifactId>

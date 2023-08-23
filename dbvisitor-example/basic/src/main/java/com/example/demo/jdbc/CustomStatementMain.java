@@ -31,7 +31,7 @@ public class CustomStatementMain {
         // 流式消费数据
         RowCallbackHandler handler = (rs, rowNum) -> {
             TestUser dto = rowMapper.mapRow(rs, rowNum);
-
+            System.out.println(dto.getName());
         };
 
         // 执行流式处理

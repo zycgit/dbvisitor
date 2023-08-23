@@ -157,9 +157,16 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
                 packages.forEach(pkg -> logger.debug("Using auto-configuration base package '" + pkg + "'"));
             }
 
-            String mapperBeanName = MapperScannerConfigurer.class.getName();
+            // load mapper xml
             String fileBeanName = MapperFileConfigurer.class.getName();
+            BeanDefinitionBuilder fileBuilder = BeanDefinitionBuilder.genericBeanDefinition(MapperFileConfigurer.class);
+            fileBuilder.addPropertyValue("processPropertyPlaceHolders", true);
+            fileBuilder.addPropertyValue("mapperLocations", "${" + PREFIX + ".mapper-locations:classpath*:/dbvisitor/mapper/**/*.xml}");
+            fileBuilder.addPropertyValue("dalSessionRef", "${" + PREFIX + ".ref-session-bean:}");
+            registry.registerBeanDefinition(fileBeanName, fileBuilder.getBeanDefinition());
 
+            // load mapper interface
+            String mapperBeanName = MapperScannerConfigurer.class.getName();
             BeanDefinitionBuilder mapperBuilder = BeanDefinitionBuilder.genericBeanDefinition(MapperScannerConfigurer.class);
             mapperBuilder.addPropertyValue("mapperDisabled", "${" + PREFIX + ".mapper-disabled:false}");
             mapperBuilder.addPropertyValue("processPropertyPlaceHolders", true);
@@ -174,12 +181,6 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
             mapperBuilder.addPropertyValue("dependsOn", fileBeanName);
 
             registry.registerBeanDefinition(mapperBeanName, mapperBuilder.getBeanDefinition());
-
-            BeanDefinitionBuilder fileBuilder = BeanDefinitionBuilder.genericBeanDefinition(MapperFileConfigurer.class);
-            mapperBuilder.addPropertyValue("processPropertyPlaceHolders", true);
-            fileBuilder.addPropertyValue("mapperLocations", "${" + PREFIX + ".mapper-locations:classpath*:/dbvisitor/mapper/**/*.xml}");
-            fileBuilder.addPropertyValue("dalSessionRef", "${" + PREFIX + ".ref-session-bean:}");
-            registry.registerBeanDefinition(fileBeanName, fileBuilder.getBeanDefinition());
         }
     }
 }

@@ -20,7 +20,7 @@ public class Update1Main {
         testUser.setAge(88);
 
         EntityUpdateOperation<TestUser> update = lambdaTemplate.lambdaUpdate(TestUser.class);
-        int result = update.eq(TestUser::getId, 1).updateBySample(testUser).doUpdate();
+        int result = update.eq(TestUser::getId, 1).updateToSample(testUser).doUpdate();
 
         System.out.println("res = " + result);
         PrintUtils.printObjectList(lambdaTemplate.queryForList("select * from test_user"));

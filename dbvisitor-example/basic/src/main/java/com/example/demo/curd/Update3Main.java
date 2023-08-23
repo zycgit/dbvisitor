@@ -22,7 +22,7 @@ public class Update3Main {
         newValue.put("age", 88);
 
         MapUpdateOperation update = lambdaTemplate.lambdaUpdate("test_user");
-        int result = update.eq("id", 1).updateByMap(newValue).doUpdate();
+        int result = update.eq("id", 1).updateToMap(newValue).doUpdate();
 
         System.out.println("res = " + result);
         PrintUtils.printObjectList(lambdaTemplate.queryForList("select * from test_user"));

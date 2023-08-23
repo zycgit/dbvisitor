@@ -22,7 +22,7 @@ public class Update2Main {
         newValue.put("age", 88);
 
         EntityUpdateOperation<TestUser> update = lambdaTemplate.lambdaUpdate(TestUser.class);
-        int result = update.eq(TestUser::getId, 1).updateByMap(newValue).doUpdate();
+        int result = update.eq(TestUser::getId, 1).updateToMap(newValue).doUpdate();
 
         System.out.println("res = " + result);
         PrintUtils.printObjectList(lambdaTemplate.queryForList("select * from test_user"));

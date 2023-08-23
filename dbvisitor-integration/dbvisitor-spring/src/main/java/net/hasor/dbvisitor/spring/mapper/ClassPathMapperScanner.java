@@ -94,8 +94,10 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
         }
 
         if (acceptAllInterfaces) {
-            // default include filter that accepts all classes
-            addIncludeFilter((metadataReader, metadataReaderFactory) -> true);
+            // default include filter that accepts all interfaces
+            addIncludeFilter((metadataReader, metadataReaderFactory) -> {
+                return metadataReader.getClassMetadata().isInterface();
+            });
         }
 
         // exclude package-info.java

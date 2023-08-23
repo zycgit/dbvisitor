@@ -22,6 +22,7 @@ public class RowMapper2Main {
                 TestUser testUser = new TestUser();
                 testUser.setAge(rs.getInt("age"));
                 testUser.setName(rs.getString("name"));
+                testUser.setCreateTime(rs.getDate("create_time"));
                 return testUser;
             }
         });

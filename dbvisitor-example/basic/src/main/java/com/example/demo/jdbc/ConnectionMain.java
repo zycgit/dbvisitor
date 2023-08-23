@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ConnectionMain {
@@ -19,7 +20,7 @@ public class ConnectionMain {
         List<TestUser> resultList = jdbcTemplate.execute(new ConnectionCallback<List<TestUser>>() {
             @Override
             public List<TestUser> doInConnection(Connection con) throws SQLException {
-                return null;
+                return new ArrayList<>();
             }
         });
 

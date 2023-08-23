@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
-<mapper namespace="net.hasor.dbvisitor.test.dao.user.UserMapper">
+<mapper namespace="net.hasor.dbvisitor.test.dao.user.UserMapper" mapUnderscoreToCamelCase="true">
 
-    <resultMap id="userDTO" table="stb_user" type="net.hasor.dbvisitor.test.dto.UserDTO" autoMapping="true" mapUnderscoreToCamelCase="true" caseInsensitive="true"/>
+    <resultMap id="userDTO" type="net.hasor.dbvisitor.test.dto.UserDTO"/>
 
     <select id="queryAll" resultMap="userDTO">
         select * from `stb_user` order by id asc

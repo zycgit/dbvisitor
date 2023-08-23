@@ -28,8 +28,8 @@ import java.lang.annotation.*;
  * same method, implicitly generating this container annotation.
  *
  * @author Kazuki Shimizu
- * @version 2022-04-29
  * @author 赵永春 (zyc@hasor.net)
+ * @version 2022-04-29
  * @see MappingScans
  */
 @Retention(RetentionPolicy.RUNTIME)
