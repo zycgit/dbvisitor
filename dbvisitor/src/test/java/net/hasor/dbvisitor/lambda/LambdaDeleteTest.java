@@ -15,9 +15,11 @@
  */
 package net.hasor.dbvisitor.lambda;
 import net.hasor.dbvisitor.dialect.BoundSql;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.types.MappedArg;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.UserInfo;
+import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
@@ -60,6 +62,40 @@ public class LambdaDeleteTest extends AbstractDbTest {
             List<String> collect = tbUsers.stream().map(user_info::getUser_uuid).collect(Collectors.toList());
             assert collect.contains(beanForData2().getUserUuid());
             assert collect.contains(beanForData3().getUserUuid());
+        }
+    }
+
+    @Test
+    public void lambda_delete_3() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+
+            List<UserInfo2> users = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForList();
+            UserInfo2 info = users.get(0);
+
+            MappingOptions options = MappingOptions.buildNew().mapUnderscoreToCamelCase(true);
+            MapDeleteOperation delete = lambdaTemplate.lambdaDelete("user_info", options);
+            assert delete.eq("user_uuid", info.getUid()).doDelete() == 1;
+
+            Map<String, Object> maps = lambdaTemplate.queryForObject("select * from user_info where user_uuid = ?", new Object[] { info.getUid() }, Map.class);
+            assert maps == null;
+        }
+    }
+
+    @Test
+    public void lambda_delete_4() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+
+            List<UserInfo2> users = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForList();
+            UserInfo2 info = users.get(0);
+
+            MappingOptions options = MappingOptions.buildNew().mapUnderscoreToCamelCase(true);
+            MapDeleteOperation delete = lambdaTemplate.lambdaDelete("user_info", options);
+            assert delete.eq("userUuid", info.getUid()).doDelete() == 1;
+
+            Map<String, Object> maps = lambdaTemplate.queryForObject("select * from user_info where user_uuid = ?", new Object[] { info.getUid() }, Map.class);
+            assert maps == null;
         }
     }
 

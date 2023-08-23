@@ -51,6 +51,9 @@ public interface TableMapping<T> {
     /** 结果处理是否大小写敏感 */
     boolean isCaseInsensitive();
 
+    /** 是否配置了驼峰转换（Map模式下依赖这个参数决定是否进行驼峰转换） */
+    boolean isToCamelCase();
+
     Collection<ColumnMapping> getProperties();
 
     ColumnMapping getPropertyByColumn(String column);

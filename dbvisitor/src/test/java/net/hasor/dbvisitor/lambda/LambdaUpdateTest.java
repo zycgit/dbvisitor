@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static net.hasor.test.utils.TestUtils.beanForData1;
 
@@ -31,7 +35,7 @@ import static net.hasor.test.utils.TestUtils.beanForData1;
  */
 public class LambdaUpdateTest extends AbstractDbTest {
     @Test
-    public void lambda_update_2() throws Throwable {
+    public void lambda_update_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             EntityQueryOperation<user_info> lambdaQuery = lambdaTemplate.lambdaQuery(user_info.class);
@@ -49,6 +53,23 @@ public class LambdaUpdateTest extends AbstractDbTest {
 
             user_info tbUser2 = lambdaTemplate.lambdaQuery(user_info.class).eq(user_info::getLogin_name, "muhammad").queryForObject();
             assert tbUser2.getUser_name() == null;
+        }
+    }
+
+    @Test
+    public void lambda_update_map_0() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+
+            List<UserInfo2> users = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForList();
+            UserInfo2 info = users.get(0);
+
+            MappingOptions options = MappingOptions.buildNew().mapUnderscoreToCamelCase(true);
+            MapUpdateOperation update = lambdaTemplate.lambdaUpdate("user_info", options);
+            assert update.eq("user_uuid", info.getUid()).updateTo("loginPassword", "newPassword").doUpdate() == 1;
+
+            Map<String, Object> maps = lambdaTemplate.queryForObject("select * from user_info where user_uuid = ?", new Object[] { info.getUid() }, Map.class);
+            assert maps.get("login_password").equals("newPassword");
         }
     }
 

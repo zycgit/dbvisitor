@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.support.map;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.MapDeleteOperation;
 import net.hasor.dbvisitor.lambda.core.AbstractDeleteLambda;
@@ -28,9 +29,11 @@ import java.util.Map;
  */
 public class DeleteLambdaForMap extends AbstractDeleteLambda<MapDeleteOperation, Map<String, Object>, String> //
         implements MapDeleteOperation {
+    private final boolean toCamelCase;
 
     public DeleteLambdaForMap(TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
         super(Map.class, tableMapping, jdbcTemplate);
+        this.toCamelCase = getTableMapping().isToCamelCase();
     }
 
     @Override
@@ -40,7 +43,11 @@ public class DeleteLambdaForMap extends AbstractDeleteLambda<MapDeleteOperation,
 
     @Override
     protected String getPropertyName(String property) {
-        return property;
+        if (this.toCamelCase) {
+            return StringUtils.humpToLine(property);
+        } else {
+            return property;
+        }
     }
 
 }

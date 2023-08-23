@@ -40,12 +40,22 @@ public interface LambdaOperations extends JdbcOperations {
 
     /** 相当于 insert ... */
     default InsertOperation<Map<String, Object>> lambdaInsert(String table) throws SQLException {
-        return lambdaInsert(null, null, table);
+        return lambdaInsert(null, null, table, null);
+    }
+
+    /** 相当于 insert ... */
+    default InsertOperation<Map<String, Object>> lambdaInsert(String table, MappingOptions options) throws SQLException {
+        return lambdaInsert(null, null, table, options);
     }
 
     /** 相当于 insert ... */
     default InsertOperation<Map<String, Object>> lambdaInsert(String schema, String table) throws SQLException {
         return lambdaInsert(null, schema, table, null);
+    }
+
+    /** 相当于 insert ... */
+    default InsertOperation<Map<String, Object>> lambdaInsert(String schema, String table, MappingOptions options) throws SQLException {
+        return lambdaInsert(null, schema, table, options);
     }
 
     /** 相当于 insert ... */
@@ -74,8 +84,18 @@ public interface LambdaOperations extends JdbcOperations {
     }
 
     /** 相当于 update ... */
+    default MapUpdateOperation lambdaUpdate(String table, MappingOptions options) throws SQLException {
+        return lambdaUpdate(null, null, table, options);
+    }
+
+    /** 相当于 update ... */
     default MapUpdateOperation lambdaUpdate(String schema, String table) throws SQLException {
         return lambdaUpdate(null, schema, table, null);
+    }
+
+    /** 相当于 update ... */
+    default MapUpdateOperation lambdaUpdate(String schema, String table, MappingOptions options) throws SQLException {
+        return lambdaUpdate(null, schema, table, options);
     }
 
     /** 相当于 update ... */
@@ -104,8 +124,18 @@ public interface LambdaOperations extends JdbcOperations {
     }
 
     /** 相当于 delete ... */
+    default MapDeleteOperation lambdaDelete(String table, MappingOptions options) throws SQLException {
+        return lambdaDelete(null, null, table, options);
+    }
+
+    /** 相当于 delete ... */
     default MapDeleteOperation lambdaDelete(String schema, String table) throws SQLException {
         return lambdaDelete(null, schema, table, null);
+    }
+
+    /** 相当于 delete ... */
+    default MapDeleteOperation lambdaDelete(String schema, String table, MappingOptions options) throws SQLException {
+        return lambdaDelete(null, schema, table, options);
     }
 
     /** 相当于 delete ... */
@@ -134,8 +164,18 @@ public interface LambdaOperations extends JdbcOperations {
     }
 
     /** 相当于 select ... */
+    default MapQueryOperation lambdaQuery(String table, MappingOptions options) throws SQLException {
+        return lambdaQuery(null, null, table, options);
+    }
+
+    /** 相当于 select ... */
     default MapQueryOperation lambdaQuery(String schema, String table) throws SQLException {
         return lambdaQuery(null, schema, table, null);
+    }
+
+    /** 相当于 select ... */
+    default MapQueryOperation lambdaQuery(String schema, String table, MappingOptions options) throws SQLException {
+        return lambdaQuery(null, schema, table, options);
     }
 
     /** 相当于 select ... */

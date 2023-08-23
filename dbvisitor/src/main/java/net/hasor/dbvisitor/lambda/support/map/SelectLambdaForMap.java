@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.support.map;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.MapQueryOperation;
 import net.hasor.dbvisitor.lambda.core.AbstractSelectLambda;
@@ -29,9 +30,11 @@ import java.util.Map;
  */
 public class SelectLambdaForMap extends AbstractSelectLambda<MapQueryOperation, Map<String, Object>, String> //
         implements MapQueryOperation {
+    private final boolean toCamelCase;
 
     public SelectLambdaForMap(TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
         super(Map.class, tableMapping, jdbcTemplate);
+        this.toCamelCase = getTableMapping().isToCamelCase();
     }
 
     @Override
@@ -41,7 +44,11 @@ public class SelectLambdaForMap extends AbstractSelectLambda<MapQueryOperation, 
 
     @Override
     protected String getPropertyName(String property) {
-        return property;
+        if (this.toCamelCase) {
+            return StringUtils.humpToLine(property);
+        } else {
+            return property;
+        }
     }
 
     @Override

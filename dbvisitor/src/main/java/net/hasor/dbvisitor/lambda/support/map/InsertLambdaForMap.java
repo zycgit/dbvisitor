@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.support.map;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.BatchBoundSql.BatchBoundSqlObj;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.BoundSql.BoundSqlObj;
@@ -30,6 +32,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,8 +43,11 @@ import java.util.Map;
  */
 public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map<String, Object>>, Map<String, Object>, String> //
         implements InsertOperation<Map<String, Object>> {
+    private final boolean toCamelCase;
+
     public InsertLambdaForMap(TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
         super(Map.class, tableMapping, jdbcTemplate);
+        this.toCamelCase = getTableMapping().isToCamelCase();
     }
 
     @Override
@@ -90,18 +96,36 @@ public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map
     }
 
     protected BoundSqlObj buildBoundSql(SqlDialect dialect, InsertEntity entity) {
-        Map<String, String> entityKeyMap = extractKeysMap((Map) entity.object);
-        List<String> insertColumns = new ArrayList<>(entityKeyMap.keySet());
+        Map<String, String> entityKeyMap = this.extractKeysMap((Map) entity.object);
+        List<String> insertProperties = new ArrayList<>();
+        List<String> insertColumns = new ArrayList<>();
+        entityKeyMap.forEach((p, c) -> {
+            insertProperties.add(p);
+            insertColumns.add(c);
+        });
 
         String insertSql = buildInsert(dialect, this.primaryKeys, insertColumns, this.insertColumnTerms);
         MappedArg[] args = new MappedArg[entityKeyMap.size()];
 
-        for (int i = 0; i < insertColumns.size(); i++) {
-            Object arg = ((Map) entity.object).get(entityKeyMap.get(insertColumns.get(i)));
+        for (int i = 0; i < insertProperties.size(); i++) {
+            Object arg = ((Map) entity.object).get(insertProperties.get(i));
             Integer jdbcType = arg == null ? null : TypeHandlerRegistry.toSqlType(arg.getClass());
             args[i] = (arg == null) ? null : new MappedArg(arg, jdbcType, null);
         }
 
         return new BoundSqlObj(insertSql, args);
+    }
+
+    protected Map<String, String> extractKeysMap(Map entity) {
+        Map<String, String> propertySet = getTableMapping().isCaseInsensitive() ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
+        for (Object key : entity.keySet()) {
+            String keyStr = key.toString();
+            if (this.toCamelCase) {
+                propertySet.put(keyStr, StringUtils.humpToLine(keyStr));
+            } else {
+                propertySet.put(keyStr, keyStr);
+            }
+        }
+        return propertySet;
     }
 }

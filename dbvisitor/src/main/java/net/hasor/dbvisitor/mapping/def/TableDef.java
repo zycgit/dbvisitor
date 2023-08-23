@@ -108,6 +108,11 @@ public class TableDef<T> implements TableMapping<T> {
         return this.caseInsensitive;
     }
 
+    @Override
+    public boolean isToCamelCase() {
+        return this.mapUnderscoreToCamelCase;
+    }
+
     public boolean isMapUnderscoreToCamelCase() {
         return this.mapUnderscoreToCamelCase;
     }

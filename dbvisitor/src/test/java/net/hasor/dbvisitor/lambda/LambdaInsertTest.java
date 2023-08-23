@@ -15,9 +15,11 @@
  */
 package net.hasor.dbvisitor.lambda;
 import net.hasor.cobble.CollectionUtils;
+import net.hasor.cobble.DateFormatType;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.BatchBoundSql;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.AutoId;
 import net.hasor.test.dto.UserInfo2;
@@ -213,6 +215,37 @@ public class LambdaInsertTest extends AbstractDbTest {
             assert uids.contains(tbUser1.get("uid"));
 
             assert tbUser1.get("id") == null;
+        }
+    }
+
+    @Test
+    public void lambda_insert_6() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            lambdaTemplate.execute("delete from user_info");
+
+            Map<String, Object> newValue = new HashMap<>();
+            newValue.put("user_uuid", "uuiduuiduuid");
+            newValue.put("userName", "yongchun.zyc"); // use CamelCase convert -> user_name
+            newValue.put("loginName", "abc");// use CamelCase convert -> login_name
+            newValue.put("loginPassword", "my password");// use CamelCase convert -> login_password
+            newValue.put("email", "zyc@hasor.net");
+            newValue.put("seq", 111);
+            newValue.put("registerTime", DateFormatType.s_yyyyMMdd_HHmmss.toDate("2000-01-01 12:34:56"));
+
+            MappingOptions options = MappingOptions.buildNew().mapUnderscoreToCamelCase(true);
+            InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.lambdaInsert("user_info", options);
+            assert lambdaInsert.applyMap(newValue).executeSumResult() == 1;
+
+            List<UserInfo2> users = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForList();
+            assert users.size() == 1;
+
+            assert users.get(0).getUid().equals("uuiduuiduuid");
+            assert users.get(0).getName().equals("yongchun.zyc");
+            assert users.get(0).getLoginName().equals("abc");
+            assert users.get(0).getPassword().equals("my password");
+            assert users.get(0).getEmail().equals("zyc@hasor.net");
+            assert users.get(0).getSeq().equals(111);
         }
     }
 }
