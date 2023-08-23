@@ -156,7 +156,7 @@ public class DalSession extends JdbcAccessor {
                 }
             }
 
-            if (!simpleMapper) {
+            if (!simpleMapper && !this.dalRegistry.hasScope(mapperType)) {
                 throw new UnsupportedOperationException("type '" + mapperType.getName() + "' need @RefMapper or @SimpleMapper or @DalMapper");
             }
 

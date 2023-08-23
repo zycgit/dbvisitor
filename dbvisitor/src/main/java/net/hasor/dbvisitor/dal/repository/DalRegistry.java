@@ -87,6 +87,13 @@ public class DalRegistry extends MappingRegistry {
         return this.ruleRegistry;
     }
 
+    public boolean hasScope(Class<?> space) {
+        return hasScope(space == null ? "" : space.getName());
+    }
+
+    public boolean hasScope(String space) {
+        return this.dynamicMap.containsKey(space);
+    }
     // --------------------------------------------------------------------------------------------
 
     /** 根据 namespace 和 ID 查找 DynamicSql */
