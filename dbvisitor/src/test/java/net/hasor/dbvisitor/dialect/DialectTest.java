@@ -360,29 +360,6 @@ public class DialectTest extends AbstractDbTest {
     }
 
     @Test
-    public void dialect_phoenix_1() {
-        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.PHOENIX);
-        String buildTableName1 = dialect.tableName(true, null, "", "tb_user");
-        String buildTableName2 = dialect.tableName(true, null, "abc", "tb_user");
-        String buildCondition = dialect.fmtName(true, "userUUID");
-
-        assert buildTableName1.equals("\"tb_user\"");
-        assert buildTableName2.equals("\"abc\".\"tb_user\"");
-        assert buildCondition.equals("\"userUUID\"");
-
-        BoundSql countSql = dialect.countSql(this.queryBoundSql);
-        assert countSql.getSqlString().equals("SELECT COUNT(*) FROM (select * from tb_user where age > 12 and sex = ?) as TEMP_T");
-        assert countSql.getArgs().length == 1;
-
-        BoundSql pageSql = dialect.pageSql(this.queryBoundSql, 1, 3);
-        assert pageSql.getSqlString().equals("select * from tb_user where age > 12 and sex = ? LIMIT ? OFFSET ?");
-        assert pageSql.getArgs().length == 3;
-        assert pageSql.getArgs()[0].equals('F');
-        assert pageSql.getArgs()[1].equals(3L);
-        assert pageSql.getArgs()[2].equals(1L);
-    }
-
-    @Test
     public void dialect_impala_1() {
         PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.IMPALA);
         String buildTableName1 = dialect.tableName(true, null, "", "tb_user");

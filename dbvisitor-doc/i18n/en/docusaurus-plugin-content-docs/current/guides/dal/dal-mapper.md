@@ -21,9 +21,15 @@ description: dbVisitor ORM 工具使用 Mapper 文件的好处是便于维护和
 </mapper>
 ```
 
-:::tip
-`namespace` 通常是配置一个接口类名，这个接口下的每个方法会对应到 mapper 文件中一个具体的 sql 操作上。
-:::
+`mapper` 标签属性
+
+| 属性名                        | 描述                                                                                          |
+|----------------------------|---------------------------------------------------------------------------------------------|
+| `namespace`                | 可选，通常是配置一个接口类名，这个接口下的每个方法会对应到 mapper 文件中一个具体的 sql 操作上。                                      |
+| `caseInsensitive`          | 可选，在处理映射列名和属性名时是否对大小写不敏感，默认是 `true` 不敏感。对于某些数据库查询结果始终返回大写，利用这个功能可以方便的映射到属性上。                |
+| `mapUnderscoreToCamelCase` | 可选，用于决定属性名在映射到列名时，是否按照驼峰命名法转换为下划线命名法，例如：属性名 `createTime` 被转换为 `create_time`。默认是 `false` 不转换 |
+| `autoMapping`              | 可选，用于决定是否进行 **自动映射**。默认是 `true` 自动映射。                                                       |
+| `useDelimited`             | 可选(v5.3.4+)，用于决定在生成 SQL 语句时，表名/列名 是否强制使用限定符。默认：false 不使用。                                   |
 
 在 `mapper` 根元素下可以使用的顶层 Xml 元素有如下几个：
 
@@ -295,35 +301,50 @@ public class TestUser {
 
 `entity` 标签有如下属性：
 
-| 属性名                        | 描述                                                                                          |
-|----------------------------|---------------------------------------------------------------------------------------------|
-| `type`                     | 必选，类型全名，用于决定映射到的具体类型。                                                                       |
-| `table`                    | 必选，映射到的数据库 table 名字。                                                                        |
-| `id`                       | 可选，如果为空那么将会以 `type` 属性为替代。主要是用于标识 resultMap。                                                |
-| `catalog`                  | 可选，一个补充选项，通常在使用通用 `Mapper` 时候用到。它可以决定 映射到的数据库名字。                                            |
-| `schema`                   | 可选，一个补充选项，通常在使用通用 `Mapper` 时候用到。它可以决定 映射到的数据库 schema 名字。                                    |
-| `caseInsensitive`          | 可选，在处理映射列名和属性名时是否对大小写不敏感，默认是 `true` 不敏感。对于某些数据库查询结果始终返回大写，利用这个功能可以方便的映射到属性上。                |
-| `mapUnderscoreToCamelCase` | 可选，用于决定属性名在映射到列名时，是否按照驼峰命名法转换为下划线命名法，例如：属性名 `createTime` 被转换为 `create_time`。默认是 `false` 不转换 |
-| `autoMapping`              | 可选，用于决定是否进行 **自动映射**。默认是 `true` 自动映射。                                                       |
+| 属性名                        | 描述                                                                                                      |
+|----------------------------|---------------------------------------------------------------------------------------------------------|
+| `type`                     | 必选，类型全名，用于决定映射到的具体类型。                                                                                   |
+| `table`                    | 可选，映射到的数据库 table 名字（如果省略 table 配置则实体类必须标有 @Table 注解）                                                    |
+| `id`                       | 可选，如果为空那么将会以 `type` 属性为替代。主要是用于标识 resultMap。                                                            |
+| `catalog`                  | 可选，一个补充选项，通常在使用通用 `Mapper` 时候用到。它可以决定 映射到的数据库名字。                                                        |
+| `schema`                   | 可选，一个补充选项，通常在使用通用 `Mapper` 时候用到。它可以决定 映射到的数据库 schema 名字。                                                |
+| `caseInsensitive`          | 可选，在处理映射列名和属性名时是否对大小写不敏感，默认是 `true` 不敏感。对于某些数据库查询结果始终返回大写，利用这个功能可以方便的映射到属性上。                            |
+| `mapUnderscoreToCamelCase` | 可选，用于决定属性名在映射到列名时，是否按照驼峰命名法转换为下划线命名法，例如：属性名 `createTime` 被转换为 `create_time`。默认是 `false` 不转换             |
+| `autoMapping`              | 可选，用于决定是否进行 **自动映射**。默认是 `true` 自动映射。                                                                   |
+| `useDelimited`             | 可选(v5.3.3+)，用于决定在生成 SQL 语句时，表名/列名 是否强制使用限定符。默认：false 不使用。                                               |
+| `character-set`            | 可选(v5.3.3+)，用于在生成建表语句时候使用的默认字符集。（目前还不支持自动建表，仅能用于 TableDescription 接口获取配置）                               |
+| `collation`                | 可选(v5.3.3+)，用于在生成建表语句时候使用的排序规则。（目前还不支持自动建表，仅能用于 TableDescription 接口获取配置）                                |
+| `comment`                  | 可选(v5.3.3+)，用于在生成建表语句时候使用的表备注。（目前还不支持自动建表，仅能用于 TableDescription 接口获取配置）                                 |
+| `other`                    | 可选(v5.3.3+)，用于在生成建表语句时候使用的其它建表参数。（目前还不支持自动建表，仅能用于 TableDescription 接口获取配置）                              |
+| `ddlAuto`                  | 可选(v5.3.3+)，自动建表方式，可选值范围：`none、create、add、update、create-drop`，（目前还不支持自动建表，仅能用于 TableDescription 接口获取配置） |
 
 `id` 标签 和 `mapping` 标签 有如下属性：
 
-| 属性名                  | 描述                                                                                 |
-|----------------------|------------------------------------------------------------------------------------|
-| `column`             | 必选，查询结果的列名。                                                                        |
-| `property`           | 必选，pojo 的属性名。                                                                      |
-| `javaType`           | 可选，通常 dbVisitor 会识别到具体类型，但如果 pojo 的属性是一个抽象类或者接口，则可以配置 `javaType` 来指定具体的实现类。        |
-| `jdbcType`           | 可选，对应的 JDBC 类型。dbVisitor 将会遵循 **[Java 和 JDBC 类型关系](../types/java-jdbc.md)** 进行映射   |
-| `typeHandler`        | 可选，通常 dbVisitor 会根据 **[类型映射](../types/type-handlers.md)** 自动寻找列的读写器。该属性允许自定义属性读写器。 |
-| `keyType`            | 可选，key 生成策略，当列的属性为 null 的时。采用一种生成算法来生成 key 值。通常做用于 自增。                             |
-| `insert`             | 可选，在使用 `LambdaTemplate` 方式时，是否参与新增。                                                |
-| `update`             | 可选，在使用 `LambdaTemplate` 方式时，是否参与更新。                                                |
-| `selectTemplate`     | 可选，在使用 `LambdaTemplate` 方式时，用作 select 语句时 column name 的写法，默认是空                     |
-| `insertTemplate`     | 可选，在使用 `LambdaTemplate` 方式时，用作 insert 语句时 value 的参数写法，默认是 ?                        |
-| `setColTemplate`     | 可选，在使用 `LambdaTemplate` 方式时，用作 update 的 set 语句时 column name 的写法，默认是空               |
-| `setValueTemplate`   | 可选，在使用 `LambdaTemplate` 方式时，用作 update set 语句时 value 的参数写法，默认是 ?                    |
-| `whereColTemplate`   | 可选，在使用 `LambdaTemplate` 方式时，用作 update/delete 的 where 语句时 column name 的写法，默认是空      |
-| `whereValueTemplate` | 可选，在使用 `LambdaTemplate` 方式时，用作 update/delete 的 where 语句时 value 的参数写法，默认是 ?         |
+| 属性名                  | 描述                                                                                     |
+|----------------------|----------------------------------------------------------------------------------------|
+| `column`             | 必选，查询结果的列名。                                                                            |
+| `property`           | 必选，pojo 的属性名。                                                                          |
+| `javaType`           | 可选，通常 dbVisitor 会识别到具体类型，但如果 pojo 的属性是一个抽象类或者接口，则可以配置 `javaType` 来指定具体的实现类。            |
+| `jdbcType`           | 可选，对应的 JDBC 类型。dbVisitor 将会遵循 **[Java 和 JDBC 类型关系](../types/java-jdbc.md)** 进行映射       |
+| `typeHandler`        | 可选，通常 dbVisitor 会根据 **[类型映射](../types/type-handlers.md)** 自动寻找列的读写器。该属性允许自定义属性读写器。     |
+| `keyType`            | 可选，key 生成策略，当列的属性为 null 的时。采用一种生成算法来生成 key 值。通常做用于 自增。                                 |
+| `insert`             | 可选(v5.2.0+)，在使用 `LambdaTemplate` 方式时，是否参与新增。                                           |
+| `update`             | 可选(v5.2.0+)，在使用 `LambdaTemplate` 方式时，是否参与更新。                                           |
+| `selectTemplate`     | 可选(v5.2.0+)，在使用 `LambdaTemplate` 方式时，用作 select 语句时 column name 的写法，默认是空                |
+| `insertTemplate`     | 可选(v5.2.0+)，在使用 `LambdaTemplate` 方式时，用作 insert 语句时 value 的参数写法，默认是 ?                   |
+| `setColTemplate`     | 可选(v5.2.0+)，在使用 `LambdaTemplate` 方式时，用作 update 的 set 语句时 column name 的写法，默认是空          |
+| `setValueTemplate`   | 可选(v5.2.0+)，在使用 `LambdaTemplate` 方式时，用作 update set 语句时 value 的参数写法，默认是 ?               |
+| `whereColTemplate`   | 可选(v5.2.0+)，在使用 `LambdaTemplate` 方式时，用作 update/delete 的 where 语句时 column name 的写法，默认是空 |
+| `whereValueTemplate` | 可选(v5.2.0+)，在使用 `LambdaTemplate` 方式时，用作 update/delete 的 where 语句时 value 的参数写法，默认是 ?    |
+| `sqlType`            | 可选(v5.3.3+)，在自动建表中使用的列的数据库类型（目前还不支持自动建表，仅能用于 TableDescription 接口获取配置）                  |
+| `length`             | 可选(v5.3.3+)，在自动建表中使用的列的数据长度（目前还不支持自动建表，仅能用于 TableDescription 接口获取配置）                   |
+| `precision`          | 可选(v5.3.3+)，在自动建表中使用的列的数值精度（目前还不支持自动建表，仅能用于 TableDescription 接口获取配置）                   |
+| `scale`              | 可选(v5.3.3+)，在自动建表中使用的列的数值刻度（目前还不支持自动建表，仅能用于 TableDescription 接口获取配置）                   |
+| `character-set`      | 可选(v5.3.3+)，在自动建表中使用的列的字符集（目前还不支持自动建表，仅能用于 TableDescription 接口获取配置）                    |
+| `collation`          | 可选(v5.3.3+)，在自动建表中使用的列的字符排序规则（目前还不支持自动建表，仅能用于 TableDescription 接口获取配置）                 |
+| `default`            | 可选(v5.3.3+)，在自动建表中使用的列的默认值（目前还不支持自动建表，仅能用于 TableDescription 接口获取配置）                    |
+| `comment`            | 可选(v5.3.3+)，在自动建表中使用的列的备注（目前还不支持自动建表，仅能用于 TableDescription 接口获取配置）                     |
+| `other`              | 可选(v5.3.3+)，在自动建表中使用的列的其它属性信息（目前还不支持自动建表，仅能用于 TableDescription 接口获取配置）                 |
 
 **keyType** 取值范围
 - `auto`，不会主动生成自增，但会接收来自数据库的自增
