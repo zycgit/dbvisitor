@@ -12,6 +12,7 @@ services:
       - 13306:3306
     restart: always
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time_zone='+8:00'
+    # User/Password：root/123456
 
   postgres:
     image: postgres:12.4
@@ -20,6 +21,7 @@ services:
     ports:
       - 15432:5432
     restart: always
+    # User/Password：postgres/123456
 
   oracle_12c:
     image: truevoly/oracle-12c
@@ -40,7 +42,7 @@ services:
     ports:
       - 11433:1433
     restart: always
-    # User/Password：sa/oracle
+    # User/Password：sa/Share123456!
     # https://hub.docker.com/_/microsoft-mssql-server?tab=description
     # https://mcr.microsoft.com/v2/mssql/server/tags/list
 
@@ -71,76 +73,3 @@ services:
     # -v /var/local/apps/clickhouse/data:/var/lib/clickhouse
     #   --ulimit nofile=262144:262144
     restart: always
-
-  tidb5_1_0:
-    image: pingcap/tidb:v5.1.0
-    ports:
-      - 14000:4000
-    # -v /var/local/apps/clickhouse/data:/var/lib/clickhouse
-    #  User/Password：root/(空)
-    restart: always
-
-  doris:
-    image: apache/doris:1.2.2-be-x86_64
-    environment:
-      - CLICKHOUSE_DB=default
-      - CLICKHOUSE_USER=root
-      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
-      - TZ=Asia/Shanghai
-      - CLICKHOUSE_PASSWORD=password123
-    ports:
-      - 18030:8030
-      - 19030:9030
-    # -v /Users/mac/dockerfile/doris1.2/apache-doris-fe-1.1.2-bin/fe:/opt/doris/fe
-    # -v /Users/mac/dockerfile/doris1.2/doris-meta:/opt/doris/doris-meta
-    #  User/Password：root/(空)
-    restart: always
-
-  #  starrocks:
-  #    image: starrocks:1.0
-  #    privileged: true
-  #    ports:
-  #      - 28030:8030
-  #      - 28040:8040
-  #      - 29030:9030
-  #    #  User/Password：root/(空)
-  #    restart: always
-
-  redis:
-    image: redis:5.0.8
-    privileged: true
-    ports:
-      - 16379:6379
-    # - /apps/redis/datadir:/data
-    # - /apps/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
-    # - /apps/redis/logs:/logs
-    restart: always
-    command: redis-server --requirepass 123456
-
-  mongo:
-    image: mongo
-    privileged: true
-    ports:
-      - 27017:27017
-    # -v /docker_volume/mongodb/data:/data/db
-    restart: always
-    command: --auth
-    # docker exec -it mongodb mongo admin
-    # db.createUser({user:"admin", pwd:"123456", roles:[{role:"userAdminAnyDatabase", db:"admin"}]});
-
-#  kafka_zk:
-#    image: wurstmeister/zookeeper
-#    ports:
-#      - "2181:2181"
-#  kafka:
-#    image: wurstmeister/kafka:2.12-2.0.1
-#    depends_on: [ kafka_zk ]
-#    ports:
-#      - 19092:9092
-#    environment:
-#      KAFKA_ADVERTISED_HOST_NAME: 192.168.10.185
-#      # KAFKA_CREATE_TOPICS: "test:1:1"
-#      KAFKA_ZOOKEEPER_CONNECT: kafka_zk:2181
-#    #    volumes:
-#    #      - "./kafka/kafka_compose/docker.sock:/var/run/docker.sock"
-#    #      - "./kafka/kafka_compose/data/:/kafka"
