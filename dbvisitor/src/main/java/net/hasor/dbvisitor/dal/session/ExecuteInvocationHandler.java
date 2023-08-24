@@ -29,7 +29,9 @@ import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageResult;
 
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -156,11 +158,13 @@ class ExecuteInvocationHandler implements InvocationHandler {
             return processResult(result, method.getReturnType());
         } else if (method.isDefault()) {
             // use interface default method
-            Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
-            constructor.setAccessible(true);
-            Class<?> declaringClass = method.getDeclaringClass();
-            int allModes = MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE;
-            return constructor.newInstance(declaringClass, allModes).unreflectSpecial(method, declaringClass).bindTo(o).invokeWithArguments(objects);
+            MethodHandle handle;
+            if (privateLookupInMethod == null) {
+                handle = getMethodHandleJava8(method);
+            } else {
+                handle = getMethodHandleJava9(method);
+            }
+            return handle.bindTo(o).invokeWithArguments(objects);
         } else {
             throw new NoSuchMethodException("method '" + method.getDeclaringClass().getName() + "." + method.getName() + "' does not exist in mapper.");
         }
@@ -213,5 +217,48 @@ class ExecuteInvocationHandler implements InvocationHandler {
                 return result;
             }
         }
+    }
+
+    //
+    //
+    //
+    private static final Constructor<MethodHandles.Lookup> lookupConstructor;
+    private static final Method                            privateLookupInMethod;
+    private static final int                               ALLOWED_MODES = MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE | MethodHandles.Lookup.PUBLIC;
+
+    static {
+        Method privateLookupIn;
+        try {
+            privateLookupIn = MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
+        } catch (NoSuchMethodException e) {
+            privateLookupIn = null;
+        }
+        privateLookupInMethod = privateLookupIn;
+
+        Constructor<MethodHandles.Lookup> lookup = null;
+        if (privateLookupInMethod == null) {
+            // JDK 1.8
+            try {
+                lookup = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
+                lookup.setAccessible(true);
+            } catch (NoSuchMethodException e) {
+                throw new IllegalStateException("There is neither 'privateLookupIn(Class, Lookup)' nor 'Lookup(Class, int)' method in java.lang.invoke.MethodHandles.", e);
+            } catch (Throwable t) {
+                lookup = null;
+            }
+        }
+        lookupConstructor = lookup;
+    }
+
+    private static MethodHandle getMethodHandleJava9(Method method) throws ReflectiveOperationException {
+        final Class<?> declaringClass = method.getDeclaringClass();
+        MethodHandles.Lookup lookup = ((MethodHandles.Lookup) privateLookupInMethod.invoke(null, declaringClass, MethodHandles.lookup()));
+        MethodType methodType = MethodType.methodType(method.getReturnType(), method.getParameterTypes());
+        return lookup.findSpecial(declaringClass, method.getName(), methodType, declaringClass);
+    }
+
+    private static MethodHandle getMethodHandleJava8(Method method) throws ReflectiveOperationException {
+        final Class<?> declaringClass = method.getDeclaringClass();
+        return lookupConstructor.newInstance(declaringClass, ALLOWED_MODES).unreflectSpecial(method, declaringClass);
     }
 }

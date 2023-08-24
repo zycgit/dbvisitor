@@ -40,6 +40,20 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
         return "\"";
     }
 
+    public String like(SqlLike likeType, Object value) {
+        if (value == null || StringUtils.isBlank(value.toString())) {
+            return "%";
+        }
+        switch (likeType) {
+            case LEFT:
+                return "CONCAT('%', ? )";
+            case RIGHT:
+                return "CONCAT( ? ,'%')";
+            default:
+                return "CONCAT(CONCAT('%', ? ) ,'%')";
+        }
+    }
+
     @Override
     public BoundSql countSql(BoundSql boundSql) {
         String sqlBuilder = "SELECT COUNT(*) FROM (" + boundSql.getSqlString() + ") TEMP_T";
