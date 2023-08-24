@@ -14,6 +14,5 @@
         <module>spring-xml</module>
         <module>spring-annotation</module>
         <module>springboot</module>
-        <module>springboot-mybatisplus</module>
     </modules>
 </project>
