@@ -27,7 +27,7 @@
         <dependency>
             <groupId>net.hasor</groupId>
             <artifactId>dbvisitor</artifactId>
-            <version>5.4.0-SNAPSHOT</version>
+            <version>5.4.0</version>
         </dependency>
 
         <!-- driver -->
