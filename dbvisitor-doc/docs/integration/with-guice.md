@@ -28,7 +28,7 @@ Guice 是 Google 开源的一个轻量化依赖注入工具，Spring 包含依�
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-guice</artifactId>
-    <version>5.3.0</version>
+    <version>5.4.0</version>
 </dependency>
 ```
 

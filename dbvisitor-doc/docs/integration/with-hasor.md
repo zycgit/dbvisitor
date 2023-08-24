@@ -28,7 +28,7 @@ Hasor 是一个类似 Spring 的项目，提供 IoC/Aop 和 Web 开发，它比 
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-hasor</artifactId>
-    <version>5.3.0</version>
+    <version>5.4.0</version>
 </dependency>
 ```
 
