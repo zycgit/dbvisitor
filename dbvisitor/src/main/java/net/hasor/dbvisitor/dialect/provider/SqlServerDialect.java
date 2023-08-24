@@ -28,6 +28,10 @@ import java.util.List;
  * @since 2016-11-10
  */
 public class SqlServerDialect extends AbstractDialect implements PageSqlDialect {
+    @Override
+    protected String keyWordsResource() {
+        return "/META-INF/db-keywords/sqlserver.keywords";
+    }
 
     @Override
     public String leftQualifier() {

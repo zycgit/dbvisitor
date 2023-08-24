@@ -28,6 +28,11 @@ import java.util.List;
  */
 public class SqlLiteDialect extends AbstractDialect implements PageSqlDialect {
     @Override
+    protected String keyWordsResource() {
+        return "/META-INF/db-keywords/sqllite.keywords";
+    }
+
+    @Override
     protected String defaultQualifier() {
         return "`";
     }

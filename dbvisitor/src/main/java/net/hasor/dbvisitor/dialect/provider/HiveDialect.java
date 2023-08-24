@@ -24,6 +24,11 @@ import net.hasor.dbvisitor.dialect.PageSqlDialect;
  */
 public class HiveDialect extends AbstractDialect implements PageSqlDialect {
     @Override
+    protected String keyWordsResource() {
+        return "/META-INF/db-keywords/hive.keywords";
+    }
+
+    @Override
     protected String defaultQualifier() {
         return "\"";
     }

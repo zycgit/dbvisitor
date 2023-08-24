@@ -28,6 +28,11 @@ import java.util.List;
  */
 public class ImpalaDialect extends AbstractDialect implements PageSqlDialect {
     @Override
+    protected String keyWordsResource() {
+        return "/META-INF/db-keywords/impala.keywords";
+    }
+
+    @Override
     protected String defaultQualifier() {
         return "\"";
     }

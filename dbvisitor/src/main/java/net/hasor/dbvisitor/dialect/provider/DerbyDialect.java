@@ -27,6 +27,10 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class DerbyDialect extends AbstractDialect implements PageSqlDialect {
+    @Override
+    protected String keyWordsResource() {
+        return "/META-INF/db-keywords/derby.keywords";
+    }
 
     @Override
     protected String defaultQualifier() {
