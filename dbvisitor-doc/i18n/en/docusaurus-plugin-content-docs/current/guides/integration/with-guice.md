@@ -1,19 +1,19 @@
 ---
-id: with-hasor
-sidebar_position: 4
-title: Hasor 整合
-description: dbVisitor ORM 工具和 Hasor 整合使用。
+id: with-guice
+sidebar_position: 3
+title: Guice 整合
+description: dbVisitor ORM 工具和 Guice 整合使用。
 ---
-# 与 Hasor 集成
+# 与 Google Guice 集成
 
-通过 `dbvisitor-hasor` 工具包可以更加便捷的在 Hasor 上使用 dbVisitor ORM 工具。
+通过 `dbvisitor-guice` 工具包可以更加便捷的在 Guice 上使用 dbVisitor ORM 工具。
 
-## 什么是 Hasor
-Hasor 是一个类似 Spring 的项目，提供 IoC/Aop 和 Web 开发，它比 Spring 更加小巧，比 Guice 更加丰富。
+## 什么是 Guice
+Guice 是 Google 开源的一个轻量化依赖注入工具，Spring 包含依赖注入能力之外含有很多其它能里。若只想在项目中使用依赖注入那么可以考虑使用 Guice。
 
-- Hasor 项目地址：https://gitee.com/clougence/hasor
+- Guice 项目地址：https://github.com/google/guice
 
-## dbvisitor-hasor 特性
+## dbvisitor-guice 特性
 
 - 自动给配置数据源
 - 提供注解化事务控制
@@ -27,7 +27,7 @@ Hasor 是一个类似 Spring 的项目，提供 IoC/Aop 和 Web 开发，它比 
 ```xml
 <dependency>
     <groupId>net.hasor</groupId>
-    <artifactId>dbvisitor-hasor</artifactId>
+    <artifactId>dbvisitor-guice</artifactId>
     <version>5.4.0</version>
 </dependency>
 ```
@@ -57,7 +57,6 @@ dbvisitor.jdbc-ds.initialSize=1
 dbvisitor.jdbc-ds.testWhileIdle=true
 dbvisitor.jdbc-ds.testOnBorrow=true
 dbvisitor.jdbc-ds.failFast=true
-# 必选
 dbvisitor.mapper-packages=net.hasor.dbvisitor.test.dao
 dbvisitor.mapper-locations=classpath:dbvisitor/mapper/*.xml
 ```
@@ -73,19 +72,21 @@ public class ServiceTest {
 ```
 
 ```java
-// 初始化 Hasor 并加载 DbVisitorModule 插件
-AppContext appContext = Hasor.create().mainSettingWith("druid-hasor.properties").build(binder -> {
-    binder.installModule(new DbVisitorModule());
-});
+// 加载配置文件
+Properties properties = new Properties();
+properties.load(ResourcesUtils.getResourceAsStream("druid-guice.properties"));
+
+// 初始化 Guice 并加载 DbVisitorModule 插件
+Injector injector = Guice.createInjector(new DbVisitorModule(properties));
 
 // 尽情享受
-ServiceTest service = appContext.getInstance(ServiceTest.class);
+ServiceTest service = injector.getInstance(ServiceTest.class);
 ...
 ```
 
 这里提供地址可以获取 Demo 工程
 
-- [Example 工程](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/hasor/)
+- [Example 工程](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/guice/)
 
 ## 数据源配置
 
@@ -137,7 +138,7 @@ dbvisitor.three.jdbc-ds.password=123456
 | `dbvisitor.mapper-disabled`     | 可选，使用 `true/false` 表示是否禁用 `dbvisitor.mapper-packages` 扫描到的 Mapper 接口。<br/>默认值为 false 当与某些框架合用同一个 mapper 文件时如果遇到冲突可考虑设置为 true      |
 | `dbvisitor.marker-annotation`   | 可选，当 `dbvisitor.mapper-packages` 扫描到的 Mapper 接口身上标有 某个特定类型的注解时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.dal.repository.DalMapper` |
 | `dbvisitor.marker-interface`    | 可选，当 `dbvisitor.mapper-packages` 扫描到的 Mapper 接口实现了某个特定接口时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.dal.mapper.Mapper`             |
-| `dbvisitor.mapper-scope`        | 可选，Mapper Bean 所处的 Hasor 作用域，默认作用域是 `javax.inject.Singleton`                                                                      |
+| `dbvisitor.mapper-scope`        | 可选，Mapper Bean 所处的 Guice 作用域，默认作用域是 `javax.inject.Singleton`                                                                      |
 | `dbvisitor.auto-mapping`        | 可选，是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Column 注解声明                                                                |                                                                                                                         
 | `dbvisitor.camel-case`          | 可选，表名和属性名，根据驼峰规则转换为带有下划线的表名和列名                                                                                                    |                                                                                                                        
 | `dbvisitor.case-insensitive`    | 可选，强制在生成 表名/列名/索引名 时候增加标识符限定，例如：通过设置该属性来解决列名为关键字的问题。默认是 false 不设置。                                                                |                                                                                                                               
@@ -145,8 +146,8 @@ dbvisitor.three.jdbc-ds.password=123456
 | `dbvisitor.dialect`             | 可选，默认使用的数据库方言                                                                                                                     |
 
 补充说明
-- 对于 `@DalMapper` 注解只可以用于注释另一个注释，因此可以使用 `@RefMapper` 或 `@SimpleMapper` 来代替。细节请参阅 **[注解化 Mapper](../guides/dal/anno-mapper.mdx)**
+- 对于 `@DalMapper` 注解只可以用于注释另一个注释，因此可以使用 `@RefMapper` 或 `@SimpleMapper` 来代替。细节请参阅 **[注解化 Mapper](../dal/anno-mapper.mdx)**
 - `dbvisitor.marker-annotation`、`dbvisitor.marker-interface` 两个属性配置满足其一即可
 - 一个 Mapper 接口可以继承下面两个接口其一
-    - net.hasor.dbvisitor.dal.mapper.Mapper （标记性接口）
-    - net.hasor.dbvisitor.dal.mapper.BaseMapper （有通用方法）
+  - net.hasor.dbvisitor.dal.mapper.Mapper （标记性接口）
+  - net.hasor.dbvisitor.dal.mapper.BaseMapper （有通用方法）

@@ -1,6 +1,6 @@
 ---
 id: with-springboot
-sidebar_position: 2
+sidebar_position: 1
 title: Spring Boot 整合
 description: dbVisitor ORM 工具和 Spring Boot 整合使用。
 ---
@@ -21,7 +21,7 @@ Spring Boot 工程需要引入如下依赖包：
 
 使用 `application.properties` 属性文件方式后就无需配置 `@MapperScan` 注解，它们的作用是相同的。
 
-[基于 application.properties 配置文件的 Demo 工程](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/springboot-1/)
+[基于 application.properties 配置文件的 Demo 工程](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/springboot/)
 
 ```properties
 # Spring JDBC 数据源配置
@@ -56,7 +56,7 @@ dbvisitor.mapper-locations=classpath:dbvisitor/mapper/*.xml
 | `dbvisitor.named-rule-Registry`        | 不支持该配置                                                                                                                                                      |
 
 补充说明
-- 对于 `@DalMapper` 注解只可以用于注释另一个注释，因此可以使用 `@RefMapper` 或 `@SimpleMapper` 来代替。细节请参阅 **[注解化 Mapper](../guides/dal/anno-mapper.mdx)**
+- 对于 `@DalMapper` 注解只可以用于注释另一个注释，因此可以使用 `@RefMapper` 或 `@SimpleMapper` 来代替。细节请参阅 **[注解化 Mapper](../dal/anno-mapper.mdx)**
 - `dbvisitor.marker-annotation`、`dbvisitor.marker-interface` 两个属性配置满足其一即可
 - 一个 Mapper 接口可以继承下面两个接口其一
     - net.hasor.dbvisitor.dal.mapper.Mapper （标记性接口）

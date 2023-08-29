@@ -1,6 +1,6 @@
 ---
 id: with-spring
-sidebar_position: 1
+sidebar_position: 2
 title: Spring 整合
 description: dbVisitor ORM 工具和 Spring 整合使用。
 ---
@@ -16,7 +16,7 @@ description: dbVisitor ORM 工具和 Spring 整合使用。
 </dependency>
 ```
 
-这里提供一个地址可以获取 Demo 工程 [Spring Demos工程](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/spring/)
+这里提供一个地址可以获取 Demo 工程 [Spring Demos工程](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/spring-annotation/)
 
 ## 基于 Spring 注解化
 

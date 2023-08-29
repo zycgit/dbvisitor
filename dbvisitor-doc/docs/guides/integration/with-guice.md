@@ -1,6 +1,6 @@
 ---
 id: with-guice
-sidebar_position: 4
+sidebar_position: 3
 title: Guice 整合
 description: dbVisitor ORM 工具和 Guice 整合使用。
 ---
@@ -146,7 +146,7 @@ dbvisitor.three.jdbc-ds.password=123456
 | `dbvisitor.dialect`             | 可选，默认使用的数据库方言                                                                                                                     |
 
 补充说明
-- 对于 `@DalMapper` 注解只可以用于注释另一个注释，因此可以使用 `@RefMapper` 或 `@SimpleMapper` 来代替。细节请参阅 **[注解化 Mapper](../guides/dal/anno-mapper.mdx)**
+- 对于 `@DalMapper` 注解只可以用于注释另一个注释，因此可以使用 `@RefMapper` 或 `@SimpleMapper` 来代替。细节请参阅 **[注解化 Mapper](../dal/anno-mapper.mdx)**
 - `dbvisitor.marker-annotation`、`dbvisitor.marker-interface` 两个属性配置满足其一即可
 - 一个 Mapper 接口可以继承下面两个接口其一
   - net.hasor.dbvisitor.dal.mapper.Mapper （标记性接口）

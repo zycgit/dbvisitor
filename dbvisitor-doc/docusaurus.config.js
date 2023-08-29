@@ -59,12 +59,6 @@ const config = {
                 },
                 {
                     type: 'doc',
-                    docId: 'integration/overview',
-                    position: 'left',
-                    label: '框架整合',
-                },
-                {
-                    type: 'doc',
                     docId: 'releases/latest',
                     position: 'left',
                     label: '发布版本',
