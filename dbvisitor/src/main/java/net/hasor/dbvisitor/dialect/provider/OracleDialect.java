@@ -40,6 +40,23 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
         return "\"";
     }
 
+    @Override
+    public String tableName(boolean useQualifier, String catalog, String schema, String table) {
+        boolean catalogBlank = StringUtils.isBlank(catalog);
+        boolean schemaBlank = StringUtils.isBlank(schema);
+
+        if (!catalogBlank && !schemaBlank) {
+            return fmtName(useQualifier, catalog) + "." + fmtName(useQualifier, table);
+        }
+        if (!catalogBlank) {
+            return fmtName(useQualifier, catalog) + "." + fmtName(useQualifier, table);
+        }
+        if (!schemaBlank) {
+            return fmtName(useQualifier, schema) + "." + fmtName(useQualifier, table);
+        }
+        return fmtName(useQualifier, table);
+    }
+
     public String like(SqlLike likeType, Object value) {
         if (value == null || StringUtils.isBlank(value.toString())) {
             return "%";

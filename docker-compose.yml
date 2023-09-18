@@ -58,6 +58,11 @@ services:
     restart: always
     # User/Password：db2inst1/123456
     # -v /usr/local/db2:/database
+    # docker exec -it 85011f695773 /bin/bash
+    # su - db2inst1
+    # db2 list database directory
+    # db2sampl
+    #  登陆 SAMPLE 数据库
 
   clickhouse:
     image: clickhouse/clickhouse-server
