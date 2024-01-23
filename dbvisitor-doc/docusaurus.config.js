@@ -1,8 +1,9 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require('prism-react-renderer/themes/github');
-const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+const {themes} = require('prism-react-renderer');
+const lightCodeTheme = themes.github;
+const darkCodeTheme = themes.dracula;
 const analyticsPlugin = require('./plugins/analytics.js');
 
 /** @type {import('@docusaurus/types').Config} */
@@ -100,17 +101,23 @@ const config = {
     },
 
     plugins: [
-        analyticsPlugin,
+        analyticsPlugin
+    ],
+
+    themes: [
+        // ... Your other themes.
         [
-            require.resolve("@cmfcmf/docusaurus-search-local"),
-            {
-                indexPages: true,
-                // When applying `zh` in language, please install `nodejieba` in your project.
+            require.resolve("@easyops-cn/docusaurus-search-local"),
+            /** @type {import("@easyops-cn/docusaurus-search-local").PluginOptions} */
+            ({
+                // ... Your options.
+                // `hashed` is recommended as long-term-cache of index file is possible.
+                hashed: true,
+                // For Docs using Chinese, The `language` is recommended to set to:
                 language: ["en", "zh"],
-                maxSearchResults: 8
-            }
-        ]
-    ]
+            }),
+        ],
+    ],
 };
 
 module.exports = config;

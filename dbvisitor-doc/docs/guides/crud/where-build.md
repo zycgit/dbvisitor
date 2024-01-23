@@ -66,7 +66,7 @@ List<TestUser> result = query.ge(TestUser::getAge, 32)
 SELECT * FROM test_user WHERE age >= ?
 ```
 
-### 小于 (<)
+### 小于 (&lt;)
 
 ```java {2}
 EntityQueryOperation<TestUser> query = lambdaTemplate.lambdaQuery(TestUser.class);
@@ -78,7 +78,7 @@ List<TestUser> result = query.lt(TestUser::getAge, 32)
 SELECT * FROM test_user WHERE age < ?
 ```
 
-### 小于等于 (<=)
+### 小于等于 (&lt;=)
 
 ```java {2}
 EntityQueryOperation<TestUser> query = lambdaTemplate.lambdaQuery(TestUser.class);

@@ -36,7 +36,7 @@ v5.4.0 (2023-08-24)
 ```
 ```text title='依赖关系'
 net.hasor:dbvisitor:jar
- +- net.hasor:cobble-all:jar(4.5.4)
+ +- net.hasor:cobble-all:jar
 ```
 
 ## 整合 Spring Boot
@@ -51,9 +51,9 @@ net.hasor:dbvisitor:jar
 net.hasor:dbvisitor-spring-starter:jar
 +- net.hasor:dbvisitor-spring:jar
    +- net.hasor:dbvisitor:jar
-      +- net.hasor:cobble-all:jar(4.5.4)
-+- org.springframework.boot:spring-boot-autoconfigure:jar(2.7.2)
-+- org.springframework.boot:spring-boot-starter-jdbc:jar(2.7.2)
+      +- net.hasor:cobble-all:jar
++- org.springframework.boot:spring-boot-autoconfigure:jar
++- org.springframework.boot:spring-boot-starter-jdbc:jar
 ```
 
 ## 整合 Spring
@@ -67,9 +67,9 @@ net.hasor:dbvisitor-spring-starter:jar
 ```text title='依赖关系'
 net.hasor:dbvisitor-spring:jar
 +- net.hasor:dbvisitor:jar
-   +- net.hasor:cobble-all:jar(4.5.4)
-+- org.springframework:spring-context:jar(4.0.0.RELEASE)
-+- org.springframework:spring-jdbc:jar(4.0.0.RELEASE)
+   +- net.hasor:cobble-all:jar
++- org.springframework:spring-context:jar
++- org.springframework:spring-jdbc:jar
 ```
 
 ## 整合 Guice
@@ -83,8 +83,8 @@ net.hasor:dbvisitor-spring:jar
 ```text title='依赖关系'
 net.hasor:dbvisitor-guice:jar
 +- net.hasor:dbvisitor:jar
-   +- net.hasor:cobble-all:jar(4.5.4)
-+- com.google.inject:guice:jar(5.1.0)
+   +- net.hasor:cobble-all:jar
++- com.google.inject:guice:jar
 ```
 
 ## 整合 Hasor
@@ -98,6 +98,6 @@ net.hasor:dbvisitor-guice:jar
 ```text title='依赖关系'
 net.hasor:dbvisitor-hasor:jar
 +- net.hasor:dbvisitor:jar
-   +- net.hasor:cobble-all:jar(4.5.4)
-+- net.hasor:hasor-core:jar(4.2.5)
+   +- net.hasor:cobble-all:jar
++- net.hasor:hasor-core:jar
 ```
