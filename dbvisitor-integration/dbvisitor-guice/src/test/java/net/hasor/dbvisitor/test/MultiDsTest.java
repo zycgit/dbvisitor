@@ -48,7 +48,7 @@ public class MultiDsTest {
     @Test
     public void getListTest() throws SQLException, IOException {
         Properties properties = new Properties();
-        properties.load(ResourcesUtils.getResourceAsStream("multi-guice.properties"));
+        properties.load(ResourcesUtils.getResourceAsStream("multi-ds.properties"));
 
         Injector injector = Guice.createInjector(new DbVisitorModule(properties));
         injector.injectMembers(this);

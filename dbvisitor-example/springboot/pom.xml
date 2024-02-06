@@ -18,11 +18,11 @@
     </properties>
 
     <dependencies>
-        <!-- dbvisitor for springboot -->
+        <!-- dbVisitor for springboot -->
         <dependency>
             <groupId>net.hasor</groupId>
             <artifactId>dbvisitor-spring-starter</artifactId>
-            <version>5.4.0</version>
+            <version>5.4.1</version>
         </dependency>
 
         <!-- driver -->

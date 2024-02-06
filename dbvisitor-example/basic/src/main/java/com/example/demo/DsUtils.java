@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.example.demo;
-import com.alibaba.druid.pool.DruidDataSource;
+import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -32,20 +32,16 @@ public class DsUtils {
     public static String ORACLE_JDBC_URL = "jdbc:oracle:thin:@127.0.0.1:11521:xe";
 
     private static DataSource createDs(String driver, String url, String user, String password) throws SQLException {
-        DruidDataSource druid = new DruidDataSource();
-        druid.setUrl(url);
+        HikariDataSource druid = new HikariDataSource();
+        druid.setJdbcUrl(url);
         druid.setDriverClassName(driver);
         druid.setUsername(user);
         druid.setPassword(password);
-        druid.setMaxActive(5);
-        druid.setMaxWait(3 * 1000);
-        druid.setInitialSize(1);
-        druid.setConnectionErrorRetryAttempts(1);
-        druid.setBreakAfterAcquireFailure(true);
-        druid.setTestOnBorrow(true);
-        druid.setTestWhileIdle(true);
-        druid.setFailFast(true);
-        druid.init();
+        druid.setMinimumIdle(5);
+        druid.setMaximumPoolSize(12);
+        druid.setMaxLifetime(1200000);
+        druid.setAutoCommit(true);
+        druid.setConnectionTimeout(20000);
         return druid;
     }
 

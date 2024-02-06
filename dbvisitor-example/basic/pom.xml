@@ -23,18 +23,18 @@
     </build>
 
     <dependencies>
-        <!-- hasordb -->
+        <!-- dbVisitor -->
         <dependency>
             <groupId>net.hasor</groupId>
             <artifactId>dbvisitor</artifactId>
-            <version>5.4.0</version>
+            <version>5.4.1</version>
         </dependency>
 
         <!-- driver -->
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-            <version>1.2.15</version>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>4.0.3</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>

@@ -6,23 +6,15 @@
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.1.xsd">
 
     <!-- 数据源 -->
-    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
-        <property name="url" value="jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true"/>
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <property name="jdbcUrl" value="jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true"/>
         <property name="username" value="root"/>
         <property name="password" value="123456"/>
-        <property name="initialSize" value="1"/>
-        <property name="minIdle" value="1"/>
-        <property name="maxActive" value="20"/>
-        <property name="maxWait" value="60000"/>
-        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
-        <property name="minEvictableIdleTimeMillis" value="300000"/>
-        <property name="validationQuery" value="SELECT 'x'"/>
-        <property name="testWhileIdle" value="true"/>
-        <property name="testOnBorrow" value="false"/>
-        <property name="testOnReturn" value="false"/>
-        <property name="poolPreparedStatements" value="true"/>
-        <property name="maxPoolPreparedStatementPerConnectionSize" value="20"/>
-        <property name="filters" value="stat"/>
+        <property name="minimumIdle" value="5"/>
+        <property name="maximumPoolSize" value="12"/>
+        <property name="maxLifetime" value="1200000"/>
+        <property name="autoCommit" value="true"/>
+        <property name="connectionTimeout" value="20000"/>
     </bean>
 
     <!-- 事务管理器 -->

@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 public class DefaultDataSource extends AbstractDataSource {
 
-    private String url;
+    private String jdbcUrl;
     private String driverClassName;
     private String username;
     private String password;
@@ -23,15 +23,15 @@ public class DefaultDataSource extends AbstractDataSource {
             throw new SQLException(e);
         }
 
-        return DriverManager.getConnection(url, username, password);
+        return DriverManager.getConnection(jdbcUrl, username, password);
     }
 
-    public String getUrl() {
-        return this.url;
+    public String getJdbcUrl() {
+        return jdbcUrl;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setJdbcUrl(String jdbcUrl) {
+        this.jdbcUrl = jdbcUrl;
     }
 
     public String getDriverClassName() {

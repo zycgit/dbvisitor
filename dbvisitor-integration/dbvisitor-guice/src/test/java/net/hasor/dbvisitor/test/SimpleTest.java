@@ -44,7 +44,7 @@ public class SimpleTest {
     @Test
     public void getListTest() throws SQLException, IOException {
         Properties properties = new Properties();
-        properties.load(ResourcesUtils.getResourceAsStream("simple-guice.properties"));
+        properties.load(ResourcesUtils.getResourceAsStream("simple-ds.properties"));
 
         Injector injector = Guice.createInjector(new DbVisitorModule(properties));
         injector.injectMembers(this);

@@ -22,7 +22,7 @@ public class Demo1ApplicationTests {
     @Before
     public void beforeTest() throws IOException {
         Properties properties = new Properties();
-        properties.load(ResourcesUtils.getResourceAsStream("druid-guice.properties"));
+        properties.load(ResourcesUtils.getResourceAsStream("single-ds.properties"));
 
         Injector injector = Guice.createInjector(new DbVisitorModule(properties));
         injector.injectMembers(this);

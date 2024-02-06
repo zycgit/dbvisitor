@@ -62,7 +62,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
     @Override
     public void loadModule(ApiBinder apiBinder) throws Exception {
         Settings settings = apiBinder.getEnvironment().getSettings();
-        String multipleDs = settings.getString(ConfigKeys.MultipleDataSource.getConfigKey());
+        String multipleDs = settings.getString(MultipleDataSource.getConfigKey());
         String optAutoMapping = settings.getString(OptAutoMapping.getConfigKey(), OptAutoMapping.getDefaultValue());
         String optCamelCase = settings.getString(OptCamelCase.getConfigKey(), OptCamelCase.getDefaultValue());
         String optCaseInsensitive = settings.getString(OptCaseInsensitive.getConfigKey(), OptCaseInsensitive.getDefaultValue());
@@ -109,8 +109,8 @@ public class DbVisitorModule implements net.hasor.core.Module {
     }
 
     private BindInfo<DataSource> configDataSource(String dbName, ApiBinder apiBinder, Settings settings) throws Exception {
-        String configKey = ConfigKeys.DataSourceType.buildConfigKey(dbName);
-        String dataSourceType = settings.getString(configKey, ConfigKeys.DataSourceType.getDefaultValue());
+        String configKey = DataSourceType.buildConfigKey(dbName);
+        String dataSourceType = settings.getString(configKey, DataSourceType.getDefaultValue());
         DataSource dataSource;
         if (StringUtils.isBlank(dataSourceType)) {
             dataSource = new DefaultDataSource();
@@ -123,7 +123,8 @@ public class DbVisitorModule implements net.hasor.core.Module {
         String[] subKeys = configNode.getSubKeys();
         for (String key : subKeys) {
             String subValue = configNode.getSubValue(key);
-            BeanUtils.writeProperty(dataSource, key, subValue);
+            String propName = lineToHump(key);
+            BeanUtils.writeProperty(dataSource, propName, subValue);
         }
 
         if (StringUtils.isBlank(dbName)) {
@@ -174,8 +175,8 @@ public class DbVisitorModule implements net.hasor.core.Module {
     }
 
     private BindInfo<TypeHandlerRegistry> configTypeRegistry(String dbName, ApiBinder apiBinder, Settings settings) {
-        String configKey = ConfigKeys.RefTypeRegistry.buildConfigKey(dbName);
-        String refTypeRegistry = settings.getString(configKey, ConfigKeys.RefTypeRegistry.getDefaultValue());
+        String configKey = RefTypeRegistry.buildConfigKey(dbName);
+        String refTypeRegistry = settings.getString(configKey, RefTypeRegistry.getDefaultValue());
 
         BindInfo<?> bindInfo;
         if (StringUtils.isNotBlank(refTypeRegistry)) {
@@ -195,8 +196,8 @@ public class DbVisitorModule implements net.hasor.core.Module {
     }
 
     private BindInfo<RuleRegistry> configRuleRegistry(String dbName, ApiBinder apiBinder, Settings settings) {
-        String configKey = ConfigKeys.RefRuleRegistry.buildConfigKey(dbName);
-        String refRuleRegistry = settings.getString(configKey, ConfigKeys.RefRuleRegistry.getDefaultValue());
+        String configKey = RefRuleRegistry.buildConfigKey(dbName);
+        String refRuleRegistry = settings.getString(configKey, RefRuleRegistry.getDefaultValue());
 
         BindInfo<?> bindInfo;
         if (StringUtils.isNotBlank(refRuleRegistry)) {
@@ -217,8 +218,8 @@ public class DbVisitorModule implements net.hasor.core.Module {
 
     private BindInfo<DalSession> configDalSession(String dbName, ApiBinder apiBinder, Settings settings,//
             BindInfo<DataSource> dsInfo, BindInfo<TypeHandlerRegistry> typeInfo, BindInfo<RuleRegistry> ruleInfo) throws IOException {
-        String configKey = ConfigKeys.MapperLocations.buildConfigKey(dbName);
-        String resources = settings.getString(configKey, ConfigKeys.MapperLocations.getDefaultValue());
+        String configKey = MapperLocations.buildConfigKey(dbName);
+        String resources = settings.getString(configKey, MapperLocations.getDefaultValue());
         Set<URI> mappers = new HashSet<>();
 
         if (StringUtils.isNotBlank(resources)) {
@@ -244,6 +245,33 @@ public class DbVisitorModule implements net.hasor.core.Module {
         }
     }
 
+    private static String lineToHump(String name) {
+        // copy from spring jdbc 6.0.12 JdbcUtils.convertUnderscoreNameToPropertyName
+        StringBuilder result = new StringBuilder();
+        boolean nextIsUpper = false;
+        if (name != null && name.length() > 0) {
+            if (name.length() > 1 && name.charAt(1) == '-') {
+                result.append(Character.toUpperCase(name.charAt(0)));
+            } else {
+                result.append(Character.toLowerCase(name.charAt(0)));
+            }
+            for (int i = 1; i < name.length(); i++) {
+                char c = name.charAt(i);
+                if (c == '-') {
+                    nextIsUpper = true;
+                } else {
+                    if (nextIsUpper) {
+                        result.append(Character.toUpperCase(c));
+                        nextIsUpper = false;
+                    } else {
+                        result.append(Character.toLowerCase(c));
+                    }
+                }
+            }
+        }
+        return result.toString();
+    }
+
     //    private void loadResources(String dbName, ApiBinder apiBinder, Settings settings,//
     //            final BindInfo<TypeHandlerRegistry> typeInfo, final BindInfo<RuleRegistry> ruleInfo) throws IOException {
     //        HasorUtils.autoAware(apiBinder.getEnvironment(), appContext -> {
@@ -255,17 +283,17 @@ public class DbVisitorModule implements net.hasor.core.Module {
     //    }
 
     private void loadMapper(String dbName, ApiBinder apiBinder, BindInfo<DalSession> dalInfo, Settings settings) throws ClassNotFoundException {
-        String configMapperDisabled = ConfigKeys.MapperDisabled.buildConfigKey(dbName);
-        String configMapperPackages = ConfigKeys.MapperPackages.buildConfigKey(dbName);
-        String configMapperScope = ConfigKeys.MapperScope.buildConfigKey(dbName);
-        String configScanMarkerAnnotation = ConfigKeys.ScanMarkerAnnotation.buildConfigKey(dbName);
-        String configScanMarkerInterface = ConfigKeys.ScanMarkerInterface.buildConfigKey(dbName);
+        String configMapperDisabled = MapperDisabled.buildConfigKey(dbName);
+        String configMapperPackages = MapperPackages.buildConfigKey(dbName);
+        String configMapperScope = MapperScope.buildConfigKey(dbName);
+        String configScanMarkerAnnotation = ScanMarkerAnnotation.buildConfigKey(dbName);
+        String configScanMarkerInterface = ScanMarkerInterface.buildConfigKey(dbName);
 
-        Boolean mapperDisabled = settings.getBoolean(configMapperDisabled, Boolean.parseBoolean(ConfigKeys.MapperDisabled.getDefaultValue()));
-        String mapperPackageConfig = settings.getString(configMapperPackages, ConfigKeys.MapperPackages.getDefaultValue());
-        String mapperScope = settings.getString(configMapperScope, ConfigKeys.MapperScope.getDefaultValue());
-        String scanMarkerAnnotation = settings.getString(configScanMarkerAnnotation, ConfigKeys.ScanMarkerAnnotation.getDefaultValue());
-        String scanMarkerInterface = settings.getString(configScanMarkerInterface, ConfigKeys.ScanMarkerInterface.getDefaultValue());
+        Boolean mapperDisabled = settings.getBoolean(configMapperDisabled, Boolean.parseBoolean(MapperDisabled.getDefaultValue()));
+        String mapperPackageConfig = settings.getString(configMapperPackages, MapperPackages.getDefaultValue());
+        String mapperScope = settings.getString(configMapperScope, MapperScope.getDefaultValue());
+        String scanMarkerAnnotation = settings.getString(configScanMarkerAnnotation, ScanMarkerAnnotation.getDefaultValue());
+        String scanMarkerInterface = settings.getString(configScanMarkerInterface, ScanMarkerInterface.getDefaultValue());
 
         if (mapperDisabled) {
             return;

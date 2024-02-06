@@ -29,7 +29,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DruidTest {
+public class SingleDsTest {
     @Inject
     private UserMapper userMapper;
     @Inject
@@ -39,7 +39,7 @@ public class DruidTest {
 
     @Test
     public void getListTest() throws SQLException, IOException {
-        AppContext injector = Hasor.create().mainSettingWith("druid-hasor.properties").build(new DbVisitorModule());
+        AppContext injector = Hasor.create().mainSettingWith("single-ds.properties").build(new DbVisitorModule());
         injector.justInject(this);
         this.dalSession.lambdaTemplate().loadSQL("CreateDB.sql");
 

@@ -144,7 +144,7 @@ public class DbVisitorModule implements com.google.inject.Module {
         String[] subKeys = configNode.getSubKeys();
         for (String key : subKeys) {
             String subValue = configNode.getSubValue(key);
-            String propName = StringUtils.lineToHump(key);
+            String propName = lineToHump(key);
             BeanUtils.writeProperty(dataSource, propName, subValue);
         }
 
@@ -262,6 +262,33 @@ public class DbVisitorModule implements com.google.inject.Module {
 
         binder.bind(dalKey).toProvider(sessionSupplier);
         return dalKey;
+    }
+
+    private static String lineToHump(String name) {
+        // copy from spring jdbc 6.0.12 JdbcUtils.convertUnderscoreNameToPropertyName
+        StringBuilder result = new StringBuilder();
+        boolean nextIsUpper = false;
+        if (name != null && name.length() > 0) {
+            if (name.length() > 1 && name.charAt(1) == '-') {
+                result.append(Character.toUpperCase(name.charAt(0)));
+            } else {
+                result.append(Character.toLowerCase(name.charAt(0)));
+            }
+            for (int i = 1; i < name.length(); i++) {
+                char c = name.charAt(i);
+                if (c == '-') {
+                    nextIsUpper = true;
+                } else {
+                    if (nextIsUpper) {
+                        result.append(Character.toUpperCase(c));
+                        nextIsUpper = false;
+                    } else {
+                        result.append(Character.toLowerCase(c));
+                    }
+                }
+            }
+        }
+        return result.toString();
     }
 
     //    private void loadResources(String dbName, ApiBinder apiBinder, Settings settings,//

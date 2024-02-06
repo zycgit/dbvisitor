@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-public class DruidTest {
+public class SingleDsTest {
     @Inject
     private UserMapper userMapper;
 
@@ -44,7 +44,7 @@ public class DruidTest {
     @Test
     public void getListTest() throws SQLException, IOException {
         Properties properties = new Properties();
-        properties.load(ResourcesUtils.getResourceAsStream("druid-guice.properties"));
+        properties.load(ResourcesUtils.getResourceAsStream("single-ds.properties"));
 
         Injector injector = Guice.createInjector(new DbVisitorModule(properties));
         injector.injectMembers(this);

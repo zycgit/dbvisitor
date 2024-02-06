@@ -18,7 +18,7 @@ public class Demo2ApplicationTests {
 
     @Before
     public void beforeTest() {
-        AppContext injector = Hasor.create().mainSettingWith("multi-hasor.properties").build(binder -> {
+        AppContext injector = Hasor.create().mainSettingWith("multi-ds.properties").build(binder -> {
             binder.installModule(new DbVisitorModule());
         });
 
