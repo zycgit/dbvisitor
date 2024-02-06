@@ -146,22 +146,25 @@ public class JdbcConnection extends JdbcAccessor {
             logger.trace("database connection using " + (usingConn ? "connection" : usingDynamic ? "dynamic" : "dataSource"));
         }
 
-        Connection useConn = null;
+        Connection oriConn = localConn;
+        Connection useConn;
         if (usingConn) {
-            useConn = this.newProxyConnection(localConn);//代理连接
+            useConn = this.newProxyConnection(localConn);// 代理连接,忽略 close
         } else if (usingDynamic) {
-            useConn = localDynamic.getConnection();
+            oriConn = localDynamic.getConnection();
+            useConn = this.newProxyConnection(oriConn);// 代理连接,忽略 close
         } else {
-            useConn = DataSourceUtils.getConnection(localDS);
+            oriConn = DataSourceUtils.getConnection(localDS);// 通过资源管理器创建 Connection
+            useConn = oriConn;
         }
 
         try {
             return action.doInConnection(useConn);
         } finally {
             if (usingDynamic) {
-                localDynamic.releaseConnection(useConn);
+                localDynamic.releaseConnection(oriConn);
             } else if (usingDS) {
-                useConn.close();
+                oriConn.close();
             } else {
                 // don't do anything
             }

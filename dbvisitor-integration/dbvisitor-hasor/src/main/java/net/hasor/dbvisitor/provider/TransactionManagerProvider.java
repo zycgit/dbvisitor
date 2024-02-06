@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.provider;
-import net.hasor.dbvisitor.transaction.DataSourceUtils;
+import net.hasor.cobble.provider.SingleProvider;
 import net.hasor.dbvisitor.transaction.TransactionManager;
+import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
 
 import javax.sql.DataSource;
 import java.util.function.Supplier;
@@ -26,17 +27,25 @@ import java.util.function.Supplier;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class TransactionManagerProvider implements Supplier<TransactionManager> {
-    private final Supplier<DataSource> dataSource;
+    private final    Supplier<DataSource> dataSource;
+    private volatile TransactionManager   transactionManager;
 
     public TransactionManagerProvider(DataSource dataSource) {
         this(() -> dataSource);
     }
 
     public TransactionManagerProvider(Supplier<DataSource> dataSource) {
-        this.dataSource = dataSource;
+        this.dataSource = new SingleProvider<>(dataSource);
     }
 
     public TransactionManager get() {
-        return DataSourceUtils.getManager(this.dataSource.get());
+        if (this.transactionManager == null) {
+            synchronized (this) {
+                if (this.transactionManager == null) {
+                    this.transactionManager = new LocalTransactionManager(this.dataSource.get());
+                }
+            }
+        }
+        return this.transactionManager;
     }
 }

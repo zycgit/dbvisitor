@@ -19,7 +19,6 @@ import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.transaction.*;
 
 import javax.sql.DataSource;
-import java.io.Closeable;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -40,7 +39,7 @@ import static net.hasor.dbvisitor.transaction.Propagation.*;
  * @version : 2013-10-30
  * @author 赵永春 (zyc@hasor.net)
  */
-public class LocalTransactionManager implements TransactionManager, Closeable {
+public class LocalTransactionManager implements TransactionManager {
     private static final Logger                        logger       = LoggerFactory.getLogger(LocalTransactionManager.class);
     private final        Deque<LocalTransactionStatus> tStatusStack = new LinkedBlockingDeque<>();
     private final        DataSource                    dataSource;
@@ -346,9 +345,9 @@ public class LocalTransactionManager implements TransactionManager, Closeable {
         defStatus.setCompleted();
         /*恢复当时的隔离级别*/
         TransactionObject tranObj = defStatus.getTranConn();
-        Isolation transactionIsolation = tranObj.getRecoverIsolation();
-        if (transactionIsolation != null) {
-            tranObj.getHolder().getConnection().setTransactionIsolation(transactionIsolation.getValue());
+        Isolation tranIsolation = tranObj.getRecoverIsolation();
+        if (tranIsolation != null) {
+            tranObj.getHolder().getConnection().setTransactionIsolation(tranIsolation.getValue());
         }
         tranObj.stopTransaction();
         tranObj.getHolder().released();//ref--

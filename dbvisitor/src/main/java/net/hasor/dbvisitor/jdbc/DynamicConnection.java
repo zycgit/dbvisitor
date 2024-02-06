@@ -22,11 +22,8 @@ import java.sql.SQLException;
  * @version : 2022-04-10
  * @author 赵永春 (zyc@hasor.net)
  */
-@FunctionalInterface
 public interface DynamicConnection {
     Connection getConnection() throws SQLException;
 
-    default void releaseConnection(Connection conn) throws SQLException {
-
-    }
+    void releaseConnection(Connection conn) throws SQLException;
 }

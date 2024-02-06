@@ -46,6 +46,7 @@ import net.hasor.dbvisitor.lambda.LambdaOperations;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.transaction.*;
+import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -143,7 +144,8 @@ public class DbVisitorModule implements com.google.inject.Module {
         String[] subKeys = configNode.getSubKeys();
         for (String key : subKeys) {
             String subValue = configNode.getSubValue(key);
-            BeanUtils.writeProperty(dataSource, key, subValue);
+            String propName = StringUtils.lineToHump(key);
+            BeanUtils.writeProperty(dataSource, propName, subValue);
         }
 
         Key<DataSource> key;
@@ -180,7 +182,10 @@ public class DbVisitorModule implements com.google.inject.Module {
 
     private void bindTrans(String dbName, Binder binder, Provider<DataSource> dsProvider) {
         Provider<TransactionManager> managerProvider = new TransactionManagerProvider(dsProvider);
-        Provider<TransactionTemplate> templateProvider = () -> new TransactionTemplateManager(DataSourceUtils.getManager(dsProvider.get()));
+        Provider<TransactionTemplate> templateProvider = () -> {
+            TransactionManager tm = new LocalTransactionManager(dsProvider.get());
+            return new TransactionTemplateManager(tm);
+        };
 
         if (StringUtils.isBlank(dbName)) {
             binder.bind(TransactionManager.class).toProvider(managerProvider);
@@ -331,13 +336,25 @@ public class DbVisitorModule implements com.google.inject.Module {
     }
 
     private static class TranInterceptor implements MethodInterceptor {
-        private final Provider<DataSource> dataSource;
+        private final    Provider<DataSource> dataSource;
+        private volatile TransactionManager   transactionManager;
 
         public TranInterceptor(Provider<DataSource> dataSource) {
             this.dataSource = Objects.requireNonNull(dataSource, "dataSource Provider is null.");
         }
 
-        /*是否不需要回滚:true表示不要回滚*/
+        private TransactionManager getTxManager() {
+            if (this.transactionManager == null) {
+                synchronized (this) {
+                    if (this.transactionManager == null) {
+                        this.transactionManager = new LocalTransactionManager(this.dataSource.get());
+                    }
+                }
+            }
+            return this.transactionManager;
+        }
+
+        /* 是否不需要回滚:true表示不要回滚 */
         private boolean testNoRollBackFor(Transactional tranAnno, Throwable e) {
             //1.test Class
             Class<? extends Throwable>[] noRollBackType = tranAnno.noRollbackFor();
@@ -365,8 +382,7 @@ public class DbVisitorModule implements com.google.inject.Module {
                 return invocation.proceed();
             }
             //0.准备事务环境
-            DataSource dataSource = this.dataSource.get();
-            TransactionManager manager = DataSourceUtils.getManager(dataSource);
+            TransactionManager manager = getTxManager();
             Propagation behavior = tranInfo.propagation();
             Isolation level = tranInfo.isolation();
             TransactionStatus tranStatus = manager.begin(behavior, level);

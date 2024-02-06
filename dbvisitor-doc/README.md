@@ -1,9 +1,8 @@
 
 ## build website
-npm install @node-rs/jieba
 npm run build
 
-https://github.com/easyops-cn/docusaurus-search-local
+https://github.com/jean-humann/docs-to-pdf
 
 ## release versions and prepare next SNAPSHOT version
     mvn release:clean release:prepare -Dmaven.test.skip -Prelease

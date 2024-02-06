@@ -17,6 +17,7 @@ package net.hasor.scene.transaction;
 import net.hasor.cobble.dynamic.MethodInterceptor;
 import net.hasor.cobble.dynamic.MethodInvocation;
 import net.hasor.dbvisitor.transaction.*;
+import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Method;
@@ -63,7 +64,7 @@ public class TransactionalInterceptor implements MethodInterceptor {
         }
         //0.准备事务环境
         DataSource dataSource = this.dataSource;
-        TransactionManager manager = DataSourceUtils.getManager(dataSource);
+        TransactionManager manager = new LocalTransactionManager(dataSource);
         Propagation behavior = tranInfo.propagation();
         Isolation level = tranInfo.isolation();
         TransactionStatus tranStatus = manager.begin(behavior, level);

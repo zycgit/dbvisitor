@@ -15,10 +15,10 @@
  */
 package net.hasor.dbvisitor.guice.provider;
 import com.google.inject.Provider;
-import net.hasor.dbvisitor.transaction.DataSourceUtils;
 import net.hasor.dbvisitor.transaction.TransactionManager;
 import net.hasor.dbvisitor.transaction.TransactionTemplate;
 import net.hasor.dbvisitor.transaction.TransactionTemplateManager;
+import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
 
 import javax.sql.DataSource;
 
@@ -31,7 +31,8 @@ public class TransactionTemplateProvider implements Provider<TransactionTemplate
     private final TransactionTemplate transactionTemplate;
 
     public TransactionTemplateProvider(DataSource dataSource) {
-        this.transactionTemplate = new TransactionTemplateManager(DataSourceUtils.getManager(dataSource));
+        TransactionManager tm = new LocalTransactionManager(dataSource);
+        this.transactionTemplate = new TransactionTemplateManager(tm);
     }
 
     public TransactionTemplateProvider(TransactionManager transactionManager) {

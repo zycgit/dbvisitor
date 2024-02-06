@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.provider;
-import net.hasor.dbvisitor.transaction.DataSourceUtils;
 import net.hasor.dbvisitor.transaction.TransactionManager;
 import net.hasor.dbvisitor.transaction.TransactionTemplate;
 import net.hasor.dbvisitor.transaction.TransactionTemplateManager;
+import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
 
 import javax.sql.DataSource;
 import java.util.function.Supplier;
@@ -31,7 +31,8 @@ public class TransactionTemplateProvider implements Supplier<TransactionTemplate
     private final TransactionTemplate transactionTemplate;
 
     public TransactionTemplateProvider(DataSource dataSource) {
-        this.transactionTemplate = new TransactionTemplateManager(DataSourceUtils.getManager(dataSource));
+        TransactionManager rm = new LocalTransactionManager(dataSource);
+        this.transactionTemplate = new TransactionTemplateManager(rm);
     }
 
     public TransactionTemplateProvider(TransactionManager transactionManager) {

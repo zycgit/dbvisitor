@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.transaction;
+import java.io.Closeable;
 import java.sql.SQLException;
 
 /**
@@ -21,7 +22,7 @@ import java.sql.SQLException;
  * @version : 2013-10-30
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface TransactionManager {
+public interface TransactionManager extends Closeable {
     /**
      * 开启事务，使用默认事务隔离级别。
      * @see Propagation
@@ -67,5 +68,4 @@ public interface TransactionManager {
 
     /** 测试事务状态是否位于栈顶 */
     boolean isTopTransaction(TransactionStatus status);
-
 }

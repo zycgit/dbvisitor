@@ -48,6 +48,7 @@ class ConnectionHolderImpl implements ConnectionHolder, SavepointManager {
             try {
                 this.savepointCounter = 0;
                 this.connection.close();
+                DataSourceUtils.triggerClose(this.dataSource);
             } finally {
                 this.connection = null;
             }
@@ -119,5 +120,4 @@ class ConnectionHolderImpl implements ConnectionHolder, SavepointManager {
         Connection conn = this.checkConn(this.getConnection());
         conn.rollback(savepoint);
     }
-
 }

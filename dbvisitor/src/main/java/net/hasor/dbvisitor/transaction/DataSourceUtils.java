@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.transaction;
-import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
-
 import javax.sql.DataSource;
 import java.io.Closeable;
 import java.lang.reflect.InvocationHandler;
@@ -34,21 +32,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author 赵永春 (zyc@hasor.net)
  */
 public abstract class DataSourceUtils {
-    private final static ThreadLocal<Map<DataSource, TransactionManager>> managerMap = ThreadLocal.withInitial(ConcurrentHashMap::new);
-    private final static ThreadLocal<Map<DataSource, ConnectionHolder>>   holderMap  = ThreadLocal.withInitial(ConcurrentHashMap::new);
-
-    /** 获取或创建 数据源的当前本地事务管理器 */
-    private static synchronized TransactionManager createOrGetManager(final DataSource dataSource) {
-        Objects.requireNonNull(dataSource);
-        Map<DataSource, TransactionManager> localMap = managerMap.get();
-        return localMap.computeIfAbsent(dataSource, LocalTransactionManager::new);
-    }
+    protected final static ThreadLocal<Map<DataSource, ConnectionHolder>> holderMap = ThreadLocal.withInitial(ConcurrentHashMap::new);
 
     /** 获取或创建 数据源的当前本地连接 Holder */
     private static synchronized ConnectionHolderImpl createOrGetHolder(final DataSource dataSource) {
         Objects.requireNonNull(dataSource);
-        Map<DataSource, ConnectionHolder> localMap = holderMap.get();
-        return (ConnectionHolderImpl) localMap.computeIfAbsent(dataSource, ConnectionHolderImpl::new);
+
+        synchronized (holderMap) {
+            Map<DataSource, ConnectionHolder> localMap = holderMap.get();
+            return (ConnectionHolderImpl) localMap.computeIfAbsent(dataSource, ConnectionHolderImpl::new);
+        }
+    }
+
+    protected static void triggerClose(DataSource dataSource) {
+        synchronized (holderMap) {
+            Map<DataSource, ConnectionHolder> dsMap = holderMap.get();
+            if (dsMap.containsKey(dataSource)) {
+                if (dsMap.get(dataSource).getRefCount() == 0) {
+                    dsMap.remove(dataSource);
+                }
+            }
+        }
     }
 
     /** 获取或创建 数据源的当前本地连接 Holder */
@@ -56,15 +60,11 @@ public abstract class DataSourceUtils {
         return createOrGetHolder(dataSource);
     }
 
-    /** 获取当前本地 {@link TransactionManager} */
-    public static TransactionManager getManager(DataSource dataSource) {
-        return createOrGetManager(dataSource);
-    }
-
     /** 强制设置当前本地 ConnectionHolder */
     protected static void unsafeResetHolder(DataSource dataSource, ConnectionHolder holder) {
         Objects.requireNonNull(dataSource);
         Objects.requireNonNull(holder);
+
         Map<DataSource, ConnectionHolder> localMap = holderMap.get();
         localMap.put(dataSource, holder);
     }
@@ -72,6 +72,7 @@ public abstract class DataSourceUtils {
     /** 强制清空当前本地 ConnectionHolder */
     protected static void unsafeClearHolder(DataSource dataSource) {
         Objects.requireNonNull(dataSource);
+
         Map<DataSource, ConnectionHolder> localMap = holderMap.get();
         localMap.remove(dataSource);
     }

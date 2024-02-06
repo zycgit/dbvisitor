@@ -36,6 +36,7 @@ import net.hasor.dbvisitor.provider.JdbcTemplateProvider;
 import net.hasor.dbvisitor.provider.LambdaTemplateProvider;
 import net.hasor.dbvisitor.provider.TransactionManagerProvider;
 import net.hasor.dbvisitor.transaction.*;
+import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.utils.ScanClassPath;
 
@@ -155,7 +156,10 @@ public class DbVisitorModule implements net.hasor.core.Module {
 
     private void bindTrans(String dbName, ApiBinder apiBinder, Supplier<DataSource> dsProvider) {
         Supplier<TransactionManager> managerProvider = new TransactionManagerProvider(dsProvider);
-        Supplier<TransactionTemplate> templateProvider = () -> new TransactionTemplateManager(DataSourceUtils.getManager(dsProvider.get()));
+        Supplier<TransactionTemplate> templateProvider = () -> {
+            TransactionManager tm = new LocalTransactionManager(dsProvider.get());
+            return new TransactionTemplateManager(tm);
+        };
 
         if (StringUtils.isBlank(dbName)) {
             apiBinder.bindType(TransactionManager.class).toProvider(managerProvider);
@@ -303,13 +307,25 @@ public class DbVisitorModule implements net.hasor.core.Module {
     }
 
     private static class TranInterceptor implements MethodInterceptor {
-        private final Supplier<DataSource> dataSource;
+        private final    Supplier<DataSource> dataSource;
+        private volatile TransactionManager   transactionManager;
 
         public TranInterceptor(Supplier<DataSource> dataSource) {
             this.dataSource = Objects.requireNonNull(dataSource, "dataSource Provider is null.");
         }
 
-        /*是否不需要回滚:true表示不要回滚*/
+        private TransactionManager getTxManager() {
+            if (this.transactionManager == null) {
+                synchronized (this) {
+                    if (this.transactionManager == null) {
+                        this.transactionManager = new LocalTransactionManager(this.dataSource.get());
+                    }
+                }
+            }
+            return this.transactionManager;
+        }
+
+        /* 是否不需要回滚:true表示不要回滚 */
         private boolean testNoRollBackFor(Transactional tranAnno, Throwable e) {
             //1.test Class
             Class<? extends Throwable>[] noRollBackType = tranAnno.noRollbackFor();
@@ -337,8 +353,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
                 return invocation.proceed();
             }
             //0.准备事务环境
-            DataSource dataSource = this.dataSource.get();
-            TransactionManager manager = DataSourceUtils.getManager(dataSource);
+            TransactionManager manager = getTxManager();
             Propagation behavior = tranInfo.propagation();
             Isolation level = tranInfo.isolation();
             TransactionStatus tranStatus = manager.begin(behavior, level);
