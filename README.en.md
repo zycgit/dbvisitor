@@ -46,7 +46,7 @@ dependency
 <dependency>
   <groupId>net.hasor</groupId>
   <artifactId>dbvisitor</artifactId>
-  <version>5.2.0</version><!-- 查看最新版本：https://mvnrepository.com/artifact/net.hasor/dbvisitor -->
+  <version>5.4.1</version><!-- 查看最新版本：https://mvnrepository.com/artifact/net.hasor/dbvisitor -->
 </dependency>
 ```
 
@@ -61,13 +61,13 @@ database drivers, for example:
 ```
 
 dbVisitor can be used without relying on database connection pools, 
-but having a database connection pool is standard for most projects. Druid of Alibaba
+but having a database connection pool is standard for most projects. HikariCP
 
 ```xml
 <dependency>
-  <groupId>com.alibaba</groupId>
-  <artifactId>druid</artifactId>
-  <version>1.1.23</version>
+  <groupId>com.zaxxer</groupId>
+  <artifactId>HikariCP</artifactId>
+  <version>4.0.3</version>
 </dependency>
 ```
 

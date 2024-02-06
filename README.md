@@ -43,7 +43,7 @@
 <dependency>
   <groupId>net.hasor</groupId>
   <artifactId>dbvisitor</artifactId>
-  <version>5.3.0</version><!-- 查看最新版本：https://mvnrepository.com/artifact/net.hasor/dbvisitor -->
+  <version>5.4.1</version><!-- 查看最新版本：https://mvnrepository.com/artifact/net.hasor/dbvisitor -->
 </dependency>
 ```
 
@@ -57,13 +57,13 @@
 </dependency>
 ```
 
-使用 dbVisitor 可以不依赖数据库连接池，但有数据库连接池是大多数项目的标配。这里选用 Alibaba 的 Druid
+使用 dbVisitor 可以不依赖数据库连接池，但有数据库连接池是大多数项目的标配。这里选用 HikariCP
 
 ```xml
 <dependency>
-  <groupId>com.alibaba</groupId>
-  <artifactId>druid</artifactId>
-  <version>1.1.23</version>
+  <groupId>com.zaxxer</groupId>
+  <artifactId>HikariCP</artifactId>
+  <version>4.0.3</version>
 </dependency>
 ```
 

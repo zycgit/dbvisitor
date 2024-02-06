@@ -12,7 +12,7 @@ export const Highlight = ({children, color}) => (
   <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
 );
 
-截止到目前为止 dbVisitor 的最新版本为：**<Highlight color="rgb(227 17 108)">5.4.0</Highlight>**
+截止到目前为止 dbVisitor 的最新版本为：**<Highlight color="rgb(227 17 108)">5.4.1</Highlight>**
 - 在 https://mvnrepository.com/artifact/net.hasor/dbvisitor 上也可以查询到最新版本
 
 import Tabs from '@theme/Tabs';
@@ -25,7 +25,7 @@ import TabItem from '@theme/TabItem';
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor</artifactId>
-    <version>5.4.0</version>
+    <version>5.4.1</version>
 </dependency>
 ```
   </TabItem>
@@ -33,7 +33,7 @@ import TabItem from '@theme/TabItem';
 
 ```text
 // Gradle
-implementation 'net.hasor:dbvisitor:5.4.0'
+implementation 'net.hasor:dbvisitor:5.4.1'
 ```
   </TabItem>
 </Tabs>
@@ -48,13 +48,13 @@ implementation 'net.hasor:dbvisitor:5.4.0'
 </dependency>
 ```
 
-使用 dbVisitor 可以不依赖数据库连接池，但有数据库连接池是大多数项目的标配。这里选用 Alibaba 的 Druid
+使用 dbVisitor 可以不依赖数据库连接池，但有数据库连接池是大多数项目的标配。这里选用 HikariCP
 
 ```xml
 <dependency>
-    <groupId>com.alibaba</groupId>
-    <artifactId>druid</artifactId>
-    <version>1.1.23</version>
+    <groupId>com.zaxxer</groupId>
+    <artifactId>HikariCP</artifactId>
+    <version>4.0.3</version>
 </dependency>
 ```
 

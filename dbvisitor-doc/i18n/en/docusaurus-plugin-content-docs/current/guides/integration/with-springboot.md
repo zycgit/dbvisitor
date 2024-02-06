@@ -13,7 +13,7 @@ Spring Boot 工程需要引入如下依赖包：
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-spring-starter</artifactId>
-    <version>5.4.0</version>
+    <version>5.4.1</version>
 </dependency>
 ```
 

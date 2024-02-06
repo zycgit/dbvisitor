@@ -28,37 +28,35 @@ Guice 是 Google 开源的一个轻量化依赖注入工具，Spring 包含依�
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-guice</artifactId>
-    <version>5.4.0</version>
+    <version>5.4.1</version>
 </dependency>
 ```
 
-使用 dbVisitor 可以不依赖数据库连接池，但有数据库连接池是大多数项目的标配。这里选用 Alibaba 的 Druid
+使用 dbVisitor 可以不依赖数据库连接池，但有数据库连接池是大多数项目的标配。这里选用 HikariCP
 
 ```xml
 <dependency>
-    <groupId>com.alibaba</groupId>
-    <artifactId>druid</artifactId>
-    <version>1.1.23</version>
+    <groupId>com.zaxxer</groupId>
+    <artifactId>HikariCP</artifactId>
+    <version>4.0.3</version>
 </dependency>
 ```
 
-配置文件，如下使用了 Druid 后的配置文件
+配置文件，如下使用了 HikariCP 后的配置文件
 
 ```properties
-# 数据源使用 Druid
-dbvisitor.jdbc-ds=com.alibaba.druid.pool.DruidDataSource
-dbvisitor.jdbc-ds.url=jdbc:mysql://127.0.0.1:3306/devtester
-dbvisitor.jdbc-ds.driverClassName=com.mysql.cj.jdbc.Driver
+# 数据源使用 HikariCP
+dbvisitor.jdbc-ds=com.zaxxer.hikari.HikariDataSource
+dbvisitor.jdbc-ds.jdbc-url=jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true
 dbvisitor.jdbc-ds.username=root
 dbvisitor.jdbc-ds.password=123456
-dbvisitor.jdbc-ds.maxActive=5
-dbvisitor.jdbc-ds.maxWait=3000
-dbvisitor.jdbc-ds.initialSize=1
-dbvisitor.jdbc-ds.testWhileIdle=true
-dbvisitor.jdbc-ds.testOnBorrow=true
-dbvisitor.jdbc-ds.failFast=true
-dbvisitor.mapper-packages=net.hasor.dbvisitor.test.dao
+dbvisitor.jdbc-ds.minimum-idle=5
+dbvisitor.jdbc-ds.maximum-pool-size=12
+dbvisitor.jdbc-ds.max-lifetime=1200000
+dbvisitor.jdbc-ds.auto-commit=true
+dbvisitor.jdbc-ds.connection-timeout=20000
 dbvisitor.mapper-locations=classpath:dbvisitor/mapper/*.xml
+dbvisitor.mapper-packages=net.hasor.dbvisitor.test.dao
 ```
 
 一个 Service 类
@@ -74,7 +72,7 @@ public class ServiceTest {
 ```java
 // 加载配置文件
 Properties properties = new Properties();
-properties.load(ResourcesUtils.getResourceAsStream("druid-guice.properties"));
+properties.load(ResourcesUtils.getResourceAsStream("jdbc.properties"));
 
 // 初始化 Guice 并加载 DbVisitorModule 插件
 Injector injector = Guice.createInjector(new DbVisitorModule(properties));
@@ -92,7 +90,7 @@ ServiceTest service = injector.getInstance(ServiceTest.class);
 
 | 属性名                             | 描述                                                                                                                 |
 |---------------------------------|--------------------------------------------------------------------------------------------------------------------|
-| `dbvisitor.jdbc-ds`             | 可选，具体的数据源 DataSource 类型，例如 `com.alibaba.druid.pool.DruidDataSource`，如果不指定则会使用工具内置的 `DefaultDataSource` 类 (它不支持连接池) |
+| `dbvisitor.jdbc-ds`             | 可选，具体的数据源 DataSource 类型，例如 `com.zaxxer.hikari.HikariDataSource`，如果不指定则会使用工具内置的 `DefaultDataSource` 类 (它不支持连接池)     |
 | `dbvisitor.jdbc-ds.xxx`         | 可选，通过 xxx 配置数据源的属性                                                                                                 |
 | `dbvisitor.multiple-datasource` | 可选，多数据源情况下，的数据源标识符                                                                                                 |
 
@@ -111,20 +109,40 @@ dbvisitor.jdbc-ds.password=123456
 # one,two,three 三个数据源
 dbvisitor.multiple-datasource=one,two,three
 # -- one
-dbvisitor.one.jdbc-ds.url=jdbc:mysql://127.0.0.1:3306/db1
-dbvisitor.one.jdbc-ds.driverClassName=com.mysql.cj.jdbc.Driver
+dbvisitor.one.jdbc-ds=com.zaxxer.hikari.HikariDataSource
+dbvisitor.one.jdbc-ds.jdbc-url=jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true
 dbvisitor.one.jdbc-ds.username=root
 dbvisitor.one.jdbc-ds.password=123456
+dbvisitor.one.jdbc-ds.minimum-idle=5
+dbvisitor.one.jdbc-ds.maximum-pool-size=12
+dbvisitor.one.jdbc-ds.max-lifetime=1200000
+dbvisitor.one.jdbc-ds.auto-commit=true
+dbvisitor.one.jdbc-ds.connection-timeout=20000
+dbvisitor.one.mapper-locations=classpath:dbvisitor/mapper/role/*.xml
+dbvisitor.one.mapper-packages=net.hasor.dbvisitor.test.dao.role
 # -- two
-dbvisitor.two.jdbc-ds.url=jdbc:mysql://127.0.0.1:3306/db2
-dbvisitor.two.jdbc-ds.driverClassName=com.mysql.cj.jdbc.Driver
+dbvisitor.two.jdbc-ds=com.zaxxer.hikari.HikariDataSource
+dbvisitor.two.jdbc-ds.jdbc-url=jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true
 dbvisitor.two.jdbc-ds.username=root
 dbvisitor.two.jdbc-ds.password=123456
+dbvisitor.two.jdbc-ds.minimum-idle=5
+dbvisitor.two.jdbc-ds.maximum-pool-size=12
+dbvisitor.two.jdbc-ds.max-lifetime=1200000
+dbvisitor.two.jdbc-ds.auto-commit=true
+dbvisitor.two.jdbc-ds.connection-timeout=20000
+dbvisitor.two.mapper-locations=classpath:dbvisitor/mapper/user/*.xml
+dbvisitor.two.mapper-packages=net.hasor.dbvisitor.test.dao.user
 # -- three
-dbvisitor.three.jdbc-ds.url=jdbc:mysql://127.0.0.1:3306/db3
-dbvisitor.three.jdbc-ds.driverClassName=com.mysql.cj.jdbc.Driver
+dbvisitor.three.jdbc-ds=com.zaxxer.hikari.HikariDataSource
+dbvisitor.three.jdbc-ds.jdbc-url=jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true
 dbvisitor.three.jdbc-ds.username=root
 dbvisitor.three.jdbc-ds.password=123456
+dbvisitor.three.jdbc-ds.minimum-idle=5
+dbvisitor.three.jdbc-ds.maximum-pool-size=12
+dbvisitor.three.jdbc-ds.max-lifetime=1200000
+dbvisitor.three.jdbc-ds.auto-commit=true
+dbvisitor.three.jdbc-ds.connection-timeout=20000
+dbvisitor.three.mapper-disabled=true
 ```
 
 ## dbVisitor 配置项说明

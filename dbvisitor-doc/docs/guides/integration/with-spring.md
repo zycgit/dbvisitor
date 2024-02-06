@@ -12,7 +12,7 @@ description: dbVisitor ORM 工具和 Spring 整合使用。
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-spring</artifactId>
-    <version>5.4.0</version>
+    <version>5.4.1</version>
 </dependency>
 ```
 
