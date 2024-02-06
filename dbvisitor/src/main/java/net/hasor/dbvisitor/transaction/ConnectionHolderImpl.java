@@ -43,6 +43,11 @@ class ConnectionHolderImpl implements ConnectionHolder, SavepointManager {
 
     /** 减少引用计数,一个因为持有人已被释放 */
     public synchronized void released() throws SQLException {
+        if (this.referenceCount == 0) {
+            DataSourceUtils.triggerClose(this.dataSource);
+            return;
+        }
+
         this.referenceCount--;
         if (!this.isOpen() && this.connection != null) {
             try {

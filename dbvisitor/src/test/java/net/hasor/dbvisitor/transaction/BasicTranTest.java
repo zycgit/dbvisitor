@@ -128,6 +128,7 @@ public class BasicTranTest extends AbstractDbTest {
 
             ConnectionHolder holder = DataSourceUtils.getHolder(dataSource);
             assert holder.getRefCount() == 0;
+            holder.released();
         }
     }
 
@@ -157,8 +158,8 @@ public class BasicTranTest extends AbstractDbTest {
 
     @Test
     public void tran_basic_6() throws Throwable {
-        try (DefaultDs dataSource = DsUtils.mysqlDs()) {
-            TransactionManager transManager = new LocalTransactionManager(dataSource);
+        try (DefaultDs dataSource = DsUtils.mysqlDs();//
+             TransactionManager transManager = new LocalTransactionManager(dataSource);) {
 
             TransactionStatus tran1 = transManager.begin(Propagation.REQUIRED);
             TransactionStatus tran2 = transManager.begin(Propagation.REQUIRED);
@@ -233,7 +234,8 @@ public class BasicTranTest extends AbstractDbTest {
                 assert e.getMessage().equals("existing transaction found for transaction marked with propagation 'never'");
             }
 
-            assert DataSourceUtils.getHolder(dataSource).hasTransaction();
+            ConnectionHolder holder = DataSourceUtils.getHolder(dataSource);
+            assert holder.hasTransaction();
         }
     }
 
@@ -359,7 +361,8 @@ public class BasicTranTest extends AbstractDbTest {
              LocalTransactionManager transManager = new LocalTransactionManager(dataSource)) {
             TransactionTemplate templateProvider = new TransactionTemplateManager(transManager);
 
-            assert !DataSourceUtils.getHolder(dataSource).hasTransaction();
+            ConnectionHolder holder = DataSourceUtils.getHolder(dataSource);
+            assert !holder.hasTransaction();
             templateProvider.execute((TransactionCallbackWithoutResult) tran1 -> {
                 assert DataSourceUtils.getHolder(dataSource).hasTransaction();
 
@@ -369,7 +372,8 @@ public class BasicTranTest extends AbstractDbTest {
                 }, Propagation.NOT_SUPPORTED);
             });
 
-            assert !DataSourceUtils.getHolder(dataSource).hasTransaction();
+            assert !holder.hasTransaction();
+            holder.released();
         }
     }
 }

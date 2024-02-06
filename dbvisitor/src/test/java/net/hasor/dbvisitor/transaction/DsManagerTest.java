@@ -103,6 +103,8 @@ public class DsManagerTest {
 
             ConnectionHolder holder = DataSourceUtils.getHolder(dataSource);
             assert !holder.isOpen();
+
+            holder.released();
         }
     }
 
