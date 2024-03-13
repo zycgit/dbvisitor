@@ -1,4 +1,5 @@
 ---
+id: case_sensitive
 sidebar_position: 5
 title: 表/列名称大小写敏感
 description: 使用 dbVisitor ORM 映射数据库表，处理大小写敏感性问题。

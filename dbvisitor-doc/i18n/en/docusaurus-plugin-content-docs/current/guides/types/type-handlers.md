@@ -1,4 +1,5 @@
 ---
+id: type_handler
 sidebar_position: 1
 title: 类型处理器
 description: dbVisitor ORM 工具类型处理器介绍。

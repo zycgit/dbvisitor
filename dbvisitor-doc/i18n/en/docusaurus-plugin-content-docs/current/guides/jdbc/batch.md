@@ -1,4 +1,5 @@
 ---
+id: batch
 sidebar_position: 3
 title: 批量
 description: dbVisitor ORM 工具针对 JDBC 的 batch 方法做了封装，现在可以更加方便的使用它。

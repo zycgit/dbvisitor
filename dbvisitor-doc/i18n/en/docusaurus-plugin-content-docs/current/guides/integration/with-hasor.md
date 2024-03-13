@@ -1,5 +1,5 @@
 ---
-id: with-hasor
+id: with_hasor
 sidebar_position: 4
 title: Hasor 整合
 description: dbVisitor ORM 工具和 Hasor 整合使用。

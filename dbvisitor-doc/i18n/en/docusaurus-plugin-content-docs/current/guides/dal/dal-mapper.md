@@ -1,4 +1,5 @@
 ---
+id: using_mapper
 sidebar_position: 1
 title: 映射文件
 description: dbVisitor ORM 工具使用 Mapper 文件的好处是便于维护和管理 SQL。

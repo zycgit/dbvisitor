@@ -1,4 +1,5 @@
 ---
+id: quick_start
 sidebar_position: 2
 title: 快速上手
 description: 开箱即用的 dbVisitor ORM 工具快速上手教程。
@@ -426,7 +427,7 @@ manager.commit(tranB);
 manager.commit(tranA);
 ```
 
-通过 `begin` 方法的参数可以设置事务的 **[传播属性](./transaction/propagation.mdx)** 和 **[隔离级别](./transaction/Isolation.md)**
+通过 `begin` 方法的参数可以设置事务的 **[传播属性](./transaction/propagation.mdx)** 和 **[隔离级别](./transaction/isolation.md)**
 
 ```java
 TransactionStatus tranA = manager.begin(

@@ -1,4 +1,5 @@
 ---
+id: tran_manager
 sidebar_position: 2
 title: 事务管理器
 description: dbVisitor ORM 事务管理器的使用。
@@ -82,7 +83,7 @@ manager.commit(tranA);
 
 以 `DataSourceManager.getManager(dataSource);` 方式得到的事务管理器就是本地事务管理器。
 
-本地事务管理器的特点是 **数据源的事务管理器与当前线程形成一对一绑定**，基于这个绑定关系可以达到 **[本地同步](./datasource.md#本地同步)** 的目的
+本地事务管理器的特点是 **数据源的事务管理器与当前线程形成一对一绑定**，基于这个绑定关系可以达到 **[本地同步](./sync_tran.md#sync)** 的目的
 
 dbVisitor 提供了三种方式使用事务，分别为：
 
@@ -135,7 +136,7 @@ manager.commit(tranB);
 manager.commit(tranA);
 ```
 
-通过 `begin` 方法的参数可以设置事务的 **[传播属性](./propagation.mdx)** 和 **[隔离级别](./Isolation.md)**
+通过 `begin` 方法的参数可以设置事务的 **[传播属性](./propagation.mdx)** 和 **[隔离级别](./isolation.md)**
 
 ```java
 TransactionStatus tranA = manager.begin(

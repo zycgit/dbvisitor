@@ -1,4 +1,5 @@
 ---
+id: mapper_api
 sidebar_position: 5
 title: 执行 Mapper
 description: 通过 dbVisitor ORM 工具的 DalSession 类执行 Mapper 文件中定义的 SQL。

@@ -1,4 +1,5 @@
 ---
+id: sync_tran
 sidebar_position: 1
 title: 资源同步
 description: dbVisitor ORM 在同一个 DataSource 上同时使用多个事务就需要涉及到 DataSource 资源同步。
@@ -48,7 +49,7 @@ tranA.commit();
 使用上面这种方式需要在整个调用链上传递 `Connection` 以确保不同的业务处理逻辑用到相同的数据库连接。
 若 `Connection` 维护不当就会造成链接泄漏，而这种泄漏通常比较难以发现和定位的。
 
-## 本地同步
+## 本地同步 {#sync}
 
 dbVisitor 内置了资源管理器，可以用来同步上述这种对 `Connection` 的依赖，但同时又不需要将其作为参数传递，例如：上面两个例子可以换成如下：
 
@@ -95,7 +96,7 @@ manager.commit(); // tranA
 
 这些 API 在执行数据库操作时会自动处理资源的创建、重用以及清理。我们无需关心这些具体过程。
 
-## 低级 API
+## 低级 API {#low-api}
 
 低级别 API 的特点是缺少了那些自动化的管理工作，比如在使用数据库连接时需要主动释放它。
 

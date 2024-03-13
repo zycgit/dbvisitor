@@ -1,4 +1,5 @@
 ---
+id: camel_case
 sidebar_position: 2
 title: 驼峰转下划线
 description: 使用 dbVisitor ORM 映射数据库表，处理名称驼峰转换。

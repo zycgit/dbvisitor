@@ -1,4 +1,5 @@
 ---
+id: unsafe
 sidebar_position: 4
 title: 不安全的操作
 description: dbVisitor ORM 默认不允许 无条件更新和无条件删除

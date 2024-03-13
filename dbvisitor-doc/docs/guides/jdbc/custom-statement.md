@@ -1,4 +1,5 @@
 ---
+id: custom_execute
 sidebar_position: 8
 title: 流式读取超大表
 description: 使用 dbVisitor ORM 查询并处理一张超大表。

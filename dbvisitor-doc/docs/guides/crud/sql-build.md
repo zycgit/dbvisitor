@@ -1,4 +1,5 @@
 ---
+id: sql_build
 sidebar_position: 5
 title: 仅生成 SQL
 description: dbVisitor ORM 单表模式是围绕 LambdaTemplate 工具类展开，它继承自 JdbcTemplate 具备后者的所有能力。

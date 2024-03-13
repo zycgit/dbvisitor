@@ -1,4 +1,5 @@
 ---
+id: using_connection
 sidebar_position: 10
 title: 使用原始连接
 description: dbVisitor ORM 工具使用最底层的 Connection 对象。

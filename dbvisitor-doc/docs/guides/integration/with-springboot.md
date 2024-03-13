@@ -1,5 +1,5 @@
 ---
-id: with-springboot
+id: with_springboot
 sidebar_position: 1
 title: Spring Boot 整合
 description: dbVisitor ORM 工具和 Spring Boot 整合使用。

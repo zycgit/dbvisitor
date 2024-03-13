@@ -1,4 +1,5 @@
 ---
+id: map_column
 sidebar_position: 3
 title: 使用 @Column 映射列
 description: 使用 dbVisitor ORM 工具的 @Column 注解进行字段映射。

@@ -1,4 +1,5 @@
 ---
+id: rules
 sidebar_position: 4
 title: 规则
 description: 通过 dbVisitor ORM 工具的 规则可以有效的大幅减少动态 SQL 拼接时的工作量和复杂度。

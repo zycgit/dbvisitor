@@ -1,4 +1,5 @@
 ---
+id: arch
 sidebar_position: 3
 title: 架构设计
 description: dbVisitor 架构在整体上体系化，局部层面各个模块遵循独立原则。因此每一个模块几乎都可以独立使用而且互不影响。
@@ -43,13 +44,13 @@ dbVisitor 架构在整体上体系化，局部层面各个模块遵循独立原�
 
 ### Resource & TX 模块
 
-主要是指 `net.hasor.dbvisitor.transaction` 软件包，它负责提供本地资源管理以及事务控制。具体可参考 **[资源与事务](./transaction/datasource.md)**
+主要是指 `net.hasor.dbvisitor.transaction` 软件包，它负责提供本地资源管理以及事务控制。具体可参考 **[资源与事务](./transaction/sync_tran.md)**
 
 该模块主要分为两个部分：
 
 **数据源管理**
 - 这部分核心接口有 `DataSourceManager`、`ConnectionHolder`
-- 前者提供 **[本地同步](./transaction/datasource.md#本地同步)** 的实现，后者负责连接复用。
+- 前者提供 **[本地同步](./transaction/sync_tran.md#sync)** 的实现，后者负责连接复用。
 
 **事务管理器**
 - 这部分核心接口有 `TransactionTemplate`、`TransactionManager`、`TransactionStatus` 三个。

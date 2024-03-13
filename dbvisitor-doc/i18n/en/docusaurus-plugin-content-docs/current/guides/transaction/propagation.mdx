@@ -1,4 +1,5 @@
 ---
+id: tran_propagation
 sidebar_position: 3
 title: 事务传播行为
 description: 使用 dbVisitor ORM 的事务传播行为。
@@ -40,15 +41,15 @@ description: 使用 dbVisitor ORM 的事务传播行为。
 - **挂起会导致 `DataSourceManager` 中正在使用的同步资源被临时保存**
 - **在挂起之后访问 `DataSourceManager` 会得到一个全新的数据库连接。**
 
-| 时间 | 事务1             | 事务2（REQUIRES_NEW） | 效果                                                   |
-| ---- |-----------------|------------------|------------------------------------------------------|
-| T1 | begin           |                  |                                                      |
-| T2 | insert data1    |                  |                                                      |
-| T3 |                 | begin            | 产生新的连接并且和当前线程绑定，以满足 **[本地同步](./datasource.md#本地同步)** |
-| T4 |                 | insert data2     | 在新连接上写入                                              |
-| T5 |                 | commit/rollback  | 操作新的 `Connection`                                    |
-| T5 | insert data3    |                  |                                                      |
-| T5 | commit/rollback |                  |                                                      |
+| 时间 | 事务1             | 事务2（REQUIRES_NEW） | 效果                                             |
+| ---- |-----------------|------------------|------------------------------------------------|
+| T1 | begin           |                  |                                                |
+| T2 | insert data1    |                  |                                                |
+| T3 |                 | begin            | 产生新的连接并且和当前线程绑定，以满足 **[本地同步](./sync_tran.md#sync)** |
+| T4 |                 | insert data2     | 在新连接上写入                                        |
+| T5 |                 | commit/rollback  | 操作新的 `Connection`                              |
+| T5 | insert data3    |                  |                                                |
+| T5 | commit/rollback |                  |                                                |
 
 ## 嵌套事务 (NESTED)
 
@@ -89,7 +90,7 @@ export const HighTag1 = () => (
 | T5  | commit/rollback |                 |                                           |
 
 - **<HighTag1/>** 开启了事务指的是 `Connection` 对象的 `autoCommit` 属性为 `false`。
-能够导致启动事务的传播行为有 `REQUIRED`、`REQUIRES_NEW` 和 `NESTED`，如果使用 **[低级别 API](./datasource.md#低级别-api)** 手动改变 `autoCommit` 状态也会导致进入事务状态。
+能够导致启动事务的传播行为有 `REQUIRED`、`REQUIRES_NEW` 和 `NESTED`，如果使用 **[低级别 API](./sync_tran.md#low-api)** 手动改变 `autoCommit` 状态也会导致进入事务状态。
 
 ## 非事务方式 (NOT_SUPPORTED)
 
@@ -118,7 +119,7 @@ export const HighTag2 = () => (
 | T5 | commit/rollback |                   |                                           |
 
 - **<HighTag1/>** 开启了事务指的是 `Connection` 对象的 `autoCommit` 属性为 `false`。
-能够导致启动事务的传播行为有 `REQUIRED`、`REQUIRES_NEW` 和 `NESTED`，如果使用 **[低级别 API](./datasource.md#低级别-api)** 手动改变 `autoCommit` 状态也会导致进入事务状态。
+能够导致启动事务的传播行为有 `REQUIRED`、`REQUIRES_NEW` 和 `NESTED`，如果使用 **[低级别 API](./sync_tran.md#low-api)** 手动改变 `autoCommit` 状态也会导致进入事务状态。
 - **<HighTag2/>** 恢复挂起的事务会更新 `DataSourceManager` 的当前绑定连接为之前的那一个。
 
 ## 排除事务 (NEVER)
@@ -139,7 +140,7 @@ export const HighTag2 = () => (
 
 - **<HighTag1/>** 若 T1 这个动作为 `NOT_SUPPORTED` 那么 T3 环节上 `NEVER` 行为就不会报错。它的行为会和 `SUPPORTS` 等价。
 若 T1 这个动作导致了 `Connection` 对象的 `autoCommit` 属性为 `false` 那么 T3 环节就会报错。
-- 能够导致 `autoCommit` 为 `false` 传播行为有 `REQUIRED`、`REQUIRES_NEW` 和 `NESTED`，也可以通过使用 **[低级别 API](./datasource.md#低级别-api)** 改变。
+- 能够导致 `autoCommit` 为 `false` 传播行为有 `REQUIRED`、`REQUIRES_NEW` 和 `NESTED`，也可以通过使用 **[低级别 API](./sync_tran.md#low-api)** 改变。
 
 ## 要求事务 (MANDATORY)
 

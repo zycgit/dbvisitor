@@ -1,4 +1,5 @@
 ---
+id: basic
 sidebar_position: 1
 title: 基础操作
 description: 使用 dbVisitor ORM 框架的 LambdaTemplate 类进行基础 CRUD 操作

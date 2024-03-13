@@ -1,4 +1,5 @@
 ---
+id: write_policy
 sidebar_position: 8
 title: 写入策略
 description: 使用 dbVisitor ORM 工具操作数据库时使用不通的写入策略。

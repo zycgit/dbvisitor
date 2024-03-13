@@ -1,4 +1,5 @@
 ---
+id: enum_handler
 sidebar_position: 2
 title: 枚举类型处理器
 description: dbVisitor ORM 工具处理枚举类型映射。

@@ -1,4 +1,5 @@
 ---
+id: execute_sql
 sidebar_position: 2
 title: 执行SQL
 description: 使用 dbVisitor ORM 工具执行原生 SQL。
