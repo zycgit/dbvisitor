@@ -1,5 +1,5 @@
 ---
-id: with-guice
+id: with_guice
 sidebar_position: 3
 title: Guice 整合
 description: dbVisitor ORM 工具和 Guice 整合使用。

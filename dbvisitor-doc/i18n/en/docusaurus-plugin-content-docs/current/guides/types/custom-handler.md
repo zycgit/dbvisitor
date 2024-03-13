@@ -1,4 +1,5 @@
 ---
+id: custom_handler
 sidebar_position: 4
 title: 自定义类型处理器
 description: 通过 DalSession 执行 Mapper 文件中定义的 SQL。

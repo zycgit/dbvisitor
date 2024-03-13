@@ -1,4 +1,5 @@
 ---
+id: gis_handler
 sidebar_position: 3
 title: 地理信息类型处理器
 description: dbVisitor ORM 工具处理枚举类型映射。

@@ -1,4 +1,5 @@
 ---
+id: execute_procedure
 sidebar_position: 4
 title: 存储过程
 description: 使用 dbVisitor ORM 工具执行存储过程，并获取返回数据。

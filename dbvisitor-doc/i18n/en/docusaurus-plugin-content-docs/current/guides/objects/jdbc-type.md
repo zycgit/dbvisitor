@@ -1,4 +1,5 @@
 ---
+id: jdbc_type
 sidebar_position: 9
 title: JDBC Type
 description: 使用 dbVisitor ORM 映射字段类型和 jdbcType。

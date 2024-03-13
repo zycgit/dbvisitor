@@ -1,4 +1,5 @@
 ---
+id: tran_manager
 sidebar_position: 2
 title: 事务管理器
 description: dbVisitor ORM 事务管理器的使用。

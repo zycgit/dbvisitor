@@ -1,4 +1,5 @@
 ---
+id: row_mapper
 sidebar_position: 6
 title: RowMapper
 description: 使用 dbVisitor ORM 工具的 RowMapper 处理行数据。

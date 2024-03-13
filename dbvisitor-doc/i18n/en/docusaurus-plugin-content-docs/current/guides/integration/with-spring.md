@@ -1,5 +1,5 @@
 ---
-id: with-spring
+id: with_spring
 sidebar_position: 2
 title: Spring 整合
 description: dbVisitor ORM 工具和 Spring 整合使用。

@@ -1,4 +1,5 @@
 ---
+id: dynamic_sql
 sidebar_position: 2
 title: 动态 SQL
 description: dbVisitor ORM 工具提供提供基于 XML 动态 SQL 配置，并且采用了大家熟悉的 MyBatis 风格。

@@ -1,4 +1,5 @@
 ---
+id: class_as_table
 sidebar_position: 1
 title: 类名即表名
 description: 使用 dbVisitor ORM 映射数据库表，将类名作为表名。

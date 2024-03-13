@@ -1,4 +1,5 @@
 ---
+id: tran
 sidebar_position: 1
 title: 资源同步
 description: dbVisitor ORM 在同一个 DataSource 上同时使用多个事务就需要涉及到 DataSource 资源同步。

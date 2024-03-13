@@ -1,4 +1,5 @@
 ---
+id: execute_multiple_sql
 sidebar_position: 5
 title: 多语句/多返回值
 description: dbVisitor ORM 工具可以支持多条语句同时执行，预计多个返回值的情况。

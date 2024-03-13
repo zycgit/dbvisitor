@@ -1,4 +1,5 @@
 ---
+id: extractor_row
 sidebar_position: 7
 title: ResultSetExtractor
 description: 使用 dbVisitor ORM 工具自定义处理整个结果集的读取。

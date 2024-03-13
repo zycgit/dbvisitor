@@ -1,4 +1,5 @@
 ---
+id: tran_isolation
 sidebar_position: 4
 title: 隔离级别
 description: dbVisitor ORM 事务隔离级别的使用。

@@ -1,4 +1,5 @@
 ---
+id: java_jdbc_map
 sidebar_position: 5
 title: 附录：类型映射
 description: dbVisitor ORM 工具 Java类型映射表介绍。

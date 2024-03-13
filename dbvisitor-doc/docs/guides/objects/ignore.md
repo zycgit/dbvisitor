@@ -1,4 +1,5 @@
 ---
+id: map_ignore
 sidebar_position: 4
 title: 忽略某些列
 description: 使用 dbVisitor ORM 映射数据库表，某些列会被忽略。

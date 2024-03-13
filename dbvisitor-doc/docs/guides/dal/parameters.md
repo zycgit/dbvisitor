@@ -1,4 +1,5 @@
 ---
+id: parameters
 sidebar_position: 3
 title: 参数化
 description: 通过 dbVisitor ORM 工具的 DalSession 类执行 Mapper 文件中定义的 SQL。

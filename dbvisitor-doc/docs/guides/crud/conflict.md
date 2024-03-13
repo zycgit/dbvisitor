@@ -1,4 +1,5 @@
 ---
+id: conflict
 sidebar_position: 3
 title: 冲突策略
 description: 使用 dbVisitor ORM 工具，处理数据写入冲突的情况。

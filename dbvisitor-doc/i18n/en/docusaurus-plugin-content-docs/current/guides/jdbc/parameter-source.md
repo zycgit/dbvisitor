@@ -1,4 +1,5 @@
 ---
+id: parameter_source
 sidebar_position: 9
 title: SqlParameterSource
 description: 使用 dbVisitor ORM 工具向参数化 SQL 传递参数。

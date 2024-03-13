@@ -1,4 +1,5 @@
 ---
+id: map_schema
 sidebar_position: 7
 title: 跨Schema映射
 description: 使用 dbVisitor ORM 进行跨Schema映射。
