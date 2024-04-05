@@ -43,7 +43,42 @@ public interface QueryFunc<R, T, P> extends BoundSqlBuilder {
      * <p>在分组查询下，返回所有分组列而不是所有列</p>
      * <p>selectAll、select、applySelect 三个当同时调用时只有最后一个生效</p>
      */
-    R select(P... properties);
+    R select(P property1);
+
+    /**
+     * 查询部分属性
+     * <p>在分组查询下，返回所有分组列而不是所有列</p>
+     * <p>selectAll、select、applySelect 三个当同时调用时只有最后一个生效</p>
+     */
+    R select(P property1, P property2);
+
+    /**
+     * 查询部分属性
+     * <p>在分组查询下，返回所有分组列而不是所有列</p>
+     * <p>selectAll、select、applySelect 三个当同时调用时只有最后一个生效</p>
+     */
+    R select(P property1, P property2, P property3);
+
+    /**
+     * 查询部分属性
+     * <p>在分组查询下，返回所有分组列而不是所有列</p>
+     * <p>selectAll、select、applySelect 三个当同时调用时只有最后一个生效</p>
+     */
+    R select(P property1, P property2, P property3, P property4);
+
+    /**
+     * 查询部分属性
+     * <p>在分组查询下，返回所有分组列而不是所有列</p>
+     * <p>selectAll、select、applySelect 三个当同时调用时只有最后一个生效</p>
+     */
+    R select(P property1, P property2, P property3, P property4, P property5);
+
+    /**
+     * 查询部分属性
+     * <p>在分组查询下，返回所有分组列而不是所有列</p>
+     * <p>selectAll、select、applySelect 三个当同时调用时只有最后一个生效</p>
+     */
+    R select(P[] properties);
 
     /**
      * 拼接 sql 方式来自定义 select 和 form 之间的语句，一旦使用自定义那么 selectAll 和 select 将会失效。
@@ -55,17 +90,77 @@ public interface QueryFunc<R, T, P> extends BoundSqlBuilder {
      */
     R applySelect(String select);
 
-    /**分组，类似：group by xxx */
-    R groupBy(P... properties);
+    /** 分组条件，类似：group by xxx */
+    R groupBy(P property1);
 
-    /** 排序，类似：order by xxx */
-    R orderBy(P... properties);
+    /** 分组条件，类似：group by xxx */
+    R groupBy(P property1, P property2);
+
+    /** 分组条件，类似：group by xxx */
+    R groupBy(P property1, P property2, P property3);
+
+    /** 分组条件，类似：group by xxx */
+    R groupBy(P property1, P property2, P property3, P property4);
+
+    /** 分组条件，类似：group by xxx */
+    R groupBy(P property1, P property2, P property3, P property4, P property5);
+
+    /** 分组条件，类似：group by xxx */
+    R groupBy(P[] properties);
+
+    /** 排序条件，类似：order by xxx */
+    R orderBy(P property1);
+
+    /** 排序条件，类似：order by xxx */
+    R orderBy(P property1, P property2);
+
+    /** 排序条件，类似：order by xxx */
+    R orderBy(P property1, P property2, P property3);
+
+    /** 排序条件，类似：order by xxx */
+    R orderBy(P property1, P property2, P property3, P property4);
+
+    /** 排序条件，类似：order by xxx */
+    R orderBy(P property1, P property2, P property3, P property4, P property5);
+
+    /** 排序条件，类似：order by xxx */
+    R orderBy(P[] properties);
 
     /** 排序(升序)，类似：order by xxx desc */
-    R asc(P... properties);
+    R asc(P property1);
+
+    /** 排序(升序)，类似：order by xxx desc */
+    R asc(P property1, P property2);
+
+    /** 排序(升序)，类似：order by xxx desc */
+    R asc(P property1, P property2, P property3);
+
+    /** 排序(升序)，类似：order by xxx desc */
+    R asc(P property1, P property2, P property3, P property4);
+
+    /** 排序(升序)，类似：order by xxx desc */
+    R asc(P property1, P property2, P property3, P property4, P property5);
+
+    /** 排序(升序)，类似：order by xxx desc */
+    R asc(P[] properties);
 
     /** 排序(降序)，类似：order by xxx desc */
-    R desc(P... properties);
+    R desc(P property1);
+
+    /** 排序(降序)，类似：order by xxx desc */
+    R desc(P property1, P property2);
+
+    /** 排序(降序)，类似：order by xxx desc */
+    R desc(P property1, P property2, P property3);
+
+    /** 排序(降序)，类似：order by xxx desc */
+    R desc(P property1, P property2, P property3, P property4);
+
+    /** 排序(降序)，类似：order by xxx desc */
+    R desc(P property1, P property2, P property3, P property4, P property5);
+
+    /** 排序(降序)，类似：order by xxx desc */
+    R desc(P[] properties);
 
     /** 设置分页信息 */
     R usePage(Page pageInfo);

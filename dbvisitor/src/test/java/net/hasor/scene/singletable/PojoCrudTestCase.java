@@ -93,8 +93,8 @@ public class PojoCrudTestCase {
             // update user set name = 'new name is abc', age = 120 where id = 1
             lambdaTemplate.lambdaUpdate(UserTable.class, options) //
                     .eq(UserTable::getId, 1)         //
-                    .updateToAdd(UserTable::getName, "new name is abc")//
-                    .updateToAdd(UserTable::getAge, 120)//
+                    .updateTo(UserTable::getName, "new name is abc")//
+                    .updateTo(UserTable::getAge, 120)//
                     .doUpdate();
 
             // 校验结果

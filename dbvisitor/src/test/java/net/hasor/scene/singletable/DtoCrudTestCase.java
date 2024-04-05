@@ -91,8 +91,8 @@ public class DtoCrudTestCase {
             // update user set name = 'new name is abc', age = 120 where id = 1
             lambdaTemplate.lambdaUpdate(UserTableDTO.class) //
                     .eq(UserTableDTO::getId, 1)       //
-                    .updateToAdd(UserTableDTO::getName, "new name is abc")//
-                    .updateToAdd(UserTableDTO::getAge, 120)//
+                    .updateTo(UserTableDTO::getName, "new name is abc")//
+                    .updateTo(UserTableDTO::getAge, 120)//
                     .doUpdate();
 
             // 校验结果

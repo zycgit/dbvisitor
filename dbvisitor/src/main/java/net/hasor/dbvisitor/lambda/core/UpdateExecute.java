@@ -48,6 +48,9 @@ public interface UpdateExecute<R, T, P> extends BoundSqlBuilder {
     /** 增强 updateToMap 方法，通过 condition 可以进一步过滤某些列是否参与更新 */
     R updateToMapCondition(Map<String, Object> sample, Predicate<String> condition);
 
+    /** 清空已经设置的所有 set 条件 */
+    R resetUpdate();
+
     /**
      * 整行更新
      * - 注意1：主键会被自动忽略不参与更新，如果想变更主键需要启用 allowUpdateKey（需要依赖 @Column 注解标识出主键列）
@@ -58,9 +61,11 @@ public interface UpdateExecute<R, T, P> extends BoundSqlBuilder {
     /** 增强 updateTo 方法，通过 condition 可以进一步过滤某些列是否参与更新 */
     R updateToCondition(T newValue, Predicate<String> condition);
 
-    /** 只更新一个字段 */
-    R updateTo(P property, Object value);
+    /** 添加一个 update set 字段 */
+    default R updateTo(P property, Object value) {
+        return this.updateTo(true, property, value);
+    }
 
-    /** 反复调用 updateToAdd 可以添加多个 update set 字段 */
-    R updateToAdd(P property, Object value);
+    /** 当条件为真时，激活更新条件 updateTo，通过反复调用可以添加多个 update set 字段 */
+    R updateTo(boolean test, P property, Object value);
 }

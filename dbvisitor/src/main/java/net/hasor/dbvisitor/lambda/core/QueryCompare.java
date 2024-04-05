@@ -45,6 +45,9 @@ public interface QueryCompare<R, T, P> {
      * */
     R ifTrue(boolean test, Consumer<QueryCompare<R, T, P>> lambda);
 
+    /** 括号方式嵌套一组查询条件 */
+    R nested(Consumer<R> lambda);
+
     /**
      * 当 test 条件为 true 的时才执行 nested。相当于如下逻辑：
      * <pre>
@@ -53,48 +56,43 @@ public interface QueryCompare<R, T, P> {
      * }
      * </pre>
      * */
-    R ifTrueNested(boolean test, Consumer<R> lambda);
+    R nested(boolean test, Consumer<R> lambda);
 
     /**
-     * 当 test 条件为 true 的时才执行 and。相当于如下逻辑：
-     * <pre>
-     * if (test) {
-     *      and(...)
-     * }
-     * </pre>
-     * */
-    R ifTrueAnd(boolean test, Consumer<R> lambda);
-
-    /**
-     * 当 test 条件为 true 的时才执行 or。相当于如下逻辑：
-     * <pre>
-     * if (test) {
-     *      or(...)
-     * }
-     * </pre>
-     * */
-    R ifTrueOr(boolean test, Consumer<R> lambda);
-
-    /** 括号方式嵌套一组查询条件 */
-    R nested(Consumer<R> lambda);
-
-    /** 等于条件 查询，类似：'or ...' */
+     * 下一个查询条件使用或关系，类似：'or ...'
+     */
     R or();
 
-    /** 括号方式嵌套一组查询条件，与现有条件为或关系。类似：'or ( ...where... )' */
+    /**
+     * 下一个查询条件组使用或关系。类似：'or (...)'
+     */
     default R or(Consumer<R> lambda) {
         this.or();
         return this.nested(lambda);
     }
 
-    /** 等于条件 查询，类似：'or ...' */
+    /**
+     * 当 test 条件为真时才使用下一个查询条件组，条件组使用或关系。类似：'or (...)'
+     */
+    R or(boolean test, Consumer<R> lambda);
+
+    /**
+     * 下一个查询条件使用与关系，类似：'and ...'
+     */
     R and();
 
-    /** 括号方式嵌套一组查询条件，与现有条件为并且关系。类似：'and ( ...where... )' */
+    /**
+     * 下一个查询条件组使用与关系。类似：'and (...)'
+     */
     default R and(Consumer<R> lambda) {
         this.and();
         return this.nested(lambda);
     }
+
+    /**
+     * 当 test 条件为真时才使用下一个查询条件组，条件组使用与关系。类似：'and (...)'
+     */
+    R and(boolean test, Consumer<R> lambda);
 
     //    /** in 子查询，类似：'col in (LambdaQuery)' */
     //     <V> R andInLambda(SFunction<T> property, CompareBuilder<V> subLambda);
@@ -113,59 +111,221 @@ public interface QueryCompare<R, T, P> {
     //    /** not in SQL 子查询，类似：'or col not in (subQuery)' */
     //     R orNotInSql(SFunction<T> property, String subQuery, Object... subArgs);
 
-    /** 等于条件 查询，类似：'col = ?' */
-    R eq(P property, Object value);
+    /**
+     * 等值条件，类似：'col = ?'
+     */
+    default R eq(P property, Object value) {
+        return this.eq(true, property, value);
+    }
 
-    /** 不等于条件 查询，类似：'col <> ?' */
-    R ne(P property, Object value);
+    /**
+     * 当 test 条件为真时才使用等值条件，类似：'if test then col = ?'
+     */
+    R eq(boolean test, P property, Object value);
 
-    /** 大于条件 查询，类似：'col > ?' */
-    R gt(P property, Object value);
+    /**
+     * 不等于条件，类似：'col <> ?'
+     */
+    default R ne(P property, Object value) {
+        return this.ne(true, property, value);
+    }
 
-    /** 大于等于条件 查询，类似：'col >= ?' */
-    R ge(P property, Object value);
+    /**
+     * 当 test 条件为真时才使用不等于条件，类似：'if test then col <> ?'
+     */
+    R ne(boolean test, P property, Object value);
 
-    /** 小于条件 查询，类似：'col < ?' */
-    R lt(P property, Object value);
+    /**
+     * 大于条件，类似：'col > ?'
+     */
+    default R gt(P property, Object value) {
+        return this.gt(true, property, value);
+    }
 
-    /** 小于等于条件 查询，类似：'col <= ?' */
-    R le(P property, Object value);
+    /**
+     * 当 test 条件为真时才使用大于条件，类似：'if test then col > ?'
+     */
+    R gt(boolean test, P property, Object value);
 
-    /** like 查询，类似：'col like CONCAT('%', ?, '%')' */
-    R like(P property, Object value);
+    /**
+     * 大于等于条件，类似：'col >= ?'
+     */
+    default R ge(P property, Object value) {
+        return this.ge(true, property, value);
+    }
 
-    /** not like 查询，类似：'col not like CONCAT('%', ?, '%')' */
-    R notLike(P property, Object value);
+    /**
+     * 当 test 条件为真时才使用大于等于条件，类似：'if test then col >= ?'
+     */
+    R ge(boolean test, P property, Object value);
 
-    /** like 查询，类似：'col like CONCAT(?, '%')' */
-    R likeRight(P property, Object value);
+    /**
+     * 小于条件，类似：'col < ?'
+     */
+    default R lt(P property, Object value) {
+        return this.lt(true, property, value);
+    }
 
-    /** not like 查询，类似：'col not like CONCAT(?, '%')' */
-    R notLikeRight(P property, Object value);
+    /**
+     * 当 test 条件为真时才使用小于条件，类似：'if test then col < ?'
+     */
+    R lt(boolean test, P property, Object value);
 
-    /** like 查询，类似：'col like CONCAT('%', ?)' */
-    R likeLeft(P property, Object value);
+    /**
+     * 小于等于条件，类似：'col <= ?'
+     */
+    default R le(P property, Object value) {
+        return this.le(true, property, value);
+    }
 
-    /** not like 查询，类似：'col not like CONCAT('%', ?)' */
-    R notLikeLeft(P property, Object value);
+    /**
+     * 当 test 条件为真时才使用小于等于条件，类似：'if test then col <= ?'
+     */
+    R le(boolean test, P property, Object value);
 
-    /** is null 查询，类似：'col is null' */
-    R isNull(P property);
+    /**
+     * like 条件，类似：'col like CONCAT('%', ?, '%')'
+     */
+    default R like(P property, Object value) {
+        return this.like(true, property, value);
+    }
 
-    /** not null 查询，类似：'col is not null' */
-    R isNotNull(P property);
+    /**
+     * 当 test 条件为真时才使用 like 条件，类似：'if test then col like CONCAT('%', ?, '%')'
+     */
+    R like(boolean test, P property, Object value);
 
-    /** in 查询，类似：'col in (?,?,?)' */
-    R in(P property, Collection<?> value);
+    /**
+     * not like 条件，类似：'col not like CONCAT('%', ?, '%')'
+     */
+    default R notLike(P property, Object value) {
+        return this.notLike(true, property, value);
+    }
 
-    /** not in 查询，类似：'col not in (?,?,?)' */
-    R notIn(P property, Collection<?> value);
+    /**
+     * 当 test 条件为真时才使用 not like 条件，类似：'if test then col not like CONCAT('%', ?, '%')'
+     */
+    R notLike(boolean test, P property, Object value);
 
-    /** between 语句，类似：'col between ? and ?' */
-    R between(P property, Object value1, Object value2);
+    /**
+     * like 条件，类似：'col like CONCAT(?, '%')'
+     */
+    default R likeRight(P property, Object value) {
+        return this.likeRight(true, property, value);
+    }
 
-    /** not between 语句，类似：'col not between ? and ?' */
-    R notBetween(P property, Object value1, Object value2);
+    /**
+     * 当 test 条件为真时才使用 like 条件，类似：'if test then col like CONCAT(?, '%')'
+     */
+    R likeRight(boolean test, P property, Object value);
+
+    /**
+     * not like 条件，类似：'col not like CONCAT(?, '%')'
+     */
+    default R notLikeRight(P property, Object value) {
+        return this.notLikeRight(true, property, value);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 not like 查询，类似：'if test then col not like CONCAT(?, '%')'
+     */
+    R notLikeRight(boolean test, P property, Object value);
+
+    /**
+     * like 条件，类似：'col like CONCAT('%', ?)'
+     */
+    default R likeLeft(P property, Object value) {
+        return this.likeLeft(true, property, value);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 like 条件，类似：'if test then col like CONCAT('%', ?)'
+     */
+    R likeLeft(boolean test, P property, Object value);
+
+    /**
+     * not like 条件，类似：'col not like CONCAT('%', ?)'
+     */
+    default R notLikeLeft(P property, Object value) {
+        return this.notLikeLeft(true, property, value);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 not like 条件，类似：'if test then col not like CONCAT('%', ?)'
+     */
+    R notLikeLeft(boolean test, P property, Object value);
+
+    /**
+     * is null 条件，类似：'col is null'
+     */
+    default R isNull(P property) {
+        return this.isNull(true, property);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 is null 条件，类似：'if test then col is null'
+     */
+    R isNull(boolean test, P property);
+
+    /**
+     * not null 条件，类似：'col is not null'
+     */
+    default R isNotNull(P property) {
+        return this.isNotNull(true, property);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 not null 条件，类似：'if test then col is not null'
+     */
+    R isNotNull(boolean test, P property);
+
+    /**
+     * in 条件，类似：'col in (?,?,?)'
+     */
+    default R in(P property, Collection<?> value) {
+        return this.in(true, property, value);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 in 条件，类似：'if test then col in (?,?,?)'
+     */
+    R in(boolean test, P property, Collection<?> value);
+
+    /**
+     * not in 条件，类似：'col not in (?,?,?)'
+     */
+    default R notIn(P property, Collection<?> value) {
+        return this.notIn(true, property, value);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 not in 条件，类似：'if test then col not in (?,?,?)'
+     */
+    R notIn(boolean test, P property, Collection<?> value);
+
+    /**
+     * between 条件，类似：'col between ? and ?'
+     */
+    default R between(P property, Object value1, Object value2) {
+        return this.between(true, property, value1, value2);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 between 条件，类似：'if test then col between ? and ?'
+     */
+    R between(boolean test, P property, Object value1, Object value2);
+
+    /**
+     * not between 条件，类似：'col not between ? and ?'
+     */
+    default R notBetween(P property, Object value1, Object value2) {
+        return this.notBetween(true, property, value1, value2);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 not between 条件，类似：'if test then col not between ? and ?'
+     */
+    R notBetween(boolean test, P property, Object value1, Object value2);
 
     /** sample 对象中不为空的属性会以 and 方式拼起来，并作为一组条件。类似：('col1 = ?' and 'col2 = ?' and col3 = ?) */
     R eqBySample(T sample);

@@ -58,21 +58,6 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     }
 
     @Override
-    public R ifTrueNested(boolean test, Consumer<R> lambda) {
-        return test ? nested(lambda) : getSelf();
-    }
-
-    @Override
-    public R ifTrueAnd(boolean test, Consumer<R> lambda) {
-        return test ? and(lambda) : getSelf();
-    }
-
-    @Override
-    public R ifTrueOr(boolean test, Consumer<R> lambda) {
-        return test ? or(lambda) : getSelf();
-    }
-
-    @Override
     public R nested(Consumer<R> lambda) {
         this.addCondition(LEFT);
         this.nextSegmentPrefix = EMPTY;
@@ -83,15 +68,30 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     }
 
     @Override
+    public R nested(boolean test, Consumer<R> lambda) {
+        return test ? nested(lambda) : getSelf();
+    }
+
+    @Override
     public R or() {
         this.nextSegmentPrefix = OR;
         return this.getSelf();
     }
 
     @Override
+    public R or(boolean test, Consumer<R> lambda) {
+        return test ? or(lambda) : getSelf();
+    }
+
+    @Override
     public R and() {
         this.nextSegmentPrefix = AND;
         return this.getSelf();
+    }
+
+    @Override
+    public R and(boolean test, Consumer<R> lambda) {
+        return test ? and(lambda) : getSelf();
     }
 
     @Override
@@ -204,109 +204,181 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     }
 
     @Override
-    public R eq(P property, Object value) {
-        String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(propertyName), EQ, formatValue(propertyName, value));
+    public R eq(boolean test, P property, Object value) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            return this.addCondition(buildConditionByProperty(propertyName), EQ, formatValue(propertyName, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R ne(P property, Object value) {
-        String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(propertyName), NE, formatValue(propertyName, value));
+    public R ne(boolean test, P property, Object value) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            return this.addCondition(buildConditionByProperty(propertyName), NE, formatValue(propertyName, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R gt(P property, Object value) {
-        String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(propertyName), GT, formatValue(propertyName, value));
+    public R gt(boolean test, P property, Object value) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            return this.addCondition(buildConditionByProperty(propertyName), GT, formatValue(propertyName, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R ge(P property, Object value) {
-        String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(propertyName), GE, formatValue(propertyName, value));
+    public R ge(boolean test, P property, Object value) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            return this.addCondition(buildConditionByProperty(propertyName), GE, formatValue(propertyName, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R lt(P property, Object value) {
-        String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(propertyName), LT, formatValue(propertyName, value));
+    public R lt(boolean test, P property, Object value) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            return this.addCondition(buildConditionByProperty(propertyName), LT, formatValue(propertyName, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R le(P property, Object value) {
-        String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(propertyName), LE, formatValue(propertyName, value));
+    public R le(boolean test, P property, Object value) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            return this.addCondition(buildConditionByProperty(propertyName), LE, formatValue(propertyName, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R like(P property, Object value) {
-        String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(propertyName), LIKE, formatLikeValue(propertyName, SqlLike.DEFAULT, value));
+    public R like(boolean test, P property, Object value) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            return this.addCondition(buildConditionByProperty(propertyName), LIKE, formatLikeValue(propertyName, SqlLike.DEFAULT, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R notLike(P property, Object value) {
-        String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(propertyName), NOT, LIKE, formatLikeValue(propertyName, SqlLike.DEFAULT, value));
+    public R notLike(boolean test, P property, Object value) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            return this.addCondition(buildConditionByProperty(propertyName), NOT, LIKE, formatLikeValue(propertyName, SqlLike.DEFAULT, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R likeRight(P property, Object value) {
-        String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(propertyName), LIKE, formatLikeValue(propertyName, SqlLike.RIGHT, value));
+    public R likeRight(boolean test, P property, Object value) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            return this.addCondition(buildConditionByProperty(propertyName), LIKE, formatLikeValue(propertyName, SqlLike.RIGHT, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R notLikeRight(P property, Object value) {
-        String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(propertyName), NOT, LIKE, formatLikeValue(propertyName, SqlLike.RIGHT, value));
+    public R notLikeRight(boolean test, P property, Object value) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            return this.addCondition(buildConditionByProperty(propertyName), NOT, LIKE, formatLikeValue(propertyName, SqlLike.RIGHT, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R likeLeft(P property, Object value) {
-        String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(propertyName), LIKE, formatLikeValue(propertyName, SqlLike.LEFT, value));
+    public R likeLeft(boolean test, P property, Object value) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            return this.addCondition(buildConditionByProperty(propertyName), LIKE, formatLikeValue(propertyName, SqlLike.LEFT, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R notLikeLeft(P property, Object value) {
-        String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(propertyName), NOT, LIKE, formatLikeValue(propertyName, SqlLike.LEFT, value));
+    public R notLikeLeft(boolean test, P property, Object value) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            return this.addCondition(buildConditionByProperty(propertyName), NOT, LIKE, formatLikeValue(propertyName, SqlLike.LEFT, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R isNull(P property) {
-        return this.addCondition(buildConditionByProperty(getPropertyName(property)), IS_NULL);
+    public R isNull(boolean test, P property) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(getPropertyName(property)), IS_NULL);
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R isNotNull(P property) {
-        return this.addCondition(buildConditionByProperty(getPropertyName(property)), IS_NOT_NULL);
+    public R isNotNull(boolean test, P property) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(getPropertyName(property)), IS_NOT_NULL);
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R in(P property, Collection<?> value) {
-        String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(propertyName), IN, LEFT, formatValue(propertyName, value.toArray()), RIGHT);
+    public R in(boolean test, P property, Collection<?> value) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            return this.addCondition(buildConditionByProperty(propertyName), IN, LEFT, formatValue(propertyName, value.toArray()), RIGHT);
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R notIn(P property, Collection<?> value) {
-        String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(propertyName), NOT, IN, LEFT, formatValue(propertyName, value.toArray()), RIGHT);
+    public R notIn(boolean test, P property, Collection<?> value) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            return this.addCondition(buildConditionByProperty(propertyName), NOT, IN, LEFT, formatValue(propertyName, value.toArray()), RIGHT);
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R between(P property, Object value1, Object value2) {
-        String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(propertyName), BETWEEN, formatValue(propertyName, value1), AND, formatValue(propertyName, value2));
+    public R between(boolean test, P property, Object value1, Object value2) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            return this.addCondition(buildConditionByProperty(propertyName), BETWEEN, formatValue(propertyName, value1), AND, formatValue(propertyName, value2));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public R notBetween(P property, Object value1, Object value2) {
-        String propertyName = getPropertyName(property);
-        return this.addCondition(buildConditionByProperty(propertyName), NOT, BETWEEN, formatValue(propertyName, value1), AND, formatValue(propertyName, value2));
+    public R notBetween(boolean test, P property, Object value1, Object value2) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            return this.addCondition(buildConditionByProperty(propertyName), NOT, BETWEEN, formatValue(propertyName, value1), AND, formatValue(propertyName, value2));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override

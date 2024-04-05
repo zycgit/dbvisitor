@@ -63,7 +63,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
     }
 
     @Override
-    public final R select(P... properties) {
+    public final R select(P[] properties) {
         if (properties == null || properties.length == 0) {
             throw new IndexOutOfBoundsException("properties is empty.");
         }
@@ -91,7 +91,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
     }
 
     @Override
-    public final R groupBy(P... groupBy) {
+    public final R groupBy(P[] groupBy) {
         if (this.lockGroupBy) {
             throw new IllegalStateException("must before order by invoke it.");
         }
@@ -116,17 +116,17 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
     }
 
     @Override
-    public R orderBy(P... orderBy) {
+    public R orderBy(P[] orderBy) {
         return this.addOrderBy(ORDER_DEFAULT, orderBy);
     }
 
     @Override
-    public R asc(P... orderBy) {
+    public R asc(P[] orderBy) {
         return this.addOrderBy(ASC, orderBy);
     }
 
     @Override
-    public R desc(P... orderBy) {
+    public R desc(P[] orderBy) {
         return this.addOrderBy(DESC, orderBy);
     }
 
@@ -134,7 +134,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
         this.lockGroupBy = true;
     }
 
-    private R addOrderBy(OrderByKeyword keyword, P... orderBy) {
+    private R addOrderBy(OrderByKeyword keyword, P[] orderBy) {
         if (this.lockOrderBy) {
             throw new IllegalStateException("must before order by invoke it.");
         }
@@ -223,7 +223,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
             List<String> columnList = new ArrayList<>();
             for (int i = 1; i <= nrOfColumns; i++) {
                 String name = rsmd.getColumnLabel(i);
-                if (name == null || name.length() < 1) {
+                if (name == null || name.isEmpty()) {
                     name = rsmd.getColumnName(i);
                 }
                 columnList.add(name);
@@ -245,7 +245,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
             List<String> columnList = new ArrayList<>();
             for (int i = 1; i <= nrOfColumns; i++) {
                 String colName = rsmd.getColumnLabel(i);
-                if (colName == null || colName.length() < 1) {
+                if (colName == null || colName.isEmpty()) {
                     colName = rsmd.getColumnName(i);
                 }
                 columnList.add(colName);

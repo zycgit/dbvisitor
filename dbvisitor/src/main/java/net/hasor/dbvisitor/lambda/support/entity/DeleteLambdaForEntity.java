@@ -50,92 +50,164 @@ public class DeleteLambdaForEntity<T> extends AbstractDeleteLambda<EntityDeleteO
     // ----------------------------------------------------
 
     @Override
-    public EntityDeleteOperation<T> eq(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(property), EQ, formatValue(property, value));
+    public EntityDeleteOperation<T> eq(boolean test, String property, Object value) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), EQ, formatValue(property, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> ne(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(property), NE, formatValue(property, value));
+    public EntityDeleteOperation<T> ne(boolean test, String property, Object value) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), NE, formatValue(property, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> gt(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(property), GT, formatValue(property, value));
+    public EntityDeleteOperation<T> gt(boolean test, String property, Object value) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), GT, formatValue(property, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> ge(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(property), GE, formatValue(property, value));
+    public EntityDeleteOperation<T> ge(boolean test, String property, Object value) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), GE, formatValue(property, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> lt(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(property), LT, formatValue(property, value));
+    public EntityDeleteOperation<T> lt(boolean test, String property, Object value) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), LT, formatValue(property, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> le(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(property), LE, formatValue(property, value));
+    public EntityDeleteOperation<T> le(boolean test, String property, Object value) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), LE, formatValue(property, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> like(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(property), LIKE, formatLikeValue(property, SqlLike.DEFAULT, value));
+    public EntityDeleteOperation<T> like(boolean test, String property, Object value) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), LIKE, formatLikeValue(property, SqlLike.DEFAULT, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> notLike(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(property), NOT, LIKE, formatLikeValue(property, SqlLike.DEFAULT, value));
+    public EntityDeleteOperation<T> notLike(boolean test, String property, Object value) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), NOT, LIKE, formatLikeValue(property, SqlLike.DEFAULT, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> likeRight(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(property), LIKE, formatLikeValue(property, SqlLike.RIGHT, value));
+    public EntityDeleteOperation<T> likeRight(boolean test, String property, Object value) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), LIKE, formatLikeValue(property, SqlLike.RIGHT, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> notLikeRight(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(property), NOT, LIKE, formatLikeValue(property, SqlLike.RIGHT, value));
+    public EntityDeleteOperation<T> notLikeRight(boolean test, String property, Object value) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), NOT, LIKE, formatLikeValue(property, SqlLike.RIGHT, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> likeLeft(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(property), LIKE, formatLikeValue(property, SqlLike.LEFT, value));
+    public EntityDeleteOperation<T> likeLeft(boolean test, String property, Object value) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), LIKE, formatLikeValue(property, SqlLike.LEFT, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> notLikeLeft(String property, Object value) {
-        return this.addCondition(buildConditionByProperty(property), NOT, LIKE, formatLikeValue(property, SqlLike.LEFT, value));
+    public EntityDeleteOperation<T> notLikeLeft(boolean test, String property, Object value) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), NOT, LIKE, formatLikeValue(property, SqlLike.LEFT, value));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> isNull(String property) {
-        return this.addCondition(buildConditionByProperty(property), IS_NULL);
+    public EntityDeleteOperation<T> isNull(boolean test, String property) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), IS_NULL);
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> isNotNull(String property) {
-        return this.addCondition(buildConditionByProperty(property), IS_NOT_NULL);
+    public EntityDeleteOperation<T> isNotNull(boolean test, String property) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), IS_NOT_NULL);
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> in(String property, Collection<?> value) {
-        return this.addCondition(buildConditionByProperty(property), IN, LEFT, formatValue(property, value.toArray()), RIGHT);
+    public EntityDeleteOperation<T> in(boolean test, String property, Collection<?> value) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), IN, LEFT, formatValue(property, value.toArray()), RIGHT);
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> notIn(String property, Collection<?> value) {
-        return this.addCondition(buildConditionByProperty(property), NOT, IN, LEFT, formatValue(property, value.toArray()), RIGHT);
+    public EntityDeleteOperation<T> notIn(boolean test, String property, Collection<?> value) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), NOT, IN, LEFT, formatValue(property, value.toArray()), RIGHT);
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> between(String property, Object value1, Object value2) {
-        return this.addCondition(buildConditionByProperty(property), BETWEEN, formatValue(property, value1), AND, formatValue(property, value2));
+    public EntityDeleteOperation<T> between(boolean test, String property, Object value1, Object value2) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), BETWEEN, formatValue(property, value1), AND, formatValue(property, value2));
+        } else {
+            return this.getSelf();
+        }
     }
 
     @Override
-    public EntityDeleteOperation<T> notBetween(String property, Object value1, Object value2) {
-        return this.addCondition(buildConditionByProperty(property), NOT, BETWEEN, formatValue(property, value1), AND, formatValue(property, value2));
+    public EntityDeleteOperation<T> notBetween(boolean test, String property, Object value1, Object value2) {
+        if (test) {
+            return this.addCondition(buildConditionByProperty(property), NOT, BETWEEN, formatValue(property, value1), AND, formatValue(property, value2));
+        } else {
+            return this.getSelf();
+        }
     }
 }

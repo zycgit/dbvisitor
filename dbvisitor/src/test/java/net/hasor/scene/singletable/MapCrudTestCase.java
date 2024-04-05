@@ -97,8 +97,8 @@ public class MapCrudTestCase {
             // update user set name = 'new name is abc', age = 120 where id = 1
             lambdaTemplate.lambdaUpdate("user_table")  //
                     .eq("id", 1)        //
-                    .updateToAdd("name", "new name is abc")//
-                    .updateToAdd("age", 120)//
+                    .updateTo("name", "new name is abc")//
+                    .updateTo("age", 120)//
                     .doUpdate();
 
             // 校验结果

@@ -62,6 +62,12 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
     }
 
     @Override
+    public R resetUpdate() {
+        this.updateValueMap.clear();
+        return this.getSelf();
+    }
+
+    @Override
     public R allowEmptyWhere() {
         this.allowEmptyWhere = true;
         return this.getSelf();
@@ -169,28 +175,19 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
     }
 
     @Override
-    public R updateTo(P property, Object value) {
-        Map<String, Object> newValue = CollectionUtils.asMap(getPropertyName(property), value);
-        Map<String, String> entityKeyMap = extractKeysMap(newValue);
-        boolean useMapping = !exampleIsMap() && !this.allowUpdateProperties.isEmpty();
+    public R updateTo(boolean test, P property, Object value) {
+        if (test) {
+            Map<String, Object> newValue = CollectionUtils.asMap(getPropertyName(property), value);
+            Map<String, String> entityKeyMap = extractKeysMap(newValue);
+            boolean useMapping = !exampleIsMap() && !this.allowUpdateProperties.isEmpty();
 
-        if (exampleIsMap()) {
-            return this.updateToByCondition(useMapping, entityKeyMap.keySet(), true, entityKeyMap::containsKey, s -> newValue.get(entityKeyMap.get(s)));
+            if (exampleIsMap()) {
+                return this.updateToByCondition(useMapping, entityKeyMap.keySet(), false, entityKeyMap::containsKey, s -> newValue.get(entityKeyMap.get(s)));
+            } else {
+                return this.updateToByCondition(useMapping, this.allowUpdateKeys, false, entityKeyMap::containsKey, s -> newValue.get(entityKeyMap.get(s)));
+            }
         } else {
-            return this.updateToByCondition(useMapping, this.allowUpdateKeys, true, entityKeyMap::containsKey, s -> newValue.get(entityKeyMap.get(s)));
-        }
-    }
-
-    @Override
-    public R updateToAdd(P property, Object value) {
-        Map<String, Object> newValue = CollectionUtils.asMap(getPropertyName(property), value);
-        Map<String, String> entityKeyMap = extractKeysMap(newValue);
-        boolean useMapping = !exampleIsMap() && !this.allowUpdateProperties.isEmpty();
-
-        if (exampleIsMap()) {
-            return this.updateToByCondition(useMapping, entityKeyMap.keySet(), false, entityKeyMap::containsKey, s -> newValue.get(entityKeyMap.get(s)));
-        } else {
-            return this.updateToByCondition(useMapping, this.allowUpdateKeys, false, entityKeyMap::containsKey, s -> newValue.get(entityKeyMap.get(s)));
+            return this.getSelf();
         }
     }
 

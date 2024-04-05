@@ -55,4 +55,129 @@ public class SelectLambdaForMap extends AbstractSelectLambda<MapQueryOperation, 
     protected TableReader<Map<String, Object>> getTableReader() {
         return getTableMapping().toMapReader();
     }
+
+    @Override
+    public MapQueryOperation select(String property1) {
+        return this.select(new String[] { property1 });
+    }
+
+    @Override
+    public MapQueryOperation select(String property1, String property2) {
+        return this.select(new String[] { property1, property2 });
+    }
+
+    @Override
+    public MapQueryOperation select(String property1, String property2, String property3) {
+        return this.select(new String[] { property1, property2, property3 });
+    }
+
+    @Override
+    public MapQueryOperation select(String property1, String property2, String property3, String property4) {
+        return this.select(new String[] { property1, property2, property3, property4 });
+    }
+
+    @Override
+    public MapQueryOperation select(String property1, String property2, String property3, String property4, String property5) {
+        return this.select(new String[] { property1, property2, property3, property4, property5 });
+    }
+
+    @Override
+    public MapQueryOperation groupBy(String property1) {
+        return this.groupBy(new String[] { property1 });
+    }
+
+    @Override
+    public MapQueryOperation groupBy(String property1, String property2) {
+        return this.groupBy(new String[] { property1, property2 });
+    }
+
+    @Override
+    public MapQueryOperation groupBy(String property1, String property2, String property3) {
+        return this.groupBy(new String[] { property1, property2, property3 });
+    }
+
+    @Override
+    public MapQueryOperation groupBy(String property1, String property2, String property3, String property4) {
+        return this.groupBy(new String[] { property1, property2, property3, property4 });
+    }
+
+    @Override
+    public MapQueryOperation groupBy(String property1, String property2, String property3, String property4, String property5) {
+        return this.groupBy(new String[] { property1, property2, property3, property4, property5 });
+    }
+
+    @Override
+    public MapQueryOperation orderBy(String property1) {
+        return this.orderBy(new String[] { property1 });
+    }
+
+    @Override
+    public MapQueryOperation orderBy(String property1, String property2) {
+        return this.orderBy(new String[] { property1, property2 });
+    }
+
+    @Override
+    public MapQueryOperation orderBy(String property1, String property2, String property3) {
+        return this.orderBy(new String[] { property1, property2, property3 });
+    }
+
+    @Override
+    public MapQueryOperation orderBy(String property1, String property2, String property3, String property4) {
+        return this.orderBy(new String[] { property1, property2, property3, property4 });
+    }
+
+    @Override
+    public MapQueryOperation orderBy(String property1, String property2, String property3, String property4, String property5) {
+        return this.orderBy(new String[] { property1, property2, property3, property4, property5 });
+    }
+
+    @Override
+    public MapQueryOperation asc(String property1) {
+        return this.asc(new String[] { property1 });
+    }
+
+    @Override
+    public MapQueryOperation asc(String property1, String property2) {
+        return this.asc(new String[] { property1, property2 });
+    }
+
+    @Override
+    public MapQueryOperation asc(String property1, String property2, String property3) {
+        return this.asc(new String[] { property1, property2, property3 });
+    }
+
+    @Override
+    public MapQueryOperation asc(String property1, String property2, String property3, String property4) {
+        return this.asc(new String[] { property1, property2, property3, property4 });
+    }
+
+    @Override
+    public MapQueryOperation asc(String property1, String property2, String property3, String property4, String property5) {
+        return this.asc(new String[] { property1, property2, property3, property4, property5 });
+    }
+
+    @Override
+    public MapQueryOperation desc(String property1) {
+        return this.desc(new String[] { property1 });
+    }
+
+    @Override
+    public MapQueryOperation desc(String property1, String property2) {
+        return this.desc(new String[] { property1, property2 });
+    }
+
+    @Override
+    public MapQueryOperation desc(String property1, String property2, String property3) {
+        return this.desc(new String[] { property1, property2, property3 });
+    }
+
+    @Override
+    public MapQueryOperation desc(String property1, String property2, String property3, String property4) {
+        return this.desc(new String[] { property1, property2, property3, property4 });
+    }
+
+    @Override
+    public MapQueryOperation desc(String property1, String property2, String property3, String property4, String property5) {
+        return this.desc(new String[] { property1, property2, property3, property4, property5 });
+    }
 }
