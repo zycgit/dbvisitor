@@ -17,8 +17,8 @@ package net.hasor.dbvisitor;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.MatchUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.loader.ResourceLoader;
-import net.hasor.cobble.loader.ResourceLoader.MatchType;
+import net.hasor.cobble.loader.MatchType;
+import net.hasor.cobble.loader.ScanEvent;
 import net.hasor.cobble.loader.providers.ClassPathResourceLoader;
 import net.hasor.core.*;
 import net.hasor.core.setting.SettingNode;
@@ -232,7 +232,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
                 }
 
                 resMapper = MatchUtils.wildToRegex(resMapper);
-                List<URI> tmp = classScannerLoader.scanResources(MatchType.Regex, ResourceLoader.ScanEvent::getResource, new String[] { resMapper });
+                List<URI> tmp = classScannerLoader.scanResources(MatchType.Regex, ScanEvent::getResource, new String[] { resMapper });
                 mappers.addAll(tmp);
             }
         }

@@ -26,8 +26,8 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.loader.ClassMatcher.ClassInfo;
 import net.hasor.cobble.loader.ClassMatcher.ClassMatcherContext;
 import net.hasor.cobble.loader.CobbleClassScanner;
-import net.hasor.cobble.loader.ResourceLoader;
-import net.hasor.cobble.loader.ResourceLoader.MatchType;
+import net.hasor.cobble.loader.MatchType;
+import net.hasor.cobble.loader.ScanEvent;
 import net.hasor.cobble.loader.providers.ClassPathResourceLoader;
 import net.hasor.cobble.setting.BasicSettings;
 import net.hasor.cobble.setting.SettingNode;
@@ -245,7 +245,7 @@ public class DbVisitorModule implements com.google.inject.Module {
                 }
 
                 resMapper = MatchUtils.wildToRegex(resMapper);
-                List<URI> tmp = classScannerLoader.scanResources(MatchType.Regex, ResourceLoader.ScanEvent::getResource, new String[] { resMapper });
+                List<URI> tmp = classScannerLoader.scanResources(MatchType.Regex, ScanEvent::getResource, new String[] { resMapper });
                 mappers.addAll(tmp);
             }
         }
