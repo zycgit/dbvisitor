@@ -124,7 +124,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
 
         // keep order by fields
         List<String> names = new ArrayList<>();
-        List<String> fields = BeanUtils.getALLFields(entityType).values().stream().map(Field::getName).collect(Collectors.toList());
+        List<String> fields = BeanUtils.getALLFieldToList(entityType).stream().map(Field::getName).collect(Collectors.toList());
         for (String name : fields) {
             if (properties.containsKey(name)) {
                 names.add(name);
