@@ -1,19 +1,25 @@
 ---
-id: with_hasor
-sidebar_position: 4
-title: Hasor 整合
-description: dbVisitor ORM 工具和 Hasor 整合使用。
+id: with_guice
+sidebar_position: 3
+title: Guice 整合
+description: dbVisitor ORM 工具和 Guice 整合使用。
 ---
-# 与 Hasor 集成
+import Vars from '@site/plugins/projectVars';
 
-通过 `dbvisitor-hasor` 工具包可以更加便捷的在 Hasor 上使用 dbVisitor ORM 工具。
+export const Highlight = ({children, color}) => (
+  <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+);
 
-## 什么是 Hasor
-Hasor 是一个类似 Spring 的项目，提供 IoC/Aop 和 Web 开发，它比 Spring 更加小巧，比 Guice 更加丰富。
+# 与 Google Guice 集成
 
-- Hasor 项目地址：https://gitee.com/clougence/hasor
+通过 `dbvisitor-guice` 工具包可以更加便捷的在 Guice 上使用 dbVisitor ORM 工具。
 
-## dbvisitor-hasor 特性
+## 什么是 Guice
+Guice 是 Google 开源的一个轻量化依赖注入工具，Spring 包含依赖注入能力之外含有很多其它能里。若只想在项目中使用依赖注入那么可以考虑使用 Guice。
+
+- Guice 项目地址：https://github.com/google/guice
+
+## dbvisitor-guice 特性
 
 - 自动给配置数据源
 - 提供注解化事务控制
@@ -22,14 +28,21 @@ Hasor 是一个类似 Spring 的项目，提供 IoC/Aop 和 Web 开发，它比 
 
 ## 配置方法
 
-首先引入如下依赖包：
+首先引入依赖包（**最新版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>**）
 
-```xml
+```xml title='Maven 依赖'
 <dependency>
-    <groupId>net.hasor</groupId>
-    <artifactId>dbvisitor-hasor</artifactId>
-    <version>5.4.1</version>
+  <groupId>net.hasor</groupId>
+  <artifactId>dbvisitor-guice</artifactId>
+  <version>最新版本的版本号</version>
 </dependency>
+```
+
+```text title='依赖关系'
+net.hasor:dbvisitor-guice:jar
++- net.hasor:dbvisitor:jar
+   +- net.hasor:cobble-all:jar
++- com.google.inject:guice:jar
 ```
 
 使用 dbVisitor 可以不依赖数据库连接池，但有数据库连接池是大多数项目的标配。这里选用 HikariCP
@@ -45,6 +58,7 @@ Hasor 是一个类似 Spring 的项目，提供 IoC/Aop 和 Web 开发，它比 
 配置文件，如下使用了 HikariCP 后的配置文件
 
 ```properties
+# 数据源使用 HikariCP
 dbvisitor.jdbc-ds=com.zaxxer.hikari.HikariDataSource
 dbvisitor.jdbc-ds.jdbc-url=jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true
 dbvisitor.jdbc-ds.username=root
@@ -69,42 +83,43 @@ public class ServiceTest {
 ```
 
 ```java
-// 初始化 Hasor 并加载 DbVisitorModule 插件
-AppContext appContext = Hasor.create().mainSettingWith("jdbc.properties").build(binder -> {
-    binder.installModule(new DbVisitorModule());
-});
+// 加载配置文件
+Properties properties = new Properties();
+properties.load(ResourcesUtils.getResourceAsStream("jdbc.properties"));
+
+// 初始化 Guice 并加载 DbVisitorModule 插件
+Injector injector = Guice.createInjector(new DbVisitorModule(properties));
 
 // 尽情享受
-ServiceTest service = appContext.getInstance(ServiceTest.class);
+ServiceTest service = injector.getInstance(ServiceTest.class);
 ...
 ```
 
 这里提供地址可以获取 Demo 工程
 
-- [Example 工程](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/hasor/)
+- [Example 工程](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/guice/)
 
 ## 数据源配置
 
-| 属性名                             | 描述                                                                                                                  |
-|---------------------------------|---------------------------------------------------------------------------------------------------------------------|
-| `dbvisitor.jdbc-ds`             | 可选，具体的数据源 DataSource 类型，例如 `com.zaxxer.hikari.HikariDataSource`，如果不指定则会使用工具内置的 `DefaultDataSource` 类 (它不支持连接池)      |
-| `dbvisitor.jdbc-ds.xxx`         | 可选，通过 xxx 配置数据源的属性                                                                                                  |
-| `dbvisitor.multiple-datasource` | 可选，多数据源情况下，的数据源标识符                                                                                                  |
+| 属性名                             | 描述                                                                                                                 |
+|---------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `dbvisitor.jdbc-ds`             | 可选，具体的数据源 DataSource 类型，例如 `com.zaxxer.hikari.HikariDataSource`，如果不指定则会使用工具内置的 `DefaultDataSource` 类 (它不支持连接池)     |
+| `dbvisitor.jdbc-ds.xxx`         | 可选，通过 xxx 配置数据源的属性                                                                                                 |
+| `dbvisitor.multiple-datasource` | 可选，多数据源情况下，的数据源标识符                                                                                                 |
 
 工具内置了一个用于测试的，简单 `DataSource` 实现。它不支持连接池，这意味着每次都会创建一个新的链接。配置方式如下：
 
 ```properties
-dbvisitor.jdbc-ds.jdbc-url=jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true
-dbvisitor.jdbc-ds.driver-class-name=com.mysql.cj.jdbc.Driver
+dbvisitor.jdbc-ds.url=jdbc:mysql://127.0.0.1:3306/devtester
+dbvisitor.jdbc-ds.driverClassName=com.mysql.cj.jdbc.Driver
 dbvisitor.jdbc-ds.username=root
 dbvisitor.jdbc-ds.password=123456
-dbvisitor.mapper-locations=classpath:dbvisitor/mapper/*.xml
-dbvisitor.mapper-packages=net.hasor.dbvisitor.test.dao
 ```
 
 配置了三个数据源(one/two/three)分别链接到三个不同数据库，每个数据源都使用了内置的简单 DataSource 实现
 
 ```properties
+# one,two,three 三个数据源
 dbvisitor.multiple-datasource=one,two,three
 # -- one
 dbvisitor.one.jdbc-ds=com.zaxxer.hikari.HikariDataSource
@@ -154,7 +169,7 @@ dbvisitor.three.mapper-disabled=true
 | `dbvisitor.mapper-disabled`     | 可选，使用 `true/false` 表示是否禁用 `dbvisitor.mapper-packages` 扫描到的 Mapper 接口。<br/>默认值为 false 当与某些框架合用同一个 mapper 文件时如果遇到冲突可考虑设置为 true      |
 | `dbvisitor.marker-annotation`   | 可选，当 `dbvisitor.mapper-packages` 扫描到的 Mapper 接口身上标有 某个特定类型的注解时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.dal.repository.DalMapper` |
 | `dbvisitor.marker-interface`    | 可选，当 `dbvisitor.mapper-packages` 扫描到的 Mapper 接口实现了某个特定接口时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.dal.mapper.Mapper`             |
-| `dbvisitor.mapper-scope`        | 可选，Mapper Bean 所处的 Hasor 作用域，默认作用域是 `javax.inject.Singleton`                                                                      |
+| `dbvisitor.mapper-scope`        | 可选，Mapper Bean 所处的 Guice 作用域，默认作用域是 `javax.inject.Singleton`                                                                      |
 | `dbvisitor.auto-mapping`        | 可选，是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Column 注解声明                                                                |                                                                                                                         
 | `dbvisitor.camel-case`          | 可选，表名和属性名，根据驼峰规则转换为带有下划线的表名和列名                                                                                                    |                                                                                                                        
 | `dbvisitor.case-insensitive`    | 可选，强制在生成 表名/列名/索引名 时候增加标识符限定，例如：通过设置该属性来解决列名为关键字的问题。默认是 false 不设置。                                                                |                                                                                                                               
@@ -165,5 +180,5 @@ dbvisitor.three.mapper-disabled=true
 - 对于 `@DalMapper` 注解只可以用于注释另一个注释，因此可以使用 `@RefMapper` 或 `@SimpleMapper` 来代替。细节请参阅 **[注解化 Mapper](../dal/anno-mapper.mdx)**
 - `dbvisitor.marker-annotation`、`dbvisitor.marker-interface` 两个属性配置满足其一即可
 - 一个 Mapper 接口可以继承下面两个接口其一
-    - net.hasor.dbvisitor.dal.mapper.Mapper （标记性接口）
-    - net.hasor.dbvisitor.dal.mapper.BaseMapper （有通用方法）
+  - net.hasor.dbvisitor.dal.mapper.Mapper （标记性接口）
+  - net.hasor.dbvisitor.dal.mapper.BaseMapper （有通用方法）

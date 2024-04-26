@@ -4,16 +4,23 @@ sidebar_position: 1
 title: Spring Boot 整合
 description: dbVisitor ORM 工具和 Spring Boot 整合使用。
 ---
+import Vars from '@site/plugins/projectVars';
+
+export const Highlight = ({children, color}) => (
+  <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+);
+
 # 与 SpringBoot 集成
 
 通过 `dbvisitor-spring-starter` 工具包可以更加便捷的在 Spring Boot 中使用 dbVisitor ORM 工具。
-Spring Boot 工程需要引入如下依赖包：
+
+首先引入依赖包（**最新版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>**）
 
 ```xml
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-spring-starter</artifactId>
-    <version>5.4.1</version>
+    <version>最新版本的版本号</version>
 </dependency>
 ```
 

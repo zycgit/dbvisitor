@@ -96,4 +96,46 @@ public class BuilderDeleteTest extends AbstractDbTest {
         BoundSql boundSql2 = lambdaDelete.useQualifier().getBoundSql(dialect);
         assert boundSql2.getSqlString().equals("DELETE FROM `UserInfo` WHERE `loginName` = ? AND `loginPassword` = ?");
     }
+
+    @Test
+    public void deleteBuilder_6() {
+        SqlDialect dialect = new MySqlDialect();
+
+        UserInfo userInfo = new UserInfo();
+        userInfo.setName("zyc");
+        userInfo.setLoginName("login");
+        userInfo.setLoginPassword("pwd");
+
+        //case 1
+        EntityDeleteOperation<UserInfo> delCase1 = new LambdaTemplate().lambdaDelete(UserInfo.class);
+        boolean isZyc1 = userInfo.getName().equals("zyc");
+        delCase1.eq(isZyc1, UserInfo::getLoginName, userInfo.getLoginName())        //
+                .eq(isZyc1, UserInfo::getLoginPassword, userInfo.getLoginPassword())//
+                .gt(UserInfo::getSeq, 1);
+        BoundSql boundSql1 = delCase1.getBoundSql(dialect);
+        assert boundSql1.getSqlString().equals("DELETE FROM UserInfo WHERE loginName = ? AND loginPassword = ? AND seq > ?");
+
+        // case 2
+        userInfo.setName("cyz");
+        EntityDeleteOperation<UserInfo> delCase2 = new LambdaTemplate().lambdaDelete(UserInfo.class);
+        boolean isZyc2 = userInfo.getName().equals("zyc");
+        delCase2.eq(isZyc2, UserInfo::getLoginName, userInfo.getLoginName())        //
+                .eq(isZyc2, UserInfo::getLoginPassword, userInfo.getLoginPassword())//
+                .gt(UserInfo::getSeq, 1);
+        BoundSql boundSql2 = delCase2.getBoundSql(dialect);
+        assert boundSql2.getSqlString().equals("DELETE FROM UserInfo WHERE seq > ?");
+    }
+
+    @Test
+    public void deleteBuilder_7() {
+        try {
+            EntityDeleteOperation<UserInfo> lambdaDelete = new LambdaTemplate().lambdaDelete(UserInfo.class);
+            SqlDialect dialect = new MySqlDialect();
+            lambdaDelete.getBoundSql(dialect);
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().startsWith("The dangerous DELETE operation,");
+        }
+    }
+
 }

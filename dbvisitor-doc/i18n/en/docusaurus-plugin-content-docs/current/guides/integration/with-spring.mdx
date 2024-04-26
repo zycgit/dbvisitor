@@ -4,15 +4,21 @@ sidebar_position: 2
 title: Spring 整合
 description: dbVisitor ORM 工具和 Spring 整合使用。
 ---
+import Vars from '@site/plugins/projectVars';
+
+export const Highlight = ({children, color}) => (
+  <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+);
+
 # 与 Spring 集成
 
-经典的 Spring 工程需要引入下面这个包：
+首先引入依赖包（**最新版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>**）
 
 ```xml
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-spring</artifactId>
-    <version>5.4.1</version>
+    <version>最新版本的版本号</version>
 </dependency>
 ```
 

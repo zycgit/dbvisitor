@@ -4,16 +4,17 @@ sidebar_position: 2
 title: 快速上手
 description: 开箱即用的 dbVisitor ORM 工具快速上手教程。
 ---
-
-# 快速上手
-
-## 引入依赖
+import Vars from '@site/plugins/projectVars';
 
 export const Highlight = ({children, color}) => (
   <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
 );
 
-截止到目前为止 dbVisitor 的最新版本为：**<Highlight color="rgb(227 17 108)">5.4.1</Highlight>**
+# 快速上手
+
+## 引入依赖
+
+截止到目前为止 dbVisitor 的最新版本为：**<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>**
 - 在 https://mvnrepository.com/artifact/net.hasor/dbvisitor 上也可以查询到最新版本
 
 import Tabs from '@theme/Tabs';
@@ -26,7 +27,7 @@ import TabItem from '@theme/TabItem';
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor</artifactId>
-    <version>5.4.1</version>
+    <version>最新版本的版本号</version>
 </dependency>
 ```
   </TabItem>
@@ -34,7 +35,7 @@ import TabItem from '@theme/TabItem';
 
 ```text
 // Gradle
-implementation 'net.hasor:dbvisitor:5.4.1'
+implementation 'net.hasor:dbvisitor:最新版本的版本号'
 ```
   </TabItem>
 </Tabs>
