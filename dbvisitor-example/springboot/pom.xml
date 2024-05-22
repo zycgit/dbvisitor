@@ -5,7 +5,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.6.7</version>
+        <!--        <version>2.6.7</version>-->
+        <version>3.0.7</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -22,7 +23,7 @@
         <dependency>
             <groupId>net.hasor</groupId>
             <artifactId>dbvisitor-spring-starter</artifactId>
-            <version>5.4.1</version>
+            <version>5.4.3</version>
         </dependency>
 
         <!-- driver -->

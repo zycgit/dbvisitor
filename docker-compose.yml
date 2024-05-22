@@ -78,3 +78,6 @@ services:
     # -v /var/local/apps/clickhouse/data:/var/lib/clickhouse
     #   --ulimit nofile=262144:262144
     restart: always
+
+# 达梦
+# https://download.dameng.com/eco/dm8/dm8_20230808_rev197096_x86_rh6_64_single.tar

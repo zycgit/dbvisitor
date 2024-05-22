@@ -15,13 +15,8 @@
  */
 package net.hasor.dbvisitor.spring.support;
 
-import net.hasor.cobble.logging.Logger;
-import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.dal.mapper.Mapper;
-import net.hasor.dbvisitor.dal.repository.RefMapper;
 import net.hasor.dbvisitor.dal.session.DalSession;
-
-import java.io.IOException;
 
 /**
  * BeanFactory that enables injection of user mapper interfaces.
@@ -53,26 +48,17 @@ import java.io.IOException;
  * @see Mapper
  */
 public class DalMapperBean extends AbstractSupportBean<Object> {
-    private static final Logger     logger = LoggerFactory.getLogger(DalMapperBean.class);
-    private              DalSession dalSession;
-    private              Class<?>   mapperInterface;
-    private              Object     mapperObject;
+    private DalSession dalSession;
+    private Class<?>   mapperInterface;
+    private Object     mapperObject;
 
     @Override
-    public void afterPropertiesSet() throws IOException, ReflectiveOperationException {
+    public void afterPropertiesSet() {
         if (this.mapperInterface == null) {
             throw new NullPointerException("mapperInterface is null.");
         }
         if (this.dalSession == null) {
             throw new IllegalStateException("dalSession is null.");
-        }
-
-        RefMapper refMapper = this.mapperInterface.getAnnotation(RefMapper.class);
-        if (refMapper != null) {
-            logger.info("mapper '" + this.mapperInterface + "' using '" + refMapper.value() + "'");
-            this.dalSession.getDalRegistry().loadMapper(this.mapperInterface);
-        } else {
-            logger.info("mapper '" + this.mapperInterface + "' using default.");
         }
 
         this.mapperObject = this.dalSession.createMapper(this.mapperInterface);
