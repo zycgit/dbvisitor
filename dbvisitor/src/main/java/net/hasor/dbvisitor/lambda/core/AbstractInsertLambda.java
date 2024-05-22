@@ -30,6 +30,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
@@ -49,6 +50,7 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     protected final Map<String, String>  insertColumnTerms;
     protected final boolean              hasKeySeqHolderColumn;
 
+    protected final AtomicInteger           insertValuesCount;
     protected final List<InsertEntity>      insertValues;
     protected final List<ParameterDisposer> parameterDisposers; // 只有 insert 需要
     protected final List<InsertEntity>      fillBackEntityList;
@@ -73,12 +75,13 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
             }
         }
 
-        this.insertValues = new ArrayList<>();
+        this.insertValuesCount = new AtomicInteger(0);
+        this.insertValues = new LinkedList<>();
         this.insertStrategy = DuplicateKeyStrategy.Into;
         this.primaryKeys = this.getPrimaryKey().stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
         this.hasKeySeqHolderColumn = !this.fillBeforeProperties.isEmpty() || !this.fillAfterProperties.isEmpty();
-        this.parameterDisposers = new ArrayList<>();
-        this.fillBackEntityList = new ArrayList<>();
+        this.parameterDisposers = new LinkedList<>();
+        this.fillBackEntityList = new LinkedList<>();
     }
 
     protected void initProperties(List<ColumnMapping> insert, List<ColumnMapping> fillBefore, List<ColumnMapping> fillAfter) {
@@ -118,23 +121,15 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
 
     @Override
     public R applyEntity(List<T> entityList) throws SQLException {
-        for (Object entity : entityList) {
-            InsertEntity ent = new InsertEntity();
-            ent.isMap = exampleIsMap();
-            ent.object = entity;
-            this.insertValues.add(ent);
-        }
+        this.insertValues.add(new InsertEntity(entityList, exampleIsMap()));
+        this.insertValuesCount.addAndGet(entityList.size());
         return this.getSelf();
     }
 
     @Override
     public R applyMap(List<Map<String, Object>> entityList) throws SQLException {
-        for (Object entity : entityList) {
-            InsertEntity ent = new InsertEntity();
-            ent.isMap = true;
-            ent.object = entity;
-            this.insertValues.add(ent);
-        }
+        this.insertValues.add(new InsertEntity(entityList, true));
+        this.insertValuesCount.addAndGet(entityList.size());
         return this.getSelf();
     }
 
@@ -195,7 +190,12 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     }
 
     protected static class InsertEntity {
-        public Object  object;
+        public List<?> objList;
         public boolean isMap;
+
+        public InsertEntity(List<?> objList, boolean isMap) {
+            this.objList = objList;
+            this.isMap = isMap;
+        }
     }
 }

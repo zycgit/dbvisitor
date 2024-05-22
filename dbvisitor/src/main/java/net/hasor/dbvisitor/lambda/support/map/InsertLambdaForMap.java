@@ -62,12 +62,12 @@ public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map
 
     @Override
     protected BoundSql buildBoundSql(SqlDialect dialect) {
-        if (this.insertValues.size() != 1) {
+        if (this.insertValuesCount.get() != 1) {
             throw new IllegalStateException("require single record.");
         }
 
         InsertEntity entity = this.insertValues.get(0);
-        BoundSqlObj boundSqlObj = this.buildBoundSql(dialect(), entity);
+        BoundSqlObj boundSqlObj = this.buildBoundSql(dialect(), (Map) entity.objList.get(0));
 
         return new BatchBoundSqlObj(boundSqlObj.getSqlString(), new MappedArg[][] { (MappedArg[]) boundSqlObj.getArgs() });
     }
@@ -76,16 +76,20 @@ public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map
     public int[] executeGetResult() throws SQLException {
         return this.getJdbcTemplate().execute((ConnectionCallback<int[]>) con -> {
             final TypeHandlerRegistry typeRegistry = this.getJdbcTemplate().getTypeRegistry();
-            int[] result = new int[insertValues.size()];
-            for (int i = 0; i < insertValues.size(); i++) {
-                InsertEntity ent = insertValues.get(i);
-                result[i] = executeOne(con, ent, typeRegistry);
+            int[] result = new int[this.insertValuesCount.get()];
+
+            int i = 0;
+            for (InsertEntity entity : this.insertValues) {
+                for (Object obj : entity.objList) {
+                    result[i] = executeOne(con, (Map) obj, typeRegistry);
+                    i++;
+                }
             }
             return result;
         });
     }
 
-    private int executeOne(Connection con, InsertEntity ent, TypeHandlerRegistry typeRegistry) throws SQLException {
+    private int executeOne(Connection con, Map ent, TypeHandlerRegistry typeRegistry) throws SQLException {
         BoundSqlObj boundSqlObj = this.buildBoundSql(dialect(), ent);
         String sqlString = boundSqlObj.getSqlString();
 
@@ -95,8 +99,8 @@ public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map
         }
     }
 
-    protected BoundSqlObj buildBoundSql(SqlDialect dialect, InsertEntity entity) {
-        Map<String, String> entityKeyMap = this.extractKeysMap((Map) entity.object);
+    protected BoundSqlObj buildBoundSql(SqlDialect dialect, Map entity) {
+        Map<String, String> entityKeyMap = this.extractKeysMap(entity);
         List<String> insertProperties = new ArrayList<>();
         List<String> insertColumns = new ArrayList<>();
         entityKeyMap.forEach((p, c) -> {
@@ -108,7 +112,7 @@ public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map
         MappedArg[] args = new MappedArg[entityKeyMap.size()];
 
         for (int i = 0; i < insertProperties.size(); i++) {
-            Object arg = ((Map) entity.object).get(insertProperties.get(i));
+            Object arg = entity.get(insertProperties.get(i));
             Integer jdbcType = arg == null ? null : TypeHandlerRegistry.toSqlType(arg.getClass());
             args[i] = (arg == null) ? null : new MappedArg(arg, jdbcType, null);
         }

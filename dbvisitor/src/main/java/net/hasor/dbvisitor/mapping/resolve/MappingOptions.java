@@ -41,6 +41,13 @@ public class MappingOptions {
         }
     }
 
+    @Override
+    public String toString() {
+        String dialect = defaultDialect == null ? null : defaultDialect.getClass().getName();
+        String key = this.autoMapping + "," + this.mapUnderscoreToCamelCase + "," + this.caseInsensitive + "," + this.useDelimited + "," + dialect;
+        return "MappingOptions[" + key + "]";
+    }
+
     public Boolean getAutoMapping() {
         return this.autoMapping;
     }

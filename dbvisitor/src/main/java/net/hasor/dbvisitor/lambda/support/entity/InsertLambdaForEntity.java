@@ -73,7 +73,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
 
             TypeHandlerRegistry typeRegistry = this.getJdbcTemplate().getTypeRegistry();
 
-            if (this.insertValues.size() > 1) {
+            if (this.insertValuesCount.get() > 1) {
                 if (dialect().supportBatch()) {
                     return this.getJdbcTemplate().executeCreator(new PreparedStatementCreatorWrap(insertSql, con -> {
                         boolean supportGetGeneratedKeys = con != null && con.getMetaData().supportsGetGeneratedKeys();
@@ -125,6 +125,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                 obj.cleanupParameters();
             }
 
+            this.insertValuesCount.set(0);
             this.insertValues.clear();
             this.parameterDisposers.clear();
             this.fillBackEntityList.clear();
@@ -144,13 +145,13 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
     }
 
     private List<String> findInsertColumns() {
-        if (this.insertValues.size() != 1) {
+        if (this.insertValuesCount.get() != 1) {
             return this.insertColumns;
         }
 
         InsertEntity entity = this.insertValues.get(0);
         if (entity.isMap) {
-            Map<String, String> entityKeyMap = extractKeysMap((Map) entity.object);
+            Map<String, String> entityKeyMap = extractKeysMap((Map) entity.objList.get(0));
             return this.insertProperties.stream().filter(c -> {
                 KeySeqHolder holder = c.getKeySeqHolder();
                 return entityKeyMap.containsKey(c.getProperty()) || (holder != null && holder.onBefore());
@@ -158,13 +159,16 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
         } else {
             return this.insertProperties.stream().filter(c -> {
                 KeySeqHolder holder = c.getKeySeqHolder();
-                return c.getHandler().get(entity.object) != null || (holder != null && holder.onBefore());
+                return c.getHandler().get(entity.objList.get(0)) != null || (holder != null && holder.onBefore());
             }).map(ColumnMapping::getColumn).collect(Collectors.toList());
         }
     }
 
     protected MappedArg[][] buildInsertArgs(List<String> useColumns, boolean forExecute, Connection executeConn) throws SQLException {
         boolean hasFillBack = !this.fillAfterProperties.isEmpty();
+        if (hasFillBack && forExecute) {
+            this.fillBackEntityList.addAll(this.insertValues);
+        }
 
         TableMapping<?> tableMapping = this.getTableMapping();
         List<ColumnMapping> mappings = new ArrayList<>();
@@ -172,73 +176,94 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
             mappings.add(tableMapping.getPropertyByColumn(column));
         }
 
-        MappedArg[][] batchArgs = new MappedArg[this.insertValues.size()][];
-        for (int i = 0; i < this.insertValues.size(); i++) {
-            InsertEntity entity = this.insertValues.get(i);
-            if (hasFillBack && forExecute) {
-                this.fillBackEntityList.add(entity);
-            }
-
-            MappedArg[] args = new MappedArg[mappings.size()];
-
-            for (int j = 0; j < mappings.size(); j++) {
-                ColumnMapping mapping = mappings.get(j);
-                TypeHandler<?> typeHandler = entity.isMap ? null : mapping.getTypeHandler();
-                Integer jdbcType;
-                Object arg;
-
-                processKeySeqHolderBefore(executeConn, mapping, entity);
-
+        MappedArg[][] batchArgs = new MappedArg[this.insertValuesCount.get()][];
+        int i = 0;
+        for (InsertEntity entity : this.insertValues) {
+            for (Object obj : entity.objList) {
                 if (entity.isMap) {
-                    Map<String, String> entityKeyMap = extractKeysMap((Map) entity.object);
-                    if (mapping != null) {
-                        arg = ((Map) entity.object).get(entityKeyMap.get(mapping.getProperty()));
-                        jdbcType = mapping.getJdbcType();
-                    } else {
-                        arg = ((Map) entity.object).get(entityKeyMap.get(this.insertColumns.get(j)));
-                        jdbcType = arg == null ? null : TypeHandlerRegistry.toSqlType(arg.getClass());
-                    }
+                    batchArgs[i] = this.buildArgsForMap((Map) obj, mappings, forExecute, executeConn);
                 } else {
-                    arg = mapping.getHandler().get(entity.object);
-                    jdbcType = mapping.getJdbcType();
+                    batchArgs[i] = this.buildArgsForEntity(obj, mappings, forExecute, executeConn);
                 }
-
-                if (forExecute) {
-                    if (arg instanceof ParameterDisposer) {
-                        this.parameterDisposers.add((ParameterDisposer) arg);
-                    }
-                }
-
-                args[j] = (arg == null) ? null : new MappedArg(arg, jdbcType, typeHandler);
+                i++;
             }
-
-            batchArgs[i] = args;
         }
-
         return batchArgs;
     }
 
-    protected void processKeySeqHolderBefore(Connection conn, ColumnMapping mapping, InsertEntity entity) throws SQLException {
+    protected MappedArg[] buildArgsForMap(Map entity, List<ColumnMapping> mappings, boolean forExecute, Connection executeConn) throws SQLException {
+        MappedArg[] args = new MappedArg[mappings.size()];
+        for (int j = 0; j < mappings.size(); j++) {
+            ColumnMapping mapping = mappings.get(j);
+            Integer jdbcType;
+            Object arg;
+
+            processKeySeqHolderBefore(executeConn, mapping, entity, true);
+
+            Map<String, String> entityKeyMap = extractKeysMap(entity);
+            if (mapping != null) {
+                arg = entity.get(entityKeyMap.get(mapping.getProperty()));
+                jdbcType = mapping.getJdbcType();
+            } else {
+                arg = entity.get(entityKeyMap.get(this.insertColumns.get(j)));
+                jdbcType = arg == null ? null : TypeHandlerRegistry.toSqlType(arg.getClass());
+            }
+
+            if (forExecute) {
+                if (arg instanceof ParameterDisposer) {
+                    this.parameterDisposers.add((ParameterDisposer) arg);
+                }
+            }
+
+            args[j] = (arg == null) ? null : new MappedArg(arg, jdbcType, null);
+        }
+        return args;
+    }
+
+    protected MappedArg[] buildArgsForEntity(Object entity, List<ColumnMapping> mappings, boolean forExecute, Connection executeConn) throws SQLException {
+        MappedArg[] args = new MappedArg[mappings.size()];
+        for (int j = 0; j < mappings.size(); j++) {
+            ColumnMapping mapping = mappings.get(j);
+            TypeHandler<?> typeHandler = mapping.getTypeHandler();
+            Integer jdbcType = mapping.getJdbcType();
+
+            processKeySeqHolderBefore(executeConn, mapping, entity, false);
+
+            Object arg = mapping.getHandler().get(entity);
+
+            if (forExecute) {
+                if (arg instanceof ParameterDisposer) {
+                    this.parameterDisposers.add((ParameterDisposer) arg);
+                }
+            }
+
+            args[j] = (arg == null) ? null : new MappedArg(arg, jdbcType, typeHandler);
+        }
+        return args;
+    }
+
+    protected void processKeySeqHolderBefore(Connection conn, ColumnMapping mapping, Object entity, boolean isMap) throws SQLException {
         if (!this.hasKeySeqHolderColumn || mapping.getKeySeqHolder() == null || conn == null) {
             return;
         }
 
         // if user specified value, then use it.
         boolean beforeProcessed;
-        if (entity.isMap) {
-            beforeProcessed = ((Map) entity.object).containsKey(mapping.getProperty());
+        if (isMap) {
+            beforeProcessed = ((Map) entity).containsKey(mapping.getProperty());
         } else {
-            beforeProcessed = mapping.getHandler().get(entity.object) != null;
+            beforeProcessed = mapping.getHandler().get(entity) != null;
         }
 
         if (beforeProcessed) {
             return;
         }
 
-        Object value = mapping.getKeySeqHolder().beforeApply(conn, entity.object, mapping);
+        Object value = mapping.getKeySeqHolder().beforeApply(conn, entity, mapping);
+
         if (value != null) {
-            if (entity.isMap) {
-                ((Map) entity.object).put(mapping.getProperty(), value);
+            if (isMap) {
+                ((Map) entity).put(mapping.getProperty(), value);
             } else {
                 mapping.getHandler().set(entity, value);
             }
@@ -251,15 +276,17 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
         }
         ResultSet rs = fillBack.getGeneratedKeys();
         for (InsertEntity entity : this.fillBackEntityList) {
-            if (!rs.next()) {
-                break;
-            }
-            for (int i = 0; i < this.fillAfterProperties.size(); i++) {
-                ColumnMapping mapping = this.fillAfterProperties.get(i);
-                if (mapping.getKeySeqHolder() != null) {
-                    Object value = mapping.getKeySeqHolder().afterApply(rs, entity.object, i, mapping);
-                    if (entity.isMap && value != null) {
-                        ((Map) entity.object).put(mapping.getProperty(), value);
+            for (Object obj : entity.objList) {
+                if (!rs.next()) {
+                    break;
+                }
+                for (int i = 0; i < this.fillAfterProperties.size(); i++) {
+                    ColumnMapping mapping = this.fillAfterProperties.get(i);
+                    if (mapping.getKeySeqHolder() != null) {
+                        Object value = mapping.getKeySeqHolder().afterApply(rs, obj, i, mapping);
+                        if (entity.isMap && value != null) {
+                            ((Map) obj).put(mapping.getProperty(), value);
+                        }
                     }
                 }
             }
