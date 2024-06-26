@@ -45,7 +45,7 @@ public class JdbcUtils {
     public static final String OCEANBASE_ORACLE = "oceanbase_oracle";
     public static final String INFORMIX         = "informix";
     public static final String IMPALA           = "impala";
-    /** 阿里云 odps */
+    /** Aliyun odps */
     public static final String ODPS             = "odps";
     /** Log4JDBC */
     public static final String LOG4JDBC         = "log4jdbc";
