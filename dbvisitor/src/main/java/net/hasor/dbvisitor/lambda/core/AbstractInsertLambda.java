@@ -24,6 +24,7 @@ import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.sql.Connection;
@@ -55,8 +56,8 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     protected final List<ParameterDisposer> parameterDisposers; // 只有 insert 需要
     protected final List<InsertEntity>      fillBackEntityList;
 
-    public AbstractInsertLambda(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
-        super(exampleType, tableMapping, jdbcTemplate);
+    public AbstractInsertLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
+        super(exampleType, tableMapping, opt, jdbcTemplate);
         this.insertProperties = new ArrayList<>();
         this.fillBeforeProperties = new ArrayList<>();
         this.fillAfterProperties = new ArrayList<>();

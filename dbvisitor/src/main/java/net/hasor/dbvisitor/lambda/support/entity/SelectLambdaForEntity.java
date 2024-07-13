@@ -22,6 +22,7 @@ import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.core.AbstractSelectLambda;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 
 import java.util.Collection;
 
@@ -35,8 +36,8 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
 public class SelectLambdaForEntity<T> extends AbstractSelectLambda<EntityQueryOperation<T>, T, SFunction<T>> implements EntityQueryOperation<T> {
     protected TableReader<T> tableReader;
 
-    public SelectLambdaForEntity(Class<T> exampleType, TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate) {
-        super(exampleType, tableMapping, jdbcTemplate);
+    public SelectLambdaForEntity(Class<T> exampleType, TableMapping<T> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
+        super(exampleType, tableMapping, opt, jdbcTemplate);
         this.tableReader = tableMapping.toReader();
     }
 

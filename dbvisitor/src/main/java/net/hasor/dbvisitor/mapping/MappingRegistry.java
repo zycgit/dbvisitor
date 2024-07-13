@@ -32,8 +32,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -48,6 +50,7 @@ public class MappingRegistry {
     protected final MappingOptions                            global;
     private final   XmlTableMappingResolve                    xmlMappingResolve;
     private final   ClassTableMappingResolve                  classMappingResolve;
+    private final   Set<String>                               loadedResource;
 
     public MappingRegistry() {
         this(null, null, null);
@@ -59,6 +62,7 @@ public class MappingRegistry {
         this.global = global;
         this.xmlMappingResolve = new XmlTableMappingResolve(global);
         this.classMappingResolve = new ClassTableMappingResolve(global);
+        this.loadedResource = new HashSet<>();
     }
 
     public ClassLoader getClassLoader() {
@@ -86,10 +90,20 @@ public class MappingRegistry {
         if (resource.startsWith("/")) {
             resource = resource.substring(1);
         }
+
+        if (this.loadedResource.contains(resource)) {
+            return;
+        }
+
+        this.loadedResource.add(resource);
         try (InputStream stream = this.classLoader.getResourceAsStream(resource)) {
             Objects.requireNonNull(stream, "resource '" + resource + "' is not exist.");
             this.loadMapper(stream);
         }
+    }
+
+    public boolean hasLoaded(String resource) {
+        return this.loadedResource.contains(resource);
     }
 
     /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */

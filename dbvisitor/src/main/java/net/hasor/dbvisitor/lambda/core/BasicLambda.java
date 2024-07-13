@@ -33,6 +33,7 @@ import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.segment.Segment;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -55,13 +56,15 @@ public abstract class BasicLambda<R, T, P> {
     private final          List<ColumnMapping> primaryKey;
     private final          LambdaTemplate      jdbcTemplate;
     private                boolean             qualifier;
+    protected final        MappingOptions      options;
 
-    public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
+    public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
         this.exampleType = Objects.requireNonNull(exampleType, "exampleType is null.");
         this.exampleIsMap = Map.class == exampleType || Map.class.isAssignableFrom(this.exampleType());
         this.tableMapping = Objects.requireNonNull(tableMapping, "tableMapping is null.");
         this.primaryKey = getPrimaryKeyColumns(this.tableMapping);
         this.jdbcTemplate = jdbcTemplate;
+        this.options = opt;
 
         String tmpDbType = "";
         try {

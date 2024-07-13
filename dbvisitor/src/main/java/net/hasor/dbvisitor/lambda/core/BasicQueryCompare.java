@@ -23,6 +23,7 @@ import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.lambda.segment.Segment;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.types.MappedArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
@@ -44,8 +45,8 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     private   Segment         nextSegmentPrefix = null;
     private   boolean         lockCondition     = false;
 
-    public BasicQueryCompare(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
-        super(exampleType, tableMapping, jdbcTemplate);
+    public BasicQueryCompare(Class<?> exampleType, TableMapping<?> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
+        super(exampleType, tableMapping, opt, jdbcTemplate);
     }
 
     @Override

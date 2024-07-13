@@ -21,6 +21,7 @@ import net.hasor.dbvisitor.lambda.EntityDeleteOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.core.AbstractDeleteLambda;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 
 import java.util.Collection;
 
@@ -33,8 +34,8 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
  */
 public class DeleteLambdaForEntity<T> extends AbstractDeleteLambda<EntityDeleteOperation<T>, T, SFunction<T>> implements EntityDeleteOperation<T> {
 
-    public DeleteLambdaForEntity(Class<T> exampleType, TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate) {
-        super(exampleType, tableMapping, jdbcTemplate);
+    public DeleteLambdaForEntity(Class<T> exampleType, TableMapping<T> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
+        super(exampleType, tableMapping, opt, jdbcTemplate);
     }
 
     @Override

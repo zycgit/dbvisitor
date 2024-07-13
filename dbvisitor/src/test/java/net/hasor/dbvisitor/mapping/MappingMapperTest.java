@@ -98,9 +98,9 @@ public class MappingMapperTest {
             MappingRegistry registry = new MappingRegistry();
             registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
             registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
-            assert false;
+            assert true;
         } catch (Exception e) {
-            assert e.getMessage().startsWith("repeat resultMap ");
+            assert false;
         }
     }
 

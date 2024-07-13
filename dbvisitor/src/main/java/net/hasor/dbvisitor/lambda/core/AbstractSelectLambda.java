@@ -22,13 +22,16 @@ import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.RowMapper;
 import net.hasor.dbvisitor.jdbc.mapper.MappingResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.mapper.SingleColumnRowMapper;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.lambda.segment.OrderByKeyword;
 import net.hasor.dbvisitor.lambda.segment.Segment;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.page.Page;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -52,8 +55,8 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
     private         boolean         lockGroupBy  = false;
     private         boolean         lockOrderBy  = false;
 
-    public AbstractSelectLambda(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
-        super(exampleType, tableMapping, jdbcTemplate);
+    public AbstractSelectLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
+        super(exampleType, tableMapping, opt, jdbcTemplate);
     }
 
     @Override
@@ -204,6 +207,31 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
         BoundSql boundSql = getBoundSql();
         ResultSetExtractor<List<T>> extractor = new MappingResultSetExtractor<>(getTableReader());
         return this.getJdbcTemplate().query(boundSql.getSqlString(), boundSql.getArgs(), extractor);
+    }
+
+    @Override
+    public <AS> List<AS> queryForList(Class<AS> asType) throws SQLException {
+        return this.queryForList(asType, this.options);
+    }
+
+    @Override
+    public <AS> List<AS> queryForList(Class<AS> asType, MappingOptions options) throws SQLException {
+        BoundSql boundSql = getBoundSql();
+
+        TableMapping<AS> tabMapping = this.getJdbcTemplate().getTableMapping(asType, (options == null ? this.options : options));
+        ResultSetExtractor<?> extractor;
+        if (Map.class == asType || Map.class.isAssignableFrom(asType)) {
+            extractor = new MappingResultSetExtractor<>(tabMapping.toMapReader());
+        } else {
+            TypeHandlerRegistry typeRegistry = getJdbcTemplate().getTypeRegistry();
+            if (typeRegistry.hasTypeHandler(asType)) {
+                return this.getJdbcTemplate().queryForList(boundSql.getSqlString(), boundSql.getArgs(), new SingleColumnRowMapper<>(asType, typeRegistry));
+            } else {
+                extractor = new MappingResultSetExtractor<>(tabMapping.toReader());
+            }
+        }
+
+        return (List<AS>) this.getJdbcTemplate().query(boundSql.getSqlString(), boundSql.getArgs(), extractor);
     }
 
     @Override

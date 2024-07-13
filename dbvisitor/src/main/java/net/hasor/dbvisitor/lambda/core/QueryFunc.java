@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.lambda.core;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.RowMapper;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.page.Page;
 
 import java.sql.SQLException;
@@ -182,6 +183,12 @@ public interface QueryFunc<R, T, P> extends BoundSqlBuilder {
 
     /** 执行查询，并结果将被映射到一个列表(一个条目为每一行)的对象，列表中每一条记录都是<code>elementType</code>参数指定的类型对象。*/
     List<T> queryForList() throws SQLException;
+
+    /** 执行查询，并结果将结果映射到对象。*/
+    <AS> List<AS> queryForList(Class<AS> asType) throws SQLException;
+
+    /** 执行查询，并结果将结果映射到对象。*/
+    <AS> List<AS> queryForList(Class<AS> asType, MappingOptions options) throws SQLException;
 
     List<Map<String, Object>> queryForMapList() throws SQLException;
 

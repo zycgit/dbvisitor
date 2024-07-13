@@ -19,6 +19,7 @@ import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.MapDeleteOperation;
 import net.hasor.dbvisitor.lambda.core.AbstractDeleteLambda;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 
 import java.util.Map;
 
@@ -31,8 +32,8 @@ public class DeleteLambdaForMap extends AbstractDeleteLambda<MapDeleteOperation,
         implements MapDeleteOperation {
     private final boolean toCamelCase;
 
-    public DeleteLambdaForMap(TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
-        super(Map.class, tableMapping, jdbcTemplate);
+    public DeleteLambdaForMap(TableMapping<?> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
+        super(Map.class, tableMapping, opt, jdbcTemplate);
         this.toCamelCase = getTableMapping().isToCamelCase();
     }
 

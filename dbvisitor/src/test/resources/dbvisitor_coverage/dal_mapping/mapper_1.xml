@@ -22,4 +22,6 @@
     <entity id="entityMap_8" type="net.hasor.test.entity2.BlobResourceV8"/>
     <entity id="entityMap_9" type="net.hasor.test.entity2.BlobResourceV9"/>
     <entity id="entityMap_10" table="blob_resource" type="net.hasor.test.entity2.BlobResourceV10"/>
+
+    <resultMap id="repeat_1" type="net.hasor.test.entity2.BlobResourceV9"/>
 </mapper>

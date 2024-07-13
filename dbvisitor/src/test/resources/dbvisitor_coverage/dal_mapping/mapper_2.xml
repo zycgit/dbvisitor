@@ -42,4 +42,6 @@
         <mapping property="ownerName" column="owner_name"/>
         <mapping property="ownerType" column="owner_type"/>
     </entity>
+
+    <resultMap id="repeat_1" type="net.hasor.test.entity2.BlobResourceV9"/>
 </mapper>

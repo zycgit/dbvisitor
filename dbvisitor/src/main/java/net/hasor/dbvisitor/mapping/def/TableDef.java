@@ -27,17 +27,17 @@ import java.util.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class TableDef<T> implements TableMapping<T> {
-    private       String   catalog;
-    private       String   schema;
-    private       String   table;
-    private final Class<T> entityType;
-    private final boolean  autoProperty;
-    private final boolean  useDelimited;
-    private final boolean  caseInsensitive;
-    private final boolean  mapUnderscoreToCamelCase;
-
-    private TableDescription description;
-
+    private       String                     catalog;
+    private       String                     schema;
+    private       String                     table;
+    private final Class<T>                   entityType;
+    private final boolean                    autoProperty;
+    private final boolean                    useDelimited;
+    private final boolean                    caseInsensitive;
+    private final boolean                    mapUnderscoreToCamelCase;
+    //
+    private       TableDescription           description;
+    //
     private final boolean                    mapBased;
     private final List<ColumnMapping>        columnMappings;
     private final Map<String, ColumnMapping> mapByProperty;

@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.dal.mapper;
 /**
- * Mapper 标记接口所有 Mapper 都会是该接口的子类
+ * Mapper 标记接口，所有 Mapper 的代理对象被创建时候都会默认实现这个接口。可以用来判断对象是否是一个 mapper。
  * @version : 2021-10-31
  * @author 赵永春 (zyc@hasor.net)
  */

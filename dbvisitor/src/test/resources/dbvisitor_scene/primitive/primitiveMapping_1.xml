@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.scene.primitive.PrimitiveMapper">
+    <select id="queryString" resultType="java.lang.String">
+        select c_varchar from tb_h2_types order by id asc
+    </select>
+
+    <select id="queryInteger" resultType="java.lang.Integer">
+        select c_int from tb_h2_types order by id asc
+    </select>
+</mapper>

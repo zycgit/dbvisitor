@@ -19,6 +19,7 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 
 import java.sql.SQLException;
 
@@ -32,8 +33,8 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
 public abstract class AbstractDeleteLambda<R, T, P> extends BasicQueryCompare<R, T, P> implements DeleteExecute<R> {
     private boolean allowEmptyWhere = false;
 
-    public AbstractDeleteLambda(Class<?> exampleType, TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
-        super(exampleType, tableMapping, jdbcTemplate);
+    public AbstractDeleteLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
+        super(exampleType, tableMapping, opt, jdbcTemplate);
     }
 
     @Override

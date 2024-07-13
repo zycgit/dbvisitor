@@ -21,6 +21,7 @@ import net.hasor.dbvisitor.lambda.EntityUpdateOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.core.AbstractUpdateLambda;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 
 import java.util.Collection;
 
@@ -32,8 +33,8 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class UpdateLambdaForEntity<T> extends AbstractUpdateLambda<EntityUpdateOperation<T>, T, SFunction<T>> implements EntityUpdateOperation<T> {
-    public UpdateLambdaForEntity(Class<T> exampleType, TableMapping<T> tableMapping, LambdaTemplate jdbcTemplate) {
-        super(exampleType, tableMapping, jdbcTemplate);
+    public UpdateLambdaForEntity(Class<T> exampleType, TableMapping<T> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
+        super(exampleType, tableMapping, opt, jdbcTemplate);
     }
 
     @Override

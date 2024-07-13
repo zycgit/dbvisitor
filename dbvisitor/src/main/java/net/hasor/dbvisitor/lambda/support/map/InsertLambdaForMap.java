@@ -25,6 +25,7 @@ import net.hasor.dbvisitor.lambda.InsertOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.core.AbstractInsertLambda;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.types.MappedArg;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
@@ -45,8 +46,8 @@ public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map
         implements InsertOperation<Map<String, Object>> {
     private final boolean toCamelCase;
 
-    public InsertLambdaForMap(TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
-        super(Map.class, tableMapping, jdbcTemplate);
+    public InsertLambdaForMap(TableMapping<?> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
+        super(Map.class, tableMapping, opt, jdbcTemplate);
         this.toCamelCase = getTableMapping().isToCamelCase();
     }
 

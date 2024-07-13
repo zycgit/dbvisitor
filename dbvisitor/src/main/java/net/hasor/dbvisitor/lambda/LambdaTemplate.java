@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
+import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
@@ -51,9 +52,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
-    protected final Map<Class<?>, TableMapping<?>> entMapping = new ConcurrentHashMap<>();
-    protected final Map<String, TableMapping<?>>   mapMapping = new ConcurrentHashMap<>();
-    protected       SqlDialect                     dialect    = null;
+    protected final Map<Class<?>, TableMapping<?>> entMapping  = new ConcurrentHashMap<>();
+    protected final Map<String, TableMapping<?>>   mapMapping  = new ConcurrentHashMap<>();
+    protected       SqlDialect                     dialect     = null;
+    protected       ClassLoader                    classLoader = null;
     protected       boolean                        useQualifier;
 
     /**
@@ -185,7 +187,15 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         this.useQualifier = useQualifier;
     }
 
-    protected <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
+    public ClassLoader getClassLoader() {
+        return this.classLoader;
+    }
+
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
+
+    public <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
         if (exampleType == null) {
             throw new NullPointerException("exampleType is null.");
         }
@@ -211,7 +221,8 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
                 opt.setDefaultDialect(this.getDialect());
             }
 
-            TableDef<?> tableDef = new ClassTableMappingResolve(opt).resolveTableMapping(exampleType, null, exampleType.getClassLoader(), this.getTypeRegistry());
+            ClassLoader loader = ClassUtils.getClassLoader(exampleType.getClassLoader());
+            TableDef<?> tableDef = new ClassTableMappingResolve(opt).resolveTableMapping(exampleType, null, loader, this.getTypeRegistry());
             if (StringUtils.isBlank(tableDef.getTable())) {
                 if (tableDef.isMapUnderscoreToCamelCase()) {
                     tableDef.setTable(StringUtils.humpToLine(exampleType.getSimpleName()));
@@ -224,7 +235,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         return (TableMapping<T>) mapping;
     }
 
-    protected TableMapping<?> getTableMapping(final String catalog, final String schema, final String table, MappingOptions opt) throws SQLException {
+    public TableMapping<?> getTableMapping(final String catalog, final String schema, final String table, MappingOptions opt) throws SQLException {
         if (StringUtils.isBlank(table)) {
             throw new NullPointerException("table is blank.");
         }
@@ -262,46 +273,6 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         return execute;
     }
 
-    @Override
-    public <T> InsertOperation<T> lambdaInsert(Class<T> exampleType, MappingOptions options) {
-        return configLambda(new InsertLambdaForEntity<>(exampleType, getTableMapping(exampleType, options), this));
-    }
-
-    @Override
-    public InsertOperation<Map<String, Object>> lambdaInsert(String catalog, String schema, String table, MappingOptions options) throws SQLException {
-        return configLambda(new InsertLambdaForMap(getTableMapping(catalog, schema, table, options), this));
-    }
-
-    @Override
-    public <T> EntityUpdateOperation<T> lambdaUpdate(Class<T> exampleType, MappingOptions options) {
-        return configLambda(new UpdateLambdaForEntity<>(exampleType, getTableMapping(exampleType, options), this));
-    }
-
-    @Override
-    public MapUpdateOperation lambdaUpdate(String catalog, String schema, String table, MappingOptions options) throws SQLException {
-        return configLambda(new UpdateLambdaForMap(getTableMapping(catalog, schema, table, options), this));
-    }
-
-    @Override
-    public <T> EntityDeleteOperation<T> lambdaDelete(Class<T> exampleType, MappingOptions options) {
-        return configLambda(new DeleteLambdaForEntity<>(exampleType, getTableMapping(exampleType, options), this));
-    }
-
-    @Override
-    public MapDeleteOperation lambdaDelete(String catalog, String schema, String table, MappingOptions options) throws SQLException {
-        return configLambda(new DeleteLambdaForMap(getTableMapping(catalog, schema, table, options), this));
-    }
-
-    @Override
-    public <T> EntityQueryOperation<T> lambdaQuery(Class<T> exampleType, MappingOptions options) {
-        return configLambda(new SelectLambdaForEntity<>(exampleType, getTableMapping(exampleType, options), this));
-    }
-
-    @Override
-    public MapQueryOperation lambdaQuery(String catalog, String schema, String table, MappingOptions options) throws SQLException {
-        return configLambda(new SelectLambdaForMap(getTableMapping(catalog, schema, table, options), this));
-    }
-
     public void resetMapping() {
         this.entMapping.clear();
         this.mapMapping.clear();
@@ -316,5 +287,45 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
 
     public void resetMapping(Class<?> exampleType) {
         this.entMapping.remove(exampleType);
+    }
+
+    @Override
+    public <T> InsertOperation<T> lambdaInsert(Class<T> exampleType, MappingOptions options) {
+        return configLambda(new InsertLambdaForEntity<>(exampleType, getTableMapping(exampleType, options), options, this));
+    }
+
+    @Override
+    public InsertOperation<Map<String, Object>> lambdaInsert(String catalog, String schema, String table, MappingOptions options) throws SQLException {
+        return configLambda(new InsertLambdaForMap(getTableMapping(catalog, schema, table, options), options, this));
+    }
+
+    @Override
+    public <T> EntityUpdateOperation<T> lambdaUpdate(Class<T> exampleType, MappingOptions options) {
+        return configLambda(new UpdateLambdaForEntity<>(exampleType, getTableMapping(exampleType, options), options, this));
+    }
+
+    @Override
+    public MapUpdateOperation lambdaUpdate(String catalog, String schema, String table, MappingOptions options) throws SQLException {
+        return configLambda(new UpdateLambdaForMap(getTableMapping(catalog, schema, table, options), options, this));
+    }
+
+    @Override
+    public <T> EntityDeleteOperation<T> lambdaDelete(Class<T> exampleType, MappingOptions options) {
+        return configLambda(new DeleteLambdaForEntity<>(exampleType, getTableMapping(exampleType, options), options, this));
+    }
+
+    @Override
+    public MapDeleteOperation lambdaDelete(String catalog, String schema, String table, MappingOptions options) throws SQLException {
+        return configLambda(new DeleteLambdaForMap(getTableMapping(catalog, schema, table, options), options, this));
+    }
+
+    @Override
+    public <T> EntityQueryOperation<T> lambdaQuery(Class<T> exampleType, MappingOptions options) {
+        return configLambda(new SelectLambdaForEntity<>(exampleType, getTableMapping(exampleType, options), options, this));
+    }
+
+    @Override
+    public MapQueryOperation lambdaQuery(String catalog, String schema, String table, MappingOptions options) throws SQLException {
+        return configLambda(new SelectLambdaForMap(getTableMapping(catalog, schema, table, options), options, this));
     }
 }

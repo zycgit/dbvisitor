@@ -20,6 +20,7 @@ import net.hasor.dbvisitor.lambda.MapQueryOperation;
 import net.hasor.dbvisitor.lambda.core.AbstractSelectLambda;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 
 import java.util.Map;
 
@@ -32,8 +33,8 @@ public class SelectLambdaForMap extends AbstractSelectLambda<MapQueryOperation, 
         implements MapQueryOperation {
     private final boolean toCamelCase;
 
-    public SelectLambdaForMap(TableMapping<?> tableMapping, LambdaTemplate jdbcTemplate) {
-        super(Map.class, tableMapping, jdbcTemplate);
+    public SelectLambdaForMap(TableMapping<?> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
+        super(Map.class, tableMapping, opt, jdbcTemplate);
         this.toCamelCase = getTableMapping().isToCamelCase();
     }
 

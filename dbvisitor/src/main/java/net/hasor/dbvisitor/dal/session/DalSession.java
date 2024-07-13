@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.session;
+import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.convert.ConverterBean;
+import net.hasor.cobble.logging.Logger;
+import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.BeanMap;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.JdbcUtils;
@@ -24,6 +27,7 @@ import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.dal.mapper.Mapper;
 import net.hasor.dbvisitor.dal.repository.DalMapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
+import net.hasor.dbvisitor.dal.repository.RefMapper;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
@@ -53,11 +57,12 @@ import java.util.function.Function;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class DalSession extends JdbcAccessor {
-    private final DalRegistry                      dalRegistry;
-    private final PageSqlDialect                   dialect;
-    private final LambdaTemplate                   defaultTemplate;
-    private final Function<String, LambdaTemplate> spaceTemplateFactory;
-    private final Map<String, ExecuteProxy>        executeCache = new ConcurrentHashMap<>();
+    private static final Logger                           log          = LoggerFactory.getLogger(DalSession.class);
+    private final        DalRegistry                      dalRegistry;
+    private final        PageSqlDialect                   dialect;
+    private final        LambdaTemplate                   defaultTemplate;
+    private final        Function<String, LambdaTemplate> spaceTemplateFactory;
+    private final        Map<String, ExecuteProxy>        executeCache = new ConcurrentHashMap<>();
 
     public DalSession(Connection connection) throws SQLException {
         this(connection, DalRegistry.DEFAULT);
@@ -145,21 +150,32 @@ public class DalSession extends JdbcAccessor {
             throw new UnsupportedOperationException("mapperType " + mapperType.getName() + " is not interface.");
         }
 
+        boolean isMapper = false;
+        String resource = null;
+        Annotation[] annotations = mapperType.getDeclaredAnnotations();
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof RefMapper) {
+                resource = ((RefMapper) annotation).value();
+            }
+            if (annotation instanceof DalMapper || annotation.annotationType().getAnnotation(DalMapper.class) != null) {
+                isMapper = true;
+                break;
+            }
+        }
+        if (!isMapper && !this.dalRegistry.hasScope(mapperType)) {
+            throw new UnsupportedOperationException("type '" + mapperType.getName() + "' need @RefMapper or @SimpleMapper or @DalMapper");
+        }
+
+        if (StringUtils.isNotBlank(resource) && !this.dalRegistry.hasLoaded(resource)) {
+            try {
+                this.dalRegistry.loadMapper(resource);
+            } catch (Exception e) {
+                log.error("loadMapper '" + resource + "' failed, " + e.getMessage(), e);
+            }
+        }
+
         BaseMapperHandler mapperHandler = null;
         if (BaseMapper.class.isAssignableFrom(mapperType)) {
-            boolean simpleMapper = false;
-            Annotation[] annotations = mapperType.getDeclaredAnnotations();
-            for (Annotation annotation : annotations) {
-                if (annotation instanceof DalMapper || annotation.annotationType().getAnnotation(DalMapper.class) != null) {
-                    simpleMapper = true;
-                    break;
-                }
-            }
-
-            if (!simpleMapper && !this.dalRegistry.hasScope(mapperType)) {
-                throw new UnsupportedOperationException("type '" + mapperType.getName() + "' need @RefMapper or @SimpleMapper or @DalMapper");
-            }
-
             ResolvableType type = ResolvableType.forClass(mapperType).as(BaseMapper.class);
             Class<?>[] generics = type.resolveGenerics(Object.class);
             Class<?> entityType = generics[0];
@@ -249,7 +265,7 @@ public class DalSession extends JdbcAccessor {
             super(localDS);
         }
 
-        protected <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
+        public <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
             return dalRegistry.findEntity(exampleType);
         }
     }
