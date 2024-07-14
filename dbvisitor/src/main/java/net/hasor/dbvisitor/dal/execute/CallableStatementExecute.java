@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.dal.dynamic.SqlMode;
 import net.hasor.dbvisitor.dal.repository.ResultSetType;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlBuilder;
-import net.hasor.dbvisitor.jars.OgnlUtils;
+import net.hasor.dbvisitor.internal.OgnlUtils;
 import net.hasor.dbvisitor.types.TypeHandler;
 
 import java.sql.*;

@@ -1,6 +1,6 @@
 package net.hasor.scene.jdbc.query;
 import net.hasor.cobble.CollectionUtils;
-import net.hasor.dbvisitor.jars.OgnlUtils;
+import net.hasor.dbvisitor.internal.OgnlUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.scene.UserDTO;
 import net.hasor.test.utils.DsUtils;

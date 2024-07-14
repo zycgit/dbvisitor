@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
-import net.hasor.dbvisitor.jars.OgnlUtils;
+import net.hasor.dbvisitor.internal.OgnlUtils;
 import net.hasor.dbvisitor.jdbc.SqlParameter.InSqlParameter;
 import net.hasor.dbvisitor.jdbc.SqlParameterSource;
 

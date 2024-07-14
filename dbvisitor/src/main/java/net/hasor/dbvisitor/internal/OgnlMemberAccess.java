@@ -28,7 +28,7 @@
 //  THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 //  DAMAGE.
 //--------------------------------------------------------------------------
-package net.hasor.dbvisitor.jars;
+package net.hasor.dbvisitor.internal;
 import ognl.MemberAccess;
 
 import java.lang.reflect.AccessibleObject;
