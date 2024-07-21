@@ -211,7 +211,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public boolean execute(final String sql) throws SQLException {
+    public void execute(final String sql) throws SQLException {
         if (logger.isDebugEnabled()) {
             logger.trace("Executing SQL statement [" + sql + "].");
         }
@@ -226,7 +226,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                 return sql;
             }
         }
-        return this.execute(new ExecuteStatementCallback());
+        this.execute(new ExecuteStatementCallback());
     }
 
     private <T> T execute(SimpleStatementCreator sc, StatementCallback<T> action) throws SQLException {
@@ -371,20 +371,6 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                 }
             }
         });
-    }
-
-    @Override
-    public <T> T executeCallback(final String sql, final PreparedStatementCallback<T> action) throws SQLException {
-        PreparedStatementSetter EmptySetter = ps -> {
-        };
-        return this.executeCreator(this.getPreparedStatementCreator(sql, EmptySetter), action);
-    }
-
-    @Override
-    public <T> T executeCallback(final String sql, final CallableStatementCallback<T> action) throws SQLException {
-        CallableStatementSetter EmptySetter = ps -> {
-        };
-        return this.executeCall(this.getCallableStatementCreator(sql, EmptySetter), action);
     }
 
     @Override
@@ -1052,7 +1038,10 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                 return JdbcTemplate.this.createResultsMap();
             }
         };
-        return this.executeCallback(callString, csc);
+
+        return this.executeCall(con -> {
+            return con.prepareCall(callString);
+        }, csc);
     }
 
     /**

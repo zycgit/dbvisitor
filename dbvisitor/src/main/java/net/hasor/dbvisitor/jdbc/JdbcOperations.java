@@ -33,7 +33,7 @@ public interface JdbcOperations {
     <T> T execute(StatementCallback<T> action) throws SQLException;
 
     /**执行一个 SQL语句，通常是一个 DDL 语句 */
-    boolean execute(String sql) throws SQLException;
+    void execute(String sql) throws SQLException;
 
     // ------------------------------------------------------------------------ executeCallback(PreparedStatementCreator)
 
@@ -68,14 +68,6 @@ public interface JdbcOperations {
     Map<String, Object> call(CallableStatementCreator csc, List<SqlParameter> declaredParameters) throws SQLException;
 
     Map<String, Object> call(String callString, List<SqlParameter> declaredParameters) throws SQLException;
-
-    // ------------------------------------------------------------------------ executeCallback(PreparedStatement/CallableStatement)
-
-    /**执行一个动态 SQL 语句。SQL 语句会被编译成 PreparedStatement 类型通过回调接口 PreparedStatementCallback 执行 */
-    <T> T executeCallback(String sql, PreparedStatementCallback<T> action) throws SQLException;
-
-    /**执行一个动态 SQL 语句。SQL 语句会被编译成 CallableStatement 类型通过回调接口 CallableStatementCallback 执行 */
-    <T> T executeCallback(String sql, CallableStatementCallback<T> action) throws SQLException;
 
     // ------------------------------------------------------------------------ multipleExecute(ResultSetExtractor)
 

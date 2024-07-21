@@ -42,12 +42,14 @@ class BaseMapperHandler implements BaseMapper<Object> {
     private final String               space;
     private final Class<Object>        entityType;
     private final DalSession           dalSession;
+    private final LambdaTemplate       template;
     private final TableMapping<Object> tableMapping;
 
     public BaseMapperHandler(String space, Class<?> entityType, DalSession dalSession) {
         this.space = space;
         this.entityType = (Class<Object>) entityType;
         this.dalSession = dalSession;
+        this.template = dalSession.newTemplate(this.space);
         this.tableMapping = dalSession.getDalRegistry().findMapping(space, this.entityType);
 
         Objects.requireNonNull(this.tableMapping, "entityType '" + entityType + "' undefined.");
@@ -60,7 +62,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
 
     @Override
     public LambdaTemplate template() {
-        return this.dalSession.newTemplate(this.space);
+        return this.template;
     }
 
     @Override

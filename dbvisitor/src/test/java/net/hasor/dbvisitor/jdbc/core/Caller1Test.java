@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
-import net.hasor.dbvisitor.jdbc.CallableStatementCallback;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.extractor.MultipleResultSetExtractor;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.JDBCType;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,6 +45,15 @@ public class Caller1Test extends AbstractDbTest {
         jdbcTemplate.execute("drop procedure if exists proc_select_multiple_table;");
         jdbcTemplate.execute("create procedure proc_select_table(in p_name varchar(200)) begin select * from proc_table_forcaller where c_name = p_name ; end;");
         jdbcTemplate.execute("create procedure proc_select_multiple_table(in p_name varchar(200)) begin select * from proc_table_forcaller where c_name = p_name ; select * from proc_table_forcaller where c_name = p_name ; end;");
+
+        jdbcTemplate.execute("drop procedure if exists proc_select_table2;");
+        jdbcTemplate.execute("create procedure proc_select_table2(in userName varchar(200), out outName varchar(200)) " + //
+                "begin " + //
+                "  select * from proc_table_forcaller where c_name = userName;" + //
+                "  select * from proc_table_forcaller;" + //
+                "  set outName = concat(userName,'-str');" + //
+                "end;");
+
         return conn;
     }
 
@@ -108,31 +113,36 @@ public class Caller1Test extends AbstractDbTest {
     @Test
     public void mysqlCallResultSet_4() throws SQLException {
         try (Connection conn = initConnection()) {
-            List<Object> objectMap = new JdbcTemplate(conn).executeCall(con -> {
-                CallableStatement cs = con.prepareCall("{call proc_select_multiple_table(?)}");
+            List<Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_table2(?,?)}", cs -> {
                 cs.setString(1, "aaa");
-                return cs;
-            }, new MultipleResultSetExtractor());
+                cs.registerOutParameter(2, Types.VARCHAR);
+            }, cs -> {
+                List<Object> objects = new MultipleResultSetExtractor().doInCallableStatement(cs);
+                objects.add(cs.getString(2));
+                return objects;
+            });
 
-            assert objectMap.size() == 3;
+            assert objectMap.size() == 4;
             assert objectMap.get(0) instanceof ArrayList;
             assert objectMap.get(1) instanceof ArrayList;
             assert ((ArrayList<?>) objectMap.get(0)).size() == 1;
-            assert ((ArrayList<?>) objectMap.get(1)).size() == 1;
+            assert ((ArrayList<?>) objectMap.get(1)).size() == 3;
             assert ((Map) ((ArrayList<?>) objectMap.get(0)).get(0)).get("c_name").equals("aaa");
             assert ((Map) ((ArrayList<?>) objectMap.get(0)).get(0)).get("c_id").equals(1);
             assert ((Map) ((ArrayList<?>) objectMap.get(1)).get(0)).get("c_name").equals("aaa");
             assert ((Map) ((ArrayList<?>) objectMap.get(1)).get(0)).get("c_id").equals(1);
+            assert objectMap.get(3).equals("aaa-str");
         }
     }
 
     @Test
     public void mysqlCallResultSet_5() throws SQLException {
         try (Connection conn = initConnection()) {
-            List<Object> objectMap = new JdbcTemplate(conn).executeCallback("{call proc_select_multiple_table(?)}", (CallableStatementCallback<List<Object>>) cs -> {
+            List<Object> objectMap = new JdbcTemplate(conn).executeCall(con -> {
+                CallableStatement cs = con.prepareCall("{call proc_select_multiple_table(?)}");
                 cs.setString(1, "aaa");
-                return new MultipleResultSetExtractor().doInCallableStatement(cs);
-            });
+                return cs;
+            }, new MultipleResultSetExtractor());
 
             assert objectMap.size() == 3;
             assert objectMap.get(0) instanceof ArrayList;

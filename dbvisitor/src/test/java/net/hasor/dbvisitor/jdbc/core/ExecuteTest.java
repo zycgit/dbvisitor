@@ -16,7 +16,6 @@
 package net.hasor.dbvisitor.jdbc.core;
 import net.hasor.dbvisitor.jdbc.CallableStatementCallback;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
-import net.hasor.dbvisitor.jdbc.PreparedStatementCallback;
 import net.hasor.dbvisitor.jdbc.StatementCallback;
 import net.hasor.dbvisitor.jdbc.paramer.MapSqlParameterSource;
 import net.hasor.test.AbstractDbTest;
@@ -90,22 +89,22 @@ public class ExecuteTest extends AbstractDbTest {
         }
     }
 
-    @Test
-    public void execute_4() throws Throwable {
-        try (Connection c = DsUtils.h2Conn()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-
-            jdbcTemplate.executeCallback("update user_info set user_name = CONCAT(user_name, '~' ) where user_uuid = ?", (PreparedStatementCallback<Object>) ps -> {
-                ps.setString(1, beanForData1().getUserUuid());
-                return ps.execute();
-            });
-
-            List<user_info> tbUsers = jdbcTemplate.queryForList("select * from user_info where user_uuid = ?", new Object[] { beanForData1().getUserUuid() }, user_info.class);
-            Set<String> collect = tbUsers.stream().map(user_info::getUser_name).collect(Collectors.toSet());
-            assert collect.size() == 1;
-            assert collect.contains(beanForData1().getName() + "~");
-        }
-    }
+    //    @Test
+    //    public void execute_4() throws Throwable {
+    //        try (Connection c = DsUtils.h2Conn()) {
+    //            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
+    //
+    //            jdbcTemplate.executeCallback("update user_info set user_name = CONCAT(user_name, '~' ) where user_uuid = ?", (PreparedStatementCallback<Object>) ps -> {
+    //                ps.setString(1, beanForData1().getUserUuid());
+    //                return ps.execute();
+    //            });
+    //
+    //            List<user_info> tbUsers = jdbcTemplate.queryForList("select * from user_info where user_uuid = ?", new Object[] { beanForData1().getUserUuid() }, user_info.class);
+    //            Set<String> collect = tbUsers.stream().map(user_info::getUser_name).collect(Collectors.toSet());
+    //            assert collect.size() == 1;
+    //            assert collect.contains(beanForData1().getName() + "~");
+    //        }
+    //    }
 
     @Test
     public void execute_5() throws Throwable {
