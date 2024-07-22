@@ -46,26 +46,13 @@ public interface JdbcOperations {
     /**执行一个动态查询 SQL 语句，返回的结果集使用 RowMapper 处理 */
     <T> List<T> executeCreator(PreparedStatementCreator psc, RowMapper<T> rowMapper) throws SQLException;
 
-    /**执行一个动态 SQL 语句。SQL 语句会被编译成 PreparedStatement 类型通过回调接口 PreparedStatementCallback 执行 */
-    <T> T executeCreator(PreparedStatementCreator psc, PreparedStatementCallback<T> action) throws SQLException;
     // ------------------------------------------------------------------------ executeCallback(CallableStatementCreator)
 
-    /**执行一个动态查询 SQL 语句，返回的结果集使用 ResultSetExtractor 处理 */
-    <T> T executeCall(CallableStatementCreator csc, ResultSetExtractor<T> rse) throws SQLException;
+    Map<String, Object> call(CallableStatementCreator csc, List<SqlParameter> declaredParameters) throws SQLException;
 
-    /**执行一个动态查询 SQL 语句，返回的结果集使用 RowCallbackHandler 处理 */
-    void executeCall(CallableStatementCreator csc, RowCallbackHandler rch) throws SQLException;
-
-    /**执行一个动态查询 SQL 语句，返回的结果集使用 RowMapper 处理 */
-    <T> List<T> executeCall(CallableStatementCreator csc, RowMapper<T> rowMapper) throws SQLException;
-
-    <T> T executeCall(CallableStatementCreator csc, CallableStatementCallback<T> action) throws SQLException;
-
-    //
+    <T> T call(CallableStatementCreator csc, CallableStatementCallback<T> action) throws SQLException;
 
     <T> T call(String callString, CallableStatementSetter setter, CallableStatementCallback<T> action) throws SQLException;
-
-    Map<String, Object> call(CallableStatementCreator csc, List<SqlParameter> declaredParameters) throws SQLException;
 
     Map<String, Object> call(String callString, List<SqlParameter> declaredParameters) throws SQLException;
 

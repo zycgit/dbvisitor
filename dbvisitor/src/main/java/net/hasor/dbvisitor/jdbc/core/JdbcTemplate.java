@@ -250,8 +250,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         });
     }
 
-    @Override
-    public <T> T executeCreator(final PreparedStatementCreator psc, final PreparedStatementCallback<T> action) throws SQLException {
+    protected <T> T executeCreator(final PreparedStatementCreator psc, final PreparedStatementCallback<T> action) throws SQLException {
         if (logger.isDebugEnabled()) {
             logger.trace("Executing SQL statement [" + getSql(psc) + "].");
         }
@@ -303,61 +302,16 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public <T> T executeCall(CallableStatementCreator csc, ResultSetExtractor<T> rse) throws SQLException {
-        return this.executeCall(csc, (CallableStatementCallback<T>) cs -> {
-            boolean retVal = cs.execute();
-            if (retVal) {
-                try (ResultSet rs = cs.getResultSet()) {
-                    return rse.extractData(rs);
-                }
-            } else {
-                int cnt = cs.getUpdateCount();
-                return null;
-            }
-        });
-    }
-
-    @Override
-    public void executeCall(CallableStatementCreator csc, RowCallbackHandler rch) throws SQLException {
-        this.executeCall(csc, (CallableStatementCallback<Void>) cs -> {
-            boolean retVal = cs.execute();
-            if (retVal) {
-                try (ResultSet rs = cs.getResultSet()) {
-                    return new RowCallbackHandlerResultSetExtractor(rch).extractData(rs);
-                }
-            } else {
-                int cnt = cs.getUpdateCount();
-                return null;
-            }
-        });
-    }
-
-    @Override
-    public <T> List<T> executeCall(CallableStatementCreator csc, RowMapper<T> rowMapper) throws SQLException {
-        return this.executeCall(csc, (CallableStatementCallback<List<T>>) cs -> {
-            boolean retVal = cs.execute();
-            if (retVal) {
-                try (ResultSet rs = cs.getResultSet()) {
-                    return new RowMapperResultSetExtractor<>(rowMapper).extractData(rs);
-                }
-            } else {
-                int cnt = cs.getUpdateCount();
-                return Collections.emptyList();
-            }
-        });
-    }
-
-    @Override
-    public <T> T executeCall(final CallableStatementCreator csc, final CallableStatementCallback<T> action) throws SQLException {
+    public <T> T call(final CallableStatementCreator csc, final CallableStatementCallback<T> action) throws SQLException {
         if (logger.isDebugEnabled()) {
             logger.trace("Executing SQL statement [" + getSql(csc) + "].");
         }
 
         return this.execute((ConnectionCallback<T>) con -> {
-            try (CallableStatement ps = csc.createCallableStatement(con)) {
-                applyStatementSettings(ps);
-                T result = action.doInCallableStatement(ps);
-                handleWarnings(ps);
+            try (CallableStatement cs = csc.createCallableStatement(con)) {
+                applyStatementSettings(cs);
+                T result = action.doInCallableStatement(cs);
+                handleWarnings(cs);
                 return result;
             } catch (SQLException ex) {
                 String sql = getSql(csc);
@@ -1017,12 +971,12 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
 
     @Override
     public <T> T call(String callString, CallableStatementSetter setter, CallableStatementCallback<T> action) throws SQLException {
-        return this.executeCall(this.getCallableStatementCreator(callString, setter), action);
+        return this.call(this.getCallableStatementCreator(callString, setter), action);
     }
 
     @Override
     public Map<String, Object> call(CallableStatementCreator csc, List<SqlParameter> declaredParameters) throws SQLException {
-        return this.executeCall(csc, new SimpleCallableStatementCallback(MultipleProcessType.ALL, declaredParameters));
+        return this.call(csc, new SimpleCallableStatementCallback(MultipleProcessType.ALL, declaredParameters));
     }
 
     @Override
@@ -1039,7 +993,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             }
         };
 
-        return this.executeCall(con -> {
+        return this.call(con -> {
             return con.prepareCall(callString);
         }, csc);
     }

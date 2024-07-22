@@ -21,7 +21,6 @@ import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BatchBoundSql.BatchBoundSqlObj;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
-import net.hasor.dbvisitor.jdbc.PreparedStatementCallback;
 import net.hasor.dbvisitor.jdbc.core.ParameterDisposer;
 import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.lambda.InsertOperation;
@@ -76,7 +75,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
 
             if (this.insertValuesCount.get() > 1) {
                 if (dialect().supportBatch()) {
-                    return this.getJdbcTemplate().executeCreator(new PreparedStatementCreatorWrap(insertSql, con -> {
+                    return this.getJdbcTemplate().execute((ConnectionCallback<int[]>) con -> {
                         boolean supportGetGeneratedKeys = con != null && con.getMetaData().supportsGetGeneratedKeys();
                         MappedArg[][] batchBoundSql = buildInsertArgs(useColumns, supportGetGeneratedKeys, con);
 
@@ -85,8 +84,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                             applyPreparedStatement(ps, batchItem, typeRegistry);
                             ps.addBatch();
                         }
-                        return ps;
-                    }), (PreparedStatementCallback<int[]>) ps -> {
+
                         int[] res = ps.executeBatch();
                         processKeySeqHolderAfter(ps);
                         return res;
@@ -108,14 +106,13 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                     });
                 }
             } else {
-                return this.getJdbcTemplate().executeCreator(new PreparedStatementCreatorWrap(insertSql, con -> {
+                return this.getJdbcTemplate().execute((ConnectionCallback<int[]>) con -> {
                     boolean supportsGetGeneratedKeys = con != null && con.getMetaData().supportsGetGeneratedKeys();
                     MappedArg[][] batchBoundSql = buildInsertArgs(useColumns, supportsGetGeneratedKeys, con);
 
                     PreparedStatement ps = createPrepareStatement(con, insertSql);
                     applyPreparedStatement(ps, batchBoundSql[0], typeRegistry);
-                    return ps;
-                }), (PreparedStatementCallback<int[]>) ps -> {
+
                     int res = ps.executeUpdate();
                     processKeySeqHolderAfter(ps);
                     return new int[] { res };

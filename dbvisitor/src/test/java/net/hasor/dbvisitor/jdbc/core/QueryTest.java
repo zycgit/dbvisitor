@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
-import net.hasor.dbvisitor.jdbc.PreparedStatementCallback;
 import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.MappingRowMapper;
 import net.hasor.dbvisitor.jdbc.paramer.BeanSqlParameterSource;
@@ -26,7 +25,6 @@ import net.hasor.test.utils.TestUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,24 +36,6 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class QueryTest extends AbstractDbTest {
-    @Test
-    public void query_1() throws Throwable {
-        try (Connection c = DsUtils.h2Conn()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-
-            List<UserInfo2> users = jdbcTemplate.executeCreator(con -> {
-                return con.prepareStatement("select * from user_info");
-            }, (PreparedStatementCallback<List<UserInfo2>>) ps -> {
-                try (ResultSet rs = ps.executeQuery()) {
-                    return new RowMapperResultSetExtractor<>(new MappingRowMapper<>(UserInfo2.class)).extractData(rs);
-                }
-            });
-            assert users.size() == 3;
-            assert TestUtils.beanForData1().getUserUuid().equals(users.get(0).getUid());
-            assert TestUtils.beanForData2().getUserUuid().equals(users.get(1).getUid());
-            assert TestUtils.beanForData3().getUserUuid().equals(users.get(2).getUid());
-        }
-    }
 
     @Test
     public void query_2() throws Throwable {
