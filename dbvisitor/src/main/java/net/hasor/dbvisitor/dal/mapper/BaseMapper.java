@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Mapper 继承该接口后，无需编写 mapper.xml 文件，即可获得 CRUD 功能
+ * Mapper 继承该接口后可以获得 CRUD 功能
  * @version : 2021-10-31
  * @author 赵永春 (zyc@hasor.net)
  */

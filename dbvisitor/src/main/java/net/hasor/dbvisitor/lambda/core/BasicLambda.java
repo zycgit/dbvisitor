@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
-import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.function.Property;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
@@ -26,21 +24,14 @@ import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
-import net.hasor.dbvisitor.jdbc.PreparedStatementCreator;
-import net.hasor.dbvisitor.jdbc.SqlProvider;
-import net.hasor.dbvisitor.jdbc.core.ParameterDisposer;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.segment.Segment;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 
-import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 所有 SQL 执行器必要的公共属性
@@ -214,60 +205,5 @@ public abstract class BasicLambda<R, T, P> {
             }
         }
         return properties;
-    }
-
-    protected String objectMsg(Object object) {
-        if (object == null) {
-            return "null";
-        }
-
-        Map<String, Property> propertyFunc = BeanUtils.getPropertyFunc(this.exampleType());
-        List<String> primaryKeys = this.getPrimaryKey().stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
-
-        StringBuilder strBuffer = new StringBuilder();
-        for (String pk : primaryKeys) {
-            Property property = propertyFunc.get(pk);
-            if (property == null) {
-                continue;
-            }
-            if (strBuffer.length() > 0) {
-                strBuffer.append(", ");
-            }
-            strBuffer.append(pk).append("=").append(StringUtils.toString(property.get(object)));
-        }
-
-        if (strBuffer.length() == 0) {
-            strBuffer.append("hashCode=").append(Objects.hashCode(object));
-        }
-
-        return strBuffer.insert(0, "object[").append("]").toString();
-    }
-
-    /** 接口 {@link PreparedStatementCreator} 的包装用于实现 SqlProvider 接口，方便打印错误语句 */
-    protected static class PreparedStatementCreatorWrap implements PreparedStatementCreator, ParameterDisposer, SqlProvider {
-        private final String                   sql;
-        private final PreparedStatementCreator creator;
-
-        public PreparedStatementCreatorWrap(String sql, PreparedStatementCreator creator) {
-            this.sql = Objects.requireNonNull(sql, "SQL must not be null");
-            this.creator = creator;
-        }
-
-        @Override
-        public String getSql() {
-            return sql;
-        }
-
-        @Override
-        public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-            return this.creator.createPreparedStatement(con);
-        }
-
-        @Override
-        public void cleanupParameters() {
-            if (this.creator instanceof ParameterDisposer) {
-                ((ParameterDisposer) this.creator).cleanupParameters();
-            }
-        }
     }
 }
