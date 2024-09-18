@@ -13,6 +13,7 @@
         <module>guice</module>
         <module>spring-xml</module>
         <module>spring-annotation</module>
-        <module>springboot</module>
+        <module>springboot2</module>
+        <module>springboot3</module>
     </modules>
 </project>
