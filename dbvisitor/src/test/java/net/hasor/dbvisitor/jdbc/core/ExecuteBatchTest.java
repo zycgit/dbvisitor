@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
+import net.hasor.dbvisitor.dynamic.SqlArgSource;
+import net.hasor.dbvisitor.dynamic.args.BeanSqlArgSource;
 import net.hasor.dbvisitor.jdbc.BatchPreparedStatementSetter;
-import net.hasor.dbvisitor.jdbc.SqlParameterSource;
-import net.hasor.dbvisitor.jdbc.paramer.BeanSqlParameterSource;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
@@ -152,10 +152,10 @@ public class ExecuteBatchTest extends AbstractDbTest {
             assert collect1.contains(TestUtils.beanForData2().getName());
             assert collect1.contains(TestUtils.beanForData3().getName());
 
-            SqlParameterSource[] ids = new SqlParameterSource[] {//
-                    new BeanSqlParameterSource(TestUtils.beanForData1()),//
-                    new BeanSqlParameterSource(TestUtils.beanForData2()),//
-                    new BeanSqlParameterSource(TestUtils.beanForData3()) //
+            SqlArgSource[] ids = new SqlArgSource[] {//
+                    new BeanSqlArgSource(TestUtils.beanForData1()),//
+                    new BeanSqlArgSource(TestUtils.beanForData2()),//
+                    new BeanSqlArgSource(TestUtils.beanForData3()) //
             };
             int[] ins = jdbcTemplate.executeBatch("update user_info set user_name = CONCAT(user_name, '~' ) where user_uuid = :userUuid", ids);
             assert ins[0] == 1;
@@ -186,10 +186,10 @@ public class ExecuteBatchTest extends AbstractDbTest {
             assert collect1.contains(TestUtils.beanForData2().getName());
             assert collect1.contains(TestUtils.beanForData3().getName());
 
-            SqlParameterSource[] ids = new SqlParameterSource[] {//
-                    new BeanSqlParameterSource(TestUtils.beanForData1()),//
-                    new BeanSqlParameterSource(TestUtils.beanForData2()),//
-                    new BeanSqlParameterSource(TestUtils.beanForData3()) //
+            SqlArgSource[] ids = new SqlArgSource[] {//
+                    new BeanSqlArgSource(TestUtils.beanForData1()),//
+                    new BeanSqlArgSource(TestUtils.beanForData2()),//
+                    new BeanSqlArgSource(TestUtils.beanForData3()) //
             };
             BatchPreparedStatementSetter bps = new BatchPreparedStatementSetter() {
                 public void setValues(PreparedStatement ps, int i) throws SQLException {

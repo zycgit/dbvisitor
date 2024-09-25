@@ -76,7 +76,7 @@ public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map
     @Override
     public int[] executeGetResult() throws SQLException {
         return this.getJdbcTemplate().execute((ConnectionCallback<int[]>) con -> {
-            final TypeHandlerRegistry typeRegistry = this.getJdbcTemplate().getTypeRegistry();
+            final TypeHandlerRegistry typeRegistry = this.getJdbcTemplate().getRegistry().getTypeRegistry();
             int[] result = new int[this.insertValuesCount.get()];
 
             int i = 0;

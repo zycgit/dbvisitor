@@ -16,12 +16,12 @@
 package net.hasor.dbvisitor.dal.execute;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dal.dynamic.DynamicContext;
-import net.hasor.dbvisitor.dal.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dal.repository.StatementType;
-import net.hasor.dbvisitor.dal.repository.config.DmlSqlConfig;
-import net.hasor.dbvisitor.dal.repository.config.SelectKeySqlConfig;
+import net.hasor.dbvisitor.dal.repository.parser.xmlnode.DmlSqlConfig;
+import net.hasor.dbvisitor.dal.repository.parser.xmlnode.SelectKeySqlConfig;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
+import net.hasor.dbvisitor.dynamic.DynamicContext;
+import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.page.Page;
 
 import java.sql.Connection;
@@ -40,7 +40,7 @@ public class ExecuteProxy {
     private       SelectKeyExecute            selectKeyExecute;
 
     public ExecuteProxy(String dynamicId, DynamicContext context) {
-        DynamicSql sqlConfig = context.findDynamic(dynamicId);
+        DynamicSql sqlConfig = context.findMacro(dynamicId);
         if (sqlConfig == null) {
             throw new NullPointerException("dynamic '" + dynamicId + "' is not found.");
         }
@@ -48,7 +48,7 @@ public class ExecuteProxy {
             throw new ClassCastException("dynamic '" + dynamicId + "' is not DmlSqlConfig");
         }
 
-        this.dynamicSql = (DmlSqlConfig) context.findDynamic(dynamicId);
+        this.dynamicSql = (DmlSqlConfig) context.findMacro(dynamicId);
         this.execute = buildExecute(this.dynamicSql.getStatementType(), context);
 
         SelectKeySqlConfig selectKey = ((DmlSqlConfig) sqlConfig).getSelectKey();

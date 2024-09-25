@@ -15,8 +15,10 @@
  */
 package net.hasor.dbvisitor.internal;
 import net.hasor.cobble.ExceptionUtils;
+import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import ognl.Ognl;
 import ognl.OgnlContext;
+import ognl.OgnlRuntime;
 
 /**
  * OGNL 执行工具。
@@ -24,6 +26,11 @@ import ognl.OgnlContext;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class OgnlUtils {
+
+    static {
+        OgnlRuntime.setPropertyAccessor(SqlArgSource.class, new OgnlSqlArgSourceAccessor());
+    }
+
     public static Object evalOgnl(String exprString, Object root) {
         try {
             OgnlContext context = new OgnlContext(null, null, new OgnlMemberAccess(true));

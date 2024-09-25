@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.repository.parser;
-import net.hasor.dbvisitor.dal.dynamic.DynamicSql;
+import net.hasor.dbvisitor.dynamic.DynamicSql;
 
 /**
  * 解析动态 SQL 配置

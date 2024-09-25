@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.types.handler;
 import net.hasor.dbvisitor.types.EnumOfCode;
 import net.hasor.dbvisitor.types.EnumOfValue;
+import net.hasor.dbvisitor.types.NoCache;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -27,30 +28,35 @@ import java.sql.SQLException;
  * @version : 2020-11-29
  * @author 赵永春 (zyc@hasor.net)
  */
+@NoCache
 public class EnumTypeHandler<E extends Enum<E>> extends AbstractTypeHandler<E> {
-    private final Class<E>       type;
+    private final Class<E>       enumType;
     private final EnumOfCode<E>  ofCode;
     private final EnumOfValue<E> ofValue;
 
-    public EnumTypeHandler(Class<E> type) {
-        if (type == null) {
+    public EnumTypeHandler(Class<E> enumType) {
+        if (enumType == null) {
             throw new IllegalArgumentException("Type argument cannot be null");
         }
-        this.type = type;
-        Enum<E>[] enums = ((Class<Enum<E>>) type).getEnumConstants();
-        if (enums.length > 0 && EnumOfCode.class.isAssignableFrom(type)) {
+        this.enumType = enumType;
+        Enum<E>[] enums = ((Class<Enum<E>>) enumType).getEnumConstants();
+        if (enums.length > 0 && EnumOfCode.class.isAssignableFrom(enumType)) {
             this.ofCode = (EnumOfCode<E>) enums[0];
         } else {
             this.ofCode = null;
         }
-        if (enums.length > 0 && EnumOfValue.class.isAssignableFrom(type)) {
+        if (enums.length > 0 && EnumOfValue.class.isAssignableFrom(enumType)) {
             this.ofValue = (EnumOfValue<E>) enums[0];
         } else {
             this.ofValue = null;
         }
         if (this.ofCode != null && this.ofValue != null) {
-            throw new IllegalArgumentException(type.getName() + " Type EnumOfCode and EnumOfValue cannot exist at the same time.");
+            throw new IllegalArgumentException(enumType.getName() + " Type EnumOfCode and EnumOfValue cannot exist at the same time.");
         }
+    }
+
+    public Class<E> getEnumType() {
+        return this.enumType;
     }
 
     @Override
@@ -128,7 +134,7 @@ public class EnumTypeHandler<E extends Enum<E>> extends AbstractTypeHandler<E> {
         if (this.ofCode != null) {
             return this.ofCode.valueOfCode(enumDat);
         } else {
-            return Enum.valueOf(type, enumDat);
+            return Enum.valueOf(enumType, enumDat);
         }
     }
 }

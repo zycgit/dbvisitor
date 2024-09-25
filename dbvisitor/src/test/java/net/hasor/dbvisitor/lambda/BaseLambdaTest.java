@@ -15,7 +15,6 @@
  */
 package net.hasor.dbvisitor.lambda;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
@@ -45,7 +44,7 @@ public class BaseLambdaTest extends AbstractDbTest {
     @Test
     public void base_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            LambdaTemplate lambdaTemplate1 = new LambdaTemplate(c, TypeHandlerRegistry.DEFAULT);
+            LambdaTemplate lambdaTemplate1 = new LambdaTemplate(c);
             Map<String, Object> userInfo1 = lambdaTemplate1.lambdaQuery(UserInfo2.class)//
                     .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
@@ -64,7 +63,7 @@ public class BaseLambdaTest extends AbstractDbTest {
     @Test
     public void base_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(c, TypeHandlerRegistry.DEFAULT);
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             Map<String, Object> userInfo = lambdaTemplate.lambdaQuery(UserInfo2.class)//
                     .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();

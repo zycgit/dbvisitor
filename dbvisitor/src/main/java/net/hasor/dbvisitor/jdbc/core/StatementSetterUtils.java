@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
+import net.hasor.dbvisitor.dynamic.args.SqlArgDisposer;
+
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -26,7 +28,7 @@ public class StatementSetterUtils {
     /**
      * Clean up all resources held by parameter values which were passed to an execute method. This is for example important for closing LOB values.
      * @param paramValues parameter values supplied. May be <code>null</code>.
-     * @see ParameterDisposer#cleanupParameters()
+     * @see SqlArgDisposer#cleanupParameters()
      */
     public static void cleanupParameters(final Object[] paramValues) {
         if (paramValues != null) {
@@ -37,7 +39,7 @@ public class StatementSetterUtils {
     /**
      * Clean up all resources held by parameter values which were passed to an execute method. This is for example important for closing LOB values.
      * @param paramValues parameter values supplied. May be <code>null</code>.
-     * @see ParameterDisposer#cleanupParameters()
+     * @see SqlArgDisposer#cleanupParameters()
      */
     public static void cleanupParameters(final Collection<Object> paramValues) {
         if (paramValues == null) {
@@ -52,8 +54,8 @@ public class StatementSetterUtils {
         if (paramValue == null) {
             return;
         }
-        if (paramValue instanceof ParameterDisposer) {
-            ((ParameterDisposer) paramValue).cleanupParameters();
+        if (paramValue instanceof SqlArgDisposer) {
+            ((SqlArgDisposer) paramValue).cleanupParameters();
         }
     }
 }

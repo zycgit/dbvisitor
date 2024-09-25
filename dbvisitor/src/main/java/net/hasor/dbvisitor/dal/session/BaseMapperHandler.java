@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.dal.session;
 import net.hasor.dbvisitor.dal.mapper.BaseMapper;
+import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.lambda.EntityDeleteOperation;
 import net.hasor.dbvisitor.lambda.EntityQueryOperation;
 import net.hasor.dbvisitor.lambda.EntityUpdateOperation;

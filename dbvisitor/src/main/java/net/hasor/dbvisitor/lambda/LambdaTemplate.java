@@ -20,6 +20,7 @@ import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
+import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.DynamicConnection;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
@@ -36,7 +37,6 @@ import net.hasor.dbvisitor.mapping.def.TableDef;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -82,10 +82,10 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
      * Construct a new JdbcTemplate, given a DataSource to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param dataSource the JDBC DataSource to obtain connections from
-     * @param typeRegistry the TypeHandlerRegistry
+     * @param registry the DynamicContext
      */
-    public LambdaTemplate(final DataSource dataSource, TypeHandlerRegistry typeRegistry) {
-        super(dataSource, typeRegistry);
+    public LambdaTemplate(final DataSource dataSource, DynamicContext registry) {
+        super(dataSource, registry);
         this.init();
     }
 
@@ -103,10 +103,10 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
      * Construct a new JdbcTemplate, given a Connection to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param conn the JDBC Connection
-     * @param typeRegistry the TypeHandlerRegistry
+     * @param registry the DynamicContext
      */
-    public LambdaTemplate(final Connection conn, TypeHandlerRegistry typeRegistry) {
-        super(conn, typeRegistry);
+    public LambdaTemplate(final Connection conn, DynamicContext registry) {
+        super(conn, registry);
     }
 
     /**
@@ -123,10 +123,10 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
      * Construct a new JdbcTemplate, given a Connection to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param dynamicConn the JDBC Connection of dynamic
-     * @param typeRegistry the TypeHandlerRegistry
+     * @param registry the DynamicContext
      */
-    public LambdaTemplate(final DynamicConnection dynamicConn, TypeHandlerRegistry typeRegistry) {
-        super(dynamicConn, typeRegistry);
+    public LambdaTemplate(final DynamicConnection dynamicConn, DynamicContext registry) {
+        super(dynamicConn, registry);
     }
 
     /**
@@ -141,7 +141,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         this.setDynamic(jdbcTemplate.getDynamic());
 
         this.setResultsCaseInsensitive(jdbcTemplate.isResultsCaseInsensitive());
-        this.setTypeRegistry(jdbcTemplate.getTypeRegistry());
+        this.setRegistry(jdbcTemplate.getRegistry());
         this.setFetchSize(jdbcTemplate.getFetchSize());
         this.setMaxRows(jdbcTemplate.getMaxRows());
         this.setQueryTimeout(jdbcTemplate.getQueryTimeout());
@@ -222,7 +222,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
             }
 
             ClassLoader loader = ClassUtils.getClassLoader(exampleType.getClassLoader());
-            TableDef<?> tableDef = new ClassTableMappingResolve(opt).resolveTableMapping(exampleType, null, loader, this.getTypeRegistry());
+            TableDef<?> tableDef = new ClassTableMappingResolve(opt).resolveTableMapping(exampleType, null, loader, this.getRegistry().getTypeRegistry());
             if (StringUtils.isBlank(tableDef.getTable())) {
                 if (tableDef.isMapUnderscoreToCamelCase()) {
                     tableDef.setTable(StringUtils.humpToLine(exampleType.getSimpleName()));

@@ -23,6 +23,7 @@ import net.hasor.dbvisitor.types.handler.*;
 import java.io.InputStream;
 import java.io.Reader;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -33,6 +34,7 @@ import java.time.chrono.JapaneseDate;
 import java.util.Date;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 /**
  * JDBC 4.2 full  compatible
@@ -40,15 +42,18 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author 赵永春 (zyc@hasor.net)
  */
 public final class TypeHandlerRegistry {
-    private static final Map<Class<? extends TypeHandler<?>>, TypeHandler<?>> cachedSingleHandlers  = new ConcurrentHashMap<>();
-    private static final Map<String, Integer>                                 javaTypeToJdbcTypeMap = new ConcurrentHashMap<>();
 
-    public static final TypeHandlerRegistry                       DEFAULT            = new TypeHandlerRegistry();
-    private final       UnknownTypeHandler                        defaultTypeHandler = new UnknownTypeHandler(this);
-    // mappings
-    private final       Map<String, TypeHandler<?>>               javaTypeHandlerMap = new ConcurrentHashMap<>();
-    private final       Map<Integer, TypeHandler<?>>              jdbcTypeHandlerMap = new ConcurrentHashMap<>();
-    private final       Map<String, Map<Integer, TypeHandler<?>>> typeHandlerMap     = new ConcurrentHashMap<>();
+    private static final Map<String, Integer>  javaTypeToJdbcTypeMap = new ConcurrentHashMap<>();
+    private static final Map<String, Class<?>> typeHandlerTypeCache  = new ConcurrentHashMap<>();
+    public static final  TypeHandlerRegistry   DEFAULT               = new TypeHandlerRegistry();
+
+    private final UnknownTypeHandler                          defaultTypeHandler        = new UnknownTypeHandler(this);
+    private final Map<String, TypeHandler<?>>                 cachedByHandlerType       = new ConcurrentHashMap<>();
+    private final Map<String, TypeHandler<?>>                 cachedByJavaType          = new ConcurrentHashMap<>();
+    private final Map<Integer, TypeHandler<?>>                cachedByJdbcType          = new ConcurrentHashMap<>();
+    private final Map<String, Map<Integer, TypeHandler<?>>>   cachedByCrossType         = new ConcurrentHashMap<>();
+    private final Map<Class<?>, TypeHandler<?>>               abstractCachedByJavaType  = new LinkedHashMap<>();
+    private final Map<Class<?>, Map<Integer, TypeHandler<?>>> abstractCachedByCrossType = new LinkedHashMap<>();
 
     static {
         // primitive and wrapper
@@ -108,177 +113,235 @@ public final class TypeHandlerRegistry {
 
     public TypeHandlerRegistry() {
         // primitive and wrapper
-        this.register(Boolean.class, createSingleTypeHandler(BooleanTypeHandler.class));
-        this.register(boolean.class, createSingleTypeHandler(BooleanTypeHandler.class));
-        this.register(Byte.class, createSingleTypeHandler(ByteTypeHandler.class));
-        this.register(byte.class, createSingleTypeHandler(ByteTypeHandler.class));
-        this.register(Short.class, createSingleTypeHandler(ShortTypeHandler.class));
-        this.register(short.class, createSingleTypeHandler(ShortTypeHandler.class));
-        this.register(Integer.class, createSingleTypeHandler(IntegerTypeHandler.class));
-        this.register(int.class, createSingleTypeHandler(IntegerTypeHandler.class));
-        this.register(Long.class, createSingleTypeHandler(LongTypeHandler.class));
-        this.register(long.class, createSingleTypeHandler(LongTypeHandler.class));
-        this.register(Float.class, createSingleTypeHandler(FloatTypeHandler.class));
-        this.register(float.class, createSingleTypeHandler(FloatTypeHandler.class));
-        this.register(Double.class, createSingleTypeHandler(DoubleTypeHandler.class));
-        this.register(double.class, createSingleTypeHandler(DoubleTypeHandler.class));
-        this.register(Character.class, createSingleTypeHandler(StringAsCharTypeHandler.class));
-        this.register(char.class, createSingleTypeHandler(StringAsCharTypeHandler.class));
+        this.register(Boolean.class, createTypeHandler(BooleanTypeHandler.class));
+        this.register(boolean.class, createTypeHandler(BooleanTypeHandler.class));
+        this.register(Byte.class, createTypeHandler(ByteTypeHandler.class));
+        this.register(byte.class, createTypeHandler(ByteTypeHandler.class));
+        this.register(Short.class, createTypeHandler(ShortTypeHandler.class));
+        this.register(short.class, createTypeHandler(ShortTypeHandler.class));
+        this.register(Integer.class, createTypeHandler(IntegerTypeHandler.class));
+        this.register(int.class, createTypeHandler(IntegerTypeHandler.class));
+        this.register(Long.class, createTypeHandler(LongTypeHandler.class));
+        this.register(long.class, createTypeHandler(LongTypeHandler.class));
+        this.register(Float.class, createTypeHandler(FloatTypeHandler.class));
+        this.register(float.class, createTypeHandler(FloatTypeHandler.class));
+        this.register(Double.class, createTypeHandler(DoubleTypeHandler.class));
+        this.register(double.class, createTypeHandler(DoubleTypeHandler.class));
+        this.register(Character.class, createTypeHandler(StringAsCharTypeHandler.class));
+        this.register(char.class, createTypeHandler(StringAsCharTypeHandler.class));
         // java time
-        this.register(Date.class, createSingleTypeHandler(SqlTimestampAsDateTypeHandler.class));
-        this.register(java.sql.Date.class, createSingleTypeHandler(SqlDateTypeHandler.class));
-        this.register(java.sql.Timestamp.class, createSingleTypeHandler(SqlTimestampTypeHandler.class));
-        this.register(java.sql.Time.class, createSingleTypeHandler(SqlTimeTypeHandler.class));
-        this.register(Instant.class, createSingleTypeHandler(SqlTimestampAsInstantTypeHandler.class));
-        this.register(JapaneseDate.class, createSingleTypeHandler(JapaneseDateAsSqlDateTypeHandler.class));
-        this.register(Year.class, createSingleTypeHandler(SqlTimestampAsYearTypeHandler.class));
-        this.register(Month.class, createSingleTypeHandler(SqlTimestampAsMonthTypeHandler.class));
-        this.register(YearMonth.class, createSingleTypeHandler(SqlTimestampAsYearMonthTypeHandler.class));
-        this.register(MonthDay.class, createSingleTypeHandler(SqlTimestampAsMonthDayTypeHandler.class));
+        this.register(Date.class, createTypeHandler(SqlTimestampAsDateTypeHandler.class));
+        this.register(java.sql.Date.class, createTypeHandler(SqlDateTypeHandler.class));
+        this.register(java.sql.Timestamp.class, createTypeHandler(SqlTimestampTypeHandler.class));
+        this.register(java.sql.Time.class, createTypeHandler(SqlTimeTypeHandler.class));
+        this.register(Instant.class, createTypeHandler(SqlTimestampAsInstantTypeHandler.class));
+        this.register(JapaneseDate.class, createTypeHandler(JapaneseDateAsSqlDateTypeHandler.class));
+        this.register(Year.class, createTypeHandler(SqlTimestampAsYearTypeHandler.class));
+        this.register(Month.class, createTypeHandler(SqlTimestampAsMonthTypeHandler.class));
+        this.register(YearMonth.class, createTypeHandler(SqlTimestampAsYearMonthTypeHandler.class));
+        this.register(MonthDay.class, createTypeHandler(SqlTimestampAsMonthDayTypeHandler.class));
         //
-        this.register(LocalDate.class, createSingleTypeHandler(LocalDateTimeAsLocalDateTypeHandler.class));
-        this.register(LocalTime.class, createSingleTypeHandler(LocalTimeTypeHandler.class));
-        this.register(LocalDateTime.class, createSingleTypeHandler(LocalDateTimeTypeHandler.class));
-        this.register(ZonedDateTime.class, createSingleTypeHandler(OffsetDateTimeAsZonedDateTimeTypeHandler.class));
-        this.register(OffsetDateTime.class, createSingleTypeHandler(OffsetDateTimeTypeHandler.class));
-        this.register(OffsetTime.class, createSingleTypeHandler(OffsetTimeTypeHandler.class));
+        this.register(LocalDate.class, createTypeHandler(LocalDateTimeAsLocalDateTypeHandler.class));
+        this.register(LocalTime.class, createTypeHandler(LocalTimeTypeHandler.class));
+        this.register(LocalDateTime.class, createTypeHandler(LocalDateTimeTypeHandler.class));
+        this.register(ZonedDateTime.class, createTypeHandler(OffsetDateTimeAsZonedDateTimeTypeHandler.class));
+        this.register(OffsetDateTime.class, createTypeHandler(OffsetDateTimeTypeHandler.class));
+        this.register(OffsetTime.class, createTypeHandler(OffsetTimeTypeHandler.class));
         // java extensions Types
-        this.register(String.class, createSingleTypeHandler(StringTypeHandler.class));
-        this.register(BigInteger.class, createSingleTypeHandler(BigIntegerTypeHandler.class));
-        this.register(BigDecimal.class, createSingleTypeHandler(BigDecimalTypeHandler.class));
-        this.register(Reader.class, createSingleTypeHandler(StringAsReaderTypeHandler.class));
-        this.register(InputStream.class, createSingleTypeHandler(BytesAsInputStreamTypeHandler.class));
-        this.register(Byte[].class, createSingleTypeHandler(BytesAsBytesWrapTypeHandler.class));
-        this.register(byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
-        this.register(Object[].class, createSingleTypeHandler(ArrayTypeHandler.class));
-        this.register(Object.class, createSingleTypeHandler(UnknownTypeHandler.class));
-        this.register(Number.class, createSingleTypeHandler(NumberTypeHandler.class));
-        this.register(Clob.class, createSingleTypeHandler(ClobAsStringTypeHandler.class));
-        this.register(NClob.class, createSingleTypeHandler(NClobAsStringTypeHandler.class));
-        this.register(Blob.class, createSingleTypeHandler(BlobAsBytesTypeHandler.class));
-        this.register(URL.class, createSingleTypeHandler(URLTypeHandler.class));
-        this.register(URI.class, createSingleTypeHandler(URITypeHandler.class));
+        this.register(String.class, createTypeHandler(StringTypeHandler.class));
+        this.register(BigInteger.class, createTypeHandler(BigIntegerTypeHandler.class));
+        this.register(BigDecimal.class, createTypeHandler(BigDecimalTypeHandler.class));
+        this.register(Reader.class, createTypeHandler(StringAsReaderTypeHandler.class));
+        this.register(InputStream.class, createTypeHandler(BytesAsInputStreamTypeHandler.class));
+        this.register(Byte[].class, createTypeHandler(BytesAsBytesWrapTypeHandler.class));
+        this.register(byte[].class, createTypeHandler(BytesTypeHandler.class));
+        this.register(Object[].class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Object.class, createTypeHandler(UnknownTypeHandler.class));
+        this.register(Number.class, createTypeHandler(NumberTypeHandler.class));
+        this.register(NClob.class, createTypeHandler(NClobAsStringTypeHandler.class));
+        this.register(Clob.class, createTypeHandler(ClobAsStringTypeHandler.class));
+        this.register(Blob.class, createTypeHandler(BlobAsBytesTypeHandler.class));
+        this.register(URL.class, createTypeHandler(URLTypeHandler.class));
+        this.register(URI.class, createTypeHandler(URITypeHandler.class));
 
-        this.register(Types.BIT, createSingleTypeHandler(BooleanTypeHandler.class));
-        this.register(Types.BOOLEAN, createSingleTypeHandler(BooleanTypeHandler.class));
-        this.register(Types.TINYINT, createSingleTypeHandler(ByteTypeHandler.class));
-        this.register(Types.SMALLINT, createSingleTypeHandler(ShortTypeHandler.class));
-        this.register(Types.INTEGER, createSingleTypeHandler(IntegerTypeHandler.class));
-        this.register(Types.BIGINT, createSingleTypeHandler(LongTypeHandler.class));
-        this.register(Types.FLOAT, createSingleTypeHandler(FloatTypeHandler.class));
-        this.register(Types.DOUBLE, createSingleTypeHandler(DoubleTypeHandler.class));
-        this.register(Types.REAL, createSingleTypeHandler(BigDecimalTypeHandler.class));
-        this.register(Types.NUMERIC, createSingleTypeHandler(BigDecimalTypeHandler.class));
-        this.register(Types.DECIMAL, createSingleTypeHandler(BigDecimalTypeHandler.class));
-        this.register(Types.CHAR, createSingleTypeHandler(StringAsCharTypeHandler.class));
-        this.register(Types.NCHAR, createSingleTypeHandler(NStringAsCharTypeHandler.class));
-        this.register(Types.CLOB, createSingleTypeHandler(ClobAsStringTypeHandler.class));
-        this.register(Types.VARCHAR, createSingleTypeHandler(StringTypeHandler.class));
-        this.register(Types.LONGVARCHAR, createSingleTypeHandler(StringTypeHandler.class));
-        this.register(Types.NCLOB, createSingleTypeHandler(NClobAsStringTypeHandler.class));
-        this.register(Types.NVARCHAR, createSingleTypeHandler(NStringTypeHandler.class));
-        this.register(Types.LONGNVARCHAR, createSingleTypeHandler(NStringTypeHandler.class));
-        this.register(Types.TIMESTAMP, createSingleTypeHandler(SqlTimestampAsDateTypeHandler.class));
-        this.register(Types.DATE, createSingleTypeHandler(SqlDateAsDateHandler.class));
-        this.register(Types.TIME, createSingleTypeHandler(SqlTimeAsDateTypeHandler.class));
-        this.register(Types.TIME_WITH_TIMEZONE, createSingleTypeHandler(OffsetTimeTypeHandler.class));
-        this.register(Types.TIMESTAMP_WITH_TIMEZONE, createSingleTypeHandler(OffsetDateTimeTypeHandler.class));
-        this.register(Types.SQLXML, createSingleTypeHandler(SqlXmlTypeHandler.class));
-        this.register(Types.BINARY, createSingleTypeHandler(BytesTypeHandler.class));
-        this.register(Types.VARBINARY, createSingleTypeHandler(BytesTypeHandler.class));
-        this.register(Types.LONGVARBINARY, createSingleTypeHandler(BytesTypeHandler.class));
-        this.register(Types.BLOB, createSingleTypeHandler(BlobAsBytesTypeHandler.class));
-        this.register(Types.JAVA_OBJECT, createSingleTypeHandler(ObjectTypeHandler.class));
-        this.register(Types.ARRAY, createSingleTypeHandler(ArrayTypeHandler.class));
-        this.register(Types.DATALINK, createSingleTypeHandler(URLTypeHandler.class));
-        this.register(Types.ROWID, createSingleTypeHandler(StringTypeHandler.class));
+        this.register(Types.BIT, createTypeHandler(BooleanTypeHandler.class));
+        this.register(Types.BOOLEAN, createTypeHandler(BooleanTypeHandler.class));
+        this.register(Types.TINYINT, createTypeHandler(ByteTypeHandler.class));
+        this.register(Types.SMALLINT, createTypeHandler(ShortTypeHandler.class));
+        this.register(Types.INTEGER, createTypeHandler(IntegerTypeHandler.class));
+        this.register(Types.BIGINT, createTypeHandler(LongTypeHandler.class));
+        this.register(Types.FLOAT, createTypeHandler(FloatTypeHandler.class));
+        this.register(Types.DOUBLE, createTypeHandler(DoubleTypeHandler.class));
+        this.register(Types.REAL, createTypeHandler(BigDecimalTypeHandler.class));
+        this.register(Types.NUMERIC, createTypeHandler(BigDecimalTypeHandler.class));
+        this.register(Types.DECIMAL, createTypeHandler(BigDecimalTypeHandler.class));
+        this.register(Types.CHAR, createTypeHandler(StringAsCharTypeHandler.class));
+        this.register(Types.NCHAR, createTypeHandler(NStringAsCharTypeHandler.class));
+        this.register(Types.CLOB, createTypeHandler(ClobAsStringTypeHandler.class));
+        this.register(Types.VARCHAR, createTypeHandler(StringTypeHandler.class));
+        this.register(Types.LONGVARCHAR, createTypeHandler(StringTypeHandler.class));
+        this.register(Types.NCLOB, createTypeHandler(NClobAsStringTypeHandler.class));
+        this.register(Types.NVARCHAR, createTypeHandler(NStringTypeHandler.class));
+        this.register(Types.LONGNVARCHAR, createTypeHandler(NStringTypeHandler.class));
+        this.register(Types.TIMESTAMP, createTypeHandler(SqlTimestampAsDateTypeHandler.class));
+        this.register(Types.DATE, createTypeHandler(SqlDateAsDateHandler.class));
+        this.register(Types.TIME, createTypeHandler(SqlTimeAsDateTypeHandler.class));
+        this.register(Types.TIME_WITH_TIMEZONE, createTypeHandler(OffsetTimeTypeHandler.class));
+        this.register(Types.TIMESTAMP_WITH_TIMEZONE, createTypeHandler(OffsetDateTimeTypeHandler.class));
+        this.register(Types.SQLXML, createTypeHandler(SqlXmlTypeHandler.class));
+        this.register(Types.BINARY, createTypeHandler(BytesTypeHandler.class));
+        this.register(Types.VARBINARY, createTypeHandler(BytesTypeHandler.class));
+        this.register(Types.LONGVARBINARY, createTypeHandler(BytesTypeHandler.class));
+        this.register(Types.BLOB, createTypeHandler(BlobAsBytesTypeHandler.class));
+        this.register(Types.JAVA_OBJECT, createTypeHandler(ObjectTypeHandler.class));
+        this.register(Types.ARRAY, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Types.DATALINK, createTypeHandler(URLTypeHandler.class));
+        this.register(Types.ROWID, createTypeHandler(StringTypeHandler.class));
         // DISTINCT(Types.DISTINCT),
         // STRUCT(Types.STRUCT),
         // REF(Types.REF),
         // REF_CURSOR(Types.REF_CURSOR),
-        this.register(Types.OTHER, createSingleTypeHandler(UnknownTypeHandler.class));
+        this.register(Types.OTHER, createTypeHandler(UnknownTypeHandler.class));
 
-        this.registerCrossChars(MonthDay.class, createSingleTypeHandler(StringAsMonthDayTypeHandler.class));
-        this.registerCrossNChars(MonthDay.class, createSingleTypeHandler(StringAsMonthDayTypeHandler.class));
-        this.registerCrossNumber(MonthDay.class, createSingleTypeHandler(IntegerAsMonthDayTypeHandler.class));
-        this.registerCrossChars(YearMonth.class, createSingleTypeHandler(StringAsYearMonthTypeHandler.class));
-        this.registerCrossNChars(YearMonth.class, createSingleTypeHandler(StringAsYearMonthTypeHandler.class));
-        this.registerCrossNumber(YearMonth.class, createSingleTypeHandler(IntegerAsYearMonthTypeHandler.class));
-        this.registerCrossChars(Year.class, createSingleTypeHandler(StringAsYearTypeHandler.class));
-        this.registerCrossNChars(Year.class, createSingleTypeHandler(StringAsYearTypeHandler.class));
-        this.registerCrossNumber(Year.class, createSingleTypeHandler(IntegerAsYearTypeHandler.class));
-        this.registerCrossChars(Month.class, createSingleTypeHandler(StringAsMonthTypeHandler.class));
-        this.registerCrossNChars(Month.class, createSingleTypeHandler(StringAsMonthTypeHandler.class));
-        this.registerCrossNumber(Month.class, createSingleTypeHandler(IntegerAsMonthTypeHandler.class));
+        this.registerCrossChars(MonthDay.class, createTypeHandler(StringAsMonthDayTypeHandler.class));
+        this.registerCrossNChars(MonthDay.class, createTypeHandler(StringAsMonthDayTypeHandler.class));
+        this.registerCrossNumber(MonthDay.class, createTypeHandler(IntegerAsMonthDayTypeHandler.class));
+        this.registerCrossChars(YearMonth.class, createTypeHandler(StringAsYearMonthTypeHandler.class));
+        this.registerCrossNChars(YearMonth.class, createTypeHandler(StringAsYearMonthTypeHandler.class));
+        this.registerCrossNumber(YearMonth.class, createTypeHandler(IntegerAsYearMonthTypeHandler.class));
+        this.registerCrossChars(Year.class, createTypeHandler(StringAsYearTypeHandler.class));
+        this.registerCrossNChars(Year.class, createTypeHandler(StringAsYearTypeHandler.class));
+        this.registerCrossNumber(Year.class, createTypeHandler(IntegerAsYearTypeHandler.class));
+        this.registerCrossChars(Month.class, createTypeHandler(StringAsMonthTypeHandler.class));
+        this.registerCrossNChars(Month.class, createTypeHandler(StringAsMonthTypeHandler.class));
+        this.registerCrossNumber(Month.class, createTypeHandler(IntegerAsMonthTypeHandler.class));
 
-        this.registerCrossChars(String.class, createSingleTypeHandler(StringTypeHandler.class));
-        this.registerCrossNChars(String.class, createSingleTypeHandler(NStringTypeHandler.class));
-        this.registerCross(Types.CLOB, String.class, createSingleTypeHandler(ClobAsStringTypeHandler.class));
-        this.registerCross(Types.NCLOB, String.class, createSingleTypeHandler(NClobAsStringTypeHandler.class));
-        this.registerCrossChars(Reader.class, createSingleTypeHandler(StringAsReaderTypeHandler.class));
-        this.registerCrossNChars(Reader.class, createSingleTypeHandler(NStringAsReaderTypeHandler.class));
-        this.registerCross(Types.CLOB, Reader.class, createSingleTypeHandler(ClobAsReaderTypeHandler.class));
-        this.registerCross(Types.NCLOB, Reader.class, createSingleTypeHandler(NClobAsReaderTypeHandler.class));
+        this.registerCrossChars(String.class, createTypeHandler(StringTypeHandler.class));
+        this.registerCrossNChars(String.class, createTypeHandler(NStringTypeHandler.class));
+        this.registerCross(Types.CLOB, String.class, createTypeHandler(ClobAsStringTypeHandler.class));
+        this.registerCross(Types.NCLOB, String.class, createTypeHandler(NClobAsStringTypeHandler.class));
+        this.registerCrossChars(Reader.class, createTypeHandler(StringAsReaderTypeHandler.class));
+        this.registerCrossNChars(Reader.class, createTypeHandler(NStringAsReaderTypeHandler.class));
+        this.registerCross(Types.CLOB, Reader.class, createTypeHandler(ClobAsReaderTypeHandler.class));
+        this.registerCross(Types.NCLOB, Reader.class, createTypeHandler(NClobAsReaderTypeHandler.class));
 
-        this.registerCross(Types.SQLXML, String.class, createSingleTypeHandler(SqlXmlTypeHandler.class));
-        this.registerCross(Types.SQLXML, Reader.class, createSingleTypeHandler(SqlXmlForReaderTypeHandler.class));
-        this.registerCross(Types.SQLXML, InputStream.class, createSingleTypeHandler(SqlXmlForInputStreamTypeHandler.class));
+        this.registerCross(Types.SQLXML, String.class, createTypeHandler(SqlXmlTypeHandler.class));
+        this.registerCross(Types.SQLXML, Reader.class, createTypeHandler(SqlXmlForReaderTypeHandler.class));
+        this.registerCross(Types.SQLXML, InputStream.class, createTypeHandler(SqlXmlForInputStreamTypeHandler.class));
 
-        this.registerCross(Types.BINARY, byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
-        this.registerCross(Types.BINARY, Byte[].class, createSingleTypeHandler(BytesAsBytesWrapTypeHandler.class));
-        this.registerCross(Types.VARBINARY, byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
-        this.registerCross(Types.VARBINARY, Byte[].class, createSingleTypeHandler(BytesAsBytesWrapTypeHandler.class));
-        this.registerCross(Types.BLOB, byte[].class, createSingleTypeHandler(BlobAsBytesTypeHandler.class));
-        this.registerCross(Types.BLOB, Byte[].class, createSingleTypeHandler(BlobAsBytesWrapTypeHandler.class));
-        this.registerCross(Types.LONGVARBINARY, byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
-        this.registerCross(Types.LONGVARBINARY, Byte[].class, createSingleTypeHandler(BytesAsBytesWrapTypeHandler.class));
+        this.registerCross(Types.BINARY, byte[].class, createTypeHandler(BytesTypeHandler.class));
+        this.registerCross(Types.BINARY, Byte[].class, createTypeHandler(BytesAsBytesWrapTypeHandler.class));
+        this.registerCross(Types.VARBINARY, byte[].class, createTypeHandler(BytesTypeHandler.class));
+        this.registerCross(Types.VARBINARY, Byte[].class, createTypeHandler(BytesAsBytesWrapTypeHandler.class));
+        this.registerCross(Types.BLOB, byte[].class, createTypeHandler(BlobAsBytesTypeHandler.class));
+        this.registerCross(Types.BLOB, Byte[].class, createTypeHandler(BlobAsBytesWrapTypeHandler.class));
+        this.registerCross(Types.LONGVARBINARY, byte[].class, createTypeHandler(BytesTypeHandler.class));
+        this.registerCross(Types.LONGVARBINARY, Byte[].class, createTypeHandler(BytesAsBytesWrapTypeHandler.class));
 
-        this.registerCross(Types.BINARY, InputStream.class, createSingleTypeHandler(BytesAsInputStreamTypeHandler.class));
-        this.registerCross(Types.VARBINARY, InputStream.class, createSingleTypeHandler(BytesAsInputStreamTypeHandler.class));
-        this.registerCross(Types.LONGVARBINARY, InputStream.class, createSingleTypeHandler(BytesAsInputStreamTypeHandler.class));
-        this.registerCross(Types.BLOB, InputStream.class, createSingleTypeHandler(BlobAsInputStreamTypeHandler.class));
+        this.registerCross(Types.BINARY, InputStream.class, createTypeHandler(BytesAsInputStreamTypeHandler.class));
+        this.registerCross(Types.VARBINARY, InputStream.class, createTypeHandler(BytesAsInputStreamTypeHandler.class));
+        this.registerCross(Types.LONGVARBINARY, InputStream.class, createTypeHandler(BytesAsInputStreamTypeHandler.class));
+        this.registerCross(Types.BLOB, InputStream.class, createTypeHandler(BlobAsInputStreamTypeHandler.class));
 
-        this.registerCross(Types.ARRAY, Object.class, createSingleTypeHandler(ArrayTypeHandler.class));
+        this.registerCross(Types.ARRAY, Object.class, createTypeHandler(ArrayTypeHandler.class));
 
-        this.registerCross(Types.DATALINK, String.class, createSingleTypeHandler(StringTypeHandler.class));
-        this.registerCross(Types.DATALINK, URL.class, createSingleTypeHandler(URLTypeHandler.class));
-        this.registerCross(Types.DATALINK, URI.class, createSingleTypeHandler(URITypeHandler.class));
+        this.registerCross(Types.DATALINK, String.class, createTypeHandler(StringTypeHandler.class));
+        this.registerCross(Types.DATALINK, URL.class, createTypeHandler(URLTypeHandler.class));
+        this.registerCross(Types.DATALINK, URI.class, createTypeHandler(URITypeHandler.class));
 
-        this.registerCross(Types.ROWID, byte[].class, createSingleTypeHandler(BytesTypeHandler.class));
-        this.registerCross(Types.ROWID, Byte[].class, createSingleTypeHandler(BytesAsBytesWrapTypeHandler.class));
-        this.registerCross(Types.ROWID, String.class, createSingleTypeHandler(StringTypeHandler.class));
+        this.registerCross(Types.ROWID, byte[].class, createTypeHandler(BytesTypeHandler.class));
+        this.registerCross(Types.ROWID, Byte[].class, createTypeHandler(BytesAsBytesWrapTypeHandler.class));
+        this.registerCross(Types.ROWID, String.class, createTypeHandler(StringTypeHandler.class));
     }
 
-    private TypeHandler<?> createSingleTypeHandler(Class<? extends TypeHandler<?>> typeHandler) {
-        cachedSingleHandlers.computeIfAbsent(typeHandler, type -> {
+    private static void registerTypeHandlerType(TypeHandler<?> typeHandler) {
+        if (typeHandler != null) {
+            registerTypeHandlerType(typeHandler.getClass());
+        }
+    }
+
+    private static void registerTypeHandlerType(Class<?> typeHandler) {
+        String name = typeHandler.getName();
+        if (!typeHandlerTypeCache.containsKey(name) && !typeHandler.isAnnotationPresent(NoCache.class)) {
+            typeHandlerTypeCache.put(name, typeHandler);
+        }
+    }
+
+    public TypeHandler<?> getHandlerByHandlerType(String handlerType) {
+        return this.cachedByHandlerType.getOrDefault(handlerType, null);
+    }
+
+    public TypeHandler<?> getHandlerByHandlerType(Class<?> handlerType) {
+        return this.cachedByHandlerType.getOrDefault(handlerType.getName(), null);
+    }
+
+    public TypeHandler<?> createTypeHandler(Class<?> typeHandler) {
+        return this.createTypeHandler(typeHandler, () -> {
             try {
-                if (typeHandler == UnknownTypeHandler.class) {
-                    return defaultTypeHandler;
-                } else {
-                    return typeHandler.newInstance();
-                }
+                return (TypeHandler<?>) typeHandler.newInstance();
             } catch (Exception e) {
                 throw ExceptionUtils.toRuntime(e);
             }
         });
-        return cachedSingleHandlers.get(typeHandler);
+    }
+
+    public TypeHandler<?> createTypeHandler(Class<?> typeHandler, Supplier<TypeHandler<?>> supplier) {
+        if (typeHandler.isAnnotationPresent(NoCache.class)) {
+            if (typeHandler == UnknownTypeHandler.class) {
+                return this.defaultTypeHandler;
+            } else {
+                TypeHandler<?> handler = supplier.get();
+                if (handler == null) {
+                    return this.defaultTypeHandler;
+                } else {
+                    return handler;
+                }
+            }
+        } else {
+            registerTypeHandlerType(typeHandler);
+            return this.cachedByHandlerType.computeIfAbsent(typeHandler.getName(), type -> {
+                if (typeHandler == UnknownTypeHandler.class) {
+                    return this.defaultTypeHandler;
+                } else {
+                    TypeHandler<?> handler = supplier.get();
+                    if (handler == null) {
+                        return this.defaultTypeHandler;
+                    } else {
+                        return handler;
+                    }
+                }
+            });
+        }
     }
 
     /** 注册 TypeHandler */
     public void register(int jdbcType, TypeHandler<?> typeHandler) {
-        this.jdbcTypeHandlerMap.put(jdbcType, typeHandler);
+        this.cachedByJdbcType.put(jdbcType, typeHandler);
+        registerTypeHandlerType(typeHandler);
     }
 
     /** 注册 TypeHandler */
     public void register(Class<?> javaType, TypeHandler<?> typeHandler) {
-        this.javaTypeHandlerMap.put(javaType.getName(), typeHandler);
+        if (isAbstract(javaType)) {
+            this.abstractCachedByJavaType.put(javaType, typeHandler);
+        } else {
+            this.cachedByJavaType.put(javaType.getName(), typeHandler);
+        }
+        registerTypeHandlerType(typeHandler);
     }
 
     public void registerCross(int jdbcType, Class<?> javaType, TypeHandler<?> typeHandler) {
-        Map<Integer, TypeHandler<?>> typeClassMap = this.typeHandlerMap.computeIfAbsent(javaType.getName(), k -> {
-            return new ConcurrentHashMap<>();
-        });
-        typeClassMap.put(jdbcType, typeHandler);
+        if (isAbstract(javaType)) {
+            this.abstractCachedByCrossType.computeIfAbsent(javaType, k -> {
+                return new LinkedHashMap<>();
+            }).put(jdbcType, typeHandler);
+        } else {
+            this.cachedByCrossType.computeIfAbsent(javaType.getName(), k -> {
+                return new ConcurrentHashMap<>();
+            }).put(jdbcType, typeHandler);
+        }
+
+        registerTypeHandlerType(typeHandler);
     }
 
     private void registerCrossChars(Class<?> jdbcType, TypeHandler<?> typeHandler) {
@@ -306,7 +369,7 @@ public final class TypeHandlerRegistry {
     }
 
     /** 根据 @MappedJavaTypes @MappedJdbcTypes @MappedCross 注解注册 TypeHandler */
-    public void registerHandler(Class<? extends TypeHandler<?>> handlerClass, TypeHandler<?> typeHandler) {
+    public void registerHandler(Class<?> handlerClass, TypeHandler<?> typeHandler) {
         MappedJavaTypes mappedTypes = handlerClass.getAnnotation(MappedJavaTypes.class);
         if (mappedTypes != null) {
             for (Class<?> handledType : mappedTypes.value()) {
@@ -336,11 +399,11 @@ public final class TypeHandlerRegistry {
     }
 
     public Collection<TypeHandler<?>> getTypeHandlers() {
-        return Collections.unmodifiableCollection(this.javaTypeHandlerMap.values());
+        return Collections.unmodifiableCollection(this.cachedByJavaType.values());
     }
 
     public Collection<String> getHandlerJavaTypes() {
-        return Collections.unmodifiableCollection(this.javaTypeHandlerMap.keySet());
+        return Collections.unmodifiableCollection(this.cachedByJavaType.keySet());
     }
 
     /** 根据 Java 类型Derive a default SQL type from the given Java type.*/
@@ -364,23 +427,29 @@ public final class TypeHandlerRegistry {
 
     public boolean hasTypeHandler(Class<?> typeClass) {
         Objects.requireNonNull(typeClass, "typeClass is null.");
-        if (typeClass.isEnum()) {
-            return true;
-        }
-        if (typeClass.isAnnotationPresent(BindTypeHandler.class)) {
+        if (typeClass.isEnum() || typeClass.isAnnotationPresent(BindTypeHandler.class)) {
             return true;
         }
 
-        return this.javaTypeHandlerMap.containsKey(typeClass.getName());
+        if (this.cachedByJavaType.containsKey(typeClass.getName())) {
+            return true;
+        }
+
+        for (Class<?> abstractType : this.abstractCachedByJavaType.keySet()) {
+            if (abstractType.isAssignableFrom(typeClass) || abstractType == typeClass) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean hasTypeHandler(String typeName) {
         Objects.requireNonNull(typeName, "typeName is null.");
-        return this.javaTypeHandlerMap.containsKey(typeName);
+        return this.cachedByJavaType.containsKey(typeName);
     }
 
     public boolean hasTypeHandler(int jdbcType) {
-        return this.jdbcTypeHandlerMap.containsKey(jdbcType);
+        return this.cachedByJdbcType.containsKey(jdbcType);
     }
 
     public boolean hasTypeHandler(Class<?> typeClass, int jdbcType) {
@@ -388,26 +457,35 @@ public final class TypeHandlerRegistry {
         if (typeClass.isEnum()) {
             return true;
         }
-        Map<Integer, TypeHandler<?>> jdbcHandlerMap = this.typeHandlerMap.get(typeClass.getName());
+        Map<Integer, TypeHandler<?>> jdbcHandlerMap = this.cachedByCrossType.get(typeClass.getName());
         if (jdbcHandlerMap != null) {
             return jdbcHandlerMap.containsKey(jdbcType);
         }
 
-        return typeClass.isAnnotationPresent(BindTypeHandler.class);
+        if (typeClass.isAnnotationPresent(BindTypeHandler.class)) {
+            return true;
+        }
+
+        for (Class<?> abstractType : this.abstractCachedByCrossType.keySet()) {
+            if (abstractType.isAssignableFrom(typeClass) || abstractType == typeClass) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public TypeHandler<?> getTypeHandler(String typeName) {
         if (StringUtils.isBlank(typeName)) {
             throw new NullPointerException("typeName is null.");
         }
-        TypeHandler<?> typeHandler = this.javaTypeHandlerMap.get(typeName);
+        TypeHandler<?> typeHandler = this.cachedByJavaType.get(typeName);
         return (typeHandler != null) ? typeHandler : this.defaultTypeHandler;
     }
 
     public TypeHandler<?> getTypeHandler(Class<?> typeClass) {
         Objects.requireNonNull(typeClass, "typeClass is null.");
         String typeClassName = typeClass.getName();
-        TypeHandler<?> typeHandler = this.javaTypeHandlerMap.get(typeClassName);
+        TypeHandler<?> typeHandler = this.cachedByJavaType.get(typeClassName);
         if (typeHandler != null) {
             return typeHandler;
         }
@@ -415,8 +493,8 @@ public final class TypeHandlerRegistry {
         // maybe classType include BindTypeHandler
         if (typeClass.isAnnotationPresent(BindTypeHandler.class)) {
             synchronized (this) {
-                if (this.javaTypeHandlerMap.containsKey(typeClassName)) {
-                    return this.javaTypeHandlerMap.get(typeClassName);
+                if (this.cachedByJavaType.containsKey(typeClassName)) {
+                    return this.cachedByJavaType.get(typeClassName);
                 }
 
                 try {
@@ -431,26 +509,36 @@ public final class TypeHandlerRegistry {
                     throw ExceptionUtils.toRuntime(e);
                 }
 
-                this.javaTypeHandlerMap.put(typeClassName, typeHandler);
+                this.cachedByJavaType.put(typeClassName, typeHandler);
                 return typeHandler;
             }
         }
 
         // maybe classType is enum
         if (Enum.class.isAssignableFrom(typeClass)) {
-            return this.javaTypeHandlerMap.computeIfAbsent(typeClass.getName(), s -> {
+            return this.cachedByJavaType.computeIfAbsent(typeClass.getName(), s -> {
                 Class<?> enumType = typeClass.isAnonymousClass() ? typeClass.getSuperclass() : typeClass;
                 return new EnumTypeHandler(enumType);
             });
         }
+        // maybe classType is abstract
+        for (Class<?> abstractType : this.abstractCachedByJavaType.keySet()) {
+            if (abstractType.isAssignableFrom(typeClass) || abstractType == typeClass) {
+                typeHandler = this.abstractCachedByJavaType.get(abstractType);
+                break;
+            }
+        }
 
         // register default
-        this.javaTypeHandlerMap.put(typeClassName, this.defaultTypeHandler);
-        return this.defaultTypeHandler;
+        if (typeHandler == null) {
+            typeHandler = this.defaultTypeHandler;
+        }
+        this.cachedByJavaType.put(typeClassName, typeHandler);
+        return typeHandler;
     }
 
     public TypeHandler<?> getTypeHandler(int jdbcType) {
-        TypeHandler<?> typeHandler = this.jdbcTypeHandlerMap.get(jdbcType);
+        TypeHandler<?> typeHandler = this.cachedByJdbcType.get(jdbcType);
         return (typeHandler != null) ? typeHandler : this.defaultTypeHandler;
     }
 
@@ -465,7 +553,7 @@ public final class TypeHandlerRegistry {
 
         // find by classType and jdbcType
         String typeClassName = typeClass.getName();
-        Map<Integer, TypeHandler<?>> handlerMap = this.typeHandlerMap.get(typeClassName);
+        Map<Integer, TypeHandler<?>> handlerMap = this.cachedByCrossType.get(typeClassName);
         if (handlerMap != null) {
             TypeHandler<?> typeHandler = handlerMap.get(jdbcType);
             if (typeHandler != null) {
@@ -474,7 +562,7 @@ public final class TypeHandlerRegistry {
         }
 
         // find by classType
-        TypeHandler<?> typeHandler = this.javaTypeHandlerMap.get(typeClassName);
+        TypeHandler<?> typeHandler = this.cachedByJavaType.get(typeClassName);
         if (typeHandler != null) {
             return typeHandler;
         }
@@ -482,8 +570,8 @@ public final class TypeHandlerRegistry {
         // maybe classType include BindTypeHandler
         if (typeClass.isAnnotationPresent(BindTypeHandler.class)) {
             synchronized (this) {
-                if (this.typeHandlerMap.containsKey(typeClassName)) {
-                    handlerMap = this.typeHandlerMap.get(typeClassName);
+                if (this.cachedByCrossType.containsKey(typeClassName)) {
+                    handlerMap = this.cachedByCrossType.get(typeClassName);
                     if (handlerMap.containsKey(jdbcType)) {
                         return handlerMap.get(jdbcType);
                     }
@@ -509,17 +597,28 @@ public final class TypeHandlerRegistry {
         // maybe classType is enum
         if (Enum.class.isAssignableFrom(typeClass)) {
             typeClass = typeClass.isAnonymousClass() ? typeClass.getSuperclass() : typeClass;
-            typeHandler = this.javaTypeHandlerMap.get(typeClass.getName());
+            typeHandler = this.cachedByJavaType.get(typeClass.getName());
             if (typeHandler == null) {
-                EnumTypeHandler enumOfStringTypeHandler = new EnumTypeHandler(typeClass);
-                registerCross(jdbcType, typeClass, enumOfStringTypeHandler);
-                return enumOfStringTypeHandler;
+                EnumTypeHandler handler = new EnumTypeHandler(typeClass);
+                registerCross(jdbcType, typeClass, handler);
+                return handler;
+            }
+        }
+        // maybe classType is abstract
+        for (Class<?> abstractType : this.abstractCachedByCrossType.keySet()) {
+            if (abstractType.isAssignableFrom(typeClass) || abstractType == typeClass) {
+                Map<Integer, TypeHandler<?>> typeHandlerMap = this.abstractCachedByCrossType.get(typeClass);
+                typeHandler = typeHandlerMap.get(jdbcType);
+                break;
             }
         }
 
         // register default
-        registerCross(jdbcType, typeClass, this.defaultTypeHandler);
-        return this.defaultTypeHandler;
+        if (typeHandler == null) {
+            typeHandler = this.defaultTypeHandler;
+        }
+        registerCross(jdbcType, typeClass, typeHandler);
+        return typeHandler;
     }
 
     public UnknownTypeHandler getDefaultTypeHandler() {
@@ -558,5 +657,21 @@ public final class TypeHandlerRegistry {
         Class<?> valueClass = value.getClass();
         TypeHandler<Object> typeHandler = (TypeHandler<Object>) getTypeHandler(valueClass);
         typeHandler.setParameter(ps, parameterPosition, value, toSqlType(valueClass));
+    }
+
+    private static boolean isAbstract(Class<?> javaType) {
+        if (javaType.isArray()) {
+            javaType = javaType.getComponentType();
+        }
+        if (javaType.isPrimitive()) {
+            return false;
+        }
+
+        int modifiers = javaType.getModifiers();
+        if (javaType.isInterface() || Modifier.isAbstract(modifiers)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

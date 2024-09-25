@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
-import net.hasor.dbvisitor.jdbc.paramer.BeanSqlParameterSource;
+import net.hasor.dbvisitor.dynamic.args.BeanSqlArgSource;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.UserInfo;
 import net.hasor.test.dto.user_info;
@@ -102,7 +102,7 @@ public class ExecuteUpdateTest extends AbstractDbTest {
             assert collect1.size() == 3;
 
             UserInfo tbUser = TestUtils.beanForData1();
-            BeanSqlParameterSource beanSqlParameterSource = new BeanSqlParameterSource(tbUser);
+            BeanSqlArgSource beanSqlParameterSource = new BeanSqlArgSource(tbUser);
             assert jdbcTemplate.executeUpdate("update user_info set user_name = '123' where user_uuid != :userUuid", beanSqlParameterSource) == 2;
 
             List<user_info> tbUsers2 = jdbcTemplate.queryForList("select * from user_info", user_info.class);

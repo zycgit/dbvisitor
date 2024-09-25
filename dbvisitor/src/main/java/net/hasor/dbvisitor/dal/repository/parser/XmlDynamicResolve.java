@@ -15,10 +15,9 @@
  */
 package net.hasor.dbvisitor.dal.repository.parser;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dal.dynamic.DynamicParser;
-import net.hasor.dbvisitor.dal.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dal.repository.QueryType;
-import net.hasor.dbvisitor.dal.repository.config.*;
+import net.hasor.dbvisitor.dal.repository.parser.xmlnode.*;
+import net.hasor.dbvisitor.dynamic.DynamicSql;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -36,7 +35,7 @@ import java.io.StringReader;
  * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
  */
-public class XmlDynamicResolve extends DynamicParser implements DynamicResolve<Node> {
+public class XmlDynamicResolve extends XmlParser implements DynamicResolve<Node> {
     private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();
 
     public DynamicSql parseSqlConfig(String sqlString) throws IOException, SAXException, ParserConfigurationException {
@@ -62,7 +61,9 @@ public class XmlDynamicResolve extends DynamicParser implements DynamicResolve<N
                 return new DeleteSqlConfig(dynamicSql, configNode);
             case Update:
                 return new UpdateSqlConfig(dynamicSql, configNode);
-            case Query:
+            case Execute:
+                return new ExecuteSqlConfig(dynamicSql, configNode);
+            case Select:
                 return new QuerySqlConfig(dynamicSql, configNode);
             case Segment:
                 return new SegmentSqlConfig(dynamicSql);

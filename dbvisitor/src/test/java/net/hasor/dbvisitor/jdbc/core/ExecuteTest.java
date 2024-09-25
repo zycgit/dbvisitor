@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
+import net.hasor.cobble.CollectionUtils;
+import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.StatementCallback;
-import net.hasor.dbvisitor.jdbc.paramer.MapSqlParameterSource;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
@@ -104,12 +106,23 @@ public class ExecuteTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Map<String, String> dat = Collections.singletonMap("uuid", beanForData1().getUserUuid());
-            jdbcTemplate.executeUpdate("update user_info set user_name = CONCAT(user_name, '~' ) where user_uuid = :uuid", new MapSqlParameterSource(dat));
+            jdbcTemplate.executeUpdate("update user_info set user_name = CONCAT(user_name, '~' ) where user_uuid = :uuid", new MapSqlArgSource(dat));
 
             List<user_info> tbUsers = jdbcTemplate.queryForList("select * from user_info where user_uuid = ?", new Object[] { beanForData1().getUserUuid() }, user_info.class);
             Set<String> collect = tbUsers.stream().map(user_info::getUser_name).collect(Collectors.toSet());
             assert collect.size() == 1;
             assert collect.contains(beanForData1().getName() + "~");
+        }
+    }
+
+    @Test
+    public void execute_8() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
+
+            Map<String, String> map = CollectionUtils.asMap("uuid", beanForData1().getUserUuid());
+            String name = jdbcTemplate.queryForString("select user_name from user_info where user_uuid = #{uuid}", map);
+            assert StringUtils.equals(name, beanForData1().getName());
         }
     }
 }

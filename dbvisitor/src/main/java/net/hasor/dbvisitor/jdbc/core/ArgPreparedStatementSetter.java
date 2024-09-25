@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
+import net.hasor.dbvisitor.dynamic.args.SqlArgDisposer;
 import net.hasor.dbvisitor.jdbc.PreparedStatementSetter;
 import net.hasor.dbvisitor.jdbc.SqlParameter.InSqlParameter;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -27,7 +28,7 @@ import java.sql.SQLException;
  * @author Juergen Hoeller
  * @author 赵永春 (zyc@hasor.net)
  */
-public class ArgPreparedStatementSetter implements PreparedStatementSetter, ParameterDisposer {
+public class ArgPreparedStatementSetter implements PreparedStatementSetter, SqlArgDisposer {
     private final TypeHandlerRegistry typeHandlerRegistry;
     private final Object[]            args;
 

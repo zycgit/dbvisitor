@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
-import net.hasor.dbvisitor.jdbc.SqlParameterSource;
+import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.test.AbstractDbTest;
 import org.junit.Test;
 
@@ -47,7 +47,7 @@ public class BadTest extends AbstractDbTest {
 
     @Test
     public void badTest_3() throws SQLException {
-        int[] ints = new JdbcTemplate().executeBatch("insert abc(id) values (?)", new SqlParameterSource[0]);
+        int[] ints = new JdbcTemplate().executeBatch("insert abc(id) values (?)", new SqlArgSource[0]);
         assert ints.length == 0;
     }
 }

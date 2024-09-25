@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.execute;
-import net.hasor.dbvisitor.dal.repository.config.SelectKeySqlConfig;
+import net.hasor.dbvisitor.dal.repository.parser.xmlnode.SelectKeySqlConfig;
 
 /**
  * 负责创建 SelectKeyHandler

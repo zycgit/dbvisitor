@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
+import net.hasor.dbvisitor.dynamic.args.BeanSqlArgSource;
 import net.hasor.dbvisitor.jdbc.mapper.MappingRowMapper;
-import net.hasor.dbvisitor.jdbc.paramer.BeanSqlParameterSource;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.UserInfo;
 import net.hasor.test.dto.UserInfo2;
@@ -77,7 +77,7 @@ public class QueryForTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             UserInfo user = TestUtils.beanForData1();
-            BeanSqlParameterSource beanSqlParameterSource = new BeanSqlParameterSource(user);
+            BeanSqlArgSource beanSqlParameterSource = new BeanSqlArgSource(user);
             List<UserInfo2> users = jdbcTemplate.queryForList("select * from user_info where user_uuid = :userUuid ", beanSqlParameterSource, UserInfo2.class);
             assert users.size() == 1;
             assert user.getUserUuid().equals(users.get(0).getUid());
@@ -143,7 +143,7 @@ public class QueryForTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             UserInfo user1 = TestUtils.beanForData1();
-            BeanSqlParameterSource beanSqlParameterSource = new BeanSqlParameterSource(user1);
+            BeanSqlArgSource beanSqlParameterSource = new BeanSqlArgSource(user1);
             MappingRowMapper<UserInfo2> rowMapper = new MappingRowMapper<>(UserInfo2.class);
             UserInfo2 user2 = jdbcTemplate.queryForObject("select * from user_info where user_uuid = :userUuid", beanSqlParameterSource, rowMapper);
             assert user2 != null;
@@ -208,7 +208,7 @@ public class QueryForTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             UserInfo user1 = TestUtils.beanForData1();
-            BeanSqlParameterSource beanSqlParameterSource = new BeanSqlParameterSource(user1);
+            BeanSqlArgSource beanSqlParameterSource = new BeanSqlArgSource(user1);
             UserInfo2 user2 = jdbcTemplate.queryForObject("select * from user_info where user_uuid = :userUuid", beanSqlParameterSource, UserInfo2.class);
             assert user2 != null;
             assert user1.getUserUuid().equals(user2.getUid());
@@ -260,7 +260,7 @@ public class QueryForTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             UserInfo user = TestUtils.beanForData1();
-            BeanSqlParameterSource beanSqlParameterSource = new BeanSqlParameterSource(user);
+            BeanSqlArgSource beanSqlParameterSource = new BeanSqlArgSource(user);
             long userCountLong = jdbcTemplate.queryForLong("select count(*) from user_info where user_uuid != :userUuid", beanSqlParameterSource);
             assert userCountLong == 2;
             long userCountInt = jdbcTemplate.queryForInt("select count(*) from user_info where user_uuid != :userUuid", beanSqlParameterSource);
@@ -313,7 +313,7 @@ public class QueryForTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             UserInfo user = TestUtils.beanForData1();
-            BeanSqlParameterSource beanSqlParameterSource = new BeanSqlParameterSource(user);
+            BeanSqlArgSource beanSqlParameterSource = new BeanSqlArgSource(user);
             Map<String, Object> mapData = jdbcTemplate.queryForMap("select * from user_info where user_uuid = :userUuid", beanSqlParameterSource);
             assert mapData != null;
             assert user.getUserUuid().equals(mapData.get("user_UUID"));
@@ -365,7 +365,7 @@ public class QueryForTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             UserInfo user = TestUtils.beanForData1();
-            BeanSqlParameterSource beanSqlParameterSource = new BeanSqlParameterSource(user);
+            BeanSqlArgSource beanSqlParameterSource = new BeanSqlArgSource(user);
             List<Map<String, Object>> users = jdbcTemplate.queryForList("select * from user_info where user_uuid = :userUuid ", beanSqlParameterSource);
             assert users.size() == 1;
             assert user.getUserUuid().equals(users.get(0).get("user_UUID"));

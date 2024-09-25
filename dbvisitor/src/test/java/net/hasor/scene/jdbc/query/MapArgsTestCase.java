@@ -35,7 +35,7 @@ public class MapArgsTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Map<String, Object> args = CollectionUtils.asMap("age", new Object[] { 41, 66 });
-            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user_table where age in (:age) order by id", args);
+            List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user_table where age @{in,:age} order by id", args);
 
             assert result.size() == 2;
             assert result.get(0).get("name").equals("jon wes");
@@ -63,7 +63,7 @@ public class MapArgsTestCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             Map<String, Object> args = CollectionUtils.asMap("age", new Object[] { 41, 66 });
-            List<UserDTO> result = jdbcTemplate.queryForList("select * from user_table where age in (:age) order by id", args, UserDTO.class);
+            List<UserDTO> result = jdbcTemplate.queryForList("select * from user_table where age @{in,:age} order by id", args, UserDTO.class);
 
             assert result.size() == 2;
             assert result.get(0).getName().equals("jon wes");
@@ -97,7 +97,7 @@ public class MapArgsTestCase {
             new JdbcTemplate(c).queryForList("select * from user_table where age > :@java.lang.System@out.println('ss') order by id", new HashMap<>());
             assert false;
         } catch (SQLException e) {
-            assert e.getMessage().startsWith("expr string cannot include '#' or '@', paramExpr= ");
+            assert e.getMessage().startsWith("expr cannot include '#' or '@', the expr is");
         }
     }
 }

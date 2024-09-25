@@ -22,9 +22,9 @@ import java.util.Objects;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class MappedArg {
-    private final Object         value;
-    private final Integer        jdbcType;
-    private final TypeHandler<?> typeHandler;
+    private Object         value;
+    private Integer        jdbcType;
+    private TypeHandler<?> typeHandler;
 
     public MappedArg(Object value, Integer jdbcType, TypeHandler<?> typeHandler) {
         this.value = value;
@@ -36,12 +36,24 @@ public class MappedArg {
         return this.value;
     }
 
+    public void setValue(Object value) {
+        this.value = value;
+    }
+
     public Integer getJdbcType() {
         return this.jdbcType;
     }
 
+    public void setJdbcType(Integer jdbcType) {
+        this.jdbcType = jdbcType;
+    }
+
     public TypeHandler<?> getTypeHandler() {
         return this.typeHandler;
+    }
+
+    public void setTypeHandler(TypeHandler<?> typeHandler) {
+        this.typeHandler = typeHandler;
     }
 
     @Override

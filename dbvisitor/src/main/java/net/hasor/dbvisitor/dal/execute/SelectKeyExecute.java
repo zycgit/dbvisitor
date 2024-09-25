@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.dal.execute;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.ref.BeanMap;
-import net.hasor.dbvisitor.dal.repository.config.SelectKeySqlConfig;
+import net.hasor.dbvisitor.dal.repository.parser.xmlnode.SelectKeySqlConfig;
 
 import java.sql.Connection;
 import java.sql.SQLException;

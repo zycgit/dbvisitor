@@ -50,7 +50,7 @@ public class MappingRegistry {
     protected final MappingOptions                            global;
     private final   XmlTableMappingResolve                    xmlMappingResolve;
     private final   ClassTableMappingResolve                  classMappingResolve;
-    private final   Set<String>                               loadedResource;
+    protected final Set<String>                               loadedResource;
 
     public MappingRegistry() {
         this(null, null, null);

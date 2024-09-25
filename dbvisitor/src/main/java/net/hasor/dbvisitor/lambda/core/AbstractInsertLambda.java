@@ -18,7 +18,7 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.jdbc.core.ParameterDisposer;
+import net.hasor.dbvisitor.dynamic.args.SqlArgDisposer;
 import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
@@ -51,10 +51,10 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     protected final Map<String, String>  insertColumnTerms;
     protected final boolean              hasKeySeqHolderColumn;
 
-    protected final AtomicInteger           insertValuesCount;
-    protected final List<InsertEntity>      insertValues;
-    protected final List<ParameterDisposer> parameterDisposers; // 只有 insert 需要
-    protected final List<InsertEntity>      fillBackEntityList;
+    protected final AtomicInteger        insertValuesCount;
+    protected final List<InsertEntity>   insertValues;
+    protected final List<SqlArgDisposer> parameterDisposers; // 只有 insert 需要
+    protected final List<InsertEntity>   fillBackEntityList;
 
     public AbstractInsertLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
         super(exampleType, tableMapping, opt, jdbcTemplate);

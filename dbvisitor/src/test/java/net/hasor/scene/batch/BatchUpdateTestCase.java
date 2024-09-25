@@ -1,9 +1,9 @@
 package net.hasor.scene.batch;
 import net.hasor.cobble.CollectionUtils;
+import net.hasor.dbvisitor.dynamic.SqlArgSource;
+import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.dbvisitor.jdbc.BatchPreparedStatementSetter;
-import net.hasor.dbvisitor.jdbc.SqlParameterSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.jdbc.paramer.MapSqlParameterSource;
 import net.hasor.scene.UserDTO;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
@@ -49,10 +49,10 @@ public class BatchUpdateTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            SqlParameterSource[] args = new SqlParameterSource[] { //
-                    new MapSqlParameterSource(CollectionUtils.asMap("id", 1, "name", "person 1")),//
-                    new MapSqlParameterSource(CollectionUtils.asMap("id", 2, "name", "person 2")),//
-                    new MapSqlParameterSource(CollectionUtils.asMap("id", 3, "name", "person 3")),//
+            SqlArgSource[] args = new SqlArgSource[] { //
+                    new MapSqlArgSource(CollectionUtils.asMap("id", 1, "name", "person 1")),//
+                    new MapSqlArgSource(CollectionUtils.asMap("id", 2, "name", "person 2")),//
+                    new MapSqlArgSource(CollectionUtils.asMap("id", 3, "name", "person 3")),//
             };
 
             int[] ints = jdbcTemplate.executeBatch("update user_table set name =:name where id = :id;", args);

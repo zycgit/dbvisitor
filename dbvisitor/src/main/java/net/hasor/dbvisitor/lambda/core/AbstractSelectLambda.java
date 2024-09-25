@@ -223,7 +223,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
         if (Map.class == asType || Map.class.isAssignableFrom(asType)) {
             extractor = new MappingResultSetExtractor<>(tabMapping.toMapReader());
         } else {
-            TypeHandlerRegistry typeRegistry = getJdbcTemplate().getTypeRegistry();
+            TypeHandlerRegistry typeRegistry = getJdbcTemplate().getRegistry().getTypeRegistry();
             if (typeRegistry.hasTypeHandler(asType)) {
                 return this.getJdbcTemplate().queryForList(boundSql.getSqlString(), boundSql.getArgs(), new SingleColumnRowMapper<>(asType, typeRegistry));
             } else {

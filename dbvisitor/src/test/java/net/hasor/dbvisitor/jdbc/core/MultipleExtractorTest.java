@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
-import net.hasor.dbvisitor.jdbc.paramer.MapSqlParameterSource;
+import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
@@ -135,7 +135,7 @@ public class MultipleExtractorTest extends AbstractDbTest {
             String multipleSql = ""//
                     + "select * from user_info where login_name = :name1;\n"//
                     + "select * from user_info where login_name = :name2;\n";
-            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, new MapSqlParameterSource(data));
+            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, new MapSqlArgSource(data));
 
             assert objectList.size() == 2;
             assert objectList.get(0) instanceof ArrayList;

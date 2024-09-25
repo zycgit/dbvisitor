@@ -217,7 +217,24 @@
     <xs:element name="update">
         <xs:complexType mixed="true">
             <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element ref="selectKey"/>
+                <xs:element ref="include"/>
+                <xs:element ref="trim"/>
+                <xs:element ref="where"/>
+                <xs:element ref="set"/>
+                <xs:element ref="foreach"/>
+                <xs:element ref="choose"/>
+                <xs:element ref="if"/>
+                <xs:element ref="bind"/>
+            </xs:choice>
+            <xs:attribute name="id" use="required"/>
+            <xs:attribute name="statementType" type="statementType_type"/>
+            <xs:attribute name="timeout"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="execute">
+        <xs:complexType mixed="true">
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element ref="include"/>
                 <xs:element ref="trim"/>
                 <xs:element ref="where"/>

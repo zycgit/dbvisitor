@@ -17,11 +17,13 @@ package net.hasor.dbvisitor.types.handler;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import net.hasor.cobble.logging.Logger;
+import net.hasor.dbvisitor.types.NoCache;
 
 /**
  * 读写 {@link Object}  类型数据
  * @author 赵永春 (zyc@hasor.net)
  */
+@NoCache
 public class JsonTypeHandler extends AbstractJsonTypeHandler<Object> {
     private static final Logger   logger = Logger.getLogger(JsonTypeHandler.class);
     private final        Class<?> type;

@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.types.handler.pg;
 import net.hasor.cobble.codec.HexUtils;
+import net.hasor.dbvisitor.types.NoCache;
 import net.hasor.dbvisitor.types.handler.ArrayTypeHandler;
 
 import java.sql.Array;
@@ -29,6 +30,7 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2023-02-19
  */
+@NoCache
 public class PgArrayTypeHandler extends ArrayTypeHandler {
     protected final String                   elementType;
     protected final PostgresReadArrayHandler readArrayHandler;

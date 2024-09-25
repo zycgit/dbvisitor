@@ -16,7 +16,10 @@
 package net.hasor.scene.transaction;
 import net.hasor.cobble.dynamic.MethodInterceptor;
 import net.hasor.cobble.dynamic.MethodInvocation;
-import net.hasor.dbvisitor.transaction.*;
+import net.hasor.dbvisitor.transaction.Isolation;
+import net.hasor.dbvisitor.transaction.Propagation;
+import net.hasor.dbvisitor.transaction.TransactionManager;
+import net.hasor.dbvisitor.transaction.TransactionStatus;
 import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
 
 import javax.sql.DataSource;

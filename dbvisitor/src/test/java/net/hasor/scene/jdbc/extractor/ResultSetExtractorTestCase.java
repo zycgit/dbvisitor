@@ -1,11 +1,11 @@
 package net.hasor.scene.jdbc.extractor;
 import net.hasor.cobble.CollectionUtils;
+import net.hasor.dbvisitor.dynamic.SqlArgSource;
+import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.dbvisitor.jdbc.PreparedStatementSetter;
-import net.hasor.dbvisitor.jdbc.SqlParameterSource;
 import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.ArgPreparedStatementSetter;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.jdbc.paramer.MapSqlParameterSource;
 import net.hasor.scene.UserNameResultSetExtractor;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
@@ -78,7 +78,7 @@ public class ResultSetExtractorTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            SqlParameterSource argSource = new MapSqlParameterSource(CollectionUtils.asMap("arg", 40));
+            SqlArgSource argSource = new MapSqlArgSource(CollectionUtils.asMap("arg", 40));
             List<String> result = jdbcTemplate.query("select * from user_table where age > :arg order by id", argSource, new UserNameResultSetExtractor());
 
             assert result.size() == 2;

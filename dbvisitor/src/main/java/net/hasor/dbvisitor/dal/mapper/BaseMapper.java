@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.dal.mapper;
 import net.hasor.dbvisitor.dal.session.DalSession;
-import net.hasor.dbvisitor.dal.session.RuntimeSQLException;
+import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.lambda.*;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageResult;

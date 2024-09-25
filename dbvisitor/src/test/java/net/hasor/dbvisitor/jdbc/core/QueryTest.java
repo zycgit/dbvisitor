@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
+import net.hasor.dbvisitor.dynamic.args.BeanSqlArgSource;
 import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.MappingRowMapper;
-import net.hasor.dbvisitor.jdbc.paramer.BeanSqlParameterSource;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.UserInfo;
 import net.hasor.test.dto.UserInfo2;
@@ -118,7 +118,7 @@ public class QueryTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             UserInfo user = TestUtils.beanForData1();
-            BeanSqlParameterSource beanSqlParameterSource = new BeanSqlParameterSource(user);
+            BeanSqlArgSource beanSqlParameterSource = new BeanSqlArgSource(user);
             List<UserInfo2> users = jdbcTemplate.query("select * from user_info where user_uuid = :userUuid", beanSqlParameterSource, rs -> {
                 return new RowMapperResultSetExtractor<>(new MappingRowMapper<>(UserInfo2.class)).extractData(rs);
             });
@@ -231,7 +231,7 @@ public class QueryTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             UserInfo user = TestUtils.beanForData1();
-            BeanSqlParameterSource beanSqlParameterSource = new BeanSqlParameterSource(user);
+            BeanSqlArgSource beanSqlParameterSource = new BeanSqlArgSource(user);
             List<UserInfo2> users = new ArrayList<>();
             jdbcTemplate.query("select * from user_info where user_uuid = :userUuid", beanSqlParameterSource, (rs, rowNum) -> {
                 users.add(new MappingRowMapper<>(UserInfo2.class).mapRow(rs, rowNum));
@@ -327,7 +327,7 @@ public class QueryTest extends AbstractDbTest {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
             UserInfo user = TestUtils.beanForData1();
-            BeanSqlParameterSource beanSqlParameterSource = new BeanSqlParameterSource(user);
+            BeanSqlArgSource beanSqlParameterSource = new BeanSqlArgSource(user);
             List<UserInfo2> users = jdbcTemplate.queryForList("select * from user_info where user_uuid = :userUuid", beanSqlParameterSource, new MappingRowMapper<>(UserInfo2.class));
             assert users.size() == 1;
             assert user.getUserUuid().equals(users.get(0).getUid());

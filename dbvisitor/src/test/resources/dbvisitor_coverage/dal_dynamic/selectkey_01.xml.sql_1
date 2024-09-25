@@ -1,5 +1,5 @@
     insert into test_user (
-        * 
+        *
     ) values (
         ? , ?
     );

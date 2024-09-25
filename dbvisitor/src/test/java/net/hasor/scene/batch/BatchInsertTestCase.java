@@ -1,9 +1,9 @@
 package net.hasor.scene.batch;
 import net.hasor.cobble.CollectionUtils;
+import net.hasor.dbvisitor.dynamic.SqlArgSource;
+import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.dbvisitor.jdbc.BatchPreparedStatementSetter;
-import net.hasor.dbvisitor.jdbc.SqlParameterSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.jdbc.paramer.MapSqlParameterSource;
 import net.hasor.scene.UserDTO;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
@@ -46,10 +46,10 @@ public class BatchInsertTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            SqlParameterSource[] args = new SqlParameterSource[] { //
-                    new MapSqlParameterSource(CollectionUtils.asMap("id", 6, "name", "person 1", "age", 33, "date", new Date())),//
-                    new MapSqlParameterSource(CollectionUtils.asMap("id", 7, "name", "person 2", "age", 44, "date", new Date())),//
-                    new MapSqlParameterSource(CollectionUtils.asMap("id", 8, "name", "person 3", "age", 55, "date", new Date())),//
+            SqlArgSource[] args = new SqlArgSource[] { //
+                    new MapSqlArgSource(CollectionUtils.asMap("id", 6, "name", "person 1", "age", 33, "date", new Date())),//
+                    new MapSqlArgSource(CollectionUtils.asMap("id", 7, "name", "person 2", "age", 44, "date", new Date())),//
+                    new MapSqlArgSource(CollectionUtils.asMap("id", 8, "name", "person 3", "age", 55, "date", new Date())),//
             };
 
             int[] ints = jdbcTemplate.executeBatch("insert into user_table values (:id, :name, :age, :date);", args);

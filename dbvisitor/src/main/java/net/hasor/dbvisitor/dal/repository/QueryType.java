@@ -28,8 +28,10 @@ public enum QueryType {
     Delete("delete"),
     /** Update 类型 */
     Update("update"),
+    /** 任意类型语句 */
+    Execute("execute"),
     /** 查询类型 类型 */
-    Query("select"),
+    Select("select"),
     /** Sql 片段，可以被 include */
     Segment("sql"),
     ;

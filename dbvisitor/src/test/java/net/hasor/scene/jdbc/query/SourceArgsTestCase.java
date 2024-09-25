@@ -1,8 +1,8 @@
 package net.hasor.scene.jdbc.query;
 import net.hasor.cobble.CollectionUtils;
-import net.hasor.dbvisitor.jdbc.SqlParameterSource;
+import net.hasor.dbvisitor.dynamic.SqlArgSource;
+import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.jdbc.paramer.MapSqlParameterSource;
 import net.hasor.scene.UserDTO;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class SourceArgsTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            SqlParameterSource argSource = new MapSqlParameterSource(CollectionUtils.asMap("arg", 40));
+            SqlArgSource argSource = new MapSqlArgSource(CollectionUtils.asMap("arg", 40));
             List<UserDTO> result = jdbcTemplate.queryForList("select * from user_table where age > :arg order by id", argSource, UserDTO.class);
 
             assert result.size() == 2;
@@ -33,7 +33,7 @@ public class SourceArgsTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            SqlParameterSource argSource = new MapSqlParameterSource(CollectionUtils.asMap("arg", 40));
+            SqlArgSource argSource = new MapSqlArgSource(CollectionUtils.asMap("arg", 40));
             List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user_table where age > :arg order by id", argSource);
 
             assert result.size() == 2;

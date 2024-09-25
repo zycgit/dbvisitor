@@ -17,13 +17,13 @@ package net.hasor.dbvisitor.dal.repository;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
-import net.hasor.dbvisitor.dal.dynamic.DynamicSql;
-import net.hasor.dbvisitor.dal.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.dal.mapper.BaseMapper;
-import net.hasor.dbvisitor.dal.repository.config.QuerySqlConfig;
 import net.hasor.dbvisitor.dal.repository.parser.ClassDynamicResolve;
 import net.hasor.dbvisitor.dal.repository.parser.DynamicResolve;
 import net.hasor.dbvisitor.dal.repository.parser.XmlDynamicResolve;
+import net.hasor.dbvisitor.dal.repository.parser.xmlnode.QuerySqlConfig;
+import net.hasor.dbvisitor.dynamic.DynamicSql;
+import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
@@ -234,6 +234,7 @@ public class DalRegistry extends MappingRegistry {
                     Document document = loadXmlRoot(stream);
                     Element root = document.getDocumentElement();
 
+                    this.loadedResource.add(resource);
                     this.loadReader(namespace, root);
                     this.loadDynamic(namespace, root);
                 } catch (ParserConfigurationException | SAXException e) {

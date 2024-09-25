@@ -16,9 +16,9 @@
 package net.hasor.dbvisitor.mapping;
 import net.hasor.dbvisitor.keyholder.sequence.AutoKeySeqHolderFactory;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.types.handler.SqlTimestampAsDateTypeHandler;
 import net.hasor.dbvisitor.types.handler.EnumTypeHandler;
 import net.hasor.dbvisitor.types.handler.LongTypeHandler;
+import net.hasor.dbvisitor.types.handler.SqlTimestampAsDateTypeHandler;
 import net.hasor.dbvisitor.types.handler.StringTypeHandler;
 import net.hasor.test.dto.ResourceType;
 import net.hasor.test.entity.*;

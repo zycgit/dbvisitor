@@ -20,8 +20,8 @@ import net.hasor.cobble.reflect.SFunction;
 import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BatchBoundSql.BatchBoundSqlObj;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dynamic.args.SqlArgDisposer;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
-import net.hasor.dbvisitor.jdbc.core.ParameterDisposer;
 import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.lambda.InsertOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
@@ -71,7 +71,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                 logger.trace("Executing SQL statement [" + insertSql + "].");
             }
 
-            TypeHandlerRegistry typeRegistry = this.getJdbcTemplate().getTypeRegistry();
+            TypeHandlerRegistry typeRegistry = this.getJdbcTemplate().getRegistry().getTypeRegistry();
 
             if (this.insertValuesCount.get() > 1) {
                 if (dialect().supportBatch()) {
@@ -119,7 +119,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                 });
             }
         } finally {
-            for (ParameterDisposer obj : this.parameterDisposers) {
+            for (SqlArgDisposer obj : this.parameterDisposers) {
                 obj.cleanupParameters();
             }
 
@@ -208,8 +208,8 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
             }
 
             if (forExecute) {
-                if (arg instanceof ParameterDisposer) {
-                    this.parameterDisposers.add((ParameterDisposer) arg);
+                if (arg instanceof SqlArgDisposer) {
+                    this.parameterDisposers.add((SqlArgDisposer) arg);
                 }
             }
 
@@ -230,8 +230,8 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
             Object arg = mapping.getHandler().get(entity);
 
             if (forExecute) {
-                if (arg instanceof ParameterDisposer) {
-                    this.parameterDisposers.add((ParameterDisposer) arg);
+                if (arg instanceof SqlArgDisposer) {
+                    this.parameterDisposers.add((SqlArgDisposer) arg);
                 }
             }
 

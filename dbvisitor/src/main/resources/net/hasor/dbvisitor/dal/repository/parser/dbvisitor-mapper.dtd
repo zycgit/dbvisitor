@@ -14,7 +14,7 @@
        See the License for the specific language governing permissions and
        limitations under the License.
 -->
-<!ELEMENT mapper ( resultMap* | entity* | sql* | insert* | update* | delete* | select* )+>
+<!ELEMENT mapper ( resultMap* | entity* | sql* | insert* | update* | execute* | delete* | select* )+>
 <!ATTLIST mapper
         namespace CDATA #IMPLIED
         caseInsensitive (true|false) #IMPLIED
@@ -135,8 +135,15 @@
         parameterType CDATA #IMPLIED
         >
 
-<!ELEMENT update (#PCDATA | selectKey | include | trim | where | set | foreach | choose | if | bind)*>
+<!ELEMENT update (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
 <!ATTLIST update
+        id CDATA #REQUIRED
+        statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
+        timeout CDATA #IMPLIED
+        >
+
+<!ELEMENT execute (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+<!ATTLIST execute
         id CDATA #REQUIRED
         statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
         timeout CDATA #IMPLIED
