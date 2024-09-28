@@ -25,10 +25,12 @@ import net.hasor.dbvisitor.types.TypeHandler;
  * @author 赵永春 (zyc@hasor.net)
  * @see java.sql.JDBCType
  */
+@Deprecated
 public interface SqlParameter {
     /** Return the name of the parameter, or {@code null} if anonymous. */
     String getName();
 
+    @Deprecated
     interface ValueSqlParameter extends SqlParameter {
         /** Return the SQL type of the parameter. */
         Integer getJdbcType();
@@ -40,16 +42,19 @@ public interface SqlParameter {
         Integer getScale();
     }
 
+    @Deprecated
     interface OutSqlParameter extends ValueSqlParameter {
         TypeHandler<?> getTypeHandler();
     }
 
+    @Deprecated
     interface InSqlParameter extends ValueSqlParameter {
         TypeHandler<?> getTypeHandler();
 
         Object getValue();
     }
 
+    @Deprecated
     interface ReturnSqlParameter extends SqlParameter {
         /** Return the ResultSetExtractor held by this parameter, if any. */
         ResultSetExtractor<?> getResultSetExtractor();

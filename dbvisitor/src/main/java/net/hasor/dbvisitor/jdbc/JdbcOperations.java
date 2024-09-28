@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.jdbc;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -34,7 +35,7 @@ public interface JdbcOperations {
     /**执行一个动态 SQL 语句。SQL 语句会被编译成 StatementCallback 类型通过回调接口 StatementCallback 执行 */
     <T> T execute(StatementCallback<T> action) throws SQLException;
 
-    /**执行一个 SQL语句，通常是一个 DDL 语句 */
+    /**执行一个 静态SQL语句，通常是一个 DDL 语句 */
     void execute(String sql) throws SQLException;
 
     // ------------------------------------------------------------------------ executeCallback(PreparedStatementCreator)
@@ -60,366 +61,385 @@ public interface JdbcOperations {
 
     // ------------------------------------------------------------------------ multipleExecute(ResultSetExtractor)
 
-    /** 执行一个 SQL语句块，语句块可能返回多个结果.（需要数据库驱动支持，例如mysql 要设置 allowMultiQueries=true 参数） */
+    /** 执行静态 SQL，期待语句可能返回多个结果。 */
     List<Object> multipleExecute(String sql) throws SQLException;
 
-    /** 执行一个 SQL语句块，语句块可能返回多个结果.（需要数据库驱动支持，例如mysql 要设置 allowMultiQueries=true 参数） */
-    List<Object> multipleExecute(String sql, Object[] args) throws SQLException;
+    /**
+     * 执行动态 SQL，期待语句可能返回多个结果。
+     * @param sql 动态 SQL 语句块
+     * @param args 语句参数，可支持的参数种类有：
+     * <ul>
+     *  <li>Array</li>
+     *  <li>Map&lt;String, ?&gt;</li>
+     *  <li>Pojo Bean</li>
+     *  <li>{@link TypeHandlerRegistry} 中注册的类型</li>
+     *  <li>{@link SqlArgSource}</li>
+     *  <li>{@link PreparedStatementSetter}，使用这种类型设置参数时 SQL 语句中只能通过 ? 来定义传参</li>
+     * </ul>
+     * @return 返回的多值结果
+     */
+    List<Object> multipleExecute(String sql, Object args) throws SQLException;
 
-    /** 执行一个 SQL语句块，语句块可能返回多个结果.（需要数据库驱动支持，例如mysql 要设置 allowMultiQueries=true 参数） */
-    List<Object> multipleExecute(String sql, SqlArgSource parameterSource) throws SQLException;
-
-    /** 执行一个 SQL语句块，语句块可能返回多个结果.（需要数据库驱动支持，例如mysql 要设置 allowMultiQueries=true 参数） */
-    List<Object> multipleExecute(String sql, Map<String, ?> paramMap) throws SQLException;
-
-    /** 执行一个 SQL语句块，语句块可能返回多个结果.（需要数据库驱动支持，例如mysql 要设置 allowMultiQueries=true 参数） */
-    List<Object> multipleExecute(String sql, PreparedStatementSetter setter) throws SQLException;
+    /**
+     * 执行带参的 SQL，期待语句可能返回多个结果。
+     */
+    List<Object> multipleExecute(String sql, PreparedStatementSetter args) throws SQLException;
 
     // ------------------------------------------------------------------------ query(ResultSetExtractor)
 
-    /**执行一个静态 SQL 语句。并通过 ResultSetExtractor 转换结果集 */
+    /** 执行静态 SQL，并通过 {@link ResultSetExtractor} 转换结果集 */
     <T> T query(String sql, ResultSetExtractor<T> rse) throws SQLException;
 
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作，并且将 SQL 查询结果集使用 ResultSetExtractor 转换 */
-    <T> T query(String sql, Object[] args, ResultSetExtractor<T> rse) throws SQLException;
+    /**
+     * 执行动态 SQL，并且将 SQL 查询结果集使用 {@link ResultSetExtractor} 接口处理。
+     * @param sql 动态 SQL 语句块
+     * @param args 语句参数，可支持的参数种类有：
+     * <ul>
+     *  <li>Array</li>
+     *  <li>Map&lt;String, ?&gt;</li>
+     *  <li>Pojo Bean</li>
+     *  <li>{@link TypeHandlerRegistry} 中注册的类型</li>
+     *  <li>{@link SqlArgSource}</li>
+     *  <li>{@link PreparedStatementSetter}，使用这种类型设置参数时 SQL 语句中只能通过 ? 来定义传参</li>
+     * </ul>
+     * @return 返回的结果
+     */
+    <T> T query(String sql, Object args, ResultSetExtractor<T> rse) throws SQLException;
 
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作，并且将 SQL 查询结果集使用 ResultSetExtractor 转换 */
-    <T> T query(String sql, SqlArgSource paramSource, ResultSetExtractor<T> rse) throws SQLException;
-
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作，并且将 SQL 查询结果集使用 ResultSetExtractor 转换 */
-    <T> T query(String sql, Map<String, ?> paramMap, ResultSetExtractor<T> rse) throws SQLException;
-
-    /**执行一个动态查询 SQL 语句。SQL 语句会被编译成 PreparedStatement 类型通过回调接口 PreparedStatementSetter 为动态 SQL 设置属性。返回的结果集使用 ResultSetExtractor 转换 */
-    <T> T query(String sql, PreparedStatementSetter setter, ResultSetExtractor<T> rse) throws SQLException;
+    /**
+     * 执行带参的 SQL，并且将 SQL 查询结果集使用 {@link ResultSetExtractor} 接口处理。
+     */
+    <T> T query(String sql, PreparedStatementSetter args, ResultSetExtractor<T> rse) throws SQLException;
 
     // ------------------------------------------------------------------------ query(RowCallbackHandler)
 
-    /**执行一个静态 SQL 语句。并通过 RowCallbackHandler 处理结果集 */
+    /** 执行静态 SQL，并通过 {@link RowCallbackHandler} 接口处理返回的行数据 */
     void query(String sql, RowCallbackHandler rch) throws SQLException;
 
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作，并且结果集行处理使用 RowCallbackHandler 接口处理 */
-    void query(String sql, Object[] args, RowCallbackHandler rch) throws SQLException;
+    /**
+     * 执行动态 SQL, 并通过 {@link RowCallbackHandler} 处理行数据。
+     * @param sql 动态 SQL 语句块
+     * @param args 语句参数，可支持的参数种类有：
+     * <ul>
+     *  <li>Array</li>
+     *  <li>Map&lt;String, ?&gt;</li>
+     *  <li>Pojo Bean</li>
+     *  <li>{@link TypeHandlerRegistry} 中注册的类型</li>
+     *  <li>{@link SqlArgSource}</li>
+     *  <li>{@link PreparedStatementSetter}，使用这种类型设置参数时 SQL 语句中只能通过 ? 来定义传参</li>
+     * </ul>
+     */
+    void query(String sql, Object args, RowCallbackHandler rch) throws SQLException;
 
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作，并且结果集行处理使用 RowCallbackHandler 接口处理 */
-    void query(String sql, SqlArgSource paramSource, RowCallbackHandler rch) throws SQLException;
-
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作，并且结果集行处理使用 RowCallbackHandler 接口处理 */
-    void query(String sql, Map<String, ?> paramMap, RowCallbackHandler rch) throws SQLException;
-
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作，并且结果集行处理使用 RowCallbackHandler 接口处理 */
-    void query(String sql, PreparedStatementSetter setter, RowCallbackHandler rch) throws SQLException;
+    /**
+     * 执行带参的 SQL，并通过 {@link RowCallbackHandler} 处理行数据。
+     */
+    void query(String sql, PreparedStatementSetter args, RowCallbackHandler rch) throws SQLException;
 
     // ------------------------------------------------------------------------ queryForList(RowMapper)
 
-    /**执行一个静态 SQL 语句，并使用 RowMapper 处理结果集 */
+    /** 执行静态 SQL，并通过 {@link RowMapper} 接口映射记录 */
     <T> List<T> queryForList(String sql, RowMapper<T> rowMapper) throws SQLException;
 
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将返回一个 List，每一行将通过 RowMapper 映射 */
-    <T> List<T> queryForList(String sql, Object[] args, RowMapper<T> rowMapper) throws SQLException;
+    /**
+     * 执行动态 SQL, 并通过 {@link RowMapper} 接口映射记录。
+     * @param sql 动态 SQL 语句块
+     * @param args 语句参数，可支持的参数种类有：
+     * <ul>
+     *  <li>Array</li>
+     *  <li>Map&lt;String, ?&gt;</li>
+     *  <li>Pojo Bean</li>
+     *  <li>{@link TypeHandlerRegistry} 中注册的类型</li>
+     *  <li>{@link SqlArgSource}</li>
+     *  <li>{@link PreparedStatementSetter}，使用这种类型设置参数时 SQL 语句中只能通过 ? 来定义传参</li>
+     * </ul>
+     */
+    <T> List<T> queryForList(String sql, Object args, RowMapper<T> rowMapper) throws SQLException;
 
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将返回一个 List，每一行将通过 RowMapper 映射 */
-    <T> List<T> queryForList(String sql, SqlArgSource paramSource, RowMapper<T> rowMapper) throws SQLException;
-
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将返回一个 List，每一行将通过 RowMapper 映射 */
-    <T> List<T> queryForList(String sql, Map<String, ?> paramMap, RowMapper<T> rowMapper) throws SQLException;
-
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将返回一个 List，每一行将通过 RowMapper 映射 */
-    <T> List<T> queryForList(String sql, PreparedStatementSetter setter, RowMapper<T> rowMapper) throws SQLException;
+    /**
+     * 执行带参的 SQL，并通过 {@link RowMapper} 接口映射记录。
+     */
+    <T> List<T> queryForList(String sql, PreparedStatementSetter args, RowMapper<T> rowMapper) throws SQLException;
 
     // ------------------------------------------------------------------------ queryForList(elementType)
 
-    /**执行一个静态 SQL 语句，结果将被映射到一个列表(一个条目为每一行)的对象，列表中每一条记录都是<code>elementType</code>参数指定的类型对象 */
+    /** 执行静态 SQL，并通过 <code>elementType</code> 类型将数据记录映射到对象上。 */
     <T> List<T> queryForList(String sql, Class<T> elementType) throws SQLException;
 
     /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 elementType 参数所表示的类型。
-     * @throws SQLException if the query fails
+     * 执行动态 SQL, 并通过 <code>elementType</code> 类型将数据记录映射到对象上。
+     * @param sql 动态 SQL 语句块
+     * @param args 语句参数，可支持的参数种类有：
+     * <ul>
+     *  <li>Array</li>
+     *  <li>Map&lt;String, ?&gt;</li>
+     *  <li>Pojo Bean</li>
+     *  <li>{@link TypeHandlerRegistry} 中注册的类型</li>
+     *  <li>{@link SqlArgSource}</li>
+     *  <li>{@link PreparedStatementSetter}，使用这种类型设置参数时 SQL 语句中只能通过 ? 来定义传参</li>
+     * </ul>
      */
-    <T> List<T> queryForList(String sql, Object[] args, Class<T> elementType) throws SQLException;
+    <T> List<T> queryForList(String sql, Object args, Class<T> elementType) throws SQLException;
 
     /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 elementType 参数所表示的类型。
-     * @throws SQLException if the query fails
+     * 执行带参的 SQL，并通过 <code>elementType</code> 类型将数据记录映射到对象上。
      */
-    <T> List<T> queryForList(String sql, SqlArgSource paramSource, Class<T> elementType) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 elementType 参数所表示的类型。
-     * @throws SQLException if the query fails
-     */
-    <T> List<T> queryForList(String sql, Map<String, ?> paramMap, Class<T> elementType) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 elementType 参数所表示的类型。
-     * @throws SQLException if the query fails
-     */
-    <T> List<T> queryForList(String sql, PreparedStatementSetter setter, Class<T> elementType) throws SQLException;
+    <T> List<T> queryForList(String sql, PreparedStatementSetter args, Class<T> elementType) throws SQLException;
 
     // ------------------------------------------------------------------------ queryForList(List/Map)
 
-    /**执行一个静态 SQL 语句，结果将被映射到一个列表(一个条目为每一行)的对象，
-     * 列表中每一条记录都是<code>Map</code>类型对象 */
+    /** 执行静态 SQL，结果以每行通过 Map 结构进行封装 */
     List<Map<String, Object>> queryForList(String sql) throws SQLException;
 
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询记录将会使用 Map 保存，并封装到 List 中 */
-    List<Map<String, Object>> queryForList(String sql, Object[] args) throws SQLException;
+    /**
+     * 执行动态 SQL，结果以每行通过 Map 结构进行封装。
+     * @param sql 动态 SQL 语句块
+     * @param args 语句参数，可支持的参数种类有：
+     * <ul>
+     *  <li>Array</li>
+     *  <li>Map&lt;String, ?&gt;</li>
+     *  <li>Pojo Bean</li>
+     *  <li>{@link TypeHandlerRegistry} 中注册的类型</li>
+     *  <li>{@link SqlArgSource}</li>
+     *  <li>{@link PreparedStatementSetter}，使用这种类型设置参数时 SQL 语句中只能通过 ? 来定义传参</li>
+     * </ul>
+     */
+    List<Map<String, Object>> queryForList(String sql, Object args) throws SQLException;
 
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询记录将会使用 Map 保存，并封装到 List 中 */
-    List<Map<String, Object>> queryForList(String sql, SqlArgSource paramSource) throws SQLException;
-
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询记录将会使用 Map 保存，并封装到 List 中 */
-    List<Map<String, Object>> queryForList(String sql, Map<String, ?> paramMap) throws SQLException;
-
-    /**查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询记录将会使用 Map 保存，并封装到 List 中 */
-    List<Map<String, Object>> queryForList(String sql, PreparedStatementSetter setter) throws SQLException;
+    /**
+     * 执行带参的 SQL，结果以每行通过 Map 结构进行封装。
+     */
+    List<Map<String, Object>> queryForList(String sql, PreparedStatementSetter args) throws SQLException;
 
     // ------------------------------------------------------------------------ queryForObject(RowMapper)
 
-    /**执行一个静态 SQL 语句，并使用 RowMapper 处理结果集。
-     * 预计该方法只会处理一条数据，如果查询结果存在多条数据将取第一条记录作为结果。
+    /**
+     * 执行静态 SQL，并使用 {@link RowMapper} 处理结果集。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。</p>
      * @return 当不存在记录时返回<code>null</code>。
      */
     <T> T queryForObject(String sql, RowMapper<T> rowMapper) throws SQLException;
 
     /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将通过 RowMapper 映射转换并返回。
-     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。
-     * @throws SQLException if the query fails
+     * 执行动态 SQL，并使用 {@link RowMapper} 处理结果集。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。</p>
+     * @param sql 动态 SQL 语句块
+     * @param args 语句参数，可支持的参数种类有：
+     * <ul>
+     *  <li>Array</li>
+     *  <li>Map&lt;String, ?&gt;</li>
+     *  <li>Pojo Bean</li>
+     *  <li>{@link TypeHandlerRegistry} 中注册的类型</li>
+     *  <li>{@link SqlArgSource}</li>
+     *  <li>{@link PreparedStatementSetter}，使用这种类型设置参数时 SQL 语句中只能通过 ? 来定义传参</li>
+     * </ul>
+     * @return 当不存在记录时返回<code>null</code>。
      */
-    <T> T queryForObject(String sql, Object[] args, RowMapper<T> rowMapper) throws SQLException;
+    <T> T queryForObject(String sql, Object args, RowMapper<T> rowMapper) throws SQLException;
 
     /**
-     * 查询一个 SQL 语句，查询参数使用 SqlArgSource 封装。
-     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。
-     * @throws SQLException if the query fails
+     * 执行带参的 SQL，并使用 {@link RowMapper} 处理结果集。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。</p>
+     * @return 当不存在记录时返回<code>null</code>。
      */
-    <T> T queryForObject(String sql, SqlArgSource paramSource, RowMapper<T> rowMapper) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，查询参数使用 Map 封装。
-     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。
-     * @throws SQLException if the query fails
-     */
-    <T> T queryForObject(String sql, Map<String, ?> paramMap, RowMapper<T> rowMapper) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，查询参数使用 PreparedStatementSetter 封装。
-     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。
-     * @throws SQLException if the query fails
-     */
-    <T> T queryForObject(String sql, PreparedStatementSetter setter, RowMapper<T> rowMapper) throws SQLException;
+    <T> T queryForObject(String sql, PreparedStatementSetter args, RowMapper<T> rowMapper) throws SQLException;
 
     // ------------------------------------------------------------------------ queryForObject(requiredType)
 
-    /**执行一个静态 SQL 语句，并将结果集数据转换成<code>requiredType</code>参数指定的类型对象。
-     * 预计该方法只会处理一条数据，如果查询结果存在多条数据将取第一条记录作为结果。
+    /**
+     * 执行静态 SQL，并将结果集数据转换成<code>requiredType</code>参数指定的类型对象。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。</p>
      * @return 当不存在记录时返回<code>null</code>。
      */
     <T> T queryForObject(String sql, Class<T> requiredType) throws SQLException;
 
     /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将通过 requiredType 参数所表示的类型封装。
-     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。
-     * @throws SQLException if the query fails
+     * 执行动态 SQL，并将结果集数据转换成<code>requiredType</code>参数指定的类型对象。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。</p>
+     * @param sql 动态 SQL 语句块
+     * @param args 语句参数，可支持的参数种类有：
+     * <ul>
+     *  <li>Array</li>
+     *  <li>Map&lt;String, ?&gt;</li>
+     *  <li>Pojo Bean</li>
+     *  <li>{@link TypeHandlerRegistry} 中注册的类型</li>
+     *  <li>{@link SqlArgSource}</li>
+     *  <li>{@link PreparedStatementSetter}，使用这种类型设置参数时 SQL 语句中只能通过 ? 来定义传参</li>
+     * </ul>
+     * @return 当不存在记录时返回<code>null</code>。
      */
-    <T> T queryForObject(String sql, Object[] args, Class<T> requiredType) throws SQLException;
+    <T> T queryForObject(String sql, Object args, Class<T> requiredType) throws SQLException;
 
     /**
-     * 查询一个 SQL 语句，查询参数使用 SqlArgSource 封装，并将查询结果使用 requiredType 参数表示的类型返回。
-     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。
-     * @throws SQLException if the query fails
+     * 执行带参的 SQL，并将结果集数据转换成<code>requiredType</code>参数指定的类型对象。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。</p>
+     * @return 当不存在记录时返回<code>null</code>。
      */
-    <T> T queryForObject(String sql, SqlArgSource paramSource, Class<T> requiredType) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，查询参数使用 Map 封装，并将查询结果使用 requiredType 参数表示的类型返回。
-     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。
-     * @throws SQLException if the query fails
-     */
-    <T> T queryForObject(String sql, Map<String, ?> paramMap, Class<T> requiredType) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，查询参数使用 PreparedStatementSetter 封装，并将查询结果使用 requiredType 参数表示的类型返回。
-     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。
-     * @throws SQLException if the query fails
-     */
-    <T> T queryForObject(String sql, PreparedStatementSetter setter, Class<T> requiredType) throws SQLException;
+    <T> T queryForObject(String sql, PreparedStatementSetter args, Class<T> requiredType) throws SQLException;
 
     // ------------------------------------------------------------------------ queryForLong
 
-    /**执行一个静态 SQL 语句，并将结果集数据转换成<code>Map</code>。
+    /**
+     * 执行静态 SQL，并将结果集数据转换成<code>Map</code>。
      * 预计该方法只会处理一条数据，如果查询结果存在多条数据将取第一条记录作为结果。
      * @return 当不存在记录时返回<code>null</code>。
      */
     Map<String, Object> queryForMap(String sql) throws SQLException;
 
     /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将使用 Map 封装。
-     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。
-     * @throws SQLException if the query fails
+     * 执行动态 SQL，并将结果集数据转换成<code>Map</code>。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。</p>
+     * @param sql 动态 SQL 语句块
+     * @param args 语句参数，可支持的参数种类有：
+     * <ul>
+     *  <li>Array</li>
+     *  <li>Map&lt;String, ?&gt;</li>
+     *  <li>Pojo Bean</li>
+     *  <li>{@link TypeHandlerRegistry} 中注册的类型</li>
+     *  <li>{@link SqlArgSource}</li>
+     *  <li>{@link PreparedStatementSetter}，使用这种类型设置参数时 SQL 语句中只能通过 ? 来定义传参</li>
+     * </ul>
+     * @return 当不存在记录时返回<code>null</code>。
      */
-    Map<String, Object> queryForMap(String sql, Object[] args) throws SQLException;
+    Map<String, Object> queryForMap(String sql, Object args) throws SQLException;
 
     /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将使用 Map 封装。
-     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。
-     * @throws SQLException if the query fails
+     * 执行带参的 SQL，并将结果集数据转换成<code>Map</code>。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。</p>
+     * @return 当不存在记录时返回<code>null</code>。
      */
-    Map<String, Object> queryForMap(String sql, SqlArgSource paramSource) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将使用 Map 封装。
-     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。
-     * @throws SQLException if the query fails
-     */
-    Map<String, Object> queryForMap(String sql, Map<String, ?> paramMap) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将使用 Map 封装。
-     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。
-     * @throws SQLException if the query fails
-     */
-    Map<String, Object> queryForMap(String sql, PreparedStatementSetter setter) throws SQLException;
+    Map<String, Object> queryForMap(String sql, PreparedStatementSetter args) throws SQLException;
 
     // ------------------------------------------------------------------------ queryForLong
 
-    /**执行一个静态 SQL 语句，并取得 long 类型数据。
-     * 预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。
+    /**
+     * 执行静态 SQL，并以 long 类型返回数据。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。</p>
      * @return the long value, or 0 in case of SQL NULL
      */
     long queryForLong(String sql) throws SQLException;
 
     /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 long 类型。
-     * 所以需要保证查询的结果只有一行一列，否则执行会引发异常。
-     * @throws SQLException if the query fails
+     * 执行动态 SQL，并以 long 类型返回数据。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。</p>
+     * @param sql 动态 SQL 语句块
+     * @param args 语句参数，可支持的参数种类有：
+     * <ul>
+     *  <li>Array</li>
+     *  <li>Map&lt;String, ?&gt;</li>
+     *  <li>Pojo Bean</li>
+     *  <li>{@link TypeHandlerRegistry} 中注册的类型</li>
+     *  <li>{@link SqlArgSource}</li>
+     *  <li>{@link PreparedStatementSetter}，使用这种类型设置参数时 SQL 语句中只能通过 ? 来定义传参</li>
+     * </ul>
+     * @return the long value, or 0 in case of SQL NULL
      */
-    long queryForLong(String sql, Object[] args) throws SQLException;
+    long queryForLong(String sql, Object args) throws SQLException;
 
     /**
-     * 查询一个 SQL 语句，sql 参数通过 SqlArgSource 封装。查询结果将转换成 long 类型。
-     * 所以需要保证查询的结果只有一行一列，否则执行会引发异常。
-     * @throws SQLException if the query fails
+     * 执行带参的 SQL，并以 long 类型返回数据。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。</p>
+     * @return the long value, or 0 in case of SQL NULL
      */
-    long queryForLong(String sql, SqlArgSource paramSource) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，sql 参数通过 Map 封装。查询结果将转换成 long 类型。
-     * 所以需要保证查询的结果只有一行一列，否则执行会引发异常。
-     * @throws SQLException if the query fails
-     */
-    long queryForLong(String sql, Map<String, ?> paramMap) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，sql 参数通过 PreparedStatementSetter 封装。查询结果将转换成 long 类型。
-     * 所以需要保证查询的结果只有一行一列，否则执行会引发异常。
-     * @throws SQLException if the query fails
-     */
-    long queryForLong(String sql, PreparedStatementSetter setter) throws SQLException;
-
+    long queryForLong(String sql, PreparedStatementSetter args) throws SQLException;
     // ------------------------------------------------------------------------ queryForInt
 
-    /**执行一个静态 SQL 语句，并取得 int 类型数据。
-     * 预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。
+    /**
+     * 执行静态 SQL，并以 int 类型返回数据。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。</p>
      * @return the int value, or 0 in case of SQL NULL
      */
     int queryForInt(String sql) throws SQLException;
 
     /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 int 类型。
-     * 所以需要保证查询的结果只有一行一列，否则执行会引发异常。
-     * @throws SQLException if the query fails
+     * 执行动态 SQL，并以 int 类型返回数据。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。</p>
+     * @param sql 动态 SQL 语句块
+     * @param args 语句参数，可支持的参数种类有：
+     * <ul>
+     *  <li>Array</li>
+     *  <li>Map&lt;String, ?&gt;</li>
+     *  <li>Pojo Bean</li>
+     *  <li>{@link TypeHandlerRegistry} 中注册的类型</li>
+     *  <li>{@link SqlArgSource}</li>
+     *  <li>{@link PreparedStatementSetter}，使用这种类型设置参数时 SQL 语句中只能通过 ? 来定义传参</li>
+     * </ul>
+     * @return the int value, or 0 in case of SQL NULL
      */
-    int queryForInt(String sql, Object[] args) throws SQLException;
+    int queryForInt(String sql, Object args) throws SQLException;
 
     /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 int 类型。
-     * 所以需要保证查询的结果只有一行一列，否则执行会引发异常。
-     * @throws SQLException if the query fails
+     * 执行带参的 SQL，并以 int 类型返回数据。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。</p>
+     * @return the int value, or 0 in case of SQL NULL
      */
-    int queryForInt(String sql, SqlArgSource paramSource) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 int 类型。
-     * 所以需要保证查询的结果只有一行一列，否则执行会引发异常。
-     * @throws SQLException if the query fails
-     */
-    int queryForInt(String sql, Map<String, ?> paramMap) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 int 类型。
-     * 所以需要保证查询的结果只有一行一列，否则执行会引发异常。
-     * @throws SQLException if the query fails
-     */
-    int queryForInt(String sql, PreparedStatementSetter setter) throws SQLException;
+    int queryForInt(String sql, PreparedStatementSetter args) throws SQLException;
 
     // ------------------------------------------------------------------------ queryForString
 
-    /**执行一个静态 SQL 语句，并取得 String 类型数据。
-     * 预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。
-     * @return the String value.
+    /**
+     * 执行静态 SQL，并以 string 类型返回数据。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。</p>
+     * @return the string value.
      */
     String queryForString(String sql) throws SQLException;
 
     /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 String 类型。
-     * 所以需要保证查询的结果只有一行一列，否则执行会引发异常。
-     * @throws SQLException if the query fails
+     * 执行动态 SQL，并以 string 类型返回数据。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。</p>
+     * @param sql 动态 SQL 语句块
+     * @param args 语句参数，可支持的参数种类有：
+     * <ul>
+     *  <li>Array</li>
+     *  <li>Map&lt;String, ?&gt;</li>
+     *  <li>Pojo Bean</li>
+     *  <li>{@link TypeHandlerRegistry} 中注册的类型</li>
+     *  <li>{@link SqlArgSource}</li>
+     *  <li>{@link PreparedStatementSetter}，使用这种类型设置参数时 SQL 语句中只能通过 ? 来定义传参</li>
+     * </ul>
+     * @return the string value.
      */
-    String queryForString(String sql, Object[] args) throws SQLException;
+    String queryForString(String sql, Object args) throws SQLException;
 
     /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 String 类型。
-     * 所以需要保证查询的结果只有一行一列，否则执行会引发异常。
-     * @throws SQLException if the query fails
+     * 执行带参的 SQL，并以 string 类型返回数据。
+     * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。</p>
+     * @return the string value.
      */
-    String queryForString(String sql, SqlArgSource paramSource) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 String 类型。
-     * 所以需要保证查询的结果只有一行一列，否则执行会引发异常。
-     * @throws SQLException if the query fails
-     */
-    String queryForString(String sql, Map<String, ?> paramMap) throws SQLException;
-
-    /**
-     * 查询一个 SQL 语句，使用这个查询将会使用 PreparedStatement 接口操作。查询结果将转换成 String 类型。
-     * 所以需要保证查询的结果只有一行一列，否则执行会引发异常。
-     * @throws SQLException if the query fails
-     */
-    String queryForString(String sql, PreparedStatementSetter setter) throws SQLException;
+    String queryForString(String sql, PreparedStatementSetter args) throws SQLException;
 
     // ------------------------------------------------------------------------ executeUpdate
 
-    /**执行一条 insert 或 update、delete 语句，返回值用于表示受影响的行数 */
+    /** 执行静态 SQL，通常用于 insert、update、delete DML 操作，返回值用于表示受影响的行数。 */
     int executeUpdate(String sql) throws SQLException;
 
-    /**执行一个更新语句（insert、update、delete），这个查询将会使用 PreparedStatement 接口操作 */
-    int executeUpdate(String sql, Object[] args) throws SQLException;
+    /**
+     * 执行动态 SQL，通常用于 insert、update、delete DML 操作，返回值用于表示受影响的行数。
+     * @param sql 动态 SQL 语句块
+     * @param args 语句参数，可支持的参数种类有：
+     * <ul>
+     *  <li>Array</li>
+     *  <li>Map&lt;String, ?&gt;</li>
+     *  <li>Pojo Bean</li>
+     *  <li>{@link TypeHandlerRegistry} 中注册的类型</li>
+     *  <li>{@link SqlArgSource}</li>
+     *  <li>{@link PreparedStatementSetter}，使用这种类型设置参数时 SQL 语句中只能通过 ? 来定义传参</li>
+     * </ul>
+     * @return the string value.
+     */
+    int executeUpdate(String sql, Object args) throws SQLException;
 
-    /**执行一个更新语句（insert、update、delete），这个查询将会使用 PreparedStatement 接口操作 */
-    int executeUpdate(String sql, SqlArgSource paramSource) throws SQLException;
-
-    /**执行一个更新语句（insert、update、delete），这个查询将会使用 PreparedStatement 接口操作 */
-    int executeUpdate(String sql, Map<String, ?> paramMap) throws SQLException;
-
-    /**执行一个更新语句（insert、update、delete），这个查询将会使用 PreparedStatement 接口操作 */
-    int executeUpdate(String sql, PreparedStatementSetter setter) throws SQLException;
+    /** 执行带参的 SQL，通常用于 insert、update、delete DML 操作，返回值用于表示受影响的行数。*/
+    int executeUpdate(String sql, PreparedStatementSetter args) throws SQLException;
 
     // ------------------------------------------------------------------------ executeBatch
 
-    /**批量执行 insert 或 update、delete 语句，返回值用于表示受影响的行数 */
+    /** 批量执行 insert 或 update、delete 语句，返回值用于表示受影响的行数 */
     int[] executeBatch(String[] sql) throws SQLException;
 
-    /**批量执行 insert 或 update、delete 语句，这一批次中的SQL 参数使用 BatchPreparedStatementSetter 接口设置 */
-    int[] executeBatch(String sql, Object[][] batchValues) throws SQLException;
+    /** 批量执行 insert 或 update、delete 语句，这一批次中的SQL 参数使用 BatchPreparedStatementSetter 接口设置 */
+    int[] executeBatch(String sql, Object[] batchArgs) throws SQLException;
 
-    /**批量执行 insert 或 update、delete 语句，这一批次中的SQL 参数使用 BatchPreparedStatementSetter 接口设置 */
-    int[] executeBatch(String sql, SqlArgSource[] batchArgs) throws SQLException;
-
-    /**批量执行 insert 或 update、delete 语句，这一批次中的SQL 参数使用 BatchPreparedStatementSetter 接口设置 */
-    int[] executeBatch(String sql, Map<String, ?>[] batchValues) throws SQLException;
-
-    /**批量执行 insert 或 update、delete 语句，这一批次中的SQL 参数使用 BatchPreparedStatementSetter 接口设置 */
+    /** 批量执行 insert 或 update、delete 语句，这一批次中的SQL 参数使用 BatchPreparedStatementSetter 接口设置 */
     int[] executeBatch(String sql, BatchPreparedStatementSetter setter) throws SQLException;
 }

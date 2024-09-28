@@ -25,12 +25,16 @@ import net.hasor.dbvisitor.dal.repository.parser.xmlnode.InsertSqlConfig;
 import net.hasor.dbvisitor.dal.repository.parser.xmlnode.QuerySqlConfig;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
-import net.hasor.dbvisitor.dynamic.*;
+import net.hasor.dbvisitor.dynamic.DynamicContext;
+import net.hasor.dbvisitor.dynamic.DynamicSql;
+import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.dynamic.SqlMode;
 import net.hasor.dbvisitor.jdbc.extractor.MultipleProcessType;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.reader.ResultTableReader;
 import net.hasor.dbvisitor.page.Page;
+import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.io.StringReader;

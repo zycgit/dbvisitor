@@ -19,8 +19,12 @@ import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.NumberUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
-import net.hasor.dbvisitor.dynamic.*;
+import net.hasor.dbvisitor.dynamic.DynamicContext;
+import net.hasor.dbvisitor.dynamic.SqlArgSource;
+import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.dynamic.SqlMode;
 import net.hasor.dbvisitor.internal.OgnlUtils;
+import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
@@ -129,6 +133,11 @@ public class ArgRule implements SqlBuildRule {
         Class<?> javaType = convertJavaType(context, (config != null) ? config.get(CFG_KEY_JAVA_TYPE) : null);
         String handlerType = (config != null) ? config.get(CFG_KEY_HANDLER) : null;
         Object argValue = sqlMode == SqlMode.Out ? null : OgnlUtils.evalOgnl(expr, data);
+
+        if (argValue instanceof SqlArg) {
+            sqlBuilder.appendSql("?", argValue);
+            return;
+        }
 
         TypeHandler<?> typeHandler = createTypeHandler(context, javaType, jdbcType, handlerType, argValue);
         if (sqlMode == null) {

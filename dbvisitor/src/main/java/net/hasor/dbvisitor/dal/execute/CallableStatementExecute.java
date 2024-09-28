@@ -17,10 +17,10 @@ package net.hasor.dbvisitor.dal.execute;
 import net.hasor.dbvisitor.dal.repository.ResultSetType;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dynamic.DynamicContext;
-import net.hasor.dbvisitor.dynamic.SqlArg;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.SqlMode;
 import net.hasor.dbvisitor.internal.OgnlUtils;
+import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 
 import java.sql.*;
@@ -105,7 +105,7 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
                 throw new UnsupportedOperationException("Types.REF_CURSOR Unsupported.");
             }
 
-            String expr = arg.getExpr();
+            String expr = arg.getName();
             Object resultValue = argHandler.getResult(cs, i + 1);
             OgnlUtils.writeByExpr(expr, executeInfo.data, resultValue);
         }

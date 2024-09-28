@@ -26,7 +26,7 @@ import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.core.AbstractInsertLambda;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
-import net.hasor.dbvisitor.types.MappedArg;
+import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.sql.Connection;
@@ -70,7 +70,7 @@ public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map
         InsertEntity entity = this.insertValues.get(0);
         BoundSqlObj boundSqlObj = this.buildBoundSql(dialect(), (Map) entity.objList.get(0));
 
-        return new BatchBoundSqlObj(boundSqlObj.getSqlString(), new MappedArg[][] { (MappedArg[]) boundSqlObj.getArgs() });
+        return new BatchBoundSqlObj(boundSqlObj.getSqlString(), new SqlArg[][] { (SqlArg[]) boundSqlObj.getArgs() });
     }
 
     @Override
@@ -110,12 +110,12 @@ public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map
         });
 
         String insertSql = buildInsert(dialect, this.primaryKeys, insertColumns, this.insertColumnTerms);
-        MappedArg[] args = new MappedArg[entityKeyMap.size()];
+        SqlArg[] args = new SqlArg[entityKeyMap.size()];
 
         for (int i = 0; i < insertProperties.size(); i++) {
             Object arg = entity.get(insertProperties.get(i));
             Integer jdbcType = arg == null ? null : TypeHandlerRegistry.toSqlType(arg.getClass());
-            args[i] = (arg == null) ? null : new MappedArg(arg, jdbcType, null);
+            args[i] = (arg == null) ? null : new SqlArg(arg, jdbcType, null);
         }
 
         return new BoundSqlObj(insertSql, args);

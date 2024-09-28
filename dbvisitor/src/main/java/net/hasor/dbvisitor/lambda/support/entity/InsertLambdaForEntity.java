@@ -29,7 +29,7 @@ import net.hasor.dbvisitor.lambda.core.AbstractInsertLambda;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
-import net.hasor.dbvisitor.types.MappedArg;
+import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
@@ -77,7 +77,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                 if (dialect().supportBatch()) {
                     return this.getJdbcTemplate().execute((ConnectionCallback<int[]>) con -> {
                         boolean supportGetGeneratedKeys = con != null && con.getMetaData().supportsGetGeneratedKeys();
-                        MappedArg[][] batchBoundSql = buildInsertArgs(useColumns, supportGetGeneratedKeys, con);
+                        SqlArg[][] batchBoundSql = buildInsertArgs(useColumns, supportGetGeneratedKeys, con);
 
                         PreparedStatement ps = createPrepareStatement(con, insertSql);
                         for (Object[] batchItem : batchBoundSql) {
@@ -92,7 +92,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                 } else {
                     return this.getJdbcTemplate().execute((ConnectionCallback<int[]>) con -> {
                         boolean supportGetGeneratedKeys = con != null && con.getMetaData().supportsGetGeneratedKeys();
-                        MappedArg[][] batchBoundSql = buildInsertArgs(useColumns, supportGetGeneratedKeys, con);
+                        SqlArg[][] batchBoundSql = buildInsertArgs(useColumns, supportGetGeneratedKeys, con);
                         int[] res = new int[batchBoundSql.length];
 
                         for (int i = 0; i < batchBoundSql.length; i++) {
@@ -108,7 +108,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
             } else {
                 return this.getJdbcTemplate().execute((ConnectionCallback<int[]>) con -> {
                     boolean supportsGetGeneratedKeys = con != null && con.getMetaData().supportsGetGeneratedKeys();
-                    MappedArg[][] batchBoundSql = buildInsertArgs(useColumns, supportsGetGeneratedKeys, con);
+                    SqlArg[][] batchBoundSql = buildInsertArgs(useColumns, supportsGetGeneratedKeys, con);
 
                     PreparedStatement ps = createPrepareStatement(con, insertSql);
                     applyPreparedStatement(ps, batchBoundSql[0], typeRegistry);
@@ -135,7 +135,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
         try {
             List<String> useColumns = this.findInsertColumns();
             String insertSql = super.buildInsert(this.dialect(), this.primaryKeys, useColumns, this.insertColumnTerms);
-            MappedArg[][] batchBoundSql = buildInsertArgs(useColumns, false, null);
+            SqlArg[][] batchBoundSql = buildInsertArgs(useColumns, false, null);
             return new BatchBoundSqlObj(insertSql, batchBoundSql);
         } catch (SQLException e) {
             throw ExceptionUtils.toRuntime(e); // never in effect
@@ -162,7 +162,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
         }
     }
 
-    protected MappedArg[][] buildInsertArgs(List<String> useColumns, boolean forExecute, Connection executeConn) throws SQLException {
+    protected SqlArg[][] buildInsertArgs(List<String> useColumns, boolean forExecute, Connection executeConn) throws SQLException {
         boolean hasFillBack = !this.fillAfterProperties.isEmpty();
         if (hasFillBack && forExecute) {
             this.fillBackEntityList.addAll(this.insertValues);
@@ -174,7 +174,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
             mappings.add(tableMapping.getPropertyByColumn(column));
         }
 
-        MappedArg[][] batchArgs = new MappedArg[this.insertValuesCount.get()][];
+        SqlArg[][] batchArgs = new SqlArg[this.insertValuesCount.get()][];
         int i = 0;
         for (InsertEntity entity : this.insertValues) {
             for (Object obj : entity.objList) {
@@ -189,8 +189,8 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
         return batchArgs;
     }
 
-    protected MappedArg[] buildArgsForMap(Map entity, List<ColumnMapping> mappings, boolean forExecute, Connection executeConn) throws SQLException {
-        MappedArg[] args = new MappedArg[mappings.size()];
+    protected SqlArg[] buildArgsForMap(Map entity, List<ColumnMapping> mappings, boolean forExecute, Connection executeConn) throws SQLException {
+        SqlArg[] args = new SqlArg[mappings.size()];
         for (int j = 0; j < mappings.size(); j++) {
             ColumnMapping mapping = mappings.get(j);
             Integer jdbcType;
@@ -213,13 +213,13 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                 }
             }
 
-            args[j] = (arg == null) ? null : new MappedArg(arg, jdbcType, null);
+            args[j] = (arg == null) ? null : new SqlArg(arg, jdbcType, null);
         }
         return args;
     }
 
-    protected MappedArg[] buildArgsForEntity(Object entity, List<ColumnMapping> mappings, boolean forExecute, Connection executeConn) throws SQLException {
-        MappedArg[] args = new MappedArg[mappings.size()];
+    protected SqlArg[] buildArgsForEntity(Object entity, List<ColumnMapping> mappings, boolean forExecute, Connection executeConn) throws SQLException {
+        SqlArg[] args = new SqlArg[mappings.size()];
         for (int j = 0; j < mappings.size(); j++) {
             ColumnMapping mapping = mappings.get(j);
             TypeHandler<?> typeHandler = mapping.getTypeHandler();
@@ -235,7 +235,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                 }
             }
 
-            args[j] = (arg == null) ? null : new MappedArg(arg, jdbcType, typeHandler);
+            args[j] = (arg == null) ? null : new SqlArg(arg, jdbcType, typeHandler);
         }
         return args;
     }

@@ -30,6 +30,7 @@ import java.util.Objects;
  * @author 赵永春 (zyc@hasor.net)
  * @see JDBCType
  */
+@Deprecated
 public class SqlParameterUtils implements SqlParameter {
     // The name of the parameter, if any
     private final String name;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.jdbc.core;
+package net.hasor.dbvisitor.error;
 import net.hasor.dbvisitor.jdbc.SqlProvider;
 
 import java.sql.SQLException;

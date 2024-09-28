@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
+import net.hasor.dbvisitor.dynamic.SqlMode;
+
 import java.util.Objects;
 
 /**
@@ -21,15 +23,37 @@ import java.util.Objects;
  * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
  */
-public class MappedArg {
+public class SqlArg {
+    private String         name;
     private Object         value;
     private Integer        jdbcType;
+    private SqlMode        sqlMode;
+    private Class<?>       javaType;
     private TypeHandler<?> typeHandler;
 
-    public MappedArg(Object value, Integer jdbcType, TypeHandler<?> typeHandler) {
+    public SqlArg(Object value, Integer jdbcType, TypeHandler<?> typeHandler) {
         this.value = value;
         this.typeHandler = typeHandler;
         this.jdbcType = jdbcType;
+    }
+
+    public SqlArg(String expr, Object value, SqlMode sqlMode, Integer jdbcType, Class<?> javaType, TypeHandler<?> typeHandler) {
+        this(value, jdbcType, typeHandler);
+        this.name = expr;
+        this.sqlMode = sqlMode;
+        this.javaType = javaType;
+    }
+
+    public static SqlArg valueOf(Object obj) {
+        return new SqlArg(null, obj, null, null, null, null);
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Object getValue() {
@@ -46,6 +70,22 @@ public class MappedArg {
 
     public void setJdbcType(Integer jdbcType) {
         this.jdbcType = jdbcType;
+    }
+
+    public SqlMode getSqlMode() {
+        return this.sqlMode;
+    }
+
+    public void setSqlMode(SqlMode sqlMode) {
+        this.sqlMode = sqlMode;
+    }
+
+    public Class<?> getJavaType() {
+        return this.javaType;
+    }
+
+    public void setJavaType(Class<?> javaType) {
+        this.javaType = javaType;
     }
 
     public TypeHandler<?> getTypeHandler() {
@@ -68,6 +108,6 @@ public class MappedArg {
 
     @Override
     public String toString() {
-        return String.valueOf(value);
+        return "SqlArg{" + "value=" + this.getValue() + '}';
     }
 }

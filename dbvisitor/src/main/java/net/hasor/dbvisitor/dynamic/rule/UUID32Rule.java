@@ -15,7 +15,11 @@
  */
 package net.hasor.dbvisitor.dynamic.rule;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dynamic.*;
+import net.hasor.dbvisitor.dynamic.DynamicContext;
+import net.hasor.dbvisitor.dynamic.SqlArgSource;
+import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.dynamic.SqlMode;
+import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 

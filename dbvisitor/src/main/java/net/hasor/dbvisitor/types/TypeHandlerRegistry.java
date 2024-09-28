@@ -632,10 +632,10 @@ public final class TypeHandlerRegistry {
             return;
         }
 
-        if (value instanceof MappedArg) {
-            Integer argType = ((MappedArg) value).getJdbcType();
-            TypeHandler argHandler = ((MappedArg) value).getTypeHandler();
-            Object argValue = ((MappedArg) value).getValue();
+        if (value instanceof SqlArg) {
+            Integer argType = ((SqlArg) value).getJdbcType();
+            TypeHandler argHandler = ((SqlArg) value).getTypeHandler();
+            Object argValue = ((SqlArg) value).getValue();
 
             if (argType == null && argValue != null) {
                 argType = TypeHandlerRegistry.toSqlType(argValue.getClass());

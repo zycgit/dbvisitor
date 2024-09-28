@@ -14,53 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.args;
-import net.hasor.dbvisitor.dynamic.SqlArgSource;
-
 import java.util.Map;
-import java.util.function.Supplier;
 
 /**
  * 一个 Map 到 SqlParameterSource 的桥，同时支持自动识别 Supplier 接口以获取具体参数。
  * @version : 2014-3-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class MapSqlArgSource implements SqlArgSource, SqlArgDisposer {
-    private final Map<String, Object> values;
-
+public class MapSqlArgSource extends BasicSqlArgSource {
     public MapSqlArgSource(final Map<String, ?> values) {
-        this.values = (Map<String, Object>) values;
-    }
-
-    @Override
-    public boolean hasValue(final String paramName) {
-        return this.values.containsKey(paramName);
-    }
-
-    @Override
-    public Object getValue(final String paramName) throws IllegalArgumentException {
-        Object object = this.values.get(paramName);
-        if (object instanceof Supplier) {
-            object = ((Supplier<?>) object).get();
-        }
-        return object;
-    }
-
-    @Override
-    public void putValue(String paramName, Object value) {
-        this.values.put(paramName, value);
-    }
-
-    @Override
-    public String[] getParameterNames() {
-        return this.values.keySet().toArray(new String[0]);
-    }
-
-    @Override
-    public void cleanupParameters() {
-        for (Object val : this.values.values()) {
-            if (val instanceof SqlArgDisposer) {
-                ((SqlArgDisposer) val).cleanupParameters();
-            }
-        }
+        super((Map<String, Object>) values);
     }
 }

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.rule;
-import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
-import net.hasor.dbvisitor.jdbc.SqlParameter;
-import net.hasor.dbvisitor.types.MappedArg;
+import net.hasor.dbvisitor.dynamic.args.ArraySqlArgSource;
+import net.hasor.dbvisitor.types.SqlArg;
+import net.hasor.dbvisitor.types.TypeHandler;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -76,52 +76,22 @@ public class InRule implements SqlBuildRule {
         sqlBuilder.appendSql(")");
     }
 
-    private static void buildIn(SqlBuilder sqlBuilder, Object value) {
-        // unwrap
-        if (value instanceof SqlParameter.InSqlParameter) {
-            value = ((SqlParameter.InSqlParameter) value).getValue();
+    private static void buildIn(final SqlBuilder sqlBuilder, final Object value) {
+        Object tmpValue = value;
+        Integer jdbcType = null;
+        TypeHandler<?> typeHandler = null;
+        if (tmpValue instanceof SqlArg) {
+            tmpValue = ((SqlArg) value).getValue();
+            jdbcType = ((SqlArg) value).getJdbcType();
+            typeHandler = ((SqlArg) value).getTypeHandler();
         }
-        if (value instanceof MappedArg) {
-            value = ((MappedArg) value).getValue();
-        }
-        if (value != null && value.getClass().isArray()) {
-            Class<?> componentType = value.getClass().getComponentType();
-            if (componentType == char.class) {
-                value = Arrays.asList(ArrayUtils.toObject((char[]) value));
-            } else if (componentType == Character.class) {
-                value = Arrays.asList((Character[]) value);
-            } else if (componentType == short.class) {
-                value = Arrays.asList(ArrayUtils.toObject((short[]) value));
-            } else if (componentType == Short.class) {
-                value = Arrays.asList((Short[]) value);
-            } else if (componentType == int.class) {
-                value = Arrays.asList(ArrayUtils.toObject((int[]) value));
-            } else if (componentType == Integer.class) {
-                value = Arrays.asList((Integer[]) value);
-            } else if (componentType == long.class) {
-                value = Arrays.asList(ArrayUtils.toObject((long[]) value));
-            } else if (componentType == Long.class) {
-                value = Arrays.asList((Long[]) value);
-            } else if (componentType == float.class) {
-                value = Arrays.asList(ArrayUtils.toObject((float[]) value));
-            } else if (componentType == Float.class) {
-                value = Arrays.asList((Float[]) value);
-            } else if (componentType == double.class) {
-                value = Arrays.asList(ArrayUtils.toObject((double[]) value));
-            } else if (componentType == Double.class) {
-                value = Arrays.asList((Double[]) value);
-            } else if (componentType == boolean.class) {
-                value = Arrays.asList(ArrayUtils.toObject((boolean[]) value));
-            } else if (componentType == Boolean.class) {
-                value = Arrays.asList((Boolean[]) value);
-            } else {
-                value = Arrays.asList((Object[]) value);
-            }
+        if (tmpValue != null && tmpValue.getClass().isArray()) {
+            tmpValue = Arrays.asList(ArraySqlArgSource.toArgs(tmpValue));
         }
 
         //
-        if (value instanceof Iterable) {
-            Iterator<?> entryIter = ((Iterable<?>) value).iterator();
+        if (tmpValue instanceof Iterable) {
+            Iterator<?> entryIter = ((Iterable<?>) tmpValue).iterator();
             int k = 0;
             while (entryIter.hasNext()) {
                 if (k > 0) {
@@ -129,7 +99,12 @@ public class InRule implements SqlBuildRule {
                 }
                 k++;
 
-                sqlBuilder.appendSql("?", entryIter.next());
+                if (jdbcType != null || typeHandler != null) {
+                    sqlBuilder.appendSql("?", new SqlArg(entryIter.next(), jdbcType, typeHandler));
+                } else {
+                    sqlBuilder.appendSql("?", entryIter.next());
+                }
+
             }
         } else {
             sqlBuilder.appendSql("?", value);

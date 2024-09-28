@@ -19,9 +19,9 @@ import net.hasor.dbvisitor.dal.repository.ResultSetType;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dynamic.DynamicContext;
-import net.hasor.dbvisitor.dynamic.SqlArg;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.page.PageResult;
+import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 
 import java.sql.Connection;

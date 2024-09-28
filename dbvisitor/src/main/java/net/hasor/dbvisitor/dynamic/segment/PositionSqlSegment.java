@@ -20,38 +20,31 @@ import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.rule.ArgRule;
 
 import java.sql.SQLException;
-import java.util.Map;
+import java.util.Collections;
 
-public class NamedSqlSegment implements SqlSegment {
-    private final String              exprString;
-    private final Map<String, String> config;
-    private       boolean             fromArg;
+public class PositionSqlSegment implements SqlSegment {
+    private final int position;
 
-    public NamedSqlSegment(String exprString, Map<String, String> config) {
-        this.exprString = exprString;
-        this.config = config;
+    public PositionSqlSegment(int position) {
+        this.position = position;
     }
 
-    public String getExpr() {
-        return this.exprString;
-    }
-
-    public Map<String, String> getConfig() {
-        return this.config;
+    public int getPosition() {
+        return this.position;
     }
 
     @Override
     public void buildQuery(SqlArgSource data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
-        ArgRule.INSTANCE.executeRule(data, context, sqlBuilder, this.exprString, this.config);
+        ArgRule.INSTANCE.executeRule(data, context, sqlBuilder, "arg" + position, Collections.emptyMap());
     }
 
     @Override
-    public NamedSqlSegment clone() {
-        return new NamedSqlSegment(this.exprString, this.config);
+    public PositionSqlSegment clone() {
+        return new PositionSqlSegment(this.position);
     }
 
     @Override
     public String toString() {
-        return "Named [" + this.exprString + "]";
+        return "Args [" + this.position + "]";
     }
 }

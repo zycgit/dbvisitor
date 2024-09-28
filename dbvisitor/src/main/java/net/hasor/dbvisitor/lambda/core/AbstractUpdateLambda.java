@@ -23,7 +23,7 @@ import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
-import net.hasor.dbvisitor.types.MappedArg;
+import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
@@ -42,7 +42,7 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
 public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R, T, P> implements UpdateExecute<R, T, P> {
     protected final Set<String>                allowUpdateKeys;
     protected final Map<String, ColumnMapping> allowUpdateProperties;
-    protected final Map<String, MappedArg>     updateValueMap;
+    protected final Map<String, SqlArg>        updateValueMap;
     private         boolean                    allowEmptyWhere = false;
     private         boolean                    allowUpdateKey  = false;
     private         boolean                    allowReplaceRow = false;
@@ -248,12 +248,12 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
             if (propertyValue == null) {
                 this.updateValueMap.put(propertyName, null);
             } else if (mapping != null) {
-                MappedArg mappedArg = new MappedArg(propertyValue, mapping.getJdbcType(), exampleIsMap() ? null : mapping.getTypeHandler());
+                SqlArg mappedArg = new SqlArg(propertyValue, mapping.getJdbcType(), exampleIsMap() ? null : mapping.getTypeHandler());
                 this.updateValueMap.put(propertyName, mappedArg);
             } else {
                 int sqlType = TypeHandlerRegistry.toSqlType(propertyValue.getClass());
                 TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(propertyValue.getClass());
-                MappedArg mappedArg = new MappedArg(propertyValue, sqlType, typeHandler);
+                SqlArg mappedArg = new SqlArg(propertyValue, sqlType, typeHandler);
                 this.updateValueMap.put(propertyName, mappedArg);
             }
         }

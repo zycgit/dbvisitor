@@ -87,12 +87,37 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
     /** 追加位置参数，例如：? */
     public void appendPositionArg(int position) {
         this.queryStringOri.append("?");
-        this.queryStringPlan.add(new NamedSqlSegment("arg" + position, Collections.emptyMap()));
+        this.queryStringPlan.add(new PositionSqlSegment(position));
     }
 
     /** 是否包含替换占位符，如果包含替换占位符那么不能使用批量模式 */
     public boolean isHaveInjection() {
         return this.haveInjection;
+    }
+
+    public int getSqlModifier() {
+        boolean hasPosition = false;
+        boolean hasNamed = false;
+        boolean hasRule = false;
+        boolean hasInjection = false;
+        for (SqlSegment segment : this.queryStringPlan) {
+            if (segment instanceof PositionSqlSegment) {
+                hasPosition = true;
+            } else if (segment instanceof NamedSqlSegment) {
+                hasNamed = true;
+            } else if (segment instanceof RuleSqlSegment) {
+                hasRule = true;
+            } else if (segment instanceof InjectionSqlSegment) {
+                hasInjection = true;
+            }
+        }
+
+        int i = 0;
+        i = hasPosition ? (i | SqlModifier.POSITION) : i;
+        i = hasNamed ? (i | SqlModifier.NAMED) : i;
+        i = hasRule ? (i | SqlModifier.RULE) : i;
+        i = hasInjection ? (i | SqlModifier.INJECTION) : i;
+        return i;
     }
 
     public String getOriSqlString() {
@@ -104,6 +129,16 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
         for (SqlSegment segment : this.queryStringPlan) {
             if (segment instanceof InjectionSqlSegment) {
                 result.add(((InjectionSqlSegment) segment).getExpr());
+            }
+        }
+        return result;
+    }
+
+    public List<Integer> getPositionList() {
+        List<Integer> result = new ArrayList<>();
+        for (SqlSegment segment : this.queryStringPlan) {
+            if (segment instanceof PositionSqlSegment) {
+                result.add(((PositionSqlSegment) segment).getPosition());
             }
         }
         return result;

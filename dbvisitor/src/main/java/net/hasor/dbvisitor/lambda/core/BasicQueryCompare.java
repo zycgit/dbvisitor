@@ -24,7 +24,7 @@ import net.hasor.dbvisitor.lambda.segment.Segment;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
-import net.hasor.dbvisitor.types.MappedArg;
+import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
@@ -159,7 +159,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
         MergeSqlSegment mergeSqlSegment = new MergeSqlSegment();
         Iterator<Object> iterator = Arrays.asList(params).iterator();
         while (iterator.hasNext()) {
-            Object arg = new MappedArg(iterator.next(), mapping.getJdbcType(), exampleIsMap() ? null : mapping.getTypeHandler());
+            Object arg = new SqlArg(iterator.next(), mapping.getJdbcType(), exampleIsMap() ? null : mapping.getTypeHandler());
             mergeSqlSegment.addSegment(formatSegment(colValue, arg));
             if (iterator.hasNext()) {
                 mergeSqlSegment.addSegment(() -> ",");
@@ -186,7 +186,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
                 typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(nextArg.getClass());
             }
 
-            Object arg = new MappedArg(nextArg, sqlType, exampleIsMap() ? null : typeHandler);
+            Object arg = new SqlArg(nextArg, sqlType, exampleIsMap() ? null : typeHandler);
             mergeSqlSegment.addSegment(formatSegment(colValue, arg));
             if (iterator.hasNext()) {
                 mergeSqlSegment.addSegment(() -> ",");

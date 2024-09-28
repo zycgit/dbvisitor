@@ -20,20 +20,24 @@ import net.hasor.cobble.io.IOUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
-import net.hasor.dbvisitor.dynamic.*;
+import net.hasor.dbvisitor.dynamic.DynamicContext;
+import net.hasor.dbvisitor.dynamic.DynamicParsed;
+import net.hasor.dbvisitor.dynamic.SqlArgSource;
+import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.dynamic.args.ArraySqlArgSource;
+import net.hasor.dbvisitor.dynamic.args.BeanSqlArgSource;
 import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
-import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
 import net.hasor.dbvisitor.dynamic.args.SqlArgDisposer;
+import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
+import net.hasor.dbvisitor.error.UncategorizedSQLException;
 import net.hasor.dbvisitor.jdbc.*;
-import net.hasor.dbvisitor.jdbc.SqlParameter.InSqlParameter;
 import net.hasor.dbvisitor.jdbc.SqlParameter.ReturnSqlParameter;
 import net.hasor.dbvisitor.jdbc.extractor.*;
 import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
 import net.hasor.dbvisitor.jdbc.mapper.MappingResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.MappingRowMapper;
 import net.hasor.dbvisitor.jdbc.mapper.SingleColumnRowMapper;
-import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import javax.sql.DataSource;
@@ -219,6 +223,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         if (logger.isDebugEnabled()) {
             logger.trace("Executing SQL statement [" + sql + "].");
         }
+
         class ExecuteStatementCallback implements StatementCallback<Boolean>, SqlProvider {
             @Override
             public Boolean doInStatement(final Statement stmt) throws SQLException {
@@ -340,36 +345,23 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public List<Object> multipleExecute(final String sql, final Object[] args) throws SQLException {
-        PreparedStatementSetter setter = newArgPreparedStatementSetter(args);
-        PreparedStatementCreator psc = getPreparedStatementCreator(sql, setter);
-        return this.executeCreator(psc, (PreparedStatementCallback<List<Object>>) ps -> {
-            boolean retVal = ps.execute();
-            return receiveMultipleResult(retVal, ps);
-        });
+    public List<Object> multipleExecute(final String sql, final Object args) throws SQLException {
+        if (args instanceof PreparedStatementSetter) {
+            return this.multipleExecute(sql, (PreparedStatementSetter) args);
+        } else {
+            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+            SqlArgSource argSource = toSqlArgSource(args);
+            PreparedStatementCreator psc = getPreparedStatementCreator(parsedSql, argSource);
+            return this.executeCreator(psc, (PreparedStatementCallback<List<Object>>) ps -> {
+                boolean retVal = ps.execute();
+                return receiveMultipleResult(retVal, ps);
+            });
+        }
     }
 
     @Override
-    public List<Object> multipleExecute(final String sql, final SqlArgSource parameterSource) throws SQLException {
-        PreparedStatementCreator psc = getPreparedStatementCreator(sql, parameterSource);
-        return this.executeCreator(psc, (PreparedStatementCallback<List<Object>>) ps -> {
-            boolean retVal = ps.execute();
-            return receiveMultipleResult(retVal, ps);
-        });
-    }
-
-    @Override
-    public List<Object> multipleExecute(final String sql, final Map<String, ?> paramMap) throws SQLException {
-        PreparedStatementCreator psc = getPreparedStatementCreator(sql, new MapSqlArgSource(paramMap));
-        return this.executeCreator(psc, (PreparedStatementCallback<List<Object>>) ps -> {
-            boolean retVal = ps.execute();
-            return receiveMultipleResult(retVal, ps);
-        });
-    }
-
-    @Override
-    public List<Object> multipleExecute(final String sql, final PreparedStatementSetter setter) throws SQLException {
-        PreparedStatementCreator psc = getPreparedStatementCreator(sql, setter);
+    public List<Object> multipleExecute(final String sql, final PreparedStatementSetter args) throws SQLException {
+        PreparedStatementCreator psc = getPreparedStatementCreator(sql, args);
         return this.executeCreator(psc, (PreparedStatementCallback<List<Object>>) ps -> {
             boolean retVal = ps.execute();
             return receiveMultipleResult(retVal, ps);
@@ -416,23 +408,20 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public <T> T query(final String sql, final Object[] args, final ResultSetExtractor<T> rse) throws SQLException {
-        return this.executeCreator(this.getPreparedStatementCreator(sql, this.newArgPreparedStatementSetter(args)), rse);
+    public <T> T query(final String sql, final Object args, final ResultSetExtractor<T> rse) throws SQLException {
+        if (args instanceof PreparedStatementSetter) {
+            return this.query(sql, (PreparedStatementSetter) args, rse);
+        } else {
+            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+            SqlArgSource argSource = toSqlArgSource(args);
+            return this.executeCreator(this.getPreparedStatementCreator(parsedSql, argSource), rse);
+        }
     }
 
     @Override
-    public <T> T query(final String sql, final SqlArgSource paramSource, final ResultSetExtractor<T> rse) throws SQLException {
-        return this.executeCreator(this.getPreparedStatementCreator(sql, paramSource), rse);
-    }
-
-    @Override
-    public <T> T query(final String sql, final Map<String, ?> paramMap, final ResultSetExtractor<T> rse) throws SQLException {
-        return this.executeCreator(this.getPreparedStatementCreator(sql, new MapSqlArgSource(paramMap)), rse);
-    }
-
-    @Override
-    public <T> T query(final String sql, final PreparedStatementSetter pss, final ResultSetExtractor<T> rse) throws SQLException {
-        return this.executeCreator(this.getPreparedStatementCreator(sql, pss), rse);
+    public <T> T query(final String sql, final PreparedStatementSetter args, final ResultSetExtractor<T> rse) throws SQLException {
+        PreparedStatementCreator psc = this.getPreparedStatementCreator(sql, args);
+        return this.executeCreator(psc, rse);
     }
 
     @Override
@@ -446,24 +435,21 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public void query(final String sql, final Object[] args, final RowCallbackHandler rch) throws SQLException {
-        this.executeCreator(this.getPreparedStatementCreator(sql, this.newArgPreparedStatementSetter(args)), new RowCallbackHandlerResultSetExtractor(rch));
+    public void query(final String sql, final Object args, final RowCallbackHandler rch) throws SQLException {
+        if (args instanceof PreparedStatementSetter) {
+            this.query(sql, (PreparedStatementSetter) args, rch);
+        } else {
+            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+            SqlArgSource argSource = toSqlArgSource(args);
+            PreparedStatementCreator psc = getPreparedStatementCreator(parsedSql, argSource);
+            this.executeCreator(psc, new RowCallbackHandlerResultSetExtractor(rch));
+        }
     }
 
     @Override
-    public void query(final String sql, final SqlArgSource paramSource, final RowCallbackHandler rch) throws SQLException {
-        this.executeCreator(this.getPreparedStatementCreator(sql, paramSource), new RowCallbackHandlerResultSetExtractor(rch));
-    }
-
-    @Override
-    public void query(final String sql, final Map<String, ?> paramMap, final RowCallbackHandler rch) throws SQLException {
-        this.executeCreator(this.getPreparedStatementCreator(sql, new MapSqlArgSource(paramMap)), new RowCallbackHandlerResultSetExtractor(rch));
-
-    }
-
-    @Override
-    public void query(final String sql, final PreparedStatementSetter setter, final RowCallbackHandler rch) throws SQLException {
-        this.executeCreator(this.getPreparedStatementCreator(sql, setter), new RowCallbackHandlerResultSetExtractor(rch));
+    public void query(final String sql, final PreparedStatementSetter args, final RowCallbackHandler rch) throws SQLException {
+        PreparedStatementCreator psc = this.getPreparedStatementCreator(sql, args);
+        this.executeCreator(psc, new RowCallbackHandlerResultSetExtractor(rch));
     }
 
     @Override
@@ -476,23 +462,21 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public <T> List<T> queryForList(final String sql, final Object[] args, final RowMapper<T> rowMapper) throws SQLException {
-        return this.executeCreator(this.getPreparedStatementCreator(sql, this.newArgPreparedStatementSetter(args)), new RowMapperResultSetExtractor<>(rowMapper));
+    public <T> List<T> queryForList(final String sql, final Object args, final RowMapper<T> rowMapper) throws SQLException {
+        if (args instanceof PreparedStatementSetter) {
+            return this.queryForList(sql, (PreparedStatementSetter) args, rowMapper);
+        } else {
+            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+            SqlArgSource argSource = toSqlArgSource(args);
+            PreparedStatementCreator psc = getPreparedStatementCreator(parsedSql, argSource);
+            return this.executeCreator(psc, new RowMapperResultSetExtractor<>(rowMapper));
+        }
     }
 
     @Override
-    public <T> List<T> queryForList(final String sql, final SqlArgSource paramSource, final RowMapper<T> rowMapper) throws SQLException {
-        return this.executeCreator(this.getPreparedStatementCreator(sql, paramSource), new RowMapperResultSetExtractor<>(rowMapper));
-    }
-
-    @Override
-    public <T> List<T> queryForList(final String sql, final Map<String, ?> paramMap, final RowMapper<T> rowMapper) throws SQLException {
-        return this.executeCreator(this.getPreparedStatementCreator(sql, new MapSqlArgSource(paramMap)), new RowMapperResultSetExtractor<>(rowMapper));
-    }
-
-    @Override
-    public <T> List<T> queryForList(final String sql, final PreparedStatementSetter setter, final RowMapper<T> rowMapper) throws SQLException {
-        return this.executeCreator(this.getPreparedStatementCreator(sql, setter), new RowMapperResultSetExtractor<>(rowMapper));
+    public <T> List<T> queryForList(final String sql, final PreparedStatementSetter args, final RowMapper<T> rowMapper) throws SQLException {
+        PreparedStatementCreator psc = this.getPreparedStatementCreator(sql, args);
+        return this.executeCreator(psc, new RowMapperResultSetExtractor<>(rowMapper));
     }
 
     @Override
@@ -501,49 +485,48 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public <T> List<T> queryForList(final String sql, final Object[] args, final Class<T> elementType) throws SQLException {
-        return this.executeCreator(this.getPreparedStatementCreator(sql, this.newArgPreparedStatementSetter(args)), this.createBeanResultSetExtractor(elementType));
+    public <T> List<T> queryForList(final String sql, final Object args, final Class<T> elementType) throws SQLException {
+        if (args instanceof PreparedStatementSetter) {
+            return this.queryForList(sql, (PreparedStatementSetter) args, elementType);
+        } else {
+            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+            SqlArgSource argSource = toSqlArgSource(args);
+            PreparedStatementCreator psc = getPreparedStatementCreator(parsedSql, argSource);
+            return this.executeCreator(psc, this.createBeanResultSetExtractor(elementType));
+        }
     }
 
     @Override
-    public <T> List<T> queryForList(final String sql, final SqlArgSource paramSource, final Class<T> elementType) throws SQLException {
-        return this.executeCreator(this.getPreparedStatementCreator(sql, paramSource), this.createBeanResultSetExtractor(elementType));
-    }
-
-    @Override
-    public <T> List<T> queryForList(final String sql, final Map<String, ?> paramMap, final Class<T> elementType) throws SQLException {
-        return this.executeCreator(this.getPreparedStatementCreator(sql, new MapSqlArgSource(paramMap)), this.createBeanResultSetExtractor(elementType));
-    }
-
-    @Override
-    public <T> List<T> queryForList(String sql, PreparedStatementSetter setter, Class<T> elementType) throws SQLException {
-        return this.executeCreator(this.getPreparedStatementCreator(sql, setter), this.createBeanResultSetExtractor(elementType));
+    public <T> List<T> queryForList(final String sql, final PreparedStatementSetter args, final Class<T> elementType) throws SQLException {
+        PreparedStatementCreator psc = this.getPreparedStatementCreator(sql, args);
+        return this.executeCreator(psc, this.createBeanResultSetExtractor(elementType));
     }
 
     @Override
     public List<Map<String, Object>> queryForList(final String sql) throws SQLException {
-        return this.query(sql, new RowMapperResultSetExtractor<>(this.createMapRowMapper()));
+        return this.execute(getStatementCreator(sql), stmt -> {
+            try (ResultSet rs = stmt.executeQuery(sql)) {
+                return new RowMapperResultSetExtractor<>(this.createMapRowMapper()).extractData(rs);
+            }
+        });
     }
 
     @Override
-    public List<Map<String, Object>> queryForList(final String sql, final Object[] args) throws SQLException {
-        PreparedStatementCreator psc = this.getPreparedStatementCreator(sql, this.newArgPreparedStatementSetter(args));
+    public List<Map<String, Object>> queryForList(final String sql, final Object args) throws SQLException {
+        if (args instanceof PreparedStatementSetter) {
+            return this.queryForList(sql, (PreparedStatementSetter) args);
+        } else {
+            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+            SqlArgSource argSource = toSqlArgSource(args);
+            PreparedStatementCreator psc = getPreparedStatementCreator(parsedSql, argSource);
+            return this.executeCreator(psc, new RowMapperResultSetExtractor<>(this.createMapRowMapper()));
+        }
+    }
+
+    @Override
+    public List<Map<String, Object>> queryForList(final String sql, final PreparedStatementSetter args) throws SQLException {
+        PreparedStatementCreator psc = this.getPreparedStatementCreator(sql, args);
         return this.executeCreator(psc, new RowMapperResultSetExtractor<>(this.createMapRowMapper()));
-    }
-
-    @Override
-    public List<Map<String, Object>> queryForList(final String sql, final SqlArgSource paramSource) throws SQLException {
-        return this.executeCreator(this.getPreparedStatementCreator(sql, paramSource), new RowMapperResultSetExtractor<>(this.createMapRowMapper()));
-    }
-
-    @Override
-    public List<Map<String, Object>> queryForList(final String sql, final Map<String, ?> paramMap) throws SQLException {
-        return this.executeCreator(this.getPreparedStatementCreator(sql, new MapSqlArgSource(paramMap)), new RowMapperResultSetExtractor<>(this.createMapRowMapper()));
-    }
-
-    @Override
-    public List<Map<String, Object>> queryForList(final String sql, final PreparedStatementSetter setter) throws SQLException {
-        return this.executeCreator(this.getPreparedStatementCreator(sql, setter), new RowMapperResultSetExtractor<>(this.createMapRowMapper()));
     }
 
     @Override
@@ -552,29 +535,21 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public <T> T queryForObject(final String sql, final Object[] args, final RowMapper<T> rowMapper) throws SQLException {
-        PreparedStatementCreator psc = this.getPreparedStatementCreator(sql, this.newArgPreparedStatementSetter(args));
-        List<T> result = this.executeCreator(psc, new RowMapperResultSetExtractor<>(rowMapper, 1));
-        return requiredSingleResult(result);
+    public <T> T queryForObject(final String sql, final Object args, final RowMapper<T> rowMapper) throws SQLException {
+        if (args instanceof PreparedStatementSetter) {
+            return this.queryForObject(sql, (PreparedStatementSetter) args, rowMapper);
+        } else {
+            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+            SqlArgSource argSource = toSqlArgSource(args);
+            PreparedStatementCreator psc = getPreparedStatementCreator(parsedSql, argSource);
+            List<T> result = this.executeCreator(psc, new RowMapperResultSetExtractor<>(rowMapper, 1));
+            return requiredSingleResult(result);
+        }
     }
 
     @Override
-    public <T> T queryForObject(final String sql, final SqlArgSource paramSource, final RowMapper<T> rowMapper) throws SQLException {
-        PreparedStatementCreator psc = this.getPreparedStatementCreator(sql, paramSource);
-        List<T> result = this.executeCreator(psc, new RowMapperResultSetExtractor<>(rowMapper, 1));
-        return requiredSingleResult(result);
-    }
-
-    @Override
-    public <T> T queryForObject(final String sql, final Map<String, ?> paramMap, final RowMapper<T> rowMapper) throws SQLException {
-        PreparedStatementCreator psc = this.getPreparedStatementCreator(sql, new MapSqlArgSource(paramMap));
-        List<T> result = this.executeCreator(psc, new RowMapperResultSetExtractor<>(rowMapper, 1));
-        return requiredSingleResult(result);
-    }
-
-    @Override
-    public <T> T queryForObject(final String sql, final PreparedStatementSetter setter, final RowMapper<T> rowMapper) throws SQLException {
-        PreparedStatementCreator psc = this.getPreparedStatementCreator(sql, setter);
+    public <T> T queryForObject(final String sql, final PreparedStatementSetter args, final RowMapper<T> rowMapper) throws SQLException {
+        PreparedStatementCreator psc = this.getPreparedStatementCreator(sql, args);
         List<T> result = this.executeCreator(psc, new RowMapperResultSetExtractor<>(rowMapper, 1));
         return requiredSingleResult(result);
     }
@@ -585,23 +560,13 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public <T> T queryForObject(final String sql, final Object[] args, final Class<T> requiredType) throws SQLException {
+    public <T> T queryForObject(final String sql, final Object args, final Class<T> requiredType) throws SQLException {
         return this.queryForObject(sql, args, this.createBeanRowMapper(requiredType));
     }
 
     @Override
-    public <T> T queryForObject(final String sql, final SqlArgSource paramSource, final Class<T> requiredType) throws SQLException {
-        return this.queryForObject(sql, paramSource, this.createBeanRowMapper(requiredType));
-    }
-
-    @Override
-    public <T> T queryForObject(final String sql, final Map<String, ?> paramMap, final Class<T> requiredType) throws SQLException {
-        return this.queryForObject(sql, paramMap, this.createBeanRowMapper(requiredType));
-    }
-
-    @Override
-    public <T> T queryForObject(final String sql, final PreparedStatementSetter setter, final Class<T> requiredType) throws SQLException {
-        return this.queryForObject(sql, setter, this.createBeanRowMapper(requiredType));
+    public <T> T queryForObject(final String sql, final PreparedStatementSetter args, final Class<T> requiredType) throws SQLException {
+        return this.queryForObject(sql, args, this.createBeanRowMapper(requiredType));
     }
 
     @Override
@@ -610,23 +575,13 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public Map<String, Object> queryForMap(final String sql, final Object[] args) throws SQLException {
+    public Map<String, Object> queryForMap(final String sql, final Object args) throws SQLException {
         return this.queryForObject(sql, args, this.createMapRowMapper());
     }
 
     @Override
-    public Map<String, Object> queryForMap(final String sql, final SqlArgSource paramSource) throws SQLException {
-        return this.queryForObject(sql, paramSource, this.createMapRowMapper());
-    }
-
-    @Override
-    public Map<String, Object> queryForMap(final String sql, final Map<String, ?> paramMap) throws SQLException {
-        return this.queryForObject(sql, paramMap, this.createMapRowMapper());
-    }
-
-    @Override
-    public Map<String, Object> queryForMap(String sql, PreparedStatementSetter setter) throws SQLException {
-        return this.queryForObject(sql, setter, this.createMapRowMapper());
+    public Map<String, Object> queryForMap(final String sql, final PreparedStatementSetter args) throws SQLException {
+        return this.queryForObject(sql, args, this.createMapRowMapper());
     }
 
     @Override
@@ -636,26 +591,14 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public long queryForLong(final String sql, final Object[] args) throws SQLException {
+    public long queryForLong(final String sql, final Object args) throws SQLException {
         Number number = this.queryForObject(sql, args, this.createSingleColumnRowMapper(long.class));
         return number != null ? number.longValue() : 0;
     }
 
     @Override
-    public long queryForLong(final String sql, final SqlArgSource paramSource) throws SQLException {
-        Number number = this.queryForObject(sql, paramSource, this.createSingleColumnRowMapper(long.class));
-        return number != null ? number.longValue() : 0;
-    }
-
-    @Override
-    public long queryForLong(final String sql, final Map<String, ?> paramMap) throws SQLException {
-        Number number = this.queryForObject(sql, paramMap, this.createSingleColumnRowMapper(long.class));
-        return number != null ? number.longValue() : 0;
-    }
-
-    @Override
-    public long queryForLong(final String sql, final PreparedStatementSetter setter) throws SQLException {
-        Number number = this.queryForObject(sql, setter, this.createSingleColumnRowMapper(long.class));
+    public long queryForLong(final String sql, final PreparedStatementSetter args) throws SQLException {
+        Number number = this.queryForObject(sql, args, this.createSingleColumnRowMapper(long.class));
         return number != null ? number.longValue() : 0;
     }
 
@@ -666,26 +609,14 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public int queryForInt(final String sql, final Object[] args) throws SQLException {
+    public int queryForInt(final String sql, final Object args) throws SQLException {
         Number number = this.queryForObject(sql, args, this.createSingleColumnRowMapper(int.class));
         return number != null ? number.intValue() : 0;
     }
 
     @Override
-    public int queryForInt(final String sql, final SqlArgSource paramSource) throws SQLException {
-        Number number = this.queryForObject(sql, paramSource, this.createSingleColumnRowMapper(int.class));
-        return number != null ? number.intValue() : 0;
-    }
-
-    @Override
-    public int queryForInt(final String sql, final Map<String, ?> paramMap) throws SQLException {
-        Number number = this.queryForObject(sql, paramMap, this.createSingleColumnRowMapper(int.class));
-        return number != null ? number.intValue() : 0;
-    }
-
-    @Override
-    public int queryForInt(final String sql, final PreparedStatementSetter setter) throws SQLException {
-        Number number = this.queryForObject(sql, setter, this.createSingleColumnRowMapper(int.class));
+    public int queryForInt(final String sql, final PreparedStatementSetter args) throws SQLException {
+        Number number = this.queryForObject(sql, args, this.createSingleColumnRowMapper(int.class));
         return number != null ? number.intValue() : 0;
     }
 
@@ -695,23 +626,13 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public String queryForString(final String sql, final Object[] args) throws SQLException {
+    public String queryForString(final String sql, final Object args) throws SQLException {
         return this.queryForObject(sql, args, this.createSingleColumnRowMapper(String.class));
     }
 
     @Override
-    public String queryForString(final String sql, final SqlArgSource paramSource) throws SQLException {
-        return this.queryForObject(sql, paramSource, this.createSingleColumnRowMapper(String.class));
-    }
-
-    @Override
-    public String queryForString(final String sql, final Map<String, ?> paramMap) throws SQLException {
-        return this.queryForObject(sql, paramMap, this.createSingleColumnRowMapper(String.class));
-    }
-
-    @Override
-    public String queryForString(final String sql, final PreparedStatementSetter setter) throws SQLException {
-        return this.queryForObject(sql, setter, this.createSingleColumnRowMapper(String.class));
+    public String queryForString(final String sql, final PreparedStatementSetter args) throws SQLException {
+        return this.queryForObject(sql, args, this.createSingleColumnRowMapper(String.class));
     }
 
     @Override
@@ -720,26 +641,20 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public int executeUpdate(final String sql, final Object[] args) throws SQLException {
-        PreparedStatementCreator psc = this.getPreparedStatementCreator(sql, this.newArgPreparedStatementSetter(args));
-        return this.executeCreator(psc, (PreparedStatementCallback<Integer>) PreparedStatement::executeUpdate);
+    public int executeUpdate(final String sql, final Object args) throws SQLException {
+        if (args instanceof PreparedStatementSetter) {
+            return this.executeUpdate(sql, (PreparedStatementSetter) args);
+        } else {
+            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+            SqlArgSource argSource = toSqlArgSource(args);
+            PreparedStatementCreator psc = getPreparedStatementCreator(parsedSql, argSource);
+            return this.executeCreator(psc, (PreparedStatementCallback<Integer>) PreparedStatement::executeUpdate);
+        }
     }
 
     @Override
-    public int executeUpdate(final String sql, final SqlArgSource paramSource) throws SQLException {
-        PreparedStatementCreator psc = this.getPreparedStatementCreator(sql, paramSource);
-        return this.executeCreator(psc, (PreparedStatementCallback<Integer>) PreparedStatement::executeUpdate);
-    }
-
-    @Override
-    public int executeUpdate(final String sql, final Map<String, ?> paramMap) throws SQLException {
-        PreparedStatementCreator psc = this.getPreparedStatementCreator(sql, new MapSqlArgSource(paramMap));
-        return this.executeCreator(psc, (PreparedStatementCallback<Integer>) PreparedStatement::executeUpdate);
-    }
-
-    @Override
-    public int executeUpdate(String sql, PreparedStatementSetter pss) throws SQLException {
-        PreparedStatementCreator psc = this.getPreparedStatementCreator(sql, pss);
+    public int executeUpdate(final String sql, final PreparedStatementSetter args) throws SQLException {
+        PreparedStatementCreator psc = this.getPreparedStatementCreator(sql, args);
         return this.executeCreator(psc, (PreparedStatementCallback<Integer>) PreparedStatement::executeUpdate);
     }
 
@@ -818,13 +733,13 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     /** Build a PreparedStatementCreator based on the given SQL and named parameters. */
-    protected PreparedStatementCreator getPreparedStatementCreator(final String sql, final SqlArgSource paramSource) throws SQLException {
-        Objects.requireNonNull(sql, "SQL must not be null.");
+    protected PreparedStatementCreator getPreparedStatementCreator(final DefaultSqlSegment segment, final SqlArgSource paramSource) {
+        Objects.requireNonNull(segment, "SQL must not be null.");
         Objects.requireNonNull(paramSource, "SqlParameterSource must not be null.");
         if (logger.isDebugEnabled()) {
-            logger.trace("Executing SQL query [" + sql + "].");
+            logger.trace("Executing SQL query [" + segment.getOriSqlString() + "].");
         }
-        return new MapPreparedStatementCreator(sql, paramSource);
+        return new MapPreparedStatementCreator(segment, paramSource);
     }
 
     /** Build a PreparedStatementCreator based on the given SQL and named parameters. */
@@ -884,50 +799,77 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public int[] executeBatch(String sql, Object[][] batchValues) throws SQLException {
-        return this.executeBatch(sql, new BatchPreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps, int i) throws SQLException {
-                int idx = 1;
-                TypeHandlerRegistry typeRegistry = getRegistry().getTypeRegistry();
-                for (Object value : batchValues[i]) {
-                    if (value == null) {
-                        ps.setObject(idx, null);
-                    } else {
-                        typeRegistry.setParameterValue(ps, idx, value);
-                    }
-                    idx++;
-                }
-            }
-
-            @Override
-            public int getBatchSize() {
-                return batchValues.length;
-            }
-        });
-    }
-
-    @Override
-    public int[] executeBatch(final String sql, final SqlArgSource[] batchArgs) throws SQLException {
+    public int[] executeBatch(String sql, Object[] batchArgs) throws SQLException {
         if (batchArgs == null || batchArgs.length == 0) {
             return new int[0];
         }
-        return this.executeBatch(sql, new SqlParameterSourceBatchPreparedStatementSetter(sql, batchArgs));
-    }
 
-    @Override
-    public int[] executeBatch(final String sql, final Map<String, ?>[] batchValues) throws SQLException {
-        if (batchValues == null || batchValues.length == 0) {
-            return new int[0];
+        // check
+        boolean usingPreparedStatement = false;
+        boolean usingArgSource = false;
+        for (int i = 0; i < batchArgs.length; i++) {
+            if (batchArgs[i] instanceof PreparedStatementSetter) {
+                usingPreparedStatement = true;
+            } else {
+                usingArgSource = true;
+            }
+        }
+        if (usingPreparedStatement && usingArgSource) {
+            throw new SQLException("executeBatch does not support mixing PreparedStatementSetter with other methods.");
         }
 
-        SqlArgSource[] batchArgs = new SqlArgSource[batchValues.length];
-        int i = 0;
-        for (Map<String, ?> values : batchValues) {
-            batchArgs[i] = new MapSqlArgSource(values);
-            i++;
+        // doBatch
+        if (usingPreparedStatement) {
+            return this.executeBatch(sql, new BatchPreparedStatementSetter() {
+
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    ((PreparedStatementSetter) batchArgs[i]).setValues(ps);
+                }
+
+                @Override
+                public int getBatchSize() {
+                    return batchArgs.length;
+                }
+            });
+        } else {
+
+            String prepareSql = "";
+            Object[][] prepareArgs = new Object[batchArgs.length][];
+            for (int i = 0; i < batchArgs.length; i++) {
+                DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+                SqlBuilder sqlBuilder = parsedSql.buildQuery(toSqlArgSource(batchArgs[i]), this.getRegistry());
+
+                if (i == 0) {
+                    prepareSql = sqlBuilder.getSqlString();
+                    prepareArgs[i] = sqlBuilder.getArgs();
+                } else {
+                    if (!StringUtils.equals(prepareSql, sqlBuilder.getSqlString())) {
+                        throw new SQLException("in executeBatch, each set of parameters must be able to derive the same SQL.");
+                    } else {
+                        prepareArgs[i] = sqlBuilder.getArgs();
+                    }
+                }
+            }
+
+            TypeHandlerRegistry typeRegistry = getRegistry().getTypeRegistry();
+            return this.executeBatch(prepareSql, new BatchPreparedStatementSetter() {
+
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    Object[] args = prepareArgs[i];
+                    for (int j = 0; j < args.length; j++) {
+                        typeRegistry.setParameterValue(ps, j + 1, args[j]);
+                    }
+                }
+
+                @Override
+                public int getBatchSize() {
+                    return prepareArgs.length;
+                }
+            });
+
         }
-        return this.executeBatch(sql, new SqlParameterSourceBatchPreparedStatementSetter(sql, batchArgs));
     }
 
     @Override
@@ -936,7 +878,12 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             logger.debug("Executing SQL batch update [" + sql + "].");
         }
 
-        SqlBuilder buildSql = this.getParsedSql(sql).buildQuery(Collections.emptyMap(), this.getRegistry());
+        DefaultSqlSegment parsedSql = this.getParsedSql(sql);
+        if (parsedSql.isHaveInjection() || !parsedSql.getNamedList().isEmpty()) {
+            throw new UnsupportedOperationException("");
+        }
+
+        SqlBuilder buildSql = parsedSql.buildQuery(Collections.emptyMap(), this.getRegistry());
         return this.executeCreator(getPreparedStatementCreator(buildSql.getSqlString()), (PreparedStatementCallback<int[]>) ps -> {
             try {
                 int batchSize = pss.getBatchSize();
@@ -1146,18 +1093,18 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
 
     /** 接口 {@link PreparedStatementCreator} 的简单实现，目的是根据 SQL 语句创建 {@link PreparedStatement}对象。*/
     private class MapPreparedStatementCreator implements PreparedStatementCreator, SqlArgDisposer, SqlProvider {
-        private final DefaultSqlSegment parsedSql;
+        private final DefaultSqlSegment segment;
         private final SqlArgSource      paramSource;
 
-        public MapPreparedStatementCreator(final String originalSql, final SqlArgSource paramSource) throws SQLException {
-            Objects.requireNonNull(originalSql, "SQL must not be null");
-            this.parsedSql = getParsedSql(originalSql);
+        public MapPreparedStatementCreator(final DefaultSqlSegment segment, final SqlArgSource paramSource) {
+            Objects.requireNonNull(segment, "SQL must not be null");
+            this.segment = segment;
             this.paramSource = paramSource;
         }
 
         @Override
         public PreparedStatement createPreparedStatement(final Connection con) throws SQLException {
-            SqlBuilder buildSql = this.parsedSql.buildQuery(this.paramSource, getRegistry());
+            SqlBuilder buildSql = this.segment.buildQuery(this.paramSource, getRegistry());
 
             String sqlToUse = buildSql.getSqlString();
             Object[] paramArray = buildSql.getArgs();
@@ -1173,7 +1120,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
 
         @Override
         public String getSql() {
-            return this.parsedSql.getOriSqlString();
+            return this.segment.getOriSqlString();
         }
 
         @Override
@@ -1182,71 +1129,6 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                 ((SqlArgDisposer) this.paramSource).cleanupParameters();
             }
         }
-    }
-
-    /** 接口 {@link BatchPreparedStatementSetter} 的简单实现，目的是设置批量操作 */
-    private class SqlParameterSourceBatchPreparedStatementSetter implements BatchPreparedStatementSetter, SqlArgDisposer {
-        private final DefaultSqlSegment parsedSql;
-        private final SqlArgSource[]    batchArgs;
-
-        public SqlParameterSourceBatchPreparedStatementSetter(final String sql, final SqlArgSource[] batchArgs) throws SQLException {
-            this.parsedSql = getParsedSql(sql);
-            this.batchArgs = batchArgs;
-
-            if (this.parsedSql.isHaveInjection()) {
-                throw new UnsupportedOperationException("SQL contains injection syntax that does not support batch.");
-            }
-        }
-
-        @Override
-        public void setValues(final PreparedStatement ps, final int index) throws SQLException {
-            SqlBuilder buildSql = this.parsedSql.buildQuery(this.batchArgs[index], getRegistry());
-            Object[] sqlValue = buildSql.getArgs();
-            //2.设置参数
-            int sqlColIndex = 1;
-            TypeHandlerRegistry typeRegistry = getRegistry().getTypeRegistry();
-
-            for (Object element : sqlValue) {
-                if (element instanceof InSqlParameter) {
-                    Object value = ((InSqlParameter) element).getValue();
-                    Integer jdbcType = ((InSqlParameter) element).getJdbcType();
-                    TypeHandler typeHandler = ((InSqlParameter) element).getTypeHandler();
-                    if (typeHandler != null && jdbcType != null) {
-                        typeHandler.setParameter(ps, sqlColIndex++, value, jdbcType);
-                        continue;
-                    } else if (typeHandler != null) {
-                        if (value == null) {
-                            ps.setObject(sqlColIndex++, null);
-                        } else {
-                            typeHandler.setParameter(ps, sqlColIndex++, value, TypeHandlerRegistry.toSqlType(value.getClass()));
-                        }
-                        continue;
-                    }
-                    element = value;
-                }
-
-                typeRegistry.setParameterValue(ps, sqlColIndex++, element);
-            }
-        }
-
-        @Override
-        public int getBatchSize() {
-            return this.batchArgs.length;
-        }
-
-        @Override
-        public void cleanupParameters() {
-            for (SqlArgSource batchItem : this.batchArgs) {
-                if (batchItem instanceof SqlArgDisposer) {
-                    ((SqlArgDisposer) batchItem).cleanupParameters();
-                }
-            }
-        }
-    }
-
-    /** Create a new PreparedStatementSetter.*/
-    protected PreparedStatementSetter newArgPreparedStatementSetter(final Object[] args) {
-        return new ArgPreparedStatementSetter(args, this.getRegistry().getTypeRegistry());
     }
 
     /* Map of original SQL String to ParsedSql representation */
@@ -1265,6 +1147,27 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             }
         } catch (RuntimeSQLException e) {
             throw e.toSQLException();
+        }
+    }
+
+    protected SqlArgSource toSqlArgSource(Object args) {
+        if (args == null) {
+            return new ArraySqlArgSource();
+        } else if (args instanceof Map) {
+            return new MapSqlArgSource((Map<String, ?>) args);
+        } else if (args instanceof SqlArgSource) {
+            return (SqlArgSource) args;
+        } else if (args instanceof PreparedStatementSetter) {
+            throw new UnsupportedOperationException();
+        } else {
+            Class<?> argType = args.getClass();
+            if (argType.isArray()) {
+                return new ArraySqlArgSource(ArraySqlArgSource.toArgs(args));
+            } else if (this.getRegistry().getTypeRegistry().hasTypeHandler(argType)) {
+                return new ArraySqlArgSource(new Object[] { args });
+            } else {
+                return new BeanSqlArgSource(args);
+            }
         }
     }
 }

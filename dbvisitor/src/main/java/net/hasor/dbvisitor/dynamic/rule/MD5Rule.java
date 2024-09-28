@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
-import net.hasor.dbvisitor.types.MappedArg;
+import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
@@ -76,7 +76,7 @@ public class MD5Rule implements SqlBuildRule {
 
         try {
             String argValue = args[0] == null ? "" : args[0].toString();
-            sqlBuilder.appendSql("?", new MappedArg(MD5.getMD5(argValue), Types.VARCHAR, typeHandler));
+            sqlBuilder.appendSql("?", new SqlArg(MD5.getMD5(argValue), Types.VARCHAR, typeHandler));
         } catch (NoSuchAlgorithmException e) {
             throw new SQLException(e);
         }
