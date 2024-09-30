@@ -26,8 +26,8 @@ import java.util.Map;
 
 /**
  * MySQL 的 SqlDialect 实现
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public class MySqlDialect extends AbstractDialect implements PageSqlDialect, InsertSqlDialect {
     @Override

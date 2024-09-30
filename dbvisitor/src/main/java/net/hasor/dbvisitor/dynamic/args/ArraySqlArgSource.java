@@ -17,9 +17,8 @@ package net.hasor.dbvisitor.dynamic.args;
 import net.hasor.cobble.ArrayUtils;
 
 /**
- *
- * @version : 2024-09-27
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2024-09-27
  */
 public class ArraySqlArgSource extends BasicSqlArgSource {
     public ArraySqlArgSource() {

@@ -21,8 +21,8 @@ import java.util.function.Consumer;
 /**
  * 动态拼条件。
  * <p>主动调用or表示紧接着下一个方法不是用and连接!(不调用or则默认为使用and连接)</p>
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public interface QueryCompare<R, T, P> {
 
@@ -42,7 +42,7 @@ public interface QueryCompare<R, T, P> {
      *      ...
      * }
      * </pre>
-     * */
+     */
     R ifTrue(boolean test, Consumer<QueryCompare<R, T, P>> lambda);
 
     /** 括号方式嵌套一组查询条件 */
@@ -55,7 +55,7 @@ public interface QueryCompare<R, T, P> {
      *      nested(...)
      * }
      * </pre>
-     * */
+     */
     R nested(boolean test, Consumer<R> lambda);
 
     /**

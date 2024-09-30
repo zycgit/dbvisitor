@@ -43,11 +43,10 @@ import java.util.Map;
  * coarse-grained access controls to allow access to private, protected
  * and package protected members.  This will apply to all classes
  * and members.
- *
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
- * @version 15 October 1999
  * @author 赵永春 (zyc@hasor.net)
+ * @version 15 October 1999
  */
 public class OgnlMemberAccess implements MemberAccess {
     public boolean allowPrivateAccess          = false;
@@ -117,8 +116,8 @@ public class OgnlMemberAccess implements MemberAccess {
     }
 
     /**
-     Returns true if the given member is accessible or can be made accessible
-     by this object.
+     * Returns true if the given member is accessible or can be made accessible
+     * by this object.
      */
     public boolean isAccessible(Map context, Object target, Member member, String propertyName) {
         int modifiers = member.getModifiers();

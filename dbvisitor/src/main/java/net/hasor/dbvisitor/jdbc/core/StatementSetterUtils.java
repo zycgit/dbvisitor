@@ -20,9 +20,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 /**
- *
- * @version : 2014-3-29
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2014-3-29
  */
 public class StatementSetterUtils {
     /**

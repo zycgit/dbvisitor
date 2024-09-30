@@ -34,8 +34,8 @@ import java.util.Map;
 
 /**
  * 动态参数规则，负责动态 SQL 中 #{} 的解析。
- * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-05
  */
 public class ArgRule implements SqlBuildRule {
     public static final ArgRule INSTANCE          = new ArgRule();
@@ -130,7 +130,7 @@ public class ArgRule implements SqlBuildRule {
         Integer jdbcType = convertJdbcType((config != null) ? config.get(CFG_KEY_JDBC_TYPE) : null);
         Class<?> javaType = convertJavaType(context, (config != null) ? config.get(CFG_KEY_JAVA_TYPE) : null);
         String handlerType = (config != null) ? config.get(CFG_KEY_HANDLER) : null;
-        Object argValue = sqlMode == SqlMode.Out ? null : OgnlUtils.evalOgnl(expr, data);
+        Object argValue = (sqlMode != null && !sqlMode.isIn() && sqlMode.isOut()) ? null : OgnlUtils.evalOgnl(expr, data);
 
         if (argValue instanceof SqlArg) {
             sqlBuilder.appendSql("?", argValue);

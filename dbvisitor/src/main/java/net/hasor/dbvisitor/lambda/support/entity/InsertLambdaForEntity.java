@@ -44,8 +44,8 @@ import java.util.stream.Collectors;
 
 /**
  * 提供 lambda insert 能力。是 InsertOperation 接口的实现类。
- * @version : 2022-04-02
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-02
  */
 public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperation<T>, T, SFunction<T>> implements InsertOperation<T> {
     public InsertLambdaForEntity(Class<T> exampleType, TableMapping<T> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {

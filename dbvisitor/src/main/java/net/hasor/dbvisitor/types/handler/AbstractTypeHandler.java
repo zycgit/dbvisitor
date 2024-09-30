@@ -29,7 +29,6 @@ import java.sql.SQLException;
  * {@link CallableStatement#wasNull()} method for handling the SQL {@code NULL} value.
  * In other words, {@code null} value handling should be performed on subclass.
  * </p>
- *
  * @author Clinton Begin
  * @author Simone Tripodi
  * @author Kzuki Shimizu

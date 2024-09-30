@@ -17,8 +17,8 @@ package net.hasor.dbvisitor.dialect;
 
 /**
  * SQL 分页方言
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public interface PageSqlDialect extends SqlDialect {
     /** 生成 count 查询 SQL */

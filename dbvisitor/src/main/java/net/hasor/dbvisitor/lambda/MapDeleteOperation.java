@@ -21,8 +21,8 @@ import java.util.Map;
 
 /**
  * lambda Delete for Map.
- * @version : 2022-04-02
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-02
  */
 public interface MapDeleteOperation extends //
         CommonOperation<MapDeleteOperation>, //

@@ -18,8 +18,8 @@ import java.sql.SQLException;
 
 /**
  * lambda Delete 执行器
- * @version : 2020-10-27
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-27
  */
 public interface DeleteExecute<R> extends BoundSqlBuilder {
     /** 根据 Lambda 构造器的条件执行删除 */

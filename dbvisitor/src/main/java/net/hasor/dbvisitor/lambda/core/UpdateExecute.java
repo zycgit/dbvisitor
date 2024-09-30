@@ -20,11 +20,11 @@ import java.util.function.Predicate;
 
 /**
  * lambda Update 执行器
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public interface UpdateExecute<R, T, P> extends BoundSqlBuilder {
-    /** 生成 select count() 查询语句并查询总数。*/
+    /** 生成 select count() 查询语句并查询总数。 */
     int doUpdate() throws SQLException;
 
     /** 【危险操作】允许空 Where条件（注意：空 Where 条件会导致更新整个数据库） */
@@ -36,7 +36,7 @@ public interface UpdateExecute<R, T, P> extends BoundSqlBuilder {
     /** 【危险操作】允许更新整行（容易引发数据误覆盖） */
     R allowReplaceRow();
 
-    /** 参照 sample 局部更新（只更新对象中属性不为空的）*/
+    /** 参照 sample 局部更新（只更新对象中属性不为空的） */
     R updateToSample(T sample);
 
     /** 增强 updateToSample 方法，通过 condition 可以进一步过滤某些列是否参与更新 */

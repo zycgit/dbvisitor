@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.NStringAsCharTypeHandler;
 import net.hasor.dbvisitor.types.handler.StringAsCharTypeHandler;
@@ -24,7 +23,6 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.sql.JDBCType;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +87,7 @@ public class CharacterTypeTest {
             jdbcTemplate.execute("create procedure proc_char(out p_out char) begin set p_out='A'; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_char(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.CHAR.getVendorTypeNumber(), new StringAsCharTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.CHAR.getVendorTypeNumber(), new StringAsCharTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Character;
@@ -158,7 +156,7 @@ public class CharacterTypeTest {
             jdbcTemplate.execute("create procedure proc_char(out p_out char) begin set p_out='A'; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_char(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.NCHAR.getVendorTypeNumber(), new NStringAsCharTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.NCHAR.getVendorTypeNumber(), new NStringAsCharTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Character;

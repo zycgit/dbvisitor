@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.ClobAsStringTypeHandler;
 import net.hasor.dbvisitor.types.handler.NClobAsStringTypeHandler;
@@ -26,7 +25,6 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.sql.JDBCType;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -79,7 +77,7 @@ public class StringTypeTest {
             jdbcTemplate.execute("create procedure proc_text(out p_out text) begin set p_out='abcdefg'; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_text(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.CLOB.getVendorTypeNumber(), new ClobAsStringTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.CLOB.getVendorTypeNumber(), new ClobAsStringTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof String;
@@ -135,7 +133,7 @@ public class StringTypeTest {
             jdbcTemplate.execute("create procedure proc_text(out p_out text) begin set p_out='abcdefg'; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_text(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.CLOB.getVendorTypeNumber(), new NClobAsStringTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.CLOB.getVendorTypeNumber(), new NClobAsStringTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof String;
@@ -196,7 +194,7 @@ public class StringTypeTest {
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(10)) begin set p_out='abcdefg'; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_varchar(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARCHAR.getVendorTypeNumber(), new StringTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.VARCHAR.getVendorTypeNumber(), new StringTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof String;
@@ -257,7 +255,7 @@ public class StringTypeTest {
             jdbcTemplate.execute("create procedure proc_nvarchar(out p_out nvarchar(10)) begin set p_out='abcdefg'; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_nvarchar(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.NVARCHAR.getVendorTypeNumber(), new NStringTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.NVARCHAR.getVendorTypeNumber(), new NStringTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof String;

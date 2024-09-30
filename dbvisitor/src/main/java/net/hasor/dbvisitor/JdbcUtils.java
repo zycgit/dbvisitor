@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 /**
  * 工具类来自于 druid-1.1.23.jar
  * com.alibaba.druid.util.JdbcConstants
@@ -157,5 +161,10 @@ public class JdbcUtils {
         } else {
             return null;
         }
+    }
+
+    public static String getDbType(Statement c) throws SQLException {
+        DatabaseMetaData metaData = c.getConnection().getMetaData();
+        return JdbcUtils.getDbType(metaData.getURL(), metaData.getDriverName());
     }
 }

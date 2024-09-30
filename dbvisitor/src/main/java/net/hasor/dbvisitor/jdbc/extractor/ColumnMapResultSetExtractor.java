@@ -22,8 +22,8 @@ import java.util.Map;
 
 /**
  * {@link ResultSetExtractor} 接口实现类，该类会将结果集中的每一行进行处理，并返回一个 List 用 Map 封装结果。
- * @version : 2016年1月11日
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2016年1月11日
  */
 public class ColumnMapResultSetExtractor extends RowMapperResultSetExtractor<Map<String, Object>> {
     /** 创建 {@link ColumnMapResultSetExtractor} 对象 */

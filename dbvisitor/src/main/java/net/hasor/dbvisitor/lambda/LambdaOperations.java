@@ -22,8 +22,8 @@ import java.util.Map;
 
 /**
  * 提供 lambda 方式生成 SQL。
- * @version : 2020-10-27
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-27
  */
 public interface LambdaOperations extends JdbcOperations {
     // ----------------------------------------------------------------------------------

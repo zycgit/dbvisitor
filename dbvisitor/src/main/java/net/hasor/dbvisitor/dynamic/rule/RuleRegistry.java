@@ -20,8 +20,8 @@ import java.util.Map;
 
 /**
  * SqlBuildRule 注册器
- * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-05
  */
 public class RuleRegistry {
     public static final RuleRegistry              DEFAULT = new RuleRegistry();
@@ -49,6 +49,8 @@ public class RuleRegistry {
         DEFAULT.register("set", SetRule.INSTANCE);
 
         DEFAULT.register("arg", ArgRule.INSTANCE);
+        DEFAULT.register(ReturnResultRule.FUNC_RESULT, ReturnResultRule.INSTANCE);
+        DEFAULT.register(ReturnResultRule.FUNC_RETURN, ReturnResultRule.INSTANCE);
     }
 
     public SqlBuildRule findByName(String ruleName) {

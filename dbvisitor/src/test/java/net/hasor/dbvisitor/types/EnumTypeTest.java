@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.transaction.Isolation;
 import net.hasor.dbvisitor.types.handler.EnumTypeHandler;
@@ -27,7 +26,6 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.sql.JDBCType;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -99,7 +97,7 @@ public class EnumTypeTest {
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(50)) begin set p_out='READ_UNCOMMITTED'; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_varchar(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARCHAR.getVendorTypeNumber(), new EnumTypeHandler<>(Isolation.class))));
+                    SqlArg.asOut("out", JDBCType.VARCHAR.getVendorTypeNumber(), new EnumTypeHandler<>(Isolation.class)));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Isolation;
@@ -159,7 +157,7 @@ public class EnumTypeTest {
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(50)) begin set p_out='Apache 2.0'; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_varchar(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARCHAR.getVendorTypeNumber(), new EnumTypeHandler<>(LicenseOfCodeEnum.class))));
+                    SqlArg.asOut("out", JDBCType.VARCHAR.getVendorTypeNumber(), new EnumTypeHandler<>(LicenseOfCodeEnum.class)));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof LicenseOfCodeEnum;
@@ -219,7 +217,7 @@ public class EnumTypeTest {
             jdbcTemplate.execute("create procedure proc_integer(out p_out int) begin set p_out=4; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_integer(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.INTEGER.getVendorTypeNumber(), new EnumTypeHandler<>(LicenseOfValueEnum.class))));
+                    SqlArg.asOut("out", JDBCType.INTEGER.getVendorTypeNumber(), new EnumTypeHandler<>(LicenseOfValueEnum.class)));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof LicenseOfValueEnum;

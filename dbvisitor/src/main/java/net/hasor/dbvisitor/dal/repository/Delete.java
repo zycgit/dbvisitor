@@ -18,8 +18,8 @@ import java.lang.annotation.*;
 
 /**
  * delete 语句
- * @version : 2021-05-19
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-05-19
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

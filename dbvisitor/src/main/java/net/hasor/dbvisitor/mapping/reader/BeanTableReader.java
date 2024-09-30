@@ -25,13 +25,13 @@ import java.util.List;
 
 /**
  * 基于 TableMapping 的 TableReader 实现。
- * @version : 2021-04-13
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-04-13
  */
 public class BeanTableReader<T> implements TableReader<T> {
     private final TableMapping<T> tableMapping;
 
-    /** Create a new TableReader.*/
+    /** Create a new TableReader. */
     public BeanTableReader(TableMapping<T> tableMapping) {
         this.tableMapping = tableMapping;
     }

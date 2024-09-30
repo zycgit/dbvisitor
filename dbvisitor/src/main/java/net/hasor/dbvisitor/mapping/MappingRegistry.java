@@ -40,8 +40,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * TableMappingResolve 的公共方法
- * @version : 2021-06-21
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-21
  */
 public class MappingRegistry {
     private final   Map<String, Map<String, TableMapping<?>>> tableMappingMap = new ConcurrentHashMap<>();

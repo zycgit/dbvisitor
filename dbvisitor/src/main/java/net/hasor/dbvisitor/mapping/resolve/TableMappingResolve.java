@@ -19,8 +19,8 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /**
  * TableMapping 解析器
- * @version : 2021-06-21
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-21
  */
 public interface TableMappingResolve<T> {
     TableMapping<?> resolveTableMapping(T refData, MappingOptions refFile, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException;

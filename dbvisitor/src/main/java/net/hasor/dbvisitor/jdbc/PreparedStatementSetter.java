@@ -19,10 +19,10 @@ import java.sql.SQLException;
 
 /**
  * 用于处理 PreparedStatement 接口的动态参数设置。
- * @version : 2013-10-9
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-10-9
  */
 @FunctionalInterface
 public interface PreparedStatementSetter {

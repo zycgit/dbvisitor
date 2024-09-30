@@ -18,8 +18,8 @@ import net.hasor.dbvisitor.dynamic.DynamicSql;
 
 /**
  * 解析动态 SQL 配置
- * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-05
  */
 public interface DynamicResolve<T> {
     DynamicSql parseSqlConfig(T config);

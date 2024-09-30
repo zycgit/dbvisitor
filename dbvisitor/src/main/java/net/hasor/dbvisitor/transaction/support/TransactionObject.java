@@ -21,9 +21,8 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 
 /**
- *
- * @version : 2014-1-18
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2014-1-18
  */
 public class TransactionObject {
     private final ConnectionHolder holder;

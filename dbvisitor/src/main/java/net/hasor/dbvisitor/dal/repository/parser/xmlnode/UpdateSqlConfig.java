@@ -20,8 +20,8 @@ import org.w3c.dom.Node;
 
 /**
  * Update SqlConfig
- * @version : 2021-06-19
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-19
  */
 public class UpdateSqlConfig extends DmlSqlConfig {
     public UpdateSqlConfig(DynamicSql target) {

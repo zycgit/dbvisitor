@@ -23,9 +23,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- *
- * @version : 2014-3-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2014-3-31
  */
 public class BeanSqlArgSource implements SqlArgSource, SqlArgDisposer {
     private final Object                dataBean;

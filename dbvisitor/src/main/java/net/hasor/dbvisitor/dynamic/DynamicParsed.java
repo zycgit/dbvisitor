@@ -24,14 +24,13 @@ import java.util.Objects;
 
 /**
  * Holds information about a parsed SQL statement.
- *
  * @author 赵永春 (zyc@hasor.net)
  * @since 2.0
  */
 public class DynamicParsed {
-    /** Set of characters that qualify as comment or quotes starting characters.*/
+    /** Set of characters that qualify as comment or quotes starting characters. */
     private static final String[] START_SKIP           = new String[] { "'", "\"", "--", "/*" };
-    /**Set of characters that qualify as parameter separators, indicating that a parameter name in a SQL String has ended. */
+    /** Set of characters that qualify as parameter separators, indicating that a parameter name in a SQL String has ended. */
     private static final char[]   PARAMETER_SEPARATORS = new char[] { //
             ' ', ':', ',', ';', '(', ')', '{', '}', '\\', // 其它符号，如分隔符等
             '|', '&', '^', '~', '!',            // 位运算符
@@ -52,7 +51,7 @@ public class DynamicParsed {
      * select from user where id = ${abc}
      * select from user where id = @{abc,true, :name}
      * </pre>
-     * */
+     */
     public static DefaultSqlSegment getParsedSql(final String originalSql) {
         DefaultSqlSegment segment = new DefaultSqlSegment();
         int positionArgs = 0;

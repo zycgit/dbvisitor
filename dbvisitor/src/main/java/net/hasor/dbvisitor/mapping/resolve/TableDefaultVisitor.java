@@ -20,8 +20,8 @@ import java.util.Map;
 
 /**
  * 注解属性挖掘（注解的注解不挖取）
- * @version : 2021-06-21
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-21
  */
 class TableDefaultVisitor extends AnnotationVisitor {
     private final Map<String, String> allAnnoInfo;

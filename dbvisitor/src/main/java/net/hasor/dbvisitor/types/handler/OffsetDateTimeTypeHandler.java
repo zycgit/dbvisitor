@@ -22,8 +22,8 @@ import java.time.OffsetDateTime;
 
 /**
  * 读写 {@link OffsetDateTime} 类型数据。
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public class OffsetDateTimeTypeHandler extends AbstractTypeHandler<OffsetDateTime> {
     @Override

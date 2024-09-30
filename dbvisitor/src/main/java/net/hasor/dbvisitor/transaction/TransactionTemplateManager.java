@@ -15,9 +15,8 @@
  */
 package net.hasor.dbvisitor.transaction;
 /**
- *
- * @version : 2015年10月22日
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2015年10月22日
  */
 public class TransactionTemplateManager implements TransactionTemplate {
     private final TransactionManager transactionManager;

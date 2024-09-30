@@ -16,8 +16,8 @@
 package net.hasor.dbvisitor.keyholder;
 /**
  * 主键生成器
- * @version : 2022-12-01
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-12-01
  */
 public interface KeySeqHolderFactory {
     KeySeqHolder createHolder(CreateContext context);

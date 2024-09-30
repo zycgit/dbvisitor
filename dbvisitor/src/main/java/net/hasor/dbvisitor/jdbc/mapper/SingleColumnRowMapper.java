@@ -21,9 +21,8 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 /**
- *
- * @version : 2014年5月23日
  * @author 赵永春 (zyc@byshell.org)
+ * @version : 2014年5月23日
  */
 public class SingleColumnRowMapper<T> extends AbstractRowMapper<T> {
     private final Class<T> requiredType;
@@ -45,7 +44,7 @@ public class SingleColumnRowMapper<T> extends AbstractRowMapper<T> {
         this.requiredType = requiredType;
     }
 
-    /** 将当前行的第一列的值转换为指定的类型。*/
+    /** 将当前行的第一列的值转换为指定的类型。 */
     @Override
     public T mapRow(final ResultSet rs, final int rowNum) throws SQLException {
         ResultSetMetaData rsmd = rs.getMetaData();

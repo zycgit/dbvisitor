@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.IntegerAsYearMonthTypeHandler;
 import net.hasor.dbvisitor.types.handler.SqlTimestampAsYearMonthTypeHandler;
@@ -27,7 +26,6 @@ import java.sql.JDBCType;
 import java.sql.SQLException;
 import java.time.Month;
 import java.time.YearMonth;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +86,7 @@ public class YearMonthTypeTest {
             jdbcTemplate.execute("create procedure proc_integer(out p_out integer) begin set p_out=202001; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_integer(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.INTEGER.getVendorTypeNumber(), new IntegerAsYearMonthTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.INTEGER.getVendorTypeNumber(), new IntegerAsYearMonthTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof YearMonth;
@@ -162,7 +160,7 @@ public class YearMonthTypeTest {
             jdbcTemplate.execute("create procedure proc_varchar(out p_out varchar(10)) begin set p_out='2020-01'; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_varchar(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARCHAR.getVendorTypeNumber(), new StringAsYearMonthTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.VARCHAR.getVendorTypeNumber(), new StringAsYearMonthTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof YearMonth;
@@ -237,7 +235,7 @@ public class YearMonthTypeTest {
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 10:11:12', '%Y-%m-%d %h:%i:%s'); end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new SqlTimestampAsYearMonthTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new SqlTimestampAsYearMonthTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof YearMonth;

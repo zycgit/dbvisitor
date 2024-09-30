@@ -16,13 +16,13 @@
 package net.hasor.dbvisitor.page;
 /**
  * 分页接口 Page 的实现类
- * @version : 2021-02-04
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-02-04
  */
 public class PageObject implements Page {
     /** 满足条件的总记录数 */
     private long    totalCount        = 0;
-    /** 每页记录数（-1表示无限大）*/
+    /** 每页记录数（-1表示无限大） */
     private long    pageSize          = 0;
     /** 当前页号 */
     private long    currentPage       = 0;
@@ -49,7 +49,7 @@ public class PageObject implements Page {
         this.pageSize = Math.max(pageSize, 0);
     }
 
-    /**取当前页号 */
+    /** 取当前页号 */
     public long getCurrentPage() {
         if (this.pageSize > 0) {
             return this.currentPage + this.pageNumberOffset;
@@ -72,7 +72,7 @@ public class PageObject implements Page {
         return this.pageNumberOffset;
     }
 
-    /** 设置分页的第一页的页码，必须大于等于 0  */
+    /** 设置分页的第一页的页码，必须大于等于 0 */
     public void setPageNumberOffset(long pageNumberOffset) {
         this.pageNumberOffset = Math.max(pageNumberOffset, 0);
     }

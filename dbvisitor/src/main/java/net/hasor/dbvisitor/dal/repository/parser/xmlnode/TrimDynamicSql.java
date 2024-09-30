@@ -30,9 +30,9 @@ import java.util.Arrays;
  * @version : 2021-05-24
  */
 public class TrimDynamicSql extends ArrayDynamicSql {
-    /** 前缀  prefix*/
+    /** 前缀  prefix */
     private final String   prefix;
-    /** 后缀  suffix*/
+    /** 后缀  suffix */
     private final String   suffix;
     /** 前缀 prefixOverrides */
     private final String[] prefixOverrides;

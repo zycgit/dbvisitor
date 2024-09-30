@@ -21,8 +21,8 @@ import java.lang.annotation.Target;
 
 /**
  * 使用数据库序列。用于明确序列的名字
- * @version : 2022-12-01
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-12-01
  */
 @Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

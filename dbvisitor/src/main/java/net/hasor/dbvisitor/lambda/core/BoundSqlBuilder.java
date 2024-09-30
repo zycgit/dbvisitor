@@ -19,8 +19,8 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 
 /**
  * 提供 BoundSql 。
- * @version : 2020-10-27
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-27
  */
 public interface BoundSqlBuilder {
     BoundSql getBoundSql();

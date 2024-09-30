@@ -29,8 +29,8 @@ import java.util.Map;
 
 /**
  * Map 化 TableReader
- * @version : 2021-07-20
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-07-20
  */
 public class ResultTableReader extends ColumnMapRowMapper implements TableReader<Map<String, Object>>, ResultSetExtractor<List<Map<String, Object>>> {
 

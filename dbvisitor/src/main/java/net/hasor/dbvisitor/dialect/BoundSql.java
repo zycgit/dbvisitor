@@ -18,8 +18,8 @@ import java.util.Arrays;
 
 /**
  * SQL
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public interface BoundSql {
     String getSqlString();

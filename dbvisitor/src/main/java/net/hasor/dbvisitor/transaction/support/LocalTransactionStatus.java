@@ -23,8 +23,8 @@ import java.sql.Savepoint;
 
 /**
  * 表示一个用于管理事务的状态点
- * @version : 2013-10-30
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-10-30
  */
 public class LocalTransactionStatus implements TransactionStatus {
     private       Savepoint         savepoint     = null;  //事务保存点

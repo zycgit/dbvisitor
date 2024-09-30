@@ -31,8 +31,8 @@ import java.util.Map;
 
 /**
  * 支持 @KeySequence 注解方式
- * @version : 2022-12-01
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-12-01
  */
 public class SeqKeySeqHolderFactory implements KeySeqHolderFactory {
     @Override

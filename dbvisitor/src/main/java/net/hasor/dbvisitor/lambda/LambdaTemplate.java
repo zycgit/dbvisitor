@@ -48,8 +48,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 继承自 JdbcTemplate 并提供 lambda 方式生成 SQL。
- * @version : 2022-04-02
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-02
  */
 public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
     protected final Map<Class<?>, TableMapping<?>> entMapping  = new ConcurrentHashMap<>();

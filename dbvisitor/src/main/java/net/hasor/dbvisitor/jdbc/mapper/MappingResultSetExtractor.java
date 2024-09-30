@@ -29,8 +29,8 @@ import java.util.Objects;
 
 /**
  * 用于 POJO 的 RowMapper，带有 ORM 能力
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public class MappingResultSetExtractor<T> implements ResultSetExtractor<List<T>> {
     private final TableReader<T> tableReader;

@@ -30,7 +30,7 @@ public class MapArgsTestCase {
     }
 
     @Test
-    public void mapArgs_1() throws SQLException {
+    public void inArgs_1() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 

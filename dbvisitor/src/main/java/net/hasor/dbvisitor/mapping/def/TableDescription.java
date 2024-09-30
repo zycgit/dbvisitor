@@ -18,8 +18,8 @@ import net.hasor.dbvisitor.mapping.DdlAuto;
 
 /**
  * 表的 DDL 补充信息，用于补充生成 DDL 语句
- * @version : 2022-12-06
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-12-06
  */
 public interface TableDescription {
     /** DDL 同步策略 */

@@ -18,13 +18,14 @@ import java.sql.Connection;
 
 /**
  * 事务隔离级别
- * @version : 2013-10-30
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-10-30
  */
 public enum Isolation {
     /**
      * 默认事务隔离级别，具体使用的数据库事务隔离级别由底层决定。
-     * @see java.sql.Connection*/
+     * @see java.sql.Connection
+     */
     DEFAULT(Connection.TRANSACTION_NONE),
     /**
      * 脏读

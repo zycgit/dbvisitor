@@ -15,21 +15,30 @@
  */
 package net.hasor.dbvisitor.types;
 import net.hasor.dbvisitor.dynamic.SqlMode;
+import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
+import net.hasor.dbvisitor.jdbc.RowMapper;
 
 import java.util.Objects;
 
 /**
  * 代表一个动态 SQL Build 之后的具体 SQL 和其参数
- * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-05
  */
 public class SqlArg {
-    private String         name;
-    private Object         value;
-    private Integer        jdbcType;
-    private SqlMode        sqlMode;
-    private Class<?>       javaType;
-    private TypeHandler<?> typeHandler;
+    private String                name;         // any time.
+    private Object                value;
+    private Integer               jdbcType;     // sqlMode = in/out/inout
+    private Class<?>              javaType;
+    private TypeHandler<?>        typeHandler;  // sqlMode = in/out/inout
+    // for procedure
+    private SqlMode               sqlMode;
+    private String                jdbcTypeName; // sqlMode = out/inout
+    private Integer               scale;        // sqlMode = out/inout
+    private ResultSetExtractor<?> extractor;    // sqlMode = cursor
+    private RowCallbackHandler    handler;      // sqlMode = cursor
+    private RowMapper<?>          mapper;       // sqlMode = cursor
 
     public SqlArg(Object value, Integer jdbcType, TypeHandler<?> typeHandler) {
         this.value = value;
@@ -46,6 +55,55 @@ public class SqlArg {
 
     public static SqlArg valueOf(Object obj) {
         return new SqlArg(null, obj, null, null, null, null);
+    }
+
+    public static Object asOut(String name, Class<String> javaType) {
+        if (javaType == null) {
+            return new SqlArg(name, null, SqlMode.Out, null, null, null);
+        } else {
+            int jdbcType = TypeHandlerRegistry.toSqlType(javaType);
+            TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(javaType);
+            return new SqlArg(name, null, SqlMode.Out, jdbcType, javaType, typeHandler);
+        }
+    }
+
+    public static Object asOut(String name, int jdbcType) {
+        TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(jdbcType);
+        return new SqlArg(name, null, SqlMode.Out, jdbcType, null, typeHandler);
+    }
+
+    public static SqlArg asOut(String name, int jdbcType, TypeHandler<?> typeHandler) {
+        return new SqlArg(name, null, SqlMode.Out, jdbcType, null, typeHandler);
+    }
+
+    public static Object asInOut(String name, Object value, Class<String> javaType) {
+        int jdbcType = TypeHandlerRegistry.toSqlType(javaType);
+        TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(javaType);
+        return new SqlArg(name, value, SqlMode.InOut, jdbcType, javaType, typeHandler);
+    }
+
+    public static Object asInOut(String name, Object value, int jdbcType) {
+        TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(jdbcType);
+        return new SqlArg(name, value, SqlMode.InOut, jdbcType, null, typeHandler);
+    }
+
+    public static SqlArg asInOut(String name, Object value, int jdbcType, TypeHandler<?> typeHandler) {
+        return new SqlArg(name, value, SqlMode.InOut, jdbcType, null, typeHandler);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return Objects.equals(o, this.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.value);
+    }
+
+    @Override
+    public String toString() {
+        return "SqlArg{" + "value=" + this.getValue() + '}';
     }
 
     public String getName() {
@@ -72,14 +130,6 @@ public class SqlArg {
         this.jdbcType = jdbcType;
     }
 
-    public SqlMode getSqlMode() {
-        return this.sqlMode;
-    }
-
-    public void setSqlMode(SqlMode sqlMode) {
-        this.sqlMode = sqlMode;
-    }
-
     public Class<?> getJavaType() {
         return this.javaType;
     }
@@ -96,18 +146,51 @@ public class SqlArg {
         this.typeHandler = typeHandler;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        return Objects.equals(o, this.value);
+    public SqlMode getSqlMode() {
+        return this.sqlMode;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(this.value);
+    public void setSqlMode(SqlMode sqlMode) {
+        this.sqlMode = sqlMode;
     }
 
-    @Override
-    public String toString() {
-        return "SqlArg{" + "value=" + this.getValue() + '}';
+    public String getJdbcTypeName() {
+        return this.jdbcTypeName;
+    }
+
+    public void setJdbcTypeName(String jdbcTypeName) {
+        this.jdbcTypeName = jdbcTypeName;
+    }
+
+    public Integer getScale() {
+        return this.scale;
+    }
+
+    public void setScale(Integer scale) {
+        this.scale = scale;
+    }
+
+    public ResultSetExtractor<?> getExtractor() {
+        return this.extractor;
+    }
+
+    public void setExtractor(ResultSetExtractor<?> extractor) {
+        this.extractor = extractor;
+    }
+
+    public RowCallbackHandler getHandler() {
+        return this.handler;
+    }
+
+    public void setHandler(RowCallbackHandler handler) {
+        this.handler = handler;
+    }
+
+    public RowMapper<?> getMapper() {
+        return this.mapper;
+    }
+
+    public void setMapper(RowMapper<?> mapper) {
+        this.mapper = mapper;
     }
 }

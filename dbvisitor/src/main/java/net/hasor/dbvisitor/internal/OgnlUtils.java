@@ -22,8 +22,8 @@ import ognl.OgnlRuntime;
 
 /**
  * OGNL 执行工具。
- * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-05
  */
 public class OgnlUtils {
 

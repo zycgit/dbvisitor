@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.dal.repository.parser.xmlnode;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dal.repository.MultipleResultsType;
+import net.hasor.dbvisitor.dal.execute.MultipleResultsType;
 import net.hasor.dbvisitor.dal.repository.QueryType;
 import net.hasor.dbvisitor.dal.repository.ResultSetType;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
@@ -24,8 +24,8 @@ import org.w3c.dom.Node;
 
 /**
  * Query SqlConfig
- * @version : 2021-06-19
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-19
  */
 public class QuerySqlConfig extends DmlSqlConfig {
     private String              resultMap;

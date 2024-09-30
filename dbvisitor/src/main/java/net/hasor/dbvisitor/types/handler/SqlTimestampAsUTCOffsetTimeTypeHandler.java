@@ -22,8 +22,8 @@ import java.time.ZonedDateTime;
 
 /**
  * 使用时区 {@link OffsetTime} 类型读写 jdbc {@link java.sql.Timestamp} 数据。时区的写入和读取会转换为 UTC。
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public class SqlTimestampAsUTCOffsetTimeTypeHandler extends AbstractTypeHandler<OffsetTime> {
     @Override

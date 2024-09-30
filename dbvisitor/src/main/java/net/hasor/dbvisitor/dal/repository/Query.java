@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.repository;
+import net.hasor.dbvisitor.dal.execute.MultipleResultsType;
+
 import java.lang.annotation.*;
 
 /**
  * select 语句
- * @version : 2021-05-19
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-05-19
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

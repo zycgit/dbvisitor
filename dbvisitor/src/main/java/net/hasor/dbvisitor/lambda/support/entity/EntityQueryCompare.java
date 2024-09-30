@@ -19,8 +19,8 @@ import java.util.Collection;
 /**
  * 动态拼条件。
  * <p>主动调用or表示紧接着下一个方法不是用and连接!(不调用or则默认为使用and连接)</p>
- * @version : 2022-04-02
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-02
  */
 public interface EntityQueryCompare<R> {
 

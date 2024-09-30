@@ -28,8 +28,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 某一个数据源的事务管理器
- * @version : 2013-10-30
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-10-30
  */
 public abstract class DataSourceUtils {
     protected final static ThreadLocal<Map<DataSource, ConnectionHolder>> holderMap = ThreadLocal.withInitial(ConcurrentHashMap::new);

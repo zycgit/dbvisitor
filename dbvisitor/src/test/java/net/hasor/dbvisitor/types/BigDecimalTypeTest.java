@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.BigDecimalTypeHandler;
 import net.hasor.test.utils.DsUtils;
@@ -24,7 +23,6 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.JDBCType;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +87,7 @@ public class BigDecimalTypeTest {
             jdbcTemplate.execute("create procedure proc_decimal(out p_out decimal(10,2)) begin set p_out=123.123; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_decimal(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.NUMERIC.getVendorTypeNumber(), new BigDecimalTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.NUMERIC.getVendorTypeNumber(), new BigDecimalTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof BigDecimal;

@@ -19,8 +19,8 @@ import java.util.Map;
 
 /**
  * 分页
- * @version : 2021-02-04
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-02-04
  */
 public interface Page {
     /** 获取页大小，默认是 -1 表示无穷大。 */
@@ -29,7 +29,7 @@ public interface Page {
     /** 设置分页的页大小，-1 表示无穷大 */
     void setPageSize(long pageSize);
 
-    /**取当前页号 */
+    /** 取当前页号 */
     long getCurrentPage();
 
     /** 设置前页号 */

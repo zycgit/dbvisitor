@@ -20,7 +20,6 @@ import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.jdbc.CallableStatementCallback;
 import net.hasor.dbvisitor.jdbc.PreparedStatementCallback;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.extractor.MultipleProcessType;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.reader.ResultTableReader;
 
@@ -37,10 +36,8 @@ public class DalResultSetExtractor implements PreparedStatementCallback<List<Obj
     private static final Logger               logger = LoggerFactory.getLogger(DalResultSetExtractor.class);
     private final        TableReader<?>       defaultTableReader;
     private final        List<TableReader<?>> tableReaders;
-    private final        MultipleProcessType  processType;
 
-    public DalResultSetExtractor(boolean defaultCaseInsensitive, DynamicContext context, MultipleProcessType processType, TableReader<?>[] tableReaders) {
-        this.processType = processType == null ? MultipleProcessType.ALL : processType;
+    public DalResultSetExtractor(boolean defaultCaseInsensitive, DynamicContext context, TableReader<?>[] tableReaders) {
         this.tableReaders = Arrays.asList(tableReaders);
         this.defaultTableReader = new ResultTableReader(defaultCaseInsensitive, context.getTypeRegistry());
     }
@@ -72,10 +69,6 @@ public class DalResultSetExtractor implements PreparedStatementCallback<List<Obj
             resultList.add(stmt.getUpdateCount());
         }
 
-        if (this.processType == MultipleProcessType.FIRST) {
-            return resultList;
-        }
-
         int resultIndex = 1;
         while ((stmt.getMoreResults()) || (stmt.getUpdateCount() != -1)) {
             int updateCount = stmt.getUpdateCount();
@@ -92,11 +85,7 @@ public class DalResultSetExtractor implements PreparedStatementCallback<List<Obj
                 }
             }
 
-            if (this.processType == MultipleProcessType.LAST) {
-                resultList.set(0, last);
-            } else {
-                resultList.add(last);
-            }
+            resultList.add(last);
         }
         return resultList;
     }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.*;
 import net.hasor.test.utils.DsUtils;
@@ -24,7 +23,6 @@ import java.sql.Connection;
 import java.sql.JDBCType;
 import java.sql.SQLException;
 import java.time.*;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -117,7 +115,7 @@ public class OffsetTimeTypeTest {
                     + "END;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamptz(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withInOutName("out", null, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber(), new OffsetDateTimeTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber(), new OffsetDateTimeTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof OffsetDateTime;
@@ -210,7 +208,7 @@ public class OffsetTimeTypeTest {
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new SqlTimestampAsUTCOffsetDateTimeTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new SqlTimestampAsUTCOffsetDateTimeTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof OffsetDateTime;
@@ -303,7 +301,7 @@ public class OffsetTimeTypeTest {
                     + "END;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamptz(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withInOutName("out", null, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber(), new OffsetTimeTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber(), new OffsetTimeTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof OffsetTime;
@@ -393,7 +391,7 @@ public class OffsetTimeTypeTest {
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 08:09:30', '%Y-%m-%d %h:%i:%s'); end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new SqlTimestampAsUTCOffsetTimeTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new SqlTimestampAsUTCOffsetTimeTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof OffsetTime;
@@ -489,7 +487,7 @@ public class OffsetTimeTypeTest {
                     + "END;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamptz(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withInOutName("out", null, JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber(), new OffsetDateTimeAsZonedDateTimeTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber(), new OffsetDateTimeAsZonedDateTimeTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof ZonedDateTime;

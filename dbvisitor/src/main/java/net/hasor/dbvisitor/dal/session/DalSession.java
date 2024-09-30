@@ -53,8 +53,8 @@ import java.util.function.Function;
 
 /**
  * 基础数据库操作接口
- * @version : 2021-05-19
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-05-19
  */
 public class DalSession extends JdbcAccessor {
     private static final Logger                           log          = LoggerFactory.getLogger(DalSession.class);

@@ -19,10 +19,10 @@ import java.sql.SQLException;
 
 /**
  * 批量更新时动态参数设置接口。
- * @version : 2013-10-9
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-10-9
  */
 public interface BatchPreparedStatementSetter {
     /**
@@ -39,7 +39,7 @@ public interface BatchPreparedStatementSetter {
      */
     int getBatchSize();
 
-    /** 测试批处理是否继续，返回 true 表示处理。false 表示在批处理中放弃这个条目。*/
+    /** 测试批处理是否继续，返回 true 表示处理。false 表示在批处理中放弃这个条目。 */
     default boolean isBatchExhausted(int i) {
         return false;
     }

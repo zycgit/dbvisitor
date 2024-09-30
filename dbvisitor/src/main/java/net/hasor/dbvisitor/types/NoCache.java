@@ -17,8 +17,8 @@ package net.hasor.dbvisitor.types;
 import java.lang.annotation.*;
 
 /**
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

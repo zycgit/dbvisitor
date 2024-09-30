@@ -21,8 +21,8 @@ import java.sql.*;
 
 /**
  * 使用 {@link InputStream} 类型读写 jdbc {@link java.sql.SQLXML} 数据。
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public class SqlXmlForInputStreamTypeHandler extends AbstractTypeHandler<InputStream> {
     @Override

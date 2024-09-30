@@ -45,8 +45,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Mapper 配置中心
- * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-05
  */
 public class DalRegistry extends MappingRegistry {
     public static final DalRegistry                              DEFAULT        = new DalRegistry(null, null, null, MappingOptions.buildNew());

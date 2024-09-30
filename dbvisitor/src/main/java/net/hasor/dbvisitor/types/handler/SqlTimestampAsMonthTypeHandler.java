@@ -21,8 +21,8 @@ import java.time.Month;
 
 /**
  * 使用 {@link Month} 类型读写 jdbc {@link java.sql.Timestamp} 数据。缺失的时间信息使用 0 补充，日期使用 1。
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public class SqlTimestampAsMonthTypeHandler extends AbstractTypeHandler<Month> {
     @Override

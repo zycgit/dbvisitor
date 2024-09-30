@@ -20,8 +20,8 @@ import java.util.List;
 
 /**
  * 根据映射信息读取。
- * @version : 2021-04-13
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-04-13
  */
 public interface TableReader<T> {
 

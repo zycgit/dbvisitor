@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.jdbc.extractor;
+package net.hasor.dbvisitor.dal.execute;
 /**
  * 在处理多结果集的时结果集保留策略。
- * @version : 2021-07-20
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-07-20
  */
+@Deprecated
 public enum MultipleProcessType {
     /** 多结果，保留第一个结果 */
     FIRST("FIRST"),

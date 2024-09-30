@@ -26,11 +26,11 @@ import java.util.Map;
 
 /**
  * lambda Insert 执行器
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public interface InsertExecute<R, T> extends BoundSqlBuilder {
-    /** 执行插入，并且将返回的int结果相加。*/
+    /** 执行插入，并且将返回的int结果相加。 */
     default int executeSumResult() throws SQLException {
         int[] results = this.executeGetResult();
         return Arrays.stream(results).map(v -> {
@@ -44,7 +44,7 @@ public interface InsertExecute<R, T> extends BoundSqlBuilder {
         }).sum();
     }
 
-    /** 执行插入，并返回所有结果*/
+    /** 执行插入，并返回所有结果 */
     int[] executeGetResult() throws SQLException;
 
     /** insert 策略，默认策略是 {@link DuplicateKeyStrategy#Into} */

@@ -16,8 +16,8 @@
 package net.hasor.dbvisitor.transaction;
 /**
  * {@link TransactionCallback}接口的无返回值。
- * @version : 2015年8月11日
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2015年8月11日
  */
 public interface TransactionCallbackWithoutResult extends TransactionCallback<Void> {
     default Void doTransaction(TransactionStatus tranStatus) throws Throwable {

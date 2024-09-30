@@ -20,7 +20,24 @@ package net.hasor.dbvisitor.dynamic;
  * @version : 2021-05-24
  */
 public enum SqlMode {
-    In,
-    Out,
-    InOut
+    In(true, false),
+    Out(false, true),
+    Cursor(false, true),
+    InOut(true, true);
+
+    private final boolean out;
+    private final boolean in;
+
+    SqlMode(boolean in, boolean out) {
+        this.in = in;
+        this.out = out;
+    }
+
+    public boolean isIn() {
+        return this.in;
+    }
+
+    public boolean isOut() {
+        return this.out;
+    }
 }

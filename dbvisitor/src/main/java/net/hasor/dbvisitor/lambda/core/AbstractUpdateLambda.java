@@ -36,8 +36,8 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
 
 /**
  * 提供 lambda update 基础能力。
- * @version : 2020-10-27
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-27
  */
 public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R, T, P> implements UpdateExecute<R, T, P> {
     protected final Set<String>                allowUpdateKeys;

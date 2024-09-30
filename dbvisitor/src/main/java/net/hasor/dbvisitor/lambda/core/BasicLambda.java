@@ -35,8 +35,8 @@ import java.util.*;
 
 /**
  * 所有 SQL 执行器必要的公共属性
- * @version : 2020-10-27
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-27
  */
 public abstract class BasicLambda<R, T, P> {
     protected static final Logger              logger = LoggerFactory.getLogger(BasicLambda.class);

@@ -35,8 +35,8 @@ import java.util.stream.Collectors;
 
 /**
  * 通过 Class 来解析 TableMapping
- * @version : 2021-06-21
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-21
  */
 public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<?>> {
     private static final Logger                         logger          = Logger.getLogger(ClassTableMappingResolve.class);

@@ -22,7 +22,6 @@ import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.SqlMode;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.handler.BlobAsBytesTypeHandler;
-import net.hasor.dbvisitor.types.handler.StringTypeHandler;
 import net.hasor.test.dal.dynamic.TextBuilderContext;
 import net.hasor.test.dto.user_info;
 import org.junit.Test;
@@ -197,12 +196,12 @@ public class DynamicXmlTest {
         SqlBuilder builder1 = parseXml.buildQuery(data1, new TextBuilderContext());
         assert builder1.getSqlString().trim().equals(querySql1.trim());
         assert ((SqlArg) builder1.getArgs()[0]).getValue().equals("123");
+        assert ((SqlArg) builder1.getArgs()[0]).getJavaType() == null;
+        assert ((SqlArg) builder1.getArgs()[0]).getTypeHandler() == null;
+        assert ((SqlArg) builder1.getArgs()[0]).getSqlMode() == null;
         assert ((SqlArg) builder1.getArgs()[1]).getValue() == null;// mode = out not eval value.
-        assert ((SqlArg) builder1.getArgs()[0]).getJavaType() == String.class;
         assert ((SqlArg) builder1.getArgs()[1]).getJavaType() == user_info.class;
-        assert ((SqlArg) builder1.getArgs()[0]).getTypeHandler() instanceof StringTypeHandler;
         assert ((SqlArg) builder1.getArgs()[1]).getTypeHandler() instanceof BlobAsBytesTypeHandler;
-        assert ((SqlArg) builder1.getArgs()[0]).getSqlMode() == SqlMode.In;
         assert ((SqlArg) builder1.getArgs()[1]).getSqlMode() == SqlMode.Out;
     }
 

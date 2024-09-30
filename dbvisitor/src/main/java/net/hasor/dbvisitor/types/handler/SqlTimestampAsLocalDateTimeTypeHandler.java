@@ -19,8 +19,8 @@ import java.time.LocalDateTime;
 
 /**
  * 使用 {@link LocalDateTime} 类型读写 jdbc {@link java.sql.Timestamp} 数据。
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public class SqlTimestampAsLocalDateTimeTypeHandler extends AbstractTypeHandler<LocalDateTime> {
     @Override

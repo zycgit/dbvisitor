@@ -26,8 +26,8 @@ import java.util.Map;
 
 /**
  * 提供 lambda query 能力，是 MapQueryOperation 接口的实现类。
- * @version : 2022-04-02
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-02
  */
 public class SelectLambdaForMap extends AbstractSelectLambda<MapQueryOperation, Map<String, Object>, String> //
         implements MapQueryOperation {

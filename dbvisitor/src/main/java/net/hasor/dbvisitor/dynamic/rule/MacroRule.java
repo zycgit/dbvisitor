@@ -26,8 +26,8 @@ import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
 
 /**
  * 效果和使用 `<include refid="sqlid"/>` 标签相同
- * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-05
  */
 public class MacroRule implements SqlBuildRule {
     public static final SqlBuildRule INSTANCE = new MacroRule(false);

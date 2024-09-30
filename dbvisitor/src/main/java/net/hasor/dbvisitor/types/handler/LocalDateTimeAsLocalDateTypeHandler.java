@@ -24,8 +24,8 @@ import java.time.LocalTime;
 
 /**
  * 使用 {@link LocalDateTime} 类型读写 jdbc {@link java.time.LocalDate} 数据。缺失的时间信息使用 00:00 补充。
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public class LocalDateTimeAsLocalDateTypeHandler extends AbstractTypeHandler<LocalDate> {
     @Override

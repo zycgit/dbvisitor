@@ -23,8 +23,8 @@ import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
 
 /**
  * 动态参数规则，普通文本
- * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-05
  */
 public class TextRule implements SqlBuildRule {
     public static final SqlBuildRule INSTANCE = new TextRule(false);

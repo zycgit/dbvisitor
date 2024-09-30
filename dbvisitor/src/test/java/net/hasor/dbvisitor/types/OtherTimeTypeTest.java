@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.JapaneseDateAsSqlDateTypeHandler;
 import net.hasor.dbvisitor.types.handler.SqlTimestampAsInstantTypeHandler;
@@ -28,7 +27,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.chrono.JapaneseDate;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +86,7 @@ public class OtherTimeTypeTest {
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 10:11:12', '%Y-%m-%d %h:%i:%s'); end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new SqlTimestampAsInstantTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new SqlTimestampAsInstantTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Instant;
@@ -154,7 +152,7 @@ public class OtherTimeTypeTest {
             jdbcTemplate.execute("create procedure proc_timestamp(out p_out timestamp) begin set p_out= str_to_date('2008-08-09 10:11:12', '%Y-%m-%d %h:%i:%s'); end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new JapaneseDateAsSqlDateTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new JapaneseDateAsSqlDateTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof JapaneseDate;

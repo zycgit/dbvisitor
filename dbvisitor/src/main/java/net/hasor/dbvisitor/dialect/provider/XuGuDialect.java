@@ -23,8 +23,8 @@ import java.util.List;
 
 /**
  * 虚谷数据库的 SqlDialect 实现
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public class XuGuDialect extends AbstractDialect implements PageSqlDialect {
 

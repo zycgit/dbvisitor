@@ -19,10 +19,10 @@ import java.sql.Connection;
 
 /**
  * Connection 连接代理。
- * @version : 2013-12-3
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-12-3
  */
 public interface ConnectionProxy extends Connection, Closeable {
     /**

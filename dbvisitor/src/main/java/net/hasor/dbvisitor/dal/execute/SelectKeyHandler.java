@@ -20,8 +20,8 @@ import java.util.Map;
 
 /**
  * 负责执行 SelectKeyHandler
- * @version : 2021-11-05
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-11-05
  */
 public interface SelectKeyHandler {
     Object processSelectKey(Connection conn, Map<String, Object> parameter, boolean onBefore) throws SQLException;

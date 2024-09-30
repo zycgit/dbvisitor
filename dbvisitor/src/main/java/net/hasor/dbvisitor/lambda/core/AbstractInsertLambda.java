@@ -38,8 +38,8 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 /**
  * 提供 lambda insert 基础能力。
- * @version : 2020-10-27
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-27
  */
 public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P> implements InsertExecute<R, T> {
     protected final List<ColumnMapping>  insertProperties;

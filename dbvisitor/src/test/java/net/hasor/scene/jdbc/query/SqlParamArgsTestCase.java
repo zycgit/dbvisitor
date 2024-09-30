@@ -1,13 +1,12 @@
 package net.hasor.scene.jdbc.query;
-import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.scene.UserDTO;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +17,7 @@ public class SqlParamArgsTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            Object[] args = new Object[] { SqlParameterUtils.withInput(40) };
+            Object[] args = new Object[] { SqlArg.valueOf(40) };
             List<UserDTO> result = jdbcTemplate.queryForList("select * from user_table where age > ? order by id", args, UserDTO.class);
 
             assert result.size() == 2;
@@ -32,7 +31,7 @@ public class SqlParamArgsTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            Object[] args = new Object[] { SqlParameterUtils.withInOut(40, Types.INTEGER) };
+            Object[] args = new Object[] { SqlArg.valueOf(40) };
             List<UserDTO> result = jdbcTemplate.queryForList("select * from user_table where age > ? order by id", args, UserDTO.class);
 
             assert result.size() == 2;
@@ -46,7 +45,7 @@ public class SqlParamArgsTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            Object[] args = new Object[] { SqlParameterUtils.withInput(40) };
+            Object[] args = new Object[] { SqlArg.valueOf(40) };
             List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user_table where age > ? order by id", args);
 
             assert result.size() == 2;
@@ -60,7 +59,7 @@ public class SqlParamArgsTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            Object[] args = new Object[] { SqlParameterUtils.withInOut(40, Types.INTEGER) };
+            Object[] args = new Object[] { SqlArg.valueOf(40) };
             List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from user_table where age > ? order by id", args);
 
             assert result.size() == 2;

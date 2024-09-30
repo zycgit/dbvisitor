@@ -18,8 +18,8 @@ import net.hasor.cobble.StringUtils;
 
 /**
  * 使用 Statement 方式。
- * @version : 2021-06-19
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-19
  */
 public enum StatementType {
     /** 使用 java.sql.Statement */

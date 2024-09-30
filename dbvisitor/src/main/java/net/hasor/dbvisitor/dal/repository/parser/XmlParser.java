@@ -32,8 +32,8 @@ import java.io.StringReader;
 
 /**
  * 解析动态 SQL 配置
- * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-05
  */
 public class XmlParser {
     private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();

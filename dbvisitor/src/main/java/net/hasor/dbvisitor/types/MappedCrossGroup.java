@@ -20,8 +20,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @version : 2013-3-26
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-3-26
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

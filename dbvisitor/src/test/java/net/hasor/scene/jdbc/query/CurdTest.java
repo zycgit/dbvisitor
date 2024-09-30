@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.jdbc.core;
+package net.hasor.scene.jdbc.query;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
@@ -35,13 +36,18 @@ public class CurdTest extends AbstractDbTest {
     public void insertTest_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData4());
 
-            List<user_info> tbUsers = jdbcTemplate.queryForList("select * from user_info where user_uuid =?", //
+            List<user_info> tbUsers1 = jdbcTemplate.queryForList("select * from user_info where user_uuid =?", //
                     new Object[] { beanForData4().getUserUuid() }, user_info.class);
-            List<String> collect = tbUsers.stream().map(user_info::getUser_name).collect(Collectors.toList());
-            assert collect.contains("赵子龙");
+            List<String> collect1 = tbUsers1.stream().map(user_info::getUser_name).collect(Collectors.toList());
+            assert collect1.contains("赵子龙");
+
+            //
+            List<user_info> tbUsers2 = jdbcTemplate.queryForList("select * from user_info where user_uuid =:userUuid", //
+                    beanForData4(), user_info.class);
+            List<String> collect2 = tbUsers2.stream().map(user_info::getUser_name).collect(Collectors.toList());
+            assert collect2.contains("赵子龙");
         }
     }
 

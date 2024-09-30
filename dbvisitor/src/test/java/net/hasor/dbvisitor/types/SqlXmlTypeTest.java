@@ -15,7 +15,6 @@
  */
 package net.hasor.dbvisitor.types;
 import net.hasor.cobble.io.IOUtils;
-import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.SqlXmlForInputStreamTypeHandler;
 import net.hasor.dbvisitor.types.handler.SqlXmlForReaderTypeHandler;
@@ -30,7 +29,6 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.JDBCType;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -106,7 +104,7 @@ public class SqlXmlTypeTest {
             preProc(jdbcTemplate);
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_xmltype(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.SQLXML.getVendorTypeNumber(), new SqlXmlTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.SQLXML.getVendorTypeNumber(), new SqlXmlTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof String;
@@ -167,7 +165,7 @@ public class SqlXmlTypeTest {
             preProc(jdbcTemplate);
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_xmltype(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.SQLXML.getVendorTypeNumber(), new SqlXmlForInputStreamTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.SQLXML.getVendorTypeNumber(), new SqlXmlForInputStreamTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof InputStream;
@@ -232,7 +230,7 @@ public class SqlXmlTypeTest {
             preProc(jdbcTemplate);
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_xmltype(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.SQLXML.getVendorTypeNumber(), new SqlXmlForReaderTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.SQLXML.getVendorTypeNumber(), new SqlXmlForReaderTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Reader;

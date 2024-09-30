@@ -40,8 +40,8 @@ import java.util.*;
 
 /**
  * Mapper 代理接口类
- * @version : 2021-10-30
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-10-30
  */
 class ExecuteInvocationHandler implements InvocationHandler {
     private final String                            space;

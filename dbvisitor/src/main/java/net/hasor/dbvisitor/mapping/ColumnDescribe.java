@@ -21,8 +21,8 @@ import java.lang.annotation.Target;
 
 /**
  * （可选）标记在字段或者 get/set 方法上表示列信息，用于生成 DDL 语句
- * @version : 2023-01-07
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2023-01-07
  */
 @Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

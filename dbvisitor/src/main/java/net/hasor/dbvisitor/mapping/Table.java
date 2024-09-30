@@ -21,10 +21,10 @@ import java.lang.annotation.Target;
 
 /**
  * 标记在类型上表示映射到的表
- *  - 若注解与 xml 同时配置 XML 将会覆盖注解。
- *  - 若xml 配置为 resultMap 会把 catalog/schema/table or value 设置为空。
- * @version : 2020-10-31
+ * - 若注解与 xml 同时配置 XML 将会覆盖注解。
+ * - 若xml 配置为 resultMap 会把 catalog/schema/table or value 设置为空。
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

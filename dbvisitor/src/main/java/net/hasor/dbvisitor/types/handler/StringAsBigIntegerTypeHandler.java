@@ -24,7 +24,7 @@ import java.sql.SQLException;
 
 /**
  * 使用 {@link BigInteger} 类型读写 jdbc string 数据。
- *  - 例如：已经超出了数据库存储精度范围的超大数就可以使用字符串存储，同时程序读取仍然是 {@link BigInteger}。
+ * - 例如：已经超出了数据库存储精度范围的超大数就可以使用字符串存储，同时程序读取仍然是 {@link BigInteger}。
  * @author 赵永春 (zyc@hasor.net)
  */
 public class StringAsBigIntegerTypeHandler extends AbstractTypeHandler<BigInteger> {

@@ -28,18 +28,18 @@ import java.util.List;
 
 /**
  * 用于 POJO 的 RowMapper，带有 ORM 能力
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public class MappingRowMapper<T> implements RowMapper<T> {
     private final TableReader<T> tableReader;
 
-    /** Create a new ResultMapper.*/
+    /** Create a new ResultMapper. */
     public MappingRowMapper(Class<T> mapperClass) {
         this(mapperClass, TypeHandlerRegistry.DEFAULT);
     }
 
-    /** Create a new ResultMapper.*/
+    /** Create a new ResultMapper. */
     public MappingRowMapper(Class<T> mapperClass, TypeHandlerRegistry typeRegistry) {
         TableMapping<?> tableMapping = ClassTableMappingResolve.resolveTableMapping(mapperClass, typeRegistry);
         this.tableReader = (TableReader<T>) tableMapping.toReader();

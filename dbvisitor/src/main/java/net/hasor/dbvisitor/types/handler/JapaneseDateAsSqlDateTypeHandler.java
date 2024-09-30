@@ -20,9 +20,9 @@ import java.time.chrono.JapaneseDate;
 
 /**
  * 使用 {@link JapaneseDate} 类型读写 jdbc {@link java.sql.Date} 数据。
- * @since 3.4.5
  * @author Kazuki Shimizu
  * @author 赵永春 (zyc@hasor.net)
+ * @since 3.4.5
  */
 public class JapaneseDateAsSqlDateTypeHandler extends AbstractTypeHandler<JapaneseDate> {
     public static JapaneseDate toJapaneseDate(Date date) {

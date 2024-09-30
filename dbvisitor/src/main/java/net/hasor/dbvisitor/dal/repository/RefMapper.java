@@ -18,8 +18,8 @@ import java.lang.annotation.*;
 
 /**
  * 引用 Mapper 配置文件中的 SQL。
- * @version : 2021-05-19
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-05-19
  */
 @DalMapper
 @Documented

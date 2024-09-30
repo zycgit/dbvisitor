@@ -29,8 +29,8 @@ import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
 
 /**
  * 使用 {@link MonthDay} 类型读写 jdbc string 数据。数据格式为：MM-dd，例如: "01-03"、"12-03"
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public class StringAsMonthDayTypeHandler extends AbstractTypeHandler<MonthDay> {
     private static final DateTimeFormatter PARSER = new DateTimeFormatterBuilder()//

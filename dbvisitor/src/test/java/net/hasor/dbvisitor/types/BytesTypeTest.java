@@ -16,7 +16,6 @@
 package net.hasor.dbvisitor.types;
 import net.hasor.cobble.codec.MD5;
 import net.hasor.cobble.io.IOUtils;
-import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.BytesAsBytesWrapTypeHandler;
 import net.hasor.dbvisitor.types.handler.BytesAsInputStreamTypeHandler;
@@ -29,7 +28,6 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.JDBCType;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -110,7 +108,7 @@ public class BytesTypeTest {
             jdbcTemplate.execute("create procedure proc_bytes(out p_out varbinary(10)) begin set p_out= b'0111111100001111'; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_bytes(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARBINARY.getVendorTypeNumber(), new BytesAsBytesWrapTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.VARBINARY.getVendorTypeNumber(), new BytesAsBytesWrapTypeHandler()));
 
             assert objectMap.size() == 2;
             assert !(objectMap.get("out") instanceof byte[]);
@@ -182,7 +180,7 @@ public class BytesTypeTest {
             jdbcTemplate.execute("create procedure proc_bytes(out p_out varbinary(10)) begin set p_out= b'0111111100001111'; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_bytes(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARBINARY.getVendorTypeNumber(), new BytesTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.VARBINARY.getVendorTypeNumber(), new BytesTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof byte[];
@@ -254,7 +252,7 @@ public class BytesTypeTest {
             jdbcTemplate.execute("create procedure proc_bytes(out p_out varbinary(10)) begin set p_out= b'0111111100001111'; end;");
 
             Map<String, Object> objectMap = jdbcTemplate.call("{call proc_bytes(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARBINARY.getVendorTypeNumber(), new BytesAsInputStreamTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.VARBINARY.getVendorTypeNumber(), new BytesAsInputStreamTypeHandler()));
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof InputStream;

@@ -30,8 +30,8 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
 
 /**
  * 提供 lambda query 能力。是 EntityQueryOperation<T> 接口的实现类。
- * @version : 2022-04-02
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-02
  */
 public class SelectLambdaForEntity<T> extends AbstractSelectLambda<EntityQueryOperation<T>, T, SFunction<T>> implements EntityQueryOperation<T> {
     protected TableReader<T> tableReader;

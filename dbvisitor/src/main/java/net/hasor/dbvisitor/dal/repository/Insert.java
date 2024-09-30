@@ -19,8 +19,8 @@ import java.lang.annotation.*;
 
 /**
  * insert 语句
- * @version : 2021-05-19
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-05-19
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -34,15 +34,21 @@ public @interface Insert {
 
     int timeout() default -1;
 
-    /** 是否使用自增属性。
-     * - 如果同时配置了 SelectKey 标签，那么该配置将会失效。 */
+    /**
+     * 是否使用自增属性。
+     * - 如果同时配置了 SelectKey 标签，那么该配置将会失效。
+     */
     boolean useGeneratedKeys() default false;
 
-    /** 回填自增属性值的 Bean 属性名。
-     * - 如果同时配置了 SelectKey 标签，那么该配置将会失效。*/
+    /**
+     * 回填自增属性值的 Bean 属性名。
+     * - 如果同时配置了 SelectKey 标签，那么该配置将会失效。
+     */
     String keyProperty() default "";
 
-    /** 参数类型，可以用于回填自增属性。
-     * - 如果同时配置了 SelectKey 标签 或者 useGeneratedKeys 属性，那么该配置将会失效。*/
+    /**
+     * 参数类型，可以用于回填自增属性。
+     * - 如果同时配置了 SelectKey 标签 或者 useGeneratedKeys 属性，那么该配置将会失效。
+     */
     Class<?> parameterType() default Object.class;
 }

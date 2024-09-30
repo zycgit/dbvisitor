@@ -20,8 +20,8 @@ import java.util.NoSuchElementException;
 
 /**
  * 将 SQLException 转换为 RuntimeException
- * @version : 2021-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-10-31
  */
 public class RuntimeSQLException extends RuntimeException implements Iterable<Throwable> {
 
@@ -56,7 +56,6 @@ public class RuntimeSQLException extends RuntimeException implements Iterable<Th
     /**
      * Returns an iterator over the chained SQLExceptions.
      * The iterator will be used to iterate over each SQLException and its underlying cause (if any).
-     *
      * @return an iterator over the chained SQLExceptions and causes in the proper order
      * @since 1.6
      */

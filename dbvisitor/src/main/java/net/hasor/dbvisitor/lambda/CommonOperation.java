@@ -15,9 +15,8 @@
  */
 package net.hasor.dbvisitor.lambda;
 /**
- *
- * @version : 2022-04-02
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-02
  */
 public interface CommonOperation<R> {
     /** 参考的样本对象 */

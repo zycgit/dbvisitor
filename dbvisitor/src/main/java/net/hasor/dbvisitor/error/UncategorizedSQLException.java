@@ -20,8 +20,8 @@ import java.sql.SQLException;
 
 /**
  * JDBC 执行异常
- * @version : 2013-10-14
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-10-14
  */
 public class UncategorizedSQLException extends SQLException implements SqlProvider {
     private final String sql;

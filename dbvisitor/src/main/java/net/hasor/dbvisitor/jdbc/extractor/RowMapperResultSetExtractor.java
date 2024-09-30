@@ -25,21 +25,16 @@ import java.util.Objects;
 
 /**
  * {@link ResultSetExtractor} 接口实现类，该类会将结果集中的每一行进行处理，并返回一个 List 用以封装处理结果集。
- *
  * <p>注意：{@link RowMapper} 应当是无状态的，否则该接口在处理每一行数据时才可以重用行处理器。
  * <p>例：
- *
  * <pre class="code">JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);  // reusable object
  * RowMapper rowMapper = new UserRowMapper();  // reusable object
- *
  * List allUsers = (List) jdbcTemplate.query(
  *     "select * from user",
  *     new RowMapperResultSetExtractor(rowMapper, 10));
- *
  * User user = (User) jdbcTemplate.queryForObject(
  *     "select * from user where id=?", new Object[] {id},
  *     new RowMapperResultSetExtractor(rowMapper, 1));</pre>
- *
  * @author Juergen Hoeller
  * @author 赵永春 (zyc@hasor.net)
  * @see RowMapper

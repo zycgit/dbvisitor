@@ -36,8 +36,8 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
 
 /**
  * 扩展了 AbstractQueryExecute 提供 lambda 方式生成 SQL。 实现了 Compare 接口。
- * @version : 2020-10-27
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-27
  */
 public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> implements QueryCompare<R, T, P> {
     protected MergeSqlSegment queryTemplate     = new MergeSqlSegment();

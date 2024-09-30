@@ -22,8 +22,8 @@ import java.sql.SQLException;
 
 /**
  * 动态 SQL 中定义的规则。
- * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-05
  */
 public interface SqlBuildRule {
     boolean test(SqlArgSource data, DynamicContext context, String activeExpr);

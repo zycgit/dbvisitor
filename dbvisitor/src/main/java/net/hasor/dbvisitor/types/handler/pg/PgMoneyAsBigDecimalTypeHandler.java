@@ -25,8 +25,8 @@ import java.sql.SQLException;
 
 /**
  * PostgreSQL,Money 类型 BigDecimal 形式读写
- * @version : 2023-02-19
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2023-02-19
  */
 public class PgMoneyAsBigDecimalTypeHandler extends BigDecimalTypeHandler {
     @Override

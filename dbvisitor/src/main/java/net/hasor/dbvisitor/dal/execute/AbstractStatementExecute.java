@@ -18,7 +18,6 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.dal.repository.MultipleResultsType;
 import net.hasor.dbvisitor.dal.repository.ResultSetType;
 import net.hasor.dbvisitor.dal.repository.parser.xmlnode.DmlSqlConfig;
 import net.hasor.dbvisitor.dal.repository.parser.xmlnode.InsertSqlConfig;
@@ -29,7 +28,6 @@ import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.SqlMode;
-import net.hasor.dbvisitor.jdbc.extractor.MultipleProcessType;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.reader.ResultTableReader;
@@ -178,7 +176,7 @@ public abstract class AbstractStatementExecute<T> {
         }
 
         MultipleProcessType multipleType = MultipleProcessType.valueOf(executeInfo.multipleResultType.getTypeName());
-        return new DalResultSetExtractor(executeInfo.caseInsensitive, this.context, multipleType, tableReaders);
+        return new DalResultSetExtractor(executeInfo.caseInsensitive, this.context, tableReaders);
     }
 
     private ResultTableReader getDefaultTableReader(ExecuteInfo executeInfo, DynamicContext context) {

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import net.hasor.dbvisitor.jdbc.SqlParameterUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.handler.NumberTypeHandler;
 import net.hasor.test.utils.DsUtils;
@@ -23,7 +22,6 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.sql.JDBCType;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -103,15 +101,15 @@ public class NumberTypeTest {
             jdbcTemplate.execute("create procedure proc_data(out p_out date) begin set p_out= str_to_date('2008-08-09 10:11:12', '%Y-%m-%d %h:%i:%s'); end;");
 
             Map<String, Object> objectMap1 = jdbcTemplate.call("{call proc_varchar(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.VARCHAR.getVendorTypeNumber(), new NumberTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.VARCHAR.getVendorTypeNumber(), new NumberTypeHandler()));
             Map<String, Object> objectMap2 = jdbcTemplate.call("{call proc_bigint(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.BIGINT.getVendorTypeNumber(), new NumberTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.BIGINT.getVendorTypeNumber(), new NumberTypeHandler()));
             Map<String, Object> objectMap4 = jdbcTemplate.call("{call proc_float(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.FLOAT.getVendorTypeNumber(), new NumberTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.FLOAT.getVendorTypeNumber(), new NumberTypeHandler()));
             Map<String, Object> objectMap5 = jdbcTemplate.call("{call proc_timestamp(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new NumberTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.TIMESTAMP.getVendorTypeNumber(), new NumberTypeHandler()));
             Map<String, Object> objectMap6 = jdbcTemplate.call("{call proc_data(?)}",//
-                    Collections.singletonList(SqlParameterUtils.withOutputName("out", JDBCType.DATE.getVendorTypeNumber(), new NumberTypeHandler())));
+                    SqlArg.asOut("out", JDBCType.DATE.getVendorTypeNumber(), new NumberTypeHandler()));
 
             assert objectMap1.size() == 2;
             assert objectMap2.size() == 2;

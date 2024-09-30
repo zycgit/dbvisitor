@@ -16,8 +16,8 @@
 package net.hasor.dbvisitor.lambda.segment;
 /**
  * SQL 查询相关的关键字。
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public enum SqlKeyword implements Segment {
     AND("AND"),                 //

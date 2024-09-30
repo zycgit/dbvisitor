@@ -18,8 +18,8 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 
 /**
  * <resultMap> or <mapper>
- * @version : 2021-06-21
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-21
  */
 public class MappingOptions {
     private Boolean    autoMapping;

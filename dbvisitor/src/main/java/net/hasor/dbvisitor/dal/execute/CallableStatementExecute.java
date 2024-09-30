@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.execute;
+import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dal.repository.ResultSetType;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dynamic.DynamicContext;
@@ -28,8 +29,8 @@ import java.util.List;
 
 /**
  * 负责存储过程调用的执行器
- * @version : 2021-07-20
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-07-20
  */
 public class CallableStatementExecute extends AbstractStatementExecute<Object> {
     public CallableStatementExecute(DynamicContext context) {
@@ -80,6 +81,14 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
                 case InOut: {
                     typeHandler.setParameter(cs, sqlColIndex, arg.getValue(), arg.getJdbcType());
                     cs.registerOutParameter(sqlColIndex, arg.getJdbcType());
+                    break;
+                }
+                case Cursor: {
+                    if (JdbcUtils.getDbType(cs).equals(JdbcUtils.ORACLE)) {
+                        cs.registerOutParameter(sqlColIndex, -10); // CURSOR
+                    } else {
+                        cs.registerOutParameter(sqlColIndex, Types.REF_CURSOR);
+                    }
                     break;
                 }
                 case Out: {

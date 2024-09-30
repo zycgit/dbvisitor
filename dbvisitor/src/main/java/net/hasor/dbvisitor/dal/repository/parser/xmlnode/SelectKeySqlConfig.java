@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.repository.parser.xmlnode;
-import net.hasor.dbvisitor.dal.repository.MultipleResultsType;
+import net.hasor.dbvisitor.dal.execute.MultipleResultsType;
 import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
@@ -23,8 +23,8 @@ import java.sql.SQLException;
 
 /**
  * SelectKey SqlConfig
- * @version : 2021-06-19
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-19
  */
 public class SelectKeySqlConfig extends QuerySqlConfig {
     private String keyProperty;

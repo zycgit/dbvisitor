@@ -23,8 +23,8 @@ import java.util.List;
 
 /**
  * Impala 对象名有大小写敏感不敏感的问题
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public class ImpalaDialect extends AbstractDialect implements PageSqlDialect {
     @Override

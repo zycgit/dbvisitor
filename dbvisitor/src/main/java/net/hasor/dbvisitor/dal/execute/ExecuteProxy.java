@@ -31,8 +31,8 @@ import java.util.Map;
 
 /**
  * 执行器总入口
- * @version : 2021-07-20
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-07-20
  */
 public class ExecuteProxy {
     private final DmlSqlConfig                dynamicSql;

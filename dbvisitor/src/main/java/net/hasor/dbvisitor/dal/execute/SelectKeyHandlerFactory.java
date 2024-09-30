@@ -18,8 +18,8 @@ import net.hasor.dbvisitor.dal.repository.parser.xmlnode.SelectKeySqlConfig;
 
 /**
  * 负责创建 SelectKeyHandler
- * @version : 2021-11-05
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-11-05
  */
 public interface SelectKeyHandlerFactory {
     SelectKeyHandler createHandler(SelectKeySqlConfig keySqlConfig, AbstractStatementExecute<?> execute);

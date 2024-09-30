@@ -16,8 +16,8 @@
 package net.hasor.dbvisitor.dynamic.rule;
 /**
  * 如果参数不为空，则生成 'or column = ?' 或者 'column = ?' 。
- * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-05
  */
 public class OrRule extends ConditionRule {
     public static final SqlBuildRule INSTANCE = new OrRule(false);

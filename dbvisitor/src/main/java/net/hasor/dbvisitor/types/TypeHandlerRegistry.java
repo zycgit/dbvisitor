@@ -18,6 +18,8 @@ import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.reflect.ConstructorUtils;
 import net.hasor.cobble.reflect.TypeReference;
+import net.hasor.dbvisitor.JdbcUtils;
+import net.hasor.dbvisitor.dynamic.SqlMode;
 import net.hasor.dbvisitor.types.handler.*;
 
 import java.io.InputStream;
@@ -38,8 +40,8 @@ import java.util.function.Supplier;
 
 /**
  * JDBC 4.2 full  compatible
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public final class TypeHandlerRegistry {
 
@@ -406,23 +408,23 @@ public final class TypeHandlerRegistry {
         return Collections.unmodifiableCollection(this.cachedByJavaType.keySet());
     }
 
-    /** 根据 Java 类型Derive a default SQL type from the given Java type.*/
+    /** 根据 Java 类型Derive a default SQL type from the given Java type. */
     public static int toSqlType(final String javaType) {
         Integer jdbcType = javaTypeToJdbcTypeMap.get(javaType);
         if (jdbcType != null) {
             return jdbcType;
         }
-        return Types.JAVA_OBJECT;
+        return Types.OTHER;
 
     }
 
-    /** 根据 Java 类型Derive a default SQL type from the given Java type.*/
+    /** 根据 Java 类型Derive a default SQL type from the given Java type. */
     public static int toSqlType(final Class<?> javaType) {
         Integer jdbcType = javaTypeToJdbcTypeMap.get(javaType.getName());
         if (jdbcType != null) {
             return jdbcType;
         }
-        return Types.JAVA_OBJECT;
+        return Types.OTHER;
     }
 
     public boolean hasTypeHandler(Class<?> typeClass) {
@@ -544,8 +546,9 @@ public final class TypeHandlerRegistry {
 
     /**
      * 根据 typeClass 和 jdbcType 的映射关系查找对应的 TypeHandler。
-     *  - 如果不存在对应的 TypeHandler，那么通过 typeClass 单独查找。
-     *  - 如果 typeClass 也没有注册那么返回 {@link #getDefaultTypeHandler()} */
+     * - 如果不存在对应的 TypeHandler，那么通过 typeClass 单独查找。
+     * - 如果 typeClass 也没有注册那么返回 {@link #getDefaultTypeHandler()}
+     */
     public TypeHandler<?> getTypeHandler(Class<?> typeClass, int jdbcType) {
         if (typeClass == null) {
             return this.defaultTypeHandler;
@@ -633,9 +636,10 @@ public final class TypeHandlerRegistry {
         }
 
         if (value instanceof SqlArg) {
-            Integer argType = ((SqlArg) value).getJdbcType();
-            TypeHandler argHandler = ((SqlArg) value).getTypeHandler();
-            Object argValue = ((SqlArg) value).getValue();
+            SqlArg arg = (SqlArg) value;
+            Integer argType = arg.getJdbcType();
+            TypeHandler argHandler = arg.getTypeHandler();
+            Object argValue = arg.getValue();
 
             if (argType == null && argValue != null) {
                 argType = TypeHandlerRegistry.toSqlType(argValue.getClass());
@@ -659,6 +663,59 @@ public final class TypeHandlerRegistry {
         typeHandler.setParameter(ps, parameterPosition, value, toSqlType(valueClass));
     }
 
+    /** 一个工具方法，会根据 value Type 自动的选择对应的 TypeHandler */
+    public void setParameterValue(final CallableStatement cs, final int parameterPosition, final Object value) throws SQLException {
+        SqlMode sqlMode;
+        Integer jdbcType;
+        String typeName;
+        Integer scale;
+        Class<?> javaType;
+        if (value instanceof SqlArg) {
+            sqlMode = ((SqlArg) value).getSqlMode();
+            sqlMode = sqlMode == null ? SqlMode.In : sqlMode;
+            jdbcType = ((SqlArg) value).getJdbcType();
+            typeName = ((SqlArg) value).getJdbcTypeName();
+            javaType = ((SqlArg) value).getJavaType();
+            scale = ((SqlArg) value).getScale();
+        } else {
+            sqlMode = SqlMode.In;
+            jdbcType = null;
+            typeName = null;
+            scale = null;
+            javaType = null;
+        }
+
+        if (sqlMode.isIn()) {
+            this.setParameterValue((PreparedStatement) cs, parameterPosition, value);
+        }
+
+        if (sqlMode.isOut()) {
+            if (sqlMode == SqlMode.Cursor) {
+                if (StringUtils.equals(JdbcUtils.getDbType(cs), JdbcUtils.ORACLE)) {
+                    jdbcType = -10;// oracle driver oracle.jdbc.OracleTypes.CURSOR = -10
+                } else {
+                    jdbcType = Types.REF_CURSOR;
+                }
+                cs.registerOutParameter(parameterPosition, jdbcType);
+            } else {
+                if (jdbcType == null && javaType != null) {
+                    jdbcType = TypeHandlerRegistry.toSqlType(javaType);
+                }
+                if (jdbcType == null) {
+                    throw new SQLException("jdbcType must not be null");
+                }
+
+                if (typeName != null) {
+                    cs.registerOutParameter(parameterPosition, jdbcType, typeName);
+                } else if (scale != null) {
+                    cs.registerOutParameter(parameterPosition, jdbcType, scale);
+                } else {
+                    cs.registerOutParameter(parameterPosition, jdbcType);
+                }
+            }
+        }
+    }
+
     private static boolean isAbstract(Class<?> javaType) {
         if (javaType.isArray()) {
             javaType = javaType.getComponentType();
@@ -673,5 +730,25 @@ public final class TypeHandlerRegistry {
         } else {
             return false;
         }
+    }
+
+    public Object getParameterValue(CallableStatement cs, int i, SqlArg arg) throws SQLException {
+        TypeHandler<?> argHandler = arg.getTypeHandler();
+        Class<?> argJavaType = arg.getJavaType();
+        Integer argJdbcType = arg.getJdbcType();
+
+        if (argHandler == null) {
+            if (argJavaType != null && argJdbcType != null && this.hasTypeHandler(argJavaType, argJdbcType)) {
+                argHandler = this.getTypeHandler(argJavaType, argJdbcType);
+            } else if (argJavaType != null && this.hasTypeHandler(argJavaType)) {
+                argHandler = this.getTypeHandler(argJavaType);
+            } else if (argJdbcType != null && this.hasTypeHandler(argJdbcType)) {
+                argHandler = this.getTypeHandler(argJdbcType);
+            } else {
+                argHandler = this.getDefaultTypeHandler();
+            }
+        }
+
+        return argHandler.getResult(cs, i);
     }
 }

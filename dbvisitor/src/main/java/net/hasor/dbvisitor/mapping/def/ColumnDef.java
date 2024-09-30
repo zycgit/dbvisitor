@@ -21,8 +21,8 @@ import net.hasor.dbvisitor.types.TypeHandler;
 
 /**
  * 字段 or 列信息
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public class ColumnDef implements ColumnMapping {
     private final String            columnName;

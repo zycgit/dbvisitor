@@ -20,7 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- *  code form org.apache.ibatis.type.TypeHandler
+ * code form org.apache.ibatis.type.TypeHandler
  * @author Clinton Begin
  * @author 赵永春 (zyc@hasor.net)
  */

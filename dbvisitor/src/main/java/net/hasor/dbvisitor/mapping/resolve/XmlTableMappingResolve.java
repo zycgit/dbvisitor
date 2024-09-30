@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
 
 /**
  * 通过 Xml 来解析 TableMapping
- * @version : 2021-06-23
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-23
  */
 public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
     private static final Logger                   logger = Logger.getLogger(XmlTableMappingResolve.class);

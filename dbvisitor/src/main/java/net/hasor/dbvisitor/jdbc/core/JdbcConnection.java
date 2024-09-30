@@ -34,9 +34,8 @@ import java.sql.Statement;
 import java.util.Objects;
 
 /**
- *
- * @version : 2013-10-16
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-10-16
  */
 public class JdbcConnection extends JdbcAccessor {
     private static final Logger  logger         = LoggerFactory.getLogger(JdbcConnection.class);
@@ -190,7 +189,7 @@ public class JdbcConnection extends JdbcAccessor {
         });
     }
 
-    /**对Statement的属性进行设置。设置 JDBC Statement 对象的 fetchSize、maxRows、Timeout等参数。*/
+    /** 对Statement的属性进行设置。设置 JDBC Statement 对象的 fetchSize、maxRows、Timeout等参数。 */
     protected void applyStatementSettings(final Statement stmt) throws SQLException {
         int fetchSize = this.getFetchSize();
         if (fetchSize > 0) {
@@ -206,7 +205,7 @@ public class JdbcConnection extends JdbcAccessor {
         }
     }
 
-    /**处理潜在的 SQL 警告。当要求不忽略 SQL 警告时，检测到 SQL 警告抛出 SQL 异常。*/
+    /** 处理潜在的 SQL 警告。当要求不忽略 SQL 警告时，检测到 SQL 警告抛出 SQL 异常。 */
     protected void handleWarnings(final Statement stmt) throws SQLException {
         if (this.isIgnoreWarnings()) {
             if (logger.isDebugEnabled()) {
@@ -227,14 +226,14 @@ public class JdbcConnection extends JdbcAccessor {
         }
     }
 
-    /**获取与本地线程绑定的数据库连接，JDBC 框架会维护这个连接的事务。开发者不必关心该连接的事务管理，以及资源释放操作。*/
+    /** 获取与本地线程绑定的数据库连接，JDBC 框架会维护这个连接的事务。开发者不必关心该连接的事务管理，以及资源释放操作。 */
     private ConnectionProxy newProxyConnection(final Connection target) {
         Objects.requireNonNull(target, "Connection is null.");
         CloseSuppressingInvocationHandler handler = new CloseSuppressingInvocationHandler(target);
         return (ConnectionProxy) Proxy.newProxyInstance(ConnectionProxy.class.getClassLoader(), new Class[] { ConnectionProxy.class }, handler);
     }
 
-    /**Connection 接口代理，目的是为了控制一些方法的调用。同时进行一些特殊类型的处理。*/
+    /** Connection 接口代理，目的是为了控制一些方法的调用。同时进行一些特殊类型的处理。 */
     private class CloseSuppressingInvocationHandler implements InvocationHandler {
         private final Connection target;
 

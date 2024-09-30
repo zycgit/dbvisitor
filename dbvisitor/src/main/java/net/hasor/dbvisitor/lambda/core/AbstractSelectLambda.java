@@ -44,8 +44,8 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
 
 /**
  * 提供 lambda query 基础能力。
- * @version : 2020-10-27
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-27
  */
 public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R, T, P> implements QueryFunc<R, T, P> {
     protected final MergeSqlSegment customSelect = new MergeSqlSegment();

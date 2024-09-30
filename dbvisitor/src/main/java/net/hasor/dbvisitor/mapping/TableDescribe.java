@@ -21,8 +21,8 @@ import java.lang.annotation.Target;
 
 /**
  * （可选）标记在类型上表示列表的信息，用于生成 DDL 语句
- * @version : 2023-01-07
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2023-01-07
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

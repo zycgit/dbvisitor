@@ -22,8 +22,8 @@ import net.hasor.dbvisitor.keyholder.sequence.*;
 
 /**
  * 键生成策略
- * @version : 2022-12-01
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-12-01
  */
 public enum KeyTypeEnum {
     /** 不指定 */
@@ -34,7 +34,7 @@ public enum KeyTypeEnum {
     UUID32(new Uuid32KeySeqHolderFactory()),
     /** 使用 36 位字符串的 UUID 填充数据 */
     UUID36(new Uuid36KeySeqHolderFactory()),
-    /** 通过 @KeySequence 注解来确定数据库的 sequence  */
+    /** 通过 @KeySequence 注解来确定数据库的 sequence */
     Sequence(new SeqKeySeqHolderFactory()),
     /** 通过 @KeyHolder 注解来自定义生成策略 */
     Holder(new HolderKeySeqHolderFactory());

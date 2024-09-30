@@ -15,9 +15,8 @@
  */
 package net.hasor.dbvisitor.types;
 /**
- *
- * @version : 2020-11-29
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-11-29
  */
 public interface EnumOfValue<T> {
     int codeValue();

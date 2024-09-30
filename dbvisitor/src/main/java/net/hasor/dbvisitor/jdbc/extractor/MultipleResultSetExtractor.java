@@ -33,16 +33,10 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class MultipleResultSetExtractor implements PreparedStatementCallback<List<Object>>, CallableStatementCallback<List<Object>> {
-    private static final Logger              logger      = LoggerFactory.getLogger(MultipleResultSetExtractor.class);
-    private final        List<RowMapper<?>>  rowMappers;
-    private              MultipleProcessType processType = MultipleProcessType.ALL;
+    private static final Logger             logger = LoggerFactory.getLogger(MultipleResultSetExtractor.class);
+    private final        List<RowMapper<?>> rowMappers;
 
     public MultipleResultSetExtractor(RowMapper<?>... rowMapper) {
-        this.rowMappers = Arrays.asList(rowMapper);
-    }
-
-    public MultipleResultSetExtractor(MultipleProcessType processType, RowMapper<?>... rowMapper) {
-        this.processType = processType;
         this.rowMappers = Arrays.asList(rowMapper);
     }
 
@@ -73,10 +67,6 @@ public class MultipleResultSetExtractor implements PreparedStatementCallback<Lis
             resultList.add(stmt.getUpdateCount());
         }
 
-        if (this.processType == MultipleProcessType.FIRST) {
-            return resultList;
-        }
-
         int resultIndex = 1;
         while ((stmt.getMoreResults()) || (stmt.getUpdateCount() != -1)) {
             int updateCount = stmt.getUpdateCount();
@@ -93,11 +83,7 @@ public class MultipleResultSetExtractor implements PreparedStatementCallback<Lis
                 }
             }
 
-            if (this.processType == MultipleProcessType.LAST) {
-                resultList.set(0, last);
-            } else {
-                resultList.add(last);
-            }
+            resultList.add(last);
         }
         return resultList;
     }

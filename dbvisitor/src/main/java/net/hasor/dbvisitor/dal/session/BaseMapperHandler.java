@@ -36,8 +36,8 @@ import java.util.stream.Collectors;
 
 /**
  * BaseMapper 接口的实现类。
- * @version : 2021-05-19
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-05-19
  */
 class BaseMapperHandler implements BaseMapper<Object> {
     private final String               space;

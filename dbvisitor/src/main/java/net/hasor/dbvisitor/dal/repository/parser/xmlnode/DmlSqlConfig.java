@@ -24,8 +24,8 @@ import org.w3c.dom.Node;
 
 /**
  * All DML SqlConfig
- * @version : 2021-06-19
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-19
  */
 public abstract class DmlSqlConfig extends SegmentSqlConfig {
     private StatementType      statementType = StatementType.Prepared;

@@ -18,9 +18,9 @@ import java.sql.*;
 
 /**
  * 使用 string 类型读写 jdbc {@link java.sql.SQLXML} 数据。
- * @since 3.5.0
  * @author Iwao AVE!
  * @author 赵永春 (zyc@hasor.net)
+ * @since 3.5.0
  */
 public class SqlXmlTypeHandler extends AbstractTypeHandler<String> {
     @Override

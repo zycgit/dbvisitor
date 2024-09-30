@@ -21,11 +21,10 @@ import java.lang.annotation.Target;
 
 /**
  * 标记在包上,用于配置 @Table 注解中的默认值。
- *  - @TableDefault 注解可以在父包和子包中同时配置
- *  - 属性的查找和生效策略是，子包优先
- *
- * @version : 2022-12-06
+ * - @TableDefault 注解可以在父包和子包中同时配置
+ * - 属性的查找和生效策略是，子包优先
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-12-06
  */
 @Target(ElementType.PACKAGE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -39,7 +38,7 @@ public @interface TableDefault {
     /** 是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Column 注解声明 */
     boolean autoMapping() default true;
 
-    /** 强制在生成 表名/列名/索引名 时候增加标识符限定，例如：通过设置该属性来解决列名为关键字的问题。默认是 false 不设置。*/
+    /** 强制在生成 表名/列名/索引名 时候增加标识符限定，例如：通过设置该属性来解决列名为关键字的问题。默认是 false 不设置。 */
     boolean useDelimited() default false;
 
     /** 是否对表名列名敏感，默认 true 不敏感 */

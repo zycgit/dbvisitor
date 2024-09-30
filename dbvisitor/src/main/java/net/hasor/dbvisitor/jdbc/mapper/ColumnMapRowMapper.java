@@ -29,23 +29,20 @@ import java.util.Map;
  * {@link RowMapper} implementation that creates a <code>java.util.Map</code>
  * for each row, representing all columns as key-value pairs: one
  * entry for each column, with the column name as key.
- *
  * <p>The Map implementation to use and the key to use for each column
  * in the column Map can be customized through overriding
  * {@link #createColumnMap} and {@link #getColumnKey}, respectively.
- *
  * <p><b>Note:</b> By default, ColumnMapRowMapper will try to build a linked Map
  * with case-insensitive keys, to preserve column order as well as allow any
  * casing to be used for column names. This requires Commons Collections on the
  * classpath (which will be autodetected). Else, the fallback is a standard linked
  * HashMap, which will still preserve column order but requires the application
  * to specify the column names in the same casing as exposed by the driver.
- *
  * @author Juergen Hoeller
  * @author 赵永春 (zyc@hasor.net)
- * @since 1.2
  * @see JdbcOperations#queryForList(String)
  * @see JdbcOperations#queryForMap(String)
+ * @since 1.2
  */
 public class ColumnMapRowMapper extends AbstractRowMapper<Map<String, Object>> {
     private final boolean caseInsensitive;

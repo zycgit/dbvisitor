@@ -23,18 +23,15 @@ import java.util.Set;
 /**
  * Interface that defines common functionality for objects that can
  * offer parameter values for named SQL parameters, serving as argument.
- *
  * <p>This interface allows for the specification of SQL type in addition
  * to parameter values. All parameter values and types are identified by
  * specifying the name of the parameter.
- *
  * <p>Intended to wrap various implementations like a Map or a JavaBean
  * with a consistent interface.
- *
  * @author Thomas Risberg
  * @author Juergen Hoeller
- * @since 2.0
  * @see JdbcTemplate
+ * @since 2.0
  */
 public interface SqlArgSource {
     /**

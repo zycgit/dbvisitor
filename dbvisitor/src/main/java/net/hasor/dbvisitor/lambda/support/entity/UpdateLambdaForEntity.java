@@ -29,8 +29,8 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
 
 /**
  * 提供 lambda update 能力，是 EntityUpdateOperation 接口的实现类。
- * @version : 2022-04-02
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-02
  */
 public class UpdateLambdaForEntity<T> extends AbstractUpdateLambda<EntityUpdateOperation<T>, T, SFunction<T>> implements EntityUpdateOperation<T> {
     public UpdateLambdaForEntity(Class<T> exampleType, TableMapping<T> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {

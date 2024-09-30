@@ -28,8 +28,8 @@ import java.util.function.Function;
 
 /**
  * Query 复杂操作构造器。
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public interface QueryFunc<R, T, P> extends BoundSqlBuilder {
     /**
@@ -172,36 +172,36 @@ public interface QueryFunc<R, T, P> extends BoundSqlBuilder {
     /** 生成分页对象 */
     R initPage(int pageSize, int pageNumber);
 
-    /** 执行查询，并通过 RowCallbackHandler 处理结果集。*/
+    /** 执行查询，并通过 RowCallbackHandler 处理结果集。 */
     void query(RowCallbackHandler rch) throws SQLException;
 
-    /** 执行查询，并通过 ResultSetExtractor 转换结果集。*/
+    /** 执行查询，并通过 ResultSetExtractor 转换结果集。 */
     <V> V query(ResultSetExtractor<V> rse) throws SQLException;
 
-    /** 执行查询，并使用 RowMapper 处理结果集。*/
+    /** 执行查询，并使用 RowMapper 处理结果集。 */
     <V> List<V> query(RowMapper<V> rowMapper) throws SQLException;
 
-    /** 执行查询，并结果将被映射到一个列表(一个条目为每一行)的对象，列表中每一条记录都是<code>elementType</code>参数指定的类型对象。*/
+    /** 执行查询，并结果将被映射到一个列表(一个条目为每一行)的对象，列表中每一条记录都是<code>elementType</code>参数指定的类型对象。 */
     List<T> queryForList() throws SQLException;
 
-    /** 执行查询，并结果将结果映射到对象。*/
+    /** 执行查询，并结果将结果映射到对象。 */
     <AS> List<AS> queryForList(Class<AS> asType) throws SQLException;
 
-    /** 执行查询，并结果将结果映射到对象。*/
+    /** 执行查询，并结果将结果映射到对象。 */
     <AS> List<AS> queryForList(Class<AS> asType, MappingOptions options) throws SQLException;
 
     List<Map<String, Object>> queryForMapList() throws SQLException;
 
-    /** 执行查询，并返回一个结果。*/
+    /** 执行查询，并返回一个结果。 */
     T queryForObject() throws SQLException;
 
-    /** 执行查询，并返回一个Map结果。*/
+    /** 执行查询，并返回一个Map结果。 */
     Map<String, Object> queryForMap() throws SQLException;
 
-    /** 生成 select count() 查询语句并查询总数。*/
+    /** 生成 select count() 查询语句并查询总数。 */
     int queryForCount() throws SQLException;
 
-    /** 生成 select count() 查询语句并查询总数。*/
+    /** 生成 select count() 查询语句并查询总数。 */
     long queryForLargeCount() throws SQLException;
 
     /** 迭代器方式获取 limit 条(-1 表示所有)，每批 200条。 */

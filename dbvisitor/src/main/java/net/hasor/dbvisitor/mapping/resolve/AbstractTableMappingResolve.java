@@ -35,8 +35,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * TableMappingResolve 的公共方法
- * @version : 2022-10-37
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-10-37
  */
 public abstract class AbstractTableMappingResolve<T> implements TableMappingResolve<T> {
     private static final   Logger                  logger            = Logger.getLogger(AbstractTableMappingResolve.class);

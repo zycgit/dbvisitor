@@ -30,8 +30,8 @@ import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
 
 /**
  * 产生一个 32 字符长度的 `UUID`，并加入到 SQL 参数中
- * @version : 2021-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-10-31
  */
 public class UUID32Rule implements SqlBuildRule {
     private static final TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);

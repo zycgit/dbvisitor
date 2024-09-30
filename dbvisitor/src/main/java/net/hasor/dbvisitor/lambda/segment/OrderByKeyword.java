@@ -16,8 +16,8 @@
 package net.hasor.dbvisitor.lambda.segment;
 /**
  * 排序相关的关键字。
- * @version : 2020-11-02
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-11-02
  */
 public enum OrderByKeyword implements Segment {
     ORDER_DEFAULT(""),

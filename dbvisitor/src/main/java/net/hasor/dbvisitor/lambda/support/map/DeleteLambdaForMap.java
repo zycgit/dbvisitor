@@ -25,8 +25,8 @@ import java.util.Map;
 
 /**
  * 提供 lambda delete 能力，是 MapDeleteOperation 接口的实现类。
- * @version : 2022-04-02
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-02
  */
 public class DeleteLambdaForMap extends AbstractDeleteLambda<MapDeleteOperation, Map<String, Object>, String> //
         implements MapDeleteOperation {

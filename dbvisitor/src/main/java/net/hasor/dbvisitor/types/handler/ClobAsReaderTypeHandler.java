@@ -19,9 +19,9 @@ import java.sql.*;
 
 /**
  * 使用 {@link Reader} 类型读写 jdbc Clob 数据。
- * @since 3.4.0
  * @author Kazuki Shimizu
  * @author 赵永春 (zyc@hasor.net)
+ * @since 3.4.0
  */
 public class ClobAsReaderTypeHandler extends AbstractTypeHandler<Reader> {
     /**

@@ -16,8 +16,8 @@
 package net.hasor.dbvisitor.lambda.segment;
 /**
  * SQL 片段。
- * @version : 2020-11-02
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-11-02
  */
 @FunctionalInterface
 public interface Segment {

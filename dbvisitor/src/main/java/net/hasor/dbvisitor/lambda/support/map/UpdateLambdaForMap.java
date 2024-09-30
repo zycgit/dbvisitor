@@ -25,8 +25,8 @@ import java.util.Map;
 
 /**
  * 提供 lambda update 能力，是 MapUpdateOperation 接口的实现类。
- * @version : 2022-04-02
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-02
  */
 public class UpdateLambdaForMap extends AbstractUpdateLambda<MapUpdateOperation, Map<String, Object>, String> //
         implements MapUpdateOperation {

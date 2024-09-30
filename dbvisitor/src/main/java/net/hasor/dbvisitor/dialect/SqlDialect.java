@@ -18,8 +18,8 @@ import java.util.Set;
 
 /**
  * SQL 方言
- * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-10-31
  */
 public interface SqlDialect {
     /** Cannot be used as a key for column names. when column name is key words, Generate SQL using Qualifier warp it. */
