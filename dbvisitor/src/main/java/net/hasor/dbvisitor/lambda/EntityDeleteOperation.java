@@ -24,9 +24,9 @@ import net.hasor.dbvisitor.lambda.support.entity.EntityQueryCompare;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-04-02
  */
-public interface EntityDeleteOperation<T> extends //
-        CommonOperation<EntityDeleteOperation<T>>, //
-        DeleteExecute<EntityDeleteOperation<T>>, //
+public interface EntityDeleteOperation<T> extends               //
+        CommonOperation<EntityDeleteOperation<T>>,              //
+        DeleteExecute<EntityDeleteOperation<T>>,                //
         QueryCompare<EntityDeleteOperation<T>, T, SFunction<T>>,//
         EntityQueryCompare<EntityDeleteOperation<T>> {
 }

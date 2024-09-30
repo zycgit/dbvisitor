@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.keyholder.sequence;
-import net.hasor.dbvisitor.keyholder.CreateContext;
-import net.hasor.dbvisitor.keyholder.KeySeqHolder;
-import net.hasor.dbvisitor.keyholder.KeySeqHolderFactory;
+package net.hasor.dbvisitor.mapping.keyseq;
+import net.hasor.dbvisitor.mapping.KeySeqHolder;
+import net.hasor.dbvisitor.mapping.KeySeqHolderContext;
+import net.hasor.dbvisitor.mapping.KeySeqHolderFactory;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 
 import java.sql.Connection;
 import java.util.UUID;
 
 /**
- * 使用 32 长度 UUID 作为默认 Key 值
+ * 使用 36 长度 UUID 作为默认 Key 值
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-12-01
  */
-public class Uuid32KeySeqHolderFactory implements KeySeqHolderFactory {
+public class Uuid36KeySeqHolderFactory implements KeySeqHolderFactory {
     @Override
-    public KeySeqHolder createHolder(CreateContext context) {
+    public KeySeqHolder createHolder(KeySeqHolderContext context) {
         return new KeySeqHolder() {
             @Override
             public boolean onBefore() {
@@ -38,7 +38,7 @@ public class Uuid32KeySeqHolderFactory implements KeySeqHolderFactory {
 
             @Override
             public Object beforeApply(Connection conn, Object entity, ColumnMapping mapping) {
-                String genUUID = UUID.randomUUID().toString().replace("-", "");
+                String genUUID = UUID.randomUUID().toString();
                 mapping.getHandler().set(entity, genUUID);
                 return genUUID;
             }

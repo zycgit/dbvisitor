@@ -24,8 +24,8 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-04-02
  */
-public interface MapQueryOperation extends //
-        CommonOperation<MapQueryOperation>, //
-        QueryFunc<MapQueryOperation, Map<String, Object>, String>, //
+public interface MapQueryOperation extends                        //
+        CommonOperation<MapQueryOperation>,                       //
+        QueryFunc<MapQueryOperation, Map<String, Object>, String>,//
         QueryCompare<MapQueryOperation, Map<String, Object>, String> {
 }

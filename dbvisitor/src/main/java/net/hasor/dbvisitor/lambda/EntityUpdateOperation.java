@@ -24,9 +24,9 @@ import net.hasor.dbvisitor.lambda.support.entity.EntityQueryCompare;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-04-02
  */
-public interface EntityUpdateOperation<T> extends //
-        CommonOperation<EntityUpdateOperation<T>>, //
-        UpdateExecute<EntityUpdateOperation<T>, T, SFunction<T>>, //
-        QueryCompare<EntityUpdateOperation<T>, T, SFunction<T>>,//
+public interface EntityUpdateOperation<T> extends                //
+        CommonOperation<EntityUpdateOperation<T>>,               //
+        UpdateExecute<EntityUpdateOperation<T>, T, SFunction<T>>,//
+        QueryCompare<EntityUpdateOperation<T>, T, SFunction<T>>, //
         EntityQueryCompare<EntityUpdateOperation<T>> {
 }

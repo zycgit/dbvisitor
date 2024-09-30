@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.keyholder.sequence;
+package net.hasor.dbvisitor.mapping.keyseq;
 import net.hasor.cobble.ExceptionUtils;
-import net.hasor.dbvisitor.keyholder.CreateContext;
-import net.hasor.dbvisitor.keyholder.KeyHolder;
-import net.hasor.dbvisitor.keyholder.KeySeqHolder;
-import net.hasor.dbvisitor.keyholder.KeySeqHolderFactory;
+import net.hasor.dbvisitor.mapping.KeyHolder;
+import net.hasor.dbvisitor.mapping.KeySeqHolder;
+import net.hasor.dbvisitor.mapping.KeySeqHolderContext;
+import net.hasor.dbvisitor.mapping.KeySeqHolderFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +32,7 @@ public class HolderKeySeqHolderFactory implements KeySeqHolderFactory {
     private static final Map<Class<?>, KeySeqHolderFactory> HolderCache = new ConcurrentHashMap<>();
 
     @Override
-    public KeySeqHolder createHolder(CreateContext context) {
+    public KeySeqHolder createHolder(KeySeqHolderContext context) {
         Map<String, Object> contextMap = context.getContext();
         if (contextMap == null || !contextMap.containsKey(KeyHolder.class.getName())) {
             return null;

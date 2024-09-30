@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.keyholder.sequence;
+package net.hasor.dbvisitor.mapping.keyseq;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.SeqSqlDialect;
-import net.hasor.dbvisitor.keyholder.CreateContext;
-import net.hasor.dbvisitor.keyholder.KeySeq;
-import net.hasor.dbvisitor.keyholder.KeySeqHolder;
-import net.hasor.dbvisitor.keyholder.KeySeqHolderFactory;
+import net.hasor.dbvisitor.mapping.KeySeq;
+import net.hasor.dbvisitor.mapping.KeySeqHolder;
+import net.hasor.dbvisitor.mapping.KeySeqHolderContext;
+import net.hasor.dbvisitor.mapping.KeySeqHolderFactory;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
 
@@ -36,7 +36,7 @@ import java.util.Map;
  */
 public class SeqKeySeqHolderFactory implements KeySeqHolderFactory {
     @Override
-    public KeySeqHolder createHolder(CreateContext context) {
+    public KeySeqHolder createHolder(KeySeqHolderContext context) {
         if (context.getOptions() == null || !(context.getOptions().getDefaultDialect() instanceof SeqSqlDialect)) {
             return null;
         }

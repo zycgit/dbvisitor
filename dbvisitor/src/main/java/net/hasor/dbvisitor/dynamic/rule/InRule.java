@@ -50,27 +50,49 @@ public class InRule implements SqlBuildRule {
 
     @Override
     public void executeRule(SqlArgSource data, DynamicContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
-        String expr;
+        String expr = "";
         if (this.usingIf) {
-            expr = ruleValue != null ? ruleValue : "";
+            expr = (StringUtils.isBlank(ruleValue) ? "" : ruleValue);
         } else {
-            expr = (activeExpr != null ? activeExpr : "") + "," + (ruleValue != null ? ruleValue : "");
-        }
-
-        SqlBuilder builder = DynamicParsed.getParsedSql(expr).buildQuery(data, context);
-        Object[] args = builder.getArgs();
-
-        sqlBuilder.appendSql("in (");
-        if (args != null && args.length != 0) {
-            if (args.length > 1) {
-                String inName = usingIf ? "IFIN" : "IN";
-                throw new SQLException("role " + inName + " args error, require 1, but " + args.length);
+            if (activeExpr != null) {
+                expr += activeExpr;
+                if (ruleValue != null) {
+                    expr += ",";
+                }
             }
-            if (args[0] != null) {
-                buildIn(sqlBuilder, args[0]);
+
+            if (ruleValue != null) {
+                expr += ruleValue;
             }
         }
-        sqlBuilder.appendSql(")");
+        if (StringUtils.isBlank(expr)) {
+            return;
+        }
+
+        SqlBuilder tmp = DynamicParsed.getParsedSql(expr).buildQuery(data, context);
+        String sqlString = tmp.getSqlString();
+        Object[] sqlArgs = tmp.getArgs();
+
+        if (StringUtils.isBlank(sqlString) || sqlArgs.length == 0) {
+            return;
+        }
+
+        if (sqlArgs.length > 1) {
+            String inName = usingIf ? "IFIN" : "IN";
+            throw new SQLException("role " + inName + " args error, require 1, but " + sqlArgs.length);
+        }
+
+        SqlBuilder buildIn = new SqlBuilder();
+        buildIn.appendSql("(");
+        buildIn(buildIn, sqlArgs[0]);
+        buildIn.appendSql(")");
+
+        sqlString = sqlString.replace("?", buildIn.getSqlString());
+        sqlArgs = buildIn.getArgs();
+
+        if (sqlArgs.length > 0) {
+            sqlBuilder.appendSql(sqlString, sqlArgs);
+        }
     }
 
     private static void buildIn(final SqlBuilder sqlBuilder, final Object value) {
@@ -95,19 +117,15 @@ public class InRule implements SqlBuildRule {
             tmpValue = Arrays.asList(ArraySqlArgSource.toArgs(tmpValue));
         }
 
-        //
         if (tmpValue instanceof Iterable) {
             Iterator<?> entryIter = ((Iterable<?>) tmpValue).iterator();
             int k = 0;
             while (entryIter.hasNext()) {
-                if (k > 0) {
-                    sqlBuilder.appendSql(", ");
-                }
-
+                String term = (k == 0) ? "?" : ", ?";
                 if (usingArgObj) {
-                    sqlBuilder.appendSql("?", new SqlArg(name + "[" + k + "]", entryIter.next(), sqlMode, jdbcType, javaType, typeHandler));
+                    sqlBuilder.appendSql(term, new SqlArg(name + "[" + k + "]", entryIter.next(), sqlMode, jdbcType, javaType, typeHandler));
                 } else {
-                    sqlBuilder.appendSql("?", entryIter.next());
+                    sqlBuilder.appendSql(term, entryIter.next());
                 }
 
                 k++;

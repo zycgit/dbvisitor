@@ -24,8 +24,8 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-04-02
  */
-public interface MapUpdateOperation extends //
-        CommonOperation<MapUpdateOperation>, //
+public interface MapUpdateOperation extends                             //
+        CommonOperation<MapUpdateOperation>,                            //
         UpdateExecute<MapUpdateOperation, Map<String, Object>, String>, //
         QueryCompare<MapUpdateOperation, Map<String, Object>, String> {
 }

@@ -18,57 +18,53 @@ import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2014-3-31
  */
-public class BeanSqlArgSource implements SqlArgSource, SqlArgDisposer {
+public class BeanSqlArgSource extends BindSqlArgSource implements SqlArgSource, SqlArgDisposer {
     private final Object                dataBean;
     private final Map<String, Property> dataProperty;
-    private final Map<String, Object>   bindData;
 
     public BeanSqlArgSource(Object dataBean) {
         this.dataBean = Objects.requireNonNull(dataBean);
         this.dataProperty = BeanUtils.getPropertyFunc(dataBean.getClass());
-        this.bindData = new HashMap<>();
     }
 
     @Override
     public boolean hasValue(final String paramName) {
-        return this.dataProperty.containsKey(paramName);
-    }
-
-    @Override
-    public Object getValue(final String paramName) throws IllegalArgumentException {
-        Property property = this.dataProperty.get(paramName);
-        if (property == null || this.bindData.containsKey(paramName)) {
-            return this.bindData.get(paramName);
+        if (this.bindValues.containsKey(paramName)) {
+            return true;
         } else {
-            return property.get(this.dataBean);
+            return this.dataProperty.containsKey(paramName);
         }
     }
 
     @Override
-    public void putValue(String paramName, Object value) {
-        Property property = this.dataProperty.get(paramName);
-        if (property == null || property.isReadOnly()) {
-            this.bindData.put(paramName, value);
+    public Object getValue(final String paramName) throws IllegalArgumentException {
+        if (this.bindValues.containsKey(paramName)) {
+            return this.bindValues.get(paramName);
+        } else if (this.dataProperty.containsKey(paramName)) {
+            Property property = this.dataProperty.get(paramName);
+            return property.get(this.dataBean);
         } else {
-            property.set(this.dataBean, value);
+            return null;
         }
     }
 
     @Override
     public String[] getParameterNames() {
-        return this.dataProperty.keySet().toArray(new String[0]);
+        Set<String> names = new HashSet<>();
+        names.addAll(Arrays.asList(super.getParameterNames()));
+        names.addAll(this.dataProperty.keySet());
+        return names.toArray(new String[0]);
     }
 
     @Override
     public void cleanupParameters() {
+        super.cleanupParameters();
         if (this.dataBean instanceof SqlArgDisposer) {
             ((SqlArgDisposer) this.dataBean).cleanupParameters();
         }

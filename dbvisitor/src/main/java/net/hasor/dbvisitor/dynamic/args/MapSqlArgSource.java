@@ -21,7 +21,7 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2014-3-31
  */
-public class MapSqlArgSource extends BasicSqlArgSource {
+public class MapSqlArgSource extends BindSqlArgSource {
     public MapSqlArgSource(final Map<String, ?> values) {
         super((Map<String, Object>) values);
     }

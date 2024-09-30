@@ -108,11 +108,11 @@ public class ClassDynamicResolve extends XmlParser implements DynamicResolve<Met
             dynamicSqlAttribute.put("timeout", String.valueOf(((Query) annotation).timeout()));
             dynamicSqlAttribute.put("fetchSize", String.valueOf(((Query) annotation).fetchSize()));
             dynamicSqlAttribute.put("resultSetType", ((Query) annotation).resultSetType().getTypeName());
-            dynamicSqlAttribute.put("multipleResult", ((Query) annotation).multipleResult().getTypeName());
-            dynamicSqlAttribute.put("resultMap", ((Query) annotation).resultMap());
             if (((Query) annotation).resultType() != Object.class) {
                 dynamicSqlAttribute.put("resultType", ((Query) annotation).resultType().getName());
             }
+            dynamicSqlAttribute.put("resultMap", ((Query) annotation).resultMap());
+            dynamicSqlAttribute.put("bindOut", StringUtils.join(((Query) annotation).bindOut(), ","));
             isXml = ((Query) annotation).xml();
         } else if (annotation instanceof Execute) {
             queryType = QueryType.Execute;

@@ -27,7 +27,17 @@ public class OrRule extends ConditionRule {
     }
 
     @Override
-    public String toString() {
-        return (this.usingIf ? "ifor [" : "or [") + this.hashCode() + "]";
+    protected String name() {
+        return this.usingIf ? "ifor" : "or";
+    }
+
+    @Override
+    protected boolean allowNullValue() {
+        return this.usingIf;
+    }
+
+    @Override
+    protected boolean allowMultipleValue() {
+        return this.usingIf;
     }
 }

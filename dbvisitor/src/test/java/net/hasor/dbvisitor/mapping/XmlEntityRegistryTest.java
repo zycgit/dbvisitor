@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping;
-import net.hasor.dbvisitor.keyholder.sequence.AutoKeySeqHolderFactory;
+import net.hasor.dbvisitor.mapping.keyseq.AutoKeySeqHolderFactory;
 import net.hasor.dbvisitor.mapping.def.IndexDescription;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.handler.EnumTypeHandler;

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.execute;
-import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dal.repository.ResultSetType;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dynamic.DynamicContext;
@@ -70,32 +69,7 @@ public class CallableStatementExecute extends AbstractStatementExecute<Object> {
 
         for (int i = 0; i < sqlArgs.size(); i++) {
             int sqlColIndex = i + 1;
-            SqlArg arg = sqlArgs.get(i);
-            TypeHandler<Object> typeHandler = (TypeHandler<Object>) arg.getTypeHandler();
-
-            switch (arg.getSqlMode()) {
-                case In: {
-                    typeHandler.setParameter(cs, sqlColIndex, arg.getValue(), arg.getJdbcType());
-                    break;
-                }
-                case InOut: {
-                    typeHandler.setParameter(cs, sqlColIndex, arg.getValue(), arg.getJdbcType());
-                    cs.registerOutParameter(sqlColIndex, arg.getJdbcType());
-                    break;
-                }
-                case Cursor: {
-                    if (JdbcUtils.getDbType(cs).equals(JdbcUtils.ORACLE)) {
-                        cs.registerOutParameter(sqlColIndex, -10); // CURSOR
-                    } else {
-                        cs.registerOutParameter(sqlColIndex, Types.REF_CURSOR);
-                    }
-                    break;
-                }
-                case Out: {
-                    cs.registerOutParameter(sqlColIndex, arg.getJdbcType());
-                    break;
-                }
-            }
+            this.getContext().getTypeRegistry().setParameterValue(cs, sqlColIndex, sqlArgs.get(i));
         }
 
         // execute call

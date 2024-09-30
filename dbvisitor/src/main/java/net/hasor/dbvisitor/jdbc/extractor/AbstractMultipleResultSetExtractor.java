@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.jdbc.callback;
-import net.hasor.cobble.ArrayUtils;
+package net.hasor.dbvisitor.jdbc.extractor;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dynamic.DynamicContext;
-import net.hasor.dbvisitor.dynamic.SqlMode;
 import net.hasor.dbvisitor.dynamic.rule.ReturnResultRule;
 import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
 import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment.RuleInfo;
@@ -29,18 +27,13 @@ import net.hasor.dbvisitor.jdbc.CallableStatementCallback;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.RowMapper;
-import net.hasor.dbvisitor.jdbc.core.StatementSetterUtils;
-import net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.extractor.RowCallbackHandlerResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.core.ProcedureArg;
 import net.hasor.dbvisitor.jdbc.mapper.MappingRowMapper;
 import net.hasor.dbvisitor.jdbc.mapper.SingleColumnRowMapper;
-import net.hasor.dbvisitor.types.SqlArg;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
-import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -51,16 +44,14 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2024-09-29
  */
-public class DefaultCallableCallback implements CallableStatementCallback<Map<String, Object>> {
-    private static final Logger            logger                 = LoggerFactory.getLogger(DefaultCallableCallback.class);
+public abstract class AbstractMultipleResultSetExtractor {
+    private static final Logger            logger                 = LoggerFactory.getLogger(AbstractMultipleResultSetExtractor.class);
     private final        DefaultSqlSegment parsedSql;
-    private final        Object[]          parameters;
     private              boolean           resultsCaseInsensitive = false;
     private              DynamicContext    registry               = DynamicContext.DEFAULT;
 
-    public DefaultCallableCallback(DefaultSqlSegment parsedSql, Object[] parameters) {
+    public AbstractMultipleResultSetExtractor(DefaultSqlSegment parsedSql) {
         this.parsedSql = parsedSql;
-        this.parameters = parameters;
     }
 
     public boolean isResultsCaseInsensitive() {
@@ -87,65 +78,54 @@ public class DefaultCallableCallback implements CallableStatementCallback<Map<St
         }
     }
 
-    @Override
-    public Map<String, Object> doInCallableStatement(CallableStatement cs) throws SQLException {
+    protected Map<String, Object> doInStatement(Statement s) throws SQLException {
         try {
-            // config parameters
-            if (ArrayUtils.isNotEmpty(this.parameters)) {
-                for (int i = 0; i < this.parameters.length; i++) {
-                    this.registry.getTypeRegistry().setParameterValue(cs, i + 1, this.parameters[i]);
-                }
-            }
+            this.beforeStatement(s);
 
             // execute
-            boolean retVal = cs.execute();
+            this.beforeExecute(s);
+            boolean retVal = this.doExecute(s);
+            this.afterExecute(s);
             if (logger.isTraceEnabled()) {
-                logger.trace("CallableStatement.execute() returned '" + retVal + "'");
+                logger.trace("doExecute() returned '" + retVal + "'");
             }
 
             // fetch result
-            return fetchResult(retVal, cs, createResultsMap());
+            Map<String, Object> resultsMap = createResultsMap();
+            this.beforeFetchResult(s, resultsMap);
+            this.fetchResult(retVal, s, resultsMap);
+            this.afterFetchResult(s, resultsMap);
+            return resultsMap;
         } finally {
-            StatementSetterUtils.cleanupParameters(this.parameters);
+            this.afterStatement(s);
         }
     }
 
-    protected Map<String, Object> fetchResult(boolean retVal, CallableStatement cs, Map<String, Object> resultMap) throws SQLException {
-        // fetch output
-        for (int i = 1; i <= this.parameters.length; i++) {
-            Object arg = this.parameters[i - 1];
-            if (!(arg instanceof SqlArg)) {
-                continue;
-            }
-            SqlMode sqlMode = ((SqlArg) arg).getSqlMode();
-            if (sqlMode == null || !sqlMode.isOut()) {
-                continue;
-            }
+    protected abstract void beforeStatement(Statement s) throws SQLException;
 
-            SqlArg sqlArg = (SqlArg) arg;
-            String outName = sqlArg.getName();
-            outName = StringUtils.isNotBlank(outName) ? outName : "#out-" + i;
+    protected abstract void afterStatement(Statement s) throws SQLException;
 
-            if (sqlArg.getSqlMode() == SqlMode.Cursor) {
-                ResultSet rs = (ResultSet) cs.getObject(i);
-                ProcedureArg procedureArg = new ProcedureArg(sqlArg.getName(), sqlArg.getJavaType(), sqlArg.getMapper(), sqlArg.getHandler(), sqlArg.getExtractor());
-                Object resultValue = this.processResultSet(procedureArg, rs);
-                resultMap.put(outName, resultValue);
-            } else {
-                TypeHandlerRegistry typeRegistry = this.registry.getTypeRegistry();
-                Object resultValue = typeRegistry.getParameterValue(cs, i, sqlArg);
-                resultMap.put(outName, resultValue);
-            }
-        }
+    protected abstract void beforeExecute(Statement s) throws SQLException;
 
+    protected abstract boolean doExecute(Statement s) throws SQLException;
+
+    protected abstract void afterExecute(Statement s) throws SQLException;
+
+    protected abstract void beforeFetchResult(Statement s, Map<String, Object> resultMap) throws SQLException;
+
+    protected abstract void afterFetchResult(Statement s, Map<String, Object> resultMap) throws SQLException;
+
+    protected void fetchResult(boolean retVal, Statement cs, Map<String, Object> resultMap) throws SQLException {
         // prepare Fetch
         ProcedureArg defaultRule = null;
         List<ProcedureArg> resultList = new ArrayList<>();
-        for (RuleInfo r : this.parsedSql.getRuleList()) {
-            if (StringUtils.equalsIgnoreCase(r.getRule(), ReturnResultRule.FUNC_RETURN) || StringUtils.equalsIgnoreCase(r.getRule(), ReturnResultRule.FUNC_RESULT)) {
-                resultList.add(parserConfig(r));
-            } else if (StringUtils.equalsIgnoreCase(r.getRule(), ReturnResultRule.FUNC_DEFAULT_RESULT)) {
-                defaultRule = parserConfig(r);
+        if (this.parsedSql != null) {
+            for (RuleInfo r : this.parsedSql.getRuleList()) {
+                if (StringUtils.equalsIgnoreCase(r.getRule(), ReturnResultRule.FUNC_RETURN) || StringUtils.equalsIgnoreCase(r.getRule(), ReturnResultRule.FUNC_RESULT)) {
+                    resultList.add(parserConfig(r));
+                } else if (StringUtils.equalsIgnoreCase(r.getRule(), ReturnResultRule.FUNC_DEFAULT_RESULT)) {
+                    defaultRule = parserConfig(r);
+                }
             }
         }
         if (defaultRule == null) {
@@ -185,7 +165,6 @@ public class DefaultCallableCallback implements CallableStatementCallback<Map<St
             }
             resultMap.put(resultName, resultValue);
         }
-        return resultMap;
     }
 
     protected static String resultParameterName(String name, String defaultName) {
@@ -225,8 +204,8 @@ public class DefaultCallableCallback implements CallableStatementCallback<Map<St
         } else if (arg.getRowMapper() != null) {
             RowMapper<?> rowMapper = arg.getRowMapper();
             return new RowMapperResultSetExtractor<>(rowMapper).extractData(rs);
-        } else if (arg.getHandler() != null) {
-            RowCallbackHandler rch = arg.getHandler();
+        } else if (arg.getRowHandler() != null) {
+            RowCallbackHandler rch = arg.getRowHandler();
             new RowCallbackHandlerResultSetExtractor(rch).extractData(rs);
             return "resultSet returned from stored procedure was processed";
         } else if (arg.getExtractor() != null) {
@@ -270,15 +249,15 @@ public class DefaultCallableCallback implements CallableStatementCallback<Map<St
             return arg;
         }
 
-        Class<?> mapperType = convertJavaType(this.registry, config.get(ProcedureArg.CFG_KEY_MAPPER));
+        Class<?> mapperType = convertJavaType(this.registry, config.get(ProcedureArg.CFG_KEY_ROW_MAPPER));
         if (mapperType != null) {
             arg.setRowMapper(ClassUtils.newInstance(mapperType));
             return arg;
         }
 
-        Class<?> handlerType = convertJavaType(this.registry, config.get(ProcedureArg.CFG_KEY_HANDLER));
+        Class<?> handlerType = convertJavaType(this.registry, config.get(ProcedureArg.CFG_KEY_ROW_HANDLER));
         if (handlerType != null) {
-            arg.setHandler(ClassUtils.newInstance(handlerType));
+            arg.setRowHandler(ClassUtils.newInstance(handlerType));
             return arg;
         }
 

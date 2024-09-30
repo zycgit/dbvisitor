@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.keyholder;
+package net.hasor.dbvisitor.mapping;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
@@ -27,14 +27,14 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-12-01
  */
-public class CreateContext {
+public class KeySeqHolderContext {
     private final MappingOptions      options;
     private final TypeHandlerRegistry typeRegistry;
     private final TableMapping<?>     tableDef;
     private final ColumnMapping       colDef;
     private final Map<String, Object> context;
 
-    public CreateContext(MappingOptions options, TypeHandlerRegistry typeRegistry, TableMapping<?> tableDef, ColumnMapping colDef, Map<String, Object> context) {
+    public KeySeqHolderContext(MappingOptions options, TypeHandlerRegistry typeRegistry, TableMapping<?> tableDef, ColumnMapping colDef, Map<String, Object> context) {
         this.options = options;
         this.typeRegistry = typeRegistry;
         this.tableDef = tableDef;

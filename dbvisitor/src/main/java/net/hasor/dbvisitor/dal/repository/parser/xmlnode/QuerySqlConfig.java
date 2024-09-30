@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.repository.parser.xmlnode;
+import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dal.execute.MultipleResultsType;
 import net.hasor.dbvisitor.dal.repository.QueryType;
 import net.hasor.dbvisitor.dal.repository.ResultSetType;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
@@ -28,11 +28,11 @@ import org.w3c.dom.Node;
  * @version : 2021-06-19
  */
 public class QuerySqlConfig extends DmlSqlConfig {
-    private String              resultMap;
-    private String              resultType;
-    private int                 fetchSize;
-    private ResultSetType       resultSetType;
-    private MultipleResultsType multipleResultType;
+    private String        resultMap;
+    private String        resultType;
+    private int           fetchSize;
+    private ResultSetType resultSetType;
+    private String[]      bindOut;
 
     public QuerySqlConfig(DynamicSql target) {
         super(target);
@@ -45,22 +45,18 @@ public class QuerySqlConfig extends DmlSqlConfig {
         Node resultTypeNode = nodeAttributes.getNamedItem("resultType");
         Node fetchSizeNode = nodeAttributes.getNamedItem("fetchSize");
         Node resultSetTypeNode = nodeAttributes.getNamedItem("resultSetType");
-        Node multipleResultNode = nodeAttributes.getNamedItem("multipleResult");
+        Node bindOutNode = nodeAttributes.getNamedItem("bindOut");
         String resultMap = (resultMapNode != null) ? resultMapNode.getNodeValue() : null;
         String resultType = (resultTypeNode != null) ? resultTypeNode.getNodeValue() : null;
         String fetchSize = (fetchSizeNode != null) ? fetchSizeNode.getNodeValue() : null;
         String resultSetType = (resultSetTypeNode != null) ? resultSetTypeNode.getNodeValue() : null;
-        String multipleResult = (multipleResultNode != null) ? multipleResultNode.getNodeValue() : null;
+        String bindOut = (bindOutNode != null) ? bindOutNode.getNodeValue() : null;
 
         this.resultMap = resultMap;
         this.resultType = resultType;
         this.fetchSize = StringUtils.isBlank(fetchSize) ? 256 : Integer.parseInt(fetchSize);
         this.resultSetType = ResultSetType.valueOfCode(resultSetType, ResultSetType.DEFAULT);
-        this.multipleResultType = MultipleResultsType.valueOfCode(multipleResult, defaultMultipleResultsType());
-    }
-
-    protected MultipleResultsType defaultMultipleResultsType() {
-        return MultipleResultsType.LAST;
+        this.bindOut = StringUtils.isNotBlank(bindOut) ? bindOut.split(",") : ArrayUtils.EMPTY_STRING_ARRAY;
     }
 
     @Override
@@ -100,11 +96,11 @@ public class QuerySqlConfig extends DmlSqlConfig {
         this.resultSetType = resultSetType;
     }
 
-    public MultipleResultsType getMultipleResultType() {
-        return this.multipleResultType;
+    public String[] getBindOut() {
+        return this.bindOut;
     }
 
-    public void setMultipleResultType(MultipleResultsType multipleResultType) {
-        this.multipleResultType = multipleResultType;
+    public void setBindOut(String[] bindOut) {
+        this.bindOut = bindOut;
     }
 }

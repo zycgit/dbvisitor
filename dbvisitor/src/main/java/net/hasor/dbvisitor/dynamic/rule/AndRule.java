@@ -27,7 +27,17 @@ public class AndRule extends ConditionRule {
     }
 
     @Override
-    public String toString() {
-        return (this.usingIf ? "ifand [" : "and [") + this.hashCode() + "]";
+    protected String name() {
+        return this.usingIf ? "ifand" : "and";
+    }
+
+    @Override
+    protected boolean allowNullValue() {
+        return this.usingIf;
+    }
+
+    @Override
+    protected boolean allowMultipleValue() {
+        return this.usingIf;
     }
 }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.rule;
-import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.NumberUtils;
 import net.hasor.cobble.StringUtils;
@@ -38,11 +37,18 @@ import java.util.Map;
  * @version : 2021-06-05
  */
 public class ArgRule implements SqlBuildRule {
-    public static final ArgRule INSTANCE          = new ArgRule();
-    public static final String  CFG_KEY_MODE      = "mode";
-    public static final String  CFG_KEY_JDBC_TYPE = "jdbcType";
-    public static final String  CFG_KEY_JAVA_TYPE = "javaType";
-    public static final String  CFG_KEY_HANDLER   = "typeHandler";
+    public static final ArgRule INSTANCE             = new ArgRule();
+    public static final String  CFG_KEY_MODE         = "mode";
+    public static final String  CFG_KEY_JDBC_TYPE    = "jdbcType";
+    public static final String  CFG_KEY_JAVA_TYPE    = "javaType";
+    public static final String  CFG_KEY_TYPE_HANDLER = "typeHandler";
+    // for procedure
+    public static final String  CFG_KEY_NAME         = "name";
+    public static final String  CFG_KEY_TYPE_NAME    = "typeName";
+    public static final String  CFG_KEY_SCALE        = "scale";
+    public static final String  CFG_KEY_EXTRACTOR    = "extractor";
+    public static final String  CFG_KEY_ROW_HANDLER  = "rowHandler";
+    public static final String  CFG_KEY_ROW_MAPPER   = "rowMapper";
 
     private static final Map<String, Integer> JDBC_TYPE_MAP = new LinkedCaseInsensitiveMap<>();
 
@@ -51,39 +57,6 @@ public class ArgRule implements SqlBuildRule {
         for (JDBCType typeElement : JDBCType.values()) {
             JDBC_TYPE_MAP.put(typeElement.name(), typeElement.getVendorTypeNumber());
         }
-    }
-
-    private SqlMode convertSqlMode(String sqlMode) {
-        if (StringUtils.isNotBlank(sqlMode)) {
-            for (SqlMode mode : SqlMode.values()) {
-                if (mode.name().equalsIgnoreCase(sqlMode)) {
-                    return mode;
-                }
-            }
-        }
-        return null;
-    }
-
-    private Integer convertJdbcType(String jdbcType) {
-        if (NumberUtils.isNumber(jdbcType)) {
-            return NumberUtils.createInteger(jdbcType);
-        }
-
-        if (StringUtils.isNotBlank(jdbcType)) {
-            return JDBC_TYPE_MAP.get(jdbcType);
-        }
-        return null;
-    }
-
-    private Class<?> convertJavaType(DynamicContext context, String javaType) {
-        try {
-            if (StringUtils.isNotBlank(javaType)) {
-                return context.loadClass(javaType);
-            }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        return null;
     }
 
     public static Map<String, String> parserConfig(String[] content, int start, int length) {
@@ -122,23 +95,77 @@ public class ArgRule implements SqlBuildRule {
         String expr = noExpr ? "" : testSplit[0];
         Map<String, String> config = ArgRule.INSTANCE.parserConfig(testSplit, noExpr ? 0 : 1, testSplit.length);
 
-        executeRule(data, context, sqlBuilder, expr, config);
+        this.executeRule(data, context, sqlBuilder, expr, config);
     }
 
     public void executeRule(SqlArgSource data, DynamicContext context, SqlBuilder sqlBuilder, String expr, Map<String, String> config) throws SQLException {
-        SqlMode sqlMode = convertSqlMode((config != null) ? config.get(CFG_KEY_MODE) : null);
-        Integer jdbcType = convertJdbcType((config != null) ? config.get(CFG_KEY_JDBC_TYPE) : null);
-        Class<?> javaType = convertJavaType(context, (config != null) ? config.get(CFG_KEY_JAVA_TYPE) : null);
-        String handlerType = (config != null) ? config.get(CFG_KEY_HANDLER) : null;
+        SqlMode sqlMode = this.convertSqlMode((config != null) ? config.get(CFG_KEY_MODE) : null);
+        Integer jdbcType = this.convertJdbcType((config != null) ? config.get(CFG_KEY_JDBC_TYPE) : null);
+        Class<?> javaType = this.convertJavaType(context, (config != null) ? config.get(CFG_KEY_JAVA_TYPE) : null);
+        String handlerType = (config != null) ? config.get(CFG_KEY_TYPE_HANDLER) : null;
         Object argValue = (sqlMode != null && !sqlMode.isIn() && sqlMode.isOut()) ? null : OgnlUtils.evalOgnl(expr, data);
+        String asName = (config != null) ? config.getOrDefault(CFG_KEY_NAME, null) : null;
+        String typeName = (config != null) ? config.getOrDefault(CFG_KEY_TYPE_NAME, null) : null;
+        Integer scale = this.convertInteger((config != null) ? config.get(CFG_KEY_SCALE) : null);
+        Class<?> extractor = this.convertJavaType(context, (config != null) ? config.get(CFG_KEY_EXTRACTOR) : null);
+        Class<?> rowHandler = this.convertJavaType(context, (config != null) ? config.get(CFG_KEY_ROW_HANDLER) : null);
+        Class<?> rowMapper = this.convertJavaType(context, (config != null) ? config.get(CFG_KEY_ROW_MAPPER) : null);
 
         if (argValue instanceof SqlArg) {
             sqlBuilder.appendSql("?", argValue);
             return;
         }
 
-        TypeHandler<?> typeHandler = createTypeHandler(context, javaType, handlerType, argValue);
-        sqlBuilder.appendSql("?", new SqlArg(expr, argValue, sqlMode, jdbcType, javaType, typeHandler));
+        TypeHandler<?> typeHandler = this.createTypeHandler(context, javaType, handlerType, argValue);
+        SqlArg arg = new SqlArg(expr, argValue, sqlMode, jdbcType, javaType, typeHandler);
+        arg.setAsName(asName);
+        arg.setJdbcTypeName(typeName);
+        arg.setScale(scale);
+        arg.setExtractor(this.createObject(context, extractor));
+        arg.setRowHandler(this.createObject(context, rowHandler));
+        arg.setRowMapper(this.createObject(context, rowMapper));
+
+        sqlBuilder.appendSql("?", arg);
+    }
+
+    private SqlMode convertSqlMode(String sqlMode) {
+        if (StringUtils.isNotBlank(sqlMode)) {
+            for (SqlMode mode : SqlMode.values()) {
+                if (mode.name().equalsIgnoreCase(sqlMode)) {
+                    return mode;
+                }
+            }
+        }
+        return null;
+    }
+
+    private Integer convertJdbcType(String jdbcType) {
+        if (NumberUtils.isNumber(jdbcType)) {
+            return NumberUtils.createInteger(jdbcType);
+        }
+
+        if (StringUtils.isNotBlank(jdbcType)) {
+            return JDBC_TYPE_MAP.get(jdbcType);
+        }
+        return null;
+    }
+
+    private Integer convertInteger(String jdbcType) {
+        if (NumberUtils.isNumber(jdbcType)) {
+            return NumberUtils.createInteger(jdbcType);
+        }
+        return null;
+    }
+
+    private Class<?> convertJavaType(DynamicContext context, String javaType) {
+        try {
+            if (StringUtils.isNotBlank(javaType)) {
+                return context.loadClass(javaType);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 
     private TypeHandler<?> createTypeHandler(DynamicContext context, Class<?> javaType, String handlerType, Object argValue) throws SQLException {
@@ -163,18 +190,26 @@ public class ArgRule implements SqlBuildRule {
         }
 
         if (javaClass == null) {
-            return context.getTypeRegistry().createTypeHandler(handlerClass, () -> ClassUtils.newInstance(handlerClass));
+            return context.getTypeRegistry().createTypeHandler(handlerClass, () -> (TypeHandler<?>) context.createObject(handlerClass));
         } else {
             return context.getTypeRegistry().createTypeHandler(handlerClass, () -> {
                 try {
                     Constructor<?> constructor = handlerClass.getConstructor(Class.class);
-                    return (TypeHandler<?>) constructor.newInstance(javaType);
+                    return (TypeHandler<?>) context.createObject(constructor, new Object[] { javaType });
                 } catch (NoSuchMethodException e) {
-                    return ClassUtils.newInstance(handlerClass);
+                    return (TypeHandler<?>) context.createObject(handlerClass);
                 } catch (ReflectiveOperationException e) {
                     throw ExceptionUtils.toRuntime(e);
                 }
             });
+        }
+    }
+
+    private <T> T createObject(DynamicContext context, Class<?> clazz) {
+        if (clazz == null) {
+            return null;
+        } else {
+            return (T) context.createObject(clazz);
         }
     }
 

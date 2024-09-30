@@ -27,7 +27,8 @@ import java.util.Objects;
  * @version : 2021-06-05
  */
 public class SqlArg {
-    private String                name;         // any time.
+    private String                name;         // mappingTo #{xxx}
+    private String                asName;       // mappingTo #{xxx,name=asName}
     private Object                value;
     private Integer               jdbcType;     // sqlMode = in/out/inout
     private Class<?>              javaType;
@@ -37,8 +38,8 @@ public class SqlArg {
     private String                jdbcTypeName; // sqlMode = out/inout
     private Integer               scale;        // sqlMode = out/inout
     private ResultSetExtractor<?> extractor;    // sqlMode = cursor
-    private RowCallbackHandler    handler;      // sqlMode = cursor
-    private RowMapper<?>          mapper;       // sqlMode = cursor
+    private RowCallbackHandler    rowHandler;   // sqlMode = cursor
+    private RowMapper<?>          rowMapper;    // sqlMode = cursor
 
     public SqlArg(Object value, Integer jdbcType, TypeHandler<?> typeHandler) {
         this.value = value;
@@ -54,7 +55,19 @@ public class SqlArg {
     }
 
     public static SqlArg valueOf(Object obj) {
-        return new SqlArg(null, obj, null, null, null, null);
+        return new SqlArg(null, obj, SqlMode.In, null, null, null);
+    }
+
+    public static SqlArg valueOf(Object obj, Class<?> javaType) {
+        return new SqlArg(null, obj, SqlMode.In, null, javaType, null);
+    }
+
+    public static SqlArg valueOf(Object obj, TypeHandler<?> typeHandler) {
+        return new SqlArg(null, obj, SqlMode.In, null, null, typeHandler);
+    }
+
+    public static SqlArg valueOf(Object obj, int jdbcType) {
+        return new SqlArg(null, obj, SqlMode.In, jdbcType, null, null);
     }
 
     public static Object asOut(String name, Class<String> javaType) {
@@ -112,6 +125,14 @@ public class SqlArg {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getAsName() {
+        return this.asName;
+    }
+
+    public void setAsName(String asName) {
+        this.asName = asName;
     }
 
     public Object getValue() {
@@ -178,19 +199,19 @@ public class SqlArg {
         this.extractor = extractor;
     }
 
-    public RowCallbackHandler getHandler() {
-        return this.handler;
+    public RowCallbackHandler getRowHandler() {
+        return this.rowHandler;
     }
 
-    public void setHandler(RowCallbackHandler handler) {
-        this.handler = handler;
+    public void setRowHandler(RowCallbackHandler rowHandler) {
+        this.rowHandler = rowHandler;
     }
 
-    public RowMapper<?> getMapper() {
-        return this.mapper;
+    public RowMapper<?> getRowMapper() {
+        return this.rowMapper;
     }
 
-    public void setMapper(RowMapper<?> mapper) {
-        this.mapper = mapper;
+    public void setRowMapper(RowMapper<?> rowMapper) {
+        this.rowMapper = rowMapper;
     }
 }

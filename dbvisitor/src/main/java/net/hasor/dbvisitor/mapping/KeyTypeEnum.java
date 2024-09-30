@@ -15,10 +15,7 @@
  */
 package net.hasor.dbvisitor.mapping;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.keyholder.CreateContext;
-import net.hasor.dbvisitor.keyholder.KeySeqHolder;
-import net.hasor.dbvisitor.keyholder.KeySeqHolderFactory;
-import net.hasor.dbvisitor.keyholder.sequence.*;
+import net.hasor.dbvisitor.mapping.keyseq.*;
 
 /**
  * 键生成策略
@@ -45,7 +42,7 @@ public enum KeyTypeEnum {
         this.factory = factory;
     }
 
-    public KeySeqHolder createHolder(CreateContext context) {
+    public KeySeqHolder createHolder(KeySeqHolderContext context) {
         if (this.factory == null) {
             return null;
         }

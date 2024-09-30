@@ -18,11 +18,7 @@ import net.hasor.cobble.*;
 import net.hasor.cobble.convert.ConverterUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.logging.Logger;
-import net.hasor.dbvisitor.keyholder.CreateContext;
-import net.hasor.dbvisitor.keyholder.KeySeq;
-import net.hasor.dbvisitor.keyholder.KeySeqHolder;
-import net.hasor.dbvisitor.keyholder.KeySeqHolderFactory;
-import net.hasor.dbvisitor.mapping.KeyTypeEnum;
+import net.hasor.dbvisitor.mapping.*;
 import net.hasor.dbvisitor.mapping.def.*;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
@@ -258,7 +254,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
                 case Auto:
                 case UUID32:
                 case UUID36:
-                    return keyTypeEnum.createHolder(new CreateContext(this.global, typeRegistry, tableDef, colDef, Collections.emptyMap()));
+                    return keyTypeEnum.createHolder(new KeySeqHolderContext(this.global, typeRegistry, tableDef, colDef, Collections.emptyMap()));
                 case None:
                 case Holder:
                 case Sequence:
@@ -269,11 +265,11 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
             keyType = keyType.substring("KeySeq::".length());
             Map<String, Object> context = new HashMap<>();
             context.put(KeySeq.class.getName(), new KeySeqImpl(keyType));
-            return KeyTypeEnum.Sequence.createHolder(new CreateContext(this.global, typeRegistry, tableDef, colDef, context));
+            return KeyTypeEnum.Sequence.createHolder(new KeySeqHolderContext(this.global, typeRegistry, tableDef, colDef, context));
         } else {
             Class<?> aClass = classLoader.loadClass(keyType);
             KeySeqHolderFactory holderFactory = (KeySeqHolderFactory) aClass.newInstance();
-            return holderFactory.createHolder(new CreateContext(this.global, typeRegistry, tableDef, colDef, Collections.emptyMap()));
+            return holderFactory.createHolder(new KeySeqHolderContext(this.global, typeRegistry, tableDef, colDef, Collections.emptyMap()));
         }
     }
 

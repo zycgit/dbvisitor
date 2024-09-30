@@ -20,7 +20,7 @@ import net.hasor.cobble.ArrayUtils;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2024-09-27
  */
-public class ArraySqlArgSource extends BasicSqlArgSource {
+public class ArraySqlArgSource extends BindSqlArgSource {
     public ArraySqlArgSource() {
     }
 

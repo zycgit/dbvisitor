@@ -124,10 +124,13 @@ public class SetRuleTest {
         assert sqlBuilder1.getSqlString().equals("");
         assert sqlBuilder1.getArgs().length == 0;
 
-        //
         SqlBuilder sqlBuilder2 = DynamicParsed.getParsedSql("@{set,abc}").buildQuery(ctx, new DynamicContext());
         assert sqlBuilder2.getSqlString().equals("set abc");
         assert sqlBuilder2.getArgs().length == 0;
+
+        SqlBuilder sqlBuilder3 = DynamicParsed.getParsedSql("@{set,:name}").buildQuery(ctx, new DynamicContext());
+        assert sqlBuilder3.getSqlString().equals("set ?");
+        assert sqlBuilder3.getArgs().length == 1;
     }
 
     @Test

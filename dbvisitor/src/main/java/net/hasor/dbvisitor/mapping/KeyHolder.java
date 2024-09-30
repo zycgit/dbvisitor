@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.keyholder;
+package net.hasor.dbvisitor.mapping;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
  */
 @Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface KeySeq {
-    /** 序列名 */
-    String value() default "";
+public @interface KeyHolder {
+    /** Holder */
+    Class<? extends KeySeqHolderFactory> value();
 }

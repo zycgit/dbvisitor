@@ -46,6 +46,8 @@ public abstract class ConditionRule implements SqlBuildRule {
         this.append = append;
     }
 
+    protected abstract String name();
+
     @Override
     public boolean test(SqlArgSource data, DynamicContext context, String activeExpr) {
         if (this.usingIf) {
@@ -54,6 +56,10 @@ public abstract class ConditionRule implements SqlBuildRule {
             return true;
         }
     }
+
+    protected abstract boolean allowNullValue();
+
+    protected abstract boolean allowMultipleValue();
 
     @Override
     public void executeRule(SqlArgSource data, DynamicContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
@@ -77,6 +83,24 @@ public abstract class ConditionRule implements SqlBuildRule {
         }
 
         DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(expr);
+        SqlBuilder tmp = parsedSql.buildQuery(data, context);
+        String sqlString = tmp.getSqlString();
+        Object[] sqlArgs = tmp.getArgs();
+
+        if (StringUtils.isBlank(sqlString)) {
+            return;
+        }
+
+        if (!this.allowNullValue() && testNullValue(sqlArgs)) {
+            if (!parsedSql.isHaveInjection()) {
+                return;
+            }
+        }
+
+        if (!this.allowMultipleValue() && sqlArgs.length > 1) {
+            throw new SQLException("rule " + this.name() + " multiple values not allowed.");
+        }
+
         String sql = sqlBuilder.getSqlString().toLowerCase();
         if (this.mustHave != null) {
             if (!sql.contains(this.mustHave)) {
@@ -87,12 +111,28 @@ public abstract class ConditionRule implements SqlBuildRule {
 
         for (String test : this.testPrefix) {
             if (sql.trim().endsWith(test)) {
-                parsedSql.buildQuery(data, context, sqlBuilder);
+                sqlBuilder.appendSql(sqlString, sqlArgs);
                 return;
             }
         }
 
         sqlBuilder.appendSql(this.append);
-        parsedSql.buildQuery(data, context, sqlBuilder);
+        sqlBuilder.appendSql(sqlString, sqlArgs);
+    }
+
+    @Override
+    public String toString() {
+        return this.name() + " [" + this.hashCode() + "]";
+    }
+
+    private static boolean testNullValue(Object[] args) {
+        if (args != null) {
+            for (Object arg : args) {
+                if (arg != null) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

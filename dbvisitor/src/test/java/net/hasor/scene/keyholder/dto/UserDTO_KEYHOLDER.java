@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.scene.keyholder.dto;
-import net.hasor.dbvisitor.keyholder.KeyHolder;
+import net.hasor.dbvisitor.mapping.KeyHolder;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.KeyTypeEnum;
 import net.hasor.dbvisitor.mapping.Table;

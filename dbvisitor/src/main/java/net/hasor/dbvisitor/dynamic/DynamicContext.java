@@ -23,6 +23,7 @@ import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -105,5 +106,13 @@ public class DynamicContext {
 
     public ClassLoader getClassLoader() {
         return Thread.currentThread().getContextClassLoader();
+    }
+
+    public Object createObject(Class<?> clazz) {
+        return ClassUtils.newInstance(clazz);
+    }
+
+    public Object createObject(Constructor<?> constructor, Object[] objects) throws ReflectiveOperationException {
+        return constructor.newInstance(objects);
     }
 }

@@ -13,32 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.keyholder;
-import net.hasor.dbvisitor.mapping.def.ColumnMapping;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+package net.hasor.dbvisitor.mapping;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * 主键生成器
+ * 使用数据库序列。用于明确序列的名字
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-12-01
  */
-public interface KeySeqHolder {
-    default boolean onBefore() {
-        return false;
-    }
-
-    default Object beforeApply(Connection conn, Object entity, ColumnMapping mapping) throws SQLException {
-        return null;
-    }
-
-    default boolean onAfter() {
-        return false;
-    }
-
-    default Object afterApply(ResultSet rs, Object entity, int argsIndex, ColumnMapping mapping) throws SQLException {
-        return null;
-    }
+@Target({ ElementType.FIELD, ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface KeySeq {
+    /** 序列名 */
+    String value() default "";
 }

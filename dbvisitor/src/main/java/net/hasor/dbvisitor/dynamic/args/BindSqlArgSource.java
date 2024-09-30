@@ -26,25 +26,25 @@ import java.util.function.Supplier;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2014-3-31
  */
-public class BasicSqlArgSource implements SqlArgSource, SqlArgDisposer {
-    private final Map<String, Object> values;
+public class BindSqlArgSource implements SqlArgSource, SqlArgDisposer {
+    protected final Map<String, Object> bindValues;
 
-    public BasicSqlArgSource() {
-        this.values = new HashMap<>();
+    public BindSqlArgSource() {
+        this.bindValues = new HashMap<>();
     }
 
-    public BasicSqlArgSource(Map<String, Object> paramMap) {
-        this.values = new HashMap<>(paramMap == null ? Collections.emptyMap() : paramMap);
+    public BindSqlArgSource(Map<String, Object> paramMap) {
+        this.bindValues = new HashMap<>(paramMap == null ? Collections.emptyMap() : paramMap);
     }
 
     @Override
     public boolean hasValue(final String paramName) {
-        return this.values.containsKey(paramName);
+        return this.bindValues.containsKey(paramName);
     }
 
     @Override
     public Object getValue(final String paramName) throws IllegalArgumentException {
-        Object object = this.values.get(paramName);
+        Object object = this.bindValues.get(paramName);
         if (object instanceof Supplier) {
             object = ((Supplier<?>) object).get();
         }
@@ -53,18 +53,18 @@ public class BasicSqlArgSource implements SqlArgSource, SqlArgDisposer {
 
     @Override
     public void putValue(String paramName, Object value) {
-        this.values.put(paramName, value);
+        this.bindValues.put(paramName, value);
     }
 
     @Override
     public String[] getParameterNames() {
-        return this.values.keySet().toArray(new String[0]);
+        return this.bindValues.keySet().toArray(new String[0]);
     }
 
     @Override
     public void cleanupParameters() {
-        for (String name : this.getParameterNames()) {
-            Object obj = this.getValue(name);
+        for (String name : this.bindValues.keySet()) {
+            Object obj = this.bindValues.get(name);
             if (obj instanceof SqlArgDisposer) {
                 ((SqlArgDisposer) obj).cleanupParameters();
             }

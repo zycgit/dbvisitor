@@ -691,11 +691,7 @@ public final class TypeHandlerRegistry {
 
         if (sqlMode.isOut()) {
             if (sqlMode == SqlMode.Cursor) {
-                if (StringUtils.equals(JdbcUtils.getDbType(cs), JdbcUtils.ORACLE)) {
-                    jdbcType = -10;// oracle driver oracle.jdbc.OracleTypes.CURSOR = -10
-                } else {
-                    jdbcType = Types.REF_CURSOR;
-                }
+                jdbcType = JdbcUtils.getCursorJdbcType(JdbcUtils.getDbType(cs));
                 cs.registerOutParameter(parameterPosition, jdbcType);
             } else {
                 if (jdbcType == null && javaType != null) {

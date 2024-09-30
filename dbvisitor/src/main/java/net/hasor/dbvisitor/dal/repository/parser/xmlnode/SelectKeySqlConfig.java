@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.repository.parser.xmlnode;
-import net.hasor.dbvisitor.dal.execute.MultipleResultsType;
 import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
@@ -34,7 +33,6 @@ public class SelectKeySqlConfig extends QuerySqlConfig {
 
     public SelectKeySqlConfig(SelectKeyDynamicSql target) {
         super(target);
-        this.setMultipleResultType(MultipleResultsType.LAST);
         this.setResultMap(null); // is always null, in dtd and xsd do not be config.
     }
 

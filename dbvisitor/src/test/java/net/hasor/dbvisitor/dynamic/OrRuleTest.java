@@ -116,10 +116,13 @@ public class OrRuleTest {
         assert sqlBuilder1.getSqlString().equals("");
         assert sqlBuilder1.getArgs().length == 0;
 
-        //
         SqlBuilder sqlBuilder2 = DynamicParsed.getParsedSql("@{or,abc}").buildQuery(ctx, new DynamicContext());
-        assert sqlBuilder2.getSqlString().equals("where abc");
+        assert sqlBuilder2.getSqlString().equals("");
         assert sqlBuilder2.getArgs().length == 0;
+
+        SqlBuilder sqlBuilder3 = DynamicParsed.getParsedSql("@{or,:name}").buildQuery(ctx, new DynamicContext());
+        assert sqlBuilder3.getSqlString().equals("where ?");
+        assert sqlBuilder3.getArgs().length == 1;
     }
 
     @Test

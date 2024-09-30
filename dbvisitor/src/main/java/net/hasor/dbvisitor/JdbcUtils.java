@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor;
+import net.hasor.cobble.StringUtils;
+
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 
 /**
  * 工具类来自于 druid-1.1.23.jar
@@ -166,5 +169,13 @@ public class JdbcUtils {
     public static String getDbType(Statement c) throws SQLException {
         DatabaseMetaData metaData = c.getConnection().getMetaData();
         return JdbcUtils.getDbType(metaData.getURL(), metaData.getDriverName());
+    }
+
+    public static Integer getCursorJdbcType(String dbType) {
+        if (StringUtils.equals(dbType, JdbcUtils.ORACLE)) {
+            return -10;// oracle driver oracle.jdbc.OracleTypes.CURSOR = -10
+        } else {
+            return Types.REF_CURSOR;
+        }
     }
 }

@@ -19,14 +19,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * 该接口用于创建 PreparedStatement 对象。
- * @author Thomas Risberg
- * @author Juergen Hoeller
+ * 该接口用于创建 {@link PreparedStatement} 对象。
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-10-9
  */
 @FunctionalInterface
 public interface PreparedStatementCreator {
-    /** 使用参数传进来的连接创建 PreparedStatement 对象。 */
     PreparedStatement createPreparedStatement(Connection con) throws SQLException;
 }

@@ -18,18 +18,14 @@ import java.sql.CallableStatement;
 import java.sql.SQLException;
 
 /**
- * 通用的回调接口。用来执行基于 {@link CallableStatement}上的任意数量任意类型数据库操作。
- * @author Thomas Risberg
- * @author Juergen Hoeller
+ * 处理存储过程的调用。
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-10-9
  */
 @FunctionalInterface
 public interface CallableStatementCallback<T> {
     /**
-     * 执行一个 JDBC 操作。开发者不需要关心数据库连接的状态和事务。
-     * @param cs 一个可用的 JDBC 数据库连接
-     * @return 返回操作执行的最终结果。
+     * 执行存储过程调用并返回所需的结果，开发者不需要关心数据库连接的状态和事务。
      */
     T doInCallableStatement(CallableStatement cs) throws SQLException;
 }

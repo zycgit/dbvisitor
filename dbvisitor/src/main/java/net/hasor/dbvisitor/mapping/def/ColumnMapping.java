@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.mapping.def;
 import net.hasor.cobble.function.Property;
-import net.hasor.dbvisitor.keyholder.KeySeqHolder;
+import net.hasor.dbvisitor.mapping.KeySeqHolder;
 import net.hasor.dbvisitor.types.TypeHandler;
 
 /**

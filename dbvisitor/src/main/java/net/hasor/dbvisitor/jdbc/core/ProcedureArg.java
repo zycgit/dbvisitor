@@ -13,32 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.jdbc.callback;
+package net.hasor.dbvisitor.jdbc.core;
+import net.hasor.dbvisitor.dynamic.rule.ArgRule;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.RowMapper;
 
 public class ProcedureArg {
-    public static final String                CFG_KEY_NAME      = "name";
-    public static final String                CFG_KEY_JAVA_TYPE = "javaType";
-    public static final String                CFG_KEY_MAPPER    = "mapper";
-    public static final String                CFG_KEY_HANDLER   = "handler";
-    public static final String                CFG_KEY_EXTRACTOR = "extractor";
+    public static final String                CFG_KEY_NAME        = ArgRule.CFG_KEY_NAME;
+    public static final String                CFG_KEY_JAVA_TYPE   = ArgRule.CFG_KEY_JAVA_TYPE;
+    public static final String                CFG_KEY_ROW_MAPPER  = ArgRule.CFG_KEY_ROW_MAPPER;
+    public static final String                CFG_KEY_ROW_HANDLER = ArgRule.CFG_KEY_ROW_HANDLER;
+    public static final String                CFG_KEY_EXTRACTOR   = ArgRule.CFG_KEY_EXTRACTOR;
     private             String                name;
     private             Class<?>              javaType;
     private             RowMapper<?>          rowMapper;
-    private             RowCallbackHandler    handler;
+    private             RowCallbackHandler    rowHandler;
     private             ResultSetExtractor<?> extractor;
 
     public ProcedureArg(String name) {
         this.name = name;
     }
 
-    public ProcedureArg(String name, Class<?> javaType, RowMapper<?> rowMapper, RowCallbackHandler handler, ResultSetExtractor<?> extractor) {
+    public ProcedureArg(String name, Class<?> javaType, RowMapper<?> rowMapper, RowCallbackHandler rowHandler, ResultSetExtractor<?> extractor) {
         this.name = name;
         this.javaType = javaType;
         this.rowMapper = rowMapper;
-        this.handler = handler;
+        this.rowHandler = rowHandler;
         this.extractor = extractor;
     }
 
@@ -66,12 +67,12 @@ public class ProcedureArg {
         this.rowMapper = rowMapper;
     }
 
-    public RowCallbackHandler getHandler() {
-        return this.handler;
+    public RowCallbackHandler getRowHandler() {
+        return this.rowHandler;
     }
 
-    public void setHandler(RowCallbackHandler handler) {
-        this.handler = handler;
+    public void setRowHandler(RowCallbackHandler rowHandler) {
+        this.rowHandler = rowHandler;
     }
 
     public ResultSetExtractor<?> getExtractor() {

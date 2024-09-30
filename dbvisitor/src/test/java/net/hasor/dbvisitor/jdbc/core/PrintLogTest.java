@@ -1,8 +1,7 @@
-package net.hasor.dbvisitor.printlog;
+package net.hasor.dbvisitor.jdbc.core;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +20,7 @@ import java.util.List;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ LoggerFactory.class })
 @PowerMockIgnore({ "javax.script.*", "javax.management.*", "org.w3c.dom.*", "org.apache.log4j.*", "org.xml.sax.*", "javax.xml.*" })
-public class JdbcTemplateLogTest {
+public class PrintLogTest {
     protected List<Object> printLog = new ArrayList<>();
 
     @Before

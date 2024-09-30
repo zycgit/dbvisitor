@@ -81,7 +81,6 @@ public abstract class AbstractStatementExecute<T> {
         executeInfo.resultType = Map.class.getName();
         executeInfo.fetchSize = 256;
         executeInfo.resultSetType = ResultSetType.DEFAULT;
-        executeInfo.multipleResultType = MultipleResultsType.LAST;
         executeInfo.pageDialect = dialect;
         executeInfo.pageResult = pageResult;
         executeInfo.data = data;
@@ -96,7 +95,7 @@ public abstract class AbstractStatementExecute<T> {
             executeInfo.resultType = ((QuerySqlConfig) dynamicSql).getResultType();
             executeInfo.fetchSize = ((QuerySqlConfig) dynamicSql).getFetchSize();
             executeInfo.resultSetType = ((QuerySqlConfig) dynamicSql).getResultSetType();
-            executeInfo.multipleResultType = ((QuerySqlConfig) dynamicSql).getMultipleResultType();
+            executeInfo.bindOut = ((QuerySqlConfig) dynamicSql).getBindOut();
         }
 
         if (dynamicSql instanceof InsertSqlConfig && !executeInfo.hasSelectKey) {
@@ -133,7 +132,6 @@ public abstract class AbstractStatementExecute<T> {
     }
 
     protected DalResultSetExtractor buildExtractor(ExecuteInfo executeInfo) {
-
         TableReader<?>[] tableReaders = null;
         if (StringUtils.isBlank(executeInfo.resultType) && StringUtils.isBlank(executeInfo.resultMap)) {
 
@@ -175,7 +173,6 @@ public abstract class AbstractStatementExecute<T> {
             throw new IllegalStateException("doesn't trigger here");
         }
 
-        MultipleProcessType multipleType = MultipleProcessType.valueOf(executeInfo.multipleResultType.getTypeName());
         return new DalResultSetExtractor(executeInfo.caseInsensitive, this.context, tableReaders);
     }
 
@@ -188,13 +185,13 @@ public abstract class AbstractStatementExecute<T> {
             return null;
         }
 
-        if (executeInfo.multipleResultType == MultipleResultsType.FIRST) {
-            return result.get(0);
-        } else if (executeInfo.multipleResultType == MultipleResultsType.LAST) {
-            return result.get(result.size() - 1);
-        } else {
-            return result;
-        }
+        //        if ( == MultipleResultsType.FIRST) {
+        //            return result.get(0);
+        //        } else if (executeInfo.multipleResultType == MultipleResultsType.LAST) {
+        return result.get(result.size() - 1);
+        //        } else {
+        //            return result;
+        //        }
     }
 
     protected List<SqlArg> toArgs(BoundSql boundSql) {
@@ -284,13 +281,13 @@ public abstract class AbstractStatementExecute<T> {
 
     protected static class ExecuteInfo {
         // query
-        public int                 timeout            = -1;
-        public int                 fetchSize          = 256;
-        public ResultSetType       resultSetType      = ResultSetType.FORWARD_ONLY;
+        public int                 timeout         = -1;
+        public int                 fetchSize       = 256;
+        public ResultSetType       resultSetType   = ResultSetType.FORWARD_ONLY;
         public String              resultType;
         public String              resultMap;
-        public boolean             caseInsensitive    = true;
-        public MultipleResultsType multipleResultType = MultipleResultsType.LAST;
+        public String[]            bindOut;
+        public boolean             caseInsensitive = true;
         // key
         public boolean             hasSelectKey;
         public boolean             useGeneratedKeys;

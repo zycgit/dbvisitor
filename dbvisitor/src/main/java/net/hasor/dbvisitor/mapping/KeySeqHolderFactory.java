@@ -13,20 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.keyholder;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package net.hasor.dbvisitor.mapping;
 
 /**
- * 使用数据库序列。用于明确序列的名字
+ * 主键生成器
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-12-01
  */
-@Target({ ElementType.FIELD, ElementType.METHOD })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface KeyHolder {
-    /** Holder */
-    Class<? extends KeySeqHolderFactory> value();
+public interface KeySeqHolderFactory {
+    KeySeqHolder createHolder(KeySeqHolderContext context);
 }

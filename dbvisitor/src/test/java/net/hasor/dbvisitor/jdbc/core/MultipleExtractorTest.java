@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.jdbc.core;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -48,7 +49,8 @@ public class MultipleExtractorTest extends AbstractDbTest {
             String multipleSql = ""//
                     + "select * from user_info where login_name = 'muhammad';\n"//
                     + "select * from user_info where login_name = 'belon';\n";
-            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql);
+            Map<String, Object> objectMap = jdbcTemplate.multipleExecute(multipleSql);
+            List<Object> objectList = new ArrayList<>(objectMap.values());
 
             assert objectList.size() == 2;
             assert objectList.get(0) instanceof ArrayList;
@@ -76,7 +78,8 @@ public class MultipleExtractorTest extends AbstractDbTest {
                     + "select * from user_info where login_name = ?;\n"//
                     + "select * from user_info where login_name = ?;\n";
             Object[] multipleSqlArgs = new Object[] { beanForData1().getLoginName(), beanForData2().getLoginName() };
-            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, multipleSqlArgs);
+            Map<String, Object> objectMap = jdbcTemplate.multipleExecute(multipleSql, multipleSqlArgs);
+            List<Object> objectList = new ArrayList<>(objectMap.values());
 
             assert objectList.size() == 2;
             assert objectList.get(0) instanceof ArrayList;
@@ -106,7 +109,8 @@ public class MultipleExtractorTest extends AbstractDbTest {
             Map<String, String> dataMap = CollectionUtils.asMap(//
                     "loginName1", beanForData1().getLoginName(),//
                     "loginName2", beanForData2().getLoginName());
-            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, dataMap);
+            Map<String, Object> objectMap = jdbcTemplate.multipleExecute(multipleSql, dataMap);
+            List<Object> objectList = new ArrayList<>(objectMap.values());
 
             assert objectList.size() == 2;
             assert objectList.get(0) instanceof ArrayList;
@@ -136,7 +140,8 @@ public class MultipleExtractorTest extends AbstractDbTest {
             Map<String, String> dataMap = CollectionUtils.asMap(//
                     "loginName1", beanForData1().getLoginName(),//
                     "loginName2", beanForData2().getLoginName());
-            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, dataMap);
+            Map<String, Object> objectMap = jdbcTemplate.multipleExecute(multipleSql, dataMap);
+            List<Object> objectList = new ArrayList<>(objectMap.values());
 
             assert objectList.size() == 2;
             assert objectList.get(0) instanceof ArrayList;
@@ -166,7 +171,8 @@ public class MultipleExtractorTest extends AbstractDbTest {
             Map<String, String> dataMap = CollectionUtils.asMap(//
                     "loginName1", beanForData1().getLoginName(),//
                     "loginName2", beanForData2().getLoginName());
-            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, dataMap);
+            Map<String, Object> objectMap = jdbcTemplate.multipleExecute(multipleSql, dataMap);
+            List<Object> objectList = new ArrayList<>(objectMap.values());
 
             assert objectList.size() == 2;
             assert objectList.get(0) instanceof ArrayList;
@@ -196,7 +202,8 @@ public class MultipleExtractorTest extends AbstractDbTest {
             Map<String, String> dataMap = CollectionUtils.asMap(//
                     "loginName1", beanForData1().getLoginName(),//
                     "loginName2", beanForData2().getLoginName());
-            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, dataMap);
+            Map<String, Object> objectMap = jdbcTemplate.multipleExecute(multipleSql, dataMap);
+            List<Object> objectList = new ArrayList<>(objectMap.values());
 
             assert objectList.size() == 2;
             assert objectList.get(0) instanceof ArrayList;
@@ -226,7 +233,8 @@ public class MultipleExtractorTest extends AbstractDbTest {
             Map<String, String> dataMap = CollectionUtils.asMap(//
                     "loginName1", beanForData1().getLoginName(),//
                     "loginName2", beanForData2().getLoginName());
-            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, dataMap);
+            Map<String, Object> objectMap = jdbcTemplate.multipleExecute(multipleSql, dataMap);
+            List<Object> objectList = new ArrayList<>(objectMap.values());
 
             assert objectList.size() == 2;
             assert objectList.get(0) instanceof ArrayList;
@@ -253,7 +261,8 @@ public class MultipleExtractorTest extends AbstractDbTest {
             String multipleSql = ""//
                     + "select * from user_info where login_name = ?;\n"//
                     + "select * from user_info where login_name = ?;\n";
-            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, new Object[] { "muhammad", "belon" });
+            Map<String, Object> objectMap = jdbcTemplate.multipleExecute(multipleSql, new Object[] { "muhammad", "belon" });
+            List<Object> objectList = new ArrayList<>(objectMap.values());
 
             assert objectList.size() == 2;
             assert objectList.get(0) instanceof ArrayList;
@@ -283,7 +292,8 @@ public class MultipleExtractorTest extends AbstractDbTest {
             String multipleSql = ""//
                     + "select * from user_info where login_name = :name1 ;\n"//
                     + "select * from user_info where login_name = :name2 ;\n";
-            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, data);
+            Map<String, Object> objectMap = jdbcTemplate.multipleExecute(multipleSql, data);
+            List<Object> objectList = new ArrayList<>(objectMap.values());
 
             assert objectList.size() == 2;
             assert objectList.get(0) instanceof ArrayList;
@@ -313,7 +323,8 @@ public class MultipleExtractorTest extends AbstractDbTest {
             String multipleSql = ""//
                     + "select * from user_info where login_name = :name1;\n"//
                     + "select * from user_info where login_name = :name2;\n";
-            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, new MapSqlArgSource(data));
+            Map<String, Object> objectMap = jdbcTemplate.multipleExecute(multipleSql, new MapSqlArgSource(data));
+            List<Object> objectList = new ArrayList<>(objectMap.values());
 
             assert objectList.size() == 2;
             assert objectList.get(0) instanceof ArrayList;
@@ -340,10 +351,11 @@ public class MultipleExtractorTest extends AbstractDbTest {
             String multipleSql = ""//
                     + "select * from user_info where login_name = ?;\n"//
                     + "select * from user_info where login_name = ?;\n";
-            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, ps -> {
+            Map<String, Object> objectMap = jdbcTemplate.multipleExecute(multipleSql, ps -> {
                 ps.setString(1, "muhammad");
                 ps.setString(2, "belon");
             });
+            List<Object> objectList = new ArrayList<>(objectMap.values());
 
             assert objectList.size() == 2;
             assert objectList.get(0) instanceof ArrayList;
@@ -354,6 +366,34 @@ public class MultipleExtractorTest extends AbstractDbTest {
             assert ((ArrayList<?>) objectList.get(1)).get(0) instanceof Map;
             assert ((Map) ((ArrayList<?>) objectList.get(0)).get(0)).get("user_uuid").equals(beanForData1().getUserUuid());
             assert ((Map) ((ArrayList<?>) objectList.get(1)).get(0)).get("user_uuid").equals(beanForData2().getUserUuid());
+        }
+    }
+
+    @Test
+    public void noargs_result_as_javaType_1() throws SQLException, IOException {
+        try (Connection conn = DsUtils.mysqlConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+            jdbcTemplate.execute("drop table if exists user_info;");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/user_info_for_mysql.sql");
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
+
+            String multipleSql = ""//
+                    + "select * from user_info where login_name = 'muhammad'; @{result,name=res1,javaType=net.hasor.test.dto.UserInfo2}\n"//
+                    + "select * from user_info where login_name = 'belon';    @{result,name=res2,javaType=net.hasor.test.dto.UserInfo2}\n";
+            Map<String, Object> objectMap = jdbcTemplate.multipleExecute(multipleSql);
+            List<Object> objectList = new ArrayList<>(objectMap.values());
+
+            assert objectList.size() == 2;
+            assert objectList.get(0) instanceof ArrayList;
+            assert objectList.get(1) instanceof ArrayList;
+            assert ((ArrayList<?>) objectList.get(0)).size() == 1;
+            assert ((ArrayList<?>) objectList.get(1)).size() == 1;
+            assert ((ArrayList<?>) objectList.get(0)).get(0) instanceof UserInfo2;
+            assert ((ArrayList<?>) objectList.get(1)).get(0) instanceof UserInfo2;
+            assert ((UserInfo2) ((ArrayList<?>) objectList.get(0)).get(0)).getUid().equals(beanForData1().getUserUuid());
+            assert ((UserInfo2) ((ArrayList<?>) objectList.get(1)).get(0)).getUid().equals(beanForData2().getUserUuid());
         }
     }
 }

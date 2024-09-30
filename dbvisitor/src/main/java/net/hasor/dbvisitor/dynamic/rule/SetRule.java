@@ -27,7 +27,17 @@ public class SetRule extends ConditionRule {
     }
 
     @Override
-    public String toString() {
-        return (this.usingIf ? "ifset [" : "set [") + this.hashCode() + "]";
+    protected String name() {
+        return this.usingIf ? "ifset" : "set";
+    }
+
+    @Override
+    protected boolean allowNullValue() {
+        return true;
+    }
+
+    @Override
+    protected boolean allowMultipleValue() {
+        return false;
     }
 }

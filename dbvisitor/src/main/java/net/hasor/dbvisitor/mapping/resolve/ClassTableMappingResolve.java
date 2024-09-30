@@ -19,8 +19,6 @@ import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.logging.Logger;
-import net.hasor.dbvisitor.keyholder.CreateContext;
-import net.hasor.dbvisitor.keyholder.KeySeqHolder;
 import net.hasor.dbvisitor.mapping.*;
 import net.hasor.dbvisitor.mapping.def.*;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -253,6 +251,6 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
             }
         }
 
-        return keyTypeEnum.createHolder(new CreateContext(this.global, typeRegistry, tableDef, colDef, envConfig));
+        return keyTypeEnum.createHolder(new KeySeqHolderContext(this.global, typeRegistry, tableDef, colDef, envConfig));
     }
 }

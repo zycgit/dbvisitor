@@ -19,14 +19,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * 该接口用于创建 CallableStatement 对象。
- * @author Thomas Risberg
- * @author Juergen Hoeller
+ * 该接口用于创建 {@link CallableStatement} 对象。
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-10-9
  */
 @FunctionalInterface
 public interface CallableStatementCreator {
-    /** 使用参数传进来的连接创建 CallableStatement 对象。 */
     CallableStatement createCallableStatement(Connection con) throws SQLException;
 }

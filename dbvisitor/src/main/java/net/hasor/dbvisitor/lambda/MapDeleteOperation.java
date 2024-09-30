@@ -24,8 +24,8 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-04-02
  */
-public interface MapDeleteOperation extends //
+public interface MapDeleteOperation extends  //
         CommonOperation<MapDeleteOperation>, //
-        DeleteExecute<MapDeleteOperation>, //
+        DeleteExecute<MapDeleteOperation>,   //
         QueryCompare<MapDeleteOperation, Map<String, Object>, String> {
 }

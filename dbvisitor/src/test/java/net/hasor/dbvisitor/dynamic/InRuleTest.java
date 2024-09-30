@@ -18,7 +18,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new char[] { 'a', 'b', 'c' });
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new DynamicContext());
-        assert sqlBuilder1.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder1.getSqlString().equals("(?, ?, ?)");
         assert sqlBuilder1.getArgs().length == 3;
         assert sqlBuilder1.getArgs()[0].equals('a');
         assert sqlBuilder1.getArgs()[1].equals('b');
@@ -26,7 +26,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx2 = CollectionUtils.asMap("array", new Character[] { 'a', 'b', 'c' });
         SqlBuilder sqlBuilder2 = segment.buildQuery(ctx2, new DynamicContext());
-        assert sqlBuilder2.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder2.getSqlString().equals("(?, ?, ?)");
         assert sqlBuilder2.getArgs().length == 3;
         assert sqlBuilder2.getArgs()[0].equals('a');
         assert sqlBuilder2.getArgs()[1].equals('b');
@@ -39,7 +39,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new char[] { 'a', 'b', 'c' }, "test", true);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new DynamicContext());
-        assert sqlBuilder1.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder1.getSqlString().equals("(?, ?, ?)");
         assert sqlBuilder1.getArgs().length == 3;
         assert sqlBuilder1.getArgs()[0].equals('a');
         assert sqlBuilder1.getArgs()[1].equals('b');
@@ -47,7 +47,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx2 = CollectionUtils.asMap("array", new Character[] { 'a', 'b', 'c' }, "test", true);
         SqlBuilder sqlBuilder2 = segment.buildQuery(ctx2, new DynamicContext());
-        assert sqlBuilder2.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder2.getSqlString().equals("(?, ?, ?)");
         assert sqlBuilder2.getArgs().length == 3;
         assert sqlBuilder2.getArgs()[0].equals('a');
         assert sqlBuilder2.getArgs()[1].equals('b');
@@ -75,7 +75,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new short[] { (short) 1, (short) 2, (short) 3 });
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new DynamicContext());
-        assert sqlBuilder1.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder1.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder1.getArgs().length == 3;
         assert sqlBuilder1.getArgs()[0].equals((short) 1);
         assert sqlBuilder1.getArgs()[1].equals((short) 2);
@@ -83,7 +83,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx2 = CollectionUtils.asMap("array", new Short[] { (short) 1, (short) 2, (short) 3 });
         SqlBuilder sqlBuilder2 = segment.buildQuery(ctx2, new DynamicContext());
-        assert sqlBuilder2.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder2.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder2.getArgs().length == 3;
         assert sqlBuilder2.getArgs()[0].equals((short) 1);
         assert sqlBuilder2.getArgs()[1].equals((short) 2);
@@ -96,7 +96,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new short[] { (short) 1, (short) 2, (short) 3 }, "test", true);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new DynamicContext());
-        assert sqlBuilder1.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder1.getSqlString().equals("(?, ?, ?)");
         assert sqlBuilder1.getArgs().length == 3;
         assert sqlBuilder1.getArgs()[0].equals((short) 1);
         assert sqlBuilder1.getArgs()[1].equals((short) 2);
@@ -104,7 +104,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx2 = CollectionUtils.asMap("array", new Short[] { (short) 1, (short) 2, (short) 3 }, "test", true);
         SqlBuilder sqlBuilder2 = segment.buildQuery(ctx2, new DynamicContext());
-        assert sqlBuilder2.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder2.getSqlString().equals("(?, ?, ?)");
         assert sqlBuilder2.getArgs().length == 3;
         assert sqlBuilder2.getArgs()[0].equals((short) 1);
         assert sqlBuilder2.getArgs()[1].equals((short) 2);
@@ -132,7 +132,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new int[] { 1, 2, 3 });
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new DynamicContext());
-        assert sqlBuilder1.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder1.getSqlString().equals(" (?, ?, ?) ");
         assert sqlBuilder1.getArgs().length == 3;
         assert sqlBuilder1.getArgs()[0].equals(1);
         assert sqlBuilder1.getArgs()[1].equals(2);
@@ -140,7 +140,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx2 = CollectionUtils.asMap("array", new Integer[] { 1, 2, 3 });
         SqlBuilder sqlBuilder2 = segment.buildQuery(ctx2, new DynamicContext());
-        assert sqlBuilder2.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder2.getSqlString().equals(" (?, ?, ?) ");
         assert sqlBuilder2.getArgs().length == 3;
         assert sqlBuilder2.getArgs()[0].equals(1);
         assert sqlBuilder2.getArgs()[1].equals(2);
@@ -153,7 +153,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new int[] { 1, 2, 3 }, "test", true);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new DynamicContext());
-        assert sqlBuilder1.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder1.getSqlString().equals(" (?, ?, ?) ");
         assert sqlBuilder1.getArgs().length == 3;
         assert sqlBuilder1.getArgs()[0].equals(1);
         assert sqlBuilder1.getArgs()[1].equals(2);
@@ -161,7 +161,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx2 = CollectionUtils.asMap("array", new Integer[] { 1, 2, 3 }, "test", true);
         SqlBuilder sqlBuilder2 = segment.buildQuery(ctx2, new DynamicContext());
-        assert sqlBuilder2.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder2.getSqlString().equals(" (?, ?, ?) ");
         assert sqlBuilder2.getArgs().length == 3;
         assert sqlBuilder2.getArgs()[0].equals(1);
         assert sqlBuilder2.getArgs()[1].equals(2);
@@ -189,7 +189,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new long[] { 1, 2, 3 });
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new DynamicContext());
-        assert sqlBuilder1.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder1.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder1.getArgs().length == 3;
         assert sqlBuilder1.getArgs()[0].equals(1L);
         assert sqlBuilder1.getArgs()[1].equals(2L);
@@ -197,7 +197,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx2 = CollectionUtils.asMap("array", new Long[] { 1L, 2L, 3L });
         SqlBuilder sqlBuilder2 = segment.buildQuery(ctx2, new DynamicContext());
-        assert sqlBuilder2.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder2.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder2.getArgs().length == 3;
         assert sqlBuilder2.getArgs()[0].equals(1L);
         assert sqlBuilder2.getArgs()[1].equals(2L);
@@ -210,7 +210,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new long[] { 1, 2, 3 }, "test", true);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new DynamicContext());
-        assert sqlBuilder1.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder1.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder1.getArgs().length == 3;
         assert sqlBuilder1.getArgs()[0].equals(1L);
         assert sqlBuilder1.getArgs()[1].equals(2L);
@@ -218,7 +218,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx2 = CollectionUtils.asMap("array", new Long[] { 1L, 2L, 3L }, "test", true);
         SqlBuilder sqlBuilder2 = segment.buildQuery(ctx2, new DynamicContext());
-        assert sqlBuilder2.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder2.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder2.getArgs().length == 3;
         assert sqlBuilder2.getArgs()[0].equals(1L);
         assert sqlBuilder2.getArgs()[1].equals(2L);
@@ -246,7 +246,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new float[] { 1f, 2f, 3f });
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new DynamicContext());
-        assert sqlBuilder1.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder1.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder1.getArgs().length == 3;
         assert sqlBuilder1.getArgs()[0].equals(1f);
         assert sqlBuilder1.getArgs()[1].equals(2f);
@@ -254,7 +254,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx2 = CollectionUtils.asMap("array", new Float[] { 1f, 2f, 3f });
         SqlBuilder sqlBuilder2 = segment.buildQuery(ctx2, new DynamicContext());
-        assert sqlBuilder2.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder2.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder2.getArgs().length == 3;
         assert sqlBuilder2.getArgs()[0].equals(1f);
         assert sqlBuilder2.getArgs()[1].equals(2f);
@@ -267,7 +267,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new float[] { 1f, 2f, 3f }, "test", true);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new DynamicContext());
-        assert sqlBuilder1.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder1.getSqlString().equals("(?, ?, ?)");
         assert sqlBuilder1.getArgs().length == 3;
         assert sqlBuilder1.getArgs()[0].equals(1f);
         assert sqlBuilder1.getArgs()[1].equals(2f);
@@ -275,7 +275,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx2 = CollectionUtils.asMap("array", new Float[] { 1f, 2f, 3f }, "test", true);
         SqlBuilder sqlBuilder2 = segment.buildQuery(ctx2, new DynamicContext());
-        assert sqlBuilder2.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder2.getSqlString().equals("(?, ?, ?)");
         assert sqlBuilder2.getArgs().length == 3;
         assert sqlBuilder2.getArgs()[0].equals(1f);
         assert sqlBuilder2.getArgs()[1].equals(2f);
@@ -303,7 +303,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new double[] { 1d, 2d, 3d });
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new DynamicContext());
-        assert sqlBuilder1.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder1.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder1.getArgs().length == 3;
         assert sqlBuilder1.getArgs()[0].equals(1d);
         assert sqlBuilder1.getArgs()[1].equals(2d);
@@ -311,7 +311,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx2 = CollectionUtils.asMap("array", new Double[] { 1d, 2d, 3d });
         SqlBuilder sqlBuilder2 = segment.buildQuery(ctx2, new DynamicContext());
-        assert sqlBuilder2.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder2.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder2.getArgs().length == 3;
         assert sqlBuilder2.getArgs()[0].equals(1d);
         assert sqlBuilder2.getArgs()[1].equals(2d);
@@ -324,7 +324,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new double[] { 1d, 2d, 3d }, "test", true);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new DynamicContext());
-        assert sqlBuilder1.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder1.getSqlString().equals("(?, ?, ?)");
         assert sqlBuilder1.getArgs().length == 3;
         assert sqlBuilder1.getArgs()[0].equals(1d);
         assert sqlBuilder1.getArgs()[1].equals(2d);
@@ -332,7 +332,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx2 = CollectionUtils.asMap("array", new Double[] { 1d, 2d, 3d }, "test", true);
         SqlBuilder sqlBuilder2 = segment.buildQuery(ctx2, new DynamicContext());
-        assert sqlBuilder2.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder2.getSqlString().equals("(?, ?, ?)");
         assert sqlBuilder2.getArgs().length == 3;
         assert sqlBuilder2.getArgs()[0].equals(1d);
         assert sqlBuilder2.getArgs()[1].equals(2d);
@@ -360,7 +360,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new boolean[] { true, false, true });
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new DynamicContext());
-        assert sqlBuilder1.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder1.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder1.getArgs().length == 3;
         assert sqlBuilder1.getArgs()[0].equals(true);
         assert sqlBuilder1.getArgs()[1].equals(false);
@@ -368,7 +368,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx2 = CollectionUtils.asMap("array", new Boolean[] { true, false, true });
         SqlBuilder sqlBuilder2 = segment.buildQuery(ctx2, new DynamicContext());
-        assert sqlBuilder2.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder2.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder2.getArgs().length == 3;
         assert sqlBuilder2.getArgs()[0].equals(true);
         assert sqlBuilder2.getArgs()[1].equals(false);
@@ -381,7 +381,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new boolean[] { true, false, true }, "test", true);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new DynamicContext());
-        assert sqlBuilder1.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder1.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder1.getArgs().length == 3;
         assert sqlBuilder1.getArgs()[0].equals(true);
         assert sqlBuilder1.getArgs()[1].equals(false);
@@ -389,7 +389,7 @@ public class InRuleTest {
 
         Map<String, Object> ctx2 = CollectionUtils.asMap("array", new Boolean[] { true, false, true }, "test", true);
         SqlBuilder sqlBuilder2 = segment.buildQuery(ctx2, new DynamicContext());
-        assert sqlBuilder2.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder2.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder2.getArgs().length == 3;
         assert sqlBuilder2.getArgs()[0].equals(true);
         assert sqlBuilder2.getArgs()[1].equals(false);
@@ -417,7 +417,7 @@ public class InRuleTest {
         Map<String, Object> ctx = CollectionUtils.asMap("array", new Object[] { "1", "2", "3" });
 
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, new DynamicContext());
-        assert sqlBuilder.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder.getArgs().length == 3;
         assert sqlBuilder.getArgs()[0].equals("1");
         assert sqlBuilder.getArgs()[1].equals("2");
@@ -430,7 +430,7 @@ public class InRuleTest {
         Map<String, Object> ctx = CollectionUtils.asMap("array", new Object[] { "1", "2", "3" }, "test", true);
 
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, new DynamicContext());
-        assert sqlBuilder.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder.getArgs().length == 3;
         assert sqlBuilder.getArgs()[0].equals("1");
         assert sqlBuilder.getArgs()[1].equals("2");
@@ -453,7 +453,7 @@ public class InRuleTest {
         Map<String, Object> ctx = CollectionUtils.asMap("array", Arrays.asList("1", "2", "3"));
 
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, new DynamicContext());
-        assert sqlBuilder.getSqlString().equals("in (?, ?, ?)");
+        assert sqlBuilder.getSqlString().equals(" (?, ?, ?)");
         assert sqlBuilder.getArgs().length == 3;
         assert sqlBuilder.getArgs()[0].equals("1");
         assert sqlBuilder.getArgs()[1].equals("2");
@@ -466,7 +466,7 @@ public class InRuleTest {
         Map<String, Object> ctx = Collections.emptyMap();
 
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, new DynamicContext());
-        assert sqlBuilder.getSqlString().equals("in ()");
+        assert sqlBuilder.getSqlString().equals("");
         assert sqlBuilder.getArgs().length == 0;
     }
 
@@ -476,18 +476,18 @@ public class InRuleTest {
         Map<String, Object> ctx = CollectionUtils.asMap("array", Collections.emptyList());
 
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, new DynamicContext());
-        assert sqlBuilder.getSqlString().equals("in ()");
+        assert sqlBuilder.getSqlString().equals("");
         assert sqlBuilder.getArgs().length == 0;
     }
 
     @Test
     public void ruleTest_3() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{in, :array}");
+        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{in,id in :array}");
         SqlArg arg = new SqlArg(Arrays.asList("1", "2"), 123, new MyTypeHandler());
         Map<String, Object> ctx = CollectionUtils.asMap("array", arg);
 
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, new DynamicContext());
-        assert sqlBuilder.getSqlString().equals("in (?, ?)");
+        assert sqlBuilder.getSqlString().equals("id in (?, ?)");
         assert sqlBuilder.getArgs().length == 2;
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getValue().equals("1");
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getJdbcType() == 123;

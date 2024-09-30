@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.repository;
-import net.hasor.dbvisitor.dal.execute.MultipleResultsType;
-
 import java.lang.annotation.*;
 
 /**
@@ -43,5 +41,5 @@ public @interface Query {
 
     ResultSetType resultSetType() default ResultSetType.DEFAULT;
 
-    MultipleResultsType multipleResult() default MultipleResultsType.LAST;
+    String[] bindOut() default {};
 }
