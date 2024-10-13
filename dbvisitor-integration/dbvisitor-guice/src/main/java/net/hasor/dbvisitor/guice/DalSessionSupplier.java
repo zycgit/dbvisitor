@@ -19,7 +19,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Provider;
 import net.hasor.cobble.ExceptionUtils;
-import net.hasor.dbvisitor.dal.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.dal.mapper.Mapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;

@@ -30,12 +30,12 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 
-/***
+/**
  *
  * @version : 2014-1-13
  * @author 赵永春 (zyc@hasor.net)
  */
-public class BaseClassTest extends AbstractDbTest {
+public class MockPropertyTest extends AbstractDbTest {
     @Test
     public void jdbcConnectionTest_1() {
         JdbcConnection jdbcTemplate = new JdbcConnection();

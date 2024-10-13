@@ -1,6 +1,8 @@
 package net.hasor.dbvisitor.dynamic;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
+import net.hasor.dbvisitor.dynamic.segment.SqlModifier;
+import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.handler.BigDecimalTypeHandler;
 import org.junit.Test;
 
@@ -22,7 +24,7 @@ public class DynamicTest {
         assert sqlBuilder.getArgs().length == argCnt;
 
         for (int i = 0; i < sqlBuilder.getArgs().length; i++) {
-            assert ((SqlArg) sqlBuilder.getArgs()[i]).getExpr().equals("arg" + i);
+            assert ((SqlArg) sqlBuilder.getArgs()[i]).getName().equals("arg" + i);
         }
     }
 
@@ -84,7 +86,7 @@ public class DynamicTest {
         assert sqlBuilder.getArgs().length == argNamed.size();
 
         for (int i = 0; i < sqlBuilder.getArgs().length; i++) {
-            assert ((SqlArg) sqlBuilder.getArgs()[i]).getExpr().equals(argNamed.get(i));
+            assert ((SqlArg) sqlBuilder.getArgs()[i]).getName().equals(argNamed.get(i));
         }
     }
 
@@ -145,7 +147,7 @@ public class DynamicTest {
         assert segment.getNamedList().get(0).getExpr().equals("id.ccc['aaa'][0]");
         assert segment.getOriSqlString().equals(sql);
         assert sqlBuilder.getSqlString().equals("a = ?");
-        assert ((SqlArg) sqlBuilder.getArgs()[0]).getExpr().equals("id.ccc['aaa'][0]");
+        assert ((SqlArg) sqlBuilder.getArgs()[0]).getName().equals("id.ccc['aaa'][0]");
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getValue().equals("abc");
     }
 
@@ -204,7 +206,7 @@ public class DynamicTest {
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, context);
         assert segment.getOriSqlString().equals(sql);
         assert sqlBuilder.getSqlString().equals("a = ?");
-        assert ((SqlArg) sqlBuilder.getArgs()[0]).getExpr().equals("id.ccc['aaa'][0]");
+        assert ((SqlArg) sqlBuilder.getArgs()[0]).getName().equals("id.ccc['aaa'][0]");
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getValue().equals("abc");
     }
 
@@ -236,7 +238,7 @@ public class DynamicTest {
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, context);
         assert segment.getOriSqlString().equals(sql);
         assert sqlBuilder.getSqlString().equals("abc = ?");
-        assert ((SqlArg) sqlBuilder.getArgs()[0]).getExpr().equals("eventType");
+        assert ((SqlArg) sqlBuilder.getArgs()[0]).getName().equals("eventType");
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getSqlMode() == SqlMode.InOut;
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getJdbcType().equals(JDBCType.INTEGER.getVendorTypeNumber());
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getJavaType() == Integer.class;
@@ -252,7 +254,7 @@ public class DynamicTest {
         assert sqlBuilder.getArgs().length == ruleExpr.size();
 
         for (int i = 0; i < sqlBuilder.getArgs().length; i++) {
-            assert ((SqlArg) sqlBuilder.getArgs()[i]).getExpr().equals(ruleExpr.get(i));
+            assert ((SqlArg) sqlBuilder.getArgs()[i]).getName().equals(ruleExpr.get(i));
         }
 
         segment.clone();
@@ -321,7 +323,7 @@ public class DynamicTest {
     }
 
     @Test
-    public void tokenTest_01() throws SQLException {
+    public void tokenTest_01() {
         DefaultSqlSegment arg1 = DynamicParsed.getParsedSql("select from user where id = ?");
         DefaultSqlSegment arg2 = DynamicParsed.getParsedSql("select from user where id = :id");
         DefaultSqlSegment arg3 = DynamicParsed.getParsedSql("select from user where id = :id.ccc['aaa'][0].name()");
@@ -331,6 +333,30 @@ public class DynamicTest {
         DefaultSqlSegment arg7 = DynamicParsed.getParsedSql("select from user where id = #{abc}");
         DefaultSqlSegment arg8 = DynamicParsed.getParsedSql("select from user where id = ${abc}");
         DefaultSqlSegment arg9 = DynamicParsed.getParsedSql("select from user where id = @{abc,true, :name}");
+
+        assert SqlModifier.POSITION == arg1.getSqlModifier();
+        assert SqlModifier.NAMED == arg2.getSqlModifier();
+        assert SqlModifier.NAMED == arg3.getSqlModifier();
+        assert SqlModifier.NAMED == arg4.getSqlModifier();
+        assert SqlModifier.NAMED == arg5.getSqlModifier();
+        assert SqlModifier.RULE == arg6.getSqlModifier();
+        assert SqlModifier.NAMED == arg7.getSqlModifier();
+        assert SqlModifier.INJECTION == arg8.getSqlModifier();
+        assert SqlModifier.RULE == arg9.getSqlModifier();
     }
 
+    @Test
+    public void tokenTest_02() {
+        DefaultSqlSegment arg1 = DynamicParsed.getParsedSql("select @{text,*} from user where id = ? and name :name order by ${order}");
+        int sqlModifier = arg1.getSqlModifier();
+
+        assert SqlModifier.POSITION != sqlModifier;
+        assert SqlModifier.NAMED != sqlModifier;
+        assert SqlModifier.RULE != sqlModifier;
+        assert SqlModifier.INJECTION != sqlModifier;
+        assert SqlModifier.hasPosition(sqlModifier);
+        assert SqlModifier.hasNamed(sqlModifier);
+        assert SqlModifier.hasRule(sqlModifier);
+        assert SqlModifier.hasInjection(sqlModifier);
+    }
 }

@@ -2,7 +2,7 @@ package net.hasor.dbvisitor.dynamic;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.rule.MD5Rule;
 import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
-import net.hasor.dbvisitor.types.MappedArg;
+import net.hasor.dbvisitor.types.SqlArg;
 import org.junit.Test;
 
 import java.sql.SQLException;
@@ -17,14 +17,14 @@ public class MD5RuleTest {
         SqlBuilder sqlBuilder1 = DynamicParsed.getParsedSql("@{md5,:data}").buildQuery(ctx1, new DynamicContext());
         assert sqlBuilder1.getSqlString().equals("?");
         assert sqlBuilder1.getArgs().length == 1;
-        assert ((MappedArg) sqlBuilder1.getArgs()[0]).getValue().equals("6cd3f2864a1e06fa55cf1d7657196a89");
+        assert ((SqlArg) sqlBuilder1.getArgs()[0]).getValue().equals("6cd3f2864a1e06fa55cf1d7657196a89");
 
         // // "id =" will be ignored.
         Map<String, Object> ctx2 = CollectionUtils.asMap("data", "abc");
         SqlBuilder sqlBuilder2 = DynamicParsed.getParsedSql("@{md5, id = :data}").buildQuery(ctx2, new DynamicContext());
         assert sqlBuilder2.getSqlString().equals("?");
         assert sqlBuilder2.getArgs().length == 1;
-        assert ((MappedArg) sqlBuilder2.getArgs()[0]).getValue().equals("6cd3f2864a1e06fa55cf1d7657196a89");
+        assert ((SqlArg) sqlBuilder2.getArgs()[0]).getValue().equals("6cd3f2864a1e06fa55cf1d7657196a89");
     }
 
     @Test
@@ -33,7 +33,7 @@ public class MD5RuleTest {
         SqlBuilder sqlBuilder1 = DynamicParsed.getParsedSql("@{ifmd5,test,:data}").buildQuery(ctx1, new DynamicContext());
         assert sqlBuilder1.getSqlString().equals("?");
         assert sqlBuilder1.getArgs().length == 1;
-        assert ((MappedArg) sqlBuilder1.getArgs()[0]).getValue().equals("6cd3f2864a1e06fa55cf1d7657196a89");
+        assert ((SqlArg) sqlBuilder1.getArgs()[0]).getValue().equals("6cd3f2864a1e06fa55cf1d7657196a89");
 
         //
         Map<String, Object> ctx2 = CollectionUtils.asMap("data", "abc", "test", false);

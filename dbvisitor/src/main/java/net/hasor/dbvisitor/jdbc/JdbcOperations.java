@@ -29,24 +29,24 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  */
 public interface JdbcOperations {
-    /**通过回调函数执行一个JDBC数据访问操作 */
+    /** 通过回调函数，执行一个JDBC数据访问操作 */
     <T> T execute(ConnectionCallback<T> action) throws SQLException;
 
-    /**执行一个动态 SQL 语句。SQL 语句会被编译成 StatementCallback 类型通过回调接口 StatementCallback 执行 */
+    /** 通过回调函数，执行一个JDBC数据访问操作 */
     <T> T execute(StatementCallback<T> action) throws SQLException;
 
-    /**执行一个 静态SQL语句，通常是一个 DDL 语句 */
+    /**执行一个 静态 SQL 语句，通常是一个 DDL 语句 */
     void execute(String sql) throws SQLException;
 
     // ------------------------------------------------------------------------ executeCallback(PreparedStatementCreator)
 
-    /**执行一个动态查询 SQL 语句，返回的结果集使用 ResultSetExtractor 处理 */
+    /** 通过回调函数，执行一个JDBC数据访问操作，返回的结果集使用 {@link ResultSetExtractor} 处理 */
     <T> T executeCreator(PreparedStatementCreator psc, ResultSetExtractor<T> rse) throws SQLException;
 
-    /**执行一个动态查询 SQL 语句，返回的结果集使用 RowCallbackHandler 处理 */
+    /** 通过回调函数，执行一个JDBC数据访问操作，返回的结果集使用 {@link RowCallbackHandler} 处理 */
     void executeCreator(PreparedStatementCreator psc, RowCallbackHandler rch) throws SQLException;
 
-    /**执行一个动态查询 SQL 语句，返回的结果集使用 RowMapper 处理 */
+    /** 通过回调函数，执行一个JDBC数据访问操作，返回的结果集使用 {@link RowMapper} 处理 */
     <T> List<T> executeCreator(PreparedStatementCreator psc, RowMapper<T> rowMapper) throws SQLException;
 
     // ------------------------------------------------------------------------ executeCallback(CallableStatementCreator)

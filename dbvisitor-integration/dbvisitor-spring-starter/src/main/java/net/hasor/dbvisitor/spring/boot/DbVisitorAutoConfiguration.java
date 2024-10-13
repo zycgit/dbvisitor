@@ -16,12 +16,12 @@
 package net.hasor.dbvisitor.spring.boot;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.dal.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.dal.mapper.Mapper;
 import net.hasor.dbvisitor.dal.repository.DalMapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
+import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.spring.mapper.MapperFileConfigurer;

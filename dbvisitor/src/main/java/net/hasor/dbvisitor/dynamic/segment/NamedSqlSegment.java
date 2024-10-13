@@ -25,7 +25,6 @@ import java.util.Map;
 public class NamedSqlSegment implements SqlSegment {
     private final String              exprString;
     private final Map<String, String> config;
-    private       boolean             fromArg;
 
     public NamedSqlSegment(String exprString, Map<String, String> config) {
         this.exprString = exprString;

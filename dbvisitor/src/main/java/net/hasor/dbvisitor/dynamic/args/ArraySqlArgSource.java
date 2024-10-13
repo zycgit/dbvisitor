@@ -43,6 +43,8 @@ public class ArraySqlArgSource extends BasicSqlArgSource {
                 return ArrayUtils.toObject((char[]) value);
             } else if (componentType == Character.class) {
                 return (Character[]) value;
+            } else if (componentType == byte.class) {
+                return ArrayUtils.toObject((byte[]) value);
             } else if (componentType == short.class) {
                 return ArrayUtils.toObject((short[]) value);
             } else if (componentType == Short.class) {

@@ -82,11 +82,18 @@ public abstract class AbstractRowMapper<T> implements RowMapper<T> {
                 /**/
             }
         }
-        TypeHandler<?> typeHandler = this.handlerRegistry.getTypeHandler(columnTypeClass, jdbcType);
-        if (typeHandler == null) {
-            String message = "jdbcType=" + jdbcType + " ,columnTypeClass=" + columnTypeClass;
-            throw new SQLException("no typeHandler is matched to any available " + message);
+
+        if (this.handlerRegistry.hasTypeHandler(columnTypeClass, jdbcType)) {
+            return this.handlerRegistry.getTypeHandler(columnTypeClass, jdbcType);
+        } else if (this.handlerRegistry.hasTypeHandler(columnTypeClass)) {
+            return this.handlerRegistry.getTypeHandler(columnTypeClass);
+        } else {
+            TypeHandler<?> typeHandler = this.handlerRegistry.getTypeHandler(columnTypeClass, jdbcType);
+            if (typeHandler == null) {
+                String message = "jdbcType=" + jdbcType + " ,columnTypeClass=" + columnTypeClass;
+                throw new SQLException("no typeHandler is matched to any available " + message);
+            }
+            return typeHandler;
         }
-        return typeHandler;
     }
 }

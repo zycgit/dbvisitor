@@ -38,7 +38,7 @@ import static net.hasor.test.utils.DsUtils.MYSQL_SCHEMA_NAME;
  * @version : 2014-1-13
  * @author 赵永春 (zyc@hasor.net)
  */
-public class LoadTest extends AbstractDbTest {
+public class LoadSqlTest extends AbstractDbTest {
     public boolean hasTable(JdbcTemplate jdbcTemplate, String catalog, String schemaName, String table) throws SQLException {
         return jdbcTemplate.execute((ConnectionCallback<Boolean>) con -> {
             DatabaseMetaData metaData = con.getMetaData();

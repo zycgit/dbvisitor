@@ -37,9 +37,9 @@ public class SqlArg {
         this.jdbcType = jdbcType;
     }
 
-    public SqlArg(String expr, Object value, SqlMode sqlMode, Integer jdbcType, Class<?> javaType, TypeHandler<?> typeHandler) {
+    public SqlArg(String name, Object value, SqlMode sqlMode, Integer jdbcType, Class<?> javaType, TypeHandler<?> typeHandler) {
         this(value, jdbcType, typeHandler);
-        this.name = expr;
+        this.name = name;
         this.sqlMode = sqlMode;
         this.javaType = javaType;
     }

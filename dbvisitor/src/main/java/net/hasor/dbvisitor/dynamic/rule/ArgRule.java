@@ -26,12 +26,10 @@ import net.hasor.dbvisitor.dynamic.SqlMode;
 import net.hasor.dbvisitor.internal.OgnlUtils;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.lang.reflect.Constructor;
 import java.sql.JDBCType;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.Map;
 
 /**
@@ -139,75 +137,44 @@ public class ArgRule implements SqlBuildRule {
             return;
         }
 
-        TypeHandler<?> typeHandler = createTypeHandler(context, javaType, jdbcType, handlerType, argValue);
-        if (sqlMode == null) {
-            sqlMode = SqlMode.In;
-        }
-        if (javaType == null && argValue != null) {
-            javaType = argValue.getClass();
-        }
-        if (argValue == null && jdbcType == null && javaType == null) {
-            jdbcType = Types.VARCHAR;// fix all parameters unknown.
-        }
-        if (jdbcType == null) {
-            jdbcType = TypeHandlerRegistry.toSqlType(javaType);
-        }
-
+        TypeHandler<?> typeHandler = createTypeHandler(context, javaType, handlerType, argValue);
         sqlBuilder.appendSql("?", new SqlArg(expr, argValue, sqlMode, jdbcType, javaType, typeHandler));
     }
 
-    private TypeHandler<?> createTypeHandler(DynamicContext context, Class<?> javaType, Integer jdbcType, String handlerType, Object argValue) throws SQLException {
-        TypeHandler<?> typeHandler = null;
-        if (StringUtils.isNotBlank(handlerType)) {
-            // try load from cache
-            typeHandler = context.getTypeRegistry().getHandlerByHandlerType(handlerType);
-            if (typeHandler != null) {
-                return typeHandler;
-            }
-
-            // argClass and handlerClass
-            Class<?> javaClass;
-            Class<?> handlerClass;
-            try {
-                javaClass = javaType != null ? javaType : (argValue != null ? argValue.getClass() : null);
-                handlerClass = context.loadClass(handlerType);
-            } catch (ClassNotFoundException e) {
-                throw new SQLException("handlerType '" + handlerType + "' ClassNotFoundException.");
-            }
-
-            if (javaClass == null) {
-                return context.getTypeRegistry().createTypeHandler(handlerClass, () -> ClassUtils.newInstance(handlerClass));
-            } else {
-                return context.getTypeRegistry().createTypeHandler(handlerClass, () -> {
-                    try {
-                        Constructor<?> constructor = handlerClass.getConstructor(Class.class);
-                        return (TypeHandler<?>) constructor.newInstance(javaType);
-                    } catch (NoSuchMethodException e) {
-                        return ClassUtils.newInstance(handlerClass);
-                    } catch (ReflectiveOperationException e) {
-                        throw ExceptionUtils.toRuntime(e);
-                    }
-                });
-
-            }
-        } else {
-            if (javaType != null && jdbcType != null) {
-                typeHandler = context.findTypeHandler(javaType, jdbcType);
-            } else if (javaType != null) {
-                typeHandler = context.findTypeHandler(javaType);
-            } else if (jdbcType != null) {
-                typeHandler = context.findTypeHandler(jdbcType);
-            }
-
-            if (argValue != null) {
-                typeHandler = context.findTypeHandler(argValue.getClass());
-            }
+    private TypeHandler<?> createTypeHandler(DynamicContext context, Class<?> javaType, String handlerType, Object argValue) throws SQLException {
+        if (StringUtils.isBlank(handlerType)) {
+            return null;
         }
 
-        if (typeHandler == null) {
-            return context.getTypeRegistry().getDefaultTypeHandler();
-        } else {
+        // try load from cache
+        TypeHandler<?> typeHandler = context.getTypeRegistry().getHandlerByHandlerType(handlerType);
+        if (typeHandler != null) {
             return typeHandler;
+        }
+
+        // argClass and handlerClass
+        Class<?> javaClass;
+        Class<?> handlerClass;
+        try {
+            javaClass = javaType != null ? javaType : (argValue != null ? argValue.getClass() : null);
+            handlerClass = context.loadClass(handlerType);
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("handlerType '" + handlerType + "' ClassNotFoundException.");
+        }
+
+        if (javaClass == null) {
+            return context.getTypeRegistry().createTypeHandler(handlerClass, () -> ClassUtils.newInstance(handlerClass));
+        } else {
+            return context.getTypeRegistry().createTypeHandler(handlerClass, () -> {
+                try {
+                    Constructor<?> constructor = handlerClass.getConstructor(Class.class);
+                    return (TypeHandler<?>) constructor.newInstance(javaType);
+                } catch (NoSuchMethodException e) {
+                    return ClassUtils.newInstance(handlerClass);
+                } catch (ReflectiveOperationException e) {
+                    throw ExceptionUtils.toRuntime(e);
+                }
+            });
         }
     }
 

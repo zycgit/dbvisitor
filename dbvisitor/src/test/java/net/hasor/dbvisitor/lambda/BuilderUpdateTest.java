@@ -18,7 +18,7 @@ import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
-import net.hasor.dbvisitor.types.MappedArg;
+import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.dto.user_info;
@@ -165,12 +165,12 @@ public class BuilderUpdateTest extends AbstractDbTest {
                     .updateToSample(setValue)   // set ...
                     .getBoundSql();
             assert boundSql1.getSqlString().equals("UPDATE auto_id SET uid = ? , abc = ? , name = ? WHERE ( id = ? AND name = ? AND abc = ? )");
-            assert ((MappedArg) boundSql1.getArgs()[0]).getValue().equals("the new uid");
-            assert ((MappedArg) boundSql1.getArgs()[1]).getValue().equals("abc");
-            assert ((MappedArg) boundSql1.getArgs()[2]).getValue().equals("mali2");
-            assert ((MappedArg) boundSql1.getArgs()[3]).getValue().equals(1);
-            assert ((MappedArg) boundSql1.getArgs()[4]).getValue().equals("mali");
-            assert ((MappedArg) boundSql1.getArgs()[5]).getValue().equals("abc");
+            assert ((SqlArg) boundSql1.getArgs()[0]).getValue().equals("the new uid");
+            assert ((SqlArg) boundSql1.getArgs()[1]).getValue().equals("abc");
+            assert ((SqlArg) boundSql1.getArgs()[2]).getValue().equals("mali2");
+            assert ((SqlArg) boundSql1.getArgs()[3]).getValue().equals(1);
+            assert ((SqlArg) boundSql1.getArgs()[4]).getValue().equals("mali");
+            assert ((SqlArg) boundSql1.getArgs()[5]).getValue().equals("abc");
         }
     }
 
@@ -195,12 +195,12 @@ public class BuilderUpdateTest extends AbstractDbTest {
                     .updateToSample(setValue)   // set ...
                     .getBoundSql();
             assert boundSql1.getSqlString().equals("UPDATE not_exist_table SET uid = ? , abc = ? , name = ? WHERE ( abc = ? AND name = ? AND id = ? )");
-            assert ((MappedArg) boundSql1.getArgs()[0]).getValue().equals("the new uid");
-            assert ((MappedArg) boundSql1.getArgs()[1]).getValue().equals("abc");
-            assert ((MappedArg) boundSql1.getArgs()[2]).getValue().equals("mali2");
-            assert ((MappedArg) boundSql1.getArgs()[3]).getValue().equals("abc");
-            assert ((MappedArg) boundSql1.getArgs()[4]).getValue().equals("mali");
-            assert ((MappedArg) boundSql1.getArgs()[5]).getValue().equals(1);
+            assert ((SqlArg) boundSql1.getArgs()[0]).getValue().equals("the new uid");
+            assert ((SqlArg) boundSql1.getArgs()[1]).getValue().equals("abc");
+            assert ((SqlArg) boundSql1.getArgs()[2]).getValue().equals("mali2");
+            assert ((SqlArg) boundSql1.getArgs()[3]).getValue().equals("abc");
+            assert ((SqlArg) boundSql1.getArgs()[4]).getValue().equals("mali");
+            assert ((SqlArg) boundSql1.getArgs()[5]).getValue().equals(1);
 
             // delete from user where id = 1 and name = 'mail';
             BoundSql boundSql2 = lambdaTemplate.lambdaUpdate("not_exist_table")//
@@ -210,12 +210,12 @@ public class BuilderUpdateTest extends AbstractDbTest {
 
             //UPDATE AUTO_ID SET UID = ? , NAME = ? WHERE ( ID = ? AND NAME = ? )
             assert boundSql2.getSqlString().equals("UPDATE not_exist_table SET uid = ? , abc = ? , name = ? WHERE ( abc = ? AND name = ? AND id = ? )");
-            assert ((MappedArg) boundSql2.getArgs()[0]).getValue().equals("the new uid");
-            assert ((MappedArg) boundSql2.getArgs()[1]).getValue().equals("abc");
-            assert ((MappedArg) boundSql2.getArgs()[2]).getValue().equals("mali2");
-            assert ((MappedArg) boundSql2.getArgs()[3]).getValue().equals("abc");
-            assert ((MappedArg) boundSql2.getArgs()[4]).getValue().equals("mali");
-            assert ((MappedArg) boundSql2.getArgs()[5]).getValue().equals(1);
+            assert ((SqlArg) boundSql2.getArgs()[0]).getValue().equals("the new uid");
+            assert ((SqlArg) boundSql2.getArgs()[1]).getValue().equals("abc");
+            assert ((SqlArg) boundSql2.getArgs()[2]).getValue().equals("mali2");
+            assert ((SqlArg) boundSql2.getArgs()[3]).getValue().equals("abc");
+            assert ((SqlArg) boundSql2.getArgs()[4]).getValue().equals("mali");
+            assert ((SqlArg) boundSql2.getArgs()[5]).getValue().equals(1);
         }
     }
 
@@ -238,13 +238,13 @@ public class BuilderUpdateTest extends AbstractDbTest {
         // delete from user where id = 1 and name = 'mail';
         BoundSql boundSql1 = lambdaTemplate.lambdaUpdate(user_info.class).eqBySampleMap(whereValue).updateToMap(setValue).getBoundSql();
         assert boundSql1.getSqlString().equals("UPDATE user_info SET user_name = ? WHERE ( user_name = ? )");
-        assert ((MappedArg) boundSql1.getArgs()[0]).getValue().equals("mali2");
-        assert ((MappedArg) boundSql1.getArgs()[1]).getValue().equals("mali1");
+        assert ((SqlArg) boundSql1.getArgs()[0]).getValue().equals("mali2");
+        assert ((SqlArg) boundSql1.getArgs()[1]).getValue().equals("mali1");
 
         // delete from user where id = 1 and name = 'mail';
         BoundSql boundSql2 = lambdaTemplate.lambdaUpdate(UserInfo2.class).eqBySampleMap(whereValue).updateToMap(setValue).getBoundSql();
         assert boundSql2.getSqlString().equals("UPDATE user_info SET user_name = ? WHERE ( user_name = ? )");
-        assert ((MappedArg) boundSql2.getArgs()[0]).getValue().equals("321");
-        assert ((MappedArg) boundSql2.getArgs()[1]).getValue().equals("123");
+        assert ((SqlArg) boundSql2.getArgs()[0]).getValue().equals("321");
+        assert ((SqlArg) boundSql2.getArgs()[1]).getValue().equals("123");
     }
 }

@@ -32,7 +32,7 @@ import net.hasor.cobble.loader.providers.ClassPathResourceLoader;
 import net.hasor.cobble.setting.BasicSettings;
 import net.hasor.cobble.setting.SettingNode;
 import net.hasor.cobble.setting.Settings;
-import net.hasor.dbvisitor.dal.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.guice.provider.JdbcTemplateProvider;

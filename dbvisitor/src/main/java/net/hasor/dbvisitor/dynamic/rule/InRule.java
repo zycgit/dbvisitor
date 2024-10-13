@@ -15,10 +15,7 @@
  */
 package net.hasor.dbvisitor.dynamic.rule;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
-import net.hasor.dbvisitor.dynamic.DynamicParsed;
-import net.hasor.dbvisitor.dynamic.SqlArgSource;
-import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.dynamic.*;
 import net.hasor.dbvisitor.dynamic.args.ArraySqlArgSource;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -77,13 +74,22 @@ public class InRule implements SqlBuildRule {
     }
 
     private static void buildIn(final SqlBuilder sqlBuilder, final Object value) {
-        Object tmpValue = value;
+        String name = null;
+        Object tmpValue = null;
         Integer jdbcType = null;
+        SqlMode sqlMode = null;
+        Class<?> javaType = null;
         TypeHandler<?> typeHandler = null;
-        if (tmpValue instanceof SqlArg) {
+        boolean usingArgObj = false;
+
+        if (value instanceof SqlArg) {
+            name = ((SqlArg) value).getName();
             tmpValue = ((SqlArg) value).getValue();
             jdbcType = ((SqlArg) value).getJdbcType();
+            sqlMode = ((SqlArg) value).getSqlMode();
+            javaType = ((SqlArg) value).getJavaType();
             typeHandler = ((SqlArg) value).getTypeHandler();
+            usingArgObj = true;
         }
         if (tmpValue != null && tmpValue.getClass().isArray()) {
             tmpValue = Arrays.asList(ArraySqlArgSource.toArgs(tmpValue));
@@ -97,16 +103,16 @@ public class InRule implements SqlBuildRule {
                 if (k > 0) {
                     sqlBuilder.appendSql(", ");
                 }
-                k++;
 
-                if (jdbcType != null || typeHandler != null) {
-                    sqlBuilder.appendSql("?", new SqlArg(entryIter.next(), jdbcType, typeHandler));
+                if (usingArgObj) {
+                    sqlBuilder.appendSql("?", new SqlArg(name + "[" + k + "]", entryIter.next(), sqlMode, jdbcType, javaType, typeHandler));
                 } else {
                     sqlBuilder.appendSql("?", entryIter.next());
                 }
 
+                k++;
             }
-        } else {
+        } else if (tmpValue != null) {
             sqlBuilder.appendSql("?", value);
         }
     }

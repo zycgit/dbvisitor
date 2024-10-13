@@ -845,7 +845,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                     prepareArgs[i] = sqlBuilder.getArgs();
                 } else {
                     if (!StringUtils.equals(prepareSql, sqlBuilder.getSqlString())) {
-                        throw new SQLException("in executeBatch, each set of parameters must be able to derive the same SQL.");
+                        throw new SQLException("executeBatch, each set of parameters must be able to derive the same SQL.");
                     } else {
                         prepareArgs[i] = sqlBuilder.getArgs();
                     }
@@ -878,13 +878,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             logger.debug("Executing SQL batch update [" + sql + "].");
         }
 
-        DefaultSqlSegment parsedSql = this.getParsedSql(sql);
-        if (parsedSql.isHaveInjection() || !parsedSql.getNamedList().isEmpty()) {
-            throw new UnsupportedOperationException("");
-        }
-
-        SqlBuilder buildSql = parsedSql.buildQuery(Collections.emptyMap(), this.getRegistry());
-        return this.executeCreator(getPreparedStatementCreator(buildSql.getSqlString()), (PreparedStatementCallback<int[]>) ps -> {
+        return this.executeCreator(getPreparedStatementCreator(sql), (PreparedStatementCallback<int[]>) ps -> {
             try {
                 int batchSize = pss.getBatchSize();
                 DatabaseMetaData dbMetaData = ps.getConnection().getMetaData();
@@ -1110,11 +1104,13 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             Object[] paramArray = buildSql.getArgs();
 
             PreparedStatement ps = con.prepareStatement(sqlToUse);
-            TypeHandlerRegistry typeRegistry = getRegistry().getTypeRegistry();
-            for (int i = 0; i < paramArray.length; i++) {
-                typeRegistry.setParameterValue(ps, i + 1, paramArray[i]);
+            if (paramArray.length > 0) {
+                TypeHandlerRegistry typeRegistry = getRegistry().getTypeRegistry();
+                for (int i = 0; i < paramArray.length; i++) {
+                    typeRegistry.setParameterValue(ps, i + 1, paramArray[i]);
+                }
+                StatementSetterUtils.cleanupParameters(paramArray);
             }
-            StatementSetterUtils.cleanupParameters(paramArray);
             return ps;
         }
 

@@ -2,6 +2,8 @@ package net.hasor.dbvisitor.dynamic;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.rule.InRule;
 import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
+import net.hasor.dbvisitor.types.SqlArg;
+import net.hasor.test.types.MyTypeHandler;
 import org.junit.Test;
 
 import java.sql.SQLException;
@@ -464,9 +466,8 @@ public class InRuleTest {
         Map<String, Object> ctx = Collections.emptyMap();
 
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, new DynamicContext());
-        assert sqlBuilder.getSqlString().equals("in (?)");
-        assert sqlBuilder.getArgs().length == 1;
-        assert sqlBuilder.getArgs()[0] == null;
+        assert sqlBuilder.getSqlString().equals("in ()");
+        assert sqlBuilder.getArgs().length == 0;
     }
 
     @Test
@@ -477,6 +478,25 @@ public class InRuleTest {
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, new DynamicContext());
         assert sqlBuilder.getSqlString().equals("in ()");
         assert sqlBuilder.getArgs().length == 0;
+    }
+
+    @Test
+    public void ruleTest_3() throws SQLException {
+        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{in, :array}");
+        SqlArg arg = new SqlArg(Arrays.asList("1", "2"), 123, new MyTypeHandler());
+        Map<String, Object> ctx = CollectionUtils.asMap("array", arg);
+
+        SqlBuilder sqlBuilder = segment.buildQuery(ctx, new DynamicContext());
+        assert sqlBuilder.getSqlString().equals("in (?, ?)");
+        assert sqlBuilder.getArgs().length == 2;
+        assert ((SqlArg) sqlBuilder.getArgs()[0]).getValue().equals("1");
+        assert ((SqlArg) sqlBuilder.getArgs()[0]).getJdbcType() == 123;
+        assert ((SqlArg) sqlBuilder.getArgs()[0]).getTypeHandler() == arg.getTypeHandler();
+        assert ((SqlArg) sqlBuilder.getArgs()[1]).getValue().equals("2");
+        assert ((SqlArg) sqlBuilder.getArgs()[1]).getJdbcType() == 123;
+        assert ((SqlArg) sqlBuilder.getArgs()[1]).getTypeHandler() == arg.getTypeHandler();
+
+        assert ((SqlArg) sqlBuilder.getArgs()[0]).getTypeHandler() == ((SqlArg) sqlBuilder.getArgs()[1]).getTypeHandler();
     }
 
     @Test

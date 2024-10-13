@@ -15,8 +15,8 @@
  */
 package net.hasor.dbvisitor.spring.support;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dal.dynamic.rule.RuleRegistry;
-import net.hasor.dbvisitor.dal.dynamic.rule.SqlBuildRule;
+import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.dynamic.rule.SqlBuildRule;
 import net.hasor.dbvisitor.dal.mapper.Mapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;

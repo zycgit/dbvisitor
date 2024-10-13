@@ -18,7 +18,7 @@ import net.hasor.cobble.ExceptionUtils;
 import net.hasor.core.AppContext;
 import net.hasor.core.BindInfo;
 import net.hasor.core.spi.AppContextAware;
-import net.hasor.dbvisitor.dal.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.dal.mapper.Mapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;

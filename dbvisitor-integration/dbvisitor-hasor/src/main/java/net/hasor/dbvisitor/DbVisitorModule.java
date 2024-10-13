@@ -22,7 +22,7 @@ import net.hasor.cobble.loader.ScanEvent;
 import net.hasor.cobble.loader.providers.ClassPathResourceLoader;
 import net.hasor.core.*;
 import net.hasor.core.setting.SettingNode;
-import net.hasor.dbvisitor.dal.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.jdbc.JdbcOperations;

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
+import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.utils.DsUtils;
@@ -35,7 +36,7 @@ import static net.hasor.test.utils.TestUtils.*;
  */
 public class MultipleExtractorTest extends AbstractDbTest {
     @Test
-    public void testMultipleResultExtractor_1() throws SQLException, IOException {
+    public void noargs_1() throws SQLException, IOException {
         try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists user_info;");
@@ -62,7 +63,7 @@ public class MultipleExtractorTest extends AbstractDbTest {
     }
 
     @Test
-    public void testMultipleResultExtractor_2() throws SQLException, IOException {
+    public void usingPosArgs_1() throws SQLException, IOException {
         try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists user_info;");
@@ -90,7 +91,184 @@ public class MultipleExtractorTest extends AbstractDbTest {
     }
 
     @Test
-    public void testMultipleResultExtractor_3() throws SQLException, IOException {
+    public void usingNamedArgs_1() throws SQLException, IOException {
+        try (Connection conn = DsUtils.mysqlConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+            jdbcTemplate.execute("drop table if exists user_info;");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/user_info_for_mysql.sql");
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
+
+            String multipleSql = ""//
+                    + "select * from user_info where login_name = :loginName1;\n"//
+                    + "select * from user_info where login_name = :loginName2;\n";
+            Map<String, String> dataMap = CollectionUtils.asMap(//
+                    "loginName1", beanForData1().getLoginName(),//
+                    "loginName2", beanForData2().getLoginName());
+            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, dataMap);
+
+            assert objectList.size() == 2;
+            assert objectList.get(0) instanceof ArrayList;
+            assert objectList.get(1) instanceof ArrayList;
+            assert ((ArrayList<?>) objectList.get(0)).size() == 1;
+            assert ((ArrayList<?>) objectList.get(1)).size() == 1;
+            assert ((ArrayList<?>) objectList.get(0)).get(0) instanceof Map;
+            assert ((ArrayList<?>) objectList.get(1)).get(0) instanceof Map;
+            assert ((Map) ((ArrayList<?>) objectList.get(0)).get(0)).get("user_uuid").equals(beanForData1().getUserUuid());
+            assert ((Map) ((ArrayList<?>) objectList.get(1)).get(0)).get("user_uuid").equals(beanForData2().getUserUuid());
+        }
+    }
+
+    @Test
+    public void usingNamedArgs_2() throws SQLException, IOException {
+        try (Connection conn = DsUtils.mysqlConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+            jdbcTemplate.execute("drop table if exists user_info;");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/user_info_for_mysql.sql");
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
+
+            String multipleSql = ""//
+                    + "select * from user_info where login_name = &loginName1;\n"//
+                    + "select * from user_info where login_name = &loginName2;\n";
+            Map<String, String> dataMap = CollectionUtils.asMap(//
+                    "loginName1", beanForData1().getLoginName(),//
+                    "loginName2", beanForData2().getLoginName());
+            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, dataMap);
+
+            assert objectList.size() == 2;
+            assert objectList.get(0) instanceof ArrayList;
+            assert objectList.get(1) instanceof ArrayList;
+            assert ((ArrayList<?>) objectList.get(0)).size() == 1;
+            assert ((ArrayList<?>) objectList.get(1)).size() == 1;
+            assert ((ArrayList<?>) objectList.get(0)).get(0) instanceof Map;
+            assert ((ArrayList<?>) objectList.get(1)).get(0) instanceof Map;
+            assert ((Map) ((ArrayList<?>) objectList.get(0)).get(0)).get("user_uuid").equals(beanForData1().getUserUuid());
+            assert ((Map) ((ArrayList<?>) objectList.get(1)).get(0)).get("user_uuid").equals(beanForData2().getUserUuid());
+        }
+    }
+
+    @Test
+    public void usingNamedArgs_3() throws SQLException, IOException {
+        try (Connection conn = DsUtils.mysqlConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+            jdbcTemplate.execute("drop table if exists user_info;");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/user_info_for_mysql.sql");
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
+
+            String multipleSql = ""//
+                    + "select * from user_info where login_name = #{loginName1};\n"//
+                    + "select * from user_info where login_name = #{loginName2};\n";
+            Map<String, String> dataMap = CollectionUtils.asMap(//
+                    "loginName1", beanForData1().getLoginName(),//
+                    "loginName2", beanForData2().getLoginName());
+            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, dataMap);
+
+            assert objectList.size() == 2;
+            assert objectList.get(0) instanceof ArrayList;
+            assert objectList.get(1) instanceof ArrayList;
+            assert ((ArrayList<?>) objectList.get(0)).size() == 1;
+            assert ((ArrayList<?>) objectList.get(1)).size() == 1;
+            assert ((ArrayList<?>) objectList.get(0)).get(0) instanceof Map;
+            assert ((ArrayList<?>) objectList.get(1)).get(0) instanceof Map;
+            assert ((Map) ((ArrayList<?>) objectList.get(0)).get(0)).get("user_uuid").equals(beanForData1().getUserUuid());
+            assert ((Map) ((ArrayList<?>) objectList.get(1)).get(0)).get("user_uuid").equals(beanForData2().getUserUuid());
+        }
+    }
+
+    @Test
+    public void usingInjectArgs_1() throws SQLException, IOException {
+        try (Connection conn = DsUtils.mysqlConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+            jdbcTemplate.execute("drop table if exists user_info;");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/user_info_for_mysql.sql");
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
+
+            String multipleSql = ""//
+                    + "select * from user_info where login_name = ${\"'\" + loginName1 + \"'\"};\n"//
+                    + "select * from user_info where login_name = ${\"'\" + loginName2 + \"'\"};\n";
+            Map<String, String> dataMap = CollectionUtils.asMap(//
+                    "loginName1", beanForData1().getLoginName(),//
+                    "loginName2", beanForData2().getLoginName());
+            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, dataMap);
+
+            assert objectList.size() == 2;
+            assert objectList.get(0) instanceof ArrayList;
+            assert objectList.get(1) instanceof ArrayList;
+            assert ((ArrayList<?>) objectList.get(0)).size() == 1;
+            assert ((ArrayList<?>) objectList.get(1)).size() == 1;
+            assert ((ArrayList<?>) objectList.get(0)).get(0) instanceof Map;
+            assert ((ArrayList<?>) objectList.get(1)).get(0) instanceof Map;
+            assert ((Map) ((ArrayList<?>) objectList.get(0)).get(0)).get("user_uuid").equals(beanForData1().getUserUuid());
+            assert ((Map) ((ArrayList<?>) objectList.get(1)).get(0)).get("user_uuid").equals(beanForData2().getUserUuid());
+        }
+    }
+
+    @Test
+    public void usingRuleArgs_1() throws SQLException, IOException {
+        try (Connection conn = DsUtils.mysqlConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+            jdbcTemplate.execute("drop table if exists user_info;");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/user_info_for_mysql.sql");
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
+
+            String multipleSql = ""//
+                    + "select * from user_info where login_name = @{arg,true, loginName1};\n"//
+                    + "select * from user_info where login_name = @{arg,true, loginName2};\n";
+            Map<String, String> dataMap = CollectionUtils.asMap(//
+                    "loginName1", beanForData1().getLoginName(),//
+                    "loginName2", beanForData2().getLoginName());
+            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, dataMap);
+
+            assert objectList.size() == 2;
+            assert objectList.get(0) instanceof ArrayList;
+            assert objectList.get(1) instanceof ArrayList;
+            assert ((ArrayList<?>) objectList.get(0)).size() == 1;
+            assert ((ArrayList<?>) objectList.get(1)).size() == 1;
+            assert ((ArrayList<?>) objectList.get(0)).get(0) instanceof Map;
+            assert ((ArrayList<?>) objectList.get(1)).get(0) instanceof Map;
+            assert ((Map) ((ArrayList<?>) objectList.get(0)).get(0)).get("user_uuid").equals(beanForData1().getUserUuid());
+            assert ((Map) ((ArrayList<?>) objectList.get(1)).get(0)).get("user_uuid").equals(beanForData2().getUserUuid());
+        }
+    }
+
+    @Test
+    public void argtype_as_pos_1() throws SQLException, IOException {
+        try (Connection conn = DsUtils.mysqlConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+            jdbcTemplate.execute("drop table if exists user_info;");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/user_info_for_mysql.sql");
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
+
+            String multipleSql = ""//
+                    + "select * from user_info where login_name = ?;\n"//
+                    + "select * from user_info where login_name = ?;\n";
+            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, new Object[] { "muhammad", "belon" });
+
+            assert objectList.size() == 2;
+            assert objectList.get(0) instanceof ArrayList;
+            assert objectList.get(1) instanceof ArrayList;
+            assert ((ArrayList<?>) objectList.get(0)).size() == 1;
+            assert ((ArrayList<?>) objectList.get(1)).size() == 1;
+            assert ((ArrayList<?>) objectList.get(0)).get(0) instanceof Map;
+            assert ((ArrayList<?>) objectList.get(1)).get(0) instanceof Map;
+            assert ((Map) ((ArrayList<?>) objectList.get(0)).get(0)).get("user_uuid").equals(beanForData1().getUserUuid());
+            assert ((Map) ((ArrayList<?>) objectList.get(1)).get(0)).get("user_uuid").equals(beanForData2().getUserUuid());
+        }
+    }
+
+    @Test
+    public void argType_as_map_1() throws SQLException, IOException {
         try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists user_info;");
@@ -120,7 +298,7 @@ public class MultipleExtractorTest extends AbstractDbTest {
     }
 
     @Test
-    public void testMultipleResultExtractor_4() throws SQLException, IOException {
+    public void argtype_as_source_1() throws SQLException, IOException {
         try (Connection conn = DsUtils.mysqlConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
             jdbcTemplate.execute("drop table if exists user_info;");
@@ -136,6 +314,36 @@ public class MultipleExtractorTest extends AbstractDbTest {
                     + "select * from user_info where login_name = :name1;\n"//
                     + "select * from user_info where login_name = :name2;\n";
             List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, new MapSqlArgSource(data));
+
+            assert objectList.size() == 2;
+            assert objectList.get(0) instanceof ArrayList;
+            assert objectList.get(1) instanceof ArrayList;
+            assert ((ArrayList<?>) objectList.get(0)).size() == 1;
+            assert ((ArrayList<?>) objectList.get(1)).size() == 1;
+            assert ((ArrayList<?>) objectList.get(0)).get(0) instanceof Map;
+            assert ((ArrayList<?>) objectList.get(1)).get(0) instanceof Map;
+            assert ((Map) ((ArrayList<?>) objectList.get(0)).get(0)).get("user_uuid").equals(beanForData1().getUserUuid());
+            assert ((Map) ((ArrayList<?>) objectList.get(1)).get(0)).get("user_uuid").equals(beanForData2().getUserUuid());
+        }
+    }
+
+    @Test
+    public void argtype_as_setter_1() throws SQLException, IOException {
+        try (Connection conn = DsUtils.mysqlConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+            jdbcTemplate.execute("drop table if exists user_info;");
+            jdbcTemplate.loadSQL("dbvisitor_coverage/user_info_for_mysql.sql");
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
+            jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
+
+            String multipleSql = ""//
+                    + "select * from user_info where login_name = ?;\n"//
+                    + "select * from user_info where login_name = ?;\n";
+            List<Object> objectList = jdbcTemplate.multipleExecute(multipleSql, ps -> {
+                ps.setString(1, "muhammad");
+                ps.setString(2, "belon");
+            });
 
             assert objectList.size() == 2;
             assert objectList.get(0) instanceof ArrayList;
