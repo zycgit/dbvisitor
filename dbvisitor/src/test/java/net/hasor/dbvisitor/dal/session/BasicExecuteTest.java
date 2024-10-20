@@ -2,7 +2,7 @@ package net.hasor.dbvisitor.dal.session;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.test.dal.Mapper3Dal;
 import net.hasor.test.dal.execute.TestExecuteDal;
 import net.hasor.test.dto.AutoId;

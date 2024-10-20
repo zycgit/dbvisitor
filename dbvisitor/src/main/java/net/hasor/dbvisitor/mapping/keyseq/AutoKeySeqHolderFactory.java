@@ -42,6 +42,11 @@ public class AutoKeySeqHolderFactory implements KeySeqHolderFactory {
                 mapping.getHandler().set(entity, value);
                 return value;
             }
+
+            @Override
+            public String toString() {
+                return "Auto@" + this.hashCode();
+            }
         };
     }
 }

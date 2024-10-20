@@ -1,6 +1,6 @@
 package net.hasor.dbvisitor.dal.session;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.page.PageResult;

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
+import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.reflect.ConstructorUtils;
@@ -36,7 +37,7 @@ import java.time.chrono.JapaneseDate;
 import java.util.Date;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 /**
  * JDBC 4.2 full  compatible
@@ -278,21 +279,42 @@ public final class TypeHandlerRegistry {
     }
 
     public TypeHandler<?> createTypeHandler(Class<?> typeHandler) {
-        return this.createTypeHandler(typeHandler, () -> {
+        return this.createTypeHandler(typeHandler, null);
+    }
+
+    public TypeHandler<?> createTypeHandler(Class<?> typeHandler, Class<?> argType) {
+        return this.createTypeHandler(typeHandler, argType, type -> {
             try {
-                return (TypeHandler<?>) typeHandler.newInstance();
-            } catch (Exception e) {
-                throw ExceptionUtils.toRuntime(e);
+                Constructor<?> constructor = typeHandler.getConstructor(Class.class);
+                return this.createByConstructor(constructor, argType);
+            } catch (NoSuchMethodException e) {
+                return this.createByClass(typeHandler, argType);
             }
         });
     }
 
-    public TypeHandler<?> createTypeHandler(Class<?> typeHandler, Supplier<TypeHandler<?>> supplier) {
+    protected TypeHandler<?> createByClass(Class<?> typeHandlerClass, Class<?> argType) {
+        return ClassUtils.newInstance(typeHandlerClass);
+    }
+
+    protected TypeHandler<?> createByConstructor(Constructor<?> typeHandlerConstructor, Class<?> argType) {
+        try {
+            return (TypeHandler<?>) typeHandlerConstructor.newInstance(argType);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public TypeHandler<?> createTypeHandler(Class<?> typeHandler, Class<?> argType, Function<Class<?>, TypeHandler<?>> supplier) {
+        if (!TypeHandler.class.isAssignableFrom(typeHandler)) {
+            throw new ClassCastException(typeHandler.getName() + " is not a subclass of " + TypeHandler.class.getName());
+        }
+
         if (typeHandler.isAnnotationPresent(NoCache.class)) {
             if (typeHandler == UnknownTypeHandler.class) {
                 return this.defaultTypeHandler;
             } else {
-                TypeHandler<?> handler = supplier.get();
+                TypeHandler<?> handler = supplier.apply(argType);
                 if (handler == null) {
                     return this.defaultTypeHandler;
                 } else {
@@ -301,11 +323,12 @@ public final class TypeHandlerRegistry {
             }
         } else {
             registerTypeHandlerType(typeHandler);
-            return this.cachedByHandlerType.computeIfAbsent(typeHandler.getName(), type -> {
+            String cacheName = typeHandler.getName() + (argType == null ? "" : ("," + argType.getName()));
+            return this.cachedByHandlerType.computeIfAbsent(cacheName, type -> {
                 if (typeHandler == UnknownTypeHandler.class) {
                     return this.defaultTypeHandler;
                 } else {
-                    TypeHandler<?> handler = supplier.get();
+                    TypeHandler<?> handler = supplier.apply(argType);
                     if (handler == null) {
                         return this.defaultTypeHandler;
                     } else {

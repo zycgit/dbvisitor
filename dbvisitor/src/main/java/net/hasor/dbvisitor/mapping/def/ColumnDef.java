@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.def;
-import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.dbvisitor.mapping.KeySeqHolder;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -31,43 +30,30 @@ public class ColumnDef implements ColumnMapping {
     private final Class<?>          javaType;
     private final TypeHandler<?>    typeHandler;
     private final Property          handler;
-    private final boolean           insert;
-    private final boolean           update;
-    private final boolean           primary;
-    private final String            selectTemplate;
-    private final String            insertTemplate;
-    private final String            setColTemplate;
-    private final String            setValueTemplate;
-    private final String            whereColTemplate;
-    private final String            whereValueTemplate;
     private       KeySeqHolder      keySeqHolder;
+    //
+    private       boolean           insert;
+    private       boolean           update;
+    private       boolean           primary;
+    private       String            selectTemplate;
+    private       String            insertTemplate;
+    private       String            setColTemplate;
+    private       String            setValueTemplate;
+    private       String            whereColTemplate;
+    private       String            whereValueTemplate;
     private       ColumnDescription description;
 
     public ColumnDef(String columnName, String propertyName, Integer jdbcType, Class<?> javaType,//
-            TypeHandler<?> typeHandler, Property mapHandler, boolean insert, boolean update, boolean primary) {
-        this(columnName, propertyName, jdbcType, javaType, typeHandler, mapHandler, insert, update, primary, null, null, null, null, null, null);
-    }
-
-    public ColumnDef(String columnName, String propertyName, Integer jdbcType, Class<?> javaType,//
-            TypeHandler<?> typeHandler, Property handler, //
-            boolean insert, boolean update, boolean primary,//
-            String selectTemplate, String insertTemplate, String setColTemplate, String setValueTemplate, String whereColTemplate, String whereValueTemplate) {
+            TypeHandler<?> typeHandler, Property handler) {
         this.columnName = columnName;
         this.propertyName = propertyName;
         this.jdbcType = jdbcType;
         this.javaType = javaType;
         this.typeHandler = typeHandler;
         this.handler = handler;
-        this.insert = insert;
-        this.update = update;
-        this.primary = primary;
-
-        this.selectTemplate = StringUtils.isNotBlank(selectTemplate) ? selectTemplate : null;
-        this.insertTemplate = StringUtils.isNotBlank(insertTemplate) ? insertTemplate : null;
-        this.setColTemplate = StringUtils.isNotBlank(setColTemplate) ? setColTemplate : null;
-        this.setValueTemplate = StringUtils.isNotBlank(setValueTemplate) ? setValueTemplate : null;
-        this.whereColTemplate = StringUtils.isNotBlank(whereColTemplate) ? whereColTemplate : null;
-        this.whereValueTemplate = StringUtils.isNotBlank(whereValueTemplate) ? whereValueTemplate : null;
+        this.insert = true;
+        this.update = true;
+        this.primary = false;
     }
 
     @Override
@@ -78,14 +64,6 @@ public class ColumnDef implements ColumnMapping {
     @Override
     public String getProperty() {
         return this.propertyName;
-    }
-
-    public TypeHandler<?> getTypeHandler() {
-        return typeHandler;
-    }
-
-    public Property getHandler() {
-        return this.handler;
     }
 
     @Override
@@ -99,8 +77,22 @@ public class ColumnDef implements ColumnMapping {
     }
 
     @Override
-    public boolean isUpdate() {
-        return this.update;
+    public TypeHandler<?> getTypeHandler() {
+        return this.typeHandler;
+    }
+
+    @Override
+    public Property getHandler() {
+        return this.handler;
+    }
+
+    @Override
+    public KeySeqHolder getKeySeqHolder() {
+        return this.keySeqHolder;
+    }
+
+    public void setKeySeqHolder(KeySeqHolder keySeqHolder) {
+        this.keySeqHolder = keySeqHolder;
     }
 
     @Override
@@ -108,34 +100,17 @@ public class ColumnDef implements ColumnMapping {
         return this.insert;
     }
 
-    @Override
-    public String getSelectTemplate() {
-        return selectTemplate;
+    public void setInsert(boolean insert) {
+        this.insert = insert;
     }
 
     @Override
-    public String getInsertTemplate() {
-        return insertTemplate;
+    public boolean isUpdate() {
+        return this.update;
     }
 
-    @Override
-    public String getSetColTemplate() {
-        return setColTemplate;
-    }
-
-    @Override
-    public String getSetValueTemplate() {
-        return setValueTemplate;
-    }
-
-    @Override
-    public String getWhereColTemplate() {
-        return whereColTemplate;
-    }
-
-    @Override
-    public String getWhereValueTemplate() {
-        return whereValueTemplate;
+    public void setUpdate(boolean update) {
+        this.update = update;
     }
 
     @Override
@@ -143,12 +118,62 @@ public class ColumnDef implements ColumnMapping {
         return this.primary;
     }
 
-    public KeySeqHolder getKeySeqHolder() {
-        return this.keySeqHolder;
+    public void setPrimaryKey(boolean primary) {
+        this.primary = primary;
     }
 
-    public void setKeySeqHolder(KeySeqHolder keySeqHolder) {
-        this.keySeqHolder = keySeqHolder;
+    @Override
+    public String getSelectTemplate() {
+        return this.selectTemplate;
+    }
+
+    public void setSelectTemplate(String selectTemplate) {
+        this.selectTemplate = selectTemplate;
+    }
+
+    @Override
+    public String getInsertTemplate() {
+        return this.insertTemplate;
+    }
+
+    public void setInsertTemplate(String insertTemplate) {
+        this.insertTemplate = insertTemplate;
+    }
+
+    @Override
+    public String getSetColTemplate() {
+        return this.setColTemplate;
+    }
+
+    public void setSetColTemplate(String setColTemplate) {
+        this.setColTemplate = setColTemplate;
+    }
+
+    @Override
+    public String getSetValueTemplate() {
+        return this.setValueTemplate;
+    }
+
+    public void setSetValueTemplate(String setValueTemplate) {
+        this.setValueTemplate = setValueTemplate;
+    }
+
+    @Override
+    public String getWhereColTemplate() {
+        return this.whereColTemplate;
+    }
+
+    public void setWhereColTemplate(String whereColTemplate) {
+        this.whereColTemplate = whereColTemplate;
+    }
+
+    @Override
+    public String getWhereValueTemplate() {
+        return this.whereValueTemplate;
+    }
+
+    public void setWhereValueTemplate(String whereValueTemplate) {
+        this.whereValueTemplate = whereValueTemplate;
     }
 
     @Override

@@ -15,16 +15,18 @@
  */
 package net.hasor.dbvisitor.mapping.resolve;
 import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.Property;
-import net.hasor.cobble.logging.Logger;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.*;
 import net.hasor.dbvisitor.mapping.def.*;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.types.UnknownTypeHandler;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.sql.Types;
@@ -37,87 +39,133 @@ import java.util.stream.Collectors;
  * @version : 2021-06-21
  */
 public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<?>> {
-    private static final Logger                         logger          = Logger.getLogger(ClassTableMappingResolve.class);
-    private static final Map<Class<?>, TableMapping<?>> CACHE_TABLE_MAP = new WeakHashMap<>();
-
-    public ClassTableMappingResolve(MappingOptions global) {
-        super(global);
-    }
-
-    public static TableMapping<?> resolveTableMapping(Class<?> entityType, TypeHandlerRegistry typeRegistry) {
-        if (CACHE_TABLE_MAP.containsKey(entityType)) {
-            return CACHE_TABLE_MAP.get(entityType);
-        } else {
-            TableDefaultInfo tableInfo = fetchDefaultInfoByEntity(entityType.getClassLoader(), entityType, true, MappingOptions.buildNew(), Collections.emptyMap());
-            TableMapping<?> tableMapping = new ClassTableMappingResolve(null).resolveTableAndColumn(tableInfo, entityType, typeRegistry);
-            CACHE_TABLE_MAP.put(entityType, tableMapping);
-            return tableMapping;
-        }
-    }
+    private static final Map<Class<?>, TableDef<?>> CACHE_TABLE_MAP = new WeakHashMap<>();
 
     @Override
-    public TableDef<?> resolveTableMapping(Class<?> entityType, MappingOptions refFile, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
-        MappingOptions use = refFile == null ? this.global : refFile;
-        TableDefaultInfo tableInfo = fetchDefaultInfoByEntity(classLoader, entityType, true, use, Collections.emptyMap());
-        return resolveTableAndColumn(tableInfo, entityType, typeRegistry);
-    }
+    public <V> TableDef<V> resolveTableMapping(Class<?> entityType, MappingOptions usingOpt, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) {
+        TableDef<?> def = CACHE_TABLE_MAP.computeIfAbsent(entityType, type -> {
+            if (type.isAnnotationPresent(Table.class)) {
+                return this.resolveTableInfo(type, usingOpt, typeRegistry);
+            } else if (type.isAnnotationPresent(ResultMap.class)) {
+                return this.resolveResultInfo(type, usingOpt, typeRegistry);
+            } else {
+                boolean usingAutoProperty = usingOpt.getAutoMapping() == null || usingOpt.getAutoMapping();
+                boolean usingUseDelimited = Boolean.TRUE.equals(usingOpt.getUseDelimited());
+                boolean usingMapUnderscoreToCamelCase = Boolean.TRUE.equals(usingOpt.getMapUnderscoreToCamelCase());
+                boolean usingCaseInsensitive = usingOpt.getCaseInsensitive() == null || usingOpt.getCaseInsensitive();
 
-    protected TableDef<?> resolveTable(TableDefaultInfo tableInfo, Class<?> entityType) {
-        String catalog = tableInfo.catalog();
-        String schema = tableInfo.schema();
-        String table = StringUtils.isNotBlank(tableInfo.table()) ? tableInfo.table() : StringUtils.isNotBlank(tableInfo.value()) ? tableInfo.value() : "";
-        String characterSet = tableInfo.characterSet();
-        String collation = tableInfo.collation();
-        String comment = tableInfo.comment();
-        String other = tableInfo.other();
-        DdlAuto ddlAuto = tableInfo.ddlAuto();
+                TableDef<?> tableDef = new TableDef<>(usingOpt.getCatalog(), usingOpt.getSchema(), null, type, usingOpt.getDefaultDialect(), //
+                        usingAutoProperty, usingUseDelimited, usingCaseInsensitive, usingMapUnderscoreToCamelCase);
+                this.resolveTableAndColumn(false, tableDef, typeRegistry);
 
-        boolean autoProperty = tableInfo.autoMapping();
-        boolean useDelimited = tableInfo.useDelimited();
-        boolean caseInsensitive = tableInfo.caseInsensitive();
-        boolean camelCase = tableInfo.mapUnderscoreToCamelCase();
-
-        TableDef<?> tableDef = new TableDef<>(catalog, schema, table, entityType, autoProperty, useDelimited, caseInsensitive, camelCase);
-
-        // desc
-        if (StringUtils.isBlank(characterSet) && StringUtils.isBlank(collation) && StringUtils.isBlank(comment) && StringUtils.isBlank(other)) {
-            tableDef.setDescription(parseDesc(ddlAuto, entityType.getAnnotation(TableDescribe.class)));
-        } else {
-            tableDef.setDescription(parseDesc(ddlAuto, tableInfo));
-        }
-
-        // index
-        IndexDescribe[] indexDescribes = entityType.getAnnotationsByType(IndexDescribe.class);
-        if (indexDescribes.length > 0) {
-            for (IndexDescribe idx : indexDescribes) {
-                String idxName = idx.name();
-                String idxComment = idx.comment();
-                String idxOther = idx.other();
-
-                List<String> columns = Arrays.stream(idx.columns()).filter(StringUtils::isNotBlank).collect(Collectors.toList());
-                if (CollectionUtils.isEmpty(columns)) {
-                    throw new IllegalArgumentException("entityType " + entityType + " @IndexDescribe columns is empty.");
-                }
-
-                if (StringUtils.isBlank(idxName)) {
-                    throw new IllegalArgumentException("entityType " + tableDef.getTable() + " missing index name.");
-                }
-
-                IndexDef idxDef = new IndexDef();
-                idxDef.setName(idxName);
-                idxDef.setColumns(columns);
-                idxDef.setUnique(idx.unique());
-                idxDef.setComment(StringUtils.isBlank(idxComment) ? null : idxComment);
-                idxDef.setOther(StringUtils.isBlank(idxOther) ? null : idxOther);
-                tableDef.addIndexDescription(idxDef);
+                return tableDef;
             }
-        }
-
-        return tableDef;
+        });
+        return (TableDef<V>) def;
     }
 
-    protected TableDef<?> resolveTableAndColumn(TableDefaultInfo tableInfo, Class<?> entityType, TypeHandlerRegistry typeRegistry) {
-        TableDef<?> def = this.resolveTable(tableInfo, entityType);
+    private TableDef<?> resolveTableInfo(Class<?> entityType, MappingOptions usingOpt, TypeHandlerRegistry typeRegistry) {
+        Map<String, Object> annoInfo;
+        try {
+            annoInfo = ClassUtils.readAnnotation(entityType, Table.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String catalog = (String) annoInfo.getOrDefault("catalog", usingOpt.getCatalog());
+        String schema = (String) annoInfo.getOrDefault("schema", usingOpt.getSchema());
+        String table = (String) annoInfo.getOrDefault("table", null);
+        if (StringUtils.isBlank(table)) {
+            table = (String) annoInfo.getOrDefault("value", null);
+        }
+
+        String autoMapping = (String) annoInfo.getOrDefault("autoMapping", null);
+        String useDelimited = (String) annoInfo.getOrDefault("useDelimited", null);
+        String mapUnderscoreToCamelCase = (String) annoInfo.getOrDefault("mapUnderscoreToCamelCase", null);
+        String caseInsensitive = (String) annoInfo.getOrDefault("caseInsensitive", null);
+        String ddlAuto = (String) annoInfo.getOrDefault("ddlAuto", null);
+
+        boolean usingAutoProperty = StringUtils.isBlank(autoMapping) ? (usingOpt.getAutoMapping() == null || usingOpt.getAutoMapping()) : Boolean.parseBoolean(autoMapping);
+        boolean usingUseDelimited = StringUtils.isBlank(useDelimited) ? Boolean.TRUE.equals(usingOpt.getUseDelimited()) : Boolean.parseBoolean(useDelimited);
+        boolean usingMapUnderscoreToCamelCase = StringUtils.isBlank(mapUnderscoreToCamelCase) ? Boolean.TRUE.equals(usingOpt.getMapUnderscoreToCamelCase()) : Boolean.parseBoolean(mapUnderscoreToCamelCase);
+        boolean usingCaseInsensitive = StringUtils.isBlank(caseInsensitive) ? (usingOpt.getCaseInsensitive() == null || usingOpt.getCaseInsensitive()) : Boolean.parseBoolean(caseInsensitive);
+        DdlAuto usingDdlAuto = DdlAuto.valueOfCode(ddlAuto);
+        SqlDialect dialect = usingOpt.getDefaultDialect();
+
+        TableDef<?> def = new TableDef<>(catalog, schema, table, entityType, dialect, //
+                usingAutoProperty, usingUseDelimited, usingCaseInsensitive, usingMapUnderscoreToCamelCase);
+
+        if (entityType.isAnnotationPresent(TableDescribe.class)) {
+            TableDescribe desc = entityType.getAnnotation(TableDescribe.class);
+            TableDescDef tableDesc = new TableDescDef();
+            tableDesc.setDdlAuto(usingDdlAuto);
+            tableDesc.setCharacterSet(desc.characterSet());
+            tableDesc.setCollation(desc.collation());
+            tableDesc.setComment(desc.comment());
+            tableDesc.setOther(desc.other());
+            def.setDescription(tableDesc);
+
+            this.loadTableIndex(def);
+        }
+
+        this.resolveTableAndColumn(true, def, typeRegistry);
+        return def;
+    }
+
+    private void loadTableIndex(TableDef<?> tableDef) {
+        Class<?> entityType = tableDef.entityType();
+        for (IndexDescribe idx : entityType.getAnnotationsByType(IndexDescribe.class)) {
+            String idxName = idx.name();
+            String idxComment = idx.comment();
+            String idxOther = idx.other();
+
+            List<String> columns = Arrays.stream(idx.columns()).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(columns)) {
+                throw new IllegalArgumentException("entityType " + entityType + " @IndexDescribe columns is empty.");
+            }
+
+            if (StringUtils.isBlank(idxName)) {
+                throw new IllegalArgumentException("entityType " + tableDef.getTable() + " missing index name.");
+            }
+
+            IndexDef idxDef = new IndexDef();
+            idxDef.setName(idxName);
+            idxDef.setColumns(columns);
+            idxDef.setUnique(idx.unique());
+            idxDef.setComment(StringUtils.isBlank(idxComment) ? null : idxComment);
+            idxDef.setOther(StringUtils.isBlank(idxOther) ? null : idxOther);
+            tableDef.addIndexDescription(idxDef);
+        }
+    }
+
+    private TableDef<?> resolveResultInfo(Class<?> entityType, MappingOptions usingOpt, TypeHandlerRegistry typeRegistry) {
+        Map<String, Object> annoInfo;
+        try {
+            annoInfo = ClassUtils.readAnnotation(entityType, ResultMap.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String autoMapping = (String) annoInfo.getOrDefault("autoMapping", null);
+        String useDelimited = (String) annoInfo.getOrDefault("useDelimited", null);
+        String mapUnderscoreToCamelCase = (String) annoInfo.getOrDefault("mapUnderscoreToCamelCase", null);
+        String caseInsensitive = (String) annoInfo.getOrDefault("caseInsensitive", null);
+
+        boolean usingAutoProperty = StringUtils.isBlank(autoMapping) ? (usingOpt.getAutoMapping() == null || usingOpt.getAutoMapping()) : Boolean.parseBoolean(autoMapping);
+        boolean usingUseDelimited = StringUtils.isBlank(useDelimited) ? Boolean.TRUE.equals(usingOpt.getUseDelimited()) : Boolean.parseBoolean(useDelimited);
+        boolean usingMapUnderscoreToCamelCase = StringUtils.isBlank(mapUnderscoreToCamelCase) ? Boolean.TRUE.equals(usingOpt.getMapUnderscoreToCamelCase()) : Boolean.parseBoolean(mapUnderscoreToCamelCase);
+        boolean usingCaseInsensitive = StringUtils.isBlank(caseInsensitive) ? (usingOpt.getCaseInsensitive() == null || usingOpt.getCaseInsensitive()) : Boolean.parseBoolean(caseInsensitive);
+        SqlDialect dialect = usingOpt.getDefaultDialect();
+
+        TableDef<?> def = new TableDef<>("", "", "", entityType, dialect, //
+                usingAutoProperty, usingUseDelimited, usingCaseInsensitive, usingMapUnderscoreToCamelCase);
+
+        this.resolveTableAndColumn(false, def, typeRegistry);
+        return def;
+    }
+
+    public void resolveTableAndColumn(boolean isEntity, TableDef<?> def, TypeHandlerRegistry typeRegistry) {
+        Class<?> entityType = def.entityType();
         Map<String, Property> properties = BeanUtils.getPropertyFunc(entityType);
 
         // keep order by fields
@@ -128,6 +176,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
                 names.add(name);
             }
         }
+
         for (String name : properties.keySet()) {
             if (!names.contains(name)) {
                 names.add(name);
@@ -137,13 +186,11 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         for (String name : names) {
             Property property = properties.get(name);
             Class<?> type = BeanUtils.getPropertyType(property);
-            resolveProperty(def, name, type, property, typeRegistry, tableInfo);
+            this.resolveProperty(isEntity, def, name, type, property, typeRegistry);
         }
-
-        return def;
     }
 
-    protected void resolveProperty(TableDef<?> tableDef, String name, Class<?> type, Property handler, TypeHandlerRegistry typeRegistry, Table tableInfo) {
+    protected void resolveProperty(boolean isEntity, TableDef<?> def, String name, Class<?> type, Property handler, TypeHandlerRegistry typeRegistry) {
         Annotation[] annotations = BeanUtils.getPropertyAnnotation(handler);
         Column info = null;
         ColumnDescribe infoDesc = null;
@@ -157,10 +204,11 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
             }
         }
 
+        ColumnDef colDef;
         if (info != null) {
             String column = StringUtils.isNotBlank(info.name()) ? info.name() : info.value();
             if (StringUtils.isBlank(column)) {
-                column = hump2Line(name, tableInfo.mapUnderscoreToCamelCase());
+                column = hump2Line(name, def.isMapUnderscoreToCamelCase());
             }
 
             Class<?> javaType = info.specialJavaType() == Object.class ? CLASS_MAPPING_MAP.getOrDefault(type, type) : info.specialJavaType();
@@ -174,69 +222,59 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
             if (info.typeHandler() == UnknownTypeHandler.class) {
                 typeHandler = typeRegistry.getTypeHandler(javaType, jdbcType);
             } else {
-                typeHandler = createTypeHandler(info.typeHandler(), javaType);
+                typeHandler = typeRegistry.createTypeHandler(info.typeHandler(), javaType);
             }
 
-            boolean insert = info.insert();//&& info.keyType() != KeyTypeEnum.Auto;
-            boolean update = info.update();
-            boolean primary = info.primary();
-            String selectTemplate = info.selectTemplate();
-            String insertTemplate = info.insertTemplate();
-            String setColTemplate = info.setColTemplate();
-            String setValueTemplate = info.setValueTemplate();
-            String whereColTemplate = info.whereColTemplate();
-            String whereValueTemplate = info.whereValueTemplate();
-            ColumnDef colDef = new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler, insert, update, primary,//
-                    selectTemplate, insertTemplate, setColTemplate, setValueTemplate, whereColTemplate, whereValueTemplate);
-
-            colDef.setDescription(parseDesc(infoDesc));
-
-            // init KeySeqHolder
-            colDef.setKeySeqHolder(this.resolveKeyType(tableDef, colDef, info.keyType(), annotations, typeRegistry));
-            tableDef.addMapping(colDef);
-
-        } else if (tableDef.isAutoProperty()) {
-
-            String column = hump2Line(name, tableInfo.mapUnderscoreToCamelCase());
+            colDef = new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler);
+        } else if (def.isAutoProperty()) {
+            String column = hump2Line(name, def.isMapUnderscoreToCamelCase());
             Class<?> javaType = CLASS_MAPPING_MAP.getOrDefault(type, type);
             int jdbcType = TypeHandlerRegistry.toSqlType(javaType);
-            TypeHandler<?> typeHandler = typeRegistry.getTypeHandler(javaType, jdbcType);
-            tableDef.addMapping(new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler, true, true, false));
-        }
-    }
+            TypeHandler<?> typeHandler = typeRegistry.getTypeHandler(javaType);
 
-    private TableDescription parseDesc(DdlAuto ddlAuto, TableDescribe tableDesc) {
-        if (tableDesc == null) {
-            return null;
+            colDef = new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler);
+        } else {
+            return;
         }
 
-        TableDescDef descDef = new TableDescDef();
-        descDef.setDdlAuto(ddlAuto);
-        descDef.setCharacterSet(tableDesc.characterSet());
-        descDef.setCollation(tableDesc.collation());
-        descDef.setComment(tableDesc.comment());
-        descDef.setOther(tableDesc.other());
-        return descDef;
-    }
+        //
+        if (isEntity) {
+            if (info != null) {
+                colDef.setPrimaryKey(info.primary());
+                colDef.setInsert(info.insert());
+                colDef.setUpdate(info.update());
+                colDef.setSelectTemplate(info.selectTemplate());
+                colDef.setInsertTemplate(info.insertTemplate());
+                colDef.setSetColTemplate(info.setColTemplate());
+                colDef.setSetValueTemplate(info.setValueTemplate());
+                colDef.setWhereColTemplate(info.whereColTemplate());
+                colDef.setWhereValueTemplate(info.whereValueTemplate());
+            }
 
-    private ColumnDescription parseDesc(ColumnDescribe columnDesc) {
-        if (columnDesc == null) {
-            return null;
+            // for Description
+            if (infoDesc != null) {
+                ColumnDescDef descDef = new ColumnDescDef();
+                descDef.setSqlType(infoDesc.sqlType());
+                descDef.setLength(infoDesc.length());
+                descDef.setPrecision(infoDesc.precision());
+                descDef.setScale(infoDesc.scale());
+                descDef.setCharacterSet(infoDesc.characterSet());
+                descDef.setCollation(infoDesc.collation());
+                descDef.setScale(infoDesc.scale());
+                descDef.setNullable(!colDef.isPrimaryKey() && infoDesc.nullable());
+                descDef.setDefault(infoDesc.defaultValue());
+                descDef.setComment(infoDesc.comment());
+                descDef.setOther(infoDesc.other());
+                colDef.setDescription(descDef);
+            }
         }
 
-        ColumnDescDef descDef = new ColumnDescDef();
-        descDef.setSqlType(columnDesc.sqlType());
-        descDef.setLength(columnDesc.length());
-        descDef.setPrecision(columnDesc.precision());
-        descDef.setScale(columnDesc.scale());
-        descDef.setCharacterSet(columnDesc.characterSet());
-        descDef.setCollation(columnDesc.collation());
-        descDef.setScale(columnDesc.scale());
-        descDef.setNullable(columnDesc.nullable());
-        descDef.setDefault(columnDesc.defaultValue());
-        descDef.setComment(columnDesc.comment());
-        descDef.setOther(columnDesc.other());
-        return descDef;
+        // init KeySeqHolder
+        if (info != null) {
+            colDef.setKeySeqHolder(this.resolveKeyType(def, colDef, info.keyType(), annotations, typeRegistry));
+        }
+
+        def.addMapping(colDef);
     }
 
     private KeySeqHolder resolveKeyType(TableDef<?> tableDef, ColumnDef colDef, KeyTypeEnum keyTypeEnum, Annotation[] allAnnotations, TypeHandlerRegistry typeRegistry) {
@@ -251,6 +289,6 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
             }
         }
 
-        return keyTypeEnum.createHolder(new KeySeqHolderContext(this.global, typeRegistry, tableDef, colDef, envConfig));
+        return keyTypeEnum.createHolder(new KeySeqHolderContext(typeRegistry, tableDef, colDef, envConfig));
     }
 }

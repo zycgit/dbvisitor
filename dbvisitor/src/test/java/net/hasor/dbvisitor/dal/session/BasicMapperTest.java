@@ -2,7 +2,7 @@ package net.hasor.dbvisitor.dal.session;
 import net.hasor.cobble.WellKnowFormat;
 import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;

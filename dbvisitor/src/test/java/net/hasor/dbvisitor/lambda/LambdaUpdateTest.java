@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.dto.user_info;

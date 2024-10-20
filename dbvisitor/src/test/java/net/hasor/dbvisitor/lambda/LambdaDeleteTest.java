@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.lambda;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.UserInfo;

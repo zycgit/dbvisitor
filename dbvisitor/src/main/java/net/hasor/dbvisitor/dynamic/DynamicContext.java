@@ -18,12 +18,12 @@ import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.dynamic.rule.SqlBuildRule;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,10 +33,11 @@ import java.util.Map;
  * @version : 2021-06-05
  */
 public class DynamicContext {
-    public static final DynamicContext          DEFAULT      = new DynamicContext();
-    private             TypeHandlerRegistry     typeRegistry = TypeHandlerRegistry.DEFAULT;
-    private             RuleRegistry            ruleRegistry = RuleRegistry.DEFAULT;
-    private final       Map<String, DynamicSql> macroMap     = new HashMap<>();
+    public static final DynamicContext          DEFAULT         = new DynamicContext();
+    private             MappingRegistry         mappingRegistry = MappingRegistry.DEFAULT;
+    private             TypeHandlerRegistry     typeRegistry    = TypeHandlerRegistry.DEFAULT;
+    private             RuleRegistry            ruleRegistry    = RuleRegistry.DEFAULT;
+    private final       Map<String, DynamicSql> macroMap        = new HashMap<>();
 
     public DynamicSql findMacro(String dynamicId) {
         return this.macroMap.get(dynamicId);
@@ -88,6 +89,14 @@ public class DynamicContext {
         return getRuleRegistry().findByName(ruleName);
     }
 
+    public MappingRegistry getMappingRegistry() {
+        return this.mappingRegistry;
+    }
+
+    public void setMappingRegistry(MappingRegistry mappingRegistry) {
+        this.mappingRegistry = mappingRegistry;
+    }
+
     public TypeHandlerRegistry getTypeRegistry() {
         return this.typeRegistry;
     }
@@ -110,9 +119,5 @@ public class DynamicContext {
 
     public Object createObject(Class<?> clazz) {
         return ClassUtils.newInstance(clazz);
-    }
-
-    public Object createObject(Constructor<?> constructor, Object[] objects) throws ReflectiveOperationException {
-        return constructor.newInstance(objects);
     }
 }

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping;
-import net.hasor.dbvisitor.mapping.keyseq.AutoKeySeqHolderFactory;
 import net.hasor.dbvisitor.mapping.def.IndexDescription;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.keyseq.AutoKeySeqHolderFactory;
 import net.hasor.dbvisitor.types.handler.EnumTypeHandler;
 import net.hasor.dbvisitor.types.handler.LongTypeHandler;
 import net.hasor.dbvisitor.types.handler.SqlTimestampAsDateTypeHandler;
@@ -34,8 +34,8 @@ import java.util.stream.Collectors;
 
 /**
  * TableMappingResolve 的公共方法
- * @version : 2021-06-21
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-21
  */
 public class XmlEntityRegistryTest {
 
@@ -43,7 +43,7 @@ public class XmlEntityRegistryTest {
     public void findEntityTest_1() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
-        TableMapping<?> mapping = registry.findEntity("entityMap_1");
+        TableMapping<?> mapping = registry.findMapping("resultMap_test", "entityMap_1");
 
         assert mapping.getCatalog().equals("master");
         assert mapping.getSchema().equals("dbo");
@@ -125,7 +125,7 @@ public class XmlEntityRegistryTest {
     public void findEntityTest_2() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
-        TableMapping<?> mapping = registry.findEntity("entityMap_2");
+        TableMapping<?> mapping = registry.findMapping("resultMap_test", "entityMap_2");
 
         assert mapping.getCatalog().equals("");
         assert mapping.getSchema().equals("");
@@ -191,7 +191,7 @@ public class XmlEntityRegistryTest {
     public void findEntityTest_3() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
-        TableMapping<?> mapping = registry.findEntity("entityMap_3");
+        TableMapping<?> mapping = registry.findMapping("resultMap_test", "entityMap_3");
 
         assert mapping.getCatalog().equals("");
         assert mapping.getSchema().equals("");
@@ -257,7 +257,7 @@ public class XmlEntityRegistryTest {
     public void findEntityTest_4() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
-        TableMapping<?> mapping = registry.findEntity("entityMap_4");
+        TableMapping<?> mapping = registry.findMapping("resultMap_test", "entityMap_4");
 
         assert mapping.getCatalog().equals("");
         assert mapping.getSchema().equals("");
@@ -322,7 +322,7 @@ public class XmlEntityRegistryTest {
     public void findEntityTest_5() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
-        TableMapping<?> mapping = registry.findEntity("entityMap_5");
+        TableMapping<?> mapping = registry.findMapping("resultMap_test", "entityMap_5");
 
         assert mapping.getCatalog().equals("");
         assert mapping.getSchema().equals("");
@@ -387,7 +387,7 @@ public class XmlEntityRegistryTest {
     public void findEntityTest_6() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
-        TableMapping<?> mapping = registry.findEntity("entityMap_6");
+        TableMapping<?> mapping = registry.findMapping("resultMap_test", "entityMap_6");
 
         assert mapping.getCatalog().equals("master");
         assert mapping.getSchema().equals("dbo");
@@ -461,7 +461,7 @@ public class XmlEntityRegistryTest {
     public void findEntityTest_7() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
-        TableMapping<?> mapping = registry.findEntity("entityMap_7");
+        TableMapping<?> mapping = registry.findMapping("resultMap_test", "entityMap_7");
 
         assert mapping.getCatalog().equals("master");
         assert mapping.getSchema().equals("dbo");
@@ -527,7 +527,7 @@ public class XmlEntityRegistryTest {
     public void findEntityTest_8() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
-        TableMapping<?> mapping = registry.findEntity("entityMap_8");
+        TableMapping<?> mapping = registry.findMapping("resultMap_test", "entityMap_8");
 
         assert mapping.getCatalog().equals("master");
         assert mapping.getSchema().equals("dbo");
@@ -593,7 +593,7 @@ public class XmlEntityRegistryTest {
     public void findEntityTest_9() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
-        TableMapping<?> mapping = registry.findEntity("entityMap_9");
+        TableMapping<?> mapping = registry.findMapping("resultMap_test", "entityMap_9");
 
         assert mapping.getCatalog().equals("master");
         assert mapping.getSchema().equals("dbo");
@@ -658,7 +658,7 @@ public class XmlEntityRegistryTest {
     public void findEntityTest_10() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_1.xml");
-        TableMapping<?> mapping = registry.findEntity("entityMap_10");
+        TableMapping<?> mapping = registry.findMapping("resultMap_test", "entityMap_10");
 
         assert mapping.getCatalog().equals("master");
         assert mapping.getSchema().equals("dbo");
@@ -723,8 +723,8 @@ public class XmlEntityRegistryTest {
     public void mapper2Test_1() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_2.xml");
-        assert registry.findEntity("entityMap_1") == registry.findMapping("", "entityMap_1");
-        TableMapping<?> mapping = registry.findEntity("entityMap_1");
+        assert registry.findMapping("resultMap_test", "entityMap_1") == registry.findMapping("", "entityMap_1");
+        TableMapping<?> mapping = registry.findMapping("resultMap_test", "entityMap_1");
 
         assert mapping.getCatalog().equals("master");
         assert mapping.getSchema().equals("dbo");
@@ -786,8 +786,8 @@ public class XmlEntityRegistryTest {
     public void mapper2Test_2() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_2.xml");
-        assert registry.findEntity("entityMap_2") == registry.findMapping("", "entityMap_2");
-        TableMapping<?> mapping = registry.findEntity("entityMap_2");
+        assert registry.findMapping("resultMap_test", "entityMap_2") == registry.findMapping("", "entityMap_2");
+        TableMapping<?> mapping = registry.findMapping("resultMap_test", "entityMap_2");
 
         assert mapping.getCatalog().equals("");
         assert mapping.getSchema().equals("");
@@ -849,8 +849,8 @@ public class XmlEntityRegistryTest {
     public void mapper2Test_5() throws Exception {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/mapper_2.xml");
-        assert registry.findEntity("entityMap_5") == registry.findMapping("", "entityMap_5");
-        TableMapping<?> mapping = registry.findEntity("entityMap_5");
+        assert registry.findMapping("resultMap_test", "entityMap_5") == registry.findMapping("", "entityMap_5");
+        TableMapping<?> mapping = registry.findMapping("resultMap_test", "entityMap_5");
 
         assert mapping.getCatalog().equals("");
         assert mapping.getSchema().equals("");
@@ -909,10 +909,10 @@ public class XmlEntityRegistryTest {
     }
 
     @Test
-    public void mapper2Test_6() throws ReflectiveOperationException, IOException {
+    public void mapper2Test_6() throws IOException {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/entity_1.xml");
-        TableMapping<BlobResourceV5> tableMapping = registry.findEntity(BlobResourceV5.class);
+        TableMapping<BlobResourceV5> tableMapping = registry.findMapping(BlobResourceV5.class);
 
         assert tableMapping.getDescription().getDdlAuto() == DdlAuto.CreateDrop;
 
@@ -944,10 +944,10 @@ public class XmlEntityRegistryTest {
     }
 
     @Test
-    public void mapper2Test_7() throws ReflectiveOperationException, IOException {
+    public void mapper2Test_7() throws IOException {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("dbvisitor_coverage/dal_mapping/entity_2.xml");
-        TableMapping<BlobResourceV1> tableMapping = registry.findEntity(BlobResourceV1.class);
+        TableMapping<BlobResourceV1> tableMapping = registry.findMapping(BlobResourceV1.class);
 
         assert tableMapping.getDescription().getComment().equals("表备注");
         assert tableMapping.getPropertyByName("id").getDescription().getSqlType().equals("bigint");

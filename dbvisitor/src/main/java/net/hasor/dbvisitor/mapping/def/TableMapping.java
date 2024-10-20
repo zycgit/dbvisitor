@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.def;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.reader.BeanTableReader;
 import net.hasor.dbvisitor.mapping.reader.MapTableReader;
@@ -70,6 +71,8 @@ public interface TableMapping<T> {
 
     /** 获取补充描述信息 */
     TableDescription getDescription();
+
+    SqlDialect getDialect();
 
     /** 获取索引描述信息 */
     List<IndexDescription> getIndexes();

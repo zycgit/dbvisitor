@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
@@ -28,22 +28,16 @@ import java.util.Map;
  * @version : 2022-12-01
  */
 public class KeySeqHolderContext {
-    private final MappingOptions      options;
     private final TypeHandlerRegistry typeRegistry;
     private final TableMapping<?>     tableDef;
     private final ColumnMapping       colDef;
     private final Map<String, Object> context;
 
-    public KeySeqHolderContext(MappingOptions options, TypeHandlerRegistry typeRegistry, TableMapping<?> tableDef, ColumnMapping colDef, Map<String, Object> context) {
-        this.options = options;
+    public KeySeqHolderContext(TypeHandlerRegistry typeRegistry, TableMapping<?> tableDef, ColumnMapping colDef, Map<String, Object> context) {
         this.typeRegistry = typeRegistry;
         this.tableDef = tableDef;
         this.colDef = colDef;
         this.context = context;
-    }
-
-    public MappingOptions getOptions() {
-        return this.options;
     }
 
     public TypeHandlerRegistry getTypeRegistry() {
@@ -84,6 +78,22 @@ public class KeySeqHolderContext {
 
     public Class<?> getJavaType() {
         return this.colDef.getJavaType();
+    }
+
+    public boolean useDelimited() {
+        return this.tableDef.useDelimited();
+    }
+
+    public boolean isCaseInsensitive() {
+        return this.tableDef.isCaseInsensitive();
+    }
+
+    public boolean isToCamelCase() {
+        return this.tableDef.isToCamelCase();
+    }
+
+    public SqlDialect getSqlDialect() {
+        return this.tableDef.getDialect();
     }
 
     public Map<String, Object> getContext() {

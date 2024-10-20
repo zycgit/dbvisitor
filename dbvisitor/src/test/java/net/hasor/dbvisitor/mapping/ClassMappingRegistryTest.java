@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping;
-import net.hasor.dbvisitor.mapping.keyseq.AutoKeySeqHolderFactory;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.keyseq.AutoKeySeqHolderFactory;
 import net.hasor.dbvisitor.types.handler.EnumTypeHandler;
 import net.hasor.dbvisitor.types.handler.LongTypeHandler;
 import net.hasor.dbvisitor.types.handler.SqlTimestampAsDateTypeHandler;
@@ -29,8 +29,8 @@ import java.util.Date;
 
 /**
  * TableMappingResolve 的公共方法
- * @version : 2021-06-21
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-21
  */
 public class ClassMappingRegistryTest {
 
@@ -44,11 +44,11 @@ public class ClassMappingRegistryTest {
         registry.loadEntity(BlobResourceV4.class);
         registry.loadEntity(BlobResourceV5.class);
 
-        TableMapping<Object> mapping1 = registry.findEntity(BlobResourceV1.class);
-        TableMapping<Object> mapping2 = registry.findEntity(BlobResourceV2.class);
-        TableMapping<Object> mapping3 = registry.findEntity(BlobResourceV3.class);
-        TableMapping<Object> mapping4 = registry.findEntity(BlobResourceV4.class);
-        TableMapping<Object> mapping5 = registry.findEntity(BlobResourceV5.class);
+        TableMapping<Object> mapping1 = registry.findMapping(BlobResourceV1.class);
+        TableMapping<Object> mapping2 = registry.findMapping(BlobResourceV2.class);
+        TableMapping<Object> mapping3 = registry.findMapping(BlobResourceV3.class);
+        TableMapping<Object> mapping4 = registry.findMapping(BlobResourceV4.class);
+        TableMapping<Object> mapping5 = registry.findMapping(BlobResourceV5.class);
 
         assert mapping1 != null;
         assert mapping2 != null;
@@ -61,7 +61,7 @@ public class ClassMappingRegistryTest {
     public void loadEntityTest_1() {
         MappingRegistry registry = new MappingRegistry();
         registry.loadEntity(BlobResourceV1.class);
-        TableMapping<?> mapping = registry.findEntity(BlobResourceV1.class);
+        TableMapping<?> mapping = registry.findMapping(BlobResourceV1.class);
 
         assert mapping.getCatalog().equals("master");
         assert mapping.getSchema().equals("dbo");
@@ -136,7 +136,7 @@ public class ClassMappingRegistryTest {
     public void loadEntityTest_2() {
         MappingRegistry registry = new MappingRegistry();
         registry.loadEntity(BlobResourceV2.class);
-        TableMapping<?> mapping = registry.findEntity(BlobResourceV2.class);
+        TableMapping<?> mapping = registry.findMapping(BlobResourceV2.class);
 
         assert mapping.getCatalog().equals("");
         assert mapping.getSchema().equals("");
@@ -203,7 +203,7 @@ public class ClassMappingRegistryTest {
     public void loadEntityTest_3() {
         MappingRegistry registry = new MappingRegistry();
         registry.loadEntity(BlobResourceV3.class);
-        TableMapping<?> mapping = registry.findEntity(BlobResourceV3.class);
+        TableMapping<?> mapping = registry.findMapping(BlobResourceV3.class);
 
         assert mapping.getCatalog().equals("");
         assert mapping.getSchema().equals("");
@@ -270,7 +270,7 @@ public class ClassMappingRegistryTest {
     public void loadEntityTest_4() {
         MappingRegistry registry = new MappingRegistry();
         registry.loadEntity(BlobResourceV4.class);
-        TableMapping<?> mapping = registry.findEntity(BlobResourceV4.class);
+        TableMapping<?> mapping = registry.findMapping(BlobResourceV4.class);
 
         assert mapping.getCatalog().equals("");
         assert mapping.getSchema().equals("");
@@ -336,7 +336,7 @@ public class ClassMappingRegistryTest {
     public void loadEntityTest_5() {
         MappingRegistry registry = new MappingRegistry();
         registry.loadEntity(BlobResourceV5.class);
-        TableMapping<?> mapping = registry.findEntity(BlobResourceV5.class);
+        TableMapping<?> mapping = registry.findMapping(BlobResourceV5.class);
 
         assert mapping.getCatalog().equals("");
         assert mapping.getSchema().equals("");
@@ -402,7 +402,7 @@ public class ClassMappingRegistryTest {
     public void loadEntityTest_6() {
         MappingRegistry registry = new MappingRegistry();
         registry.loadEntity(BlobResourceV6.class);
-        TableMapping<?> mapping = registry.findEntity(BlobResourceV6.class);
+        TableMapping<?> mapping = registry.findMapping(BlobResourceV6.class);
 
         assert mapping.getCatalog().equals("master");
         assert mapping.getSchema().equals("dbo");
@@ -477,7 +477,7 @@ public class ClassMappingRegistryTest {
     public void loadEntityTest_7() {
         MappingRegistry registry = new MappingRegistry();
         registry.loadEntity(BlobResourceV7.class);
-        TableMapping<?> mapping = registry.findEntity(BlobResourceV7.class);
+        TableMapping<?> mapping = registry.findMapping(BlobResourceV7.class);
 
         assert mapping.getCatalog().equals("master");
         assert mapping.getSchema().equals("dbo");
@@ -543,7 +543,7 @@ public class ClassMappingRegistryTest {
     public void loadEntityTest_8() {
         MappingRegistry registry = new MappingRegistry();
         registry.loadEntity(BlobResourceV8.class);
-        TableMapping<?> mapping = registry.findEntity(BlobResourceV8.class);
+        TableMapping<?> mapping = registry.findMapping(BlobResourceV8.class);
 
         assert mapping.getCatalog().equals("master");
         assert mapping.getSchema().equals("dbo");
@@ -609,7 +609,7 @@ public class ClassMappingRegistryTest {
     public void loadEntityTest_9() {
         MappingRegistry registry = new MappingRegistry();
         registry.loadEntity(BlobResourceV9.class);
-        TableMapping<?> mapping = registry.findEntity(BlobResourceV9.class);
+        TableMapping<?> mapping = registry.findMapping(BlobResourceV9.class);
 
         assert mapping.getCatalog().equals("master");
         assert mapping.getSchema().equals("dbo");
@@ -674,7 +674,7 @@ public class ClassMappingRegistryTest {
     public void loadEntityTest_10() {
         MappingRegistry registry = new MappingRegistry();
         registry.loadEntity(BlobResourceV10.class);
-        TableMapping<?> mapping = registry.findEntity(BlobResourceV10.class);
+        TableMapping<?> mapping = registry.findMapping(BlobResourceV10.class);
 
         assert mapping.getCatalog().equals("master");
         assert mapping.getSchema().equals("dbo");

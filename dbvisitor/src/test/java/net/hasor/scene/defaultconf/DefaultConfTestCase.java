@@ -3,7 +3,7 @@ import net.hasor.dbvisitor.lambda.EntityQueryOperation;
 import net.hasor.dbvisitor.lambda.InsertOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.MapQueryOperation;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.scene.defaultconf.dto.UserDTO;
 import net.hasor.scene.defaultconf.dto.UserTable;
 import net.hasor.test.utils.DsUtils;

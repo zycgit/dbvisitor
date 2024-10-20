@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.rule;
-import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.NumberUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
@@ -26,7 +25,6 @@ import net.hasor.dbvisitor.internal.OgnlUtils;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 
-import java.lang.reflect.Constructor;
 import java.sql.JDBCType;
 import java.sql.SQLException;
 import java.util.Map;
@@ -190,18 +188,9 @@ public class ArgRule implements SqlBuildRule {
         }
 
         if (javaClass == null) {
-            return context.getTypeRegistry().createTypeHandler(handlerClass, () -> (TypeHandler<?>) context.createObject(handlerClass));
+            return context.getTypeRegistry().createTypeHandler(handlerClass);
         } else {
-            return context.getTypeRegistry().createTypeHandler(handlerClass, () -> {
-                try {
-                    Constructor<?> constructor = handlerClass.getConstructor(Class.class);
-                    return (TypeHandler<?>) context.createObject(constructor, new Object[] { javaType });
-                } catch (NoSuchMethodException e) {
-                    return (TypeHandler<?>) context.createObject(handlerClass);
-                } catch (ReflectiveOperationException e) {
-                    throw ExceptionUtils.toRuntime(e);
-                }
-            });
+            return context.getTypeRegistry().createTypeHandler(handlerClass, javaClass);
         }
     }
 

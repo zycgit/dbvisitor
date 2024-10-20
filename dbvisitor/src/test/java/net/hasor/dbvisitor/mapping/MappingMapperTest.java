@@ -19,7 +19,6 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.jdbc.mapper.MappingResultSetExtractor;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.mapping.resolve.TableMappingResolve;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.test.dto.UserInfo;
@@ -34,7 +33,7 @@ import java.util.Map;
 public class MappingMapperTest {
     @Test
     public void testColumnMapRowMapper_1() throws ReflectiveOperationException {
-        TableMappingResolve resolve = new ClassTableMappingResolve(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+        TableMappingResolve resolve = new ClassTableMappingResolve();
 
         TableMapping<UserInfo> tableMapping = resolve.resolveTableMapping(//
                 UserInfo.class, null, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
@@ -49,7 +48,7 @@ public class MappingMapperTest {
     public void testColumnMapRowMapper_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            TableMappingResolve resolve = new ClassTableMappingResolve(null);
+            TableMappingResolve resolve = new ClassTableMappingResolve();
 
             TableMapping<UserInfo2> tableMapping = resolve.resolveTableMapping(//
                     UserInfo2.class, null, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);
@@ -68,7 +67,7 @@ public class MappingMapperTest {
     public void testColumnMapRowMapper_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
-            TableMappingResolve resolve = new ClassTableMappingResolve(null);
+            TableMappingResolve resolve = new ClassTableMappingResolve();
 
             TableMapping<UserInfo2> tableMapping = resolve.resolveTableMapping(//
                     UserInfo2.class, null, Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT);

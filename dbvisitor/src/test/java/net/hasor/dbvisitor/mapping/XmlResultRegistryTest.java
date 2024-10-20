@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping;
-import net.hasor.dbvisitor.mapping.keyseq.AutoKeySeqHolderFactory;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.mapping.keyseq.AutoKeySeqHolderFactory;
 import net.hasor.dbvisitor.types.handler.EnumTypeHandler;
 import net.hasor.dbvisitor.types.handler.LongTypeHandler;
 import net.hasor.dbvisitor.types.handler.SqlTimestampAsDateTypeHandler;
@@ -29,8 +29,8 @@ import java.util.Date;
 
 /**
  * TableMappingResolve 的公共方法
- * @version : 2021-06-21
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-06-21
  */
 public class XmlResultRegistryTest {
 

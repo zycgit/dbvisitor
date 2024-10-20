@@ -15,10 +15,9 @@
  */
 package net.hasor.dbvisitor.jdbc.mapper;
 import net.hasor.dbvisitor.jdbc.RowMapper;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -36,12 +35,19 @@ public class MappingRowMapper<T> implements RowMapper<T> {
 
     /** Create a new ResultMapper. */
     public MappingRowMapper(Class<T> mapperClass) {
-        this(mapperClass, TypeHandlerRegistry.DEFAULT);
+        this(mapperClass, MappingRegistry.DEFAULT);
     }
 
     /** Create a new ResultMapper. */
-    public MappingRowMapper(Class<T> mapperClass, TypeHandlerRegistry typeRegistry) {
-        TableMapping<?> tableMapping = ClassTableMappingResolve.resolveTableMapping(mapperClass, typeRegistry);
+    public MappingRowMapper(Class<T> mapperClass, MappingRegistry registry) {
+        TableMapping<?> tableMapping = registry.findMapping(mapperClass);
+        if (tableMapping == null) {
+            if (MappingRegistry.isEntity(mapperClass)) {
+                tableMapping = registry.loadEntity(mapperClass);
+            } else {
+                tableMapping = registry.loadResultMap(mapperClass);
+            }
+        }
         this.tableReader = (TableReader<T>) tableMapping.toReader();
     }
 

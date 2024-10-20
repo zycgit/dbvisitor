@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.resolve;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
@@ -23,5 +24,5 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  * @version : 2021-06-21
  */
 public interface TableMappingResolve<T> {
-    TableMapping<?> resolveTableMapping(T refData, MappingOptions refFile, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException;
+    <V> TableMapping<V> resolveTableMapping(T refData, MappingOptions refFile, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException;
 }

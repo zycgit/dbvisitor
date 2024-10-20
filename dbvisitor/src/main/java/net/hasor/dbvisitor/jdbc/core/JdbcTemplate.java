@@ -652,7 +652,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             return this.createSingleColumnRowMapper(requiredType);
         }
 
-        return new MappingRowMapper<>(requiredType, this.getRegistry().getTypeRegistry());
+        return new MappingRowMapper<>(requiredType, this.getRegistry().getMappingRegistry());
     }
 
     /** Create a new RowMapper for reading result objects from a single column. */
@@ -674,7 +674,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             return new RowMapperResultSetExtractor<>(mapRowMapper);
         }
 
-        return new MappingResultSetExtractor<>(requiredType, this.getRegistry().getTypeRegistry());
+        return new MappingResultSetExtractor<>(requiredType, this.getRegistry().getMappingRegistry());
     }
 
     /** Build a PreparedStatementCreator based on the given SQL and args parameters. */

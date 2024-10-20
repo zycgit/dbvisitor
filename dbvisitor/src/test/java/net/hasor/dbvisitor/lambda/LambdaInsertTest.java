@@ -19,7 +19,7 @@ import net.hasor.cobble.DateFormatType;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.BatchBoundSql;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.AutoId;
 import net.hasor.test.dto.UserInfo2;

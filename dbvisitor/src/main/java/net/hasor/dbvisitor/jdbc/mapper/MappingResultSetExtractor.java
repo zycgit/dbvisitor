@@ -15,10 +15,9 @@
  */
 package net.hasor.dbvisitor.jdbc.mapper;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -39,9 +38,16 @@ public class MappingResultSetExtractor<T> implements ResultSetExtractor<List<T>>
      * 创建 {@link MappingResultSetExtractor} 对象
      * @param mapperClass 类型
      */
-    public MappingResultSetExtractor(final Class<T> mapperClass, TypeHandlerRegistry typeRegistry) {
+    public MappingResultSetExtractor(final Class<T> mapperClass, MappingRegistry registry) {
         Objects.requireNonNull(mapperClass, "mapperClass is required");
-        TableMapping<?> tableMapping = ClassTableMappingResolve.resolveTableMapping(mapperClass, typeRegistry);
+        TableMapping<?> tableMapping = registry.findMapping(mapperClass);
+        if (tableMapping == null) {
+            if (MappingRegistry.isEntity(mapperClass)) {
+                tableMapping = registry.loadEntity(mapperClass);
+            } else {
+                tableMapping = registry.loadResultMap(mapperClass);
+            }
+        }
         this.tableReader = (TableReader<T>) tableMapping.toReader();
     }
 

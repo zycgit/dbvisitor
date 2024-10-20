@@ -20,6 +20,6 @@
  */
 
 // 整个包和子包中的 DTO 默认全部开启驼峰
-@TableDefault(mapUnderscoreToCamelCase = true)
+@MappingDefault(mapUnderscoreToCamelCase = true)
 package net.hasor.scene.defaultconf;
-import net.hasor.dbvisitor.mapping.TableDefault;
+import net.hasor.dbvisitor.mapping.MappingDefault;

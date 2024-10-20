@@ -42,6 +42,11 @@ public class Uuid32KeySeqHolderFactory implements KeySeqHolderFactory {
                 mapping.getHandler().set(entity, genUUID);
                 return genUUID;
             }
+
+            @Override
+            public String toString() {
+                return "UUID32@" + this.hashCode();
+            }
         };
     }
 }

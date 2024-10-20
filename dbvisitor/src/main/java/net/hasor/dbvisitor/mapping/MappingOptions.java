@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping.resolve;
+package net.hasor.dbvisitor.mapping;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 
 /**
@@ -22,6 +22,8 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
  * @version : 2021-06-21
  */
 public class MappingOptions {
+    private String     catalog;
+    private String     schema;
     private Boolean    autoMapping;
     private Boolean    mapUnderscoreToCamelCase;
     private Boolean    caseInsensitive;
@@ -33,6 +35,8 @@ public class MappingOptions {
 
     public MappingOptions(MappingOptions options) {
         if (options != null) {
+            this.catalog = options.catalog;
+            this.schema = options.schema;
             this.autoMapping = options.autoMapping;
             this.mapUnderscoreToCamelCase = options.mapUnderscoreToCamelCase;
             this.caseInsensitive = options.caseInsensitive;
@@ -46,6 +50,32 @@ public class MappingOptions {
         String dialect = defaultDialect == null ? null : defaultDialect.getClass().getName();
         String key = this.autoMapping + "," + this.mapUnderscoreToCamelCase + "," + this.caseInsensitive + "," + this.useDelimited + "," + dialect;
         return "MappingOptions[" + key + "]";
+    }
+
+    public String getCatalog() {
+        return this.catalog;
+    }
+
+    public void setCatalog(String catalog) {
+        this.catalog = catalog;
+    }
+
+    public MappingOptions catalog(String catalog) {
+        setCatalog(catalog);
+        return this;
+    }
+
+    public String getSchema() {
+        return this.schema;
+    }
+
+    public void setSchema(String schema) {
+        this.schema = schema;
+    }
+
+    public MappingOptions schema(String schema) {
+        setSchema(schema);
+        return this;
     }
 
     public Boolean getAutoMapping() {
@@ -108,7 +138,7 @@ public class MappingOptions {
         this.useDelimited = useDelimited;
     }
 
-    public MappingOptions defaultDialect(Boolean useDelimited) {
+    public MappingOptions defaultDelimited(Boolean useDelimited) {
         setUseDelimited(useDelimited);
         return this;
     }
@@ -120,4 +150,57 @@ public class MappingOptions {
     public static MappingOptions buildNew(MappingOptions options) {
         return new MappingOptions(options);
     }
+
+    //MappingDefault
+    //
+    //    private static void fetchPackageInfo(final Map<String, String> confData, Class<?> matchType, final ClassLoader classLoader, final String className) {
+    //        if (StringUtils.isBlank(className)) {
+    //            return;
+    //        }
+    //
+    //        String packageName = StringUtils.substringBeforeLast(className, ".");
+    //
+    //        for (; ; ) {
+    //            fetchEntityInfo(confData, matchType, classLoader, packageName + ".package-info");
+    //            if (!confData.isEmpty()) {
+    //                break;
+    //            }
+    //            if (packageName.indexOf('.') == -1) {
+    //                break;
+    //            }
+    //            packageName = StringUtils.substringBeforeLast(packageName, ".");
+    //            if (StringUtils.isBlank(packageName)) {
+    //                break;
+    //            }
+    //        }
+    //    }
+    //
+    //    static boolean fetchEntityInfo(final Map<String, String> confData, Class<?> matchType, final ClassLoader classLoader, final String className) {
+    //        if (StringUtils.isBlank(className)) {
+    //            return false;
+    //        }
+    //
+    //        String packageName = className.replace(".", "/");
+    //        InputStream asStream = classLoader.getResourceAsStream(packageName + ".class");
+    //        if (asStream == null) {
+    //            return false;
+    //        }
+    //
+    //        AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+    //        try {
+    //            ClassReader classReader = new ClassReader(asStream);
+    //            classReader.accept(new ClassVisitor(Opcodes.ASM9) {
+    //                public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
+    //                    if (!AsmTools.toAsmType(matchType).equals(desc)) {
+    //                        return super.visitAnnotation(desc, visible);
+    //                    }
+    //                    atomicBoolean.set(true);
+    //                    return new TableDefaultVisitor(Opcodes.ASM9, super.visitAnnotation(desc, visible), confData);
+    //                }
+    //            }, ClassReader.SKIP_CODE);
+    //        } catch (Exception e) {
+    //            logger.error(e.getMessage(), e);
+    //        }
+    //        return atomicBoolean.get();
+    //    }
 }

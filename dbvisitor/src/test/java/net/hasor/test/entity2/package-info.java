@@ -18,6 +18,6 @@
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2017-03-23
  */
-@TableDefault(catalog = "master", schema = "dbo", mapUnderscoreToCamelCase = true)
+@MappingDefault(catalog = "master", schema = "dbo", mapUnderscoreToCamelCase = true)
 package net.hasor.test.entity2;
-import net.hasor.dbvisitor.mapping.TableDefault;
+import net.hasor.dbvisitor.mapping.MappingDefault;

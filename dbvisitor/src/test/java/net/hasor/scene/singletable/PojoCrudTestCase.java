@@ -3,7 +3,7 @@ import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.lambda.EntityQueryOperation;
 import net.hasor.dbvisitor.lambda.InsertOperation;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.scene.singletable.dto.UserTable;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;

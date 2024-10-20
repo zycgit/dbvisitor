@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.mapping.keyseq;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.SeqSqlDialect;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.KeySeq;
 import net.hasor.dbvisitor.mapping.KeySeqHolder;
 import net.hasor.dbvisitor.mapping.KeySeqHolderContext;
@@ -28,6 +29,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 支持 @KeySequence 注解方式
@@ -37,9 +39,7 @@ import java.util.Map;
 public class SeqKeySeqHolderFactory implements KeySeqHolderFactory {
     @Override
     public KeySeqHolder createHolder(KeySeqHolderContext context) {
-        if (context.getOptions() == null || !(context.getOptions().getDefaultDialect() instanceof SeqSqlDialect)) {
-            return null;
-        }
+        Objects.requireNonNull(context.getSqlDialect(), "sqlDialect is null.");
         Map<String, Object> contextMap = context.getContext();
         if (contextMap == null || !contextMap.containsKey(KeySeq.class.getName())) {
             return null;
@@ -52,9 +52,12 @@ public class SeqKeySeqHolderFactory implements KeySeqHolderFactory {
             throw new IllegalArgumentException("@KeySeq config failed, no name specified.");
         }
 
-        boolean useDelimited = Boolean.TRUE.equals(context.getOptions().getUseDelimited());
-        SeqSqlDialect dialect = (SeqSqlDialect) context.getOptions().getDefaultDialect();
-        final String seqQuery = dialect.selectSeq(useDelimited, context.getCatalog(), context.getSchema(), seqName);
+        boolean useDelimited = context.useDelimited();
+        SqlDialect dialect = context.getSqlDialect();
+        if (!(dialect instanceof SeqSqlDialect)) {
+            throw new ClassCastException(dialect.getClass().getName() + " is not SeqSqlDialect.");
+        }
+        final String seqQuery = ((SeqSqlDialect) dialect).selectSeq(useDelimited, context.getCatalog(), context.getSchema(), seqName);
 
         TypeHandler<?> typeHandler = context.getTypeHandler();
         if (typeHandler == null) {
@@ -82,6 +85,11 @@ public class SeqKeySeqHolderFactory implements KeySeqHolderFactory {
                 Object var = selectSeq(seqQuery, conn, finalTypeHandler);
                 mapping.getHandler().set(entity, var);
                 return var;
+            }
+
+            @Override
+            public String toString() {
+                return "Sequence@" + this.hashCode();
             }
         };
     }

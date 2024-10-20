@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping;
+import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.logging.Logger;
+import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.mapping.def.TableDef;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.mapping.resolve.XmlTableMappingResolve;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.w3c.dom.*;
@@ -31,11 +33,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -44,25 +43,30 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version : 2021-06-21
  */
 public class MappingRegistry {
-    private final   Map<String, Map<String, TableMapping<?>>> tableMappingMap = new ConcurrentHashMap<>();
-    protected final ClassLoader                               classLoader;
-    protected final TypeHandlerRegistry                       typeRegistry;
-    protected final MappingOptions                            global;
-    private final   XmlTableMappingResolve                    xmlMappingResolve;
-    private final   ClassTableMappingResolve                  classMappingResolve;
-    protected final Set<String>                               loadedResource;
+    private static final Logger                                                              logger      = LoggerFactory.getLogger(MappingRegistry.class);
+    public static final  MappingRegistry                                                     DEFAULT     = new MappingRegistry();
+    private final        Map<String, Map<String, Map<String, Map<String, TableMapping<?>>>>> mapForLevel = new ConcurrentHashMap<>();
+    private final        Map<String, Map<String, TableMapping<?>>>                           mapForSpace = new ConcurrentHashMap<>();
+    protected final      ClassLoader                                                         classLoader;
+    protected final      TypeHandlerRegistry                                                 typeRegistry;
+    protected final      MappingOptions                                                      global;
+    private final        XmlTableMappingResolve                                              xmlMappingResolve;
+    private final        ClassTableMappingResolve                                            entityClassResolve;
 
     public MappingRegistry() {
-        this(null, null, null);
+        this(null, TypeHandlerRegistry.DEFAULT, MappingOptions.buildNew());
     }
 
     public MappingRegistry(ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions global) {
-        this.classLoader = (classLoader == null) ? Thread.currentThread().getContextClassLoader() : classLoader;
+        this.classLoader = classLoader;
         this.typeRegistry = (typeRegistry == null) ? TypeHandlerRegistry.DEFAULT : typeRegistry;
         this.global = global;
-        this.xmlMappingResolve = new XmlTableMappingResolve(global);
-        this.classMappingResolve = new ClassTableMappingResolve(global);
-        this.loadedResource = new HashSet<>();
+        this.xmlMappingResolve = new XmlTableMappingResolve();
+        this.entityClassResolve = new ClassTableMappingResolve();
+    }
+
+    public static <T> boolean isEntity(Class<T> testClass) {
+        return testClass.isAnnotationPresent(Table.class);
     }
 
     public ClassLoader getClassLoader() {
@@ -77,37 +81,31 @@ public class MappingRegistry {
         return this.global;
     }
 
-    /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
-    public void loadMapper(URL resource) throws IOException, ReflectiveOperationException {
-        try (InputStream stream = resource.openStream()) {
-            Objects.requireNonNull(stream, "resource '" + resource + "' is not exist.");
-            this.loadMapper(stream);
-        }
+    /** load `mapper.xml` and escape decoding is not used */
+    public void loadMapper(final String resource) throws IOException {
+        this.loadMapper(resource, false);
     }
 
-    /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
-    public void loadMapper(String resource) throws IOException, ReflectiveOperationException {
-        if (resource.startsWith("/")) {
-            resource = resource.substring(1);
-        }
-
-        if (this.loadedResource.contains(resource)) {
+    /** load `mapper.xml` */
+    public void loadMapper(final String resource, boolean escape) throws IOException {
+        if (StringUtils.isBlank(resource)) {
             return;
         }
 
-        this.loadedResource.add(resource);
-        try (InputStream stream = this.classLoader.getResourceAsStream(resource)) {
+        String name = escape ? StringUtils.escapeDecode(resource) : resource;
+        if (name.startsWith("/")) {
+            name = name.substring(1);
+        }
+
+        try (InputStream stream = ResourcesUtils.getResourceAsStream(this.classLoader, name)) {
             Objects.requireNonNull(stream, "resource '" + resource + "' is not exist.");
+            logger.info("loadMapper '" + resource + "'");
             this.loadMapper(stream);
         }
     }
 
-    public boolean hasLoaded(String resource) {
-        return this.loadedResource.contains(resource);
-    }
-
-    /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
-    public void loadMapper(InputStream stream) throws IOException, ReflectiveOperationException {
+    /** load `mapper.xml` */
+    public void loadMapper(InputStream stream) throws IOException {
         Objects.requireNonNull(stream, "load InputStream is null.");
         try {
             Document document = loadXmlRoot(stream);
@@ -115,24 +113,14 @@ public class MappingRegistry {
             NamedNodeMap rootAttributes = root.getAttributes();
 
             String namespace = readAttribute("namespace", rootAttributes);
-            this.loadReader(namespace, root);
+            this.loadMapper(namespace, root);
         } catch (ParserConfigurationException | SAXException | ReflectiveOperationException e) {
             throw new IOException(e);
         }
     }
 
-    protected void loadReader(String space, Element configRoot) throws IOException, ReflectiveOperationException {
-        NamedNodeMap rootAttributes = configRoot.getAttributes();
-        String caseInsensitive = readAttribute("caseInsensitive", rootAttributes);
-        String mapUnderscoreToCamelCase = readAttribute("mapUnderscoreToCamelCase", rootAttributes);
-        String autoMapping = readAttribute("autoMapping", rootAttributes);
-        String useDelimited = readAttribute("useDelimited", rootAttributes);
-
-        MappingOptions fileScope = MappingOptions.buildNew(this.global);
-        fileScope.setCaseInsensitive(StringUtils.isBlank(caseInsensitive) ? null : Boolean.parseBoolean(caseInsensitive));
-        fileScope.setMapUnderscoreToCamelCase(StringUtils.isBlank(mapUnderscoreToCamelCase) ? null : Boolean.parseBoolean(mapUnderscoreToCamelCase));
-        fileScope.setAutoMapping(StringUtils.isBlank(autoMapping) ? null : Boolean.parseBoolean(autoMapping));
-        fileScope.setUseDelimited(StringUtils.isBlank(useDelimited) ? null : Boolean.parseBoolean(useDelimited));
+    protected void loadMapper(String space, Element configRoot) throws IOException, ReflectiveOperationException {
+        MappingOptions optInfile = this.xmlMappingResolve.fromXmlNode(configRoot.getAttributes(), this.global);
 
         NodeList childNodes = configRoot.getChildNodes();
         for (int i = 0, len = childNodes.getLength(); i < len; i++) {
@@ -149,132 +137,186 @@ public class MappingRegistry {
             }
 
             NamedNodeMap nodeAttributes = node.getAttributes();
-            Node idNode = nodeAttributes.getNamedItem("id");
             Node typeNode = nodeAttributes.getNamedItem("type");
-            String identify = (idNode != null) ? idNode.getNodeValue() : null;
             String typeString = (typeNode != null) ? typeNode.getNodeValue() : null;
-            if (StringUtils.isBlank(identify)) {
-                identify = typeString;
-            }
-
             if (StringUtils.isBlank(typeString)) {
                 throw new IOException("the <" + (isResultMap ? "resultMap" : "entity") + "> tag, type is null.");
             }
 
-            TableDef<?> tableDef = this.xmlMappingResolve.resolveTableMapping(node, fileScope, getClassLoader(), getTypeRegistry());
-            configNames(true, isEntity, tableDef);
+            Node idNode = nodeAttributes.getNamedItem("id");
+            String idStr = (idNode != null) ? idNode.getNodeValue() : null;
+            if (StringUtils.isBlank(idStr)) {
+                idStr = typeString;
+            }
 
             if (isEntity) {
-                saveMapping(true, "", identify, tableDef);
-                if (!StringUtils.equals(identify, typeString)) {
-                    saveMapping(true, "", typeString, tableDef);
-                }
+                TableDef<?> def = this.xmlMappingResolve.resolveTableMapping(node, optInfile, this.classLoader, this.typeRegistry);
+                this.saveDefToSpace(space, idStr, def, true);
             } else {
-                saveMapping(false, space, identify, tableDef);
+                TableDef<?> def = this.xmlMappingResolve.resolveTableMapping(node, optInfile, this.classLoader, this.typeRegistry);
+                this.saveDefToSpace(space, idStr, def, false);
             }
         }
     }
 
-    /** 解析 entityType 类型并作为实体载入 */
-    public void loadEntity(Class<?> entityType) {
-        loadEntity(entityType.getName(), entityType);
+    /** load entity type */
+    public <T> TableMapping<T> loadEntity(Class<T> entityType) {
+        if (entityType == null) {
+            throw new IllegalArgumentException("entityType is null.");
+        }
+
+        TableDef<T> def = this.entityClassResolve.resolveTableMapping(entityType, this.global, this.classLoader, this.typeRegistry);
+
+        if (StringUtils.isBlank(def.getTable())) {
+            throw new IllegalArgumentException("loadEntity '" + entityType.getName() + "' missing table name.");
+        }
+        return this.saveDefToSpace("", entityType.getName(), def, true);
     }
 
-    /** 解析 entityType 类型并作为实体载入 */
-    public void loadEntity(String identify, Class<?> entityType) {
-        Objects.requireNonNull(entityType, "entityType is null.");
-        String typeString = entityType.getName();
-        if (StringUtils.isBlank(identify)) {
-            identify = typeString;
+    /** load entity type */
+    public <T> TableMapping<T> loadResultMap(Class<T> resultType) {
+        if (resultType == null) {
+            throw new IllegalArgumentException("resultType is null.");
         }
 
-        TableDef<?> tableDef = this.classMappingResolve.resolveTableMapping(entityType, null, getClassLoader(), getTypeRegistry());
-        configNames(false, true, tableDef);
-
-        saveMapping(true, "", identify, tableDef);
-        if (!StringUtils.equals(identify, typeString)) {
-            saveMapping(true, "", typeString, tableDef);
-        }
+        TableDef<T> def = this.entityClassResolve.resolveTableMapping(resultType, this.global, this.classLoader, this.typeRegistry);
+        return this.saveDefToSpace("", resultType.getName(), def, false);
     }
 
-    /** 解析 resultType 类型并作为映射载入 */
-    public void loadResultMap(String space, String identify, Class<?> resultType) {
-        Objects.requireNonNull(resultType, "resultType is null.");
-        String typeString = resultType.getName();
-        if (StringUtils.isBlank(identify)) {
-            identify = typeString;
+    /** load entity type */
+    public <T> TableMapping<T> loadEntity(Class<T> entityType, String space, String name) {
+        if (entityType == null) {
+            throw new IllegalArgumentException("entityType is null.");
+        }
+        if (StringUtils.isBlank(name)) {
+            throw new IllegalArgumentException("name is empty.");
         }
 
-        TableDef<?> tableDef = this.classMappingResolve.resolveTableMapping(resultType, null, getClassLoader(), getTypeRegistry());
-        configNames(false, false, tableDef);
-
-        saveMapping(false, space, identify, tableDef);
-    }
-
-    private void configNames(boolean isXml, boolean isEntity, TableDef<?> tableDef) {
-        if (!isEntity) {
-            tableDef.setCatalog("");
-            tableDef.setSchema("");
-            tableDef.setTable("");
-            return;
+        TableDef<T> def = this.entityClassResolve.resolveTableMapping(entityType, this.global, this.classLoader, this.typeRegistry);
+        if (StringUtils.isBlank(def.getTable())) {
+            throw new IllegalArgumentException("loadEntity '" + entityType.getName() + "' missing table name.");
         }
 
-        if (isXml) {
-            return;
-        }
-
-        Class<?> entityType = tableDef.entityType();
-        if (StringUtils.isBlank(tableDef.getTable())) {
-            if (tableDef.isMapUnderscoreToCamelCase()) {
-                tableDef.setTable(StringUtils.humpToLine(entityType.getSimpleName()));
-            } else {
-                tableDef.setTable(entityType.getSimpleName());
-            }
-        }
-    }
-
-    private void saveMapping(boolean isEntity, String space, String identify, TableMapping<?> tableMapping) {
         space = StringUtils.isBlank(space) ? "" : space;
-
-        if (!this.tableMappingMap.containsKey(space)) {
-            this.tableMappingMap.put(space, new ConcurrentHashMap<>());
-        }
-
-        Map<String, TableMapping<?>> mappingMap = this.tableMappingMap.get(space);
-        if (mappingMap.containsKey(identify)) {
-            String msg = isEntity ? "repeat entity" : "repeat resultMap";
-            throw new IllegalStateException(msg + " '" + identify + "' in " + (StringUtils.isBlank(space) ? "default namespace" : ("'" + space + "' namespace.")));
-        }
-
-        if (isEntity && StringUtils.isBlank(tableMapping.getTable())) {
-            throw new IllegalStateException("entity '" + identify + "' table is not specified in " + (StringUtils.isBlank(space) ? "default namespace" : ("'" + space + "' namespace.")));
-        }
-
-        mappingMap.put(identify, tableMapping);
+        return this.saveDefToSpace(space, name, def, true);
     }
 
-    public <T> TableMapping<T> findEntity(Class<?> entityType) {
-        return findMapping("", entityType.getName());
-    }
-
-    public <T> TableMapping<T> findEntity(String idOrType) {
-        return findMapping("", idOrType);
-    }
-
-    public <T> TableMapping<T> findMapping(String space, String identify) {
-        TableMapping<?> tableMapping = null;
-
-        if (StringUtils.isNotBlank(space) && this.tableMappingMap.containsKey(space)) {
-            Map<String, TableMapping<?>> mappingMap = this.tableMappingMap.get(space);
-            tableMapping = mappingMap.get(identify);
+    /** load entity type */
+    public <T> TableMapping<T> loadResultMap(Class<T> resultType, String space, String name) {
+        if (resultType == null) {
+            throw new IllegalArgumentException("resultType is null.");
+        }
+        if (StringUtils.isBlank(name)) {
+            throw new IllegalArgumentException("name is empty.");
         }
 
-        if (tableMapping == null && this.tableMappingMap.containsKey("")) {
-            Map<String, TableMapping<?>> mappingMap = this.tableMappingMap.get("");
-            tableMapping = mappingMap.get(identify);
+        TableDef<T> def = this.entityClassResolve.resolveTableMapping(resultType, this.global, this.classLoader, this.typeRegistry);
+
+        space = StringUtils.isBlank(space) ? "" : space;
+        return this.saveDefToSpace(space, name, def, false);
+    }
+
+    protected <T> TableMapping<T> saveDefToSpace(String space, String name, TableDef<?> def, boolean asTable) {
+        Map<String, TableMapping<?>> typeMap = this.mapForSpace.computeIfAbsent(space, s -> new ConcurrentHashMap<>());
+        if (typeMap.containsKey(name)) {
+            TableMapping<?> tableMapping = typeMap.get(name);
+            if (tableMapping != null) {
+                if (tableMapping.entityType() != def.entityType()) {
+                    String tag = asTable ? "entity" : "resultMap";
+                    String fullname = StringUtils.isBlank(space) ? name : (space + "." + name);
+                    throw new IllegalStateException("the " + tag + " '" + fullname + "' already exists, cannot overwrite with a different type.");
+                }
+            }
         }
 
-        return (TableMapping<T>) tableMapping;
+        if (asTable) {
+            String catalog = def.getCatalog();
+            String schema = def.getSchema();
+            String table = def.getTable();
+            catalog = StringUtils.isNotBlank(catalog) ? catalog : "";
+            schema = StringUtils.isNotBlank(schema) ? schema : "";
+            table = StringUtils.isNotBlank(table) ? table : "";
+
+            if (StringUtils.isBlank(table)) {
+                Class<?> entityType = def.entityType();
+                if (def.isMapUnderscoreToCamelCase()) {
+                    def.setTable(StringUtils.humpToLine(entityType.getSimpleName()));
+                } else {
+                    def.setTable(entityType.getSimpleName());
+                }
+            }
+
+            Map<String, Map<String, Map<String, TableMapping<?>>>> schemaMap = this.mapForLevel.computeIfAbsent(catalog, s -> new ConcurrentHashMap<>());
+            Map<String, Map<String, TableMapping<?>>> tableMap = schemaMap.computeIfAbsent(schema, s -> new ConcurrentHashMap<>());
+            Map<String, TableMapping<?>> valuesMap = tableMap.computeIfAbsent(table, s -> new ConcurrentHashMap<>());
+
+            if (tableMap.containsKey(name)) {
+                TableMapping<?> mapping = valuesMap.get(name);
+                if (mapping != null) {
+                    StringBuilder fullTable = new StringBuilder();
+                    fullTable.insert(0, table);
+                    if (StringUtils.isNotBlank(schema)) {
+                        fullTable.insert(0, schema + ".");
+                    }
+                    if (StringUtils.isNotBlank(catalog)) {
+                        fullTable.insert(0, catalog + ".");
+                    }
+
+                    throw new IllegalStateException("the entity of table '" + fullTable + "' of name '" + name + "' already exists.");
+                }
+            }
+
+            this.mapForSpace.get(space).put(name, def);
+            this.mapForLevel.get(catalog).get(schema).get(table).put(name, def);
+        } else {
+            this.mapForSpace.get(space).put(name, def);
+        }
+
+        return (TableMapping<T>) def;
+    }
+
+    public <T> TableMapping<T> findMapping(Class<?> entityType) {
+        return this.findMapping("", entityType.getName());
+    }
+
+    public <T> TableMapping<T> findMapping(String space, String name) {
+        String findSpace = StringUtils.isBlank(space) ? "" : space;
+
+        if (this.mapForSpace.containsKey(findSpace)) {
+            Map<String, TableMapping<?>> map = this.mapForSpace.get(findSpace);
+            return (TableMapping<T>) map.get(name);
+        } else {
+            return null;
+        }
+    }
+
+    public <T> TableMapping<T> findTable(String catalog, String schema, String table) {
+        return this.findTable(catalog, schema, table, null);
+    }
+
+    public <T> TableMapping<T> findTable(String catalog, String schema, String table, String specifyName) {
+        catalog = StringUtils.isNotBlank(catalog) ? catalog : "";
+        schema = StringUtils.isNotBlank(schema) ? schema : "";
+        table = StringUtils.isNotBlank(table) ? table : "";
+
+        Map<String, Map<String, Map<String, TableMapping<?>>>> schemaMap = this.mapForLevel.get(catalog);
+        if (schemaMap != null) {
+            Map<String, Map<String, TableMapping<?>>> tableMap = schemaMap.get(schema);
+            if (tableMap != null) {
+                Map<String, TableMapping<?>> values = tableMap.get(table);
+                if (specifyName != null) {
+                    return (TableMapping<T>) values.get(specifyName);
+                } else {
+                    if (values.size() == 1) {
+                        return (TableMapping<T>) values.values().toArray()[0];
+                    } else {
+                        throw new IllegalStateException("table has multiple definitions, please specify a name");
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     // --------------------------------------------------------------------------------------------
@@ -305,12 +347,10 @@ public class MappingRegistry {
         return documentBuilder.parse(new InputSource(stream));
     }
 
-    protected String readAttribute(String attrName, NamedNodeMap rootAttributes) {
-        if (rootAttributes != null) {
-            Node namespaceNode = rootAttributes.getNamedItem(attrName);
-            if (namespaceNode != null) {
-                return namespaceNode.getNodeValue();
-            }
+    protected String readAttribute(String key, NamedNodeMap nodeAttributes) {
+        if (nodeAttributes != null) {
+            Node node = nodeAttributes.getNamedItem(key);
+            return (node != null) ? node.getNodeValue() : null;
         }
         return null;
     }
