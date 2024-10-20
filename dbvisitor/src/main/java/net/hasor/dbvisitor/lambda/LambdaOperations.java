@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.lambda;
 import net.hasor.dbvisitor.jdbc.JdbcOperations;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 
 import java.sql.SQLException;
 import java.util.Map;

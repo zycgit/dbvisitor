@@ -33,10 +33,10 @@ import net.hasor.dbvisitor.lambda.support.map.DeleteLambdaForMap;
 import net.hasor.dbvisitor.lambda.support.map.InsertLambdaForMap;
 import net.hasor.dbvisitor.lambda.support.map.SelectLambdaForMap;
 import net.hasor.dbvisitor.lambda.support.map.UpdateLambdaForMap;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.def.TableDef;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -222,7 +222,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
             }
 
             ClassLoader loader = ClassUtils.getClassLoader(exampleType.getClassLoader());
-            TableDef<?> tableDef = new ClassTableMappingResolve(opt).resolveTableMapping(exampleType, null, loader, this.getRegistry().getTypeRegistry());
+            TableDef<?> tableDef = new ClassTableMappingResolve().resolveTableMapping(exampleType, opt, loader, this.getRegistry().getTypeRegistry());
             if (StringUtils.isBlank(tableDef.getTable())) {
                 if (tableDef.isMapUnderscoreToCamelCase()) {
                     tableDef.setTable(StringUtils.humpToLine(exampleType.getSimpleName()));
@@ -259,7 +259,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         boolean caseInsensitive = copyOpt.getCaseInsensitive();
         boolean camelCase = copyOpt.getMapUnderscoreToCamelCase();
 
-        final TableDef<?> tableDef = new TableDef<>(finalCatalog, finalSchema, finalTable, LinkedHashMap.class, //
+        final TableDef<?> tableDef = new TableDef<>(finalCatalog, finalSchema, finalTable, LinkedHashMap.class, this.getDialect(), //
                 true, useDelimited, caseInsensitive, camelCase);
 
         this.mapMapping.put(mappingKey, tableDef);

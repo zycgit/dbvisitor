@@ -18,8 +18,8 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.MapUpdateOperation;
 import net.hasor.dbvisitor.lambda.core.AbstractUpdateLambda;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 
 import java.util.Map;
 

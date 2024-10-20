@@ -27,9 +27,9 @@ import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.lambda.segment.OrderByKeyword;
 import net.hasor.dbvisitor.lambda.segment.Segment;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
