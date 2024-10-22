@@ -15,6 +15,8 @@
  */
 package net.hasor.dbvisitor.mapping.keyseq;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.reflect.Annotation;
+import net.hasor.cobble.reflect.Annotations;
 import net.hasor.dbvisitor.dialect.SeqSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.KeySeq;
@@ -28,7 +30,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -40,14 +41,16 @@ public class SeqKeySeqHolderFactory implements KeySeqHolderFactory {
     @Override
     public KeySeqHolder createHolder(KeySeqHolderContext context) {
         Objects.requireNonNull(context.getSqlDialect(), "sqlDialect is null.");
-        Map<String, Object> contextMap = context.getContext();
-        if (contextMap == null || !contextMap.containsKey(KeySeq.class.getName())) {
+        Annotations annotations = context.getAnnotations();
+        if (annotations == null) {
+            return null;
+        }
+        Annotation keySeq = annotations.getAnnotation(KeySeq.class);
+        if (keySeq == null) {
             return null;
         }
 
-        KeySeq keySeqAnno = (KeySeq) contextMap.get(KeySeq.class.getName());
-        String seqName = keySeqAnno.value();
-
+        String seqName = keySeq.getString("value", null);
         if (StringUtils.isBlank(seqName)) {
             throw new IllegalArgumentException("@KeySeq config failed, no name specified.");
         }

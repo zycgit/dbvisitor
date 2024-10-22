@@ -32,6 +32,7 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-07-20
  */
+@Deprecated
 public class ResultTableReader extends ColumnMapRowMapper implements TableReader<Map<String, Object>>, ResultSetExtractor<List<Map<String, Object>>> {
 
     public ResultTableReader(boolean caseInsensitive, TypeHandlerRegistry typeHandler) {

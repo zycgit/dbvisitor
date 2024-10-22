@@ -39,6 +39,7 @@ import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -221,16 +222,20 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
                 opt.setDefaultDialect(this.getDialect());
             }
 
-            ClassLoader loader = ClassUtils.getClassLoader(exampleType.getClassLoader());
-            TableDef<?> tableDef = new ClassTableMappingResolve().resolveTableMapping(exampleType, opt, loader, this.getRegistry().getTypeRegistry());
-            if (StringUtils.isBlank(tableDef.getTable())) {
-                if (tableDef.isMapUnderscoreToCamelCase()) {
-                    tableDef.setTable(StringUtils.humpToLine(exampleType.getSimpleName()));
-                } else {
-                    tableDef.setTable(exampleType.getSimpleName());
+            try {
+                ClassLoader loader = ClassUtils.getClassLoader(exampleType.getClassLoader());
+                TableDef<?> tableDef = new ClassTableMappingResolve().resolveTableMapping(exampleType, opt, loader, this.getRegistry().getTypeRegistry());
+                if (StringUtils.isBlank(tableDef.getTable())) {
+                    if (tableDef.isMapUnderscoreToCamelCase()) {
+                        tableDef.setTable(StringUtils.humpToLine(exampleType.getSimpleName()));
+                    } else {
+                        tableDef.setTable(exampleType.getSimpleName());
+                    }
                 }
+                return tableDef;
+            } catch (ReflectiveOperationException | IOException e) {
+                throw new RuntimeException(e);
             }
-            return tableDef;
         });
         return (TableMapping<T>) mapping;
     }

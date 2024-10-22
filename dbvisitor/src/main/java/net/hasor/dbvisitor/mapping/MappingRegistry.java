@@ -18,7 +18,10 @@ import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
+import net.hasor.cobble.reflect.Annotation;
+import net.hasor.cobble.reflect.Annotations;
 import net.hasor.dbvisitor.mapping.def.TableDef;
+import net.hasor.dbvisitor.mapping.def.TableDescDef;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.dbvisitor.mapping.resolve.XmlTableMappingResolve;
@@ -54,11 +57,11 @@ public class MappingRegistry {
     private final        ClassTableMappingResolve                                            entityClassResolve;
 
     public MappingRegistry() {
-        this(null, TypeHandlerRegistry.DEFAULT, MappingOptions.buildNew());
+        this(Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT, MappingOptions.buildNew());
     }
 
     public MappingRegistry(ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions global) {
-        this.classLoader = classLoader;
+        this.classLoader = classLoader != null ? classLoader : Thread.currentThread().getContextClassLoader();
         this.typeRegistry = (typeRegistry == null) ? TypeHandlerRegistry.DEFAULT : typeRegistry;
         this.global = global;
         this.xmlMappingResolve = new XmlTableMappingResolve();
@@ -160,17 +163,80 @@ public class MappingRegistry {
     }
 
     /** load entity type */
-    public <T> TableMapping<T> loadEntity(Class<T> entityType) {
+    public <T> TableMapping<T> loadEntityToSpace(Class<T> entityType) {
         if (entityType == null) {
             throw new IllegalArgumentException("entityType is null.");
         }
 
-        TableDef<T> def = this.entityClassResolve.resolveTableMapping(entityType, this.global, this.classLoader, this.typeRegistry);
+        try {
+            TableDef<T> def = this.entityClassResolve.resolveTableMapping(entityType, this.global, this.classLoader, this.typeRegistry);
 
-        if (StringUtils.isBlank(def.getTable())) {
+            return this.saveDefToSpace("", entityType.getName(), def, true);
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /** load entity type, and save to specify space. */
+    public <T> TableMapping<T> loadEntityToSpace(Class<T> entityType, String space, String name) {
+        if (entityType == null) {
+            throw new IllegalArgumentException("entityType is null.");
+        }
+        if (StringUtils.isBlank(name)) {
+            throw new IllegalArgumentException("name is empty.");
+        }
+
+        try {
+            TableDef<T> def = this.entityClassResolve.resolveTableMapping(entityType, this.global, this.classLoader, this.typeRegistry);
+
+            return this.saveDefToSpace(space, name, def, true);
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /** load entity type, and using specify table name config it. (space is "" name is type full name) */
+    public <T> TableMapping<T> loadEntityToTable(Class<T> entityType, String table) {
+        if (entityType == null) {
+            throw new IllegalArgumentException("entityType is null.");
+        }
+        if (StringUtils.isBlank(table)) {
             throw new IllegalArgumentException("loadEntity '" + entityType.getName() + "' missing table name.");
         }
-        return this.saveDefToSpace("", entityType.getName(), def, true);
+
+        try {
+            TableDef<T> def = this.entityClassResolve.resolveTableMapping(entityType, this.global, this.classLoader, this.typeRegistry);
+            def.setTable(table);
+            if (def.getDescription() == null) {
+                def.setDescription(new TableDescDef());
+                ((TableDescDef) def.getDescription()).setDdlAuto(DdlAuto.None);
+            }
+
+            return this.saveDefToSpace("", entityType.getName(), def, true);
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /** load entity type, and using specify table name config it. (space is "" name is type full name) */
+    public <T> TableMapping<T> loadEntityToTable(Class<T> entityType, String catalog, String schema, String table) {
+        if (entityType == null) {
+            throw new IllegalArgumentException("entityType is null.");
+        }
+        if (StringUtils.isBlank(table)) {
+            throw new IllegalArgumentException("loadEntity '" + entityType.getName() + "' missing table name.");
+        }
+
+        try {
+            TableDef<T> def = this.entityClassResolve.resolveTableMapping(entityType, this.global, this.classLoader, this.typeRegistry);
+            def.setCatalog(catalog);
+            def.setSchema(schema);
+            def.setTable(table);
+
+            return this.saveDefToSpace("", entityType.getName(), def, true);
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /** load entity type */
@@ -179,26 +245,28 @@ public class MappingRegistry {
             throw new IllegalArgumentException("resultType is null.");
         }
 
-        TableDef<T> def = this.entityClassResolve.resolveTableMapping(resultType, this.global, this.classLoader, this.typeRegistry);
-        return this.saveDefToSpace("", resultType.getName(), def, false);
-    }
+        try {
+            TableDef<T> def = this.entityClassResolve.resolveTableMapping(resultType, this.global, this.classLoader, this.typeRegistry);
 
-    /** load entity type */
-    public <T> TableMapping<T> loadEntity(Class<T> entityType, String space, String name) {
-        if (entityType == null) {
-            throw new IllegalArgumentException("entityType is null.");
-        }
-        if (StringUtils.isBlank(name)) {
-            throw new IllegalArgumentException("name is empty.");
-        }
+            String space;
+            String name;
+            Annotations classAnno = Annotations.ofClass(resultType);
+            Annotation annotation = classAnno.getAnnotation(ResultMap.class);
+            if (annotation != null) {
+                space = annotation.getString("space", "");
+                name = annotation.getString("id", "");
+                if (StringUtils.isBlank(name)) {
+                    name = annotation.getString("value", resultType.getName());
+                }
+            } else {
+                space = "";
+                name = resultType.getName();
+            }
 
-        TableDef<T> def = this.entityClassResolve.resolveTableMapping(entityType, this.global, this.classLoader, this.typeRegistry);
-        if (StringUtils.isBlank(def.getTable())) {
-            throw new IllegalArgumentException("loadEntity '" + entityType.getName() + "' missing table name.");
+            return this.saveDefToSpace(space, name, def, false);
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new RuntimeException(e);
         }
-
-        space = StringUtils.isBlank(space) ? "" : space;
-        return this.saveDefToSpace(space, name, def, true);
     }
 
     /** load entity type */
@@ -210,22 +278,25 @@ public class MappingRegistry {
             throw new IllegalArgumentException("name is empty.");
         }
 
-        TableDef<T> def = this.entityClassResolve.resolveTableMapping(resultType, this.global, this.classLoader, this.typeRegistry);
+        try {
+            TableDef<T> def = this.entityClassResolve.resolveTableMapping(resultType, this.global, this.classLoader, this.typeRegistry);
 
-        space = StringUtils.isBlank(space) ? "" : space;
-        return this.saveDefToSpace(space, name, def, false);
+            return this.saveDefToSpace(space, name, def, false);
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected <T> TableMapping<T> saveDefToSpace(String space, String name, TableDef<?> def, boolean asTable) {
+        space = StringUtils.isBlank(space) ? "" : space;
+
         Map<String, TableMapping<?>> typeMap = this.mapForSpace.computeIfAbsent(space, s -> new ConcurrentHashMap<>());
         if (typeMap.containsKey(name)) {
             TableMapping<?> tableMapping = typeMap.get(name);
             if (tableMapping != null) {
-                if (tableMapping.entityType() != def.entityType()) {
-                    String tag = asTable ? "entity" : "resultMap";
-                    String fullname = StringUtils.isBlank(space) ? name : (space + "." + name);
-                    throw new IllegalStateException("the " + tag + " '" + fullname + "' already exists, cannot overwrite with a different type.");
-                }
+                String tag = asTable ? "entity" : "resultMap";
+                String fullname = StringUtils.isBlank(space) ? name : (space + "." + name);
+                throw new IllegalStateException("the " + tag + " '" + fullname + "' already exists.");
             }
         }
 
@@ -244,13 +315,14 @@ public class MappingRegistry {
                 } else {
                     def.setTable(entityType.getSimpleName());
                 }
+                table = def.getTable();
             }
 
             Map<String, Map<String, Map<String, TableMapping<?>>>> schemaMap = this.mapForLevel.computeIfAbsent(catalog, s -> new ConcurrentHashMap<>());
             Map<String, Map<String, TableMapping<?>>> tableMap = schemaMap.computeIfAbsent(schema, s -> new ConcurrentHashMap<>());
             Map<String, TableMapping<?>> valuesMap = tableMap.computeIfAbsent(table, s -> new ConcurrentHashMap<>());
 
-            if (tableMap.containsKey(name)) {
+            if (valuesMap.containsKey(name)) {
                 TableMapping<?> mapping = valuesMap.get(name);
                 if (mapping != null) {
                     StringBuilder fullTable = new StringBuilder();
@@ -269,17 +341,24 @@ public class MappingRegistry {
             this.mapForSpace.get(space).put(name, def);
             this.mapForLevel.get(catalog).get(schema).get(table).put(name, def);
         } else {
+            def.setCatalog("");
+            def.setSchema("");
+            def.setTable("");
             this.mapForSpace.get(space).put(name, def);
         }
 
         return (TableMapping<T>) def;
     }
 
-    public <T> TableMapping<T> findMapping(Class<?> entityType) {
-        return this.findMapping("", entityType.getName());
+    public <T> TableMapping<T> findUsingSpace(Class<?> entityType) {
+        return this.findUsingSpace("", entityType.getName());
     }
 
-    public <T> TableMapping<T> findMapping(String space, String name) {
+    public <T> TableMapping<T> findUsingSpace(String space, Class<?> entityType) {
+        return this.findUsingSpace(space, entityType.getName());
+    }
+
+    public <T> TableMapping<T> findUsingSpace(String space, String name) {
         String findSpace = StringUtils.isBlank(space) ? "" : space;
 
         if (this.mapForSpace.containsKey(findSpace)) {
@@ -290,11 +369,11 @@ public class MappingRegistry {
         }
     }
 
-    public <T> TableMapping<T> findTable(String catalog, String schema, String table) {
-        return this.findTable(catalog, schema, table, null);
+    public <T> TableMapping<T> findUsingTable(String catalog, String schema, String table) {
+        return this.findUsingTable(catalog, schema, table, null);
     }
 
-    public <T> TableMapping<T> findTable(String catalog, String schema, String table, String specifyName) {
+    public <T> TableMapping<T> findUsingTable(String catalog, String schema, String table, String specifyName) {
         catalog = StringUtils.isNotBlank(catalog) ? catalog : "";
         schema = StringUtils.isNotBlank(schema) ? schema : "";
         table = StringUtils.isNotBlank(table) ? table : "";

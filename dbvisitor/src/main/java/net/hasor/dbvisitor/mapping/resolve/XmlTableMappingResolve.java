@@ -17,6 +17,8 @@ package net.hasor.dbvisitor.mapping.resolve;
 import net.hasor.cobble.*;
 import net.hasor.cobble.convert.ConverterUtils;
 import net.hasor.cobble.function.Property;
+import net.hasor.cobble.reflect.Annotation;
+import net.hasor.cobble.reflect.Annotations;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.*;
 import net.hasor.dbvisitor.mapping.def.*;
@@ -27,8 +29,11 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.lang.annotation.Annotation;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -50,27 +55,27 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
                 continue;
             }
             String elementName = node.getNodeName().toLowerCase().trim();
-            if ("id".equalsIgnoreCase(elementName) || "result".equalsIgnoreCase(elementName) || "mapping".equalsIgnoreCase(elementName)) {
+            if ("id".equalsIgnoreCase(elementName) || "result".equalsIgnoreCase(elementName) || "mapping".equalsIgnoreCase(elementName) || "index".equalsIgnoreCase(elementName)) {
                 return true;
             }
         }
         return false;
     }
 
-    protected TableDef<?> resolveTableInfo(boolean isEntity, NamedNodeMap xmlAttr, MappingOptions usingOpt) {
+    protected TableDef<?> resolveTableInfo(boolean isEntity, NamedNodeMap xmlAttr, MappingOptions usingOpt, ClassLoader classLoader) throws ClassNotFoundException {
         String autoMapping = strFromXmlAttribute(xmlAttr, "autoMapping");
         String useDelimited = strFromXmlAttribute(xmlAttr, "useDelimited");
         String mapUnderscoreToCamelCase = strFromXmlAttribute(xmlAttr, "mapUnderscoreToCamelCase");
         String caseInsensitive = strFromXmlAttribute(xmlAttr, "caseInsensitive");
 
-        Class<?> usingEntityType = null;
+        Class<?> entityType = ClassUtils.getClass(classLoader, strFromXmlAttribute(xmlAttr, "type"), false);
         boolean usingAutoProperty = StringUtils.isBlank(autoMapping) ? (usingOpt.getAutoMapping() == null || usingOpt.getAutoMapping()) : Boolean.parseBoolean(autoMapping);
         boolean usingUseDelimited = StringUtils.isBlank(useDelimited) ? Boolean.TRUE.equals(usingOpt.getUseDelimited()) : Boolean.parseBoolean(useDelimited);
         boolean usingMapUnderscoreToCamelCase = StringUtils.isBlank(mapUnderscoreToCamelCase) ? Boolean.TRUE.equals(usingOpt.getMapUnderscoreToCamelCase()) : Boolean.parseBoolean(mapUnderscoreToCamelCase);
         boolean usingCaseInsensitive = StringUtils.isBlank(caseInsensitive) ? (usingOpt.getCaseInsensitive() == null || usingOpt.getCaseInsensitive()) : Boolean.parseBoolean(caseInsensitive);
         SqlDialect dialect = usingOpt.getDefaultDialect();
 
-        TableDef<?> def = new TableDef<>("", "", "", usingEntityType, dialect,//
+        TableDef<?> def = new TableDef<>("", "", "", entityType, dialect,//
                 usingAutoProperty, usingUseDelimited, usingCaseInsensitive, usingMapUnderscoreToCamelCase);
         if (isEntity) {
             String catalog = strFromXmlAttribute(xmlAttr, "catalog");
@@ -107,22 +112,24 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
     }
 
     @Override
-    public TableDef<?> resolveTableMapping(Node refData, MappingOptions usingOpt, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
+    public TableDef<?> resolveTableMapping(Node refData, MappingOptions usingOpt, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException, IOException {
         NodeList childNodes = refData.getChildNodes();
         NamedNodeMap xmlAttr = refData.getAttributes();
 
-        Class<?> entityType = ClassUtils.getClass(classLoader, strFromXmlAttribute(xmlAttr, "type"), false);
         boolean isEntity = StringUtils.equalsIgnoreCase("entity", refData.getNodeName());
-        TableDef<?> tableDef = this.resolveTableInfo(isEntity, xmlAttr, usingOpt);
+        TableDef<?> tableDef = this.resolveTableInfo(isEntity, xmlAttr, usingOpt, classLoader);
 
         if (hasAnyMapping(childNodes)) {
             this.loadTableMapping(isEntity, tableDef, refData, classLoader, typeRegistry);
+            if (isEntity) {
+                loadTableIndexes(tableDef, childNodes);
+            }
         } else {
-            this.classTableMappingResolve.resolveTableAndColumn(isEntity, tableDef, typeRegistry);
-        }
-
-        if (isEntity) {
-            loadTableIndexes(tableDef, childNodes);
+            Annotations classAnno = Annotations.ofClass(tableDef.entityType());
+            this.classTableMappingResolve.resolveTableAndColumn(isEntity, classAnno, tableDef, classLoader, typeRegistry);
+            if (isEntity) {
+                this.classTableMappingResolve.loadTableIndex(classAnno, tableDef);
+            }
         }
 
         return tableDef;
@@ -288,7 +295,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
                 case Auto:
                 case UUID32:
                 case UUID36:
-                    return keyTypeEnum.createHolder(new KeySeqHolderContext(typeRegistry, tableDef, colDef, Collections.emptyMap()));
+                    return keyTypeEnum.createHolder(new KeySeqHolderContext(typeRegistry, tableDef, colDef, classLoader, Annotations.empty()));
                 case None:
                 case Holder:
                 case Sequence:
@@ -296,14 +303,15 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
                     return null;
             }
         } else if (StringUtils.startsWithIgnoreCase(keyType, "KeySeq::")) {
-            keyType = keyType.substring("KeySeq::".length());
-            Map<String, Object> context = new HashMap<>();
-            context.put(KeySeq.class.getName(), new KeySeqImpl(keyType));
-            return KeyTypeEnum.Sequence.createHolder(new KeySeqHolderContext(typeRegistry, tableDef, colDef, context));
+            Annotation mockKeySeq = Annotation.create();
+            mockKeySeq.putData("value", keyType.substring("KeySeq::".length()));
+            Annotations mockAnno = Annotations.create();
+            mockAnno.putTypeData(KeySeq.class.getName(), mockKeySeq);
+            return KeyTypeEnum.Sequence.createHolder(new KeySeqHolderContext(typeRegistry, tableDef, colDef, classLoader, mockAnno));
         } else {
             Class<?> aClass = classLoader.loadClass(keyType);
             KeySeqHolderFactory holderFactory = (KeySeqHolderFactory) aClass.newInstance();
-            return holderFactory.createHolder(new KeySeqHolderContext(typeRegistry, tableDef, colDef, Collections.emptyMap()));
+            return holderFactory.createHolder(new KeySeqHolderContext(typeRegistry, tableDef, colDef, classLoader, Annotations.empty()));
         }
     }
 
@@ -390,23 +398,5 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
             return (node != null) ? node.getNodeValue() : null;
         }
         return null;
-    }
-
-    private static class KeySeqImpl implements KeySeq {
-        private final String keyType;
-
-        public KeySeqImpl(String keyType) {
-            this.keyType = keyType;
-        }
-
-        @Override
-        public Class<? extends Annotation> annotationType() {
-            return KeySeq.class;
-        }
-
-        @Override
-        public String value() {
-            return this.keyType;
-        }
     }
 }

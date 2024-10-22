@@ -21,5 +21,5 @@ package net.hasor.dbvisitor.mapping;
  * @version : 2022-12-01
  */
 public interface KeySeqHolderFactory {
-    KeySeqHolder createHolder(KeySeqHolderContext context);
+    KeySeqHolder createHolder(KeySeqHolderContext context) throws ClassNotFoundException;
 }

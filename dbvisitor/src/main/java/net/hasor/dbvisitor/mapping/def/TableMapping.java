@@ -61,10 +61,12 @@ public interface TableMapping<T> {
 
     ColumnMapping getPropertyByName(String property);
 
+    @Deprecated
     default TableReader<Map<String, Object>> toMapReader() {
         return new MapTableReader(this);
     }
 
+    @Deprecated
     default TableReader<T> toReader() {
         return new BeanTableReader<>(this);
     }
@@ -76,4 +78,7 @@ public interface TableMapping<T> {
 
     /** 获取索引描述信息 */
     List<IndexDescription> getIndexes();
+
+    /** 获取索引描述信息 */
+    IndexDescription getIndex(String name);
 }

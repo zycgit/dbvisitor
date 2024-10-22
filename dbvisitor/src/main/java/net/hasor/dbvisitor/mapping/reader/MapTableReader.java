@@ -31,6 +31,7 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-07-20
  */
+@Deprecated
 public class MapTableReader implements TableReader<Map<String, Object>> {
     private final boolean         caseInsensitive;
     private final TableMapping<?> tableMapping;

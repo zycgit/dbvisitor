@@ -29,6 +29,14 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ResultMap {
+    /** space */
+    String space() default "";
+
+    /** 映射ID，为空的话表示采用类名为表名 see: {@link #id()} */
+    String value() default "";
+
+    /** 映射ID，为空的话表示采用类名为表名 see: {@link #value()} */
+    String id() default "";
 
     /** 是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Column 注解声明 */
     boolean autoMapping() default true;

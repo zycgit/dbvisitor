@@ -42,7 +42,7 @@ public enum KeyTypeEnum {
         this.factory = factory;
     }
 
-    public KeySeqHolder createHolder(KeySeqHolderContext context) {
+    public KeySeqHolder createHolder(KeySeqHolderContext context) throws ClassNotFoundException {
         if (this.factory == null) {
             return null;
         }

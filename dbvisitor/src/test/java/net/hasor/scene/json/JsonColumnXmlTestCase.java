@@ -34,7 +34,7 @@ public class JsonColumnXmlTestCase {
     public void result_1_TestCase() throws SQLException, IOException, ReflectiveOperationException {
         DalRegistry dalRegistry = new DalRegistry();
         dalRegistry.loadMapper("/dbvisitor_scene/json/json-column-1.xml");
-        dalRegistry.loadEntity(Project1.class);
+        dalRegistry.loadEntityToSpace(Project1.class);
 
         try (Connection c = DsUtils.mysqlConn()) {
             DalSession dalSession = new DalSession(c, dalRegistry);
@@ -61,7 +61,7 @@ public class JsonColumnXmlTestCase {
     public void args_1_TestCase() throws SQLException, IOException, ReflectiveOperationException {
         DalRegistry dalRegistry = new DalRegistry();
         dalRegistry.loadMapper("/dbvisitor_scene/json/json-column-1.xml");
-        dalRegistry.loadEntity(Project1.class);
+        dalRegistry.loadEntityToSpace(Project1.class);
 
         try (Connection c = DsUtils.mysqlConn()) {
             DalSession dalSession = new DalSession(c, dalRegistry);
@@ -94,7 +94,7 @@ public class JsonColumnXmlTestCase {
     public void result_2_TestCase() throws SQLException, IOException, ReflectiveOperationException {
         DalRegistry dalRegistry = new DalRegistry();
         dalRegistry.loadMapper("/dbvisitor_scene/json/json-column-2.xml");
-        dalRegistry.loadEntity(Project1.class);
+        dalRegistry.loadEntityToSpace(Project1.class);
 
         try (Connection c = DsUtils.mysqlConn()) {
             DalSession dalSession = new DalSession(c, dalRegistry);
@@ -121,7 +121,7 @@ public class JsonColumnXmlTestCase {
     public void args_2_TestCase() throws SQLException, IOException, ReflectiveOperationException {
         DalRegistry dalRegistry = new DalRegistry();
         dalRegistry.loadMapper("/dbvisitor_scene/json/json-column-2.xml");
-        dalRegistry.loadEntity(Project1.class);
+        dalRegistry.loadEntityToSpace(Project1.class);
 
         try (Connection c = DsUtils.mysqlConn()) {
             DalSession dalSession = new DalSession(c, dalRegistry);

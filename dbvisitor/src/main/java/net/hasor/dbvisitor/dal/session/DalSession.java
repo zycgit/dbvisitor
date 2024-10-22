@@ -36,8 +36,8 @@ import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.DynamicConnection;
 import net.hasor.dbvisitor.jdbc.core.JdbcAccessor;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.page.Page;
 
 import javax.sql.DataSource;
@@ -135,8 +135,8 @@ public class DalSession extends JdbcAccessor {
     }
 
     public <T> BaseMapper<T> createBaseMapper(Class<T> entityType) {
-        if (this.dalRegistry.findEntity(entityType) == null) {
-            this.dalRegistry.loadEntity(entityType);
+        if (this.dalRegistry.findUsingSpace(entityType) == null) {
+            this.dalRegistry.loadEntityToSpace(entityType);
         }
 
         BaseMapperHandler mapperHandler = new BaseMapperHandler(null, entityType, this);
@@ -166,7 +166,7 @@ public class DalSession extends JdbcAccessor {
             throw new UnsupportedOperationException("type '" + mapperType.getName() + "' need @RefMapper or @SimpleMapper or @DalMapper");
         }
 
-        if (StringUtils.isNotBlank(resource) && !this.dalRegistry.hasLoaded(resource)) {
+        if (StringUtils.isNotBlank(resource) /*&& !this.dalRegistry.hasLoaded(resource)*/) {
             try {
                 this.dalRegistry.loadMapper(resource);
             } catch (Exception e) {
@@ -180,8 +180,8 @@ public class DalSession extends JdbcAccessor {
             Class<?>[] generics = type.resolveGenerics(Object.class);
             Class<?> entityType = generics[0];
 
-            if (this.dalRegistry.findEntity(entityType) == null) {
-                this.dalRegistry.loadEntity(entityType);
+            if (this.dalRegistry.findUsingSpace(entityType) == null) {
+                this.dalRegistry.loadEntityToSpace(entityType);
             }
 
             mapperHandler = new BaseMapperHandler(mapperType.getName(), entityType, this);
@@ -266,7 +266,7 @@ public class DalSession extends JdbcAccessor {
         }
 
         public <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
-            return dalRegistry.findEntity(exampleType);
+            return dalRegistry.findUsingSpace(exampleType);
         }
     }
 }

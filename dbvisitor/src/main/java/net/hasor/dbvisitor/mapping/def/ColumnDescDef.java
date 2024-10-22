@@ -49,7 +49,7 @@ public class ColumnDescDef implements ColumnDescription {
     }
 
     public String getSqlType() {
-        return sqlType;
+        return this.sqlType;
     }
 
     public void setSqlType(String sqlType) {
@@ -58,7 +58,7 @@ public class ColumnDescDef implements ColumnDescription {
 
     @Override
     public String getLength() {
-        return length;
+        return this.length;
     }
 
     public void setLength(String length) {
@@ -67,7 +67,7 @@ public class ColumnDescDef implements ColumnDescription {
 
     @Override
     public String getPrecision() {
-        return precision;
+        return this.precision;
     }
 
     public void setPrecision(String precision) {
@@ -76,7 +76,7 @@ public class ColumnDescDef implements ColumnDescription {
 
     @Override
     public String getScale() {
-        return scale;
+        return this.scale;
     }
 
     public void setScale(String scale) {
@@ -84,7 +84,7 @@ public class ColumnDescDef implements ColumnDescription {
     }
 
     public String getCharacterSet() {
-        return characterSet;
+        return this.characterSet;
     }
 
     public void setCharacterSet(String characterSet) {
@@ -92,7 +92,7 @@ public class ColumnDescDef implements ColumnDescription {
     }
 
     public String getCollation() {
-        return collation;
+        return this.collation;
     }
 
     public void setCollation(String collation) {
@@ -100,7 +100,7 @@ public class ColumnDescDef implements ColumnDescription {
     }
 
     public boolean isNullable() {
-        return nullable;
+        return this.nullable;
     }
 
     public void setNullable(boolean nullable) {
@@ -108,7 +108,7 @@ public class ColumnDescDef implements ColumnDescription {
     }
 
     public String getDefault() {
-        return defaultValue;
+        return this.defaultValue;
     }
 
     public void setDefault(String defaultValue) {
@@ -117,7 +117,7 @@ public class ColumnDescDef implements ColumnDescription {
 
     @Override
     public String getComment() {
-        return comment;
+        return this.comment;
     }
 
     public void setComment(String comment) {
@@ -126,7 +126,7 @@ public class ColumnDescDef implements ColumnDescription {
 
     @Override
     public String getOther() {
-        return other;
+        return this.other;
     }
 
     public void setOther(String other) {

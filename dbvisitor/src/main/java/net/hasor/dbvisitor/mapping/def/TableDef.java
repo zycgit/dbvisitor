@@ -134,7 +134,7 @@ public class TableDef<T> implements TableMapping<T> {
         String columnName = mapping.getColumn();
         String propertyName = mapping.getProperty();
         if (this.mapByColumn.containsKey(columnName) && this.mapByProperty.containsKey(propertyName)) {
-            throw new IllegalStateException("mapping already added.");
+            throw new IllegalStateException("column '" + columnName + "' mapping already added.");
         }
         this.mapByColumn.put(columnName, mapping);
         this.mapByProperty.put(propertyName, mapping);
@@ -180,6 +180,11 @@ public class TableDef<T> implements TableMapping<T> {
     @Override
     public List<IndexDescription> getIndexes() {
         return this.indexList;
+    }
+
+    @Override
+    public IndexDescription getIndex(String name) {
+        return this.indexList.stream().filter(idx -> idx.getName().equals(name)).findFirst().orElse(null);
     }
 
     public void addIndexDescription(IndexDescription index) {

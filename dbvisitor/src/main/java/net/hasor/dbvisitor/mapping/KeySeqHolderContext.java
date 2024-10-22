@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping;
+import net.hasor.cobble.reflect.Annotations;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-
-import java.util.Map;
 
 /**
  * KeySeqHolderFactory 的调用参数
@@ -31,13 +30,15 @@ public class KeySeqHolderContext {
     private final TypeHandlerRegistry typeRegistry;
     private final TableMapping<?>     tableDef;
     private final ColumnMapping       colDef;
-    private final Map<String, Object> context;
+    private final ClassLoader         classLoader;
+    private final Annotations         annotations;
 
-    public KeySeqHolderContext(TypeHandlerRegistry typeRegistry, TableMapping<?> tableDef, ColumnMapping colDef, Map<String, Object> context) {
+    public KeySeqHolderContext(TypeHandlerRegistry typeRegistry, TableMapping<?> tableDef, ColumnMapping colDef, ClassLoader classLoader, Annotations annotations) {
         this.typeRegistry = typeRegistry;
         this.tableDef = tableDef;
         this.colDef = colDef;
-        this.context = context;
+        this.classLoader = classLoader;
+        this.annotations = annotations;
     }
 
     public TypeHandlerRegistry getTypeRegistry() {
@@ -96,7 +97,11 @@ public class KeySeqHolderContext {
         return this.tableDef.getDialect();
     }
 
-    public Map<String, Object> getContext() {
-        return this.context;
+    public ClassLoader getClassLoader() {
+        return this.classLoader;
+    }
+
+    public Annotations getAnnotations() {
+        return this.annotations;
     }
 }

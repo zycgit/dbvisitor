@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="abc">
+    <resultMap id="aac" type="net.hasor.dbvisitor.mapping.dto.PojoBean1">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="instance_id" property="instanceId"/>
+        <result column="owner_name" property="ownerName"/>
+        <result column="owner_type" property="ownerType"/>
+        <result column="content" property="content"/>
+    </resultMap>
+</mapper>

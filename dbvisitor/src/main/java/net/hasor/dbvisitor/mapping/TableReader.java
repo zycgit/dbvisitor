@@ -23,6 +23,7 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-04-13
  */
+@Deprecated
 public interface TableReader<T> {
 
     /**

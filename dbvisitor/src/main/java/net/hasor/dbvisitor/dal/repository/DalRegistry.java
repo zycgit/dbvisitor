@@ -24,11 +24,11 @@ import net.hasor.dbvisitor.dal.repository.parser.XmlDynamicResolve;
 import net.hasor.dbvisitor.dal.repository.parser.xmlnode.QuerySqlConfig;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.reader.ResultTableReader;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.w3c.dom.*;
@@ -115,22 +115,23 @@ public class DalRegistry extends MappingRegistry {
     }
 
     /** 从类型中解析 TableMapping */
-    public <T> TableMapping<T> findMapping(String space, String identify) {
+    @Override
+    public <T> TableMapping<T> findUsingSpace(String space, String identify) {
         space = StringUtils.isBlank(space) ? "" : space;
         Objects.requireNonNull(identify, "'identify' cannot be null.");
 
-        TableMapping<T> mapping = super.findMapping(space, identify);
+        TableMapping<T> mapping = super.findUsingSpace(space, identify);
         if (mapping != null) {
             return mapping;
         } else if (StringUtils.isNotBlank(space)) {
-            return super.findMapping("", identify);
+            return super.findUsingSpace("", identify);
         } else {
-            return (this != DEFAULT) ? DEFAULT.findMapping(space, identify) : null;
+            return (this != DEFAULT) ? DEFAULT.findUsingSpace(space, identify) : null;
         }
     }
 
     /** 从类型中解析 TableMapping */
-    public <T> TableMapping<T> findMapping(String space, Class<?> type) {
+    public <T> TableMapping<T> findUsingSpace(String space, Class<?> type) {
         space = StringUtils.isBlank(space) ? "" : space;
 
         String[] names = new String[] { //
@@ -140,7 +141,7 @@ public class DalRegistry extends MappingRegistry {
         };
 
         for (String name : names) {
-            TableMapping<T> mapping = findMapping(space, name);
+            TableMapping<T> mapping = findUsingSpace(space, name);
             if (mapping != null) {
                 return mapping;
             }
@@ -170,14 +171,14 @@ public class DalRegistry extends MappingRegistry {
         }
 
         // create and cache
-        TableMapping<T> mapping = super.findMapping(space, identify);
+        TableMapping<T> mapping = super.findUsingSpace(space, identify);
         if (mapping != null) {
             Map<String, TableReader<?>> map = this.readerCacheMap.computeIfAbsent(space, s -> new ConcurrentHashMap<>());
             TableReader<T> tableReader = mapping.toReader();
             map.put(identify, tableReader);
             return tableReader;
         }
-        mapping = super.findMapping("", identify);
+        mapping = super.findUsingSpace("", identify);
         if (mapping != null) {
             Map<String, TableReader<?>> map = this.readerCacheMap.computeIfAbsent("", s -> new ConcurrentHashMap<>());
             TableReader<T> tableReader = mapping.toReader();
@@ -234,8 +235,8 @@ public class DalRegistry extends MappingRegistry {
                     Document document = loadXmlRoot(stream);
                     Element root = document.getDocumentElement();
 
-                    this.loadedResource.add(resource);
-                    this.loadReader(namespace, root);
+                    //this.loadedResource.add(resource);
+                    this.loadMapper(namespace, root);
                     this.loadDynamic(namespace, root);
                 } catch (ParserConfigurationException | SAXException e) {
                     throw new IOException(e);
@@ -275,14 +276,14 @@ public class DalRegistry extends MappingRegistry {
             Class<?>[] generics = type.resolveGenerics(Object.class);
             Class<?> entityType = generics[0];
             entityType = (entityType == Object.class) ? null : entityType;
-            if (entityType != null && findEntity(entityType) == null) {
-                this.loadEntity(entityType.getName(), entityType);
+            if (entityType != null && findUsingSpace(entityType) == null) {
+                this.loadEntityToSpace(entityType);
             }
         }
     }
 
     /** 解析并载入 mapper.xml（支持 MyBatis 大部分能力） */
-    public void loadMapper(InputStream stream) throws IOException, ReflectiveOperationException {
+    public void loadMapper(InputStream stream) throws IOException {
         Objects.requireNonNull(stream, "load InputStream is null.");
         try {
             Document document = loadXmlRoot(stream);
@@ -292,15 +293,15 @@ public class DalRegistry extends MappingRegistry {
             String namespace = readAttribute("namespace", rootAttributes);
             namespace = StringUtils.isBlank(namespace) ? "" : namespace;
 
-            this.loadReader(namespace, root);
+            this.loadMapper(namespace, root);
             this.loadDynamic(namespace, root);
-        } catch (ParserConfigurationException | SAXException e) {
+        } catch (ParserConfigurationException | SAXException | ReflectiveOperationException e) {
             throw new IOException(e);
         }
     }
     // --------------------------------------------------------------------------------------------
 
-    private void loadDynamic(String space, Element configRoot) throws IOException, ClassNotFoundException {
+    private void loadDynamic(String space, Element configRoot) throws IOException, ReflectiveOperationException {
         NodeList childNodes = configRoot.getChildNodes();
         DynamicResolve<Node> resolve = getXmlDynamicResolve();
 
@@ -332,7 +333,7 @@ public class DalRegistry extends MappingRegistry {
                 if (StringUtils.isNotBlank(resultMap)) {
                     String[] tableMappings = resultMap.split(",");
                     for (String mapping : tableMappings) {
-                        if (findMapping(space, mapping) == null) {
+                        if (findUsingSpace(space, mapping) == null) {
                             throw new IOException("loadMapper failed, '" + idString + "', resultMap/entity '" + resultMap + "' is undefined ,resource '" + space + "'");
                         }
                     }
@@ -355,7 +356,7 @@ public class DalRegistry extends MappingRegistry {
         }
     }
 
-    private void asResultMap(String space, Class<?> resultClass) {
+    private void asResultMap(String space, Class<?> resultClass) throws ReflectiveOperationException, IOException {
         TableReader<?> tableReader;
         String identify = resultClass.getName();
 
@@ -363,8 +364,8 @@ public class DalRegistry extends MappingRegistry {
             TypeHandler<?> typeHandler = this.typeRegistry.getTypeHandler(resultClass);
             tableReader = (TableReader<Object>) (columns, rs, rowNum) -> typeHandler.getResult(rs, 1);
         } else {
-            super.loadResultMap(space, resultClass.getSimpleName(), resultClass);
-            TableMapping<?> mapping = super.findMapping(space, resultClass.getSimpleName());
+            super.loadResultMap(resultClass, space, resultClass.getSimpleName());
+            TableMapping<?> mapping = super.findUsingSpace(space, resultClass.getSimpleName());
             tableReader = mapping.toReader();
         }
 

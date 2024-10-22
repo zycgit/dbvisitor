@@ -28,7 +28,7 @@ public class DalContext extends DynamicContext {
 
     @Override
     public TableMapping<?> findTableMapping(String resultMap) {
-        return this.dalRegistry.findMapping(this.space, resultMap);
+        return this.dalRegistry.findUsingSpace(this.space, resultMap);
     }
 
     @Override

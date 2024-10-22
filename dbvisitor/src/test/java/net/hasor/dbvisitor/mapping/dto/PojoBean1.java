@@ -1,43 +1,18 @@
 package net.hasor.dbvisitor.mapping.dto;
 
-import net.hasor.dbvisitor.mapping.*;
 import net.hasor.test.dto.ResourceType;
 
 import java.util.Date;
 
-@Table(catalog = "master", schema = "dbo", table = "blob_resource")
-@TableDescribe(comment = "test table")
-@IndexDescribe(name = "idx_a", columns = { "gmt_modified", "instanceId" })
-@IndexDescribe(name = "uk_b", columns = { "instanceId" }, unique = true)
-public class AnnoOnlyTableInfoBean {
+public class PojoBean1 {
 
-    @Column(name = "id", primary = true, keyType = KeyTypeEnum.Auto)
-    @ColumnDescribe(sqlType = "bigint")
-    private Long id;
-
-    @Column(name = "gmt_create", update = false)
-    @ColumnDescribe(sqlType = "datetime", nullable = false, defaultValue = "CURRENT_TIMESTAMP")
-    private Date gmtCreate;
-
-    @Column(name = "gmt_modified")
-    @ColumnDescribe(sqlType = "datetime", nullable = false, defaultValue = "CURRENT_TIMESTAMP")
-    private Date gmtModified;
-
-    @Column(name = "instanceId")
-    @ColumnDescribe(sqlType = "varchar(64)")
-    private String instanceId;
-
-    @Column(name = "owner_name")
-    @ColumnDescribe(sqlType = "varchar(255)")
-    private String ownerName;
-
-    @Column(name = "owner_type")
-    @ColumnDescribe(sqlType = "varchar(64)")
+    private Long         id;
+    private Date         gmtCreate;
+    private Date         gmtModified;
+    private String       instanceId;
+    private String       ownerName;
     private ResourceType ownerType;
-
-    @Column(name = "content")
-    @ColumnDescribe(sqlType = "blob")
-    private byte[] content;
+    private byte[]       content;
 
     public Long getId() {
         return id;

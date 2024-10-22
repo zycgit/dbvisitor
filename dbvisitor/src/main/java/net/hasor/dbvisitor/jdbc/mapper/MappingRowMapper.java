@@ -40,10 +40,10 @@ public class MappingRowMapper<T> implements RowMapper<T> {
 
     /** Create a new ResultMapper. */
     public MappingRowMapper(Class<T> mapperClass, MappingRegistry registry) {
-        TableMapping<?> tableMapping = registry.findMapping(mapperClass);
+        TableMapping<?> tableMapping = registry.findUsingSpace(mapperClass);
         if (tableMapping == null) {
             if (MappingRegistry.isEntity(mapperClass)) {
-                tableMapping = registry.loadEntity(mapperClass);
+                tableMapping = registry.loadEntityToSpace(mapperClass);
             } else {
                 tableMapping = registry.loadResultMap(mapperClass);
             }

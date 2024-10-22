@@ -18,11 +18,13 @@ import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
+import java.io.IOException;
+
 /**
  * TableMapping 解析器
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-21
  */
 public interface TableMappingResolve<T> {
-    <V> TableMapping<V> resolveTableMapping(T refData, MappingOptions refFile, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException;
+    <V> TableMapping<V> resolveTableMapping(T refData, MappingOptions refFile, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException, IOException;
 }
