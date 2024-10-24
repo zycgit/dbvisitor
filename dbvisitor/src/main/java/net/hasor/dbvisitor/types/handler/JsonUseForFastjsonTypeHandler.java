@@ -25,24 +25,23 @@ import net.hasor.dbvisitor.types.NoCache;
  */
 @NoCache
 public class JsonUseForFastjsonTypeHandler extends AbstractJsonTypeHandler<Object> {
-    private static final Logger   logger = Logger.getLogger(JsonUseForFastjsonTypeHandler.class);
-    private final        Class<?> type;
+    private static final Logger logger = Logger.getLogger(JsonUseForFastjsonTypeHandler.class);
 
     public JsonUseForFastjsonTypeHandler(Class<?> type) {
         if (logger.isTraceEnabled()) {
             logger.trace("JsonUseForFastjsonTypeHandler(" + type + ")");
         }
-        this.type = type;
+        this.rawType = type;
     }
 
     @Override
     public String toString() {
-        return "JsonUseForFastjsonTypeHandler[" + type + "]@" + super.hashCode();
+        return "JsonUseForFastjsonTypeHandler[" + this.rawType + "]@" + super.hashCode();
     }
 
     @Override
     protected Object parse(String json) {
-        return JSON.parseObject(json, type);
+        return JSON.parseObject(json, this.rawType);
     }
 
     @Override

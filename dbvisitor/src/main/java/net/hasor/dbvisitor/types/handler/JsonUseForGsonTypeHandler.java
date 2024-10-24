@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler;
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONWriter;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.dbvisitor.types.NoCache;
 
@@ -24,28 +24,34 @@ import net.hasor.dbvisitor.types.NoCache;
  * @author 赵永春 (zyc@hasor.net)
  */
 @NoCache
-public class JsonUseForFastjson2TypeHandler extends AbstractJsonTypeHandler<Object> {
-    private static final Logger logger = Logger.getLogger(JsonUseForFastjson2TypeHandler.class);
+public class JsonUseForGsonTypeHandler extends AbstractJsonTypeHandler<Object> {
+    private static final Logger logger = Logger.getLogger(JsonUseForGsonTypeHandler.class);
+    private final        Gson   gson;
 
-    public JsonUseForFastjson2TypeHandler(Class<?> type) {
+    public JsonUseForGsonTypeHandler(Class<?> type) {
         if (logger.isTraceEnabled()) {
-            logger.trace("JsonUseForFastjson2TypeHandler(" + type + ")");
+            logger.trace("JsonUseForGsonTypeHandler(" + type + ")");
         }
         this.rawType = type;
+        this.gson = this.createGson(type);
+    }
+
+    protected Gson createGson(Class<?> type) {
+        return new GsonBuilder().create();
     }
 
     @Override
     public String toString() {
-        return "JsonUseForFastjson2TypeHandler[" + this.rawType + "]@" + super.hashCode();
+        return "JsonUseForGsonTypeHandler[" + this.rawType + "]@" + super.hashCode();
     }
 
     @Override
     protected Object parse(String json) {
-        return JSON.parseObject(json, this.rawType);
+        return this.gson.fromJson(json, this.rawType);
     }
 
     @Override
     protected String toJson(Object obj) {
-        return JSON.toJSONString(obj, JSONWriter.Feature.WriteMapNullValue, JSONWriter.Feature.WriteNullListAsEmpty, JSONWriter.Feature.WriteNullStringAsEmpty);
+        return this.gson.toJson(obj);
     }
 }

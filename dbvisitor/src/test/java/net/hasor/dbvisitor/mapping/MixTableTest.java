@@ -48,25 +48,25 @@ public class MixTableTest {
         assert tab.getDescription().getComment().equals("test table");
         assert tab.getDescription().getOther() == null;
 
-        assert tab.getPropertyByColumn("id").isPrimaryKey();
-        assert tab.getPropertyByColumn("id").isInsert();
-        assert tab.getPropertyByColumn("id").isUpdate();
-        assert tab.getPropertyByColumn("id").getColumn().equals("id");
-        assert tab.getPropertyByColumn("id").getJavaType() == Long.class;
-        assert tab.getPropertyByColumn("id").getTypeHandler() instanceof LongTypeHandler;
-        assert tab.getPropertyByColumn("id").getKeySeqHolder().toString().startsWith("Auto@");
-        assert tab.getPropertyByColumn("id").getDescription().getSqlType().equals("bigint");
-        assert !tab.getPropertyByColumn("id").getDescription().isNullable();
-        assert tab.getPropertyByColumn("id").getDescription().getDefault() == null;
+        assert tab.getPropertyByColumn("id").get(0).isPrimaryKey();
+        assert tab.getPropertyByColumn("id").get(0).isInsert();
+        assert tab.getPropertyByColumn("id").get(0).isUpdate();
+        assert tab.getPropertyByColumn("id").get(0).getColumn().equals("id");
+        assert tab.getPropertyByColumn("id").get(0).getJavaType() == Long.class;
+        assert tab.getPropertyByColumn("id").get(0).getTypeHandler() instanceof LongTypeHandler;
+        assert tab.getPropertyByColumn("id").get(0).getKeySeqHolder().toString().startsWith("Auto@");
+        assert tab.getPropertyByColumn("id").get(0).getDescription().getSqlType().equals("bigint");
+        assert !tab.getPropertyByColumn("id").get(0).getDescription().isNullable();
+        assert tab.getPropertyByColumn("id").get(0).getDescription().getDefault() == null;
 
-        assert !tab.getPropertyByColumn("gmtCreate").isPrimaryKey();
-        assert tab.getPropertyByColumn("gmtCreate").isInsert();
-        assert tab.getPropertyByColumn("gmtCreate").isUpdate();
-        assert tab.getPropertyByColumn("gmtCreate").getColumn().equals("gmtCreate");
-        assert tab.getPropertyByColumn("gmtCreate").getJavaType() == Date.class;
-        assert tab.getPropertyByColumn("gmtCreate").getTypeHandler() instanceof SqlTimestampAsDateTypeHandler;
-        assert tab.getPropertyByColumn("gmtCreate").getKeySeqHolder() == null;
-        assert tab.getPropertyByColumn("gmtCreate").getDescription() == null;
+        assert !tab.getPropertyByColumn("gmtCreate").get(0).isPrimaryKey();
+        assert tab.getPropertyByColumn("gmtCreate").get(0).isInsert();
+        assert tab.getPropertyByColumn("gmtCreate").get(0).isUpdate();
+        assert tab.getPropertyByColumn("gmtCreate").get(0).getColumn().equals("gmtCreate");
+        assert tab.getPropertyByColumn("gmtCreate").get(0).getJavaType() == Date.class;
+        assert tab.getPropertyByColumn("gmtCreate").get(0).getTypeHandler() instanceof SqlTimestampAsDateTypeHandler;
+        assert tab.getPropertyByColumn("gmtCreate").get(0).getKeySeqHolder() == null;
+        assert tab.getPropertyByColumn("gmtCreate").get(0).getDescription() == null;
     }
 
     @Test
@@ -92,25 +92,25 @@ public class MixTableTest {
         assert tab.getDescription().getComment().equals("test table");
         assert tab.getDescription().getOther() == null;
 
-        assert tab.getPropertyByColumn("id").isPrimaryKey();
-        assert tab.getPropertyByColumn("id").isInsert();
-        assert tab.getPropertyByColumn("id").isUpdate();
-        assert tab.getPropertyByColumn("id").getColumn().equals("id");
-        assert tab.getPropertyByColumn("id").getJavaType() == Long.class;
-        assert tab.getPropertyByColumn("id").getTypeHandler() instanceof LongTypeHandler;
-        assert tab.getPropertyByColumn("id").getKeySeqHolder().toString().startsWith("Auto@");
-        assert tab.getPropertyByColumn("id").getDescription().getSqlType().equals("bigint");
-        assert !tab.getPropertyByColumn("id").getDescription().isNullable();
-        assert tab.getPropertyByColumn("id").getDescription().getDefault() == null;
+        assert tab.getPropertyByColumn("id").get(0).isPrimaryKey();
+        assert tab.getPropertyByColumn("id").get(0).isInsert();
+        assert tab.getPropertyByColumn("id").get(0).isUpdate();
+        assert tab.getPropertyByColumn("id").get(0).getColumn().equals("id");
+        assert tab.getPropertyByColumn("id").get(0).getJavaType() == Long.class;
+        assert tab.getPropertyByColumn("id").get(0).getTypeHandler() instanceof LongTypeHandler;
+        assert tab.getPropertyByColumn("id").get(0).getKeySeqHolder().toString().startsWith("Auto@");
+        assert tab.getPropertyByColumn("id").get(0).getDescription().getSqlType().equals("bigint");
+        assert !tab.getPropertyByColumn("id").get(0).getDescription().isNullable();
+        assert tab.getPropertyByColumn("id").get(0).getDescription().getDefault() == null;
 
-        assert !tab.getPropertyByColumn("gmt_create").isPrimaryKey();
-        assert tab.getPropertyByColumn("gmt_create").isInsert();
-        assert tab.getPropertyByColumn("gmt_create").isUpdate();
-        assert tab.getPropertyByColumn("gmt_create").getColumn().equals("gmt_create");
-        assert tab.getPropertyByColumn("gmt_create").getJavaType() == Date.class;
-        assert tab.getPropertyByColumn("gmt_create").getTypeHandler() instanceof SqlTimestampAsDateTypeHandler;
-        assert tab.getPropertyByColumn("gmt_create").getKeySeqHolder() == null;
-        assert tab.getPropertyByColumn("gmt_create").getDescription() == null;
+        assert !tab.getPropertyByColumn("gmt_create").get(0).isPrimaryKey();
+        assert tab.getPropertyByColumn("gmt_create").get(0).isInsert();
+        assert tab.getPropertyByColumn("gmt_create").get(0).isUpdate();
+        assert tab.getPropertyByColumn("gmt_create").get(0).getColumn().equals("gmt_create");
+        assert tab.getPropertyByColumn("gmt_create").get(0).getJavaType() == Date.class;
+        assert tab.getPropertyByColumn("gmt_create").get(0).getTypeHandler() instanceof SqlTimestampAsDateTypeHandler;
+        assert tab.getPropertyByColumn("gmt_create").get(0).getKeySeqHolder() == null;
+        assert tab.getPropertyByColumn("gmt_create").get(0).getDescription() == null;
     }
 }
 

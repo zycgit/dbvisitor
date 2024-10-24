@@ -648,7 +648,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             return (RowMapper<T>) this.createMapRowMapper();
         }
 
-        if (TypeHandlerRegistry.DEFAULT.hasTypeHandler(requiredType) || requiredType.isEnum()) {
+        if (this.getRegistry().getTypeRegistry().hasTypeHandler(requiredType) || requiredType.isEnum()) {
             return this.createSingleColumnRowMapper(requiredType);
         }
 
@@ -669,7 +669,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             return new RowMapperResultSetExtractor<>(mapRowMapper);
         }
 
-        if (TypeHandlerRegistry.DEFAULT.hasTypeHandler(requiredType) || requiredType.isEnum()) {
+        if (this.getRegistry().getTypeRegistry().hasTypeHandler(requiredType) || requiredType.isEnum()) {
             RowMapper<T> mapRowMapper = this.createSingleColumnRowMapper(requiredType);
             return new RowMapperResultSetExtractor<>(mapRowMapper);
         }

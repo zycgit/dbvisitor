@@ -91,7 +91,7 @@ public class JsonColumnXmlTestCase {
     }
 
     @Test
-    public void result_2_TestCase() throws SQLException, IOException, ReflectiveOperationException {
+    public void result_2_TestCase() throws SQLException, IOException {
         DalRegistry dalRegistry = new DalRegistry();
         dalRegistry.loadMapper("/dbvisitor_scene/json/json-column-2.xml");
         dalRegistry.loadEntityToSpace(Project1.class);
@@ -118,7 +118,7 @@ public class JsonColumnXmlTestCase {
     }
 
     @Test
-    public void args_2_TestCase() throws SQLException, IOException, ReflectiveOperationException {
+    public void args_2_TestCase() throws SQLException, IOException {
         DalRegistry dalRegistry = new DalRegistry();
         dalRegistry.loadMapper("/dbvisitor_scene/json/json-column-2.xml");
         dalRegistry.loadEntityToSpace(Project1.class);

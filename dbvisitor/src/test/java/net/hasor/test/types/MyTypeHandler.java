@@ -1,13 +1,11 @@
 package net.hasor.test.types;
-import net.hasor.dbvisitor.types.MappedCross;
-import net.hasor.dbvisitor.types.MappedJavaTypes;
-import net.hasor.dbvisitor.types.MappedJdbcTypes;
+import net.hasor.dbvisitor.types.MappedCrossTypes;
 import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 import java.sql.*;
 
-@MappedCross(javaTypes = @MappedJavaTypes(String.class), jdbcType = @MappedJdbcTypes(Types.DATALINK))
-@MappedCross(javaTypes = @MappedJavaTypes(StringBuffer.class), jdbcType = @MappedJdbcTypes(Types.VARCHAR))
+@MappedCrossTypes(javaType = String.class, jdbcType = Types.DATALINK)
+@MappedCrossTypes(javaType = StringBuffer.class, jdbcType = Types.VARCHAR)
 public class MyTypeHandler extends AbstractTypeHandler<String> {
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, String parameter, Integer jdbcType) throws SQLException {

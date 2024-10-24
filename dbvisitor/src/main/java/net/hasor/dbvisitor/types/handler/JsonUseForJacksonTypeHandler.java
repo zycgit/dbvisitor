@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler;
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONWriter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.dbvisitor.types.NoCache;
 
@@ -24,28 +23,34 @@ import net.hasor.dbvisitor.types.NoCache;
  * @author 赵永春 (zyc@hasor.net)
  */
 @NoCache
-public class JsonUseForFastjson2TypeHandler extends AbstractJsonTypeHandler<Object> {
-    private static final Logger logger = Logger.getLogger(JsonUseForFastjson2TypeHandler.class);
+public class JsonUseForJacksonTypeHandler extends AbstractJsonTypeHandler<Object> {
+    private static final Logger       logger = Logger.getLogger(JsonUseForJacksonTypeHandler.class);
+    private final        ObjectMapper objectMapper;
 
-    public JsonUseForFastjson2TypeHandler(Class<?> type) {
+    public JsonUseForJacksonTypeHandler(Class<?> type) {
         if (logger.isTraceEnabled()) {
-            logger.trace("JsonUseForFastjson2TypeHandler(" + type + ")");
+            logger.trace("JsonUseForJacksonTypeHandler(" + type + ")");
         }
         this.rawType = type;
+        this.objectMapper = this.createObjectMapper(type);
+    }
+
+    protected ObjectMapper createObjectMapper(Class<?> type) {
+        return new ObjectMapper();
     }
 
     @Override
     public String toString() {
-        return "JsonUseForFastjson2TypeHandler[" + this.rawType + "]@" + super.hashCode();
+        return "JsonUseForJacksonTypeHandler[" + this.rawType + "]@" + super.hashCode();
     }
 
     @Override
-    protected Object parse(String json) {
-        return JSON.parseObject(json, this.rawType);
+    protected Object parse(String json) throws Exception {
+        return this.objectMapper.readValue(json, this.rawType);
     }
 
     @Override
-    protected String toJson(Object obj) {
-        return JSON.toJSONString(obj, JSONWriter.Feature.WriteMapNullValue, JSONWriter.Feature.WriteNullListAsEmpty, JSONWriter.Feature.WriteNullStringAsEmpty);
+    protected String toJson(Object obj) throws Exception {
+        return this.objectMapper.writeValueAsString(obj);
     }
 }

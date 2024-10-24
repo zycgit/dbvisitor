@@ -62,13 +62,14 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         return false;
     }
 
-    protected TableDef<?> resolveTableInfo(boolean isEntity, NamedNodeMap xmlAttr, MappingOptions usingOpt, ClassLoader classLoader) throws ClassNotFoundException {
+    protected TableDef<?> resolveTableInfo(boolean isEntity, NamedNodeMap xmlAttr, MappingOptions usingOpt, ClassLoader classLoader) throws ClassNotFoundException, IOException {
         String autoMapping = strFromXmlAttribute(xmlAttr, "autoMapping");
         String useDelimited = strFromXmlAttribute(xmlAttr, "useDelimited");
         String mapUnderscoreToCamelCase = strFromXmlAttribute(xmlAttr, "mapUnderscoreToCamelCase");
         String caseInsensitive = strFromXmlAttribute(xmlAttr, "caseInsensitive");
 
         Class<?> entityType = ClassUtils.getClass(classLoader, strFromXmlAttribute(xmlAttr, "type"), false);
+        Annotations classAnno = Annotations.ofClass(entityType);
         boolean usingAutoProperty = StringUtils.isBlank(autoMapping) ? (usingOpt.getAutoMapping() == null || usingOpt.getAutoMapping()) : Boolean.parseBoolean(autoMapping);
         boolean usingUseDelimited = StringUtils.isBlank(useDelimited) ? Boolean.TRUE.equals(usingOpt.getUseDelimited()) : Boolean.parseBoolean(useDelimited);
         boolean usingMapUnderscoreToCamelCase = StringUtils.isBlank(mapUnderscoreToCamelCase) ? Boolean.TRUE.equals(usingOpt.getMapUnderscoreToCamelCase()) : Boolean.parseBoolean(mapUnderscoreToCamelCase);
@@ -77,6 +78,8 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
 
         TableDef<?> def = new TableDef<>("", "", "", entityType, dialect,//
                 usingAutoProperty, usingUseDelimited, usingCaseInsensitive, usingMapUnderscoreToCamelCase);
+        def.setAnnotations(classAnno);
+
         if (isEntity) {
             String catalog = strFromXmlAttribute(xmlAttr, "catalog");
             String schema = strFromXmlAttribute(xmlAttr, "schema");

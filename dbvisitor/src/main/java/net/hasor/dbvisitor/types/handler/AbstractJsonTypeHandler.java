@@ -28,31 +28,55 @@ public abstract class AbstractJsonTypeHandler<T> extends AbstractTypeHandler<T> 
 
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, T parameter, Integer jdbcType) throws SQLException {
-        ps.setString(i, toJson(parameter));
+        try {
+            ps.setString(i, toJson(parameter));
+        } catch (SQLException | RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
     }
 
     @Override
     public T getNullableResult(ResultSet rs, String columnName) throws SQLException {
-        final String json = rs.getString(columnName);
-        return StringUtils.isBlank(json) && rs.wasNull() ? null : parse(json);
+        try {
+            final String json = rs.getString(columnName);
+            return StringUtils.isBlank(json) && rs.wasNull() ? null : parse(json);
+        } catch (SQLException | RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
     }
 
     @Override
     public T getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-        final String json = rs.getString(columnIndex);
-        return StringUtils.isBlank(json) && rs.wasNull() ? null : parse(json);
+        try {
+            final String json = rs.getString(columnIndex);
+            return StringUtils.isBlank(json) && rs.wasNull() ? null : parse(json);
+        } catch (SQLException | RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
     }
 
     @Override
     public T getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-        final String json = cs.getString(columnIndex);
-        return StringUtils.isBlank(json) && cs.wasNull() ? null : parse(json);
+        try {
+            final String json = cs.getString(columnIndex);
+            return StringUtils.isBlank(json) && cs.wasNull() ? null : parse(json);
+        } catch (SQLException | RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
     }
 
     @Override
     public abstract String toString();
 
-    protected abstract T parse(String json);
+    protected abstract T parse(String json) throws Exception;
 
-    protected abstract String toJson(T obj);
+    protected abstract String toJson(T obj) throws Exception;
 }

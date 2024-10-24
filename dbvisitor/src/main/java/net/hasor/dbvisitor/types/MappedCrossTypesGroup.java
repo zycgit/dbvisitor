@@ -25,6 +25,6 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface MappedCrossGroup {
-    MappedCross[] value();
+public @interface MappedCrossTypesGroup {
+    MappedCrossTypes[] value();
 }

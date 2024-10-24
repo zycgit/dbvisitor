@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.jdbc.core;
 import net.hasor.dbvisitor.dynamic.DynamicContext;
+import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.StatementCallback;
 import net.hasor.dbvisitor.transaction.ConnectionProxy;
@@ -31,9 +32,8 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 
 /**
- *
- * @version : 2014-1-13
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2014-1-13
  */
 public class MockPropertyTest extends AbstractDbTest {
     @Test
@@ -144,8 +144,7 @@ public class MockPropertyTest extends AbstractDbTest {
     public void jdbcTemplateTest_6() {
         DataSource dataSource = PowerMockito.mock(DataSource.class);
         TypeHandlerRegistry typeRegistry = new TypeHandlerRegistry();
-        DynamicContext registry = new DynamicContext();
-        registry.setTypeRegistry(typeRegistry);
+        DynamicContext registry = new DynamicContext(typeRegistry, RuleRegistry.DEFAULT);
 
         assert new JdbcTemplate(dataSource, registry).getRegistry().getTypeRegistry() == typeRegistry;
 

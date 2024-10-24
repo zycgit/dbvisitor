@@ -66,6 +66,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
 
                     tableDef = new TableDef<>(usingOpt.getCatalog(), usingOpt.getSchema(), null, entityType, usingOpt.getDefaultDialect(), //
                             usingAutoProperty, usingUseDelimited, usingCaseInsensitive, usingMapUnderscoreToCamelCase);
+                    tableDef.setAnnotations(classAnno);
 
                     this.resolveTableAndColumn(false, classAnno, tableDef, classLoader, typeRegistry);
                 }
@@ -94,6 +95,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
 
         TableDef<?> def = new TableDef<>(catalog, schema, table, entityType, dialect, //
                 autoMapping, useDelimited, caseInsensitive, mapUnderscoreToCamelCase);
+        def.setAnnotations(classAnno);
 
         Annotation tableDesc = classAnno.getAnnotation(TableDescribe.class);
         if (tableDesc != null) {
@@ -151,6 +153,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
 
         TableDef<?> def = new TableDef<>("", "", "", entityType, dialect, //
                 autoMapping, useDelimited, caseInsensitive, mapUnderscoreToCamelCase);
+        def.setAnnotations(classAnno);
 
         this.resolveTableAndColumn(false, classAnno, def, classLoader, typeRegistry);
         return def;
@@ -237,6 +240,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
             }
 
             colDef = new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler);
+            colDef.setAnnotations(propertyAnno);
         } else if (def.isAutoProperty()) {
             String column = hump2Line(name, def.isMapUnderscoreToCamelCase());
             Class<?> javaType = CLASS_MAPPING_MAP.getOrDefault(type, type);
@@ -244,6 +248,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
             TypeHandler<?> typeHandler = typeRegistry.getTypeHandler(javaType);
 
             colDef = new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler);
+            colDef.setAnnotations(propertyAnno);
         } else {
             return;
         }

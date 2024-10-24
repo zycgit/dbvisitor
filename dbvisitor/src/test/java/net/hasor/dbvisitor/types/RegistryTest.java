@@ -74,7 +74,7 @@ public class RegistryTest {
         assert TypeHandlerRegistry.DEFAULT.getTypeHandler(Mockito.mock(Clob.class).getClass()) instanceof ClobAsStringTypeHandler;
         assert TypeHandlerRegistry.DEFAULT.getTypeHandler(Mockito.mock(NClob.class).getClass()) instanceof NClobAsStringTypeHandler;
         assert TypeHandlerRegistry.DEFAULT.getTypeHandler(Mockito.mock(Blob.class).getClass()) instanceof BlobAsBytesTypeHandler;
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(new URL("http://www.hasor.net").getClass()) instanceof URLTypeHandler;
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(new URI("http://www.hasor.net").getClass()) instanceof URITypeHandler;
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(new URL("http://www.hasor.net").getClass()) instanceof StringAsUrlTypeHandler;
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(new URI("http://www.hasor.net").getClass()) instanceof StringAsUriTypeHandler;
     }
 }

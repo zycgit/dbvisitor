@@ -15,9 +15,7 @@
  */
 package net.hasor.dbvisitor.types;
 import net.hasor.cobble.ClassUtils;
-import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.reflect.ConstructorUtils;
 import net.hasor.cobble.reflect.TypeReference;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dynamic.SqlMode;
@@ -164,8 +162,8 @@ public final class TypeHandlerRegistry {
         this.register(NClob.class, createTypeHandler(NClobAsStringTypeHandler.class));
         this.register(Clob.class, createTypeHandler(ClobAsStringTypeHandler.class));
         this.register(Blob.class, createTypeHandler(BlobAsBytesTypeHandler.class));
-        this.register(URL.class, createTypeHandler(URLTypeHandler.class));
-        this.register(URI.class, createTypeHandler(URITypeHandler.class));
+        this.register(URL.class, createTypeHandler(StringAsUrlTypeHandler.class));
+        this.register(URI.class, createTypeHandler(StringAsUriTypeHandler.class));
 
         this.register(Types.BIT, createTypeHandler(BooleanTypeHandler.class));
         this.register(Types.BOOLEAN, createTypeHandler(BooleanTypeHandler.class));
@@ -198,7 +196,7 @@ public final class TypeHandlerRegistry {
         this.register(Types.BLOB, createTypeHandler(BlobAsBytesTypeHandler.class));
         this.register(Types.JAVA_OBJECT, createTypeHandler(ObjectTypeHandler.class));
         this.register(Types.ARRAY, createTypeHandler(ArrayTypeHandler.class));
-        this.register(Types.DATALINK, createTypeHandler(URLTypeHandler.class));
+        this.register(Types.DATALINK, createTypeHandler(StringAsUrlTypeHandler.class));
         this.register(Types.ROWID, createTypeHandler(StringTypeHandler.class));
         // DISTINCT(Types.DISTINCT),
         // STRUCT(Types.STRUCT),
@@ -221,40 +219,40 @@ public final class TypeHandlerRegistry {
 
         this.registerCrossChars(String.class, createTypeHandler(StringTypeHandler.class));
         this.registerCrossNChars(String.class, createTypeHandler(NStringTypeHandler.class));
-        this.registerCross(Types.CLOB, String.class, createTypeHandler(ClobAsStringTypeHandler.class));
-        this.registerCross(Types.NCLOB, String.class, createTypeHandler(NClobAsStringTypeHandler.class));
+        this.register(Types.CLOB, String.class, createTypeHandler(ClobAsStringTypeHandler.class));
+        this.register(Types.NCLOB, String.class, createTypeHandler(NClobAsStringTypeHandler.class));
         this.registerCrossChars(Reader.class, createTypeHandler(StringAsReaderTypeHandler.class));
         this.registerCrossNChars(Reader.class, createTypeHandler(NStringAsReaderTypeHandler.class));
-        this.registerCross(Types.CLOB, Reader.class, createTypeHandler(ClobAsReaderTypeHandler.class));
-        this.registerCross(Types.NCLOB, Reader.class, createTypeHandler(NClobAsReaderTypeHandler.class));
+        this.register(Types.CLOB, Reader.class, createTypeHandler(ClobAsReaderTypeHandler.class));
+        this.register(Types.NCLOB, Reader.class, createTypeHandler(NClobAsReaderTypeHandler.class));
 
-        this.registerCross(Types.SQLXML, String.class, createTypeHandler(SqlXmlTypeHandler.class));
-        this.registerCross(Types.SQLXML, Reader.class, createTypeHandler(SqlXmlForReaderTypeHandler.class));
-        this.registerCross(Types.SQLXML, InputStream.class, createTypeHandler(SqlXmlForInputStreamTypeHandler.class));
+        this.register(Types.SQLXML, String.class, createTypeHandler(SqlXmlTypeHandler.class));
+        this.register(Types.SQLXML, Reader.class, createTypeHandler(SqlXmlAsReaderTypeHandler.class));
+        this.register(Types.SQLXML, InputStream.class, createTypeHandler(SqlXmlAsInputStreamTypeHandler.class));
 
-        this.registerCross(Types.BINARY, byte[].class, createTypeHandler(BytesTypeHandler.class));
-        this.registerCross(Types.BINARY, Byte[].class, createTypeHandler(BytesAsBytesWrapTypeHandler.class));
-        this.registerCross(Types.VARBINARY, byte[].class, createTypeHandler(BytesTypeHandler.class));
-        this.registerCross(Types.VARBINARY, Byte[].class, createTypeHandler(BytesAsBytesWrapTypeHandler.class));
-        this.registerCross(Types.BLOB, byte[].class, createTypeHandler(BlobAsBytesTypeHandler.class));
-        this.registerCross(Types.BLOB, Byte[].class, createTypeHandler(BlobAsBytesWrapTypeHandler.class));
-        this.registerCross(Types.LONGVARBINARY, byte[].class, createTypeHandler(BytesTypeHandler.class));
-        this.registerCross(Types.LONGVARBINARY, Byte[].class, createTypeHandler(BytesAsBytesWrapTypeHandler.class));
+        this.register(Types.BINARY, byte[].class, createTypeHandler(BytesTypeHandler.class));
+        this.register(Types.BINARY, Byte[].class, createTypeHandler(BytesAsBytesWrapTypeHandler.class));
+        this.register(Types.VARBINARY, byte[].class, createTypeHandler(BytesTypeHandler.class));
+        this.register(Types.VARBINARY, Byte[].class, createTypeHandler(BytesAsBytesWrapTypeHandler.class));
+        this.register(Types.BLOB, byte[].class, createTypeHandler(BlobAsBytesTypeHandler.class));
+        this.register(Types.BLOB, Byte[].class, createTypeHandler(BlobAsBytesWrapTypeHandler.class));
+        this.register(Types.LONGVARBINARY, byte[].class, createTypeHandler(BytesTypeHandler.class));
+        this.register(Types.LONGVARBINARY, Byte[].class, createTypeHandler(BytesAsBytesWrapTypeHandler.class));
 
-        this.registerCross(Types.BINARY, InputStream.class, createTypeHandler(BytesAsInputStreamTypeHandler.class));
-        this.registerCross(Types.VARBINARY, InputStream.class, createTypeHandler(BytesAsInputStreamTypeHandler.class));
-        this.registerCross(Types.LONGVARBINARY, InputStream.class, createTypeHandler(BytesAsInputStreamTypeHandler.class));
-        this.registerCross(Types.BLOB, InputStream.class, createTypeHandler(BlobAsInputStreamTypeHandler.class));
+        this.register(Types.BINARY, InputStream.class, createTypeHandler(BytesAsInputStreamTypeHandler.class));
+        this.register(Types.VARBINARY, InputStream.class, createTypeHandler(BytesAsInputStreamTypeHandler.class));
+        this.register(Types.LONGVARBINARY, InputStream.class, createTypeHandler(BytesAsInputStreamTypeHandler.class));
+        this.register(Types.BLOB, InputStream.class, createTypeHandler(BlobAsInputStreamTypeHandler.class));
 
-        this.registerCross(Types.ARRAY, Object.class, createTypeHandler(ArrayTypeHandler.class));
+        this.register(Types.ARRAY, Object.class, createTypeHandler(ArrayTypeHandler.class));
 
-        this.registerCross(Types.DATALINK, String.class, createTypeHandler(StringTypeHandler.class));
-        this.registerCross(Types.DATALINK, URL.class, createTypeHandler(URLTypeHandler.class));
-        this.registerCross(Types.DATALINK, URI.class, createTypeHandler(URITypeHandler.class));
+        this.register(Types.DATALINK, String.class, createTypeHandler(StringTypeHandler.class));
+        this.register(Types.DATALINK, URL.class, createTypeHandler(StringAsUrlTypeHandler.class));
+        this.register(Types.DATALINK, URI.class, createTypeHandler(StringAsUriTypeHandler.class));
 
-        this.registerCross(Types.ROWID, byte[].class, createTypeHandler(BytesTypeHandler.class));
-        this.registerCross(Types.ROWID, Byte[].class, createTypeHandler(BytesAsBytesWrapTypeHandler.class));
-        this.registerCross(Types.ROWID, String.class, createTypeHandler(StringTypeHandler.class));
+        this.register(Types.ROWID, byte[].class, createTypeHandler(BytesTypeHandler.class));
+        this.register(Types.ROWID, Byte[].class, createTypeHandler(BytesAsBytesWrapTypeHandler.class));
+        this.register(Types.ROWID, String.class, createTypeHandler(StringTypeHandler.class));
     }
 
     private static void registerTypeHandlerType(TypeHandler<?> typeHandler) {
@@ -355,7 +353,7 @@ public final class TypeHandlerRegistry {
         registerTypeHandlerType(typeHandler);
     }
 
-    public void registerCross(int jdbcType, Class<?> javaType, TypeHandler<?> typeHandler) {
+    public void register(int jdbcType, Class<?> javaType, TypeHandler<?> typeHandler) {
         if (isAbstract(javaType)) {
             this.abstractCachedByCrossType.computeIfAbsent(javaType, k -> {
                 return new LinkedHashMap<>();
@@ -370,27 +368,27 @@ public final class TypeHandlerRegistry {
     }
 
     private void registerCrossChars(Class<?> jdbcType, TypeHandler<?> typeHandler) {
-        registerCross(Types.CHAR, jdbcType, typeHandler);
-        registerCross(Types.VARCHAR, jdbcType, typeHandler);
-        registerCross(Types.LONGVARCHAR, jdbcType, typeHandler);
+        register(Types.CHAR, jdbcType, typeHandler);
+        register(Types.VARCHAR, jdbcType, typeHandler);
+        register(Types.LONGVARCHAR, jdbcType, typeHandler);
     }
 
     private void registerCrossNChars(Class<?> jdbcType, TypeHandler<?> typeHandler) {
-        registerCross(Types.NCHAR, jdbcType, typeHandler);
-        registerCross(Types.NVARCHAR, jdbcType, typeHandler);
-        registerCross(Types.LONGNVARCHAR, jdbcType, typeHandler);
+        register(Types.NCHAR, jdbcType, typeHandler);
+        register(Types.NVARCHAR, jdbcType, typeHandler);
+        register(Types.LONGNVARCHAR, jdbcType, typeHandler);
     }
 
     private void registerCrossNumber(Class<?> jdbcType, TypeHandler<?> typeHandler) {
-        registerCross(Types.TINYINT, jdbcType, typeHandler);
-        registerCross(Types.SMALLINT, jdbcType, typeHandler);
-        registerCross(Types.INTEGER, jdbcType, typeHandler);
-        registerCross(Types.BIGINT, jdbcType, typeHandler);
-        registerCross(Types.FLOAT, jdbcType, typeHandler);
-        registerCross(Types.DOUBLE, jdbcType, typeHandler);
-        registerCross(Types.REAL, jdbcType, typeHandler);
-        registerCross(Types.NUMERIC, jdbcType, typeHandler);
-        registerCross(Types.DECIMAL, jdbcType, typeHandler);
+        register(Types.TINYINT, jdbcType, typeHandler);
+        register(Types.SMALLINT, jdbcType, typeHandler);
+        register(Types.INTEGER, jdbcType, typeHandler);
+        register(Types.BIGINT, jdbcType, typeHandler);
+        register(Types.FLOAT, jdbcType, typeHandler);
+        register(Types.DOUBLE, jdbcType, typeHandler);
+        register(Types.REAL, jdbcType, typeHandler);
+        register(Types.NUMERIC, jdbcType, typeHandler);
+        register(Types.DECIMAL, jdbcType, typeHandler);
     }
 
     /** 根据 @MappedJavaTypes @MappedJdbcTypes @MappedCross 注解注册 TypeHandler */
@@ -405,21 +403,20 @@ public final class TypeHandlerRegistry {
         if (mappedJdbcTypes != null) {
             for (int jdbcType : mappedJdbcTypes.value()) {
                 if (typeHandler instanceof TypeReference) {
-                    registerCross(jdbcType, ((TypeReference<?>) typeHandler).getRawType(), typeHandler);
+                    Class<?> rawType = ((TypeReference<?>) typeHandler).getRawType();
+                    if (rawType != null) {
+                        register(jdbcType, rawType, typeHandler);
+                    } else {
+                        register(jdbcType, typeHandler);
+                    }
                 } else {
                     register(jdbcType, typeHandler);
                 }
             }
         }
-        MappedCross[] mappedCrosses = handlerClass.getAnnotationsByType(MappedCross.class);
-        for (MappedCross cross : mappedCrosses) {
-            MappedJdbcTypes jdbcTypes = cross.jdbcType();
-            MappedJavaTypes javaTypes = cross.javaTypes();
-            for (Class<?> javaType : javaTypes.value()) {
-                for (int jdbcType : jdbcTypes.value()) {
-                    registerCross(jdbcType, javaType, typeHandler);
-                }
-            }
+        MappedCrossTypes[] mappedCrosses = handlerClass.getAnnotationsByType(MappedCrossTypes.class);
+        for (MappedCrossTypes cross : mappedCrosses) {
+            register(cross.jdbcType(), cross.javaType(), typeHandler);
         }
     }
 
@@ -452,7 +449,7 @@ public final class TypeHandlerRegistry {
 
     public boolean hasTypeHandler(Class<?> typeClass) {
         Objects.requireNonNull(typeClass, "typeClass is null.");
-        if (typeClass.isEnum() || typeClass.isAnnotationPresent(BindTypeHandler.class)) {
+        if (typeClass.isEnum()) {
             return true;
         }
 
@@ -487,10 +484,6 @@ public final class TypeHandlerRegistry {
             return jdbcHandlerMap.containsKey(jdbcType);
         }
 
-        if (typeClass.isAnnotationPresent(BindTypeHandler.class)) {
-            return true;
-        }
-
         for (Class<?> abstractType : this.abstractCachedByCrossType.keySet()) {
             if (abstractType.isAssignableFrom(typeClass) || abstractType == typeClass) {
                 return true;
@@ -513,30 +506,6 @@ public final class TypeHandlerRegistry {
         TypeHandler<?> typeHandler = this.cachedByJavaType.get(typeClassName);
         if (typeHandler != null) {
             return typeHandler;
-        }
-
-        // maybe classType include BindTypeHandler
-        if (typeClass.isAnnotationPresent(BindTypeHandler.class)) {
-            synchronized (this) {
-                if (this.cachedByJavaType.containsKey(typeClassName)) {
-                    return this.cachedByJavaType.get(typeClassName);
-                }
-
-                try {
-                    BindTypeHandler handler = typeClass.getAnnotation(BindTypeHandler.class);
-                    Constructor<?> constructor = ConstructorUtils.getAccessibleConstructor(handler.value(), Class.class);
-                    if (constructor == null) {
-                        typeHandler = (TypeHandler<?>) handler.value().newInstance();
-                    } else {
-                        typeHandler = (TypeHandler<?>) ConstructorUtils.invokeConstructor(handler.value(), typeClass);
-                    }
-                } catch (Exception e) {
-                    throw ExceptionUtils.toRuntime(e);
-                }
-
-                this.cachedByJavaType.put(typeClassName, typeHandler);
-                return typeHandler;
-            }
         }
 
         // maybe classType is enum
@@ -593,40 +562,13 @@ public final class TypeHandlerRegistry {
             return typeHandler;
         }
 
-        // maybe classType include BindTypeHandler
-        if (typeClass.isAnnotationPresent(BindTypeHandler.class)) {
-            synchronized (this) {
-                if (this.cachedByCrossType.containsKey(typeClassName)) {
-                    handlerMap = this.cachedByCrossType.get(typeClassName);
-                    if (handlerMap.containsKey(jdbcType)) {
-                        return handlerMap.get(jdbcType);
-                    }
-                }
-
-                try {
-                    BindTypeHandler handler = typeClass.getAnnotation(BindTypeHandler.class);
-                    Constructor<?> constructor = ConstructorUtils.getAccessibleConstructor(handler.value(), Class.class);
-                    if (constructor == null) {
-                        typeHandler = (TypeHandler<?>) handler.value().newInstance();
-                    } else {
-                        typeHandler = (TypeHandler<?>) ConstructorUtils.invokeConstructor(handler.value(), typeClass);
-                    }
-                } catch (Exception e) {
-                    throw ExceptionUtils.toRuntime(e);
-                }
-
-                registerCross(jdbcType, typeClass, typeHandler);
-                return typeHandler;
-            }
-        }
-
         // maybe classType is enum
         if (Enum.class.isAssignableFrom(typeClass)) {
             typeClass = typeClass.isAnonymousClass() ? typeClass.getSuperclass() : typeClass;
             typeHandler = this.cachedByJavaType.get(typeClass.getName());
             if (typeHandler == null) {
                 EnumTypeHandler handler = new EnumTypeHandler(typeClass);
-                registerCross(jdbcType, typeClass, handler);
+                register(jdbcType, typeClass, handler);
                 return handler;
             }
         }
@@ -643,7 +585,7 @@ public final class TypeHandlerRegistry {
         if (typeHandler == null) {
             typeHandler = this.defaultTypeHandler;
         }
-        registerCross(jdbcType, typeClass, typeHandler);
+        register(jdbcType, typeClass, typeHandler);
         return typeHandler;
     }
 

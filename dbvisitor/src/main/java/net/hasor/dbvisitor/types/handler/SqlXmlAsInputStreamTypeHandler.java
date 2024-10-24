@@ -24,7 +24,7 @@ import java.sql.*;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-10-31
  */
-public class SqlXmlForInputStreamTypeHandler extends AbstractTypeHandler<InputStream> {
+public class SqlXmlAsInputStreamTypeHandler extends AbstractTypeHandler<InputStream> {
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, InputStream parameter, Integer jdbcType) throws SQLException {
         SQLXML sqlxml = ps.getConnection().createSQLXML();

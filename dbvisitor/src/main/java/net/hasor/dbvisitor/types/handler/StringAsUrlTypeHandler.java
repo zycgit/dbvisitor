@@ -25,7 +25,7 @@ import java.sql.SQLException;
  * 读写 url 类型。
  * @author 赵永春 (zyc@hasor.net)
  */
-public class URLTypeHandler extends AbstractTypeHandler<URL> {
+public class StringAsUrlTypeHandler extends AbstractTypeHandler<URL> {
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, URL parameter, Integer jdbcType) throws SQLException {
         ps.setString(i, parameter.toString());

@@ -60,6 +60,11 @@ public class MappingRegistry {
         this(Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT, MappingOptions.buildNew());
     }
 
+    public MappingRegistry(TypeHandlerRegistry registry) {
+        this(Thread.currentThread().getContextClassLoader(), registry, MappingOptions.buildNew());
+        Objects.requireNonNull(registry, "registry is null.");
+    }
+
     public MappingRegistry(ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions global) {
         this.classLoader = classLoader != null ? classLoader : Thread.currentThread().getContextClassLoader();
         this.typeRegistry = (typeRegistry == null) ? TypeHandlerRegistry.DEFAULT : typeRegistry;

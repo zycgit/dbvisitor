@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.mapping.def;
 import net.hasor.cobble.function.Property;
+import net.hasor.cobble.reflect.Annotations;
 import net.hasor.dbvisitor.mapping.KeySeqHolder;
 import net.hasor.dbvisitor.types.TypeHandler;
 
@@ -39,6 +40,8 @@ public interface ColumnMapping {
     TypeHandler<?> getTypeHandler();
 
     Property getHandler();
+
+    Annotations getAnnotations();
 
     /** 是否为主键 */
     boolean isPrimaryKey();

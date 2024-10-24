@@ -8,7 +8,7 @@
         <mapping column="instance_id" property="instanceId" sqlType="varchar(64)" length=""/>
         <mapping column="owner_name" property="ownerName" sqlType="varchar(255)"/>
         <mapping column="owner_type" property="ownerType" sqlType="varchar(64)"/>
-        <mapping column="content" property="content" sqlType="blob"/>
+        <mapping column="content" property="content" sqlType="blob" typeHandler=""/>
         <index name="idx_a" columns="gmt_modified,instanceId"/>
         <index name="uk_b" unique="true">
             <column>instanceId</column>

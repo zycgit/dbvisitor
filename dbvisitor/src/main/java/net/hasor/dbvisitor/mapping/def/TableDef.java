@@ -16,7 +16,9 @@
 package net.hasor.dbvisitor.mapping.def;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
+import net.hasor.cobble.reflect.Annotations;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.mapping.Primary;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
@@ -28,23 +30,26 @@ import java.util.*;
  * @version : 2020-10-31
  */
 public class TableDef<T> implements TableMapping<T> {
-    private       String                     catalog;
-    private       String                     schema;
-    private       String                     table;
-    private final Class<T>                   entityType;
-    private final boolean                    autoProperty;
-    private final boolean                    useDelimited;
-    private final boolean                    caseInsensitive;
-    private final boolean                    mapUnderscoreToCamelCase;
-    private final SqlDialect                 dialect;
+    private              String                             catalog;
+    private              String                             schema;
+    private              String                             table;
+    private final        Class<T>                           entityType;
+    private              Annotations                        annotations;
+    private final        boolean                            autoProperty;
+    private final        boolean                            useDelimited;
+    private final        boolean                            caseInsensitive;
+    private final        boolean                            mapUnderscoreToCamelCase;
+    private              SqlDialect                         dialect;
     //
-    private       TableDescription           description;
+    private              TableDescription                   description;
     //
-    private final boolean                    mapBased;
-    private final List<ColumnMapping>        columnMappings;
-    private final Map<String, ColumnMapping> mapByProperty;
-    private final Map<String, ColumnMapping> mapByColumn;
-    private final List<IndexDescription>     indexList;
+    private final        boolean                            mapBased;
+    private final        List<ColumnMapping>                columnMappings;
+    private final        Map<String, ColumnMapping>         mapByProperty;
+    private final        Map<String, List<ColumnMapping>>   mapByColumn;
+    private final        Map<String, ColumnMapping>         mapByColumnForPrimary;
+    private final        List<IndexDescription>             indexList;
+    private static final WeakHashMap<String, ColumnMapping> forMapKey = new WeakHashMap<>();
 
     public TableDef(String catalog, String schema, String table, Class<T> entityType, SqlDialect dialect, //
             boolean autoProperty, boolean useDelimited, boolean caseInsensitive, boolean mapUnderscoreToCamelCase) {
@@ -59,6 +64,7 @@ public class TableDef<T> implements TableMapping<T> {
         this.columnMappings = new ArrayList<>();
         this.mapByProperty = (caseInsensitive && Map.class.isAssignableFrom(entityType)) ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
         this.mapByColumn = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
+        this.mapByColumnForPrimary = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
         this.indexList = new ArrayList<>();
         this.mapUnderscoreToCamelCase = mapUnderscoreToCamelCase;
         this.dialect = dialect;
@@ -97,6 +103,15 @@ public class TableDef<T> implements TableMapping<T> {
     }
 
     @Override
+    public Annotations getAnnotations() {
+        return this.annotations;
+    }
+
+    public void setAnnotations(Annotations annotations) {
+        this.annotations = annotations;
+    }
+
+    @Override
     public boolean isAutoProperty() {
         return this.autoProperty;
     }
@@ -131,22 +146,61 @@ public class TableDef<T> implements TableMapping<T> {
     }
 
     public void addMapping(ColumnMapping mapping) {
+        if (mapping == null) {
+            return;
+        }
+
         String columnName = mapping.getColumn();
         String propertyName = mapping.getProperty();
         if (this.mapByColumn.containsKey(columnName) && this.mapByProperty.containsKey(propertyName)) {
             throw new IllegalStateException("column '" + columnName + "' mapping already added.");
         }
-        this.mapByColumn.put(columnName, mapping);
+
+        List<ColumnMapping> allColumnMapping = this.mapByColumn.computeIfAbsent(columnName, s -> new ArrayList<>());
+        allColumnMapping.add(mapping);
+
+        ColumnMapping primary = null;
+        if (allColumnMapping.size() == 1) {
+            primary = allColumnMapping.get(0);
+        } else {
+            for (ColumnMapping item : allColumnMapping) {
+                if (item.getAnnotations().getAnnotation(Primary.class) != null) {
+                    if (primary != null) {
+                        throw new IllegalStateException("column '" + columnName + "' mapping declares multiple @Primary");
+                    } else {
+                        primary = item;
+                    }
+                }
+            }
+        }
+
+        if (primary == null) {
+            this.mapByColumnForPrimary.remove(columnName);
+        } else {
+            this.mapByColumnForPrimary.put(columnName, mapping);
+        }
+
         this.mapByProperty.put(propertyName, mapping);
         this.columnMappings.add(mapping);
     }
 
     @Override
-    public ColumnMapping getPropertyByColumn(String column) {
+    public List<ColumnMapping> getPropertyByColumn(String column) {
         if (this.mapByColumn.containsKey(column)) {
             return this.mapByColumn.get(column);
         } else if (this.mapBased) {
-            return initOrGetMapMapping(this.mapByColumn, column);
+            return Collections.singletonList(initOrGetMapMapping(column));
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public ColumnMapping getPrimaryPropertyByColumn(String column) {
+        if (this.mapByColumnForPrimary.containsKey(column)) {
+            return this.mapByColumnForPrimary.get(column);
+        } else if (this.mapBased) {
+            return initOrGetMapMapping(column);
         } else {
             return null;
         }
@@ -157,7 +211,7 @@ public class TableDef<T> implements TableMapping<T> {
         if (this.mapByProperty.containsKey(property)) {
             return this.mapByProperty.get(property);
         } else if (this.mapBased) {
-            return initOrGetMapMapping(this.mapByProperty, property);
+            return initOrGetMapMapping(property);
         } else {
             return null;
         }
@@ -168,13 +222,17 @@ public class TableDef<T> implements TableMapping<T> {
         return this.description;
     }
 
+    public void setDescription(TableDescription description) {
+        this.description = description;
+    }
+
     @Override
     public SqlDialect getDialect() {
         return this.dialect;
     }
 
-    public void setDescription(TableDescription description) {
-        this.description = description;
+    public void setDialect(SqlDialect dialect) {
+        this.dialect = dialect;
     }
 
     @Override
@@ -191,25 +249,16 @@ public class TableDef<T> implements TableMapping<T> {
         this.indexList.add(index);
     }
 
-    private ColumnMapping initOrGetMapMapping(Map<String, ColumnMapping> map, String name) {
-        if (map.containsKey(name)) {
-            return map.get(name);
-        }
-        synchronized (this) {
-            if (map.containsKey(name)) {
-                return map.get(name);
-            }
-
+    private static ColumnMapping initOrGetMapMapping(String mapKey) {
+        return forMapKey.computeIfAbsent(mapKey, s -> {
             Class<?> javaType = Object.class;
             int jdbcType = TypeHandlerRegistry.toSqlType(javaType);
             TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();
-            ColumnDef columnDef = new ColumnDef(name, name, jdbcType, javaType, typeHandler, new MapProperty(name));
-            this.mapByColumn.put(name, columnDef);
-            return columnDef;
-        }
+            return new ColumnDef(s, s, jdbcType, javaType, typeHandler, new MapProperty(s));
+        });
     }
 
-    private final class MapProperty implements Property {
+    private static final class MapProperty implements Property {
         private final String name;
 
         public MapProperty(String name) {

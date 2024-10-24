@@ -22,10 +22,10 @@ import java.lang.annotation.RetentionPolicy;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-10-31
  */
-@Repeatable(MappedCrossGroup.class)
+@Repeatable(MappedCrossTypesGroup.class)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface MappedCross {
-    MappedJdbcTypes jdbcType();
+public @interface MappedCrossTypes {
+    int jdbcType();
 
-    MappedJavaTypes javaTypes();
+    Class<?> javaType();
 }

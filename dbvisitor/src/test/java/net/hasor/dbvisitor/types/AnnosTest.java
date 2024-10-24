@@ -28,7 +28,7 @@ public class AnnosTest {
         TypeHandlerRegistry.DEFAULT.registerHandler(MyTypeHandler.class, new MyTypeHandler());
         TypeHandlerRegistry.DEFAULT.register(Types.VARCHAR, new MyTypeHandler());
         TypeHandlerRegistry.DEFAULT.register(StringBuilder.class, new MyTypeHandler());
-        TypeHandlerRegistry.DEFAULT.registerCross(Types.BIGINT, InputStream.class, new MyTypeHandler());
+        TypeHandlerRegistry.DEFAULT.register(Types.BIGINT, InputStream.class, new MyTypeHandler());
 
         assert TypeHandlerRegistry.DEFAULT.hasTypeHandler(StringBuilder.class);
         assert TypeHandlerRegistry.DEFAULT.getTypeHandler(StringBuilder.class) instanceof MyTypeHandler;

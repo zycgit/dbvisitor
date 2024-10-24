@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.types;
-import java.lang.annotation.*;
+package net.hasor.dbvisitor.mapping;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
+ * 当配置出现冲突时用于标识出哪一个配置主要的，即默认最优选择
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-10-31
  */
-@Documented
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE, ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface BindTypeHandler {
-    Class<?> value();
+public @interface Primary {
 }

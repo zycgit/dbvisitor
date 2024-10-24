@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
-import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
@@ -34,18 +33,15 @@ import net.hasor.dbvisitor.lambda.support.map.InsertLambdaForMap;
 import net.hasor.dbvisitor.lambda.support.map.SelectLambdaForMap;
 import net.hasor.dbvisitor.lambda.support.map.UpdateLambdaForMap;
 import net.hasor.dbvisitor.mapping.MappingOptions;
-import net.hasor.dbvisitor.mapping.def.TableDef;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
 
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 继承自 JdbcTemplate 并提供 lambda 方式生成 SQL。
@@ -53,11 +49,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version : 2022-04-02
  */
 public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
-    protected final Map<Class<?>, TableMapping<?>> entMapping  = new ConcurrentHashMap<>();
-    protected final Map<String, TableMapping<?>>   mapMapping  = new ConcurrentHashMap<>();
-    protected       SqlDialect                     dialect     = null;
-    protected       ClassLoader                    classLoader = null;
-    protected       boolean                        useQualifier;
+    protected SqlDialect  dialect     = null;
+    protected ClassLoader classLoader = null;
+    protected boolean     useQualifier;
 
     /**
      * Construct a new JdbcTemplate for bean usage.
@@ -196,7 +190,7 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
         this.classLoader = classLoader;
     }
 
-    public <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
+    public <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions opt) {
         if (exampleType == null) {
             throw new NullPointerException("exampleType is null.");
         }
@@ -204,71 +198,39 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
             throw new UnsupportedOperationException("Map cannot be used as lambda exampleType.");
         }
 
-        TableMapping<?> mapping = this.entMapping.get(exampleType);
-        if (mapping != null) {
-            if (exampleType == mapping.entityType() || exampleType.isAssignableFrom(mapping.entityType())) {
-                return (TableMapping<T>) mapping;
-            } else {
-                throw new ClassCastException("exampleType is incompatible with TableMapping.");
-            }
+        MappingRegistry registry = getRegistry().getMappingRegistry();
+        TableMapping<T> def = registry.findUsingSpace(exampleType);
+        if (def != null) {
+            return def;
+        } else {
+            MappingOptions copyOpt = MappingOptions.buildNew(opt);
+            copyOpt.setUseDelimited(Boolean.TRUE.equals(copyOpt.getUseDelimited()));
+            copyOpt.setCaseInsensitive(this.isResultsCaseInsensitive());
+            copyOpt.setMapUnderscoreToCamelCase(Boolean.TRUE.equals(copyOpt.getMapUnderscoreToCamelCase()));
+            copyOpt.setDefaultDialect(this.getDialect());
+            return registry.loadEntityToSpace(exampleType);
         }
-
-        mapping = this.entMapping.computeIfAbsent(exampleType, key -> {
-            MappingOptions opt = new MappingOptions(options);
-            if (opt.getCaseInsensitive() == null) {
-                opt.setCaseInsensitive(this.isResultsCaseInsensitive());
-            }
-            if (opt.getDefaultDialect() == null) {
-                opt.setDefaultDialect(this.getDialect());
-            }
-
-            try {
-                ClassLoader loader = ClassUtils.getClassLoader(exampleType.getClassLoader());
-                TableDef<?> tableDef = new ClassTableMappingResolve().resolveTableMapping(exampleType, opt, loader, this.getRegistry().getTypeRegistry());
-                if (StringUtils.isBlank(tableDef.getTable())) {
-                    if (tableDef.isMapUnderscoreToCamelCase()) {
-                        tableDef.setTable(StringUtils.humpToLine(exampleType.getSimpleName()));
-                    } else {
-                        tableDef.setTable(exampleType.getSimpleName());
-                    }
-                }
-                return tableDef;
-            } catch (ReflectiveOperationException | IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return (TableMapping<T>) mapping;
     }
 
     public TableMapping<?> getTableMapping(final String catalog, final String schema, final String table, MappingOptions opt) throws SQLException {
         if (StringUtils.isBlank(table)) {
             throw new NullPointerException("table is blank.");
         }
+        MappingRegistry registry = getRegistry().getMappingRegistry();
 
-        String mappingKey = String.format("'%s'.'%s'.'%s'", catalog, schema, table); // mapping is map key
-        TableMapping<?> mapping = this.mapMapping.get(mappingKey);
-        if (mapping != null) {
-            return mapping;
+        TableMapping<?> usingTable = registry.findUsingTable(catalog, schema, table);
+        if (usingTable != null) {
+            return usingTable;
+        } else {
+            MappingOptions copyOpt = MappingOptions.buildNew(opt);
+            copyOpt.setUseDelimited(Boolean.TRUE.equals(copyOpt.getUseDelimited()));
+            copyOpt.setCaseInsensitive(this.isResultsCaseInsensitive());
+            copyOpt.setMapUnderscoreToCamelCase(Boolean.TRUE.equals(copyOpt.getMapUnderscoreToCamelCase()));
+            copyOpt.setDefaultDialect(this.getDialect());
+
+            TableMapping<?> def = registry.loadEntityToTable(LinkedHashMap.class, catalog, schema, table);
+            return def;
         }
-
-        MappingOptions copyOpt = MappingOptions.buildNew(opt);
-        copyOpt.setUseDelimited(Boolean.TRUE.equals(copyOpt.getUseDelimited()));
-        copyOpt.setCaseInsensitive(this.isResultsCaseInsensitive());
-        copyOpt.setMapUnderscoreToCamelCase(Boolean.TRUE.equals(copyOpt.getMapUnderscoreToCamelCase()));
-        copyOpt.setDefaultDialect(this.getDialect());
-
-        final String finalCatalog = StringUtils.isBlank(catalog) ? null : catalog;
-        final String finalSchema = StringUtils.isBlank(schema) ? null : schema;
-        final String finalTable = StringUtils.isBlank(table) ? null : table;
-        boolean useDelimited = copyOpt.getUseDelimited();
-        boolean caseInsensitive = copyOpt.getCaseInsensitive();
-        boolean camelCase = copyOpt.getMapUnderscoreToCamelCase();
-
-        final TableDef<?> tableDef = new TableDef<>(finalCatalog, finalSchema, finalTable, LinkedHashMap.class, this.getDialect(), //
-                true, useDelimited, caseInsensitive, camelCase);
-
-        this.mapMapping.put(mappingKey, tableDef);
-        return tableDef;
     }
 
     protected <E extends BasicLambda<R, T, P>, R, T, P> E configLambda(E execute) {
@@ -276,22 +238,6 @@ public class LambdaTemplate extends JdbcTemplate implements LambdaOperations {
             execute.useQualifier();
         }
         return execute;
-    }
-
-    public void resetMapping() {
-        this.entMapping.clear();
-        this.mapMapping.clear();
-    }
-
-    public void resetMapping(String catalog, String schema, String table) {
-        if (StringUtils.isBlank(table)) {
-            throw new NullPointerException("table is blank.");
-        }
-        this.mapMapping.remove(String.format("'%s'.'%s'.'%s'", catalog, schema, table));
-    }
-
-    public void resetMapping(Class<?> exampleType) {
-        this.entMapping.remove(exampleType);
     }
 
     @Override

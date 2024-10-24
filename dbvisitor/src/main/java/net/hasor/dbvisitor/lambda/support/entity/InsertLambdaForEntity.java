@@ -171,7 +171,12 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
         TableMapping<?> tableMapping = this.getTableMapping();
         List<ColumnMapping> mappings = new ArrayList<>();
         for (String column : useColumns) {
-            mappings.add(tableMapping.getPropertyByColumn(column));
+            ColumnMapping primary = tableMapping.getPrimaryPropertyByColumn(column);
+            if (primary == null) {
+                List<ColumnMapping> properties = tableMapping.getPropertyByColumn(column);
+                throw new SQLException("conflict, there are " + properties.size() + " properties mapping the same column '" + column + "', and not declare primary.");
+            }
+            mappings.add(primary);
         }
 
         SqlArg[][] batchArgs = new SqlArg[this.insertValuesCount.get()][];

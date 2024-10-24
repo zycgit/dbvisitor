@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.def;
+import net.hasor.cobble.reflect.Annotations;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.reader.BeanTableReader;
@@ -40,6 +41,8 @@ public interface TableMapping<T> {
 
     Class<T> entityType();
 
+    Annotations getAnnotations();
+
     /** 映射的实体是否是基于 Map */
     boolean isMapEntity();
 
@@ -57,7 +60,9 @@ public interface TableMapping<T> {
 
     Collection<ColumnMapping> getProperties();
 
-    ColumnMapping getPropertyByColumn(String column);
+    List<ColumnMapping> getPropertyByColumn(String column);
+
+    ColumnMapping getPrimaryPropertyByColumn(String column);
 
     ColumnMapping getPropertyByName(String property);
 

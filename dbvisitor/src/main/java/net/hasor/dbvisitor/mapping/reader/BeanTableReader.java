@@ -49,14 +49,16 @@ public class BeanTableReader<T> implements TableReader<T> {
         for (int i = 0; i < columns.size(); i++) {
             String column = columns.get(i);
 
-            ColumnMapping mapping = this.tableMapping.getPropertyByColumn(column);
-            if (mapping == null || mapping.getHandler().isReadOnly()) {
-                continue;
-            }
+            List<ColumnMapping> list = this.tableMapping.getPropertyByColumn(column);
+            for (ColumnMapping mapping : list) {
+                if (mapping == null || mapping.getHandler().isReadOnly()) {
+                    continue;
+                }
 
-            TypeHandler<?> realHandler = mapping.getTypeHandler();
-            Object result = realHandler.getResult(rs, i + 1);
-            mapping.getHandler().set(target, result);
+                TypeHandler<?> realHandler = mapping.getTypeHandler();
+                Object result = realHandler.getResult(rs, i + 1);
+                mapping.getHandler().set(target, result);
+            }
         }
         return target;
     }

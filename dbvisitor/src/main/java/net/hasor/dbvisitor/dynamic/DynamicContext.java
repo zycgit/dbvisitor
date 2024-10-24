@@ -39,6 +39,22 @@ public class DynamicContext {
     private             RuleRegistry            ruleRegistry    = RuleRegistry.DEFAULT;
     private final       Map<String, DynamicSql> macroMap        = new HashMap<>();
 
+    public DynamicContext() {
+
+    }
+
+    public DynamicContext(MappingRegistry mapping, RuleRegistry rule) {
+        this.mappingRegistry = mapping;
+        this.typeRegistry = mapping.getTypeRegistry();
+        this.ruleRegistry = rule;
+    }
+
+    public DynamicContext(TypeHandlerRegistry type, RuleRegistry rule) {
+        this.mappingRegistry = new MappingRegistry(type);
+        this.typeRegistry = type;
+        this.ruleRegistry = rule;
+    }
+
     public DynamicSql findMacro(String dynamicId) {
         return this.macroMap.get(dynamicId);
     }
@@ -93,24 +109,12 @@ public class DynamicContext {
         return this.mappingRegistry;
     }
 
-    public void setMappingRegistry(MappingRegistry mappingRegistry) {
-        this.mappingRegistry = mappingRegistry;
-    }
-
     public TypeHandlerRegistry getTypeRegistry() {
         return this.typeRegistry;
     }
 
-    public void setTypeRegistry(TypeHandlerRegistry typeRegistry) {
-        this.typeRegistry = typeRegistry;
-    }
-
     public RuleRegistry getRuleRegistry() {
         return this.ruleRegistry;
-    }
-
-    public void setRuleRegistry(RuleRegistry ruleRegistry) {
-        this.ruleRegistry = ruleRegistry;
     }
 
     public ClassLoader getClassLoader() {
