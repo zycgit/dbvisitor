@@ -20,11 +20,11 @@ import net.hasor.dbvisitor.dialect.BatchBoundSql.BatchBoundSqlObj;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.BoundSql.BoundSqlObj;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.InsertOperation;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.core.AbstractInsertLambda;
-import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
@@ -46,9 +46,14 @@ public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map
         implements InsertOperation<Map<String, Object>> {
     private final boolean toCamelCase;
 
-    public InsertLambdaForMap(TableMapping<?> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
-        super(Map.class, tableMapping, opt, jdbcTemplate);
-        this.toCamelCase = getTableMapping().isToCamelCase();
+    public InsertLambdaForMap(TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+        super(Map.class, tableMapping, registry, jdbc);
+        this.toCamelCase = tableMapping.isToCamelCase();
+    }
+
+    @Override
+    public InsertOperation<Map<String, Object>> asMap() {
+        return this;
     }
 
     @Override
@@ -75,8 +80,8 @@ public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map
 
     @Override
     public int[] executeGetResult() throws SQLException {
-        return this.getJdbcTemplate().execute((ConnectionCallback<int[]>) con -> {
-            final TypeHandlerRegistry typeRegistry = this.getJdbcTemplate().getRegistry().getTypeRegistry();
+        return this.getJdbc().execute((ConnectionCallback<int[]>) con -> {
+            final TypeHandlerRegistry typeRegistry = this.getJdbc().getRegistry().getTypeRegistry();
             int[] result = new int[this.insertValuesCount.get()];
 
             int i = 0;

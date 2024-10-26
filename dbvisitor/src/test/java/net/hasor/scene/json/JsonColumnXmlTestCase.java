@@ -31,7 +31,7 @@ public class JsonColumnXmlTestCase {
     }
 
     @Test
-    public void result_1_TestCase() throws SQLException, IOException, ReflectiveOperationException {
+    public void result_1_TestCase() throws SQLException, IOException {
         DalRegistry dalRegistry = new DalRegistry();
         dalRegistry.loadMapper("/dbvisitor_scene/json/json-column-1.xml");
         dalRegistry.loadEntityToSpace(Project1.class);
@@ -40,11 +40,11 @@ public class JsonColumnXmlTestCase {
             DalSession dalSession = new DalSession(c, dalRegistry);
             LambdaTemplate template = dalSession.lambdaTemplate();
 
-            template.execute("drop table if exists `project`");
-            template.loadSQL("/dbvisitor_scene/project_for_mysql.sql");
+            template.getJdbc().execute("drop table if exists `project`");
+            template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
 
             Project1 project = newProject("abc", Arrays.asList("CN", "EN"));
-            assert template.lambdaInsert(Project1.class).applyEntity(project).executeSumResult() == 1;
+            assert template.insertBySpace(Project1.class).applyEntity(project).executeSumResult() == 1;
 
             List<Object> list = dalSession.queryStatement("resultMap_test.selectProject", project);
 
@@ -58,7 +58,7 @@ public class JsonColumnXmlTestCase {
     }
 
     @Test
-    public void args_1_TestCase() throws SQLException, IOException, ReflectiveOperationException {
+    public void args_1_TestCase() throws SQLException, IOException {
         DalRegistry dalRegistry = new DalRegistry();
         dalRegistry.loadMapper("/dbvisitor_scene/json/json-column-1.xml");
         dalRegistry.loadEntityToSpace(Project1.class);
@@ -67,13 +67,13 @@ public class JsonColumnXmlTestCase {
             DalSession dalSession = new DalSession(c, dalRegistry);
             LambdaTemplate template = dalSession.lambdaTemplate();
 
-            template.execute("drop table if exists `project`");
-            template.loadSQL("/dbvisitor_scene/project_for_mysql.sql");
+            template.getJdbc().execute("drop table if exists `project`");
+            template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
 
             Project1 project1 = newProject("abc1", Arrays.asList("CN", "EN"));
             Project1 project2 = newProject("abc2", Arrays.asList("CN", "EN"));
             Project1 project3 = newProject("abc3", Arrays.asList("JP", "EN"));
-            assert template.lambdaInsert(Project1.class).applyEntity(project1, project2, project3).executeSumResult() == 3;
+            assert template.insertBySpace(Project1.class).applyEntity(project1, project2, project3).executeSumResult() == 3;
 
             List<Object> list = dalSession.queryStatement("resultMap_test.selectByJSON", project1);
             assert list.size() == 2;
@@ -100,11 +100,11 @@ public class JsonColumnXmlTestCase {
             DalSession dalSession = new DalSession(c, dalRegistry);
             LambdaTemplate template = dalSession.lambdaTemplate();
 
-            template.execute("drop table if exists `project`");
-            template.loadSQL("/dbvisitor_scene/project_for_mysql.sql");
+            template.getJdbc().execute("drop table if exists `project`");
+            template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
 
             Project1 project = newProject("abc", Arrays.asList("CN", "EN"));
-            assert template.lambdaInsert(Project1.class).applyEntity(project).executeSumResult() == 1;
+            assert template.insertBySpace(Project1.class).applyEntity(project).executeSumResult() == 1;
 
             List<Object> list = dalSession.queryStatement("resultMap_test.selectProject", project);
 
@@ -127,13 +127,13 @@ public class JsonColumnXmlTestCase {
             DalSession dalSession = new DalSession(c, dalRegistry);
             LambdaTemplate template = dalSession.lambdaTemplate();
 
-            template.execute("drop table if exists `project`");
-            template.loadSQL("/dbvisitor_scene/project_for_mysql.sql");
+            template.getJdbc().execute("drop table if exists `project`");
+            template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
 
             Project1 project1 = newProject("abc1", Arrays.asList("CN", "EN"));
             Project1 project2 = newProject("abc2", Arrays.asList("CN", "EN"));
             Project1 project3 = newProject("abc3", Arrays.asList("JP", "EN"));
-            assert template.lambdaInsert(Project1.class).applyEntity(project1, project2, project3).executeSumResult() == 3;
+            assert template.insertBySpace(Project1.class).applyEntity(project1, project2, project3).executeSumResult() == 3;
 
             List<Object> list = dalSession.queryStatement("resultMap_test.selectByJSON", project1);
             assert list.size() == 2;

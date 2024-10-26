@@ -45,7 +45,7 @@ public class TextDynamicSql implements DynamicSql {
     }
 
     @Override
-    public void buildQuery(SqlArgSource data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
+    public void buildQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException {
         this.dynamicSql.buildQuery(data, context, sqlBuilder);
     }
 

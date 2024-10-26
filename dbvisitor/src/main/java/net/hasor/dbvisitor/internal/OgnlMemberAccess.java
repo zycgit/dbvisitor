@@ -30,11 +30,11 @@
 //--------------------------------------------------------------------------
 package net.hasor.dbvisitor.internal;
 import ognl.MemberAccess;
+import ognl.OgnlContext;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
-import java.util.Map;
 
 /**
  * This class provides methods for setting up and restoring
@@ -94,10 +94,8 @@ public class OgnlMemberAccess implements MemberAccess {
         allowPackageProtectedAccess = value;
     }
 
-    /*===================================================================
-        MemberAccess interface
-      ===================================================================*/
-    public Object setup(Map context, Object target, Member member, String propertyName) {
+    @Override
+    public Object setup(OgnlContext context, Object target, Member member, String propertyName) {
         Object result = null;
         if (isAccessible(context, target, member, propertyName)) {
             AccessibleObject accessible = (AccessibleObject) member;
@@ -109,7 +107,8 @@ public class OgnlMemberAccess implements MemberAccess {
         return result;
     }
 
-    public void restore(Map context, Object target, Member member, String propertyName, Object state) {
+    @Override
+    public void restore(OgnlContext context, Object target, Member member, String propertyName, Object state) {
         if (state != null) {
             ((AccessibleObject) member).setAccessible(((Boolean) state).booleanValue());
         }
@@ -119,7 +118,8 @@ public class OgnlMemberAccess implements MemberAccess {
      * Returns true if the given member is accessible or can be made accessible
      * by this object.
      */
-    public boolean isAccessible(Map context, Object target, Member member, String propertyName) {
+    @Override
+    public boolean isAccessible(OgnlContext context, Object target, Member member, String propertyName) {
         int modifiers = member.getModifiers();
         boolean result = Modifier.isPublic(modifiers);
         if (!result) {

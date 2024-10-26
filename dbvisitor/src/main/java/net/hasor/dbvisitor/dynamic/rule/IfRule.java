@@ -15,8 +15,8 @@
  */
 package net.hasor.dbvisitor.dynamic.rule;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 
@@ -33,12 +33,12 @@ public class IfRule implements SqlBuildRule {
     public static final SqlBuildRule INSTANCE_IF = new IfRule();
 
     @Override
-    public boolean test(SqlArgSource data, DynamicContext context, String activeExpr) {
+    public boolean test(SqlArgSource data, RegistryManager context, String activeExpr) {
         return StringUtils.isBlank(activeExpr) || Boolean.TRUE.equals(evalOgnl(activeExpr, data));
     }
 
     @Override
-    public void executeRule(SqlArgSource data, DynamicContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
+    public void executeRule(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         if (ruleValue != null) {
             DynamicParsed.getParsedSql(ruleValue).buildQuery(data, context, sqlBuilder);
         }

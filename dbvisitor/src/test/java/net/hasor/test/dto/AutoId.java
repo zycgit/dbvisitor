@@ -19,9 +19,8 @@ import net.hasor.dbvisitor.mapping.KeyTypeEnum;
 import net.hasor.dbvisitor.mapping.Table;
 
 /**
- *
- * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-12-10
  */
 @Table(mapUnderscoreToCamelCase = true)
 public class AutoId {

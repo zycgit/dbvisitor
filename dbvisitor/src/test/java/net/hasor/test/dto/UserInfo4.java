@@ -16,23 +16,23 @@
 package net.hasor.test.dto;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.Table;
+import net.hasor.dbvisitor.types.handler.JsonTypeHandler;
 
 /**
- *
- * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-12-10
  */
 @Table("user_info")
 public class UserInfo4 extends UserInfo2 {
 
-    @Column(value = "futures")
-    private UserFutures2 futures;
+    @Column(value = "futures", typeHandler = JsonTypeHandler.class)
+    private UserFutures futures;
 
-    public UserFutures2 getFutures() {
+    public UserFutures getFutures() {
         return this.futures;
     }
 
-    public void setFutures(UserFutures2 futures) {
+    public void setFutures(UserFutures futures) {
         this.futures = futures;
     }
 }

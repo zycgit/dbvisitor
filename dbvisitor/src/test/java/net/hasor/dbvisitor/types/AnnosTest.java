@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import net.hasor.dbvisitor.types.handler.JsonUseForFastjson2TypeHandler;
-import net.hasor.test.dto.UserFutures2;
+import net.hasor.cobble.WellKnowFormat;
+import net.hasor.dbvisitor.dynamic.MacroRegistry;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.types.custom.MyStringTypeHandler1;
+import net.hasor.dbvisitor.types.custom.UserTable;
 import net.hasor.test.types.MyTypeHandler;
+import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Types;
+import java.util.List;
 
 public class AnnosTest {
     @Test
@@ -41,10 +50,44 @@ public class AnnosTest {
     }
 
     @Test
-    public void testBindTypeHandler_2() {
-        assert TypeHandlerRegistry.DEFAULT.hasTypeHandler(UserFutures2.class);
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(UserFutures2.class) instanceof JsonUseForFastjson2TypeHandler;
-        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(UserFutures2.class) == TypeHandlerRegistry.DEFAULT.getTypeHandler(UserFutures2.class);
+    public void customTypeHandlerTest_1() throws SQLException {
+        try (Connection c = DsUtils.h2Conn()) {
+            JdbcTemplate jdbc = new JdbcTemplate(c);
+
+            jdbc.execute("insert into user_table values (10, 'Verdi', 66, '2021-05-11 00:00:00');");
+
+            String arg = "2021-05-11";
+            List<UserTable> list = jdbc.queryForList("select * from user_table where create_time = #{arg0, typeHandler=net.hasor.dbvisitor.types.custom.MyDateTypeHandler}", arg, UserTable.class);
+
+            assert list.size() == 1;
+            assert list.get(0).getName().equals("Verdi");
+            assert list.get(0).getCreateTime1().equals("2021-05-11");
+            assert WellKnowFormat.WKF_DATE_TIME24.format(list.get(0).getCreateTime2()).equals("2021-05-11 00:00:00");
+        }
+    }
+
+    @Test
+    public void customTypeHandlerTest_2() throws SQLException {
+        TypeHandlerRegistry registry = new TypeHandlerRegistry();
+        RegistryManager context = new RegistryManager(registry, RuleRegistry.DEFAULT, MacroRegistry.DEFAULT);
+
+        MyStringTypeHandler1 handler1 = new MyStringTypeHandler1();
+        registry.registerHandler(MyStringTypeHandler1.class, handler1);
+
+        try (Connection c = DsUtils.h2Conn()) {
+            JdbcTemplate jdbc = new JdbcTemplate(c, context);
+
+            jdbc.execute("insert into user_table values (10, 'Verdi', 66, '2021-05-11 00:00:00');");
+
+            String arg = "Verdi";
+            assert !handler1.isReadMark();
+            List<UserTable> list = jdbc.queryForList("select * from user_table where name = ?", arg, UserTable.class);
+
+            assert list.size() == 1;
+            assert list.get(0).getName().equals("Verdi");
+
+            assert handler1.isReadMark();
+        }
     }
 
 }

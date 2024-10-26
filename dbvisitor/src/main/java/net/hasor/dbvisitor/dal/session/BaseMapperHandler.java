@@ -51,7 +51,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
         this.entityType = (Class<Object>) entityType;
         this.dalSession = dalSession;
         this.template = dalSession.newTemplate(this.space);
-        this.tableMapping = dalSession.getDalRegistry().findUsingSpace(space, this.entityType);
+        this.tableMapping = dalSession.getDalRegistry().findBySpace(space, this.entityType);
 
         Objects.requireNonNull(this.tableMapping, "entityType '" + entityType + "' undefined.");
     }

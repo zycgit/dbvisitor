@@ -18,9 +18,9 @@ import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
-import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.SqlArg;
@@ -47,8 +47,8 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
     private         boolean                    allowUpdateKey  = false;
     private         boolean                    allowReplaceRow = false;
 
-    public AbstractUpdateLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
-        super(exampleType, tableMapping, opt, jdbcTemplate);
+    public AbstractUpdateLambda(Class<?> exampleType, TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+        super(exampleType, tableMapping, registry, jdbc);
 
         this.allowUpdateProperties = new LinkedHashMap<>();
         this.allowUpdateKeys = new LinkedHashSet<>();
@@ -99,7 +99,7 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
             logger.trace("Executing SQL statement [" + sqlString + "].");
         }
 
-        return this.getJdbcTemplate().executeUpdate(sqlString, boundSql.getArgs());
+        return this.getJdbc().executeUpdate(sqlString, boundSql.getArgs());
     }
 
     @Override

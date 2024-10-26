@@ -12,7 +12,7 @@ public class MacroRuleTest {
 
     @Test
     public void macroRuleTest_1() throws SQLException {
-        DynamicContext dynamicContext = new DynamicContext();
+        RegistryManager dynamicContext = new RegistryManager();
         dynamicContext.addMacro("one arg", "name = ?");
 
         DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{macro, one arg}");
@@ -23,7 +23,7 @@ public class MacroRuleTest {
 
     @Test
     public void macroRuleTest_2() throws SQLException {
-        DynamicContext dynamicContext = new DynamicContext();
+        RegistryManager dynamicContext = new RegistryManager();
         dynamicContext.addMacro("one arg", "name = ?");
         Map<String, Object> ctx = CollectionUtils.asMap("test", false);
 
@@ -40,7 +40,7 @@ public class MacroRuleTest {
 
     @Test
     public void macroRuleTest_3() throws SQLException {
-        DynamicContext dynamicContext = new DynamicContext();
+        RegistryManager dynamicContext = new RegistryManager();
         dynamicContext.addMacro("one arg", "name = ?");
         Map<String, Object> ctx = CollectionUtils.asMap("test", true);
 

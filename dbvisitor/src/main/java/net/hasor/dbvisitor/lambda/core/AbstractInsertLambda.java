@@ -18,11 +18,11 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.args.SqlArgDisposer;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.KeySeqHolder;
-import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
@@ -56,14 +56,15 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     protected final List<SqlArgDisposer> parameterDisposers; // 只有 insert 需要
     protected final List<InsertEntity>   fillBackEntityList;
 
-    public AbstractInsertLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
-        super(exampleType, tableMapping, opt, jdbcTemplate);
+    public AbstractInsertLambda(Class<?> exampleType, TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+        super(exampleType, tableMapping, registry, jdbc);
+
         this.insertProperties = new ArrayList<>();
         this.fillBeforeProperties = new ArrayList<>();
         this.fillAfterProperties = new ArrayList<>();
         initProperties(this.insertProperties, this.fillBeforeProperties, this.fillAfterProperties);
 
-        if (!tableMapping.isMapEntity() && this.insertProperties.size() == 0) {
+        if (!tableMapping.isMapEntity() && this.insertProperties.isEmpty()) {
             throw new IllegalStateException("no column require INSERT.");
         }
 

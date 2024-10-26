@@ -20,8 +20,8 @@ import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.types.handler.JsonTypeHandler;
 
 /**
- * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-12-10
  */
 @Table(table = "project")
 public class Project1 {

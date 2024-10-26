@@ -1,14 +1,14 @@
 package net.hasor.dbvisitor.dal.session;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /** 生成动态 SQL 的 Build 环境 */
-public class DalContext extends DynamicContext {
+public class DalContext extends RegistryManager {
     private final String      space;
     private final DalRegistry dalRegistry;
 
@@ -28,7 +28,7 @@ public class DalContext extends DynamicContext {
 
     @Override
     public TableMapping<?> findTableMapping(String resultMap) {
-        return this.dalRegistry.findUsingSpace(this.space, resultMap);
+        return this.dalRegistry.findBySpace(this.space, resultMap);
     }
 
     @Override

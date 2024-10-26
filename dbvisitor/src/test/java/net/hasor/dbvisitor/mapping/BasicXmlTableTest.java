@@ -31,7 +31,7 @@ public class BasicXmlTableTest {
     public void xmlTableInfo_1() throws IOException {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_entity_1.xml");
-        TableMapping<?> tab = registry.findUsingTable("master", "dbo", "blob_resource");
+        TableMapping<?> tab = registry.findByTable("master", "dbo", "blob_resource");
 
         assert tab.getCatalog().equals("master");
         assert tab.getSchema().equals("dbo");
@@ -122,12 +122,12 @@ public class BasicXmlTableTest {
     public void xmlTableInfo_2_1() throws IOException {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_entity_1.xml");
-        TableMapping<?> ent1 = registry.findUsingTable("master", "dbo", "blob_resource");
+        TableMapping<?> ent1 = registry.findByTable("master", "dbo", "blob_resource");
 
-        TableMapping<?> def1 = registry.findUsingSpace(PojoBean1.class);
-        TableMapping<?> def2 = registry.findUsingSpace("", PojoBean1.class);
-        TableMapping<?> def3 = registry.findUsingSpace("", PojoBean1.class.getName());
-        TableMapping<?> def4 = registry.findUsingTable("master", "dbo", "blob_resource", null);
+        TableMapping<?> def1 = registry.findBySpace(PojoBean1.class);
+        TableMapping<?> def2 = registry.findBySpace("", PojoBean1.class);
+        TableMapping<?> def3 = registry.findBySpace("", PojoBean1.class.getName());
+        TableMapping<?> def4 = registry.findByTable("master", "dbo", "blob_resource", null);
 
         assert ent1 == def1;
         assert ent1 == def2;
@@ -139,12 +139,12 @@ public class BasicXmlTableTest {
     public void xmlTableInfo_2_2() throws IOException {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_entity_2.xml");
-        TableMapping<?> ent1 = registry.findUsingTable("master", "dbo", "blob_resource");
+        TableMapping<?> ent1 = registry.findByTable("master", "dbo", "blob_resource");
 
-        TableMapping<?> def1 = registry.findUsingSpace(PojoBean1.class);
-        TableMapping<?> def2 = registry.findUsingSpace("resultMap_test", PojoBean1.class);
-        TableMapping<?> def3 = registry.findUsingSpace("resultMap_test", PojoBean1.class.getName());
-        TableMapping<?> def4 = registry.findUsingTable("master", "dbo", "blob_resource", null);
+        TableMapping<?> def1 = registry.findBySpace(PojoBean1.class);
+        TableMapping<?> def2 = registry.findBySpace("resultMap_test", PojoBean1.class);
+        TableMapping<?> def3 = registry.findBySpace("resultMap_test", PojoBean1.class.getName());
+        TableMapping<?> def4 = registry.findByTable("master", "dbo", "blob_resource", null);
 
         assert null == def1;
         assert ent1 == def2;
@@ -156,13 +156,13 @@ public class BasicXmlTableTest {
     public void xmlTableInfo_3() throws IOException {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_entity_3.xml");
-        TableMapping<?> ent1 = registry.findUsingSpace("abc", "aac");
+        TableMapping<?> ent1 = registry.findBySpace("abc", "aac");
 
-        TableMapping<?> def1 = registry.findUsingSpace(PojoBean1.class);
-        TableMapping<?> def2 = registry.findUsingSpace("", PojoBean1.class);
-        TableMapping<?> def3 = registry.findUsingSpace("", PojoBean1.class.getName());
-        TableMapping<?> def4 = registry.findUsingTable("master", "dbo", "blob_resource");
-        TableMapping<?> def5 = registry.findUsingTable("master", "dbo", "blob_resource", null);
+        TableMapping<?> def1 = registry.findBySpace(PojoBean1.class);
+        TableMapping<?> def2 = registry.findBySpace("", PojoBean1.class);
+        TableMapping<?> def3 = registry.findBySpace("", PojoBean1.class.getName());
+        TableMapping<?> def4 = registry.findByTable("master", "dbo", "blob_resource");
+        TableMapping<?> def5 = registry.findByTable("master", "dbo", "blob_resource", null);
 
         assert null == def1;
         assert null == def2;
@@ -170,12 +170,12 @@ public class BasicXmlTableTest {
         assert ent1 == def4;
         assert ent1 == def5;
 
-        TableMapping<?> def6 = registry.findUsingSpace("abc", PojoBean1.class);
-        TableMapping<?> def7 = registry.findUsingSpace("abc", PojoBean1.class.getName());
+        TableMapping<?> def6 = registry.findBySpace("abc", PojoBean1.class);
+        TableMapping<?> def7 = registry.findBySpace("abc", PojoBean1.class.getName());
         assert null == def6;
         assert null == def7;
 
-        TableMapping<?> def8 = registry.findUsingSpace("abc", "aac");
+        TableMapping<?> def8 = registry.findBySpace("abc", "aac");
         assert ent1 == def8;
     }
 

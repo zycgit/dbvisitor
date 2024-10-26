@@ -15,8 +15,8 @@
  */
 package net.hasor.dbvisitor.dynamic.rule;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
@@ -49,7 +49,7 @@ public abstract class ConditionRule implements SqlBuildRule {
     protected abstract String name();
 
     @Override
-    public boolean test(SqlArgSource data, DynamicContext context, String activeExpr) {
+    public boolean test(SqlArgSource data, RegistryManager context, String activeExpr) {
         if (this.usingIf) {
             return StringUtils.isBlank(activeExpr) || Boolean.TRUE.equals(evalOgnl(activeExpr, data));
         } else {
@@ -62,7 +62,7 @@ public abstract class ConditionRule implements SqlBuildRule {
     protected abstract boolean allowMultipleValue();
 
     @Override
-    public void executeRule(SqlArgSource data, DynamicContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
+    public void executeRule(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         String expr = "";
         if (this.usingIf) {
             expr = (StringUtils.isBlank(ruleValue) ? "" : ruleValue);

@@ -17,10 +17,12 @@ package net.hasor.dbvisitor.lambda.support.entity;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.reflect.SFunction;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.EntityDeleteOperation;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.lambda.MapDeleteOperation;
 import net.hasor.dbvisitor.lambda.core.AbstractDeleteLambda;
-import net.hasor.dbvisitor.mapping.MappingOptions;
+import net.hasor.dbvisitor.lambda.support.map.DeleteLambdaForMap;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 import java.util.Collection;
@@ -34,8 +36,13 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
  */
 public class DeleteLambdaForEntity<T> extends AbstractDeleteLambda<EntityDeleteOperation<T>, T, SFunction<T>> implements EntityDeleteOperation<T> {
 
-    public DeleteLambdaForEntity(Class<T> exampleType, TableMapping<T> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
-        super(exampleType, tableMapping, opt, jdbcTemplate);
+    public DeleteLambdaForEntity(TableMapping<T> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+        super(tableMapping.entityType(), tableMapping, registry, jdbc);
+    }
+
+    @Override
+    public MapDeleteOperation asMap() {
+        return new DeleteLambdaForMap(this.getTableMapping(), this.registry, this.jdbc);
     }
 
     @Override

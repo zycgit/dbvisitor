@@ -28,13 +28,13 @@ import static net.hasor.test.utils.TestUtils.beanForData1;
 import static net.hasor.test.utils.TestUtils.mapForData2;
 
 /**
- * @version : 2021-3-22
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-3-22
  */
 public class BuilderInsertTest extends AbstractDbTest {
     @Test
     public void insert_1() throws SQLException {
-        InsertOperation<UserInfo> lambdaInsert = new LambdaTemplate().lambdaInsert(UserInfo.class);
+        InsertOperation<UserInfo> lambdaInsert = new LambdaTemplate().insertBySpace(UserInfo.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
 
@@ -50,7 +50,7 @@ public class BuilderInsertTest extends AbstractDbTest {
 
     @Test
     public void insertDuplicateKeyBlock_1() throws SQLException {
-        InsertOperation<UserInfo> lambdaInsert = new LambdaTemplate().lambdaInsert(UserInfo.class);
+        InsertOperation<UserInfo> lambdaInsert = new LambdaTemplate().insertBySpace(UserInfo.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Into);
@@ -67,7 +67,7 @@ public class BuilderInsertTest extends AbstractDbTest {
 
     @Test
     public void insertDuplicateKeyUpdate_1() throws SQLException {
-        InsertOperation<UserInfo> lambdaInsert = new LambdaTemplate().lambdaInsert(UserInfo.class);
+        InsertOperation<UserInfo> lambdaInsert = new LambdaTemplate().insertBySpace(UserInfo.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Update);
@@ -84,7 +84,7 @@ public class BuilderInsertTest extends AbstractDbTest {
 
     @Test
     public void insertDuplicateKeyIgnore_1() throws SQLException {
-        InsertOperation<UserInfo> lambdaInsert = new LambdaTemplate().lambdaInsert(UserInfo.class);
+        InsertOperation<UserInfo> lambdaInsert = new LambdaTemplate().insertBySpace(UserInfo.class);
         lambdaInsert.applyEntity(beanForData1());
         lambdaInsert.applyMap(mapForData2());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Ignore);

@@ -18,7 +18,7 @@ import net.hasor.cobble.ExceptionUtils;
 import net.hasor.dbvisitor.dal.repository.ResultSetType;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.page.PageResult;
 import net.hasor.dbvisitor.types.SqlArg;
@@ -37,7 +37,7 @@ import java.util.List;
  * @version : 2021-07-20
  */
 public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
-    public PreparedStatementExecute(DynamicContext context) {
+    public PreparedStatementExecute(RegistryManager context) {
         super(context);
     }
 

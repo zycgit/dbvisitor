@@ -32,7 +32,7 @@ public class BasicXmlResultMapTest {
     public void xmlResultMap_1_1() throws IOException {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
-        TableMapping<?> tab = registry.findUsingSpace("", "pojo_bean1");
+        TableMapping<?> tab = registry.findBySpace("", "pojo_bean1");
 
         assert tab.getCatalog().equals("");
         assert tab.getSchema().equals("");
@@ -99,7 +99,7 @@ public class BasicXmlResultMapTest {
     public void xmlResultMap_1_2() throws IOException {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
-        TableMapping<?> tab = registry.findUsingSpace("", "pojo_bean2");
+        TableMapping<?> tab = registry.findBySpace("", "pojo_bean2");
 
         assert tab.getCatalog().equals("");
         assert tab.getSchema().equals("");
@@ -167,9 +167,9 @@ public class BasicXmlResultMapTest {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_2.xml");
 
-        TableMapping<?> def1 = registry.findUsingSpace(PojoBean1.class);
-        TableMapping<?> def2 = registry.findUsingSpace("resultMap_test", PojoBean1.class);
-        TableMapping<?> def3 = registry.findUsingSpace("resultMap_test", PojoBean1.class.getName());
+        TableMapping<?> def1 = registry.findBySpace(PojoBean1.class);
+        TableMapping<?> def2 = registry.findBySpace("resultMap_test", PojoBean1.class);
+        TableMapping<?> def3 = registry.findBySpace("resultMap_test", PojoBean1.class.getName());
 
         assert null == def1;
         assert def2 == def3;
@@ -180,23 +180,23 @@ public class BasicXmlResultMapTest {
     public void xmlResultMap_3() throws IOException {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_3.xml");
-        TableMapping<?> ent1 = registry.findUsingSpace("abc", "aac");
+        TableMapping<?> ent1 = registry.findBySpace("abc", "aac");
 
-        TableMapping<?> def1 = registry.findUsingSpace(PojoBean1.class);
-        TableMapping<?> def2 = registry.findUsingSpace("", PojoBean1.class);
-        TableMapping<?> def3 = registry.findUsingSpace("", PojoBean1.class.getName());
+        TableMapping<?> def1 = registry.findBySpace(PojoBean1.class);
+        TableMapping<?> def2 = registry.findBySpace("", PojoBean1.class);
+        TableMapping<?> def3 = registry.findBySpace("", PojoBean1.class.getName());
 
         assert ent1 != null;
         assert null == def1;
         assert null == def2;
         assert null == def3;
 
-        TableMapping<?> def6 = registry.findUsingSpace("abc", PojoBean1.class);
-        TableMapping<?> def7 = registry.findUsingSpace("abc", PojoBean1.class.getName());
+        TableMapping<?> def6 = registry.findBySpace("abc", PojoBean1.class);
+        TableMapping<?> def7 = registry.findBySpace("abc", PojoBean1.class.getName());
         assert null == def6;
         assert null == def7;
 
-        TableMapping<?> def8 = registry.findUsingSpace("abc", "aac");
+        TableMapping<?> def8 = registry.findBySpace("abc", "aac");
         assert ent1 == def8;
     }
 

@@ -40,7 +40,7 @@ public class InRule implements SqlBuildRule {
     }
 
     @Override
-    public boolean test(SqlArgSource data, DynamicContext context, String activeExpr) {
+    public boolean test(SqlArgSource data, RegistryManager context, String activeExpr) {
         if (this.usingIf) {
             return StringUtils.isBlank(activeExpr) || Boolean.TRUE.equals(evalOgnl(activeExpr, data));
         } else {
@@ -49,7 +49,7 @@ public class InRule implements SqlBuildRule {
     }
 
     @Override
-    public void executeRule(SqlArgSource data, DynamicContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
+    public void executeRule(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         String expr = "";
         if (this.usingIf) {
             expr = (StringUtils.isBlank(ruleValue) ? "" : ruleValue);

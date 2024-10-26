@@ -57,11 +57,15 @@ public class MappingRegistry {
     private final        ClassTableMappingResolve                                            entityClassResolve;
 
     public MappingRegistry() {
-        this(Thread.currentThread().getContextClassLoader(), TypeHandlerRegistry.DEFAULT, MappingOptions.buildNew());
+        this(null, TypeHandlerRegistry.DEFAULT, MappingOptions.buildNew());
     }
 
-    public MappingRegistry(TypeHandlerRegistry registry) {
-        this(Thread.currentThread().getContextClassLoader(), registry, MappingOptions.buildNew());
+    public MappingRegistry(ClassLoader classLoader) {
+        this(classLoader, TypeHandlerRegistry.DEFAULT, MappingOptions.buildNew());
+    }
+
+    public MappingRegistry(ClassLoader classLoader, TypeHandlerRegistry registry) {
+        this(classLoader, registry, MappingOptions.buildNew());
         Objects.requireNonNull(registry, "registry is null.");
     }
 
@@ -355,15 +359,15 @@ public class MappingRegistry {
         return (TableMapping<T>) def;
     }
 
-    public <T> TableMapping<T> findUsingSpace(Class<?> entityType) {
-        return this.findUsingSpace("", entityType.getName());
+    public <T> TableMapping<T> findBySpace(Class<?> entityType) {
+        return this.findBySpace("", entityType.getName());
     }
 
-    public <T> TableMapping<T> findUsingSpace(String space, Class<?> entityType) {
-        return this.findUsingSpace(space, entityType.getName());
+    public <T> TableMapping<T> findBySpace(String space, Class<?> entityType) {
+        return this.findBySpace(space, entityType.getName());
     }
 
-    public <T> TableMapping<T> findUsingSpace(String space, String name) {
+    public <T> TableMapping<T> findBySpace(String space, String name) {
         String findSpace = StringUtils.isBlank(space) ? "" : space;
 
         if (this.mapForSpace.containsKey(findSpace)) {
@@ -374,11 +378,15 @@ public class MappingRegistry {
         }
     }
 
-    public <T> TableMapping<T> findUsingTable(String catalog, String schema, String table) {
-        return this.findUsingTable(catalog, schema, table, null);
+    public <T> TableMapping<T> findByTable(String table) {
+        return this.findByTable(null, null, table, null);
     }
 
-    public <T> TableMapping<T> findUsingTable(String catalog, String schema, String table, String specifyName) {
+    public <T> TableMapping<T> findByTable(String catalog, String schema, String table) {
+        return this.findByTable(catalog, schema, table, null);
+    }
+
+    public <T> TableMapping<T> findByTable(String catalog, String schema, String table, String specifyName) {
         catalog = StringUtils.isNotBlank(catalog) ? catalog : "";
         schema = StringUtils.isNotBlank(schema) ? schema : "";
         table = StringUtils.isNotBlank(table) ? table : "";

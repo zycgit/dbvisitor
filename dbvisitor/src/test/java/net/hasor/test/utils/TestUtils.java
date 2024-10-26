@@ -22,9 +22,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- *
- * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-12-10
  */
 public class TestUtils {
     public static final  String   INSERT_ARRAY = "insert into user_info (user_uuid,user_name,login_name,login_password,email,seq,register_time) values (?,?,?,?,?,?,?);";

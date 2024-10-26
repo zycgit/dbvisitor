@@ -22,8 +22,8 @@ import net.hasor.cobble.io.IOUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.args.ArraySqlArgSource;
@@ -70,11 +70,11 @@ import java.util.stream.Collectors;
  * @see RowMapper
  */
 public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
-    private static final Logger         logger                 = LoggerFactory.getLogger(JdbcTemplate.class);
+    private static final Logger          logger                 = LoggerFactory.getLogger(JdbcTemplate.class);
     /* 当JDBC 结果集中如出现相同的列名仅仅大小写不同时。是否保留大小写列名敏感。
      * 如果为 true 表示不敏感，并且结果集Map中保留两个记录。如果为 false 则表示敏感，如出现冲突列名后者将会覆盖前者。*/
-    private              boolean        resultsCaseInsensitive = true;
-    private              DynamicContext registry               = DynamicContext.DEFAULT;
+    private              boolean         resultsCaseInsensitive = true;
+    private              RegistryManager registry               = RegistryManager.DEFAULT;
 
     /**
      * Construct a new JdbcTemplate for bean usage.
@@ -100,7 +100,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
      * @param dataSource the JDBC DataSource to obtain connections from
      * @param registry the DynamicContext
      */
-    public JdbcTemplate(final DataSource dataSource, DynamicContext registry) {
+    public JdbcTemplate(final DataSource dataSource, RegistryManager registry) {
         super(dataSource);
         this.registry = Objects.requireNonNull(registry, "registry is null.");
     }
@@ -120,7 +120,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
      * @param conn the JDBC Connection
      * @param registry the DynamicContext
      */
-    public JdbcTemplate(final Connection conn, DynamicContext registry) {
+    public JdbcTemplate(final Connection conn, RegistryManager registry) {
         super(conn);
         this.registry = Objects.requireNonNull(registry, "registry is null.");
     }
@@ -140,7 +140,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
      * @param dynamicConn the JDBC Connection of dynamic
      * @param registry the DynamicContext
      */
-    public JdbcTemplate(final DynamicConnection dynamicConn, DynamicContext registry) {
+    public JdbcTemplate(final DynamicConnection dynamicConn, RegistryManager registry) {
         super(dynamicConn);
         this.registry = Objects.requireNonNull(registry, "registry is null.");
     }
@@ -153,11 +153,11 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         this.resultsCaseInsensitive = resultsCaseInsensitive;
     }
 
-    public DynamicContext getRegistry() {
+    public RegistryManager getRegistry() {
         return this.registry;
     }
 
-    public void setRegistry(DynamicContext registry) {
+    public void setRegistry(RegistryManager registry) {
         this.registry = registry;
     }
 

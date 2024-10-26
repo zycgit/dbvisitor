@@ -116,22 +116,22 @@ public class DalRegistry extends MappingRegistry {
 
     /** 从类型中解析 TableMapping */
     @Override
-    public <T> TableMapping<T> findUsingSpace(String space, String identify) {
+    public <T> TableMapping<T> findBySpace(String space, String identify) {
         space = StringUtils.isBlank(space) ? "" : space;
         Objects.requireNonNull(identify, "'identify' cannot be null.");
 
-        TableMapping<T> mapping = super.findUsingSpace(space, identify);
+        TableMapping<T> mapping = super.findBySpace(space, identify);
         if (mapping != null) {
             return mapping;
         } else if (StringUtils.isNotBlank(space)) {
-            return super.findUsingSpace("", identify);
+            return super.findBySpace("", identify);
         } else {
-            return (this != DEFAULT) ? DEFAULT.findUsingSpace(space, identify) : null;
+            return (this != DEFAULT) ? DEFAULT.findBySpace(space, identify) : null;
         }
     }
 
     /** 从类型中解析 TableMapping */
-    public <T> TableMapping<T> findUsingSpace(String space, Class<?> type) {
+    public <T> TableMapping<T> findBySpace(String space, Class<?> type) {
         space = StringUtils.isBlank(space) ? "" : space;
 
         String[] names = new String[] { //
@@ -141,7 +141,7 @@ public class DalRegistry extends MappingRegistry {
         };
 
         for (String name : names) {
-            TableMapping<T> mapping = findUsingSpace(space, name);
+            TableMapping<T> mapping = findBySpace(space, name);
             if (mapping != null) {
                 return mapping;
             }
@@ -171,14 +171,14 @@ public class DalRegistry extends MappingRegistry {
         }
 
         // create and cache
-        TableMapping<T> mapping = super.findUsingSpace(space, identify);
+        TableMapping<T> mapping = super.findBySpace(space, identify);
         if (mapping != null) {
             Map<String, TableReader<?>> map = this.readerCacheMap.computeIfAbsent(space, s -> new ConcurrentHashMap<>());
             TableReader<T> tableReader = mapping.toReader();
             map.put(identify, tableReader);
             return tableReader;
         }
-        mapping = super.findUsingSpace("", identify);
+        mapping = super.findBySpace("", identify);
         if (mapping != null) {
             Map<String, TableReader<?>> map = this.readerCacheMap.computeIfAbsent("", s -> new ConcurrentHashMap<>());
             TableReader<T> tableReader = mapping.toReader();
@@ -276,7 +276,7 @@ public class DalRegistry extends MappingRegistry {
             Class<?>[] generics = type.resolveGenerics(Object.class);
             Class<?> entityType = generics[0];
             entityType = (entityType == Object.class) ? null : entityType;
-            if (entityType != null && findUsingSpace(entityType) == null) {
+            if (entityType != null && findBySpace(entityType) == null) {
                 this.loadEntityToSpace(entityType);
             }
         }
@@ -333,7 +333,7 @@ public class DalRegistry extends MappingRegistry {
                 if (StringUtils.isNotBlank(resultMap)) {
                     String[] tableMappings = resultMap.split(",");
                     for (String mapping : tableMappings) {
-                        if (findUsingSpace(space, mapping) == null) {
+                        if (findBySpace(space, mapping) == null) {
                             throw new IOException("loadMapper failed, '" + idString + "', resultMap/entity '" + resultMap + "' is undefined ,resource '" + space + "'");
                         }
                     }
@@ -365,7 +365,7 @@ public class DalRegistry extends MappingRegistry {
             tableReader = (TableReader<Object>) (columns, rs, rowNum) -> typeHandler.getResult(rs, 1);
         } else {
             super.loadResultMap(resultClass, space, resultClass.getSimpleName());
-            TableMapping<?> mapping = super.findUsingSpace(space, resultClass.getSimpleName());
+            TableMapping<?> mapping = super.findBySpace(space, resultClass.getSimpleName());
             tableReader = mapping.toReader();
         }
 

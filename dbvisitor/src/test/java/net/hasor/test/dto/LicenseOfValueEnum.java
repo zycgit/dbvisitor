@@ -18,8 +18,8 @@ import net.hasor.dbvisitor.types.EnumOfValue;
 
 /**
  * 授权协议类型
- * @version : 2016年08月11日
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2016年08月11日
  */
 public enum LicenseOfValueEnum implements EnumOfValue<LicenseOfValueEnum> {
     Private(0, "Private"),//

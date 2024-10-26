@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
+import net.hasor.dbvisitor.dynamic.MacroRegistry;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.StatementCallback;
@@ -144,7 +145,7 @@ public class MockPropertyTest extends AbstractDbTest {
     public void jdbcTemplateTest_6() {
         DataSource dataSource = PowerMockito.mock(DataSource.class);
         TypeHandlerRegistry typeRegistry = new TypeHandlerRegistry();
-        DynamicContext registry = new DynamicContext(typeRegistry, RuleRegistry.DEFAULT);
+        RegistryManager registry = new RegistryManager(typeRegistry, RuleRegistry.DEFAULT, MacroRegistry.DEFAULT);
 
         assert new JdbcTemplate(dataSource, registry).getRegistry().getTypeRegistry() == typeRegistry;
 

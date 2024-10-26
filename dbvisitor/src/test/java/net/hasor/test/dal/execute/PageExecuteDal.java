@@ -24,9 +24,8 @@ import net.hasor.test.dto.UserInfo;
 import java.util.List;
 
 /**
- *
- * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-12-10
  */
 @RefMapper("/dbvisitor_coverage/dal_session/page_execute.xml")
 public interface PageExecuteDal extends BaseMapper<UserInfo> {

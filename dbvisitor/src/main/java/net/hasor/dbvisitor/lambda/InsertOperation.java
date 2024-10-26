@@ -16,6 +16,8 @@
 package net.hasor.dbvisitor.lambda;
 import net.hasor.dbvisitor.lambda.core.InsertExecute;
 
+import java.util.Map;
+
 /**
  * lambda Insert for Entity.
  * @author 赵永春 (zyc@hasor.net)
@@ -24,4 +26,6 @@ import net.hasor.dbvisitor.lambda.core.InsertExecute;
 public interface InsertOperation<T> extends  //
         CommonOperation<InsertOperation<T>>, //
         InsertExecute<InsertOperation<T>, T> {
+
+    InsertOperation<Map<String, Object>> asMap();
 }

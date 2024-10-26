@@ -16,8 +16,8 @@
 package net.hasor.dbvisitor.dynamic.rule;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.codec.MD5;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.types.SqlArg;
@@ -28,8 +28,6 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
-
 /**
  * 进行 OGNL 求值，值结果用 MD5 进行编码然后加入到 SQL 参数中
  * @author 赵永春 (zyc@hasor.net)
@@ -37,41 +35,26 @@ import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
  */
 public class MD5Rule implements SqlBuildRule {
     private static final TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
-    public static final  SqlBuildRule   INSTANCE    = new MD5Rule(false);
-    private final        boolean        usingIf;
+    public static final  SqlBuildRule   INSTANCE    = new MD5Rule();
 
-    public MD5Rule(boolean usingIf) {
-        this.usingIf = usingIf;
+    @Override
+    public boolean test(SqlArgSource data, RegistryManager context, String activeExpr) {
+        return true;
     }
 
     @Override
-    public boolean test(SqlArgSource data, DynamicContext context, String activeExpr) {
-        if (this.usingIf) {
-            return StringUtils.isBlank(activeExpr) || Boolean.TRUE.equals(evalOgnl(activeExpr, data));
-        } else {
-            return true;
+    public void executeRule(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
+        String expr = "";
+        if (activeExpr != null) {
+            expr += activeExpr;
+            expr += ",";
         }
-    }
-
-    @Override
-    public void executeRule(SqlArgSource data, DynamicContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
-        String expr;
-        if (this.usingIf) {
-            expr = (StringUtils.isBlank(ruleValue) ? "" : ruleValue);
-        } else {
-            expr = "";
-            if (activeExpr != null) {
-                expr += activeExpr;
-                expr += ",";
-            }
-            expr += (StringUtils.isBlank(ruleValue) ? "" : ruleValue);
-        }
+        expr += (StringUtils.isBlank(ruleValue) ? "" : ruleValue);
 
         SqlBuilder builder = DynamicParsed.getParsedSql(expr).buildQuery(data, context);
         Object[] args = builder.getArgs();
         if (args.length != 1) {
-            String inName = usingIf ? "IFMD5" : "MD5";
-            throw new SQLException("role " + inName + " args error, require 1, but " + args.length);
+            throw new SQLException("role MD5 args error, require 1, but " + args.length);
         }
 
         try {
@@ -84,6 +67,6 @@ public class MD5Rule implements SqlBuildRule {
 
     @Override
     public String toString() {
-        return (this.usingIf ? "ifmd5 [" : "md5 [") + this.hashCode() + "]";
+        return "md5 [" + this.hashCode() + "]";
     }
 }

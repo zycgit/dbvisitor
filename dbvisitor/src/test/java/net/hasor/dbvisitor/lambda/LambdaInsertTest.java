@@ -38,8 +38,8 @@ import static net.hasor.test.utils.TestUtils.newID;
 
 /**
  * Lambda 方式执行 Insert 操作
- * @version : 2021-3-22
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-3-22
  */
 public class LambdaInsertTest extends AbstractDbTest {
     @Test
@@ -63,9 +63,9 @@ public class LambdaInsertTest extends AbstractDbTest {
 
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            lambdaTemplate.execute("delete from user_info");
+            lambdaTemplate.getJdbc().execute("delete from user_info");
 
-            InsertOperation<UserInfo2> lambdaInsert = lambdaTemplate.lambdaInsert(UserInfo2.class);
+            InsertOperation<UserInfo2> lambdaInsert = lambdaTemplate.insertBySpace(UserInfo2.class);
             lambdaInsert.applyEntity(user1);
             lambdaInsert.applyMap(user2);
 
@@ -74,7 +74,7 @@ public class LambdaInsertTest extends AbstractDbTest {
             int i = lambdaInsert.executeSumResult();
             assert i == 2;
 
-            List<UserInfo2> tbUsers = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForList();
+            List<UserInfo2> tbUsers = lambdaTemplate.queryBySpace(UserInfo2.class).queryForList();
             assert tbUsers.size() == 2;
             List<String> ids = tbUsers.stream().map(UserInfo2::getUid).collect(Collectors.toList());
             assert ids.contains(user1.getUid());
@@ -101,9 +101,9 @@ public class LambdaInsertTest extends AbstractDbTest {
 
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            lambdaTemplate.execute("delete from user_info");
+            lambdaTemplate.getJdbc().execute("delete from user_info");
 
-            InsertOperation<UserInfo2> lambdaInsert = lambdaTemplate.lambdaInsert(UserInfo2.class);
+            InsertOperation<UserInfo2> lambdaInsert = lambdaTemplate.insertBySpace(UserInfo2.class);
             lambdaInsert.applyEntity(user1);
             lambdaInsert.applyMap(user2);
 
@@ -112,7 +112,7 @@ public class LambdaInsertTest extends AbstractDbTest {
             int i = lambdaInsert.executeSumResult();
             assert i == 2;
 
-            List<user_info> tbUsers = lambdaTemplate.lambdaQuery(user_info.class).queryForList();
+            List<user_info> tbUsers = lambdaTemplate.queryBySpace(user_info.class).queryForList();
             assert tbUsers.size() == 2;
             List<String> ids = tbUsers.stream().map(user_info::getUser_uuid).collect(Collectors.toList());
             assert ids.contains(user1.getUid());
@@ -128,9 +128,9 @@ public class LambdaInsertTest extends AbstractDbTest {
 
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            lambdaTemplate.execute("delete from auto_id");
+            lambdaTemplate.getJdbc().execute("delete from auto_id");
 
-            InsertOperation<AutoId> lambdaInsert = lambdaTemplate.lambdaInsert(AutoId.class);
+            InsertOperation<AutoId> lambdaInsert = lambdaTemplate.insertBySpace(AutoId.class);
             lambdaInsert.applyEntity(autoId1);
             lambdaInsert.applyMap(autoId2);
 
@@ -139,7 +139,7 @@ public class LambdaInsertTest extends AbstractDbTest {
             int i = lambdaInsert.executeSumResult();
             assert i == 2;
 
-            List<AutoId> tbUsers = lambdaTemplate.lambdaQuery(AutoId.class).queryForList();
+            List<AutoId> tbUsers = lambdaTemplate.queryBySpace(AutoId.class).queryForList();
             assert tbUsers.size() == 2;
 
             List<String> uids = tbUsers.stream().map(AutoId::getUid).collect(Collectors.toList());
@@ -161,9 +161,9 @@ public class LambdaInsertTest extends AbstractDbTest {
 
         try (Connection c = DsUtils.mysqlConn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            lambdaTemplate.execute("delete from auto_id");
+            lambdaTemplate.getJdbc().execute("delete from auto_id");
 
-            InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.lambdaInsert("auto_id");
+            InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.insertByTable("auto_id");
             lambdaInsert.applyMap(tbUser1);
             lambdaInsert.applyMap(tbUser2);
 
@@ -177,7 +177,7 @@ public class LambdaInsertTest extends AbstractDbTest {
             int i = lambdaInsert.executeSumResult();
             assert i == 2;
 
-            List<AutoId> tbUsers = lambdaTemplate.lambdaQuery(AutoId.class).queryForList();
+            List<AutoId> tbUsers = lambdaTemplate.queryBySpace(AutoId.class).queryForList();
             assert tbUsers.size() == 2;
 
             List<String> uids = tbUsers.stream().map(AutoId::getUid).collect(Collectors.toList());
@@ -197,9 +197,9 @@ public class LambdaInsertTest extends AbstractDbTest {
 
         try (Connection c = DsUtils.mysqlConn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            lambdaTemplate.execute("delete from auto_id");
+            lambdaTemplate.getJdbc().execute("delete from auto_id");
 
-            InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.lambdaInsert("auto_id");
+            InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.insertByTable("auto_id");
             lambdaInsert.applyMap(tbUser1);
 
             assert lambdaInsert.getBoundSql() instanceof BatchBoundSql;
@@ -207,7 +207,7 @@ public class LambdaInsertTest extends AbstractDbTest {
             int i = lambdaInsert.executeSumResult();
             assert i == 1;
 
-            List<AutoId> tbUsers = lambdaTemplate.lambdaQuery(AutoId.class).queryForList();
+            List<AutoId> tbUsers = lambdaTemplate.queryBySpace(AutoId.class).queryForList();
             assert tbUsers.size() == 1;
 
             List<String> uids = tbUsers.stream().map(AutoId::getUid).collect(Collectors.toList());
@@ -222,7 +222,7 @@ public class LambdaInsertTest extends AbstractDbTest {
     public void lambda_insert_6() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            lambdaTemplate.execute("delete from user_info");
+            lambdaTemplate.getJdbc().execute("delete from user_info");
 
             Map<String, Object> newValue = new HashMap<>();
             newValue.put("user_uuid", "uuiduuiduuid");
@@ -234,10 +234,10 @@ public class LambdaInsertTest extends AbstractDbTest {
             newValue.put("registerTime", DateFormatType.s_yyyyMMdd_HHmmss.toDate("2000-01-01 12:34:56"));
 
             MappingOptions options = MappingOptions.buildNew().mapUnderscoreToCamelCase(true);
-            InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.lambdaInsert("user_info", options);
+            InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.insertByTable("user_info");
             assert lambdaInsert.applyMap(newValue).executeSumResult() == 1;
 
-            List<UserInfo2> users = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForList();
+            List<UserInfo2> users = lambdaTemplate.queryBySpace(UserInfo2.class).queryForList();
             assert users.size() == 1;
 
             assert users.get(0).getUid().equals("uuiduuiduuid");

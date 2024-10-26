@@ -17,10 +17,12 @@ package net.hasor.dbvisitor.lambda.support.entity;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.reflect.SFunction;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.EntityQueryOperation;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.lambda.MapQueryOperation;
 import net.hasor.dbvisitor.lambda.core.AbstractSelectLambda;
-import net.hasor.dbvisitor.mapping.MappingOptions;
+import net.hasor.dbvisitor.lambda.support.map.SelectLambdaForMap;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
@@ -36,9 +38,14 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
 public class SelectLambdaForEntity<T> extends AbstractSelectLambda<EntityQueryOperation<T>, T, SFunction<T>> implements EntityQueryOperation<T> {
     protected TableReader<T> tableReader;
 
-    public SelectLambdaForEntity(Class<T> exampleType, TableMapping<T> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
-        super(exampleType, tableMapping, opt, jdbcTemplate);
+    public SelectLambdaForEntity(TableMapping<T> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+        super(tableMapping.entityType(), tableMapping, registry, jdbc);
         this.tableReader = tableMapping.toReader();
+    }
+
+    @Override
+    public MapQueryOperation asMap() {
+        return new SelectLambdaForMap(this.getTableMapping(), this.registry, this.jdbc);
     }
 
     @Override

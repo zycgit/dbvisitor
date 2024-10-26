@@ -22,8 +22,8 @@ import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dal.repository.Param;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageResult;
@@ -70,7 +70,7 @@ class ExecuteInvocationHandler implements InvocationHandler {
                 continue;
             }
 
-            DynamicContext context = new DalContext(this.space, dalRegistry);
+            RegistryManager context = new DalContext(this.space, dalRegistry);
             this.dynamicSqlMap.put(dynamicId, new ExecuteProxy(dynamicId, context));
             Map<String, Integer> argNames = this.argNamesMap.computeIfAbsent(dynamicId, s -> new HashMap<>());
 
@@ -176,7 +176,7 @@ class ExecuteInvocationHandler implements InvocationHandler {
         Map<String, Object> data = extractData(dynamicId, objects);
 
         PageSqlDialect dialect = this.dalSession.getDialect();
-        return this.dalSession.lambdaTemplate().execute((ConnectionCallback<Object>) con -> {
+        return this.dalSession.lambdaTemplate().getJdbc().execute((ConnectionCallback<Object>) con -> {
             return execute.execute(con, data, page, pageResult, dialect);
         });
     }

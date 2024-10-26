@@ -16,9 +16,9 @@
 package net.hasor.dbvisitor.lambda.core;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
-import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 import java.sql.SQLException;
@@ -33,8 +33,8 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
 public abstract class AbstractDeleteLambda<R, T, P> extends BasicQueryCompare<R, T, P> implements DeleteExecute<R> {
     private boolean allowEmptyWhere = false;
 
-    public AbstractDeleteLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
-        super(exampleType, tableMapping, opt, jdbcTemplate);
+    public AbstractDeleteLambda(Class<?> exampleType, TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+        super(exampleType, tableMapping, registry, jdbc);
     }
 
     @Override
@@ -46,7 +46,7 @@ public abstract class AbstractDeleteLambda<R, T, P> extends BasicQueryCompare<R,
             logger.trace("Executing SQL statement [" + sqlString + "].");
         }
 
-        return this.getJdbcTemplate().executeUpdate(sqlString, boundSql.getArgs());
+        return this.getJdbc().executeUpdate(sqlString, boundSql.getArgs());
     }
 
     @Override

@@ -24,8 +24,8 @@ import net.hasor.dbvisitor.dal.repository.parser.xmlnode.InsertSqlConfig;
 import net.hasor.dbvisitor.dal.repository.parser.xmlnode.QuerySqlConfig;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.SqlMode;
 import net.hasor.dbvisitor.mapping.TableReader;
@@ -52,14 +52,14 @@ import java.util.stream.Collectors;
  * @version : 2021-07-20
  */
 public abstract class AbstractStatementExecute<T> {
-    protected static final Logger         logger = LoggerFactory.getLogger(AbstractStatementExecute.class);
-    private final          DynamicContext context;
+    protected static final Logger          logger = LoggerFactory.getLogger(AbstractStatementExecute.class);
+    private final          RegistryManager context;
 
-    public AbstractStatementExecute(DynamicContext context) {
+    public AbstractStatementExecute(RegistryManager context) {
         this.context = context;
     }
 
-    protected DynamicContext getContext() {
+    protected RegistryManager getContext() {
         return this.context;
     }
 
@@ -176,7 +176,7 @@ public abstract class AbstractStatementExecute<T> {
         return new DalResultSetExtractor(executeInfo.caseInsensitive, this.context, tableReaders);
     }
 
-    private ResultTableReader getDefaultTableReader(ExecuteInfo executeInfo, DynamicContext context) {
+    private ResultTableReader getDefaultTableReader(ExecuteInfo executeInfo, RegistryManager context) {
         return new ResultTableReader(executeInfo.caseInsensitive, context.getTypeRegistry());
     }
 

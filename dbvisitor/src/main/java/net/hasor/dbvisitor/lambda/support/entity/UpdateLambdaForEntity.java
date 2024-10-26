@@ -17,10 +17,12 @@ package net.hasor.dbvisitor.lambda.support.entity;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.reflect.SFunction;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.EntityUpdateOperation;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.lambda.MapUpdateOperation;
 import net.hasor.dbvisitor.lambda.core.AbstractUpdateLambda;
-import net.hasor.dbvisitor.mapping.MappingOptions;
+import net.hasor.dbvisitor.lambda.support.map.UpdateLambdaForMap;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 import java.util.Collection;
@@ -33,8 +35,13 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
  * @version : 2022-04-02
  */
 public class UpdateLambdaForEntity<T> extends AbstractUpdateLambda<EntityUpdateOperation<T>, T, SFunction<T>> implements EntityUpdateOperation<T> {
-    public UpdateLambdaForEntity(Class<T> exampleType, TableMapping<T> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
-        super(exampleType, tableMapping, opt, jdbcTemplate);
+    public UpdateLambdaForEntity(TableMapping<T> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+        super(tableMapping.entityType(), tableMapping, registry, jdbc);
+    }
+
+    @Override
+    public MapUpdateOperation asMap() {
+        return new UpdateLambdaForMap(this.getTableMapping(), this.registry, this.jdbc);
     }
 
     @Override

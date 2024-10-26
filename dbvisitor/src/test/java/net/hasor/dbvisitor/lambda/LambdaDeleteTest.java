@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.lambda;
 import net.hasor.dbvisitor.dialect.BoundSql;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.test.AbstractDbTest;
@@ -42,7 +43,7 @@ public class LambdaDeleteTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            EntityDeleteOperation<user_info> lambdaDelete = lambdaTemplate.lambdaDelete(user_info.class);
+            EntityDeleteOperation<user_info> lambdaDelete = lambdaTemplate.deleteBySpace(user_info.class);
             int delete = lambdaDelete.allowEmptyWhere().doDelete();
             assert delete == 3;
         }
@@ -53,11 +54,11 @@ public class LambdaDeleteTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            EntityDeleteOperation<user_info> lambdaDelete = lambdaTemplate.lambdaDelete(user_info.class);
+            EntityDeleteOperation<user_info> lambdaDelete = lambdaTemplate.deleteBySpace(user_info.class);
             int delete = lambdaDelete.eq(user_info::getLogin_name, beanForData1().getLoginName()).doDelete();
             assert delete == 1;
 
-            List<user_info> tbUsers = lambdaTemplate.lambdaQuery(user_info.class).queryForList();
+            List<user_info> tbUsers = lambdaTemplate.queryBySpace(user_info.class).queryForList();
             assert tbUsers.size() == 2;
             List<String> collect = tbUsers.stream().map(user_info::getUser_uuid).collect(Collectors.toList());
             assert collect.contains(beanForData2().getUserUuid());
@@ -69,15 +70,16 @@ public class LambdaDeleteTest extends AbstractDbTest {
     public void lambda_delete_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<UserInfo2> users = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForList();
+            List<UserInfo2> users = lambdaTemplate.queryBySpace(UserInfo2.class).queryForList();
             UserInfo2 info = users.get(0);
 
             MappingOptions options = MappingOptions.buildNew().mapUnderscoreToCamelCase(true);
-            MapDeleteOperation delete = lambdaTemplate.lambdaDelete("user_info", options);
+            MapDeleteOperation delete = lambdaTemplate.deleteByTable("user_info").asMap();
             assert delete.eq("user_uuid", info.getUid()).doDelete() == 1;
 
-            Map<String, Object> maps = lambdaTemplate.queryForObject("select * from user_info where user_uuid = ?", new Object[] { info.getUid() }, Map.class);
+            Map<String, Object> maps = jdbcTemplate.queryForObject("select * from user_info where user_uuid = ?", new Object[] { info.getUid() }, Map.class);
             assert maps == null;
         }
     }
@@ -86,15 +88,16 @@ public class LambdaDeleteTest extends AbstractDbTest {
     public void lambda_delete_4() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<UserInfo2> users = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForList();
+            List<UserInfo2> users = lambdaTemplate.queryBySpace(UserInfo2.class).queryForList();
             UserInfo2 info = users.get(0);
 
             MappingOptions options = MappingOptions.buildNew().mapUnderscoreToCamelCase(true);
-            MapDeleteOperation delete = lambdaTemplate.lambdaDelete("user_info", options);
+            MapDeleteOperation delete = lambdaTemplate.deleteByTable("user_info").asMap();
             assert delete.eq("userUuid", info.getUid()).doDelete() == 1;
 
-            Map<String, Object> maps = lambdaTemplate.queryForObject("select * from user_info where user_uuid = ?", new Object[] { info.getUid() }, Map.class);
+            Map<String, Object> maps = jdbcTemplate.queryForObject("select * from user_info where user_uuid = ?", new Object[] { info.getUid() }, Map.class);
             assert maps == null;
         }
     }
@@ -110,7 +113,7 @@ public class LambdaDeleteTest extends AbstractDbTest {
             newValue.put("abc", "abc");
 
             // delete from auto_id where id = 1 and name = 'mail';
-            BoundSql boundSql = lambdaTemplate.lambdaDelete("auto_id").eqBySampleMap(newValue).getBoundSql();
+            BoundSql boundSql = lambdaTemplate.deleteByTable("auto_id").eqBySampleMap(newValue).getBoundSql();
 
             assert boundSql.getSqlString().equals("DELETE FROM auto_id WHERE ( id = ? AND name = ? AND abc = ? )");
             assert ((SqlArg) boundSql.getArgs()[0]).getValue().equals(1);
@@ -129,7 +132,7 @@ public class LambdaDeleteTest extends AbstractDbTest {
             newValue.put("name", "mali");
 
             // delete from auto_id where id = 1 and name = 'mail';
-            BoundSql boundSql = lambdaTemplate.lambdaDelete("auto_id").eqBySampleMap(newValue).getBoundSql();
+            BoundSql boundSql = lambdaTemplate.deleteByTable("auto_id").eqBySampleMap(newValue).getBoundSql();
 
             assert boundSql.getSqlString().equals("DELETE FROM auto_id WHERE ( id = ? AND name = ? )");
             assert ((SqlArg) boundSql.getArgs()[0]).getValue().equals(1);
@@ -147,7 +150,7 @@ public class LambdaDeleteTest extends AbstractDbTest {
             newValue.put("name", "mali");
 
             // delete from not_exist_table where id = 1 and name = 'mail';
-            BoundSql boundSql = lambdaTemplate.lambdaDelete("not_exist_table").eqBySampleMap(newValue).getBoundSql();
+            BoundSql boundSql = lambdaTemplate.deleteByTable("not_exist_table").eqBySampleMap(newValue).getBoundSql();
 
             assert boundSql.getSqlString().equals("DELETE FROM not_exist_table WHERE ( id = ? AND name = ? )");
             assert ((SqlArg) boundSql.getArgs()[0]).getValue().equals(1);
@@ -166,7 +169,7 @@ public class LambdaDeleteTest extends AbstractDbTest {
             newValue.put("abc", "abc");
 
             // delete from not_exist_table where id = 1 and name = 'mail' and abc = 'abc';
-            BoundSql boundSql = lambdaTemplate.lambdaDelete("not_exist_table").eqBySampleMap(newValue).getBoundSql();
+            BoundSql boundSql = lambdaTemplate.deleteByTable("not_exist_table").eqBySampleMap(newValue).getBoundSql();
 
             assert boundSql.getSqlString().equals("DELETE FROM not_exist_table WHERE ( id = ? AND name = ? AND abc = ? )");
             assert ((SqlArg) boundSql.getArgs()[0]).getValue().equals(1);
@@ -176,7 +179,7 @@ public class LambdaDeleteTest extends AbstractDbTest {
     }
 
     @Test
-    public void eqBySampleTest_0() {
+    public void eqBySampleTest_0() throws SQLException {
         LambdaTemplate lambdaTemplate = new LambdaTemplate();
 
         Map<String, Object> newValue = new HashMap<>();
@@ -185,18 +188,18 @@ public class LambdaDeleteTest extends AbstractDbTest {
         newValue.put("name", "mali2");
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql1 = lambdaTemplate.lambdaDelete(user_info.class).eqBySampleMap(newValue).getBoundSql();
+        BoundSql boundSql1 = lambdaTemplate.deleteBySpace(user_info.class).eqBySampleMap(newValue).getBoundSql();
         assert boundSql1.getSqlString().equals("DELETE FROM user_info WHERE ( user_name = ? )");
         assert ((SqlArg) boundSql1.getArgs()[0]).getValue().equals("mali");
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql2 = lambdaTemplate.lambdaDelete(UserInfo.class).eqBySampleMap(newValue).getBoundSql();
+        BoundSql boundSql2 = lambdaTemplate.deleteBySpace(UserInfo.class).eqBySampleMap(newValue).getBoundSql();
         assert boundSql2.getSqlString().equals("DELETE FROM UserInfo WHERE ( name = ? )");
         assert ((SqlArg) boundSql2.getArgs()[0]).getValue().equals("mali2");
     }
 
     @Test
-    public void eqBySampleTest_1() {
+    public void eqBySampleTest_1() throws SQLException {
         LambdaTemplate lambdaTemplate = new LambdaTemplate();
 
         Map<String, Object> newValue = new HashMap<>();
@@ -205,13 +208,13 @@ public class LambdaDeleteTest extends AbstractDbTest {
         newValue.put("name", Arrays.asList("mali2", "mali3"));
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql1 = lambdaTemplate.lambdaDelete(user_info.class).eqBySampleMap(newValue).getBoundSql();
+        BoundSql boundSql1 = lambdaTemplate.deleteBySpace(user_info.class).eqBySampleMap(newValue).getBoundSql();
         assert boundSql1.getSqlString().equals("DELETE FROM user_info WHERE ( user_name = ? )");
         assert ((List) ((SqlArg) boundSql1.getArgs()[0]).getValue()).get(0).equals("mali");
         assert ((List) ((SqlArg) boundSql1.getArgs()[0]).getValue()).get(1).equals("mali1");
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql2 = lambdaTemplate.lambdaDelete(UserInfo.class).eqBySampleMap(newValue).getBoundSql();
+        BoundSql boundSql2 = lambdaTemplate.deleteBySpace(UserInfo.class).eqBySampleMap(newValue).getBoundSql();
         assert boundSql2.getSqlString().equals("DELETE FROM UserInfo WHERE ( name = ? )");
         assert ((List) ((SqlArg) boundSql2.getArgs()[0]).getValue()).get(0).equals("mali2");
         assert ((List) ((SqlArg) boundSql2.getArgs()[0]).getValue()).get(1).equals("mali3");

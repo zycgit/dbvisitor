@@ -22,6 +22,7 @@ import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,6 +35,19 @@ import static net.hasor.test.utils.TestUtils.beanForData1;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class ExecuteTest extends AbstractDbTest {
+    @Test
+    public void execute_0() throws SQLException {
+        try (Connection c = DsUtils.mysqlConn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
+
+            String res = jdbcTemplate.execute((ConnectionCallback<String>) con -> {
+                return con.getMetaData().getDriverName();
+            });
+
+            assert res.toLowerCase().contains("mysql");
+        }
+    }
+
     @Test
     public void execute_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
@@ -79,4 +93,37 @@ public class ExecuteTest extends AbstractDbTest {
             assert collect.contains(beanForData1().getName() + "~");
         }
     }
+
+    //    @Test
+    //    public void callBack_2() throws SQLException {
+    //        try (Connection c = DsUtils.mysqlConn()) {
+    //            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
+    //
+    //            List<List<String>> result = jdbcTemplate.executeCallback("{call proc_select_gt_users_repeat(?)}", (CallableStatementCallback<List<List<String>>>) cs -> {
+    //                cs.setInt(1, 40);
+    //                cs.execute();
+    //
+    //                List<List<String>> dataSet = new ArrayList<>();
+    //                try (ResultSet rs = cs.getResultSet()) {
+    //                    dataSet.add(new UserNameResultSetExtractor().extractData(rs));
+    //                }
+    //
+    //                while (cs.getMoreResults()) {
+    //                    try (ResultSet rs = cs.getResultSet()) {
+    //                        dataSet.add(new UserNameResultSetExtractor().extractData(rs));
+    //                    }
+    //                }
+    //                return dataSet;
+    //            });
+    //
+    //            assert result.size() == 2;
+    //            assert result.get(0).size() == 2;
+    //            assert result.get(1).size() == 2;
+    //
+    //            assert result.get(0).get(0).equals("jon wes");
+    //            assert result.get(0).get(1).equals("mary");
+    //            assert result.get(1).get(0).equals("jon wes");
+    //            assert result.get(1).get(1).equals("mary");
+    //        }
+    //    }
 }

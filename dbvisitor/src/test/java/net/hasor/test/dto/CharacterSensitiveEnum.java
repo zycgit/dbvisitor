@@ -18,8 +18,8 @@ import net.hasor.dbvisitor.types.EnumOfCode;
 
 /**
  * 大小写不敏感
- * @version : 2020-11-29
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-11-29
  */
 public enum CharacterSensitiveEnum implements EnumOfCode<CharacterSensitiveEnum> {
     a,

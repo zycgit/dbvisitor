@@ -1,9 +1,9 @@
 package net.hasor.test.dal.dynamic;
 import net.hasor.dbvisitor.dal.repository.parser.xmlnode.TextDynamicSql;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 
-public class TextBuilderContext extends DynamicContext {
+public class TextBuilderContext extends RegistryManager {
 
     @Override
     public DynamicSql findMacro(String dynamicId) {

@@ -1,6 +1,6 @@
 package net.hasor.scene;
-import net.hasor.dbvisitor.mapping.KeySeqHolderContext;
 import net.hasor.dbvisitor.mapping.KeySeqHolder;
+import net.hasor.dbvisitor.mapping.KeySeqHolderContext;
 import net.hasor.dbvisitor.mapping.KeySeqHolderFactory;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 

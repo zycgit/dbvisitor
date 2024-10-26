@@ -40,7 +40,7 @@ public class MappingResultSetExtractor<T> implements ResultSetExtractor<List<T>>
      */
     public MappingResultSetExtractor(final Class<T> mapperClass, MappingRegistry registry) {
         Objects.requireNonNull(mapperClass, "mapperClass is required");
-        TableMapping<?> tableMapping = registry.findUsingSpace(mapperClass);
+        TableMapping<?> tableMapping = registry.findBySpace(mapperClass);
         if (tableMapping == null) {
             if (MappingRegistry.isEntity(mapperClass)) {
                 tableMapping = registry.loadEntityToSpace(mapperClass);

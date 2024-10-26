@@ -38,20 +38,20 @@ public class LambdaUpdateTest extends AbstractDbTest {
     public void lambda_update_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            EntityQueryOperation<user_info> lambdaQuery = lambdaTemplate.lambdaQuery(user_info.class);
+            EntityQueryOperation<user_info> lambdaQuery = lambdaTemplate.queryBySpace(user_info.class);
             user_info tbUser1 = lambdaQuery.eq(user_info::getLogin_name, beanForData1().getLoginName()).queryForObject();
             assert tbUser1.getUser_name() != null;
 
             HashMap<String, Object> valueMap = new HashMap<>();
             valueMap.put("user_name", null);
 
-            EntityUpdateOperation<user_info> lambdaUpdate = lambdaTemplate.lambdaUpdate(user_info.class);
+            EntityUpdateOperation<user_info> lambdaUpdate = lambdaTemplate.updateBySpace(user_info.class);
             int update = lambdaUpdate.eq(user_info::getLogin_name, "muhammad")//
                     .updateToMap(valueMap)//
                     .doUpdate();
             assert update == 1;
 
-            user_info tbUser2 = lambdaTemplate.lambdaQuery(user_info.class).eq(user_info::getLogin_name, "muhammad").queryForObject();
+            user_info tbUser2 = lambdaTemplate.queryBySpace(user_info.class).eq(user_info::getLogin_name, "muhammad").queryForObject();
             assert tbUser2.getUser_name() == null;
         }
     }
@@ -61,14 +61,14 @@ public class LambdaUpdateTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            List<UserInfo2> users = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForList();
+            List<UserInfo2> users = lambdaTemplate.queryBySpace(UserInfo2.class).queryForList();
             UserInfo2 info = users.get(0);
 
             MappingOptions options = MappingOptions.buildNew().mapUnderscoreToCamelCase(true);
-            MapUpdateOperation update = lambdaTemplate.lambdaUpdate("user_info", options);
+            MapUpdateOperation update = lambdaTemplate.updateByTable("user_info").asMap();
             assert update.eq("user_uuid", info.getUid()).updateTo("loginPassword", "newPassword").doUpdate() == 1;
 
-            Map<String, Object> maps = lambdaTemplate.queryForObject("select * from user_info where user_uuid = ?", new Object[] { info.getUid() }, Map.class);
+            Map<String, Object> maps = lambdaTemplate.getJdbc().queryForObject("select * from user_info where user_uuid = ?", new Object[] { info.getUid() }, Map.class);
             assert maps.get("login_password").equals("newPassword");
         }
     }
@@ -77,20 +77,20 @@ public class LambdaUpdateTest extends AbstractDbTest {
     public void lambda_update_pk_0() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            EntityQueryOperation<user_info> lambdaQuery = lambdaTemplate.lambdaQuery(user_info.class);
+            EntityQueryOperation<user_info> lambdaQuery = lambdaTemplate.queryBySpace(user_info.class);
             user_info tbUser1 = lambdaQuery.eq(user_info::getLogin_name, beanForData1().getLoginName()).queryForObject();
             assert tbUser1.getUser_name() != null;
 
             HashMap<String, Object> valueMap = new HashMap<>();
             valueMap.put("user_name", null);
 
-            EntityUpdateOperation<user_info> lambdaUpdate = lambdaTemplate.lambdaUpdate(user_info.class);
+            EntityUpdateOperation<user_info> lambdaUpdate = lambdaTemplate.updateBySpace(user_info.class);
             int update = lambdaUpdate.eq(user_info::getLogin_name, "muhammad")//
                     .updateToMap(valueMap)//
                     .doUpdate();
             assert update == 1;
 
-            user_info tbUser2 = lambdaTemplate.lambdaQuery(user_info.class).eq(user_info::getLogin_name, "muhammad").queryForObject();
+            user_info tbUser2 = lambdaTemplate.queryBySpace(user_info.class).eq(user_info::getLogin_name, "muhammad").queryForObject();
             assert tbUser2.getUser_name() == null;
         }
     }

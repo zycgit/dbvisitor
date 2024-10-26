@@ -23,8 +23,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * @version : 2015年11月10日
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2015年11月10日
  */
 public abstract class AbstractPropagationTest extends AbstractDbTest {
     protected void initTable(Connection conn) throws SQLException, IOException {

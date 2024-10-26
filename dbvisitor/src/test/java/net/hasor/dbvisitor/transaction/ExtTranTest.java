@@ -26,8 +26,8 @@ import static net.hasor.test.utils.TestUtils.*;
 
 /**
  * 基础 事务控制
- * @version : 2015年11月10日
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2015年11月10日
  */
 public class ExtTranTest extends AbstractPropagationTest {
     @Test

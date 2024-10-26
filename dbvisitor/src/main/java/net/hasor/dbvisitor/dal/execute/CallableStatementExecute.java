@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.dal.execute;
 import net.hasor.dbvisitor.dal.repository.ResultSetType;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.SqlMode;
 import net.hasor.dbvisitor.internal.OgnlUtils;
@@ -32,7 +32,7 @@ import java.util.List;
  * @version : 2021-07-20
  */
 public class CallableStatementExecute extends AbstractStatementExecute<Object> {
-    public CallableStatementExecute(DynamicContext context) {
+    public CallableStatementExecute(RegistryManager context) {
         super(context);
     }
 

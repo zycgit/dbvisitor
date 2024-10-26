@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.rule;
-import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.SqlMode;
@@ -26,8 +25,6 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import java.sql.Types;
 import java.util.UUID;
 
-import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
-
 /**
  * 产生一个 36 字符长度的 `UUID`，并加入到 SQL 参数中
  * @author 赵永春 (zyc@hasor.net)
@@ -35,24 +32,15 @@ import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
  */
 public class UUID36Rule implements SqlBuildRule {
     private static final TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
-    public static final  UUID36Rule     INSTANCE    = new UUID36Rule(false);
-    private final        boolean        usingIf;
+    public static final  UUID36Rule     INSTANCE    = new UUID36Rule();
 
-    public UUID36Rule(boolean usingIf) {
-        this.usingIf = usingIf;
+    @Override
+    public boolean test(SqlArgSource data, RegistryManager context, String activeExpr) {
+        return true;
     }
 
     @Override
-    public boolean test(SqlArgSource data, DynamicContext context, String activeExpr) {
-        if (this.usingIf) {
-            return StringUtils.isBlank(activeExpr) || Boolean.TRUE.equals(evalOgnl(activeExpr, data));
-        } else {
-            return true;
-        }
-    }
-
-    @Override
-    public void executeRule(SqlArgSource data, DynamicContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) {
+    public void executeRule(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) {
         String uuidValue = UUID.randomUUID().toString();
         SqlArg sqlArg = new SqlArg(ruleValue, uuidValue, SqlMode.In, Types.VARCHAR, String.class, typeHandler);
         sqlBuilder.appendSql("?", sqlArg);
@@ -60,6 +48,6 @@ public class UUID36Rule implements SqlBuildRule {
 
     @Override
     public String toString() {
-        return (this.usingIf ? "ifuuid36 [" : "uuid36 [") + this.hashCode() + "]";
+        return "uuid36 [" + this.hashCode() + "]";
     }
 }

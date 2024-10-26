@@ -33,14 +33,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * @version : 2021-3-22
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-3-22
  */
 public class BuilderUpdateTest extends AbstractDbTest {
     @Test
     public void updateBuilder_1() {
         try {
-            EntityUpdateOperation<user_info> lambdaUpdate = new LambdaTemplate().lambdaUpdate(user_info.class);
+            EntityUpdateOperation<user_info> lambdaUpdate = new LambdaTemplate().updateBySpace(user_info.class);
             SqlDialect dialect = new MySqlDialect();
             assert lambdaUpdate.getBoundSql(dialect) == null;
             lambdaUpdate.doUpdate();
@@ -50,14 +50,14 @@ public class BuilderUpdateTest extends AbstractDbTest {
         }
 
         try {
-            new LambdaTemplate().lambdaUpdate(user_info.class).updateToSample(null);
+            new LambdaTemplate().updateBySpace(user_info.class).updateToSample(null);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().contains("newValue is null.");
         }
 
         try {
-            EntityUpdateOperation<user_info> lambdaUpdate = new LambdaTemplate().lambdaUpdate(user_info.class).updateTo(new user_info());
+            EntityUpdateOperation<user_info> lambdaUpdate = new LambdaTemplate().updateBySpace(user_info.class).updateTo(new user_info());
             lambdaUpdate.doUpdate();
             assert false;
         } catch (Exception e) {
@@ -66,8 +66,8 @@ public class BuilderUpdateTest extends AbstractDbTest {
     }
 
     @Test
-    public void updateBuilder_2() {
-        EntityUpdateOperation<user_info> lambdaUpdate = new LambdaTemplate().lambdaUpdate(user_info.class);
+    public void updateBuilder_2() throws SQLException {
+        EntityUpdateOperation<user_info> lambdaUpdate = new LambdaTemplate().updateBySpace(user_info.class);
         lambdaUpdate.allowEmptyWhere();
         SqlDialect dialect = new MySqlDialect();
 
@@ -87,11 +87,11 @@ public class BuilderUpdateTest extends AbstractDbTest {
     }
 
     @Test
-    public void updateBuilder_3() {
+    public void updateBuilder_3() throws SQLException {
         user_info data = new user_info();
         data.setLogin_name("acc");
         data.setLogin_password("pwd");
-        EntityUpdateOperation<user_info> lambdaUpdate = new LambdaTemplate().lambdaUpdate(user_info.class);
+        EntityUpdateOperation<user_info> lambdaUpdate = new LambdaTemplate().updateBySpace(user_info.class);
         lambdaUpdate.and(queryBuilder -> {
             queryBuilder.eq(user_info::getSeq, 123);
         }).updateToSample(data);
@@ -113,12 +113,12 @@ public class BuilderUpdateTest extends AbstractDbTest {
     }
 
     @Test
-    public void updateBuilder_4() {
+    public void updateBuilder_4() throws SQLException {
         user_info data = new user_info();
         data.setLogin_name("acc");
         data.setLogin_password("pwd");
 
-        EntityUpdateOperation<user_info> lambdaUpdate = new LambdaTemplate().lambdaUpdate(user_info.class);
+        EntityUpdateOperation<user_info> lambdaUpdate = new LambdaTemplate().updateBySpace(user_info.class);
         lambdaUpdate.eq(user_info::getLogin_name, "admin").and().eq(user_info::getLogin_password, "pass").allowReplaceRow().updateTo(data);
 
         SqlDialect dialect = new MySqlDialect();
@@ -136,7 +136,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
         data.setLogin_password("pwd");
 
         try {
-            EntityUpdateOperation<user_info> lambdaUpdate = new LambdaTemplate().lambdaUpdate(user_info.class);
+            EntityUpdateOperation<user_info> lambdaUpdate = new LambdaTemplate().updateBySpace(user_info.class);
             lambdaUpdate.eq(user_info::getLogin_name, "admin").and().eq(user_info::getLogin_password, "pass").updateTo(data);
             assert false;
         } catch (Exception e) {
@@ -160,7 +160,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
             setValue.put("uid", "the new uid");
 
             // update auto_id set uid = 'the new uid' , name = 'mali2' where id = 1 and name = 'mali'
-            BoundSql boundSql1 = lambdaTemplate.lambdaUpdate("auto_id")//
+            BoundSql boundSql1 = lambdaTemplate.updateByTable("auto_id")//
                     .eqBySampleMap(whereValue)  // where ...
                     .updateToSample(setValue)   // set ...
                     .getBoundSql();
@@ -190,7 +190,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
             setValue.put("uid", "the new uid");
 
             // update not_exist_table set uid = 'the new uid', name = 'mali2' where id = 1 and name = 'mali' and abc = 'abc'
-            BoundSql boundSql1 = lambdaTemplate.lambdaUpdate("not_exist_table")//
+            BoundSql boundSql1 = lambdaTemplate.updateByTable("not_exist_table")//
                     .eqBySampleMap(whereValue)  // where ...
                     .updateToSample(setValue)   // set ...
                     .getBoundSql();
@@ -203,7 +203,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
             assert ((SqlArg) boundSql1.getArgs()[5]).getValue().equals(1);
 
             // delete from user where id = 1 and name = 'mail';
-            BoundSql boundSql2 = lambdaTemplate.lambdaUpdate("not_exist_table")//
+            BoundSql boundSql2 = lambdaTemplate.updateByTable("not_exist_table")//
                     .eqBySampleMap(whereValue)  // where ...
                     .updateToMap(setValue)      // set ...
                     .getBoundSql();
@@ -220,7 +220,7 @@ public class BuilderUpdateTest extends AbstractDbTest {
     }
 
     @Test
-    public void eqBySampleTest_0() {
+    public void eqBySampleTest_0() throws SQLException {
         LambdaTemplate lambdaTemplate = new LambdaTemplate();
 
         Map<String, Object> whereValue = new HashMap<>();
@@ -236,13 +236,13 @@ public class BuilderUpdateTest extends AbstractDbTest {
         setValue.put("create_time", new Date());
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql1 = lambdaTemplate.lambdaUpdate(user_info.class).eqBySampleMap(whereValue).updateToMap(setValue).getBoundSql();
+        BoundSql boundSql1 = lambdaTemplate.updateBySpace(user_info.class).eqBySampleMap(whereValue).updateToMap(setValue).getBoundSql();
         assert boundSql1.getSqlString().equals("UPDATE user_info SET user_name = ? WHERE ( user_name = ? )");
         assert ((SqlArg) boundSql1.getArgs()[0]).getValue().equals("mali2");
         assert ((SqlArg) boundSql1.getArgs()[1]).getValue().equals("mali1");
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql2 = lambdaTemplate.lambdaUpdate(UserInfo2.class).eqBySampleMap(whereValue).updateToMap(setValue).getBoundSql();
+        BoundSql boundSql2 = lambdaTemplate.updateBySpace(UserInfo2.class).eqBySampleMap(whereValue).updateToMap(setValue).getBoundSql();
         assert boundSql2.getSqlString().equals("UPDATE user_info SET user_name = ? WHERE ( user_name = ? )");
         assert ((SqlArg) boundSql2.getArgs()[0]).getValue().equals("321");
         assert ((SqlArg) boundSql2.getArgs()[1]).getValue().equals("123");

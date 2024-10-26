@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * @version : 2021-3-22
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-3-22
  */
 public class StreamTestCase extends AbstractDbTest {
     @Test
@@ -36,12 +36,12 @@ public class StreamTestCase extends AbstractDbTest {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             List<String> userIds = new ArrayList<>();
-            Iterator<UserInfo2> userIterator = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForIterator(-1, 1);
+            Iterator<UserInfo2> userIterator = lambdaTemplate.queryBySpace(UserInfo2.class).queryForIterator(-1, 1);
             while (userIterator.hasNext()) {
                 userIds.add(userIterator.next().getUid());
             }
 
-            assert lambdaTemplate.lambdaQuery(UserInfo2.class).queryForCount() == userIds.size();
+            assert lambdaTemplate.queryBySpace(UserInfo2.class).queryForCount() == userIds.size();
         }
     }
 
@@ -51,7 +51,7 @@ public class StreamTestCase extends AbstractDbTest {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             List<String> userIds = new ArrayList<>();
-            Iterator<UserInfo2> userIterator = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForIterator(2, 1);
+            Iterator<UserInfo2> userIterator = lambdaTemplate.queryBySpace(UserInfo2.class).queryForIterator(2, 1);
             while (userIterator.hasNext()) {
                 userIds.add(userIterator.next().getUid());
             }

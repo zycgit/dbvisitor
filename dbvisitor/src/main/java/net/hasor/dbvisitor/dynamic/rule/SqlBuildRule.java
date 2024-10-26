@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.rule;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 
@@ -26,7 +26,7 @@ import java.sql.SQLException;
  * @version : 2021-06-05
  */
 public interface SqlBuildRule {
-    boolean test(SqlArgSource data, DynamicContext context, String activeExpr);
+    boolean test(SqlArgSource data, RegistryManager context, String activeExpr);
 
-    void executeRule(SqlArgSource data, DynamicContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException;
+    void executeRule(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException;
 }

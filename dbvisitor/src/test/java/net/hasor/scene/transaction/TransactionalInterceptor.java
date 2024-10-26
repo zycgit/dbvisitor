@@ -90,7 +90,7 @@ public class TransactionalInterceptor implements MethodInterceptor {
         }
     }
 
-    /** 在方法上找 Transactional ，如果找不到在到 类上找 Transactional ，如果依然没有，那么在所处的包(包括父包)上找 Transactional。*/
+    /** 在方法上找 Transactional ，如果找不到在到 类上找 Transactional ，如果依然没有，那么在所处的包(包括父包)上找 Transactional。 */
     private Transactional tranAnnotation(Method targetMethod) {
         Transactional tran = targetMethod.getAnnotation(Transactional.class);
         if (tran == null) {

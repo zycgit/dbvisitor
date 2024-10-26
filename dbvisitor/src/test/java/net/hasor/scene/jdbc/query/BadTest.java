@@ -66,7 +66,6 @@ public class BadTest extends AbstractDbTest {
         assert ints3.length == 0;
     }
 
-
     @Test
     public void badTest_4() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {

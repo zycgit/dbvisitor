@@ -31,9 +31,6 @@ public class RuleRegistry {
         DEFAULT.register("if", IfRule.INSTANCE_IF);
         DEFAULT.register("ifin", new InRule(true));
         DEFAULT.register("iftext", new TextRule(true));
-        DEFAULT.register("ifmd5", new MD5Rule(true));
-        DEFAULT.register("ifuuid32", new UUID32Rule(true));
-        DEFAULT.register("ifuuid36", new UUID36Rule(true));
         DEFAULT.register("ifmacro", new MacroRule(true));
         DEFAULT.register("ifand", new AndRule(true));
         DEFAULT.register("ifor", new OrRule(true));
@@ -49,8 +46,8 @@ public class RuleRegistry {
         DEFAULT.register("set", SetRule.INSTANCE);
 
         DEFAULT.register("arg", ArgRule.INSTANCE);
-        DEFAULT.register(ReturnResultRule.FUNC_RESULT, ReturnResultRule.INSTANCE);
-        DEFAULT.register(ReturnResultRule.FUNC_RETURN, ReturnResultRule.INSTANCE);
+        DEFAULT.register(ResultRule.FUNC_RESULT, ResultRule.INSTANCE);
+        DEFAULT.register(ResultRule.FUNC_DEFAULT_RESULT, ResultRule.INSTANCE);
     }
 
     public SqlBuildRule findByName(String ruleName) {

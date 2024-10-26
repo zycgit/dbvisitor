@@ -15,9 +15,8 @@
  */
 package net.hasor.test.dto;
 /**
- *
- * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-12-10
  */
 public class keywords_table {
     private String user;

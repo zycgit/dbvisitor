@@ -31,9 +31,9 @@ public class BaseLambdaTest extends AbstractDbTest {
     @Test
     public void base_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            LambdaTemplate lambda = new LambdaTemplate(c);
 
-            Map<String, Object> userInfo = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+            Map<String, Object> userInfo = lambda.queryBySpace(UserInfo2.class)//
                     .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
             assert userInfo.get("name").equals("默罕默德");
@@ -45,14 +45,14 @@ public class BaseLambdaTest extends AbstractDbTest {
     public void base_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate1 = new LambdaTemplate(c);
-            Map<String, Object> userInfo1 = lambdaTemplate1.lambdaQuery(UserInfo2.class)//
+            Map<String, Object> userInfo1 = lambdaTemplate1.queryBySpace(UserInfo2.class)//
                     .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
             assert userInfo1.get("name").equals("默罕默德");
             assert userInfo1.get("loginName").equals("muhammad");
 
             LambdaTemplate lambdaTemplate2 = new LambdaTemplate(c);
-            Map<String, Object> userInfo2 = lambdaTemplate2.lambdaQuery(UserInfo2.class)//
+            Map<String, Object> userInfo2 = lambdaTemplate2.queryBySpace(UserInfo2.class)//
                     .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
             assert userInfo2.get("name").equals("默罕默德");
@@ -64,7 +64,7 @@ public class BaseLambdaTest extends AbstractDbTest {
     public void base_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            Map<String, Object> userInfo = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+            Map<String, Object> userInfo = lambdaTemplate.queryBySpace(UserInfo2.class)//
                     .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
             assert userInfo.get("name").equals("默罕默德");
@@ -76,7 +76,7 @@ public class BaseLambdaTest extends AbstractDbTest {
     public void base_4() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+            Map<String, Object> tbUser = lambdaTemplate.queryBySpace(UserInfo2.class)//
                     .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
             assert tbUser.get("name").equals("默罕默德");
@@ -89,7 +89,7 @@ public class BaseLambdaTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(new JdbcTemplate(c));
 
-            Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+            Map<String, Object> tbUser = lambdaTemplate.queryBySpace(UserInfo2.class)//
                     .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
             assert tbUser.get("name").equals("默罕默德");

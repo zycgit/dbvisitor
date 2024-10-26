@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.repository.parser.xmlnode;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 
@@ -92,11 +92,11 @@ public class SelectKeyDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(SqlArgSource data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
+    public void buildQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException {
         // ignore
     }
 
-    public void buildSqlQuery(SqlArgSource data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
+    public void buildSqlQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException {
         super.buildQuery(data, context, sqlBuilder);
     }
 }

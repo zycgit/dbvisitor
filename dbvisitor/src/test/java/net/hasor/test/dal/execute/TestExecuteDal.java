@@ -24,9 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
- * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-12-10
  */
 @RefMapper("/dbvisitor_coverage/dal_session/basic_execute.xml")
 public interface TestExecuteDal {

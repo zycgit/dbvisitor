@@ -15,8 +15,8 @@
  */
 package net.hasor.dbvisitor.dynamic.rule;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 
@@ -38,7 +38,7 @@ public class MacroRule implements SqlBuildRule {
     }
 
     @Override
-    public boolean test(SqlArgSource data, DynamicContext context, String activeExpr) {
+    public boolean test(SqlArgSource data, RegistryManager context, String activeExpr) {
         if (this.usingIf) {
             return StringUtils.isBlank(activeExpr) || Boolean.TRUE.equals(evalOgnl(activeExpr, data));
         } else {
@@ -47,7 +47,7 @@ public class MacroRule implements SqlBuildRule {
     }
 
     @Override
-    public void executeRule(SqlArgSource data, DynamicContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
+    public void executeRule(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         String name;
         if (this.usingIf) {
             name = ruleValue != null ? ruleValue.trim() : null;

@@ -20,9 +20,8 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.test.dto.UserInfo2;
 
 /**
- *
- * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-12-10
  */
 @SimpleMapper
 public interface Mapper3Dal extends BaseMapper<UserInfo2> {

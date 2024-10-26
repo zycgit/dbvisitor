@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 package net.hasor.scene.keyholder.dto;
-import net.hasor.dbvisitor.mapping.KeySeq;
 import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.KeySeq;
 import net.hasor.dbvisitor.mapping.KeyTypeEnum;
 import net.hasor.dbvisitor.mapping.Table;
 
 import java.util.Date;
 
 /**
- * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-12-10
  */
 @Table("user_table")
 public class UserDTO_SEQ {

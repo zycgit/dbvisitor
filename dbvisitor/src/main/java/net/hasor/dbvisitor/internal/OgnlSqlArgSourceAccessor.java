@@ -19,15 +19,15 @@ import ognl.*;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class OgnlSqlArgSourceAccessor implements PropertyAccessor {
 
-    public Object getProperty(Map context, Object target, Object name) throws OgnlException {
+    @Override
+    public Object getProperty(OgnlContext context, Object target, Object name) throws OgnlException {
         Object result;
         SqlArgSource source = (SqlArgSource) target;
-        Node currentNode = ((OgnlContext) context).getCurrentNode().jjtGetParent();
+        Node currentNode = context.getCurrentNode().jjtGetParent();
         boolean indexedAccess = false;
 
         if (currentNode == null) {
@@ -59,7 +59,8 @@ public class OgnlSqlArgSourceAccessor implements PropertyAccessor {
         return result;
     }
 
-    public void setProperty(Map context, Object target, Object name, Object value) {
+    @Override
+    public void setProperty(OgnlContext context, Object target, Object name, Object value) {
         SqlArgSource source = (SqlArgSource) target;
         source.putValue(name.toString(), value);
     }

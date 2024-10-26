@@ -369,7 +369,7 @@ public class DynamicParsed {
 
     private static void parserValue(DefaultSqlSegment fxQuery, String content) {
         String[] testSplit = content.split(",");
-        if (testSplit.length > 6 || testSplit.length == 0) {
+        if (testSplit.length > 10 || testSplit.length == 0) {
             throw new IllegalArgumentException("analysisSQL failed, format error -> '#{valueExpr [,mode= IN|OUT|INOUT] [,jdbcType=INT] [,javaType=java.lang.String] [,typeHandler=YouTypeHandlerClassName]}'");
         }
 

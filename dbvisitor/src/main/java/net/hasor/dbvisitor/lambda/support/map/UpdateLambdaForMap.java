@@ -15,10 +15,10 @@
  */
 package net.hasor.dbvisitor.lambda.support.map;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.MapUpdateOperation;
 import net.hasor.dbvisitor.lambda.core.AbstractUpdateLambda;
-import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 import java.util.Map;
@@ -33,9 +33,9 @@ public class UpdateLambdaForMap extends AbstractUpdateLambda<MapUpdateOperation,
 
     private final boolean toCamelCase;
 
-    public UpdateLambdaForMap(TableMapping<?> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
-        super(Map.class, tableMapping, opt, jdbcTemplate);
-        this.toCamelCase = getTableMapping().isToCamelCase();
+    public UpdateLambdaForMap(TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+        super(Map.class, tableMapping, registry, jdbc);
+        this.toCamelCase = tableMapping.isToCamelCase();
     }
 
     @Override

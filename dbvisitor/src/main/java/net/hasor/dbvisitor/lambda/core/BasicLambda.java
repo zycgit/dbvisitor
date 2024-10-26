@@ -18,19 +18,15 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
-import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.dialect.SqlDialectRegister;
-import net.hasor.dbvisitor.jdbc.ConnectionCallback;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.segment.Segment;
-import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
-import java.sql.DatabaseMetaData;
 import java.util.*;
 
 /**
@@ -40,34 +36,26 @@ import java.util.*;
  */
 public abstract class BasicLambda<R, T, P> {
     protected static final Logger              logger = LoggerFactory.getLogger(BasicLambda.class);
-    private                SqlDialect          dialect;
+    private                boolean             qualifier;
     private final          Class<?>            exampleType;
     private final          boolean             exampleIsMap;
     private final          TableMapping<?>     tableMapping;
     private final          List<ColumnMapping> primaryKey;
-    private final          LambdaTemplate      jdbcTemplate;
-    private                boolean             qualifier;
-    protected final        MappingOptions      options;
+    //
+    protected final        RegistryManager     registry;
+    protected final        JdbcTemplate        jdbc;
+    protected final        SqlDialect          dialect;
 
-    public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
+    public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
         this.exampleType = Objects.requireNonNull(exampleType, "exampleType is null.");
         this.exampleIsMap = Map.class == exampleType || Map.class.isAssignableFrom(this.exampleType());
         this.tableMapping = Objects.requireNonNull(tableMapping, "tableMapping is null.");
         this.primaryKey = getPrimaryKeyColumns(this.tableMapping);
-        this.jdbcTemplate = jdbcTemplate;
-        this.options = opt;
 
-        String tmpDbType = "";
-        try {
-            tmpDbType = jdbcTemplate.execute((ConnectionCallback<String>) con -> {
-                DatabaseMetaData metaData = con.getMetaData();
-                return JdbcUtils.getDbType(metaData.getURL(), metaData.getDriverName());
-            });
-        } catch (Exception e) {
-            tmpDbType = "";
-        }
+        this.registry = Objects.requireNonNull(registry, "registry is null.");
+        this.jdbc = jdbc;
 
-        SqlDialect tempDialect = SqlDialectRegister.findOrCreate(tmpDbType);
+        SqlDialect tempDialect = tableMapping.getDialect();
         this.dialect = (tempDialect == null) ? DefaultSqlDialect.DEFAULT : tempDialect;
         this.qualifier = tableMapping.useDelimited();
     }
@@ -81,8 +69,8 @@ public abstract class BasicLambda<R, T, P> {
         return this.getSelf();
     }
 
-    public final LambdaTemplate getJdbcTemplate() {
-        return this.jdbcTemplate;
+    protected final JdbcTemplate getJdbc() {
+        return this.jdbc;
     }
 
     protected final TableMapping<?> getTableMapping() {
@@ -91,10 +79,6 @@ public abstract class BasicLambda<R, T, P> {
 
     protected final SqlDialect dialect() {
         return this.dialect;
-    }
-
-    public final void setDialect(SqlDialect sqlDialect) {
-        this.dialect = sqlDialect;
     }
 
     protected boolean isQualifier() {
@@ -167,16 +151,8 @@ public abstract class BasicLambda<R, T, P> {
     public final BoundSql getBoundSql(SqlDialect dialect) {
         if (dialect == null) {
             throw new IllegalStateException("dialect is null.");
-        } else if (dialect == this.dialect) {
-            return buildBoundSql(dialect);
         } else {
-            SqlDialect oriDialect = dialect();
-            try {
-                this.dialect = dialect;
-                return buildBoundSql(dialect);
-            } finally {
-                this.dialect = oriDialect;
-            }
+            return buildBoundSql(dialect);
         }
     }
 

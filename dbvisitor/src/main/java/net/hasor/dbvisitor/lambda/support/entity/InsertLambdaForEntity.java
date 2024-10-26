@@ -20,13 +20,14 @@ import net.hasor.cobble.reflect.SFunction;
 import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BatchBoundSql.BatchBoundSqlObj;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.args.SqlArgDisposer;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.InsertOperation;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.core.AbstractInsertLambda;
+import net.hasor.dbvisitor.lambda.support.map.InsertLambdaForMap;
 import net.hasor.dbvisitor.mapping.KeySeqHolder;
-import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.SqlArg;
@@ -48,8 +49,13 @@ import java.util.stream.Collectors;
  * @version : 2022-04-02
  */
 public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperation<T>, T, SFunction<T>> implements InsertOperation<T> {
-    public InsertLambdaForEntity(Class<T> exampleType, TableMapping<T> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
-        super(exampleType, tableMapping, opt, jdbcTemplate);
+    public InsertLambdaForEntity(TableMapping<T> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+        super(tableMapping.entityType(), tableMapping, registry, jdbc);
+    }
+
+    @Override
+    public InsertOperation<Map<String, Object>> asMap() {
+        return new InsertLambdaForMap(this.getTableMapping(), this.registry, this.jdbc);
     }
 
     @Override
@@ -71,11 +77,11 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                 logger.trace("Executing SQL statement [" + insertSql + "].");
             }
 
-            TypeHandlerRegistry typeRegistry = this.getJdbcTemplate().getRegistry().getTypeRegistry();
+            TypeHandlerRegistry typeRegistry = this.getJdbc().getRegistry().getTypeRegistry();
 
             if (this.insertValuesCount.get() > 1) {
                 if (dialect().supportBatch()) {
-                    return this.getJdbcTemplate().execute((ConnectionCallback<int[]>) con -> {
+                    return this.getJdbc().execute((ConnectionCallback<int[]>) con -> {
                         boolean supportGetGeneratedKeys = con != null && con.getMetaData().supportsGetGeneratedKeys();
                         SqlArg[][] batchBoundSql = buildInsertArgs(useColumns, supportGetGeneratedKeys, con);
 
@@ -90,7 +96,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                         return res;
                     });
                 } else {
-                    return this.getJdbcTemplate().execute((ConnectionCallback<int[]>) con -> {
+                    return this.getJdbc().execute((ConnectionCallback<int[]>) con -> {
                         boolean supportGetGeneratedKeys = con != null && con.getMetaData().supportsGetGeneratedKeys();
                         SqlArg[][] batchBoundSql = buildInsertArgs(useColumns, supportGetGeneratedKeys, con);
                         int[] res = new int[batchBoundSql.length];
@@ -106,7 +112,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                     });
                 }
             } else {
-                return this.getJdbcTemplate().execute((ConnectionCallback<int[]>) con -> {
+                return this.getJdbc().execute((ConnectionCallback<int[]>) con -> {
                     boolean supportsGetGeneratedKeys = con != null && con.getMetaData().supportsGetGeneratedKeys();
                     SqlArg[][] batchBoundSql = buildInsertArgs(useColumns, supportsGetGeneratedKeys, con);
 

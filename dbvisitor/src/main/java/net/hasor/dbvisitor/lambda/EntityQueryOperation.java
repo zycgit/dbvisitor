@@ -29,4 +29,6 @@ public interface EntityQueryOperation<T> extends               //
         QueryFunc<EntityQueryOperation<T>, T, SFunction<T>>,   //
         QueryCompare<EntityQueryOperation<T>, T, SFunction<T>>,//
         EntityQueryCompare<EntityQueryOperation<T>> {
+
+    MapQueryOperation asMap();
 }

@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.dal.repository.parser.xmlnode;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.internal.OgnlUtils;
@@ -51,7 +51,7 @@ public class ForeachDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(SqlArgSource data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
+    public void buildQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException {
         // 获取集合数据对象，数组形态
         Object collectionData = OgnlUtils.evalOgnl(this.collection, data);
         if (collectionData == null) {

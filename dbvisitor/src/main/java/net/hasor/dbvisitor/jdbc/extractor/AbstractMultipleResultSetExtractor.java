@@ -19,8 +19,8 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
-import net.hasor.dbvisitor.dynamic.rule.ReturnResultRule;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.rule.ResultRule;
 import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
 import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment.RuleInfo;
 import net.hasor.dbvisitor.jdbc.CallableStatementCallback;
@@ -48,7 +48,7 @@ public abstract class AbstractMultipleResultSetExtractor {
     private static final Logger            logger                 = LoggerFactory.getLogger(AbstractMultipleResultSetExtractor.class);
     private final        DefaultSqlSegment parsedSql;
     private              boolean           resultsCaseInsensitive = false;
-    private              DynamicContext    registry               = DynamicContext.DEFAULT;
+    private              RegistryManager   registry               = RegistryManager.DEFAULT;
 
     public AbstractMultipleResultSetExtractor(DefaultSqlSegment parsedSql) {
         this.parsedSql = parsedSql;
@@ -62,11 +62,11 @@ public abstract class AbstractMultipleResultSetExtractor {
         this.resultsCaseInsensitive = resultsCaseInsensitive;
     }
 
-    public DynamicContext getRegistry() {
+    public RegistryManager getRegistry() {
         return this.registry;
     }
 
-    public void setRegistry(DynamicContext registry) {
+    public void setRegistry(RegistryManager registry) {
         this.registry = registry;
     }
 
@@ -121,10 +121,10 @@ public abstract class AbstractMultipleResultSetExtractor {
         List<ProcedureArg> resultList = new ArrayList<>();
         if (this.parsedSql != null) {
             for (RuleInfo r : this.parsedSql.getRuleList()) {
-                if (StringUtils.equalsIgnoreCase(r.getRule(), ReturnResultRule.FUNC_RETURN) || StringUtils.equalsIgnoreCase(r.getRule(), ReturnResultRule.FUNC_RESULT)) {
-                    resultList.add(parserConfig(r));
-                } else if (StringUtils.equalsIgnoreCase(r.getRule(), ReturnResultRule.FUNC_DEFAULT_RESULT)) {
-                    defaultRule = parserConfig(r);
+                if (StringUtils.equalsIgnoreCase(r.getRule(), ResultRule.FUNC_RESULT)) {
+                    resultList.add(parserConfig(r, false));
+                } else if (StringUtils.equalsIgnoreCase(r.getRule(), ResultRule.FUNC_DEFAULT_RESULT)) {
+                    defaultRule = parserConfig(r, true);
                 }
             }
         }
@@ -215,7 +215,7 @@ public abstract class AbstractMultipleResultSetExtractor {
         }
     }
 
-    protected ProcedureArg parserConfig(RuleInfo content) {
+    protected ProcedureArg parserConfig(RuleInfo content, boolean isDefault) {
         // restore body
         String body = "";
         if (content.getActiveExpr() != null) {
@@ -241,7 +241,7 @@ public abstract class AbstractMultipleResultSetExtractor {
         }
 
         String name = config.get(ProcedureArg.CFG_KEY_NAME);
-        ProcedureArg arg = new ProcedureArg(name);
+        ProcedureArg arg = new ProcedureArg(isDefault ? null : name);
 
         Class<?> javaType = convertJavaType(this.registry, config.get(ProcedureArg.CFG_KEY_JAVA_TYPE));
         if (javaType != null) {
@@ -275,7 +275,7 @@ public abstract class AbstractMultipleResultSetExtractor {
         return new ColumnMapResultSetExtractor(0, this.registry.getTypeRegistry(), this.resultsCaseInsensitive);
     }
 
-    private Class<?> convertJavaType(DynamicContext context, String javaType) {
+    private Class<?> convertJavaType(RegistryManager context, String javaType) {
         try {
             if (StringUtils.isNotBlank(javaType)) {
                 return context.loadClass(javaType);

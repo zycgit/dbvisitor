@@ -15,8 +15,8 @@
  */
 package net.hasor.dbvisitor.dynamic.segment;
 
-import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 
@@ -168,7 +168,7 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
     }
 
     @Override
-    public void buildQuery(SqlArgSource data, DynamicContext context, SqlBuilder sqlBuilder) throws SQLException {
+    public void buildQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException {
         for (SqlSegment fxSegment : this.queryStringPlan) {
             fxSegment.buildQuery(data, context, sqlBuilder);
         }

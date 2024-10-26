@@ -21,9 +21,8 @@ import net.hasor.test.dto.UserInfo2;
 import java.util.List;
 
 /**
- *
- * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-12-10
  */
 @SimpleMapper
 public interface Mapper2Dal {

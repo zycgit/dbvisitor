@@ -24,6 +24,8 @@ import net.hasor.test.dto.keywords_table;
 import net.hasor.test.dto.user_info;
 import org.junit.Test;
 
+import java.sql.SQLException;
+
 /***
  * @version : 2021-3-22
  * @author 赵永春 (zyc@hasor.net)
@@ -32,7 +34,7 @@ public class BuilderDeleteTest extends AbstractDbTest {
     @Test
     public void deleteBuilder_1() {
         try {
-            EntityDeleteOperation<UserInfo> lambdaDelete = new LambdaTemplate().lambdaDelete(UserInfo.class);
+            EntityDeleteOperation<UserInfo> lambdaDelete = new LambdaTemplate().deleteBySpace(UserInfo.class);
             SqlDialect dialect = new MySqlDialect();
             lambdaDelete.getBoundSql(dialect);
             assert false;
@@ -43,7 +45,7 @@ public class BuilderDeleteTest extends AbstractDbTest {
 
     @Test
     public void deleteBuilder_2() {
-        EntityDeleteOperation<user_info> lambdaDelete = new LambdaTemplate().lambdaDelete(user_info.class);
+        EntityDeleteOperation<user_info> lambdaDelete = new LambdaTemplate().deleteBySpace(user_info.class);
         lambdaDelete.allowEmptyWhere();
 
         SqlDialect dialect = new MySqlDialect();
@@ -55,8 +57,8 @@ public class BuilderDeleteTest extends AbstractDbTest {
     }
 
     @Test
-    public void deleteBuilder_3() {
-        EntityDeleteOperation<UserInfo> lambdaDelete = new LambdaTemplate().lambdaDelete(UserInfo.class);
+    public void deleteBuilder_3() throws SQLException {
+        EntityDeleteOperation<UserInfo> lambdaDelete = new LambdaTemplate().deleteBySpace(UserInfo.class);
         lambdaDelete.allowEmptyWhere();
 
         SqlDialect dialect = new MySqlDialect();
@@ -68,8 +70,8 @@ public class BuilderDeleteTest extends AbstractDbTest {
     }
 
     @Test
-    public void deleteBuilder_4() {
-        EntityDeleteOperation<keywords_table> lambdaDelete = new LambdaTemplate().lambdaDelete(keywords_table.class);
+    public void deleteBuilder_4() throws SQLException {
+        EntityDeleteOperation<keywords_table> lambdaDelete = new LambdaTemplate().deleteBySpace(keywords_table.class);
         lambdaDelete.and(queryBuilder -> {
             queryBuilder.eq(keywords_table::getIndex, 123);
         });
@@ -85,8 +87,8 @@ public class BuilderDeleteTest extends AbstractDbTest {
     }
 
     @Test
-    public void deleteBuilder_5() {
-        EntityDeleteOperation<UserInfo> lambdaDelete = new LambdaTemplate().lambdaDelete(UserInfo.class);
+    public void deleteBuilder_5() throws SQLException {
+        EntityDeleteOperation<UserInfo> lambdaDelete = new LambdaTemplate().deleteBySpace(UserInfo.class);
         lambdaDelete.eq(UserInfo::getLoginName, "admin").and().eq(UserInfo::getLoginPassword, "pass");
 
         SqlDialect dialect = new MySqlDialect();
@@ -98,7 +100,7 @@ public class BuilderDeleteTest extends AbstractDbTest {
     }
 
     @Test
-    public void deleteBuilder_6() {
+    public void deleteBuilder_6() throws SQLException {
         SqlDialect dialect = new MySqlDialect();
 
         UserInfo userInfo = new UserInfo();
@@ -107,7 +109,7 @@ public class BuilderDeleteTest extends AbstractDbTest {
         userInfo.setLoginPassword("pwd");
 
         //case 1
-        EntityDeleteOperation<UserInfo> delCase1 = new LambdaTemplate().lambdaDelete(UserInfo.class);
+        EntityDeleteOperation<UserInfo> delCase1 = new LambdaTemplate().deleteBySpace(UserInfo.class);
         boolean isZyc1 = userInfo.getName().equals("zyc");
         delCase1.eq(isZyc1, UserInfo::getLoginName, userInfo.getLoginName())        //
                 .eq(isZyc1, UserInfo::getLoginPassword, userInfo.getLoginPassword())//
@@ -117,7 +119,7 @@ public class BuilderDeleteTest extends AbstractDbTest {
 
         // case 2
         userInfo.setName("cyz");
-        EntityDeleteOperation<UserInfo> delCase2 = new LambdaTemplate().lambdaDelete(UserInfo.class);
+        EntityDeleteOperation<UserInfo> delCase2 = new LambdaTemplate().deleteBySpace(UserInfo.class);
         boolean isZyc2 = userInfo.getName().equals("zyc");
         delCase2.eq(isZyc2, UserInfo::getLoginName, userInfo.getLoginName())        //
                 .eq(isZyc2, UserInfo::getLoginPassword, userInfo.getLoginPassword())//
@@ -129,7 +131,7 @@ public class BuilderDeleteTest extends AbstractDbTest {
     @Test
     public void deleteBuilder_7() {
         try {
-            EntityDeleteOperation<UserInfo> lambdaDelete = new LambdaTemplate().lambdaDelete(UserInfo.class);
+            EntityDeleteOperation<UserInfo> lambdaDelete = new LambdaTemplate().deleteBySpace(UserInfo.class);
             SqlDialect dialect = new MySqlDialect();
             lambdaDelete.getBoundSql(dialect);
             assert false;

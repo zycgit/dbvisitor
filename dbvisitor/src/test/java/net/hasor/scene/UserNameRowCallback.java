@@ -22,9 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
- * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-12-10
  */
 public class UserNameRowCallback implements RowCallbackHandler {
     private final List<String> result = new ArrayList<>();

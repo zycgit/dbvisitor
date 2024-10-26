@@ -41,14 +41,14 @@ public class LambdaQueryTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            List<UserInfo2> users1 = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForList();
+            List<UserInfo2> users1 = lambdaTemplate.queryBySpace(UserInfo2.class).queryForList();
             List<String> collect1 = users1.stream().map(UserInfo2::getName).collect(Collectors.toList());
             assert collect1.size() == 3;
             assert collect1.contains(beanForData1().getName());
             assert collect1.contains(beanForData2().getName());
             assert collect1.contains(beanForData3().getName());
 
-            List<Map<String, Object>> users2 = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForMapList();
+            List<Map<String, Object>> users2 = lambdaTemplate.queryBySpace(UserInfo2.class).queryForMapList();
             List<String> collect2 = users2.stream().map(tbUser -> {
                 return (String) tbUser.get("name");
             }).collect(Collectors.toList());
@@ -58,7 +58,7 @@ public class LambdaQueryTest extends AbstractDbTest {
             assert collect2.contains(beanForData3().getName());
 
             List<String> users3 = new ArrayList<>();
-            lambdaTemplate.lambdaQuery(UserInfo2.class).query((rs, rowNum) -> {
+            lambdaTemplate.queryBySpace(UserInfo2.class).query((rs, rowNum) -> {
                 users3.add(rs.getString("user_name"));
             });
             assert users3.size() == 3;
@@ -66,7 +66,7 @@ public class LambdaQueryTest extends AbstractDbTest {
             assert users3.contains(beanForData2().getName());
             assert users3.contains(beanForData3().getName());
 
-            List<Map<String, Object>> users4 = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+            List<Map<String, Object>> users4 = lambdaTemplate.queryBySpace(UserInfo2.class)//
                     .query(new RowMapperResultSetExtractor<>(new ColumnMapRowMapper()));
             List<String> collect4 = users4.stream().map(tbUser -> {
                 return (String) tbUser.get("user_name");
@@ -76,7 +76,7 @@ public class LambdaQueryTest extends AbstractDbTest {
             assert collect4.contains(beanForData2().getName());
             assert collect4.contains(beanForData3().getName());
 
-            List<Map<String, Object>> users5 = lambdaTemplate.lambdaQuery(UserInfo2.class).query(new ColumnMapRowMapper());
+            List<Map<String, Object>> users5 = lambdaTemplate.queryBySpace(UserInfo2.class).query(new ColumnMapRowMapper());
             List<String> collect5 = users5.stream().map(tbUser -> {
                 return (String) tbUser.get("user_name");
             }).collect(Collectors.toList());
@@ -92,13 +92,13 @@ public class LambdaQueryTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            List<UserInfo2> users1 = lambdaTemplate.lambdaQuery(UserInfo2.class).selectAll().queryForList();
-            List<UserInfo2> users2 = lambdaTemplate.lambdaQuery(UserInfo2.class).queryForList();
+            List<UserInfo2> users1 = lambdaTemplate.queryBySpace(UserInfo2.class).selectAll().queryForList();
+            List<UserInfo2> users2 = lambdaTemplate.queryBySpace(UserInfo2.class).queryForList();
             assert users1.size() == 3;
             assert users2.size() == 3;
 
             Map<String, Object> forData1 = mapForData1();
-            List<UserInfo2> users3 = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+            List<UserInfo2> users3 = lambdaTemplate.queryBySpace(UserInfo2.class)//
                     .eq(UserInfo2::getLoginName, forData1.get("loginName")).queryForList();
             assert users3.size() == 1;
             assert users3.get(0).getLoginName().equals("muhammad");
@@ -112,13 +112,13 @@ public class LambdaQueryTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            List<user_info> users1 = lambdaTemplate.lambdaQuery(user_info.class).selectAll().queryForList();
-            List<user_info> users2 = lambdaTemplate.lambdaQuery(user_info.class).queryForList();
+            List<user_info> users1 = lambdaTemplate.queryBySpace(user_info.class).selectAll().queryForList();
+            List<user_info> users2 = lambdaTemplate.queryBySpace(user_info.class).queryForList();
             assert users1.size() == 3;
             assert users2.size() == 3;
 
             Map<String, Object> forData1 = mapForData1();
-            List<user_info> users3 = lambdaTemplate.lambdaQuery(user_info.class)//
+            List<user_info> users3 = lambdaTemplate.queryBySpace(user_info.class)//
                     .eq(user_info::getLogin_name, forData1.get("loginName")).queryForList();
             assert users3.size() == 1;
             assert users3.get(0).getLogin_name().equals("muhammad");
@@ -132,7 +132,7 @@ public class LambdaQueryTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            UserInfo2 tbUser = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+            UserInfo2 tbUser = lambdaTemplate.queryBySpace(UserInfo2.class)//
                     .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1").queryForObject();
 
             assert tbUser.getName().equals("默罕默德");
@@ -144,7 +144,7 @@ public class LambdaQueryTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            Map<String, Object> tbUser = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+            Map<String, Object> tbUser = lambdaTemplate.queryBySpace(UserInfo2.class)//
                     .eq(UserInfo2::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
 
@@ -158,12 +158,12 @@ public class LambdaQueryTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            int lambdaCount1 = lambdaTemplate.lambdaQuery(UserInfo2.class)//
+            int lambdaCount1 = lambdaTemplate.queryBySpace(UserInfo2.class)//
                     .eq(UserInfo2::getLoginName, "muhammad")//
                     .queryForCount();
             assert lambdaCount1 == 1;
-            assert lambdaTemplate.lambdaQuery(UserInfo2.class).queryForCount() == 3;
-            assert lambdaTemplate.lambdaQuery(UserInfo2.class).queryForLargeCount() == 3L;
+            assert lambdaTemplate.queryBySpace(UserInfo2.class).queryForCount() == 3;
+            assert lambdaTemplate.queryBySpace(UserInfo2.class).queryForLargeCount() == 3L;
         }
     }
 }

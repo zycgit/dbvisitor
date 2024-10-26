@@ -30,11 +30,11 @@ public class DefaultConfTestCase {
             userData.setName("default user");
             userData.setCreateTime(new Date());// 驼峰由 @TableDefault 进行启用
 
-            InsertOperation<UserTable> lambdaInsert = lambdaTemplate.lambdaInsert(UserTable.class, options);
+            InsertOperation<UserTable> lambdaInsert = lambdaTemplate.insertBySpace(UserTable.class);
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
 
             // 校验结果
-            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.lambdaQuery(UserTable.class, options);
+            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.queryBySpace(UserTable.class);
             UserTable resultData = lambdaQuery.eq(UserTable::getId, 128).queryForObject();
 
             assert resultData.getId() == 128;
@@ -56,11 +56,11 @@ public class DefaultConfTestCase {
             userData.setName("default user");
             userData.setCreateTime(new Date());// 驼峰由 @TableDefault 进行启用
 
-            InsertOperation<UserDTO> lambdaInsert = lambdaTemplate.lambdaInsert(UserDTO.class, options);
+            InsertOperation<UserDTO> lambdaInsert = lambdaTemplate.insertBySpace(UserDTO.class);
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
 
             // 校验结果
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.lambdaQuery(UserDTO.class, options);
+            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.queryBySpace(UserDTO.class);
             UserDTO resultData = lambdaQuery.eq(UserDTO::getId, 128).queryForObject();
 
             assert resultData.getId() == 128;
@@ -82,11 +82,11 @@ public class DefaultConfTestCase {
             userData.put("name", "default user");
             userData.put("create_time", new Date());// 默认驼峰转换是关闭的，因此在没有任何配置的情况下 key 需要和列名完全一致。
 
-            InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.lambdaInsert("user_table");
+            InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.insertByTable("user_table");
             assert 1 == lambdaInsert.applyMap(userData).executeSumResult();
 
             // 校验结果
-            MapQueryOperation lambdaQuery = lambdaTemplate.lambdaQuery("user_table");
+            MapQueryOperation lambdaQuery = lambdaTemplate.queryByTable("user_table").asMap();
             Map<String, Object> resultData = lambdaQuery.eq("id", 128).queryForObject();
 
             assert resultData.get("id").equals(128);

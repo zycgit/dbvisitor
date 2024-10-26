@@ -20,9 +20,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- *
- * @version : 2013-12-10
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-12-10
  */
 public class UserNameRowMapper implements RowMapper<String> {
     @Override

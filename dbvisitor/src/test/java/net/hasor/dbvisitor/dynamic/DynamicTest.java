@@ -17,7 +17,7 @@ public class DynamicTest {
     private static void assertArgCnt(int argCnt, String sql) throws SQLException {
         DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
 
-        DynamicContext context = new DynamicContext();
+        RegistryManager context = new RegistryManager();
         SqlBuilder sqlBuilder = segment.buildQuery(Collections.emptyMap(), context);
         assert segment.getOriSqlString().equals(sql);
         assert sqlBuilder.getSqlString().equals(sql);
@@ -79,7 +79,7 @@ public class DynamicTest {
     private static void assertArgNamedCnt(List<String> argNamed, String sql, String testSql) throws SQLException {
         DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
 
-        DynamicContext context = new DynamicContext();
+        RegistryManager context = new RegistryManager();
         SqlBuilder sqlBuilder = segment.buildQuery(Collections.emptyMap(), context);
         assert segment.getOriSqlString().equals(sql);
         assert sqlBuilder.getSqlString().equals(testSql);
@@ -140,7 +140,7 @@ public class DynamicTest {
         //expr
         String sql = "a = :id.ccc['aaa'][0]";
         DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
-        DynamicContext context = new DynamicContext();
+        RegistryManager context = new RegistryManager();
         Map<String, Object> ctx = CollectionUtils.asMap("id", CollectionUtils.asMap("ccc", CollectionUtils.asMap("aaa", Arrays.asList("abc"))));
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, context);
 
@@ -201,7 +201,7 @@ public class DynamicTest {
         //expr
         String sql = "a = &id.ccc['aaa'][0]";
         DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
-        DynamicContext context = new DynamicContext();
+        RegistryManager context = new RegistryManager();
         Map<String, Object> ctx = CollectionUtils.asMap("id", CollectionUtils.asMap("ccc", CollectionUtils.asMap("aaa", Arrays.asList("abc"))));
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, context);
         assert segment.getOriSqlString().equals(sql);
@@ -233,7 +233,7 @@ public class DynamicTest {
         //expr
         String sql = "abc = #{eventType,mode=INOUT,jdbcType=INT,javaType=java.lang.Integer,typeHandler=net.hasor.dbvisitor.types.handler.BigDecimalTypeHandler}";
         DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
-        DynamicContext context = new DynamicContext();
+        RegistryManager context = new RegistryManager();
         Map<String, Object> ctx = CollectionUtils.asMap("eventType", "12345");
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, context);
         assert segment.getOriSqlString().equals(sql);
@@ -246,7 +246,7 @@ public class DynamicTest {
     }
 
     private static void assertRule(List<String> ruleExpr, String sql, String testSql) throws SQLException {
-        DynamicContext context = new DynamicContext();
+        RegistryManager context = new RegistryManager();
         DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
         SqlBuilder sqlBuilder = segment.buildQuery(Collections.emptyMap(), context);
         assert segment.getOriSqlString().equals(sql);
@@ -298,7 +298,7 @@ public class DynamicTest {
         //expr
         String sql = "name = #{eventType} and age = :age and type = ?";
         DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
-        DynamicContext context = new DynamicContext();
+        RegistryManager context = new RegistryManager();
         Map<String, Object> ctx = CollectionUtils.asMap("eventType", "a", "age", "b", "arg2", "c");
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, context);
         assert segment.getOriSqlString().equals(sql);
@@ -314,7 +314,7 @@ public class DynamicTest {
         //expr
         String sql = "abc = ${eventType}";
         DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
-        DynamicContext context = new DynamicContext();
+        RegistryManager context = new RegistryManager();
         Map<String, Object> ctx = CollectionUtils.asMap("eventType", "12345");
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, context);
         assert segment.getOriSqlString().equals(sql);

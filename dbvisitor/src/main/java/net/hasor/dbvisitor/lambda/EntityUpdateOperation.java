@@ -29,4 +29,6 @@ public interface EntityUpdateOperation<T> extends                //
         UpdateExecute<EntityUpdateOperation<T>, T, SFunction<T>>,//
         QueryCompare<EntityUpdateOperation<T>, T, SFunction<T>>, //
         EntityQueryCompare<EntityUpdateOperation<T>> {
+
+    MapUpdateOperation asMap();
 }

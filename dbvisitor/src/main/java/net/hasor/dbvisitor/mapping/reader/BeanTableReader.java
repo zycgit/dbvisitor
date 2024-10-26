@@ -50,6 +50,10 @@ public class BeanTableReader<T> implements TableReader<T> {
             String column = columns.get(i);
 
             List<ColumnMapping> list = this.tableMapping.getPropertyByColumn(column);
+            if (list == null) {
+                continue;
+            }
+
             for (ColumnMapping mapping : list) {
                 if (mapping == null || mapping.getHandler().isReadOnly()) {
                     continue;

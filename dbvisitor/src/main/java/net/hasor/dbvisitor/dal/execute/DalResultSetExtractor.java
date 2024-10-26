@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.dal.execute;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.jdbc.CallableStatementCallback;
 import net.hasor.dbvisitor.jdbc.PreparedStatementCallback;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
@@ -37,7 +37,7 @@ public class DalResultSetExtractor implements PreparedStatementCallback<List<Obj
     private final        TableReader<?>       defaultTableReader;
     private final        List<TableReader<?>> tableReaders;
 
-    public DalResultSetExtractor(boolean defaultCaseInsensitive, DynamicContext context, TableReader<?>[] tableReaders) {
+    public DalResultSetExtractor(boolean defaultCaseInsensitive, RegistryManager context, TableReader<?>[] tableReaders) {
         this.tableReaders = Arrays.asList(tableReaders);
         this.defaultTableReader = new ResultTableReader(defaultCaseInsensitive, context.getTypeRegistry());
     }

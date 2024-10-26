@@ -38,7 +38,7 @@ public class AutoMapping5Test extends AbstractDbTest {
 
     @Test
     public void mapperTest_01() {
-        TableMapping<?> tableMapping = this.dalRegistry.findUsingSpace("resultMap_test", "resultMap_1");
+        TableMapping<?> tableMapping = this.dalRegistry.findBySpace("resultMap_test", "resultMap_1");
 
         assert tableMapping.getProperties().isEmpty();
         assert tableMapping.getTable().equals("");
@@ -46,7 +46,7 @@ public class AutoMapping5Test extends AbstractDbTest {
 
     @Test
     public void mapperTest_02() {
-        TableMapping<?> tableMapping = this.dalRegistry.findUsingSpace("resultMap_test", "resultMap_2");
+        TableMapping<?> tableMapping = this.dalRegistry.findBySpace("resultMap_test", "resultMap_2");
 
         assert tableMapping.getPropertyByName("uid").getColumn().equals("user_uuid");
         assert tableMapping.getPropertyByName("name").getColumn().equals("user_name");
@@ -64,7 +64,7 @@ public class AutoMapping5Test extends AbstractDbTest {
 
     @Test
     public void mapperTest_03() {
-        TableMapping<?> tableMapping = this.dalRegistry.findUsingSpace("resultMap_test", "resultMap_3");
+        TableMapping<?> tableMapping = this.dalRegistry.findBySpace("resultMap_test", "resultMap_3");
 
         assert tableMapping.getPropertyByName("userUuid").getColumn().equals("user_uuid");
         assert tableMapping.getPropertyByName("name").getColumn().equals("user_name");
@@ -82,7 +82,7 @@ public class AutoMapping5Test extends AbstractDbTest {
 
     @Test
     public void mapperTest_04() {
-        TableMapping<?> tableMapping = this.dalRegistry.findUsingSpace("resultMap_test", "resultMap_4");
+        TableMapping<?> tableMapping = this.dalRegistry.findBySpace("resultMap_test", "resultMap_4");
 
         assert tableMapping.getProperties().isEmpty();
         assert tableMapping.getTable().equals("");

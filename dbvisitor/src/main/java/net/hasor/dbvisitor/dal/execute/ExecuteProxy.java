@@ -20,8 +20,8 @@ import net.hasor.dbvisitor.dal.repository.StatementType;
 import net.hasor.dbvisitor.dal.repository.parser.xmlnode.DmlSqlConfig;
 import net.hasor.dbvisitor.dal.repository.parser.xmlnode.SelectKeySqlConfig;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.page.Page;
 
 import java.sql.Connection;
@@ -39,7 +39,7 @@ public class ExecuteProxy {
     private final AbstractStatementExecute<?> execute;
     private       SelectKeyExecute            selectKeyExecute;
 
-    public ExecuteProxy(String dynamicId, DynamicContext context) {
+    public ExecuteProxy(String dynamicId, RegistryManager context) {
         DynamicSql sqlConfig = context.findMacro(dynamicId);
         if (sqlConfig == null) {
             throw new NullPointerException("dynamic '" + dynamicId + "' is not found.");
@@ -74,7 +74,7 @@ public class ExecuteProxy {
         }
     }
 
-    private AbstractStatementExecute<?> buildExecute(StatementType statementType, DynamicContext context) {
+    private AbstractStatementExecute<?> buildExecute(StatementType statementType, RegistryManager context) {
         switch (statementType) {
             case Statement: {
                 return new StatementExecute(context);

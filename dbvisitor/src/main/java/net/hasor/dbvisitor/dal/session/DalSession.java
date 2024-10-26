@@ -31,7 +31,7 @@ import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
-import net.hasor.dbvisitor.dynamic.DynamicContext;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.DynamicConnection;
 import net.hasor.dbvisitor.jdbc.core.JdbcAccessor;
@@ -86,7 +86,7 @@ public class DalSession extends JdbcAccessor {
         if (defaultDialect instanceof PageSqlDialect) {
             this.dialect = (PageSqlDialect) defaultDialect;
         } else {
-            this.dialect = this.lambdaTemplate().execute(this::findPageDialect);
+            this.dialect = this.lambdaTemplate().getJdbc().execute(this::findPageDialect);
         }
     }
 
@@ -100,7 +100,7 @@ public class DalSession extends JdbcAccessor {
         if (defaultDialect instanceof PageSqlDialect) {
             this.dialect = (PageSqlDialect) defaultDialect;
         } else {
-            this.dialect = this.lambdaTemplate().execute(this::findPageDialect);
+            this.dialect = this.lambdaTemplate().getJdbc().execute(this::findPageDialect);
         }
     }
 
@@ -114,7 +114,7 @@ public class DalSession extends JdbcAccessor {
         if (defaultDialect instanceof PageSqlDialect) {
             this.dialect = (PageSqlDialect) defaultDialect;
         } else {
-            this.dialect = this.lambdaTemplate().execute(this::findPageDialect);
+            this.dialect = this.lambdaTemplate().getJdbc().execute(this::findPageDialect);
         }
     }
 
@@ -135,7 +135,7 @@ public class DalSession extends JdbcAccessor {
     }
 
     public <T> BaseMapper<T> createBaseMapper(Class<T> entityType) {
-        if (this.dalRegistry.findUsingSpace(entityType) == null) {
+        if (this.dalRegistry.findBySpace(entityType) == null) {
             this.dalRegistry.loadEntityToSpace(entityType);
         }
 
@@ -180,7 +180,7 @@ public class DalSession extends JdbcAccessor {
             Class<?>[] generics = type.resolveGenerics(Object.class);
             Class<?> entityType = generics[0];
 
-            if (this.dalRegistry.findUsingSpace(entityType) == null) {
+            if (this.dalRegistry.findBySpace(entityType) == null) {
                 this.dalRegistry.loadEntityToSpace(entityType);
             }
 
@@ -220,11 +220,11 @@ public class DalSession extends JdbcAccessor {
                 space = stId.substring(0, index);
                 dynamicId = stId.substring(index + 1);
             }
-            DynamicContext context = new DalContext(space, this.dalRegistry);
+            RegistryManager context = new DalContext(space, this.dalRegistry);
             return new ExecuteProxy(dynamicId, context);
         });
 
-        return this.lambdaTemplate().execute((ConnectionCallback<Object>) con -> {
+        return this.lambdaTemplate().getJdbc().execute((ConnectionCallback<Object>) con -> {
             Map<String, Object> mapData = extractData(parameter);
             return proxy.execute(con, mapData, page, false, this.dialect);
         });
@@ -266,7 +266,7 @@ public class DalSession extends JdbcAccessor {
         }
 
         public <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
-            return dalRegistry.findUsingSpace(exampleType);
+            return dalRegistry.findBySpace(exampleType);
         }
     }
 }

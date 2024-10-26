@@ -18,16 +18,16 @@ import net.hasor.cobble.ExceptionUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.RowMapper;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.jdbc.mapper.MappingResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.SingleColumnRowMapper;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.lambda.segment.OrderByKeyword;
 import net.hasor.dbvisitor.lambda.segment.Segment;
-import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.page.Page;
@@ -55,8 +55,8 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
     private         boolean         lockGroupBy  = false;
     private         boolean         lockOrderBy  = false;
 
-    public AbstractSelectLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingOptions opt, LambdaTemplate jdbcTemplate) {
-        super(exampleType, tableMapping, opt, jdbcTemplate);
+    public AbstractSelectLambda(Class<?> exampleType, TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+        super(exampleType, tableMapping, registry, jdbc);
     }
 
     @Override
@@ -187,65 +187,60 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
     @Override
     public void query(RowCallbackHandler rch) throws SQLException {
         BoundSql boundSql = getBoundSql();
-        this.getJdbcTemplate().query(boundSql.getSqlString(), boundSql.getArgs(), rch);
+        this.getJdbc().query(boundSql.getSqlString(), boundSql.getArgs(), rch);
     }
 
     @Override
     public <V> V query(ResultSetExtractor<V> rse) throws SQLException {
         BoundSql boundSql = getBoundSql();
-        return this.getJdbcTemplate().query(boundSql.getSqlString(), boundSql.getArgs(), rse);
+        return this.getJdbc().query(boundSql.getSqlString(), boundSql.getArgs(), rse);
     }
 
     @Override
     public <V> List<V> query(RowMapper<V> rowMapper) throws SQLException {
         BoundSql boundSql = getBoundSql();
-        return this.getJdbcTemplate().queryForList(boundSql.getSqlString(), boundSql.getArgs(), rowMapper);
+        return this.getJdbc().queryForList(boundSql.getSqlString(), boundSql.getArgs(), rowMapper);
     }
 
     @Override
     public List<T> queryForList() throws SQLException {
         BoundSql boundSql = getBoundSql();
         ResultSetExtractor<List<T>> extractor = new MappingResultSetExtractor<>(getTableReader());
-        return this.getJdbcTemplate().query(boundSql.getSqlString(), boundSql.getArgs(), extractor);
+        return this.getJdbc().query(boundSql.getSqlString(), boundSql.getArgs(), extractor);
     }
 
     @Override
     public <AS> List<AS> queryForList(Class<AS> asType) throws SQLException {
-        return this.queryForList(asType, this.options);
-    }
-
-    @Override
-    public <AS> List<AS> queryForList(Class<AS> asType, MappingOptions options) throws SQLException {
         BoundSql boundSql = getBoundSql();
 
-        TableMapping<AS> tabMapping = this.getJdbcTemplate().getTableMapping(asType, (options == null ? this.options : options));
+        TableMapping<AS> tabMapping = this.registry.getMappingRegistry().findBySpace(asType);
         ResultSetExtractor<?> extractor;
         if (Map.class == asType || Map.class.isAssignableFrom(asType)) {
             extractor = new MappingResultSetExtractor<>(tabMapping.toMapReader());
         } else {
-            TypeHandlerRegistry typeRegistry = getJdbcTemplate().getRegistry().getTypeRegistry();
+            TypeHandlerRegistry typeRegistry = getJdbc().getRegistry().getTypeRegistry();
             if (typeRegistry.hasTypeHandler(asType)) {
-                return this.getJdbcTemplate().queryForList(boundSql.getSqlString(), boundSql.getArgs(), new SingleColumnRowMapper<>(asType, typeRegistry));
+                return this.getJdbc().queryForList(boundSql.getSqlString(), boundSql.getArgs(), new SingleColumnRowMapper<>(asType, typeRegistry));
             } else {
                 extractor = new MappingResultSetExtractor<>(tabMapping.toReader());
             }
         }
 
-        return (List<AS>) this.getJdbcTemplate().query(boundSql.getSqlString(), boundSql.getArgs(), extractor);
+        return (List<AS>) this.getJdbc().query(boundSql.getSqlString(), boundSql.getArgs(), extractor);
     }
 
     @Override
     public List<Map<String, Object>> queryForMapList() throws SQLException {
         BoundSql boundSql = getBoundSql();
         ResultSetExtractor<List<Map<String, Object>>> extractor = new MappingResultSetExtractor<>(getTableMapping().toMapReader());
-        return this.getJdbcTemplate().query(boundSql.getSqlString(), boundSql.getArgs(), extractor);
+        return this.getJdbc().query(boundSql.getSqlString(), boundSql.getArgs(), extractor);
     }
 
     @Override
     public Map<String, Object> queryForMap() throws SQLException {
         BoundSql boundSql = getBoundSql();
         TableReader<Map<String, Object>> mapReader = getTableMapping().toMapReader();
-        return this.getJdbcTemplate().queryForObject(boundSql.getSqlString(), boundSql.getArgs(), (rs, rowNum) -> {
+        return this.getJdbc().queryForObject(boundSql.getSqlString(), boundSql.getArgs(), (rs, rowNum) -> {
             ResultSetMetaData rsmd = rs.getMetaData();
             int nrOfColumns = rsmd.getColumnCount();
             List<String> columnList = new ArrayList<>();
@@ -267,7 +262,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
     public T queryForObject() throws SQLException {
         TableReader<T> tableReader = getTableReader();
         BoundSql boundSql = getBoundSql();
-        return this.getJdbcTemplate().queryForObject(boundSql.getSqlString(), boundSql.getArgs(), (rs, rowNum) -> {
+        return this.getJdbc().queryForObject(boundSql.getSqlString(), boundSql.getArgs(), (rs, rowNum) -> {
             ResultSetMetaData rsmd = rs.getMetaData();
             int nrOfColumns = rsmd.getColumnCount();
             List<String> columnList = new ArrayList<>();
@@ -287,14 +282,14 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
     public int queryForCount() throws SQLException {
         BoundSql oriBoundSql = this.buildBoundSqlWithoutPage(dialect());
         BoundSql countSql = ((PageSqlDialect) this.dialect()).countSql(oriBoundSql);
-        return this.getJdbcTemplate().queryForInt(countSql.getSqlString(), countSql.getArgs());
+        return this.getJdbc().queryForInt(countSql.getSqlString(), countSql.getArgs());
     }
 
     @Override
     public long queryForLargeCount() throws SQLException {
         BoundSql oriBoundSql = this.buildBoundSqlWithoutPage(dialect());
         BoundSql countSql = ((PageSqlDialect) this.dialect()).countSql(oriBoundSql);
-        return this.getJdbcTemplate().queryForLong(countSql.getSqlString(), countSql.getArgs());
+        return this.getJdbc().queryForLong(countSql.getSqlString(), countSql.getArgs());
     }
 
     @Override

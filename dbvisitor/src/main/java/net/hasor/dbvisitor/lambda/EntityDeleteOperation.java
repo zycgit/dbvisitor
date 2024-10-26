@@ -29,4 +29,6 @@ public interface EntityDeleteOperation<T> extends               //
         DeleteExecute<EntityDeleteOperation<T>>,                //
         QueryCompare<EntityDeleteOperation<T>, T, SFunction<T>>,//
         EntityQueryCompare<EntityDeleteOperation<T>> {
+
+    MapDeleteOperation asMap();
 }
