@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
+import net.hasor.dbvisitor.lambda.dto.AnnoUserInfoDTO;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.dto.user_info;
@@ -36,6 +38,7 @@ import static net.hasor.test.utils.TestUtils.*;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class LambdaQueryTest extends AbstractDbTest {
+
     @Test
     public void lambda_select_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
@@ -164,6 +167,74 @@ public class LambdaQueryTest extends AbstractDbTest {
             assert lambdaCount1 == 1;
             assert lambdaTemplate.queryBySpace(UserInfo2.class).queryForCount() == 3;
             assert lambdaTemplate.queryBySpace(UserInfo2.class).queryForLargeCount() == 3L;
+        }
+    }
+
+    @Test
+    public void base_1() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambda = new LambdaTemplate(c);
+
+            Map<String, Object> userInfo = lambda.queryBySpace(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad").apply("limit 1")//
+                    .queryForMap();
+            assert userInfo.get("name").equals("默罕默德");
+            assert userInfo.get("loginName").equals("muhammad");
+        }
+    }
+
+    @Test
+    public void base_2() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate1 = new LambdaTemplate(c);
+            Map<String, Object> userInfo1 = lambdaTemplate1.queryBySpace(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad").apply("limit 1")//
+                    .queryForMap();
+            assert userInfo1.get("name").equals("默罕默德");
+            assert userInfo1.get("loginName").equals("muhammad");
+
+            LambdaTemplate lambdaTemplate2 = new LambdaTemplate(c);
+            Map<String, Object> res = lambdaTemplate2.queryBySpace(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad").apply("limit 1").queryForMap();
+            assert res.get("name").equals("默罕默德");
+            assert res.get("loginName").equals("muhammad");
+        }
+    }
+
+    @Test
+    public void base_3() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            Map<String, Object> userInfo = lambdaTemplate.queryBySpace(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad").apply("limit 1")//
+                    .queryForMap();
+            assert userInfo.get("name").equals("默罕默德");
+            assert userInfo.get("loginName").equals("muhammad");
+        }
+    }
+
+    @Test
+    public void base_4() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            Map<String, Object> tbUser = lambdaTemplate.queryBySpace(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad").apply("limit 1")//
+                    .queryForMap();
+            assert tbUser.get("name").equals("默罕默德");
+            assert tbUser.get("loginName").equals("muhammad");
+        }
+    }
+
+    @Test
+    public void base_5() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambdaTemplate = new LambdaTemplate(new JdbcTemplate(c));
+
+            Map<String, Object> tbUser = lambdaTemplate.queryBySpace(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad").apply("limit 1")//
+                    .queryForMap();
+            assert tbUser.get("name").equals("默罕默德");
+            assert tbUser.get("loginName").equals("muhammad");
         }
     }
 }

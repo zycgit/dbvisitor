@@ -21,10 +21,11 @@ import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BatchBoundSql.BatchBoundSqlObj;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
-import net.hasor.dbvisitor.dynamic.args.SqlArgDisposer;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.lambda.EntityInsertOperation;
 import net.hasor.dbvisitor.lambda.InsertOperation;
+import net.hasor.dbvisitor.lambda.MapInsertOperation;
 import net.hasor.dbvisitor.lambda.core.AbstractInsertLambda;
 import net.hasor.dbvisitor.lambda.support.map.InsertLambdaForMap;
 import net.hasor.dbvisitor.mapping.KeySeqHolder;
@@ -41,6 +42,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -48,13 +50,13 @@ import java.util.stream.Collectors;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-04-02
  */
-public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperation<T>, T, SFunction<T>> implements InsertOperation<T> {
+public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperation<T>, T, SFunction<T>> implements EntityInsertOperation<T> {
     public InsertLambdaForEntity(TableMapping<T> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
         super(tableMapping.entityType(), tableMapping, registry, jdbc);
     }
 
     @Override
-    public InsertOperation<Map<String, Object>> asMap() {
+    public MapInsertOperation asMap() {
         return new InsertLambdaForMap(this.getTableMapping(), this.registry, this.jdbc);
     }
 
@@ -70,18 +72,21 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
 
     @Override
     public int[] executeGetResult() throws SQLException {
+        Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
+
         try {
+            SqlDialect dialect = this.dialect();
             List<String> useColumns = this.findInsertColumns();
-            String insertSql = super.buildInsert(this.dialect(), this.primaryKeys, useColumns, this.insertColumnTerms);
+            String insertSql = super.buildInsert(dialect, this.primaryKeys, useColumns, this.insertColumnTerms);
             if (logger.isDebugEnabled()) {
                 logger.trace("Executing SQL statement [" + insertSql + "].");
             }
 
-            TypeHandlerRegistry typeRegistry = this.getJdbc().getRegistry().getTypeRegistry();
+            TypeHandlerRegistry typeRegistry = this.jdbc.getRegistry().getTypeRegistry();
 
             if (this.insertValuesCount.get() > 1) {
-                if (dialect().supportBatch()) {
-                    return this.getJdbc().execute((ConnectionCallback<int[]>) con -> {
+                if (dialect.supportBatch()) {
+                    return this.jdbc.execute((ConnectionCallback<int[]>) con -> {
                         boolean supportGetGeneratedKeys = con != null && con.getMetaData().supportsGetGeneratedKeys();
                         SqlArg[][] batchBoundSql = buildInsertArgs(useColumns, supportGetGeneratedKeys, con);
 
@@ -96,7 +101,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                         return res;
                     });
                 } else {
-                    return this.getJdbc().execute((ConnectionCallback<int[]>) con -> {
+                    return this.jdbc.execute((ConnectionCallback<int[]>) con -> {
                         boolean supportGetGeneratedKeys = con != null && con.getMetaData().supportsGetGeneratedKeys();
                         SqlArg[][] batchBoundSql = buildInsertArgs(useColumns, supportGetGeneratedKeys, con);
                         int[] res = new int[batchBoundSql.length];
@@ -112,7 +117,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                     });
                 }
             } else {
-                return this.getJdbc().execute((ConnectionCallback<int[]>) con -> {
+                return this.jdbc.execute((ConnectionCallback<int[]>) con -> {
                     boolean supportsGetGeneratedKeys = con != null && con.getMetaData().supportsGetGeneratedKeys();
                     SqlArg[][] batchBoundSql = buildInsertArgs(useColumns, supportsGetGeneratedKeys, con);
 
@@ -125,13 +130,8 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                 });
             }
         } finally {
-            for (SqlArgDisposer obj : this.parameterDisposers) {
-                obj.cleanupParameters();
-            }
-
             this.insertValuesCount.set(0);
             this.insertValues.clear();
-            this.parameterDisposers.clear();
             this.fillBackEntityList.clear();
         }
     }
@@ -140,8 +140,17 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
     protected BatchBoundSql buildBoundSql(SqlDialect dialect) {
         try {
             List<String> useColumns = this.findInsertColumns();
-            String insertSql = super.buildInsert(this.dialect(), this.primaryKeys, useColumns, this.insertColumnTerms);
-            SqlArg[][] batchBoundSql = buildInsertArgs(useColumns, false, null);
+            String insertSql = super.buildInsert(dialect, this.primaryKeys, useColumns, this.insertColumnTerms);
+            SqlArg[][] batchBoundSql;
+
+            if (this.jdbc != null) {
+                batchBoundSql = this.jdbc.execute((ConnectionCallback<SqlArg[][]>) con -> {
+                    return buildInsertArgs(useColumns, false, con);
+                });
+            } else {
+                batchBoundSql = buildInsertArgs(useColumns, false, null);
+            }
+
             return new BatchBoundSqlObj(insertSql, batchBoundSql);
         } catch (SQLException e) {
             throw ExceptionUtils.toRuntime(e); // never in effect
@@ -155,15 +164,16 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
 
         InsertEntity entity = this.insertValues.get(0);
         if (entity.isMap) {
-            Map<String, String> entityKeyMap = extractKeysMap((Map) entity.objList.get(0));
+            Map ent = (Map) entity.objList.get(0);
             return this.insertProperties.stream().filter(c -> {
                 KeySeqHolder holder = c.getKeySeqHolder();
-                return entityKeyMap.containsKey(c.getProperty()) || (holder != null && holder.onBefore());
+                return ent.containsKey(c.getProperty()) || (holder != null && holder.onBefore());
             }).map(ColumnMapping::getColumn).collect(Collectors.toList());
         } else {
+            Object ent = entity.objList.get(0);
             return this.insertProperties.stream().filter(c -> {
                 KeySeqHolder holder = c.getKeySeqHolder();
-                return c.getHandler().get(entity.objList.get(0)) != null || (holder != null && holder.onBefore());
+                return c.getHandler().get(ent) != null || (holder != null && holder.onBefore());
             }).map(ColumnMapping::getColumn).collect(Collectors.toList());
         }
     }
@@ -218,12 +228,6 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                 jdbcType = arg == null ? null : TypeHandlerRegistry.toSqlType(arg.getClass());
             }
 
-            if (forExecute) {
-                if (arg instanceof SqlArgDisposer) {
-                    this.parameterDisposers.add((SqlArgDisposer) arg);
-                }
-            }
-
             args[j] = (arg == null) ? null : new SqlArg(arg, jdbcType, null);
         }
         return args;
@@ -239,13 +243,6 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
             processKeySeqHolderBefore(executeConn, mapping, entity, false);
 
             Object arg = mapping.getHandler().get(entity);
-
-            if (forExecute) {
-                if (arg instanceof SqlArgDisposer) {
-                    this.parameterDisposers.add((SqlArgDisposer) arg);
-                }
-            }
-
             args[j] = (arg == null) ? null : new SqlArg(arg, jdbcType, typeHandler);
         }
         return args;

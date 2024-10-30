@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.lambda.segment;
 import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,22 +44,22 @@ public final class MergeSqlSegment implements Segment {
     }
 
     @Override
-    public String getSqlSegment() {
-        return this.getSqlSegment(this.segments);
+    public String getSqlSegment(SqlDialect dialect) {
+        return this.getSqlSegment(dialect, this.segments);
     }
 
     public MergeSqlSegment sub(int form) {
         return new MergeSqlSegment(this.segments.subList(form, this.segments.size()));
     }
 
-    public String noFirstSqlSegment() {
-        return this.getSqlSegment(this.segments.subList(1, this.segments.size()));
+    public String noFirstSqlSegment(SqlDialect dialect) {
+        return this.getSqlSegment(dialect, this.segments.subList(1, this.segments.size()));
     }
 
-    private String getSqlSegment(List<Segment> dataList) {
+    private String getSqlSegment(SqlDialect dialect, List<Segment> dataList) {
         StringBuilder strBuilder = new StringBuilder("");
         for (Segment segment : dataList) {
-            String str = segment.getSqlSegment();
+            String str = segment.getSqlSegment(dialect);
             if (StringUtils.isNotBlank(str)) {
                 strBuilder.append(str).append(" ");
             } else {

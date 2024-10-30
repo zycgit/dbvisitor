@@ -118,7 +118,7 @@ public class PojoCrudTestCase {
             // update user set name = 'new name is abc', age = 120 where id = 1
             lambdaTemplate.updateBySpace(UserTable.class) //
                     .eq(UserTable::getId, 1)//
-                    .updateToMap(newValue)   //
+                    .updateToSampleMap(newValue)   //
                     .doUpdate();
 
             // 校验结果
@@ -168,8 +168,7 @@ public class PojoCrudTestCase {
             // update user set name = 'new name is abc', age = 120 where id = 1
             int i = lambdaTemplate.updateBySpace(UserTable.class) //
                     .eq(UserTable::getId, 1) //
-                    .allowReplaceRow()  // 需要启用整行更新才能使用
-                    .updateTo(newData)  //
+                    .updateRow(newData)  //
                     .doUpdate();
             assert i == 1;
 

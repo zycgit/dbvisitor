@@ -116,7 +116,7 @@ public class DtoCrudTestCase {
             // update user set name = 'new name is abc', age = 120 where id = 1
             lambdaTemplate.updateBySpace(UserTableDTO.class) //
                     .eq(UserTableDTO::getId, 1)//
-                    .updateToMap(newValue)   //
+                    .updateToSampleMap(newValue)   //
                     .doUpdate();
 
             // 校验结果
@@ -164,8 +164,7 @@ public class DtoCrudTestCase {
             // update user set name = 'new name is abc', age = 120 where id = 1
             int i = lambdaTemplate.updateBySpace(UserTableDTO.class) //
                     .eq(UserTableDTO::getId, 1) //
-                    .allowReplaceRow()  // 整行更新需要通过 allowReplaceRow 开启
-                    .updateTo(newData)  //
+                    .updateRow(newData)  //
                     .doUpdate();
             assert i == 1;
 

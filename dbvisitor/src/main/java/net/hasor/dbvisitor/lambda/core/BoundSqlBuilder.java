@@ -15,15 +15,13 @@
  */
 package net.hasor.dbvisitor.lambda.core;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.SqlDialect;
 
 /**
  * 提供 BoundSql 。
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-10-27
  */
+@FunctionalInterface
 public interface BoundSqlBuilder {
     BoundSql getBoundSql();
-
-    BoundSql getBoundSql(SqlDialect dialect);
 }

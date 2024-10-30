@@ -24,7 +24,9 @@ import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.InsertOperation;
+import net.hasor.dbvisitor.lambda.MapInsertOperation;
 import net.hasor.dbvisitor.lambda.core.AbstractInsertLambda;
+import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
@@ -33,7 +35,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,16 +45,14 @@ import java.util.Map;
  * @version : 2022-04-02
  */
 public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map<String, Object>>, Map<String, Object>, String> //
-        implements InsertOperation<Map<String, Object>> {
-    private final boolean toCamelCase;
+        implements MapInsertOperation {
 
     public InsertLambdaForMap(TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
         super(Map.class, tableMapping, registry, jdbc);
-        this.toCamelCase = tableMapping.isToCamelCase();
     }
 
     @Override
-    public InsertOperation<Map<String, Object>> asMap() {
+    public MapInsertOperation asMap() {
         return this;
     }
 
@@ -73,15 +73,15 @@ public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map
         }
 
         InsertEntity entity = this.insertValues.get(0);
-        BoundSqlObj boundSqlObj = this.buildBoundSql(dialect(), (Map) entity.objList.get(0));
+        BoundSqlObj boundSqlObj = this.buildBoundSql(dialect, (Map) entity.objList.get(0));
 
         return new BatchBoundSqlObj(boundSqlObj.getSqlString(), new SqlArg[][] { (SqlArg[]) boundSqlObj.getArgs() });
     }
 
     @Override
     public int[] executeGetResult() throws SQLException {
-        return this.getJdbc().execute((ConnectionCallback<int[]>) con -> {
-            final TypeHandlerRegistry typeRegistry = this.getJdbc().getRegistry().getTypeRegistry();
+        return this.jdbc.execute((ConnectionCallback<int[]>) con -> {
+            final TypeHandlerRegistry typeRegistry = this.registry.getTypeRegistry();
             int[] result = new int[this.insertValuesCount.get()];
 
             int i = 0;
@@ -127,15 +127,26 @@ public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map
     }
 
     protected Map<String, String> extractKeysMap(Map entity) {
-        Map<String, String> propertySet = getTableMapping().isCaseInsensitive() ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
-        for (Object key : entity.keySet()) {
-            String keyStr = key.toString();
-            if (this.toCamelCase) {
-                propertySet.put(keyStr, StringUtils.humpToLine(keyStr));
-            } else {
-                propertySet.put(keyStr, keyStr);
+        if (this.insertProperties.isEmpty()) {
+            TableMapping<?> tableMapping = getTableMapping();
+            Map<String, String> propertySet = tableMapping.isCaseInsensitive() ? new LinkedCaseInsensitiveMap<>() : new LinkedHashMap<>();
+            for (Object key : entity.keySet()) {
+                String keyStr = key.toString();
+                if (tableMapping.isToCamelCase()) {
+                    propertySet.put(keyStr, StringUtils.humpToLine(keyStr));
+                } else {
+                    propertySet.put(keyStr, keyStr);
+                }
             }
+            return propertySet;
+        } else {
+            Map<String, String> propertySet = new LinkedHashMap<>();
+            for (ColumnMapping mapping : this.insertProperties) {
+                if (entity.containsKey(mapping.getProperty())) {
+                    propertySet.put(mapping.getProperty(), mapping.getColumn());
+                }
+            }
+            return propertySet;
         }
-        return propertySet;
     }
 }

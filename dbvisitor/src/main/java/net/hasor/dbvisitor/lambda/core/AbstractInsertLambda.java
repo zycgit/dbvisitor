@@ -19,7 +19,6 @@ import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
-import net.hasor.dbvisitor.dynamic.args.SqlArgDisposer;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.mapping.KeySeqHolder;
@@ -50,10 +49,9 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     protected final List<String>         insertColumns;
     protected final Map<String, String>  insertColumnTerms;
     protected final boolean              hasKeySeqHolderColumn;
-
+    //
     protected final AtomicInteger        insertValuesCount;
     protected final List<InsertEntity>   insertValues;
-    protected final List<SqlArgDisposer> parameterDisposers; // 只有 insert 需要
     protected final List<InsertEntity>   fillBackEntityList;
 
     public AbstractInsertLambda(Class<?> exampleType, TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
@@ -82,7 +80,6 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
         this.insertStrategy = DuplicateKeyStrategy.Into;
         this.primaryKeys = this.getPrimaryKey().stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
         this.hasKeySeqHolderColumn = !this.fillBeforeProperties.isEmpty() || !this.fillAfterProperties.isEmpty();
-        this.parameterDisposers = new LinkedList<>();
         this.fillBackEntityList = new LinkedList<>();
     }
 

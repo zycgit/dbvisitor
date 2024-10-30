@@ -36,7 +36,6 @@ import java.util.*;
  */
 public abstract class BasicLambda<R, T, P> {
     protected static final Logger              logger = LoggerFactory.getLogger(BasicLambda.class);
-    private                boolean             qualifier;
     private final          Class<?>            exampleType;
     private final          boolean             exampleIsMap;
     private final          TableMapping<?>     tableMapping;
@@ -44,7 +43,6 @@ public abstract class BasicLambda<R, T, P> {
     //
     protected final        RegistryManager     registry;
     protected final        JdbcTemplate        jdbc;
-    protected final        SqlDialect          dialect;
 
     public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
         this.exampleType = Objects.requireNonNull(exampleType, "exampleType is null.");
@@ -54,35 +52,18 @@ public abstract class BasicLambda<R, T, P> {
 
         this.registry = Objects.requireNonNull(registry, "registry is null.");
         this.jdbc = jdbc;
-
-        SqlDialect tempDialect = tableMapping.getDialect();
-        this.dialect = (tempDialect == null) ? DefaultSqlDialect.DEFAULT : tempDialect;
-        this.qualifier = tableMapping.useDelimited();
     }
 
     public final Class<?> exampleType() {
         return this.exampleType;
     }
 
-    public R useQualifier() {
-        this.qualifier = true;
-        return this.getSelf();
-    }
-
-    protected final JdbcTemplate getJdbc() {
-        return this.jdbc;
-    }
-
     protected final TableMapping<?> getTableMapping() {
         return this.tableMapping;
     }
 
-    protected final SqlDialect dialect() {
-        return this.dialect;
-    }
-
     protected boolean isQualifier() {
-        return this.qualifier;
+        return this.tableMapping.useDelimited();
     }
 
     protected boolean exampleIsMap() {
@@ -99,61 +80,94 @@ public abstract class BasicLambda<R, T, P> {
         return buildGroupOrderByProperty(true, false, propertyName);
     }
 
-    protected Segment buildConditionByColumn(String columnName) {
-        return () -> dialect().fmtName(isQualifier(), columnName);
-    }
-
     protected Segment buildGroupOrderByProperty(String propertyName) {
         return buildGroupOrderByProperty(false, false, propertyName);
     }
 
     private Segment buildGroupOrderByProperty(boolean isWhere, boolean isSelect, String propertyName) {
-        TableMapping<?> tableMapping = this.getTableMapping();
-        String catalogName = tableMapping.getCatalog();
-        String schemaName = tableMapping.getSchema();
-        String tableName = tableMapping.getTable();
-        ColumnMapping propertyInfo = tableMapping.getPropertyByName(propertyName);
-
-        if (propertyInfo == null) {
-            String tab = this.dialect.tableName(isQualifier(), catalogName, schemaName, tableName);
-            throw new NullPointerException("tableMapping '" + tab + "', property '" + propertyName + "' is not exist.");
-        }
+        ColumnMapping property = this.findPropertyByName(propertyName);
 
         if (!isSelect && isWhere) {
-            String specialWhereCol = propertyInfo.getWhereColTemplate();
+            String specialWhereCol = property.getWhereColTemplate();
             if (StringUtils.isNotBlank(specialWhereCol)) {
-                return () -> specialWhereCol;
+                return d -> specialWhereCol;
             }
         } else if (isSelect && !isWhere) {
-            String specialSelectCol = propertyInfo.getSelectTemplate();
+            String specialSelectCol = property.getSelectTemplate();
             if (StringUtils.isNotBlank(specialSelectCol)) {
-                return () -> specialSelectCol;
+                return d -> specialSelectCol;
             }
         }
 
-        String columnName = propertyInfo.getColumn();
-        return () -> dialect().fmtName(isQualifier(), columnName);
+        String columnName = property.getColumn();
+        return d -> d.fmtName(isQualifier(), columnName);
+    }
+
+    protected ColumnMapping findPropertyByName(String propertyName) {
+        ColumnMapping propertyInfo = this.tableMapping.getPropertyByName(propertyName);
+
+        if (propertyInfo == null) {
+            propertyInfo = this.whenPropertyNotExist(propertyName);
+            if (propertyInfo == null) {
+                String catalogName = tableMapping.getCatalog();
+                String schemaName = this.tableMapping.getSchema();
+                String tableName = this.tableMapping.getTable();
+                StringBuilder strBuilder = new StringBuilder();
+                strBuilder.insert(0, tableName);
+                if (StringUtils.isNotBlank(schemaName)) {
+                    strBuilder.insert(0, schemaName + ".");
+                }
+                if (StringUtils.isNotBlank(catalogName)) {
+                    strBuilder.insert(0, catalogName + ".");
+                }
+                throw new NoSuchElementException("tableMapping '" + strBuilder + "', property '" + propertyName + "' is not exist.");
+            }
+        }
+        return propertyInfo;
+    }
+
+    protected ColumnMapping whenPropertyNotExist(String propertyName) {
+        return null;
+    }
+
+    protected boolean isFreedom() {
+        return false;
     }
 
     protected Map<String, String> extractKeysMap(Map entity) {
-        Map<String, String> propertySet = getTableMapping().isCaseInsensitive() ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
-        for (Object key : entity.keySet()) {
-            String keyStr = key.toString();
-            propertySet.put(keyStr, keyStr);
+        TableMapping<?> tableMapping = getTableMapping();
+        Collection<ColumnMapping> properties = tableMapping.getProperties();
+        if (properties.isEmpty()) {
+            Map<String, String> propertySet = tableMapping.isCaseInsensitive() ? new LinkedCaseInsensitiveMap<>() : new LinkedHashMap<>();
+            for (Object key : entity.keySet()) {
+                String keyStr = key.toString();
+                if (tableMapping.isToCamelCase()) {
+                    propertySet.put(keyStr, StringUtils.humpToLine(keyStr));
+                } else {
+                    propertySet.put(keyStr, keyStr);
+                }
+            }
+            return propertySet;
+        } else {
+            Map<String, String> propertySet = new LinkedHashMap<>();
+            for (ColumnMapping mapping : properties) {
+                propertySet.put(mapping.getProperty(), mapping.getColumn());
+            }
+            return propertySet;
         }
-        return propertySet;
+    }
+
+    protected final SqlDialect dialect() {
+        SqlDialect dialect = this.tableMapping.getDialect();
+        if (dialect != null) {
+            return dialect;
+        } else {
+            return DefaultSqlDialect.DEFAULT;
+        }
     }
 
     public final BoundSql getBoundSql() {
-        return getBoundSql(dialect());
-    }
-
-    public final BoundSql getBoundSql(SqlDialect dialect) {
-        if (dialect == null) {
-            throw new IllegalStateException("dialect is null.");
-        } else {
-            return buildBoundSql(dialect);
-        }
+        return buildBoundSql(dialect());
     }
 
     protected abstract BoundSql buildBoundSql(SqlDialect dialect);

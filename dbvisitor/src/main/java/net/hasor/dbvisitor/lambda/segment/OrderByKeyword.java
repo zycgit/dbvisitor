@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.segment;
+import net.hasor.dbvisitor.dialect.SqlDialect;
+
 /**
  * 排序相关的关键字。
  * @author 赵永春 (zyc@hasor.net)
@@ -31,7 +33,7 @@ public enum OrderByKeyword implements Segment {
     }
 
     @Override
-    public String getSqlSegment() {
+    public String getSqlSegment(SqlDialect dialect) {
         return this.sqlString;
     }
 }

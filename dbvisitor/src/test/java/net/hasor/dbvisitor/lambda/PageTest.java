@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
-import net.hasor.dbvisitor.JdbcUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.SqlDialectRegister;
-import net.hasor.test.AbstractDbTest;
+import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
+import net.hasor.dbvisitor.dynamic.MacroRegistry;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.mapping.MappingOptions;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,12 +40,19 @@ import static net.hasor.test.utils.TestUtils.INSERT_ARRAY;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-3-22
  */
-public class PageTest extends AbstractDbTest {
+public class PageTest {
+
+    private LambdaTemplate newLambda() {
+        MappingRegistry registry = new MappingRegistry(null, new TypeHandlerRegistry(), MappingOptions.buildNew().defaultDialect(new MySqlDialect()));
+        RegistryManager manager = new RegistryManager(registry, new RuleRegistry(), new MacroRegistry());
+        return new LambdaTemplate((DataSource) null, manager);
+    }
+
     @Test
     public void pageTest_1() {
-        BoundSql boundSql = new LambdaTemplate().queryBySpace(UserInfo2.class).select(UserInfo2::getLoginName)//
+        BoundSql boundSql = newLambda().queryBySpace(UserInfo2.class).select(UserInfo2::getLoginName)//
                 .initPage(10, 2)//
-                .getBoundSql(SqlDialectRegister.findOrCreate(JdbcUtils.MYSQL));
+                .getBoundSql();
         assert boundSql.getSqlString().equals("SELECT login_name FROM user_info LIMIT ?, ?");
         assert boundSql.getArgs()[0].equals(20L);
         assert boundSql.getArgs()[1].equals(10L);
@@ -48,11 +60,11 @@ public class PageTest extends AbstractDbTest {
 
     @Test
     public void pageTest_2() {
-        BoundSql boundSql = new LambdaTemplate().queryBySpace(UserInfo2.class).select(UserInfo2::getLoginName)//
+        BoundSql boundSql = newLambda().queryBySpace(UserInfo2.class).select(UserInfo2::getLoginName)//
                 .eq(UserInfo2::getSeq, 1)//
                 .between(UserInfo2::getLoginName, 2, 3)//
                 .initPage(10, 2)//
-                .getBoundSql(SqlDialectRegister.findOrCreate(JdbcUtils.MYSQL));
+                .getBoundSql();
         assert boundSql.getSqlString().equals("SELECT login_name FROM user_info WHERE seq = ? AND login_name BETWEEN ? AND ? LIMIT ?, ?");
         assert boundSql.getArgs()[0].equals(1);
         assert boundSql.getArgs()[1].equals(2);
@@ -63,13 +75,13 @@ public class PageTest extends AbstractDbTest {
 
     @Test
     public void pageTest_3() {
-        BoundSql boundSql1 = new LambdaTemplate().queryBySpace(UserInfo2.class).select(UserInfo2::getLoginName)//
-                .orderBy(UserInfo2::getUid).initPage(5, 0).getBoundSql(SqlDialectRegister.findOrCreate(JdbcUtils.MYSQL));
+        BoundSql boundSql1 = newLambda().queryBySpace(UserInfo2.class).select(UserInfo2::getLoginName)//
+                .orderBy(UserInfo2::getUid).initPage(5, 0).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT login_name FROM user_info ORDER BY user_uuid LIMIT ?");
         assert boundSql1.getArgs()[0].equals(5L);
 
-        BoundSql boundSql2 = new LambdaTemplate().queryBySpace(UserInfo2.class).select(UserInfo2::getLoginName)//
-                .orderBy(UserInfo2::getUid).initPage(5, 1).getBoundSql(SqlDialectRegister.findOrCreate(JdbcUtils.MYSQL));
+        BoundSql boundSql2 = newLambda().queryBySpace(UserInfo2.class).select(UserInfo2::getLoginName)//
+                .orderBy(UserInfo2::getUid).initPage(5, 1).getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT login_name FROM user_info ORDER BY user_uuid LIMIT ?, ?");
         assert boundSql2.getArgs()[0].equals(5L);
         assert boundSql2.getArgs()[1].equals(5L);

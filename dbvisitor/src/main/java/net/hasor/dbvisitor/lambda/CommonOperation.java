@@ -19,8 +19,5 @@ package net.hasor.dbvisitor.lambda;
  * @version : 2022-04-02
  */
 public interface CommonOperation<R> {
-    /** 参考的样本对象 */
     Class<?> exampleType();
-
-    R useQualifier();
 }

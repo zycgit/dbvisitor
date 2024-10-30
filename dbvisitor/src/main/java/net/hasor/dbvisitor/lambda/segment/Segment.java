@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.segment;
+import net.hasor.dbvisitor.dialect.SqlDialect;
+
 /**
  * SQL 片段。
  * @author 赵永春 (zyc@hasor.net)
@@ -22,5 +24,5 @@ package net.hasor.dbvisitor.lambda.segment;
 @FunctionalInterface
 public interface Segment {
     /** 获取 SQL 内容 */
-    String getSqlSegment();
+    String getSqlSegment(SqlDialect dialect);
 }

@@ -22,6 +22,7 @@ import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 import java.sql.SQLException;
+import java.util.Objects;
 
 import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
 
@@ -39,6 +40,8 @@ public abstract class AbstractDeleteLambda<R, T, P> extends BasicQueryCompare<R,
 
     @Override
     public int doDelete() throws SQLException {
+        Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
+
         BoundSql boundSql = getBoundSql();
         String sqlString = boundSql.getSqlString();
 
@@ -46,7 +49,7 @@ public abstract class AbstractDeleteLambda<R, T, P> extends BasicQueryCompare<R,
             logger.trace("Executing SQL statement [" + sqlString + "].");
         }
 
-        return this.getJdbc().executeUpdate(sqlString, boundSql.getArgs());
+        return this.jdbc.executeUpdate(sqlString, boundSql.getArgs());
     }
 
     @Override
@@ -66,12 +69,13 @@ public abstract class AbstractDeleteLambda<R, T, P> extends BasicQueryCompare<R,
         updateTemplate.addSegment(FROM);
 
         // tableName
-        TableMapping<?> tableMapping = this.getTableMapping();
-        String catalogName = tableMapping.getCatalog();
-        String schemaName = tableMapping.getSchema();
-        String tableName = tableMapping.getTable();
-        String fullTableName = dialect.tableName(isQualifier(), catalogName, schemaName, tableName);
-        updateTemplate.addSegment(() -> fullTableName);
+        updateTemplate.addSegment(d -> {
+            TableMapping<?> tableMapping = this.getTableMapping();
+            String catalogName = tableMapping.getCatalog();
+            String schemaName = tableMapping.getSchema();
+            String tableName = tableMapping.getTable();
+            return d.tableName(isQualifier(), catalogName, schemaName, tableName);
+        });
 
         // WHERE
         if (!this.queryTemplate.isEmpty()) {
@@ -81,7 +85,7 @@ public abstract class AbstractDeleteLambda<R, T, P> extends BasicQueryCompare<R,
             throw new UnsupportedOperationException("The dangerous DELETE operation, You must call `allowEmptyWhere()` to enable DELETE ALL.");
         }
 
-        String sqlQuery = updateTemplate.getSqlSegment();
+        String sqlQuery = updateTemplate.getSqlSegment(dialect);
         Object[] args = this.queryParam.toArray().clone();
         return new BoundSql.BoundSqlObj(sqlQuery, args);
     }

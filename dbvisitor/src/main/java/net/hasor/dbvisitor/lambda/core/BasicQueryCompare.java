@@ -100,7 +100,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
         if (StringUtils.isBlank(sqlString)) {
             return this.getSelf();
         }
-        this.queryTemplate.addSegment(() -> {
+        this.queryTemplate.addSegment(d -> {
             if (args != null && args.length > 0) {
                 for (Object arg : args) {
                     format("?", arg);
@@ -137,32 +137,38 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     }
 
     protected Segment formatLikeValue(String property, SqlLike like, Object param) {
-        ColumnMapping mapping = this.getTableMapping().getPropertyByName(property);
+        ColumnMapping mapping = this.findPropertyByName(property);
         String specialValue = mapping.getWhereValueTemplate();
         String colValue = StringUtils.isNotBlank(specialValue) ? specialValue : "?";
 
-        return () -> {
+        return d -> {
             format(colValue, param);
-            return ((ConditionSqlDialect) this.dialect()).like(like, param);
+            return ((ConditionSqlDialect) d).like(like, param);
         };
     }
 
     protected Segment formatValue(String property, Object... params) {
         if (ArrayUtils.isEmpty(params)) {
-            return () -> "";
+            return d -> "";
         }
 
-        ColumnMapping mapping = this.getTableMapping().getPropertyByName(property);
+        ColumnMapping mapping = this.findPropertyByName(property);
         String specialValue = mapping.getWhereValueTemplate();
         String colValue = StringUtils.isNotBlank(specialValue) ? specialValue : "?";
 
         MergeSqlSegment mergeSqlSegment = new MergeSqlSegment();
         Iterator<Object> iterator = Arrays.asList(params).iterator();
         while (iterator.hasNext()) {
-            Object arg = new SqlArg(iterator.next(), mapping.getJdbcType(), exampleIsMap() ? null : mapping.getTypeHandler());
-            mergeSqlSegment.addSegment(formatSegment(colValue, arg));
+            Object arg = iterator.next();
+            SqlArg sqlArg;
+            if (arg instanceof SqlArg) {
+                sqlArg = (SqlArg) arg;
+            } else {
+                sqlArg = new SqlArg(arg, mapping.getJdbcType(), exampleIsMap() ? null : mapping.getTypeHandler());
+            }
+            mergeSqlSegment.addSegment(formatSegment(colValue, sqlArg));
             if (iterator.hasNext()) {
-                mergeSqlSegment.addSegment(() -> ",");
+                mergeSqlSegment.addSegment(d -> ",");
             }
         }
         return mergeSqlSegment;
@@ -170,7 +176,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
 
     protected Segment formatValue(Object... params) {
         if (ArrayUtils.isEmpty(params)) {
-            return () -> "";
+            return d -> "";
         }
 
         String colValue = "?";
@@ -189,14 +195,14 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
             Object arg = new SqlArg(nextArg, sqlType, exampleIsMap() ? null : typeHandler);
             mergeSqlSegment.addSegment(formatSegment(colValue, arg));
             if (iterator.hasNext()) {
-                mergeSqlSegment.addSegment(() -> ",");
+                mergeSqlSegment.addSegment(d -> ",");
             }
         }
         return mergeSqlSegment;
     }
 
     protected Segment formatSegment(String argTemp, Object param) {
-        return () -> format(argTemp, param);
+        return d -> format(argTemp, param);
     }
 
     private String format(String argTemp, Object param) {
@@ -421,15 +427,13 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
             throw new NullPointerException("sample is null.");
         }
 
-        Map<String, String> entityKeyMap = extractKeysMap(sample);
-
         boolean hasCondition = false;
         TableMapping<?> tableMapping = this.getTableMapping();
         if (!tableMapping.getProperties().isEmpty()) {
             // use column def.
             for (ColumnMapping property : tableMapping.getProperties()) {
                 String propertyName = property.getProperty();
-                Object value = sample.get(entityKeyMap.get(propertyName));
+                Object value = sample.get(propertyName);
                 if (value != null) {
                     if (!hasCondition) {
                         this.addCondition(LEFT);
@@ -442,15 +446,15 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
             }
         } else {
             // not found any column.
-            for (String column : sample.keySet()) {
-                Object value = sample.get(column);
+            for (String propertyName : sample.keySet()) {
+                Object value = sample.get(propertyName);
                 if (value != null) {
                     if (!hasCondition) {
                         this.addCondition(LEFT);
                         this.nextSegmentPrefix = EMPTY;
                         hasCondition = true;
                     }
-                    this.addCondition(buildConditionByColumn(column), EQ, formatValue(value));
+                    this.addCondition(buildConditionByProperty(propertyName), EQ, formatValue(value));
                 }
             }
         }

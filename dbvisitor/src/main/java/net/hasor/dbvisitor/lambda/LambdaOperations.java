@@ -25,25 +25,25 @@ public interface LambdaOperations {
     // ----------------------------------------------------------------------------------
 
     /** 相当于 insert ... */
-    default <T> InsertOperation<T> insertBySpace(Class<T> entityType) {
+    default <T> EntityInsertOperation<T> insertBySpace(Class<T> entityType) {
         return this.insertBySpace(entityType, "");
     }
 
     /** 相当于 insert ... */
-    <T> InsertOperation<T> insertBySpace(Class<T> entityType, String space);
+    <T> EntityInsertOperation<T> insertBySpace(Class<T> entityType, String space);
 
     /** 相当于 insert ... */
-    default <T> InsertOperation<T> insertByTable(String table) {
+    default <T> EntityInsertOperation<T> insertByTable(String table) {
         return this.insertByTable(null, null, table, null);
     }
 
     /** 相当于 insert ... */
-    default <T> InsertOperation<T> insertByTable(String catalog, String schema, String table) {
+    default <T> EntityInsertOperation<T> insertByTable(String catalog, String schema, String table) {
         return this.insertByTable(catalog, schema, table, null);
     }
 
     /** 相当于 insert ... */
-    <T> InsertOperation<T> insertByTable(String catalog, String schema, String table, String specifyName);
+    <T> EntityInsertOperation<T> insertByTable(String catalog, String schema, String table, String specifyName);
 
     // ----------------------------------------------------------------------------------
     // Update
@@ -120,4 +120,31 @@ public interface LambdaOperations {
     /** 相当于 select ... */
     <T> EntityQueryOperation<T> queryByTable(String catalog, String schema, String table, String specifyName);
 
+    // ----------------------------------------------------------------------------------
+    //
+    // ----------------------------------------------------------------------------------
+
+    default MapInsertOperation freedomInsert(String table) {
+        return this.freedomInsert(null, null, table);
+    }
+
+    MapInsertOperation freedomInsert(String catalog, String schema, String table);
+
+    default MapUpdateOperation freedomUpdate(String table) {
+        return this.freedomUpdate(null, null, table);
+    }
+
+    MapUpdateOperation freedomUpdate(String catalog, String schema, String table);
+
+    default MapDeleteOperation freedomDelete(String table) {
+        return this.freedomDelete(null, null, table);
+    }
+
+    MapDeleteOperation freedomDelete(String catalog, String schema, String table);
+
+    default MapQueryOperation freedomQuery(String table) {
+        return this.freedomQuery(null, null, table);
+    }
+
+    MapQueryOperation freedomQuery(String catalog, String schema, String table);
 }

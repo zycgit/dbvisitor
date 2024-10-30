@@ -104,7 +104,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
 
         try {
             TableMapping<Object> tableMapping = getMapping();
-            return update.updateToSampleCondition(entity, property -> {
+            return update.updateToSample(entity, property -> {
                 return !tableMapping.getPropertyByName(property).isPrimaryKey();
             }).doUpdate();
         } catch (SQLException e) {
@@ -142,7 +142,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
                 return insert().applyEntity(entity).executeSumResult();
             } else {
                 TableMapping<Object> tableMapping = getMapping();
-                return update.updateToSampleCondition(entity, property -> {
+                return update.updateToSample(entity, property -> {
                     return !tableMapping.getPropertyByName(property).isPrimaryKey();
                 }).doUpdate();
             }
@@ -189,7 +189,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
 
         try {
             TableMapping<Object> tableMapping = getMapping();
-            return update.updateToMapCondition(map, property -> {
+            return update.updateToSampleMap(map, property -> {
                 return !tableMapping.getPropertyByName(property).isPrimaryKey();
             }).doUpdate();
         } catch (SQLException e) {

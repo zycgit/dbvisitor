@@ -45,7 +45,6 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
     protected final Map<String, SqlArg>        updateValueMap;
     private         boolean                    allowEmptyWhere = false;
     private         boolean                    allowUpdateKey  = false;
-    private         boolean                    allowReplaceRow = false;
 
     public AbstractUpdateLambda(Class<?> exampleType, TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
         super(exampleType, tableMapping, registry, jdbc);
@@ -59,7 +58,7 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
             }
         }
 
-        this.updateValueMap = new HashMap<>();
+        this.updateValueMap = new LinkedHashMap<>();
     }
 
     @Override
@@ -81,15 +80,9 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
     }
 
     @Override
-    public R allowReplaceRow() {
-        this.allowReplaceRow = true;
-        return this.getSelf();
-    }
-
-    @Override
     public int doUpdate() throws SQLException {
         if (this.updateValueMap.isEmpty()) {
-            throw new IllegalStateException("Nothing to update.");
+            throw new IllegalStateException("there nothing to update.");
         }
 
         BoundSql boundSql = getBoundSql();
@@ -99,22 +92,23 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
             logger.trace("Executing SQL statement [" + sqlString + "].");
         }
 
-        return this.getJdbc().executeUpdate(sqlString, boundSql.getArgs());
+        Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
+        return this.jdbc.executeUpdate(sqlString, boundSql.getArgs());
     }
 
     @Override
     public R updateToSample(final T newValue) {
-        return updateToSampleCondition(newValue, t -> true);
+        return updateToSample(newValue, t -> true);
     }
 
     @Override
-    public R updateToSampleCondition(T newValue, Predicate<String> condition) {
+    public R updateToSample(T newValue, Predicate<String> condition) {
         if (newValue == null) {
             throw new NullPointerException("newValue is null.");
         }
 
         if (exampleIsMap()) {
-            return this.updateToMapCondition((Map<String, Object>) newValue, condition);
+            return this.updateToSampleMap((Map<String, Object>) newValue, condition);
         }
 
         Map<String, Object> tempData = new HashMap<>();
@@ -125,118 +119,138 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
             }
         }
 
-        return this.updateToByCondition(true, this.allowUpdateKeys, true, s -> {
+        Function<String, String> colName = s -> this.allowUpdateProperties.get(s).getColumn();
+
+        return this.updateToByCondition(this.allowUpdateKeys, true, s -> {
             return tempData.containsKey(s) && condition.test(s);
-        }, tempData::get);
+        }, colName, tempData::get);
     }
 
     @Override
-    public R updateToMap(Map<String, Object> newValue) {
-        return this.updateToMapCondition(newValue, t -> true);
+    public R updateToSampleMap(Map<String, Object> newValue) {
+        return this.updateToSampleMap(newValue, t -> true);
     }
 
     @Override
-    public R updateToMapCondition(Map<String, Object> newValue, Predicate<String> condition) {
+    public R updateToSampleMap(Map<String, Object> newValue, Predicate<String> condition) {
         if (newValue == null) {
             throw new NullPointerException("newValue is null.");
         }
 
         Map<String, String> entityKeyMap = extractKeysMap(newValue);
-        boolean useMapping = !this.allowUpdateProperties.isEmpty();
-        Set<String> keySet = useMapping ? this.allowUpdateKeys : entityKeyMap.keySet();
+        Set<String> keys;
+        if (this.isFreedom()) {
+            keys = entityKeyMap.keySet();
+        } else {
+            keys = new LinkedHashSet<>();
+            for (String key : this.allowUpdateKeys) {
+                if (newValue.containsKey(key)) {
+                    keys.add(key);
+                }
+            }
+            if (keys.isEmpty()) {
+                throw new IllegalStateException("there nothing to update.");
+            }
+        }
 
-        return this.updateToByCondition(useMapping, keySet, true, s -> {
-            return entityKeyMap.containsKey(s) && condition.test(s);
-        }, s -> newValue.get(entityKeyMap.get(s)));
+        return this.updateToByCondition(keys, true, s -> {
+            return condition.test(s) && keys.contains(s);
+        }, entityKeyMap::get, newValue::get);
     }
 
     @Override
-    public R updateTo(T newValue) {
-        return this.updateToCondition(newValue, t -> true);
+    public R updateRow(T newValue) {
+        return this.updateRow(newValue, t -> true);
     }
 
     @Override
-    public R updateToCondition(T newValue, Predicate<String> condition) {
+    public R updateRow(T newValue, Predicate<String> condition) {
         if (newValue == null) {
             throw new NullPointerException("newValue is null.");
         }
 
-        if (!this.allowReplaceRow) {
-            throw new UnsupportedOperationException("The dangerous UPDATE operation, You must call `allowReplaceRow()` to enable REPLACE row.");
-        }
-
         if (exampleIsMap()) {
-            Map<String, Object> newValueMap = (Map<String, Object>) newValue;
-            Map<String, String> entityKeyMap = extractKeysMap((Map) newValue);
-            boolean useMapping = !this.allowUpdateProperties.isEmpty();
-            return this.updateToByCondition(useMapping, entityKeyMap.keySet(), true, condition, s -> newValueMap.get(entityKeyMap.get(s)));
-        } else {
-            return this.updateToByCondition(true, this.allowUpdateKeys, true, condition, createPropertyReaderFunc(newValue));
+            return this.updateRowMap((Map<String, Object>) newValue, condition);
         }
-    }
 
-    @Override
-    public R updateTo(boolean test, P property, Object value) {
-        if (test) {
-            Map<String, Object> newValue = CollectionUtils.asMap(getPropertyName(property), value);
-            Map<String, String> entityKeyMap = extractKeysMap(newValue);
-            boolean useMapping = !exampleIsMap() && !this.allowUpdateProperties.isEmpty();
-
-            if (exampleIsMap()) {
-                return this.updateToByCondition(useMapping, entityKeyMap.keySet(), false, entityKeyMap::containsKey, s -> newValue.get(entityKeyMap.get(s)));
-            } else {
-                return this.updateToByCondition(useMapping, this.allowUpdateKeys, false, entityKeyMap::containsKey, s -> newValue.get(entityKeyMap.get(s)));
-            }
-        } else {
-            return this.getSelf();
-        }
+        Set<String> keys = this.allowUpdateKeys;
+        Function<String, String> colName = s -> this.allowUpdateProperties.get(s).getColumn();
+        return this.updateToByCondition(keys, true, condition, colName, createPropertyReaderFunc(newValue));
     }
 
     private Function<String, Object> createPropertyReaderFunc(T newValue) {
         if (exampleIsMap()) {
             return ((Map) newValue)::get;
         } else {
-            final TableMapping<?> tableMapping = this.getTableMapping();
             return property -> {
-                ColumnMapping propertyReader = tableMapping.getPropertyByName(property);
-                return (propertyReader == null) ? null : propertyReader.getHandler().get(newValue);
+                ColumnMapping reader = this.findPropertyByName(property);
+                return reader.getHandler().get(newValue);
             };
         }
     }
 
-    protected R updateToByCondition(boolean useMapping, Set<String> foreach, boolean doClear, Predicate<String> propertyTester, Function<String, Object> propertyReader) {
+    @Override
+    public R updateRowMap(Map<String, Object> newValue) {
+        return this.updateRowMap(newValue, t -> true);
+    }
+
+    @Override
+    public R updateRowMap(Map<String, Object> newValue, Predicate<String> condition) {
+        if (newValue == null) {
+            throw new NullPointerException("newValue is null.");
+        }
+
+        Map<String, String> entityKeyMap = extractKeysMap(newValue);
+        Set<String> keys = isFreedom() ? entityKeyMap.keySet() : this.allowUpdateKeys;
+        return this.updateToByCondition(keys, true, condition, entityKeyMap::get, newValue::get);
+    }
+
+    @Override
+    public R updateTo(boolean test, P property, Object value) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            Set<String> keys = new HashSet<>(Collections.singletonList(propertyName));
+
+            if (isFreedom()) {
+                String colName = this.getTableMapping().isToCamelCase() ? StringUtils.humpToLine(propertyName) : propertyName;
+
+                Map<String, Object> valMap = CollectionUtils.asMap(propertyName, value);
+                Map<String, String> colMap = CollectionUtils.asMap(propertyName, colName);
+                return this.updateToByCondition(keys, false, keys::contains, colMap::get, valMap::get);
+            }
+
+            if (!this.allowUpdateKeys.contains(propertyName)) {
+                throw new NoSuchElementException("No such property: " + propertyName);
+            }
+
+            ColumnMapping colMapping = this.allowUpdateProperties.get(propertyName);
+            Map<String, Object> valMap = CollectionUtils.asMap(propertyName, value);
+            Map<String, String> colMap = CollectionUtils.asMap(propertyName, colMapping.getColumn());
+            return this.updateToByCondition(keys, false, keys::contains, colMap::get, valMap::get);
+        } else {
+            return this.getSelf();
+        }
+    }
+
+    protected R updateToByCondition(Set<String> foreach, boolean doClear, Predicate<String> tester, Function<String, String> colConvert, Function<String, Object> reader) {
         if (doClear) {
             this.updateValueMap.clear();
         }
 
-        Set<String> updateColumns = new HashSet<>();
-        for (String forItem : foreach) {
-            ColumnMapping mapping;
-            String columnName;
-            String propertyName;
-            Object propertyValue;
-
-            if (useMapping) {
-                mapping = this.allowUpdateProperties.get(forItem);
-                columnName = mapping.getColumn();
-                propertyName = mapping.getProperty();
-            } else {
-                mapping = null;
-                columnName = forItem;
-                propertyName = forItem;
-            }
-
-            if (!propertyTester.test(propertyName)) {
+        Set<String> updateColumns = new LinkedHashSet<>();
+        for (String propertyName : foreach) {
+            if (!tester.test(propertyName)) {
                 continue;
             }
-
+            String columnName = colConvert.apply(propertyName);
             if (updateColumns.contains(columnName)) {
                 throw new IllegalStateException("Multiple property mapping to '" + columnName + "' column");
             } else {
                 updateColumns.add(columnName);
             }
 
-            propertyValue = propertyReader.apply(propertyName);
+            ColumnMapping mapping = this.allowUpdateProperties.get(propertyName);
+            Object propertyValue = reader.apply(propertyName);
             if (mapping != null && mapping.isPrimaryKey() && !this.allowUpdateKey) {
                 if (propertyValue != null) {
                     throw new UnsupportedOperationException("The dangerous UPDATE operation, You must call `allowUpdateKey()` to enable UPDATE PrimaryKey.");
@@ -263,7 +277,7 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
     @Override
     protected BoundSql buildBoundSql(SqlDialect dialect) {
         if (this.updateValueMap.isEmpty()) {
-            throw new IllegalStateException("nothing to update.");
+            throw new IllegalStateException("there nothing to update.");
         }
         // must be clean , The getOriginalBoundSql will reinitialize.
         this.queryParam.clear();
@@ -273,40 +287,41 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
         updateTemplate.addSegment(UPDATE);
 
         // tableName
-        TableMapping<?> tableMapping = this.getTableMapping();
-        String catalogName = tableMapping.getCatalog();
-        String schemaName = tableMapping.getSchema();
-        String tableName = tableMapping.getTable();
-        String table = dialect.tableName(isQualifier(), catalogName, schemaName, tableName);
-        updateTemplate.addSegment(() -> table);
+        updateTemplate.addSegment(d -> {
+            TableMapping<?> tableMapping = this.getTableMapping();
+            String catalogName = tableMapping.getCatalog();
+            String schemaName = tableMapping.getSchema();
+            String tableName = tableMapping.getTable();
+            return d.tableName(isQualifier(), catalogName, schemaName, tableName);
+        });
 
         // SET
         updateTemplate.addSegment(SET);
         boolean isFirstColumn = true;
-        for (String propertyName : updateValueMap.keySet()) {
+        for (String propertyName : this.updateValueMap.keySet()) {
             if (isFirstColumn) {
                 isFirstColumn = false;
             } else {
-                updateTemplate.addSegment(() -> ",");
+                updateTemplate.addSegment(d -> ",");
             }
-
-            ColumnMapping mapping = allowUpdateProperties.get(propertyName);
 
             String colName;
             String colValue;
-            if (mapping != null) {
-                String specialName = mapping.getSetColTemplate();
-                colName = StringUtils.isNotBlank(specialName) ? specialName : dialect.fmtName(isQualifier(), mapping.getColumn());
-
-                String specialValue = mapping.getSetValueTemplate();
-                colValue = StringUtils.isNotBlank(specialValue) ? specialValue : "?";
-            } else {
-                colName = dialect.fmtName(isQualifier(), propertyName);
+            if (this.isFreedom()) {
+                String col = this.getTableMapping().isToCamelCase() ? StringUtils.humpToLine(propertyName) : propertyName;
+                colName = dialect.fmtName(isQualifier(), col);
                 colValue = "?";
+            } else {
+                ColumnMapping mapping = this.allowUpdateProperties.get(propertyName);
+                String specialName = mapping.getSetColTemplate();
+                String specialValue = mapping.getSetValueTemplate();
+
+                colName = StringUtils.isNotBlank(specialName) ? specialName : dialect.fmtName(isQualifier(), mapping.getColumn());
+                colValue = StringUtils.isNotBlank(specialValue) ? specialValue : "?";
             }
 
             Object columnValue = this.updateValueMap.get(propertyName);
-            updateTemplate.addSegment(() -> colName, EQ, formatSegment(colValue, columnValue));
+            updateTemplate.addSegment(d -> colName, EQ, formatSegment(colValue, columnValue));
         }
 
         // WHERE
@@ -317,7 +332,7 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
             throw new UnsupportedOperationException("The dangerous UPDATE operation, You must call `allowEmptyWhere()` to enable UPDATE ALL.");
         }
 
-        String sqlQuery = updateTemplate.getSqlSegment();
+        String sqlQuery = updateTemplate.getSqlSegment(dialect);
         Object[] args = this.queryParam.toArray().clone();
         return new BoundSql.BoundSqlObj(sqlQuery, args);
     }

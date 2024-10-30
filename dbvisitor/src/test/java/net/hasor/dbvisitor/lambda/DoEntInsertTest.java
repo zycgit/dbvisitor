@@ -19,8 +19,8 @@ import net.hasor.cobble.DateFormatType;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.BatchBoundSql;
+import net.hasor.dbvisitor.lambda.dto.AnnoUserInfoDTO;
 import net.hasor.dbvisitor.mapping.MappingOptions;
-import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.AutoId;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.dto.user_info;
@@ -41,10 +41,10 @@ import static net.hasor.test.utils.TestUtils.newID;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-3-22
  */
-public class LambdaInsertTest extends AbstractDbTest {
+public class DoEntInsertTest {
     @Test
     public void lambda_insert_1() throws Throwable {
-        UserInfo2 user1 = new UserInfo2();
+        AnnoUserInfoDTO user1 = new AnnoUserInfoDTO();
         user1.setUid(newID());
         user1.setName("默罕默德");
         user1.setLoginName("muhammad");
@@ -65,13 +65,13 @@ public class LambdaInsertTest extends AbstractDbTest {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             lambdaTemplate.getJdbc().execute("delete from user_info");
 
-            InsertOperation<UserInfo2> lambdaInsert = lambdaTemplate.insertBySpace(UserInfo2.class);
-            lambdaInsert.applyEntity(user1);
-            lambdaInsert.applyMap(user2);
+            InsertOperation<AnnoUserInfoDTO> insert = lambdaTemplate.insertBySpace(AnnoUserInfoDTO.class);
+            insert.applyEntity(user1);
+            insert.applyMap(user2);
 
-            assert lambdaInsert.getBoundSql() instanceof BatchBoundSql;
+            assert insert.getBoundSql() instanceof BatchBoundSql;
 
-            int i = lambdaInsert.executeSumResult();
+            int i = insert.executeSumResult();
             assert i == 2;
 
             List<UserInfo2> tbUsers = lambdaTemplate.queryBySpace(UserInfo2.class).queryForList();

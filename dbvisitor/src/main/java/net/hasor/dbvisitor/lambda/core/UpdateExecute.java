@@ -33,20 +33,17 @@ public interface UpdateExecute<R, T, P> extends BoundSqlBuilder {
     /** 【危险操作】允许更新主键列（主键不应具有业务含义，只是唯一标识数据） */
     R allowUpdateKey();
 
-    /** 【危险操作】允许更新整行（容易引发数据误覆盖） */
-    R allowReplaceRow();
-
     /** 参照 sample 局部更新（只更新对象中属性不为空的） */
     R updateToSample(T sample);
 
     /** 增强 updateToSample 方法，通过 condition 可以进一步过滤某些列是否参与更新 */
-    R updateToSampleCondition(T sample, Predicate<String> condition);
+    R updateToSample(T sample, Predicate<String> condition);
 
     /** 参照 sample 局部更新（只更新 map 中在的列） */
-    R updateToMap(Map<String, Object> sample);
+    R updateToSampleMap(Map<String, Object> sample);
 
     /** 增强 updateToMap 方法，通过 condition 可以进一步过滤某些列是否参与更新 */
-    R updateToMapCondition(Map<String, Object> sample, Predicate<String> condition);
+    R updateToSampleMap(Map<String, Object> sample, Predicate<String> condition);
 
     /** 清空已经设置的所有 set 条件 */
     R resetUpdate();
@@ -56,10 +53,14 @@ public interface UpdateExecute<R, T, P> extends BoundSqlBuilder {
      * - 注意1：主键会被自动忽略不参与更新，如果想变更主键需要启用 allowUpdateKey（需要依赖 @Column 注解标识出主键列）
      * - 注意2：整行更新是危险操作，需要启用 allowReplaceRow
      */
-    R updateTo(T newValue);
+    R updateRow(T newValue);
 
     /** 增强 updateTo 方法，通过 condition 可以进一步过滤某些列是否参与更新 */
-    R updateToCondition(T newValue, Predicate<String> condition);
+    R updateRow(T newValue, Predicate<String> condition);
+
+    R updateRowMap(Map<String, Object> newValue);
+
+    R updateRowMap(Map<String, Object> newValue, Predicate<String> condition);
 
     /** 添加一个 update set 字段 */
     default R updateTo(P property, Object value) {
