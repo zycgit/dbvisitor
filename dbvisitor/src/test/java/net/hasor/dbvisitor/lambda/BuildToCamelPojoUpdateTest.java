@@ -48,7 +48,7 @@ public class BuildToCamelPojoUpdateTest {
     @Test
     public void updateBuilder_bad_1() {
         try {
-            EntityUpdateOperation<UserInfo> lambdaUpdate = newLambda().updateBySpace(UserInfo.class);
+            EntityUpdateOperation<UserInfo> lambdaUpdate = newLambda().updateByEntity(UserInfo.class);
             assert lambdaUpdate.getBoundSql() == null;
             lambdaUpdate.doUpdate();
             assert false;
@@ -57,14 +57,14 @@ public class BuildToCamelPojoUpdateTest {
         }
 
         try {
-            newLambda().updateBySpace(UserInfo.class).updateToSample(null);
+            newLambda().updateByEntity(UserInfo.class).updateToSample(null);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().contains("newValue is null.");
         }
 
         try {
-            EntityUpdateOperation<UserInfo> lambdaUpdate = newLambda().updateBySpace(UserInfo.class).updateRow(new UserInfo());
+            EntityUpdateOperation<UserInfo> lambdaUpdate = newLambda().updateByEntity(UserInfo.class).updateRow(new UserInfo());
             lambdaUpdate.doUpdate();
             assert false;
         } catch (Exception e) {
@@ -75,7 +75,7 @@ public class BuildToCamelPojoUpdateTest {
     @Test
     public void updateBuilder_bad_1_2map() {
         try {
-            MapUpdateOperation lambdaUpdate = newLambda().updateBySpace(UserInfo.class).asMap();
+            MapUpdateOperation lambdaUpdate = newLambda().updateByEntity(UserInfo.class).asMap();
             assert lambdaUpdate.getBoundSql() == null;
             lambdaUpdate.doUpdate();
             assert false;
@@ -84,14 +84,14 @@ public class BuildToCamelPojoUpdateTest {
         }
 
         try {
-            newLambda().updateBySpace(UserInfo.class).updateToSample(null);
+            newLambda().updateByEntity(UserInfo.class).updateToSample(null);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().contains("newValue is null.");
         }
 
         try {
-            MapUpdateOperation lambdaUpdate = newLambda().updateBySpace(UserInfo.class).asMap()//
+            MapUpdateOperation lambdaUpdate = newLambda().updateByEntity(UserInfo.class).asMap()//
                     .updateRow(new HashMap<>());
             lambdaUpdate.doUpdate();
             assert false;
@@ -102,7 +102,7 @@ public class BuildToCamelPojoUpdateTest {
 
     @Test
     public void updateBuilder_bad_2() {
-        EntityUpdateOperation<UserInfo> lambdaUpdate = newLambda().updateBySpace(UserInfo.class);
+        EntityUpdateOperation<UserInfo> lambdaUpdate = newLambda().updateByEntity(UserInfo.class);
         lambdaUpdate.allowEmptyWhere();
 
         try {
@@ -115,7 +115,7 @@ public class BuildToCamelPojoUpdateTest {
 
     @Test
     public void updateBuilder_bad_2_2map() {
-        MapUpdateOperation lambdaUpdate = newLambda().updateBySpace(UserInfo.class).asMap();
+        MapUpdateOperation lambdaUpdate = newLambda().updateByEntity(UserInfo.class).asMap();
         lambdaUpdate.allowEmptyWhere();
 
         try {
@@ -131,7 +131,7 @@ public class BuildToCamelPojoUpdateTest {
         UserInfo data = new UserInfo();
         data.setLoginName("acc");
         data.setPassword("pwd");
-        EntityUpdateOperation<UserInfo> lambdaUpdate = newLambda().updateBySpace(UserInfo.class);
+        EntityUpdateOperation<UserInfo> lambdaUpdate = newLambda().updateByEntity(UserInfo.class);
         lambdaUpdate.and(qb -> qb.eq(UserInfo::getSeq, 123)).updateToSample(data);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -149,7 +149,7 @@ public class BuildToCamelPojoUpdateTest {
         map.put("password", "pwd");
         map.put("abc", "pwd");
 
-        MapUpdateOperation lambdaUpdate = newLambda().updateBySpace(UserInfo.class).asMap();
+        MapUpdateOperation lambdaUpdate = newLambda().updateByEntity(UserInfo.class).asMap();
         lambdaUpdate.and(qb -> qb.eq("seq", 123)).updateToSample(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -165,7 +165,7 @@ public class BuildToCamelPojoUpdateTest {
         UserInfo data = new UserInfo();
         data.setLoginName("acc");
         data.setPassword("pwd");
-        EntityUpdateOperation<UserInfo> lambdaUpdate = newLambda().updateBySpace(UserInfo.class);
+        EntityUpdateOperation<UserInfo> lambdaUpdate = newLambda().updateByEntity(UserInfo.class);
         lambdaUpdate.and(qb -> qb.eq(UserInfo::getSeq, 123)).updateToSample(data);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -183,7 +183,7 @@ public class BuildToCamelPojoUpdateTest {
         map.put("password", "pwd");
         map.put("abc", "pwd");
 
-        MapUpdateOperation lambdaUpdate = newLambda().updateBySpace(UserInfo.class).asMap();
+        MapUpdateOperation lambdaUpdate = newLambda().updateByEntity(UserInfo.class).asMap();
         lambdaUpdate.and(qb -> qb.eq("seq", 123)).updateToSample(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -200,7 +200,7 @@ public class BuildToCamelPojoUpdateTest {
         data.setLoginName("acc");
         data.setPassword("pwd");
 
-        EntityUpdateOperation<UserInfo> lambdaUpdate = newLambda().updateBySpace(UserInfo.class);
+        EntityUpdateOperation<UserInfo> lambdaUpdate = newLambda().updateByEntity(UserInfo.class);
         lambdaUpdate.eq(UserInfo::getLoginName, "admin").and().eq(UserInfo::getPassword, "pass").updateRow(data);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -214,7 +214,7 @@ public class BuildToCamelPojoUpdateTest {
         map.put("password", "pwd");
         map.put("abc", "pwd");
 
-        MapUpdateOperation lambdaUpdate = newLambda().updateBySpace(UserInfo.class).asMap();
+        MapUpdateOperation lambdaUpdate = newLambda().updateByEntity(UserInfo.class).asMap();
         lambdaUpdate.eq("loginName", "admin").and().eq("password", "pass").updateRow(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -238,7 +238,7 @@ public class BuildToCamelPojoUpdateTest {
         setValue.put("create_time", new Date());
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql1 = lambdaTemplate.updateBySpace(UserInfo.class).eqBySampleMap(whereValue).updateToSampleMap(setValue).getBoundSql();
+        BoundSql boundSql1 = lambdaTemplate.updateByEntity(UserInfo.class).eqBySampleMap(whereValue).updateToSampleMap(setValue).getBoundSql();
         assert boundSql1.getSqlString().equals("UPDATE user_info SET name = ? WHERE ( name = ? )");
         assert ((SqlArg) boundSql1.getArgs()[0]).getValue().equals("321");
         assert ((SqlArg) boundSql1.getArgs()[1]).getValue().equals("123");
@@ -261,7 +261,7 @@ public class BuildToCamelPojoUpdateTest {
         setValue.put("create_time", new Date());
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql1 = lambdaTemplate.updateBySpace(UserInfo.class).asMap().eqBySampleMap(whereValue).updateToSampleMap(setValue).getBoundSql();
+        BoundSql boundSql1 = lambdaTemplate.updateByEntity(UserInfo.class).asMap().eqBySampleMap(whereValue).updateToSampleMap(setValue).getBoundSql();
         assert boundSql1.getSqlString().equals("UPDATE user_info SET name = ? WHERE ( name = ? )");
         assert ((SqlArg) boundSql1.getArgs()[0]).getValue().equals("321");
         assert ((SqlArg) boundSql1.getArgs()[1]).getValue().equals("123");

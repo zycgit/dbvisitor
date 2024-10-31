@@ -77,7 +77,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
         try {
             SqlDialect dialect = this.dialect();
             List<String> useColumns = this.findInsertColumns();
-            String insertSql = super.buildInsert(dialect, this.primaryKeys, useColumns, this.insertColumnTerms);
+            String insertSql = super.buildInsert(dialect, this.forBuildPrimaryKeys, useColumns, this.forBuildInsertColumnTerms);
             if (logger.isDebugEnabled()) {
                 logger.trace("Executing SQL statement [" + insertSql + "].");
             }
@@ -140,7 +140,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
     protected BatchBoundSql buildBoundSql(SqlDialect dialect) {
         try {
             List<String> useColumns = this.findInsertColumns();
-            String insertSql = super.buildInsert(dialect, this.primaryKeys, useColumns, this.insertColumnTerms);
+            String insertSql = super.buildInsert(dialect, this.forBuildPrimaryKeys, useColumns, this.forBuildInsertColumnTerms);
             SqlArg[][] batchBoundSql;
 
             if (this.jdbc != null) {
@@ -159,7 +159,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
 
     private List<String> findInsertColumns() {
         if (this.insertValuesCount.get() != 1) {
-            return this.insertColumns;
+            return this.forBuildInsertColumns;
         }
 
         InsertEntity entity = this.insertValues.get(0);
@@ -219,12 +219,11 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
 
             processKeySeqHolderBefore(executeConn, mapping, entity, true);
 
-            Map<String, String> entityKeyMap = extractKeysMap(entity);
             if (mapping != null) {
-                arg = entity.get(entityKeyMap.get(mapping.getProperty()));
+                arg = entity.get(mapping.getProperty());
                 jdbcType = mapping.getJdbcType();
             } else {
-                arg = entity.get(entityKeyMap.get(this.insertColumns.get(j)));
+                arg = entity.get(mapping.getProperty());
                 jdbcType = arg == null ? null : TypeHandlerRegistry.toSqlType(arg.getClass());
             }
 

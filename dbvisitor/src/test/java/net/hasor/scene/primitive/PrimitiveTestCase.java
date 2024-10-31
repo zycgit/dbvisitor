@@ -15,17 +15,17 @@ public class PrimitiveTestCase {
     public void stringTestCase() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate template = new LambdaTemplate(c);
-            template.deleteBySpace(PrimitiveDTO.class).allowEmptyWhere().doDelete();
+            template.deleteByEntity(PrimitiveDTO.class).allowEmptyWhere().doDelete();
 
             PrimitiveDTO dto = new PrimitiveDTO();
             dto.setId(1);
             dto.setIntValue(1);
             dto.setVarcharValue("string 1");
-            template.insertBySpace(PrimitiveDTO.class).applyEntity(dto).executeSumResult();
+            template.insertByEntity(PrimitiveDTO.class).applyEntity(dto).executeSumResult();
             dto.setId(2);
             dto.setIntValue(2);
             dto.setVarcharValue("string 2");
-            template.insertBySpace(PrimitiveDTO.class).applyEntity(dto).executeSumResult();
+            template.insertByEntity(PrimitiveDTO.class).applyEntity(dto).executeSumResult();
 
             // using sql
             List<String> strings1 = template.getJdbc().queryForList("select c_varchar from tb_h2_types order by id asc", String.class);
@@ -33,7 +33,7 @@ public class PrimitiveTestCase {
             assert strings1.get(1).equals("string 2");
 
             // using lambda
-            List<String> strings2 = template.queryBySpace(PrimitiveDTO.class)//
+            List<String> strings2 = template.queryByEntity(PrimitiveDTO.class)//
                     .select(PrimitiveDTO::getVarcharValue)  //
                     .asc(PrimitiveDTO::getId)               //
                     .queryForList(String.class);
@@ -52,17 +52,17 @@ public class PrimitiveTestCase {
     public void intTestCase() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate template = new LambdaTemplate(c);
-            template.deleteBySpace(PrimitiveDTO.class).allowEmptyWhere().doDelete();
+            template.deleteByEntity(PrimitiveDTO.class).allowEmptyWhere().doDelete();
 
             PrimitiveDTO dto = new PrimitiveDTO();
             dto.setId(1);
             dto.setIntValue(10);
             dto.setVarcharValue("string 1");
-            template.insertBySpace(PrimitiveDTO.class).applyEntity(dto).executeSumResult();
+            template.insertByEntity(PrimitiveDTO.class).applyEntity(dto).executeSumResult();
             dto.setId(2);
             dto.setIntValue(20);
             dto.setVarcharValue("string 2");
-            template.insertBySpace(PrimitiveDTO.class).applyEntity(dto).executeSumResult();
+            template.insertByEntity(PrimitiveDTO.class).applyEntity(dto).executeSumResult();
 
             // using sql
             List<Integer> ints1 = template.getJdbc().queryForList("select c_int from tb_h2_types order by id asc", Integer.class);
@@ -70,7 +70,7 @@ public class PrimitiveTestCase {
             assert ints1.get(1).equals(20);
 
             // using lambda
-            List<Integer> ints2 = template.queryBySpace(PrimitiveDTO.class)//
+            List<Integer> ints2 = template.queryByEntity(PrimitiveDTO.class)//
                     .select(PrimitiveDTO::getIntValue)  //
                     .asc(PrimitiveDTO::getId)               //
                     .queryForList(Integer.class);

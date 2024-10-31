@@ -58,9 +58,9 @@ public class TableDef<T> implements TableMapping<T> {
         this.caseInsensitive = caseInsensitive;
         this.mapBased = Map.class.isAssignableFrom(entityType);
         this.columnMappings = new ArrayList<>();
-        this.mapByProperty = (caseInsensitive && Map.class.isAssignableFrom(entityType)) ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
-        this.mapByColumn = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
-        this.mapByColumnForPrimary = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new HashMap<>();
+        this.mapByProperty = (caseInsensitive && Map.class.isAssignableFrom(entityType)) ? new LinkedCaseInsensitiveMap<>() : new LinkedHashMap<>();
+        this.mapByColumn = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new LinkedHashMap<>();
+        this.mapByColumnForPrimary = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new LinkedHashMap<>();
         this.indexList = new ArrayList<>();
         this.mapUnderscoreToCamelCase = mapUnderscoreToCamelCase;
         this.dialect = dialect;
@@ -139,6 +139,11 @@ public class TableDef<T> implements TableMapping<T> {
     @Override
     public Collection<ColumnMapping> getProperties() {
         return this.columnMappings;
+    }
+
+    @Override
+    public Collection<String> getColumns() {
+        return Collections.unmodifiableCollection(this.mapByColumn.keySet());
     }
 
     public void addMapping(ColumnMapping mapping) {

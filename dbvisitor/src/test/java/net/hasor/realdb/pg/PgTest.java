@@ -37,7 +37,7 @@ public class PgTest {
         result.setIllegalRowKey(1L);
         result.setUpdateTime(new Timestamp(System.currentTimeMillis()));
 
-        BoundSql boundSql = lambdaTemplate.insertBySpace(ArchiveValidStatisticsResult.class).applyEntity(result).getBoundSql();
+        BoundSql boundSql = lambdaTemplate.insertByEntity(ArchiveValidStatisticsResult.class).applyEntity(result).getBoundSql();
         System.out.println(boundSql.getSqlString());
     }
 

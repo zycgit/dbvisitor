@@ -98,7 +98,7 @@ public class BasicPojoResultMapTest {
         MappingRegistry registry = new MappingRegistry();
         TableMapping<?> ent1 = registry.loadResultMap(PojoBean1.class);
 
-        TableMapping<?> def1 = registry.findBySpace(PojoBean1.class);
+        TableMapping<?> def1 = registry.findByEntity(PojoBean1.class);
         TableMapping<?> def2 = registry.findBySpace("", PojoBean1.class);
         TableMapping<?> def3 = registry.findBySpace("", PojoBean1.class.getName());
         //TableMapping<?> def4 = registry.findUsingTable("master", "dbo", "blob_resource");
@@ -114,7 +114,7 @@ public class BasicPojoResultMapTest {
         MappingRegistry registry = new MappingRegistry();
         TableMapping<?> ent1 = registry.loadResultMap(PojoBean1.class, "abc", "aac");
 
-        TableMapping<?> def1 = registry.findBySpace(PojoBean1.class);
+        TableMapping<?> def1 = registry.findByEntity(PojoBean1.class);
         TableMapping<?> def2 = registry.findBySpace("", PojoBean1.class);
         TableMapping<?> def3 = registry.findBySpace("", PojoBean1.class.getName());
         //TableMapping<?> def4 = registry.findUsingTable(null, null, "PojoBean1");

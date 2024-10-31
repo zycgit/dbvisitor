@@ -35,10 +35,10 @@ public class JsonColumnLambdaTestCase {
             template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
 
             Project1 project = newProject("abc", Arrays.asList("CN", "EN"));
-            assert template.insertBySpace(Project1.class).applyEntity(project).executeSumResult() == 1;
+            assert template.insertByEntity(Project1.class).applyEntity(project).executeSumResult() == 1;
             assert project.getId() == 1;
 
-            Project1 result = template.queryBySpace(Project1.class).eq(Project1::getId, 1).queryForObject();
+            Project1 result = template.queryByEntity(Project1.class).eq(Project1::getId, 1).queryForObject();
             assert result.getName().equals("abc");
             assert result.getFeature().getAge() == 23;
             assert result.getFeature().getDesc().equals("this is desc");
@@ -55,14 +55,14 @@ public class JsonColumnLambdaTestCase {
             template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
 
             Project1 project = newProject("abc", Arrays.asList("CN", "EN"));
-            template.insertBySpace(Project1.class).applyEntity(project).executeSumResult();
+            template.insertByEntity(Project1.class).applyEntity(project).executeSumResult();
 
             ProjectFeature feature = new ProjectFeature();
             feature.setDesc("this is desc2");
             feature.setTags(Arrays.asList("JP", "FR"));
-            assert 1 == template.updateBySpace(Project1.class).eq(Project1::getId, 1).updateTo(Project1::getFeature, feature).doUpdate();
+            assert 1 == template.updateByEntity(Project1.class).eq(Project1::getId, 1).updateTo(Project1::getFeature, feature).doUpdate();
 
-            Project1 result = template.queryBySpace(Project1.class).eq(Project1::getId, 1).queryForObject();
+            Project1 result = template.queryByEntity(Project1.class).eq(Project1::getId, 1).queryForObject();
             assert result.getName().equals("abc");
             assert result.getFeature().getAge() == null;
             assert result.getFeature().getDesc().equals("this is desc2");
@@ -81,11 +81,11 @@ public class JsonColumnLambdaTestCase {
 
             Project1 project1 = newProject("abc1", Arrays.asList("CN", "EN"));
             Project1 project2 = newProject("abc2", Arrays.asList("JP", "FR"));
-            template.insertBySpace(Project1.class).applyEntity(project1).executeSumResult();
-            template.insertBySpace(Project1.class).applyEntity(project2).executeSumResult();
+            template.insertByEntity(Project1.class).applyEntity(project1).executeSumResult();
+            template.insertByEntity(Project1.class).applyEntity(project2).executeSumResult();
 
             ProjectFeature feature = project2.getFeature();
-            Project1 result = template.queryBySpace(Project1.class).eq(Project1::getFeature, feature).queryForObject();
+            Project1 result = template.queryByEntity(Project1.class).eq(Project1::getFeature, feature).queryForObject();
             assert result.getId() == 2;
             assert result.getName().equals("abc2");
             assert result.getFeature().getAge() == 23;

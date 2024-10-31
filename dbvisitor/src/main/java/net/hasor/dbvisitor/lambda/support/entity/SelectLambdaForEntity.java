@@ -23,7 +23,6 @@ import net.hasor.dbvisitor.lambda.EntityQueryOperation;
 import net.hasor.dbvisitor.lambda.MapQueryOperation;
 import net.hasor.dbvisitor.lambda.core.AbstractSelectLambda;
 import net.hasor.dbvisitor.lambda.support.map.SelectLambdaForMap;
-import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 import java.util.Collection;
@@ -36,11 +35,8 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
  * @version : 2022-04-02
  */
 public class SelectLambdaForEntity<T> extends AbstractSelectLambda<EntityQueryOperation<T>, T, SFunction<T>> implements EntityQueryOperation<T> {
-    protected TableReader<T> tableReader;
-
     public SelectLambdaForEntity(TableMapping<T> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
         super(tableMapping.entityType(), tableMapping, registry, jdbc);
-        this.tableReader = tableMapping.toReader();
     }
 
     @Override
@@ -56,11 +52,6 @@ public class SelectLambdaForEntity<T> extends AbstractSelectLambda<EntityQueryOp
     @Override
     protected String getPropertyName(SFunction<T> property) {
         return BeanUtils.toProperty(property);
-    }
-
-    @Override
-    protected TableReader<T> getTableReader() {
-        return this.tableReader;
     }
 
     @Override

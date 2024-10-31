@@ -18,7 +18,7 @@ public class AutoIdKeyHolderTestCase {
     public void autoUUID32TestCase() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            lambdaTemplate.deleteBySpace(UserDTO_32.class).allowEmptyWhere().doDelete();
+            lambdaTemplate.deleteByEntity(UserDTO_32.class).allowEmptyWhere().doDelete();
 
             UserDTO_32 userData = new UserDTO_32();
             userData.setAge(36);
@@ -26,7 +26,7 @@ public class AutoIdKeyHolderTestCase {
             assert userData.getId() == null;
             assert userData.getName() == null;
 
-            InsertOperation<UserDTO_32> lambdaInsert = lambdaTemplate.insertBySpace(UserDTO_32.class);
+            InsertOperation<UserDTO_32> lambdaInsert = lambdaTemplate.insertByEntity(UserDTO_32.class);
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
 
             assert userData.getId() != null;
@@ -38,7 +38,7 @@ public class AutoIdKeyHolderTestCase {
     public void autoUUID36TestCase() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            lambdaTemplate.deleteBySpace(UserDTO_36.class).allowEmptyWhere().doDelete();
+            lambdaTemplate.deleteByEntity(UserDTO_36.class).allowEmptyWhere().doDelete();
 
             UserDTO_36 userData = new UserDTO_36();
             userData.setAge(36);
@@ -46,7 +46,7 @@ public class AutoIdKeyHolderTestCase {
             assert userData.getId() == null;
             assert userData.getName() == null;
 
-            InsertOperation<UserDTO_36> lambdaInsert = lambdaTemplate.insertBySpace(UserDTO_36.class);
+            InsertOperation<UserDTO_36> lambdaInsert = lambdaTemplate.insertByEntity(UserDTO_36.class);
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
 
             assert userData.getId() != null;
@@ -58,7 +58,7 @@ public class AutoIdKeyHolderTestCase {
     public void autoSeqTestCase() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            lambdaTemplate.deleteBySpace(UserDTO_SEQ.class).allowEmptyWhere().doDelete();
+            lambdaTemplate.deleteByEntity(UserDTO_SEQ.class).allowEmptyWhere().doDelete();
 
             UserDTO_SEQ userData = new UserDTO_SEQ();
             userData.setAge(36);
@@ -66,7 +66,7 @@ public class AutoIdKeyHolderTestCase {
             assert userData.getId() == null;
             assert userData.getName() == null;
 
-            InsertOperation<UserDTO_SEQ> lambdaInsert = lambdaTemplate.insertBySpace(UserDTO_SEQ.class);
+            InsertOperation<UserDTO_SEQ> lambdaInsert = lambdaTemplate.insertByEntity(UserDTO_SEQ.class);
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
 
             assert userData.getId() == 1;
@@ -78,7 +78,7 @@ public class AutoIdKeyHolderTestCase {
     public void myHolderTestCase() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            lambdaTemplate.deleteBySpace(UserDTO_KEYHOLDER.class).allowEmptyWhere().doDelete();
+            lambdaTemplate.deleteByEntity(UserDTO_KEYHOLDER.class).allowEmptyWhere().doDelete();
 
             UserDTO_KEYHOLDER userData = new UserDTO_KEYHOLDER();
             userData.setAge(36);
@@ -86,7 +86,7 @@ public class AutoIdKeyHolderTestCase {
             assert userData.getId() == null;
             assert userData.getName() == null;
 
-            InsertOperation<UserDTO_KEYHOLDER> lambdaInsert = lambdaTemplate.insertBySpace(UserDTO_KEYHOLDER.class);
+            InsertOperation<UserDTO_KEYHOLDER> lambdaInsert = lambdaTemplate.insertByEntity(UserDTO_KEYHOLDER.class);
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
 
             assert userData.getId() == 111111;

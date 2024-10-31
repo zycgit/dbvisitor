@@ -167,7 +167,7 @@ public class BasicXmlResultMapTest {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_2.xml");
 
-        TableMapping<?> def1 = registry.findBySpace(PojoBean1.class);
+        TableMapping<?> def1 = registry.findByEntity(PojoBean1.class);
         TableMapping<?> def2 = registry.findBySpace("resultMap_test", PojoBean1.class);
         TableMapping<?> def3 = registry.findBySpace("resultMap_test", PojoBean1.class.getName());
 
@@ -182,7 +182,7 @@ public class BasicXmlResultMapTest {
         registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_3.xml");
         TableMapping<?> ent1 = registry.findBySpace("abc", "aac");
 
-        TableMapping<?> def1 = registry.findBySpace(PojoBean1.class);
+        TableMapping<?> def1 = registry.findByEntity(PojoBean1.class);
         TableMapping<?> def2 = registry.findBySpace("", PojoBean1.class);
         TableMapping<?> def3 = registry.findBySpace("", PojoBean1.class.getName());
 

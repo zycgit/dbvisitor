@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
-import net.hasor.dbvisitor.jdbc.mapper.MappingRowMapper;
+import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
 import net.hasor.scene.UserNameResultSetExtractor;
 import net.hasor.scene.UserNameRowCallback;
 import net.hasor.scene.UserNameRowMapper;
@@ -99,7 +99,7 @@ public class ExecuteCreatorTest extends AbstractDbTest {
 
             List<UserInfo2> users = jdbcTemplate.executeCreator(con -> {
                 return con.prepareStatement("select * from user_info");
-            }, new MappingRowMapper<>(UserInfo2.class));
+            }, new BeanMappingRowMapper<>(UserInfo2.class));
             assert users.size() == 3;
             assert TestUtils.beanForData1().getUserUuid().equals(users.get(0).getUid());
             assert TestUtils.beanForData2().getUserUuid().equals(users.get(1).getUid());
@@ -116,7 +116,7 @@ public class ExecuteCreatorTest extends AbstractDbTest {
             jdbcTemplate.executeCreator(con -> {
                 return con.prepareStatement("select * from user_info");
             }, (rs, rowNum) -> {
-                users.add(new MappingRowMapper<>(UserInfo2.class).mapRow(rs, rowNum));
+                users.add(new BeanMappingRowMapper<>(UserInfo2.class).mapRow(rs, rowNum));
             });
             assert users.size() == 3;
             assert TestUtils.beanForData1().getUserUuid().equals(users.get(0).getUid());

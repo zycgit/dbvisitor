@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 package net.hasor.test.mapper;
-import net.hasor.dbvisitor.jdbc.mapper.MappingRowMapper;
+import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.test.dto.ProcedureTestUserDTO;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-12-10
  */
-public class ProcedureTestUserDTOMapper extends MappingRowMapper<ProcedureTestUserDTO> {
+public class ProcedureTestUserDTOMapper extends BeanMappingRowMapper<ProcedureTestUserDTO> {
     public ProcedureTestUserDTOMapper() {
-        super(ProcedureTestUserDTO.class);
+        super(ProcedureTestUserDTO.class, MappingRegistry.DEFAULT);
     }
 }

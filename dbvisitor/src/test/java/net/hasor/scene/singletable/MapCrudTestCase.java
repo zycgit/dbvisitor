@@ -317,7 +317,7 @@ public class MapCrudTestCase {
             assert res == 10;
 
             // 校验结果
-            EntityQueryOperation<UserTableDTO> lambdaQuery = lambdaTemplate.queryBySpace(UserTableDTO.class);
+            EntityQueryOperation<UserTableDTO> lambdaQuery = lambdaTemplate.queryByEntity(UserTableDTO.class);
             List<UserTableDTO> resultData = lambdaQuery.likeRight(UserTableDTO::getName, "default user ").queryForList();
             List<String> result = resultData.stream().map(UserTableDTO::getName).collect(Collectors.toList());
             assert result.size() == 10;

@@ -69,5 +69,10 @@ public interface InsertExecute<R, T> extends BoundSqlBuilder {
     }
 
     /** 批量插入记录 */
+    default R applyMap(Map<String, Object>... entity) throws SQLException {
+        return applyMap(Arrays.asList(entity));
+    }
+
+    /** 批量插入记录 */
     R applyMap(List<Map<String, Object>> entityList) throws SQLException;
 }

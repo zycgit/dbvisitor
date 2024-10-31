@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
-import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 import net.hasor.dbvisitor.mapping.KeySeqHolder;
@@ -41,14 +41,16 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
  * @version : 2020-10-27
  */
 public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P> implements InsertExecute<R, T> {
+    protected final List<ColumnMapping>  primaryKeys;
     protected final List<ColumnMapping>  insertProperties;
     protected final List<ColumnMapping>  fillBeforeProperties;
     protected final List<ColumnMapping>  fillAfterProperties;
     protected       DuplicateKeyStrategy insertStrategy;
-    protected final List<String>         primaryKeys;
-    protected final List<String>         insertColumns;
-    protected final Map<String, String>  insertColumnTerms;
     protected final boolean              hasKeySeqHolderColumn;
+    //
+    protected final List<String>         forBuildPrimaryKeys;
+    protected final List<String>         forBuildInsertColumns;
+    protected final Map<String, String>  forBuildInsertColumnTerms;
     //
     protected final AtomicInteger        insertValuesCount;
     protected final List<InsertEntity>   insertValues;
@@ -57,37 +59,44 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     public AbstractInsertLambda(Class<?> exampleType, TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
         super(exampleType, tableMapping, registry, jdbc);
 
+        this.primaryKeys = new ArrayList<>();
         this.insertProperties = new ArrayList<>();
         this.fillBeforeProperties = new ArrayList<>();
         this.fillAfterProperties = new ArrayList<>();
-        initProperties(this.insertProperties, this.fillBeforeProperties, this.fillAfterProperties);
+        initProperties(this.primaryKeys, this.insertProperties, this.fillBeforeProperties, this.fillAfterProperties);
+
+        this.forBuildPrimaryKeys = this.primaryKeys.stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
+        this.forBuildInsertColumns = new ArrayList<>();
+        this.forBuildInsertColumnTerms = new LinkedHashMap<>();
+        for (ColumnMapping m : this.insertProperties) {
+            this.forBuildInsertColumns.add(m.getColumn());
+            this.forBuildInsertColumnTerms.put(m.getColumn(), m.getInsertTemplate());
+        }
 
         if (!tableMapping.isMapEntity() && this.insertProperties.isEmpty()) {
             throw new IllegalStateException("no column require INSERT.");
         }
 
-        this.insertColumns = new ArrayList<>();
-        this.insertColumnTerms = new LinkedHashMap<>();
-        for (ColumnMapping colMap : this.insertProperties) {
-            this.insertColumns.add(colMap.getColumn());
-            if (StringUtils.isNotBlank(colMap.getInsertTemplate())) {
-                this.insertColumnTerms.put(colMap.getColumn(), colMap.getInsertTemplate());
-            }
-        }
-
         this.insertValuesCount = new AtomicInteger(0);
         this.insertValues = new LinkedList<>();
         this.insertStrategy = DuplicateKeyStrategy.Into;
-        this.primaryKeys = this.getPrimaryKey().stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
         this.hasKeySeqHolderColumn = !this.fillBeforeProperties.isEmpty() || !this.fillAfterProperties.isEmpty();
         this.fillBackEntityList = new LinkedList<>();
     }
 
-    protected void initProperties(List<ColumnMapping> insert, List<ColumnMapping> fillBefore, List<ColumnMapping> fillAfter) {
+    protected void initProperties(List<ColumnMapping> primaryKeys, List<ColumnMapping> insert, List<ColumnMapping> fillBefore, List<ColumnMapping> fillAfter) {
         TableMapping<?> tableMapping = this.getTableMapping();
-        Set<String> insertColumns = new HashSet<>();
 
-        for (ColumnMapping mapping : tableMapping.getProperties()) {
+        for (String column : tableMapping.getColumns()) {
+            ColumnMapping mapping = tableMapping.getPrimaryPropertyByColumn(column);
+            if (mapping == null) {
+                List<ColumnMapping> properties = tableMapping.getPropertyByColumn(column);
+                throw new RuntimeSQLException("conflict, there are " + properties.size() + " properties mapping the same column '" + column + "', and not declare primary.");
+            }
+            if (!mapping.isInsert()) {
+                continue;
+            }
+
             KeySeqHolder keySeqHolder = mapping.getKeySeqHolder();
             if (keySeqHolder != null) {
                 if (keySeqHolder.onBefore()) {
@@ -98,15 +107,10 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
                 }
             }
 
-            String columnName = mapping.getColumn();
-            if (!mapping.isInsert()) {
-                continue;
-            }
-
-            if (insertColumns.contains(columnName)) {
-                throw new IllegalStateException("Multiple property mapping to '" + columnName + "' column");
+            if (mapping.isPrimaryKey()) {
+                primaryKeys.add(mapping);
+                insert.add(mapping);
             } else {
-                insertColumns.add(columnName);
                 insert.add(mapping);
             }
         }

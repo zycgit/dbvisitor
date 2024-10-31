@@ -18,6 +18,9 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
+import net.hasor.dbvisitor.dal.reader.BeanTableReader;
+import net.hasor.dbvisitor.dal.reader.ResultTableReader;
+import net.hasor.dbvisitor.dal.reader.TableReader;
 import net.hasor.dbvisitor.dal.repository.ResultSetType;
 import net.hasor.dbvisitor.dal.repository.parser.xmlnode.DmlSqlConfig;
 import net.hasor.dbvisitor.dal.repository.parser.xmlnode.InsertSqlConfig;
@@ -28,9 +31,7 @@ import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.SqlMode;
-import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.mapping.reader.ResultTableReader;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
@@ -163,7 +164,7 @@ public abstract class AbstractStatementExecute<T> {
 
                 TableMapping<?> tableMapping = this.context.findTableMapping(resultMapSplit[i]);
                 if (tableMapping != null) {
-                    tableReaders[i] = tableMapping.toReader();
+                    tableReaders[i] = new BeanTableReader<>(tableMapping);
                 } else {
                     throw new NoSuchElementException("not found resultMap '" + resultMapSplit[i] + "' of '" + executeInfo.resultMap + "'");
                 }

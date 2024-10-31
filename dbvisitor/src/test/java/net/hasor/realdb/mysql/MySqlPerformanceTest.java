@@ -26,7 +26,7 @@ public class MySqlPerformanceTest {
 
     private void initData(Connection con, int count) throws SQLException {
         LambdaTemplate lambdaTemplate = new LambdaTemplate(con);
-        InsertOperation<UserInfo2> lambdaInsert = lambdaTemplate.insertBySpace(UserInfo2.class);
+        InsertOperation<UserInfo2> lambdaInsert = lambdaTemplate.insertByEntity(UserInfo2.class);
         for (int i = 0; i < count; i++) {
             UserInfo2 tbUser = new UserInfo2();
             tbUser.setUid("id_" + i);
@@ -55,9 +55,9 @@ public class MySqlPerformanceTest {
             reinit(con);
             initData(con, 2000);
             //
-            int tbUsersCount = lambdaTemplate.queryBySpace(UserInfo2.class).queryForCount();
+            int tbUsersCount = lambdaTemplate.queryByEntity(UserInfo2.class).queryForCount();
             System.out.println("query for list/map.");
-            lambdaTemplate.queryBySpace(UserInfo2.class).queryForMapList();
+            lambdaTemplate.queryByEntity(UserInfo2.class).queryForMapList();
             assert tbUsersCount == 2000;
             System.out.println("cost: " + (System.currentTimeMillis() - t));
         }
@@ -72,9 +72,9 @@ public class MySqlPerformanceTest {
             reinit(con);
             initData(con, 1000);
             //
-            int tbUsersCount = lambdaTemplate.queryBySpace(UserInfo2.class).queryForCount();
+            int tbUsersCount = lambdaTemplate.queryByEntity(UserInfo2.class).queryForCount();
             System.out.println("query for list/map.");
-            lambdaTemplate.queryBySpace(UserInfo2.class).queryForMapList();
+            lambdaTemplate.queryByEntity(UserInfo2.class).queryForMapList();
             assert tbUsersCount == 1000;
             System.out.println("cost: " + (System.currentTimeMillis() - t));
         }

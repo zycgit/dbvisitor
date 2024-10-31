@@ -40,22 +40,22 @@ public interface BaseMapper<T> extends Mapper {
 
     /** return LambdaInsert for insert */
     default InsertOperation<T> insert() {
-        return template().insertBySpace(entityType());
+        return template().insertByEntity(entityType());
     }
 
     /** return LambdaDelete for delete */
     default EntityDeleteOperation<T> delete() {
-        return template().deleteBySpace(entityType());
+        return template().deleteByEntity(entityType());
     }
 
     /** return LambdaUpdate for update */
     default EntityUpdateOperation<T> update() {
-        return template().updateBySpace(entityType());
+        return template().updateByEntity(entityType());
     }
 
     /** return LambdaQuery for query */
     default EntityQueryOperation<T> query() {
-        return template().queryBySpace(entityType());
+        return template().queryByEntity(entityType());
     }
 
     /** 执行 Mapper 配置文件中的 SQL */

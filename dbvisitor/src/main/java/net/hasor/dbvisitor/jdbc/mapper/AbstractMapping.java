@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping.reader;
-import net.hasor.dbvisitor.mapping.TableReader;
+package net.hasor.dbvisitor.jdbc.mapper;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -22,26 +22,45 @@ import net.hasor.dbvisitor.types.TypeHandler;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * 基于 TableMapping 的 TableReader 实现。
+ * 用于 POJO 的 RowMapper，带有 ORM 能力
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-04-13
+ * @version : 2020-10-31
  */
-@Deprecated
-public class BeanTableReader<T> implements TableReader<T> {
-    private final TableMapping<T> tableMapping;
+public abstract class AbstractMapping<T> {
+    protected final TableMapping<?> tableMapping;
 
-    /** Create a new TableReader. */
-    public BeanTableReader(TableMapping<T> tableMapping) {
+    /**
+     * 创建 {@link AbstractMapping} 对象
+     * @param entityType 类型
+     */
+    public AbstractMapping(final Class<?> entityType, MappingRegistry registry) {
+        Objects.requireNonNull(entityType, "entityType is required");
+        TableMapping<?> tableMapping = registry.findByEntity(entityType);
+        if (tableMapping == null) {
+            if (MappingRegistry.isEntity(entityType)) {
+                tableMapping = registry.loadEntityToSpace(entityType);
+            } else {
+                tableMapping = registry.loadResultMap(entityType);
+            }
+        }
         this.tableMapping = tableMapping;
     }
 
-    @Override
-    public T extractRow(List<String> columns, ResultSet rs, int rowNum) throws SQLException {
+    /**
+     * 创建 {@link AbstractMapping} 对象
+     * @param tableMapping 类型
+     */
+    public AbstractMapping(TableMapping<?> tableMapping) {
+        this.tableMapping = Objects.requireNonNull(tableMapping, "tableMapping is null.");
+    }
+
+    protected T extractRow(List<String> columns, ResultSet rs, int rowNum) throws SQLException {
         T target;
         try {
-            target = this.tableMapping.entityType().newInstance();
+            target = (T) this.tableMapping.entityType().newInstance();
         } catch (Exception e) {
             throw new SQLException("newInstance " + this.tableMapping.entityType().getName() + " failed.", e);
         }

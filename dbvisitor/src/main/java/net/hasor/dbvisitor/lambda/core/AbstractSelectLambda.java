@@ -23,17 +23,18 @@ import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.RowMapper;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.jdbc.mapper.MappingResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.extractor.BeanMappingResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.extractor.MapMappingResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
+import net.hasor.dbvisitor.jdbc.mapper.MapMappingRowMapper;
 import net.hasor.dbvisitor.jdbc.mapper.SingleColumnRowMapper;
 import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.lambda.segment.OrderByKeyword;
 import net.hasor.dbvisitor.lambda.segment.Segment;
-import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -213,7 +214,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
         Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
 
         BoundSql boundSql = getBoundSql();
-        ResultSetExtractor<List<T>> extractor = new MappingResultSetExtractor<>(getTableReader());
+        ResultSetExtractor<List<T>> extractor = new BeanMappingResultSetExtractor<>(this.getTableMapping());
         return this.jdbc.query(boundSql.getSqlString(), boundSql.getArgs(), extractor);
     }
 
@@ -222,16 +223,16 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
         Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
 
         BoundSql boundSql = getBoundSql();
-        TableMapping<AS> tabMapping = this.registry.getMappingRegistry().findBySpace(asType);
         ResultSetExtractor<?> extractor;
-        if (Map.class == asType || Map.class.isAssignableFrom(asType)) {
-            extractor = new MappingResultSetExtractor<>(tabMapping.toMapReader());
+
+        if (Map.class == asType) {
+            extractor = new MapMappingResultSetExtractor(this.getTableMapping());
         } else {
-            TypeHandlerRegistry typeRegistry = this.jdbc.getRegistry().getTypeRegistry();
+            TypeHandlerRegistry typeRegistry = this.registry.getTypeRegistry();
             if (typeRegistry.hasTypeHandler(asType)) {
                 return this.jdbc.queryForList(boundSql.getSqlString(), boundSql.getArgs(), new SingleColumnRowMapper<>(asType, typeRegistry));
             } else {
-                extractor = new MappingResultSetExtractor<>(tabMapping.toReader());
+                extractor = new BeanMappingResultSetExtractor<>(asType, this.registry.getMappingRegistry());
             }
         }
 
@@ -243,7 +244,7 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
         Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
 
         BoundSql boundSql = getBoundSql();
-        ResultSetExtractor<List<Map<String, Object>>> extractor = new MappingResultSetExtractor<>(getTableMapping().toMapReader());
+        ResultSetExtractor<List<Map<String, Object>>> extractor = new MapMappingResultSetExtractor(this.getTableMapping());
         return this.jdbc.query(boundSql.getSqlString(), boundSql.getArgs(), extractor);
     }
 
@@ -252,45 +253,17 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
         Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
 
         BoundSql boundSql = getBoundSql();
-        TableReader<Map<String, Object>> mapReader = getTableMapping().toMapReader();
-        return this.jdbc.queryForObject(boundSql.getSqlString(), boundSql.getArgs(), (rs, rowNum) -> {
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int nrOfColumns = rsmd.getColumnCount();
-            List<String> columnList = new ArrayList<>();
-            for (int i = 1; i <= nrOfColumns; i++) {
-                String name = rsmd.getColumnLabel(i);
-                if (name == null || name.isEmpty()) {
-                    name = rsmd.getColumnName(i);
-                }
-                columnList.add(name);
-            }
-
-            return mapReader.extractRow(columnList, rs, rowNum);
-        });
+        RowMapper<Map<String, Object>> rowMapper = new MapMappingRowMapper(getTableMapping());
+        return this.jdbc.queryForObject(boundSql.getSqlString(), boundSql.getArgs(), rowMapper);
     }
-
-    protected abstract TableReader<T> getTableReader();
 
     @Override
     public T queryForObject() throws SQLException {
         Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
 
-        TableReader<T> tableReader = getTableReader();
         BoundSql boundSql = getBoundSql();
-        return this.jdbc.queryForObject(boundSql.getSqlString(), boundSql.getArgs(), (rs, rowNum) -> {
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int nrOfColumns = rsmd.getColumnCount();
-            List<String> columnList = new ArrayList<>();
-            for (int i = 1; i <= nrOfColumns; i++) {
-                String colName = rsmd.getColumnLabel(i);
-                if (colName == null || colName.isEmpty()) {
-                    colName = rsmd.getColumnName(i);
-                }
-                columnList.add(colName);
-            }
-
-            return tableReader.extractRow(columnList, rs, rowNum);
-        });
+        RowMapper<T> rowMapper = new BeanMappingRowMapper<>(getTableMapping());
+        return this.jdbc.queryForObject(boundSql.getSqlString(), boundSql.getArgs(), rowMapper);
     }
 
     @Override

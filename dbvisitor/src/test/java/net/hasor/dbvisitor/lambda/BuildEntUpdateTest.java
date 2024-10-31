@@ -47,7 +47,7 @@ public class BuildEntUpdateTest {
     @Test
     public void updateBuilder_bad_1() {
         try {
-            EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = newLambda().updateBySpace(AnnoUserInfoDTO.class);
+            EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = newLambda().updateByEntity(AnnoUserInfoDTO.class);
             assert lambdaUpdate.getBoundSql() == null;
             lambdaUpdate.doUpdate();
             assert false;
@@ -56,7 +56,7 @@ public class BuildEntUpdateTest {
         }
 
         try {
-            new LambdaTemplate().updateBySpace(AnnoUserInfoDTO.class).updateToSample(null);
+            new LambdaTemplate().updateByEntity(AnnoUserInfoDTO.class).updateToSample(null);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().contains("newValue is null.");
@@ -64,7 +64,7 @@ public class BuildEntUpdateTest {
 
         try {
             EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = new LambdaTemplate()//
-                    .updateBySpace(AnnoUserInfoDTO.class)//
+                    .updateByEntity(AnnoUserInfoDTO.class)//
                     .updateRow(new AnnoUserInfoDTO());
             lambdaUpdate.doUpdate();
             assert false;
@@ -76,7 +76,7 @@ public class BuildEntUpdateTest {
     @Test
     public void updateBuilder_bad_1_2map() {
         try {
-            MapUpdateOperation lambdaUpdate = newLambda().updateBySpace(AnnoUserInfoDTO.class).asMap();
+            MapUpdateOperation lambdaUpdate = newLambda().updateByEntity(AnnoUserInfoDTO.class).asMap();
             assert lambdaUpdate.getBoundSql() == null;
             lambdaUpdate.doUpdate();
             assert false;
@@ -85,14 +85,14 @@ public class BuildEntUpdateTest {
         }
 
         try {
-            new LambdaTemplate().updateBySpace(AnnoUserInfoDTO.class).updateToSample(null);
+            new LambdaTemplate().updateByEntity(AnnoUserInfoDTO.class).updateToSample(null);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().contains("newValue is null.");
         }
 
         try {
-            MapUpdateOperation lambdaUpdate = new LambdaTemplate().updateBySpace(AnnoUserInfoDTO.class).asMap()//
+            MapUpdateOperation lambdaUpdate = new LambdaTemplate().updateByEntity(AnnoUserInfoDTO.class).asMap()//
                     .updateRow(new HashMap<>());
             lambdaUpdate.doUpdate();
             assert false;
@@ -103,7 +103,7 @@ public class BuildEntUpdateTest {
 
     @Test
     public void updateBuilder_bad_2() {
-        EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = newLambda().updateBySpace(AnnoUserInfoDTO.class);
+        EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = newLambda().updateByEntity(AnnoUserInfoDTO.class);
         lambdaUpdate.allowEmptyWhere();
 
         try {
@@ -116,7 +116,7 @@ public class BuildEntUpdateTest {
 
     @Test
     public void updateBuilder_bad_2_2map() {
-        MapUpdateOperation lambdaUpdate = newLambda().updateBySpace(AnnoUserInfoDTO.class).asMap();
+        MapUpdateOperation lambdaUpdate = newLambda().updateByEntity(AnnoUserInfoDTO.class).asMap();
         lambdaUpdate.allowEmptyWhere();
 
         try {
@@ -132,7 +132,7 @@ public class BuildEntUpdateTest {
         AnnoUserInfoDTO data = new AnnoUserInfoDTO();
         data.setLoginName("acc");
         data.setPassword("pwd");
-        EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = new LambdaTemplate().updateBySpace(AnnoUserInfoDTO.class);
+        EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = new LambdaTemplate().updateByEntity(AnnoUserInfoDTO.class);
         lambdaUpdate.and(qb -> qb.eq(AnnoUserInfoDTO::getSeq, 123)).updateToSample(data);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -150,7 +150,7 @@ public class BuildEntUpdateTest {
         map.put("password", "pwd");
         map.put("abc", "pwd");
 
-        MapUpdateOperation lambdaUpdate = new LambdaTemplate().updateBySpace(AnnoUserInfoDTO.class).asMap();
+        MapUpdateOperation lambdaUpdate = new LambdaTemplate().updateByEntity(AnnoUserInfoDTO.class).asMap();
         lambdaUpdate.and(qb -> qb.eq("seq", 123)).updateToSample(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -166,7 +166,7 @@ public class BuildEntUpdateTest {
         AnnoUserInfoDTO data = new AnnoUserInfoDTO();
         data.setLoginName("acc");
         data.setPassword("pwd");
-        EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = new LambdaTemplate().updateBySpace(AnnoUserInfoDTO.class);
+        EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = new LambdaTemplate().updateByEntity(AnnoUserInfoDTO.class);
         lambdaUpdate.and(qb -> qb.eq(AnnoUserInfoDTO::getSeq, 123)).updateToSample(data);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -184,7 +184,7 @@ public class BuildEntUpdateTest {
         map.put("password", "pwd");
         map.put("abc", "pwd");
 
-        MapUpdateOperation lambdaUpdate = new LambdaTemplate().updateBySpace(AnnoUserInfoDTO.class).asMap();
+        MapUpdateOperation lambdaUpdate = new LambdaTemplate().updateByEntity(AnnoUserInfoDTO.class).asMap();
         lambdaUpdate.and(qb -> qb.eq("seq", 123)).updateToSample(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -201,7 +201,7 @@ public class BuildEntUpdateTest {
         data.setLoginName("acc");
         data.setPassword("pwd");
 
-        EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = new LambdaTemplate().updateBySpace(AnnoUserInfoDTO.class);
+        EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = new LambdaTemplate().updateByEntity(AnnoUserInfoDTO.class);
         lambdaUpdate.eq(AnnoUserInfoDTO::getLoginName, "admin").and().eq(AnnoUserInfoDTO::getPassword, "pass").updateRow(data);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -215,7 +215,7 @@ public class BuildEntUpdateTest {
         map.put("password", "pwd");
         map.put("abc", "pwd");
 
-        MapUpdateOperation lambdaUpdate = new LambdaTemplate().updateBySpace(AnnoUserInfoDTO.class).asMap();
+        MapUpdateOperation lambdaUpdate = new LambdaTemplate().updateByEntity(AnnoUserInfoDTO.class).asMap();
         lambdaUpdate.eq("loginName", "admin").and().eq("password", "pass").updateRow(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -239,7 +239,7 @@ public class BuildEntUpdateTest {
         setValue.put("create_time", new Date());
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql1 = lambdaTemplate.updateBySpace(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = lambdaTemplate.updateByEntity(AnnoUserInfoDTO.class)//
                 .eqBySampleMap(whereValue)//
                 .updateToSampleMap(setValue)//
                 .getBoundSql();
@@ -265,7 +265,7 @@ public class BuildEntUpdateTest {
         setValue.put("create_time", new Date());
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql1 = lambdaTemplate.updateBySpace(AnnoUserInfoDTO.class).asMap().eqBySampleMap(whereValue).updateToSampleMap(setValue).getBoundSql();
+        BoundSql boundSql1 = lambdaTemplate.updateByEntity(AnnoUserInfoDTO.class).asMap().eqBySampleMap(whereValue).updateToSampleMap(setValue).getBoundSql();
         assert boundSql1.getSqlString().equals("UPDATE user_info SET user_name = ? WHERE ( user_name = ? )");
         assert ((SqlArg) boundSql1.getArgs()[0]).getValue().equals("321");
         assert ((SqlArg) boundSql1.getArgs()[1]).getValue().equals("123");

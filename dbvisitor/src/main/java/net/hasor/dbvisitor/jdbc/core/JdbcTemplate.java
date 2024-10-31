@@ -34,13 +34,9 @@ import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.error.UncategorizedSQLException;
 import net.hasor.dbvisitor.jdbc.*;
-import net.hasor.dbvisitor.jdbc.extractor.CallableMultipleResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.extractor.PreparedMultipleResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.extractor.RowCallbackHandlerResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.extractor.*;
+import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
 import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
-import net.hasor.dbvisitor.jdbc.mapper.MappingResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.mapper.MappingRowMapper;
 import net.hasor.dbvisitor.jdbc.mapper.SingleColumnRowMapper;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
@@ -652,7 +648,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             return this.createSingleColumnRowMapper(requiredType);
         }
 
-        return new MappingRowMapper<>(requiredType, this.getRegistry().getMappingRegistry());
+        return new BeanMappingRowMapper<>(requiredType, this.getRegistry().getMappingRegistry());
     }
 
     /** Create a new RowMapper for reading result objects from a single column. */
@@ -674,7 +670,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             return new RowMapperResultSetExtractor<>(mapRowMapper);
         }
 
-        return new MappingResultSetExtractor<>(requiredType, this.getRegistry().getMappingRegistry());
+        return new BeanMappingResultSetExtractor<>(requiredType, this.getRegistry().getMappingRegistry());
     }
 
     /** Build a PreparedStatementCreator based on the given SQL and args parameters. */

@@ -135,7 +135,7 @@ public class DalSession extends JdbcAccessor {
     }
 
     public <T> BaseMapper<T> createBaseMapper(Class<T> entityType) {
-        if (this.dalRegistry.findBySpace(entityType) == null) {
+        if (this.dalRegistry.findByEntity(entityType) == null) {
             this.dalRegistry.loadEntityToSpace(entityType);
         }
 
@@ -180,7 +180,7 @@ public class DalSession extends JdbcAccessor {
             Class<?>[] generics = type.resolveGenerics(Object.class);
             Class<?> entityType = generics[0];
 
-            if (this.dalRegistry.findBySpace(entityType) == null) {
+            if (this.dalRegistry.findByEntity(entityType) == null) {
                 this.dalRegistry.loadEntityToSpace(entityType);
             }
 
@@ -266,7 +266,7 @@ public class DalSession extends JdbcAccessor {
         }
 
         public <T> TableMapping<T> getTableMapping(Class<T> exampleType, MappingOptions options) {
-            return dalRegistry.findBySpace(exampleType);
+            return dalRegistry.findByEntity(exampleType);
         }
     }
 }

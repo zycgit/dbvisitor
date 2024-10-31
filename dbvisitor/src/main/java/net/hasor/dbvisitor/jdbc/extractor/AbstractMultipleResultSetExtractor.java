@@ -28,7 +28,7 @@ import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.RowMapper;
 import net.hasor.dbvisitor.jdbc.core.ProcedureArg;
-import net.hasor.dbvisitor.jdbc.mapper.MappingRowMapper;
+import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
 import net.hasor.dbvisitor.jdbc.mapper.SingleColumnRowMapper;
 
 import java.sql.ResultSet;
@@ -198,7 +198,7 @@ public abstract class AbstractMultipleResultSetExtractor {
                 RowMapper<?> rowMapper = new SingleColumnRowMapper<>(arg.getJavaType());
                 return new RowMapperResultSetExtractor<>(rowMapper).extractData(rs);
             } else {
-                RowMapper<?> rowMapper = new MappingRowMapper<>(arg.getJavaType());
+                RowMapper<?> rowMapper = new BeanMappingRowMapper<>(arg.getJavaType(), this.registry.getMappingRegistry());
                 return new RowMapperResultSetExtractor<>(rowMapper).extractData(rs);
             }
         } else if (arg.getRowMapper() != null) {

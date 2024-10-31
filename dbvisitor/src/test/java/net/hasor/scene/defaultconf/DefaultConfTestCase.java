@@ -30,11 +30,11 @@ public class DefaultConfTestCase {
             userData.setName("default user");
             userData.setCreateTime(new Date());// 驼峰由 @TableDefault 进行启用
 
-            InsertOperation<UserTable> lambdaInsert = lambdaTemplate.insertBySpace(UserTable.class);
+            InsertOperation<UserTable> lambdaInsert = lambdaTemplate.insertByEntity(UserTable.class);
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
 
             // 校验结果
-            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.queryBySpace(UserTable.class);
+            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.queryByEntity(UserTable.class);
             UserTable resultData = lambdaQuery.eq(UserTable::getId, 128).queryForObject();
 
             assert resultData.getId() == 128;
@@ -56,11 +56,11 @@ public class DefaultConfTestCase {
             userData.setName("default user");
             userData.setCreateTime(new Date());// 驼峰由 @TableDefault 进行启用
 
-            InsertOperation<UserDTO> lambdaInsert = lambdaTemplate.insertBySpace(UserDTO.class);
+            InsertOperation<UserDTO> lambdaInsert = lambdaTemplate.insertByEntity(UserDTO.class);
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
 
             // 校验结果
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.queryBySpace(UserDTO.class);
+            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.queryByEntity(UserDTO.class);
             UserDTO resultData = lambdaQuery.eq(UserDTO::getId, 128).queryForObject();
 
             assert resultData.getId() == 128;

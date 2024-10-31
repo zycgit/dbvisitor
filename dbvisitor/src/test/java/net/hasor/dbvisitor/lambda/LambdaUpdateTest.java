@@ -122,20 +122,20 @@ public class LambdaUpdateTest extends AbstractDbTest {
     public void lambda_update_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            EntityQueryOperation<user_info> lambdaQuery = lambdaTemplate.queryBySpace(user_info.class);
+            EntityQueryOperation<user_info> lambdaQuery = lambdaTemplate.queryByEntity(user_info.class);
             user_info tbUser1 = lambdaQuery.eq(user_info::getLogin_name, beanForData1().getLoginName()).queryForObject();
             assert tbUser1.getUser_name() != null;
 
             HashMap<String, Object> valueMap = new HashMap<>();
             valueMap.put("user_name", null);
 
-            EntityUpdateOperation<user_info> lambdaUpdate = lambdaTemplate.updateBySpace(user_info.class);
+            EntityUpdateOperation<user_info> lambdaUpdate = lambdaTemplate.updateByEntity(user_info.class);
             int update = lambdaUpdate.eq(user_info::getLogin_name, "muhammad")//
                     .updateToSampleMap(valueMap)//
                     .doUpdate();
             assert update == 1;
 
-            user_info tbUser2 = lambdaTemplate.queryBySpace(user_info.class).eq(user_info::getLogin_name, "muhammad").queryForObject();
+            user_info tbUser2 = lambdaTemplate.queryByEntity(user_info.class).eq(user_info::getLogin_name, "muhammad").queryForObject();
             assert tbUser2.getUser_name() == null;
         }
     }
@@ -145,7 +145,7 @@ public class LambdaUpdateTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            List<UserInfo2> users = lambdaTemplate.queryBySpace(UserInfo2.class).queryForList();
+            List<UserInfo2> users = lambdaTemplate.queryByEntity(UserInfo2.class).queryForList();
             UserInfo2 info = users.get(0);
 
             MappingOptions options = MappingOptions.buildNew().mapUnderscoreToCamelCase(true);
@@ -161,20 +161,20 @@ public class LambdaUpdateTest extends AbstractDbTest {
     public void lambda_update_pk_0() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
-            EntityQueryOperation<user_info> lambdaQuery = lambdaTemplate.queryBySpace(user_info.class);
+            EntityQueryOperation<user_info> lambdaQuery = lambdaTemplate.queryByEntity(user_info.class);
             user_info tbUser1 = lambdaQuery.eq(user_info::getLogin_name, beanForData1().getLoginName()).queryForObject();
             assert tbUser1.getUser_name() != null;
 
             HashMap<String, Object> valueMap = new HashMap<>();
             valueMap.put("user_name", null);
 
-            EntityUpdateOperation<user_info> lambdaUpdate = lambdaTemplate.updateBySpace(user_info.class);
+            EntityUpdateOperation<user_info> lambdaUpdate = lambdaTemplate.updateByEntity(user_info.class);
             int update = lambdaUpdate.eq(user_info::getLogin_name, "muhammad")//
                     .updateToSampleMap(valueMap)//
                     .doUpdate();
             assert update == 1;
 
-            user_info tbUser2 = lambdaTemplate.queryBySpace(user_info.class).eq(user_info::getLogin_name, "muhammad").queryForObject();
+            user_info tbUser2 = lambdaTemplate.queryByEntity(user_info.class).eq(user_info::getLogin_name, "muhammad").queryForObject();
             assert tbUser2.getUser_name() == null;
         }
     }

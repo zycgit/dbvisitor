@@ -18,6 +18,9 @@ import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.dal.mapper.BaseMapper;
+import net.hasor.dbvisitor.dal.reader.BeanTableReader;
+import net.hasor.dbvisitor.dal.reader.ResultTableReader;
+import net.hasor.dbvisitor.dal.reader.TableReader;
 import net.hasor.dbvisitor.dal.repository.parser.ClassDynamicResolve;
 import net.hasor.dbvisitor.dal.repository.parser.DynamicResolve;
 import net.hasor.dbvisitor.dal.repository.parser.XmlDynamicResolve;
@@ -26,9 +29,7 @@ import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
-import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.mapping.reader.ResultTableReader;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.w3c.dom.*;
@@ -174,14 +175,14 @@ public class DalRegistry extends MappingRegistry {
         TableMapping<T> mapping = super.findBySpace(space, identify);
         if (mapping != null) {
             Map<String, TableReader<?>> map = this.readerCacheMap.computeIfAbsent(space, s -> new ConcurrentHashMap<>());
-            TableReader<T> tableReader = mapping.toReader();
+            TableReader<T> tableReader = new BeanTableReader<>(mapping);
             map.put(identify, tableReader);
             return tableReader;
         }
         mapping = super.findBySpace("", identify);
         if (mapping != null) {
             Map<String, TableReader<?>> map = this.readerCacheMap.computeIfAbsent("", s -> new ConcurrentHashMap<>());
-            TableReader<T> tableReader = mapping.toReader();
+            TableReader<T> tableReader = new BeanTableReader<>(mapping);
             map.put(identify, tableReader);
             return tableReader;
         }
@@ -276,7 +277,7 @@ public class DalRegistry extends MappingRegistry {
             Class<?>[] generics = type.resolveGenerics(Object.class);
             Class<?> entityType = generics[0];
             entityType = (entityType == Object.class) ? null : entityType;
-            if (entityType != null && findBySpace(entityType) == null) {
+            if (entityType != null && findByEntity(entityType) == null) {
                 this.loadEntityToSpace(entityType);
             }
         }
@@ -366,7 +367,7 @@ public class DalRegistry extends MappingRegistry {
         } else {
             super.loadResultMap(resultClass, space, resultClass.getSimpleName());
             TableMapping<?> mapping = super.findBySpace(space, resultClass.getSimpleName());
-            tableReader = mapping.toReader();
+            tableReader = new BeanTableReader<>(mapping);
         }
 
         Map<String, TableReader<?>> map = this.readerCacheMap.computeIfAbsent(space, s -> new ConcurrentHashMap<>());

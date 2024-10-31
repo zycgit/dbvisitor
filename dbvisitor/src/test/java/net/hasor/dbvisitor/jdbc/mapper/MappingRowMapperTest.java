@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.jdbc.mapper;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
@@ -35,7 +36,7 @@ public class MappingRowMapperTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<UserInfo2> users = jdbcTemplate.queryForList("select * from user_info", new MappingRowMapper<>(UserInfo2.class));
+            List<UserInfo2> users = jdbcTemplate.queryForList("select * from user_info", new BeanMappingRowMapper<>(UserInfo2.class, MappingRegistry.DEFAULT));
             assert users.size() == 3;
             assert TestUtils.beanForData1().getUserUuid().equals(users.get(0).getUid());
             assert TestUtils.beanForData2().getUserUuid().equals(users.get(1).getUid());

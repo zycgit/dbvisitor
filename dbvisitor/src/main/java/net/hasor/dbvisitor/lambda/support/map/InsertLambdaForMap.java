@@ -68,8 +68,8 @@ public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map
 
     @Override
     protected BoundSql buildBoundSql(SqlDialect dialect) {
-        if (this.insertValuesCount.get() != 1) {
-            throw new IllegalStateException("require single record.");
+        if (this.insertValuesCount.get() == 0) {
+            return null;
         }
 
         InsertEntity entity = this.insertValues.get(0);
@@ -114,7 +114,7 @@ public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map
             insertColumns.add(c);
         });
 
-        String insertSql = buildInsert(dialect, this.primaryKeys, insertColumns, this.insertColumnTerms);
+        String insertSql = buildInsert(dialect, this.forBuildPrimaryKeys, insertColumns, this.forBuildInsertColumnTerms);
         SqlArg[] args = new SqlArg[entityKeyMap.size()];
 
         for (int i = 0; i < insertProperties.size(); i++) {

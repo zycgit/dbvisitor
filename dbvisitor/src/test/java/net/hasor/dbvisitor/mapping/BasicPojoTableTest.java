@@ -103,7 +103,7 @@ public class BasicPojoTableTest {
         MappingRegistry registry = new MappingRegistry();
         TableMapping<?> ent1 = registry.loadEntityToTable(PojoBean1.class, "master", "dbo", "blob_resource");
 
-        TableMapping<?> def1 = registry.findBySpace(PojoBean1.class);
+        TableMapping<?> def1 = registry.findByEntity(PojoBean1.class);
         TableMapping<?> def2 = registry.findBySpace("", PojoBean1.class);
         TableMapping<?> def3 = registry.findBySpace("", PojoBean1.class.getName());
         TableMapping<?> def4 = registry.findByTable("master", "dbo", "blob_resource");
@@ -121,7 +121,7 @@ public class BasicPojoTableTest {
         MappingRegistry registry = new MappingRegistry();
         TableMapping<?> ent1 = registry.loadEntityToSpace(PojoBean1.class, "abc", "aac");
 
-        TableMapping<?> def1 = registry.findBySpace(PojoBean1.class);
+        TableMapping<?> def1 = registry.findByEntity(PojoBean1.class);
         TableMapping<?> def2 = registry.findBySpace("", PojoBean1.class);
         TableMapping<?> def3 = registry.findBySpace("", PojoBean1.class.getName());
         TableMapping<?> def4 = registry.findByTable(null, null, "PojoBean1");

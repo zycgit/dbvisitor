@@ -59,11 +59,6 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     }
 
     @Override
-    public BoundSql countSql(BoundSql boundSql) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
         throw new UnsupportedOperationException();
     }

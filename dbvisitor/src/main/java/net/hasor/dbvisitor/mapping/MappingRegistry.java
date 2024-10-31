@@ -359,7 +359,7 @@ public class MappingRegistry {
         return (TableMapping<T>) def;
     }
 
-    public <T> TableMapping<T> findBySpace(Class<?> entityType) {
+    public <T> TableMapping<T> findByEntity(Class<?> entityType) {
         return this.findBySpace("", entityType.getName());
     }
 

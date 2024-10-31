@@ -42,7 +42,7 @@ public class BuildPojoDeleteTest {
 
     @Test
     public void deleteBuilder_1() {
-        EntityDeleteOperation<UserInfo> lambda = newLambda().deleteBySpace(UserInfo.class);
+        EntityDeleteOperation<UserInfo> lambda = newLambda().deleteByEntity(UserInfo.class);
         lambda.allowEmptyWhere();
 
         BoundSql boundSql1 = lambda.getBoundSql();
@@ -51,7 +51,7 @@ public class BuildPojoDeleteTest {
 
     @Test
     public void deleteBuilder_1_2map() {
-        MapDeleteOperation lambda = newLambda().deleteBySpace(UserInfo.class).asMap();
+        MapDeleteOperation lambda = newLambda().deleteByEntity(UserInfo.class).asMap();
         lambda.allowEmptyWhere();
 
         BoundSql boundSql1 = lambda.getBoundSql();
@@ -60,7 +60,7 @@ public class BuildPojoDeleteTest {
 
     @Test
     public void deleteBuilder_2() {
-        EntityDeleteOperation<UserInfo> lambda = newLambda().deleteBySpace(UserInfo.class);
+        EntityDeleteOperation<UserInfo> lambda = newLambda().deleteByEntity(UserInfo.class);
         lambda.and(queryBuilder -> {
             queryBuilder.eq(UserInfo::getSeq, 123);
         });
@@ -73,7 +73,7 @@ public class BuildPojoDeleteTest {
 
     @Test
     public void deleteBuilder_2_2map() {
-        MapDeleteOperation lambda = newLambda().deleteBySpace(UserInfo.class).asMap();
+        MapDeleteOperation lambda = newLambda().deleteByEntity(UserInfo.class).asMap();
         lambda.and(queryBuilder -> {
             queryBuilder.eq("seq", 123);
         });
@@ -86,7 +86,7 @@ public class BuildPojoDeleteTest {
 
     @Test
     public void deleteBuilder_3() {
-        EntityDeleteOperation<UserInfo> lambda = newLambda().deleteBySpace(UserInfo.class);
+        EntityDeleteOperation<UserInfo> lambda = newLambda().deleteByEntity(UserInfo.class);
         lambda.eq(UserInfo::getLoginName, "admin").and().eq(UserInfo::getPassword, "pass");
 
         BoundSql boundSql1 = lambda.getBoundSql();
@@ -95,7 +95,7 @@ public class BuildPojoDeleteTest {
 
     @Test
     public void deleteBuilder_3_2map() {
-        MapDeleteOperation lambda = newLambda().deleteBySpace(UserInfo.class).asMap();
+        MapDeleteOperation lambda = newLambda().deleteByEntity(UserInfo.class).asMap();
         lambda.eq("loginName", "admin").and().eq("password", "pass");
 
         BoundSql boundSql1 = lambda.getBoundSql();
@@ -110,7 +110,7 @@ public class BuildPojoDeleteTest {
         userInfo.setPassword("pwd");
 
         //case 1
-        EntityDeleteOperation<UserInfo> delCase1 = newLambda().deleteBySpace(UserInfo.class);
+        EntityDeleteOperation<UserInfo> delCase1 = newLambda().deleteByEntity(UserInfo.class);
         boolean isZyc1 = userInfo.getName().equals("zyc");
         delCase1.eq(isZyc1, UserInfo::getLoginName, userInfo.getLoginName())//
                 .eq(isZyc1, UserInfo::getPassword, userInfo.getPassword())//
@@ -124,7 +124,7 @@ public class BuildPojoDeleteTest {
 
         // case 2
         userInfo.setName("cyz");
-        EntityDeleteOperation<UserInfo> delCase2 = newLambda().deleteBySpace(UserInfo.class);
+        EntityDeleteOperation<UserInfo> delCase2 = newLambda().deleteByEntity(UserInfo.class);
         boolean isZyc2 = userInfo.getName().equals("zyc");
         delCase2.eq(isZyc2, UserInfo::getLoginName, userInfo.getLoginName())//
                 .eq(isZyc2, UserInfo::getPassword, userInfo.getPassword())//
@@ -143,7 +143,7 @@ public class BuildPojoDeleteTest {
         userInfo.setPassword("pwd");
 
         //case 1
-        MapDeleteOperation delCase1 = newLambda().deleteBySpace(UserInfo.class).asMap();
+        MapDeleteOperation delCase1 = newLambda().deleteByEntity(UserInfo.class).asMap();
         boolean isZyc1 = userInfo.getName().equals("zyc");
         delCase1.eq(isZyc1, "loginName", userInfo.getLoginName())//
                 .eq(isZyc1, "password", userInfo.getPassword())//
@@ -157,7 +157,7 @@ public class BuildPojoDeleteTest {
 
         // case 2
         userInfo.setName("cyz");
-        EntityDeleteOperation<UserInfo> delCase2 = newLambda().deleteBySpace(UserInfo.class);
+        EntityDeleteOperation<UserInfo> delCase2 = newLambda().deleteByEntity(UserInfo.class);
         boolean isZyc2 = userInfo.getName().equals("zyc");
         delCase2.eq(isZyc2, UserInfo::getLoginName, userInfo.getLoginName())//
                 .eq(isZyc2, UserInfo::getPassword, userInfo.getPassword())//
@@ -171,7 +171,7 @@ public class BuildPojoDeleteTest {
     @Test
     public void bad_1() {
         try {
-            EntityDeleteOperation<UserInfo> lambdaDelete = newLambda().deleteBySpace(UserInfo.class);
+            EntityDeleteOperation<UserInfo> lambdaDelete = newLambda().deleteByEntity(UserInfo.class);
             lambdaDelete.getBoundSql();
             assert false;
         } catch (Exception e) {
@@ -182,7 +182,7 @@ public class BuildPojoDeleteTest {
     @Test
     public void bad_2() {
         try {
-            EntityDeleteOperation<UserInfo> lambdaDelete = newLambda().deleteBySpace(UserInfo.class);
+            EntityDeleteOperation<UserInfo> lambdaDelete = newLambda().deleteByEntity(UserInfo.class);
             lambdaDelete.getBoundSql();
             assert false;
         } catch (Exception e) {

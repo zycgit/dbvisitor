@@ -50,7 +50,7 @@ public class PageTest {
 
     @Test
     public void pageTest_1() {
-        BoundSql boundSql = newLambda().queryBySpace(UserInfo2.class).select(UserInfo2::getLoginName)//
+        BoundSql boundSql = newLambda().queryByEntity(UserInfo2.class).select(UserInfo2::getLoginName)//
                 .initPage(10, 2)//
                 .getBoundSql();
         assert boundSql.getSqlString().equals("SELECT login_name FROM user_info LIMIT ?, ?");
@@ -60,7 +60,7 @@ public class PageTest {
 
     @Test
     public void pageTest_2() {
-        BoundSql boundSql = newLambda().queryBySpace(UserInfo2.class).select(UserInfo2::getLoginName)//
+        BoundSql boundSql = newLambda().queryByEntity(UserInfo2.class).select(UserInfo2::getLoginName)//
                 .eq(UserInfo2::getSeq, 1)//
                 .between(UserInfo2::getLoginName, 2, 3)//
                 .initPage(10, 2)//
@@ -75,12 +75,12 @@ public class PageTest {
 
     @Test
     public void pageTest_3() {
-        BoundSql boundSql1 = newLambda().queryBySpace(UserInfo2.class).select(UserInfo2::getLoginName)//
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo2.class).select(UserInfo2::getLoginName)//
                 .orderBy(UserInfo2::getUid).initPage(5, 0).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT login_name FROM user_info ORDER BY user_uuid LIMIT ?");
         assert boundSql1.getArgs()[0].equals(5L);
 
-        BoundSql boundSql2 = newLambda().queryBySpace(UserInfo2.class).select(UserInfo2::getLoginName)//
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo2.class).select(UserInfo2::getLoginName)//
                 .orderBy(UserInfo2::getUid).initPage(5, 1).getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT login_name FROM user_info ORDER BY user_uuid LIMIT ?, ?");
         assert boundSql2.getArgs()[0].equals(5L);
@@ -108,11 +108,11 @@ public class PageTest {
             lambdaTemplate.getJdbc().executeBatch(INSERT_ARRAY, batchValues);//批量执行执行插入语句
             assert lambdaTemplate.getJdbc().queryForInt("select count(1) from user_info") == 13;
 
-            List<UserInfo2> page0 = lambdaTemplate.queryBySpace(UserInfo2.class).orderBy(UserInfo2::getSeq).initPage(5, 0).queryForList();
-            List<UserInfo2> page1 = lambdaTemplate.queryBySpace(UserInfo2.class).orderBy(UserInfo2::getSeq).initPage(5, 1).queryForList();
-            List<UserInfo2> page2 = lambdaTemplate.queryBySpace(UserInfo2.class).orderBy(UserInfo2::getSeq).initPage(5, 2).queryForList();
-            List<UserInfo2> page3 = lambdaTemplate.queryBySpace(UserInfo2.class).orderBy(UserInfo2::getSeq).initPage(5, 3).queryForList();
-            List<UserInfo2> page4 = lambdaTemplate.queryBySpace(UserInfo2.class).orderBy(UserInfo2::getSeq).initPage(5, 4).queryForList();
+            List<UserInfo2> page0 = lambdaTemplate.queryByEntity(UserInfo2.class).orderBy(UserInfo2::getSeq).initPage(5, 0).queryForList();
+            List<UserInfo2> page1 = lambdaTemplate.queryByEntity(UserInfo2.class).orderBy(UserInfo2::getSeq).initPage(5, 1).queryForList();
+            List<UserInfo2> page2 = lambdaTemplate.queryByEntity(UserInfo2.class).orderBy(UserInfo2::getSeq).initPage(5, 2).queryForList();
+            List<UserInfo2> page3 = lambdaTemplate.queryByEntity(UserInfo2.class).orderBy(UserInfo2::getSeq).initPage(5, 3).queryForList();
+            List<UserInfo2> page4 = lambdaTemplate.queryByEntity(UserInfo2.class).orderBy(UserInfo2::getSeq).initPage(5, 4).queryForList();
 
             assert page0.size() == 5;
             assert page1.size() == 5;
@@ -153,11 +153,11 @@ public class PageTest {
             lambdaTemplate.getJdbc().executeBatch(INSERT_ARRAY, batchValues);//批量执行执行插入语句
             assert lambdaTemplate.getJdbc().queryForInt("select count(1) from user_info") == 13;
 
-            List<user_info> page0 = lambdaTemplate.queryBySpace(user_info.class).orderBy(user_info::getSeq).initPage(5, 0).queryForList();
-            List<user_info> page1 = lambdaTemplate.queryBySpace(user_info.class).orderBy(user_info::getSeq).initPage(5, 1).queryForList();
-            List<user_info> page2 = lambdaTemplate.queryBySpace(user_info.class).orderBy(user_info::getSeq).initPage(5, 2).queryForList();
-            List<user_info> page3 = lambdaTemplate.queryBySpace(user_info.class).orderBy(user_info::getSeq).initPage(5, 3).queryForList();
-            List<user_info> page4 = lambdaTemplate.queryBySpace(user_info.class).orderBy(user_info::getSeq).initPage(5, 4).queryForList();
+            List<user_info> page0 = lambdaTemplate.queryByEntity(user_info.class).orderBy(user_info::getSeq).initPage(5, 0).queryForList();
+            List<user_info> page1 = lambdaTemplate.queryByEntity(user_info.class).orderBy(user_info::getSeq).initPage(5, 1).queryForList();
+            List<user_info> page2 = lambdaTemplate.queryByEntity(user_info.class).orderBy(user_info::getSeq).initPage(5, 2).queryForList();
+            List<user_info> page3 = lambdaTemplate.queryByEntity(user_info.class).orderBy(user_info::getSeq).initPage(5, 3).queryForList();
+            List<user_info> page4 = lambdaTemplate.queryByEntity(user_info.class).orderBy(user_info::getSeq).initPage(5, 4).queryForList();
 
             assert page0.size() == 5;
             assert page1.size() == 5;
@@ -183,12 +183,12 @@ public class PageTest {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             List<String> userIds = new ArrayList<>();
-            Iterator<UserInfo2> userIterator = lambdaTemplate.queryBySpace(UserInfo2.class).queryForIterator(-1, 1);
+            Iterator<UserInfo2> userIterator = lambdaTemplate.queryByEntity(UserInfo2.class).queryForIterator(-1, 1);
             while (userIterator.hasNext()) {
                 userIds.add(userIterator.next().getUid());
             }
 
-            assert lambdaTemplate.queryBySpace(UserInfo2.class).queryForCount() == userIds.size();
+            assert lambdaTemplate.queryByEntity(UserInfo2.class).queryForCount() == userIds.size();
         }
     }
 
@@ -198,7 +198,7 @@ public class PageTest {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             List<String> userIds = new ArrayList<>();
-            Iterator<UserInfo2> userIterator = lambdaTemplate.queryBySpace(UserInfo2.class).queryForIterator(2, 1);
+            Iterator<UserInfo2> userIterator = lambdaTemplate.queryByEntity(UserInfo2.class).queryForIterator(2, 1);
             while (userIterator.hasNext()) {
                 userIds.add(userIterator.next().getUid());
             }

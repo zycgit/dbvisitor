@@ -63,7 +63,7 @@ public class BuildToCamelPojoInsertTest {
 
     @Test
     public void insert_1() throws SQLException {
-        InsertOperation<UserInfo> lambdaInsert = newLambda().insertBySpace(UserInfo.class);
+        InsertOperation<UserInfo> lambdaInsert = newLambda().insertByEntity(UserInfo.class);
         lambdaInsert.applyMap(mapForData1());
 
         BoundSql boundSql1 = lambdaInsert.getBoundSql();
@@ -75,7 +75,7 @@ public class BuildToCamelPojoInsertTest {
     public void insert_1_2map() throws SQLException {
         Map<String, Object> data = mapForData1();
 
-        InsertOperation<Map<String, Object>> lambdaInsert = newLambda().insertBySpace(UserInfo.class).asMap();
+        InsertOperation<Map<String, Object>> lambdaInsert = newLambda().insertByEntity(UserInfo.class).asMap();
         lambdaInsert.applyMap(data);
 
         BoundSql boundSql1 = lambdaInsert.getBoundSql();
@@ -85,7 +85,7 @@ public class BuildToCamelPojoInsertTest {
 
     @Test
     public void insert_duplicateKeyBlock_1() throws SQLException {
-        InsertOperation<UserInfo> lambdaInsert = newLambda().insertBySpace(UserInfo.class);
+        InsertOperation<UserInfo> lambdaInsert = newLambda().insertByEntity(UserInfo.class);
         lambdaInsert.applyMap(mapForData1());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Into);
 
@@ -96,7 +96,7 @@ public class BuildToCamelPojoInsertTest {
 
     @Test
     public void insert_duplicateKeyBlock_1_2map() throws SQLException {
-        InsertOperation<Map<String, Object>> lambdaInsert = newLambda().insertBySpace(UserInfo.class).asMap();
+        InsertOperation<Map<String, Object>> lambdaInsert = newLambda().insertByEntity(UserInfo.class).asMap();
         lambdaInsert.applyMap(mapForData1());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Into);
 
@@ -107,7 +107,7 @@ public class BuildToCamelPojoInsertTest {
 
     @Test
     public void insert_duplicateKeyUpdate_1() throws SQLException {
-        InsertOperation<UserInfo> lambdaInsert = newLambda().insertBySpace(UserInfo.class);
+        InsertOperation<UserInfo> lambdaInsert = newLambda().insertByEntity(UserInfo.class);
         lambdaInsert.applyMap(mapForData1());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Update);
 
@@ -118,7 +118,7 @@ public class BuildToCamelPojoInsertTest {
 
     @Test
     public void insert_duplicateKeyUpdate_1_2map() throws SQLException {
-        InsertOperation<Map<String, Object>> lambdaInsert = newLambda().insertBySpace(UserInfo.class).asMap();
+        InsertOperation<Map<String, Object>> lambdaInsert = newLambda().insertByEntity(UserInfo.class).asMap();
         lambdaInsert.applyMap(mapForData1());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Update);
 
@@ -129,7 +129,7 @@ public class BuildToCamelPojoInsertTest {
 
     @Test
     public void insert_duplicateKeyIgnore_1() throws SQLException {
-        InsertOperation<UserInfo> lambdaInsert = newLambda().insertBySpace(UserInfo.class);
+        InsertOperation<UserInfo> lambdaInsert = newLambda().insertByEntity(UserInfo.class);
         lambdaInsert.applyMap(mapForData1());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Ignore);
 
@@ -140,7 +140,7 @@ public class BuildToCamelPojoInsertTest {
 
     @Test
     public void insert_duplicateKeyIgnore_1_2map() throws SQLException {
-        InsertOperation<Map<String, Object>> lambdaInsert = newLambda().insertBySpace(UserInfo.class).asMap();
+        InsertOperation<Map<String, Object>> lambdaInsert = newLambda().insertByEntity(UserInfo.class).asMap();
         lambdaInsert.applyMap(mapForData1());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Ignore);
 

@@ -25,7 +25,7 @@ public interface LambdaOperations {
     // ----------------------------------------------------------------------------------
 
     /** 相当于 insert ... */
-    default <T> EntityInsertOperation<T> insertBySpace(Class<T> entityType) {
+    default <T> EntityInsertOperation<T> insertByEntity(Class<T> entityType) {
         return this.insertBySpace(entityType, "");
     }
 
@@ -50,7 +50,7 @@ public interface LambdaOperations {
     // ----------------------------------------------------------------------------------
 
     /** 相当于 update ... */
-    default <T> EntityUpdateOperation<T> updateBySpace(Class<T> entityType) {
+    default <T> EntityUpdateOperation<T> updateByEntity(Class<T> entityType) {
         return this.updateBySpace(entityType, "");
     }
 
@@ -75,7 +75,7 @@ public interface LambdaOperations {
     // ----------------------------------------------------------------------------------
 
     /** 相当于 delete ... */
-    default <T> EntityDeleteOperation<T> deleteBySpace(Class<T> entityType) {
+    default <T> EntityDeleteOperation<T> deleteByEntity(Class<T> entityType) {
         return this.deleteBySpace(entityType, "");
     }
 
@@ -100,7 +100,7 @@ public interface LambdaOperations {
     // ----------------------------------------------------------------------------------
 
     /** 相当于 select ... */
-    default <T> EntityQueryOperation<T> queryBySpace(Class<T> entityType) {
+    default <T> EntityQueryOperation<T> queryByEntity(Class<T> entityType) {
         return this.queryBySpace(entityType, "");
     }
 

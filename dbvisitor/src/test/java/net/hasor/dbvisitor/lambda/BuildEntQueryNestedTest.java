@@ -26,7 +26,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_or_1() {
-        BoundSql boundSql1 = new LambdaTemplate().queryBySpace(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = new LambdaTemplate().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a").or(nestedQuery -> {
                     nestedQuery.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
                     nestedQuery.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
@@ -36,7 +36,7 @@ public class BuildEntQueryNestedTest {
         assert boundSql1.getArgs()[1].equals(1);
         assert boundSql1.getArgs()[2].equals(2);
 
-        BoundSql boundSql2 = new LambdaTemplate().queryBySpace(AnnoUserInfoDTO.class)//
+        BoundSql boundSql2 = new LambdaTemplate().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a").or().nested(nestedQuery -> {
                     nestedQuery.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
                     nestedQuery.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
@@ -49,7 +49,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_or_1_2map() {
-        BoundSql boundSql1 = new LambdaTemplate().queryBySpace(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new LambdaTemplate().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a").or(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
                     nestedQuery.le("createTime", 2); // <= ?
@@ -59,7 +59,7 @@ public class BuildEntQueryNestedTest {
         assert boundSql1.getArgs()[1].equals(1);
         assert boundSql1.getArgs()[2].equals(2);
 
-        BoundSql boundSql2 = new LambdaTemplate().queryBySpace(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql2 = new LambdaTemplate().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a").or().nested(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
                     nestedQuery.le("createTime", 2); // <= ?
@@ -72,7 +72,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_and_1() {
-        BoundSql boundSql1 = new LambdaTemplate().queryBySpace(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = new LambdaTemplate().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a").and(nestedQuery -> {
                     nestedQuery.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
                     nestedQuery.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
@@ -83,7 +83,7 @@ public class BuildEntQueryNestedTest {
         assert boundSql1.getArgs()[2].equals(2);
         assert boundSql1.getArgs()[3].equals(123);
 
-        BoundSql boundSql2 = new LambdaTemplate().queryBySpace(AnnoUserInfoDTO.class)//
+        BoundSql boundSql2 = new LambdaTemplate().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a").and().nested(nestedQuery -> {
                     nestedQuery.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
                     nestedQuery.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
@@ -97,7 +97,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_and_1_2map() {
-        BoundSql boundSql1 = new LambdaTemplate().queryBySpace(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new LambdaTemplate().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a").and(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
                     nestedQuery.le("createTime", 2); // <= ?
@@ -108,7 +108,7 @@ public class BuildEntQueryNestedTest {
         assert boundSql1.getArgs()[2].equals(2);
         assert boundSql1.getArgs()[3].equals(123);
 
-        BoundSql boundSql2 = new LambdaTemplate().queryBySpace(AnnoUserInfoDTO.class)//
+        BoundSql boundSql2 = new LambdaTemplate().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a").and().nested(nestedQuery -> {
                     nestedQuery.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
                     nestedQuery.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
@@ -122,7 +122,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_1() {
-        BoundSql boundSql1 = new LambdaTemplate().queryBySpace(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = new LambdaTemplate().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a").nested(nestedQuery -> {
                     nestedQuery.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
                     nestedQuery.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
@@ -133,7 +133,7 @@ public class BuildEntQueryNestedTest {
         assert boundSql1.getArgs()[2].equals(2);
         assert boundSql1.getArgs()[3].equals(123);
 
-        BoundSql boundSql2 = new LambdaTemplate().queryBySpace(AnnoUserInfoDTO.class)//
+        BoundSql boundSql2 = new LambdaTemplate().queryByEntity(AnnoUserInfoDTO.class)//
                 .nested(nq0 -> {
                     nq0.nested(nq1 -> {
                         nq1.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
@@ -148,7 +148,7 @@ public class BuildEntQueryNestedTest {
         assert boundSql2.getArgs()[2].equals(1);
         assert boundSql2.getArgs()[3].equals(123);
 
-        BoundSql boundSql3 = new LambdaTemplate().queryBySpace(AnnoUserInfoDTO.class)//
+        BoundSql boundSql3 = new LambdaTemplate().queryByEntity(AnnoUserInfoDTO.class)//
                 .nested(nq0 -> {
                     nq0.nested(nq1 -> {
                         nq1.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
@@ -165,7 +165,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_1_2map() {
-        BoundSql boundSql1 = new LambdaTemplate().queryBySpace(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new LambdaTemplate().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a").nested(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
                     nestedQuery.le("createTime", 2); // <= ?
@@ -176,7 +176,7 @@ public class BuildEntQueryNestedTest {
         assert boundSql1.getArgs()[2].equals(2);
         assert boundSql1.getArgs()[3].equals(123);
 
-        BoundSql boundSql2 = new LambdaTemplate().queryBySpace(AnnoUserInfoDTO.class)//
+        BoundSql boundSql2 = new LambdaTemplate().queryByEntity(AnnoUserInfoDTO.class)//
                 .nested(nq0 -> {
                     nq0.nested(nq1 -> {
                         nq1.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
@@ -191,7 +191,7 @@ public class BuildEntQueryNestedTest {
         assert boundSql2.getArgs()[2].equals(1);
         assert boundSql2.getArgs()[3].equals(123);
 
-        BoundSql boundSql3 = new LambdaTemplate().queryBySpace(AnnoUserInfoDTO.class)//
+        BoundSql boundSql3 = new LambdaTemplate().queryByEntity(AnnoUserInfoDTO.class)//
                 .nested(nq0 -> {
                     nq0.nested(nq1 -> {
                         nq1.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?

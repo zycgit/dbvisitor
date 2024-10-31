@@ -18,7 +18,6 @@ import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.MapQueryOperation;
 import net.hasor.dbvisitor.lambda.core.AbstractSelectLambda;
-import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 import java.util.Map;
@@ -43,11 +42,6 @@ public class SelectLambdaForMap extends AbstractSelectLambda<MapQueryOperation, 
     @Override
     protected String getPropertyName(String property) {
         return property;
-    }
-
-    @Override
-    protected TableReader<Map<String, Object>> getTableReader() {
-        return getTableMapping().toMapReader();
     }
 
     @Override

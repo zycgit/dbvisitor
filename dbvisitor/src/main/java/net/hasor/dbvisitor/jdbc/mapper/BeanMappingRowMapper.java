@@ -16,7 +16,6 @@
 package net.hasor.dbvisitor.jdbc.mapper;
 import net.hasor.dbvisitor.jdbc.RowMapper;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
-import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 import java.sql.ResultSet;
@@ -30,25 +29,29 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-10-31
  */
-public class MappingRowMapper<T> implements RowMapper<T> {
-    private final TableReader<T> tableReader;
-
-    /** Create a new ResultMapper. */
-    public MappingRowMapper(Class<T> mapperClass) {
-        this(mapperClass, MappingRegistry.DEFAULT);
+public class BeanMappingRowMapper<T> extends AbstractMapping<T> implements RowMapper<T> {
+    /**
+     * 创建 {@link RowMapper} 对象
+     * @param entityType 类型
+     */
+    public BeanMappingRowMapper(final Class<T> entityType) {
+        super(entityType, MappingRegistry.DEFAULT);
     }
 
-    /** Create a new ResultMapper. */
-    public MappingRowMapper(Class<T> mapperClass, MappingRegistry registry) {
-        TableMapping<?> tableMapping = registry.findBySpace(mapperClass);
-        if (tableMapping == null) {
-            if (MappingRegistry.isEntity(mapperClass)) {
-                tableMapping = registry.loadEntityToSpace(mapperClass);
-            } else {
-                tableMapping = registry.loadResultMap(mapperClass);
-            }
-        }
-        this.tableReader = (TableReader<T>) tableMapping.toReader();
+    /**
+     * 创建 {@link RowMapper} 对象
+     * @param entityType 类型
+     */
+    public BeanMappingRowMapper(final Class<T> entityType, MappingRegistry registry) {
+        super(entityType, registry);
+    }
+
+    /**
+     * 创建 {@link RowMapper} 对象
+     * @param tableMapping 类型
+     */
+    public BeanMappingRowMapper(TableMapping<?> tableMapping) {
+        super(tableMapping);
     }
 
     @Override
@@ -57,9 +60,17 @@ public class MappingRowMapper<T> implements RowMapper<T> {
         int nrOfColumns = rsmd.getColumnCount();
         List<String> columnList = new ArrayList<>();
         for (int i = 1; i <= nrOfColumns; i++) {
-            String colName = rsmd.getColumnName(i);
-            columnList.add(colName);
+            columnList.add(lookupColumnName(rsmd, i));
         }
-        return tableReader.extractRow(columnList, rs, rowNum);
+
+        return this.extractRow(columnList, rs, rowNum);
+    }
+
+    private static String lookupColumnName(final ResultSetMetaData resultSetMetaData, final int columnIndex) throws SQLException {
+        String name = resultSetMetaData.getColumnLabel(columnIndex);
+        if (name == null || name.length() < 1) {
+            name = resultSetMetaData.getColumnName(columnIndex);
+        }
+        return name;
     }
 }

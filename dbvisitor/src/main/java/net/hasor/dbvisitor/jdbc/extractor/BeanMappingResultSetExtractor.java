@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.jdbc.mapper;
+package net.hasor.dbvisitor.jdbc.extractor;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.mapper.AbstractMapping;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
-import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 import java.sql.ResultSet;
@@ -24,39 +24,27 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 用于 POJO 的 RowMapper，带有 ORM 能力
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-10-31
  */
-public class MappingResultSetExtractor<T> implements ResultSetExtractor<List<T>> {
-    private final TableReader<T> tableReader;
-
+public class BeanMappingResultSetExtractor<T> extends AbstractMapping<T> implements ResultSetExtractor<List<T>> {
     /**
-     * 创建 {@link MappingResultSetExtractor} 对象
-     * @param mapperClass 类型
+     * 创建 {@link BeanMappingResultSetExtractor} 对象
+     * @param entityType 类型
      */
-    public MappingResultSetExtractor(final Class<T> mapperClass, MappingRegistry registry) {
-        Objects.requireNonNull(mapperClass, "mapperClass is required");
-        TableMapping<?> tableMapping = registry.findBySpace(mapperClass);
-        if (tableMapping == null) {
-            if (MappingRegistry.isEntity(mapperClass)) {
-                tableMapping = registry.loadEntityToSpace(mapperClass);
-            } else {
-                tableMapping = registry.loadResultMap(mapperClass);
-            }
-        }
-        this.tableReader = (TableReader<T>) tableMapping.toReader();
+    public BeanMappingResultSetExtractor(final Class<T> entityType, MappingRegistry registry) {
+        super(entityType, registry);
     }
 
     /**
-     * 创建 {@link MappingResultSetExtractor} 对象
-     * @param tableReader 类型
+     * 创建 {@link BeanMappingResultSetExtractor} 对象
+     * @param tableMapping 类型
      */
-    public MappingResultSetExtractor(TableReader<T> tableReader) {
-        this.tableReader = Objects.requireNonNull(tableReader, "tableReader is null.");
+    public BeanMappingResultSetExtractor(TableMapping<?> tableMapping) {
+        super(tableMapping);
     }
 
     @Override
@@ -71,7 +59,7 @@ public class MappingResultSetExtractor<T> implements ResultSetExtractor<List<T>>
         List<T> results = new ArrayList<>();
         int rowNum = 0;
         while (rs.next()) {
-            results.add(this.tableReader.extractRow(columnList, rs, rowNum++));
+            results.add(this.extractRow(columnList, rs, rowNum++));
         }
         return results;
     }

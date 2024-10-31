@@ -38,12 +38,12 @@ public class PageTestCase extends AbstractDbTest {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             List<String> userIds = new ArrayList<>();
-            Iterator<UserInfo2> userIterator = lambdaTemplate.queryBySpace(UserInfo2.class).queryForIterator(-1, 1);
+            Iterator<UserInfo2> userIterator = lambdaTemplate.queryByEntity(UserInfo2.class).queryForIterator(-1, 1);
             while (userIterator.hasNext()) {
                 userIds.add(userIterator.next().getUid());
             }
 
-            assert lambdaTemplate.queryBySpace(UserInfo2.class).queryForCount() == userIds.size();
+            assert lambdaTemplate.queryByEntity(UserInfo2.class).queryForCount() == userIds.size();
         }
     }
 
@@ -53,7 +53,7 @@ public class PageTestCase extends AbstractDbTest {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
             List<String> userIds = new ArrayList<>();
-            Iterator<UserInfo2> userIterator = lambdaTemplate.queryBySpace(UserInfo2.class).queryForIterator(2, 1);
+            Iterator<UserInfo2> userIterator = lambdaTemplate.queryByEntity(UserInfo2.class).queryForIterator(2, 1);
             while (userIterator.hasNext()) {
                 userIds.add(userIterator.next().getUid());
             }
@@ -67,7 +67,7 @@ public class PageTestCase extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
 
-            Page userIterator = lambdaTemplate.queryBySpace(UserInfo2.class).pageInfo();
+            Page userIterator = lambdaTemplate.queryByEntity(UserInfo2.class).pageInfo();
             assert userIterator.getTotalCount() == 3;
         }
     }
@@ -75,7 +75,7 @@ public class PageTestCase extends AbstractDbTest {
     @Test
     public void lambdaQuery_stream_page_3() {
         LambdaTemplate lambdaTemplate = new LambdaTemplate();
-        Page userIterator = lambdaTemplate.queryBySpace(UserInfo2.class).pageInfo();
+        Page userIterator = lambdaTemplate.queryByEntity(UserInfo2.class).pageInfo();
         userIterator.setTotalCount(123);
         assert userIterator.getTotalCount() == 123;
     }
@@ -84,7 +84,7 @@ public class PageTestCase extends AbstractDbTest {
     public void lambdaQuery_stream_page_4() {
         Page pageInfo = new PageObject(2, 10);
         LambdaTemplate lambdaTemplate = new LambdaTemplate();
-        Page userIterator = lambdaTemplate.queryBySpace(UserInfo2.class).usePage(pageInfo).pageInfo();
+        Page userIterator = lambdaTemplate.queryByEntity(UserInfo2.class).usePage(pageInfo).pageInfo();
         assert userIterator.getTotalCount() == 10;
     }
 }

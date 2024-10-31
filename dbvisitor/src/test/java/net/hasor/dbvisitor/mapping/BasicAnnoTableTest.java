@@ -121,7 +121,7 @@ public class BasicAnnoTableTest {
         MappingRegistry registry = new MappingRegistry();
         TableMapping<?> ent1 = registry.loadEntityToSpace(AnnoTableBean1.class);
 
-        TableMapping<?> def1 = registry.findBySpace(AnnoTableBean1.class);
+        TableMapping<?> def1 = registry.findByEntity(AnnoTableBean1.class);
         TableMapping<?> def2 = registry.findBySpace("", AnnoTableBean1.class);
         TableMapping<?> def3 = registry.findBySpace("", AnnoTableBean1.class.getName());
         TableMapping<?> def4 = registry.findByTable("master", "dbo", "blob_resource");
@@ -139,7 +139,7 @@ public class BasicAnnoTableTest {
         MappingRegistry registry = new MappingRegistry();
         TableMapping<?> ent1 = registry.loadEntityToSpace(AnnoTableBean1.class, "abc", "aac");
 
-        TableMapping<?> def1 = registry.findBySpace(AnnoTableBean1.class);
+        TableMapping<?> def1 = registry.findByEntity(AnnoTableBean1.class);
         TableMapping<?> def2 = registry.findBySpace("", AnnoTableBean1.class);
         TableMapping<?> def3 = registry.findBySpace("", AnnoTableBean1.class.getName());
         TableMapping<?> def4 = registry.findByTable("master", "dbo", "blob_resource");

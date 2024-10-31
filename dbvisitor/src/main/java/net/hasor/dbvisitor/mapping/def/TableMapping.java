@@ -16,13 +16,9 @@
 package net.hasor.dbvisitor.mapping.def;
 import net.hasor.cobble.reflect.Annotations;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.mapping.TableReader;
-import net.hasor.dbvisitor.mapping.reader.BeanTableReader;
-import net.hasor.dbvisitor.mapping.reader.MapTableReader;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 查询的表
@@ -60,21 +56,13 @@ public interface TableMapping<T> {
 
     Collection<ColumnMapping> getProperties();
 
+    Collection<String> getColumns();
+
     List<ColumnMapping> getPropertyByColumn(String column);
 
     ColumnMapping getPrimaryPropertyByColumn(String column);
 
     ColumnMapping getPropertyByName(String property);
-
-    @Deprecated
-    default TableReader<Map<String, Object>> toMapReader() {
-        return new MapTableReader(this);
-    }
-
-    @Deprecated
-    default TableReader<T> toReader() {
-        return new BeanTableReader<>(this);
-    }
 
     /** 获取补充描述信息 */
     TableDescription getDescription();

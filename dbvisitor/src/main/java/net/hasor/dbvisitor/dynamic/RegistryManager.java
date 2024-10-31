@@ -15,10 +15,10 @@
  */
 package net.hasor.dbvisitor.dynamic;
 import net.hasor.cobble.ClassUtils;
+import net.hasor.dbvisitor.dal.reader.TableReader;
 import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.dynamic.rule.SqlBuildRule;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
-import net.hasor.dbvisitor.mapping.TableReader;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;

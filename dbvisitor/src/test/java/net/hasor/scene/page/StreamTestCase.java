@@ -36,12 +36,12 @@ public class StreamTestCase extends AbstractDbTest {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             List<String> userIds = new ArrayList<>();
-            Iterator<UserInfo2> userIterator = lambdaTemplate.queryBySpace(UserInfo2.class).queryForIterator(-1, 1);
+            Iterator<UserInfo2> userIterator = lambdaTemplate.queryByEntity(UserInfo2.class).queryForIterator(-1, 1);
             while (userIterator.hasNext()) {
                 userIds.add(userIterator.next().getUid());
             }
 
-            assert lambdaTemplate.queryBySpace(UserInfo2.class).queryForCount() == userIds.size();
+            assert lambdaTemplate.queryByEntity(UserInfo2.class).queryForCount() == userIds.size();
         }
     }
 
@@ -51,7 +51,7 @@ public class StreamTestCase extends AbstractDbTest {
             LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
             //
             List<String> userIds = new ArrayList<>();
-            Iterator<UserInfo2> userIterator = lambdaTemplate.queryBySpace(UserInfo2.class).queryForIterator(2, 1);
+            Iterator<UserInfo2> userIterator = lambdaTemplate.queryByEntity(UserInfo2.class).queryForIterator(2, 1);
             while (userIterator.hasNext()) {
                 userIds.add(userIterator.next().getUid());
             }

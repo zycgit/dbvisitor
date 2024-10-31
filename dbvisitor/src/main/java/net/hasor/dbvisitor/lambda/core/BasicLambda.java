@@ -35,20 +35,18 @@ import java.util.*;
  * @version : 2020-10-27
  */
 public abstract class BasicLambda<R, T, P> {
-    protected static final Logger              logger = LoggerFactory.getLogger(BasicLambda.class);
-    private final          Class<?>            exampleType;
-    private final          boolean             exampleIsMap;
-    private final          TableMapping<?>     tableMapping;
-    private final          List<ColumnMapping> primaryKey;
+    protected static final Logger          logger = LoggerFactory.getLogger(BasicLambda.class);
+    private final          Class<?>        exampleType;
+    private final          boolean         exampleIsMap;
+    private final          TableMapping<?> tableMapping;
     //
-    protected final        RegistryManager     registry;
-    protected final        JdbcTemplate        jdbc;
+    protected final        RegistryManager registry;
+    protected final        JdbcTemplate    jdbc;
 
     public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
         this.exampleType = Objects.requireNonNull(exampleType, "exampleType is null.");
         this.exampleIsMap = Map.class == exampleType || Map.class.isAssignableFrom(this.exampleType());
         this.tableMapping = Objects.requireNonNull(tableMapping, "tableMapping is null.");
-        this.primaryKey = getPrimaryKeyColumns(this.tableMapping);
 
         this.registry = Objects.requireNonNull(registry, "registry is null.");
         this.jdbc = jdbc;
@@ -174,26 +172,4 @@ public abstract class BasicLambda<R, T, P> {
 
     protected abstract R getSelf();
 
-    protected List<ColumnMapping> getPrimaryKey() {
-        return this.primaryKey;
-    }
-
-    private List<ColumnMapping> getPrimaryKeyColumns(TableMapping<?> tableMapping) {
-        List<ColumnMapping> properties = new ArrayList<>();
-        Set<String> pkc = new HashSet<>();
-        for (ColumnMapping mapping : tableMapping.getProperties()) {
-            String columnName = mapping.getColumn();
-            if (!mapping.isPrimaryKey()) {
-                continue;
-            }
-
-            if (pkc.contains(columnName)) {
-                throw new IllegalStateException("Multiple property mapping to '" + columnName + "' column");
-            } else {
-                pkc.add(columnName);
-                properties.add(mapping);
-            }
-        }
-        return properties;
-    }
 }
