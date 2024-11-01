@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
+
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -23,12 +24,9 @@ import java.util.function.Predicate;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-10-31
  */
-public interface UpdateExecute<R, T, P> extends BoundSqlBuilder {
+public interface UpdateExecute<R, T, P> extends BasicFunc<R>, ConditionFunc<R>, BoundSqlBuilder {
     /** 生成 select count() 查询语句并查询总数。 */
     int doUpdate() throws SQLException;
-
-    /** 【危险操作】允许空 Where条件（注意：空 Where 条件会导致更新整个数据库） */
-    R allowEmptyWhere();
 
     /** 【危险操作】允许更新主键列（主键不应具有业务含义，只是唯一标识数据） */
     R allowUpdateKey();
@@ -39,28 +37,23 @@ public interface UpdateExecute<R, T, P> extends BoundSqlBuilder {
     /** 增强 updateToSample 方法，通过 condition 可以进一步过滤某些列是否参与更新 */
     R updateToSample(T sample, Predicate<String> condition);
 
-    /** 参照 sample 局部更新（只更新 map 中在的列） */
+    /** 参照 sample 局部更新（只更新 map 中存在的属性，可以用于将属性更新为 null） */
     R updateToSampleMap(Map<String, Object> sample);
 
     /** 增强 updateToMap 方法，通过 condition 可以进一步过滤某些列是否参与更新 */
     R updateToSampleMap(Map<String, Object> sample, Predicate<String> condition);
 
-    /** 清空已经设置的所有 set 条件 */
-    R resetUpdate();
-
     /**
-     * 整行更新
-     * - 注意1：主键会被自动忽略不参与更新，如果想变更主键需要启用 allowUpdateKey（需要依赖 @Column 注解标识出主键列）
-     * - 注意2：整行更新是危险操作，需要启用 allowReplaceRow
+     * 整行更新，会触发主键的更新，通常需要配合启用 allowUpdateKey 使用（需要依赖 @Column 注解标识出主键列）
      */
     R updateRow(T newValue);
 
-    /** 增强 updateTo 方法，通过 condition 可以进一步过滤某些列是否参与更新 */
+    /** 增强 updateRow 方法，通过 condition 可以进一步过滤某些列是否参与更新 */
     R updateRow(T newValue, Predicate<String> condition);
 
-    R updateRowMap(Map<String, Object> newValue);
+    R updateRowUsingMap(Map<String, Object> newValue);
 
-    R updateRowMap(Map<String, Object> newValue, Predicate<String> condition);
+    R updateRowUsingMap(Map<String, Object> newValue, Predicate<String> condition);
 
     /** 添加一个 update set 字段 */
     default R updateTo(P property, Object value) {
@@ -69,4 +62,12 @@ public interface UpdateExecute<R, T, P> extends BoundSqlBuilder {
 
     /** 当条件为真时，激活更新条件 updateTo，通过反复调用可以添加多个 update set 字段 */
     R updateTo(boolean test, P property, Object value);
+
+    /** 添加一个 update set 字段 */
+    default R updateToUsingStr(String property, Object value) {
+        return this.updateToUsingStr(true, property, value);
+    }
+
+    /** 当条件为真时，激活更新条件 updateTo，通过反复调用可以添加多个 update set 字段 */
+    R updateToUsingStr(boolean test, String property, Object value);
 }

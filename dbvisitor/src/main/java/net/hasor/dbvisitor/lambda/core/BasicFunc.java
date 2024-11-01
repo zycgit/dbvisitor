@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.lambda;
+package net.hasor.dbvisitor.lambda.core;
 /**
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-04-02
  */
-public interface CommonOperation<R> {
+public interface BasicFunc<R> {
     Class<?> exampleType();
+
+    /** 重置所有状态 */
+    R reset();
 }

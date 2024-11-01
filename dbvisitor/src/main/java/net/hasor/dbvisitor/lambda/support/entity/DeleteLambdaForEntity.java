@@ -35,7 +35,6 @@ import static net.hasor.dbvisitor.lambda.segment.SqlKeyword.*;
  * @version : 2022-04-02
  */
 public class DeleteLambdaForEntity<T> extends AbstractDeleteLambda<EntityDeleteOperation<T>, T, SFunction<T>> implements EntityDeleteOperation<T> {
-
     public DeleteLambdaForEntity(TableMapping<T> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
         super(tableMapping.entityType(), tableMapping, registry, jdbc);
     }

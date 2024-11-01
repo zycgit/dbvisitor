@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
+import net.hasor.dbvisitor.lambda.core.BasicFunc;
 import net.hasor.dbvisitor.lambda.core.InsertExecute;
 
 /**
@@ -22,7 +23,7 @@ import net.hasor.dbvisitor.lambda.core.InsertExecute;
  * @version : 2022-04-02
  */
 public interface InsertOperation<T> extends  //
-        CommonOperation<InsertOperation<T>>, //
+        BasicFunc<InsertOperation<T>>,       //
         InsertExecute<InsertOperation<T>, T> {
 
     MapInsertOperation asMap();

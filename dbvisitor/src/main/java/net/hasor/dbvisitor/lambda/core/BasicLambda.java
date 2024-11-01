@@ -172,4 +172,7 @@ public abstract class BasicLambda<R, T, P> {
 
     protected abstract R getSelf();
 
+    protected R reset() {
+        return this.getSelf();
+    }
 }

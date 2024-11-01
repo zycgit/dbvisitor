@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
+import net.hasor.dbvisitor.lambda.core.BasicFunc;
 import net.hasor.dbvisitor.lambda.core.DeleteExecute;
 import net.hasor.dbvisitor.lambda.core.QueryCompare;
 
@@ -25,7 +26,7 @@ import java.util.Map;
  * @version : 2022-04-02
  */
 public interface MapDeleteOperation extends  //
-        CommonOperation<MapDeleteOperation>, //
+        BasicFunc<MapDeleteOperation>,       //
         DeleteExecute<MapDeleteOperation>,   //
         QueryCompare<MapDeleteOperation, Map<String, Object>, String> {
 }

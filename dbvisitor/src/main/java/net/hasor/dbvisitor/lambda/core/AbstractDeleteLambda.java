@@ -39,6 +39,13 @@ public abstract class AbstractDeleteLambda<R, T, P> extends BasicQueryCompare<R,
     }
 
     @Override
+    public R reset() {
+        super.reset();
+        this.allowEmptyWhere = false;
+        return this.getSelf();
+    }
+
+    @Override
     public int doDelete() throws SQLException {
         Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
 

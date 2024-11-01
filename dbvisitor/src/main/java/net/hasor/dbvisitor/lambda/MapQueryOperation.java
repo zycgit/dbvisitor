@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
+import net.hasor.dbvisitor.lambda.core.BasicFunc;
 import net.hasor.dbvisitor.lambda.core.QueryCompare;
 import net.hasor.dbvisitor.lambda.core.QueryFunc;
 
@@ -25,7 +26,7 @@ import java.util.Map;
  * @version : 2022-04-02
  */
 public interface MapQueryOperation extends                        //
-        CommonOperation<MapQueryOperation>,                       //
+        BasicFunc<MapQueryOperation>,                             //
         QueryFunc<MapQueryOperation, Map<String, Object>, String>,//
         QueryCompare<MapQueryOperation, Map<String, Object>, String> {
 }

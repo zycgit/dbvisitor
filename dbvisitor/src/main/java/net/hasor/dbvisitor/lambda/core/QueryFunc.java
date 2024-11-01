@@ -30,7 +30,7 @@ import java.util.function.Function;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-10-31
  */
-public interface QueryFunc<R, T, P> extends BoundSqlBuilder {
+public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
     /**
      * 查询所有属性
      * <p>在分组查询下，返回所有分组列而不是所有列</p>

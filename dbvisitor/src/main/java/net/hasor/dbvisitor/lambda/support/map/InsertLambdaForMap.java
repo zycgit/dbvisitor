@@ -80,19 +80,23 @@ public class InsertLambdaForMap extends AbstractInsertLambda<InsertOperation<Map
 
     @Override
     public int[] executeGetResult() throws SQLException {
-        return this.jdbc.execute((ConnectionCallback<int[]>) con -> {
-            final TypeHandlerRegistry typeRegistry = this.registry.getTypeRegistry();
-            int[] result = new int[this.insertValuesCount.get()];
+        try {
+            return this.jdbc.execute((ConnectionCallback<int[]>) con -> {
+                final TypeHandlerRegistry typeRegistry = this.registry.getTypeRegistry();
+                int[] result = new int[this.insertValuesCount.get()];
 
-            int i = 0;
-            for (InsertEntity entity : this.insertValues) {
-                for (Object obj : entity.objList) {
-                    result[i] = executeOne(con, (Map) obj, typeRegistry);
-                    i++;
+                int i = 0;
+                for (InsertEntity entity : this.insertValues) {
+                    for (Object obj : entity.objList) {
+                        result[i] = executeOne(con, (Map) obj, typeRegistry);
+                        i++;
+                    }
                 }
-            }
-            return result;
-        });
+                return result;
+            });
+        } finally {
+            this.reset();
+        }
     }
 
     private int executeOne(Connection con, Map ent, TypeHandlerRegistry typeRegistry) throws SQLException {

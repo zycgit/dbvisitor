@@ -50,6 +50,16 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     }
 
     @Override
+    public R reset() {
+        super.reset();
+        this.queryTemplate.cleanSegment();
+        this.queryParam.clear();
+        this.nextSegmentPrefix = null;
+        this.lockCondition = false;
+        return this.getSelf();
+    }
+
+    @Override
     public R ifTrue(boolean test, Consumer<QueryCompare<R, T, P>> lambda) {
         if (test) {
             lambda.accept(this);

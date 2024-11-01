@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.lambda;
 import net.hasor.cobble.reflect.SFunction;
+import net.hasor.dbvisitor.lambda.core.BasicFunc;
 import net.hasor.dbvisitor.lambda.core.DeleteExecute;
 import net.hasor.dbvisitor.lambda.core.QueryCompare;
 import net.hasor.dbvisitor.lambda.support.entity.EntityQueryCompare;
@@ -25,7 +26,7 @@ import net.hasor.dbvisitor.lambda.support.entity.EntityQueryCompare;
  * @version : 2022-04-02
  */
 public interface EntityDeleteOperation<T> extends               //
-        CommonOperation<EntityDeleteOperation<T>>,              //
+        BasicFunc<EntityDeleteOperation<T>>,                    //
         DeleteExecute<EntityDeleteOperation<T>>,                //
         QueryCompare<EntityDeleteOperation<T>, T, SFunction<T>>,//
         EntityQueryCompare<EntityDeleteOperation<T>> {

@@ -61,6 +61,18 @@ public abstract class AbstractSelectLambda<R, T, P> extends BasicQueryCompare<R,
     }
 
     @Override
+    public R reset() {
+        super.reset();
+        this.customSelect.cleanSegment();
+        this.groupByList.cleanSegment();
+        this.orderByList.cleanSegment();
+        this.initPage(-1, 0);
+        this.lockGroupBy = false;
+        this.lockOrderBy = false;
+        return this.getSelf();
+    }
+
+    @Override
     public R selectAll() {
         this.customSelect.cleanSegment();
         return this.getSelf();

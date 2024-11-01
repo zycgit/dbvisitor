@@ -29,7 +29,7 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-10-31
  */
-public interface InsertExecute<R, T> extends BoundSqlBuilder {
+public interface InsertExecute<R, T> extends BasicFunc<R>, BoundSqlBuilder {
     /** 执行插入，并且将返回的int结果相加。 */
     default int executeSumResult() throws SQLException {
         int[] results = this.executeGetResult();

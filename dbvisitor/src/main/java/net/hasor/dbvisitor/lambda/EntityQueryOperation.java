@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.lambda;
 import net.hasor.cobble.reflect.SFunction;
+import net.hasor.dbvisitor.lambda.core.BasicFunc;
 import net.hasor.dbvisitor.lambda.core.QueryCompare;
 import net.hasor.dbvisitor.lambda.core.QueryFunc;
 import net.hasor.dbvisitor.lambda.support.entity.EntityQueryCompare;
@@ -25,7 +26,7 @@ import net.hasor.dbvisitor.lambda.support.entity.EntityQueryCompare;
  * @version : 2022-04-02
  */
 public interface EntityQueryOperation<T> extends               //
-        CommonOperation<EntityQueryOperation<T>>,              //
+        BasicFunc<EntityQueryOperation<T>>,                    //
         QueryFunc<EntityQueryOperation<T>, T, SFunction<T>>,   //
         QueryCompare<EntityQueryOperation<T>, T, SFunction<T>>,//
         EntityQueryCompare<EntityQueryOperation<T>> {

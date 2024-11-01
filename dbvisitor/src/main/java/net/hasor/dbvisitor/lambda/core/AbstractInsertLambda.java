@@ -45,13 +45,12 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     protected final List<ColumnMapping>  insertProperties;
     protected final List<ColumnMapping>  fillBeforeProperties;
     protected final List<ColumnMapping>  fillAfterProperties;
-    protected       DuplicateKeyStrategy insertStrategy;
     protected final boolean              hasKeySeqHolderColumn;
-    //
     protected final List<String>         forBuildPrimaryKeys;
     protected final List<String>         forBuildInsertColumns;
     protected final Map<String, String>  forBuildInsertColumnTerms;
     //
+    protected       DuplicateKeyStrategy insertStrategy;
     protected final AtomicInteger        insertValuesCount;
     protected final List<InsertEntity>   insertValues;
     protected final List<InsertEntity>   fillBackEntityList;
@@ -59,19 +58,27 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
     public AbstractInsertLambda(Class<?> exampleType, TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
         super(exampleType, tableMapping, registry, jdbc);
 
-        this.primaryKeys = new ArrayList<>();
-        this.insertProperties = new ArrayList<>();
-        this.fillBeforeProperties = new ArrayList<>();
-        this.fillAfterProperties = new ArrayList<>();
-        initProperties(this.primaryKeys, this.insertProperties, this.fillBeforeProperties, this.fillAfterProperties);
+        List<ColumnMapping> primaryKeys = new ArrayList<>();
+        List<ColumnMapping> insertProperties = new ArrayList<>();
+        List<ColumnMapping> fillBeforeProperties = new ArrayList<>();
+        List<ColumnMapping> fillAfterProperties = new ArrayList<>();
+        initProperties(primaryKeys, insertProperties, fillBeforeProperties, fillAfterProperties);
 
-        this.forBuildPrimaryKeys = this.primaryKeys.stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
-        this.forBuildInsertColumns = new ArrayList<>();
-        this.forBuildInsertColumnTerms = new LinkedHashMap<>();
-        for (ColumnMapping m : this.insertProperties) {
-            this.forBuildInsertColumns.add(m.getColumn());
-            this.forBuildInsertColumnTerms.put(m.getColumn(), m.getInsertTemplate());
+        List<String> forBuildPrimaryKeys = primaryKeys.stream().map(ColumnMapping::getColumn).collect(Collectors.toList());
+        List<String> forBuildInsertColumns = new ArrayList<>();
+        Map<String, String> forBuildInsertColumnTerms = new LinkedHashMap<>();
+        for (ColumnMapping m : insertProperties) {
+            forBuildInsertColumns.add(m.getColumn());
+            forBuildInsertColumnTerms.put(m.getColumn(), m.getInsertTemplate());
         }
+
+        this.primaryKeys = Collections.unmodifiableList(primaryKeys);
+        this.insertProperties = Collections.unmodifiableList(insertProperties);
+        this.fillBeforeProperties = Collections.unmodifiableList(fillBeforeProperties);
+        this.fillAfterProperties = Collections.unmodifiableList(fillAfterProperties);
+        this.forBuildPrimaryKeys = Collections.unmodifiableList(forBuildPrimaryKeys);
+        this.forBuildInsertColumns = Collections.unmodifiableList(forBuildInsertColumns);
+        this.forBuildInsertColumnTerms = Collections.unmodifiableMap(forBuildInsertColumnTerms);
 
         if (!tableMapping.isMapEntity() && this.insertProperties.isEmpty()) {
             throw new IllegalStateException("no column require INSERT.");
@@ -114,6 +121,15 @@ public abstract class AbstractInsertLambda<R, T, P> extends BasicLambda<R, T, P>
                 insert.add(mapping);
             }
         }
+    }
+
+    @Override
+    public R reset() {
+        super.reset();
+        this.insertValuesCount.set(0);
+        this.insertValues.clear();
+        this.fillBackEntityList.clear();
+        return this.getSelf();
     }
 
     @Override

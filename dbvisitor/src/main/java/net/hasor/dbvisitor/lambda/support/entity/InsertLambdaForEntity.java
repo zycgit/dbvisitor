@@ -72,9 +72,9 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
 
     @Override
     public int[] executeGetResult() throws SQLException {
-        Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
-
         try {
+            Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
+
             SqlDialect dialect = this.dialect();
             List<String> useColumns = this.findInsertColumns();
             String insertSql = super.buildInsert(dialect, this.forBuildPrimaryKeys, useColumns, this.forBuildInsertColumnTerms);
@@ -130,9 +130,7 @@ public class InsertLambdaForEntity<T> extends AbstractInsertLambda<InsertOperati
                 });
             }
         } finally {
-            this.insertValuesCount.set(0);
-            this.insertValues.clear();
-            this.fillBackEntityList.clear();
+            this.reset();
         }
     }
 
