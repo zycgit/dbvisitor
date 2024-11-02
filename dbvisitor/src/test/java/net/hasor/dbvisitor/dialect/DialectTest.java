@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
-import net.hasor.dbvisitor.JdbcUtils;
+import net.hasor.dbvisitor.JdbcHelper;
 import net.hasor.dbvisitor.dialect.provider.OracleDialect;
 import net.hasor.dbvisitor.dialect.provider.SqlServerDialect;
 import net.hasor.test.AbstractDbTest;
@@ -76,7 +76,7 @@ public class DialectTest extends AbstractDbTest {
 
     @Test
     public void dialect_mysql_1() {
-        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.MYSQL);
+        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcHelper.MYSQL);
         String buildTableName1 = dialect.tableName(true, null, "", "tb_user");
         String buildTableName2 = dialect.tableName(true, null, "abc", "tb_user");
         String buildCondition = dialect.fmtName(true, "userUUID");
@@ -105,7 +105,7 @@ public class DialectTest extends AbstractDbTest {
 
     @Test
     public void dialect_dm_1() {
-        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.DM);
+        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcHelper.DM);
         String buildTableName1 = dialect.tableName(true, null, "", "tb_user");
         String buildTableName2 = dialect.tableName(true, null, "abc", "tb_user");
         String buildCondition = dialect.fmtName(true, "userUUID");
@@ -134,7 +134,7 @@ public class DialectTest extends AbstractDbTest {
 
     @Test
     public void dialect_postgresql_1() {
-        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.POSTGRESQL);
+        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcHelper.POSTGRESQL);
         String buildTableName1 = dialect.tableName(true, null, "", "tb_user");
         String buildTableName2 = dialect.tableName(true, null, "abc", "tb_user");
         String buildCondition = dialect.fmtName(true, "userUUID");
@@ -157,7 +157,7 @@ public class DialectTest extends AbstractDbTest {
 
     @Test
     public void dialect_oracle_1() {
-        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.ORACLE);
+        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcHelper.ORACLE);
         String buildTableName1 = dialect.tableName(true, null, "", "tb_user");
         String buildTableName2 = dialect.tableName(true, null, "abc", "tb_user");
         String buildCondition = dialect.fmtName(true, "userUUID");
@@ -180,7 +180,7 @@ public class DialectTest extends AbstractDbTest {
 
     @Test
     public void dialect_h2_1() {
-        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.H2);
+        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcHelper.H2);
         String buildTableName1 = dialect.tableName(true, null, "", "tb_user");
         String buildTableName2 = dialect.tableName(true, null, "abc", "tb_user");
         String buildCondition = dialect.fmtName(true, "userUUID");
@@ -203,7 +203,7 @@ public class DialectTest extends AbstractDbTest {
 
     @Test
     public void dialect_hive_1() {
-        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.HIVE);
+        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcHelper.HIVE);
         String buildTableName1 = dialect.tableName(true, null, "", "tb_user");
         String buildTableName2 = dialect.tableName(true, null, "abc", "tb_user");
         String buildCondition = dialect.fmtName(true, "userUUID");
@@ -228,7 +228,7 @@ public class DialectTest extends AbstractDbTest {
 
     @Test
     public void dialect_sqllite_1() {
-        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.SQLITE);
+        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcHelper.SQLITE);
         String buildTableName1 = dialect.tableName(true, null, "", "tb_user");
         String buildTableName2 = dialect.tableName(true, null, "abc", "tb_user");
         String buildCondition = dialect.fmtName(true, "userUUID");
@@ -257,7 +257,7 @@ public class DialectTest extends AbstractDbTest {
 
     @Test
     public void dialect_sqlserver2012_1() {
-        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.SQL_SERVER);
+        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcHelper.SQL_SERVER);
         String buildTableName1 = dialect.tableName(true, null, "", "tb_user");
         String buildTableName2 = dialect.tableName(true, null, "abc", "tb_user");
         String buildTableName3 = dialect.tableName(true, "aac", "", "tb_user");
@@ -292,7 +292,7 @@ public class DialectTest extends AbstractDbTest {
 
     @Test
     public void dialect_informix_1() {
-        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.INFORMIX);
+        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcHelper.INFORMIX);
         String buildTableName1 = dialect.tableName(true, null, "", "tb_user");
         String buildTableName2 = dialect.tableName(true, null, "abc", "tb_user");
         String buildCondition = dialect.fmtName(true, "userUUID");
@@ -315,7 +315,7 @@ public class DialectTest extends AbstractDbTest {
 
     @Test
     public void dialect_db2_1() {
-        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.DB2);
+        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcHelper.DB2);
         String buildTableName1 = dialect.tableName(true, null, "", "tb_user");
         String buildTableName2 = dialect.tableName(true, null, "abc", "tb_user");
         String buildCondition = dialect.fmtName(true, "userUUID");
@@ -338,7 +338,7 @@ public class DialectTest extends AbstractDbTest {
 
     @Test
     public void dialect_hsql_1() {
-        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.HSQL);
+        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcHelper.HSQL);
         String buildTableName1 = dialect.tableName(true, null, "", "tb_user");
         String buildTableName2 = dialect.tableName(true, null, "abc", "tb_user");
         String buildCondition = dialect.fmtName(true, "userUUID");
@@ -361,7 +361,7 @@ public class DialectTest extends AbstractDbTest {
 
     @Test
     public void dialect_impala_1() {
-        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.IMPALA);
+        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcHelper.IMPALA);
         String buildTableName1 = dialect.tableName(true, null, "", "tb_user");
         String buildTableName2 = dialect.tableName(true, null, "abc", "tb_user");
         String buildCondition = dialect.fmtName(true, "userUUID");
@@ -384,7 +384,7 @@ public class DialectTest extends AbstractDbTest {
 
     @Test
     public void dialect_mariadb_1() {
-        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcUtils.MARIADB);
+        PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrCreate(JdbcHelper.MARIADB);
         String buildTableName1 = dialect.tableName(true, null, "", "tb_user");
         String buildTableName2 = dialect.tableName(true, null, "abc", "tb_user");
         String buildCondition = dialect.fmtName(true, "userUUID");

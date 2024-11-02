@@ -30,6 +30,49 @@ import static net.hasor.test.utils.TestUtils.beanForData1;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class DoEntUpdateTest {
+    @Test
+    public void update_1() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            int update = new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class)//
+                    .updateTo(AnnoUserInfoDTO::getName, "aaa")//
+                    .allowEmptyWhere().doUpdate();
+            assert update == 3;
+        }
+    }
+
+    @Test
+    public void update_1_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            int update = new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .updateTo("name", "aaa")//
+                    .allowEmptyWhere().doUpdate();
+            assert update == 3;
+        }
+    }
+
+    @Test
+    public void allowEmptyWhere_1() {
+        try (Connection c = DsUtils.h2Conn()) {
+            new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class)//
+                    .updateTo(AnnoUserInfoDTO::getName, "aaa")//
+                    .doUpdate();
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().equals("The dangerous UPDATE operation, You must call `allowEmptyWhere()` to enable UPDATE ALL.");
+        }
+    }
+
+    @Test
+    public void allowEmptyWhere_1_2map() {
+        try (Connection c = DsUtils.h2Conn()) {
+            new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .updateTo("name", "aaa")//
+                    .doUpdate();
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().equals("The dangerous UPDATE operation, You must call `allowEmptyWhere()` to enable UPDATE ALL.");
+        }
+    }
 
     @Test
     public void updateToSample_1() throws Throwable {
@@ -41,6 +84,28 @@ public class DoEntUpdateTest {
 
             new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    .updateToSample(value)//
+                    .doUpdate();
+
+            // check
+            AnnoUserInfoDTO tbUser2 = new LambdaTemplate(c).queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    .queryForObject();
+            assert tbUser2.getName().equals("abc");
+            assert tbUser2.getPassword().equals("def");
+        }
+    }
+
+    @Test
+    public void updateToSample_1_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            // update
+            HashMap<String, Object> value = new HashMap<>();
+            value.put("name", "abc");
+            value.put("password", "def");
+
+            new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
                     .updateToSample(value)//
                     .doUpdate();
 
@@ -67,11 +132,10 @@ public class DoEntUpdateTest {
 
             // update
             HashMap<String, Object> valueMap = new HashMap<>();
-            valueMap.put("name", null);
-            valueMap.put("password", null);
+            valueMap.put("name", "abc");
+            valueMap.put("password", "pwd");
 
-            EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = lambda.updateByEntity(AnnoUserInfoDTO.class);
-            int update = lambdaUpdate.eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+            int update = lambda.updateByEntity(AnnoUserInfoDTO.class).eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateToSampleMap(valueMap)//
                     .doUpdate();
             assert update == 1;
@@ -80,8 +144,40 @@ public class DoEntUpdateTest {
             AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
-            assert tbUser2.getName() == null;
-            assert tbUser2.getPassword() == null;
+            assert tbUser2.getName().equals("abc");
+            assert tbUser2.getPassword().equals("pwd");
+        }
+    }
+
+    @Test
+    public void updateToSampleMap_1_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambda = new LambdaTemplate(c);
+
+            // before
+            AnnoUserInfoDTO tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
+                    .queryForObject();
+            assert tbUser1.getName() != null;
+            assert tbUser1.getPassword() != null;
+
+            // update
+            HashMap<String, Object> valueMap = new HashMap<>();
+            valueMap.put("name", "abc");
+            valueMap.put("password", "pwd");
+
+            int update = lambda.updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
+                    .updateToSampleMap(valueMap)//
+                    .doUpdate();
+            assert update == 1;
+
+            // check
+            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    .queryForObject();
+            assert tbUser2.getName().equals("abc");
+            assert tbUser2.getPassword().equals("pwd");
         }
     }
 
@@ -99,11 +195,11 @@ public class DoEntUpdateTest {
 
             // update
             HashMap<String, Object> valueMap = new HashMap<>();
-            valueMap.put("name", null);
-            valueMap.put("password", null);
+            valueMap.put("name", "abc");
+            valueMap.put("password", "pwd");
 
-            EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = lambda.updateByEntity(AnnoUserInfoDTO.class);
-            int update = lambdaUpdate.eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+            int update = lambda.updateByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateToSampleMap(valueMap, s -> s.equals("name"))//
                     .doUpdate();
             assert update == 1;
@@ -112,8 +208,40 @@ public class DoEntUpdateTest {
             AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
-            assert tbUser2.getName() == null;
-            assert tbUser2.getPassword() != null;
+            assert tbUser2.getName().equals("abc");
+            assert !tbUser2.getPassword().equals("pwd");
+        }
+    }
+
+    @Test
+    public void updateToSampleMap_2_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambda = new LambdaTemplate(c);
+
+            // before
+            AnnoUserInfoDTO tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
+                    .queryForObject();
+            assert tbUser1.getName() != null;
+            assert tbUser1.getPassword() != null;
+
+            // update
+            HashMap<String, Object> valueMap = new HashMap<>();
+            valueMap.put("name", "abc");
+            valueMap.put("password", "pwd");
+
+            int update = lambda.updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
+                    .updateToSampleMap(valueMap, s -> s.equals("name"))//
+                    .doUpdate();
+            assert update == 1;
+
+            // check
+            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    .queryForObject();
+            assert tbUser2.getName().equals("abc");
+            assert !tbUser2.getPassword().equals("pwd");
         }
     }
 
@@ -125,12 +253,53 @@ public class DoEntUpdateTest {
             value.setPassword(null);
 
             // update
-            EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class);
-            lambdaUpdate.eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+            new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateToSample(value)//
                     .doUpdate();
             assert false;
 
+        } catch (Exception e) {
+            assert e.getMessage().equals("there nothing to update.");
+        }
+
+        try (Connection c = DsUtils.h2Conn()) {
+            Map<String, Object> value = new HashMap<>();
+            value.put("name", null);
+            value.put("password", null);
+
+            new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    .updateToSampleMap(value)//
+                    .doUpdate();
+        } catch (Exception e) {
+            assert e.getMessage().equals("there nothing to update.");
+        }
+    }
+
+    @Test
+    public void update_to_null_1_2map() {
+        Map<String, Object> value = new HashMap<>();
+        value.put("name", null);
+        value.put("password", null);
+
+        try (Connection c = DsUtils.h2Conn()) {
+            // update
+            new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
+                    .updateToSample(value)//
+                    .doUpdate();
+            assert false;
+
+        } catch (Exception e) {
+            assert e.getMessage().equals("there nothing to update.");
+        }
+
+        try (Connection c = DsUtils.h2Conn()) {
+            new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
+                    .updateToSampleMap(value)//
+                    .doUpdate();
         } catch (Exception e) {
             assert e.getMessage().equals("there nothing to update.");
         }
@@ -141,7 +310,7 @@ public class DoEntUpdateTest {
         try (Connection c = DsUtils.h2Conn()) {
             AnnoUserInfoDTO value = new AnnoUserInfoDTO();
             value.setName(null);
-            value.setPassword(null);
+            value.setPassword("abc");
 
             // update
             new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class)//
@@ -152,51 +321,45 @@ public class DoEntUpdateTest {
         } catch (Exception e) {
             assert e.getMessage().equals("there nothing to update.");
         }
-    }
 
-    @Test
-    public void update_to_null_3() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             Map<String, Object> value = new HashMap<>();
             value.put("name", null);
-            value.put("password", null);
+            value.put("password", "abc");
 
-            // update
-            int update = new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class)//
+            new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
-                    .updateToSampleMap(value)//
+                    .updateToSampleMap(value, s -> s.equals("name"))//
                     .doUpdate();
-            assert update == 1;
-
-            // check
-            AnnoUserInfoDTO tbUser2 = new LambdaTemplate(c).queryByEntity(AnnoUserInfoDTO.class)//
-                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
-                    .queryForObject();
-            assert tbUser2.getName() == null;
-            assert tbUser2.getPassword() == null;
+        } catch (Exception e) {
+            assert e.getMessage().equals("there nothing to update.");
         }
     }
 
     @Test
-    public void update_to_null_4() throws Throwable {
-        try (Connection c = DsUtils.h2Conn()) {
-            Map<String, Object> value = new HashMap<>();
-            value.put("name", null);
-            value.put("password", null);
+    public void update_to_null_2_2map() {
+        Map<String, Object> value = new HashMap<>();
+        value.put("name", null);
+        value.put("password", "abc");
 
+        try (Connection c = DsUtils.h2Conn()) {
             // update
-            EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class);
-            int update = lambdaUpdate.eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+            new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
+                    .updateToSample(value, s -> s.equals("name"))//
+                    .doUpdate();
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().equals("there nothing to update.");
+        }
+
+        try (Connection c = DsUtils.h2Conn()) {
+            new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
                     .updateToSampleMap(value, s -> s.equals("name"))//
                     .doUpdate();
-            assert update == 1;
-
-            // check
-            AnnoUserInfoDTO tbUser2 = new LambdaTemplate(c).queryByEntity(AnnoUserInfoDTO.class)//
-                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
-                    .queryForObject();
-            assert tbUser2.getName() == null;
-            assert tbUser2.getPassword() != null;
+        } catch (Exception e) {
+            assert e.getMessage().equals("there nothing to update.");
         }
     }
 
@@ -204,9 +367,27 @@ public class DoEntUpdateTest {
     public void updateTo_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             // update
-            EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class);
-            int update = lambdaUpdate.eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+            int update = new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateTo(AnnoUserInfoDTO::getName, "aabbcc")//
+                    .doUpdate();
+            assert update == 1;
+
+            // check
+            AnnoUserInfoDTO tbUser2 = new LambdaTemplate(c).queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    .queryForObject();
+            assert tbUser2.getName().equals("aabbcc");
+        }
+    }
+
+    @Test
+    public void updateTo_1_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            // update
+            int update = new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
+                    .updateTo("name", "aabbcc")//
                     .doUpdate();
             assert update == 1;
 
@@ -222,9 +403,23 @@ public class DoEntUpdateTest {
     public void updateTo_2() {
         try (Connection c = DsUtils.h2Conn()) {
             // update
-            EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class);
-            lambdaUpdate.eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+            new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateTo(false, AnnoUserInfoDTO::getName, "aabbcc")//
+                    .doUpdate();
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().equals("there nothing to update.");
+        }
+    }
+
+    @Test
+    public void updateTo_2_2map() {
+        try (Connection c = DsUtils.h2Conn()) {
+            // update
+            new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
+                    .updateTo(false, "loginName", "aabbcc")//
                     .doUpdate();
             assert false;
         } catch (Exception e) {
@@ -252,11 +447,44 @@ public class DoEntUpdateTest {
     }
 
     @Test
+    public void updateToUsingStr_1_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambda = new LambdaTemplate(c);
+            // update
+            MapUpdateOperation lambdaUpdate = lambda.updateByEntity(AnnoUserInfoDTO.class).asMap();
+            int update = lambdaUpdate.eq("loginName", "muhammad")//
+                    .updateToUsingStr("name", "aabbcc")//
+                    .doUpdate();
+            assert update == 1;
+
+            // check
+            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    .queryForObject();
+            assert tbUser2.getName().equals("aabbcc");
+        }
+    }
+
+    @Test
     public void updateToUsingStr_2() {
         try (Connection c = DsUtils.h2Conn()) {
             // update
             new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    .updateToUsingStr(false, "name", "aabbcc")//
+                    .doUpdate();
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().equals("there nothing to update.");
+        }
+    }
+
+    @Test
+    public void updateToUsingStr_2_2map() {
+        try (Connection c = DsUtils.h2Conn()) {
+            // update
+            new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
                     .updateToUsingStr(false, "name", "aabbcc")//
                     .doUpdate();
             assert false;
@@ -296,6 +524,36 @@ public class DoEntUpdateTest {
     }
 
     @Test
+    public void updateRow_1_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambda = new LambdaTemplate(c);
+
+            // before
+            Map<String, Object> tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
+                    .queryForMap();
+
+            // update
+            tbUser1.put("name", "abc");
+            tbUser1.put("password", "pwd");
+
+            MapUpdateOperation lambdaUpdate = lambda.updateByEntity(AnnoUserInfoDTO.class).asMap();
+            int update = lambdaUpdate.eq("loginName", "muhammad")//
+                    .allowUpdateKey()   //
+                    .updateRow(tbUser1) //
+                    .doUpdate();
+            assert update == 1;
+
+            // check
+            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    .queryForObject();
+            assert tbUser2.getName().equals("abc");
+            assert tbUser2.getPassword().equals("pwd");
+        }
+    }
+
+    @Test
     public void updateRow_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambda = new LambdaTemplate(c);
@@ -309,8 +567,38 @@ public class DoEntUpdateTest {
             tbUser1.setName("abc");
             tbUser1.setPassword("pwd");
 
-            EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = lambda.updateByEntity(AnnoUserInfoDTO.class);
-            int update = lambdaUpdate.eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+            int update = lambda.updateByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    .allowUpdateKey()   //
+                    .updateRow(tbUser1, s -> s.equals("name")) //
+                    .doUpdate();
+            assert update == 1;
+
+            // check
+            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    .queryForObject();
+            assert tbUser2.getName().equals("abc");
+            assert !tbUser2.getPassword().equals("pwd");
+        }
+    }
+
+    @Test
+    public void updateRow_2_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambda = new LambdaTemplate(c);
+
+            // before
+            Map<String, Object> tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
+                    .queryForMap();
+
+            // update
+            tbUser1.put("name", "abc");
+            tbUser1.put("password", "pwd");
+
+            int update = lambda.updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
                     .allowUpdateKey()   //
                     .updateRow(tbUser1, s -> s.equals("name")) //
                     .doUpdate();
@@ -339,8 +627,32 @@ public class DoEntUpdateTest {
             tbUser1.setName("abc");
             tbUser1.setPassword("pwd");
 
-            EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = lambda.updateByEntity(AnnoUserInfoDTO.class);
-            lambdaUpdate.eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+            lambda.updateByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    .updateRow(tbUser1) //
+                    .doUpdate();
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().equals("The dangerous UPDATE operation, You must call `allowUpdateKey()` to enable UPDATE PrimaryKey.");
+        }
+    }
+
+    @Test
+    public void updateRow_3_2map() {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambda = new LambdaTemplate(c);
+
+            // before
+            Map<String, Object> tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
+                    .queryForMap();
+
+            // update
+            tbUser1.put("name", "abc");
+            tbUser1.put("password", "pwd");
+
+            lambda.updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
                     .updateRow(tbUser1) //
                     .doUpdate();
             assert false;
@@ -365,6 +677,36 @@ public class DoEntUpdateTest {
 
             EntityUpdateOperation<AnnoUserInfoDTO> lambdaUpdate = lambda.updateByEntity(AnnoUserInfoDTO.class);
             int update = lambdaUpdate.eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    .allowUpdateKey()   //
+                    .updateRowUsingMap(tbUser1) //
+                    .doUpdate();
+            assert update == 1;
+
+            // check
+            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    .queryForObject();
+            assert tbUser2.getName().equals("abc");
+            assert tbUser2.getPassword() == null;
+        }
+    }
+
+    @Test
+    public void updateRowUsingMap_1_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambda = new LambdaTemplate(c);
+
+            // before
+            Map<String, Object> tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
+                    .queryForMap();
+
+            // update
+            tbUser1.put("name", "abc");
+            tbUser1.remove("password");
+
+            int update = lambda.updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
                     .allowUpdateKey()   //
                     .updateRowUsingMap(tbUser1) //
                     .doUpdate();
@@ -410,6 +752,36 @@ public class DoEntUpdateTest {
     }
 
     @Test
+    public void updateRowUsingMap_2_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambda = new LambdaTemplate(c);
+
+            // before
+            Map<String, Object> tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
+                    .queryForMap();
+
+            // update
+            tbUser1.put("name", "abc");
+            tbUser1.remove("password");
+
+            int update = lambda.updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
+                    .allowUpdateKey() //
+                    .updateRowUsingMap(tbUser1, s -> s.equals("name")) //
+                    .doUpdate();
+            assert update == 1;
+
+            // check
+            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    .queryForObject();
+            assert tbUser2.getName().equals("abc");
+            assert tbUser2.getPassword() != null;
+        }
+    }
+
+    @Test
     public void updatePK_0_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             int update = new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class)//
@@ -426,12 +798,42 @@ public class DoEntUpdateTest {
     }
 
     @Test
+    public void updatePK_0_1_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            int update = new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
+                    .allowUpdateKey()//
+                    .updateTo("uid", "123321")//
+                    .doUpdate();
+            assert update == 1;
+
+            AnnoUserInfoDTO tbUser2 = new LambdaTemplate(c).queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad").queryForObject();
+            assert tbUser2.getUid().equals("123321");
+        }
+    }
+
+    @Test
     public void updatePK_0_2() {
         try (Connection c = DsUtils.h2Conn()) {
             new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     //.allowUpdateKey()//
                     .updateTo(AnnoUserInfoDTO::getUid, "123321")//
+                    .doUpdate();
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().equals("The dangerous UPDATE operation, You must call `allowUpdateKey()` to enable UPDATE PrimaryKey.");
+        }
+    }
+
+    @Test
+    public void updatePK_0_2_2map() {
+        try (Connection c = DsUtils.h2Conn()) {
+            new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
+                    //.allowUpdateKey()//
+                    .updateTo("uid", "123321")//
                     .doUpdate();
             assert false;
         } catch (Exception e) {
@@ -460,6 +862,26 @@ public class DoEntUpdateTest {
     }
 
     @Test
+    public void updatePK_1_1_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+
+            HashMap<String, Object> valueMap = new HashMap<>();
+            valueMap.put("uid", "123321");
+
+            int update = new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
+                    .allowUpdateKey()//
+                    .updateToSampleMap(valueMap)//
+                    .doUpdate();
+            assert update == 1;
+
+            AnnoUserInfoDTO tbUser2 = new LambdaTemplate(c).queryByEntity(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad").queryForObject();
+            assert tbUser2.getUid().equals("123321");
+        }
+    }
+
+    @Test
     public void updatePK_1_2() {
         try (Connection c = DsUtils.h2Conn()) {
             HashMap<String, Object> valueMap = new HashMap<>();
@@ -467,6 +889,23 @@ public class DoEntUpdateTest {
 
             new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    //.allowUpdateKey()//
+                    .updateToSampleMap(valueMap)//
+                    .doUpdate();
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().equals("The dangerous UPDATE operation, You must call `allowUpdateKey()` to enable UPDATE PrimaryKey.");
+        }
+    }
+
+    @Test
+    public void updatePK_1_2_2map() {
+        try (Connection c = DsUtils.h2Conn()) {
+            HashMap<String, Object> valueMap = new HashMap<>();
+            valueMap.put("uid", "123321");
+
+            new LambdaTemplate(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
                     //.allowUpdateKey()//
                     .updateToSampleMap(valueMap)//
                     .doUpdate();

@@ -135,7 +135,7 @@ public abstract class BasicLambda<R, T, P> {
     protected Map<String, String> extractKeysMap(Map entity) {
         TableMapping<?> tableMapping = getTableMapping();
         Collection<ColumnMapping> properties = tableMapping.getProperties();
-        if (properties.isEmpty()) {
+        if (this.isFreedom()) {
             Map<String, String> propertySet = tableMapping.isCaseInsensitive() ? new LinkedCaseInsensitiveMap<>() : new LinkedHashMap<>();
             for (Object key : entity.keySet()) {
                 String keyStr = key.toString();

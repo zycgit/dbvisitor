@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.types;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.reflect.TypeReference;
-import net.hasor.dbvisitor.JdbcUtils;
+import net.hasor.dbvisitor.JdbcHelper;
 import net.hasor.dbvisitor.dynamic.SqlMode;
 import net.hasor.dbvisitor.types.handler.*;
 
@@ -656,7 +656,7 @@ public final class TypeHandlerRegistry {
 
         if (sqlMode.isOut()) {
             if (sqlMode == SqlMode.Cursor) {
-                jdbcType = JdbcUtils.getCursorJdbcType(JdbcUtils.getDbType(cs));
+                jdbcType = JdbcHelper.getCursorJdbcType(JdbcHelper.getDbType(cs));
                 cs.registerOutParameter(parameterPosition, jdbcType);
             } else {
                 if (jdbcType == null && javaType != null) {

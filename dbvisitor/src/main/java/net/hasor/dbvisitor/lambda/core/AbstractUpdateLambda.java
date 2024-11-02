@@ -145,23 +145,28 @@ public abstract class AbstractUpdateLambda<R, T, P> extends BasicQueryCompare<R,
 
         Map<String, String> entityKeyMap = extractKeysMap(newValue);
         Set<String> keys;
+        Map<String, Object> tempData;
         if (this.isFreedom()) {
             keys = entityKeyMap.keySet();
+            tempData = newValue;
         } else {
             keys = new LinkedHashSet<>();
+            tempData = new HashMap<>();
             for (String key : this.allowUpdateKeys) {
-                if (newValue.containsKey(key)) {
+                Object value = newValue.get(key);
+                if (value != null) {
+                    tempData.put(key, value);
                     keys.add(key);
                 }
             }
-            if (keys.isEmpty()) {
+            if (tempData.isEmpty()) {
                 throw new IllegalStateException("there nothing to update.");
             }
         }
 
         return this.updateToByCondition(keys, true, s -> {
             return condition.test(s) && keys.contains(s);
-        }, entityKeyMap::get, newValue::get);
+        }, entityKeyMap::get, tempData::get);
     }
 
     @Override

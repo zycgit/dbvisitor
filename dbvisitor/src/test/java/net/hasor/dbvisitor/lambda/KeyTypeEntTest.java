@@ -17,7 +17,6 @@ package net.hasor.dbvisitor.lambda;
 import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.lambda.dto.AnnoUserInfoDTO;
 import net.hasor.test.dto.UserInfo2;
-import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -90,9 +89,9 @@ public class KeyTypeEntTest {
             int i = lambdaInsert.executeSumResult();
             assert i == 1;
 
-            List<user_info> tbUsers = lambdaTemplate.queryByEntity(user_info.class).queryForList();
+            List<AnnoUserInfoDTO> tbUsers = lambdaTemplate.queryByEntity(AnnoUserInfoDTO.class).queryForList();
             assert tbUsers.size() == 1;
-            List<String> ids = tbUsers.stream().map(user_info::getUser_uuid).collect(Collectors.toList());
+            List<String> ids = tbUsers.stream().map(AnnoUserInfoDTO::getUid).collect(Collectors.toList());
             assert ids.contains(uidFor1);
         }
     }

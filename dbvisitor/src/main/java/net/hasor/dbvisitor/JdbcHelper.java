@@ -29,7 +29,7 @@ import java.sql.Types;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-09-12
  */
-public class JdbcUtils {
+public class JdbcHelper {
     public static final String JTDS             = "jtds";
     public static final String MOCK             = "mock";
     public static final String HSQL             = "hsql";
@@ -168,11 +168,11 @@ public class JdbcUtils {
 
     public static String getDbType(Statement c) throws SQLException {
         DatabaseMetaData metaData = c.getConnection().getMetaData();
-        return JdbcUtils.getDbType(metaData.getURL(), metaData.getDriverName());
+        return JdbcHelper.getDbType(metaData.getURL(), metaData.getDriverName());
     }
 
     public static Integer getCursorJdbcType(String dbType) {
-        if (StringUtils.equals(dbType, JdbcUtils.ORACLE)) {
+        if (StringUtils.equals(dbType, JdbcHelper.ORACLE)) {
             return -10;// oracle driver oracle.jdbc.OracleTypes.CURSOR = -10
         } else {
             return Types.REF_CURSOR;

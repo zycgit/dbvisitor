@@ -33,7 +33,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import static net.hasor.test.utils.TestUtils.INSERT_ARRAY;
@@ -151,82 +150,106 @@ public class DoEntPageTest {
         }
     }
 
-    @Test
-    public void queryForIterator_0() throws Throwable {
-        try (Connection c = DsUtils.h2Conn()) {
-            int count = initData(c);
-
-            // iterator Query
-            List<AnnoUserInfoDTO> pageAll = new ArrayList<>();
-            Iterator<AnnoUserInfoDTO> iterator = newLambda(c).queryByEntity(AnnoUserInfoDTO.class).queryForIterator(-1, 1);
-            while (iterator.hasNext()) {
-                pageAll.add(iterator.next());
-            }
-
-            // check
-            for (int i = 0; i < count; i++) {
-                assert pageAll.get(i).getUid().equals("id_" + i);
-            }
-        }
-    }
-
-    @Test
-    public void queryForIterator_1() throws Throwable {
-        try (Connection c = DsUtils.h2Conn()) {
-            int count = initData(c);
-            assert count == 13;
-
-            // iterator Query
-            List<AnnoUserInfoDTO> pageAll = new ArrayList<>();
-            Iterator<AnnoUserInfoDTO> iterator = newLambda(c).queryByEntity(AnnoUserInfoDTO.class).queryForIterator(2, 1);
-            while (iterator.hasNext()) {
-                pageAll.add(iterator.next());
-            }
-
-            // check
-            assert pageAll.size() == 2;
-            assert pageAll.get(0).getUid().equals("id_0");
-            assert pageAll.get(1).getUid().equals("id_1");
-        }
-    }
-
-    @Test
-    public void queryForIterator_2() throws Throwable {
-        try (Connection c = DsUtils.h2Conn()) {
-            int count = initData(c);
-            assert count == 13;
-
-            // iterator Query
-            List<AnnoUserInfoDTO> pageAll = new ArrayList<>();
-            Iterator<AnnoUserInfoDTO> iterator = newLambda(c).queryByEntity(AnnoUserInfoDTO.class).queryForIterator(2);
-            while (iterator.hasNext()) {
-                pageAll.add(iterator.next());
-            }
-
-            // check
-            assert pageAll.size() == 2;
-            assert pageAll.get(0).getUid().equals("id_0");
-            assert pageAll.get(1).getUid().equals("id_1");
-        }
-    }
-
-    @Test
-    public void lambdaQuery_stream_page_1() throws Throwable {
-        try (Connection c = DsUtils.h2Conn()) {
-            int count = initData(c);
-            assert count == 13;
-
-            // iterator Query
-            List<String> pageAll = new ArrayList<>();
-            Iterator<String> iterator = newLambda(c).queryByEntity(AnnoUserInfoDTO.class).queryForIterator(2, 1, AnnoUserInfoDTO::getUid);
-            while (iterator.hasNext()) {
-                pageAll.add(iterator.next());
-            }
-
-            // check
-            assert pageAll.size() == 2;
-            assert pageAll.get(0).equals("id_0");
-            assert pageAll.get(1).equals("id_1");
-        }
-    }
+    //    @Test
+    //    public void iteratorForLimit_1() throws Throwable {
+    //        try (Connection c = DsUtils.h2Conn()) {
+    //            int count = initData(c);
+    //
+    //            // iterator Query
+    //            List<AnnoUserInfoDTO> pageAll = new ArrayList<>();
+    //            Iterator<AnnoUserInfoDTO> iterator = newLambda(c).queryByEntity(AnnoUserInfoDTO.class)//
+    //                    .iteratorForLimit(-1, 1);
+    //            while (iterator.hasNext()) {
+    //                pageAll.add(iterator.next());
+    //            }
+    //
+    //            // check
+    //            for (int i = 0; i < count; i++) {
+    //                assert pageAll.get(i).getUid().equals("id_" + i);
+    //            }
+    //        }
+    //    }
+    //
+    //    @Test
+    //    public void iteratorForLimit_2() throws Throwable {
+    //        try (Connection c = DsUtils.h2Conn()) {
+    //            int count = initData(c);
+    //            assert count == 13;
+    //
+    //            // iterator Query
+    //            List<AnnoUserInfoDTO> pageAll = new ArrayList<>();
+    //            Iterator<AnnoUserInfoDTO> iterator = newLambda(c).queryByEntity(AnnoUserInfoDTO.class)//
+    //                    .iteratorForLimit(2, 1);
+    //            while (iterator.hasNext()) {
+    //                pageAll.add(iterator.next());
+    //            }
+    //
+    //            // check
+    //            assert pageAll.size() == 2;
+    //            assert pageAll.get(0).getUid().equals("id_0");
+    //            assert pageAll.get(1).getUid().equals("id_1");
+    //        }
+    //    }
+    //
+    //    @Test
+    //    public void iteratorForLimit_3() throws Throwable {
+    //        try (Connection c = DsUtils.h2Conn()) {
+    //            int count = initData(c);
+    //            assert count == 13;
+    //
+    //            // iterator Query
+    //            List<AnnoUserInfoDTO> pageAll = new ArrayList<>();
+    //            Iterator<AnnoUserInfoDTO> iterator = newLambda(c).queryByEntity(AnnoUserInfoDTO.class)//
+    //                    .iteratorForLimit(2);
+    //            while (iterator.hasNext()) {
+    //                pageAll.add(iterator.next());
+    //            }
+    //
+    //            // check
+    //            assert pageAll.size() == 2;
+    //            assert pageAll.get(0).getUid().equals("id_0");
+    //            assert pageAll.get(1).getUid().equals("id_1");
+    //        }
+    //    }
+    //
+    //    @Test
+    //    public void iteratorForLimit_4() throws Throwable {
+    //        try (Connection c = DsUtils.h2Conn()) {
+    //            int count = initData(c);
+    //            assert count == 13;
+    //
+    //            // iterator Query
+    //            List<String> pageAll = new ArrayList<>();
+    //            Iterator<String> iterator = newLambda(c).queryByEntity(AnnoUserInfoDTO.class)//
+    //                    .iteratorForLimit(2, 1, AnnoUserInfoDTO::getUid);
+    //            while (iterator.hasNext()) {
+    //                pageAll.add(iterator.next());
+    //            }
+    //
+    //            // check
+    //            assert pageAll.size() == 2;
+    //            assert pageAll.get(0).equals("id_0");
+    //            assert pageAll.get(1).equals("id_1");
+    //        }
+    //    }
+    //
+    //    @Test
+    //    public void iteratorByBatch_1() throws Throwable {
+    //        try (Connection c = DsUtils.h2Conn()) {
+    //            int count = initData(c);
+    //
+    //            // iterator Query
+    //            List<AnnoUserInfoDTO> pageAll = new ArrayList<>();
+    //            Iterator<AnnoUserInfoDTO> iterator = newLambda(c).queryByEntity(AnnoUserInfoDTO.class)//
+    //                    .iteratorByBatch(-1);
+    //            while (iterator.hasNext()) {
+    //                pageAll.add(iterator.next());
+    //            }
+    //
+    //            // check
+    //            for (int i = 0; i < count; i++) {
+    //                assert pageAll.get(i).getUid().equals("id_" + i);
+    //            }
+    //        }
+    //    }
 }

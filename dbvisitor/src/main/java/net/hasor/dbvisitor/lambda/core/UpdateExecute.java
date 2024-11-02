@@ -31,16 +31,16 @@ public interface UpdateExecute<R, T, P> extends BasicFunc<R>, ConditionFunc<R>, 
     /** 【危险操作】允许更新主键列（主键不应具有业务含义，只是唯一标识数据） */
     R allowUpdateKey();
 
-    /** 参照 sample 局部更新（只更新对象中属性不为空的） */
+    /** 参照 sample 局部更新（只处理不为空的属性） */
     R updateToSample(T sample);
 
-    /** 增强 updateToSample 方法，通过 condition 可以进一步过滤某些列是否参与更新 */
+    /** 参照 sample 局部更新（只处理不为空的属性），通过 condition 可以进一步过滤某些列是否参与更新 */
     R updateToSample(T sample, Predicate<String> condition);
 
-    /** 参照 sample 局部更新（只更新 map 中存在的属性，可以用于将属性更新为 null） */
+    /** 参照 sample 局部更新（只处理不为空的属性） */
     R updateToSampleMap(Map<String, Object> sample);
 
-    /** 增强 updateToMap 方法，通过 condition 可以进一步过滤某些列是否参与更新 */
+    /** 参照 sample 局部更新（只处理不为空的属性），通过 condition 可以进一步过滤某些列是否参与更新 */
     R updateToSampleMap(Map<String, Object> sample, Predicate<String> condition);
 
     /**

@@ -50,9 +50,37 @@ public class DoEntQueryTest {
     }
 
     @Test
+    public void selectAll_forList_1_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            List<Map<String, Object>> users = new LambdaTemplate(c).queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .queryForList();
+            List<String> collect = users.stream().map(m -> m.get("name").toString()).collect(Collectors.toList());
+
+            assert collect.size() == 3;
+            assert collect.contains(beanForData1().getName());
+            assert collect.contains(beanForData2().getName());
+            assert collect.contains(beanForData3().getName());
+        }
+    }
+
+    @Test
     public void selectAll_forList_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             List<UserInfo> users = new LambdaTemplate(c).queryByEntity(AnnoUserInfoDTO.class).queryForList(UserInfo.class);
+            List<String> collect = users.stream().map(UserInfo::getEmail).collect(Collectors.toList());
+
+            assert collect.size() == 3;
+            assert collect.contains(beanForData1().getEmail());
+            assert collect.contains(beanForData2().getEmail());
+            assert collect.contains(beanForData3().getEmail());
+        }
+    }
+
+    @Test
+    public void selectAll_forList_2_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            List<UserInfo> users = new LambdaTemplate(c).queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .queryForList(UserInfo.class);
             List<String> collect = users.stream().map(UserInfo::getEmail).collect(Collectors.toList());
 
             assert collect.size() == 3;
@@ -76,12 +104,42 @@ public class DoEntQueryTest {
     }
 
     @Test
+    public void selectAll_forMapList_1_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            List<Map<String, Object>> users = new LambdaTemplate(c).queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .queryForMapList();
+            List<String> collect2 = users.stream().map(tbUser -> (String) tbUser.get("name")).collect(Collectors.toList());
+
+            assert collect2.size() == 3;
+            assert collect2.contains(beanForData1().getName());
+            assert collect2.contains(beanForData2().getName());
+            assert collect2.contains(beanForData3().getName());
+        }
+    }
+
+    @Test
     public void selectAll_forCallBack_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             List<String> users = new ArrayList<>();
             new LambdaTemplate(c).queryByEntity(AnnoUserInfoDTO.class).query((rs, rowNum) -> {
                 users.add(rs.getString("user_name"));
             });
+
+            assert users.size() == 3;
+            assert users.contains(beanForData1().getName());
+            assert users.contains(beanForData2().getName());
+            assert users.contains(beanForData3().getName());
+        }
+    }
+
+    @Test
+    public void selectAll_forCallBack_1_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            List<String> users = new ArrayList<>();
+            new LambdaTemplate(c).queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .query((rs, rowNum) -> {
+                        users.add(rs.getString("user_name"));
+                    });
 
             assert users.size() == 3;
             assert users.contains(beanForData1().getName());
@@ -108,9 +166,43 @@ public class DoEntQueryTest {
     }
 
     @Test
+    public void selectAll_forExtractor_1_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            List<Map<String, Object>> list = new LambdaTemplate(c).queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .query(new RowMapperResultSetExtractor<>(new ColumnMapRowMapper()));
+
+            List<String> collect = list.stream().map(tbUser -> {
+                return (String) tbUser.get("user_name");
+            }).collect(Collectors.toList());
+
+            assert collect.size() == 3;
+            assert collect.contains(beanForData1().getName());
+            assert collect.contains(beanForData2().getName());
+            assert collect.contains(beanForData3().getName());
+        }
+    }
+
+    @Test
     public void selectAll_forRowMapper_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             List<Map<String, Object>> list = new LambdaTemplate(c).queryByEntity(AnnoUserInfoDTO.class)//
+                    .query(new ColumnMapRowMapper());
+
+            List<String> collect = list.stream().map(tbUser -> {
+                return (String) tbUser.get("user_name");
+            }).collect(Collectors.toList());
+
+            assert collect.size() == 3;
+            assert collect.contains(beanForData1().getName());
+            assert collect.contains(beanForData2().getName());
+            assert collect.contains(beanForData3().getName());
+        }
+    }
+
+    @Test
+    public void selectAll_forRowMapper_1_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            List<Map<String, Object>> list = new LambdaTemplate(c).queryByEntity(AnnoUserInfoDTO.class).asMap()//
                     .query(new ColumnMapRowMapper());
 
             List<String> collect = list.stream().map(tbUser -> {

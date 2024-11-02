@@ -40,18 +40,16 @@ public class DoEntDeleteTest {
     }
 
     @Test
-    public void delete_2() {
+    public void delete_1_2map() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            new LambdaTemplate(c).deleteByEntity(AnnoUserInfoDTO.class)//
-                    .doDelete();
-            assert false;
-        } catch (Exception e) {
-            assert e.getMessage().equals("The dangerous DELETE operation, You must call `allowEmptyWhere()` to enable DELETE ALL.");
+            int delete = new LambdaTemplate(c).deleteByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .allowEmptyWhere().doDelete();
+            assert delete == 3;
         }
     }
 
     @Test
-    public void delete_3() throws Throwable {
+    public void delete_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             int delete = new LambdaTemplate(c).deleteByEntity(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
@@ -65,6 +63,46 @@ public class DoEntDeleteTest {
             List<String> collect = tbUsers.stream().map(AnnoUserInfoDTO::getUid).collect(Collectors.toList());
             assert collect.contains(beanForData2().getUserUuid());
             assert collect.contains(beanForData3().getUserUuid());
+        }
+    }
+
+    @Test
+    public void delete_2_2map() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            int delete = new LambdaTemplate(c).deleteByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", beanForData1().getLoginName())//
+                    .doDelete();
+            assert delete == 1;
+
+            List<AnnoUserInfoDTO> tbUsers = new LambdaTemplate(c).queryByEntity(AnnoUserInfoDTO.class)//
+                    .queryForList();
+
+            assert tbUsers.size() == 2;
+            List<String> collect = tbUsers.stream().map(AnnoUserInfoDTO::getUid).collect(Collectors.toList());
+            assert collect.contains(beanForData2().getUserUuid());
+            assert collect.contains(beanForData3().getUserUuid());
+        }
+    }
+
+    @Test
+    public void allowEmptyWhere_1() {
+        try (Connection c = DsUtils.h2Conn()) {
+            new LambdaTemplate(c).deleteByEntity(AnnoUserInfoDTO.class)//
+                    .doDelete();
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().equals("The dangerous DELETE operation, You must call `allowEmptyWhere()` to enable DELETE ALL.");
+        }
+    }
+
+    @Test
+    public void allowEmptyWhere_1_2map() {
+        try (Connection c = DsUtils.h2Conn()) {
+            new LambdaTemplate(c).deleteByEntity(AnnoUserInfoDTO.class).asMap()//
+                    .doDelete();
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().equals("The dangerous DELETE operation, You must call `allowEmptyWhere()` to enable DELETE ALL.");
         }
     }
 }

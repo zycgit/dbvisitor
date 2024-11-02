@@ -20,7 +20,7 @@ import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.BeanMap;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
-import net.hasor.dbvisitor.JdbcUtils;
+import net.hasor.dbvisitor.JdbcHelper;
 import net.hasor.dbvisitor.dal.execute.ExecuteProxy;
 import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.dal.mapper.Mapper;
@@ -247,7 +247,7 @@ public class DalSession extends JdbcAccessor {
 
     protected PageSqlDialect findPageDialect(Connection conn) throws SQLException {
         DatabaseMetaData metaData = conn.getMetaData();
-        String tmpDbType = JdbcUtils.getDbType(metaData.getURL(), metaData.getDriverName());
+        String tmpDbType = JdbcHelper.getDbType(metaData.getURL(), metaData.getDriverName());
         SqlDialect tempDialect = SqlDialectRegister.findOrCreate(tmpDbType);
         return (!(tempDialect instanceof PageSqlDialect)) ? DefaultSqlDialect.DEFAULT : (PageSqlDialect) tempDialect;
     }
