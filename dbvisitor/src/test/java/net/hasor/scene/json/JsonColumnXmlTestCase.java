@@ -1,7 +1,7 @@
 package net.hasor.scene.json;
 import net.hasor.dbvisitor.dal.repository.DalRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import net.hasor.scene.json.dto.Project1;
 import net.hasor.scene.json.dto.Project2;
 import net.hasor.scene.json.dto.ProjectFeature;
@@ -38,7 +38,7 @@ public class JsonColumnXmlTestCase {
 
         try (Connection c = DsUtils.mysqlConn()) {
             DalSession dalSession = new DalSession(c, dalRegistry);
-            LambdaTemplate template = dalSession.lambdaTemplate();
+            WrapperAdapter template = dalSession.lambdaTemplate();
 
             template.getJdbc().execute("drop table if exists `project`");
             template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
@@ -65,7 +65,7 @@ public class JsonColumnXmlTestCase {
 
         try (Connection c = DsUtils.mysqlConn()) {
             DalSession dalSession = new DalSession(c, dalRegistry);
-            LambdaTemplate template = dalSession.lambdaTemplate();
+            WrapperAdapter template = dalSession.lambdaTemplate();
 
             template.getJdbc().execute("drop table if exists `project`");
             template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
@@ -98,7 +98,7 @@ public class JsonColumnXmlTestCase {
 
         try (Connection c = DsUtils.mysqlConn()) {
             DalSession dalSession = new DalSession(c, dalRegistry);
-            LambdaTemplate template = dalSession.lambdaTemplate();
+            WrapperAdapter template = dalSession.lambdaTemplate();
 
             template.getJdbc().execute("drop table if exists `project`");
             template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
@@ -125,7 +125,7 @@ public class JsonColumnXmlTestCase {
 
         try (Connection c = DsUtils.mysqlConn()) {
             DalSession dalSession = new DalSession(c, dalRegistry);
-            LambdaTemplate template = dalSession.lambdaTemplate();
+            WrapperAdapter template = dalSession.lambdaTemplate();
 
             template.getJdbc().execute("drop table if exists `project`");
             template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");

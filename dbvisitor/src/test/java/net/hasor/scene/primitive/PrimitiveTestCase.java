@@ -1,6 +1,6 @@
 package net.hasor.scene.primitive;
 import net.hasor.dbvisitor.dal.session.DalSession;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import net.hasor.scene.primitive.dto.PrimitiveDTO;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
@@ -14,7 +14,7 @@ public class PrimitiveTestCase {
     @Test
     public void stringTestCase() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            LambdaTemplate template = new LambdaTemplate(c);
+            WrapperAdapter template = new WrapperAdapter(c);
             template.deleteByEntity(PrimitiveDTO.class).allowEmptyWhere().doDelete();
 
             PrimitiveDTO dto = new PrimitiveDTO();
@@ -51,7 +51,7 @@ public class PrimitiveTestCase {
     @Test
     public void intTestCase() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            LambdaTemplate template = new LambdaTemplate(c);
+            WrapperAdapter template = new WrapperAdapter(c);
             template.deleteByEntity(PrimitiveDTO.class).allowEmptyWhere().doDelete();
 
             PrimitiveDTO dto = new PrimitiveDTO();

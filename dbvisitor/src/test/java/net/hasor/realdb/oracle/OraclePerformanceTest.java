@@ -1,6 +1,6 @@
 package net.hasor.realdb.oracle;
-import net.hasor.dbvisitor.lambda.InsertOperation;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.wrapper.InsertWrapper;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
@@ -11,7 +11,7 @@ import java.util.Date;
 
 public class OraclePerformanceTest {
     private void reinit(Connection con) {
-        LambdaTemplate lambdaTemplate = new LambdaTemplate(con);
+        WrapperAdapter lambdaTemplate = new WrapperAdapter(con);
         try {
             lambdaTemplate.getJdbc().execute("drop table user_info");
         } catch (Exception e) {
@@ -26,8 +26,8 @@ public class OraclePerformanceTest {
 
     private void initData(Connection con, int count) throws SQLException {
         con.setAutoCommit(false);
-        LambdaTemplate lambdaTemplate = new LambdaTemplate(con);
-        InsertOperation<UserInfo2> lambdaInsert = lambdaTemplate.insertByEntity(UserInfo2.class);
+        WrapperAdapter lambdaTemplate = new WrapperAdapter(con);
+        InsertWrapper<UserInfo2> lambdaInsert = lambdaTemplate.insertByEntity(UserInfo2.class);
         for (int i = 0; i < count; i++) {
             UserInfo2 tbUser = new UserInfo2();
             tbUser.setUid("id_" + i);
@@ -51,7 +51,7 @@ public class OraclePerformanceTest {
     public void oracleInsertQuery_1() throws SQLException {
         long t = System.currentTimeMillis();
         try (Connection con = DsUtils.oracleConn()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(con);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(con);
 
             reinit(con);
             initData(con, 2000);
@@ -68,7 +68,7 @@ public class OraclePerformanceTest {
     public void oracleInsertQuery_2() throws SQLException {
         long t = System.currentTimeMillis();
         try (Connection con = DsUtils.oracleConn()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(con);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(con);
             //
             reinit(con);
             initData(con, 1000);

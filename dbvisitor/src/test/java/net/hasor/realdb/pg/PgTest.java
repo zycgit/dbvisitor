@@ -15,7 +15,7 @@
  */
 package net.hasor.realdb.pg;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import org.junit.Test;
 
 import java.sql.SQLException;
@@ -25,7 +25,7 @@ public class PgTest {
 
     @Test
     public void testOracleClob() throws SQLException {
-        LambdaTemplate lambdaTemplate = new LambdaTemplate();
+        WrapperAdapter lambdaTemplate = new WrapperAdapter();
 
         ArchiveValidStatisticsResult result = new ArchiveValidStatisticsResult();
         result.setArchiveType("01");

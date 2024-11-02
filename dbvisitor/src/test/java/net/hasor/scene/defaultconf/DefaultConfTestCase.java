@@ -1,9 +1,9 @@
 package net.hasor.scene.defaultconf;
-import net.hasor.dbvisitor.lambda.EntityQueryOperation;
-import net.hasor.dbvisitor.lambda.InsertOperation;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.lambda.MapQueryOperation;
 import net.hasor.dbvisitor.mapping.MappingOptions;
+import net.hasor.dbvisitor.wrapper.EntityQueryWrapper;
+import net.hasor.dbvisitor.wrapper.InsertWrapper;
+import net.hasor.dbvisitor.wrapper.MapQueryWrapper;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import net.hasor.scene.defaultconf.dto.UserDTO;
 import net.hasor.scene.defaultconf.dto.UserTable;
 import net.hasor.test.utils.DsUtils;
@@ -22,7 +22,7 @@ public class DefaultConfTestCase {
     @Test
     public void insertByPojo() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
 
             UserTable userData = new UserTable();
             userData.setId(128);
@@ -30,11 +30,11 @@ public class DefaultConfTestCase {
             userData.setName("default user");
             userData.setCreateTime(new Date());// 驼峰由 @TableDefault 进行启用
 
-            InsertOperation<UserTable> lambdaInsert = lambdaTemplate.insertByEntity(UserTable.class);
+            InsertWrapper<UserTable> lambdaInsert = lambdaTemplate.insertByEntity(UserTable.class);
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
 
             // 校验结果
-            EntityQueryOperation<UserTable> lambdaQuery = lambdaTemplate.queryByEntity(UserTable.class);
+            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.queryByEntity(UserTable.class);
             UserTable resultData = lambdaQuery.eq(UserTable::getId, 128).queryForObject();
 
             assert resultData.getId() == 128;
@@ -48,7 +48,7 @@ public class DefaultConfTestCase {
     @Test
     public void insertByDTO() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
 
             UserDTO userData = new UserDTO();
             userData.setId(128);
@@ -56,11 +56,11 @@ public class DefaultConfTestCase {
             userData.setName("default user");
             userData.setCreateTime(new Date());// 驼峰由 @TableDefault 进行启用
 
-            InsertOperation<UserDTO> lambdaInsert = lambdaTemplate.insertByEntity(UserDTO.class);
+            InsertWrapper<UserDTO> lambdaInsert = lambdaTemplate.insertByEntity(UserDTO.class);
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
 
             // 校验结果
-            EntityQueryOperation<UserDTO> lambdaQuery = lambdaTemplate.queryByEntity(UserDTO.class);
+            EntityQueryWrapper<UserDTO> lambdaQuery = lambdaTemplate.queryByEntity(UserDTO.class);
             UserDTO resultData = lambdaQuery.eq(UserDTO::getId, 128).queryForObject();
 
             assert resultData.getId() == 128;
@@ -74,7 +74,7 @@ public class DefaultConfTestCase {
     @Test
     public void insertByMap() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
 
             Map<String, Object> userData = new HashMap<>();
             userData.put("id", 128);
@@ -82,11 +82,11 @@ public class DefaultConfTestCase {
             userData.put("name", "default user");
             userData.put("create_time", new Date());// 默认驼峰转换是关闭的，因此在没有任何配置的情况下 key 需要和列名完全一致。
 
-            InsertOperation<Map<String, Object>> lambdaInsert = lambdaTemplate.insertByTable("user_table");
+            InsertWrapper<Map<String, Object>> lambdaInsert = lambdaTemplate.insertByTable("user_table");
             assert 1 == lambdaInsert.applyMap(userData).executeSumResult();
 
             // 校验结果
-            MapQueryOperation lambdaQuery = lambdaTemplate.queryByTable("user_table").asMap();
+            MapQueryWrapper lambdaQuery = lambdaTemplate.queryByTable("user_table").asMap();
             Map<String, Object> resultData = lambdaQuery.eq("id", 128).queryForObject();
 
             assert resultData.get("id").equals(128);

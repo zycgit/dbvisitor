@@ -1,7 +1,7 @@
 package net.hasor.scene.casesensitive;
-import net.hasor.dbvisitor.lambda.InsertOperation;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.lambda.MapQueryOperation;
+import net.hasor.dbvisitor.wrapper.InsertWrapper;
+import net.hasor.dbvisitor.wrapper.MapQueryWrapper;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ public class CaseSensitiveTest {
     @Test
     public void insertMapByUpperKeys() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
             lambdaTemplate.deleteByTable("USER_TABLE").allowEmptyWhere().doDelete();
 
             Map<String, Object> userData = new LinkedHashMap<>();
@@ -23,12 +23,12 @@ public class CaseSensitiveTest {
             userData.put("NAME", "default user");
             userData.put("CREATE_TIME", "2022-01-01 12:12:12");
 
-            InsertOperation<Map<String, Object>> insert = lambdaTemplate.insertByTable("USER_TABLE").asMap().applyMap(userData);
+            InsertWrapper<Map<String, Object>> insert = lambdaTemplate.insertByTable("USER_TABLE").asMap().applyMap(userData);
             assert insert.getBoundSql().getSqlString().equals("INSERT INTO USER_TABLE (AGE, NAME, CREATE_TIME) VALUES (?, ?, ?)");
             assert insert.executeSumResult() == 1;
 
             // 校验结果
-            MapQueryOperation lambdaQuery = lambdaTemplate.queryByTable("USER_TABLE").asMap();
+            MapQueryWrapper lambdaQuery = lambdaTemplate.queryByTable("USER_TABLE").asMap();
             Map<String, Object> resultData = lambdaQuery.eq("AGE", 120).queryForObject();
             assert resultData.get("name").equals("default user");
         }
@@ -38,7 +38,7 @@ public class CaseSensitiveTest {
     @Test
     public void insertMapByLowerKeys() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
             lambdaTemplate.deleteByTable("USER_TABLE").allowEmptyWhere().doDelete();
 
             Map<String, Object> userData = new LinkedHashMap<>();
@@ -46,12 +46,12 @@ public class CaseSensitiveTest {
             userData.put("NAME", "default user");
             userData.put("CREATE_TIME", "2022-01-01 12:12:12");
 
-            InsertOperation<Map<String, Object>> insert = lambdaTemplate.insertByTable("USER_TABLE").asMap().applyMap(userData);
+            InsertWrapper<Map<String, Object>> insert = lambdaTemplate.insertByTable("USER_TABLE").asMap().applyMap(userData);
             assert insert.getBoundSql().getSqlString().equals("INSERT INTO USER_TABLE (AGE, NAME, CREATE_TIME) VALUES (?, ?, ?)");
             assert insert.executeSumResult() == 1;
 
             // 校验结果
-            MapQueryOperation lambdaQuery = lambdaTemplate.queryByTable("user_table").asMap();
+            MapQueryWrapper lambdaQuery = lambdaTemplate.queryByTable("user_table").asMap();
             Map<String, Object> resultData = lambdaQuery.eq("age", 120).queryForObject();
             assert resultData.get("name").equals("default user");
         }
@@ -61,7 +61,7 @@ public class CaseSensitiveTest {
     @Test
     public void caseSensitive() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
 
             lambdaTemplate.getJdbc().setResultsCaseInsensitive(false); //设置为敏感
 
@@ -79,7 +79,7 @@ public class CaseSensitiveTest {
     @Test
     public void qualifierTest() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            LambdaTemplate lambdaTemplate = new LambdaTemplate(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
             //lambdaTemplate.setUseQualifier(true); //请求参数使用限定符
 
             String sqlString1 = lambdaTemplate.queryByTable("USER_TABLE").eq("ID", 1).getBoundSql().getSqlString();

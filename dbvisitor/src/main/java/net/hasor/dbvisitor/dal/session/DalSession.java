@@ -35,10 +35,10 @@ import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.DynamicConnection;
 import net.hasor.dbvisitor.jdbc.core.JdbcAccessor;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.page.Page;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import javax.sql.DataSource;
 import java.lang.annotation.Annotation;
@@ -60,8 +60,8 @@ public class DalSession extends JdbcAccessor {
     private static final Logger                           log          = LoggerFactory.getLogger(DalSession.class);
     private final        DalRegistry                      dalRegistry;
     private final        PageSqlDialect                   dialect;
-    private final        LambdaTemplate                   defaultTemplate;
-    private final        Function<String, LambdaTemplate> spaceTemplateFactory;
+    private final        WrapperAdapter                   defaultTemplate;
+    private final        Function<String, WrapperAdapter> spaceTemplateFactory;
     private final        Map<String, ExecuteProxy>        executeCache = new ConcurrentHashMap<>();
 
     public DalSession(Connection connection) throws SQLException {
@@ -126,11 +126,11 @@ public class DalSession extends JdbcAccessor {
         return this.dialect;
     }
 
-    public LambdaTemplate lambdaTemplate() {
+    public WrapperAdapter lambdaTemplate() {
         return this.defaultTemplate;
     }
 
-    protected LambdaTemplate newTemplate(String space) {
+    protected WrapperAdapter newTemplate(String space) {
         return this.spaceTemplateFactory.apply(space);
     }
 
@@ -252,7 +252,7 @@ public class DalSession extends JdbcAccessor {
         return (!(tempDialect instanceof PageSqlDialect)) ? DefaultSqlDialect.DEFAULT : (PageSqlDialect) tempDialect;
     }
 
-    private class DalLambdaTemplate extends LambdaTemplate {
+    private class DalLambdaTemplate extends WrapperAdapter {
         public DalLambdaTemplate(Connection localConn) {
             super(localConn);
         }

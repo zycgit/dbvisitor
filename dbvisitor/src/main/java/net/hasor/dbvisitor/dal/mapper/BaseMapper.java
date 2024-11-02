@@ -16,9 +16,9 @@
 package net.hasor.dbvisitor.dal.mapper;
 import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
-import net.hasor.dbvisitor.lambda.*;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageResult;
+import net.hasor.dbvisitor.wrapper.*;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -34,27 +34,27 @@ public interface BaseMapper<T> extends Mapper {
 
     Class<T> entityType();
 
-    LambdaTemplate template();
+    WrapperAdapter template();
 
     DalSession getSession();
 
     /** return LambdaInsert for insert */
-    default InsertOperation<T> insert() {
+    default InsertWrapper<T> insert() {
         return template().insertByEntity(entityType());
     }
 
     /** return LambdaDelete for delete */
-    default EntityDeleteOperation<T> delete() {
+    default EntityDeleteWrapper<T> delete() {
         return template().deleteByEntity(entityType());
     }
 
     /** return LambdaUpdate for update */
-    default EntityUpdateOperation<T> update() {
+    default EntityUpdateWrapper<T> update() {
         return template().updateByEntity(entityType());
     }
 
     /** return LambdaQuery for query */
-    default EntityQueryOperation<T> query() {
+    default EntityQueryWrapper<T> query() {
         return template().queryByEntity(entityType());
     }
 

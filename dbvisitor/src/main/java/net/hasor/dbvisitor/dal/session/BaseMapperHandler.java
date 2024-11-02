@@ -16,15 +16,15 @@
 package net.hasor.dbvisitor.dal.session;
 import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
-import net.hasor.dbvisitor.lambda.EntityDeleteOperation;
-import net.hasor.dbvisitor.lambda.EntityQueryOperation;
-import net.hasor.dbvisitor.lambda.EntityUpdateOperation;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.page.PageObject;
 import net.hasor.dbvisitor.page.PageResult;
+import net.hasor.dbvisitor.wrapper.EntityDeleteWrapper;
+import net.hasor.dbvisitor.wrapper.EntityQueryWrapper;
+import net.hasor.dbvisitor.wrapper.EntityUpdateWrapper;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -43,7 +43,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
     private final String               space;
     private final Class<Object>        entityType;
     private final DalSession           dalSession;
-    private final LambdaTemplate       template;
+    private final WrapperAdapter       template;
     private final TableMapping<Object> tableMapping;
 
     public BaseMapperHandler(String space, Class<?> entityType, DalSession dalSession) {
@@ -62,7 +62,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
     }
 
     @Override
-    public LambdaTemplate template() {
+    public WrapperAdapter template() {
         return this.template;
     }
 
@@ -91,7 +91,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
-        EntityUpdateOperation<Object> update = update();
+        EntityUpdateWrapper<Object> update = update();
 
         for (ColumnMapping pk : pks) {
             Object o = pk.getHandler().get(entity);
@@ -123,8 +123,8 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
-        EntityQueryOperation<Object> query = query();
-        EntityUpdateOperation<Object> update = update();
+        EntityQueryWrapper<Object> query = query();
+        EntityUpdateWrapper<Object> update = update();
 
         for (ColumnMapping pk : pks) {
             Object o = pk.getHandler().get(entity);
@@ -162,7 +162,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
-        EntityUpdateOperation<Object> update = update();
+        EntityUpdateWrapper<Object> update = update();
 
         boolean isPrimaryKeyEmpty = true;
         for (ColumnMapping pk : pks) {
@@ -208,7 +208,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
-        EntityDeleteOperation<Object> delete = delete();
+        EntityDeleteWrapper<Object> delete = delete();
 
         for (ColumnMapping pk : pks) {
             Object o = pk.getHandler().get(entity);
@@ -237,7 +237,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
-        EntityDeleteOperation<Object> delete = delete();
+        EntityDeleteWrapper<Object> delete = delete();
         if (pks.size() == 1) {
             delete.and().eq(pks.get(0).getProperty(), id);
         } else {
@@ -276,7 +276,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
                 throw new RuntimeSQLException(e);
             }
         } else {
-            EntityDeleteOperation<Object> delete = delete();
+            EntityDeleteWrapper<Object> delete = delete();
             for (Object obj : idList) {
                 delete.or(queryCompare -> {
                     for (ColumnMapping pkColumn : pks) {
@@ -309,7 +309,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
-        EntityQueryOperation<Object> query = query();
+        EntityQueryWrapper<Object> query = query();
         if (pks.size() == 1) {
             query.and().eq(pks.get(0).getProperty(), id);
         } else {
@@ -348,7 +348,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
                 throw new RuntimeSQLException(e);
             }
         } else {
-            EntityQueryOperation<Object> query = query();
+            EntityQueryWrapper<Object> query = query();
             for (Object obj : idList) {
                 query.or(queryCompare -> {
                     for (ColumnMapping pkColumn : pks) {
@@ -370,8 +370,8 @@ class BaseMapperHandler implements BaseMapper<Object> {
         }
     }
 
-    protected EntityQueryOperation<Object> buildQueryBySample(Object sample) {
-        EntityQueryOperation<Object> query = query();
+    protected EntityQueryWrapper<Object> buildQueryBySample(Object sample) {
+        EntityQueryWrapper<Object> query = query();
 
         if (sample != null) {
             for (ColumnMapping mapping : getMapping().getProperties()) {
