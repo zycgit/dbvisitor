@@ -25,25 +25,28 @@ import net.hasor.dbvisitor.types.TypeHandler;
  * @version : 2020-10-31
  */
 public class ColumnDef implements ColumnMapping {
-    private final String            columnName;
-    private final String            propertyName;
-    private final Integer           jdbcType;
-    private final Class<?>          javaType;
-    private final TypeHandler<?>    typeHandler;
-    private final Property          handler;
-    private       Annotations       annotations;
-    private       KeySeqHolder      keySeqHolder;
+    private final String         columnName;
+    private final String         propertyName;
+    private final Integer        jdbcType;
+    private final Class<?>       javaType;
+    private final TypeHandler<?> typeHandler;
+    private final Property       handler;
+    private       Annotations    annotations;
+    private       KeySeqHolder   keySeqHolder;
     //
-    private       boolean           insert;
-    private       boolean           update;
-    private       boolean           primary;
-    private       String            selectTemplate;
-    private       String            insertTemplate;
-    private       String            setColTemplate;
-    private       String            setValueTemplate;
-    private       String            whereColTemplate;
-    private       String            whereValueTemplate;
-    private       ColumnDescription description;
+    private       boolean        insert;
+    private       boolean        update;
+    private       boolean        primary;
+    private       String         selectTemplate;
+    private       String         insertTemplate;
+    private       String         setColTemplate;
+    private       String         setValueTemplate;
+    private       String         whereColTemplate;
+    private       String         whereValueTemplate;
+    private       String         groupByColTemplate;
+    private       String         orderByColTemplate;
+
+    private ColumnDescription description;
 
     public ColumnDef(String columnName, String propertyName, Integer jdbcType, Class<?> javaType,//
             TypeHandler<?> typeHandler, Property handler) {
@@ -185,6 +188,24 @@ public class ColumnDef implements ColumnMapping {
 
     public void setWhereValueTemplate(String whereValueTemplate) {
         this.whereValueTemplate = whereValueTemplate;
+    }
+
+    @Override
+    public String getGroupByColTemplate() {
+        return this.groupByColTemplate;
+    }
+
+    public void setGroupByColTemplate(String groupByColTemplate) {
+        this.groupByColTemplate = groupByColTemplate;
+    }
+
+    @Override
+    public String getOrderByColTemplate() {
+        return this.orderByColTemplate;
+    }
+
+    public void setOrderByColTemplate(String orderByColTemplate) {
+        this.orderByColTemplate = orderByColTemplate;
     }
 
     @Override

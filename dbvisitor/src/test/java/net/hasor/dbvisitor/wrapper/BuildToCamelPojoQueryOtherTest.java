@@ -51,7 +51,6 @@ public class BuildToCamelPojoQueryOtherTest {
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
         assert boundSql1.getArgs()[2].equals(123);
-
     }
 
     @Test
@@ -235,7 +234,7 @@ public class BuildToCamelPojoQueryOtherTest {
 
         BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a")//
-                .asc(UserInfo::getLoginName, UserInfo::getSeq)//
+                .asc(UserInfo::getLoginName).asc(UserInfo::getSeq)//
                 .getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC , seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
@@ -272,7 +271,7 @@ public class BuildToCamelPojoQueryOtherTest {
 
         BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("loginName", "a")//
-                .asc("loginName", "seq")//
+                .asc("loginName").asc("seq")//
                 .getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC , seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
@@ -304,7 +303,7 @@ public class BuildToCamelPojoQueryOtherTest {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).applySelect("a, b, c, d")//
                 .eq(UserInfo::getSeq, 1)//
                 .or()//
-                .between(UserInfo::getLoginName, 2, 3)//
+                .rangeBetween(UserInfo::getLoginName, 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT a, b, c, d FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
@@ -319,7 +318,7 @@ public class BuildToCamelPojoQueryOtherTest {
                 .applySelect("a, b, c, d")//
                 .eq("seq", 1)//
                 .or()//
-                .between("loginName", 2, 3)//
+                .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT a, b, c, d FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
@@ -331,10 +330,10 @@ public class BuildToCamelPojoQueryOtherTest {
     @Test
     public void queryBuilder_select_2() {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
-                .select(UserInfo::getLoginName, UserInfo::getSeq)//
+                .selectAdd(UserInfo::getLoginName).selectAdd(UserInfo::getSeq)//
                 .eq(UserInfo::getSeq, 1)//
                 .or()//
-                .between(UserInfo::getLoginName, 2, 3)//
+                .rangeBetween(UserInfo::getLoginName, 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT login_name , seq FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
@@ -346,10 +345,10 @@ public class BuildToCamelPojoQueryOtherTest {
     @Test
     public void queryBuilder_select_2_2map() {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
-                .select("loginName", "seq")//
+                .selectAdd("loginName").selectAdd("seq")//
                 .eq("seq", 1)//
                 .or()//
-                .between("loginName", 2, 3)//
+                .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT login_name , seq FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
@@ -364,7 +363,7 @@ public class BuildToCamelPojoQueryOtherTest {
                 .select(UserInfo::getLoginName)//
                 .eq(UserInfo::getSeq, 1)//
                 .or()//
-                .between(UserInfo::getLoginName, 2, 3)//
+                .rangeBetween(UserInfo::getLoginName, 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT login_name FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
@@ -379,7 +378,7 @@ public class BuildToCamelPojoQueryOtherTest {
                 .select("loginName")//
                 .eq("seq", 1)//
                 .or()//
-                .between("loginName", 2, 3)//
+                .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT login_name FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");

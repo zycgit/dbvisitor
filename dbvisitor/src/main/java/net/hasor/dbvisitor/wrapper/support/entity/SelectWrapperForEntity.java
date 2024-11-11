@@ -23,6 +23,8 @@ import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.wrapper.EntityQueryWrapper;
 import net.hasor.dbvisitor.wrapper.MapQueryWrapper;
 import net.hasor.dbvisitor.wrapper.core.AbstractSelectWrapper;
+import net.hasor.dbvisitor.wrapper.core.OrderNullsStrategy;
+import net.hasor.dbvisitor.wrapper.core.OrderType;
 import net.hasor.dbvisitor.wrapper.segment.SqlKeyword;
 import net.hasor.dbvisitor.wrapper.support.map.SelectWrapperForMap;
 
@@ -54,128 +56,47 @@ public class SelectWrapperForEntity<T> extends AbstractSelectWrapper<EntityQuery
     }
 
     @Override
-    public EntityQueryWrapper<T> select(SFunction<T> property1) {
-        return this.select(new SFunction[] { property1 });
+    public EntityQueryWrapper<T> select(SFunction<T> property) {
+        return this.select(new SFunction[] { property });
     }
 
     @Override
-    public EntityQueryWrapper<T> select(SFunction<T> property1, SFunction<T> property2) {
-        return this.select(new SFunction[] { property1, property2 });
+    public EntityQueryWrapper<T> selectAdd(SFunction<T> property) {
+        return this.selectAdd(new SFunction[] { property });
     }
 
     @Override
-    public EntityQueryWrapper<T> select(SFunction<T> property1, SFunction<T> property2, SFunction<T> property3) {
-        return this.select(new SFunction[] { property1, property2, property3 });
+    public EntityQueryWrapper<T> groupBy(SFunction<T> property) {
+        return this.groupBy(new SFunction[] { property });
     }
 
     @Override
-    public EntityQueryWrapper<T> select(SFunction<T> property1, SFunction<T> property2, SFunction<T> property3, SFunction<T> property4) {
-        return this.select(new SFunction[] { property1, property2, property3, property4 });
+    public EntityQueryWrapper<T> orderBy(SFunction<T> property) {
+        return this.addOrderBy(OrderType.DEFAULT, new SFunction[] { property }, OrderNullsStrategy.DEFAULT);
     }
 
     @Override
-    public EntityQueryWrapper<T> select(SFunction<T> property1, SFunction<T> property2, SFunction<T> property3, SFunction<T> property4, SFunction<T> property5) {
-        return this.select(new SFunction[] { property1, property2, property3, property4, property5 });
+    public EntityQueryWrapper<T> orderBy(SFunction<T>[] orderBy) {
+        return this.addOrderBy(OrderType.DEFAULT, orderBy, OrderNullsStrategy.DEFAULT);
     }
 
     @Override
-    public EntityQueryWrapper<T> groupBy(SFunction<T> property1) {
-        return this.groupBy(new SFunction[] { property1 });
+    public EntityQueryWrapper<T> orderBy(SFunction<T> property, OrderType orderType, OrderNullsStrategy strategy) {
+        return this.orderBy(new SFunction[] { property }, orderType, strategy);
     }
 
     @Override
-    public EntityQueryWrapper<T> groupBy(SFunction<T> property1, SFunction<T> property2) {
-        return this.groupBy(new SFunction[] { property1, property2 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> groupBy(SFunction<T> property1, SFunction<T> property2, SFunction<T> property3) {
-        return this.groupBy(new SFunction[] { property1, property2, property3 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> groupBy(SFunction<T> property1, SFunction<T> property2, SFunction<T> property3, SFunction<T> property4) {
-        return this.groupBy(new SFunction[] { property1, property2, property3, property4 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> groupBy(SFunction<T> property1, SFunction<T> property2, SFunction<T> property3, SFunction<T> property4, SFunction<T> property5) {
-        return this.groupBy(new SFunction[] { property1, property2, property3, property4, property5 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> orderBy(SFunction<T> property1) {
-        return this.orderBy(new SFunction[] { property1 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> orderBy(SFunction<T> property1, SFunction<T> property2) {
-        return this.orderBy(new SFunction[] { property1, property2 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> orderBy(SFunction<T> property1, SFunction<T> property2, SFunction<T> property3) {
-        return this.orderBy(new SFunction[] { property1, property2, property3 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> orderBy(SFunction<T> property1, SFunction<T> property2, SFunction<T> property3, SFunction<T> property4) {
-        return this.orderBy(new SFunction[] { property1, property2, property3, property4 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> orderBy(SFunction<T> property1, SFunction<T> property2, SFunction<T> property3, SFunction<T> property4, SFunction<T> property5) {
-        return this.orderBy(new SFunction[] { property1, property2, property3, property4, property5 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> asc(SFunction<T> property1) {
-        return this.asc(new SFunction[] { property1 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> asc(SFunction<T> property1, SFunction<T> property2) {
-        return this.asc(new SFunction[] { property1, property2 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> asc(SFunction<T> property1, SFunction<T> property2, SFunction<T> property3) {
-        return this.asc(new SFunction[] { property1, property2, property3 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> asc(SFunction<T> property1, SFunction<T> property2, SFunction<T> property3, SFunction<T> property4) {
-        return this.asc(new SFunction[] { property1, property2, property3, property4 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> asc(SFunction<T> property1, SFunction<T> property2, SFunction<T> property3, SFunction<T> property4, SFunction<T> property5) {
-        return this.asc(new SFunction[] { property1, property2, property3, property4, property5 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> desc(SFunction<T> property1) {
-        return this.desc(new SFunction[] { property1 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> desc(SFunction<T> property1, SFunction<T> property2) {
-        return this.desc(new SFunction[] { property1, property2 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> desc(SFunction<T> property1, SFunction<T> property2, SFunction<T> property3) {
-        return this.desc(new SFunction[] { property1, property2, property3 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> desc(SFunction<T> property1, SFunction<T> property2, SFunction<T> property3, SFunction<T> property4) {
-        return this.desc(new SFunction[] { property1, property2, property3, property4 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> desc(SFunction<T> property1, SFunction<T> property2, SFunction<T> property3, SFunction<T> property4, SFunction<T> property5) {
-        return this.desc(new SFunction[] { property1, property2, property3, property4, property5 });
+    public EntityQueryWrapper<T> orderBy(SFunction<T>[] properties, OrderType orderType, OrderNullsStrategy strategy) {
+        switch (orderType) {
+            case ASC:
+                return this.addOrderBy(OrderType.ASC, properties, strategy);
+            case DESC:
+                return this.addOrderBy(OrderType.DESC, properties, strategy);
+            case DEFAULT:
+                return this.addOrderBy(OrderType.DEFAULT, properties, strategy);
+            default:
+                throw new UnsupportedOperationException("orderType " + orderType + " Unsupported.");
+        }
     }
 
     // ----------------------------------------------------

@@ -94,6 +94,24 @@ public interface QueryCompare<R, T, P> {
      */
     R and(boolean test, Consumer<R> lambda);
 
+    /**
+     * 下一个查询条件使用与关系，类似：'not ...'
+     */
+    R not();
+
+    /**
+     * 下一个查询条件组使用与关系。类似：'not (...)'
+     */
+    default R not(Consumer<R> lambda) {
+        this.not();
+        return this.nested(lambda);
+    }
+
+    /**
+     * 当 test 条件为真时才使用下一个查询条件组，条件组使用与关系。类似：'not (...)'
+     */
+    R not(boolean test, Consumer<R> lambda);
+
     //    /** in 子查询，类似：'col in (LambdaQuery)' */
     //     <V> R andInLambda(SFunction<T> property, CompareBuilder<V> subLambda);
     //    /** in 子查询，类似：'or col in (LambdaQuery)' */
@@ -306,26 +324,122 @@ public interface QueryCompare<R, T, P> {
     /**
      * between 条件，类似：'col between ? and ?'
      */
-    default R between(P property, Object value1, Object value2) {
-        return this.between(true, property, value1, value2);
+    default R rangeBetween(P property, Object value1, Object value2) {
+        return this.rangeBetween(true, property, value1, value2);
     }
 
     /**
      * 当 test 条件为真时才使用 between 条件，类似：'if test then col between ? and ?'
      */
-    R between(boolean test, P property, Object value1, Object value2);
+    R rangeBetween(boolean test, P property, Object value1, Object value2);
 
     /**
      * not between 条件，类似：'col not between ? and ?'
      */
-    default R notBetween(P property, Object value1, Object value2) {
-        return this.notBetween(true, property, value1, value2);
+    default R rangeNotBetween(P property, Object value1, Object value2) {
+        return this.rangeNotBetween(true, property, value1, value2);
     }
 
     /**
      * 当 test 条件为真时才使用 not between 条件，类似：'if test then col not between ? and ?'
      */
-    R notBetween(boolean test, P property, Object value1, Object value2);
+    R rangeNotBetween(boolean test, P property, Object value1, Object value2);
+
+    /**
+     * 类似：'xx < col < xx'
+     */
+    default R rangeOpenOpen(P property, Object value1, Object value2) {
+        return this.rangeOpenOpen(true, property, value1, value2);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 rangeOpenOpen 条件，类似：'if test then xx < col < xx'
+     */
+    R rangeOpenOpen(boolean test, P property, Object value1, Object value2);
+
+    /**
+     * 类似：'not (xx < col < xx)'
+     */
+    default R rangeNotOpenOpen(P property, Object value1, Object value2) {
+        return this.rangeNotOpenOpen(true, property, value1, value2);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 rangeNotOpenOpen 条件，类似：'if test then not (xx < col < xx)'
+     */
+    R rangeNotOpenOpen(boolean test, P property, Object value1, Object value2);
+
+    /**
+     * 类似：'xx < col <= xx'
+     */
+    default R rangeOpenClosed(P property, Object value1, Object value2) {
+        return this.rangeOpenClosed(true, property, value1, value2);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 rangeOpenClosed 条件，类似：'if test then xx < col <= xx'
+     */
+    R rangeOpenClosed(boolean test, P property, Object value1, Object value2);
+
+    /**
+     * 类似：'not (xx < col <= xx)'
+     */
+    default R rangeNotOpenClosed(P property, Object value1, Object value2) {
+        return this.rangeNotOpenClosed(true, property, value1, value2);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 rangeNotOpenClosed 条件，类似：'if test then not (xx < col <= xx)'
+     */
+    R rangeNotOpenClosed(boolean test, P property, Object value1, Object value2);
+
+    /**
+     * 类似：'xx <= col < xx'
+     */
+    default R rangeClosedOpen(P property, Object value1, Object value2) {
+        return this.rangeClosedOpen(true, property, value1, value2);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 rangeClosedOpen 条件，类似：'if test then xx <= col < xx'
+     */
+    R rangeClosedOpen(boolean test, P property, Object value1, Object value2);
+
+    /**
+     * 类似：'not (xx <= col < xx)'
+     */
+    default R rangeNotClosedOpen(P property, Object value1, Object value2) {
+        return this.rangeNotClosedOpen(true, property, value1, value2);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 rangeNotClosedOpen 条件，类似：'if test then not (xx <= col < xx)'
+     */
+    R rangeNotClosedOpen(boolean test, P property, Object value1, Object value2);
+
+    /**
+     * 类似：'xx <= col <= xx'
+     */
+    default R rangeClosedClosed(P property, Object value1, Object value2) {
+        return this.rangeClosedClosed(true, property, value1, value2);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 rangeClosedClosed 条件，类似：'if test then xx <= col <= xx'
+     */
+    R rangeClosedClosed(boolean test, P property, Object value1, Object value2);
+
+    /**
+     * 类似：'not (xx <= col <= xx)'
+     */
+    default R rangeNotClosedClosed(P property, Object value1, Object value2) {
+        return this.rangeNotClosedClosed(true, property, value1, value2);
+    }
+
+    /**
+     * 当 test 条件为真时才使用 rangeNotClosedClosed 条件，类似：'if test then not (xx <= col <= xx)'
+     */
+    R rangeNotClosedClosed(boolean test, P property, Object value1, Object value2);
 
     /** sample 对象中不为空的属性会以 and 方式拼起来，并作为一组条件。类似：('col1 = ?' and 'col2 = ?' and col3 = ?) */
     R eqBySample(T sample);

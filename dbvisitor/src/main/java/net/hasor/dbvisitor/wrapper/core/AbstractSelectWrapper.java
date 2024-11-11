@@ -26,12 +26,9 @@ import net.hasor.dbvisitor.jdbc.extractor.BeanMappingResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.extractor.MapMappingResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
 import net.hasor.dbvisitor.jdbc.mapper.MapMappingRowMapper;
-import net.hasor.dbvisitor.jdbc.mapper.SingleColumnRowMapper;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.page.Page;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.wrapper.segment.MergeSqlSegment;
-import net.hasor.dbvisitor.wrapper.segment.OrderByKeyword;
 import net.hasor.dbvisitor.wrapper.segment.Segment;
 import net.hasor.dbvisitor.wrapper.segment.SqlKeyword;
 
@@ -76,12 +73,23 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
     }
 
     @Override
+    public R selectAdd(P[] properties) {
+        return this.selectApply(properties, false);
+    }
+
+    @Override
     public final R select(P[] properties) {
+        return this.selectApply(properties, true);
+    }
+
+    protected R selectApply(P[] properties, boolean cleanSelect) {
         if (properties == null || properties.length == 0) {
             throw new IndexOutOfBoundsException("properties is empty.");
         }
 
-        this.customSelect.cleanSegment();
+        if (cleanSelect) {
+            this.customSelect.cleanSegment();
+        }
 
         for (P property : properties) {
             if (!this.customSelect.isEmpty()) {
@@ -95,6 +103,12 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
     @Override
     public R applySelect(String select) {
         this.customSelect.cleanSegment();
+        this.customSelect.addSegment(d -> select);
+        return this.getSelf();
+    }
+
+    @Override
+    public R applySelectAdd(String select) {
         this.customSelect.addSegment(d -> select);
         return this.getSelf();
     }
@@ -121,33 +135,18 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
                 if (!this.groupByList.isEmpty()) {
                     this.groupByList.addSegment(d -> ",");
                 }
-                this.groupByList.addSegment(buildGroupOrderByProperty(getPropertyName(property)));
+                this.groupByList.addSegment(buildGroupByProperty(getPropertyName(property)));
 
             }
         }
         return this.getSelf();
     }
 
-    @Override
-    public R orderBy(P[] orderBy) {
-        return this.addOrderBy(OrderByKeyword.ORDER_DEFAULT, orderBy);
-    }
-
-    @Override
-    public R asc(P[] orderBy) {
-        return this.addOrderBy(OrderByKeyword.ASC, orderBy);
-    }
-
-    @Override
-    public R desc(P[] orderBy) {
-        return this.addOrderBy(OrderByKeyword.DESC, orderBy);
-    }
-
     protected void lockOrderBy() {
         this.lockGroupBy = true;
     }
 
-    private R addOrderBy(OrderByKeyword keyword, P[] orderBy) {
+    protected R addOrderBy(OrderType orderType, P[] orderBy, OrderNullsStrategy strategy) {
         if (this.lockOrderBy) {
             throw new IllegalStateException("must before order by invoke it.");
         }
@@ -164,7 +163,8 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
                 if (!this.orderByList.isEmpty()) {
                     this.orderByList.addSegment(d -> ",");
                 }
-                this.orderByList.addSegment(buildGroupOrderByProperty(getPropertyName(property)), keyword);
+
+                this.orderByList.addSegment(buildOrderByProperty(getPropertyName(property), orderType, strategy));
             }
         }
         return this.getSelf();
@@ -211,14 +211,6 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
     }
 
     @Override
-    public <V> List<V> query(RowMapper<V> rowMapper) throws SQLException {
-        Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
-
-        BoundSql boundSql = getBoundSql();
-        return this.jdbc.queryForList(boundSql.getSqlString(), boundSql.getArgs(), rowMapper);
-    }
-
-    @Override
     public List<T> queryForList() throws SQLException {
         Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
         BoundSql boundSql = getBoundSql();
@@ -232,24 +224,19 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
     }
 
     @Override
-    public <AS> List<AS> queryForList(Class<AS> asType) throws SQLException {
+    public <V> List<V> queryForList(Class<V> asType) throws SQLException {
         Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
 
         BoundSql boundSql = getBoundSql();
-        ResultSetExtractor<?> extractor;
+        return this.jdbc.queryForList(boundSql.getSqlString(), boundSql.getArgs(), asType);
+    }
 
-        if (Map.class == asType) {
-            extractor = new MapMappingResultSetExtractor(this.getTableMapping());
-        } else {
-            TypeHandlerRegistry typeRegistry = this.registry.getTypeRegistry();
-            if (typeRegistry.hasTypeHandler(asType)) {
-                return this.jdbc.queryForList(boundSql.getSqlString(), boundSql.getArgs(), new SingleColumnRowMapper<>(asType, typeRegistry));
-            } else {
-                extractor = new BeanMappingResultSetExtractor<>(asType, this.registry.getMappingRegistry());
-            }
-        }
+    @Override
+    public <V> List<V> queryForList(RowMapper<V> rowMapper) throws SQLException {
+        Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
 
-        return (List<AS>) this.jdbc.query(boundSql.getSqlString(), boundSql.getArgs(), extractor);
+        BoundSql boundSql = getBoundSql();
+        return this.jdbc.queryForList(boundSql.getSqlString(), boundSql.getArgs(), rowMapper);
     }
 
     @Override
@@ -276,6 +263,23 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
 
         BoundSql boundSql = getBoundSql();
         RowMapper<T> rowMapper = new BeanMappingRowMapper<>(getTableMapping());
+        return this.jdbc.queryForObject(boundSql.getSqlString(), boundSql.getArgs(), rowMapper);
+    }
+
+    @Override
+    public <V> V queryForObject(Class<V> asType) throws SQLException {
+        Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
+
+        BoundSql boundSql = getBoundSql();
+        return this.jdbc.queryForObject(boundSql.getSqlString(), boundSql.getArgs(), asType);
+    }
+
+    @Override
+    public <V> V queryForObject(RowMapper<V> rowMapper) throws SQLException {
+        Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
+        Objects.requireNonNull(rowMapper, "rowMapper is required.");
+
+        BoundSql boundSql = getBoundSql();
         return this.jdbc.queryForObject(boundSql.getSqlString(), boundSql.getArgs(), rowMapper);
     }
 
@@ -336,7 +340,11 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
                 sqlSegment.addSegment(this.queryTemplate);
             } else {
                 sqlSegment.addSegment(SqlKeyword.WHERE);
-                sqlSegment.addSegment(this.queryTemplate.sub(1));
+                if (this.queryTemplate.firstSqlSegment() == SqlKeyword.NOT) {
+                    sqlSegment.addSegment(this.queryTemplate);
+                } else {
+                    sqlSegment.addSegment(this.queryTemplate.sub(1));
+                }
             }
         }
 

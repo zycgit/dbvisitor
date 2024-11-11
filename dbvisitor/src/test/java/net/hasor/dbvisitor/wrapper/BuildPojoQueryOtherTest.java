@@ -235,7 +235,7 @@ public class BuildPojoQueryOtherTest {
 
         BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a")//
-                .asc(UserInfo::getLoginName, UserInfo::getSeq)//
+                .asc(UserInfo::getLoginName).asc(UserInfo::getSeq)//
                 .getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE loginName = ? ORDER BY loginName ASC , seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
@@ -272,7 +272,7 @@ public class BuildPojoQueryOtherTest {
 
         BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("loginName", "a")//
-                .asc("loginName", "seq")//
+                .asc("loginName").asc("seq")//
                 .getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE loginName = ? ORDER BY loginName ASC , seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
@@ -304,7 +304,7 @@ public class BuildPojoQueryOtherTest {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).applySelect("a, b, c, d")//
                 .eq(UserInfo::getSeq, 1)//
                 .or()//
-                .between(UserInfo::getLoginName, 2, 3)//
+                .rangeBetween(UserInfo::getLoginName, 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT a, b, c, d FROM UserInfo WHERE seq = ? OR loginName BETWEEN ? AND ?");
@@ -319,7 +319,7 @@ public class BuildPojoQueryOtherTest {
                 .applySelect("a, b, c, d")//
                 .eq("seq", 1)//
                 .or()//
-                .between("loginName", 2, 3)//
+                .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT a, b, c, d FROM UserInfo WHERE seq = ? OR loginName BETWEEN ? AND ?");
@@ -331,10 +331,10 @@ public class BuildPojoQueryOtherTest {
     @Test
     public void queryBuilder_select_2() {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
-                .select(UserInfo::getLoginName, UserInfo::getSeq)//
+                .selectAdd(UserInfo::getLoginName).selectAdd(UserInfo::getSeq)//
                 .eq(UserInfo::getSeq, 1)//
                 .or()//
-                .between(UserInfo::getLoginName, 2, 3)//
+                .rangeBetween(UserInfo::getLoginName, 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT loginName , seq FROM UserInfo WHERE seq = ? OR loginName BETWEEN ? AND ?");
@@ -346,10 +346,10 @@ public class BuildPojoQueryOtherTest {
     @Test
     public void queryBuilder_select_2_2map() {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
-                .select("loginName", "seq")//
+                .selectAdd("loginName").selectAdd("seq")//
                 .eq("seq", 1)//
                 .or()//
-                .between("loginName", 2, 3)//
+                .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT loginName , seq FROM UserInfo WHERE seq = ? OR loginName BETWEEN ? AND ?");
@@ -364,7 +364,7 @@ public class BuildPojoQueryOtherTest {
                 .select(UserInfo::getLoginName)//
                 .eq(UserInfo::getSeq, 1)//
                 .or()//
-                .between(UserInfo::getLoginName, 2, 3)//
+                .rangeBetween(UserInfo::getLoginName, 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT loginName FROM UserInfo WHERE seq = ? OR loginName BETWEEN ? AND ?");
@@ -379,7 +379,7 @@ public class BuildPojoQueryOtherTest {
                 .select("loginName")//
                 .eq("seq", 1)//
                 .or()//
-                .between("loginName", 2, 3)//
+                .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT loginName FROM UserInfo WHERE seq = ? OR loginName BETWEEN ? AND ?");

@@ -37,42 +37,14 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
     R selectAll();
 
     /**
-     * 查询部分属性
+     * 查询一个字段
      * <p>在分组查询下，返回所有分组列而不是所有列</p>
      * <p>selectAll、select、applySelect 三个当同时调用时只有最后一个生效</p>
      */
-    R select(P property1);
+    R select(P property);
 
     /**
-     * 查询部分属性
-     * <p>在分组查询下，返回所有分组列而不是所有列</p>
-     * <p>selectAll、select、applySelect 三个当同时调用时只有最后一个生效</p>
-     */
-    R select(P property1, P property2);
-
-    /**
-     * 查询部分属性
-     * <p>在分组查询下，返回所有分组列而不是所有列</p>
-     * <p>selectAll、select、applySelect 三个当同时调用时只有最后一个生效</p>
-     */
-    R select(P property1, P property2, P property3);
-
-    /**
-     * 查询部分属性
-     * <p>在分组查询下，返回所有分组列而不是所有列</p>
-     * <p>selectAll、select、applySelect 三个当同时调用时只有最后一个生效</p>
-     */
-    R select(P property1, P property2, P property3, P property4);
-
-    /**
-     * 查询部分属性
-     * <p>在分组查询下，返回所有分组列而不是所有列</p>
-     * <p>selectAll、select、applySelect 三个当同时调用时只有最后一个生效</p>
-     */
-    R select(P property1, P property2, P property3, P property4, P property5);
-
-    /**
-     * 查询部分属性
+     * 查询部分字段
      * <p>在分组查询下，返回所有分组列而不是所有列</p>
      * <p>selectAll、select、applySelect 三个当同时调用时只有最后一个生效</p>
      */
@@ -88,77 +60,78 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
      */
     R applySelect(String select);
 
+    /**
+     * 追加查询一个字段，不同于 {@link #select(Object)} 的是不会清空已有选择条件。
+     */
+    R selectAdd(P property);
+
+    /**
+     * 追加查询部分字段，不同于 {@link #select(Object[])} 的是不会清空已有选择条件。
+     */
+    R selectAdd(P[] properties);
+
+    /**
+     * 追加拼接 sql 方式，不同于 {@link #applySelect(String)} 的是不会清空已有选择条件。
+     */
+    R applySelectAdd(String select);
+
     /** 分组条件，类似：group by xxx */
     R groupBy(P property1);
-
-    /** 分组条件，类似：group by xxx */
-    R groupBy(P property1, P property2);
-
-    /** 分组条件，类似：group by xxx */
-    R groupBy(P property1, P property2, P property3);
-
-    /** 分组条件，类似：group by xxx */
-    R groupBy(P property1, P property2, P property3, P property4);
-
-    /** 分组条件，类似：group by xxx */
-    R groupBy(P property1, P property2, P property3, P property4, P property5);
 
     /** 分组条件，类似：group by xxx */
     R groupBy(P[] properties);
 
     /** 排序条件，类似：order by xxx */
-    R orderBy(P property1);
-
-    /** 排序条件，类似：order by xxx */
-    R orderBy(P property1, P property2);
-
-    /** 排序条件，类似：order by xxx */
-    R orderBy(P property1, P property2, P property3);
-
-    /** 排序条件，类似：order by xxx */
-    R orderBy(P property1, P property2, P property3, P property4);
-
-    /** 排序条件，类似：order by xxx */
-    R orderBy(P property1, P property2, P property3, P property4, P property5);
+    R orderBy(P property);
 
     /** 排序条件，类似：order by xxx */
     R orderBy(P[] properties);
 
-    /** 排序(升序)，类似：order by xxx desc */
-    R asc(P property1);
+    /** 排序条件，类似：order by xxx */
+    R orderBy(P property, OrderType orderType, OrderNullsStrategy strategy);
 
-    /** 排序(升序)，类似：order by xxx desc */
-    R asc(P property1, P property2);
+    /** 排序条件，类似：order by xxx */
+    R orderBy(P[] properties, OrderType orderType, OrderNullsStrategy strategy);
 
-    /** 排序(升序)，类似：order by xxx desc */
-    R asc(P property1, P property2, P property3);
+    /** 排序(升序)，类似：order by xxx asc */
+    default R asc(P property) {
+        return this.orderBy(property, OrderType.ASC, OrderNullsStrategy.DEFAULT);
+    }
 
-    /** 排序(升序)，类似：order by xxx desc */
-    R asc(P property1, P property2, P property3, P property4);
+    /** 排序(升序)，类似：order by xxx asc */
+    default R asc(P[] properties) {
+        return this.orderBy(properties, OrderType.ASC, OrderNullsStrategy.DEFAULT);
+    }
 
-    /** 排序(升序)，类似：order by xxx desc */
-    R asc(P property1, P property2, P property3, P property4, P property5);
+    /** 排序(升序)，类似：order by xxx asc */
+    default R asc(P property, OrderNullsStrategy strategy) {
+        return this.orderBy(property, OrderType.ASC, strategy);
+    }
 
-    /** 排序(升序)，类似：order by xxx desc */
-    R asc(P[] properties);
-
-    /** 排序(降序)，类似：order by xxx desc */
-    R desc(P property1);
-
-    /** 排序(降序)，类似：order by xxx desc */
-    R desc(P property1, P property2);
-
-    /** 排序(降序)，类似：order by xxx desc */
-    R desc(P property1, P property2, P property3);
-
-    /** 排序(降序)，类似：order by xxx desc */
-    R desc(P property1, P property2, P property3, P property4);
+    /** 排序(升序)，类似：order by xxx asc */
+    default R asc(P[] properties, OrderNullsStrategy strategy) {
+        return this.orderBy(properties, OrderType.ASC, strategy);
+    }
 
     /** 排序(降序)，类似：order by xxx desc */
-    R desc(P property1, P property2, P property3, P property4, P property5);
+    default R desc(P property) {
+        return this.orderBy(property, OrderType.DESC, OrderNullsStrategy.DEFAULT);
+    }
 
     /** 排序(降序)，类似：order by xxx desc */
-    R desc(P[] properties);
+    default R desc(P[] properties) {
+        return this.orderBy(properties, OrderType.DESC, OrderNullsStrategy.DEFAULT);
+    }
+
+    /** 排序(降序)，类似：order by xxx desc */
+    default R desc(P property, OrderNullsStrategy strategy) {
+        return this.orderBy(property, OrderType.DESC, strategy);
+    }
+
+    /** 排序(降序)，类似：order by xxx desc */
+    default R desc(P[] properties, OrderNullsStrategy strategy) {
+        return this.orderBy(properties, OrderType.DESC, strategy);
+    }
 
     /** 设置分页信息 */
     R usePage(Page pageInfo);
@@ -175,19 +148,25 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
     /** 执行查询，并通过 ResultSetExtractor 转换结果集。 */
     <V> V query(ResultSetExtractor<V> rse) throws SQLException;
 
-    /** 执行查询，并使用 RowMapper 处理结果集。 */
-    <V> List<V> query(RowMapper<V> rowMapper) throws SQLException;
-
     /** 执行查询，并结果将被映射到一个列表(一个条目为每一行)的对象，列表中每一条记录都是<code>elementType</code>参数指定的类型对象。 */
     List<T> queryForList() throws SQLException;
 
     /** 执行查询，并结果将结果映射到对象。 */
-    <AS> List<AS> queryForList(Class<AS> asType) throws SQLException;
+    <V> List<V> queryForList(Class<V> asType) throws SQLException;
+
+    /** 执行查询，并使用 RowMapper 处理结果集。 */
+    <V> List<V> queryForList(RowMapper<V> rowMapper) throws SQLException;
 
     List<Map<String, Object>> queryForMapList() throws SQLException;
 
     /** 执行查询，并返回一个结果。 */
     T queryForObject() throws SQLException;
+
+    /** 执行查询，并返回一个结果。 */
+    <V> V queryForObject(Class<V> asType) throws SQLException;
+
+    /** 执行查询，并返回一个结果。 */
+    <V> V queryForObject(RowMapper<V> rowMapper) throws SQLException;
 
     /** 执行查询，并返回一个Map结果。 */
     Map<String, Object> queryForMap() throws SQLException;

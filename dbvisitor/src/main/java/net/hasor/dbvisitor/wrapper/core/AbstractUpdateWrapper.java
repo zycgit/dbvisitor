@@ -40,6 +40,7 @@ import java.util.function.Predicate;
  */
 public abstract class AbstractUpdateWrapper<R, T, P> extends BasicQueryCompare<R, T, P> implements UpdateExecute<R, T, P> {
     protected final Set<String>                allowUpdateKeys;
+    protected final Set<String>                primaryKeys;
     protected final Map<String, ColumnMapping> allowUpdateProperties;
     //
     private final   Map<String, SqlArg>        updateValueMap;
@@ -50,8 +51,12 @@ public abstract class AbstractUpdateWrapper<R, T, P> extends BasicQueryCompare<R
         super(exampleType, tableMapping, registry, jdbc);
 
         Set<String> allowUpdateKeys = new LinkedHashSet<>();
+        Set<String> primaryKeys = new LinkedHashSet<>();
         Map<String, ColumnMapping> allowUpdateProperties = new LinkedHashMap<>();
         for (ColumnMapping mapping : tableMapping.getProperties()) {
+            if (mapping.isPrimaryKey()) {
+                primaryKeys.add(mapping.getProperty());
+            }
             if (mapping.isUpdate()) {
                 allowUpdateProperties.put(mapping.getProperty(), mapping);
                 allowUpdateKeys.add(mapping.getProperty());
@@ -59,6 +64,7 @@ public abstract class AbstractUpdateWrapper<R, T, P> extends BasicQueryCompare<R
         }
 
         this.allowUpdateKeys = Collections.unmodifiableSet(allowUpdateKeys);
+        this.primaryKeys = Collections.unmodifiableSet(primaryKeys);
         this.allowUpdateProperties = Collections.unmodifiableMap(allowUpdateProperties);
         this.updateValueMap = new LinkedHashMap<>();
     }
@@ -126,7 +132,12 @@ public abstract class AbstractUpdateWrapper<R, T, P> extends BasicQueryCompare<R
 
         Function<String, String> colName = s -> this.allowUpdateProperties.get(s).getColumn();
 
-        return this.updateToByCondition(this.allowUpdateKeys, true, s -> {
+        Set<String> keys = new LinkedHashSet<>(this.allowUpdateKeys);
+        if (!this.allowUpdateKey) {
+            keys.removeAll(this.primaryKeys);
+        }
+
+        return this.updateToByCondition(keys, true, s -> {
             return tempData.containsKey(s) && condition.test(s);
         }, colName, tempData::get);
     }
@@ -183,7 +194,11 @@ public abstract class AbstractUpdateWrapper<R, T, P> extends BasicQueryCompare<R
             return this.updateRowUsingMap((Map<String, Object>) newValue, condition);
         }
 
-        Set<String> keys = this.allowUpdateKeys;
+        Set<String> keys = new LinkedHashSet<>(this.allowUpdateKeys);
+        if (!this.allowUpdateKey) {
+            keys.removeAll(this.primaryKeys);
+        }
+
         Function<String, String> colName = s -> this.allowUpdateProperties.get(s).getColumn();
         return this.updateToByCondition(keys, true, condition, colName, createPropertyReaderFunc(newValue));
     }
@@ -211,7 +226,8 @@ public abstract class AbstractUpdateWrapper<R, T, P> extends BasicQueryCompare<R
         }
 
         Map<String, String> entityKeyMap = extractKeysMap(newValue);
-        Set<String> keys = isFreedom() ? entityKeyMap.keySet() : this.allowUpdateKeys;
+        Set<String> keys = this.isFreedom() ? entityKeyMap.keySet() : this.allowUpdateKeys;
+
         return this.updateToByCondition(keys, true, condition, entityKeyMap::get, newValue::get);
     }
 
@@ -260,6 +276,7 @@ public abstract class AbstractUpdateWrapper<R, T, P> extends BasicQueryCompare<R
             if (!tester.test(propertyName)) {
                 continue;
             }
+
             String columnName = colConvert.apply(propertyName);
             if (updateColumns.contains(columnName)) {
                 throw new IllegalStateException("Multiple property mapping to '" + columnName + "' column");

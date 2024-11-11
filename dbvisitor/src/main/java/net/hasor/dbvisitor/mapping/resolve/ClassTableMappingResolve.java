@@ -265,6 +265,8 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
                 colDef.setSetValueTemplate(info.getString("setValueTemplate"));
                 colDef.setWhereColTemplate(info.getString("whereColTemplate"));
                 colDef.setWhereValueTemplate(info.getString("whereValueTemplate"));
+                colDef.setGroupByColTemplate(info.getString("groupByColTemplate"));
+                colDef.setOrderByColTemplate(info.getString("orderByColTemplate"));
             }
 
             // for Description

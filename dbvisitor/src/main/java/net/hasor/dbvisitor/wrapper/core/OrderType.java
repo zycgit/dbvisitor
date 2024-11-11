@@ -13,27 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.wrapper.segment;
-import net.hasor.dbvisitor.dialect.SqlDialect;
-
+package net.hasor.dbvisitor.wrapper.core;
 /**
  * 排序相关的关键字。
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-11-02
  */
-public enum OrderByKeyword implements Segment {
-    ORDER_DEFAULT(""),
-    ASC("ASC"),
-    DESC("DESC");
-
-    private final String sqlString;
-
-    OrderByKeyword(String sqlString) {
-        this.sqlString = sqlString;
-    }
-
-    @Override
-    public String getSqlSegment(SqlDialect dialect) {
-        return this.sqlString;
-    }
+public enum OrderType {
+    DEFAULT,
+    ASC,
+    DESC
 }

@@ -71,34 +71,47 @@ public abstract class BasicLambda<R, T, P> {
     protected abstract String getPropertyName(P property);
 
     protected Segment buildSelectByProperty(String propertyName) {
-        return buildGroupOrderByProperty(false, true, propertyName);
+        ColumnMapping property = this.findPropertyByName(propertyName);
+        return this.buildColName(property.getSelectTemplate(), property);
     }
 
     protected Segment buildConditionByProperty(String propertyName) {
-        return buildGroupOrderByProperty(true, false, propertyName);
+        ColumnMapping property = this.findPropertyByName(propertyName);
+        return this.buildColName(property.getWhereColTemplate(), property);
     }
 
-    protected Segment buildGroupOrderByProperty(String propertyName) {
-        return buildGroupOrderByProperty(false, false, propertyName);
+    protected Segment buildGroupByProperty(String propertyName) {
+        ColumnMapping property = this.findPropertyByName(propertyName);
+        return this.buildColName(property.getGroupByColTemplate(), property);
     }
 
-    private Segment buildGroupOrderByProperty(boolean isWhere, boolean isSelect, String propertyName) {
+    protected Segment buildOrderByProperty(String propertyName, OrderType orderType, OrderNullsStrategy nullsStrategy) {
         ColumnMapping property = this.findPropertyByName(propertyName);
 
-        if (!isSelect && isWhere) {
-            String specialWhereCol = property.getWhereColTemplate();
-            if (StringUtils.isNotBlank(specialWhereCol)) {
-                return d -> specialWhereCol;
-            }
-        } else if (isSelect && !isWhere) {
-            String specialSelectCol = property.getSelectTemplate();
-            if (StringUtils.isNotBlank(specialSelectCol)) {
-                return d -> specialSelectCol;
+        String specialCol = property.getOrderByColTemplate();
+        if (StringUtils.isNotBlank(specialCol)) {
+            return d -> specialCol;
+        } else {
+            String columnName = property.getColumn();
+            switch (nullsStrategy) {
+                case FIRST:
+                    return d -> d.orderByNullsFirst(isQualifier(), columnName, orderType);
+                case LAST:
+                    return d -> d.orderByNullsLast(isQualifier(), columnName, orderType);
+                case DEFAULT:
+                default:
+                    return d -> d.orderByDefault(isQualifier(), columnName, orderType);
             }
         }
+    }
 
-        String columnName = property.getColumn();
-        return d -> d.fmtName(isQualifier(), columnName);
+    private Segment buildColName(String specialCol, ColumnMapping property) {
+        if (StringUtils.isNotBlank(specialCol)) {
+            return d -> specialCol;
+        } else {
+            String columnName = property.getColumn();
+            return d -> d.fmtName(isQualifier(), columnName);
+        }
     }
 
     protected ColumnMapping findPropertyByName(String propertyName) {

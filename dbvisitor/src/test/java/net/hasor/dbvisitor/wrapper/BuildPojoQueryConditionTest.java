@@ -71,6 +71,22 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
+    public void queryBuild_not_1() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+                .not().eq(UserInfo::getLoginName, "abc").getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE NOT loginName = ?");
+        assert boundSql1.getArgs()[0].equals("abc");
+    }
+
+    @Test
+    public void queryBuild_not_1_2map() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .not().eq("loginName", "abc").getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE NOT loginName = ?");
+        assert boundSql1.getArgs()[0].equals("abc");
+    }
+
+    @Test
     public void queryBuild_and_1() {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).eq(UserInfo::getLoginName, "abc").getBoundSql();
@@ -515,21 +531,21 @@ public class BuildPojoQueryConditionTest {
     @Test
     public void queryBuild_between_1() {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
-                .eq(UserInfo::getSeq, 1).between(UserInfo::getLoginName, 2, 3).getBoundSql();
+                .eq(UserInfo::getSeq, 1).rangeBetween(UserInfo::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName BETWEEN ? AND ?");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
 
         BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
-                .eq(UserInfo::getSeq, 1).or().between(UserInfo::getLoginName, 2, 3).getBoundSql();
+                .eq(UserInfo::getSeq, 1).or().rangeBetween(UserInfo::getLoginName, 2, 3).getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR loginName BETWEEN ? AND ?");
         assert boundSql2.getArgs()[0].equals(1);
         assert boundSql2.getArgs()[1].equals(2);
         assert boundSql2.getArgs()[2].equals(3);
 
         BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class)//
-                .eq(UserInfo::getSeq, 1).and().between(UserInfo::getLoginName, 2, 3).getBoundSql();
+                .eq(UserInfo::getSeq, 1).and().rangeBetween(UserInfo::getLoginName, 2, 3).getBoundSql();
         assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName BETWEEN ? AND ?");
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
@@ -539,21 +555,21 @@ public class BuildPojoQueryConditionTest {
     @Test
     public void queryBuild_between_1_2map() {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
-                .eq("seq", 1).between("loginName", 2, 3).getBoundSql();
+                .eq("seq", 1).rangeBetween("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName BETWEEN ? AND ?");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
 
         BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class).asMap()//
-                .eq("seq", 1).or().between("loginName", 2, 3).getBoundSql();
+                .eq("seq", 1).or().rangeBetween("loginName", 2, 3).getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR loginName BETWEEN ? AND ?");
         assert boundSql2.getArgs()[0].equals(1);
         assert boundSql2.getArgs()[1].equals(2);
         assert boundSql2.getArgs()[2].equals(3);
 
         BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class).asMap()//
-                .eq("seq", 1).and().between("loginName", 2, 3).getBoundSql();
+                .eq("seq", 1).and().rangeBetween("loginName", 2, 3).getBoundSql();
         assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName BETWEEN ? AND ?");
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
@@ -563,21 +579,21 @@ public class BuildPojoQueryConditionTest {
     @Test
     public void queryBuild_not_between_1() {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
-                .eq(UserInfo::getSeq, 1).notBetween(UserInfo::getLoginName, 2, 3).getBoundSql();
+                .eq(UserInfo::getSeq, 1).rangeNotBetween(UserInfo::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName NOT BETWEEN ? AND ?");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
 
         BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
-                .eq(UserInfo::getSeq, 1).or().notBetween(UserInfo::getLoginName, 2, 3).getBoundSql();
+                .eq(UserInfo::getSeq, 1).or().rangeNotBetween(UserInfo::getLoginName, 2, 3).getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR loginName NOT BETWEEN ? AND ?");
         assert boundSql2.getArgs()[0].equals(1);
         assert boundSql2.getArgs()[1].equals(2);
         assert boundSql2.getArgs()[2].equals(3);
 
         BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class)//
-                .eq(UserInfo::getSeq, 1).and().notBetween(UserInfo::getLoginName, 2, 3).getBoundSql();
+                .eq(UserInfo::getSeq, 1).and().rangeNotBetween(UserInfo::getLoginName, 2, 3).getBoundSql();
         assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName NOT BETWEEN ? AND ?");
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
@@ -587,22 +603,406 @@ public class BuildPojoQueryConditionTest {
     @Test
     public void queryBuild_not_between_1_2map() {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
-                .eq("seq", 1).notBetween("loginName", 2, 3).getBoundSql();
+                .eq("seq", 1).rangeNotBetween("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName NOT BETWEEN ? AND ?");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
 
         BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class).asMap()//
-                .eq("seq", 1).or().notBetween("loginName", 2, 3).getBoundSql();
+                .eq("seq", 1).or().rangeNotBetween("loginName", 2, 3).getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR loginName NOT BETWEEN ? AND ?");
         assert boundSql2.getArgs()[0].equals(1);
         assert boundSql2.getArgs()[1].equals(2);
         assert boundSql2.getArgs()[2].equals(3);
 
         BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class).asMap()//
-                .eq("seq", 1).and().notBetween("loginName", 2, 3).getBoundSql();
+                .eq("seq", 1).and().rangeNotBetween("loginName", 2, 3).getBoundSql();
         assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName NOT BETWEEN ? AND ?");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_rangeOpenOpen_1() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).rangeOpenOpen(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? < loginName AND loginName < ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).or().rangeOpenOpen(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR ( ? < loginName AND loginName < ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).and().rangeOpenOpen(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? < loginName AND loginName < ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_rangeOpenOpen_1_2map() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).rangeOpenOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? < loginName AND loginName < ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).or().rangeOpenOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR ( ? < loginName AND loginName < ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).and().rangeOpenOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? < loginName AND loginName < ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_not_rangeOpenOpen_1() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).rangeNotOpenOpen(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? < loginName AND loginName < ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).or().rangeNotOpenOpen(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR NOT ( ? < loginName AND loginName < ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).and().rangeNotOpenOpen(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? < loginName AND loginName < ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_not_rangeOpenOpen_1_2map() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).rangeNotOpenOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? < loginName AND loginName < ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).or().rangeNotOpenOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR NOT ( ? < loginName AND loginName < ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).and().rangeNotOpenOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? < loginName AND loginName < ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_rangeOpenClosed_1() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).rangeOpenClosed(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? < loginName AND loginName <= ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).or().rangeOpenClosed(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR ( ? < loginName AND loginName <= ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).and().rangeOpenClosed(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? < loginName AND loginName <= ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_rangeOpenClosed_1_2map() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).rangeOpenClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? < loginName AND loginName <= ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).or().rangeOpenClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR ( ? < loginName AND loginName <= ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).and().rangeOpenClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? < loginName AND loginName <= ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_not_rangeOpenClosed_1() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).rangeNotOpenClosed(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? < loginName AND loginName <= ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).or().rangeNotOpenClosed(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR NOT ( ? < loginName AND loginName <= ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).and().rangeNotOpenClosed(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? < loginName AND loginName <= ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_not_rangeOpenClosed_1_2map() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).rangeNotOpenClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? < loginName AND loginName <= ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).or().rangeNotOpenClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR NOT ( ? < loginName AND loginName <= ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).and().rangeNotOpenClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? < loginName AND loginName <= ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_rangeClosedOpen_1() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).rangeClosedOpen(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? <= loginName AND loginName < ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).or().rangeClosedOpen(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR ( ? <= loginName AND loginName < ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).and().rangeClosedOpen(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? <= loginName AND loginName < ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_rangeClosedOpen_1_2map() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).rangeClosedOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? <= loginName AND loginName < ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).or().rangeClosedOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR ( ? <= loginName AND loginName < ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).and().rangeClosedOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? <= loginName AND loginName < ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_not_rangeClosedOpen_1() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).rangeNotClosedOpen(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? <= loginName AND loginName < ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).or().rangeNotClosedOpen(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR NOT ( ? <= loginName AND loginName < ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).and().rangeNotClosedOpen(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? <= loginName AND loginName < ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_not_rangeClosedOpen_1_2map() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).rangeNotClosedOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? <= loginName AND loginName < ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).or().rangeNotClosedOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR NOT ( ? <= loginName AND loginName < ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).and().rangeNotClosedOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? <= loginName AND loginName < ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_rangeClosedClosed_1() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).rangeClosedClosed(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? <= loginName AND loginName <= ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).or().rangeClosedClosed(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR ( ? <= loginName AND loginName <= ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).and().rangeClosedClosed(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? <= loginName AND loginName <= ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_rangeClosedClosed_1_2map() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).rangeClosedClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? <= loginName AND loginName <= ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).or().rangeClosedClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR ( ? <= loginName AND loginName <= ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).and().rangeClosedClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? <= loginName AND loginName <= ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_not_rangeClosedClosed_1() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).rangeNotClosedClosed(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? <= loginName AND loginName <= ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).or().rangeNotClosedClosed(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR NOT ( ? <= loginName AND loginName <= ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class)//
+                .eq(UserInfo::getSeq, 1).and().rangeNotClosedClosed(UserInfo::getLoginName, 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? <= loginName AND loginName <= ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_not_rangeClosedClosed_1_2map() {
+        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).rangeNotClosedClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? <= loginName AND loginName <= ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).or().rangeNotClosedClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR NOT ( ? <= loginName AND loginName <= ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class).asMap()//
+                .eq("seq", 1).and().rangeNotClosedClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? <= loginName AND loginName <= ? )");
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
         assert boundSql3.getArgs()[2].equals(3);

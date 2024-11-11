@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * 继承自 JdbcTemplate 并提供 lambda 方式生成 SQL。
+ * 继承自 WrapperAdapter 并提供 lambda 方式生成 SQL。
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-04-02
  */
@@ -55,7 +55,7 @@ public class WrapperAdapter implements WrapperOperations {
     }
 
     /**
-     * Construct a new JdbcTemplate, given a DataSource to obtain connections from.
+     * Construct a new WrapperAdapter, given a DataSource to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param dataSource the JDBC DataSource to obtain connections from
      */
@@ -64,7 +64,7 @@ public class WrapperAdapter implements WrapperOperations {
     }
 
     /**
-     * Construct a new JdbcTemplate, given a DataSource to obtain connections from.
+     * Construct a new WrapperAdapter, given a DataSource to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param dataSource the JDBC DataSource to obtain connections from
      * @param registry the DynamicContext
@@ -75,7 +75,7 @@ public class WrapperAdapter implements WrapperOperations {
     }
 
     /**
-     * Construct a new JdbcTemplate, given a Connection to obtain connections from.
+     * Construct a new WrapperAdapter, given a Connection to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param conn the JDBC Connection
      */
@@ -84,7 +84,7 @@ public class WrapperAdapter implements WrapperOperations {
     }
 
     /**
-     * Construct a new JdbcTemplate, given a Connection to obtain connections from.
+     * Construct a new WrapperAdapter, given a Connection to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param conn the JDBC Connection
      * @param registry the DynamicContext
@@ -95,7 +95,7 @@ public class WrapperAdapter implements WrapperOperations {
     }
 
     /**
-     * Construct a new JdbcTemplate, given a Connection to obtain connections from.
+     * Construct a new WrapperAdapter, given a Connection to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param dynamicConn the JDBC Connection of dynamic
      */
@@ -104,7 +104,7 @@ public class WrapperAdapter implements WrapperOperations {
     }
 
     /**
-     * Construct a new JdbcTemplate, given a Connection to obtain connections from.
+     * Construct a new WrapperAdapter, given a Connection to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param dynamicConn the JDBC Connection of dynamic
      * @param registry the DynamicContext
@@ -115,7 +115,7 @@ public class WrapperAdapter implements WrapperOperations {
     }
 
     /**
-     * Construct a new JdbcTemplate, given a Connection to obtain JdbcTemplate from.
+     * Construct a new WrapperAdapter, given a Connection to obtain WrapperAdapter from.
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param jdbc the JdbcTemplate
      */

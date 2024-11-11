@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
+import net.hasor.dbvisitor.wrapper.core.OrderType;
+
 import java.util.Set;
 
 /**
@@ -33,6 +35,26 @@ public interface SqlDialect {
     String tableName(boolean useQualifier, String catalog, String schema, String table);
 
     String fmtName(boolean useQualifier, String name);
+
+    default String orderByDefault(boolean useQualifier, String name, OrderType orderType) {
+        switch (orderType) {
+            case ASC:
+                return this.fmtName(useQualifier, name) + " ASC";
+            case DESC:
+                return this.fmtName(useQualifier, name) + " DESC";
+            case DEFAULT:
+            default:
+                return this.fmtName(useQualifier, name);
+        }
+    }
+
+    default String orderByNullsFirst(boolean useQualifier, String name, OrderType orderType) {
+        return this.orderByDefault(useQualifier, name, orderType);
+    }
+
+    default String orderByNullsLast(boolean useQualifier, String name, OrderType orderType) {
+        return this.orderByDefault(useQualifier, name, orderType);
+    }
 
     default boolean supportBatch() {
         return true;

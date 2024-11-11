@@ -27,9 +27,9 @@ public class BuildEntQueryNestedTest {
     @Test
     public void queryBuilder_nested_or_1() {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
-                .eq(AnnoUserInfoDTO::getLoginName, "a").or(nestedQuery -> {
-                    nestedQuery.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
-                    nestedQuery.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
+                .eq(AnnoUserInfoDTO::getLoginName, "a").or(qc -> {
+                    qc.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
+                    qc.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
                 }).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? OR ( register_time >= ? AND register_time <= ? )");
         assert boundSql1.getArgs()[0].equals("a");
@@ -37,9 +37,9 @@ public class BuildEntQueryNestedTest {
         assert boundSql1.getArgs()[2].equals(2);
 
         BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
-                .eq(AnnoUserInfoDTO::getLoginName, "a").or().nested(nestedQuery -> {
-                    nestedQuery.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
-                    nestedQuery.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
+                .eq(AnnoUserInfoDTO::getLoginName, "a").or().nested(qc -> {
+                    qc.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
+                    qc.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
                 }).getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? OR ( register_time >= ? AND register_time <= ? )");
         assert boundSql2.getArgs()[0].equals("a");
@@ -50,9 +50,9 @@ public class BuildEntQueryNestedTest {
     @Test
     public void queryBuilder_nested_or_1_2map() {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
-                .eq("loginName", "a").or(nestedQuery -> {
-                    nestedQuery.ge("createTime", 1); // >= ?
-                    nestedQuery.le("createTime", 2); // <= ?
+                .eq("loginName", "a").or(qc -> {
+                    qc.ge("createTime", 1); // >= ?
+                    qc.le("createTime", 2); // <= ?
                 }).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? OR ( register_time >= ? AND register_time <= ? )");
         assert boundSql1.getArgs()[0].equals("a");
@@ -60,9 +60,9 @@ public class BuildEntQueryNestedTest {
         assert boundSql1.getArgs()[2].equals(2);
 
         BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
-                .eq("loginName", "a").or().nested(nestedQuery -> {
-                    nestedQuery.ge("createTime", 1); // >= ?
-                    nestedQuery.le("createTime", 2); // <= ?
+                .eq("loginName", "a").or().nested(qc -> {
+                    qc.ge("createTime", 1); // >= ?
+                    qc.le("createTime", 2); // <= ?
                 }).getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? OR ( register_time >= ? AND register_time <= ? )");
         assert boundSql2.getArgs()[0].equals("a");
@@ -71,11 +71,41 @@ public class BuildEntQueryNestedTest {
     }
 
     @Test
+    public void queryBuilder_nested_or_2() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .nested(qc -> {
+                    qc.eq(AnnoUserInfoDTO::getName, "user-1").eq(AnnoUserInfoDTO::getSeq, 1);
+                }).or(qc -> {
+                    qc.eq(AnnoUserInfoDTO::getName, "user-2").eq(AnnoUserInfoDTO::getSeq, 2);
+                }).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE ( user_name = ? AND seq = ? ) OR ( user_name = ? AND seq = ? )");
+        assert boundSql1.getArgs()[0].equals("user-1");
+        assert boundSql1.getArgs()[1].equals(1);
+        assert boundSql1.getArgs()[2].equals("user-2");
+        assert boundSql1.getArgs()[3].equals(2);
+    }
+
+    @Test
+    public void queryBuilder_nested_or_2_2map() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .nested(qc -> {
+                    qc.eq("name", "user-1").eq("seq", 1);
+                }).or(qc -> {
+                    qc.eq("name", "user-2").eq("seq", 2);
+                }).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE ( user_name = ? AND seq = ? ) OR ( user_name = ? AND seq = ? )");
+        assert boundSql1.getArgs()[0].equals("user-1");
+        assert boundSql1.getArgs()[1].equals(1);
+        assert boundSql1.getArgs()[2].equals("user-2");
+        assert boundSql1.getArgs()[3].equals(2);
+    }
+
+    @Test
     public void queryBuilder_nested_and_1() {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
-                .eq(AnnoUserInfoDTO::getLoginName, "a").and(nestedQuery -> {
-                    nestedQuery.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
-                    nestedQuery.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
+                .eq(AnnoUserInfoDTO::getLoginName, "a").and(qc -> {
+                    qc.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
+                    qc.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
                 }).eq(AnnoUserInfoDTO::getLoginName, 123).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? AND ( register_time >= ? AND register_time <= ? ) AND login_name = ?");
         assert boundSql1.getArgs()[0].equals("a");
@@ -84,9 +114,9 @@ public class BuildEntQueryNestedTest {
         assert boundSql1.getArgs()[3].equals(123);
 
         BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
-                .eq(AnnoUserInfoDTO::getLoginName, "a").and().nested(nestedQuery -> {
-                    nestedQuery.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
-                    nestedQuery.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
+                .eq(AnnoUserInfoDTO::getLoginName, "a").and().nested(qc -> {
+                    qc.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
+                    qc.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
                 }).eq(AnnoUserInfoDTO::getLoginName, 123).getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? AND ( register_time >= ? AND register_time <= ? ) AND login_name = ?");
         assert boundSql2.getArgs()[0].equals("a");
@@ -98,9 +128,9 @@ public class BuildEntQueryNestedTest {
     @Test
     public void queryBuilder_nested_and_1_2map() {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
-                .eq("loginName", "a").and(nestedQuery -> {
-                    nestedQuery.ge("createTime", 1); // >= ?
-                    nestedQuery.le("createTime", 2); // <= ?
+                .eq("loginName", "a").and(qc -> {
+                    qc.ge("createTime", 1); // >= ?
+                    qc.le("createTime", 2); // <= ?
                 }).eq("loginName", 123).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? AND ( register_time >= ? AND register_time <= ? ) AND login_name = ?");
         assert boundSql1.getArgs()[0].equals("a");
@@ -109,9 +139,9 @@ public class BuildEntQueryNestedTest {
         assert boundSql1.getArgs()[3].equals(123);
 
         BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
-                .eq(AnnoUserInfoDTO::getLoginName, "a").and().nested(nestedQuery -> {
-                    nestedQuery.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
-                    nestedQuery.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
+                .eq(AnnoUserInfoDTO::getLoginName, "a").and().nested(qc -> {
+                    qc.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
+                    qc.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
                 }).eq(AnnoUserInfoDTO::getLoginName, 123).getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? AND ( register_time >= ? AND register_time <= ? ) AND login_name = ?");
         assert boundSql2.getArgs()[0].equals("a");
@@ -121,11 +151,41 @@ public class BuildEntQueryNestedTest {
     }
 
     @Test
+    public void queryBuilder_nested_and_2() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .nested(qc -> {
+                    qc.eq(AnnoUserInfoDTO::getSeq, 1).or().eq(AnnoUserInfoDTO::getSeq, 2);
+                }).and(qc -> {
+                    qc.eq(AnnoUserInfoDTO::getName, "user-1").or().eq(AnnoUserInfoDTO::getName, "user-2");
+                }).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE ( seq = ? OR seq = ? ) AND ( user_name = ? OR user_name = ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals("user-1");
+        assert boundSql1.getArgs()[3].equals("user-2");
+    }
+
+    @Test
+    public void queryBuilder_nested_and_2_2map() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .nested(qc -> {
+                    qc.eq("seq", 1).or().eq("seq", 2);
+                }).and(qc -> {
+                    qc.eq("name", "user-1").or().eq("name", "user-2");
+                }).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE ( seq = ? OR seq = ? ) AND ( user_name = ? OR user_name = ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals("user-1");
+        assert boundSql1.getArgs()[3].equals("user-2");
+    }
+
+    @Test
     public void queryBuilder_nested_1() {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
-                .eq(AnnoUserInfoDTO::getLoginName, "a").nested(nestedQuery -> {
-                    nestedQuery.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
-                    nestedQuery.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
+                .eq(AnnoUserInfoDTO::getLoginName, "a").nested(qc -> {
+                    qc.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
+                    qc.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
                 }).eq(AnnoUserInfoDTO::getLoginName, 123).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? AND ( register_time >= ? AND register_time <= ? ) AND login_name = ?");
         assert boundSql1.getArgs()[0].equals("a");
@@ -204,5 +264,27 @@ public class BuildEntQueryNestedTest {
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
         assert boundSql3.getArgs()[2].equals(1);
+    }
+
+    @Test
+    public void queryBuilder_nested_not_1() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .not(qc -> {
+                    qc.eq(AnnoUserInfoDTO::getSeq, 1).or().eq(AnnoUserInfoDTO::getLoginName, "a");
+                }).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE NOT ( seq = ? OR login_name = ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals("a");
+    }
+
+    @Test
+    public void queryBuilder_nested_not_1_2map() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .not(qc -> {
+                    qc.eq("seq", 1).or().eq("loginName", "a");
+                }).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE NOT ( seq = ? OR login_name = ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals("a");
     }
 }

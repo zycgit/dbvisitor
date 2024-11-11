@@ -141,7 +141,7 @@ public class FreedomBuildQueryOtherTest {
 
         BoundSql boundSql2 = newLambda().freedomQuery("user_info")//
                 .eq("loginName", "a")//
-                .asc("loginName", "seq")//
+                .asc("loginName").asc("seq")//
                 .getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE loginName = ? ORDER BY loginName ASC , seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
@@ -173,7 +173,7 @@ public class FreedomBuildQueryOtherTest {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info").applySelect("a, b, c, d")//
                 .eq("seq", 1)//
                 .or()//
-                .between("loginName", 2, 3)//
+                .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT a, b, c, d FROM user_info WHERE seq = ? OR loginName BETWEEN ? AND ?");
@@ -185,10 +185,10 @@ public class FreedomBuildQueryOtherTest {
     @Test
     public void queryBuilder_select_2() {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
-                .select("loginName", "seq")//
+                .selectAdd("loginName").selectAdd("seq")//
                 .eq("seq", 1)//
                 .or()//
-                .between("loginName", 2, 3)//
+                .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT loginName , seq FROM user_info WHERE seq = ? OR loginName BETWEEN ? AND ?");
@@ -203,7 +203,7 @@ public class FreedomBuildQueryOtherTest {
                 .select("loginName")//
                 .eq("seq", 1)//
                 .or()//
-                .between("loginName", 2, 3)//
+                .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT loginName FROM user_info WHERE seq = ? OR loginName BETWEEN ? AND ?");

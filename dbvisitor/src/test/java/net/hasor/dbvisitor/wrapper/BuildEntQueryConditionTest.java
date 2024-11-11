@@ -55,6 +55,22 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
+    public void queryBuild_not_1() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .not().eq(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE NOT login_name = ?");
+        assert boundSql1.getArgs()[0].equals("abc");
+    }
+
+    @Test
+    public void queryBuild_not_1_2map() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .not().eq("loginName", "abc").getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE NOT login_name = ?");
+        assert boundSql1.getArgs()[0].equals("abc");
+    }
+
+    @Test
     public void queryBuild_and_1() {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).eq(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
@@ -499,21 +515,21 @@ public class BuildEntQueryConditionTest {
     @Test
     public void queryBuild_between_1() {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
-                .eq(AnnoUserInfoDTO::getSeq, 1).between(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+                .eq(AnnoUserInfoDTO::getSeq, 1).rangeBetween(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name BETWEEN ? AND ?");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
 
         BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
-                .eq(AnnoUserInfoDTO::getSeq, 1).or().between(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+                .eq(AnnoUserInfoDTO::getSeq, 1).or().rangeBetween(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
         assert boundSql2.getArgs()[0].equals(1);
         assert boundSql2.getArgs()[1].equals(2);
         assert boundSql2.getArgs()[2].equals(3);
 
         BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
-                .eq(AnnoUserInfoDTO::getSeq, 1).and().between(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+                .eq(AnnoUserInfoDTO::getSeq, 1).and().rangeBetween(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
         assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name BETWEEN ? AND ?");
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
@@ -523,21 +539,21 @@ public class BuildEntQueryConditionTest {
     @Test
     public void queryBuild_between_1_2map() {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
-                .eq("seq", 1).between("loginName", 2, 3).getBoundSql();
+                .eq("seq", 1).rangeBetween("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name BETWEEN ? AND ?");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
 
         BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
-                .eq("seq", 1).or().between("loginName", 2, 3).getBoundSql();
+                .eq("seq", 1).or().rangeBetween("loginName", 2, 3).getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
         assert boundSql2.getArgs()[0].equals(1);
         assert boundSql2.getArgs()[1].equals(2);
         assert boundSql2.getArgs()[2].equals(3);
 
         BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
-                .eq("seq", 1).and().between("loginName", 2, 3).getBoundSql();
+                .eq("seq", 1).and().rangeBetween("loginName", 2, 3).getBoundSql();
         assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name BETWEEN ? AND ?");
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
@@ -547,21 +563,21 @@ public class BuildEntQueryConditionTest {
     @Test
     public void queryBuild_not_between_1() {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
-                .eq(AnnoUserInfoDTO::getSeq, 1).notBetween(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+                .eq(AnnoUserInfoDTO::getSeq, 1).rangeNotBetween(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name NOT BETWEEN ? AND ?");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
 
         BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
-                .eq(AnnoUserInfoDTO::getSeq, 1).or().notBetween(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+                .eq(AnnoUserInfoDTO::getSeq, 1).or().rangeNotBetween(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR login_name NOT BETWEEN ? AND ?");
         assert boundSql2.getArgs()[0].equals(1);
         assert boundSql2.getArgs()[1].equals(2);
         assert boundSql2.getArgs()[2].equals(3);
 
         BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
-                .eq(AnnoUserInfoDTO::getSeq, 1).and().notBetween(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+                .eq(AnnoUserInfoDTO::getSeq, 1).and().rangeNotBetween(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
         assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name NOT BETWEEN ? AND ?");
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
@@ -571,22 +587,406 @@ public class BuildEntQueryConditionTest {
     @Test
     public void queryBuild_not_between_1_2map() {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
-                .eq("seq", 1).notBetween("loginName", 2, 3).getBoundSql();
+                .eq("seq", 1).rangeNotBetween("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name NOT BETWEEN ? AND ?");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
 
         BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
-                .eq("seq", 1).or().notBetween("loginName", 2, 3).getBoundSql();
+                .eq("seq", 1).or().rangeNotBetween("loginName", 2, 3).getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR login_name NOT BETWEEN ? AND ?");
         assert boundSql2.getArgs()[0].equals(1);
         assert boundSql2.getArgs()[1].equals(2);
         assert boundSql2.getArgs()[2].equals(3);
 
         BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
-                .eq("seq", 1).and().notBetween("loginName", 2, 3).getBoundSql();
+                .eq("seq", 1).and().rangeNotBetween("loginName", 2, 3).getBoundSql();
         assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name NOT BETWEEN ? AND ?");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_rangeOpenOpen_1() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).rangeOpenOpen(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? < login_name AND login_name < ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).or().rangeOpenOpen(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR ( ? < login_name AND login_name < ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).and().rangeOpenOpen(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? < login_name AND login_name < ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_rangeOpenOpen_1_2map() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).rangeOpenOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? < login_name AND login_name < ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).or().rangeOpenOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR ( ? < login_name AND login_name < ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).and().rangeOpenOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? < login_name AND login_name < ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_not_rangeOpenOpen_1() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).rangeNotOpenOpen(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? < login_name AND login_name < ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).or().rangeNotOpenOpen(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR NOT ( ? < login_name AND login_name < ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).and().rangeNotOpenOpen(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? < login_name AND login_name < ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_not_rangeOpenOpen_1_2map() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).rangeNotOpenOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? < login_name AND login_name < ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).or().rangeNotOpenOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR NOT ( ? < login_name AND login_name < ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).and().rangeNotOpenOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? < login_name AND login_name < ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_rangeOpenClosed_1() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).rangeOpenClosed(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? < login_name AND login_name <= ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).or().rangeOpenClosed(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR ( ? < login_name AND login_name <= ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).and().rangeOpenClosed(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? < login_name AND login_name <= ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_rangeOpenClosed_1_2map() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).rangeOpenClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? < login_name AND login_name <= ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).or().rangeOpenClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR ( ? < login_name AND login_name <= ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).and().rangeOpenClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? < login_name AND login_name <= ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_not_rangeOpenClosed_1() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).rangeNotOpenClosed(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? < login_name AND login_name <= ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).or().rangeNotOpenClosed(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR NOT ( ? < login_name AND login_name <= ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).and().rangeNotOpenClosed(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? < login_name AND login_name <= ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_not_rangeOpenClosed_1_2map() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).rangeNotOpenClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? < login_name AND login_name <= ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).or().rangeNotOpenClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR NOT ( ? < login_name AND login_name <= ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).and().rangeNotOpenClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? < login_name AND login_name <= ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_rangeClosedOpen_1() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).rangeClosedOpen(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? <= login_name AND login_name < ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).or().rangeClosedOpen(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR ( ? <= login_name AND login_name < ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).and().rangeClosedOpen(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? <= login_name AND login_name < ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_rangeClosedOpen_1_2map() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).rangeClosedOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? <= login_name AND login_name < ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).or().rangeClosedOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR ( ? <= login_name AND login_name < ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).and().rangeClosedOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? <= login_name AND login_name < ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_not_rangeClosedOpen_1() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).rangeNotClosedOpen(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? <= login_name AND login_name < ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).or().rangeNotClosedOpen(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR NOT ( ? <= login_name AND login_name < ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).and().rangeNotClosedOpen(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? <= login_name AND login_name < ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_not_rangeClosedOpen_1_2map() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).rangeNotClosedOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? <= login_name AND login_name < ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).or().rangeNotClosedOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR NOT ( ? <= login_name AND login_name < ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).and().rangeNotClosedOpen("loginName", 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? <= login_name AND login_name < ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_rangeClosedClosed_1() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).rangeClosedClosed(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? <= login_name AND login_name <= ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).or().rangeClosedClosed(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR ( ? <= login_name AND login_name <= ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).and().rangeClosedClosed(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? <= login_name AND login_name <= ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_rangeClosedClosed_1_2map() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).rangeClosedClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? <= login_name AND login_name <= ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).or().rangeClosedClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR ( ? <= login_name AND login_name <= ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).and().rangeClosedClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? <= login_name AND login_name <= ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_not_rangeClosedClosed_1() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).rangeNotClosedClosed(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? <= login_name AND login_name <= ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).or().rangeNotClosedClosed(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR NOT ( ? <= login_name AND login_name <= ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getSeq, 1).and().rangeNotClosedClosed(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? <= login_name AND login_name <= ? )");
+        assert boundSql3.getArgs()[0].equals(1);
+        assert boundSql3.getArgs()[1].equals(2);
+        assert boundSql3.getArgs()[2].equals(3);
+    }
+
+    @Test
+    public void queryBuild_not_rangeClosedClosed_1_2map() {
+        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).rangeNotClosedClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? <= login_name AND login_name <= ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals(3);
+
+        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).or().rangeNotClosedClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR NOT ( ? <= login_name AND login_name <= ? )");
+        assert boundSql2.getArgs()[0].equals(1);
+        assert boundSql2.getArgs()[1].equals(2);
+        assert boundSql2.getArgs()[2].equals(3);
+
+        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+                .eq("seq", 1).and().rangeNotClosedClosed("loginName", 2, 3).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? <= login_name AND login_name <= ? )");
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
         assert boundSql3.getArgs()[2].equals(3);

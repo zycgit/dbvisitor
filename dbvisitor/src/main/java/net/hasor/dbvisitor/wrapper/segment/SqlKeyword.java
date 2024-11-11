@@ -40,6 +40,9 @@ public enum SqlKeyword implements Segment {
     GROUP_BY("GROUP BY"),       //
     HAVING("HAVING"),           //
     ORDER_BY("ORDER BY"),       //
+    //ORDER_BY_DEFAULT(""),       //
+    //ORDER_BY_ASC("ASC"),        //
+    //ORDER_BY_DESC("DESC"),      //
 
     INSERT("INSERT"),           //
     UPDATE("UPDATE"),           //
@@ -60,6 +63,10 @@ public enum SqlKeyword implements Segment {
 
     SqlKeyword(String sqlString) {
         this.sqlString = sqlString;
+    }
+
+    public String getSqlString() {
+        return this.sqlString;
     }
 
     @Override

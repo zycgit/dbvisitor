@@ -220,7 +220,7 @@ public class BuildEntQueryOtherTest {
 
         BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a")//
-                .asc(AnnoUserInfoDTO::getLoginName, AnnoUserInfoDTO::getSeq)//
+                .asc(AnnoUserInfoDTO::getLoginName).asc(AnnoUserInfoDTO::getSeq)//
                 .getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC , seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
@@ -257,7 +257,7 @@ public class BuildEntQueryOtherTest {
 
         BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a")//
-                .asc("loginName", "seq")//
+                .asc("loginName").asc("seq")//
                 .getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC , seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
@@ -289,7 +289,7 @@ public class BuildEntQueryOtherTest {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).applySelect("a, b, c, d")//
                 .eq(AnnoUserInfoDTO::getSeq, 1)//
                 .or()//
-                .between(AnnoUserInfoDTO::getLoginName, 2, 3)//
+                .rangeBetween(AnnoUserInfoDTO::getLoginName, 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT a, b, c, d FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
@@ -304,7 +304,7 @@ public class BuildEntQueryOtherTest {
                 .applySelect("a, b, c, d")//
                 .eq("seq", 1)//
                 .or()//
-                .between("loginName", 2, 3)//
+                .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT a, b, c, d FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
@@ -316,10 +316,10 @@ public class BuildEntQueryOtherTest {
     @Test
     public void queryBuilder_select_2() {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
-                .select(AnnoUserInfoDTO::getLoginName, AnnoUserInfoDTO::getSeq)//
+                .selectAdd(AnnoUserInfoDTO::getLoginName).selectAdd(AnnoUserInfoDTO::getSeq)//
                 .eq(AnnoUserInfoDTO::getSeq, 1)//
                 .or()//
-                .between(AnnoUserInfoDTO::getLoginName, 2, 3)//
+                .rangeBetween(AnnoUserInfoDTO::getLoginName, 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT login_name , seq FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
@@ -331,10 +331,10 @@ public class BuildEntQueryOtherTest {
     @Test
     public void queryBuilder_select_2_2map() {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
-                .select("loginName", "seq")//
+                .selectAdd("loginName").selectAdd("seq")//
                 .eq("seq", 1)//
                 .or()//
-                .between("loginName", 2, 3)//
+                .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT login_name , seq FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
@@ -349,7 +349,7 @@ public class BuildEntQueryOtherTest {
                 .select(AnnoUserInfoDTO::getLoginName)//
                 .eq(AnnoUserInfoDTO::getSeq, 1)//
                 .or()//
-                .between(AnnoUserInfoDTO::getLoginName, 2, 3)//
+                .rangeBetween(AnnoUserInfoDTO::getLoginName, 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT login_name FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
@@ -364,7 +364,7 @@ public class BuildEntQueryOtherTest {
                 .select("loginName")//
                 .eq("seq", 1)//
                 .or()//
-                .between("loginName", 2, 3)//
+                .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT login_name FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");

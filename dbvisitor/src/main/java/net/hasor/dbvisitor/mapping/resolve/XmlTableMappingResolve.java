@@ -195,6 +195,8 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
             String setValueTemplate = strFromXmlAttribute(nodeAttributes, "setValueTemplate");
             String whereColTemplate = strFromXmlAttribute(nodeAttributes, "whereColTemplate");
             String whereValueTemplate = strFromXmlAttribute(nodeAttributes, "whereValueTemplate");
+            String groupByColTemplate = strFromXmlAttribute(nodeAttributes, "groupByColTemplate");
+            String orderByColTemplate = strFromXmlAttribute(nodeAttributes, "orderByColTemplate");
             colDef.setPrimaryKey(asPrimaryKey);
             colDef.setInsert(StringUtils.isBlank(insertStr) || Boolean.parseBoolean(insertStr));
             colDef.setUpdate(StringUtils.isBlank(updateStr) || Boolean.parseBoolean(updateStr));
@@ -204,6 +206,8 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
             colDef.setSetValueTemplate(StringUtils.isNotBlank(setValueTemplate) ? setValueTemplate : null);
             colDef.setWhereColTemplate(StringUtils.isNotBlank(whereColTemplate) ? whereColTemplate : null);
             colDef.setWhereValueTemplate(StringUtils.isNotBlank(whereValueTemplate) ? whereValueTemplate : null);
+            colDef.setGroupByColTemplate(StringUtils.isNotBlank(groupByColTemplate) ? groupByColTemplate : null);
+            colDef.setOrderByColTemplate(StringUtils.isNotBlank(orderByColTemplate) ? orderByColTemplate : null);
 
             // for Description
             String sqlType = strFromXmlAttribute(nodeAttributes, "sqlType");

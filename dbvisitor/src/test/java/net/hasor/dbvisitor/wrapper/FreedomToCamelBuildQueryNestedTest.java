@@ -62,6 +62,21 @@ public class FreedomToCamelBuildQueryNestedTest {
     }
 
     @Test
+    public void queryBuilder_nested_or_2() {
+        BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
+                .nested(qc -> {
+                    qc.eq("loginName", "user-1").eq("seq", 1);
+                }).or(qc -> {
+                    qc.eq("loginName", "user-2").eq("seq", 2);
+                }).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE ( login_name = ? AND seq = ? ) OR ( login_name = ? AND seq = ? )");
+        assert boundSql1.getArgs()[0].equals("user-1");
+        assert boundSql1.getArgs()[1].equals(1);
+        assert boundSql1.getArgs()[2].equals("user-2");
+        assert boundSql1.getArgs()[3].equals(2);
+    }
+
+    @Test
     public void queryBuilder_nested_and_1() {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
                 .eq("loginName", "a").and(nestedQuery -> {
@@ -84,6 +99,21 @@ public class FreedomToCamelBuildQueryNestedTest {
         assert boundSql2.getArgs()[1].equals(1);
         assert boundSql2.getArgs()[2].equals(2);
         assert boundSql2.getArgs()[3].equals(123);
+    }
+
+    @Test
+    public void queryBuilder_nested_and_2() {
+        BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
+                .nested(qc -> {
+                    qc.eq("seq", 1).or().eq("seq", 2);
+                }).and(qc -> {
+                    qc.eq("loginName", "user-1").or().eq("loginName", "user-2");
+                }).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE ( seq = ? OR seq = ? ) AND ( login_name = ? OR login_name = ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals(2);
+        assert boundSql1.getArgs()[2].equals("user-1");
+        assert boundSql1.getArgs()[3].equals("user-2");
     }
 
     @Test
@@ -129,4 +159,14 @@ public class FreedomToCamelBuildQueryNestedTest {
         assert boundSql3.getArgs()[2].equals(1);
     }
 
+    @Test
+    public void queryBuilder_nested_not_1() {
+        BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
+                .not(qc -> {
+                    qc.eq("seq", 1).or().eq("loginName", "a");
+                }).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE NOT ( seq = ? OR login_name = ? )");
+        assert boundSql1.getArgs()[0].equals(1);
+        assert boundSql1.getArgs()[1].equals("a");
+    }
 }

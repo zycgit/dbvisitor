@@ -133,6 +133,8 @@
         <xs:attribute name="setValueTemplate"/>
         <xs:attribute name="whereColTemplate"/>
         <xs:attribute name="whereValueTemplate"/>
+        <xs:attribute name="groupByColTemplate"/>
+        <xs:attribute name="orderByColTemplate"/>
         <!-- META -->
         <xs:attribute name="sqlType"/>
         <xs:attribute name="length"/>

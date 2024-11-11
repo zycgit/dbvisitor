@@ -18,6 +18,7 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
+import net.hasor.dbvisitor.wrapper.core.OrderType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,6 +56,34 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
             return fmtName(useQualifier, schema) + "." + fmtName(useQualifier, table);
         }
         return fmtName(useQualifier, table);
+    }
+
+    @Override
+    public String orderByNullsFirst(boolean useQualifier, String name, OrderType orderType) {
+        String colName = this.fmtName(useQualifier, name);
+        switch (orderType) {
+            case ASC:
+                return colName + " IS NULL DESC," + colName + " ASC";
+            case DESC:
+                return colName + " IS NULL DESC," + colName + " DESC";
+            case DEFAULT:
+            default:
+                return this.fmtName(useQualifier, name);
+        }
+    }
+
+    @Override
+    public String orderByNullsLast(boolean useQualifier, String name, OrderType orderType) {
+        String colName = this.fmtName(useQualifier, name);
+        switch (orderType) {
+            case ASC:
+                return colName + " IS NULL ASC," + colName + " ASC";
+            case DESC:
+                return colName + " IS NULL ASC," + colName + " DESC";
+            case DEFAULT:
+            default:
+                return this.fmtName(useQualifier, name);
+        }
     }
 
     @Override

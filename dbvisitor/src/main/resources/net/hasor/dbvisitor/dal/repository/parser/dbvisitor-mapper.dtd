@@ -102,6 +102,8 @@
         setValueTemplate CDATA #IMPLIED
         whereColTemplate CDATA #IMPLIED
         whereValueTemplate CDATA #IMPLIED
+        groupByColTemplate CDATA #IMPLIED
+        orderByColTemplate CDATA #IMPLIED
         sqlType CDATA #IMPLIED
         length CDATA #IMPLIED
         precision CDATA #IMPLIED

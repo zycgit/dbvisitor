@@ -105,12 +105,23 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     }
 
     @Override
+    public R not() {
+        this.nextSegmentPrefix = SqlKeyword.NOT;
+        return this.getSelf();
+    }
+
+    @Override
+    public R not(boolean test, Consumer<R> lambda) {
+        return test ? and(lambda) : getSelf();
+    }
+
+    @Override
     public R apply(String sqlString, Object... args) {
         if (StringUtils.isBlank(sqlString)) {
             return this.getSelf();
         }
         this.queryTemplate.addSegment(d -> {
-            if (args != null && args.length > 0) {
+            if (args != null) {
                 for (Object arg : args) {
                     format("?", arg);
                 }
@@ -378,7 +389,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     }
 
     @Override
-    public R between(boolean test, P property, Object value1, Object value2) {
+    public R rangeBetween(boolean test, P property, Object value1, Object value2) {
         if (test) {
             String propertyName = getPropertyName(property);
             return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.BETWEEN, formatValue(propertyName, value1), SqlKeyword.AND, formatValue(propertyName, value2));
@@ -388,10 +399,150 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     }
 
     @Override
-    public R notBetween(boolean test, P property, Object value1, Object value2) {
+    public R rangeNotBetween(boolean test, P property, Object value1, Object value2) {
         if (test) {
             String propertyName = getPropertyName(property);
             return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.NOT, SqlKeyword.BETWEEN, formatValue(propertyName, value1), SqlKeyword.AND, formatValue(propertyName, value2));
+        } else {
+            return this.getSelf();
+        }
+    }
+
+    @Override
+    public R rangeOpenOpen(boolean test, P property, Object value1, Object value2) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            Segment colName = buildConditionByProperty(propertyName);
+            return this.addCondition(   //
+                    SqlKeyword.LEFT,    //
+                    formatValue(propertyName, value1), SqlKeyword.LT, colName,//
+                    SqlKeyword.AND,     //
+                    colName, SqlKeyword.LT, formatValue(propertyName, value2),//
+                    SqlKeyword.RIGHT    //
+            );
+        } else {
+            return this.getSelf();
+        }
+    }
+
+    @Override
+    public R rangeNotOpenOpen(boolean test, P property, Object value1, Object value2) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            Segment colName = buildConditionByProperty(propertyName);
+            return this.addCondition(   //
+                    SqlKeyword.NOT,     //
+                    SqlKeyword.LEFT,    //
+                    formatValue(propertyName, value1), SqlKeyword.LT, colName,//
+                    SqlKeyword.AND,     //
+                    colName, SqlKeyword.LT, formatValue(propertyName, value2),//
+                    SqlKeyword.RIGHT    //
+            );
+        } else {
+            return this.getSelf();
+        }
+    }
+
+    @Override
+    public R rangeOpenClosed(boolean test, P property, Object value1, Object value2) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            Segment colName = buildConditionByProperty(propertyName);
+            return this.addCondition(   //
+                    SqlKeyword.LEFT,    //
+                    formatValue(propertyName, value1), SqlKeyword.LT, colName,//
+                    SqlKeyword.AND,     //
+                    colName, SqlKeyword.LE, formatValue(propertyName, value2),//
+                    SqlKeyword.RIGHT    //
+            );
+        } else {
+            return this.getSelf();
+        }
+    }
+
+    @Override
+    public R rangeNotOpenClosed(boolean test, P property, Object value1, Object value2) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            Segment colName = buildConditionByProperty(propertyName);
+            return this.addCondition(   //
+                    SqlKeyword.NOT,     //
+                    SqlKeyword.LEFT,    //
+                    formatValue(propertyName, value1), SqlKeyword.LT, colName,//
+                    SqlKeyword.AND,     //
+                    colName, SqlKeyword.LE, formatValue(propertyName, value2),//
+                    SqlKeyword.RIGHT    //
+            );
+        } else {
+            return this.getSelf();
+        }
+    }
+
+    @Override
+    public R rangeClosedOpen(boolean test, P property, Object value1, Object value2) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            Segment colName = buildConditionByProperty(propertyName);
+            return this.addCondition(   //
+                    SqlKeyword.LEFT,    //
+                    formatValue(propertyName, value1), SqlKeyword.LE, colName,//
+                    SqlKeyword.AND,     //
+                    colName, SqlKeyword.LT, formatValue(propertyName, value2),//
+                    SqlKeyword.RIGHT    //
+            );
+        } else {
+            return this.getSelf();
+        }
+    }
+
+    @Override
+    public R rangeNotClosedOpen(boolean test, P property, Object value1, Object value2) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            Segment colName = buildConditionByProperty(propertyName);
+            return this.addCondition(   //
+                    SqlKeyword.NOT,    //
+                    SqlKeyword.LEFT,    //
+                    formatValue(propertyName, value1), SqlKeyword.LE, colName,//
+                    SqlKeyword.AND,     //
+                    colName, SqlKeyword.LT, formatValue(propertyName, value2),//
+                    SqlKeyword.RIGHT    //
+            );
+        } else {
+            return this.getSelf();
+        }
+    }
+
+    @Override
+    public R rangeClosedClosed(boolean test, P property, Object value1, Object value2) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            Segment colName = buildConditionByProperty(propertyName);
+            return this.addCondition(   //
+                    SqlKeyword.LEFT,    //
+                    formatValue(propertyName, value1), SqlKeyword.LE, colName,//
+                    SqlKeyword.AND,     //
+                    colName, SqlKeyword.LE, formatValue(propertyName, value2),//
+                    SqlKeyword.RIGHT    //
+            );
+        } else {
+            return this.getSelf();
+        }
+    }
+
+    @Override
+    public R rangeNotClosedClosed(boolean test, P property, Object value1, Object value2) {
+        if (test) {
+            String propertyName = getPropertyName(property);
+            Segment colName = buildConditionByProperty(propertyName);
+            return this.addCondition(   //
+                    SqlKeyword.NOT,    //
+                    SqlKeyword.LEFT,    //
+                    formatValue(propertyName, value1), SqlKeyword.LE, colName,//
+                    SqlKeyword.AND,     //
+                    colName, SqlKeyword.LE, formatValue(propertyName, value2),//
+                    SqlKeyword.RIGHT    //
+            );
         } else {
             return this.getSelf();
         }

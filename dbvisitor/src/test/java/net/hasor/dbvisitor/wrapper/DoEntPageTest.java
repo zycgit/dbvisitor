@@ -71,7 +71,7 @@ public class DoEntPageTest {
     public void buildPageTest_2() {
         BoundSql boundSql = newLambda().queryByEntity(UserInfo2.class).select(UserInfo2::getLoginName)//
                 .eq(UserInfo2::getSeq, 1)//
-                .between(UserInfo2::getLoginName, 2, 3)//
+                .rangeBetween(UserInfo2::getLoginName, 2, 3)//
                 .initPage(10, 2)//
                 .getBoundSql();
         assert boundSql.getSqlString().equals("SELECT login_name FROM user_info WHERE seq = ? AND login_name BETWEEN ? AND ? LIMIT ?, ?");

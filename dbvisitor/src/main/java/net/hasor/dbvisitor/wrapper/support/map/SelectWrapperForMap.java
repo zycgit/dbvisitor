@@ -19,6 +19,8 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.wrapper.MapQueryWrapper;
 import net.hasor.dbvisitor.wrapper.core.AbstractSelectWrapper;
+import net.hasor.dbvisitor.wrapper.core.OrderNullsStrategy;
+import net.hasor.dbvisitor.wrapper.core.OrderType;
 
 import java.util.Map;
 
@@ -45,127 +47,47 @@ public class SelectWrapperForMap extends AbstractSelectWrapper<MapQueryWrapper, 
     }
 
     @Override
-    public MapQueryWrapper select(String property1) {
-        return this.select(new String[] { property1 });
+    public MapQueryWrapper select(String property) {
+        return this.select(new String[] { property });
     }
 
     @Override
-    public MapQueryWrapper select(String property1, String property2) {
-        return this.select(new String[] { property1, property2 });
+    public MapQueryWrapper selectAdd(String property) {
+        return this.selectAdd(new String[] { property });
     }
 
     @Override
-    public MapQueryWrapper select(String property1, String property2, String property3) {
-        return this.select(new String[] { property1, property2, property3 });
+    public MapQueryWrapper groupBy(String property) {
+        return this.groupBy(new String[] { property });
     }
 
     @Override
-    public MapQueryWrapper select(String property1, String property2, String property3, String property4) {
-        return this.select(new String[] { property1, property2, property3, property4 });
+    public MapQueryWrapper orderBy(String property) {
+        return this.addOrderBy(OrderType.DEFAULT, new String[] { property }, OrderNullsStrategy.DEFAULT);
     }
 
     @Override
-    public MapQueryWrapper select(String property1, String property2, String property3, String property4, String property5) {
-        return this.select(new String[] { property1, property2, property3, property4, property5 });
+    public MapQueryWrapper orderBy(String[] orderBy) {
+        return this.addOrderBy(OrderType.DEFAULT, orderBy, OrderNullsStrategy.DEFAULT);
     }
 
     @Override
-    public MapQueryWrapper groupBy(String property1) {
-        return this.groupBy(new String[] { property1 });
+    public MapQueryWrapper orderBy(String property, OrderType orderType, OrderNullsStrategy strategy) {
+        return this.orderBy(new String[] { property }, orderType, strategy);
     }
 
     @Override
-    public MapQueryWrapper groupBy(String property1, String property2) {
-        return this.groupBy(new String[] { property1, property2 });
+    public MapQueryWrapper orderBy(String[] properties, OrderType orderType, OrderNullsStrategy strategy) {
+        switch (orderType) {
+            case ASC:
+                return this.addOrderBy(OrderType.ASC, properties, strategy);
+            case DESC:
+                return this.addOrderBy(OrderType.DESC, properties, strategy);
+            case DEFAULT:
+                return this.addOrderBy(OrderType.DEFAULT, properties, strategy);
+            default:
+                throw new UnsupportedOperationException("orderType " + orderType + " Unsupported.");
+        }
     }
 
-    @Override
-    public MapQueryWrapper groupBy(String property1, String property2, String property3) {
-        return this.groupBy(new String[] { property1, property2, property3 });
-    }
-
-    @Override
-    public MapQueryWrapper groupBy(String property1, String property2, String property3, String property4) {
-        return this.groupBy(new String[] { property1, property2, property3, property4 });
-    }
-
-    @Override
-    public MapQueryWrapper groupBy(String property1, String property2, String property3, String property4, String property5) {
-        return this.groupBy(new String[] { property1, property2, property3, property4, property5 });
-    }
-
-    @Override
-    public MapQueryWrapper orderBy(String property1) {
-        return this.orderBy(new String[] { property1 });
-    }
-
-    @Override
-    public MapQueryWrapper orderBy(String property1, String property2) {
-        return this.orderBy(new String[] { property1, property2 });
-    }
-
-    @Override
-    public MapQueryWrapper orderBy(String property1, String property2, String property3) {
-        return this.orderBy(new String[] { property1, property2, property3 });
-    }
-
-    @Override
-    public MapQueryWrapper orderBy(String property1, String property2, String property3, String property4) {
-        return this.orderBy(new String[] { property1, property2, property3, property4 });
-    }
-
-    @Override
-    public MapQueryWrapper orderBy(String property1, String property2, String property3, String property4, String property5) {
-        return this.orderBy(new String[] { property1, property2, property3, property4, property5 });
-    }
-
-    @Override
-    public MapQueryWrapper asc(String property1) {
-        return this.asc(new String[] { property1 });
-    }
-
-    @Override
-    public MapQueryWrapper asc(String property1, String property2) {
-        return this.asc(new String[] { property1, property2 });
-    }
-
-    @Override
-    public MapQueryWrapper asc(String property1, String property2, String property3) {
-        return this.asc(new String[] { property1, property2, property3 });
-    }
-
-    @Override
-    public MapQueryWrapper asc(String property1, String property2, String property3, String property4) {
-        return this.asc(new String[] { property1, property2, property3, property4 });
-    }
-
-    @Override
-    public MapQueryWrapper asc(String property1, String property2, String property3, String property4, String property5) {
-        return this.asc(new String[] { property1, property2, property3, property4, property5 });
-    }
-
-    @Override
-    public MapQueryWrapper desc(String property1) {
-        return this.desc(new String[] { property1 });
-    }
-
-    @Override
-    public MapQueryWrapper desc(String property1, String property2) {
-        return this.desc(new String[] { property1, property2 });
-    }
-
-    @Override
-    public MapQueryWrapper desc(String property1, String property2, String property3) {
-        return this.desc(new String[] { property1, property2, property3 });
-    }
-
-    @Override
-    public MapQueryWrapper desc(String property1, String property2, String property3, String property4) {
-        return this.desc(new String[] { property1, property2, property3, property4 });
-    }
-
-    @Override
-    public MapQueryWrapper desc(String property1, String property2, String property3, String property4, String property5) {
-        return this.desc(new String[] { property1, property2, property3, property4, property5 });
-    }
 }

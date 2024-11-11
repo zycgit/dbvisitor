@@ -186,7 +186,7 @@ public class DoEntQueryTest {
     public void selectAll_forRowMapper_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             List<Map<String, Object>> list = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class)//
-                    .query(new ColumnMapRowMapper());
+                    .queryForList(new ColumnMapRowMapper());
 
             List<String> collect = list.stream().map(tbUser -> {
                 return (String) tbUser.get("user_name");
@@ -203,7 +203,7 @@ public class DoEntQueryTest {
     public void selectAll_forRowMapper_1_2map() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             List<Map<String, Object>> list = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class).asMap()//
-                    .query(new ColumnMapRowMapper());
+                    .queryForList(new ColumnMapRowMapper());
 
             List<String> collect = list.stream().map(tbUser -> {
                 return (String) tbUser.get("user_name");

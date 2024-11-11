@@ -50,7 +50,6 @@ public class FreedomToCamelBuildQueryOtherTest {
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
         assert boundSql1.getArgs()[2].equals(123);
-
     }
 
     @Test
@@ -142,7 +141,7 @@ public class FreedomToCamelBuildQueryOtherTest {
 
         BoundSql boundSql2 = newLambda().freedomQuery("user_info")//
                 .eq("loginName", "a")//
-                .asc("loginName", "seq")//
+                .asc("loginName").asc("seq")//
                 .getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC , seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
@@ -174,7 +173,7 @@ public class FreedomToCamelBuildQueryOtherTest {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info").applySelect("a, b, c, d")//
                 .eq("seq", 1)//
                 .or()//
-                .between("loginName", 2, 3)//
+                .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT a, b, c, d FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
@@ -186,10 +185,10 @@ public class FreedomToCamelBuildQueryOtherTest {
     @Test
     public void queryBuilder_select_2() {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
-                .select("loginName", "seq")//
+                .selectAdd("loginName").selectAdd("seq")//
                 .eq("seq", 1)//
                 .or()//
-                .between("loginName", 2, 3)//
+                .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT login_name , seq FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
@@ -204,7 +203,7 @@ public class FreedomToCamelBuildQueryOtherTest {
                 .select("loginName")//
                 .eq("seq", 1)//
                 .or()//
-                .between("loginName", 2, 3)//
+                .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
         assert boundSql1.getSqlString().equals("SELECT login_name FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");

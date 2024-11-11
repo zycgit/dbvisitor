@@ -70,6 +70,12 @@ public interface ColumnMapping {
     /** 用作 update/delete 的 where 语句时 value 的参数写法，默认是 ? */
     String getWhereValueTemplate();
 
+    /** 用作 group by 时 column name 的写法，默认是空 */
+    String getGroupByColTemplate();
+
+    /** 用作 order by 时 column name 的写法，默认是空 */
+    String getOrderByColTemplate();
+
     KeySeqHolder getKeySeqHolder();
 
     /** 获取补充描述信息 */

@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.mapping;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.UnknownTypeHandler;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -52,10 +53,10 @@ public @interface Column {
     /** (选填) 是否为主键 */
     boolean primary() default false;
 
-    /** (选填) 参与更新（在配置了 @Table 注解时，通过 net.hasor.db.lambda.LambdaOperations 接口操作才有效） */
+    /** (选填) 参与更新（在配置了 @Table 注解时，通过 {@link WrapperAdapter} 接口操作才有效） */
     boolean update() default true;
 
-    /** (选填) 参与新增（在配置了 @Table 注解时，通过 net.hasor.db.lambda.LambdaOperations 接口操作才有效） */
+    /** (选填) 参与新增（在配置了 @Table 注解时，通过 {@link WrapperAdapter} 接口操作才有效） */
     boolean insert() default true;
 
     /** (选填) 用作 select 语句时 column name 的写法，默认是空 */
@@ -75,4 +76,10 @@ public @interface Column {
 
     /** (选填) 用作 update/delete 的 where 语句时 value 的参数写法，默认是 ? */
     String whereValueTemplate() default "";
+
+    /** (选填) 用作 group by 时 column name 的写法，默认是空 */
+    String groupByColTemplate() default "";
+
+    /** (选填) 用作 order by 时 column name 的写法，默认是空 */
+    String orderByColTemplate() default "";
 }
