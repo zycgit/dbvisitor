@@ -1,7 +1,7 @@
 package net.hasor.dbvisitor.types.custom;
 
 import net.hasor.dbvisitor.types.MappedJavaTypes;
-import net.hasor.dbvisitor.types.handler.StringTypeHandler;
+import net.hasor.dbvisitor.types.handler.string.StringTypeHandler;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;

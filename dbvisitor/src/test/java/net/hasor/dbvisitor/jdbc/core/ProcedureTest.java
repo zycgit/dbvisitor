@@ -18,7 +18,7 @@ import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.jdbc.CallableStatementCreator;
 import net.hasor.dbvisitor.jdbc.extractor.CallableMultipleResultSetExtractor;
 import net.hasor.dbvisitor.types.SqlArg;
-import net.hasor.dbvisitor.types.handler.LongTypeHandler;
+import net.hasor.dbvisitor.types.handler.number.LongTypeHandler;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.ProcedureTestUserDTO;
 import net.hasor.test.handler.ProcedureTestUserDTOHandler;
@@ -48,7 +48,7 @@ public class ProcedureTest extends AbstractDbTest {
             jdbcTemplate.execute("drop procedure if exists proc_bigint;");
             jdbcTemplate.execute("create procedure proc_bigint(out p_out bigint) begin set p_out=123123; end;");
 
-            Map<String, Object> objectMap = jdbcTemplate.call("{call proc_bigint(#{out,mode=out,jdbcType=bigint, typeHandler=net.hasor.dbvisitor.types.handler.LongTypeHandler})}");
+            Map<String, Object> objectMap = jdbcTemplate.call("{call proc_bigint(#{out,mode=out,jdbcType=bigint, typeHandler=net.hasor.dbvisitor.types.handler.number.LongTypeHandler})}");
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Long;

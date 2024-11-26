@@ -74,7 +74,7 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
 
     @Override
     public String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
-        return buildSql("INSERT IGNORE ", useQualifier, catalog, schema, table, columns, columnValueTerms, " ON CONFLICT DO NOTHING");
+        return buildSql("INSERT ", useQualifier, catalog, schema, table, columns, columnValueTerms, " ON CONFLICT DO NOTHING");
     }
 
     @Override

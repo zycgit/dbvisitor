@@ -1,7 +1,7 @@
 package net.hasor.scene.jdbc.query;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.SqlArg;
-import net.hasor.dbvisitor.types.handler.LongTypeHandler;
+import net.hasor.dbvisitor.types.handler.number.LongTypeHandler;
 import net.hasor.scene.UserDTO;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;

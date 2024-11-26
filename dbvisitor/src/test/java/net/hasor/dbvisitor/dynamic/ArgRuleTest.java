@@ -8,9 +8,9 @@ import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import net.hasor.dbvisitor.types.handler.EnumTypeHandler;
-import net.hasor.dbvisitor.types.handler.ShortTypeHandler;
-import net.hasor.dbvisitor.types.handler.SqlXmlTypeHandler;
+import net.hasor.dbvisitor.types.handler.number.ShortTypeHandler;
+import net.hasor.dbvisitor.types.handler.string.EnumTypeHandler;
+import net.hasor.dbvisitor.types.handler.string.SqlXmlTypeHandler;
 import org.junit.Test;
 
 import java.sql.SQLException;
@@ -32,7 +32,7 @@ public class ArgRuleTest {
 
         //
         Map<String, Object> ctx2 = CollectionUtils.asMap("name", "abc");
-        DefaultSqlSegment segment2 = DynamicParsed.getParsedSql("#{name,mode=out,jdbcType=123,javaType=java.lang.Integer,typeHandler=net.hasor.dbvisitor.types.handler.ShortTypeHandler}");
+        DefaultSqlSegment segment2 = DynamicParsed.getParsedSql("#{name,mode=out,jdbcType=123,javaType=java.lang.Integer,typeHandler=net.hasor.dbvisitor.types.handler.number.ShortTypeHandler}");
         SqlBuilder sqlBuilder2 = segment2.buildQuery(ctx2, new RegistryManager());
         assert sqlBuilder2.getSqlString().equals("?");
         assert sqlBuilder2.getArgs().length == 1;
@@ -85,7 +85,7 @@ public class ArgRuleTest {
     @Test
     public void ruleTest_7() throws SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("name", "abc");
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("#{name,mode=out,jdbcType=123,javaType=java.lang.Integer,typeHandler=net.hasor.dbvisitor.types.handler.SqlXmlTypeHandler}");
+        DefaultSqlSegment segment = DynamicParsed.getParsedSql("#{name,mode=out,jdbcType=123,javaType=java.lang.Integer,typeHandler=net.hasor.dbvisitor.types.handler.string.SqlXmlTypeHandler}");
 
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx, new RegistryManager());
         assert sqlBuilder1.getSqlString().equals("?");

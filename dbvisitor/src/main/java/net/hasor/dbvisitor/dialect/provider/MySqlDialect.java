@@ -67,6 +67,7 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
             case DESC:
                 return colName + " IS NULL DESC," + colName + " DESC";
             case DEFAULT:
+                return colName + " IS NULL DESC," + colName;
             default:
                 return this.fmtName(useQualifier, name);
         }
@@ -81,6 +82,7 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
             case DESC:
                 return colName + " IS NULL ASC," + colName + " DESC";
             case DEFAULT:
+                return colName + " IS NULL ASC," + colName;
             default:
                 return this.fmtName(useQualifier, name);
         }

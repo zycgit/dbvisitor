@@ -17,7 +17,7 @@ package net.hasor.scene.json.dto;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.KeyTypeEnum;
 import net.hasor.dbvisitor.mapping.Table;
-import net.hasor.dbvisitor.types.handler.JsonTypeHandler;
+import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

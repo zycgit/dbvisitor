@@ -57,13 +57,13 @@ public class SelectWrapperForMap extends AbstractSelectWrapper<MapQueryWrapper, 
     }
 
     @Override
-    public MapQueryWrapper groupBy(String property) {
-        return this.groupBy(new String[] { property });
+    public MapQueryWrapper groupBy(String property1) {
+        return this.groupBy(new String[] { property1 });
     }
 
     @Override
-    public MapQueryWrapper orderBy(String property) {
-        return this.addOrderBy(OrderType.DEFAULT, new String[] { property }, OrderNullsStrategy.DEFAULT);
+    public MapQueryWrapper orderBy(String property1) {
+        return this.addOrderBy(OrderType.DEFAULT, new String[] { property1 }, OrderNullsStrategy.DEFAULT);
     }
 
     @Override
@@ -72,8 +72,8 @@ public class SelectWrapperForMap extends AbstractSelectWrapper<MapQueryWrapper, 
     }
 
     @Override
-    public MapQueryWrapper orderBy(String property, OrderType orderType, OrderNullsStrategy strategy) {
-        return this.orderBy(new String[] { property }, orderType, strategy);
+    public MapQueryWrapper orderBy(String property1, OrderType orderType, OrderNullsStrategy strategy) {
+        return this.orderBy(new String[] { property1 }, orderType, strategy);
     }
 
     @Override

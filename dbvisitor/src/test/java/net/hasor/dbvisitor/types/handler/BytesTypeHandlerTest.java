@@ -18,6 +18,9 @@ import net.hasor.cobble.codec.MD5;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.SqlArg;
+import net.hasor.dbvisitor.types.handler.bytes.BytesAsBytesWrapTypeHandler;
+import net.hasor.dbvisitor.types.handler.bytes.BytesTypeHandler;
+import net.hasor.dbvisitor.types.handler.io.BytesAsInputStreamTypeHandler;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 

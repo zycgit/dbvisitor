@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.types.handler;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.transaction.Isolation;
 import net.hasor.dbvisitor.types.SqlArg;
+import net.hasor.dbvisitor.types.handler.string.EnumTypeHandler;
 import net.hasor.test.dto.CharacterSensitiveEnum;
 import net.hasor.test.dto.LicenseOfCodeEnum;
 import net.hasor.test.dto.LicenseOfValueEnum;

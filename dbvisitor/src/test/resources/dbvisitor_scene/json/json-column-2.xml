@@ -4,7 +4,7 @@
     <resultMap id="projectMap_1" type="net.hasor.scene.json.dto.Project2">
         <result column="id" property="id"/>
         <result column="name" property="name"/>
-        <result column="feature" property="feature" typeHandler="net.hasor.dbvisitor.types.handler.JsonTypeHandler"/>
+        <result column="feature" property="feature" typeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"/>
     </resultMap>
 
     <select id="selectProject" resultMap="projectMap_1">

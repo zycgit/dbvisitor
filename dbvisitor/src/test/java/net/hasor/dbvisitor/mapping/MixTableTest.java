@@ -17,8 +17,8 @@ package net.hasor.dbvisitor.mapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.dto.MixTableInfoBean1;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import net.hasor.dbvisitor.types.handler.LongTypeHandler;
-import net.hasor.dbvisitor.types.handler.SqlTimestampAsDateTypeHandler;
+import net.hasor.dbvisitor.types.handler.number.LongTypeHandler;
+import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsDateTypeHandler;
 import org.junit.Test;
 
 import java.util.Date;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.test.dto;
-import net.hasor.dbvisitor.types.EnumOfCode;
+import net.hasor.dbvisitor.types.handler.string.EnumOfCode;
 
 /**
  * 大小写不敏感

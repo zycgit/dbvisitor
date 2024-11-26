@@ -16,6 +16,9 @@
 package net.hasor.dbvisitor.types.handler;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.SqlArg;
+import net.hasor.dbvisitor.types.handler.time.SqlDateTypeHandler;
+import net.hasor.dbvisitor.types.handler.time.SqlTimeTypeHandler;
+import net.hasor.dbvisitor.types.handler.time.SqlTimestampTypeHandler;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 

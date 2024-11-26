@@ -3,7 +3,7 @@ import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
 import net.hasor.dbvisitor.dynamic.segment.SqlModifier;
 import net.hasor.dbvisitor.types.SqlArg;
-import net.hasor.dbvisitor.types.handler.BigDecimalTypeHandler;
+import net.hasor.dbvisitor.types.handler.number.BigDecimalTypeHandler;
 import org.junit.Test;
 
 import java.sql.JDBCType;
@@ -231,7 +231,7 @@ public class DynamicTest {
                 "abc = ? and cba = ?");
 
         //expr
-        String sql = "abc = #{eventType,mode=INOUT,jdbcType=INT,javaType=java.lang.Integer,typeHandler=net.hasor.dbvisitor.types.handler.BigDecimalTypeHandler}";
+        String sql = "abc = #{eventType,mode=INOUT,jdbcType=INT,javaType=java.lang.Integer,typeHandler=net.hasor.dbvisitor.types.handler.number.BigDecimalTypeHandler}";
         DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
         RegistryManager context = new RegistryManager();
         Map<String, Object> ctx = CollectionUtils.asMap("eventType", "12345");

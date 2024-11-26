@@ -109,6 +109,9 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
 
     @Override
     public R applySelectAdd(String select) {
+        if (!this.customSelect.isEmpty()) {
+            this.customSelect.addSegment(d -> ",");
+        }
         this.customSelect.addSegment(d -> select);
         return this.getSelf();
     }

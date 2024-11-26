@@ -16,7 +16,7 @@
 package net.hasor.test.dto;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.Table;
-import net.hasor.dbvisitor.types.handler.JsonUseForFastjson2TypeHandler;
+import net.hasor.dbvisitor.types.handler.json.JsonUseForFastjson2TypeHandler;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

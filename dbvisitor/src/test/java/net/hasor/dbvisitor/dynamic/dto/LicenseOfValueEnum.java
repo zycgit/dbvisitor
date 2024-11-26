@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.dto;
-import net.hasor.dbvisitor.types.EnumOfValue;
+import net.hasor.dbvisitor.types.handler.string.EnumOfValue;
 
 /**
  * 授权协议类型

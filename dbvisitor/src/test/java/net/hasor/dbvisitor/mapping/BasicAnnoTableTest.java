@@ -16,10 +16,10 @@
 package net.hasor.dbvisitor.mapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.dto.AnnoTableBean1;
-import net.hasor.dbvisitor.types.handler.EnumTypeHandler;
-import net.hasor.dbvisitor.types.handler.LongTypeHandler;
-import net.hasor.dbvisitor.types.handler.SqlTimestampAsDateTypeHandler;
-import net.hasor.dbvisitor.types.handler.StringTypeHandler;
+import net.hasor.dbvisitor.types.handler.number.LongTypeHandler;
+import net.hasor.dbvisitor.types.handler.string.EnumTypeHandler;
+import net.hasor.dbvisitor.types.handler.string.StringTypeHandler;
+import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsDateTypeHandler;
 import net.hasor.test.dto.ResourceType;
 import org.junit.Test;
 

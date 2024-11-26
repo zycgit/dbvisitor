@@ -16,6 +16,9 @@
 package net.hasor.dbvisitor.types.handler;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.SqlArg;
+import net.hasor.dbvisitor.types.handler.time.IntegerAsMonthTypeHandler;
+import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthTypeHandler;
+import net.hasor.dbvisitor.types.handler.time.StringAsMonthTypeHandler;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 

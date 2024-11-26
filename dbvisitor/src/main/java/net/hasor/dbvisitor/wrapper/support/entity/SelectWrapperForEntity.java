@@ -66,13 +66,13 @@ public class SelectWrapperForEntity<T> extends AbstractSelectWrapper<EntityQuery
     }
 
     @Override
-    public EntityQueryWrapper<T> groupBy(SFunction<T> property) {
-        return this.groupBy(new SFunction[] { property });
+    public EntityQueryWrapper<T> groupBy(SFunction<T> property1) {
+        return this.groupBy(new SFunction[] { property1 });
     }
 
     @Override
-    public EntityQueryWrapper<T> orderBy(SFunction<T> property) {
-        return this.addOrderBy(OrderType.DEFAULT, new SFunction[] { property }, OrderNullsStrategy.DEFAULT);
+    public EntityQueryWrapper<T> orderBy(SFunction<T> property1) {
+        return this.addOrderBy(OrderType.DEFAULT, new SFunction[] { property1 }, OrderNullsStrategy.DEFAULT);
     }
 
     @Override
@@ -81,8 +81,8 @@ public class SelectWrapperForEntity<T> extends AbstractSelectWrapper<EntityQuery
     }
 
     @Override
-    public EntityQueryWrapper<T> orderBy(SFunction<T> property, OrderType orderType, OrderNullsStrategy strategy) {
-        return this.orderBy(new SFunction[] { property }, orderType, strategy);
+    public EntityQueryWrapper<T> orderBy(SFunction<T> property1, OrderType orderType, OrderNullsStrategy strategy) {
+        return this.orderBy(new SFunction[] { property1 }, orderType, strategy);
     }
 
     @Override

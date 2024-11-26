@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.mapping;
 import net.hasor.dbvisitor.types.TypeHandler;
-import net.hasor.dbvisitor.types.UnknownTypeHandler;
+import net.hasor.dbvisitor.types.handler.UnknownTypeHandler;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import java.lang.annotation.ElementType;

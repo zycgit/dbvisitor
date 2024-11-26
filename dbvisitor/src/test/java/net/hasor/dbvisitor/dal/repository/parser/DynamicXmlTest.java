@@ -21,7 +21,7 @@ import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.SqlMode;
 import net.hasor.dbvisitor.types.SqlArg;
-import net.hasor.dbvisitor.types.handler.BlobAsBytesTypeHandler;
+import net.hasor.dbvisitor.types.handler.bytes.BlobAsBytesTypeHandler;
 import net.hasor.test.dal.dynamic.TextBuilderContext;
 import net.hasor.test.dto.user_info;
 import org.junit.Test;

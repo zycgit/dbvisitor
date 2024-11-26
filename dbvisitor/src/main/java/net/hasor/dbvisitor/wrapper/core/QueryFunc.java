@@ -82,20 +82,20 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
     R groupBy(P[] properties);
 
     /** 排序条件，类似：order by xxx */
-    R orderBy(P property);
+    R orderBy(P property1);
 
     /** 排序条件，类似：order by xxx */
     R orderBy(P[] properties);
 
     /** 排序条件，类似：order by xxx */
-    R orderBy(P property, OrderType orderType, OrderNullsStrategy strategy);
+    R orderBy(P property1, OrderType orderType, OrderNullsStrategy strategy);
 
     /** 排序条件，类似：order by xxx */
     R orderBy(P[] properties, OrderType orderType, OrderNullsStrategy strategy);
 
     /** 排序(升序)，类似：order by xxx asc */
-    default R asc(P property) {
-        return this.orderBy(property, OrderType.ASC, OrderNullsStrategy.DEFAULT);
+    default R asc(P property1) {
+        return this.orderBy(property1, OrderType.ASC, OrderNullsStrategy.DEFAULT);
     }
 
     /** 排序(升序)，类似：order by xxx asc */
@@ -104,8 +104,8 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
     }
 
     /** 排序(升序)，类似：order by xxx asc */
-    default R asc(P property, OrderNullsStrategy strategy) {
-        return this.orderBy(property, OrderType.ASC, strategy);
+    default R asc(P property1, OrderNullsStrategy strategy) {
+        return this.orderBy(property1, OrderType.ASC, strategy);
     }
 
     /** 排序(升序)，类似：order by xxx asc */
@@ -114,8 +114,8 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
     }
 
     /** 排序(降序)，类似：order by xxx desc */
-    default R desc(P property) {
-        return this.orderBy(property, OrderType.DESC, OrderNullsStrategy.DEFAULT);
+    default R desc(P property1) {
+        return this.orderBy(property1, OrderType.DESC, OrderNullsStrategy.DEFAULT);
     }
 
     /** 排序(降序)，类似：order by xxx desc */
@@ -124,8 +124,8 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
     }
 
     /** 排序(降序)，类似：order by xxx desc */
-    default R desc(P property, OrderNullsStrategy strategy) {
-        return this.orderBy(property, OrderType.DESC, strategy);
+    default R desc(P property1, OrderNullsStrategy strategy) {
+        return this.orderBy(property1, OrderType.DESC, strategy);
     }
 
     /** 排序(降序)，类似：order by xxx desc */

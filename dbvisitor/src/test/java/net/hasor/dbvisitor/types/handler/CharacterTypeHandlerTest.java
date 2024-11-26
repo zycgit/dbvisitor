@@ -16,6 +16,8 @@
 package net.hasor.dbvisitor.types.handler;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.SqlArg;
+import net.hasor.dbvisitor.types.handler.string.NStringAsCharTypeHandler;
+import net.hasor.dbvisitor.types.handler.string.StringAsCharTypeHandler;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 

@@ -17,6 +17,10 @@ package net.hasor.dbvisitor.types.handler;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.SqlArg;
+import net.hasor.dbvisitor.types.handler.io.ClobAsReaderTypeHandler;
+import net.hasor.dbvisitor.types.handler.io.NClobAsReaderTypeHandler;
+import net.hasor.dbvisitor.types.handler.io.NStringAsReaderTypeHandler;
+import net.hasor.dbvisitor.types.handler.io.StringAsReaderTypeHandler;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
