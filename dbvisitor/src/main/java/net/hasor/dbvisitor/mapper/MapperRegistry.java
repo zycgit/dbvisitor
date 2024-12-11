@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.repository;
+package net.hasor.dbvisitor.mapper;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
-import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.dal.reader.BeanTableReader;
 import net.hasor.dbvisitor.dal.reader.ResultTableReader;
 import net.hasor.dbvisitor.dal.reader.TableReader;
-import net.hasor.dbvisitor.dal.repository.parser.ClassDynamicResolve;
-import net.hasor.dbvisitor.dal.repository.parser.DynamicResolve;
-import net.hasor.dbvisitor.dal.repository.parser.XmlDynamicResolve;
-import net.hasor.dbvisitor.dal.repository.parser.xmlnode.QuerySqlConfig;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.mapper.def.QuerySqlConfig;
+import net.hasor.dbvisitor.mapper.resolve.ClassDynamicResolve;
+import net.hasor.dbvisitor.mapper.resolve.DynamicResolve;
+import net.hasor.dbvisitor.mapper.resolve.XmlDynamicResolve;
 import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
@@ -49,21 +48,21 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-05
  */
-public class DalRegistry extends MappingRegistry {
-    public static final DalRegistry                              DEFAULT        = new DalRegistry(null, null, null, MappingOptions.buildNew());
+public class MapperRegistry extends MappingRegistry {
+    public static final MapperRegistry                           DEFAULT        = new MapperRegistry(null, null, null, MappingOptions.buildNew());
     private final       Map<String, Map<String, DynamicSql>>     dynamicMap     = new ConcurrentHashMap<>();
     private final       Map<String, Map<String, TableReader<?>>> readerCacheMap = new ConcurrentHashMap<>();
     private final       RuleRegistry                             ruleRegistry;
 
-    public DalRegistry() {
+    public MapperRegistry() {
         this(null, null, null, null);
     }
 
-    public DalRegistry(MappingOptions options) {
+    public MapperRegistry(MappingOptions options) {
         this(null, null, null, options);
     }
 
-    public DalRegistry(ClassLoader classLoader, TypeHandlerRegistry typeRegistry, RuleRegistry ruleRegistry, MappingOptions options) {
+    public MapperRegistry(ClassLoader classLoader, TypeHandlerRegistry typeRegistry, RuleRegistry ruleRegistry, MappingOptions options) {
         super(classLoader, typeRegistry, options);
         this.ruleRegistry = (ruleRegistry == null) ? RuleRegistry.DEFAULT : ruleRegistry;
         this.initReaderCacheMap();

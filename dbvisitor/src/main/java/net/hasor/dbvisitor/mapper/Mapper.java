@@ -13,23 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.repository;
-import java.lang.annotation.*;
-
+package net.hasor.dbvisitor.mapper;
 /**
- * delete 语句
+ * Mapper 标记接口，所有 Mapper 的代理对象被创建时候都会默认实现这个接口。可以用来判断对象是否是一个 mapper。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-05-19
+ * @version : 2021-10-31
  */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Delete {
-    String[] value();
-
-    boolean xml() default false;
-
-    StatementType statementType() default StatementType.Prepared;
-
-    int timeout() default -1;
+public interface Mapper {
 }

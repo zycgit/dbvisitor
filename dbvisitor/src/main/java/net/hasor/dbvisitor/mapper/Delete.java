@@ -13,14 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.repository.parser.xmlnode;
+package net.hasor.dbvisitor.mapper;
+
+import java.lang.annotation.*;
+
 /**
- * <include> 标签
+ * delete 语句
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-05-24
+ * @version : 2021-05-19
  */
-public class IncludeDynamicSql extends TextDynamicSql {
-    public IncludeDynamicSql(String refSql) {
-        super("@{macro, " + refSql + "}");
-    }
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Delete {
+    String[] value();
+
+    StatementType statementType() default StatementType.Prepared;
+
+    int timeout() default -1;
 }

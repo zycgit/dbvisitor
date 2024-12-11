@@ -13,18 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.repository;
+package net.hasor.dbvisitor.mapper;
+
 import java.lang.annotation.*;
 
 /**
- * 引用 Mapper 配置文件中的 SQL。
+ * update 语句
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-05-19
  */
-@DalMapper
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface RefMapper {
-    String value() default "";
+@Target(ElementType.METHOD)
+public @interface Update {
+    String[] value();
+
+    StatementType statementType() default StatementType.Prepared;
+
+    int timeout() default -1;
 }

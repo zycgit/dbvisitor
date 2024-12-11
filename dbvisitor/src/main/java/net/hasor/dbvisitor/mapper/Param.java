@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.repository;
+package net.hasor.dbvisitor.mapper;
 import java.lang.annotation.*;
 
 /**
- * 基于注解的 Mapper
+ * 参数
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-19
+ * @version : 2021-05-19
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.ANNOTATION_TYPE)
-public @interface DalMapper {
+@Target(ElementType.PARAMETER)
+public @interface Param {
+    String value();
 }

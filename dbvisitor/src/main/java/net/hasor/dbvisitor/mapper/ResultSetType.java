@@ -13,34 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.repository;
+package net.hasor.dbvisitor.mapper;
 import net.hasor.cobble.StringUtils;
 
+import java.sql.ResultSet;
+
 /**
- * 使用 Statement 方式。
+ * FORWARD_ONLY，SCROLL_SENSITIVE, SCROLL_INSENSITIVE 或 DEFAULT（等价于 unset） 中的一个，默认值为 unset （依赖数据库驱动）。
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-19
  */
-public enum StatementType {
-    /** 使用 java.sql.Statement */
-    Statement("STATEMENT"),
-    /** 使用 java.sql.PreparedStatement */
-    Prepared("PREPARED"),
-    /** 使用 java.sql.CallableStatement */
-    Callable("CALLABLE"),
+public enum ResultSetType {
+    FORWARD_ONLY("FORWARD_ONLY", ResultSet.TYPE_FORWARD_ONLY),
+    SCROLL_SENSITIVE("SCROLL_SENSITIVE", ResultSet.TYPE_SCROLL_SENSITIVE),
+    SCROLL_INSENSITIVE("SCROLL_INSENSITIVE", ResultSet.TYPE_SCROLL_INSENSITIVE),
+    DEFAULT("DEFAULT", null),
     ;
-    private final String typeName;
+    private final String  typeName;
+    private final Integer resultSetType;
 
-    StatementType(String typeName) {
+    ResultSetType(String typeName, Integer resultSetType) {
         this.typeName = typeName;
+        this.resultSetType = resultSetType;
     }
 
     public String getTypeName() {
         return this.typeName;
     }
 
-    public static StatementType valueOfCode(String code, StatementType defaultType) {
-        for (StatementType tableType : StatementType.values()) {
+    public Integer getResultSetType() {
+        return this.resultSetType;
+    }
+
+    public static ResultSetType valueOfCode(String code, ResultSetType defaultType) {
+        for (ResultSetType tableType : ResultSetType.values()) {
             if (StringUtils.equalsIgnoreCase(tableType.typeName, code)) {
                 return tableType;
             }

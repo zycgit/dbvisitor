@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.mapper;
+package net.hasor.dbvisitor.mapper;
 import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.page.Page;

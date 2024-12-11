@@ -13,9 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package net.hasor.dbvisitor.mapper;
+import java.lang.annotation.*;
+
 /**
- * 负责解析配置文件并构建和管路 dynamicSql，同时提供注解 @RefMapper 的解析。
+ * 基于注解的 Mapper
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2017-03-23
+ * @version : 2021-06-19
  */
-package net.hasor.dbvisitor.dal.repository;
+@DalMapper
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface SimpleMapper {
+}

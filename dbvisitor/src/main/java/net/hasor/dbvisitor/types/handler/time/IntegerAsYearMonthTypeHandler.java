@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.time.YearMonth;
 
 /**
- * 使用 {@link java.time.YearMonth} 类型读写 jdbc string 数据。格式为 uuuuMM，例如：201608
+ * 使用 {@link java.time.YearMonth} 类型。读写一个数字末尾 2 位表示月份，其余表示年份。不足 2 位数的按照月份处理。如果为 0 表示 0000-01
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-10-31
  */
@@ -55,13 +55,20 @@ public class IntegerAsYearMonthTypeHandler extends AbstractTypeHandler<YearMonth
         return yearMonth == 0 && cs.wasNull() ? null : parseYearMonth(yearMonth);
     }
 
-    protected YearMonth parseYearMonth(int yearMonth) throws SQLException {
-        String ymStr = String.valueOf(yearMonth);
-        if (ymStr.length() != 6) {
-            throw new SQLException("JDBC requires that the yearMonth value must be 6 Numbers");
+    protected static YearMonth parseYearMonth(int yearMonth) {
+        if (yearMonth == 0) {
+            return YearMonth.of(0, 1);
         }
-        int year = Integer.parseInt(ymStr.substring(0, 4));
-        int month = Integer.parseInt(ymStr.substring(4));
+
+        if (yearMonth <= 99) { // length 2 as month.
+            return YearMonth.of(0, yearMonth);
+        }
+
+        String ymStr = String.valueOf(yearMonth);
+        int ymStrLen = ymStr.length();
+
+        int year = Integer.parseInt(ymStr.substring(0, ymStrLen - 2));
+        int month = Integer.parseInt(ymStr.substring(ymStrLen - 2));
         return YearMonth.of(year, month);
     }
 }

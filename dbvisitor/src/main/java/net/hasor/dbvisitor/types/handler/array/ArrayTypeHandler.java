@@ -18,6 +18,8 @@ import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URL;
 import java.sql.*;
 import java.time.*;
 import java.time.chrono.JapaneseDate;
@@ -72,7 +74,8 @@ public class ArrayTypeHandler extends AbstractTypeHandler<Object> {
         STANDARD_MAPPING.put(BigDecimal.class, JDBCType.NUMERIC);
         STANDARD_MAPPING.put(Byte[].class, JDBCType.VARBINARY);
         STANDARD_MAPPING.put(byte[].class, JDBCType.VARBINARY);
-        //STANDARD_MAPPING.put(URL.class, JDBCType.DATALINK);
+        STANDARD_MAPPING.put(URL.class, JDBCType.DATALINK);
+        STANDARD_MAPPING.put(URI.class, JDBCType.DATALINK);
     }
 
     @Override

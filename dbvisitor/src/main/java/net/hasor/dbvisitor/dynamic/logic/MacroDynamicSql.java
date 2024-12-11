@@ -13,33 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.repository;
-import java.lang.annotation.*;
+package net.hasor.dbvisitor.dynamic.logic;
 
 /**
- * select 语句
+ * <include> 标签
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-05-19
+ * @version : 2021-05-24
  */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Query {
-    String[] value();
-
-    boolean xml() default false;
-
-    String resultMap() default "";
-
-    Class<?> resultType() default Object.class;
-
-    StatementType statementType() default StatementType.Prepared;
-
-    int timeout() default -1;
-
-    int fetchSize() default 256;
-
-    ResultSetType resultSetType() default ResultSetType.DEFAULT;
-
-    String[] bindOut() default {};
+public class MacroDynamicSql extends TextDynamicSql {
+    public MacroDynamicSql(String refSql) {
+        super("@{macro, " + refSql + "}");
+    }
 }

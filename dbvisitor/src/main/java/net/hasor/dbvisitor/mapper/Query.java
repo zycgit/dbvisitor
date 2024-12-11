@@ -13,17 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.repository;
+package net.hasor.dbvisitor.mapper;
+
 import java.lang.annotation.*;
 
 /**
- * 基于注解的 Mapper
+ * select 语句
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-19
+ * @version : 2021-05-19
  */
-@DalMapper
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface SimpleMapper {
+@Target(ElementType.METHOD)
+public @interface Query {
+    String[] value();
+
+    String resultMap() default "";
+
+    Class<?> resultType() default Object.class;
+
+    StatementType statementType() default StatementType.Prepared;
+
+    int timeout() default -1;
+
+    int fetchSize() default 256;
+
+    ResultSetType resultSetType() default ResultSetType.DEFAULT;
+
+    String[] bindOut() default {};
 }

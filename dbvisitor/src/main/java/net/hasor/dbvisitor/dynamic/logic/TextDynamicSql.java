@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.repository.parser.xmlnode;
+package net.hasor.dbvisitor.dynamic.logic;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.*;
 

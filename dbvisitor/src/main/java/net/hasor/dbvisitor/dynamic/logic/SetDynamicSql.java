@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.repository.parser.xmlnode;
+package net.hasor.dbvisitor.dynamic.logic;
 /**
- * 对应XML中 <where>
+ * 对应XML中 <set>
  * @author zhangxu
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-05-24
  */
-public class WhereDynamicSql extends TrimDynamicSql {
-    public WhereDynamicSql() {
-        super("where", "", "and | or", "");
+public class SetDynamicSql extends TrimDynamicSql {
+    public SetDynamicSql() {
+        super("set", "", "", ",");
     }
 }
