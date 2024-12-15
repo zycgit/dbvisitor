@@ -24,11 +24,15 @@ import java.sql.SQLException;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-05-24
  */
-public class TextDynamicSql implements DynamicSql {
+public class PlanDynamicSql implements DynamicSql {
     private final StringBuilder textBuilder = new StringBuilder();
     private       DynamicSql    dynamicSql;
 
-    public TextDynamicSql(String text) {
+    public PlanDynamicSql() {
+        this.dynamicSql = this.parserQuery(null);
+    }
+
+    public PlanDynamicSql(String text) {
         this.appendText(StringUtils.isBlank(text) ? "" : text);
     }
 
@@ -36,7 +40,7 @@ public class TextDynamicSql implements DynamicSql {
         if (StringUtils.isNotBlank(text)) {
             this.textBuilder.append(text);
         }
-        this.dynamicSql = parserQuery(this.textBuilder.toString());
+        this.dynamicSql = this.parserQuery(this.textBuilder.toString());
     }
 
     @Override

@@ -15,12 +15,8 @@
  */
 package net.hasor.dbvisitor.dynamic;
 import net.hasor.cobble.ClassUtils;
-import net.hasor.dbvisitor.dal.reader.TableReader;
 import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
-import net.hasor.dbvisitor.dynamic.rule.SqlBuildRule;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
-import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /**
@@ -29,17 +25,17 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  * @version : 2021-06-05
  */
 public class RegistryManager {
-    public static final RegistryManager     DEFAULT = new RegistryManager();
+    public static final RegistryManager     DEFAULT = new RegistryManager(MappingRegistry.DEFAULT, RuleRegistry.DEFAULT, MacroRegistry.DEFAULT);
     private final       MappingRegistry     mappingRegistry;
     private final       TypeHandlerRegistry typeRegistry;
     private final       RuleRegistry        ruleRegistry;
     private final       MacroRegistry       macroRegistry;
 
     public RegistryManager() {
-        this.mappingRegistry = MappingRegistry.DEFAULT;
-        this.typeRegistry = TypeHandlerRegistry.DEFAULT;
-        this.ruleRegistry = RuleRegistry.DEFAULT;
-        this.macroRegistry = MacroRegistry.DEFAULT;
+        this.mappingRegistry = new MappingRegistry();
+        this.typeRegistry = new TypeHandlerRegistry();
+        this.ruleRegistry = new RuleRegistry();
+        this.macroRegistry = new MacroRegistry();
     }
 
     public RegistryManager(MappingRegistry mapping, RuleRegistry rule, MacroRegistry macro) {
@@ -61,52 +57,13 @@ public class RegistryManager {
         this.macroRegistry = macro != null ? macro : MacroRegistry.DEFAULT;
     }
 
+    @Deprecated
     public DynamicSql findMacro(String dynamicId) {
         return this.macroRegistry.findMacro(dynamicId);
     }
 
-    public void addMacro(String macroName, String sqlSegment) {
-        this.macroRegistry.addMacro(macroName, sqlSegment);
-    }
-
-    public TableMapping<?> findTableMapping(String resultMap) {
-        return null;
-    }
-
-    public TableReader<?> findTableReader(String resultType) {
-        return null;
-    }
-
-    public TypeHandler<?> findTypeHandler(Integer jdbcType) {
-        if (getTypeRegistry().hasTypeHandler(jdbcType)) {
-            return getTypeRegistry().getTypeHandler(jdbcType);
-        } else {
-            return null;
-        }
-    }
-
-    public TypeHandler<?> findTypeHandler(Class<?> javaType) {
-        if (getTypeRegistry().hasTypeHandler(javaType)) {
-            return getTypeRegistry().getTypeHandler(javaType);
-        } else {
-            return null;
-        }
-    }
-
-    public TypeHandler<?> findTypeHandler(Class<?> javaType, Integer jdbcType) {
-        if (getTypeRegistry().hasTypeHandler(javaType, jdbcType)) {
-            return getTypeRegistry().getTypeHandler(javaType, jdbcType);
-        } else {
-            return null;
-        }
-    }
-
-    public Class<?> loadClass(String className) throws ClassNotFoundException {
-        return ClassUtils.getClass(this.getClassLoader(), className);
-    }
-
-    public SqlBuildRule findRule(String ruleName) {
-        return getRuleRegistry().findByName(ruleName);
+    public MacroRegistry getMacroRegistry() {
+        return this.macroRegistry;
     }
 
     public MappingRegistry getMappingRegistry() {
@@ -123,6 +80,10 @@ public class RegistryManager {
 
     public ClassLoader getClassLoader() {
         return Thread.currentThread().getContextClassLoader();
+    }
+
+    public Class<?> loadClass(String className) throws ClassNotFoundException {
+        return ClassUtils.getClass(this.getClassLoader(), className);
     }
 
     public Object createObject(Class<?> clazz) {

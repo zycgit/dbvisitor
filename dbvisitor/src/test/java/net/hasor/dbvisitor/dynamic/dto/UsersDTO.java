@@ -13,28 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dynamic;
-import net.hasor.cobble.StringUtils;
-
-import java.util.HashMap;
-import java.util.Map;
-
+package net.hasor.dbvisitor.dynamic.dto;
 /**
- * 解析动态 SQL 配置
+ * 多个 SQL 节点组合成一个 SqlNode
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-05
+ * @version : 2021-05-24
  */
-public class MacroRegistry {
-    public static final MacroRegistry           DEFAULT  = new MacroRegistry();
-    private final       Map<String, DynamicSql> macroMap = new HashMap<>();
+public class UsersDTO {
 
-    public DynamicSql findMacro(String dynamicId) {
-        return this.macroMap.get(dynamicId);
+    private String      userName;
+    private UserFutures futures;
+
+    public String getUserName() {
+        return this.userName;
     }
 
-    public void addMacro(String macroName, String sqlSegment) {
-        if (StringUtils.isNotBlank(macroName)) {
-            this.macroMap.put(macroName, DynamicParsed.getParsedSql(sqlSegment));
-        }
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public UserFutures getFutures() {
+        return this.futures;
+    }
+
+    public void setFutures(UserFutures futures) {
+        this.futures = futures;
     }
 }

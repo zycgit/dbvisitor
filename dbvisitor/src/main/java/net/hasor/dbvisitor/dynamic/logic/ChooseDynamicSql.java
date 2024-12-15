@@ -29,11 +29,18 @@ import java.sql.SQLException;
 public class ChooseDynamicSql extends ArrayDynamicSql {
     private DynamicSql defaultDynamicSql;
 
-    public void addWhen(String test, ArrayDynamicSql nodeBlock) {
+    public void addThen(String test, DynamicSql nodeBlock) {
         IfDynamicSql whenSqlNode = new IfDynamicSql(test);
         whenSqlNode.addChildNode(nodeBlock);
 
-        super.addChildNode(whenSqlNode);
+        this.addChildNode(whenSqlNode);
+    }
+
+    @Override
+    public void addChildNode(DynamicSql node) {
+        if (node instanceof IfDynamicSql) {
+            this.subNodes.add(node);
+        }
     }
 
     /** 追加子节点 */
@@ -54,9 +61,6 @@ public class ChooseDynamicSql extends ArrayDynamicSql {
                         useDefault = false;
                         break;
                     }
-
-                } else {
-                    dynamicSql.buildQuery(data, context, sqlBuilder);
                 }
             }
         } finally {

@@ -20,7 +20,6 @@ import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Holds information about a parsed SQL statement.
@@ -54,9 +53,12 @@ public class DynamicParsed {
      */
     public static DefaultSqlSegment getParsedSql(final String originalSql) {
         DefaultSqlSegment segment = new DefaultSqlSegment();
+        if (originalSql == null) {
+            return segment;
+        }
+
         int positionArgs = 0;
 
-        Objects.requireNonNull(originalSql, "SQL must not be null");
         char[] statement = originalSql.toCharArray();
         int pos = 0;
         int i = 0;

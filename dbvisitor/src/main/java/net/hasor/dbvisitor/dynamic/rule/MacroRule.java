@@ -55,7 +55,7 @@ public class MacroRule implements SqlBuildRule {
             name = activeExpr != null ? activeExpr.trim() : null;
         }
 
-        DynamicSql macro = context.findMacro(name);
+        DynamicSql macro = context.getMacroRegistry().findMacro(name);
         if (macro == null) {
             String macroName = usingIf ? "ifmacro" : "macro";
             throw new SQLException(macroName + " '" + name + "' not found.");

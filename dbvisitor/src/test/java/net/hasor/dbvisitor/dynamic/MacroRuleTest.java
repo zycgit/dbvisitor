@@ -13,7 +13,7 @@ public class MacroRuleTest {
     @Test
     public void macroRuleTest_1() throws SQLException {
         RegistryManager dynamicContext = new RegistryManager();
-        dynamicContext.addMacro("one arg", "name = ?");
+        dynamicContext.getMacroRegistry().addMacro("one arg", "name = ?");
 
         DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{macro, one arg}");
         SqlBuilder sqlBuilder1 = segment.buildQuery(Collections.emptyMap(), dynamicContext);
@@ -24,7 +24,7 @@ public class MacroRuleTest {
     @Test
     public void macroRuleTest_2() throws SQLException {
         RegistryManager dynamicContext = new RegistryManager();
-        dynamicContext.addMacro("one arg", "name = ?");
+        dynamicContext.getMacroRegistry().addMacro("one arg", "name = ?");
         Map<String, Object> ctx = CollectionUtils.asMap("test", false);
 
         DefaultSqlSegment segment1 = DynamicParsed.getParsedSql("@{ifmacro, test}");
@@ -41,7 +41,7 @@ public class MacroRuleTest {
     @Test
     public void macroRuleTest_3() throws SQLException {
         RegistryManager dynamicContext = new RegistryManager();
-        dynamicContext.addMacro("one arg", "name = ?");
+        dynamicContext.getMacroRegistry().addMacro("one arg", "name = ?");
         Map<String, Object> ctx = CollectionUtils.asMap("test", true);
 
         try {

@@ -20,11 +20,16 @@ import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.rule.ArgRule;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Map;
 
 public class NamedSqlSegment implements SqlSegment {
     private final String              exprString;
     private final Map<String, String> config;
+
+    public NamedSqlSegment(String exprString) {
+        this(exprString, Collections.emptyMap());
+    }
 
     public NamedSqlSegment(String exprString, Map<String, String> config) {
         this.exprString = exprString;

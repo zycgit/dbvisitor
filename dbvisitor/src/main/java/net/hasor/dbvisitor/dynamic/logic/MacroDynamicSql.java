@@ -20,7 +20,7 @@ package net.hasor.dbvisitor.dynamic.logic;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-05-24
  */
-public class MacroDynamicSql extends TextDynamicSql {
+public class MacroDynamicSql extends PlanDynamicSql {
     public MacroDynamicSql(String refSql) {
         super("@{macro, " + refSql + "}");
     }

@@ -44,19 +44,19 @@ public class ArrayDynamicSql implements DynamicSql {
 
     /** 最后一个节点是文本 */
     public boolean lastIsText() {
-        return this.subNodes.get(this.subNodes.size() - 1) instanceof TextDynamicSql;
+        return this.subNodes.get(this.subNodes.size() - 1) instanceof PlanDynamicSql;
     }
 
     /** 追加文本 */
     public void appendText(String text) {
         if (!this.subNodes.isEmpty()) {
             DynamicSql dynamicSql = this.subNodes.get(this.subNodes.size() - 1);
-            if (dynamicSql instanceof TextDynamicSql) {
-                ((TextDynamicSql) dynamicSql).appendText(text);
+            if (dynamicSql instanceof PlanDynamicSql) {
+                ((PlanDynamicSql) dynamicSql).appendText(text);
                 return;
             }
         }
-        this.addChildNode(new TextDynamicSql(text));
+        this.addChildNode(new PlanDynamicSql(text));
     }
 
     @Override

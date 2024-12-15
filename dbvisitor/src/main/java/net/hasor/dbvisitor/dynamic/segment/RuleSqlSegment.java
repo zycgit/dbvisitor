@@ -52,7 +52,7 @@ public class RuleSqlSegment implements SqlSegment {
 
     @Override
     public void buildQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException {
-        SqlBuildRule ruleByName = context.findRule(this.ruleName);
+        SqlBuildRule ruleByName = context.getRuleRegistry().findByName(this.ruleName);
         if (ruleByName == null) {
             throw new UnsupportedOperationException("rule `" + this.ruleName + "` Unsupported.");
         }
