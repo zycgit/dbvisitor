@@ -13,27 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.repository.parser.xmlnode;
-import net.hasor.dbvisitor.dal.repository.QueryType;
+package net.hasor.dbvisitor.mapper.def;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
-import org.w3c.dom.Node;
+
+import java.util.function.Function;
 
 /**
- * Update SqlConfig
+ * Execute SqlConfig
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-19
  */
-public class UpdateSqlConfig extends DmlSqlConfig {
-    public UpdateSqlConfig(DynamicSql target) {
-        super(target);
-    }
-
-    public UpdateSqlConfig(DynamicSql target, Node operationNode) {
-        super(target, operationNode);
+public class ExecuteConfig extends DmlConfig {
+    public ExecuteConfig(DynamicSql target, Function<String, String> config) {
+        super(target, config);
     }
 
     @Override
-    public QueryType getDynamicType() {
-        return QueryType.Update;
+    public QueryType getType() {
+        return QueryType.Execute;
     }
 }

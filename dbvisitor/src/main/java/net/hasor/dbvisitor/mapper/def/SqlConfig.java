@@ -13,30 +13,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.repository.parser.xmlnode;
-import net.hasor.dbvisitor.dal.repository.QueryType;
+package net.hasor.dbvisitor.mapper.def;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.mapper.StatementType;
 
 import java.sql.SQLException;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Segment SqlConfig
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-19
  */
-public class SegmentSqlConfig implements DynamicSql {
-    protected final DynamicSql target;
+public abstract class SqlConfig implements DynamicSql, ConfigKeys {
+    protected DynamicSql    target;
+    private   StatementType statementType = StatementType.Prepared;
+    private   int           timeout       = -1;
 
-    public SegmentSqlConfig(DynamicSql target) {
-        this.target = target;
+    public SqlConfig(DynamicSql target, Function<String, String> config) {
+        this.target = Objects.requireNonNull(target, "target is null.");
+
+        if (config != null) {
+            this.statementType = config.andThen(s -> StatementType.valueOfCode(s, StatementType.Prepared)).apply(STATEMENT_TYPE);
+            this.timeout = Integer.parseInt(config.andThen(s -> StringUtils.isBlank(s) ? "-1" : s).apply(TIMEOUT));
+        }
     }
 
-    public QueryType getDynamicType() {
-        return QueryType.Segment;
+    public StatementType getStatementType() {
+        return this.statementType;
     }
+
+    public void setStatementType(StatementType statementType) {
+        this.statementType = statementType;
+    }
+
+    public int getTimeout() {
+        return this.timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
+    public abstract QueryType getType();
 
     @Override
     public boolean isHaveInjection() {
