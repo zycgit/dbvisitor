@@ -1,7 +1,7 @@
 package net.hasor.test.entity2;
 
 import net.hasor.dbvisitor.mapping.Column;
-import net.hasor.dbvisitor.mapping.KeyTypeEnum;
+import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.test.dto.ResourceType;
 
@@ -10,7 +10,7 @@ import java.util.Date;
 @Table("blob_resource")
 public class BlobResourceV7 {
 
-    @Column(name = "id", primary = true, keyType = KeyTypeEnum.Auto)
+    @Column(name = "id", primary = true, keyType = KeyType.Auto)
     private Long id;
 
     @Column(name = "gmt_create", update = false)

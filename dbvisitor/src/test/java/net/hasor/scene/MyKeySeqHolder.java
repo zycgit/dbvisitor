@@ -1,16 +1,16 @@
 package net.hasor.scene;
-import net.hasor.dbvisitor.mapping.KeySeqHolder;
-import net.hasor.dbvisitor.mapping.KeySeqHolderContext;
-import net.hasor.dbvisitor.mapping.KeySeqHolderFactory;
+import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
+import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerContext;
+import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerFactory;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 
 import java.sql.Connection;
 
-public class MyKeySeqHolder implements KeySeqHolderFactory {
+public class MyKeySeqHolder implements GeneratedKeyHandlerFactory {
 
     @Override
-    public KeySeqHolder createHolder(KeySeqHolderContext context) {
-        return new KeySeqHolder() {
+    public GeneratedKeyHandler createHolder(GeneratedKeyHandlerContext context) {
+        return new GeneratedKeyHandler() {
             @Override
             public boolean onBefore() {
                 return true;

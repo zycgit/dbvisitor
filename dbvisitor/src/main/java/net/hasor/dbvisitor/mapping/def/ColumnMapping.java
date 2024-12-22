@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.mapping.def;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.reflect.Annotations;
-import net.hasor.dbvisitor.mapping.KeySeqHolder;
+import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
 import net.hasor.dbvisitor.types.TypeHandler;
 
 /**
@@ -76,7 +76,7 @@ public interface ColumnMapping {
     /** 用作 order by 时 column name 的写法，默认是空 */
     String getOrderByColTemplate();
 
-    KeySeqHolder getKeySeqHolder();
+    GeneratedKeyHandler getKeySeqHolder();
 
     /** 获取补充描述信息 */
     ColumnDescription getDescription();

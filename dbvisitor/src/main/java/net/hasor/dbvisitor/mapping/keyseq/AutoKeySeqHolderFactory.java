@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.keyseq;
-import net.hasor.dbvisitor.mapping.KeySeqHolder;
-import net.hasor.dbvisitor.mapping.KeySeqHolderContext;
-import net.hasor.dbvisitor.mapping.KeySeqHolderFactory;
+import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
+import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerContext;
+import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerFactory;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 
 import java.sql.ResultSet;
@@ -27,10 +27,10 @@ import java.sql.SQLException;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-12-01
  */
-public class AutoKeySeqHolderFactory implements KeySeqHolderFactory {
+public class AutoKeySeqHolderFactory implements GeneratedKeyHandlerFactory {
     @Override
-    public KeySeqHolder createHolder(KeySeqHolderContext context) {
-        return new KeySeqHolder() {
+    public GeneratedKeyHandler createHolder(GeneratedKeyHandlerContext context) {
+        return new GeneratedKeyHandler() {
             @Override
             public boolean onAfter() {
                 return true;

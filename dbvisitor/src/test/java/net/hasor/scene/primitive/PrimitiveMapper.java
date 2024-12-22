@@ -1,5 +1,5 @@
 package net.hasor.scene.primitive;
-import net.hasor.dbvisitor.dal.repository.RefMapper;
+import net.hasor.dbvisitor.mapper.RefMapper;
 
 import java.util.List;
 

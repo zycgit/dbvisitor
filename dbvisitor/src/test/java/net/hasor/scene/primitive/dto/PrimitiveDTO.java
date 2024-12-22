@@ -15,7 +15,7 @@
  */
 package net.hasor.scene.primitive.dto;
 import net.hasor.dbvisitor.mapping.Column;
-import net.hasor.dbvisitor.mapping.KeyTypeEnum;
+import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Table;
 
 import java.util.Date;
@@ -26,7 +26,7 @@ import java.util.Date;
  */
 @Table("tb_h2_types")
 public class PrimitiveDTO {
-    @Column(primary = true, keyType = KeyTypeEnum.Auto)
+    @Column(primary = true, keyType = KeyType.Auto)
     private int id;
 
     @Column("c_int")

@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.execute;
-import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dal.repository.StatementType;
-import net.hasor.dbvisitor.dal.repository.parser.xmlnode.DmlSqlConfig;
-import net.hasor.dbvisitor.dal.repository.parser.xmlnode.SelectKeySqlConfig;
+import net.hasor.dbvisitor.dal.session.DalContext;
+import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
-import net.hasor.dbvisitor.page.Page;
+import net.hasor.dbvisitor.mapper.StatementType;
+import net.hasor.dbvisitor.mapper.def.DmlConfig;
+import net.hasor.dbvisitor.mapper.def.SelectKeyConfig;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -35,46 +34,46 @@ import java.util.Map;
  * @version : 2021-07-20
  */
 public class ExecuteProxy {
-    private final DmlSqlConfig                dynamicSql;
+    private final DmlConfig                   dynamicSql;
     private final AbstractStatementExecute<?> execute;
     private       SelectKeyExecute            selectKeyExecute;
 
-    public ExecuteProxy(String dynamicId, RegistryManager context) {
+    public ExecuteProxy(String dynamicId, DalContext context) {
         DynamicSql sqlConfig = context.findMacro(dynamicId);
         if (sqlConfig == null) {
             throw new NullPointerException("dynamic '" + dynamicId + "' is not found.");
         }
-        if (!(sqlConfig instanceof DmlSqlConfig)) {
+        if (!(sqlConfig instanceof DmlConfig)) {
             throw new ClassCastException("dynamic '" + dynamicId + "' is not DmlSqlConfig");
         }
 
-        this.dynamicSql = (DmlSqlConfig) context.findMacro(dynamicId);
+        this.dynamicSql = (DmlConfig) context.findMacro(dynamicId);
         this.execute = buildExecute(this.dynamicSql.getStatementType(), context);
 
-        SelectKeySqlConfig selectKey = ((DmlSqlConfig) sqlConfig).getSelectKey();
-        if (selectKey != null) {
-            AbstractStatementExecute<?> selectKeyExecute = buildExecute(selectKey.getStatementType(), context);
-            SelectKeyHandler selectKeyHandler = null;
-
-            if (StringUtils.isBlank(selectKey.getHandler())) {
-                selectKeyHandler = new SelectKeySequenceHolder(selectKey, selectKeyExecute);
-            } else {
-                try {
-                    Class<?> aClass = context.getClassLoader().loadClass(selectKey.getHandler());
-                    SelectKeyHandlerFactory holderFactory = (SelectKeyHandlerFactory) aClass.newInstance();
-                    selectKeyHandler = holderFactory.createHandler(selectKey, selectKeyExecute);
-                    if (selectKeyHandler == null) {
-                        throw new NullPointerException("createSelectKeyHolder result is null.");
-                    }
-                } catch (Exception e) {
-                    throw ExceptionUtils.toRuntime(e);
-                }
-            }
-            this.selectKeyExecute = new SelectKeyExecute(selectKey, selectKeyHandler);
-        }
+        SelectKeyConfig selectKey = ((DmlConfig) sqlConfig).getSelectKey();
+        //        if (selectKey != null) {
+        //            AbstractStatementExecute<?> selectKeyExecute = buildExecute(selectKey.getStatementType(), context);
+        //            SelectKeyHandler selectKeyHandler = null;
+        //
+        //            if (StringUtils.isBlank(selectKey.getHandler())) {
+        //                selectKeyHandler = new SelectKeySequenceHolder(selectKey, selectKeyExecute);
+        //            } else {
+        //                try {
+        //                    Class<?> aClass = context.getClassLoader().loadClass(selectKey.getHandler());
+        //                    SelectKeyHandlerFactory holderFactory = (SelectKeyHandlerFactory) aClass.newInstance();
+        //                    selectKeyHandler = holderFactory.createHandler(selectKey, selectKeyExecute);
+        //                    if (selectKeyHandler == null) {
+        //                        throw new NullPointerException("createSelectKeyHolder result is null.");
+        //                    }
+        //                } catch (Exception e) {
+        //                    throw ExceptionUtils.toRuntime(e);
+        //                }
+        //            }
+        //            this.selectKeyExecute = new SelectKeyExecute(selectKey, selectKeyHandler);
+        //        }
     }
 
-    private AbstractStatementExecute<?> buildExecute(StatementType statementType, RegistryManager context) {
+    private AbstractStatementExecute<?> buildExecute(StatementType statementType, DalContext context) {
         switch (statementType) {
             case Statement: {
                 return new StatementExecute(context);
@@ -106,10 +105,10 @@ public class ExecuteProxy {
     }
 
     private static class SelectKeySequenceHolder implements SelectKeyHandler {
-        private final SelectKeySqlConfig          keySqlConfig;
+        private final SelectKeyConfig             keySqlConfig;
         private final AbstractStatementExecute<?> selectKeyExecute;
 
-        public SelectKeySequenceHolder(SelectKeySqlConfig keySqlConfig, AbstractStatementExecute<?> selectKeyExecute) {
+        public SelectKeySequenceHolder(SelectKeyConfig keySqlConfig, AbstractStatementExecute<?> selectKeyExecute) {
             this.keySqlConfig = keySqlConfig;
             this.selectKeyExecute = selectKeyExecute;
         }

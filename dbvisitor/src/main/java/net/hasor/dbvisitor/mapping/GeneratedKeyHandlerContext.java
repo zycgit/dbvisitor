@@ -26,14 +26,14 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-12-01
  */
-public class KeySeqHolderContext {
+public class GeneratedKeyHandlerContext {
     private final TypeHandlerRegistry typeRegistry;
     private final TableMapping<?>     tableDef;
     private final ColumnMapping       colDef;
     private final ClassLoader         classLoader;
     private final Annotations         annotations;
 
-    public KeySeqHolderContext(TypeHandlerRegistry typeRegistry, TableMapping<?> tableDef, ColumnMapping colDef, ClassLoader classLoader, Annotations annotations) {
+    public GeneratedKeyHandlerContext(TypeHandlerRegistry typeRegistry, TableMapping<?> tableDef, ColumnMapping colDef, ClassLoader classLoader, Annotations annotations) {
         this.typeRegistry = typeRegistry;
         this.tableDef = tableDef;
         this.colDef = colDef;

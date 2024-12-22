@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.def;
-import net.hasor.dbvisitor.dynamic.DynamicSql;
+import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
 
 import java.util.function.Function;
 
@@ -24,16 +25,17 @@ import java.util.function.Function;
  * @version : 2021-06-19
  */
 public class InsertConfig extends DmlConfig {
-    private String keyProperty;
+    private boolean useGeneratedKeys;
+    private String  keyProperty;
+    private String  keyColumn;
 
-    public InsertConfig(DynamicSql target, Function<String, String> config) {
+    public InsertConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
+        String generated = config.apply(KEY_GENERATED);
 
-        if (this.getSelectKey() == null) {
-            this.keyProperty = config.apply(INSERT_KEY_PROPERTY);
-        } else {
-            this.keyProperty = this.getSelectKey().getKeyProperty();
-        }
+        this.useGeneratedKeys = StringUtils.isNotBlank(generated) && Boolean.parseBoolean(generated);
+        this.keyProperty = config.apply(KEY_PROPERTY);
+        this.keyColumn = config.apply(KEY_COLUMN);
     }
 
     @Override
@@ -41,11 +43,27 @@ public class InsertConfig extends DmlConfig {
         return QueryType.Insert;
     }
 
+    public boolean isUseGeneratedKeys() {
+        return this.useGeneratedKeys;
+    }
+
+    public void setUseGeneratedKeys(boolean useGeneratedKeys) {
+        this.useGeneratedKeys = useGeneratedKeys;
+    }
+
     public String getKeyProperty() {
-        return keyProperty;
+        return this.keyProperty;
     }
 
     public void setKeyProperty(String keyProperty) {
         this.keyProperty = keyProperty;
+    }
+
+    public String getKeyColumn() {
+        return this.keyColumn;
+    }
+
+    public void setKeyColumn(String keyColumn) {
+        this.keyColumn = keyColumn;
     }
 }

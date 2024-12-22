@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping;
+package net.hasor.dbvisitor.mapper.resolve;
+import net.hasor.dbvisitor.mapper.def.SqlConfig;
 
 /**
- * 主键生成器
+ * 解析动态 SQL 配置
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-12-01
+ * @version : 2021-06-05
  */
-public interface KeySeqHolderFactory {
-    KeySeqHolder createHolder(KeySeqHolderContext context) throws ClassNotFoundException;
+public interface SqlConfigResolve<T> {
+    SqlConfig parseSqlConfig(T config);
 }

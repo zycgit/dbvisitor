@@ -48,7 +48,7 @@ public @interface Column {
     Class<? extends TypeHandler<?>> typeHandler() default UnknownTypeHandler.class;
 
     /** (选填) key 生成策略，当列的属性为 null 的时。采用一种生成算法来生成 key 值。通常做用于 自增。 */
-    KeyTypeEnum keyType() default KeyTypeEnum.None;
+    KeyType keyType() default KeyType.None;
 
     /** (选填) 是否为主键 */
     boolean primary() default false;

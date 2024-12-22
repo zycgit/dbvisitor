@@ -1,7 +1,7 @@
 package net.hasor.dbvisitor.mapping.dto;
 
 import net.hasor.dbvisitor.mapping.Column;
-import net.hasor.dbvisitor.mapping.KeyTypeEnum;
+import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.ResultMap;
 import net.hasor.test.dto.ResourceType;
 
@@ -10,7 +10,7 @@ import java.util.Date;
 @ResultMap
 public class AnnoResultMapBean1 {
 
-    @Column(name = "id", primary = true, keyType = KeyTypeEnum.Auto)
+    @Column(name = "id", primary = true, keyType = KeyType.Auto)
     private Long id;
 
     @Column(name = "gmt_create", update = false)

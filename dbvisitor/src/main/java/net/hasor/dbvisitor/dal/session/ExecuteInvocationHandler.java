@@ -17,16 +17,15 @@ package net.hasor.dbvisitor.dal.session;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.ref.BeanMap;
+import net.hasor.dbvisitor.dal.MapperRegistry;
 import net.hasor.dbvisitor.dal.execute.ExecuteProxy;
-import net.hasor.dbvisitor.dal.mapper.BaseMapper;
-import net.hasor.dbvisitor.dal.repository.DalRegistry;
-import net.hasor.dbvisitor.dal.repository.Param;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
-import net.hasor.dbvisitor.page.Page;
-import net.hasor.dbvisitor.page.PageResult;
+import net.hasor.dbvisitor.mapper.BaseMapper;
+import net.hasor.dbvisitor.mapper.Param;
+import net.hasor.dbvisitor.dialect.Page;
+import net.hasor.dbvisitor.dialect.PageResult;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
@@ -51,14 +50,14 @@ class ExecuteInvocationHandler implements InvocationHandler {
     private final Map<String, Map<String, Integer>> argNamesMap   = new HashMap<>();
     private final BaseMapperHandler                 mapperHandler;
 
-    public ExecuteInvocationHandler(DalSession dalSession, Class<?> dalType, DalRegistry dalRegistry, BaseMapperHandler mapperHandler) {
+    public ExecuteInvocationHandler(DalSession dalSession, Class<?> dalType, MapperRegistry dalRegistry, BaseMapperHandler mapperHandler) {
         this.space = dalType.getName();
         this.dalSession = dalSession;
         this.initDynamicSqlMap(dalType, dalRegistry);
         this.mapperHandler = mapperHandler;
     }
 
-    private void initDynamicSqlMap(Class<?> dalType, DalRegistry dalRegistry) {
+    private void initDynamicSqlMap(Class<?> dalType, MapperRegistry dalRegistry) {
         for (Method method : dalType.getMethods()) {
             if (method.getDeclaringClass() == BaseMapper.class || method.getDeclaringClass() == Object.class) {
                 continue;
@@ -70,7 +69,7 @@ class ExecuteInvocationHandler implements InvocationHandler {
                 continue;
             }
 
-            RegistryManager context = new DalContext(this.space, dalRegistry);
+            DalContext context = new DalContext(this.space, dalRegistry);
             this.dynamicSqlMap.put(dynamicId, new ExecuteProxy(dynamicId, context));
             Map<String, Integer> argNames = this.argNamesMap.computeIfAbsent(dynamicId, s -> new HashMap<>());
 

@@ -15,7 +15,7 @@
  */
 package net.hasor.test.dto;
 import net.hasor.dbvisitor.mapping.Column;
-import net.hasor.dbvisitor.mapping.KeyTypeEnum;
+import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Table;
 
 /**
@@ -24,9 +24,9 @@ import net.hasor.dbvisitor.mapping.Table;
  */
 @Table(mapUnderscoreToCamelCase = true)
 public class AutoId {
-    @Column(keyType = KeyTypeEnum.Auto, insert = false)
+    @Column(keyType = KeyType.Auto, insert = false)
     private Integer id;
-    @Column(keyType = KeyTypeEnum.UUID32)
+    @Column(keyType = KeyType.UUID32)
     private String  uid;
     private String  name;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.def;
-import net.hasor.dbvisitor.dynamic.DynamicSql;
+import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
 
 import java.util.function.Function;
 
@@ -25,7 +25,7 @@ import java.util.function.Function;
  */
 public class SelectConfig extends DqlConfig {
 
-    public SelectConfig(DynamicSql target, Function<String, String> config) {
+    public SelectConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
     }
 

@@ -15,7 +15,7 @@
  */
 package net.hasor.test.dto;
 import net.hasor.dbvisitor.mapping.Column;
-import net.hasor.dbvisitor.mapping.KeyTypeEnum;
+import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Table;
 
 import java.util.Date;
@@ -26,7 +26,7 @@ import java.util.Date;
  */
 @Table("user_info")
 public class UserInfo2 {
-    @Column(value = "user_uuid", primary = true, keyType = KeyTypeEnum.UUID32)
+    @Column(value = "user_uuid", primary = true, keyType = KeyType.UUID32)
     private String  uid;
     @Column("user_name")
     private String  name;

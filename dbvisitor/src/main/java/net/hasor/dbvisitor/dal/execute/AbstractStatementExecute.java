@@ -18,22 +18,20 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.dal.reader.BeanTableReader;
-import net.hasor.dbvisitor.dal.reader.ResultTableReader;
-import net.hasor.dbvisitor.dal.reader.TableReader;
-import net.hasor.dbvisitor.dal.repository.ResultSetType;
-import net.hasor.dbvisitor.dal.repository.parser.xmlnode.DmlSqlConfig;
-import net.hasor.dbvisitor.dal.repository.parser.xmlnode.InsertSqlConfig;
-import net.hasor.dbvisitor.dal.repository.parser.xmlnode.QuerySqlConfig;
+import net.hasor.dbvisitor.dal.session.DalContext;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.SqlMode;
+import net.hasor.dbvisitor.mapper.ResultSetType;
+import net.hasor.dbvisitor.mapper.def.DmlConfig;
+import net.hasor.dbvisitor.mapper.def.SelectConfig;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.page.Page;
+import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.types.SqlArg;
+import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.io.StringReader;
@@ -53,14 +51,14 @@ import java.util.stream.Collectors;
  * @version : 2021-07-20
  */
 public abstract class AbstractStatementExecute<T> {
-    protected static final Logger          logger = LoggerFactory.getLogger(AbstractStatementExecute.class);
-    private final          RegistryManager context;
+    protected static final Logger     logger = LoggerFactory.getLogger(AbstractStatementExecute.class);
+    private final          DalContext context;
 
-    public AbstractStatementExecute(RegistryManager context) {
+    public AbstractStatementExecute(DalContext context) {
         this.context = context;
     }
 
-    protected RegistryManager getContext() {
+    protected DalContext getContext() {
         return this.context;
     }
 
@@ -85,24 +83,16 @@ public abstract class AbstractStatementExecute<T> {
         executeInfo.pageDialect = dialect;
         executeInfo.pageResult = pageResult;
         executeInfo.data = data;
-        executeInfo.hasSelectKey = false;
 
-        if (dynamicSql instanceof DmlSqlConfig) {
-            executeInfo.timeout = ((DmlSqlConfig) dynamicSql).getTimeout();
-            executeInfo.hasSelectKey = ((DmlSqlConfig) dynamicSql).getSelectKey() != null;
+        if (dynamicSql instanceof DmlConfig) {
+            executeInfo.timeout = ((DmlConfig) dynamicSql).getTimeout();
         }
-        if (dynamicSql instanceof QuerySqlConfig) {
-            executeInfo.resultMap = ((QuerySqlConfig) dynamicSql).getResultMap();
-            executeInfo.resultType = ((QuerySqlConfig) dynamicSql).getResultType();
-            executeInfo.fetchSize = ((QuerySqlConfig) dynamicSql).getFetchSize();
-            executeInfo.resultSetType = ((QuerySqlConfig) dynamicSql).getResultSetType();
-            executeInfo.bindOut = ((QuerySqlConfig) dynamicSql).getBindOut();
-        }
-
-        if (dynamicSql instanceof InsertSqlConfig && !executeInfo.hasSelectKey) {
-            executeInfo.useGeneratedKeys = ((InsertSqlConfig) dynamicSql).isUseGeneratedKeys();
-            executeInfo.keyProperty = ((InsertSqlConfig) dynamicSql).getKeyProperty();
-            executeInfo.parameterType = ((InsertSqlConfig) dynamicSql).getParameterType();
+        if (dynamicSql instanceof SelectConfig) {
+            executeInfo.resultMap = ((SelectConfig) dynamicSql).getResultMap();
+            executeInfo.resultType = ((SelectConfig) dynamicSql).getResultType();
+            executeInfo.fetchSize = ((SelectConfig) dynamicSql).getFetchSize();
+            executeInfo.resultSetType = ((SelectConfig) dynamicSql).getResultSetType();
+            executeInfo.bindOut = ((SelectConfig) dynamicSql).getBindOut();
         }
 
         if (resultAsMap) {
@@ -207,12 +197,21 @@ public abstract class AbstractStatementExecute<T> {
                     sqlArg.setTypeHandler(getContext().getTypeRegistry().getDefaultTypeHandler());
                     sqlArg.setJdbcType(Types.NULL);
                 } else {
-                    sqlArg.setTypeHandler(getContext().findTypeHandler(o.getClass()));
+                    sqlArg.setTypeHandler(this.findTypeHandler(o.getClass()));
                     sqlArg.setJdbcType(TypeHandlerRegistry.toSqlType(o.getClass()));
                 }
                 return sqlArg;
             }
         }).collect(Collectors.toList());
+    }
+
+    protected TypeHandler<?> findTypeHandler(Class<?> javaType) {
+        TypeHandlerRegistry registry = getContext().getTypeRegistry();
+        if (registry.hasTypeHandler(javaType)) {
+            return registry.getTypeHandler(javaType);
+        } else {
+            return null;
+        }
     }
 
     protected static StringBuilder fmtBoundSql(BoundSql boundSql) {
@@ -291,9 +290,9 @@ public abstract class AbstractStatementExecute<T> {
         public boolean             caseInsensitive = true;
         // key
         public boolean             hasSelectKey;
-        public boolean             useGeneratedKeys;
-        public String              keyProperty;
-        public String              parameterType;
+        //        public boolean             useGeneratedKeys;
+        //        public String              keyProperty;
+        //        public String              parameterType;
         // page
         public Page                pageInfo;
         public PageSqlDialect      pageDialect;

@@ -19,6 +19,7 @@ import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
 import net.hasor.dbvisitor.mapper.StatementType;
 
 import java.sql.SQLException;
@@ -31,11 +32,11 @@ import java.util.function.Function;
  * @version : 2021-06-19
  */
 public abstract class SqlConfig implements DynamicSql, ConfigKeys {
-    protected DynamicSql    target;
-    private   StatementType statementType = StatementType.Prepared;
-    private   int           timeout       = -1;
+    protected ArrayDynamicSql target;
+    private   StatementType   statementType = StatementType.Prepared;
+    private   int             timeout       = -1;
 
-    public SqlConfig(DynamicSql target, Function<String, String> config) {
+    public SqlConfig(ArrayDynamicSql target, Function<String, String> config) {
         this.target = Objects.requireNonNull(target, "target is null.");
 
         if (config != null) {

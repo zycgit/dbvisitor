@@ -1,7 +1,7 @@
 package net.hasor.dbvisitor.dal.session;
 import net.hasor.cobble.WellKnowFormat;
-import net.hasor.dbvisitor.dal.mapper.BaseMapper;
-import net.hasor.dbvisitor.dal.repository.DalRegistry;
+import net.hasor.dbvisitor.mapper.BaseMapper;
+import net.hasor.dbvisitor.dal.MapperRegistry;
 import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
@@ -36,7 +36,7 @@ public class BasicMapperTest {
     @Test
     public void basic_1() throws Exception {
         try (Connection con = DsUtils.h2Conn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
             BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
 
@@ -47,7 +47,7 @@ public class BasicMapperTest {
     @Test
     public void insert_1() throws Exception {
         try (Connection con = DsUtils.h2Conn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
             BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
             mapper.delete().allowEmptyWhere().doDelete();
@@ -97,7 +97,7 @@ public class BasicMapperTest {
     @Test
     public void insert_2() throws Exception {
         try (Connection con = DsUtils.h2Conn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
             BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
             mapper.delete().allowEmptyWhere().doDelete();
@@ -131,7 +131,7 @@ public class BasicMapperTest {
     @Test
     public void listBySample_1() throws Exception {
         try (Connection con = DsUtils.h2Conn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
             BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
 
@@ -150,7 +150,7 @@ public class BasicMapperTest {
     @Test
     public void listBySample_2() throws Exception {
         try (Connection con = DsUtils.h2Conn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
             BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
 
@@ -168,7 +168,7 @@ public class BasicMapperTest {
     @Test
     public void listBySample_3() throws Exception {
         try (Connection con = DsUtils.h2Conn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
             BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
 
@@ -192,7 +192,7 @@ public class BasicMapperTest {
     @Test
     public void listBySample_4() throws Exception {
         try (Connection con = DsUtils.h2Conn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
             BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
 
@@ -224,7 +224,7 @@ public class BasicMapperTest {
     @Test
     public void upsertById_1() throws Exception {
         try (Connection con = DsUtils.h2Conn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
             BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
 
@@ -255,7 +255,7 @@ public class BasicMapperTest {
     @Test
     public void upsertById_2() throws Exception {
         try (Connection con = DsUtils.h2Conn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
             BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
 
@@ -287,7 +287,7 @@ public class BasicMapperTest {
     @Test
     public void updateByMap_1() throws Exception {
         try (Connection con = DsUtils.h2Conn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
             BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
 
@@ -319,7 +319,7 @@ public class BasicMapperTest {
     @Test
     public void deleteById_1() throws Exception {
         try (Connection con = DsUtils.h2Conn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
             BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
 
@@ -336,7 +336,7 @@ public class BasicMapperTest {
     @Test
     public void deleteById_2() throws Exception {
         try (Connection con = DsUtils.h2Conn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
             BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
 
@@ -352,7 +352,7 @@ public class BasicMapperTest {
     @Test
     public void delete_1() throws Exception {
         try (Connection con = DsUtils.h2Conn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
             BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
 
@@ -368,7 +368,7 @@ public class BasicMapperTest {
     @Test
     public void selectById_1() throws Exception {
         try (Connection con = DsUtils.h2Conn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
             BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
 
@@ -382,7 +382,7 @@ public class BasicMapperTest {
     @Test
     public void selectById_2() throws Exception {
         try (Connection con = DsUtils.h2Conn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
             BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
 

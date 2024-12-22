@@ -3,6 +3,7 @@ import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.dal.MapperRegistry;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.test.dal.Mapper2Dal;
 import net.hasor.test.dal.dynamic.TextBuilderContext;
@@ -16,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Mapper2DalTest {
-    private DalRegistry dalRegistry;
+    private MapperRegistry dalRegistry;
 
     private String loadString(String queryConfig) throws IOException {
         return IOUtils.readToString(ResourcesUtils.getResourceAsStream(queryConfig), "UTF-8");
@@ -24,7 +25,7 @@ public class Mapper2DalTest {
 
     @Before
     public void loadMapping() throws Exception {
-        this.dalRegistry = new DalRegistry();
+        this.dalRegistry = new MapperRegistry();
         this.dalRegistry.loadMapper(Mapper2Dal.class);
     }
 

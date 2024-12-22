@@ -40,8 +40,9 @@ public class ArgRuleTest {
         assert ((SqlArg) sqlBuilder2.getArgs()[0]).getJdbcType() == 123;
         assert ((SqlArg) sqlBuilder2.getArgs()[0]).getJavaType() == Integer.class;
         assert ((SqlArg) sqlBuilder2.getArgs()[0]).getTypeHandler() instanceof ShortTypeHandler;
-        assert ((SqlArg) sqlBuilder2.getArgs()[0]).getTypeHandler() == TypeHandlerRegistry.DEFAULT.getHandlerByHandlerType(ShortTypeHandler.class);
-        assert ((SqlArg) sqlBuilder2.getArgs()[0]).getTypeHandler() == TypeHandlerRegistry.DEFAULT.getTypeHandler(Short.class);
+        assert ((SqlArg) sqlBuilder2.getArgs()[0]).getTypeHandler() != TypeHandlerRegistry.DEFAULT.getHandlerByHandlerType(ShortTypeHandler.class);
+        assert ((SqlArg) sqlBuilder2.getArgs()[0]).getTypeHandler() != TypeHandlerRegistry.DEFAULT.getTypeHandler(Short.class);
+        assert TypeHandlerRegistry.DEFAULT.getHandlerByHandlerType(ShortTypeHandler.class) == TypeHandlerRegistry.DEFAULT.getTypeHandler(Short.class);
     }
 
     @Test

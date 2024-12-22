@@ -16,7 +16,7 @@
 package net.hasor.scene.keyholder.dto;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.KeyHolder;
-import net.hasor.dbvisitor.mapping.KeyTypeEnum;
+import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.scene.MyKeySeqHolder;
 
@@ -29,9 +29,9 @@ import java.util.Date;
 @Table("user_table")
 public class UserDTO_KEYHOLDER {
     @KeyHolder(MyKeySeqHolder.class)
-    @Column(primary = true, keyType = KeyTypeEnum.Holder)
+    @Column(primary = true, keyType = KeyType.Holder)
     private Integer id;
-    @Column(keyType = KeyTypeEnum.UUID36)
+    @Column(keyType = KeyType.UUID36)
     private String  name;
     @Column
     private Integer age;

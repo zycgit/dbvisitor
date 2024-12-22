@@ -19,10 +19,10 @@ import net.hasor.cobble.reflect.Annotation;
 import net.hasor.cobble.reflect.Annotations;
 import net.hasor.dbvisitor.dialect.SeqSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
+import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerContext;
+import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerFactory;
 import net.hasor.dbvisitor.mapping.KeySeq;
-import net.hasor.dbvisitor.mapping.KeySeqHolder;
-import net.hasor.dbvisitor.mapping.KeySeqHolderContext;
-import net.hasor.dbvisitor.mapping.KeySeqHolderFactory;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
 
@@ -37,9 +37,9 @@ import java.util.Objects;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-12-01
  */
-public class SeqKeySeqHolderFactory implements KeySeqHolderFactory {
+public class SeqKeySeqHolderFactory implements GeneratedKeyHandlerFactory {
     @Override
-    public KeySeqHolder createHolder(KeySeqHolderContext context) {
+    public GeneratedKeyHandler createHolder(GeneratedKeyHandlerContext context) {
         Objects.requireNonNull(context.getSqlDialect(), "sqlDialect is null.");
         Annotations annotations = context.getAnnotations();
         if (annotations == null) {
@@ -77,7 +77,7 @@ public class SeqKeySeqHolderFactory implements KeySeqHolderFactory {
         }
 
         TypeHandler<?> finalTypeHandler = typeHandler;
-        return new KeySeqHolder() {
+        return new GeneratedKeyHandler() {
             @Override
             public boolean onBefore() {
                 return true;

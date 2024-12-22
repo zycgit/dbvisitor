@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.repository.parser;
-import net.hasor.dbvisitor.dynamic.DynamicSql;
+package net.hasor.dbvisitor.mapper;
 
 /**
- * 解析动态 SQL 配置
+ * 表示语句执行的时机
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-05
+ * @version : 2021-05-19
  */
-public interface DynamicResolve<T> {
-    DynamicSql parseSqlConfig(T config);
+public enum Order {
+    /** 在之前。 */
+    Before,
+    /** 在之后。 */
+    After
 }

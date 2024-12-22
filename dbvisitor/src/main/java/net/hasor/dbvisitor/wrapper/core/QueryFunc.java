@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.wrapper.core;
+import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.RowMapper;
-import net.hasor.dbvisitor.page.Page;
 
 import java.sql.SQLException;
 import java.util.List;

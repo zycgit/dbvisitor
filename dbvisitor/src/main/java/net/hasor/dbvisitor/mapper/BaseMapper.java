@@ -15,9 +15,9 @@
  */
 package net.hasor.dbvisitor.mapper;
 import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.dialect.Page;
+import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
-import net.hasor.dbvisitor.page.Page;
-import net.hasor.dbvisitor.page.PageResult;
 import net.hasor.dbvisitor.wrapper.*;
 
 import java.io.Serializable;
@@ -43,14 +43,14 @@ public interface BaseMapper<T> extends Mapper {
         return template().insertByEntity(entityType());
     }
 
-    /** return LambdaDelete for delete */
-    default EntityDeleteWrapper<T> delete() {
-        return template().deleteByEntity(entityType());
-    }
-
     /** return LambdaUpdate for update */
     default EntityUpdateWrapper<T> update() {
         return template().updateByEntity(entityType());
+    }
+
+    /** return LambdaDelete for delete */
+    default EntityDeleteWrapper<T> delete() {
+        return template().deleteByEntity(entityType());
     }
 
     /** return LambdaQuery for query */

@@ -15,7 +15,7 @@
  */
 package net.hasor.scene.json.dto;
 import net.hasor.dbvisitor.mapping.Column;
-import net.hasor.dbvisitor.mapping.KeyTypeEnum;
+import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;
 
@@ -25,7 +25,7 @@ import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;
  */
 @Table(table = "project")
 public class Project1 {
-    @Column(keyType = KeyTypeEnum.Auto)
+    @Column(keyType = KeyType.Auto)
     private Integer        id;
     @Column
     private String         name;

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.repository;
+import net.hasor.dbvisitor.dal.MapperRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.test.AbstractDbTest;
 import org.junit.Before;
@@ -28,11 +29,11 @@ import java.util.Objects;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class AutoMapping2Test extends AbstractDbTest {
-    private DalRegistry dalRegistry;
+    private MapperRegistry dalRegistry;
 
     @Before
     public void beforeTest() throws Exception {
-        this.dalRegistry = new DalRegistry();
+        this.dalRegistry = new MapperRegistry();
         this.dalRegistry.loadMapper("/dbvisitor_coverage/dal_repository/autoMapping_2.xml");
     }
 

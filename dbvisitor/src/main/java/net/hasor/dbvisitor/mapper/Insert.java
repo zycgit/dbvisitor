@@ -34,19 +34,19 @@ public @interface Insert {
 
     /**
      * 是否使用自增属性。
-     * - 如果同时配置了 SelectKey 标签，那么该配置将会失效。
+     * - 如果同时配置了 SelectKey 注解该配置将会失效。
      */
     boolean useGeneratedKeys() default false;
 
     /**
      * 回填自增属性值的 Bean 属性名。
-     * - 如果同时配置了 SelectKey 标签，那么该配置将会失效。
+     * - 如果同时配置了 SelectKey 注解该配置将会失效。
      */
     String keyProperty() default "";
 
     /**
-     * 参数类型，可以用于回填自增属性。
-     * - 如果同时配置了 SelectKey 标签 或者 useGeneratedKeys 属性，那么该配置将会失效。
+     * 回填自增属性值时候选择的 查询结果列名。
+     * - 如果同时配置了 SelectKey 注解该配置将会失效。
      */
-    Class<?> parameterType() default Object.class;
+    String keyColumn();
 }

@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.mapper.def;
 import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dynamic.DynamicSql;
+import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
 import net.hasor.dbvisitor.mapper.ResultSetType;
 
 import java.util.function.Function;
@@ -33,7 +33,7 @@ public abstract class DqlConfig extends SqlConfig {
     private ResultSetType resultSetType = ResultSetType.DEFAULT;
     private String[]      bindOut       = ArrayUtils.EMPTY_STRING_ARRAY;
 
-    public DqlConfig(DynamicSql target, Function<String, String> config) {
+    public DqlConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
 
         if (config != null) {

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.test.dal.execute;
-import net.hasor.dbvisitor.dal.repository.Param;
-import net.hasor.dbvisitor.dal.repository.RefMapper;
+import net.hasor.dbvisitor.mapper.Param;
+import net.hasor.dbvisitor.mapper.RefMapper;
 import net.hasor.test.dto.AutoId;
 import net.hasor.test.dto.UserInfo;
 import net.hasor.test.dto.UserInfo2;

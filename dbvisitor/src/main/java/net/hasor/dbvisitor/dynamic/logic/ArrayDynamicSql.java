@@ -39,7 +39,9 @@ public class ArrayDynamicSql implements DynamicSql {
 
     /** 追加子节点 */
     public void addChildNode(DynamicSql node) {
-        this.subNodes.add(node);
+        if (node != null) {
+            this.subNodes.add(node);
+        }
     }
 
     /** 最后一个节点是文本 */

@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.dal.execute;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.ref.BeanMap;
-import net.hasor.dbvisitor.dal.repository.parser.xmlnode.SelectKeySqlConfig;
+import net.hasor.dbvisitor.mapper.def.SelectKeyConfig;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -30,10 +30,10 @@ import java.util.Map;
  * @version : 2021-11-05
  */
 class SelectKeyExecute {
-    private final SelectKeySqlConfig keySqlConfig;
-    private final SelectKeyHandler   selectKeyHandler;
+    private final SelectKeyConfig  keySqlConfig;
+    private final SelectKeyHandler selectKeyHandler;
 
-    SelectKeyExecute(SelectKeySqlConfig keySqlConfig, SelectKeyHandler selectKeyHandler) {
+    SelectKeyExecute(SelectKeyConfig keySqlConfig, SelectKeyHandler selectKeyHandler) {
         this.keySqlConfig = keySqlConfig;
         this.selectKeyHandler = selectKeyHandler;
     }

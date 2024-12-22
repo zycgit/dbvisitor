@@ -1,5 +1,5 @@
 package net.hasor.dbvisitor.dal.session;
-import net.hasor.dbvisitor.dal.repository.DalRegistry;
+import net.hasor.dbvisitor.dal.MapperRegistry;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingOptions;
@@ -22,7 +22,7 @@ public class BasicExecuteTest {
     @Test
     public void listUserList_1() throws Exception {
         try (Connection con = DsUtils.mysqlConn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
 
             dalRegistry.loadMapper(TestExecuteDal.class);
@@ -55,7 +55,7 @@ public class BasicExecuteTest {
     @Test
     public void listUserList_2() throws Exception {
         try (Connection con = DsUtils.mysqlConn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
 
             dalRegistry.loadMapper(TestExecuteDal.class);
@@ -89,7 +89,7 @@ public class BasicExecuteTest {
     @Test
     public void selectKey_1() throws Exception {
         try (Connection con = DsUtils.mysqlConn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
 
             dalRegistry.loadMapper(TestExecuteDal.class);
@@ -116,7 +116,7 @@ public class BasicExecuteTest {
     @Test
     public void selectKey_2() throws Exception {
         try (Connection con = DsUtils.mysqlConn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
 
             dalRegistry.loadMapper(TestExecuteDal.class);
@@ -146,7 +146,7 @@ public class BasicExecuteTest {
             new JdbcTemplate(con).execute("drop procedure if exists proc_select_user;");
             new JdbcTemplate(con).execute("create procedure proc_select_user(out p_out decimal(6,3)) begin set p_out= 123.123; end;");
 
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
 
             dalRegistry.loadMapper(TestExecuteDal.class);
@@ -164,7 +164,7 @@ public class BasicExecuteTest {
     @Test
     public void defaultMethodTest() throws Exception {
         try (Connection con = DsUtils.mysqlConn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             DalSession dalSession = new DalSession(con, dalRegistry);
 
             dalSession.getDalRegistry().loadMapper(Mapper3Dal.class);

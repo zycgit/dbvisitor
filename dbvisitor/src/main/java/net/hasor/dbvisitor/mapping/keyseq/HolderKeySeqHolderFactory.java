@@ -17,10 +17,10 @@ package net.hasor.dbvisitor.mapping.keyseq;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.reflect.Annotation;
 import net.hasor.cobble.reflect.Annotations;
+import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
+import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerContext;
+import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerFactory;
 import net.hasor.dbvisitor.mapping.KeyHolder;
-import net.hasor.dbvisitor.mapping.KeySeqHolder;
-import net.hasor.dbvisitor.mapping.KeySeqHolderContext;
-import net.hasor.dbvisitor.mapping.KeySeqHolderFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,11 +30,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-12-01
  */
-public class HolderKeySeqHolderFactory implements KeySeqHolderFactory {
-    private static final Map<Class<?>, KeySeqHolderFactory> HolderCache = new ConcurrentHashMap<>();
+public class HolderKeySeqHolderFactory implements GeneratedKeyHandlerFactory {
+    private static final Map<Class<?>, GeneratedKeyHandlerFactory> HolderCache = new ConcurrentHashMap<>();
 
     @Override
-    public KeySeqHolder createHolder(KeySeqHolderContext context) throws ClassNotFoundException {
+    public GeneratedKeyHandler createHolder(GeneratedKeyHandlerContext context) throws ClassNotFoundException {
         Annotations annotations = context.getAnnotations();
         if (annotations == null) {
             return null;
@@ -51,7 +51,7 @@ public class HolderKeySeqHolderFactory implements KeySeqHolderFactory {
 
         if (!HolderCache.containsKey(keyHolderType)) {
             try {
-                HolderCache.put(keyHolderType, (KeySeqHolderFactory) keyHolderType.newInstance());
+                HolderCache.put(keyHolderType, (GeneratedKeyHandlerFactory) keyHolderType.newInstance());
             } catch (ReflectiveOperationException e) {
                 throw ExceptionUtils.toRuntime(e);
             }

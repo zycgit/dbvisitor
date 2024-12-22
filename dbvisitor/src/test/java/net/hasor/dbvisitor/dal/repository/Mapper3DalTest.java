@@ -1,5 +1,6 @@
 package net.hasor.dbvisitor.dal.repository;
-import net.hasor.dbvisitor.dal.repository.parser.xmlnode.InsertSqlConfig;
+import net.hasor.dbvisitor.dal.MapperRegistry;
+import net.hasor.dbvisitor.mapper.def.InsertConfig;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.test.dal.dynamic.TextBuilderContext;
 import org.junit.Test;
@@ -10,10 +11,10 @@ import java.util.Map;
 public class Mapper3DalTest {
     @Test
     public void bindTest_01() throws Throwable {
-        DalRegistry registry = new DalRegistry();
+        MapperRegistry registry = new MapperRegistry();
         registry.loadMapper("/dbvisitor_coverage/dal_dynamic/mapper/mapper_3.xml");
 
-        InsertSqlConfig dynamicSql = (InsertSqlConfig) registry.findDynamicSql("net.hasor.test.dal.mapper_3", "testInsert");
+        InsertConfig dynamicSql = (InsertConfig) registry.findDynamicSql("net.hasor.test.dal.mapper_3", "testInsert");
 
         Map<String, Object> data1 = new HashMap<>();
         data1.put("name", "123");

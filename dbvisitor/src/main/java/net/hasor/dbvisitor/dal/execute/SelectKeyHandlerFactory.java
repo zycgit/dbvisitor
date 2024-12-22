@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.execute;
-import net.hasor.dbvisitor.dal.repository.parser.xmlnode.SelectKeySqlConfig;
+import net.hasor.dbvisitor.mapper.def.SelectKeyConfig;
 
 /**
  * 负责创建 SelectKeyHandler
@@ -22,5 +22,5 @@ import net.hasor.dbvisitor.dal.repository.parser.xmlnode.SelectKeySqlConfig;
  * @version : 2021-11-05
  */
 public interface SelectKeyHandlerFactory {
-    SelectKeyHandler createHandler(SelectKeySqlConfig keySqlConfig, AbstractStatementExecute<?> execute);
+    SelectKeyHandler createHandler(SelectKeyConfig keySqlConfig, AbstractStatementExecute<?> execute);
 }

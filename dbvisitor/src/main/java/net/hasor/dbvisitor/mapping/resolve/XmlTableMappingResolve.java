@@ -291,18 +291,18 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         tableDef.addIndexDescription(idxDef);
     }
 
-    private KeySeqHolder resolveKeyType(TableDef<?> tableDef, ColumnDef colDef, String keyType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
+    private GeneratedKeyHandler resolveKeyType(TableDef<?> tableDef, ColumnDef colDef, String keyType, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
         if (StringUtils.isBlank(keyType)) {
             return null;
         }
 
-        KeyTypeEnum keyTypeEnum = KeyTypeEnum.valueOfCode(keyType);
+        KeyType keyTypeEnum = KeyType.valueOfCode(keyType);
         if (keyTypeEnum != null) {
             switch (keyTypeEnum) {
                 case Auto:
                 case UUID32:
                 case UUID36:
-                    return keyTypeEnum.createHolder(new KeySeqHolderContext(typeRegistry, tableDef, colDef, classLoader, Annotations.empty()));
+                    return keyTypeEnum.createHolder(new GeneratedKeyHandlerContext(typeRegistry, tableDef, colDef, classLoader, Annotations.empty()));
                 case None:
                 case Holder:
                 case Sequence:
@@ -314,11 +314,11 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
             mockKeySeq.putData("value", keyType.substring("KeySeq::".length()));
             Annotations mockAnno = Annotations.create();
             mockAnno.putTypeData(KeySeq.class.getName(), mockKeySeq);
-            return KeyTypeEnum.Sequence.createHolder(new KeySeqHolderContext(typeRegistry, tableDef, colDef, classLoader, mockAnno));
+            return KeyType.Sequence.createHolder(new GeneratedKeyHandlerContext(typeRegistry, tableDef, colDef, classLoader, mockAnno));
         } else {
             Class<?> aClass = classLoader.loadClass(keyType);
-            KeySeqHolderFactory holderFactory = (KeySeqHolderFactory) aClass.newInstance();
-            return holderFactory.createHolder(new KeySeqHolderContext(typeRegistry, tableDef, colDef, classLoader, Annotations.empty()));
+            GeneratedKeyHandlerFactory holderFactory = (GeneratedKeyHandlerFactory) aClass.newInstance();
+            return holderFactory.createHolder(new GeneratedKeyHandlerContext(typeRegistry, tableDef, colDef, classLoader, Annotations.empty()));
         }
     }
 

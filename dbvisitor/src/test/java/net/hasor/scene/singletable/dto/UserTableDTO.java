@@ -15,7 +15,7 @@
  */
 package net.hasor.scene.singletable.dto;
 import net.hasor.dbvisitor.mapping.Column;
-import net.hasor.dbvisitor.mapping.KeyTypeEnum;
+import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Table;
 
 import java.util.Date;
@@ -26,7 +26,7 @@ import java.util.Date;
  */
 @Table("user_table")
 public class UserTableDTO {
-    @Column(primary = true, keyType = KeyTypeEnum.Auto, insert = false)
+    @Column(primary = true, keyType = KeyType.Auto, insert = false)
     private Integer id;
     @Column
     private String  name;

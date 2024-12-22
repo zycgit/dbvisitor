@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.page;
+import net.hasor.dbvisitor.dialect.Page;
+import net.hasor.dbvisitor.dialect.PageObject;
 import org.junit.Test;
 
 import java.util.Map;

@@ -1,9 +1,9 @@
 package net.hasor.dbvisitor.dal.session;
-import net.hasor.dbvisitor.dal.repository.DalRegistry;
+import net.hasor.dbvisitor.dal.MapperRegistry;
 import net.hasor.dbvisitor.mapping.MappingOptions;
-import net.hasor.dbvisitor.page.Page;
-import net.hasor.dbvisitor.page.PageObject;
-import net.hasor.dbvisitor.page.PageResult;
+import net.hasor.dbvisitor.dialect.Page;
+import net.hasor.dbvisitor.dialect.PageObject;
+import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.test.dal.execute.PageExecuteDal;
 import net.hasor.test.dto.UserInfo;
 import net.hasor.test.utils.DsUtils;
@@ -31,7 +31,7 @@ public class PageExecuteTest {
     @Test
     public void listUserListPage_1() throws Exception {
         try (Connection con = DsUtils.mysqlConn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             dalRegistry.loadMapper(PageExecuteDal.class);
 
             DalSession dalSession = new DalSession(con, dalRegistry);
@@ -62,7 +62,7 @@ public class PageExecuteTest {
     @Test
     public void listUserListPage_2() throws Exception {
         try (Connection con = DsUtils.mysqlConn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             dalRegistry.loadMapper(PageExecuteDal.class);
 
             DalSession dalSession = new DalSession(con, dalRegistry);
@@ -101,7 +101,7 @@ public class PageExecuteTest {
     @Test
     public void listUserListPage_3() throws Exception {
         try (Connection con = DsUtils.mysqlConn()) {
-            DalRegistry dalRegistry = new DalRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
             dalRegistry.loadMapper(PageExecuteDal.class);
 
             DalSession dalSession = new DalSession(con, dalRegistry);

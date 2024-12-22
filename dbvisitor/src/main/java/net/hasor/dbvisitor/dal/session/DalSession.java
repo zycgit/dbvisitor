@@ -21,23 +21,22 @@ import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.BeanMap;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.JdbcHelper;
+import net.hasor.dbvisitor.dal.MapperRegistry;
 import net.hasor.dbvisitor.dal.execute.ExecuteProxy;
-import net.hasor.dbvisitor.dal.mapper.BaseMapper;
-import net.hasor.dbvisitor.dal.mapper.Mapper;
-import net.hasor.dbvisitor.dal.repository.DalMapper;
-import net.hasor.dbvisitor.dal.repository.DalRegistry;
-import net.hasor.dbvisitor.dal.repository.RefMapper;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.DynamicConnection;
 import net.hasor.dbvisitor.jdbc.core.JdbcAccessor;
+import net.hasor.dbvisitor.mapper.BaseMapper;
+import net.hasor.dbvisitor.mapper.DalMapper;
+import net.hasor.dbvisitor.mapper.Mapper;
+import net.hasor.dbvisitor.mapper.RefMapper;
 import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.page.Page;
+import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import javax.sql.DataSource;
@@ -58,25 +57,25 @@ import java.util.function.Function;
  */
 public class DalSession extends JdbcAccessor {
     private static final Logger                           log          = LoggerFactory.getLogger(DalSession.class);
-    private final        DalRegistry                      dalRegistry;
+    private final        MapperRegistry                   dalRegistry;
     private final        PageSqlDialect                   dialect;
     private final        WrapperAdapter                   defaultTemplate;
     private final        Function<String, WrapperAdapter> spaceTemplateFactory;
     private final        Map<String, ExecuteProxy>        executeCache = new ConcurrentHashMap<>();
 
     public DalSession(Connection connection) throws SQLException {
-        this(connection, DalRegistry.DEFAULT);
+        this(connection, MapperRegistry.DEFAULT);
     }
 
     public DalSession(DataSource dataSource) throws SQLException {
-        this(dataSource, DalRegistry.DEFAULT);
+        this(dataSource, MapperRegistry.DEFAULT);
     }
 
     public DalSession(DynamicConnection dynamicConnection) throws SQLException {
-        this(dynamicConnection, DalRegistry.DEFAULT);
+        this(dynamicConnection, MapperRegistry.DEFAULT);
     }
 
-    public DalSession(Connection connection, DalRegistry dalRegistry) throws SQLException {
+    public DalSession(Connection connection, MapperRegistry dalRegistry) throws SQLException {
         this.setConnection(Objects.requireNonNull(connection, "connection is null."));
         this.dalRegistry = Objects.requireNonNull(dalRegistry, "dalRegistry is null.");
         this.defaultTemplate = new DalLambdaTemplate(connection);
@@ -90,7 +89,7 @@ public class DalSession extends JdbcAccessor {
         }
     }
 
-    public DalSession(DynamicConnection dynamicConn, DalRegistry dalRegistry) throws SQLException {
+    public DalSession(DynamicConnection dynamicConn, MapperRegistry dalRegistry) throws SQLException {
         this.setDynamic(Objects.requireNonNull(dynamicConn, "dynamicConnection is null."));
         this.dalRegistry = Objects.requireNonNull(dalRegistry, "dalRegistry is null.");
         this.defaultTemplate = new DalLambdaTemplate(dynamicConn);
@@ -104,7 +103,7 @@ public class DalSession extends JdbcAccessor {
         }
     }
 
-    public DalSession(DataSource dataSource, DalRegistry dalRegistry) throws SQLException {
+    public DalSession(DataSource dataSource, MapperRegistry dalRegistry) throws SQLException {
         this.setDataSource(Objects.requireNonNull(dataSource, "dataSource is null."));
         this.dalRegistry = Objects.requireNonNull(dalRegistry, "dalRegistry is null.");
         this.defaultTemplate = new DalLambdaTemplate(dataSource);
@@ -118,7 +117,7 @@ public class DalSession extends JdbcAccessor {
         }
     }
 
-    public DalRegistry getDalRegistry() {
+    public MapperRegistry getDalRegistry() {
         return this.dalRegistry;
     }
 
@@ -220,7 +219,7 @@ public class DalSession extends JdbcAccessor {
                 space = stId.substring(0, index);
                 dynamicId = stId.substring(index + 1);
             }
-            RegistryManager context = new DalContext(space, this.dalRegistry);
+            DalContext context = new DalContext(space, this.dalRegistry);
             return new ExecuteProxy(dynamicId, context);
         });
 

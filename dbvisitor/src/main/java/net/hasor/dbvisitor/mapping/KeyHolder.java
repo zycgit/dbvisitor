@@ -28,5 +28,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface KeyHolder {
     /** Holder */
-    Class<? extends KeySeqHolderFactory> value();
+    Class<? extends GeneratedKeyHandlerFactory> value();
 }

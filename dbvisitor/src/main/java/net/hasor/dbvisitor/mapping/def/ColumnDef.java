@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.mapping.def;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.reflect.Annotations;
-import net.hasor.dbvisitor.mapping.KeySeqHolder;
+import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
 import net.hasor.dbvisitor.types.TypeHandler;
 
 /**
@@ -25,26 +25,26 @@ import net.hasor.dbvisitor.types.TypeHandler;
  * @version : 2020-10-31
  */
 public class ColumnDef implements ColumnMapping {
-    private final String         columnName;
-    private final String         propertyName;
-    private final Integer        jdbcType;
-    private final Class<?>       javaType;
-    private final TypeHandler<?> typeHandler;
-    private final Property       handler;
-    private       Annotations    annotations;
-    private       KeySeqHolder   keySeqHolder;
+    private final String              columnName;
+    private final String              propertyName;
+    private final Integer             jdbcType;
+    private final Class<?>            javaType;
+    private final TypeHandler<?>      typeHandler;
+    private final Property            handler;
+    private       Annotations         annotations;
+    private       GeneratedKeyHandler keySeqHolder;
     //
-    private       boolean        insert;
-    private       boolean        update;
-    private       boolean        primary;
-    private       String         selectTemplate;
-    private       String         insertTemplate;
-    private       String         setColTemplate;
-    private       String         setValueTemplate;
-    private       String         whereColTemplate;
-    private       String         whereValueTemplate;
-    private       String         groupByColTemplate;
-    private       String         orderByColTemplate;
+    private       boolean             insert;
+    private       boolean             update;
+    private       boolean             primary;
+    private       String              selectTemplate;
+    private       String              insertTemplate;
+    private       String              setColTemplate;
+    private       String              setValueTemplate;
+    private       String              whereColTemplate;
+    private       String              whereValueTemplate;
+    private       String              groupByColTemplate;
+    private       String              orderByColTemplate;
 
     private ColumnDescription description;
 
@@ -101,11 +101,11 @@ public class ColumnDef implements ColumnMapping {
     }
 
     @Override
-    public KeySeqHolder getKeySeqHolder() {
+    public GeneratedKeyHandler getKeySeqHolder() {
         return this.keySeqHolder;
     }
 
-    public void setKeySeqHolder(KeySeqHolder keySeqHolder) {
+    public void setKeySeqHolder(GeneratedKeyHandler keySeqHolder) {
         this.keySeqHolder = keySeqHolder;
     }
 

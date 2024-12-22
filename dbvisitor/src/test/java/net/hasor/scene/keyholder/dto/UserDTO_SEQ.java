@@ -16,7 +16,7 @@
 package net.hasor.scene.keyholder.dto;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.KeySeq;
-import net.hasor.dbvisitor.mapping.KeyTypeEnum;
+import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Table;
 
 import java.util.Date;
@@ -28,9 +28,9 @@ import java.util.Date;
 @Table("user_table")
 public class UserDTO_SEQ {
     @KeySeq("test_seq")
-    @Column(primary = true, keyType = KeyTypeEnum.Sequence)
+    @Column(primary = true, keyType = KeyType.Sequence)
     private Integer id;
-    @Column(keyType = KeyTypeEnum.UUID36)
+    @Column(keyType = KeyType.UUID36)
     private String  name;
     @Column
     private Integer age;

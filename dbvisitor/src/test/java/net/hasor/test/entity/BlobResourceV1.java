@@ -12,7 +12,7 @@ import java.util.Date;
 public class BlobResourceV1 {
 
     @ColumnDescribe(sqlType = "bigint")
-    @Column(name = "id", primary = true, keyType = KeyTypeEnum.Auto)
+    @Column(name = "id", primary = true, keyType = KeyType.Auto)
     private Long id;
 
     @ColumnDescribe(sqlType = "datetime", nullable = false, defaultValue = "CURRENT_TIMESTAMP")

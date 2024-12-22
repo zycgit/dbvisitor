@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.test.dal;
-import net.hasor.dbvisitor.dal.mapper.BaseMapper;
-import net.hasor.dbvisitor.dal.repository.SimpleMapper;
+import net.hasor.dbvisitor.mapper.BaseMapper;
+import net.hasor.dbvisitor.mapper.SimpleMapper;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.test.dto.UserInfo2;
 

@@ -289,18 +289,18 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
 
         // init KeySeqHolder
         if (info != null) {
-            KeyTypeEnum keyType = (KeyTypeEnum) info.getEnum("keyType", KeyTypeEnum.values(), KeyTypeEnum.None, KeyTypeEnum::valueOfCode);
-            colDef.setKeySeqHolder(this.resolveKeyType(def, colDef, keyType, propertyAnno, classLoader, typeRegistry));
+            String keyTypeStr = info.getString("keyType");
+            KeyType keyType = KeyType.valueOfCode(keyTypeStr);
+            if (StringUtils.isNotBlank(keyTypeStr) && keyType == null) {
+                throw new UnsupportedOperationException("keyType '" + keyTypeStr + "' Unsupported.");
+            }
+
+            if (keyType != null) {
+                GeneratedKeyHandlerContext holderCtx = new GeneratedKeyHandlerContext(typeRegistry, def, colDef, classLoader, propertyAnno);
+                colDef.setKeySeqHolder(keyType.createHolder(holderCtx));
+            }
         }
 
         def.addMapping(colDef);
-    }
-
-    private KeySeqHolder resolveKeyType(TableDef<?> tableDef, ColumnDef colDef, KeyTypeEnum keyTypeEnum, Annotations propertyAnno, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ClassNotFoundException {
-        if (keyTypeEnum == KeyTypeEnum.None) {
-            return null;
-        } else {
-            return keyTypeEnum.createHolder(new KeySeqHolderContext(typeRegistry, tableDef, colDef, classLoader, propertyAnno));
-        }
     }
 }

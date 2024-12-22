@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.mapping.KeySeqHolder;
+import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
@@ -104,7 +104,7 @@ public abstract class AbstractInsertWrapper<R, T, P> extends BasicLambda<R, T, P
                 continue;
             }
 
-            KeySeqHolder keySeqHolder = mapping.getKeySeqHolder();
+            GeneratedKeyHandler keySeqHolder = mapping.getKeySeqHolder();
             if (keySeqHolder != null) {
                 if (keySeqHolder.onBefore()) {
                     fillBefore.add(mapping);

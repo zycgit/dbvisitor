@@ -16,6 +16,8 @@
 package net.hasor.dbvisitor.dynamic;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.mapper.MapperRegistry;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
@@ -26,40 +28,48 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  */
 public class RegistryManager {
     public static final RegistryManager     DEFAULT = new RegistryManager(MappingRegistry.DEFAULT, RuleRegistry.DEFAULT, MacroRegistry.DEFAULT);
+    private final       MapperRegistry      mapperRegistry;
     private final       MappingRegistry     mappingRegistry;
     private final       TypeHandlerRegistry typeRegistry;
     private final       RuleRegistry        ruleRegistry;
     private final       MacroRegistry       macroRegistry;
 
     public RegistryManager() {
-        this.mappingRegistry = new MappingRegistry();
         this.typeRegistry = new TypeHandlerRegistry();
         this.ruleRegistry = new RuleRegistry();
         this.macroRegistry = new MacroRegistry();
+        this.mappingRegistry = new MappingRegistry(null, this.typeRegistry, MappingOptions.buildNew());
+        this.mapperRegistry = new MapperRegistry(this.mappingRegistry, this.typeRegistry);
     }
 
     public RegistryManager(MappingRegistry mapping, RuleRegistry rule, MacroRegistry macro) {
         MappingRegistry usingMapping = mapping != null ? mapping : MappingRegistry.DEFAULT;
 
-        this.mappingRegistry = usingMapping;
         this.typeRegistry = usingMapping.getTypeRegistry();
         this.ruleRegistry = rule != null ? rule : RuleRegistry.DEFAULT;
         this.macroRegistry = macro != null ? macro : MacroRegistry.DEFAULT;
+        this.mappingRegistry = usingMapping;
+        this.mapperRegistry = new MapperRegistry(this.mappingRegistry, this.typeRegistry);
     }
 
     public RegistryManager(TypeHandlerRegistry type, RuleRegistry rule, MacroRegistry macro) {
         TypeHandlerRegistry usingTypeRegistry = type != null ? type : TypeHandlerRegistry.DEFAULT;
         MappingRegistry usingMapping = new MappingRegistry(null, usingTypeRegistry);
 
-        this.mappingRegistry = usingMapping;
         this.typeRegistry = usingMapping.getTypeRegistry();
         this.ruleRegistry = rule != null ? rule : RuleRegistry.DEFAULT;
         this.macroRegistry = macro != null ? macro : MacroRegistry.DEFAULT;
+        this.mappingRegistry = usingMapping;
+        this.mapperRegistry = new MapperRegistry(this.mappingRegistry, this.typeRegistry);
     }
 
     @Deprecated
     public DynamicSql findMacro(String dynamicId) {
         return this.macroRegistry.findMacro(dynamicId);
+    }
+
+    public MapperRegistry getMapperRegistry() {
+        return this.mapperRegistry;
     }
 
     public MacroRegistry getMacroRegistry() {

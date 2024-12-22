@@ -27,7 +27,7 @@ import java.util.function.Function;
 public abstract class DmlConfig extends SqlConfig {
     private SelectKeyConfig selectKey;
 
-    public DmlConfig(DynamicSql target, Function<String, String> config) {
+    public DmlConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
         this.processSelectKey(target);
     }
@@ -40,28 +40,11 @@ public abstract class DmlConfig extends SqlConfig {
         this.selectKey = selectKey;
     }
 
-    protected void processSelectKey(DynamicSql target) {
-        if (target instanceof ArrayDynamicSql) {
-            for (DynamicSql dynamicSql : ((ArrayDynamicSql) target).getSubNodes()) {
-                if (dynamicSql instanceof SelectKeyConfig) {
-                    SelectKeyConfig selectKey = (SelectKeyConfig) dynamicSql;
-
-                    this.selectKey = new SelectKeyConfig(selectKey.target, null);
-                    this.selectKey.setStatementType(selectKey.getStatementType());
-                    this.selectKey.setTimeout(selectKey.getTimeout());
-                    this.selectKey.setResultMap(selectKey.getResultMap());
-                    this.selectKey.setResultType(selectKey.getResultType());
-                    this.selectKey.setFetchSize(selectKey.getFetchSize());
-                    this.selectKey.setResultSetType(selectKey.getResultSetType());
-                    this.selectKey.setBindOut(selectKey.getBindOut());
-
-                    this.selectKey.setKeyProperty(selectKey.getKeyProperty());
-                    this.selectKey.setKeyColumn(selectKey.getKeyColumn());
-                    this.selectKey.setOrder(selectKey.getOrder());
-                    this.selectKey.setHandler(selectKey.getHandler());
-
-                    this.selectKey.setIgnoreBuild(false);
-                }
+    protected void processSelectKey(ArrayDynamicSql target) {
+        for (DynamicSql dynamicSql : target.getSubNodes()) {
+            if (dynamicSql instanceof SelectKeyConfig) {
+                this.selectKey = new SelectKeyConfig((SelectKeyConfig) dynamicSql, false);
+                break;
             }
         }
     }

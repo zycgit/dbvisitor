@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.wrapper.core;
 import net.hasor.dbvisitor.dialect.BoundSql;
+import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
@@ -27,7 +28,6 @@ import net.hasor.dbvisitor.jdbc.extractor.MapMappingResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
 import net.hasor.dbvisitor.jdbc.mapper.MapMappingRowMapper;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.page.Page;
 import net.hasor.dbvisitor.wrapper.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.wrapper.segment.Segment;
 import net.hasor.dbvisitor.wrapper.segment.SqlKeyword;

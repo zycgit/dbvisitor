@@ -16,8 +16,6 @@
 package net.hasor.dbvisitor.dal.execute;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.dal.reader.ResultTableReader;
-import net.hasor.dbvisitor.dal.reader.TableReader;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.jdbc.CallableStatementCallback;
 import net.hasor.dbvisitor.jdbc.PreparedStatementCallback;

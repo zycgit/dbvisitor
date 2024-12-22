@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.def;
-import net.hasor.dbvisitor.dynamic.DynamicSql;
+import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
 
 import java.util.function.Function;
 
@@ -24,7 +24,7 @@ import java.util.function.Function;
  * @version : 2021-06-19
  */
 public class UpdateConfig extends DmlConfig {
-    public UpdateConfig(DynamicSql target, Function<String, String> config) {
+    public UpdateConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
     }
 

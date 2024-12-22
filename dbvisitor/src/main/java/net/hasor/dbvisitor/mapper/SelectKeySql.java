@@ -13,32 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapping;
-import net.hasor.dbvisitor.mapping.def.ColumnMapping;
+package net.hasor.dbvisitor.mapper;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.lang.annotation.*;
 
 /**
- * 主键生成器
+ * insert 语句
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-12-01
+ * @version : 2021-05-19
  */
-public interface KeySeqHolder {
-    default boolean onBefore() {
-        return false;
-    }
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface SelectKeySql {
+    String[] value();
 
-    default Object beforeApply(Connection conn, Object entity, ColumnMapping mapping) throws SQLException {
-        return null;
-    }
+    StatementType statementType() default StatementType.Prepared;
 
-    default boolean onAfter() {
-        return false;
-    }
+    int timeout() default -1;
 
-    default Object afterApply(ResultSet rs, Object entity, int argsIndex, ColumnMapping mapping) throws SQLException {
-        return null;
-    }
+    int fetchSize() default 256;
+
+    ResultSetType resultSetType() default ResultSetType.DEFAULT;
+
+    String keyProperty();
+
+    String keyColumn();
+
+    Order order();
 }

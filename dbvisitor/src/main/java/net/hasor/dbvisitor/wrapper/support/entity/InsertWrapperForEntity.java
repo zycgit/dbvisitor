@@ -23,7 +23,7 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.mapping.KeySeqHolder;
+import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.SqlArg;
@@ -164,13 +164,13 @@ public class InsertWrapperForEntity<T> extends AbstractInsertWrapper<InsertWrapp
         if (entity.isMap) {
             Map ent = (Map) entity.objList.get(0);
             return this.insertProperties.stream().filter(c -> {
-                KeySeqHolder holder = c.getKeySeqHolder();
+                GeneratedKeyHandler holder = c.getKeySeqHolder();
                 return ent.containsKey(c.getProperty()) || (holder != null && holder.onBefore());
             }).map(ColumnMapping::getColumn).collect(Collectors.toList());
         } else {
             Object ent = entity.objList.get(0);
             return this.insertProperties.stream().filter(c -> {
-                KeySeqHolder holder = c.getKeySeqHolder();
+                GeneratedKeyHandler holder = c.getKeySeqHolder();
                 return c.getHandler().get(ent) != null || (holder != null && holder.onBefore());
             }).map(ColumnMapping::getColumn).collect(Collectors.toList());
         }

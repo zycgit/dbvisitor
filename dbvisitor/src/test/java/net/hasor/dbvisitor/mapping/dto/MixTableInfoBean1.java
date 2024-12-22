@@ -10,7 +10,7 @@ import java.util.Date;
 @IndexDescribe(name = "uk_b", columns = { "instanceId" }, unique = true)
 public class MixTableInfoBean1 {
 
-    @Column(name = "id", primary = true, keyType = KeyTypeEnum.Auto)
+    @Column(name = "id", primary = true, keyType = KeyType.Auto)
     @ColumnDescribe(sqlType = "bigint")
     private Long id;
 

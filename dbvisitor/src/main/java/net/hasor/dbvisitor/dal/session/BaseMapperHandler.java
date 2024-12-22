@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.session;
-import net.hasor.dbvisitor.dal.mapper.BaseMapper;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
+import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.page.Page;
-import net.hasor.dbvisitor.page.PageObject;
-import net.hasor.dbvisitor.page.PageResult;
+import net.hasor.dbvisitor.dialect.Page;
+import net.hasor.dbvisitor.dialect.PageObject;
+import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.wrapper.EntityDeleteWrapper;
 import net.hasor.dbvisitor.wrapper.EntityQueryWrapper;
 import net.hasor.dbvisitor.wrapper.EntityUpdateWrapper;

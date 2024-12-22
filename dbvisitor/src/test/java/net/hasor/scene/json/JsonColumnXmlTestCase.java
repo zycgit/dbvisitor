@@ -1,5 +1,5 @@
 package net.hasor.scene.json;
-import net.hasor.dbvisitor.dal.repository.DalRegistry;
+import net.hasor.dbvisitor.dal.MapperRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import net.hasor.scene.json.dto.Project1;
@@ -32,7 +32,7 @@ public class JsonColumnXmlTestCase {
 
     @Test
     public void result_1_TestCase() throws SQLException, IOException {
-        DalRegistry dalRegistry = new DalRegistry();
+        MapperRegistry dalRegistry = new MapperRegistry();
         dalRegistry.loadMapper("/dbvisitor_scene/json/json-column-1.xml");
         dalRegistry.loadEntityToSpace(Project1.class);
 
@@ -59,7 +59,7 @@ public class JsonColumnXmlTestCase {
 
     @Test
     public void args_1_TestCase() throws SQLException, IOException {
-        DalRegistry dalRegistry = new DalRegistry();
+        MapperRegistry dalRegistry = new MapperRegistry();
         dalRegistry.loadMapper("/dbvisitor_scene/json/json-column-1.xml");
         dalRegistry.loadEntityToSpace(Project1.class);
 
@@ -92,7 +92,7 @@ public class JsonColumnXmlTestCase {
 
     @Test
     public void result_2_TestCase() throws SQLException, IOException {
-        DalRegistry dalRegistry = new DalRegistry();
+        MapperRegistry dalRegistry = new MapperRegistry();
         dalRegistry.loadMapper("/dbvisitor_scene/json/json-column-2.xml");
         dalRegistry.loadEntityToSpace(Project1.class);
 
@@ -119,7 +119,7 @@ public class JsonColumnXmlTestCase {
 
     @Test
     public void args_2_TestCase() throws SQLException, IOException {
-        DalRegistry dalRegistry = new DalRegistry();
+        MapperRegistry dalRegistry = new MapperRegistry();
         dalRegistry.loadMapper("/dbvisitor_scene/json/json-column-2.xml");
         dalRegistry.loadEntityToSpace(Project1.class);
 

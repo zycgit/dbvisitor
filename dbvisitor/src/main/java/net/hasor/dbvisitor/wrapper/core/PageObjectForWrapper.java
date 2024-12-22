@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.wrapper.core;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.function.ESupplier;
-import net.hasor.dbvisitor.page.PageObject;
+import net.hasor.dbvisitor.dialect.PageObject;
 
 import java.sql.SQLException;
 import java.util.Objects;

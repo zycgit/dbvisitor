@@ -15,12 +15,12 @@
  */
 package net.hasor.dbvisitor.dal.execute;
 import net.hasor.cobble.ExceptionUtils;
-import net.hasor.dbvisitor.dal.repository.ResultSetType;
+import net.hasor.dbvisitor.dal.session.DalContext;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
-import net.hasor.dbvisitor.page.PageResult;
+import net.hasor.dbvisitor.mapper.ResultSetType;
+import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 
@@ -37,7 +37,7 @@ import java.util.List;
  * @version : 2021-07-20
  */
 public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
-    public PreparedStatementExecute(RegistryManager context) {
+    public PreparedStatementExecute(DalContext context) {
         super(context);
     }
 

@@ -22,7 +22,7 @@ import net.hasor.dbvisitor.mapping.keyseq.*;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-12-01
  */
-public enum KeyTypeEnum {
+public enum KeyType {
     /** 不指定 */
     None(null),
     /** 不会主动生成自增，但会接收来自数据库的自增 */
@@ -36,21 +36,21 @@ public enum KeyTypeEnum {
     /** 通过 @KeyHolder 注解来自定义生成策略 */
     Holder(new HolderKeySeqHolderFactory());
 
-    private final KeySeqHolderFactory factory;
+    private final GeneratedKeyHandlerFactory factory;
 
-    KeyTypeEnum(KeySeqHolderFactory factory) {
+    KeyType(GeneratedKeyHandlerFactory factory) {
         this.factory = factory;
     }
 
-    public KeySeqHolder createHolder(KeySeqHolderContext context) throws ClassNotFoundException {
+    public GeneratedKeyHandler createHolder(GeneratedKeyHandlerContext context) throws ClassNotFoundException {
         if (this.factory == null) {
             return null;
         }
         return this.factory.createHolder(context);
     }
 
-    public static KeyTypeEnum valueOfCode(String code) {
-        for (KeyTypeEnum keyType : KeyTypeEnum.values()) {
+    public static KeyType valueOfCode(String code) {
+        for (KeyType keyType : KeyType.values()) {
             if (StringUtils.equalsIgnoreCase(keyType.name(), code)) {
                 return keyType;
             }

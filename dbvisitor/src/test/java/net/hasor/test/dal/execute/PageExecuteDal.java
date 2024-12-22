@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.test.dal.execute;
-import net.hasor.dbvisitor.dal.mapper.BaseMapper;
-import net.hasor.dbvisitor.dal.repository.Param;
-import net.hasor.dbvisitor.dal.repository.RefMapper;
-import net.hasor.dbvisitor.page.Page;
-import net.hasor.dbvisitor.page.PageResult;
+import net.hasor.dbvisitor.mapper.BaseMapper;
+import net.hasor.dbvisitor.mapper.Param;
+import net.hasor.dbvisitor.mapper.RefMapper;
+import net.hasor.dbvisitor.dialect.Page;
+import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.test.dto.UserInfo;
 
 import java.util.List;

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dal.execute;
-import net.hasor.dbvisitor.dal.repository.ResultSetType;
+import net.hasor.dbvisitor.dal.session.DalContext;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.mapper.ResultSetType;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -31,7 +31,7 @@ import java.util.List;
  * @version : 2021-07-20
  */
 public class StatementExecute extends AbstractStatementExecute<Object> {
-    public StatementExecute(RegistryManager context) {
+    public StatementExecute(DalContext context) {
         super(context);
     }
 

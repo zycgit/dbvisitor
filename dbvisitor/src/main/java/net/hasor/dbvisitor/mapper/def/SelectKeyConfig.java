@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.def;
-import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
+import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
+import net.hasor.dbvisitor.mapper.ResultSetType;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -29,30 +30,64 @@ import java.util.function.Function;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-10-04
  */
-public class SelectKeyConfig extends SelectConfig {
-    private String  keyProperty = null;
-    private String  keyColumn   = null;
-    private String  order       = null;
-    private String  handler     = null;
-    private boolean ignoreBuild = true;
+public class SelectKeyConfig extends SqlConfig {
+    private       int           fetchSize     = 256;
+    private       ResultSetType resultSetType = ResultSetType.DEFAULT;
+    private       String        keyProperty   = null;
+    private       String        keyColumn     = null;
+    private       String        order         = null;
+    private final boolean       ignoreBuild;
 
-    public SelectKeyConfig(DynamicSql target, Function<String, String> config) {
+    public SelectKeyConfig(ArrayDynamicSql target, Function<String, String> config, boolean ignoreBuild) {
         super(target, config);
 
         if (config != null) {
             this.keyProperty = config.apply(KEY_PROPERTY);
             this.keyColumn = config.apply(KEY_COLUMN);
             this.order = config.apply(ORDER);
-            this.handler = config.apply(HANDLER);
         }
+
+        this.ignoreBuild = ignoreBuild;
     }
 
-    public DynamicSql getTarget() {
+    SelectKeyConfig(SelectKeyConfig keyConfig, boolean ignoreBuild) {
+        super(keyConfig.target, null);
+
+        this.setStatementType(keyConfig.getStatementType());
+        this.setTimeout(keyConfig.getTimeout());
+        this.keyProperty = keyConfig.keyProperty;
+        this.keyColumn = keyConfig.keyColumn;
+        this.order = keyConfig.order;
+        this.ignoreBuild = ignoreBuild;
+    }
+
+    @Override
+    public QueryType getType() {
+        return QueryType.Select;
+    }
+
+    public ArrayDynamicSql getTarget() {
         return this.target;
     }
 
-    public void setTarget(DynamicSql target) {
+    public void setTarget(ArrayDynamicSql target) {
         this.target = target;
+    }
+
+    public int getFetchSize() {
+        return this.fetchSize;
+    }
+
+    public void setFetchSize(int fetchSize) {
+        this.fetchSize = fetchSize;
+    }
+
+    public ResultSetType getResultSetType() {
+        return this.resultSetType;
+    }
+
+    public void setResultSetType(ResultSetType resultSetType) {
+        this.resultSetType = resultSetType;
     }
 
     public String getKeyProperty() {
@@ -77,22 +112,6 @@ public class SelectKeyConfig extends SelectConfig {
 
     public void setOrder(String order) {
         this.order = order;
-    }
-
-    public String getHandler() {
-        return this.handler;
-    }
-
-    public void setHandler(String handler) {
-        this.handler = handler;
-    }
-
-    protected boolean isIgnoreBuild() {
-        return this.ignoreBuild;
-    }
-
-    protected void setIgnoreBuild(boolean ignoreBuild) {
-        this.ignoreBuild = ignoreBuild;
     }
 
     @Override
