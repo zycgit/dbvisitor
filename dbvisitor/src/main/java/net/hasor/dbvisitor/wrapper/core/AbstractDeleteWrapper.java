@@ -17,8 +17,8 @@ package net.hasor.dbvisitor.wrapper.core;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.wrapper.segment.MergeSqlSegment;
 
 import java.sql.SQLException;

@@ -161,13 +161,8 @@ public class MappingRegistry {
                 idStr = typeString;
             }
 
-            if (isEntity) {
-                TableDef<?> def = this.xmlMappingResolve.resolveTableMapping(node, optInfile, this.classLoader, this.typeRegistry);
-                this.saveDefToSpace(space, idStr, def, true);
-            } else {
-                TableDef<?> def = this.xmlMappingResolve.resolveTableMapping(node, optInfile, this.classLoader, this.typeRegistry);
-                this.saveDefToSpace(space, idStr, def, false);
-            }
+            TableDef<?> def = this.xmlMappingResolve.resolveTableMapping(node, optInfile, this.classLoader, this.typeRegistry);
+            this.saveDefToSpace(space, idStr, def, isEntity);
         }
     }
 

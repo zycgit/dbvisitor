@@ -20,22 +20,25 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 标记在类型上表示映射到的表
- * - 若注解与 xml 同时配置 XML 将会覆盖注解。
- * - 若xml 配置为 resultMap 会把 catalog/schema/table or value 设置为空。
+ * 可以用在方法和类型上，相当于 XML 中的 resultMap 配置。
+ * <li>在类型上：表示该类型作为结果集映射</li>
+ * <li>在方法上：当标记在方法上时用来表示引用的 resultMap。</li>
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-10-31
  */
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ResultMap {
     /** space */
     String space() default "";
 
-    /** 映射ID，为空的话表示采用类名为表名 see: {@link #id()} */
+    /**
+     * 映射ID，同一个 space 下 ID 不能重复。配置为空表示采用类名作为 ID see: {@link #id()}
+     * - value 和 id 具有同等作用，目的是为了简化配置。
+     */
     String value() default "";
 
-    /** 映射ID，为空的话表示采用类名为表名 see: {@link #value()} */
+    /** 映射ID，同一个 space 下 ID 不能重复。配置为空表示采用类名作为 ID see: {@link #value()} */
     String id() default "";
 
     /** 是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Column 注解声明 */

@@ -18,7 +18,7 @@ import net.hasor.cobble.WellKnowFormat;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.custom.MyStringTypeHandler1;
 import net.hasor.dbvisitor.types.custom.UserTable;
 import net.hasor.test.types.MyTypeHandler;

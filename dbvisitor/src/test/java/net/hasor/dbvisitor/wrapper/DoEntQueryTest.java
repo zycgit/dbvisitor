@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.wrapper;
-import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
+import net.hasor.dbvisitor.template.jdbc.extractor.RowMapperResultSetExtractor;
+import net.hasor.dbvisitor.template.jdbc.mapper.ColumnMapRowMapper;
 import net.hasor.dbvisitor.wrapper.dto.AnnoUserInfoDTO;
 import net.hasor.dbvisitor.wrapper.dto.UserInfo;
 import net.hasor.test.dto.UserInfo2;

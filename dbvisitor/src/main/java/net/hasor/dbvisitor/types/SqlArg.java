@@ -15,9 +15,9 @@
  */
 package net.hasor.dbvisitor.types;
 import net.hasor.dbvisitor.dynamic.SqlMode;
-import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
-import net.hasor.dbvisitor.jdbc.RowMapper;
+import net.hasor.dbvisitor.template.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.template.jdbc.RowCallbackHandler;
+import net.hasor.dbvisitor.template.jdbc.RowMapper;
 
 import java.util.Objects;
 

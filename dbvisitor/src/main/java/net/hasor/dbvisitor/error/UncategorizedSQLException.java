@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.error;
-import net.hasor.dbvisitor.jdbc.SqlProvider;
+import net.hasor.dbvisitor.template.jdbc.SqlProvider;
 
 import java.sql.SQLException;
 

@@ -19,10 +19,10 @@ import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.wrapper.DuplicateKeyStrategy;
 

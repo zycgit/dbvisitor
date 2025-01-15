@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.handler.number.FloatTypeHandler;
 import net.hasor.test.utils.DsUtils;

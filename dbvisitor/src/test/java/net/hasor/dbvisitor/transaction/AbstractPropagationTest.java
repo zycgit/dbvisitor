@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.transaction;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.test.AbstractDbTest;
 
 import javax.sql.DataSource;

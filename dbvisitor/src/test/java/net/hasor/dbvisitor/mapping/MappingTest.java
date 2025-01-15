@@ -15,8 +15,8 @@
  */
 package net.hasor.dbvisitor.mapping;
 import net.hasor.cobble.WellKnowFormat;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.dto.MultipleMappingBean1;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
