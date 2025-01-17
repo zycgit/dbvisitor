@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.def;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
@@ -36,28 +37,23 @@ public class SelectKeyConfig extends SqlConfig {
     private       String        keyProperty   = null;
     private       String        keyColumn     = null;
     private       String        order         = null;
+    private       String        resultType    = null;
+    private       String        resultHandler = null;
     private final boolean       ignoreBuild;
 
     public SelectKeyConfig(ArrayDynamicSql target, Function<String, String> config, boolean ignoreBuild) {
         super(target, config);
 
         if (config != null) {
+            this.fetchSize = Integer.parseInt(config.andThen(s -> StringUtils.isBlank(s) ? "256" : s).apply(FETCH_SIZE));
+            this.resultSetType = config.andThen(s -> ResultSetType.valueOfCode(s, ResultSetType.DEFAULT)).apply(RESULT_SET_TYPE);
             this.keyProperty = config.apply(KEY_PROPERTY);
             this.keyColumn = config.apply(KEY_COLUMN);
             this.order = config.apply(ORDER);
+            this.resultType = config.apply(RESULT_TYPE);
+            this.resultHandler = config.apply(RESULT_HANDLER);
         }
 
-        this.ignoreBuild = ignoreBuild;
-    }
-
-    SelectKeyConfig(SelectKeyConfig keyConfig, boolean ignoreBuild) {
-        super(keyConfig.target, null);
-
-        this.setStatementType(keyConfig.getStatementType());
-        this.setTimeout(keyConfig.getTimeout());
-        this.keyProperty = keyConfig.keyProperty;
-        this.keyColumn = keyConfig.keyColumn;
-        this.order = keyConfig.order;
         this.ignoreBuild = ignoreBuild;
     }
 
@@ -112,6 +108,22 @@ public class SelectKeyConfig extends SqlConfig {
 
     public void setOrder(String order) {
         this.order = order;
+    }
+
+    public String getResultType() {
+        return this.resultType;
+    }
+
+    public void setResultType(String resultType) {
+        this.resultType = resultType;
+    }
+
+    public String getResultHandler() {
+        return this.resultHandler;
+    }
+
+    public void setResultHandler(String resultHandler) {
+        this.resultHandler = resultHandler;
     }
 
     @Override

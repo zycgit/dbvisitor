@@ -24,8 +24,6 @@ public interface ConfigKeys {
     String STATEMENT_TYPE  = "statementType";
     String TIMEOUT         = "timeout";
     // DQL
-    String RESULT_MAP      = "resultMap";
-    String RESULT_TYPE     = "resultType";
     String FETCH_SIZE      = "fetchSize";
     String RESULT_SET_TYPE = "resultSetType";
     String BIND_OUT        = "bindOut";
@@ -35,4 +33,6 @@ public interface ConfigKeys {
     String KEY_COLUMN      = "keyColumn";
     // SELECT KEY
     String ORDER           = "order";
+    String RESULT_TYPE     = "resultType";
+    String RESULT_HANDLER  = "resultHandler";
 }

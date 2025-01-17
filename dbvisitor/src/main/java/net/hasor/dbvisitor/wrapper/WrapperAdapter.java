@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.wrapper;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
+import net.hasor.dbvisitor.mapping.MappingHelper;
 import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableDef;
@@ -207,7 +208,7 @@ public class WrapperAdapter implements WrapperOperations {
         boolean usingAutoProperty = usingOpt.getAutoMapping() == null || usingOpt.getAutoMapping();
         boolean usingUseDelimited = Boolean.TRUE.equals(usingOpt.getUseDelimited());
         boolean usingMapUnderscoreToCamelCase = Boolean.TRUE.equals(usingOpt.getMapUnderscoreToCamelCase());
-        boolean usingCaseInsensitive = usingOpt.getCaseInsensitive() == null || usingOpt.getCaseInsensitive();
+        boolean usingCaseInsensitive = MappingHelper.caseInsensitive(usingOpt);
 
         SqlDialect defaultDialect = this.registry.getMappingRegistry().getGlobalOptions().getDefaultDialect();
         TableDef<?> def = new TableDef<>(catalog, schema, table, LinkedHashMap.class, defaultDialect,//

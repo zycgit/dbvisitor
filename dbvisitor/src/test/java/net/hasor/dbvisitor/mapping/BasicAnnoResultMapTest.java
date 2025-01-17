@@ -32,7 +32,7 @@ public class BasicAnnoResultMapTest {
     @Test
     public void annoResultMap_1_1() {
         MappingRegistry registry = new MappingRegistry();
-        TableMapping<?> tab = registry.loadResultMap(AnnoResultMapBean1.class);
+        TableMapping<?> tab = registry.loadResultMapToSpace(AnnoResultMapBean1.class);
 
         assert tab.getCatalog().equals("");
         assert tab.getSchema().equals("");
@@ -98,7 +98,7 @@ public class BasicAnnoResultMapTest {
     @Test
     public void annoResultMap_1_2() {
         MappingRegistry registry = new MappingRegistry();
-        TableMapping<?> tab = registry.loadResultMap(AnnoTableBean1.class);
+        TableMapping<?> tab = registry.loadResultMapToSpace(AnnoTableBean1.class);
 
         assert tab.getCatalog().equals("");
         assert tab.getSchema().equals("");
@@ -188,7 +188,7 @@ public class BasicAnnoResultMapTest {
     @Test
     public void annoResultMap_2_1() {
         MappingRegistry registry = new MappingRegistry();
-        TableMapping<?> ent1 = registry.loadResultMap(AnnoResultMapBean1.class);
+        TableMapping<?> ent1 = registry.loadResultMapToSpace(AnnoResultMapBean1.class);
 
         TableMapping<?> def1 = registry.findByEntity(AnnoResultMapBean1.class);
         TableMapping<?> def2 = registry.findBySpace("", AnnoResultMapBean1.class);
@@ -202,7 +202,7 @@ public class BasicAnnoResultMapTest {
     @Test
     public void annoResultMap_2_2() {
         MappingRegistry registry = new MappingRegistry();
-        TableMapping<?> ent1 = registry.loadResultMap(AnnoTableBean1.class);
+        TableMapping<?> ent1 = registry.loadResultMapToSpace(AnnoTableBean1.class);
 
         TableMapping<?> def1 = registry.findByEntity(AnnoTableBean1.class);
         TableMapping<?> def2 = registry.findBySpace("", AnnoTableBean1.class);
@@ -220,7 +220,7 @@ public class BasicAnnoResultMapTest {
     @Test
     public void annoResultMap_3_1() {
         MappingRegistry registry = new MappingRegistry();
-        TableMapping<?> ent1 = registry.loadResultMap(AnnoTableBean1.class, "abc", "aac");
+        TableMapping<?> ent1 = registry.loadResultMapToSpace(AnnoTableBean1.class, "abc", "aac");
 
         TableMapping<?> def1 = registry.findByEntity(AnnoTableBean1.class);
         TableMapping<?> def2 = registry.findBySpace("", AnnoTableBean1.class);
@@ -242,7 +242,7 @@ public class BasicAnnoResultMapTest {
     @Test
     public void annoResultMap_3_2() {
         MappingRegistry registry = new MappingRegistry();
-        TableMapping<?> ent1 = registry.loadResultMap(AnnoTableBean1.class, "abc", "aac");
+        TableMapping<?> ent1 = registry.loadResultMapToSpace(AnnoTableBean1.class, "abc", "aac");
 
         TableMapping<?> def1 = registry.findByEntity(AnnoTableBean1.class);
         TableMapping<?> def2 = registry.findBySpace("", AnnoTableBean1.class);
@@ -268,7 +268,7 @@ public class BasicAnnoResultMapTest {
     @Test
     public void annoResultMap_4() {
         MappingRegistry registry = new MappingRegistry();
-        TableMapping<?> ent1 = registry.loadResultMap(AnnoResultMapBean2.class);
+        TableMapping<?> ent1 = registry.loadResultMapToSpace(AnnoResultMapBean2.class);
 
         TableMapping<?> def1 = registry.findByEntity(AnnoResultMapBean2.class);
         TableMapping<?> def2 = registry.findBySpace("abc", "aac");
@@ -279,7 +279,7 @@ public class BasicAnnoResultMapTest {
     @Test
     public void annoResultMap_5() {
         MappingRegistry registry = new MappingRegistry();
-        TableMapping<?> ent1 = registry.loadResultMap(AnnoResultMapBean3.class);
+        TableMapping<?> ent1 = registry.loadResultMapToSpace(AnnoResultMapBean3.class);
 
         TableMapping<?> def1 = registry.findByEntity(AnnoResultMapBean3.class);
         TableMapping<?> def2 = registry.findBySpace("abc", AnnoResultMapBean3.class);
@@ -293,10 +293,10 @@ public class BasicAnnoResultMapTest {
     @Test
     public void error_1() {
         MappingRegistry registry = new MappingRegistry();
-        registry.loadResultMap(AnnoTableBean1.class);
+        registry.loadResultMapToSpace(AnnoTableBean1.class);
 
         try {
-            registry.loadResultMap(AnnoTableBean1.class);
+            registry.loadResultMapToSpace(AnnoTableBean1.class);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().endsWith("the resultMap '" + AnnoTableBean1.class.getName() + "' already exists.");
@@ -306,10 +306,10 @@ public class BasicAnnoResultMapTest {
     @Test
     public void error_2() {
         MappingRegistry registry = new MappingRegistry();
-        registry.loadResultMap(AnnoResultMapBean2.class);
+        registry.loadResultMapToSpace(AnnoResultMapBean2.class);
 
         try {
-            registry.loadResultMap(AnnoResultMapBean2.class);
+            registry.loadResultMapToSpace(AnnoResultMapBean2.class);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().endsWith("the resultMap 'abc.aac' already exists.");

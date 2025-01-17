@@ -39,7 +39,7 @@ public class RegistryManager {
         this.ruleRegistry = new RuleRegistry();
         this.macroRegistry = new MacroRegistry();
         this.mappingRegistry = new MappingRegistry(null, this.typeRegistry, MappingOptions.buildNew());
-        this.mapperRegistry = new MapperRegistry(this.mappingRegistry, this.typeRegistry);
+        this.mapperRegistry = new MapperRegistry(this.macroRegistry, this.mappingRegistry, this.typeRegistry);
     }
 
     public RegistryManager(MappingRegistry mapping, RuleRegistry rule, MacroRegistry macro) {
@@ -49,7 +49,7 @@ public class RegistryManager {
         this.ruleRegistry = rule != null ? rule : RuleRegistry.DEFAULT;
         this.macroRegistry = macro != null ? macro : MacroRegistry.DEFAULT;
         this.mappingRegistry = usingMapping;
-        this.mapperRegistry = new MapperRegistry(this.mappingRegistry, this.typeRegistry);
+        this.mapperRegistry = new MapperRegistry(this.macroRegistry, this.mappingRegistry, this.typeRegistry);
     }
 
     public RegistryManager(TypeHandlerRegistry type, RuleRegistry rule, MacroRegistry macro) {
@@ -60,7 +60,7 @@ public class RegistryManager {
         this.ruleRegistry = rule != null ? rule : RuleRegistry.DEFAULT;
         this.macroRegistry = macro != null ? macro : MacroRegistry.DEFAULT;
         this.mappingRegistry = usingMapping;
-        this.mapperRegistry = new MapperRegistry(this.mappingRegistry, this.typeRegistry);
+        this.mapperRegistry = new MapperRegistry(this.macroRegistry, this.mappingRegistry, this.typeRegistry);
     }
 
     @Deprecated

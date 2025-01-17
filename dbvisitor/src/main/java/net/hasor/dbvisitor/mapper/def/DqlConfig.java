@@ -27,8 +27,6 @@ import java.util.function.Function;
  * @version : 2021-06-19
  */
 public abstract class DqlConfig extends SqlConfig {
-    private String        resultMap     = null;
-    private String        resultType    = null;
     private int           fetchSize     = 256;
     private ResultSetType resultSetType = ResultSetType.DEFAULT;
     private String[]      bindOut       = ArrayUtils.EMPTY_STRING_ARRAY;
@@ -37,28 +35,10 @@ public abstract class DqlConfig extends SqlConfig {
         super(target, config);
 
         if (config != null) {
-            this.resultMap = config.apply(RESULT_MAP);
-            this.resultType = config.apply(RESULT_TYPE);
             this.fetchSize = Integer.parseInt(config.andThen(s -> StringUtils.isBlank(s) ? "256" : s).apply(FETCH_SIZE));
             this.resultSetType = config.andThen(s -> ResultSetType.valueOfCode(s, ResultSetType.DEFAULT)).apply(RESULT_SET_TYPE);
             this.bindOut = config.andThen(s -> StringUtils.isNotBlank(s) ? s.split(",") : ArrayUtils.EMPTY_STRING_ARRAY).apply(BIND_OUT);
         }
-    }
-
-    public String getResultMap() {
-        return this.resultMap;
-    }
-
-    public void setResultMap(String resultMap) {
-        this.resultMap = resultMap;
-    }
-
-    public String getResultType() {
-        return this.resultType;
-    }
-
-    public void setResultType(String resultType) {
-        this.resultType = resultType;
     }
 
     public int getFetchSize() {

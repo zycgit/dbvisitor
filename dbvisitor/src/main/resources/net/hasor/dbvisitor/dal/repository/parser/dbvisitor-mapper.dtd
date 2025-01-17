@@ -14,7 +14,7 @@
        See the License for the specific language governing permissions and
        limitations under the License.
 -->
-<!ELEMENT mapper ( resultMap* | entity* | sql* | insert* | update* | execute* | delete* | select* )+>
+<!ELEMENT mapper ( resultMap* | entity* | sql* | execute* | insert* | update* | delete* | select* )+>
 <!ATTLIST mapper
         namespace CDATA #IMPLIED
         caseInsensitive (true|false) #IMPLIED
@@ -134,7 +134,7 @@
         timeout CDATA #IMPLIED
         useGeneratedKeys CDATA #IMPLIED
         keyProperty CDATA #IMPLIED
-        parameterType CDATA #IMPLIED
+        keyColumn CDATA #IMPLIED
         >
 
 <!ELEMENT update (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
@@ -155,13 +155,13 @@
 <!ATTLIST selectKey
         statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
         timeout CDATA #IMPLIED
-        resultType CDATA #IMPLIED
         fetchSize CDATA #IMPLIED
         resultSetType CDATA #IMPLIED
         keyProperty CDATA #REQUIRED
         keyColumn CDATA #IMPLIED
         order (BEFORE|AFTER) #IMPLIED
-        handler CDATA #IMPLIED
+        resultType CDATA #IMPLIED
+        resultHandler CDATA #IMPLIED
         >
 
 <!ELEMENT delete (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>

@@ -16,28 +16,24 @@
 package net.hasor.dbvisitor.mapping;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.function.EConsumer;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.cobble.reflect.Annotation;
-import net.hasor.cobble.reflect.Annotations;
 import net.hasor.dbvisitor.mapping.def.TableDef;
-import net.hasor.dbvisitor.mapping.def.TableDescDef;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.resolve.ClassTableMappingResolve;
 import net.hasor.dbvisitor.mapping.resolve.XmlTableMappingResolve;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.w3c.dom.*;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -55,6 +51,7 @@ public class MappingRegistry {
     protected final      MappingOptions                                                      global;
     private final        XmlTableMappingResolve                                              xmlMappingResolve;
     private final        ClassTableMappingResolve                                            entityClassResolve;
+    protected final      Set<String>                                                         loaded;
 
     public MappingRegistry() {
         this(null, TypeHandlerRegistry.DEFAULT, MappingOptions.buildNew());
@@ -75,6 +72,7 @@ public class MappingRegistry {
         this.global = global;
         this.xmlMappingResolve = new XmlTableMappingResolve();
         this.entityClassResolve = new ClassTableMappingResolve();
+        this.loaded = new HashSet<>();
     }
 
     public static <T> boolean isEntity(Class<T> testClass) {
@@ -109,26 +107,21 @@ public class MappingRegistry {
             name = name.substring(1);
         }
 
-        try (InputStream stream = ResourcesUtils.getResourceAsStream(this.classLoader, name)) {
-            Objects.requireNonNull(stream, "resource '" + resource + "' is not exist.");
-            logger.info("loadMapper '" + resource + "'");
-            this.loadMapper(stream);
-        }
-    }
+        tryLoaded(name, s -> {
+            try (InputStream stream = ResourcesUtils.getResourceAsStream(this.classLoader, s)) {
+                Objects.requireNonNull(stream, "resource '" + s + "' is not exist.");
+                try {
+                    Document document = MappingHelper.loadXmlRoot(stream, getClassLoader());
+                    Element root = document.getDocumentElement();
+                    NamedNodeMap rootAttributes = root.getAttributes();
 
-    /** load `mapper.xml` */
-    public void loadMapper(InputStream stream) throws IOException {
-        Objects.requireNonNull(stream, "load InputStream is null.");
-        try {
-            Document document = loadXmlRoot(stream);
-            Element root = document.getDocumentElement();
-            NamedNodeMap rootAttributes = root.getAttributes();
-
-            String namespace = readAttribute("namespace", rootAttributes);
-            this.loadMapper(namespace, root);
-        } catch (ParserConfigurationException | SAXException | ReflectiveOperationException e) {
-            throw new IOException(e);
-        }
+                    String namespace = MappingHelper.readAttribute("namespace", rootAttributes);
+                    this.loadMapper(namespace, root);
+                } catch (ParserConfigurationException | SAXException | ReflectiveOperationException e) {
+                    throw new IOException(e);
+                }
+            }
+        });
     }
 
     protected void loadMapper(String space, Element configRoot) throws IOException, ReflectiveOperationException {
@@ -166,22 +159,18 @@ public class MappingRegistry {
         }
     }
 
-    /** load entity type */
+    /** load entity, optional annotation @Table. (space = "", name = classFullName) */
     public <T> TableMapping<T> loadEntityToSpace(Class<T> entityType) {
-        if (entityType == null) {
-            throw new IllegalArgumentException("entityType is null.");
-        }
-
-        try {
-            TableDef<T> def = this.entityClassResolve.resolveTableMapping(entityType, this.global, this.classLoader, this.typeRegistry);
-
-            return this.saveDefToSpace("", entityType.getName(), def, true);
-        } catch (IOException | ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
+        return this.loadEntityToSpace(entityType, "", entityType.getName());
     }
 
-    /** load entity type, and save to specify space. */
+    /** load entity, optional annotation @Table. (space = argument, name = classFullName) */
+    public <T> TableMapping<T> loadEntityToSpace(Class<T> entityType, String space) {
+        space = StringUtils.isBlank(space) ? "" : space;
+        return this.loadEntityToSpace(entityType, space, entityType.getName());
+    }
+
+    /** load entity, optional annotation @Table. (space = argument, name = argument) */
     public <T> TableMapping<T> loadEntityToSpace(Class<T> entityType, String space, String name) {
         if (entityType == null) {
             throw new IllegalArgumentException("entityType is null.");
@@ -199,8 +188,8 @@ public class MappingRegistry {
         }
     }
 
-    /** load entity type, and using specify table name config it. (space is "" name is type full name) */
-    public <T> TableMapping<T> loadEntityToTable(Class<T> entityType, String table) {
+    /** load entity and override table info with argument, optional annotation @Table. (space = "", name = classFullName) */
+    public <T> TableMapping<T> loadEntityAsTable(Class<T> entityType, String table) {
         if (entityType == null) {
             throw new IllegalArgumentException("entityType is null.");
         }
@@ -211,10 +200,6 @@ public class MappingRegistry {
         try {
             TableDef<T> def = this.entityClassResolve.resolveTableMapping(entityType, this.global, this.classLoader, this.typeRegistry);
             def.setTable(table);
-            if (def.getDescription() == null) {
-                def.setDescription(new TableDescDef());
-                ((TableDescDef) def.getDescription()).setDdlAuto(DdlAuto.None);
-            }
 
             return this.saveDefToSpace("", entityType.getName(), def, true);
         } catch (IOException | ReflectiveOperationException e) {
@@ -222,8 +207,8 @@ public class MappingRegistry {
         }
     }
 
-    /** load entity type, and using specify table name config it. (space is "" name is type full name) */
-    public <T> TableMapping<T> loadEntityToTable(Class<T> entityType, String catalog, String schema, String table) {
+    /** load entity and override table info with argument, optional annotation @Table. (space = "", name = classFullName) */
+    public <T> TableMapping<T> loadEntityAsTable(Class<T> entityType, String catalog, String schema, String table) {
         if (entityType == null) {
             throw new IllegalArgumentException("entityType is null.");
         }
@@ -243,38 +228,23 @@ public class MappingRegistry {
         }
     }
 
-    /** load entity type */
-    public <T> TableMapping<T> loadResultMap(Class<T> resultType) {
+    /** load resultMap, optional annotation @ResultMap. (when @ResultMap does not exist then, space = "" , name = classFullName) */
+    public <T> TableMapping<T> loadResultMapToSpace(Class<T> resultType) {
         if (resultType == null) {
             throw new IllegalArgumentException("resultType is null.");
         }
 
         try {
             TableDef<T> def = this.entityClassResolve.resolveTableMapping(resultType, this.global, this.classLoader, this.typeRegistry);
-
-            String space;
-            String name;
-            Annotations classAnno = Annotations.ofClass(resultType);
-            Annotation annotation = classAnno.getAnnotation(ResultMap.class);
-            if (annotation != null) {
-                space = annotation.getString("space", "");
-                name = annotation.getString("id", "");
-                if (StringUtils.isBlank(name)) {
-                    name = annotation.getString("value", resultType.getName());
-                }
-            } else {
-                space = "";
-                name = resultType.getName();
-            }
-
-            return this.saveDefToSpace(space, name, def, false);
+            MappingHelper.NameInfo nameInfo = MappingHelper.findNameInfo(resultType);
+            return this.saveDefToSpace(nameInfo.getSpace(), nameInfo.getName(), def, false);
         } catch (IOException | ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
     }
 
-    /** load entity type */
-    public <T> TableMapping<T> loadResultMap(Class<T> resultType, String space, String name) {
+    /** load resultMap, override annotation @ResultMap if present. (space = argument , name = argument) */
+    public <T> TableMapping<T> loadResultMapToSpace(Class<T> resultType, String space, String name) {
         if (resultType == null) {
             throw new IllegalArgumentException("resultType is null.");
         }
@@ -373,6 +343,7 @@ public class MappingRegistry {
         }
     }
 
+    /** find Entity using (catalog = "", schema = "", table = argument, specifyName = ""), specifyName */
     public <T> TableMapping<T> findByTable(String table) {
         return this.findByTable(null, null, table, null);
     }
@@ -407,38 +378,13 @@ public class MappingRegistry {
     }
 
     // --------------------------------------------------------------------------------------------
-    private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();
 
-    protected Document loadXmlRoot(InputStream stream) throws ParserConfigurationException, IOException, SAXException {
-        if (stream == null) {
-            throw new NullPointerException("stream is null.");
+    private void tryLoaded(String target, EConsumer<String, IOException> call) throws IOException {
+        String cacheKey = "RES::" + target;
+        if (!loaded.contains(cacheKey)) {
+            logger.info("loadMapping '" + target + "'");
+            call.eAccept(target);
+            this.loaded.add(cacheKey);
         }
-        DocumentBuilder documentBuilder = FACTORY.newDocumentBuilder();
-        documentBuilder.setEntityResolver((publicId, systemId) -> {
-            boolean mybatisDTD = StringUtils.equalsIgnoreCase("-//mybatis.org//DTD Mapper 3.0//EN", publicId) || StringUtils.containsIgnoreCase(systemId, "mybatis-3-mapper.dtd");
-            boolean dbVisitorDTD = StringUtils.equalsIgnoreCase("-//dbvisitor.net//DTD Mapper 1.0//EN", publicId) || StringUtils.containsIgnoreCase(systemId, "dbvisitor-mapper.dtd");
-            if (dbVisitorDTD) {
-                InputSource source = new InputSource(getClassLoader().getResourceAsStream("net/hasor/dbvisitor/dal/repository/parser/dbvisitor-mapper.dtd"));
-                source.setPublicId(publicId);
-                source.setSystemId(systemId);
-                return source;
-            } else if (mybatisDTD) {
-                InputSource source = new InputSource(getClassLoader().getResourceAsStream("net/hasor/dbvisitor/dal/repository/parser/mybatis-3-mapper.dtd"));
-                source.setPublicId(publicId);
-                source.setSystemId(systemId);
-                return source;
-            } else {
-                return new DefaultHandler().resolveEntity(publicId, systemId);
-            }
-        });
-        return documentBuilder.parse(new InputSource(stream));
-    }
-
-    protected String readAttribute(String key, NamedNodeMap nodeAttributes) {
-        if (nodeAttributes != null) {
-            Node node = nodeAttributes.getNamedItem(key);
-            return (node != null) ? node.getNodeValue() : null;
-        }
-        return null;
     }
 }

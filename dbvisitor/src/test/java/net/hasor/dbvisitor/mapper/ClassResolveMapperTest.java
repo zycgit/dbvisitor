@@ -15,10 +15,35 @@
  */
 package net.hasor.dbvisitor.mapper;
 
+import net.hasor.cobble.CollectionUtils;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.mapper.dto.AnnoQueryMapper;
+import net.hasor.dbvisitor.types.SqlArg;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Map;
+
 /**
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-12-10
  */
 public class ClassResolveMapperTest {
+    @Test
+    public void annoQuery_1() throws ReflectiveOperationException, IOException, SQLException {
+        Map<String, Object> ctx = CollectionUtils.asMap("abc", "this is abc");
+        MapperRegistry registry = new MapperRegistry();
+        registry.loadMapper(AnnoQueryMapper.class);
 
+        StatementDef testSelectArg = registry.findStatement(AnnoQueryMapper.class, "testSelectArg");
+        assert testSelectArg != null;
+        assert testSelectArg.getNamespace().equals(AnnoQueryMapper.class.getName());
+
+        SqlBuilder sqlBuilder = testSelectArg.buildQuery(ctx, new RegistryManager());
+        assert sqlBuilder.getSqlString().equals("select * from console_job where aac = ?");
+        assert sqlBuilder.getArgs().length == 1;
+        assert ((SqlArg) sqlBuilder.getArgs()[0]).getValue().equals("this is abc");
+    }
 }

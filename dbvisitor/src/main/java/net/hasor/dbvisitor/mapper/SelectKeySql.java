@@ -15,6 +15,9 @@
  */
 package net.hasor.dbvisitor.mapper;
 
+import net.hasor.dbvisitor.types.TypeHandler;
+import net.hasor.dbvisitor.types.handler.UnknownTypeHandler;
+
 import java.lang.annotation.*;
 
 /**
@@ -41,4 +44,8 @@ public @interface SelectKeySql {
     String keyColumn();
 
     Order order();
+
+    Class<?> resultType() default Object.class;
+
+    Class<? extends TypeHandler> resultHandler() default UnknownTypeHandler.class;
 }

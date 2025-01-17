@@ -24,9 +24,9 @@ import java.util.List;
  * @version : 2013-12-10
  */
 @SimpleMapper
-public interface TestQueryMapper {
+public interface AnnoQueryMapper {
     @Query(value = "select * from console_job where aac = #{abc}")
-    List<UserInfo> testBind(String abc);
+    List<UserInfo> testSelectArg(String abc);
 
     @Query(value = "select * from t_blog where title = #{title} and content = #{content}")
     List<UserInfo> testChoose(String title, String content);

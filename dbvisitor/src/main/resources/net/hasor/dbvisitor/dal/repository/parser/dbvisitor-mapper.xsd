@@ -50,6 +50,7 @@
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="resultMap"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="entity"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="sql"/>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="execute"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="insert"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="update"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="delete"/>
@@ -186,46 +187,6 @@
         <xs:attribute name="other"/>
     </xs:complexType>
 
-    <xs:element name="insert">
-        <xs:complexType mixed="true">
-            <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element ref="selectKey"/>
-                <xs:element ref="include"/>
-                <xs:element ref="trim"/>
-                <xs:element ref="where"/>
-                <xs:element ref="set"/>
-                <xs:element ref="foreach"/>
-                <xs:element ref="choose"/>
-                <xs:element ref="if"/>
-                <xs:element ref="bind"/>
-            </xs:choice>
-            <xs:attribute name="id" use="required"/>
-            <xs:attribute name="statementType" type="statementType_type"/>
-            <xs:attribute name="timeout"/>
-            <xs:attribute name="useGeneratedKeys" type="boolean_type"/>
-            <xs:attribute name="keyProperty"/>
-            <xs:attribute name="parameterType"/>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:element name="update">
-        <xs:complexType mixed="true">
-            <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element ref="include"/>
-                <xs:element ref="trim"/>
-                <xs:element ref="where"/>
-                <xs:element ref="set"/>
-                <xs:element ref="foreach"/>
-                <xs:element ref="choose"/>
-                <xs:element ref="if"/>
-                <xs:element ref="bind"/>
-            </xs:choice>
-            <xs:attribute name="id" use="required"/>
-            <xs:attribute name="statementType" type="statementType_type"/>
-            <xs:attribute name="timeout"/>
-        </xs:complexType>
-    </xs:element>
-
     <xs:element name="execute">
         <xs:complexType mixed="true">
             <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -244,7 +205,29 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="selectKey">
+    <xs:element name="insert">
+        <xs:complexType mixed="true">
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="selectKey"/>
+                <xs:element ref="include"/>
+                <xs:element ref="trim"/>
+                <xs:element ref="where"/>
+                <xs:element ref="set"/>
+                <xs:element ref="foreach"/>
+                <xs:element ref="choose"/>
+                <xs:element ref="if"/>
+                <xs:element ref="bind"/>
+            </xs:choice>
+            <xs:attribute name="id" use="required"/>
+            <xs:attribute name="statementType" type="statementType_type"/>
+            <xs:attribute name="timeout"/>
+            <xs:attribute name="useGeneratedKeys" type="boolean_type"/>
+            <xs:attribute name="keyProperty"/>
+            <xs:attribute name="keyColumn"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="update">
         <xs:complexType mixed="true">
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element ref="include"/>
@@ -256,22 +239,9 @@
                 <xs:element ref="if"/>
                 <xs:element ref="bind"/>
             </xs:choice>
+            <xs:attribute name="id" use="required"/>
             <xs:attribute name="statementType" type="statementType_type"/>
             <xs:attribute name="timeout"/>
-            <xs:attribute name="resultType"/>
-            <xs:attribute name="fetchSize"/>
-            <xs:attribute name="resultSetType"/>
-            <xs:attribute name="keyProperty" use="required"/>
-            <xs:attribute name="keyColumn"/>
-            <xs:attribute name="order">
-                <xs:simpleType>
-                    <xs:restriction base="xs:token">
-                        <xs:enumeration value="BEFORE"/>
-                        <xs:enumeration value="AFTER"/>
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:attribute>
-            <xs:attribute name="handler"/>
         </xs:complexType>
     </xs:element>
 
@@ -316,7 +286,6 @@
         </xs:complexType>
     </xs:element>
 
-    <!-- Dynamic -->
     <xs:element name="sql">
         <xs:complexType mixed="true">
             <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -330,6 +299,38 @@
                 <xs:element ref="bind"/>
             </xs:choice>
             <xs:attribute name="id" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Dynamic -->
+    <xs:element name="selectKey">
+        <xs:complexType mixed="true">
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="include"/>
+                <xs:element ref="trim"/>
+                <xs:element ref="where"/>
+                <xs:element ref="set"/>
+                <xs:element ref="foreach"/>
+                <xs:element ref="choose"/>
+                <xs:element ref="if"/>
+                <xs:element ref="bind"/>
+            </xs:choice>
+            <xs:attribute name="statementType" type="statementType_type"/>
+            <xs:attribute name="timeout"/>
+            <xs:attribute name="fetchSize"/>
+            <xs:attribute name="resultSetType"/>
+            <xs:attribute name="keyProperty" use="required"/>
+            <xs:attribute name="keyColumn"/>
+            <xs:attribute name="order">
+                <xs:simpleType>
+                    <xs:restriction base="xs:token">
+                        <xs:enumeration value="BEFORE"/>
+                        <xs:enumeration value="AFTER"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="resultType"/>
+            <xs:attribute name="resultHandler"/>
         </xs:complexType>
     </xs:element>
 

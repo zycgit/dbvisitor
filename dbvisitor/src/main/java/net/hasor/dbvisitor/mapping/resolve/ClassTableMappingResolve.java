@@ -62,7 +62,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
                     boolean usingAutoProperty = usingOpt.getAutoMapping() == null || usingOpt.getAutoMapping();
                     boolean usingUseDelimited = Boolean.TRUE.equals(usingOpt.getUseDelimited());
                     boolean usingMapUnderscoreToCamelCase = Boolean.TRUE.equals(usingOpt.getMapUnderscoreToCamelCase());
-                    boolean usingCaseInsensitive = usingOpt.getCaseInsensitive() == null || usingOpt.getCaseInsensitive();
+                    boolean usingCaseInsensitive = MappingHelper.caseInsensitive(usingOpt);
 
                     tableDef = new TableDef<>(usingOpt.getCatalog(), usingOpt.getSchema(), null, entityType, usingOpt.getDefaultDialect(), //
                             usingAutoProperty, usingUseDelimited, usingCaseInsensitive, usingMapUnderscoreToCamelCase);
@@ -72,7 +72,6 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
                 }
                 CACHE_TABLE_MAP.put(entityType, tableDef);
                 return (TableDef<V>) tableDef;
-
             }
         }
     }
@@ -89,7 +88,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         boolean autoMapping = tableInfo.getBoolean("autoMapping", (usingOpt.getAutoMapping() == null || usingOpt.getAutoMapping()));
         boolean useDelimited = tableInfo.getBoolean("useDelimited", Boolean.TRUE.equals(usingOpt.getUseDelimited()));
         boolean mapUnderscoreToCamelCase = tableInfo.getBoolean("mapUnderscoreToCamelCase", Boolean.TRUE.equals(usingOpt.getMapUnderscoreToCamelCase()));
-        boolean caseInsensitive = tableInfo.getBoolean("caseInsensitive", (usingOpt.getCaseInsensitive() == null || usingOpt.getCaseInsensitive()));
+        boolean caseInsensitive = tableInfo.getBoolean("caseInsensitive", MappingHelper.caseInsensitive(usingOpt));
         DdlAuto ddlAuto = (DdlAuto) tableInfo.getEnum("ddlAuto", DdlAuto.values(), DdlAuto.None, DdlAuto::valueOfCode);
         SqlDialect dialect = usingOpt.getDefaultDialect();
 
@@ -148,7 +147,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         boolean autoMapping = resultInfo.getBoolean("autoMapping", (usingOpt.getAutoMapping() == null || usingOpt.getAutoMapping()));
         boolean useDelimited = resultInfo.getBoolean("useDelimited", Boolean.TRUE.equals(usingOpt.getUseDelimited()));
         boolean mapUnderscoreToCamelCase = resultInfo.getBoolean("mapUnderscoreToCamelCase", Boolean.TRUE.equals(usingOpt.getMapUnderscoreToCamelCase()));
-        boolean caseInsensitive = resultInfo.getBoolean("caseInsensitive", (usingOpt.getCaseInsensitive() == null || usingOpt.getCaseInsensitive()));
+        boolean caseInsensitive = resultInfo.getBoolean("caseInsensitive", MappingHelper.caseInsensitive(usingOpt));
         SqlDialect dialect = usingOpt.getDefaultDialect();
 
         TableDef<?> def = new TableDef<>("", "", "", entityType, dialect, //
@@ -186,8 +185,8 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
     }
 
     protected void resolveProperty(boolean isEntity, Annotations classAnno, TableDef<?> def, String name, Class<?> type, Property handler, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
-        Annotations propertyAnno = Annotations.merge(                                           //
-                classAnno.getField(name),                                                       //
+        Annotations propertyAnno = Annotations.merge(                                          //
+                classAnno.getField(name),                                                      //
                 classAnno.getMethod("is" + StringUtils.firstCharToUpperCase(name)), //
                 classAnno.getMethod("get" + StringUtils.firstCharToUpperCase(name)),//
                 classAnno.getMethod("set" + StringUtils.firstCharToUpperCase(name)) //

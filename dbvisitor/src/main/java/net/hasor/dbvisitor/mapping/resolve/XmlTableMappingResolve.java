@@ -73,7 +73,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         boolean usingAutoProperty = StringUtils.isBlank(autoMapping) ? (usingOpt.getAutoMapping() == null || usingOpt.getAutoMapping()) : Boolean.parseBoolean(autoMapping);
         boolean usingUseDelimited = StringUtils.isBlank(useDelimited) ? Boolean.TRUE.equals(usingOpt.getUseDelimited()) : Boolean.parseBoolean(useDelimited);
         boolean usingMapUnderscoreToCamelCase = StringUtils.isBlank(mapUnderscoreToCamelCase) ? Boolean.TRUE.equals(usingOpt.getMapUnderscoreToCamelCase()) : Boolean.parseBoolean(mapUnderscoreToCamelCase);
-        boolean usingCaseInsensitive = StringUtils.isBlank(caseInsensitive) ? (usingOpt.getCaseInsensitive() == null || usingOpt.getCaseInsensitive()) : Boolean.parseBoolean(caseInsensitive);
+        boolean usingCaseInsensitive = StringUtils.isBlank(caseInsensitive) ? MappingHelper.caseInsensitive(usingOpt) : Boolean.parseBoolean(caseInsensitive);
         SqlDialect dialect = usingOpt.getDefaultDialect();
 
         TableDef<?> def = new TableDef<>("", "", "", entityType, dialect,//

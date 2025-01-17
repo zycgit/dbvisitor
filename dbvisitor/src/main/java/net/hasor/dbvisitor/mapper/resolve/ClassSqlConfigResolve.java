@@ -16,11 +16,11 @@
 package net.hasor.dbvisitor.mapper.resolve;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.logging.Logger;
 import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
 import net.hasor.dbvisitor.dynamic.logic.PlanDynamicSql;
 import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.mapper.def.*;
+import net.hasor.dbvisitor.types.handler.UnknownTypeHandler;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,7 +37,6 @@ import java.util.Objects;
  * @version : 2021-06-05
  */
 public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKeys {
-    private static final Logger logger = Logger.getLogger(ClassSqlConfigResolve.class);
 
     public static boolean matchType(Class<?> dalType) {
         if (!dalType.isInterface()) {
@@ -83,6 +82,8 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
             cfg.put(KEY_PROPERTY, keySql.keyProperty());
             cfg.put(KEY_COLUMN, keySql.keyColumn());
             cfg.put(ORDER, keySql.order().name());
+            cfg.put(RESULT_TYPE, (keySql.resultType() == Object.class) ? null : keySql.resultType().getName());
+            cfg.put(RESULT_HANDLER, (keySql.resultHandler() == UnknownTypeHandler.class) ? null : keySql.resultHandler().getName());
 
             ArrayDynamicSql dynamicSql = new ArrayDynamicSql();
             dynamicSql.addChildNode(new PlanDynamicSql(StringUtils.join(keySql.value(), " ")));
@@ -132,10 +133,6 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
             Map<String, String> cfg = new HashMap<>();
             cfg.put(STATEMENT_TYPE, ((Query) annotation).statementType().getTypeName());
             cfg.put(TIMEOUT, String.valueOf(((Query) annotation).timeout()));
-            cfg.put(RESULT_MAP, ((Query) annotation).resultMap());
-            if (((Query) annotation).resultType() != Object.class) {
-                cfg.put(RESULT_TYPE, ((Query) annotation).resultType().getName());
-            }
             cfg.put(FETCH_SIZE, String.valueOf(((Query) annotation).fetchSize()));
             cfg.put(RESULT_SET_TYPE, ((Query) annotation).resultSetType().getTypeName());
             cfg.put(BIND_OUT, StringUtils.join(((Query) annotation).bindOut(), ","));
@@ -148,12 +145,13 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
         }
     }
 
-    public SqlConfig parseSqlConfig(Method dalMethod) {
+    @Override
+    public SqlConfig parseSqlConfig(String namespace, Method dalMethod) {
         Objects.requireNonNull(dalMethod, "dalMethod is null.");
         for (Annotation anno : dalMethod.getAnnotations()) {
             if (matchAnnotation(anno)) {
                 try {
-                    return createDynamicSql(dalMethod, anno);
+                    return this.createDynamicSql(dalMethod, anno);
                 } catch (ParserConfigurationException | IOException | SAXException e) {
                     throw ExceptionUtils.toRuntime(e);
                 }

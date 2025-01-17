@@ -31,7 +31,7 @@ public class BasicPojoResultMapTest {
     public void pojoBean_1() {
         MappingOptions options = MappingOptions.buildNew().mapUnderscoreToCamelCase(true).catalog("master").schema("dbo");
         MappingRegistry registry = new MappingRegistry(null, TypeHandlerRegistry.DEFAULT, options);
-        TableMapping<?> tab = registry.loadResultMap(PojoBean1.class, "", "pojo_bean1");
+        TableMapping<?> tab = registry.loadResultMapToSpace(PojoBean1.class, "", "pojo_bean1");
 
         assert tab.getCatalog().equals("");
         assert tab.getSchema().equals("");
@@ -96,7 +96,7 @@ public class BasicPojoResultMapTest {
     @Test
     public void pojoBean_2() {
         MappingRegistry registry = new MappingRegistry();
-        TableMapping<?> ent1 = registry.loadResultMap(PojoBean1.class);
+        TableMapping<?> ent1 = registry.loadResultMapToSpace(PojoBean1.class);
 
         TableMapping<?> def1 = registry.findByEntity(PojoBean1.class);
         TableMapping<?> def2 = registry.findBySpace("", PojoBean1.class);
@@ -112,7 +112,7 @@ public class BasicPojoResultMapTest {
     @Test
     public void pojoBean_3() {
         MappingRegistry registry = new MappingRegistry();
-        TableMapping<?> ent1 = registry.loadResultMap(PojoBean1.class, "abc", "aac");
+        TableMapping<?> ent1 = registry.loadResultMapToSpace(PojoBean1.class, "abc", "aac");
 
         TableMapping<?> def1 = registry.findByEntity(PojoBean1.class);
         TableMapping<?> def2 = registry.findBySpace("", PojoBean1.class);
@@ -136,9 +136,9 @@ public class BasicPojoResultMapTest {
     @Test
     public void error_1() {
         MappingRegistry registry = new MappingRegistry();
-        registry.loadResultMap(PojoBean1.class);
+        registry.loadResultMapToSpace(PojoBean1.class);
         try {
-            registry.loadResultMap(PojoBean1.class);
+            registry.loadResultMapToSpace(PojoBean1.class);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().endsWith("the resultMap '" + PojoBean1.class.getName() + "' already exists.");

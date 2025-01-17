@@ -13,14 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.mapper.resolve;
-import net.hasor.dbvisitor.mapper.def.SqlConfig;
+package net.hasor.dbvisitor.mapper.def;
+import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
+
+import java.util.function.Function;
 
 /**
- * 解析动态 SQL 配置
+ * Segment SqlConfig
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-05
+ * @version : 2021-06-19
  */
-public interface SqlConfigResolve<T> {
-    SqlConfig parseSqlConfig(String namespace, T config);
+public class SegmentConfig extends DmlConfig {
+    public SegmentConfig(ArrayDynamicSql target, Function<String, String> config) {
+        super(target, config);
+    }
+
+    @Override
+    public QueryType getType() {
+        return QueryType.Segment;
+    }
 }

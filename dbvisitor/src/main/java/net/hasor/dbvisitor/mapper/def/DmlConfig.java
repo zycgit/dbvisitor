@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.def;
-import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
 
 import java.util.function.Function;
@@ -29,7 +28,6 @@ public abstract class DmlConfig extends SqlConfig {
 
     public DmlConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
-        this.processSelectKey(target);
     }
 
     public SelectKeyConfig getSelectKey() {
@@ -38,14 +36,5 @@ public abstract class DmlConfig extends SqlConfig {
 
     public void setSelectKey(SelectKeyConfig selectKey) {
         this.selectKey = selectKey;
-    }
-
-    protected void processSelectKey(ArrayDynamicSql target) {
-        for (DynamicSql dynamicSql : target.getSubNodes()) {
-            if (dynamicSql instanceof SelectKeyConfig) {
-                this.selectKey = new SelectKeyConfig((SelectKeyConfig) dynamicSql, false);
-                break;
-            }
-        }
     }
 }

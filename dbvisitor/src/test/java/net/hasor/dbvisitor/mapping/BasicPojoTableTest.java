@@ -31,7 +31,7 @@ public class BasicPojoTableTest {
     public void pojoBean_1() {
         MappingOptions options = MappingOptions.buildNew().mapUnderscoreToCamelCase(true).catalog("master").schema("dbo");
         MappingRegistry registry = new MappingRegistry(null, TypeHandlerRegistry.DEFAULT, options);
-        TableMapping<?> tab = registry.loadEntityToTable(PojoBean1.class, "pojo_bean1");
+        TableMapping<?> tab = registry.loadEntityAsTable(PojoBean1.class, "pojo_bean1");
 
         assert tab.getCatalog().equals("master");
         assert tab.getSchema().equals("dbo");
@@ -44,12 +44,7 @@ public class BasicPojoTableTest {
         assert tab.getDialect() == null;
         assert !tab.isMapEntity();
 
-        assert tab.getDescription() != null;
-        assert tab.getDescription().getDdlAuto() == DdlAuto.None;
-        assert tab.getDescription().getCharacterSet() == null;
-        assert tab.getDescription().getCollation() == null;
-        assert tab.getDescription().getComment() == null;
-        assert tab.getDescription().getOther() == null;
+        assert tab.getDescription() == null;
 
         assert !tab.getPropertyByName("id").isPrimaryKey();
         assert tab.getPropertyByName("id").isInsert();
@@ -101,7 +96,7 @@ public class BasicPojoTableTest {
     @Test
     public void pojoBean_2() {
         MappingRegistry registry = new MappingRegistry();
-        TableMapping<?> ent1 = registry.loadEntityToTable(PojoBean1.class, "master", "dbo", "blob_resource");
+        TableMapping<?> ent1 = registry.loadEntityAsTable(PojoBean1.class, "master", "dbo", "blob_resource");
 
         TableMapping<?> def1 = registry.findByEntity(PojoBean1.class);
         TableMapping<?> def2 = registry.findBySpace("", PojoBean1.class);
@@ -147,9 +142,9 @@ public class BasicPojoTableTest {
     @Test
     public void error_1() {
         MappingRegistry registry = new MappingRegistry();
-        registry.loadEntityToTable(PojoBean1.class, "blob_resource");
+        registry.loadEntityAsTable(PojoBean1.class, "blob_resource");
         try {
-            registry.loadEntityToTable(PojoBean1.class, "blob_resource");
+            registry.loadEntityAsTable(PojoBean1.class, "blob_resource");
             assert false;
         } catch (Exception e) {
             assert e.getMessage().endsWith("the entity '" + PojoBean1.class.getName() + "' already exists.");

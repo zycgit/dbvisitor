@@ -43,7 +43,7 @@ public abstract class AbstractMapping<T> {
             if (MappingRegistry.isEntity(entityType)) {
                 tableMapping = registry.loadEntityToSpace(entityType);
             } else {
-                tableMapping = registry.loadResultMap(entityType);
+                tableMapping = registry.loadResultMapToSpace(entityType);
             }
         }
         this.tableMapping = tableMapping;

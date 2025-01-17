@@ -37,4 +37,11 @@ public class MacroRegistry {
             this.macroMap.put(macroName, DynamicParsed.getParsedSql(sqlSegment));
         }
     }
+
+    public void addMacro(String macroName, DynamicSql sqlSegment) {
+        if (StringUtils.isNotBlank(macroName)) {
+            this.macroMap.put(macroName, sqlSegment);
+        }
+    }
+
 }
