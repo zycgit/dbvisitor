@@ -204,7 +204,17 @@ public class BasicXmlResultMapTest {
     public void error_1() throws IOException {
         MappingRegistry registry = new MappingRegistry();
         registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
+        assert true;
+    }
+
+    @Test
+    public void error_2() throws IOException {
+        MappingRegistry registry = new MappingRegistry();
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
+
         try {
+            registry.loaded.clear();// clear cache
             registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
             assert false;
         } catch (Exception e) {
