@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.dbvisitor.mapper.dto.ApiBasicConfigOneMapper">
+    <resultMap id="userInfo" type="net.hasor.dbvisitor.mapper.dto.UserInfo" autoMapping="true"/>
+
+    <select id="configQuery" statementType="CALLABLE" timeout="123" fetchSize="512" resultSetType="FORWARD_ONLY"
+            bindOut="out1,out2">
+        select * from console_job where aac = #{abc}
+    </select>
+
+    <insert id="configInsert" statementType="CALLABLE" timeout="123" useGeneratedKeys="true" keyProperty="numId"
+            keyColumn="num_id">
+        insert into console_job (uid,name,login) values (#{info.userUuid}, #{info.name}, #{info.loginName})
+    </insert>
+
+    <insert id="configInsertSelectKey" statementType="CALLABLE" timeout="123" useGeneratedKeys="true"
+            keyProperty="numId" keyColumn="num_id">
+        insert into console_job (uid,name,login) values (#{info.userUuid}, #{info.name}, #{info.loginName})
+        <selectKey statementType="CALLABLE" timeout="123" fetchSize="512" resultSetType="FORWARD_ONLY"
+                   keyProperty="userUuid" keyColumn="uid" order="AFTER" resultType="java.lang.String"
+                   resultHandler="net.hasor.dbvisitor.types.handler.string.StringTypeHandler">
+            select last_insert_id()
+        </selectKey>
+    </insert>
+
+    <update id="configUpdate" statementType="CALLABLE" timeout="123">
+        update console_job set uid = #{uuid} where id = #{id}
+    </update>
+
+    <delete id="configDelete" statementType="CALLABLE" timeout="123">
+        delete console_job where id = #{id}
+    </delete>
+
+    <execute id="configExecute" statementType="CALLABLE" timeout="123">
+        create table console_job (uid int,name varchar(200),login varchar(200))
+    </execute>
+</mapper>

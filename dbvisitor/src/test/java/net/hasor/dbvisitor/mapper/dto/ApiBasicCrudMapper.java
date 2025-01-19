@@ -13,17 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.mapper;
-import net.hasor.dbvisitor.mapping.MappingRegistry;
-import net.hasor.dbvisitor.template.jdbc.mapper.BeanMappingRowMapper;
-import net.hasor.test.dto.ProcedureTestUserDTO;
+package net.hasor.dbvisitor.mapper.dto;
+import net.hasor.dbvisitor.mapper.RefMapper;
+
+import java.util.List;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-12-10
  */
-public class ProcedureTestUserDTOMapper extends BeanMappingRowMapper<ProcedureTestUserDTO> {
-    public ProcedureTestUserDTOMapper() {
-        super(ProcedureTestUserDTO.class, MappingRegistry.DEFAULT);
-    }
+@RefMapper("/dbvisitor_coverage/basic_mapping/basic_mapper_1.xml")
+public interface ApiBasicCrudMapper {
+    List<UserInfo> selectList(String abc);
+
+    UserInfo selectOne(String title, String content);
+
+    long insertBean(UserInfo info);
+
+    long updateBean(int id, String uuid);
+
+    long deleteBean(int id);
+
+    void createTable();
 }

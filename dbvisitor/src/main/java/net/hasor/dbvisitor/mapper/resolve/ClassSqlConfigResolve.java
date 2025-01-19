@@ -38,31 +38,6 @@ import java.util.Objects;
  */
 public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKeys {
 
-    public static boolean matchType(Class<?> dalType) {
-        if (!dalType.isInterface()) {
-            return false;
-        }
-        Method[] dalTypeMethods = dalType.getMethods();
-        for (Method method : dalTypeMethods) {
-            if (matchMethod(method)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static boolean matchMethod(Method dalMethod) {
-        if (dalMethod.getDeclaringClass() == Object.class) {
-            return false;
-        }
-        for (Annotation anno : dalMethod.getAnnotations()) {
-            if (matchAnnotation(anno)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static boolean matchAnnotation(Annotation annotation) {
         return annotation instanceof Insert     //
                 || annotation instanceof Delete //
@@ -87,7 +62,7 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
 
             ArrayDynamicSql dynamicSql = new ArrayDynamicSql();
             dynamicSql.addChildNode(new PlanDynamicSql(StringUtils.join(keySql.value(), " ")));
-            parentConfig.setSelectKey(new SelectKeyConfig(dynamicSql, cfg::get, false));
+            parentConfig.setSelectKey(new SelectKeyConfig(dynamicSql, cfg::get));
         }
     }
 

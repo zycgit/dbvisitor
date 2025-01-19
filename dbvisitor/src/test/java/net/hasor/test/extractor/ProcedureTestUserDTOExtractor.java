@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.test.extractor;
-import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
+import net.hasor.dbvisitor.template.jdbc.extractor.RowMapperResultSetExtractor;
 import net.hasor.test.dto.ProcedureTestUserDTO;
 import net.hasor.test.mapper.ProcedureTestUserDTOMapper;
 

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.dbvisitor.mapper.dto.ApiBasicCrudMapper">
+    <resultMap id="userInfo" type="net.hasor.dbvisitor.mapper.dto.UserInfo" autoMapping="true"/>
+
+    <select id="selectList">
+        select * from console_job where aac = #{abc}
+    </select>
+
+    <select id="selectOne">
+        select * from t_blog where title = #{title} and content = #{content}
+    </select>
+
+    <insert id="insertBean">
+        insert into console_job (uid,name,login) values (#{info.userUuid}, #{info.name}, #{info.loginName})
+        <selectKey keyProperty="userUuid" keyColumn="uid" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+    </insert>
+
+    <update id="updateBean">
+        update console_job set uid = #{uuid} where id = #{id}
+    </update>
+
+    <delete id="deleteBean">
+        delete console_job where id = #{id}
+    </delete>
+
+    <execute id="createTable">
+        create table console_job (uid int,name varchar(200),login varchar(200))
+    </execute>
+</mapper>

@@ -23,17 +23,32 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-12-10
  */
-@SimpleMapper
-public interface AnnoQueryMapper {
-    @Query(value = "select * from console_job where aac = #{abc}")
-    List<UserInfo> testSelectArg(String abc);
+@SimpleMapper()
+public interface AnnoResultType2_Mapper {
+    @Query("select 1")
+    List<Byte> selectByte_1();
 
-    @Query(value = "select * from t_blog where title = #{title} and content = #{content}")
-    List<UserInfo> testChoose(String title, String content);
+    @Query("select 1")
+    List<Short> selectShort_1();
 
-    @Query(value = "select * from alert_detail where alert_detail.event_type in @{in, arg0}")
-    List<UserInfo> testForeach(List<String> eventTypes);
+    @Query("select 1")
+    List<Integer> selectInt_1();
 
-    @Query(value = "select * from project_info where status = 2 @{and, owner_id = :ownerID} @{and, owner_type = ownerType} order by name asc")
-    List<UserInfo> testIf(String ownerID, String ownerType);
+    @Query("select 1")
+    List<Long> selectLong_1();
+
+    @Query("select 1")
+    List<Float> selectFloat_1();
+
+    @Query("select 1")
+    List<Double> selectDouble_1();
+
+    @Query("select 1")
+    List<Character> selectChar_1();
+
+    @Query("select 1")
+    List<Void> selectVoid();
+
+    @Query("select 1")
+    List<String> selectString();
 }

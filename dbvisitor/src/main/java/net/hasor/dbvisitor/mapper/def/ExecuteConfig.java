@@ -23,7 +23,7 @@ import java.util.function.Function;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-19
  */
-public class ExecuteConfig extends DmlConfig {
+public class ExecuteConfig extends SqlConfig {
     public ExecuteConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
     }

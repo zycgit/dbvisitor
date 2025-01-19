@@ -23,7 +23,7 @@ import java.util.function.Function;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-19
  */
-public class SegmentConfig extends DmlConfig {
+public class SegmentConfig extends SqlConfig {
     public SegmentConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
     }

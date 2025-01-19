@@ -255,6 +255,6 @@ public class XmlSqlConfigResolve implements SqlConfigResolve<Node>, ConfigKeys {
         ArrayDynamicSql parent = new ArrayDynamicSql();
         this.parseNodeList(namespace, parent, curXmlNode.getChildNodes());
 
-        return new SelectKeyConfig(parent, cfg::get, true);
+        return new SelectKeyConfig(parent, cfg::get);
     }
 }

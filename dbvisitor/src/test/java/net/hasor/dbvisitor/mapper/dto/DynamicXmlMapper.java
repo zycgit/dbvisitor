@@ -13,17 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.mapper;
-import net.hasor.dbvisitor.mapping.MappingRegistry;
-import net.hasor.dbvisitor.template.jdbc.mapper.BeanMappingRowMapper;
-import net.hasor.test.dto.ProcedureTestUserDTO;
+package net.hasor.dbvisitor.mapper.dto;
+import net.hasor.dbvisitor.mapper.RefMapper;
+
+import java.util.List;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-12-10
  */
-public class ProcedureTestUserDTOMapper extends BeanMappingRowMapper<ProcedureTestUserDTO> {
-    public ProcedureTestUserDTOMapper() {
-        super(ProcedureTestUserDTO.class, MappingRegistry.DEFAULT);
-    }
+@RefMapper("/dbvisitor_coverage/basic_mapping/basic_xml_dynamic.xml")
+public interface DynamicXmlMapper {
+    List<UserInfo> bind_01(String sellerId);
+
+    List<UserInfo> choose_01(String title, String content);
+
+    List<UserInfo> foreach_03(List<ResourceType> resTypes);
+
+    List<UserInfo> if_01(String ownerID, String ownerType);
+
+    List<UserInfo> include_01(int eventType);
+
+    int selectKey_01(UserInfo user);
+
+    int set_04(UserInfo user);
+
+    List<UserInfo> where_01(String name, String loginName);
 }

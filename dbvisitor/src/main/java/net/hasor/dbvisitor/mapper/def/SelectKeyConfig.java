@@ -15,15 +15,9 @@
  */
 package net.hasor.dbvisitor.mapper.def;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
-import net.hasor.dbvisitor.dynamic.SqlArgSource;
-import net.hasor.dbvisitor.dynamic.SqlBuilder;
-import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
 import net.hasor.dbvisitor.mapper.ResultSetType;
 
-import java.sql.SQLException;
-import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -32,16 +26,15 @@ import java.util.function.Function;
  * @version : 2021-10-04
  */
 public class SelectKeyConfig extends SqlConfig {
-    private       int           fetchSize     = 256;
-    private       ResultSetType resultSetType = ResultSetType.DEFAULT;
-    private       String        keyProperty   = null;
-    private       String        keyColumn     = null;
-    private       String        order         = null;
-    private       String        resultType    = null;
-    private       String        resultHandler = null;
-    private final boolean       ignoreBuild;
+    private int           fetchSize     = 256;
+    private ResultSetType resultSetType = ResultSetType.DEFAULT;
+    private String        keyProperty   = null;
+    private String        keyColumn     = null;
+    private String        order         = null;
+    private String        resultType    = null;
+    private String        resultHandler = null;
 
-    public SelectKeyConfig(ArrayDynamicSql target, Function<String, String> config, boolean ignoreBuild) {
+    public SelectKeyConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
 
         if (config != null) {
@@ -53,8 +46,6 @@ public class SelectKeyConfig extends SqlConfig {
             this.resultType = config.apply(RESULT_TYPE);
             this.resultHandler = config.apply(RESULT_HANDLER);
         }
-
-        this.ignoreBuild = ignoreBuild;
     }
 
     @Override
@@ -124,30 +115,5 @@ public class SelectKeyConfig extends SqlConfig {
 
     public void setResultHandler(String resultHandler) {
         this.resultHandler = resultHandler;
-    }
-
-    @Override
-    public void buildQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException {
-        if (!this.ignoreBuild) {
-            super.buildQuery(data, context, sqlBuilder);
-        }
-    }
-
-    @Override
-    public SqlBuilder buildQuery(SqlArgSource data, RegistryManager context) throws SQLException {
-        SqlBuilder fxBuilder = new SqlBuilder();
-        if (!this.ignoreBuild) {
-            this.buildQuery(data, context, fxBuilder);
-        }
-        return fxBuilder;
-    }
-
-    @Override
-    public SqlBuilder buildQuery(Map<String, Object> data, RegistryManager context) throws SQLException {
-        SqlBuilder fxBuilder = new SqlBuilder();
-        if (!this.ignoreBuild) {
-            this.buildQuery(new MapSqlArgSource(data), context, fxBuilder);
-        }
-        return fxBuilder;
     }
 }

@@ -42,6 +42,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -103,7 +104,8 @@ public class MapperRegistry {
         // check duplicated
         tryLoaded(mapperType, mt -> {
             // load resource.
-            if (mapperType.isAnnotationPresent(RefMapper.class)) {
+            boolean refXml = mapperType.isAnnotationPresent(RefMapper.class);
+            if (refXml) {
                 this.tryLoadRefMapperFile(mapperType, mapperType.getAnnotation(RefMapper.class));
             }
 
@@ -120,7 +122,7 @@ public class MapperRegistry {
             }
 
             // load method.
-            this.tryLoadMethod(mapperType, mapperType.getMethods());
+            this.tryLoadMethod(mapperType, mapperType.getMethods(), refXml);
         });
     }
 
@@ -135,7 +137,7 @@ public class MapperRegistry {
             resource = resource.substring(1);
         }
 
-        if (StringUtils.isBlank(resource) && !ClassSqlConfigResolve.matchType(mapperType)) {
+        if (StringUtils.isBlank(resource) && !matchType(mapperType)) {
             return;
         }
 
@@ -204,16 +206,13 @@ public class MapperRegistry {
                     } else if (StringUtils.isNotBlank(resultTypeStr)) {
                         Class<?> requiredType = this.classLoader.loadClass(resultTypeStr);
                         def.setRowMapper(this.mapperFromType(configSpace, requiredType));
-                    } else {
-                        boolean caseInsensitive = MappingHelper.caseInsensitive(this.mappingRegistry.getGlobalOptions());
-                        def.setRowMapper(new ColumnMapRowMapper(caseInsensitive, this.typeRegistry));
                     }
                 }
             }
         }
     }
 
-    private void tryLoadMethod(Class<?> mapperType, Method[] methods) throws IOException {
+    private void tryLoadMethod(Class<?> mapperType, Method[] methods, boolean refXml) throws IOException {
         SqlConfigResolve<Method> resolve = this.getMethodDynamicResolve();
         for (Method m : methods) {
             this.tryLoaded(m, method -> {
@@ -225,36 +224,51 @@ public class MapperRegistry {
                 // check conflict
                 String configSpace = mapperType.getName();
                 String configId = method.getName();
-                boolean hasConf = this.configMap.containsKey(configSpace) && this.configMap.containsKey(configId);
-                boolean hasAnnoConf = ClassSqlConfigResolve.matchMethod(method);
-                if (hasAnnoConf && hasConf) {
+                boolean hasXmlConf = refXml && this.configMap.containsKey(configSpace) && this.configMap.get(configSpace).containsKey(configId);
+                boolean hasAnnoConf = matchMethod(method);
+                if (hasAnnoConf && hasXmlConf) {
                     throw new IllegalStateException("Annotations and mapperFile conflicts with " + configSpace + "." + configId);
                 }
 
-                if (hasConf) {
-                    return;
+                // resolve required Type
+                Class<?> requiredClass = method.getReturnType();
+                if (Collection.class.isAssignableFrom(requiredClass)) {
+                    Type requiredType = method.getGenericReturnType();
+                    ResolvableType type = ResolvableType.forType(requiredType);
+                    requiredClass = type.getGeneric(0).resolve();
+
+                } else if (requiredClass.isArray()) {
+                    requiredClass = requiredClass.getComponentType();
                 }
 
+                //
+                Map<String, StatementDef> defMap = this.configMap.computeIfAbsent(configSpace, s -> new ConcurrentHashMap<>());
                 if (hasAnnoConf) {
                     StatementDef def = new StatementDef(configSpace, resolve.parseSqlConfig(configSpace, method));
-                    this.configMap.computeIfAbsent(configSpace, s -> new ConcurrentHashMap<>()).put(configId, def);
-
-                    //
-                    Class<?> requiredClass = method.getReturnType();
-                    if (Collection.class.isAssignableFrom(requiredClass)) {
-                        Type requiredType = method.getGenericReturnType();
-                        ResolvableType type = ResolvableType.forType(requiredType);
-                        requiredClass = type.getGeneric(0).resolve();
-                        def.setMappingType(requiredClass);
-                    } else if (requiredClass.isArray()) {
-                        requiredClass = requiredClass.getComponentType();
-                        def.setMappingType(requiredClass);
+                    MapperTuple tuple = this.mapperFromMethodReturning(method);
+                    if (tuple != null) {
+                        def.setMappingType(tuple.forType);
+                        def.setRowMapper(tuple.mapper);
+                    } else {
+                        if (requiredClass != Object.class && requiredClass != Void.class && requiredClass != void.class) {
+                            def.setMappingType(requiredClass);
+                        }
+                        def.setRowMapper(this.mapperFromType(configSpace, requiredClass));
                     }
 
-                    RowMapper<?> rowMapper = this.mapperFromMethodReturning(method);
-                    if (rowMapper != null) {
-                        def.setRowMapper(rowMapper);
-                    } else {
+                    defMap.put(configId, def);
+                }
+
+                // supplement
+                if (hasXmlConf && defMap.containsKey(configId)) {
+                    StatementDef def = defMap.get(configId);
+
+                    if (def.getMappingType() == null) {
+                        if (requiredClass != Object.class && requiredClass != Void.class && requiredClass != void.class) {
+                            def.setMappingType(requiredClass);
+                        }
+                    }
+                    if (def.getRowMapper() == null) {
                         def.setRowMapper(this.mapperFromType(configSpace, requiredClass));
                     }
                 }
@@ -262,12 +276,22 @@ public class MapperRegistry {
         }
     }
 
-    private RowMapper<?> mapperFromMethodReturning(Method method) throws IOException {
+    private static class MapperTuple {
+        final Class<?>     forType;
+        final RowMapper<?> mapper;
+
+        public MapperTuple(Class<?> forType, RowMapper<?> mapper) {
+            this.forType = forType;
+            this.mapper = mapper;
+        }
+    }
+
+    private MapperTuple mapperFromMethodReturning(Method method) throws IOException {
         // 1.determine the mapping type.
         Class<?> resultType = method.getReturnType();
-        if (resultType == Object.class || resultType == Void.class) {
+        if (resultType == Object.class || resultType == Void.class || resultType == void.class) {
             boolean caseInsensitive = MappingHelper.caseInsensitive(this.mappingRegistry.getGlobalOptions());
-            return new ColumnMapRowMapper(caseInsensitive, this.typeRegistry);
+            return new MapperTuple(null, new ColumnMapRowMapper(caseInsensitive, this.typeRegistry));
         }
 
         // 2. method @ResultMap
@@ -283,7 +307,8 @@ public class MapperRegistry {
                 String fullname = StringUtils.isBlank(space) ? name : (space + "." + name);
                 throw new IllegalStateException("the resultMap '" + fullname + "' cannot be found.");
             }
-            return new BeanMappingRowMapper<>(mapping);
+
+            return new MapperTuple(mapping.entityType(), new BeanMappingRowMapper<>(mapping));
         }
 
         return null;
@@ -374,6 +399,31 @@ public class MapperRegistry {
         if (!testMapper) {
             throw new UnsupportedOperationException("type '" + mapperType.getName() + "' need @RefMapper or @SimpleMapper or @DalMapper");
         }
+    }
+
+    protected static boolean matchType(Class<?> dalType) {
+        if (!dalType.isInterface()) {
+            return false;
+        }
+        Method[] dalTypeMethods = dalType.getMethods();
+        for (Method method : dalTypeMethods) {
+            if (matchMethod(method)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected static boolean matchMethod(Method dalMethod) {
+        if (dalMethod.getDeclaringClass() == Object.class) {
+            return false;
+        }
+        for (Annotation anno : dalMethod.getAnnotations()) {
+            if (ClassSqlConfigResolve.matchAnnotation(anno)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected SqlConfigResolve<Method> getMethodDynamicResolve() {

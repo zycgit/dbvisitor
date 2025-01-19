@@ -75,6 +75,8 @@
         setValueTemplate CDATA #IMPLIED
         whereColTemplate CDATA #IMPLIED
         whereValueTemplate CDATA #IMPLIED
+        groupByColTemplate CDATA #IMPLIED
+        orderByColTemplate CDATA #IMPLIED
         sqlType CDATA #IMPLIED
         length CDATA #IMPLIED
         precision CDATA #IMPLIED
@@ -144,28 +146,15 @@
         timeout CDATA #IMPLIED
         >
 
-<!ELEMENT execute (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
-<!ATTLIST execute
+<!ELEMENT delete (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+<!ATTLIST delete
         id CDATA #REQUIRED
         statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
         timeout CDATA #IMPLIED
         >
 
-<!ELEMENT selectKey (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
-<!ATTLIST selectKey
-        statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
-        timeout CDATA #IMPLIED
-        fetchSize CDATA #IMPLIED
-        resultSetType CDATA #IMPLIED
-        keyProperty CDATA #REQUIRED
-        keyColumn CDATA #IMPLIED
-        order (BEFORE|AFTER) #IMPLIED
-        resultType CDATA #IMPLIED
-        resultHandler CDATA #IMPLIED
-        >
-
-<!ELEMENT delete (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
-<!ATTLIST delete
+<!ELEMENT execute (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+<!ATTLIST execute
         id CDATA #REQUIRED
         statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
         timeout CDATA #IMPLIED
@@ -183,10 +172,23 @@
         bindOut CDATA #IMPLIED
         >
 
-<!-- Dynamic -->
 <!ELEMENT sql (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
 <!ATTLIST sql
         id CDATA #REQUIRED
+        >
+
+<!-- Dynamic -->
+<!ELEMENT selectKey (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+    <!ATTLIST selectKey
+        statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
+        timeout CDATA #IMPLIED
+        fetchSize CDATA #IMPLIED
+        resultSetType CDATA #IMPLIED
+        keyProperty CDATA #REQUIRED
+        keyColumn CDATA #REQUIRED
+        order (BEFORE|AFTER) #IMPLIED
+        resultType CDATA #IMPLIED
+        resultHandler CDATA #IMPLIED
         >
 
 <!ELEMENT include EMPTY>

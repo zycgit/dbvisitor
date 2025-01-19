@@ -1,4 +1,0 @@
-SELECT
-    *
-    FROM alert_detail
-    WHERE config_detail.event_type = ?

@@ -163,6 +163,8 @@
         <xs:attribute name="setValueTemplate"/>
         <xs:attribute name="whereColTemplate"/>
         <xs:attribute name="whereValueTemplate"/>
+        <xs:attribute name="groupByColTemplate"/>
+        <xs:attribute name="orderByColTemplate"/>
         <!-- META -->
         <xs:attribute name="sqlType"/>
         <xs:attribute name="length"/>
@@ -186,24 +188,6 @@
         <xs:attribute name="comment"/>
         <xs:attribute name="other"/>
     </xs:complexType>
-
-    <xs:element name="execute">
-        <xs:complexType mixed="true">
-            <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element ref="include"/>
-                <xs:element ref="trim"/>
-                <xs:element ref="where"/>
-                <xs:element ref="set"/>
-                <xs:element ref="foreach"/>
-                <xs:element ref="choose"/>
-                <xs:element ref="if"/>
-                <xs:element ref="bind"/>
-            </xs:choice>
-            <xs:attribute name="id" use="required"/>
-            <xs:attribute name="statementType" type="statementType_type"/>
-            <xs:attribute name="timeout"/>
-        </xs:complexType>
-    </xs:element>
 
     <xs:element name="insert">
         <xs:complexType mixed="true">
@@ -246,6 +230,24 @@
     </xs:element>
 
     <xs:element name="delete">
+        <xs:complexType mixed="true">
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="include"/>
+                <xs:element ref="trim"/>
+                <xs:element ref="where"/>
+                <xs:element ref="set"/>
+                <xs:element ref="foreach"/>
+                <xs:element ref="choose"/>
+                <xs:element ref="if"/>
+                <xs:element ref="bind"/>
+            </xs:choice>
+            <xs:attribute name="id" use="required"/>
+            <xs:attribute name="statementType" type="statementType_type"/>
+            <xs:attribute name="timeout"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="execute">
         <xs:complexType mixed="true">
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element ref="include"/>
@@ -320,7 +322,7 @@
             <xs:attribute name="fetchSize"/>
             <xs:attribute name="resultSetType"/>
             <xs:attribute name="keyProperty" use="required"/>
-            <xs:attribute name="keyColumn"/>
+            <xs:attribute name="keyColumn" use="required"/>
             <xs:attribute name="order">
                 <xs:simpleType>
                     <xs:restriction base="xs:token">

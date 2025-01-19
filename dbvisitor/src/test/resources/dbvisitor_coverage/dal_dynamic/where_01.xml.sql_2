@@ -1,5 +1,0 @@
-
-    SELECT * FROM BLOG
-    where  state = ?
-        
-            and title like ? 

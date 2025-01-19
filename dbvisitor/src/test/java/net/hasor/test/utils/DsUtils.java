@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.test.utils;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

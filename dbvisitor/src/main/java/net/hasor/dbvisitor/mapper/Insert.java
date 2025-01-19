@@ -48,5 +48,5 @@ public @interface Insert {
      * 回填自增属性值时候选择的 查询结果列名。
      * - 如果同时配置了 SelectKey 注解该配置将会失效。
      */
-    String keyColumn();
+    String keyColumn() default "";
 }

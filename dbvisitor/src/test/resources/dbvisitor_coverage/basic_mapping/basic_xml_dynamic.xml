@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.dbvisitor.mapper.dto.DynamicXmlMapper">
+    <resultMap id="userInfo" type="net.hasor.dbvisitor.mapper.dto.UserInfo" autoMapping="true"/>
+
+    <sql id="alertConfigDetail_allColumns">
+        *
+    </sql>
+    <sql id="projectInfoDO_allColumns">
+        *
+    </sql>
+    <sql id="user_do_allColumns">
+        name,login_name
+    </sql>
+
+    <select id="bind_01">
+        <bind name="abc" value="sellerId + 'abc'"/>
+        select * from console_job where aac = #{abc}
+    </select>
+
+    <select id="choose_01">
+        select * from t_blog
+        <where>
+            <choose>
+                <when test="title != null">and title = #{title}</when>
+                <when test="content != null">and content = #{content}</when>
+                <otherwise>and owner = "owner1"</otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="foreach_03">
+        SELECT
+            <include refid="alertConfigDetail_allColumns"/>
+        FROM
+            alert_detail
+        WHERE
+            alert_detail.event_type IN
+            <foreach collection="resTypes" item="regType" separator="," open="(" close=")">
+                #{regType,javaType=net.hasor.dbvisitor.mapper.dto.ResourceType}
+            </foreach>
+    </select>
+
+    <select id="if_01">
+        select
+        <include refid="projectInfoDO_allColumns"/>
+        from
+            PROJECT_INFO
+        where 1=1
+            and status = 2
+            <if test="ownerID != null and ownerType !=null">
+                and owner_id = #{ownerID}
+                and owner_type = #{ownerType}
+            </if>
+        order by
+            name asc
+    </select>
+
+    <select id="include_01">
+        SELECT
+            <include refid="alertConfigDetail_allColumns"/>
+        FROM
+            alert_detail
+        WHERE
+            event_type = #{eventType,javaType=java.lang.Integer}
+    </select>
+
+    <insert id="selectKey_01">
+        insert into test_user (
+            <include refid="user_do_allColumns"/>
+        ) values (
+            #{user.name} , #{user.loginName}
+        );
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <update id="set_04">
+        UPDATE
+            alert_users
+        <set>
+            <if test="user.name != null">
+                name = #{user.name},
+            </if>
+            <if test="user.loginName != null">
+                loginName = #{user.loginName},
+            </if>
+            <if test="user.email != null">
+                email = #{user.email},
+            </if>
+            <if test="user.seq != null">
+                seq = #{user.seq},
+            </if>
+        </set>
+        WHERE uid = #{user.userUuid}
+    </update>
+
+    <select id="where_01">
+        SELECT * FROM BLOG
+        <where>
+            <if test="name != null">
+                and name = #{name}
+            </if>
+            <if test="loginName != null">
+                and login_name like #{loginName}
+            </if>
+        </where>
+    </select>
+</mapper>

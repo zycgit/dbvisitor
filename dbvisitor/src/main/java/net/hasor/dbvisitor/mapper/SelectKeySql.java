@@ -41,7 +41,7 @@ public @interface SelectKeySql {
 
     String keyProperty();
 
-    String keyColumn();
+    String keyColumn() default "";
 
     Order order();
 
