@@ -185,7 +185,7 @@
         fetchSize CDATA #IMPLIED
         resultSetType CDATA #IMPLIED
         keyProperty CDATA #REQUIRED
-        keyColumn CDATA #REQUIRED
+        keyColumn CDATA #IMPLIED
         order (BEFORE|AFTER) #IMPLIED
         resultType CDATA #IMPLIED
         resultHandler CDATA #IMPLIED

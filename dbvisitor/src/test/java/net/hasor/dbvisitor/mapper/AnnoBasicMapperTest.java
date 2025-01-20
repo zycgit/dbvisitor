@@ -35,7 +35,7 @@ import java.util.Map;
  */
 public class AnnoBasicMapperTest {
     @Test
-    public void annoQuery_1() throws ReflectiveOperationException, IOException, SQLException {
+    public void annoQuery_1() throws IOException, SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("abc", "this is abc");
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(AnnoBasicCrudMapper.class);
@@ -53,7 +53,7 @@ public class AnnoBasicMapperTest {
     }
 
     @Test
-    public void annoQuery_2() throws ReflectiveOperationException, IOException, SQLException {
+    public void annoQuery_2() throws IOException, SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("title", "this is title", "content", "this is content");
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(AnnoBasicCrudMapper.class);
@@ -72,7 +72,7 @@ public class AnnoBasicMapperTest {
     }
 
     @Test
-    public void annoInsert_1() throws ReflectiveOperationException, IOException, SQLException {
+    public void annoInsert_1() throws IOException, SQLException {
         UserInfo info = new UserInfo();
         info.setUserUuid("this is title");
         info.setName("this is name");
@@ -98,7 +98,7 @@ public class AnnoBasicMapperTest {
     }
 
     @Test
-    public void annoUpdate_1() throws ReflectiveOperationException, IOException, SQLException {
+    public void annoUpdate_1() throws IOException, SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("id", 11, "uuid", "this is uuid");
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(AnnoBasicCrudMapper.class);
@@ -117,7 +117,7 @@ public class AnnoBasicMapperTest {
     }
 
     @Test
-    public void annoDelete_1() throws ReflectiveOperationException, IOException, SQLException {
+    public void annoDelete_1() throws IOException, SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("id", 11);
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(AnnoBasicCrudMapper.class);
@@ -135,7 +135,7 @@ public class AnnoBasicMapperTest {
     }
 
     @Test
-    public void annoExecute_1() throws ReflectiveOperationException, IOException, SQLException {
+    public void annoExecute_1() throws IOException, SQLException {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(AnnoBasicCrudMapper.class);
 

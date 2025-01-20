@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper;
+import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.EConsumer;
 import net.hasor.cobble.logging.Logger;
@@ -98,7 +99,7 @@ public class MapperRegistry {
         }
     }
 
-    public void loadMapper(Class<?> mapperType) throws IOException, ReflectiveOperationException {
+    public void loadMapper(Class<?> mapperType) throws IOException {
         testMapper(mapperType);
 
         // check duplicated
@@ -126,6 +127,13 @@ public class MapperRegistry {
         });
     }
 
+    public void loadMapper(String mapperResource) throws IOException {
+        if (StringUtils.isBlank(mapperResource)) {
+            throw new FileNotFoundException("mapper file ios empty.");
+        }
+        this.tryLoadResourceFile(mapperResource);
+    }
+
     // --------------------------------------------------------------------------------------------
 
     private void tryLoadRefMapperFile(Class<?> mapperType, RefMapper refMapper) throws IOException {
@@ -141,24 +149,26 @@ public class MapperRegistry {
             return;
         }
 
-        if (StringUtils.isNotBlank(resource)) {
-            this.tryLoaded(resource, r -> {
-                // try load mapping
-                this.mappingRegistry.loadMapper(r);
+        this.tryLoaded(resource, this::tryLoadResourceFile);
+    }
 
-                // try load mapper
-                try (InputStream stream = this.classLoader.getResourceAsStream(r)) {
-                    if (stream == null) {
-                        throw new FileNotFoundException("not found mapper file '" + r + "'"); // Don't block the app from launching
-                    }
+    private void tryLoadResourceFile(String resource) throws IOException {
+        this.tryLoaded(resource, r -> {
+            // try load mapping
+            this.mappingRegistry.loadMapper(r);
 
-                    Document document = MappingHelper.loadXmlRoot(stream, this.mappingRegistry.getClassLoader());
-                    this.tryLoadNode(r, document.getDocumentElement());
-                } catch (ParserConfigurationException | SAXException | ClassNotFoundException e) {
-                    throw new IOException(e);
+            // try load mapper
+            try (InputStream stream = this.classLoader.getResourceAsStream(r)) {
+                if (stream == null) {
+                    throw new FileNotFoundException("not found mapper file '" + r + "'"); // Don't block the app from launching
                 }
-            });
-        }
+
+                Document document = MappingHelper.loadXmlRoot(stream, this.mappingRegistry.getClassLoader());
+                this.tryLoadNode(r, document.getDocumentElement());
+            } catch (ParserConfigurationException | SAXException | ClassNotFoundException e) {
+                throw new IOException(e);
+            }
+        });
     }
 
     private void tryLoadNode(String resource, Element configRoot) throws ClassNotFoundException, IOException {
@@ -201,10 +211,12 @@ public class MapperRegistry {
                             String fullname = StringUtils.isBlank(configSpace) ? resultMapStr : (configSpace + "." + resultMapStr);
                             throw new IllegalStateException("the resultMap '" + fullname + "' cannot be found.");
                         } else {
+                            def.setMappingType(tabMapping.entityType());
                             def.setRowMapper(new BeanMappingRowMapper<>(tabMapping));
                         }
                     } else if (StringUtils.isNotBlank(resultTypeStr)) {
-                        Class<?> requiredType = this.classLoader.loadClass(resultTypeStr);
+                        Class<?> requiredType = MappingHelper.typeMappingOr(resultTypeStr, this.classLoader::loadClass);
+                        def.setMappingType(requiredType);
                         def.setRowMapper(this.mapperFromType(configSpace, requiredType));
                     }
                 }
@@ -236,9 +248,6 @@ public class MapperRegistry {
                     Type requiredType = method.getGenericReturnType();
                     ResolvableType type = ResolvableType.forType(requiredType);
                     requiredClass = type.getGeneric(0).resolve();
-
-                } else if (requiredClass.isArray()) {
-                    requiredClass = requiredClass.getComponentType();
                 }
 
                 //
@@ -252,8 +261,8 @@ public class MapperRegistry {
                     } else {
                         if (requiredClass != Object.class && requiredClass != Void.class && requiredClass != void.class) {
                             def.setMappingType(requiredClass);
+                            def.setRowMapper(this.mapperFromType(configSpace, requiredClass));
                         }
-                        def.setRowMapper(this.mapperFromType(configSpace, requiredClass));
                     }
 
                     defMap.put(configId, def);
@@ -269,7 +278,9 @@ public class MapperRegistry {
                         }
                     }
                     if (def.getRowMapper() == null) {
-                        def.setRowMapper(this.mapperFromType(configSpace, requiredClass));
+                        if (requiredClass != Object.class && requiredClass != Void.class && requiredClass != void.class) {
+                            def.setRowMapper(this.mapperFromType(configSpace, requiredClass));
+                        }
                     }
                 }
             });
@@ -357,10 +368,12 @@ public class MapperRegistry {
     // --------------------------------------------------------------------------------------------
 
     private void tryLoaded(String target, EConsumer<String, IOException> call) throws IOException {
-        String cacheKey = "RES::" + target;
+        String fmtTarget = ResourcesUtils.formatResource(target);
+
+        String cacheKey = "RES::" + fmtTarget;
         if (!loaded.contains(cacheKey)) {
-            logger.info("loadMapper '" + target + "'");
-            call.eAccept(target);
+            logger.info("loadMapper '" + fmtTarget + "'");
+            call.eAccept(fmtTarget);
             this.loaded.add(cacheKey);
         }
     }

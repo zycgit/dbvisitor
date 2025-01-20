@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="mapper_types">
+    <select id="selectBool_1" resultType="boolean">select 1</select>
+    <select id="selectBool_2" resultType="bool">select 1</select>
+    <select id="selectBool_3" resultType="java.lang.Boolean">select 1</select>
+
+    <select id="selectBytes_1" resultType="bytes">select 1</select>
+
+    <select id="selectByte_1" resultType="byte">select 1</select>
+    <select id="selectByte_2" resultType="java.lang.Byte">select 1</select>
+    <select id="selectShort_1" resultType="short">select 1</select>
+    <select id="selectShort_2" resultType="java.lang.Short">select 1</select>
+    <select id="selectInt_1" resultType="int">select 1</select>
+    <select id="selectInt_2" resultType="java.lang.Integer">select 1</select>
+    <select id="selectLong_1" resultType="long">select 1</select>
+    <select id="selectLong_2" resultType="java.lang.Long">select 1</select>
+    <select id="selectFloat_1" resultType="float">select 1</select>
+    <select id="selectFloat_2" resultType="java.lang.Float">select 1</select>
+    <select id="selectDouble_1" resultType="double">select 1</select>
+    <select id="selectDouble_2" resultType="java.lang.Double">select 1</select>
+    <select id="selectBigInt_1" resultType="bigint">select 1</select>
+    <select id="selectDecimal_1" resultType="decimal">select 1</select>
+    <select id="selectNumber_1" resultType="number">select 1</select>
+    <select id="selectNumber_2" resultType="java.lang.Number">select 1</select>
+
+    <select id="selectChar_1" resultType="char">select 1</select>
+    <select id="selectChar_2" resultType="java.lang.Character">select 1</select>
+    <select id="selectString_1" resultType="string">select 1</select>
+    <select id="selectString_2" resultType="java.lang.String">select 1</select>
+    <select id="selectUrl_1" resultType="url">select 1</select>
+    <select id="selectUri_1" resultType="uri">select 1</select>
+
+    <select id="selectVoid_1">select 1</select>
+    <select id="selectVoid_2" resultType="void">select 1</select>
+    <select id="selectVoid_3" resultType="java.lang.Void">select 1</select>
+    <select id="selectMap_1" resultType="map">select 1</select>
+    <select id="selectMap_2" resultType="hashmap">select 1</select>
+    <select id="selectMap_3" resultType="caseinsensitivemap">select 1</select>
+
+    <select id="selectDate_1" resultType="date">select 1</select>
+    <select id="selectDate_2" resultType="java.util.Date">select 1</select>
+    <select id="selectSqlDate_1" resultType="sqldate">select 1</select>
+    <select id="selectSqlDate_2" resultType="java.sql.Date">select 1</select>
+    <select id="selectSqlTime_1" resultType="sqltime">select 1</select>
+    <select id="selectSqlTime_2" resultType="java.sql.Time">select 1</select>
+    <select id="selectSqlTimestamp_1" resultType="sqltimestamp">select 1</select>
+    <select id="selectSqlTimestamp_2" resultType="java.sql.Timestamp">select 1</select>
+    <select id="selectOffsetDateTime_1" resultType="offsetdatetime">select 1</select>
+    <select id="selectOffsetDateTime_2" resultType="java.time.OffsetDateTime">select 1</select>
+    <select id="selectOffsetTime_1" resultType="offsettime">select 1</select>
+    <select id="selectOffsetTime_2" resultType="java.time.OffsetTime">select 1</select>
+    <select id="selectLocalDate_1" resultType="localdate">select 1</select>
+    <select id="selectLocalDate_2" resultType="java.time.LocalDate">select 1</select>
+    <select id="selectLocalTime_1" resultType="localtime">select 1</select>
+    <select id="selectLocalTime_2" resultType="java.time.LocalTime">select 1</select>
+    <select id="selectLocalDateTime_1" resultType="localdatetime">select 1</select>
+    <select id="selectLocalDateTime_2" resultType="java.time.LocalDateTime">select 1</select>
+    <select id="selectMonthDay_1" resultType="monthday">select 1</select>
+    <select id="selectMonthDay_2" resultType="java.time.MonthDay">select 1</select>
+    <select id="selectMonth_1" resultType="month">select 1</select>
+    <select id="selectMonth_2" resultType="java.time.Month">select 1</select>
+    <select id="selectYearMonth_1" resultType="yearmonth">select 1</select>
+    <select id="selectYearMonth_2" resultType="java.time.YearMonth">select 1</select>
+    <select id="selectYear_1" resultType="year">select 1</select>
+    <select id="selectYear_2" resultType="java.time.Year">select 1</select>
+</mapper>

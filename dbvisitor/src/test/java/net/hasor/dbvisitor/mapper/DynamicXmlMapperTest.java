@@ -38,7 +38,7 @@ import java.util.Map;
  */
 public class DynamicXmlMapperTest {
     @Test
-    public void bind_1() throws ReflectiveOperationException, IOException, SQLException {
+    public void bind_1() throws IOException, SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("sellerId", "123");
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);
@@ -51,7 +51,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void choose_1() throws ReflectiveOperationException, IOException, SQLException {
+    public void choose_1() throws IOException, SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("title", "123", "content", "aaa");
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);
@@ -64,7 +64,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void choose_2() throws ReflectiveOperationException, IOException, SQLException {
+    public void choose_2() throws IOException, SQLException {
         Map<String, Object> ctx = Collections.emptyMap();
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);
@@ -76,7 +76,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void foreach_1() throws ReflectiveOperationException, IOException, SQLException {
+    public void foreach_1() throws IOException, SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("resTypes", Arrays.asList("a", "b", "c", "d", "e"));
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);
@@ -95,7 +95,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void if_1() throws ReflectiveOperationException, IOException, SQLException {
+    public void if_1() throws IOException, SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("ownerID", "123", "ownerType", "SYSTEM");
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);
@@ -111,7 +111,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void if_2() throws ReflectiveOperationException, IOException, SQLException {
+    public void if_2() throws IOException, SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("ownerID", "123", "ownerType", null);
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);
@@ -123,7 +123,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void include_1() throws ReflectiveOperationException, IOException, SQLException {
+    public void include_1() throws IOException, SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("eventType", "123");
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);
@@ -136,7 +136,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void selectKey_1() throws ReflectiveOperationException, IOException, SQLException {
+    public void selectKey_1() throws IOException, SQLException {
         UserInfo user = new UserInfo();
         user.setName("name");
         user.setLoginName("loginName");
@@ -158,7 +158,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void set_1() throws ReflectiveOperationException, IOException, SQLException {
+    public void set_1() throws IOException, SQLException {
         UserInfo user = new UserInfo();
         user.setName("name");
         user.setLoginName("loginName");
@@ -177,7 +177,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void set_2() throws ReflectiveOperationException, IOException, SQLException {
+    public void set_2() throws IOException, SQLException {
         UserInfo user = new UserInfo();
         user.setUserUuid("abc");
         Map<String, Object> ctx = CollectionUtils.asMap("user", user);
@@ -192,7 +192,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void where_1() throws ReflectiveOperationException, IOException, SQLException {
+    public void where_1() throws IOException, SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("name", "name", "loginName", "loginName");
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);
@@ -206,7 +206,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void where_2() throws ReflectiveOperationException, IOException, SQLException {
+    public void where_2() throws IOException, SQLException {
         Map<String, Object> ctx = Collections.emptyMap();
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);

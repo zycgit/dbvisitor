@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.dbvisitor.mapper.dto.ResultType2Mapper">
+    <select id="selectBool_1">select 1</select>
+    <select id="selectBool_2">select 1</select>
+
+    <select id="selectBytes_1">select 1</select>
+
+    <select id="selectByte_1">select 1</select>
+    <select id="selectByte_2">select 1</select>
+    <select id="selectShort_1">select 1</select>
+    <select id="selectShort_2">select 1</select>
+    <select id="selectInt_1">select 1</select>
+    <select id="selectInt_2">select 1</select>
+    <select id="selectLong_1">select 1</select>
+    <select id="selectLong_2">select 1</select>
+    <select id="selectFloat_1">select 1</select>
+    <select id="selectFloat_2">select 1</select>
+    <select id="selectDouble_1">select 1</select>
+    <select id="selectDouble_2">select 1</select>
+    <select id="selectBigInt_1">select 1</select>
+    <select id="selectDecimal_1">select 1</select>
+    <select id="selectNumber_1">select 1</select>
+
+    <select id="selectChar_1">select 1</select>
+    <select id="selectChar_2">select 1</select>
+    <select id="selectString_1">select 1</select>
+    <select id="selectUrl_1">select 1</select>
+    <select id="selectUri_1">select 1</select>
+
+    <select id="selectVoid_1">select 1</select>
+    <select id="selectVoid_2">select 1</select>
+    <select id="selectMap_1">select 1</select>
+    <select id="selectMap_2">select 1</select>
+    <select id="selectMap_3">select 1</select>
+
+    <select id="selectDate_1">select 1</select>
+    <select id="selectSqlDate_1">select 1</select>
+    <select id="selectSqlTime_1">select 1</select>
+    <select id="selectSqlTimestamp_1">select 1</select>
+    <select id="selectOffsetDateTime_1">select 1</select>
+    <select id="selectOffsetTime_1">select 1</select>
+    <select id="selectLocalDate_1">select 1</select>
+    <select id="selectLocalTime_1">select 1</select>
+    <select id="selectLocalDateTime_1">select 1</select>
+    <select id="selectMonthDay_1">select 1</select>
+    <select id="selectMonth_1">select 1</select>
+    <select id="selectYearMonth_1">select 1</select>
+    <select id="selectYear_1">select 1</select>
+</mapper>

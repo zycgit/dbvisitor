@@ -15,6 +15,8 @@
  */
 package net.hasor.dbvisitor.mapping;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.function.EFunction;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.cobble.reflect.Annotation;
 import net.hasor.cobble.reflect.Annotations;
 import org.w3c.dom.Document;
@@ -30,6 +32,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.URI;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * TableMappingResolve 的公共方法
@@ -37,6 +45,53 @@ import java.lang.reflect.Method;
  * @version : 2021-06-21
  */
 public class MappingHelper {
+
+    private static final Map<String, Class<?>> typeMap;
+
+    static {
+        typeMap = new LinkedCaseInsensitiveMap<>();
+        typeMap.put("boolean", boolean.class);
+        typeMap.put("bool", boolean.class);
+        typeMap.put("bytes", byte[].class);
+        typeMap.put("byte", byte.class);
+        typeMap.put("short", short.class);
+        typeMap.put("int", int.class);
+        typeMap.put("long", long.class);
+        typeMap.put("float", float.class);
+        typeMap.put("double", double.class);
+        typeMap.put("bigint", BigInteger.class);
+        typeMap.put("decimal", BigDecimal.class);
+        typeMap.put("number", Number.class);
+        typeMap.put("char", char.class);
+        typeMap.put("string", String.class);
+        typeMap.put("url", URL.class);
+        typeMap.put("uri", URI.class);
+        typeMap.put("void", void.class);
+        typeMap.put("map", Map.class);
+        typeMap.put("hashmap", HashMap.class);
+        typeMap.put("caseinsensitivemap", LinkedCaseInsensitiveMap.class);
+        typeMap.put("date", java.util.Date.class);
+        typeMap.put("sqldate", java.sql.Date.class);
+        typeMap.put("sqltime", java.sql.Time.class);
+        typeMap.put("sqltimestamp", java.sql.Timestamp.class);
+        typeMap.put("offsetdatetime", java.time.OffsetDateTime.class);
+        typeMap.put("offsettime", java.time.OffsetTime.class);
+        typeMap.put("localdate", java.time.LocalDate.class);
+        typeMap.put("localtime", java.time.LocalTime.class);
+        typeMap.put("localdatetime", java.time.LocalDateTime.class);
+        typeMap.put("monthday", java.time.MonthDay.class);
+        typeMap.put("month", java.time.Month.class);
+        typeMap.put("yearmonth", java.time.YearMonth.class);
+        typeMap.put("year", java.time.Year.class);
+    }
+
+    public static Class<?> typeMappingOr(String typeName, EFunction<String, Class<?>, ClassNotFoundException> defaultType) throws ClassNotFoundException {
+        if (typeMap.containsKey(typeName)) {
+            return typeMap.get(typeName);
+        } else {
+            return defaultType.eApply(typeName);
+        }
+    }
 
     public static boolean caseInsensitive(MappingOptions global) {
         Boolean caseInsensitive = global == null ? null : global.getCaseInsensitive();

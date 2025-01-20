@@ -29,7 +29,7 @@ import java.io.IOException;
  */
 public class ApiConfigTwoMapperTest {
     @Test
-    public void configQuery_1() throws ReflectiveOperationException, IOException {
+    public void configQuery_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ApiBasicConfigTwoMapper.class);
 
@@ -47,7 +47,7 @@ public class ApiConfigTwoMapperTest {
     }
 
     @Test
-    public void configInsert_1() throws ReflectiveOperationException, IOException {
+    public void configInsert_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ApiBasicConfigTwoMapper.class);
 
@@ -65,7 +65,7 @@ public class ApiConfigTwoMapperTest {
     }
 
     @Test
-    public void configInsert_2() throws ReflectiveOperationException, IOException {
+    public void configInsert_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ApiBasicConfigTwoMapper.class);
 
@@ -95,7 +95,7 @@ public class ApiConfigTwoMapperTest {
     }
 
     @Test
-    public void configUpdate_1() throws ReflectiveOperationException, IOException {
+    public void configUpdate_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ApiBasicConfigTwoMapper.class);
 
@@ -110,7 +110,7 @@ public class ApiConfigTwoMapperTest {
     }
 
     @Test
-    public void configDelete_1() throws ReflectiveOperationException, IOException {
+    public void configDelete_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ApiBasicConfigTwoMapper.class);
 
@@ -125,7 +125,7 @@ public class ApiConfigTwoMapperTest {
     }
 
     @Test
-    public void configExecute_1() throws ReflectiveOperationException, IOException {
+    public void configExecute_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ApiBasicConfigTwoMapper.class);
 
