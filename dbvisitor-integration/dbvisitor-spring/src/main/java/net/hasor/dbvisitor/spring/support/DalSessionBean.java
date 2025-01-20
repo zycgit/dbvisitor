@@ -15,8 +15,8 @@
  */
 package net.hasor.dbvisitor.spring.support;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dal.mapper.Mapper;
-import net.hasor.dbvisitor.dal.repository.DalRegistry;
+import net.hasor.dbvisitor.mapper.Mapper;
+import net.hasor.dbvisitor.dal.MapperRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.spring.adapter.AbstractDsAdapter;
 import net.hasor.dbvisitor.spring.adapter.SpringDsAdapter;
@@ -47,8 +47,8 @@ import java.util.Objects;
  * @see Mapper
  */
 public class DalSessionBean extends AbstractSupportBean<DalSession> {
-    private DalRegistry       dalRegistry;
-    private DalSession        dalSession;
+    private MapperRegistry dalRegistry;
+    private DalSession     dalSession;
     // - dsAdapter
     private AbstractDsAdapter dsAdapter;
     private Class<?>          dsAdapterClass;
@@ -67,7 +67,7 @@ public class DalSessionBean extends AbstractSupportBean<DalSession> {
         initDsAdapter();
 
         if (this.dalRegistry == null) {
-            this.dalSession = new DalSession(this.dsAdapter, DalRegistry.DEFAULT);
+            this.dalSession = new DalSession(this.dsAdapter, MapperRegistry.DEFAULT);
         } else {
             this.dalSession = new DalSession(this.dsAdapter, this.dalRegistry);
         }
@@ -111,7 +111,7 @@ public class DalSessionBean extends AbstractSupportBean<DalSession> {
         return DalSession.class;
     }
 
-    public void setDalRegistry(DalRegistry dalRegistry) {
+    public void setDalRegistry(MapperRegistry dalRegistry) {
         this.dalRegistry = dalRegistry;
     }
 

@@ -15,19 +15,18 @@
  */
 package net.hasor.dbvisitor.spring.support;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
-import net.hasor.dbvisitor.dynamic.rule.SqlBuildRule;
-import net.hasor.dbvisitor.dal.mapper.Mapper;
-import net.hasor.dbvisitor.dal.repository.DalRegistry;
+import net.hasor.dbvisitor.mapper.Mapper;
+import net.hasor.dbvisitor.dal.MapperRegistry;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.dynamic.rule.SqlBuildRule;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.springframework.core.io.Resource;
 
-import java.io.InputStream;
 import java.util.Map;
 import java.util.Objects;
 
@@ -35,7 +34,6 @@ import java.util.Objects;
  * BeanFactory that enables injection of DalRegistry.
  * <p>
  * Sample configuration:
- *
  * <pre class="code">
  * {@code
  *     <bean id="dalRegistry" class="net.hasor.dbvisitor.spring.support.DalRegistryBean">
@@ -44,12 +42,11 @@ import java.util.Objects;
  *     </bean>
  * }
  * </pre>
- *
- * @version : 2022-04-29
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-29
  * @see Mapper
  */
-public class DalRegistryBean extends AbstractSupportBean<DalRegistry> {
+public class DalRegistryBean extends AbstractSupportBean<MapperRegistry> {
     // - dalTypeRegistry
     private TypeHandlerRegistry   typeRegistry;
     private Map<Class<?>, Object> javaTypeHandlerMap;
@@ -58,7 +55,7 @@ public class DalRegistryBean extends AbstractSupportBean<DalRegistry> {
     private RuleRegistry          ruleRegistry;
     private Map<String, Object>   ruleHandlerMap;
     // - dalRegistry
-    private DalRegistry           dalRegistry;
+    private MapperRegistry        dalRegistry;
     private Boolean               autoMapping;
     private Boolean               camelCase;
     private Boolean               caseInsensitive;
@@ -98,7 +95,7 @@ public class DalRegistryBean extends AbstractSupportBean<DalRegistry> {
             options.setDefaultDialect(SqlDialectRegister.findOrCreate(this.dialectName, this.classLoader));
         }
 
-        this.dalRegistry = new DalRegistry(classLoader, typeRegistry, ruleRegistry, options);
+        this.dalRegistry = new MapperRegistry(classLoader, typeRegistry, ruleRegistry, options);
 
         // typeHandler
         if (this.javaTypeHandlerMap != null) {
@@ -127,9 +124,8 @@ public class DalRegistryBean extends AbstractSupportBean<DalRegistry> {
         // mapperResources
         if (this.mapperResources != null && this.mapperResources.length > 0) {
             for (Resource resource : this.mapperResources) {
-                try (InputStream ins = resource.getInputStream()) {
-                    this.dalRegistry.loadMapper(ins);
-                }
+                String string = resource.getURI().toString();
+                this.dalRegistry.loadMapper(string, false);
             }
         }
 
@@ -200,13 +196,13 @@ public class DalRegistryBean extends AbstractSupportBean<DalRegistry> {
     }
 
     @Override
-    public DalRegistry getObject() {
+    public MapperRegistry getObject() {
         return Objects.requireNonNull(this.dalRegistry, "dalRegistry not init.");
     }
 
     @Override
     public Class<?> getObjectType() {
-        return DalRegistry.class;
+        return MapperRegistry.class;
     }
 
     public void setTypeRegistry(TypeHandlerRegistry typeRegistry) {

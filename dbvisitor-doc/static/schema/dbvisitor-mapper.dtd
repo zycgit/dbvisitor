@@ -14,7 +14,7 @@
        See the License for the specific language governing permissions and
        limitations under the License.
 -->
-<!ELEMENT mapper ( resultMap* | entity* | sql* | insert* | update* | delete* | select* )+>
+<!ELEMENT mapper ( resultMap* | entity* | sql* | execute* | insert* | update* | delete* | select* )+>
 <!ATTLIST mapper
         namespace CDATA #IMPLIED
         caseInsensitive (true|false) #IMPLIED
@@ -75,6 +75,8 @@
         setValueTemplate CDATA #IMPLIED
         whereColTemplate CDATA #IMPLIED
         whereValueTemplate CDATA #IMPLIED
+        groupByColTemplate CDATA #IMPLIED
+        orderByColTemplate CDATA #IMPLIED
         sqlType CDATA #IMPLIED
         length CDATA #IMPLIED
         precision CDATA #IMPLIED
@@ -102,6 +104,8 @@
         setValueTemplate CDATA #IMPLIED
         whereColTemplate CDATA #IMPLIED
         whereValueTemplate CDATA #IMPLIED
+        groupByColTemplate CDATA #IMPLIED
+        orderByColTemplate CDATA #IMPLIED
         sqlType CDATA #IMPLIED
         length CDATA #IMPLIED
         precision CDATA #IMPLIED
@@ -132,31 +136,25 @@
         timeout CDATA #IMPLIED
         useGeneratedKeys CDATA #IMPLIED
         keyProperty CDATA #IMPLIED
-        parameterType CDATA #IMPLIED
+        keyColumn CDATA #IMPLIED
         >
 
-<!ELEMENT update (#PCDATA | selectKey | include | trim | where | set | foreach | choose | if | bind)*>
+<!ELEMENT update (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
 <!ATTLIST update
         id CDATA #REQUIRED
         statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
         timeout CDATA #IMPLIED
         >
 
-<!ELEMENT selectKey (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
-<!ATTLIST selectKey
-        statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
-        timeout CDATA #IMPLIED
-        resultType CDATA #IMPLIED
-        fetchSize CDATA #IMPLIED
-        resultSetType CDATA #IMPLIED
-        keyProperty CDATA #REQUIRED
-        keyColumn CDATA #IMPLIED
-        order (BEFORE|AFTER) #IMPLIED
-        handler CDATA #IMPLIED
-        >
-
 <!ELEMENT delete (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
 <!ATTLIST delete
+        id CDATA #REQUIRED
+        statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
+        timeout CDATA #IMPLIED
+        >
+
+<!ELEMENT execute (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+<!ATTLIST execute
         id CDATA #REQUIRED
         statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
         timeout CDATA #IMPLIED
@@ -171,13 +169,26 @@
         resultType CDATA #IMPLIED
         fetchSize CDATA #IMPLIED
         resultSetType (FORWARD_ONLY | SCROLL_INSENSITIVE | SCROLL_SENSITIVE | DEFAULT) #IMPLIED
-        multipleResult (FIRST|LAST|ALL) #IMPLIED
+        bindOut CDATA #IMPLIED
         >
 
-<!-- Dynamic -->
 <!ELEMENT sql (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
 <!ATTLIST sql
         id CDATA #REQUIRED
+        >
+
+<!-- Dynamic -->
+<!ELEMENT selectKey (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
+    <!ATTLIST selectKey
+        statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
+        timeout CDATA #IMPLIED
+        fetchSize CDATA #IMPLIED
+        resultSetType CDATA #IMPLIED
+        keyProperty CDATA #REQUIRED
+        keyColumn CDATA #IMPLIED
+        order (BEFORE|AFTER) #IMPLIED
+        resultType CDATA #IMPLIED
+        resultHandler CDATA #IMPLIED
         >
 
 <!ELEMENT include EMPTY>

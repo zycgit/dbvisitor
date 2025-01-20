@@ -13,29 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.provider;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
-
-import javax.sql.DataSource;
-import java.util.function.Supplier;
+package net.hasor.dbvisitor.mapper.dto;
+import net.hasor.dbvisitor.mapper.RefMapper;
 
 /**
- *
- * @version : 2014年7月17日
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-12-10
  */
-public class JdbcTemplateProvider implements Supplier<JdbcTemplate> {
-    private final Supplier<DataSource> dataSource;
+@RefMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_mix.xml")
+public interface ResultTypeMixMapper {
+    boolean selectBool_1();
 
-    public JdbcTemplateProvider(DataSource dataSource) {
-        this(() -> dataSource);
-    }
+    Boolean selectBool_2();
 
-    public JdbcTemplateProvider(Supplier<DataSource> dataSource) {
-        this.dataSource = dataSource;
-    }
+    String selectBool_3();
 
-    public JdbcTemplate get() {
-        return new JdbcTemplate(this.dataSource.get());
-    }
+    Short selectShort_1();
+
+    String selectShort_2();
+
+    java.util.Date selectDate_1();
+
+    java.util.Date selectDate_2();
+
+    java.util.Date selectDate_3();
+
 }

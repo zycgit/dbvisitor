@@ -19,8 +19,8 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Provider;
 import net.hasor.cobble.logging.Logger;
-import net.hasor.dbvisitor.dal.mapper.Mapper;
-import net.hasor.dbvisitor.dal.repository.RefMapper;
+import net.hasor.dbvisitor.mapper.Mapper;
+import net.hasor.dbvisitor.mapper.RefMapper;
 import net.hasor.dbvisitor.dal.session.DalSession;
 
 import java.io.IOException;

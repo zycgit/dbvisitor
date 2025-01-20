@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.spring.mapper;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.dal.repository.DalMapper;
+import net.hasor.dbvisitor.mapper.DalMapper;
 import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.spring.support.DalMapperBean;
 import org.springframework.aop.scope.ScopedProxyFactoryBean;

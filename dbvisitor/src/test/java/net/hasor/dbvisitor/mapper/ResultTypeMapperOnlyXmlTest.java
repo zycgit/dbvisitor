@@ -31,11 +31,11 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-12-10
  */
-public class ResultType5MapperTest {
+public class ResultTypeMapperOnlyXmlTest {
     @Test
     public void selectBool_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectBool_1");
         assert def != null;
@@ -47,7 +47,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectBool_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectBool_2");
         assert def != null;
@@ -59,7 +59,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectBytes_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectBytes_1");
         assert def != null;
@@ -71,7 +71,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectBool_3() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectBool_3");
         assert def != null;
@@ -83,7 +83,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectByte_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectByte_1");
         assert def != null;
@@ -95,7 +95,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectByte_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectByte_2");
         assert def != null;
@@ -107,7 +107,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectShort_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectShort_1");
         assert def != null;
@@ -119,7 +119,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectShort_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectShort_2");
         assert def != null;
@@ -131,7 +131,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectInt_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectInt_1");
         assert def != null;
@@ -143,7 +143,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectInt_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectInt_2");
         assert def != null;
@@ -155,7 +155,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectLong_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectLong_1");
         assert def != null;
@@ -167,7 +167,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectLong_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectLong_2");
         assert def != null;
@@ -179,7 +179,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectFloat_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectFloat_1");
         assert def != null;
@@ -191,7 +191,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectFloat_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectFloat_2");
         assert def != null;
@@ -203,7 +203,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectDouble_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectDouble_1");
         assert def != null;
@@ -215,7 +215,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectDouble_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectDouble_2");
         assert def != null;
@@ -227,7 +227,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectBigInt_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectBigInt_1");
         assert def != null;
@@ -239,7 +239,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectDecimal_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectDecimal_1");
         assert def != null;
@@ -251,7 +251,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectNumber_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectNumber_1");
         assert def != null;
@@ -263,7 +263,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectNumber_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectNumber_2");
         assert def != null;
@@ -275,7 +275,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectChar_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectChar_1");
         assert def != null;
@@ -287,7 +287,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectChar_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectChar_2");
         assert def != null;
@@ -299,7 +299,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectString_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectString_1");
         assert def != null;
@@ -311,7 +311,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectString_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectString_2");
         assert def != null;
@@ -323,7 +323,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectUrl_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectUrl_1");
         assert def != null;
@@ -335,7 +335,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectUri_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectUri_1");
         assert def != null;
@@ -347,7 +347,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectVoid_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectVoid_1");
         assert def != null;
@@ -359,7 +359,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectVoid_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectVoid_2");
         assert def != null;
@@ -371,7 +371,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectVoid_3() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectVoid_3");
         assert def != null;
@@ -383,7 +383,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectMap_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectMap_1");
         assert def != null;
@@ -395,7 +395,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectMap_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectMap_2");
         assert def != null;
@@ -407,7 +407,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectMap_3() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectMap_3");
         assert def != null;
@@ -419,7 +419,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectDate_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectDate_1");
         assert def != null;
@@ -431,7 +431,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectDate_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectDate_2");
         assert def != null;
@@ -443,7 +443,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectSqlDate_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectSqlDate_1");
         assert def != null;
@@ -455,7 +455,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectSqlDate_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectSqlDate_2");
         assert def != null;
@@ -467,7 +467,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectSqlTime_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectSqlTime_1");
         assert def != null;
@@ -479,7 +479,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectSqlTime_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectSqlTime_2");
         assert def != null;
@@ -491,7 +491,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectSqlTimestamp_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectSqlTimestamp_1");
         assert def != null;
@@ -503,7 +503,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectSqlTimestamp_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectSqlTimestamp_2");
         assert def != null;
@@ -515,7 +515,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectOffsetDateTime_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectOffsetDateTime_1");
         assert def != null;
@@ -527,7 +527,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectOffsetDateTime_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectOffsetDateTime_2");
         assert def != null;
@@ -539,7 +539,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectOffsetTime_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectOffsetTime_1");
         assert def != null;
@@ -551,7 +551,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectOffsetTime_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectOffsetTime_2");
         assert def != null;
@@ -563,7 +563,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectLocalDate_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectLocalDate_1");
         assert def != null;
@@ -575,7 +575,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectLocalDate_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectLocalDate_2");
         assert def != null;
@@ -587,7 +587,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectLocalTime_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectLocalTime_1");
         assert def != null;
@@ -599,7 +599,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectLocalTime_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectLocalTime_2");
         assert def != null;
@@ -611,7 +611,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectLocalDateTime_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectLocalDateTime_1");
         assert def != null;
@@ -623,7 +623,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectLocalDateTime_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectLocalDateTime_2");
         assert def != null;
@@ -635,7 +635,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectMonthDay_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectMonthDay_1");
         assert def != null;
@@ -647,7 +647,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectMonthDay_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectMonthDay_2");
         assert def != null;
@@ -659,7 +659,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectMonth_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectMonth_1");
         assert def != null;
@@ -671,7 +671,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectMonth_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectMonth_2");
         assert def != null;
@@ -683,7 +683,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectYearMonth_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectYearMonth_1");
         assert def != null;
@@ -695,7 +695,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectYearMonth_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectYearMonth_2");
         assert def != null;
@@ -707,7 +707,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectYear_1() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectYear_1");
         assert def != null;
@@ -719,7 +719,7 @@ public class ResultType5MapperTest {
     @Test
     public void selectYear_2() throws IOException {
         MapperRegistry registry = new MapperRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_5.xml");
+        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_only_xml.xml");
 
         StatementDef def = registry.findStatement("mapper_types", "selectYear_2");
         assert def != null;

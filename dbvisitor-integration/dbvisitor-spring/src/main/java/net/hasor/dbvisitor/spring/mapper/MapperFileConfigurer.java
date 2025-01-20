@@ -29,7 +29,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.util.StringUtils;
 
-import java.io.InputStream;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -79,12 +78,8 @@ public class MapperFileConfigurer extends AbstractConfigurer implements Initiali
         Resource[] mapperResources = Stream.of(Optional.ofNullable(mapperLocationsArrays).orElse(new String[0]))//
                 .flatMap(location -> Stream.of(getResources(location))).toArray(Resource[]::new);
         for (Resource resource : mapperResources) {
-            try (InputStream ins = resource.getInputStream()) {
-                if (ins != null) {
-                    logger.info("loadMapper '" + resource + "'");
-                    this.dalSession.getDalRegistry().loadMapper(ins);
-                }
-            }
+            String string = resource.getURI().toString();
+            this.dalSession.getDalRegistry().loadMapper(string, false);
         }
     }
 

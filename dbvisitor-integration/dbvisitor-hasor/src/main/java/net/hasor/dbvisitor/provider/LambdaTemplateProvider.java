@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.provider;
 
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import javax.sql.DataSource;
 import java.util.function.Supplier;
@@ -24,7 +24,7 @@ import java.util.function.Supplier;
  * @version : 2021-07-20
  * @author 赵永春 (zyc@hasor.net)
  */
-public class LambdaTemplateProvider implements Supplier<LambdaTemplate> {
+public class LambdaTemplateProvider implements Supplier<WrapperAdapter> {
     private final Supplier<DataSource> dataSource;
 
     public LambdaTemplateProvider(DataSource dataSource) {
@@ -35,7 +35,7 @@ public class LambdaTemplateProvider implements Supplier<LambdaTemplate> {
         this.dataSource = dataSource;
     }
 
-    public LambdaTemplate get() {
-        return new LambdaTemplate(this.dataSource.get());
+    public WrapperAdapter get() {
+        return new WrapperAdapter(this.dataSource.get());
     }
 }

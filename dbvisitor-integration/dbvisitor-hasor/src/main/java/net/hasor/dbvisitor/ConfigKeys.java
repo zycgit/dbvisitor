@@ -16,8 +16,8 @@
 package net.hasor.dbvisitor;
 
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dal.mapper.Mapper;
-import net.hasor.dbvisitor.dal.repository.DalMapper;
+import net.hasor.dbvisitor.mapper.Mapper;
+import net.hasor.dbvisitor.mapper.DalMapper;
 
 import javax.inject.Singleton;
 

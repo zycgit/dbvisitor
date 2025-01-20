@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper;
+import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.EConsumer;
@@ -99,6 +100,7 @@ public class MapperRegistry {
         }
     }
 
+    /** load mapperType. */
     public void loadMapper(Class<?> mapperType) throws IOException {
         testMapper(mapperType);
 
@@ -123,10 +125,14 @@ public class MapperRegistry {
             }
 
             // load method.
-            this.tryLoadMethod(mapperType, mapperType.getMethods(), refXml);
+            SqlConfigResolve<Method> resolve = this.getMethodDynamicResolve();
+            for (Method m : mapperType.getMethods()) {
+                this.tryLoadMethod(resolve, mapperType, m, refXml);
+            }
         });
     }
 
+    /** load mapperFile. */
     public void loadMapper(String mapperResource) throws IOException {
         if (StringUtils.isBlank(mapperResource)) {
             throw new FileNotFoundException("mapper file ios empty.");
@@ -224,67 +230,78 @@ public class MapperRegistry {
         }
     }
 
-    private void tryLoadMethod(Class<?> mapperType, Method[] methods, boolean refXml) throws IOException {
-        SqlConfigResolve<Method> resolve = this.getMethodDynamicResolve();
-        for (Method m : methods) {
-            this.tryLoaded(m, method -> {
-                // skip.
-                if (method.isDefault()) {
-                    return;
-                }
+    private void tryLoadMethod(SqlConfigResolve<Method> resolve, Class<?> mapperType, Method method, boolean refXml) throws IOException {
+        this.tryLoaded(method, m -> {
+            // skip.
+            if (m.isDefault()) {
+                return;
+            }
 
-                // check conflict
-                String configSpace = mapperType.getName();
-                String configId = method.getName();
-                boolean hasXmlConf = refXml && this.configMap.containsKey(configSpace) && this.configMap.get(configSpace).containsKey(configId);
-                boolean hasAnnoConf = matchMethod(method);
-                if (hasAnnoConf && hasXmlConf) {
-                    throw new IllegalStateException("Annotations and mapperFile conflicts with " + configSpace + "." + configId);
-                }
+            // check conflict
+            String configSpace = mapperType.getName();
+            String configId = m.getName();
+            boolean hasXmlConf = refXml && this.configMap.containsKey(configSpace) && this.configMap.get(configSpace).containsKey(configId);
+            boolean hasAnnoConf = matchMethod(m);
+            if (hasAnnoConf && hasXmlConf) {
+                throw new IllegalStateException("Annotations and mapperFile conflicts with " + configSpace + "." + configId);
+            }
 
-                // resolve required Type
-                Class<?> requiredClass = method.getReturnType();
-                if (Collection.class.isAssignableFrom(requiredClass)) {
-                    Type requiredType = method.getGenericReturnType();
-                    ResolvableType type = ResolvableType.forType(requiredType);
-                    requiredClass = type.getGeneric(0).resolve();
-                }
+            // resolve required Type
+            Class<?> requiredClass = m.getReturnType();
+            if (Collection.class.isAssignableFrom(requiredClass)) {
+                Type requiredType = m.getGenericReturnType();
+                ResolvableType type = ResolvableType.forType(requiredType);
+                requiredClass = type.getGeneric(0).resolve();
+            }
 
-                //
-                Map<String, StatementDef> defMap = this.configMap.computeIfAbsent(configSpace, s -> new ConcurrentHashMap<>());
-                if (hasAnnoConf) {
-                    StatementDef def = new StatementDef(configSpace, resolve.parseSqlConfig(configSpace, method));
-                    MapperTuple tuple = this.mapperFromMethodReturning(method);
-                    if (tuple != null) {
-                        def.setMappingType(tuple.forType);
-                        def.setRowMapper(tuple.mapper);
-                    } else {
-                        if (requiredClass != Object.class && requiredClass != Void.class && requiredClass != void.class) {
-                            def.setMappingType(requiredClass);
-                            def.setRowMapper(this.mapperFromType(configSpace, requiredClass));
-                        }
-                    }
-
-                    defMap.put(configId, def);
-                }
-
-                // supplement
-                if (hasXmlConf && defMap.containsKey(configId)) {
-                    StatementDef def = defMap.get(configId);
-
-                    if (def.getMappingType() == null) {
-                        if (requiredClass != Object.class && requiredClass != Void.class && requiredClass != void.class) {
-                            def.setMappingType(requiredClass);
-                        }
-                    }
-                    if (def.getRowMapper() == null) {
-                        if (requiredClass != Object.class && requiredClass != Void.class && requiredClass != void.class) {
-                            def.setRowMapper(this.mapperFromType(configSpace, requiredClass));
-                        }
+            //
+            Map<String, StatementDef> defMap = this.configMap.computeIfAbsent(configSpace, s -> new ConcurrentHashMap<>());
+            if (hasAnnoConf) {
+                StatementDef def = new StatementDef(configSpace, resolve.parseSqlConfig(configSpace, m));
+                MapperTuple tuple = this.mapperFromMethodReturning(m);
+                if (tuple != null) {
+                    def.setMappingType(tuple.forType);
+                    def.setRowMapper(tuple.mapper);
+                } else {
+                    if (requiredClass != Object.class && requiredClass != Void.class && requiredClass != void.class) {
+                        def.setMappingType(requiredClass);
+                        def.setRowMapper(this.mapperFromType(configSpace, requiredClass));
                     }
                 }
-            });
-        }
+
+                defMap.put(configId, def);
+            }
+
+            // supplement (only load from xml try supplement mappingType)
+            if (hasXmlConf && defMap.containsKey(configId)) {
+                StatementDef def = defMap.get(configId);
+
+                if (def.getMappingType() == null) {
+                    if (requiredClass != Object.class && requiredClass != Void.class && requiredClass != void.class) {
+                        def.setMappingType(requiredClass);
+                    }
+                } else if (requiredClass == String.class) {
+                    // string compatibility is very strong
+                } else {
+                    if (requiredClass.isPrimitive() && !def.getMappingType().isPrimitive()) {
+                        throw new ClassCastException("the wrapper type '" + def.getMappingType().getName() + "' is returned as the primitive type '" + requiredClass.getName() + "' at " + configSpace + "." + configId);
+                    } else if (requiredClass.isPrimitive() || def.getMappingType().isPrimitive()) {
+                        Class<?> a = ClassUtils.primitiveToWrapper(requiredClass);
+                        Class<?> b = ClassUtils.primitiveToWrapper(def.getMappingType());
+                        if (a != b) {
+                            throw new ClassCastException("the type '" + def.getMappingType().getName() + "' cannot be as '" + requiredClass.getName() + "' at " + configSpace + "." + configId);
+                        }
+                    } else if (requiredClass != def.getMappingType() && !requiredClass.isAssignableFrom(def.getMappingType())) {
+                        throw new ClassCastException("the type '" + def.getMappingType().getName() + "' cannot be as '" + requiredClass.getName() + "' at " + configSpace + "." + configId);
+                    }
+                }
+                if (def.getRowMapper() == null) {
+                    if (requiredClass != Object.class && requiredClass != Void.class && requiredClass != void.class) {
+                        def.setRowMapper(this.mapperFromType(configSpace, requiredClass));
+                    }
+                }
+            }
+        });
     }
 
     private static class MapperTuple {

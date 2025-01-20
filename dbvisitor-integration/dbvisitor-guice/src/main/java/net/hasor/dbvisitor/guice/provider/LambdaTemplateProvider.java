@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.guice.provider;
 
 import com.google.inject.Provider;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import javax.sql.DataSource;
 
@@ -24,7 +24,7 @@ import javax.sql.DataSource;
  * @version : 2021-07-20
  * @author 赵永春 (zyc@hasor.net)
  */
-public class LambdaTemplateProvider implements Provider<LambdaTemplate> {
+public class LambdaTemplateProvider implements Provider<WrapperAdapter> {
     private final Provider<DataSource> dataSource;
 
     public LambdaTemplateProvider(DataSource dataSource) {
@@ -35,7 +35,7 @@ public class LambdaTemplateProvider implements Provider<LambdaTemplate> {
         this.dataSource = dataSource;
     }
 
-    public LambdaTemplate get() {
-        return new LambdaTemplate(this.dataSource.get());
+    public WrapperAdapter get() {
+        return new WrapperAdapter(this.dataSource.get());
     }
 }

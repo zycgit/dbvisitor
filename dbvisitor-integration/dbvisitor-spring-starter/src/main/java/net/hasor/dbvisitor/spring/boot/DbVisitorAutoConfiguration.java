@@ -16,17 +16,19 @@
 package net.hasor.dbvisitor.spring.boot;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.dal.mapper.Mapper;
-import net.hasor.dbvisitor.dal.repository.DalMapper;
-import net.hasor.dbvisitor.dal.repository.DalRegistry;
+import net.hasor.dbvisitor.mapper.Mapper;
+import net.hasor.dbvisitor.mapper.DalMapper;
+import net.hasor.dbvisitor.dal.MapperRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
+import net.hasor.dbvisitor.dynamic.MacroRegistry;
+import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.spring.mapper.MapperFileConfigurer;
 import net.hasor.dbvisitor.spring.mapper.MapperScannerConfigurer;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.*;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -54,7 +56,7 @@ import java.util.List;
 import static net.hasor.dbvisitor.spring.boot.DbVisitorProperties.PREFIX;
 
 @Configuration
-@ConditionalOnClass({ DalSession.class, DalRegistry.class })
+@ConditionalOnClass({ DalSession.class, MapperRegistry.class })
 @ConditionalOnSingleCandidate(DataSource.class)
 @EnableConfigurationProperties(DbVisitorProperties.class)
 @AutoConfigureAfter(DataSourceAutoConfiguration.class)
@@ -86,7 +88,7 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
 
     @Bean
     @ConditionalOnMissingBean
-    public DalRegistry dalRegistry(ObjectProvider<TypeHandlerRegistry> typeHandlersProvider, ObjectProvider<RuleRegistry> ruleRegistryProvider) {
+    public MapperRegistry dalRegistry(ObjectProvider<TypeHandlerRegistry> typeHandlersProvider, ObjectProvider<RuleRegistry> ruleRegistryProvider) {
         TypeHandlerRegistry typeHandlerRegistry = typeHandlersProvider.getIfAvailable();
         RuleRegistry ruleRegistry = ruleRegistryProvider.getIfAvailable();
 
@@ -98,12 +100,12 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
         if (StringUtils.hasText(this.properties.getDialect())) {
             options.setDefaultDialect(SqlDialectRegister.findOrCreate(this.properties.getDialect(), this.classLoader));
         }
-        return new DalRegistry(this.classLoader, typeHandlerRegistry, ruleRegistry, options);
+        return new MapperRegistry(this.classLoader, typeHandlerRegistry, ruleRegistry, options);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public DalSession dalSession(DataSource dataSource, DalRegistry dalRegistry) throws Exception {
+    public DalSession dalSession(DataSource dataSource, MapperRegistry dalRegistry) throws Exception {
         String refSessionBean = this.properties.getRefSessionBean();
         if (StringUtils.hasText(refSessionBean)) {
             return (DalSession) this.applicationContext.getBean(refSessionBean);
@@ -116,12 +118,13 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
 
     @Bean
     @ConditionalOnMissingBean
-    public LambdaTemplate lambdaTemplate(DataSource dataSource, ObjectProvider<TypeHandlerRegistry> typeHandlersProvider) {
+    public WrapperAdapter lambdaTemplate(DataSource dataSource, ObjectProvider<TypeHandlerRegistry> typeHandlersProvider) {
         TypeHandlerRegistry typeHandlerRegistry = typeHandlersProvider.getIfAvailable();
         if (typeHandlerRegistry == null) {
-            return new LambdaTemplate(dataSource);
+            return new WrapperAdapter(dataSource);
         } else {
-            return new LambdaTemplate(dataSource, typeHandlerRegistry);
+            RegistryManager manager = new RegistryManager(typeHandlerRegistry, RuleRegistry.DEFAULT, MacroRegistry.DEFAULT);
+            return new WrapperAdapter(dataSource, manager);
         }
     }
 

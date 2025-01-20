@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.adapter;
-import net.hasor.dbvisitor.dal.mapper.Mapper;
+import net.hasor.dbvisitor.mapper.Mapper;
 import net.hasor.dbvisitor.transaction.ConnectionProxy;
 import net.hasor.dbvisitor.transaction.DataSourceUtils;
 

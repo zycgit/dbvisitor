@@ -1,12 +1,12 @@
 ---
 id: using_page
-sidebar_position: 9
-title: 分页与方言
+sidebar_position: 6
+hide_table_of_contents: true
+title: 8.6 分页对象
 description: 使用 dbVisitor ORM 的分页查询能力查询数据库数据。
 ---
-# 分页与方言
 
-## 分页查询
+# 分页查询
 
 dbVisitor 内置了分页查询机制，使用方便且无需任何配置。具体工作方式为：
 
@@ -14,31 +14,6 @@ dbVisitor 内置了分页查询机制，使用方便且无需任何配置。具�
 - 然后会根据 `PageSqlDialect` 接口将原始 SQL 处理成分页 SQL。结果仍然是 `BoundSql` 类型承载。
 - 执行最终的 SQL 完成分页查询
 
-### LambdaTemplate 方式
-
-使用 `LambdaTemplate` 进行分页查询
-
-```java
-// 构造 LambdaTemplate 和初始化一些数据
-DataSource dataSource = DsUtils.dsMySql();
-LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
-lambdaTemplate.loadSQL("CreateDB.sql");
-
-// 构建分页对象，每页 3 条数据(默认第一页的页码为 0)
-Page pageInfo = new PageObject();
-pageInfo.setPageSize(3);
-
-// 分页查询数据
-List<TestUser> pageData1 = lambdaTemplate.lambdaQuery(TestUser.class)
-    .usePage(pageInfo)
-    .queryForList();
-
-// 分页查询下一页数据
-pageInfo.nextPage();
-List<TestUser> pageData2 = lambdaTemplate.lambdaQuery(TestUser.class)
-    .usePage(pageInfo)
-    .queryForList();
-```
 
 ### DalSession 方式
 
@@ -143,25 +118,25 @@ export const HighMethod = () => (
 
 dbVisitor 默认会根据 JDBC 的链接字符串自动匹配方言，支持如下数据库：
 
-| 数据库           | 编码           | 方言类名                | JDBC串识别前缀 |
-|---------------|--------------|---------------------| ------------- |
-| DB2           | `db2`        | `Db2Dialect`        | `jdbc:db2:***` |
-| Apache Derby  | `derby`      | `DerbyDialect`      | `jdbc:derby:***`、`jdbc:log4jdbc:derby:***` |
-| 达梦            | `dm`         | `DmDialect`         | `jdbc:dm:***` |
-| H2            | `H2`         | `H2Dialect`         | `jdbc:h2::***`、`jdbc:log4jdbc:h2:***` |
-| Hive          | `hive`       | `HiveDialect`       | `jdbc:hive:***`、`jdbc:hive2:***` |
-| HSQL          | `hsql`       | `HSQLDialect`       | `jdbc:hsqldb:***`、`jdbc:log4jdbc:hsqldb:***` |
-| Apache Impala | `impala`     | `ImpalaDialect`     | `jdbc:impala:***` |
-| IBM Informix  | `informix`   | `InformixDialect`   | `jdbc:informix-sqli:***`、`jdbc:log4jdbc:informix-sqli:***` |
-| 人大金仓          | `kingbase`   | `KingbaseDialect`   | `jdbc:kingbase:***` |
-| MariaDB       | `mariadb`    | `MariaDBDialect`    | `jdbc:mariadb:***` |
-| MYSQL         | `mysql`      | `MySqlDialect`      | `jdbc:mysql:***`、`jdbc:cobar:***`、`jdbc:log4jdbc:mysql:***`|
-| Oracle        | `oracle`     | `OracleDialect`     | `jdbc:oracle:***`、`jdbc:log4jdbc:oracle:***` |
-| Phoenix       | `phoenix`    | `PhoenixDialect`    | `jdbc:phoenix:***` |
-| PostgreSQL    | `postgresql` | `PostgreSqlDialect` | `jdbc:postgresql:***`、`jdbc:log4jdbc:postgresql:***` |
-| SQLite        | `sqlite`     | `SqlLiteDialect`    | `jdbc:sqlite:***` |
+| 数据库           | 编码           | 方言类名                | JDBC串识别前缀                                                                                                                                      |
+|---------------|--------------|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| DB2           | `db2`        | `Db2Dialect`        | `jdbc:db2:***`                                                                                                                                 |
+| Apache Derby  | `derby`      | `DerbyDialect`      | `jdbc:derby:***`、`jdbc:log4jdbc:derby:***`                                                                                                     |
+| 达梦            | `dm`         | `DmDialect`         | `jdbc:dm:***`                                                                                                                                  |
+| H2            | `H2`         | `H2Dialect`         | `jdbc:h2::***`、`jdbc:log4jdbc:h2:***`                                                                                                          |
+| Hive          | `hive`       | `HiveDialect`       | `jdbc:hive:***`、`jdbc:hive2:***`                                                                                                               |
+| HSQL          | `hsql`       | `HSQLDialect`       | `jdbc:hsqldb:***`、`jdbc:log4jdbc:hsqldb:***`                                                                                                   |
+| Apache Impala | `impala`     | `ImpalaDialect`     | `jdbc:impala:***`                                                                                                                              |
+| IBM Informix  | `informix`   | `InformixDialect`   | `jdbc:informix-sqli:***`、`jdbc:log4jdbc:informix-sqli:***`                                                                                     |
+| 人大金仓          | `kingbase`   | `KingbaseDialect`   | `jdbc:kingbase:***`                                                                                                                            |
+| MariaDB       | `mariadb`    | `MariaDBDialect`    | `jdbc:mariadb:***`                                                                                                                             |
+| MYSQL         | `mysql`      | `MySqlDialect`      | `jdbc:mysql:***`、`jdbc:cobar:***`、`jdbc:log4jdbc:mysql:***`                                                                                    |
+| Oracle        | `oracle`     | `OracleDialect`     | `jdbc:oracle:***`、`jdbc:log4jdbc:oracle:***`                                                                                                   |
+| Phoenix       | `phoenix`    | `PhoenixDialect`    | `jdbc:phoenix:***`                                                                                                                             |
+| PostgreSQL    | `postgresql` | `PostgreSqlDialect` | `jdbc:postgresql:***`、`jdbc:log4jdbc:postgresql:***`                                                                                           |
+| SQLite        | `sqlite`     | `SqlLiteDialect`    | `jdbc:sqlite:***`                                                                                                                              |
 | SQL Server    | `sqlserver`  | `SqlServerDialect`  | `jdbc:jtds:***`、`jdbc:microsoft:***`、`jdbc:sqlserver:***`、`jdbc:log4jdbc:jtds:***`、`jdbc:log4jdbc:microsoft:***`、`jdbc:log4jdbc:sqlserver:***` |
-| 虚谷数据库         | `xugu`       | `XuGuDialect`       | `jdbc:xugu:***` |
+| 虚谷数据库         | `xugu`       | `XuGuDialect`       | `jdbc:xugu:***`                                                                                                                                |
 
 ### 自定义方言
 

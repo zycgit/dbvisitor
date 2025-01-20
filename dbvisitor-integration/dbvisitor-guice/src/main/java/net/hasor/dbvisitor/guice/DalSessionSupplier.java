@@ -19,11 +19,11 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Provider;
 import net.hasor.cobble.ExceptionUtils;
-import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
-import net.hasor.dbvisitor.dal.mapper.Mapper;
-import net.hasor.dbvisitor.dal.repository.DalRegistry;
+import net.hasor.dbvisitor.mapper.Mapper;
+import net.hasor.dbvisitor.dal.MapperRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import javax.sql.DataSource;
@@ -34,8 +34,8 @@ import java.util.Set;
 
 /**
  * BeanFactory that enables injection of DalSession.
- * @version : 2022-04-29
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-29
  * @see Mapper
  */
 class DalSessionSupplier implements Provider<DalSession> {
@@ -58,17 +58,17 @@ class DalSessionSupplier implements Provider<DalSession> {
     }
 
     @Inject
-    public void initDalSession(Injector injector) throws SQLException, ReflectiveOperationException {
+    public void initDalSession(Injector injector) throws SQLException {
         TypeHandlerRegistry typeRegistry = injector.getInstance(this.typeInfo);
         RuleRegistry ruleRegistry = injector.getInstance(this.ruleInfo);
 
         DataSource dataSource = injector.getInstance(this.dsInfo);
-        DalRegistry dalRegistry = new DalRegistry(this.classLoader, typeRegistry, ruleRegistry, this.options);
+        MapperRegistry dalRegistry = new MapperRegistry(this.classLoader, typeRegistry, ruleRegistry, this.options);
 
         if (!(this.mappers == null || this.mappers.isEmpty())) {
             try {
                 for (URI mapper : this.mappers) {
-                    dalRegistry.loadMapper(mapper.toURL());
+                    dalRegistry.loadMapper(mapper.toString());
                 }
             } catch (IOException e) {
                 throw ExceptionUtils.toRuntime(e);

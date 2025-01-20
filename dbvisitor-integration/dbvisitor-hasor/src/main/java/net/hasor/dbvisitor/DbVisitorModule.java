@@ -25,13 +25,13 @@ import net.hasor.core.setting.SettingNode;
 import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
-import net.hasor.dbvisitor.jdbc.JdbcOperations;
-import net.hasor.dbvisitor.jdbc.core.JdbcAccessor;
-import net.hasor.dbvisitor.jdbc.core.JdbcConnection;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.lambda.LambdaOperations;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.dbvisitor.template.jdbc.JdbcOperations;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcAccessor;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcConnection;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.wrapper.WrapperOperations;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.provider.JdbcTemplateProvider;
 import net.hasor.dbvisitor.provider.LambdaTemplateProvider;
 import net.hasor.dbvisitor.provider.TransactionManagerProvider;
@@ -143,15 +143,15 @@ public class DbVisitorModule implements net.hasor.core.Module {
             apiBinder.bindType(JdbcConnection.class).toProvider(tempProvider);
             apiBinder.bindType(JdbcTemplate.class).toProvider(tempProvider);
             apiBinder.bindType(JdbcOperations.class).toProvider(tempProvider);
-            apiBinder.bindType(LambdaTemplate.class).toProvider(lambdaProvider);
-            apiBinder.bindType(LambdaOperations.class).toProvider(lambdaProvider);
+            apiBinder.bindType(WrapperAdapter.class).toProvider(lambdaProvider);
+            apiBinder.bindType(WrapperOperations.class).toProvider(lambdaProvider);
         } else {
             apiBinder.bindType(JdbcAccessor.class).nameWith(dbName).toProvider(tempProvider);
             apiBinder.bindType(JdbcConnection.class).nameWith(dbName).toProvider(tempProvider);
             apiBinder.bindType(JdbcTemplate.class).nameWith(dbName).toProvider(tempProvider);
             apiBinder.bindType(JdbcOperations.class).nameWith(dbName).toProvider(tempProvider);
-            apiBinder.bindType(LambdaTemplate.class).nameWith(dbName).toProvider(lambdaProvider);
-            apiBinder.bindType(LambdaOperations.class).nameWith(dbName).toProvider(lambdaProvider);
+            apiBinder.bindType(WrapperAdapter.class).nameWith(dbName).toProvider(lambdaProvider);
+            apiBinder.bindType(WrapperOperations.class).nameWith(dbName).toProvider(lambdaProvider);
         }
     }
 

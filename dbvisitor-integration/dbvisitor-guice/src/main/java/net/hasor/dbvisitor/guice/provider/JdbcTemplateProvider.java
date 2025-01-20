@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.guice.provider;
 import com.google.inject.Provider;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 

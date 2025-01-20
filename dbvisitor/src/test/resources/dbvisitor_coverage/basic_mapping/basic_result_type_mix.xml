@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.dbvisitor.mapper.dto.ResultTypeMixMapper">
+    <select id="selectBool_1" resultType="boolean">select 1</select>
+    <select id="selectBool_2" resultType="boolean">select 1</select>
+    <select id="selectBool_3" resultType="boolean">select 1</select>
+
+    <select id="selectShort_1" resultType="java.lang.Short">select 1</select>
+    <select id="selectShort_2" resultType="java.lang.Short">select 1</select>
+
+    <select id="selectDate_1" resultType="date">select 1</select>
+    <select id="selectDate_2" resultType="sqldate">select 1</select>
+    <select id="selectDate_3" resultType="sqltime">select 1</select>
+</mapper>

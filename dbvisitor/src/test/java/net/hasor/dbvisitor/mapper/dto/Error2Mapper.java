@@ -13,29 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.provider;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
-
-import javax.sql.DataSource;
-import java.util.function.Supplier;
+package net.hasor.dbvisitor.mapper.dto;
+import net.hasor.dbvisitor.mapper.RefMapper;
 
 /**
- *
- * @version : 2014年7月17日
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-12-10
  */
-public class JdbcTemplateProvider implements Supplier<JdbcTemplate> {
-    private final Supplier<DataSource> dataSource;
-
-    public JdbcTemplateProvider(DataSource dataSource) {
-        this(() -> dataSource);
-    }
-
-    public JdbcTemplateProvider(Supplier<DataSource> dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    public JdbcTemplate get() {
-        return new JdbcTemplate(this.dataSource.get());
-    }
+@RefMapper("/dbvisitor_coverage/basic_mapping/error_2.xml")
+public interface Error2Mapper {
+    java.sql.Time selectDate_1();
 }

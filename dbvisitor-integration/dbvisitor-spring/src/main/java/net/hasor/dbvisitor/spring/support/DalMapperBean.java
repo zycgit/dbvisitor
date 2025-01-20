@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.spring.support;
 
-import net.hasor.dbvisitor.dal.mapper.Mapper;
+import net.hasor.dbvisitor.mapper.Mapper;
 import net.hasor.dbvisitor.dal.session.DalSession;
 
 /**

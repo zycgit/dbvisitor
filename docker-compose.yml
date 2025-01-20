@@ -13,6 +13,17 @@ services:
     restart: always
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time_zone='+8:00'
     # User/Password：root/123456
+  mysql_7_7_18:
+    image: mysql:5.7.18
+    environment:
+      - MYSQL_DATABASE=devtester
+      - MYSQL_ROOT_PASSWORD=123456
+      - TZ=Asia/Shanghai
+    ports:
+      - 13307:3306
+    restart: always
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time_zone='+8:00'
+    # User/Password：root/123456
 
   postgres:
     image: postgres:12.4
@@ -78,6 +89,17 @@ services:
     # -v /var/local/apps/clickhouse/data:/var/lib/clickhouse
     #   --ulimit nofile=262144:262144
     restart: always
+
+  redis:
+    image: redis:7.2.3
+    privileged: true
+    ports:
+      - 16379:6379
+    # - /apps/redis/datadir:/data
+    # - /apps/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
+    # - /apps/redis/logs:/logs
+    restart: always
+    command: redis-server --requirepass 123456
 
 # 达梦
 # https://download.dameng.com/eco/dm8/dm8_20230808_rev197096_x86_rh6_64_single.tar

@@ -18,11 +18,11 @@ import net.hasor.cobble.ExceptionUtils;
 import net.hasor.core.AppContext;
 import net.hasor.core.BindInfo;
 import net.hasor.core.spi.AppContextAware;
-import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
-import net.hasor.dbvisitor.dal.mapper.Mapper;
-import net.hasor.dbvisitor.dal.repository.DalRegistry;
+import net.hasor.dbvisitor.mapper.Mapper;
+import net.hasor.dbvisitor.dal.MapperRegistry;
 import net.hasor.dbvisitor.dal.session.DalSession;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.utils.function.ESupplier;
 
@@ -34,8 +34,8 @@ import java.util.Set;
 
 /**
  * BeanFactory that enables injection of DalSession.
- * @version : 2022-04-29
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-29
  * @see Mapper
  */
 class DalSessionSupplier implements ESupplier<DalSession, SQLException>, AppContextAware {
@@ -45,8 +45,8 @@ class DalSessionSupplier implements ESupplier<DalSession, SQLException>, AppCont
     private final BindInfo<RuleRegistry>        ruleInfo;
     private final Set<URI>                      mappers;
 
-    private DataSource  dataSource  = null;
-    private DalRegistry dalRegistry = null;
+    private DataSource     dataSource  = null;
+    private MapperRegistry dalRegistry = null;
 
     public DalSessionSupplier(MappingOptions options, BindInfo<DataSource> dsInfo, BindInfo<TypeHandlerRegistry> typeInfo, BindInfo<RuleRegistry> ruleInfo, Set<URI> mappers) {
         this.options = options;
@@ -62,14 +62,14 @@ class DalSessionSupplier implements ESupplier<DalSession, SQLException>, AppCont
         RuleRegistry ruleRegistry = appContext.getInstance(this.ruleInfo);
 
         this.dataSource = appContext.getInstance(this.dsInfo);
-        this.dalRegistry = new DalRegistry(appContext.getClassLoader(), typeRegistry, ruleRegistry, this.options);
+        this.dalRegistry = new MapperRegistry(appContext.getClassLoader(), typeRegistry, ruleRegistry, this.options);
 
         if (!(this.mappers == null || this.mappers.isEmpty())) {
             try {
                 for (URI mapper : this.mappers) {
-                    this.dalRegistry.loadMapper(mapper.toURL());
+                    this.dalRegistry.loadMapper(mapper.toString(), false);
                 }
-            } catch (IOException | ReflectiveOperationException e) {
+            } catch (IOException e) {
                 throw ExceptionUtils.toRuntime(e);
             }
         }
