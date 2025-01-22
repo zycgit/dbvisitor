@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.repository;
-import net.hasor.dbvisitor.dal.MapperRegistry;
+package net.hasor.dbvisitor.mapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.test.AbstractDbTest;
 import org.junit.Before;
@@ -28,26 +27,18 @@ import java.util.Objects;
  * @version : 2014-1-13
  * @author 赵永春 (zyc@hasor.net)
  */
-public class AutoMapping4Test extends AbstractDbTest {
-    private MapperRegistry dalRegistry;
+public class AutoGlobalYesTest extends AbstractDbTest {
+    private MappingRegistry registry = new MappingRegistry();
 
     @Before
     public void beforeTest() throws Exception {
-        this.dalRegistry = new MapperRegistry();
-        this.dalRegistry.loadMapper("/dbvisitor_coverage/dal_repository/autoMapping_4.xml");
+        this.registry = new MappingRegistry();
+        this.registry.loadMapper("/dbvisitor_coverage/basic_mapping/auto_global_yes.xml");
     }
 
     @Test
-    public void mapperTest_01() {
-        TableMapping<?> tableMapping = this.dalRegistry.findBySpace("resultMap_test", "resultMap_1");
-
-        assert tableMapping.getProperties().isEmpty();
-        assert tableMapping.getTable().equals("");
-    }
-
-    @Test
-    public void mapperTest_02() {
-        TableMapping<?> tableMapping = this.dalRegistry.findBySpace("resultMap_test", "resultMap_2");
+    public void autoByAnno_1() {
+        TableMapping<?> tableMapping = this.registry.findBySpace("resultMap_test", "resultMap_1");
 
         assert tableMapping.getPropertyByName("uid").getColumn().equals("user_uuid");
         assert tableMapping.getPropertyByName("name").getColumn().equals("user_name");
@@ -58,14 +49,15 @@ public class AutoMapping4Test extends AbstractDbTest {
         assert tableMapping.getPropertyByName("createTime").getColumn().equals("register_time");
 
         assert tableMapping.getTable().equals("");
-        assert Objects.equals(tableMapping.getPropertyByName("email").getJdbcType(), JDBCType.VARCHAR.getVendorTypeNumber());
+        assert tableMapping.getPropertyByName("email").getJdbcType() == null;
         assert Objects.equals(tableMapping.getPropertyByName("seq").getJdbcType(), JDBCType.INTEGER.getVendorTypeNumber());
-        assert Objects.equals(tableMapping.getPropertyByName("createTime").getJdbcType(), JDBCType.TIMESTAMP.getVendorTypeNumber());
+        assert tableMapping.getPropertyByName("createTime").getJdbcType() == null;
     }
 
     @Test
-    public void mapperTest_03() {
-        TableMapping<?> tableMapping = this.dalRegistry.findBySpace("resultMap_test", "resultMap_3");
+    public void autoAndXml_1() {
+        //autoMapping is invalid after result is configured
+        TableMapping<?> tableMapping = this.registry.findBySpace("resultMap_test", "resultMap_2");
 
         assert tableMapping.getPropertyByName("userUuid").getColumn().equals("user_uuid");
         assert tableMapping.getPropertyByName("name").getColumn().equals("user_name");
@@ -73,19 +65,28 @@ public class AutoMapping4Test extends AbstractDbTest {
         assert tableMapping.getPropertyByName("loginPassword").getColumn().equals("login_password");
         assert tableMapping.getPropertyByName("email").getColumn().equals("email");
         assert tableMapping.getPropertyByName("seq").getColumn().equals("seq");
-        assert tableMapping.getPropertyByName("registerTime").getColumn().equals("register_time");
+        assert tableMapping.getPropertyByName("registerTime") == null; // autoMapping is invalid after result is configured
+
+        assert tableMapping.getTable().equals("");
+        assert Objects.equals(tableMapping.getPropertyByName("email").getJdbcType(), JDBCType.VARCHAR.getVendorTypeNumber());
+        assert Objects.equals(tableMapping.getPropertyByName("seq").getJdbcType(), JDBCType.INTEGER.getVendorTypeNumber());
+    }
+
+    @Test
+    public void auto_1() {
+        TableMapping<?> tableMapping = this.registry.findBySpace("resultMap_test", "resultMap_3");
+
+        assert tableMapping.getPropertyByName("userUuid") != null;
+        assert tableMapping.getPropertyByName("name") != null;
+        assert tableMapping.getPropertyByName("loginName") != null;
+        assert tableMapping.getPropertyByName("loginPassword") != null;
+        assert tableMapping.getPropertyByName("email") != null;
+        assert tableMapping.getPropertyByName("seq") != null;
+        assert tableMapping.getPropertyByName("registerTime") != null;
 
         assert tableMapping.getTable().equals("");
         assert Objects.equals(tableMapping.getPropertyByName("email").getJdbcType(), JDBCType.VARCHAR.getVendorTypeNumber());
         assert Objects.equals(tableMapping.getPropertyByName("seq").getJdbcType(), JDBCType.INTEGER.getVendorTypeNumber());
         assert Objects.equals(tableMapping.getPropertyByName("registerTime").getJdbcType(), JDBCType.TIMESTAMP.getVendorTypeNumber());
-    }
-
-    @Test
-    public void mapperTest_04() {
-        TableMapping<?> tableMapping = this.dalRegistry.findBySpace("resultMap_test", "resultMap_4");
-
-        assert tableMapping.getProperties().isEmpty();
-        assert tableMapping.getTable().equals("");
     }
 }

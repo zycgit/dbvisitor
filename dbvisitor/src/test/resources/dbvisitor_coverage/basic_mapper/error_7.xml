@@ -9,7 +9,7 @@
         <mapping column="owner_name" property="ownerName" sqlType="varchar(255)"/>
         <mapping column="owner_type" property="ownerType" sqlType="varchar(64)"/>
         <mapping column="content" property="content" sqlType="blob"/>
-        <index name="idx_a" columns="gmt_modified,instanceId"/>
+        <index name="" columns="gmt_modified,instanceId"/>
         <index name="uk_b" unique="true">
             <column>instanceId</column>
         </index>

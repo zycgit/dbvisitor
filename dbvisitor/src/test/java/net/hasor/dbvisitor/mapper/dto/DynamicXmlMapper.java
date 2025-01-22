@@ -22,7 +22,7 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-12-10
  */
-@RefMapper("/dbvisitor_coverage/basic_mapping/basic_xml_dynamic.xml")
+@RefMapper("/dbvisitor_coverage/basic_mapper/basic_xml_dynamic.xml")
 public interface DynamicXmlMapper {
     List<UserInfo> bind_01(String sellerId);
 

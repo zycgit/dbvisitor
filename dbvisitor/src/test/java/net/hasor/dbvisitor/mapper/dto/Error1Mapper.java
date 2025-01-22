@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.mapper.RefMapper;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-12-10
  */
-@RefMapper("/dbvisitor_coverage/basic_mapping/error_1.xml")
+@RefMapper("/dbvisitor_coverage/basic_mapper/error_1.xml")
 public interface Error1Mapper {
     short selectShort_1();
 }

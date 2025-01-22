@@ -46,4 +46,58 @@ public class ErrorMapperTest {
         }
     }
 
+    @Test
+    public void error_3() {
+        try {
+            MapperRegistry registry = new MapperRegistry();
+            registry.loadMapper("dbvisitor_coverage/basic_mapper/error_3.xml");
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().equals("entity 'entityMap_5' table is not specified.");
+        }
+    }
+
+    @Test
+    public void error_4() {
+        try {
+            MapperRegistry registry = new MapperRegistry();
+            registry.loadMapper("dbvisitor_coverage/basic_mapper/error_4.xml");
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().contains("property 'gmtCreate' undefined.");
+        }
+    }
+
+    @Test
+    public void error_5() {
+        try {
+            MapperRegistry registry = new MapperRegistry();
+            registry.loadMapper("dbvisitor_coverage/basic_mapper/error_5.xml");
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().startsWith("the resultMap 'resultMap_test.userInfo' already exists.");
+        }
+    }
+
+    @Test
+    public void error_6() {
+        try {
+            MapperRegistry registry = new MapperRegistry();
+            registry.loadMapper("dbvisitor_coverage/basic_mapper/error_6.xml");
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().contains("ClassNotFoundException: com.cc.web.constants.ResourceType");
+        }
+    }
+
+    @Test
+    public void error_7() {
+        try {
+            MapperRegistry registry = new MapperRegistry();
+            registry.loadMapper("dbvisitor_coverage/basic_mapper/error_7.xml");
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().endsWith("missing index name.");
+        }
+    }
 }

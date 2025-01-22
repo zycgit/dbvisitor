@@ -28,7 +28,7 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-12-10
  */
-@RefMapper("/dbvisitor_coverage/basic_mapping/basic_result_type_2.xml")
+@RefMapper("/dbvisitor_coverage/basic_mapper/basic_result_type_2.xml")
 public interface ResultType2Mapper {
     boolean selectBool_1();
 

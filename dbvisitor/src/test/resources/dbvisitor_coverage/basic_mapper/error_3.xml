@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper>
-    <entity id="entityMap_5" type="net.hasor.test.entity.BlobResourceV5"/>
+    <entity id="entityMap_5" type="net.hasor.dbvisitor.mapper.dto.UserInfo"/>
 </mapper>

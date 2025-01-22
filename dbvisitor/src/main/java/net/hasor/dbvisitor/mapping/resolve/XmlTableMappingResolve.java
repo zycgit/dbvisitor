@@ -84,6 +84,12 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
             String catalog = strFromXmlAttribute(xmlAttr, "catalog");
             String schema = strFromXmlAttribute(xmlAttr, "schema");
             String table = strFromXmlAttribute(xmlAttr, "table");
+
+            if (StringUtils.isBlank(table)) {
+                String idStr = strFromXmlAttribute(xmlAttr, "id");
+                throw new IOException("entity '" + idStr + "' table is not specified.");
+            }
+
             def.setCatalog(StringUtils.isBlank(catalog) ? usingOpt.getCatalog() : catalog);
             def.setSchema(StringUtils.isBlank(schema) ? usingOpt.getSchema() : schema);
             def.setTable(table);
@@ -107,10 +113,18 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         String useDelimited = strFromXmlAttribute(attributes, "useDelimited");
 
         MappingOptions fileScope = MappingOptions.buildNew(parent);
-        fileScope.setCaseInsensitive(StringUtils.isBlank(caseInsensitive) ? null : Boolean.parseBoolean(caseInsensitive));
-        fileScope.setMapUnderscoreToCamelCase(StringUtils.isBlank(mapUnderscoreToCamelCase) ? null : Boolean.parseBoolean(mapUnderscoreToCamelCase));
-        fileScope.setAutoMapping(StringUtils.isBlank(autoMapping) ? null : Boolean.parseBoolean(autoMapping));
-        fileScope.setUseDelimited(StringUtils.isBlank(useDelimited) ? null : Boolean.parseBoolean(useDelimited));
+        if (StringUtils.isNotBlank(caseInsensitive)) {
+            fileScope.setCaseInsensitive(Boolean.parseBoolean(caseInsensitive));
+        }
+        if (StringUtils.isNotBlank(mapUnderscoreToCamelCase)) {
+            fileScope.setMapUnderscoreToCamelCase(Boolean.parseBoolean(mapUnderscoreToCamelCase));
+        }
+        if (StringUtils.isNotBlank(autoMapping)) {
+            fileScope.setAutoMapping(Boolean.parseBoolean(autoMapping));
+        }
+        if (StringUtils.isNotBlank(useDelimited)) {
+            fileScope.setUseDelimited(Boolean.parseBoolean(useDelimited));
+        }
         return fileScope;
     }
 

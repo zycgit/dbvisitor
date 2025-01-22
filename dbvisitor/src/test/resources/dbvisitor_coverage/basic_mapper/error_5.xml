@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="resultMap_test">
+    <resultMap id="userInfo" type="net.hasor.dbvisitor.mapper.dto.UserInfo">
+        <result column="id" property="userUuid"/>
+    </resultMap>
+
+    <resultMap id="userInfo" type="net.hasor.dbvisitor.mapper.dto.UserInfo">
+        <result column="id" property="userUuid"/>
+    </resultMap>
+</mapper>

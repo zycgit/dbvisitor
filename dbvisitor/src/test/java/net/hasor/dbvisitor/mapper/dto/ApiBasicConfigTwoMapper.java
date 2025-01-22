@@ -22,7 +22,7 @@ import java.util.List;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-12-10
  */
-@RefMapper("/dbvisitor_coverage/basic_mapping/basic_mapper_two.xml")
+@RefMapper("/dbvisitor_coverage/basic_mapper/basic_mapper_two.xml")
 public interface ApiBasicConfigTwoMapper {
     List<UserInfo> configQuery(String abc);
 
