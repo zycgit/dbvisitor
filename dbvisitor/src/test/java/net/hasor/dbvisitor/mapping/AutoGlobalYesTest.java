@@ -28,7 +28,7 @@ import java.util.Objects;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class AutoGlobalYesTest extends AbstractDbTest {
-    private MappingRegistry registry = new MappingRegistry();
+    private MappingRegistry registry;
 
     @Before
     public void beforeTest() throws Exception {

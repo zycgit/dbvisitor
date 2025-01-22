@@ -27,13 +27,13 @@ import java.util.Objects;
  * @version : 2014-1-13
  * @author 赵永春 (zyc@hasor.net)
  */
-public class AutoGlobalNoTest extends AbstractDbTest {
+public class CamelCaseItemNoTest extends AbstractDbTest {
     private MappingRegistry registry;
 
     @Before
     public void beforeTest() throws Exception {
         this.registry = new MappingRegistry();
-        this.registry.loadMapper("/dbvisitor_coverage/basic_mapping/auto_global_no.xml");
+        this.registry.loadMapper("/dbvisitor_coverage/basic_mapping/camel_case_item_no.xml");
     }
 
     @Test
@@ -76,6 +76,17 @@ public class AutoGlobalNoTest extends AbstractDbTest {
     public void auto_1() {
         TableMapping<?> tableMapping = this.registry.findBySpace("resultMap_test", "resultMap_3");
 
-        assert tableMapping.getColumns().isEmpty();
+        assert tableMapping.getPropertyByName("userUuid").getColumn().equals("userUuid");
+        assert tableMapping.getPropertyByName("name").getColumn().equals("name");
+        assert tableMapping.getPropertyByName("loginName").getColumn().equals("loginName");
+        assert tableMapping.getPropertyByName("loginPassword").getColumn().equals("loginPassword");
+        assert tableMapping.getPropertyByName("email").getColumn().equals("email");
+        assert tableMapping.getPropertyByName("seq").getColumn().equals("seq");
+        assert tableMapping.getPropertyByName("registerTime").getColumn().equals("registerTime");
+
+        assert tableMapping.getTable().equals("");
+        assert Objects.equals(tableMapping.getPropertyByName("email").getJdbcType(), JDBCType.VARCHAR.getVendorTypeNumber());
+        assert Objects.equals(tableMapping.getPropertyByName("seq").getJdbcType(), JDBCType.INTEGER.getVendorTypeNumber());
+        assert Objects.equals(tableMapping.getPropertyByName("registerTime").getJdbcType(), JDBCType.TIMESTAMP.getVendorTypeNumber());
     }
 }
