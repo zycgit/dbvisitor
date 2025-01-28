@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.template.jdbc.extractor;
-import net.hasor.dbvisitor.template.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.template.ResultSetExtractor;
 import net.hasor.dbvisitor.template.jdbc.mapper.ColumnMapRowMapper;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 

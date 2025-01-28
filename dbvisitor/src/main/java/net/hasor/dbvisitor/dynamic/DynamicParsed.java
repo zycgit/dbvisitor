@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.dynamic;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.rule.ArgRule;
-import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 
 import java.util.Map;
@@ -51,10 +51,33 @@ public class DynamicParsed {
      * select from user where id = @{abc,true, :name}
      * </pre>
      */
-    public static DefaultSqlSegment getParsedSql(final String originalSql) {
-        DefaultSqlSegment segment = new DefaultSqlSegment();
+    public static PlanDynamicSql getParsedSql(final String originalSql) {
+        PlanDynamicSql segment = new PlanDynamicSql();
         if (originalSql == null) {
             return segment;
+        }
+
+        parsedSqlTo(originalSql, segment);
+        return segment;
+    }
+
+    /**
+     * support like them
+     * <pre>
+     * select from user where id = ?
+     * select from user where id = :id
+     * select from user where id = :id.ccc['aaa'][0]
+     * select from user where id = &id
+     * select from user where id = &id.ccc['aaa'][0]
+     * select from user where id = @{abc}
+     * select from user where id = #{abc}
+     * select from user where id = ${abc}
+     * select from user where id = @{abc,true, :name}
+     * </pre>
+     */
+    public static void parsedSqlTo(final String originalSql, PlanDynamicSql segment) {
+        if (segment == null) {
+            return;
         }
 
         int positionArgs = 0;
@@ -192,7 +215,6 @@ public class DynamicParsed {
         if (i != pos) {
             segment.appendString(statement, pos, i - pos);
         }
-        return segment;
     }
 
     /** Skip over comments and quoted names present in an SQL statement */
@@ -294,7 +316,7 @@ public class DynamicParsed {
         return false;
     }
 
-    private static void parserRule(DefaultSqlSegment fxQuery, String content) {
+    private static void parserRule(PlanDynamicSql fxQuery, String content) {
         int index = 0;
         int readIndex = 0;
         int length = content.length();
@@ -369,7 +391,7 @@ public class DynamicParsed {
         return index;
     }
 
-    private static void parserValue(DefaultSqlSegment fxQuery, String content) {
+    private static void parserValue(PlanDynamicSql fxQuery, String content) {
         String[] testSplit = content.split(",");
         if (testSplit.length > 10 || testSplit.length == 0) {
             throw new IllegalArgumentException("analysisSQL failed, format error -> '#{valueExpr [,mode= IN|OUT|INOUT] [,jdbcType=INT] [,javaType=java.lang.String] [,typeHandler=YouTypeHandlerClassName]}'");
@@ -381,7 +403,7 @@ public class DynamicParsed {
         fxQuery.appendNamedParameter(content, expr, config);
     }
 
-    private static void parserInjection(DefaultSqlSegment fxQuery, String content) {
+    private static void parserInjection(PlanDynamicSql fxQuery, String content) {
         fxQuery.appendInjectionExpr(content);
     }
 }

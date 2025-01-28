@@ -14,27 +14,26 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.template.jdbc.extractor;
-import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.ResultArg;
+import net.hasor.dbvisitor.dynamic.ResultArgType;
+import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.rule.ResultRule;
-import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
-import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment.RuleInfo;
+import net.hasor.dbvisitor.template.ResultSetExtractor;
+import net.hasor.dbvisitor.template.RowCallbackHandler;
+import net.hasor.dbvisitor.template.RowMapper;
 import net.hasor.dbvisitor.template.jdbc.CallableStatementCallback;
-import net.hasor.dbvisitor.template.jdbc.ResultSetExtractor;
-import net.hasor.dbvisitor.template.jdbc.RowCallbackHandler;
-import net.hasor.dbvisitor.template.jdbc.RowMapper;
-import net.hasor.dbvisitor.template.jdbc.core.ProcedureArg;
 import net.hasor.dbvisitor.template.jdbc.mapper.BeanMappingRowMapper;
 import net.hasor.dbvisitor.template.jdbc.mapper.SingleColumnRowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,13 +44,17 @@ import java.util.Map;
  * @version : 2024-09-29
  */
 public abstract class AbstractMultipleResultSetExtractor {
-    private static final Logger            logger                 = LoggerFactory.getLogger(AbstractMultipleResultSetExtractor.class);
-    private final        DefaultSqlSegment parsedSql;
-    private              boolean           resultsCaseInsensitive = false;
-    private              RegistryManager   registry               = RegistryManager.DEFAULT;
+    private static final Logger          logger                 = LoggerFactory.getLogger(AbstractMultipleResultSetExtractor.class);
+    private final        List<ResultArg> resultArgs;
+    private              boolean         resultsCaseInsensitive = false;
+    private              RegistryManager registry               = RegistryManager.DEFAULT;
 
-    public AbstractMultipleResultSetExtractor(DefaultSqlSegment parsedSql) {
-        this.parsedSql = parsedSql;
+    public AbstractMultipleResultSetExtractor() {
+        this.resultArgs = Collections.emptyList();
+    }
+
+    public AbstractMultipleResultSetExtractor(SqlBuilder buildSql) {
+        this.resultArgs = buildSql.getResultArgs();
     }
 
     public boolean isResultsCaseInsensitive() {
@@ -117,19 +120,15 @@ public abstract class AbstractMultipleResultSetExtractor {
 
     protected void fetchResult(boolean retVal, Statement cs, Map<String, Object> resultMap) throws SQLException {
         // prepare Fetch
-        ProcedureArg defaultRule = null;
-        List<ProcedureArg> resultList = new ArrayList<>();
-        if (this.parsedSql != null) {
-            for (RuleInfo r : this.parsedSql.getRuleList()) {
-                if (StringUtils.equalsIgnoreCase(r.getRule(), ResultRule.FUNC_RESULT)) {
-                    resultList.add(parserConfig(r, false));
-                } else if (StringUtils.equalsIgnoreCase(r.getRule(), ResultRule.FUNC_DEFAULT_RESULT)) {
-                    defaultRule = parserConfig(r, true);
-                }
+        ResultArg defaultRule = null;
+        List<ResultArg> resultList = this.resultArgs;
+        for (ResultArg r : this.resultArgs) {
+            if (StringUtils.equalsIgnoreCase(r.getName(), ResultRule.FUNC_DEFAULT_RESULT)) {
+                defaultRule = r;
             }
         }
         if (defaultRule == null) {
-            defaultRule = new ProcedureArg(null, null, null, null, this.defaultExtractor());
+            defaultRule = new ResultArg(null, ResultArgType.Default, null, null, null, this.defaultExtractor());
         }
 
         // fetch ResultSet -- first ResultSet
@@ -138,12 +137,12 @@ public abstract class AbstractMultipleResultSetExtractor {
         Object resultValue;
         if (retVal) {
             try (ResultSet rs = cs.getResultSet()) {
-                ProcedureArg arg = this.findProcedureArg(resultIndex, resultList, defaultRule);
+                ResultArg arg = this.findResultArg(resultIndex, resultList, ResultArgType.ResultSet, defaultRule);
                 resultName = resultParameterName(arg.getName(), "#result-set-" + resultIndex);
                 resultValue = this.processResultSet(arg, rs);
             }
         } else {
-            ProcedureArg arg = this.findProcedureArg(resultIndex, resultList, defaultRule);
+            ResultArg arg = this.findResultArg(resultIndex, resultList, ResultArgType.ResultUpdate, defaultRule);
             resultName = resultParameterName(arg.getName(), "#update-count-" + resultIndex);
             resultValue = cs.getUpdateCount();
         }
@@ -152,14 +151,15 @@ public abstract class AbstractMultipleResultSetExtractor {
         resultMap.put(resultName, resultValue);
         while ((cs.getMoreResults()) || (cs.getUpdateCount() != -1)) {
             resultIndex++;
-            ProcedureArg arg = this.findProcedureArg(resultIndex, resultList, defaultRule);
             int updateCount = cs.getUpdateCount();
             if (updateCount == -1) {
+                ResultArg arg = this.findResultArg(resultIndex, resultList, ResultArgType.ResultSet, defaultRule);
                 try (ResultSet rs = cs.getResultSet()) {
                     resultName = resultParameterName(arg.getName(), "#result-set-" + resultIndex);
                     resultValue = this.processResultSet(arg, rs);
                 }
             } else {
+                ResultArg arg = this.findResultArg(resultIndex, resultList, ResultArgType.ResultUpdate, defaultRule);
                 resultName = resultParameterName(arg.getName(), "#update-count-" + resultIndex);
                 resultValue = updateCount;
             }
@@ -171,11 +171,11 @@ public abstract class AbstractMultipleResultSetExtractor {
         return (name == null || StringUtils.isBlank(name)) ? defaultName : name;
     }
 
-    protected ProcedureArg findProcedureArg(int resultIndex, List<ProcedureArg> resultList, ProcedureArg defaultRule) {
+    protected ResultArg findResultArg(int resultIndex, List<ResultArg> resultList, ResultArgType findType, ResultArg defaultRule) {
         int idx = resultIndex - 1;
         if (idx < resultList.size()) {
-            ProcedureArg arg = resultList.get(idx);
-            if (arg != null) {
+            ResultArg arg = resultList.get(idx);
+            if (arg != null && arg.getArgType() == findType) {
                 return arg;
             }
         }
@@ -185,7 +185,7 @@ public abstract class AbstractMultipleResultSetExtractor {
     /**
      * Process the given ResultSet from a stored procedure.
      */
-    protected Object processResultSet(ProcedureArg arg, ResultSet rs) throws SQLException {
+    protected Object processResultSet(ResultArg arg, ResultSet rs) throws SQLException {
         if (rs == null) {
             return null;
         }
@@ -215,74 +215,7 @@ public abstract class AbstractMultipleResultSetExtractor {
         }
     }
 
-    protected ProcedureArg parserConfig(RuleInfo content, boolean isDefault) {
-        // restore body
-        String body = "";
-        if (content.getActiveExpr() != null) {
-            body = content.getActiveExpr();
-            if (content.getRuleValue() != null) {
-                body += ",";
-            }
-        }
-        if (content.getRuleValue() != null) {
-            body += content.getRuleValue();
-        }
-
-        // parser config to Map.
-        Map<String, String> config = new LinkedCaseInsensitiveMap<>();
-        for (String item : body.split(",")) {
-            String[] kv = item.split("=");
-            if (kv.length != 2) {
-                throw new IllegalArgumentException("analysisSQL failed, config must be 'key = value' , '" + body + "' with '" + item + "'");
-            }
-            if (StringUtils.isNotBlank(kv[0])) {
-                config.put(kv[0].trim(), kv[1].trim());
-            }
-        }
-
-        String name = config.get(ProcedureArg.CFG_KEY_NAME);
-        ProcedureArg arg = new ProcedureArg(isDefault ? null : name);
-
-        Class<?> javaType = convertJavaType(this.registry, config.get(ProcedureArg.CFG_KEY_JAVA_TYPE));
-        if (javaType != null) {
-            arg.setJavaType(javaType);
-            return arg;
-        }
-
-        Class<?> mapperType = convertJavaType(this.registry, config.get(ProcedureArg.CFG_KEY_ROW_MAPPER));
-        if (mapperType != null) {
-            arg.setRowMapper(ClassUtils.newInstance(mapperType));
-            return arg;
-        }
-
-        Class<?> handlerType = convertJavaType(this.registry, config.get(ProcedureArg.CFG_KEY_ROW_HANDLER));
-        if (handlerType != null) {
-            arg.setRowHandler(ClassUtils.newInstance(handlerType));
-            return arg;
-        }
-
-        Class<?> extractorType = convertJavaType(this.registry, config.get(ProcedureArg.CFG_KEY_EXTRACTOR));
-        if (extractorType != null) {
-            arg.setExtractor(ClassUtils.newInstance(extractorType));
-            return arg;
-        }
-
-        arg.setExtractor(this.defaultExtractor());
-        return arg;
-    }
-
     protected ResultSetExtractor<?> defaultExtractor() {
         return new ColumnMapResultSetExtractor(0, this.registry.getTypeRegistry(), this.resultsCaseInsensitive);
-    }
-
-    private Class<?> convertJavaType(RegistryManager context, String javaType) {
-        try {
-            if (StringUtils.isNotBlank(javaType)) {
-                return context.loadClass(javaType);
-            }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        return null;
     }
 }

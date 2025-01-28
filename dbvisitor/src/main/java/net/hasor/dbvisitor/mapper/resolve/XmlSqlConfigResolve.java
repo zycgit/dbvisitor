@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.mapper.resolve;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.logic.*;
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.mapper.def.*;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -31,9 +32,10 @@ import java.util.Map;
 public class XmlSqlConfigResolve implements SqlConfigResolve<Node>, ConfigKeys {
     @Override
     public SqlConfig parseSqlConfig(String namespace, Node config) {
-        QueryType queryType = QueryType.valueOfTag(config.getNodeName().toLowerCase().trim());
+        String elementName = config.getNodeName();
+        QueryType queryType = QueryType.valueOfTag(elementName.toLowerCase().trim());
         if (queryType == null) {
-            return null;
+            throw new UnsupportedOperationException("xml element '" + elementName + "' Unsupported.");
         }
 
         ArrayDynamicSql dynamicSql = new ArrayDynamicSql();
@@ -43,6 +45,7 @@ public class XmlSqlConfigResolve implements SqlConfigResolve<Node>, ConfigKeys {
                 Map<String, String> cfg = new HashMap<>();
                 cfg.put(STATEMENT_TYPE, getNodeAttributeValue(config, "statementType"));
                 cfg.put(TIMEOUT, getNodeAttributeValue(config, "timeout"));
+                cfg.put(BIND_OUT, getNodeAttributeValue(config, "bindOut"));
                 return new ExecuteConfig(dynamicSql, cfg::get);
             }
             case Insert: {
@@ -84,6 +87,12 @@ public class XmlSqlConfigResolve implements SqlConfigResolve<Node>, ConfigKeys {
                 cfg.put(TIMEOUT, getNodeAttributeValue(config, "timeout"));
                 cfg.put(FETCH_SIZE, getNodeAttributeValue(config, "fetchSize"));
                 cfg.put(RESULT_SET_TYPE, getNodeAttributeValue(config, "resultSetType"));
+                cfg.put(RESULT_MAP_SPACE, namespace);
+                cfg.put(RESULT_MAP_ID, getNodeAttributeValue(config, "resultMap"));
+                cfg.put(RESULT_TYPE, getNodeAttributeValue(config, "resultType"));
+                cfg.put(RESULT_SET_EXTRACTOR, getNodeAttributeValue(config, "resultSetExtractor"));
+                cfg.put(RESULT_ROW_CALLBACK, getNodeAttributeValue(config, "resultRowCallback"));
+                cfg.put(RESULT_ROW_MAPPER, getNodeAttributeValue(config, "resultRowMapper"));
                 cfg.put(BIND_OUT, getNodeAttributeValue(config, "bindOut"));
                 return new SelectConfig(dynamicSql, cfg::get);
             }
@@ -140,7 +149,12 @@ public class XmlSqlConfigResolve implements SqlConfigResolve<Node>, ConfigKeys {
 
     /** append text */
     protected void parseTextSqlNode(String namespace, ArrayDynamicSql parentSqlNode, Node curXmlNode) {
-        parentSqlNode.appendText(curXmlNode.getNodeValue());
+        String sqlNode = curXmlNode.getNodeValue();
+        if (parentSqlNode.lastIsText()) {
+            ((PlanDynamicSql) parentSqlNode.lastNode()).parsedAppend(sqlNode);
+        } else {
+            parentSqlNode.addChildNode(new PlanDynamicSql(sqlNode));
+        }
     }
 
     /** passer &lt;foreach&gt; xmlNode */

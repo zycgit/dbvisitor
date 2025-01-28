@@ -19,6 +19,7 @@ import net.hasor.cobble.function.EFunction;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.cobble.reflect.Annotation;
 import net.hasor.cobble.reflect.Annotations;
+import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -32,10 +33,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,48 +49,68 @@ import java.util.Map;
  */
 public class MappingHelper {
 
-    private static final Map<String, Class<?>> typeMap;
+    private static final Map<String, Class<?>> typeMap        = new HashMap<>();
+    private static final Map<Class<?>, String> typeMapReverse = new HashMap<>();
+
+    private static void putTypeMap(String name, Class<?> type) {
+        typeMap.put(name.toLowerCase(), type);
+        typeMapReverse.put(type, name.toLowerCase());
+    }
 
     static {
-        typeMap = new LinkedCaseInsensitiveMap<>();
-        typeMap.put("boolean", boolean.class);
-        typeMap.put("bool", boolean.class);
-        typeMap.put("bytes", byte[].class);
-        typeMap.put("byte", byte.class);
-        typeMap.put("short", short.class);
-        typeMap.put("int", int.class);
-        typeMap.put("long", long.class);
-        typeMap.put("float", float.class);
-        typeMap.put("double", double.class);
-        typeMap.put("bigint", BigInteger.class);
-        typeMap.put("decimal", BigDecimal.class);
-        typeMap.put("number", Number.class);
-        typeMap.put("char", char.class);
-        typeMap.put("string", String.class);
-        typeMap.put("url", URL.class);
-        typeMap.put("uri", URI.class);
-        typeMap.put("void", void.class);
-        typeMap.put("map", Map.class);
-        typeMap.put("hashmap", HashMap.class);
-        typeMap.put("caseinsensitivemap", LinkedCaseInsensitiveMap.class);
-        typeMap.put("date", java.util.Date.class);
-        typeMap.put("sqldate", java.sql.Date.class);
-        typeMap.put("sqltime", java.sql.Time.class);
-        typeMap.put("sqltimestamp", java.sql.Timestamp.class);
-        typeMap.put("offsetdatetime", java.time.OffsetDateTime.class);
-        typeMap.put("offsettime", java.time.OffsetTime.class);
-        typeMap.put("localdate", java.time.LocalDate.class);
-        typeMap.put("localtime", java.time.LocalTime.class);
-        typeMap.put("localdatetime", java.time.LocalDateTime.class);
-        typeMap.put("monthday", java.time.MonthDay.class);
-        typeMap.put("month", java.time.Month.class);
-        typeMap.put("yearmonth", java.time.YearMonth.class);
-        typeMap.put("year", java.time.Year.class);
+        putTypeMap("boolean", boolean.class);
+        putTypeMap("bool", boolean.class);
+        putTypeMap("bytes", byte[].class);
+        putTypeMap("byte", byte.class);
+        putTypeMap("short", short.class);
+        putTypeMap("int", int.class);
+        putTypeMap("long", long.class);
+        putTypeMap("float", float.class);
+        putTypeMap("double", double.class);
+        putTypeMap("bigint", BigInteger.class);
+        putTypeMap("decimal", BigDecimal.class);
+        putTypeMap("number", Number.class);
+        putTypeMap("char", char.class);
+        putTypeMap("string", String.class);
+        putTypeMap("url", URL.class);
+        putTypeMap("uri", URI.class);
+        putTypeMap("void", void.class);
+        putTypeMap("map", Map.class);
+        putTypeMap("hashmap", HashMap.class);
+        putTypeMap("caseinsensitivemap", LinkedCaseInsensitiveMap.class);
+        putTypeMap("date", java.util.Date.class);
+        putTypeMap("sqldate", java.sql.Date.class);
+        putTypeMap("sqltime", java.sql.Time.class);
+        putTypeMap("sqltimestamp", java.sql.Timestamp.class);
+        putTypeMap("offsetdatetime", java.time.OffsetDateTime.class);
+        putTypeMap("offsettime", java.time.OffsetTime.class);
+        putTypeMap("localdate", java.time.LocalDate.class);
+        putTypeMap("localtime", java.time.LocalTime.class);
+        putTypeMap("localdatetime", java.time.LocalDateTime.class);
+        putTypeMap("monthday", java.time.MonthDay.class);
+        putTypeMap("month", java.time.Month.class);
+        putTypeMap("yearmonth", java.time.YearMonth.class);
+        putTypeMap("year", java.time.Year.class);
+    }
+
+    public static String typeName(Class<?> type) {
+        if (type == null) {
+            return null;
+        }
+        if (typeMapReverse.containsKey(type)) {
+            return typeMapReverse.get(type);
+        } else {
+            return type.getName();
+        }
     }
 
     public static Class<?> typeMappingOr(String typeName, EFunction<String, Class<?>, ClassNotFoundException> defaultType) throws ClassNotFoundException {
-        if (typeMap.containsKey(typeName)) {
-            return typeMap.get(typeName);
+        if (typeName == null) {
+            return null;
+        }
+        String testName = typeName.toLowerCase();
+        if (typeMap.containsKey(testName)) {
+            return typeMap.get(testName);
         } else {
             return defaultType.eApply(typeName);
         }
@@ -126,9 +149,21 @@ public class MappingHelper {
         }
     }
 
-    //    public static TableInfo findTableInfo(Class<?> tableType, MappingOptions usingOpt) {
-    //        return null;
-    //    }
+    public static Class<?> resolveReturnType(Method dalMethod) {
+        // resolve required Type
+        Class<?> requiredClass = dalMethod.getReturnType();
+        if (Collection.class.isAssignableFrom(requiredClass)) {
+            Type requiredType = dalMethod.getGenericReturnType();
+            ResolvableType type = ResolvableType.forType(requiredType);
+            requiredClass = type.getGeneric(0).resolve();
+        }
+
+        if (requiredClass != Object.class && requiredClass != Void.class && requiredClass != void.class) {
+            return requiredClass;
+        } else {
+            return null;
+        }
+    }
 
     // --------------------------------------------------------------------------------------------
     private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();

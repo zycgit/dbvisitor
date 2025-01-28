@@ -15,6 +15,8 @@
  */
 package net.hasor.dbvisitor.dynamic.logic;
 
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
+
 /**
  * <include> 标签
  * @author 赵永春 (zyc@hasor.net)

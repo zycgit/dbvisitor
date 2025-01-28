@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.template.jdbc.extractor;
-import net.hasor.dbvisitor.dynamic.DynamicParsed;
-import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
+import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.template.jdbc.PreparedStatementCallback;
 
 import java.sql.PreparedStatement;
@@ -33,15 +32,11 @@ import java.util.Map;
 public class PreparedMultipleResultSetExtractor extends AbstractMultipleResultSetExtractor implements PreparedStatementCallback<Map<String, Object>> {
 
     public PreparedMultipleResultSetExtractor() {
-        super(null);
+        super();
     }
 
-    public PreparedMultipleResultSetExtractor(String originalSql) {
-        super(DynamicParsed.getParsedSql(originalSql));
-    }
-
-    public PreparedMultipleResultSetExtractor(DefaultSqlSegment parsedSql) {
-        super(parsedSql);
+    public PreparedMultipleResultSetExtractor(SqlBuilder buildSql) {
+        super(buildSql);
     }
 
     @Override

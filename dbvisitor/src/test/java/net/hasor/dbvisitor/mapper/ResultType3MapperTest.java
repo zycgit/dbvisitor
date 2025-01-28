@@ -20,7 +20,6 @@ import net.hasor.dbvisitor.mapper.dto.ResultType3Mapper;
 import org.h2.value.CaseInsensitiveMap;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -34,386 +33,386 @@ import java.util.Map;
  */
 public class ResultType3MapperTest {
     @Test
-    public void selectBool_1() throws IOException {
+    public void selectBool_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectBool_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == Boolean.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == Boolean.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectBytes_1() throws IOException {
+    public void selectBytes_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectBytes_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == byte[].class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == byte[].class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectByte_1() throws IOException {
+    public void selectByte_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectByte_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == Byte.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == Byte.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectShort_1() throws IOException {
+    public void selectShort_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectShort_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == Short.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == Short.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectInt_1() throws IOException {
+    public void selectInt_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectInt_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == Integer.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == Integer.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectLong_1() throws IOException {
+    public void selectLong_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectLong_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == Long.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == Long.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectFloat_1() throws IOException {
+    public void selectFloat_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectFloat_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == Float.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == Float.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectDouble_1() throws IOException {
+    public void selectDouble_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectDouble_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == Double.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == Double.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectBigInt_1() throws IOException {
+    public void selectBigInt_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectBigInt_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == BigInteger.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == BigInteger.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectDecimal_1() throws IOException {
+    public void selectDecimal_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectDecimal_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == BigDecimal.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == BigDecimal.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectNumber_1() throws IOException {
+    public void selectNumber_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectNumber_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == Number.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == Number.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectChar_1() throws IOException {
+    public void selectChar_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectChar_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == Character.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == Character.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectString_1() throws IOException {
+    public void selectString_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectString_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == String.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == String.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectUrl_1() throws IOException {
+    public void selectUrl_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectUrl_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == URL.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == URL.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectUri_1() throws IOException {
+    public void selectUri_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectUri_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == URI.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == URI.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectVoid_1() throws IOException {
+    public void selectVoid_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectVoid_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == null;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == null;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectMap_1() throws IOException {
+    public void selectMap_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectMap_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == Map.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == Map.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectMap_2() throws IOException {
+    public void selectMap_2() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectMap_2");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == HashMap.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == HashMap.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectMap_3() throws IOException {
+    public void selectMap_3() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectMap_3");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == CaseInsensitiveMap.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == CaseInsensitiveMap.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectDate_1() throws IOException {
+    public void selectDate_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectDate_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == java.util.Date.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == java.util.Date.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectSqlDate_1() throws IOException {
+    public void selectSqlDate_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectSqlDate_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == java.sql.Date.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == java.sql.Date.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectSqlTime_1() throws IOException {
+    public void selectSqlTime_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectSqlTime_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == java.sql.Time.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == java.sql.Time.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectSqlTimestamp_1() throws IOException {
+    public void selectSqlTimestamp_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectSqlTimestamp_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == java.sql.Timestamp.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == java.sql.Timestamp.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectOffsetDateTime_1() throws IOException {
+    public void selectOffsetDateTime_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectOffsetDateTime_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == java.time.OffsetDateTime.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == java.time.OffsetDateTime.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectOffsetTime_1() throws IOException {
+    public void selectOffsetTime_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectOffsetTime_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == java.time.OffsetTime.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == java.time.OffsetTime.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectLocalDate_1() throws IOException {
+    public void selectLocalDate_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectLocalDate_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == java.time.LocalDate.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == java.time.LocalDate.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectLocalTime_1() throws IOException {
+    public void selectLocalTime_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectLocalTime_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == java.time.LocalTime.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == java.time.LocalTime.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectLocalDateTime_1() throws IOException {
+    public void selectLocalDateTime_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectLocalDateTime_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == java.time.LocalDateTime.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == java.time.LocalDateTime.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectMonthDay_1() throws IOException {
+    public void selectMonthDay_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectMonthDay_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == java.time.MonthDay.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == java.time.MonthDay.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectMonth_1() throws IOException {
+    public void selectMonth_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectMonth_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == java.time.Month.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == java.time.Month.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectYearMonth_1() throws IOException {
+    public void selectYearMonth_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectYearMonth_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == java.time.YearMonth.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == java.time.YearMonth.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 
     @Test
-    public void selectYear_1() throws IOException {
+    public void selectYear_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(ResultType3Mapper.class);
 
         StatementDef def = registry.findStatement(ResultType3Mapper.class, "selectYear_1");
         assert def != null;
-        assert def.getNamespace().equals(ResultType3Mapper.class.getName());
-        assert def.getMappingType() == java.time.Year.class;
+        assert def.getConfigNamespace().equals(ResultType3Mapper.class.getName());
+        assert def.getResultType() == java.time.Year.class;
         assert def.getConfig().getType() == QueryType.Select;
     }
 }

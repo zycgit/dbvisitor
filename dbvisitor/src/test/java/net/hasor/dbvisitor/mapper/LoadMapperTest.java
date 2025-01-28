@@ -17,15 +17,13 @@ package net.hasor.dbvisitor.mapper;
 
 import org.junit.Test;
 
-import java.io.IOException;
-
 /**
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-12-10
  */
 public class LoadMapperTest {
     @Test
-    public void load_1() throws IOException {
+    public void load_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper("/dbvisitor_coverage/basic_mapper/basic_result_type_only_xml.xml");
         registry.loadMapper("/dbvisitor_coverage/basic_mapper/basic_result_type_only_xml.xml");

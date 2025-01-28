@@ -15,6 +15,10 @@
  */
 package net.hasor.dbvisitor.mapper;
 
+import net.hasor.dbvisitor.template.ResultSetExtractor;
+import net.hasor.dbvisitor.template.RowCallbackHandler;
+import net.hasor.dbvisitor.template.RowMapper;
+
 import java.lang.annotation.*;
 
 /**
@@ -35,6 +39,15 @@ public @interface Query {
     int fetchSize() default 256;
 
     ResultSetType resultSetType() default ResultSetType.DEFAULT;
+
+    /** 可为该方法配置一个 {@link ResultSetExtractor} 对象用于结果集处理（如果配置了 bindOut 那么该配置将会失效） */
+    Class<?> resultSetExtractor() default Object.class;
+
+    /** 可为该方法配置一个 {@link RowCallbackHandler} 对象用于结果集处理（如果配置了 bindOut 那么该配置将会失效） */
+    Class<?> resultRowCallback() default Object.class;
+
+    /** 可为该方法配置一个 {@link RowMapper} 对象用于结果集处理（如果配置了 bindOut 那么该配置将会失效） */
+    Class<?> resultRowMapper() default Object.class;
 
     String[] bindOut() default {};
 }

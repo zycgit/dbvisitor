@@ -25,8 +25,6 @@ import net.hasor.dbvisitor.mapper.dto.UserInfo;
 import net.hasor.dbvisitor.types.SqlArg;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Map;
 
 /**
@@ -35,15 +33,15 @@ import java.util.Map;
  */
 public class AnnoBasicMapperTest {
     @Test
-    public void annoQuery_1() throws IOException, SQLException {
+    public void annoQuery_1() throws Exception {
         Map<String, Object> ctx = CollectionUtils.asMap("abc", "this is abc");
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(AnnoBasicCrudMapper.class);
 
         StatementDef def = registry.findStatement(AnnoBasicCrudMapper.class, "selectList");
         assert def != null;
-        assert def.getNamespace().equals(AnnoBasicCrudMapper.class.getName());
-        assert def.getMappingType() == UserInfo.class;
+        assert def.getConfigNamespace().equals(AnnoBasicCrudMapper.class.getName());
+        assert def.getResultType() == UserInfo.class;
         assert def.getConfig().getType() == QueryType.Select;
 
         SqlBuilder sqlBuilder = def.buildQuery(ctx, new RegistryManager());
@@ -53,15 +51,15 @@ public class AnnoBasicMapperTest {
     }
 
     @Test
-    public void annoQuery_2() throws IOException, SQLException {
+    public void annoQuery_2() throws Exception {
         Map<String, Object> ctx = CollectionUtils.asMap("title", "this is title", "content", "this is content");
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(AnnoBasicCrudMapper.class);
 
         StatementDef def = registry.findStatement(AnnoBasicCrudMapper.class, "selectOne");
         assert def != null;
-        assert def.getNamespace().equals(AnnoBasicCrudMapper.class.getName());
-        assert def.getMappingType() == UserInfo.class;
+        assert def.getConfigNamespace().equals(AnnoBasicCrudMapper.class.getName());
+        assert def.getResultType() == UserInfo.class;
         assert def.getConfig().getType() == QueryType.Select;
 
         SqlBuilder sqlBuilder = def.buildQuery(ctx, new RegistryManager());
@@ -72,7 +70,7 @@ public class AnnoBasicMapperTest {
     }
 
     @Test
-    public void annoInsert_1() throws IOException, SQLException {
+    public void annoInsert_1() throws Exception {
         UserInfo info = new UserInfo();
         info.setUserUuid("this is title");
         info.setName("this is name");
@@ -83,8 +81,8 @@ public class AnnoBasicMapperTest {
 
         StatementDef def = registry.findStatement(AnnoBasicCrudMapper.class, "insertBean");
         assert def != null;
-        assert def.getNamespace().equals(AnnoBasicCrudMapper.class.getName());
-        assert def.getMappingType() == long.class;
+        assert def.getConfigNamespace().equals(AnnoBasicCrudMapper.class.getName());
+        assert def.getResultType() == null;
         assert def.getConfig().getType() == QueryType.Insert;
 
         SqlBuilder sqlBuilder = def.buildQuery(ctx, new RegistryManager());
@@ -98,15 +96,15 @@ public class AnnoBasicMapperTest {
     }
 
     @Test
-    public void annoUpdate_1() throws IOException, SQLException {
+    public void annoUpdate_1() throws Exception {
         Map<String, Object> ctx = CollectionUtils.asMap("id", 11, "uuid", "this is uuid");
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(AnnoBasicCrudMapper.class);
 
         StatementDef def = registry.findStatement(AnnoBasicCrudMapper.class, "updateBean");
         assert def != null;
-        assert def.getNamespace().equals(AnnoBasicCrudMapper.class.getName());
-        assert def.getMappingType() == long.class;
+        assert def.getConfigNamespace().equals(AnnoBasicCrudMapper.class.getName());
+        assert def.getResultType() == null;
         assert def.getConfig().getType() == QueryType.Update;
 
         SqlBuilder sqlBuilder = def.buildQuery(ctx, new RegistryManager());
@@ -117,15 +115,15 @@ public class AnnoBasicMapperTest {
     }
 
     @Test
-    public void annoDelete_1() throws IOException, SQLException {
+    public void annoDelete_1() throws Exception {
         Map<String, Object> ctx = CollectionUtils.asMap("id", 11);
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(AnnoBasicCrudMapper.class);
 
         StatementDef def = registry.findStatement(AnnoBasicCrudMapper.class, "deleteBean");
         assert def != null;
-        assert def.getNamespace().equals(AnnoBasicCrudMapper.class.getName());
-        assert def.getMappingType() == long.class;
+        assert def.getConfigNamespace().equals(AnnoBasicCrudMapper.class.getName());
+        assert def.getResultType() == null;
         assert def.getConfig().getType() == QueryType.Delete;
 
         SqlBuilder sqlBuilder = def.buildQuery(ctx, new RegistryManager());
@@ -135,14 +133,14 @@ public class AnnoBasicMapperTest {
     }
 
     @Test
-    public void annoExecute_1() throws IOException, SQLException {
+    public void annoExecute_1() throws Exception {
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(AnnoBasicCrudMapper.class);
 
         StatementDef def = registry.findStatement(AnnoBasicCrudMapper.class, "createTable");
         assert def != null;
-        assert def.getNamespace().equals(AnnoBasicCrudMapper.class.getName());
-        assert def.getMappingType() == null;
+        assert def.getConfigNamespace().equals(AnnoBasicCrudMapper.class.getName());
+        assert def.getResultType() == null;
         assert def.getConfig().getType() == QueryType.Execute;
 
         SqlBuilder sqlBuilder = def.buildQuery(null, new RegistryManager());

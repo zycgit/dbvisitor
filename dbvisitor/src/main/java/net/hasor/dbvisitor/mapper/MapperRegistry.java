@@ -22,6 +22,7 @@ import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
+import net.hasor.dbvisitor.mapper.def.DqlConfig;
 import net.hasor.dbvisitor.mapper.def.QueryType;
 import net.hasor.dbvisitor.mapper.def.SqlConfig;
 import net.hasor.dbvisitor.mapper.resolve.ClassSqlConfigResolve;
@@ -32,9 +33,10 @@ import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.ResultMap;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.template.jdbc.RowMapper;
+import net.hasor.dbvisitor.template.ResultSetExtractor;
+import net.hasor.dbvisitor.template.RowCallbackHandler;
+import net.hasor.dbvisitor.template.RowMapper;
 import net.hasor.dbvisitor.template.jdbc.mapper.BeanMappingRowMapper;
-import net.hasor.dbvisitor.template.jdbc.mapper.ColumnMapRowMapper;
 import net.hasor.dbvisitor.template.jdbc.mapper.SingleColumnRowMapper;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.w3c.dom.*;
@@ -46,8 +48,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -101,7 +101,7 @@ public class MapperRegistry {
     }
 
     /** load mapperType. */
-    public void loadMapper(Class<?> mapperType) throws IOException {
+    public void loadMapper(Class<?> mapperType) throws Exception {
         testMapper(mapperType);
 
         // check duplicated
@@ -133,7 +133,7 @@ public class MapperRegistry {
     }
 
     /** load mapperFile. */
-    public void loadMapper(String mapperResource) throws IOException {
+    public void loadMapper(String mapperResource) throws Exception {
         if (StringUtils.isBlank(mapperResource)) {
             throw new FileNotFoundException("mapper file ios empty.");
         }
@@ -142,7 +142,7 @@ public class MapperRegistry {
 
     // --------------------------------------------------------------------------------------------
 
-    private void tryLoadRefMapperFile(Class<?> mapperType, RefMapper refMapper) throws IOException {
+    private void tryLoadRefMapperFile(Class<?> mapperType, RefMapper refMapper) throws Exception {
         String resource = refMapper.value();
         if (StringUtils.isBlank(resource)) {
             resource = mapperType.getName().replace('.', '/') + ".xml";
@@ -158,7 +158,7 @@ public class MapperRegistry {
         this.tryLoaded(resource, this::tryLoadResourceFile);
     }
 
-    private void tryLoadResourceFile(String resource) throws IOException {
+    private void tryLoadResourceFile(String resource) throws Exception {
         this.tryLoaded(resource, r -> {
             // try load mapping
             this.mappingRegistry.loadMapper(r);
@@ -170,14 +170,14 @@ public class MapperRegistry {
                 }
 
                 Document document = MappingHelper.loadXmlRoot(stream, this.mappingRegistry.getClassLoader());
-                this.tryLoadNode(r, document.getDocumentElement());
+                this.tryLoadNode(document.getDocumentElement());
             } catch (ParserConfigurationException | SAXException | ClassNotFoundException e) {
                 throw new IOException(e);
             }
         });
     }
 
-    private void tryLoadNode(String resource, Element configRoot) throws ClassNotFoundException, IOException {
+    private void tryLoadNode(Element configRoot) throws Exception {
         NamedNodeMap rootAttributes = configRoot.getAttributes();
         String configSpace = MappingHelper.readAttribute("namespace", rootAttributes);
         configSpace = StringUtils.isBlank(configSpace) ? "" : configSpace;
@@ -190,6 +190,11 @@ public class MapperRegistry {
                 continue;
             }
 
+            QueryType queryType = QueryType.valueOfTag(node.getNodeName().toLowerCase().trim());
+            if (queryType == null) {
+                continue;
+            }
+
             NamedNodeMap nodeAttributes = node.getAttributes();
             String configId = MappingHelper.readAttribute("id", nodeAttributes);
             if (StringUtils.isBlank(configId)) {
@@ -197,40 +202,21 @@ public class MapperRegistry {
             }
 
             SqlConfig sqlConfig = resolve.parseSqlConfig(configSpace, node);
-            if (sqlConfig != null) {
-                StatementDef def = new StatementDef(configSpace, sqlConfig);
+            if (sqlConfig.getType() == QueryType.Segment) {
+                String macroId = StringUtils.isBlank(configSpace) ? configId : (configSpace + "." + configId);
+                this.macroRegistry.addMacro(macroId, sqlConfig);
+            } else if (sqlConfig.getType() == QueryType.Select) {
+                StatementDef def = new StatementDef(configSpace, configId, sqlConfig);
+                this.applyResultConfig(def);
                 this.configMap.computeIfAbsent(configSpace, s -> new ConcurrentHashMap<>()).put(configId, def);
-
-                if (sqlConfig.getType() == QueryType.Segment) {
-                    String macroId = StringUtils.isBlank(configSpace) ? configId : (configSpace + "." + configId);
-                    this.macroRegistry.addMacro(macroId, sqlConfig);
-                } else if (sqlConfig.getType() == QueryType.Select) {
-                    String resultMapStr = MappingHelper.readAttribute("resultMap", nodeAttributes);
-                    String resultTypeStr = MappingHelper.readAttribute("resultType", nodeAttributes);
-                    if (StringUtils.isNotBlank(resultMapStr) && StringUtils.isNotBlank(resultTypeStr)) {
-                        throw new IllegalStateException("the '" + configId + "', resultMap,resultType cannot be used at the same time. location at '" + resource + "'");
-                    }
-
-                    if (StringUtils.isNotBlank(resultMapStr)) {
-                        TableMapping<?> tabMapping = this.mappingRegistry.findBySpace(configSpace, resultMapStr);
-                        if (tabMapping == null) {
-                            String fullname = StringUtils.isBlank(configSpace) ? resultMapStr : (configSpace + "." + resultMapStr);
-                            throw new IllegalStateException("the resultMap '" + fullname + "' cannot be found.");
-                        } else {
-                            def.setMappingType(tabMapping.entityType());
-                            def.setRowMapper(new BeanMappingRowMapper<>(tabMapping));
-                        }
-                    } else if (StringUtils.isNotBlank(resultTypeStr)) {
-                        Class<?> requiredType = MappingHelper.typeMappingOr(resultTypeStr, this.classLoader::loadClass);
-                        def.setMappingType(requiredType);
-                        def.setRowMapper(this.mapperFromType(configSpace, requiredType));
-                    }
-                }
+            } else {
+                StatementDef def = new StatementDef(configSpace, configId, sqlConfig);
+                this.configMap.computeIfAbsent(configSpace, s -> new ConcurrentHashMap<>()).put(configId, def);
             }
         }
     }
 
-    private void tryLoadMethod(SqlConfigResolve<Method> resolve, Class<?> mapperType, Method method, boolean refXml) throws IOException {
+    private void tryLoadMethod(SqlConfigResolve<Method> resolve, Class<?> mapperType, Method method, boolean refXml) throws Exception {
         this.tryLoaded(method, m -> {
             // skip.
             if (m.isDefault()) {
@@ -242,107 +228,140 @@ public class MapperRegistry {
             String configId = m.getName();
             boolean hasXmlConf = refXml && this.configMap.containsKey(configSpace) && this.configMap.get(configSpace).containsKey(configId);
             boolean hasAnnoConf = matchMethod(m);
+
             if (hasAnnoConf && hasXmlConf) {
                 throw new IllegalStateException("Annotations and mapperFile conflicts with " + configSpace + "." + configId);
             }
 
-            // resolve required Type
-            Class<?> requiredClass = m.getReturnType();
-            if (Collection.class.isAssignableFrom(requiredClass)) {
-                Type requiredType = m.getGenericReturnType();
-                ResolvableType type = ResolvableType.forType(requiredType);
-                requiredClass = type.getGeneric(0).resolve();
-            }
-
-            //
             Map<String, StatementDef> defMap = this.configMap.computeIfAbsent(configSpace, s -> new ConcurrentHashMap<>());
             if (hasAnnoConf) {
-                StatementDef def = new StatementDef(configSpace, resolve.parseSqlConfig(configSpace, m));
-                MapperTuple tuple = this.mapperFromMethodReturning(m);
-                if (tuple != null) {
-                    def.setMappingType(tuple.forType);
-                    def.setRowMapper(tuple.mapper);
-                } else {
-                    if (requiredClass != Object.class && requiredClass != Void.class && requiredClass != void.class) {
-                        def.setMappingType(requiredClass);
-                        def.setRowMapper(this.mapperFromType(configSpace, requiredClass));
-                    }
-                }
-
+                StatementDef def = new StatementDef(configSpace, configId, resolve.parseSqlConfig(configSpace, m));
+                this.applyResultConfig(def);// for DqlConfig
                 defMap.put(configId, def);
             }
 
             // supplement (only load from xml try supplement mappingType)
-            if (hasXmlConf && defMap.containsKey(configId)) {
+            Class<?> requiredClass = MappingHelper.resolveReturnType(m);
+            if (hasXmlConf) {
                 StatementDef def = defMap.get(configId);
-
-                if (def.getMappingType() == null) {
-                    if (requiredClass != Object.class && requiredClass != Void.class && requiredClass != void.class) {
-                        def.setMappingType(requiredClass);
-                    }
-                } else if (requiredClass == String.class) {
-                    // string compatibility is very strong
-                } else {
-                    if (requiredClass.isPrimitive() && !def.getMappingType().isPrimitive()) {
-                        throw new ClassCastException("the wrapper type '" + def.getMappingType().getName() + "' is returned as the primitive type '" + requiredClass.getName() + "' at " + configSpace + "." + configId);
-                    } else if (requiredClass.isPrimitive() || def.getMappingType().isPrimitive()) {
-                        Class<?> a = ClassUtils.primitiveToWrapper(requiredClass);
-                        Class<?> b = ClassUtils.primitiveToWrapper(def.getMappingType());
-                        if (a != b) {
-                            throw new ClassCastException("the type '" + def.getMappingType().getName() + "' cannot be as '" + requiredClass.getName() + "' at " + configSpace + "." + configId);
-                        }
-                    } else if (requiredClass != def.getMappingType() && !requiredClass.isAssignableFrom(def.getMappingType())) {
-                        throw new ClassCastException("the type '" + def.getMappingType().getName() + "' cannot be as '" + requiredClass.getName() + "' at " + configSpace + "." + configId);
+                if (def.getResultType() == null && def.getResultExtractor() == null && def.getResultRowCallback() == null && def.getResultRowMapper() == null) {
+                    if (requiredClass != null) {
+                        def.setResultType(requiredClass);
+                        def.setResultRowMapper(this.mapperFromType(configSpace, requiredClass));
                     }
                 }
-                if (def.getRowMapper() == null) {
-                    if (requiredClass != Object.class && requiredClass != Void.class && requiredClass != void.class) {
-                        def.setRowMapper(this.mapperFromType(configSpace, requiredClass));
+            }
+
+            // some check option.
+            StatementDef def = defMap.get(configId);
+            if (def.getResultType() != null && requiredClass != null) {
+                Class<?> resultType = def.getResultType();
+                if (requiredClass == String.class) {
+                    // string compatibility is very strong
+                } else if (requiredClass.isPrimitive() && !resultType.isPrimitive()) {
+                    throw new ClassCastException("the wrapper type '" + resultType.getName() + "' is returned as the primitive type '" + requiredClass.getName() + "' at " + configSpace + "." + configId);
+                } else if (requiredClass.isPrimitive() || resultType.isPrimitive()) {
+                    Class<?> a = ClassUtils.primitiveToWrapper(requiredClass);
+                    Class<?> b = ClassUtils.primitiveToWrapper(resultType);
+                    if (a != b) {
+                        throw new ClassCastException("the type '" + resultType.getName() + "' cannot be as '" + requiredClass.getName() + "' at " + configSpace + "." + configId);
                     }
+                } else if (requiredClass != resultType && !requiredClass.isAssignableFrom(resultType)) {
+                    throw new ClassCastException("the type '" + resultType.getName() + "' cannot be as '" + requiredClass.getName() + "' at " + configSpace + "." + configId);
                 }
             }
         });
     }
 
-    private static class MapperTuple {
-        final Class<?>     forType;
-        final RowMapper<?> mapper;
+    // config 'resultType/ResultSetExtractor/RowCallbackHandler/RowMapper'
+    private void applyResultConfig(StatementDef def) throws Exception {
+        if (!(def.getConfig() instanceof DqlConfig)) {
+            return;
+        }
 
-        public MapperTuple(Class<?> forType, RowMapper<?> mapper) {
-            this.forType = forType;
-            this.mapper = mapper;
+        String configSpace = ((DqlConfig) def.getConfig()).getResultMapSpace();
+        String configId = ((DqlConfig) def.getConfig()).getResultMapId();
+        String resultType = ((DqlConfig) def.getConfig()).getResultType();
+        String resultSetExtractor = ((DqlConfig) def.getConfig()).getResultSetExtractor();
+        String resultRowCallback = ((DqlConfig) def.getConfig()).getResultRowCallback();
+        String resultRowMapper = ((DqlConfig) def.getConfig()).getResultRowMapper();
+        int hasResultCnt = 0;
+        hasResultCnt += (StringUtils.isNotBlank(configId) ? 1 : 0);
+        hasResultCnt += (StringUtils.isNotBlank(resultType) ? 1 : 0);
+        hasResultCnt += (StringUtils.isNotBlank(resultSetExtractor) ? 1 : 0);
+        hasResultCnt += (StringUtils.isNotBlank(resultRowCallback) ? 1 : 0);
+        hasResultCnt += (StringUtils.isNotBlank(resultRowMapper) ? 1 : 0);
+
+        if (hasResultCnt > 1) {
+            throw new IllegalArgumentException("only one of the options can be selected. e.g., resultMap/resultType/resultSetExtractor/resultRowCallback/resultRowMapper, at mapperId '" + def.toConfigId() + "'.");
+        }
+
+        // for ResultSetExtractor
+        if (StringUtils.isNotBlank(resultSetExtractor)) {
+            Class<?> loadType = MappingHelper.typeMappingOr(resultSetExtractor, this.classLoader::loadClass);
+            if (!ResultSetExtractor.class.isAssignableFrom(loadType)) {
+                throw new ClassCastException("the type '" + loadType.getName() + "' cannot be as ResultSetExtractor, at mapperId '" + def.toConfigId() + "'.");
+            } else {
+                def.setResultExtractor(ClassUtils.newInstance(loadType));
+            }
+        }
+
+        // for RowCallbackHandler
+        if (StringUtils.isNotBlank(resultRowCallback)) {
+            Class<?> loadType = MappingHelper.typeMappingOr(resultRowCallback, this.classLoader::loadClass);
+            if (!RowCallbackHandler.class.isAssignableFrom(loadType)) {
+                throw new ClassCastException("the type '" + loadType.getName() + "' cannot be as RowCallbackHandler, at mapperId '" + def.toConfigId() + "'.");
+            } else {
+                def.setResultRowCallback(ClassUtils.newInstance(loadType));
+            }
+        }
+
+        // for RowMapper
+        if (StringUtils.isNotBlank(resultRowMapper)) {
+            Class<?> loadType = MappingHelper.typeMappingOr(resultRowMapper, this.classLoader::loadClass);
+            if (!RowMapper.class.isAssignableFrom(loadType)) {
+                throw new ClassCastException("the type '" + loadType.getName() + "' cannot be as RowMapper, at mapperId '" + def.toConfigId() + "'.");
+            } else {
+                def.setResultRowMapper(ClassUtils.newInstance(loadType));
+            }
+        }
+
+        // for resultType
+        if (StringUtils.isNotBlank(resultType)) {
+            def.setResultType(MappingHelper.typeMappingOr(resultType, this.classLoader::loadClass));
+        }
+
+        if (StringUtils.isNotBlank(configId)) {
+            // for resultMap
+            TableMapping<?> tabMapping = this.mappingRegistry.findBySpace(configSpace, configId);
+            if (tabMapping == null) {
+                String fullname = StringUtils.isBlank(configSpace) ? configId : (configSpace + "." + configId);
+                throw new IllegalArgumentException("the resultMap '" + fullname + "' cannot be found, at mapperId '" + def.toConfigId() + "'.");
+            } else {
+                if (def.getResultRowMapper() == null) {
+                    def.setResultRowMapper(new BeanMappingRowMapper<>(tabMapping));
+                    if (def.getResultType() == null) {
+                        def.setResultType(tabMapping.entityType());
+                    }
+                } else {
+                    String fullname = StringUtils.isBlank(configSpace) ? configId : (configSpace + "." + configId);
+                    String mapperType = def.getResultRowMapper().getClass().getName();
+                    logger.warn("ignore resultMap '" + fullname + "' and use ResultRowMapper '" + mapperType + "', at mapperId '" + def.toConfigId() + "'.");
+                }
+            }
+        } else if (StringUtils.isNotBlank(resultType)) {
+            // for resultType
+            Class<?> requiredType = MappingHelper.typeMappingOr(resultType, this.classLoader::loadClass);
+            if (def.getResultRowMapper() == null) {
+                def.setResultRowMapper(this.mapperFromType(configSpace, requiredType));
+            } else {
+                String mapperType = def.getResultRowMapper().getClass().getName();
+                logger.warn("ignore resultType '" + resultType + "' and use ResultRowMapper '" + mapperType + "', at mapperId '" + def.toConfigId() + "'.");
+            }
         }
     }
 
-    private MapperTuple mapperFromMethodReturning(Method method) throws IOException {
-        // 1.determine the mapping type.
-        Class<?> resultType = method.getReturnType();
-        if (resultType == Object.class || resultType == Void.class || resultType == void.class) {
-            boolean caseInsensitive = MappingHelper.caseInsensitive(this.mappingRegistry.getGlobalOptions());
-            return new MapperTuple(null, new ColumnMapRowMapper(caseInsensitive, this.typeRegistry));
-        }
-
-        // 2. method @ResultMap
-        if (method.isAnnotationPresent(ResultMap.class)) {
-            MappingHelper.NameInfo nameInfo = MappingHelper.findNameInfo(method);
-            if (nameInfo == null) {
-                throw new IllegalArgumentException("the @ResultMap annotation on the method(" + method + ") is incorrectly configured");
-            }
-            String space = nameInfo.getSpace();
-            String name = nameInfo.getName();
-            TableMapping<?> mapping = this.mappingRegistry.findBySpace(space, name);
-            if (mapping == null) {
-                String fullname = StringUtils.isBlank(space) ? name : (space + "." + name);
-                throw new IllegalStateException("the resultMap '" + fullname + "' cannot be found.");
-            }
-
-            return new MapperTuple(mapping.entityType(), new BeanMappingRowMapper<>(mapping));
-        }
-
-        return null;
-    }
-
-    private RowMapper<?> mapperFromType(String namespace, Class<?> requiredType) throws IOException {
+    private RowMapper<?> mapperFromType(String namespace, Class<?> requiredType) throws Exception {
         // as TypeHandler
         if (this.typeRegistry.hasTypeHandler(requiredType) || requiredType.isEnum()) {
             return new SingleColumnRowMapper<>(requiredType, this.typeRegistry);
@@ -374,7 +393,13 @@ public class MapperRegistry {
                         mapping = this.mappingRegistry.loadResultMapToSpace(requiredType, namespace, requiredType.getName());
                     }
                 }
-                return new BeanMappingRowMapper<>(mapping);
+
+                // check class cast
+                if (mapping.entityType() == requiredType || mapping.entityType().isAssignableFrom(requiredType)) {
+                    return new BeanMappingRowMapper<>(mapping);
+                } else {
+                    throw new ClassCastException("the type '" + mapping.entityType().getName() + "' cannot be as '" + requiredType.getName() + "'.");
+                }
             }
         }
 
@@ -384,7 +409,7 @@ public class MapperRegistry {
 
     // --------------------------------------------------------------------------------------------
 
-    private void tryLoaded(String target, EConsumer<String, IOException> call) throws IOException {
+    private void tryLoaded(String target, EConsumer<String, Exception> call) throws Exception {
         String fmtTarget = ResourcesUtils.formatResource(target);
 
         String cacheKey = "RES::" + fmtTarget;
@@ -395,7 +420,7 @@ public class MapperRegistry {
         }
     }
 
-    private void tryLoaded(Class<?> target, EConsumer<Class<?>, IOException> call) throws IOException {
+    private void tryLoaded(Class<?> target, EConsumer<Class<?>, Exception> call) throws Exception {
         String cacheKey = "TYPE::" + target;
         if (!loaded.contains(cacheKey)) {
             logger.info("loadMapper '" + target.getName() + "'");
@@ -404,7 +429,7 @@ public class MapperRegistry {
         }
     }
 
-    private void tryLoaded(Method target, EConsumer<Method, IOException> call) throws IOException {
+    private void tryLoaded(Method target, EConsumer<Method, Exception> call) throws Exception {
         String cacheKey = "METHOD::" + target;
         if (!loaded.contains(cacheKey)) {
             call.eAccept(target);

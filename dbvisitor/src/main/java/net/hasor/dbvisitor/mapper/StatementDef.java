@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.mapper.def.SqlConfig;
-import net.hasor.dbvisitor.template.jdbc.RowMapper;
+import net.hasor.dbvisitor.template.ResultSetExtractor;
+import net.hasor.dbvisitor.template.RowCallbackHandler;
+import net.hasor.dbvisitor.template.RowMapper;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -29,22 +32,26 @@ import java.util.Objects;
  * @version : 2021-05-19
  */
 public class StatementDef {
-    private String       namespace;
-    private SqlConfig    config;
-    private Class<?>     mappingType;
-    private RowMapper<?> rowMapper;
+    private final String                configNamespace;
+    private final String                configId;
+    private       SqlConfig             config;
+    private       Class<?>              resultType;
+    private       ResultSetExtractor<?> resultExtractor;
+    private       RowCallbackHandler    resultRowCallback;
+    private       RowMapper<?>          resultRowMapper;
 
-    public StatementDef(String namespace, SqlConfig config) {
-        this.namespace = Objects.requireNonNull(namespace);
+    public StatementDef(String configNamespace, String configId, SqlConfig config) {
+        this.configNamespace = Objects.requireNonNull(configNamespace);
+        this.configId = Objects.requireNonNull(configId);
         this.config = Objects.requireNonNull(config);
     }
 
-    public String getNamespace() {
-        return this.namespace;
+    public String getConfigNamespace() {
+        return this.configNamespace;
     }
 
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
+    public String getConfigId() {
+        return this.configId;
     }
 
     public SqlConfig getConfig() {
@@ -55,23 +62,43 @@ public class StatementDef {
         this.config = config;
     }
 
-    public Class<?> getMappingType() {
-        return this.mappingType;
+    public Class<?> getResultType() {
+        return this.resultType;
     }
 
-    public void setMappingType(Class<?> mappingType) {
-        this.mappingType = mappingType;
+    public void setResultType(Class<?> resultType) {
+        this.resultType = resultType;
     }
 
-    public RowMapper<?> getRowMapper() {
-        return this.rowMapper;
+    public ResultSetExtractor<?> getResultExtractor() {
+        return this.resultExtractor;
     }
 
-    public void setRowMapper(RowMapper<?> rowMapper) {
-        this.rowMapper = rowMapper;
+    public void setResultExtractor(ResultSetExtractor<?> resultExtractor) {
+        this.resultExtractor = resultExtractor;
     }
 
-    public SqlBuilder buildQuery(Map<String, Object> ctx, RegistryManager registryManager) throws SQLException {
-        return this.config.buildQuery(ctx, registryManager);
+    public RowCallbackHandler getResultRowCallback() {
+        return this.resultRowCallback;
+    }
+
+    public void setResultRowCallback(RowCallbackHandler resultRowCallback) {
+        this.resultRowCallback = resultRowCallback;
+    }
+
+    public RowMapper<?> getResultRowMapper() {
+        return this.resultRowMapper;
+    }
+
+    public void setResultRowMapper(RowMapper<?> resultRowMapper) {
+        this.resultRowMapper = resultRowMapper;
+    }
+
+    public SqlBuilder buildQuery(Map<String, Object> ctx, RegistryManager context) throws SQLException {
+        return this.config.buildQuery(ctx, context);
+    }
+
+    public String toConfigId() {
+        return StringUtils.isBlank(this.configNamespace) ? this.configId : (this.configNamespace + "." + this.configId);
     }
 }

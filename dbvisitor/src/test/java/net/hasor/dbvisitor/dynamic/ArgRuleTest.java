@@ -4,7 +4,7 @@ import net.hasor.dbvisitor.dynamic.dto.LicenseOfValueEnum;
 import net.hasor.dbvisitor.dynamic.dto.ResourceType;
 import net.hasor.dbvisitor.dynamic.dto.UserFutures;
 import net.hasor.dbvisitor.dynamic.rule.ArgRule;
-import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
@@ -21,7 +21,7 @@ public class ArgRuleTest {
     @Test
     public void ruleTest_3() throws SQLException {
         Map<String, Object> ctx1 = CollectionUtils.asMap("name", "abc");
-        DefaultSqlSegment segment1 = DynamicParsed.getParsedSql("#{name}");
+        PlanDynamicSql segment1 = DynamicParsed.getParsedSql("#{name}");
         SqlBuilder sqlBuilder1 = segment1.buildQuery(ctx1, new RegistryManager());
         assert sqlBuilder1.getSqlString().equals("?");
         assert sqlBuilder1.getArgs().length == 1;
@@ -32,7 +32,7 @@ public class ArgRuleTest {
 
         //
         Map<String, Object> ctx2 = CollectionUtils.asMap("name", "abc");
-        DefaultSqlSegment segment2 = DynamicParsed.getParsedSql("#{name,mode=out,jdbcType=123,javaType=java.lang.Integer,typeHandler=net.hasor.dbvisitor.types.handler.number.ShortTypeHandler}");
+        PlanDynamicSql segment2 = DynamicParsed.getParsedSql("#{name,mode=out,jdbcType=123,javaType=java.lang.Integer,typeHandler=net.hasor.dbvisitor.types.handler.number.ShortTypeHandler}");
         SqlBuilder sqlBuilder2 = segment2.buildQuery(ctx2, new RegistryManager());
         assert sqlBuilder2.getSqlString().equals("?");
         assert sqlBuilder2.getArgs().length == 1;
@@ -48,7 +48,7 @@ public class ArgRuleTest {
     @Test
     public void ruleTest_4() throws SQLException {
         Map<String, Object> ctx2 = CollectionUtils.asMap("name", ResourceType.WORKER);
-        DefaultSqlSegment segment2 = DynamicParsed.getParsedSql("#{name,javaType=net.hasor.dbvisitor.dynamic.dto.ResourceType}");
+        PlanDynamicSql segment2 = DynamicParsed.getParsedSql("#{name,javaType=net.hasor.dbvisitor.dynamic.dto.ResourceType}");
         SqlBuilder sqlBuilder2 = segment2.buildQuery(ctx2, new RegistryManager());
         assert sqlBuilder2.getSqlString().equals("?");
         assert sqlBuilder2.getArgs().length == 1;
@@ -75,7 +75,7 @@ public class ArgRuleTest {
     @Test
     public void ruleTest_6() throws SQLException {
         Map<String, Object> ctx2 = CollectionUtils.asMap("name", new UserFutures());
-        DefaultSqlSegment segment2 = DynamicParsed.getParsedSql("#{name}");
+        PlanDynamicSql segment2 = DynamicParsed.getParsedSql("#{name}");
         SqlBuilder sqlBuilder2 = segment2.buildQuery(ctx2, new RegistryManager());
         assert sqlBuilder2.getSqlString().equals("?");
         assert sqlBuilder2.getArgs().length == 1;
@@ -86,7 +86,7 @@ public class ArgRuleTest {
     @Test
     public void ruleTest_7() throws SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("name", "abc");
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("#{name,mode=out,jdbcType=123,javaType=java.lang.Integer,typeHandler=net.hasor.dbvisitor.types.handler.string.SqlXmlTypeHandler}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("#{name,mode=out,jdbcType=123,javaType=java.lang.Integer,typeHandler=net.hasor.dbvisitor.types.handler.string.SqlXmlTypeHandler}");
 
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx, new RegistryManager());
         assert sqlBuilder1.getSqlString().equals("?");
@@ -100,7 +100,7 @@ public class ArgRuleTest {
     @Test
     public void ruleTest_8() throws SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("name", "abc");
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("#{name,,,,}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("#{name,,,,}");
 
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx, new RegistryManager());
         assert sqlBuilder1.getSqlString().equals("?");

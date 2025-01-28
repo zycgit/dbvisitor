@@ -25,22 +25,33 @@ import java.util.function.Function;
  * @version : 2021-06-19
  */
 public class InsertConfig extends DmlConfig {
-    private boolean useGeneratedKeys;
-    private String  keyProperty;
-    private String  keyColumn;
+    private SelectKeyConfig selectKey;
+    private boolean         useGeneratedKeys;
+    private String          keyProperty;
+    private String          keyColumn;
 
     public InsertConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
-        String generated = config.apply(KEY_GENERATED);
 
-        this.useGeneratedKeys = StringUtils.isNotBlank(generated) && Boolean.parseBoolean(generated);
-        this.keyProperty = config.apply(KEY_PROPERTY);
-        this.keyColumn = config.apply(KEY_COLUMN);
+        if (config != null) {
+            String generated = config.apply(KEY_GENERATED);
+            this.useGeneratedKeys = StringUtils.isNotBlank(generated) && Boolean.parseBoolean(generated);
+            this.keyProperty = config.apply(KEY_PROPERTY);
+            this.keyColumn = config.apply(KEY_COLUMN);
+        }
     }
 
     @Override
     public QueryType getType() {
         return QueryType.Insert;
+    }
+
+    public SelectKeyConfig getSelectKey() {
+        return this.selectKey;
+    }
+
+    public void setSelectKey(SelectKeyConfig selectKey) {
+        this.selectKey = selectKey;
     }
 
     public boolean isUseGeneratedKeys() {

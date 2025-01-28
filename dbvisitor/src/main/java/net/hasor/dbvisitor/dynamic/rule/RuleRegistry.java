@@ -46,8 +46,9 @@ public class RuleRegistry {
         DEFAULT.register("set", SetRule.INSTANCE);
 
         DEFAULT.register("arg", ArgRule.INSTANCE);
-        DEFAULT.register(ResultRule.FUNC_RESULT, ResultRule.INSTANCE);
-        DEFAULT.register(ResultRule.FUNC_DEFAULT_RESULT, ResultRule.INSTANCE);
+        DEFAULT.register(ResultRule.FUNC_RESULT_SET, ResultRule.INSTANCE_OF_RESULT_SET);
+        DEFAULT.register(ResultRule.FUNC_RESULT_UPDATE, ResultRule.INSTANCE_OF_RESULT_UPDATE);
+        DEFAULT.register(ResultRule.FUNC_DEFAULT_RESULT, ResultRule.INSTANCE_OF_DEFAULT_RESULT);
     }
 
     public SqlBuildRule findByName(String ruleName) {

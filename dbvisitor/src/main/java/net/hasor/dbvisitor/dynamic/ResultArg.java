@@ -13,30 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.template.jdbc.core;
+package net.hasor.dbvisitor.dynamic;
 import net.hasor.dbvisitor.dynamic.rule.ArgRule;
-import net.hasor.dbvisitor.template.jdbc.ResultSetExtractor;
-import net.hasor.dbvisitor.template.jdbc.RowCallbackHandler;
-import net.hasor.dbvisitor.template.jdbc.RowMapper;
+import net.hasor.dbvisitor.template.ResultSetExtractor;
+import net.hasor.dbvisitor.template.RowCallbackHandler;
+import net.hasor.dbvisitor.template.RowMapper;
 
-public class ProcedureArg {
+public class ResultArg {
     public static final String                CFG_KEY_NAME        = ArgRule.CFG_KEY_NAME;
     public static final String                CFG_KEY_JAVA_TYPE   = ArgRule.CFG_KEY_JAVA_TYPE;
     public static final String                CFG_KEY_ROW_MAPPER  = ArgRule.CFG_KEY_ROW_MAPPER;
     public static final String                CFG_KEY_ROW_HANDLER = ArgRule.CFG_KEY_ROW_HANDLER;
     public static final String                CFG_KEY_EXTRACTOR   = ArgRule.CFG_KEY_EXTRACTOR;
+    private             ResultArgType         argType;
     private             String                name;
     private             Class<?>              javaType;
     private             RowMapper<?>          rowMapper;
     private             RowCallbackHandler    rowHandler;
     private             ResultSetExtractor<?> extractor;
 
-    public ProcedureArg(String name) {
+    public ResultArg(String name, ResultArgType argType) {
         this.name = name;
+        this.argType = argType;
     }
 
-    public ProcedureArg(String name, Class<?> javaType, RowMapper<?> rowMapper, RowCallbackHandler rowHandler, ResultSetExtractor<?> extractor) {
+    public ResultArg(String name, ResultArgType argType, Class<?> javaType, RowMapper<?> rowMapper, RowCallbackHandler rowHandler, ResultSetExtractor<?> extractor) {
         this.name = name;
+        this.argType = argType;
         this.javaType = javaType;
         this.rowMapper = rowMapper;
         this.rowHandler = rowHandler;
@@ -49,6 +52,14 @@ public class ProcedureArg {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public ResultArgType getArgType() {
+        return this.argType;
+    }
+
+    public void setArgType(ResultArgType argType) {
+        this.argType = argType;
     }
 
     public Class<?> getJavaType() {

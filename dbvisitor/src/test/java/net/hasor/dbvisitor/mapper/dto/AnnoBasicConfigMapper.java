@@ -31,7 +31,34 @@ public interface AnnoBasicConfigMapper {
             fetchSize = 512,                            //
             resultSetType = ResultSetType.FORWARD_ONLY, //
             bindOut = { "out1", "out2" })
-    List<UserInfo> configQuery(String abc);
+    List<UserInfo> configQuery1(String abc);
+
+    @Query(value = "select * from console_job where aac = #{abc}",  //
+            statementType = StatementType.Callable,                 //
+            timeout = 123,                                          //
+            fetchSize = 512,                                        //
+            resultSetType = ResultSetType.FORWARD_ONLY,             //
+            resultSetExtractor = UserNameResultSetExtractor.class,  //
+            bindOut = { "out1", "out2" })
+    List<UserInfo> configQuery2(String abc);
+
+    @Query(value = "select * from console_job where aac = #{abc}",//
+            statementType = StatementType.Callable,         //
+            timeout = 123,                                  //
+            fetchSize = 512,                                //
+            resultSetType = ResultSetType.FORWARD_ONLY,     //
+            resultRowCallback = UserNameRowCallback.class,  //
+            bindOut = { "out1", "out2" })
+    List<UserInfo> configQuery3(String abc);
+
+    @Query(value = "select * from console_job where aac = #{abc}",//
+            statementType = StatementType.Callable,     //
+            timeout = 123,                              //
+            fetchSize = 512,                            //
+            resultSetType = ResultSetType.FORWARD_ONLY, //
+            resultRowMapper = UserNameRowMapper.class,  //
+            bindOut = { "out1", "out2" })
+    List<UserInfo> configQuery4(String abc);
 
     @Insert(value = "insert into console_job (uid,name,login) values (#{info.userUuid}, #{info.name}, #{info.loginName})",//
             statementType = StatementType.Callable, //

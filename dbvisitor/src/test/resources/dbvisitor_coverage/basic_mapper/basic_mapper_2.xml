@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.dbvisitor.mapper.dto.MixUsingResultMapMapper">
+    <resultMap id="userInfo" type="net.hasor.dbvisitor.mapper.dto.UserInfoExt" autoMapping="true"/>
+</mapper>

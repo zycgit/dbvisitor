@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.template.jdbc.mapper;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.template.jdbc.RowMapper;
+import net.hasor.dbvisitor.template.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

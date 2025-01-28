@@ -2,7 +2,7 @@ package net.hasor.dbvisitor.dynamic;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.dto.MyTypeHandler;
 import net.hasor.dbvisitor.dynamic.rule.InRule;
-import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.types.SqlArg;
 import org.junit.Test;
 
@@ -14,7 +14,7 @@ import java.util.Map;
 public class InRuleTest {
     @Test
     public void ruleTest_char_1() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{in,:array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{in,:array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new char[] { 'a', 'b', 'c' });
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -35,7 +35,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_char_2() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ ifin,test,:array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ ifin,test,:array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new char[] { 'a', 'b', 'c' }, "test", true);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -56,7 +56,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_char_3() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ifin ,test,:array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ifin ,test,:array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new char[] { 'a', 'b', 'c' }, "test", false);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -71,7 +71,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_short_1() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{in , :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{in , :array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new short[] { (short) 1, (short) 2, (short) 3 });
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -92,7 +92,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_short_2() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ifin,test ,:array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ifin,test ,:array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new short[] { (short) 1, (short) 2, (short) 3 }, "test", true);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -113,7 +113,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_short_3() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ifin,test,:array }");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ifin,test,:array }");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new short[] { (short) 1, (short) 2, (short) 3 }, "test", false);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -128,7 +128,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_int_1() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ in , :array }");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ in , :array }");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new int[] { 1, 2, 3 });
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -149,7 +149,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_int_2() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ ifin , test , :array }");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ ifin , test , :array }");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new int[] { 1, 2, 3 }, "test", true);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -170,7 +170,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_int_3() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ifin, test, :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ifin, test, :array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new int[] { 1, 2, 3 }, "test", false);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -185,7 +185,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_long_1() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{in, :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{in, :array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new long[] { 1, 2, 3 });
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -206,7 +206,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_long_2() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ifin, test, :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ifin, test, :array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new long[] { 1, 2, 3 }, "test", true);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -227,7 +227,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_long_3() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ifin,test,:array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ifin,test,:array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new long[] { 1, 2, 3 }, "test", false);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -242,7 +242,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_float_1() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{in, :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{in, :array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new float[] { 1f, 2f, 3f });
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -263,7 +263,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_float_2() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ifin,test,:array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ifin,test,:array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new float[] { 1f, 2f, 3f }, "test", true);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -284,7 +284,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_float_3() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ifin, test, :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ifin, test, :array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new float[] { 1f, 2f, 3f }, "test", false);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -299,7 +299,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_double_1() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{in, :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{in, :array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new double[] { 1d, 2d, 3d });
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -320,7 +320,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_double_2() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ifin,test,:array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ifin,test,:array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new double[] { 1d, 2d, 3d }, "test", true);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -341,7 +341,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_double_3() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ifin , test , :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ifin , test , :array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new double[] { 1d, 2d, 3d }, "test", false);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -356,7 +356,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_boolean_1() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{in, :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{in, :array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new boolean[] { true, false, true });
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -377,7 +377,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_boolean_2() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ifin,test, :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ifin,test, :array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new boolean[] { true, false, true }, "test", true);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -398,7 +398,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_boolean_3() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ifin, test, :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ifin, test, :array}");
 
         Map<String, Object> ctx1 = CollectionUtils.asMap("array", new boolean[] { true, false, true }, "test", false);
         SqlBuilder sqlBuilder1 = segment.buildQuery(ctx1, new RegistryManager());
@@ -413,7 +413,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_string_1() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{in, :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{in, :array}");
         Map<String, Object> ctx = CollectionUtils.asMap("array", new Object[] { "1", "2", "3" });
 
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, new RegistryManager());
@@ -426,7 +426,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_string_2() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ifin,test, :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ifin,test, :array}");
         Map<String, Object> ctx = CollectionUtils.asMap("array", new Object[] { "1", "2", "3" }, "test", true);
 
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, new RegistryManager());
@@ -439,7 +439,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_string_3() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ifin,test, :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ifin,test, :array}");
         Map<String, Object> ctx = CollectionUtils.asMap("array", new Object[] { "1", "2", "3" }, "test", false);
 
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, new RegistryManager());
@@ -449,7 +449,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_list_1() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{in, :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{in, :array}");
         Map<String, Object> ctx = CollectionUtils.asMap("array", Arrays.asList("1", "2", "3"));
 
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, new RegistryManager());
@@ -462,7 +462,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_1() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{in, :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{in, :array}");
         Map<String, Object> ctx = Collections.emptyMap();
 
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, new RegistryManager());
@@ -472,7 +472,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_2() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{in, :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{in, :array}");
         Map<String, Object> ctx = CollectionUtils.asMap("array", Collections.emptyList());
 
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, new RegistryManager());
@@ -482,7 +482,7 @@ public class InRuleTest {
 
     @Test
     public void ruleTest_3() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{in,id in :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{in,id in :array}");
         SqlArg arg = new SqlArg(Arrays.asList("1", "2"), 123, new MyTypeHandler());
         Map<String, Object> ctx = CollectionUtils.asMap("array", arg);
 
@@ -501,7 +501,7 @@ public class InRuleTest {
 
     @Test
     public void badTest_1() {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{in, :array , :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{in, :array , :array}");
         Map<String, Object> ctx = CollectionUtils.asMap("array", Collections.emptyList());
 
         try {
@@ -514,14 +514,14 @@ public class InRuleTest {
 
     @Test
     public void badTest_2() throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ifin, false, :array , :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ifin, false, :array , :array}");
         Map<String, Object> ctx = CollectionUtils.asMap("array", Collections.emptyList());
         segment.buildQuery(ctx, new RegistryManager());
     }
 
     @Test
     public void badTest_3() {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{ifin,true, :array , :array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{ifin,true, :array , :array}");
         Map<String, Object> ctx = CollectionUtils.asMap("array", Collections.emptyList());
 
         try {

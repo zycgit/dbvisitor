@@ -30,9 +30,12 @@ import net.hasor.dbvisitor.dynamic.args.ArraySqlArgSource;
 import net.hasor.dbvisitor.dynamic.args.BeanSqlArgSource;
 import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.dbvisitor.dynamic.args.SqlArgDisposer;
-import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.error.UncategorizedSQLException;
+import net.hasor.dbvisitor.template.ResultSetExtractor;
+import net.hasor.dbvisitor.template.RowCallbackHandler;
+import net.hasor.dbvisitor.template.RowMapper;
 import net.hasor.dbvisitor.template.jdbc.*;
 import net.hasor.dbvisitor.template.jdbc.extractor.*;
 import net.hasor.dbvisitor.template.jdbc.mapper.BeanMappingRowMapper;
@@ -326,11 +329,11 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         if (args instanceof CallableStatementSetter) {
             throw new UnsupportedOperationException("please use method call(String, CallableStatementSetter, CallableStatementCallback<T>).");
         } else {
-            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(callString);
+            PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(callString);
             SqlBuilder buildSql = parsedSql.buildQuery(toSqlArgSource(args), this.getRegistry());
 
             CallableStatementCreator creator = this.getCallableStatementCreator(buildSql.getSqlString(), null);
-            CallableMultipleResultSetExtractor callback = new CallableMultipleResultSetExtractor(parsedSql, buildSql.getArgs());
+            CallableMultipleResultSetExtractor callback = new CallableMultipleResultSetExtractor(buildSql);
 
             return this.executeCreator(creator, callback);
         }
@@ -351,7 +354,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         if (args instanceof PreparedStatementSetter) {
             return this.multipleExecute(sql, (PreparedStatementSetter) args);
         } else {
-            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+            PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(sql);
             SqlArgSource argSource = toSqlArgSource(args);
             SqlBuilder buildSql = parsedSql.buildQuery(argSource, this.getRegistry());
 
@@ -368,7 +371,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                     }
                     return ps;
                 }, (PreparedStatementCallback<Map<String, Object>>) ps -> {
-                    return new PreparedMultipleResultSetExtractor(parsedSql).doInPreparedStatement(ps);
+                    return new PreparedMultipleResultSetExtractor(buildSql).doInPreparedStatement(ps);
                 });
             } finally {
                 StatementSetterUtils.cleanupParameters(paramArray);
@@ -394,7 +397,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         if (args instanceof PreparedStatementSetter) {
             return this.query(sql, (PreparedStatementSetter) args, rse);
         } else {
-            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+            PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(sql);
             SqlArgSource argSource = toSqlArgSource(args);
             return this.executeCreator(this.getPreparedStatementCreator(parsedSql, argSource), rse);
         }
@@ -416,7 +419,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         if (args instanceof PreparedStatementSetter) {
             this.query(sql, (PreparedStatementSetter) args, rch);
         } else {
-            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+            PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(sql);
             SqlArgSource argSource = toSqlArgSource(args);
             PreparedStatementCreator psc = getPreparedStatementCreator(parsedSql, argSource);
             this.executeCreator(psc, new RowCallbackHandlerResultSetExtractor(rch));
@@ -439,7 +442,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         if (args instanceof PreparedStatementSetter) {
             return this.queryForList(sql, (PreparedStatementSetter) args, rowMapper);
         } else {
-            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+            PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(sql);
             SqlArgSource argSource = toSqlArgSource(args);
             PreparedStatementCreator psc = getPreparedStatementCreator(parsedSql, argSource);
             return this.executeCreator(psc, new RowMapperResultSetExtractor<>(rowMapper));
@@ -462,7 +465,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         if (args instanceof PreparedStatementSetter) {
             return this.queryForList(sql, (PreparedStatementSetter) args, elementType);
         } else {
-            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+            PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(sql);
             SqlArgSource argSource = toSqlArgSource(args);
             PreparedStatementCreator psc = getPreparedStatementCreator(parsedSql, argSource);
             return this.executeCreator(psc, this.createBeanResultSetExtractor(elementType));
@@ -485,7 +488,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         if (args instanceof PreparedStatementSetter) {
             return this.queryForList(sql, (PreparedStatementSetter) args);
         } else {
-            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+            PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(sql);
             SqlArgSource argSource = toSqlArgSource(args);
             PreparedStatementCreator psc = getPreparedStatementCreator(parsedSql, argSource);
             return this.executeCreator(psc, new RowMapperResultSetExtractor<>(this.createMapRowMapper()));
@@ -508,7 +511,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         if (args instanceof PreparedStatementSetter) {
             return this.queryForObject(sql, (PreparedStatementSetter) args, rowMapper);
         } else {
-            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+            PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(sql);
             SqlArgSource argSource = toSqlArgSource(args);
             PreparedStatementCreator psc = getPreparedStatementCreator(parsedSql, argSource);
             List<T> result = this.executeCreator(psc, new RowMapperResultSetExtractor<>(rowMapper, 1));
@@ -614,7 +617,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         if (args instanceof PreparedStatementSetter) {
             return this.executeUpdate(sql, (PreparedStatementSetter) args);
         } else {
-            DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+            PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(sql);
             SqlArgSource argSource = toSqlArgSource(args);
             PreparedStatementCreator psc = getPreparedStatementCreator(parsedSql, argSource);
             return this.executeCreator(psc, (PreparedStatementCallback<Integer>) PreparedStatement::executeUpdate);
@@ -693,7 +696,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     /** Build a PreparedStatementCreator based on the given SQL and named parameters. */
-    protected PreparedStatementCreator getPreparedStatementCreator(final DefaultSqlSegment segment, final SqlArgSource paramSource) {
+    protected PreparedStatementCreator getPreparedStatementCreator(final PlanDynamicSql segment, final SqlArgSource paramSource) {
         Objects.requireNonNull(segment, "SQL must not be null.");
         Objects.requireNonNull(paramSource, "SqlArgSource must not be null.");
         if (logger.isDebugEnabled()) {
@@ -796,7 +799,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             String prepareSql = "";
             Object[][] prepareArgs = new Object[batchArgs.length][];
             for (int i = 0; i < batchArgs.length; i++) {
-                DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(sql);
+                PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(sql);
                 SqlBuilder sqlBuilder = parsedSql.buildQuery(toSqlArgSource(batchArgs[i]), this.getRegistry());
 
                 if (i == 0) {
@@ -972,10 +975,10 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
 
     /** 接口 {@link PreparedStatementCreator} 的简单实现，目的是根据 SQL 语句创建 {@link PreparedStatement}对象。 */
     private class MapPreparedStatementCreator implements PreparedStatementCreator, SqlArgDisposer, SqlProvider {
-        private final DefaultSqlSegment segment;
-        private final SqlArgSource      paramSource;
+        private final PlanDynamicSql segment;
+        private final SqlArgSource   paramSource;
 
-        public MapPreparedStatementCreator(final DefaultSqlSegment segment, final SqlArgSource paramSource) {
+        public MapPreparedStatementCreator(final PlanDynamicSql segment, final SqlArgSource paramSource) {
             Objects.requireNonNull(segment, "SQL must not be null");
             this.segment = segment;
             this.paramSource = paramSource;
@@ -1013,13 +1016,13 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     /* Map of original SQL String to ParsedSql representation */
-    private final Map<String, DefaultSqlSegment> parsedSqlCache = new HashMap<>();
+    private final Map<String, PlanDynamicSql> parsedSqlCache = new HashMap<>();
 
     /* Obtain a parsed representation of the given SQL statement.*/
-    protected DefaultSqlSegment getParsedSql(String originalSql) throws SQLException {
+    protected PlanDynamicSql getParsedSql(String originalSql) throws SQLException {
         try {
             synchronized (this.parsedSqlCache) {
-                DefaultSqlSegment parsedSql = this.parsedSqlCache.get(originalSql);
+                PlanDynamicSql parsedSql = this.parsedSqlCache.get(originalSql);
                 if (parsedSql == null) {
                     parsedSql = DynamicParsed.getParsedSql(originalSql);
                     this.parsedSqlCache.put(originalSql, parsedSql);

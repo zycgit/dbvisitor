@@ -26,8 +26,6 @@ import net.hasor.dbvisitor.mapper.dto.UserInfo;
 import net.hasor.dbvisitor.types.SqlArg;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -38,7 +36,7 @@ import java.util.Map;
  */
 public class DynamicXmlMapperTest {
     @Test
-    public void bind_1() throws IOException, SQLException {
+    public void bind_1() throws Exception {
         Map<String, Object> ctx = CollectionUtils.asMap("sellerId", "123");
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);
@@ -51,7 +49,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void choose_1() throws IOException, SQLException {
+    public void choose_1() throws Exception {
         Map<String, Object> ctx = CollectionUtils.asMap("title", "123", "content", "aaa");
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);
@@ -64,7 +62,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void choose_2() throws IOException, SQLException {
+    public void choose_2() throws Exception {
         Map<String, Object> ctx = Collections.emptyMap();
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);
@@ -76,7 +74,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void foreach_1() throws IOException, SQLException {
+    public void foreach_1() throws Exception {
         Map<String, Object> ctx = CollectionUtils.asMap("resTypes", Arrays.asList("a", "b", "c", "d", "e"));
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);
@@ -95,7 +93,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void if_1() throws IOException, SQLException {
+    public void if_1() throws Exception {
         Map<String, Object> ctx = CollectionUtils.asMap("ownerID", "123", "ownerType", "SYSTEM");
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);
@@ -111,7 +109,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void if_2() throws IOException, SQLException {
+    public void if_2() throws Exception {
         Map<String, Object> ctx = CollectionUtils.asMap("ownerID", "123", "ownerType", null);
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);
@@ -123,7 +121,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void include_1() throws IOException, SQLException {
+    public void include_1() throws Exception {
         Map<String, Object> ctx = CollectionUtils.asMap("eventType", "123");
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);
@@ -136,7 +134,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void selectKey_1() throws IOException, SQLException {
+    public void selectKey_1() throws Exception {
         UserInfo user = new UserInfo();
         user.setName("name");
         user.setLoginName("loginName");
@@ -158,7 +156,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void set_1() throws IOException, SQLException {
+    public void set_1() throws Exception {
         UserInfo user = new UserInfo();
         user.setName("name");
         user.setLoginName("loginName");
@@ -169,7 +167,7 @@ public class DynamicXmlMapperTest {
 
         StatementDef def = registry.findStatement(DynamicXmlMapper.class, "set_04");
         SqlBuilder sqlBuilder = def.buildQuery(ctx, new RegistryManager(registry.typeRegistry, new RuleRegistry(), registry.macroRegistry));
-        assert sqlBuilder.getSqlString().trim().equals("UPDATE\n            alert_users\n        set name = ?,\n            \n                loginName = ? \n        WHERE uid = ?");
+        assert sqlBuilder.getSqlString().trim().equals("UPDATE\n            alert_users\n        set name = ?,\n            \n            \n                loginName = ? \n        WHERE uid = ?");
         assert sqlBuilder.getArgs().length == 3;
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getValue().equals("name");
         assert ((SqlArg) sqlBuilder.getArgs()[1]).getValue().equals("loginName");
@@ -177,7 +175,7 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void set_2() throws IOException, SQLException {
+    public void set_2() throws Exception {
         UserInfo user = new UserInfo();
         user.setUserUuid("abc");
         Map<String, Object> ctx = CollectionUtils.asMap("user", user);
@@ -192,21 +190,21 @@ public class DynamicXmlMapperTest {
     }
 
     @Test
-    public void where_1() throws IOException, SQLException {
+    public void where_1() throws Exception {
         Map<String, Object> ctx = CollectionUtils.asMap("name", "name", "loginName", "loginName");
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);
 
         StatementDef def = registry.findStatement(DynamicXmlMapper.class, "where_01");
         SqlBuilder sqlBuilder = def.buildQuery(ctx, new RegistryManager(registry.typeRegistry, new RuleRegistry(), registry.macroRegistry));
-        assert sqlBuilder.getSqlString().trim().equals("SELECT * FROM BLOG\n        where  name = ?\n            \n                and login_name like ?");
+        assert sqlBuilder.getSqlString().trim().equals("SELECT * FROM BLOG\n        where  name = ?\n            \n            \n                and login_name like ?");
         assert sqlBuilder.getArgs().length == 2;
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getValue().equals("name");
         assert ((SqlArg) sqlBuilder.getArgs()[1]).getValue().equals("loginName");
     }
 
     @Test
-    public void where_2() throws IOException, SQLException {
+    public void where_2() throws Exception {
         Map<String, Object> ctx = Collections.emptyMap();
         MapperRegistry registry = new MapperRegistry();
         registry.loadMapper(DynamicXmlMapper.class);

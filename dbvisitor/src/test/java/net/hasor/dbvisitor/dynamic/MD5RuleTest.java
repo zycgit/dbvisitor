@@ -1,7 +1,7 @@
 package net.hasor.dbvisitor.dynamic;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.rule.MD5Rule;
-import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.types.SqlArg;
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ public class MD5RuleTest {
 
     @Test
     public void badTest_1() {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{md5,:array:array}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{md5,:array:array}");
         Map<String, Object> ctx = CollectionUtils.asMap("array", Collections.emptyList());
 
         try {
@@ -43,7 +43,7 @@ public class MD5RuleTest {
     @Test
     public void badTest_2() {
         try {
-            DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{md5,'abc'}");
+            PlanDynamicSql segment = DynamicParsed.getParsedSql("@{md5,'abc'}");
             Map<String, Object> ctx = CollectionUtils.asMap("array", Collections.emptyList());
             segment.buildQuery(ctx, new RegistryManager());
             assert false;
@@ -52,7 +52,7 @@ public class MD5RuleTest {
         }
 
         try {
-            DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{md5}");
+            PlanDynamicSql segment = DynamicParsed.getParsedSql("@{md5}");
             Map<String, Object> ctx = CollectionUtils.asMap("array", Collections.emptyList());
             segment.buildQuery(ctx, new RegistryManager());
             assert false;

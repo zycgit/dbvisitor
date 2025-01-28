@@ -31,4 +31,6 @@ public @interface Execute {
     StatementType statementType() default StatementType.Prepared;
 
     int timeout() default -1;
+
+    String[] bindOut() default {};
 }

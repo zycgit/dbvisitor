@@ -19,7 +19,7 @@ import net.hasor.dbvisitor.dynamic.DynamicParsed;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
-import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 
 import java.sql.SQLException;
 
@@ -82,7 +82,7 @@ public abstract class ConditionRule implements SqlBuildRule {
             return;
         }
 
-        DefaultSqlSegment parsedSql = DynamicParsed.getParsedSql(expr);
+        PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(expr);
         SqlBuilder tmp = parsedSql.buildQuery(data, context);
         String sqlString = tmp.getSqlString();
         Object[] sqlArgs = tmp.getArgs();

@@ -2,11 +2,35 @@
 <mapper xmlns="https://www.dbvisitor.net/schema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="https://www.dbvisitor.net/schema https://www.dbvisitor.net/schema/dbvisitor-mapper.xsd"
-
         namespace="net.hasor.dbvisitor.mapper.dto.ApiBasicConfigTwoMapper">
     <resultMap id="userInfo" type="net.hasor.dbvisitor.mapper.dto.UserInfo" autoMapping="true"/>
 
-    <select id="configQuery" statementType="CALLABLE" timeout="123" fetchSize="512" resultSetType="FORWARD_ONLY"
+    <select id="configQuery1" statementType="CALLABLE" timeout="123" fetchSize="512" resultSetType="FORWARD_ONLY"
+            resultMap="userInfo"
+            bindOut="out1,out2">
+        select * from console_job where aac = #{abc}
+    </select>
+
+    <select id="configQuery2" statementType="CALLABLE" timeout="123" fetchSize="512" resultSetType="FORWARD_ONLY"
+            resultType="net.hasor.dbvisitor.mapper.dto.UserInfoExt"
+            bindOut="out1,out2">
+        select * from console_job where aac = #{abc}
+    </select>
+
+    <select id="configQuery3" statementType="CALLABLE" timeout="123" fetchSize="512" resultSetType="FORWARD_ONLY"
+            resultSetExtractor="net.hasor.dbvisitor.mapper.dto.UserNameResultSetExtractor"
+            bindOut="out1,out2">
+        select * from console_job where aac = #{abc}
+    </select>
+
+    <select id="configQuery4" statementType="CALLABLE" timeout="123" fetchSize="512" resultSetType="FORWARD_ONLY"
+            resultRowCallback="net.hasor.dbvisitor.mapper.dto.UserNameRowCallback"
+            bindOut="out1,out2">
+        select * from console_job where aac = #{abc}
+    </select>
+
+    <select id="configQuery5" statementType="CALLABLE" timeout="123" fetchSize="512" resultSetType="FORWARD_ONLY"
+            resultRowMapper="net.hasor.dbvisitor.mapper.dto.UserNameRowMapper"
             bindOut="out1,out2">
         select * from console_job where aac = #{abc}
     </select>

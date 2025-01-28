@@ -24,17 +24,8 @@ import java.util.function.Function;
  * @version : 2021-06-19
  */
 public abstract class DmlConfig extends SqlConfig {
-    private SelectKeyConfig selectKey;
 
     public DmlConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
-    }
-
-    public SelectKeyConfig getSelectKey() {
-        return this.selectKey;
-    }
-
-    public void setSelectKey(SelectKeyConfig selectKey) {
-        this.selectKey = selectKey;
     }
 }

@@ -18,7 +18,7 @@ import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.template.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.template.ResultSetExtractor;
 import net.hasor.dbvisitor.template.jdbc.mapper.AbstractMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
 

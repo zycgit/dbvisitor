@@ -27,9 +27,15 @@ import java.util.function.Function;
  * @version : 2021-06-19
  */
 public abstract class DqlConfig extends SqlConfig {
-    private int           fetchSize     = 256;
-    private ResultSetType resultSetType = ResultSetType.DEFAULT;
-    private String[]      bindOut       = ArrayUtils.EMPTY_STRING_ARRAY;
+    private int           fetchSize          = 256;
+    private ResultSetType resultSetType      = ResultSetType.DEFAULT;
+    private String        resultMapSpace     = null;
+    private String        resultMapId        = null;
+    private String        resultType         = null;
+    private String        resultSetExtractor = null;
+    private String        resultRowCallback  = null;
+    private String        resultRowMapper    = null;
+    private String[]      bindOut            = ArrayUtils.EMPTY_STRING_ARRAY;
 
     public DqlConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
@@ -37,6 +43,12 @@ public abstract class DqlConfig extends SqlConfig {
         if (config != null) {
             this.fetchSize = Integer.parseInt(config.andThen(s -> StringUtils.isBlank(s) ? "256" : s).apply(FETCH_SIZE));
             this.resultSetType = config.andThen(s -> ResultSetType.valueOfCode(s, ResultSetType.DEFAULT)).apply(RESULT_SET_TYPE);
+            this.resultMapSpace = config.apply(RESULT_MAP_SPACE);
+            this.resultMapId = config.apply(RESULT_MAP_ID);
+            this.resultType = config.apply(RESULT_TYPE);
+            this.resultSetExtractor = config.apply(RESULT_SET_EXTRACTOR);
+            this.resultRowCallback = config.apply(RESULT_ROW_CALLBACK);
+            this.resultRowMapper = config.apply(RESULT_ROW_MAPPER);
             this.bindOut = config.andThen(s -> StringUtils.isNotBlank(s) ? s.split(",") : ArrayUtils.EMPTY_STRING_ARRAY).apply(BIND_OUT);
         }
     }
@@ -55,6 +67,54 @@ public abstract class DqlConfig extends SqlConfig {
 
     public void setResultSetType(ResultSetType resultSetType) {
         this.resultSetType = resultSetType;
+    }
+
+    public String getResultMapSpace() {
+        return this.resultMapSpace;
+    }
+
+    public void setResultMapSpace(String resultMapSpace) {
+        this.resultMapSpace = resultMapSpace;
+    }
+
+    public String getResultMapId() {
+        return this.resultMapId;
+    }
+
+    public void setResultMapId(String resultMapId) {
+        this.resultMapId = resultMapId;
+    }
+
+    public String getResultType() {
+        return this.resultType;
+    }
+
+    public void setResultType(String resultType) {
+        this.resultType = resultType;
+    }
+
+    public String getResultSetExtractor() {
+        return this.resultSetExtractor;
+    }
+
+    public void setResultSetExtractor(String resultSetExtractor) {
+        this.resultSetExtractor = resultSetExtractor;
+    }
+
+    public String getResultRowCallback() {
+        return this.resultRowCallback;
+    }
+
+    public void setResultRowCallback(String resultRowCallback) {
+        this.resultRowCallback = resultRowCallback;
+    }
+
+    public String getResultRowMapper() {
+        return this.resultRowMapper;
+    }
+
+    public void setResultRowMapper(String resultRowMapper) {
+        this.resultRowMapper = resultRowMapper;
     }
 
     public String[] getBindOut() {

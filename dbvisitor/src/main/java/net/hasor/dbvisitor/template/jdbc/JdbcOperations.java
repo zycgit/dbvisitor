@@ -15,6 +15,9 @@
  */
 package net.hasor.dbvisitor.template.jdbc;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
+import net.hasor.dbvisitor.template.ResultSetExtractor;
+import net.hasor.dbvisitor.template.RowCallbackHandler;
+import net.hasor.dbvisitor.template.RowMapper;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.sql.SQLException;

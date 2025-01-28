@@ -1,6 +1,6 @@
 package net.hasor.dbvisitor.dynamic;
 import net.hasor.cobble.CollectionUtils;
-import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.dynamic.segment.SqlModifier;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.handler.number.BigDecimalTypeHandler;
@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class DynamicTest {
     private static void assertArgCnt(int argCnt, String sql) throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
+        PlanDynamicSql segment = DynamicParsed.getParsedSql(sql);
 
         RegistryManager context = new RegistryManager();
         SqlBuilder sqlBuilder = segment.buildQuery(Collections.emptyMap(), context);
@@ -77,7 +77,7 @@ public class DynamicTest {
     }
 
     private static void assertArgNamedCnt(List<String> argNamed, String sql, String testSql) throws SQLException {
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
+        PlanDynamicSql segment = DynamicParsed.getParsedSql(sql);
 
         RegistryManager context = new RegistryManager();
         SqlBuilder sqlBuilder = segment.buildQuery(Collections.emptyMap(), context);
@@ -139,7 +139,7 @@ public class DynamicTest {
 
         //expr
         String sql = "a = :id.ccc['aaa'][0]";
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
+        PlanDynamicSql segment = DynamicParsed.getParsedSql(sql);
         RegistryManager context = new RegistryManager();
         Map<String, Object> ctx = CollectionUtils.asMap("id", CollectionUtils.asMap("ccc", CollectionUtils.asMap("aaa", Arrays.asList("abc"))));
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, context);
@@ -200,7 +200,7 @@ public class DynamicTest {
 
         //expr
         String sql = "a = &id.ccc['aaa'][0]";
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
+        PlanDynamicSql segment = DynamicParsed.getParsedSql(sql);
         RegistryManager context = new RegistryManager();
         Map<String, Object> ctx = CollectionUtils.asMap("id", CollectionUtils.asMap("ccc", CollectionUtils.asMap("aaa", Arrays.asList("abc"))));
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, context);
@@ -232,7 +232,7 @@ public class DynamicTest {
 
         //expr
         String sql = "abc = #{eventType,mode=INOUT,jdbcType=INT,javaType=java.lang.Integer,typeHandler=net.hasor.dbvisitor.types.handler.number.BigDecimalTypeHandler}";
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
+        PlanDynamicSql segment = DynamicParsed.getParsedSql(sql);
         RegistryManager context = new RegistryManager();
         Map<String, Object> ctx = CollectionUtils.asMap("eventType", "12345");
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, context);
@@ -247,7 +247,7 @@ public class DynamicTest {
 
     private static void assertRule(List<String> ruleExpr, String sql, String testSql) throws SQLException {
         RegistryManager context = new RegistryManager();
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
+        PlanDynamicSql segment = DynamicParsed.getParsedSql(sql);
         SqlBuilder sqlBuilder = segment.buildQuery(Collections.emptyMap(), context);
         assert segment.getOriSqlString().equals(sql);
         assert sqlBuilder.getSqlString().equals(testSql);
@@ -297,7 +297,7 @@ public class DynamicTest {
     public void rule_Test_2() throws SQLException {
         //expr
         String sql = "name = #{eventType} and age = :age and type = ?";
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
+        PlanDynamicSql segment = DynamicParsed.getParsedSql(sql);
         RegistryManager context = new RegistryManager();
         Map<String, Object> ctx = CollectionUtils.asMap("eventType", "a", "age", "b", "arg2", "c");
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, context);
@@ -313,7 +313,7 @@ public class DynamicTest {
     public void inject_Test_1() throws SQLException {
         //expr
         String sql = "abc = ${eventType}";
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql(sql);
+        PlanDynamicSql segment = DynamicParsed.getParsedSql(sql);
         RegistryManager context = new RegistryManager();
         Map<String, Object> ctx = CollectionUtils.asMap("eventType", "12345");
         SqlBuilder sqlBuilder = segment.buildQuery(ctx, context);
@@ -324,15 +324,15 @@ public class DynamicTest {
 
     @Test
     public void tokenTest_01() {
-        DefaultSqlSegment arg1 = DynamicParsed.getParsedSql("select from user where id = ?");
-        DefaultSqlSegment arg2 = DynamicParsed.getParsedSql("select from user where id = :id");
-        DefaultSqlSegment arg3 = DynamicParsed.getParsedSql("select from user where id = :id.ccc['aaa'][0].name()");
-        DefaultSqlSegment arg4 = DynamicParsed.getParsedSql("select from user where id = &id");
-        DefaultSqlSegment arg5 = DynamicParsed.getParsedSql("select from user where id = &id.ccc['aaa'][0].name()");
-        DefaultSqlSegment arg6 = DynamicParsed.getParsedSql("select from user where id = @{abc}");
-        DefaultSqlSegment arg7 = DynamicParsed.getParsedSql("select from user where id = #{abc}");
-        DefaultSqlSegment arg8 = DynamicParsed.getParsedSql("select from user where id = ${abc}");
-        DefaultSqlSegment arg9 = DynamicParsed.getParsedSql("select from user where id = @{abc,true, :name}");
+        PlanDynamicSql arg1 = DynamicParsed.getParsedSql("select from user where id = ?");
+        PlanDynamicSql arg2 = DynamicParsed.getParsedSql("select from user where id = :id");
+        PlanDynamicSql arg3 = DynamicParsed.getParsedSql("select from user where id = :id.ccc['aaa'][0].name()");
+        PlanDynamicSql arg4 = DynamicParsed.getParsedSql("select from user where id = &id");
+        PlanDynamicSql arg5 = DynamicParsed.getParsedSql("select from user where id = &id.ccc['aaa'][0].name()");
+        PlanDynamicSql arg6 = DynamicParsed.getParsedSql("select from user where id = @{abc}");
+        PlanDynamicSql arg7 = DynamicParsed.getParsedSql("select from user where id = #{abc}");
+        PlanDynamicSql arg8 = DynamicParsed.getParsedSql("select from user where id = ${abc}");
+        PlanDynamicSql arg9 = DynamicParsed.getParsedSql("select from user where id = @{abc,true, :name}");
 
         assert SqlModifier.POSITION == arg1.getSqlModifier();
         assert SqlModifier.NAMED == arg2.getSqlModifier();
@@ -347,7 +347,7 @@ public class DynamicTest {
 
     @Test
     public void tokenTest_02() {
-        DefaultSqlSegment arg1 = DynamicParsed.getParsedSql("select @{text,*} from user where id = ? and name :name order by ${order}");
+        PlanDynamicSql arg1 = DynamicParsed.getParsedSql("select @{text,*} from user where id = ? and name :name order by ${order}");
         int sqlModifier = arg1.getSqlModifier();
 
         assert SqlModifier.POSITION != sqlModifier;

@@ -15,6 +15,8 @@
  */
 package net.hasor.dbvisitor.dynamic;
 import net.hasor.cobble.ClassUtils;
+import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
+import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
 import net.hasor.dbvisitor.mapper.MapperRegistry;
 import net.hasor.dbvisitor.mapping.MappingOptions;
@@ -28,6 +30,7 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  */
 public class RegistryManager {
     public static final RegistryManager     DEFAULT = new RegistryManager(MappingRegistry.DEFAULT, RuleRegistry.DEFAULT, MacroRegistry.DEFAULT);
+    private             PageSqlDialect      dialect;
     private final       MapperRegistry      mapperRegistry;
     private final       MappingRegistry     mappingRegistry;
     private final       TypeHandlerRegistry typeRegistry;
@@ -40,6 +43,7 @@ public class RegistryManager {
         this.macroRegistry = new MacroRegistry();
         this.mappingRegistry = new MappingRegistry(null, this.typeRegistry, MappingOptions.buildNew());
         this.mapperRegistry = new MapperRegistry(this.macroRegistry, this.mappingRegistry, this.typeRegistry);
+        this.dialect = new DefaultSqlDialect();
     }
 
     public RegistryManager(MappingRegistry mapping, RuleRegistry rule, MacroRegistry macro) {
@@ -50,6 +54,7 @@ public class RegistryManager {
         this.macroRegistry = macro != null ? macro : MacroRegistry.DEFAULT;
         this.mappingRegistry = usingMapping;
         this.mapperRegistry = new MapperRegistry(this.macroRegistry, this.mappingRegistry, this.typeRegistry);
+        this.dialect = new DefaultSqlDialect();
     }
 
     public RegistryManager(TypeHandlerRegistry type, RuleRegistry rule, MacroRegistry macro) {
@@ -61,11 +66,20 @@ public class RegistryManager {
         this.macroRegistry = macro != null ? macro : MacroRegistry.DEFAULT;
         this.mappingRegistry = usingMapping;
         this.mapperRegistry = new MapperRegistry(this.macroRegistry, this.mappingRegistry, this.typeRegistry);
+        this.dialect = new DefaultSqlDialect();
     }
 
     @Deprecated
     public DynamicSql findMacro(String dynamicId) {
         return this.macroRegistry.findMacro(dynamicId);
+    }
+
+    public PageSqlDialect getDialect() {
+        return this.dialect;
+    }
+
+    public void setDialect(PageSqlDialect dialect) {
+        this.dialect = dialect;
     }
 
     public MapperRegistry getMapperRegistry() {

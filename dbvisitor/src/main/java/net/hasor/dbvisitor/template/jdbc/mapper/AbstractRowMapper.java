@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.template.jdbc.mapper;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.template.jdbc.RowMapper;
+import net.hasor.dbvisitor.template.RowMapper;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="error_mapper">
+    <resultMap id="userInfo" type="net.hasor.dbvisitor.mapper.dto.UserInfo" autoMapping="true"/>
+
+    <select id="configQuery" resultMap="userInfo" resultType="net.hasor.dbvisitor.mapper.dto.UserInfo">
+        select * from console_job where aac = #{abc}
+    </select>
+</mapper>

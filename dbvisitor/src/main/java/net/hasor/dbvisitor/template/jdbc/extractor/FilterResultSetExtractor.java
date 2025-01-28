@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.template.jdbc.extractor;
-import net.hasor.dbvisitor.template.jdbc.RowMapper;
+import net.hasor.dbvisitor.template.RowMapper;
 
 import java.util.Objects;
 import java.util.function.Predicate;

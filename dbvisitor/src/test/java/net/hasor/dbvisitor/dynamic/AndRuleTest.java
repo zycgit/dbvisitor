@@ -1,7 +1,7 @@
 package net.hasor.dbvisitor.dynamic;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.rule.AndRule;
-import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.types.SqlArg;
 import org.junit.Test;
 
@@ -100,7 +100,7 @@ public class AndRuleTest {
     public void ruleTest_4() throws SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("name", "abc", "arg1", "123");
 
-        DefaultSqlSegment sqlSegment1 = DynamicParsed.getParsedSql("@{and,name = :name} and @{and,age = ?}");
+        PlanDynamicSql sqlSegment1 = DynamicParsed.getParsedSql("@{and,name = :name} and @{and,age = ?}");
         SqlBuilder sqlBuilder1 = sqlSegment1.buildQuery(ctx, new RegistryManager());
         assert sqlBuilder1.getSqlString().equals("where name = ? and age = ?");
         assert sqlBuilder1.getArgs().length == 2;
@@ -302,7 +302,7 @@ public class AndRuleTest {
     public void ifruleTest_4() throws SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("name", "abc", "arg1", "123", "test", true);
 
-        DefaultSqlSegment sqlSegment1 = DynamicParsed.getParsedSql("@{ifand,test,name = :name} and @{ifand,test,age = ?}");
+        PlanDynamicSql sqlSegment1 = DynamicParsed.getParsedSql("@{ifand,test,name = :name} and @{ifand,test,age = ?}");
         SqlBuilder sqlBuilder1 = sqlSegment1.buildQuery(ctx, new RegistryManager());
         assert sqlBuilder1.getSqlString().equals("where name = ? and age = ?");
         assert sqlBuilder1.getArgs().length == 2;
@@ -314,7 +314,7 @@ public class AndRuleTest {
     public void ifruleTest_4_no() throws SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("name", "abc", "arg1", "123", "test", false);
 
-        DefaultSqlSegment sqlSegment1 = DynamicParsed.getParsedSql("@{ifand,test,name = :name} and @{ifand,test,age = ?}");
+        PlanDynamicSql sqlSegment1 = DynamicParsed.getParsedSql("@{ifand,test,name = :name} and @{ifand,test,age = ?}");
         SqlBuilder sqlBuilder1 = sqlSegment1.buildQuery(ctx, new RegistryManager());
         assert sqlBuilder1.getSqlString().equals(" and ");
         assert sqlBuilder1.getArgs().length == 0;

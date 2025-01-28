@@ -380,8 +380,8 @@ public class MultipleExtractorTest extends AbstractDbTest {
             jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
 
             String multipleSql = ""//
-                    + "select * from user_info where login_name = 'muhammad'; @{result,name=res1,javaType=net.hasor.test.dto.UserInfo2}\n"//
-                    + "select * from user_info where login_name = 'belon';    @{result,name=res2,javaType=net.hasor.test.dto.UserInfo2}\n";
+                    + "select * from user_info where login_name = 'muhammad'; @{resultSet,name=res1,javaType=net.hasor.test.dto.UserInfo2}\n"//
+                    + "select * from user_info where login_name = 'belon';    @{resultSet,name=res2,javaType=net.hasor.test.dto.UserInfo2}\n";
             Map<String, Object> objectMap = jdbcTemplate.multipleExecute(multipleSql);
             List<Object> objectList = new ArrayList<>(objectMap.values());
 

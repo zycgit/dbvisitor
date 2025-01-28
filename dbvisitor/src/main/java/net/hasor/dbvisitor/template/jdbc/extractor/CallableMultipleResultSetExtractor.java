@@ -16,11 +16,11 @@
 package net.hasor.dbvisitor.template.jdbc.extractor;
 import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dynamic.DynamicParsed;
+import net.hasor.dbvisitor.dynamic.ResultArg;
+import net.hasor.dbvisitor.dynamic.ResultArgType;
+import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.SqlMode;
-import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
 import net.hasor.dbvisitor.template.jdbc.CallableStatementCallback;
-import net.hasor.dbvisitor.template.jdbc.core.ProcedureArg;
 import net.hasor.dbvisitor.template.jdbc.core.StatementSetterUtils;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
@@ -42,23 +42,13 @@ public class CallableMultipleResultSetExtractor extends AbstractMultipleResultSe
     private final Object[] useArgs;
 
     public CallableMultipleResultSetExtractor() {
-        super(null);
+        super();
         this.useArgs = ArrayUtils.EMPTY_OBJECT_ARRAY;
     }
 
-    public CallableMultipleResultSetExtractor(Object[] useArgs) {
-        super(null);
-        this.useArgs = useArgs;
-    }
-
-    public CallableMultipleResultSetExtractor(String originalSql, Object[] useArgs) {
-        super(DynamicParsed.getParsedSql(originalSql));
-        this.useArgs = useArgs;
-    }
-
-    public CallableMultipleResultSetExtractor(DefaultSqlSegment parsedSql, Object[] useArgs) {
-        super(parsedSql);
-        this.useArgs = useArgs;
+    public CallableMultipleResultSetExtractor(SqlBuilder buildSql) {
+        super(buildSql);
+        this.useArgs = buildSql.getArgs();
     }
 
     @Override
@@ -122,7 +112,7 @@ public class CallableMultipleResultSetExtractor extends AbstractMultipleResultSe
 
             if (sqlArg.getSqlMode() == SqlMode.Cursor) {
                 ResultSet rs = (ResultSet) ((CallableStatement) s).getObject(i);
-                ProcedureArg procedureArg = new ProcedureArg(sqlArg.getName(), sqlArg.getJavaType(), sqlArg.getRowMapper(), sqlArg.getRowHandler(), sqlArg.getExtractor());
+                ResultArg procedureArg = new ResultArg(sqlArg.getName(), ResultArgType.ResultSet, sqlArg.getJavaType(), sqlArg.getRowMapper(), sqlArg.getRowHandler(), sqlArg.getExtractor());
                 Object resultValue = this.processResultSet(procedureArg, rs);
                 resultMap.put(name, resultValue);
             } else {

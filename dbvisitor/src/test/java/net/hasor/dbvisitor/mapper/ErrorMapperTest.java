@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.mapper;
 
+import net.hasor.dbvisitor.mapper.dto.Error10Mapper;
 import net.hasor.dbvisitor.mapper.dto.Error1Mapper;
 import net.hasor.dbvisitor.mapper.dto.Error2Mapper;
 import org.junit.Test;
@@ -98,6 +99,39 @@ public class ErrorMapperTest {
             assert false;
         } catch (Exception e) {
             assert e.getMessage().endsWith("missing index name.");
+        }
+    }
+
+    @Test
+    public void error_8() {
+        try {
+            MapperRegistry registry = new MapperRegistry();
+            registry.loadMapper("dbvisitor_coverage/basic_mapper/error_8.xml");
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().contains("only one of the options can be selected. e.g.");
+        }
+    }
+
+    @Test
+    public void error_9() {
+        try {
+            MapperRegistry registry = new MapperRegistry();
+            registry.loadMapper("dbvisitor_coverage/basic_mapper/error_9.xml");
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().contains("only one of the options can be selected. e.g.");
+        }
+    }
+
+    @Test
+    public void error_10() {
+        try {
+            MapperRegistry registry = new MapperRegistry();
+            registry.loadMapper(Error10Mapper.class);
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().contains("the type 'net.hasor.dbvisitor.mapper.dto.UserInfoExt' cannot be as 'net.hasor.dbvisitor.mapper.dto.UserInfoForError10'.");
         }
     }
 }

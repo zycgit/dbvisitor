@@ -19,6 +19,7 @@ import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.dto.UserFutures;
 import net.hasor.dbvisitor.dynamic.dto.UsersDTO;
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import org.junit.Test;
 
 import java.sql.SQLException;
@@ -67,8 +68,8 @@ public class LogicTest {
     @Test
     public void planDynamicSql_2_1() throws SQLException {
         PlanDynamicSql textSql = new PlanDynamicSql();
-        textSql.appendText(null);
-        textSql.appendText("text body");
+        textSql.appendString(null);
+        textSql.appendString("text body");
         SqlBuilder sqlBuilder = textSql.buildQuery(Collections.emptyMap(), RegistryManager.DEFAULT);
 
         assert !textSql.isHaveInjection();
@@ -79,8 +80,8 @@ public class LogicTest {
     @Test
     public void planDynamicSql_2() throws SQLException {
         PlanDynamicSql textSql = new PlanDynamicSql("");
-        textSql.appendText(null);
-        textSql.appendText("text body");
+        textSql.appendString(null);
+        textSql.appendString("text body");
         SqlBuilder sqlBuilder = textSql.buildQuery(Collections.emptyMap(), RegistryManager.DEFAULT);
 
         assert !textSql.isHaveInjection();
@@ -93,8 +94,8 @@ public class LogicTest {
         Map<String, Object> ctx = Collections.singletonMap("ctxNumber", 456);
 
         PlanDynamicSql textSql = new PlanDynamicSql("");
-        textSql.appendText(null);
-        textSql.appendText("text body ${ctxNumber}");
+        textSql.appendString(null);
+        textSql.parsedAppend("text body ${ctxNumber}");
         SqlBuilder sqlBuilder = textSql.buildQuery(ctx, RegistryManager.DEFAULT);
 
         assert textSql.isHaveInjection();
@@ -268,30 +269,5 @@ public class LogicTest {
         assert sqlBuilder.getArgs().length == 5 && //
                 sqlBuilder.getArgs()[0].equals("a") && sqlBuilder.getArgs()[1].equals("b") && sqlBuilder.getArgs()[2].equals("c") &&//
                 sqlBuilder.getArgs()[3].equals("d") && sqlBuilder.getArgs()[4].equals("e");
-    }
-
-    @Test
-    public void arrayDynamicSql_1() throws SQLException {
-        ArrayDynamicSql arraySql = new ArrayDynamicSql();
-        arraySql.addChildNode(new PlanDynamicSql("abc"));
-        arraySql.appendText("def");
-
-        SqlBuilder sqlBuilder = arraySql.buildQuery(Collections.emptyMap(), RegistryManager.DEFAULT);
-
-        assert arraySql.lastIsText();
-        assert !arraySql.isHaveInjection();
-        assert sqlBuilder.getSqlString().equals("abcdef");
-    }
-
-    @Test
-    public void arrayDynamicSql_2() throws SQLException {
-        ArrayDynamicSql arraySql = new ArrayDynamicSql();
-        arraySql.appendText("abcdef");
-
-        SqlBuilder sqlBuilder = arraySql.buildQuery(Collections.emptyMap(), RegistryManager.DEFAULT);
-
-        assert arraySql.lastIsText();
-        assert !arraySql.isHaveInjection();
-        assert sqlBuilder.getSqlString().equals("abcdef");
     }
 }

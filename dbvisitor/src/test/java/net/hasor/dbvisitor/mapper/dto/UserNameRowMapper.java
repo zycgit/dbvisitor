@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.template.jdbc;
+package net.hasor.dbvisitor.mapper.dto;
+import net.hasor.dbvisitor.template.RowMapper;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * 回调接口，用于 JDBC 结果集转换。
- * @author Thomas Risberg
- * @author Juergen Hoeller
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-10-9
+ * @version : 2013-12-10
  */
-@FunctionalInterface
-public interface ResultSetExtractor<T> {
-    /** 将结果集内容转换 */
-    T extractData(ResultSet rs) throws SQLException;
+public class UserNameRowMapper implements RowMapper<String> {
+    @Override
+    public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return rs.getString("name");
+    }
 }

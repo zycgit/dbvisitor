@@ -18,6 +18,7 @@ import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -46,19 +47,20 @@ public class ArrayDynamicSql implements DynamicSql {
 
     /** 最后一个节点是文本 */
     public boolean lastIsText() {
-        return this.subNodes.get(this.subNodes.size() - 1) instanceof PlanDynamicSql;
+        if (this.subNodes.isEmpty()) {
+            return false;
+        } else {
+            return this.subNodes.get(this.subNodes.size() - 1) instanceof PlanDynamicSql;
+        }
     }
 
-    /** 追加文本 */
-    public void appendText(String text) {
-        if (!this.subNodes.isEmpty()) {
-            DynamicSql dynamicSql = this.subNodes.get(this.subNodes.size() - 1);
-            if (dynamicSql instanceof PlanDynamicSql) {
-                ((PlanDynamicSql) dynamicSql).appendText(text);
-                return;
-            }
+    /** 最后一个节点 */
+    public DynamicSql lastNode() {
+        if (this.subNodes.isEmpty()) {
+            return null;
+        } else {
+            return this.subNodes.get(this.subNodes.size() - 1);
         }
-        this.addChildNode(new PlanDynamicSql(text));
     }
 
     @Override

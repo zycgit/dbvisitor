@@ -15,10 +15,8 @@
  */
 package net.hasor.dbvisitor.dynamic.segment;
 
-import net.hasor.dbvisitor.dynamic.DynamicSql;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
-import net.hasor.dbvisitor.dynamic.SqlArgSource;
-import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.dynamic.*;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -28,10 +26,24 @@ import java.util.*;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-05
  */
-public class DefaultSqlSegment implements Cloneable, DynamicSql {
+public class PlanDynamicSql implements Cloneable, DynamicSql {
     private final StringBuilder    queryStringOri  = new StringBuilder("");
     private final List<SqlSegment> queryStringPlan = new LinkedList<>();
     private       boolean          haveInjection   = false;
+
+    public PlanDynamicSql() {
+    }
+
+    public PlanDynamicSql(String test) {
+        PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(test);
+        this.queryStringOri.append(parsedSql.queryStringOri);
+        this.queryStringPlan.addAll(parsedSql.queryStringPlan);
+        this.haveInjection = parsedSql.haveInjection;
+    }
+
+    public void parsedAppend(String append) {
+        DynamicParsed.parsedSqlTo(append, this);
+    }
 
     /** 追加字符串 */
     public void appendString(char[] append, int offset, int count) {
@@ -40,6 +52,16 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
 
     /** 追加字符串 */
     public void appendString(String append) {
+        if (append == null) {
+            return;
+        }
+        if (StringUtils.isBlank(append) && this.queryStringOri.length() > 0) {
+            char lastChar = this.queryStringOri.charAt(this.queryStringOri.length() - 1);
+            if (lastChar == '\r' || lastChar == '\n' || lastChar == '\t' || lastChar == ' ') {
+                return;
+            }
+        }
+
         this.queryStringOri.append(append);
         if (!this.queryStringPlan.isEmpty()) {
             Object ss = this.queryStringPlan.get(this.queryStringPlan.size() - 1);
@@ -176,7 +198,7 @@ public class DefaultSqlSegment implements Cloneable, DynamicSql {
 
     @Override
     public DynamicSql clone() {
-        DefaultSqlSegment clone = new DefaultSqlSegment();
+        PlanDynamicSql clone = new PlanDynamicSql();
         clone.queryStringOri.append(this.queryStringOri);
         for (SqlSegment fxSegment : this.queryStringPlan) {
             clone.queryStringPlan.add(fxSegment.clone());

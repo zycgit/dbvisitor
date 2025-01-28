@@ -21,18 +21,23 @@ package net.hasor.dbvisitor.mapper.def;
  */
 public interface ConfigKeys {
     // COMMON
-    String STATEMENT_TYPE  = "statementType";
-    String TIMEOUT         = "timeout";
+    String STATEMENT_TYPE       = "statementType";
+    String TIMEOUT              = "timeout";
     // DQL
-    String FETCH_SIZE      = "fetchSize";
-    String RESULT_SET_TYPE = "resultSetType";
-    String BIND_OUT        = "bindOut";
+    String FETCH_SIZE           = "fetchSize";
+    String RESULT_SET_TYPE      = "resultSetType";
+    String RESULT_MAP_SPACE     = "resultMapSpace"; // inner config
+    String RESULT_MAP_ID        = "resultMap";
+    String RESULT_TYPE          = "resultType";
+    String RESULT_SET_EXTRACTOR = "resultSetExtractor";
+    String RESULT_ROW_CALLBACK  = "resultRowCallback";
+    String RESULT_ROW_MAPPER    = "resultRowMapper";
+    String BIND_OUT             = "bindOut";
     // INSERT
-    String KEY_GENERATED   = "useGeneratedKeys";
-    String KEY_PROPERTY    = "keyProperty";
-    String KEY_COLUMN      = "keyColumn";
+    String KEY_GENERATED        = "useGeneratedKeys";
+    String KEY_PROPERTY         = "keyProperty";
+    String KEY_COLUMN           = "keyColumn";
     // SELECT KEY
-    String ORDER           = "order";
-    String RESULT_TYPE     = "resultType";
-    String RESULT_HANDLER  = "resultHandler";
+    String ORDER                = "order";
+    String RESULT_HANDLER       = "resultHandler";
 }

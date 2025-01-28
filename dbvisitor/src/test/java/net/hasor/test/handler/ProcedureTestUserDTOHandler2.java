@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.test.handler;
-import net.hasor.dbvisitor.template.jdbc.RowCallbackHandler;
+import net.hasor.dbvisitor.template.RowCallbackHandler;
 import net.hasor.test.dto.ProcedureTestUserDTO;
 import net.hasor.test.mapper.ProcedureTestUserDTOMapper;
 

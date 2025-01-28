@@ -17,9 +17,11 @@ package net.hasor.dbvisitor.mapper.resolve;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
-import net.hasor.dbvisitor.dynamic.logic.PlanDynamicSql;
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.mapper.def.*;
+import net.hasor.dbvisitor.mapping.MappingHelper;
+import net.hasor.dbvisitor.mapping.ResultMap;
 import net.hasor.dbvisitor.types.handler.UnknownTypeHandler;
 import org.xml.sax.SAXException;
 
@@ -67,6 +69,7 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
     }
 
     protected SqlConfig createDynamicSql(Method dalMethod, Annotation annotation) throws ParserConfigurationException, IOException, SAXException {
+        Class<?> requiredClass = MappingHelper.resolveReturnType(dalMethod);
         if (annotation instanceof Insert) {
             Map<String, String> cfg = new HashMap<>();
             cfg.put(STATEMENT_TYPE, ((Insert) annotation).statementType().getTypeName());
@@ -100,6 +103,7 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
             Map<String, String> cfg = new HashMap<>();
             cfg.put(STATEMENT_TYPE, ((Execute) annotation).statementType().getTypeName());
             cfg.put(TIMEOUT, String.valueOf(((Execute) annotation).timeout()));
+            cfg.put(BIND_OUT, StringUtils.join(((Execute) annotation).bindOut(), ","));
 
             ArrayDynamicSql dynamicSql = new ArrayDynamicSql();
             dynamicSql.addChildNode(new PlanDynamicSql(StringUtils.join(((Execute) annotation).value(), " ")));
@@ -110,6 +114,26 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
             cfg.put(TIMEOUT, String.valueOf(((Query) annotation).timeout()));
             cfg.put(FETCH_SIZE, String.valueOf(((Query) annotation).fetchSize()));
             cfg.put(RESULT_SET_TYPE, ((Query) annotation).resultSetType().getTypeName());
+
+            if (((Query) annotation).resultSetExtractor() != Object.class) {
+                cfg.put(RESULT_SET_EXTRACTOR, ((Query) annotation).resultSetExtractor().getName());
+            } else if (((Query) annotation).resultRowCallback() != Object.class) {
+                cfg.put(RESULT_ROW_CALLBACK, ((Query) annotation).resultRowCallback().getName());
+            } else if (((Query) annotation).resultRowMapper() != Object.class) {
+                cfg.put(RESULT_ROW_MAPPER, ((Query) annotation).resultRowMapper().getName());
+            } else if (dalMethod.isAnnotationPresent(ResultMap.class)) {
+                MappingHelper.NameInfo nameInfo = MappingHelper.findNameInfo(dalMethod);
+                if (nameInfo == null) {
+                    throw new IllegalArgumentException("the @ResultMap annotation on the method(" + dalMethod + ") is incorrectly configured");
+                }
+                cfg.put(RESULT_MAP_SPACE, StringUtils.isBlank(nameInfo.getSpace()) ? dalMethod.getDeclaringClass().getName() : nameInfo.getSpace());
+                cfg.put(RESULT_MAP_ID, nameInfo.getName());
+            } else {
+                cfg.put(RESULT_MAP_SPACE, dalMethod.getDeclaringClass().getName());
+                cfg.put(RESULT_MAP_ID, null);
+                cfg.put(RESULT_TYPE, MappingHelper.typeName(requiredClass));
+            }
+
             cfg.put(BIND_OUT, StringUtils.join(((Query) annotation).bindOut(), ","));
 
             ArrayDynamicSql dynamicSql = new ArrayDynamicSql();

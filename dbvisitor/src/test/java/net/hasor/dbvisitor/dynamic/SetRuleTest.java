@@ -1,7 +1,7 @@
 package net.hasor.dbvisitor.dynamic;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.rule.SetRule;
-import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.types.SqlArg;
 import org.junit.Test;
 
@@ -100,7 +100,7 @@ public class SetRuleTest {
     public void ruleTest_4() throws SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("name", "abc", "arg1", "123");
 
-        DefaultSqlSegment sqlSegment1 = DynamicParsed.getParsedSql("@{set,name = :name} , @{set,age = ?}");
+        PlanDynamicSql sqlSegment1 = DynamicParsed.getParsedSql("@{set,name = :name} , @{set,age = ?}");
         SqlBuilder sqlBuilder1 = sqlSegment1.buildQuery(ctx, new RegistryManager());
         assert sqlBuilder1.getSqlString().equals("set name = ? , age = ?");
         assert sqlBuilder1.getArgs().length == 2;
@@ -108,7 +108,7 @@ public class SetRuleTest {
         assert ((SqlArg) sqlBuilder1.getArgs()[1]).getValue() == null; // TODO The use of both rule and location parameters is not supported.
 
         //
-        DefaultSqlSegment sqlSegment2 = DynamicParsed.getParsedSql("@{set,name = :name} @{set,age = ?}");
+        PlanDynamicSql sqlSegment2 = DynamicParsed.getParsedSql("@{set,name = :name} @{set,age = ?}");
         SqlBuilder sqlBuilder2 = sqlSegment2.buildQuery(ctx, new RegistryManager());
         assert sqlBuilder2.getSqlString().equals("set name = ? , age = ?");
         assert sqlBuilder2.getArgs().length == 2;
@@ -310,7 +310,7 @@ public class SetRuleTest {
     public void ifruleTest_4() throws SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("name", "abc", "arg1", "123", "test", true);
 
-        DefaultSqlSegment sqlSegment1 = DynamicParsed.getParsedSql("@{ifset,test,name = :name} , @{ifset,test,age = ?}");
+        PlanDynamicSql sqlSegment1 = DynamicParsed.getParsedSql("@{ifset,test,name = :name} , @{ifset,test,age = ?}");
         SqlBuilder sqlBuilder1 = sqlSegment1.buildQuery(ctx, new RegistryManager());
         assert sqlBuilder1.getSqlString().equals("set name = ? , age = ?");
         assert sqlBuilder1.getArgs().length == 2;
@@ -322,7 +322,7 @@ public class SetRuleTest {
     public void ifruleTest_4_no() throws SQLException {
         Map<String, Object> ctx = CollectionUtils.asMap("name", "abc", "arg1", "123", "test", false);
 
-        DefaultSqlSegment sqlSegment1 = DynamicParsed.getParsedSql("@{ifset,test,name = :name} , @{ifset,test,age = ?}");
+        PlanDynamicSql sqlSegment1 = DynamicParsed.getParsedSql("@{ifset,test,name = :name} , @{ifset,test,age = ?}");
         SqlBuilder sqlBuilder1 = sqlSegment1.buildQuery(ctx, new RegistryManager());
         assert sqlBuilder1.getSqlString().equals(" , ");
         assert sqlBuilder1.getArgs().length == 0;

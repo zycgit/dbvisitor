@@ -24,7 +24,15 @@ import java.util.List;
  */
 @RefMapper("/dbvisitor_coverage/basic_mapper/basic_mapper_two.xml")
 public interface ApiBasicConfigTwoMapper {
-    List<UserInfo> configQuery(String abc);
+    List<UserInfo> configQuery1(String abc);
+
+    List<UserInfo> configQuery2(String abc);
+
+    List<UserInfo> configQuery3(String abc);
+
+    List<UserInfo> configQuery4(String abc);
+
+    List<UserInfo> configQuery5(String abc);
 
     long configInsert(UserInfo info);
 

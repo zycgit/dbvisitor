@@ -1,7 +1,7 @@
 package net.hasor.dbvisitor.dynamic;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.rule.MacroRule;
-import net.hasor.dbvisitor.dynamic.segment.DefaultSqlSegment;
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import org.junit.Test;
 
 import java.sql.SQLException;
@@ -15,7 +15,7 @@ public class MacroRuleTest {
         RegistryManager dynamicContext = new RegistryManager();
         dynamicContext.getMacroRegistry().addMacro("one arg", "name = ?");
 
-        DefaultSqlSegment segment = DynamicParsed.getParsedSql("@{macro, one arg}");
+        PlanDynamicSql segment = DynamicParsed.getParsedSql("@{macro, one arg}");
         SqlBuilder sqlBuilder1 = segment.buildQuery(Collections.emptyMap(), dynamicContext);
         assert sqlBuilder1.getSqlString().equals("name = ?");
         assert sqlBuilder1.getArgs().length == 1;
@@ -27,12 +27,12 @@ public class MacroRuleTest {
         dynamicContext.getMacroRegistry().addMacro("one arg", "name = ?");
         Map<String, Object> ctx = CollectionUtils.asMap("test", false);
 
-        DefaultSqlSegment segment1 = DynamicParsed.getParsedSql("@{ifmacro, test}");
+        PlanDynamicSql segment1 = DynamicParsed.getParsedSql("@{ifmacro, test}");
         SqlBuilder sqlBuilder1 = segment1.buildQuery(ctx, dynamicContext);
         assert sqlBuilder1.getSqlString().equals("");
         assert sqlBuilder1.getArgs().length == 0;
 
-        DefaultSqlSegment segment2 = DynamicParsed.getParsedSql("@{ifmacro,test,one arg}");
+        PlanDynamicSql segment2 = DynamicParsed.getParsedSql("@{ifmacro,test,one arg}");
         SqlBuilder sqlBuilder2 = segment2.buildQuery(ctx, dynamicContext);
         assert sqlBuilder2.getSqlString().equals("");
         assert sqlBuilder2.getArgs().length == 0;
@@ -45,14 +45,14 @@ public class MacroRuleTest {
         Map<String, Object> ctx = CollectionUtils.asMap("test", true);
 
         try {
-            DefaultSqlSegment segment1 = DynamicParsed.getParsedSql("@{ifmacro, test}");
+            PlanDynamicSql segment1 = DynamicParsed.getParsedSql("@{ifmacro, test}");
             segment1.buildQuery(ctx, dynamicContext);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().startsWith("ifmacro 'null' not found.");
         }
 
-        DefaultSqlSegment segment2 = DynamicParsed.getParsedSql("@{ifmacro,test,one arg}");
+        PlanDynamicSql segment2 = DynamicParsed.getParsedSql("@{ifmacro,test,one arg}");
         SqlBuilder sqlBuilder2 = segment2.buildQuery(ctx, dynamicContext);
         assert sqlBuilder2.getSqlString().equals("name = ?");
         assert sqlBuilder2.getArgs().length == 1;
