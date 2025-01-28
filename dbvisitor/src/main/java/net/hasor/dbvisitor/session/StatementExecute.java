@@ -18,6 +18,7 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.mapper.ResultSetType;
 import net.hasor.dbvisitor.mapper.def.DqlConfig;
 import net.hasor.dbvisitor.mapper.def.SqlConfig;
 import net.hasor.dbvisitor.template.jdbc.extractor.PreparedMultipleResultSetExtractor;
@@ -33,7 +34,7 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-07-20
  */
-public class StatementExecute extends AbstractStatementExecute<Object> {
+public class StatementExecute extends AbstractStatementExecute {
     public StatementExecute(RegistryManager registry) {
         super(registry);
     }
@@ -49,8 +50,13 @@ public class StatementExecute extends AbstractStatementExecute<Object> {
     @Override
     protected Statement createStatement(Connection conn, SqlConfig config, BoundSql execSql) throws SQLException {
         if (config instanceof DqlConfig) {
-            int resultSetTypeInt = ((DqlConfig) config).getResultSetType().getResultSetType();
-            return conn.createStatement(resultSetTypeInt, ResultSet.CONCUR_READ_ONLY);
+            ResultSetType resultSetType = ((DqlConfig) config).getResultSetType();
+            if (resultSetType == null || resultSetType == ResultSetType.DEFAULT) {
+                return conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            } else {
+                int resultSetTypeInt = resultSetType.getResultSetType();
+                return conn.createStatement(resultSetTypeInt, ResultSet.CONCUR_READ_ONLY);
+            }
         } else {
             return conn.createStatement();
         }

@@ -1,8 +1,9 @@
-package net.hasor.dbvisitor.dal.session;
+package net.hasor.dbvisitor.session;
 import net.hasor.cobble.WellKnowFormat;
 import net.hasor.dbvisitor.mapper.BaseMapper;
-import net.hasor.dbvisitor.dal.MapperRegistry;
 import net.hasor.dbvisitor.mapping.MappingOptions;
+import net.hasor.dbvisitor.session.dal.MapperRegistry;
+import net.hasor.dbvisitor.session.dal.DalSession;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;

@@ -32,7 +32,7 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-07-20
  */
-public class PreparedStatementExecute extends AbstractStatementExecute<Object> {
+public class PreparedStatementExecute extends AbstractStatementExecute {
     public PreparedStatementExecute(RegistryManager registry) {
         super(registry);
     }

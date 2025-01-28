@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.mapper;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
-import net.hasor.dbvisitor.session.dal.session.DalSession;
+import net.hasor.dbvisitor.session.dal.DalSession;
 import net.hasor.dbvisitor.wrapper.*;
 
 import java.io.Serializable;

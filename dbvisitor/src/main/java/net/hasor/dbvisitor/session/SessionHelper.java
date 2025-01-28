@@ -18,10 +18,15 @@ class SessionHelper {
         StringBuilder builder = new StringBuilder("querySQL: ");
 
         try {
-            List<String> lines = IOUtils.readLines(new StringReader(sqlBuilder.getSqlString()));
-            for (String line : lines) {
-                if (StringUtils.isNotBlank(line)) {
-                    builder.append(line.trim()).append(" ");
+            if (sqlBuilder == null) {
+                builder.append("(Empty)");
+                return builder;
+            } else {
+                List<String> lines = IOUtils.readLines(new StringReader(sqlBuilder.getSqlString()));
+                for (String line : lines) {
+                    if (StringUtils.isNotBlank(line)) {
+                        builder.append(line.trim()).append(" ");
+                    }
                 }
             }
         } catch (Exception e) {

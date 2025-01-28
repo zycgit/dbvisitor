@@ -20,14 +20,18 @@ import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.Page;
+import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.mapper.StatementDef;
+import net.hasor.dbvisitor.mapper.def.DmlConfig;
 import net.hasor.dbvisitor.mapper.def.DqlConfig;
 import net.hasor.dbvisitor.mapper.def.ExecuteConfig;
 import net.hasor.dbvisitor.mapper.def.SqlConfig;
+import net.hasor.dbvisitor.mapping.MappingHelper;
 import net.hasor.dbvisitor.template.jdbc.extractor.BeanMappingResultSetExtractor;
+import net.hasor.dbvisitor.template.jdbc.extractor.ColumnMapResultSetExtractor;
 import net.hasor.dbvisitor.template.jdbc.extractor.RowCallbackHandlerResultSetExtractor;
 import net.hasor.dbvisitor.template.jdbc.extractor.RowMapperResultSetExtractor;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
@@ -43,7 +47,7 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-07-20
  */
-public abstract class AbstractStatementExecute<T> {
+public abstract class AbstractStatementExecute {
     protected static final Logger          logger = LoggerFactory.getLogger(AbstractStatementExecute.class);
     protected final        RegistryManager registry;
 
@@ -67,6 +71,10 @@ public abstract class AbstractStatementExecute<T> {
     }
 
     public final Object execute(Connection conn, StatementDef def, Map<String, Object> data, Page pageInfo) throws SQLException {
+        return this.execute(conn, def, data, pageInfo, false);
+    }
+
+    public final Object execute(Connection conn, StatementDef def, Map<String, Object> data, Page pageInfo, boolean pageResult) throws SQLException {
         SqlConfig config = def.getConfig();
         this.doCheck(conn, config, data, pageInfo);
 
@@ -93,7 +101,7 @@ public abstract class AbstractStatementExecute<T> {
         }
 
         // query count
-        if (countSql != null) {
+        if (countSql != null && pageResult) {
             try (PreparedStatement stat = conn.prepareStatement(countSql.getSqlString())) {
                 if (logger.isTraceEnabled()) {
                     logger.trace(SessionHelper.fmtBoundSql(countSql).toString());
@@ -115,7 +123,7 @@ public abstract class AbstractStatementExecute<T> {
             this.configStatement(stat, config);
 
             boolean retVal = this.executeQuery(stat, config, execSql);
-            return this.fetchResult(retVal, stat, def, oriSql, dataCtx, resultCount);
+            return this.fetchResult(retVal, stat, def, oriSql, dataCtx, pageInfo, resultCount, pageResult);
         } catch (SQLException e) {
             logger.error("executeQuery failed, " + ExceptionUtils.getRootCauseMessage(e) + ", " + SessionHelper.fmtBoundSql(countSql), e);
             throw e;
@@ -149,7 +157,7 @@ public abstract class AbstractStatementExecute<T> {
 
     protected abstract boolean executeQuery(Statement stat, SqlConfig config, BoundSql execSql) throws SQLException;
 
-    protected Object fetchResult(boolean retVal, Statement stat, StatementDef def, SqlBuilder oriSql, Map<String, Object> ctx, long pageCount) throws SQLException {
+    protected Object fetchResult(boolean retVal, Statement stat, StatementDef def, SqlBuilder oriSql, Map<String, Object> ctx, Page oriPageInfo, long newPageCnt, boolean pageResult) throws SQLException {
         String[] bindOut = null;
         boolean usingMultipleResultFetch = false;
 
@@ -177,6 +185,11 @@ public abstract class AbstractStatementExecute<T> {
             }
             return result;
         } else {
+
+            if (def.getConfig() instanceof DmlConfig) {
+                return stat.getUpdateCount();
+            }
+
             if (retVal) {
                 try (ResultSet rs = stat.getResultSet()) {
                     if (rs.isLast()) {
@@ -187,23 +200,37 @@ public abstract class AbstractStatementExecute<T> {
                         return def.getResultExtractor().extractData(rs);
                     } else if (def.getResultRowCallback() != null) {
                         new RowCallbackHandlerResultSetExtractor(def.getResultRowCallback()).extractData(rs);
-                        return Collections.emptyList();
+                        boolean isSingle = !def.isUsingCollection();
+                        return isSingle ? null : pageOrNot(Collections.emptyList(), oriPageInfo, newPageCnt, pageResult);
                     } else if (def.getResultRowMapper() != null) {
                         boolean isSingle = !def.isUsingCollection();
                         List<?> objects = new RowMapperResultSetExtractor<>(def.getResultRowMapper(), (isSingle ? 1 : 0)).extractData(rs);
-                        return isSingle ? (objects.isEmpty() ? null : objects.get(0)) : objects;
+                        return isSingle ? (objects.isEmpty() ? null : objects.get(0)) : pageOrNot(objects, oriPageInfo, newPageCnt, pageResult);
                     } else if (def.getResultType() != null) {
                         boolean isSingle = !def.isUsingCollection();
                         List<?> objects = new BeanMappingResultSetExtractor<>(def.getResultType(), this.registry.getMappingRegistry(), (isSingle ? 1 : 0)).extractData(rs);
-                        return isSingle ? (objects.isEmpty() ? null : objects.get(0)) : objects;
+                        return isSingle ? (objects.isEmpty() ? null : objects.get(0)) : pageOrNot(objects, oriPageInfo, newPageCnt, pageResult);
                     } else {
-                        throw new SQLException("");
+                        boolean isSingle = !def.isUsingCollection();
+                        TypeHandlerRegistry typeRegistry = this.registry.getMappingRegistry().getTypeRegistry();
+                        boolean caseInsensitive = MappingHelper.caseInsensitive(this.registry.getMappingRegistry().getGlobalOptions());
+                        List<?> objects = new ColumnMapResultSetExtractor((isSingle ? 1 : 0), typeRegistry, caseInsensitive).extractData(rs);
+                        return isSingle ? (objects.isEmpty() ? null : objects.get(0)) : pageOrNot(objects, oriPageInfo, newPageCnt, pageResult);
                     }
                 }
             } else {
-                int resultValue = stat.getUpdateCount();
-                return resultValue;
+                return stat.getUpdateCount();
             }
+        }
+    }
+
+    protected Object pageOrNot(List<?> objects, Page oriPageInfo, long newPageCnt, boolean pageResult) {
+        if (pageResult) {
+            PageResult<?> page = new PageResult<>(oriPageInfo, objects);
+            page.setTotalCount(newPageCnt);
+            return page;
+        } else {
+            return objects;
         }
     }
 

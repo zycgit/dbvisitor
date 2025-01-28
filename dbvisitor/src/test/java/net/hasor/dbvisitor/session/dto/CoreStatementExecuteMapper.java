@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.session.dto;
-import net.hasor.dbvisitor.mapper.Insert;
-import net.hasor.dbvisitor.mapper.Query;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
+import net.hasor.dbvisitor.dialect.Page;
+import net.hasor.dbvisitor.mapper.*;
 
 import java.util.List;
 import java.util.Map;
@@ -26,19 +25,31 @@ import java.util.Map;
  * @version : 2013-12-10
  */
 @SimpleMapper
-public interface CoreAnnoBasicMapper {
-    @Query(value = { "set @userName = convert(? USING utf8);       @{resultUpdate,name=upd}",//
+public interface CoreStatementExecuteMapper {
+    @Execute(value = { "set @userName = convert(${arg0} USING utf8);       @{resultUpdate,name=upd}",//
             "select * from user_info where user_name  = @userName; @{resultSet,name=res1,javaType=net.hasor.dbvisitor.session.dto.UserInfo}",   //
             "select * from user_info where user_name != @userName; @{resultSet,name=res2,javaType=net.hasor.dbvisitor.session.dto.UserInfo}" }, //
             bindOut = { "res1", "res2" })
     Map<String, Object> selectList1(String arg);
 
-    @Query("select * from user_info where user_name  = ?;")
+    @Query("select * from user_info where user_name = ${arg0};")
     List<UserInfo> selectList2(String arg);
 
-    @Query("select * from user_info where user_uuid = ?")
+    @Query("select * from user_info where user_uuid = ${arg0}")
     Map<String, Object> queryById(UserInfo info);
 
-    @Insert("insert into user_info(user_uuid, user_name, login_name, login_password, email, seq, register_time) values (?, ?, ?, ?, ?, ?, ?);")
+    @Query("select count(*) from user_info;")
+    int selectCount();
+
+    @Insert("insert into user_info(user_uuid, user_name, login_name, login_password, email, seq, register_time) values (${arg0}, ${arg1}, ${arg2}, ${arg3}, ${arg4}, ${arg5}, ${arg6});")
     int insertBean(UserInfo info);
+
+    @Update("update user_info set login_name = ${arg0};")
+    int updateBean(String arg);
+
+    @Delete("delete from user_info where login_name = ${arg0};")
+    void deleteBean(String arg);
+
+    @Query("select * from user_info")
+    List<UserInfo> selectByPage(Page page);
 }

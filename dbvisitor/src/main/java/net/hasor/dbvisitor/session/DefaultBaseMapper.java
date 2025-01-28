@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.session;
+package net.hasor.dbvisitor.session;
+import net.hasor.dbvisitor.dialect.Page;
+import net.hasor.dbvisitor.dialect.PageObject;
+import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.dialect.Page;
-import net.hasor.dbvisitor.dialect.PageObject;
-import net.hasor.dbvisitor.dialect.PageResult;
+import net.hasor.dbvisitor.session.dal.DalSession;
 import net.hasor.dbvisitor.wrapper.EntityDeleteWrapper;
 import net.hasor.dbvisitor.wrapper.EntityQueryWrapper;
 import net.hasor.dbvisitor.wrapper.EntityUpdateWrapper;
@@ -39,14 +40,14 @@ import java.util.stream.Collectors;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-05-19
  */
-class BaseMapperHandler implements BaseMapper<Object> {
+public class DefaultBaseMapper implements BaseMapper<Object> {
     private final String               space;
     private final Class<Object>        entityType;
     private final DalSession           dalSession;
     private final WrapperAdapter       template;
     private final TableMapping<Object> tableMapping;
 
-    public BaseMapperHandler(String space, Class<?> entityType, DalSession dalSession) {
+    public DefaultBaseMapper(String space, Class<?> entityType, DalSession dalSession) {
         this.space = space;
         this.entityType = (Class<Object>) entityType;
         this.dalSession = dalSession;
@@ -76,8 +77,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
     }
 
     protected List<ColumnMapping> foundPrimaryKey() {
-        TableMapping<Object> tableMapping = getMapping();
-        return tableMapping.getProperties().stream().filter(ColumnMapping::isPrimaryKey).collect(Collectors.toList());
+        return getMapping().getProperties().stream().filter(ColumnMapping::isPrimaryKey).collect(Collectors.toList());
     }
 
     @Override
@@ -183,7 +183,7 @@ class BaseMapperHandler implements BaseMapper<Object> {
             throw new NullPointerException("primary key is empty.");
         }
 
-        if (map.size() == 0) {
+        if (map.isEmpty()) {
             throw new NullPointerException("map is empty.");
         }
 
