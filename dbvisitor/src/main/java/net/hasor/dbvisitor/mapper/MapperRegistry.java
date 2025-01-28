@@ -37,6 +37,7 @@ import net.hasor.dbvisitor.template.ResultSetExtractor;
 import net.hasor.dbvisitor.template.RowCallbackHandler;
 import net.hasor.dbvisitor.template.RowMapper;
 import net.hasor.dbvisitor.template.jdbc.mapper.BeanMappingRowMapper;
+import net.hasor.dbvisitor.template.jdbc.mapper.ColumnMapRowMapper;
 import net.hasor.dbvisitor.template.jdbc.mapper.SingleColumnRowMapper;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.w3c.dom.*;
@@ -48,6 +49,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -236,6 +238,7 @@ public class MapperRegistry {
             Map<String, StatementDef> defMap = this.configMap.computeIfAbsent(configSpace, s -> new ConcurrentHashMap<>());
             if (hasAnnoConf) {
                 StatementDef def = new StatementDef(configSpace, configId, resolve.parseSqlConfig(configSpace, m));
+                def.setUsingCollection(Collection.class.isAssignableFrom(m.getReturnType()));
                 this.applyResultConfig(def);// for DqlConfig
                 defMap.put(configId, def);
             }
@@ -404,7 +407,21 @@ public class MapperRegistry {
         }
 
         // as Bean
-        return new BeanMappingRowMapper<>(requiredType, this.mappingRegistry);
+        if (Map.class.isAssignableFrom(requiredType)) {
+            boolean caseInsensitive = MappingHelper.caseInsensitive(this.mappingRegistry.getGlobalOptions());
+            return new ColumnMapRowMapper(caseInsensitive, this.typeRegistry) {
+                @Override
+                protected Map<String, Object> createColumnMap(int columnCount) {
+                    if (requiredType == Map.class) {
+                        return super.createColumnMap(columnCount);
+                    } else {
+                        return ClassUtils.newInstance(requiredType);
+                    }
+                }
+            };
+        } else {
+            return new BeanMappingRowMapper<>(requiredType, this.mappingRegistry);
+        }
     }
 
     // --------------------------------------------------------------------------------------------

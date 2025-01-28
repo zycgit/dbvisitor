@@ -54,7 +54,7 @@ public class RowMapperResultSetExtractor<T> implements ResultSetExtractor<List<T
     /**
      * 创建 {@link RowMapperResultSetExtractor} 对象
      * @param rowMapper 行映射器。
-     * @param rowsExpected 预期结果集大小（实际得到的结果集条目不受此参数限制）。
+     * @param rowsExpected 预期结果集大小。
      */
     public RowMapperResultSetExtractor(final RowMapper<T> rowMapper, final int rowsExpected) {
         Objects.requireNonNull(rowMapper, "RowMapper is required");

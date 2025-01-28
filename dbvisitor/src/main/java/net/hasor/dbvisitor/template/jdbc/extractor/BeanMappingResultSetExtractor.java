@@ -31,12 +31,24 @@ import java.util.List;
  * @version : 2020-10-31
  */
 public class BeanMappingResultSetExtractor<T> extends AbstractMapping<T> implements ResultSetExtractor<List<T>> {
+    private final int rowsExpected;
+
     /**
      * 创建 {@link BeanMappingResultSetExtractor} 对象
      * @param entityType 类型
      */
     public BeanMappingResultSetExtractor(final Class<T> entityType, MappingRegistry registry) {
+        this(entityType, registry, 0);
+    }
+
+    /**
+     * 创建 {@link BeanMappingResultSetExtractor} 对象
+     * @param entityType 类型
+     * @param rowsExpected 预期结果集大小。
+     */
+    public BeanMappingResultSetExtractor(final Class<T> entityType, MappingRegistry registry, final int rowsExpected) {
         super(entityType, registry);
+        this.rowsExpected = rowsExpected;
     }
 
     /**
@@ -44,7 +56,17 @@ public class BeanMappingResultSetExtractor<T> extends AbstractMapping<T> impleme
      * @param tableMapping 类型
      */
     public BeanMappingResultSetExtractor(TableMapping<?> tableMapping) {
+        this(tableMapping, 0);
+    }
+
+    /**
+     * 创建 {@link BeanMappingResultSetExtractor} 对象
+     * @param tableMapping 类型
+     * @param rowsExpected 预期结果集大小。
+     */
+    public BeanMappingResultSetExtractor(TableMapping<?> tableMapping, final int rowsExpected) {
         super(tableMapping);
+        this.rowsExpected = rowsExpected;
     }
 
     @Override
@@ -56,19 +78,29 @@ public class BeanMappingResultSetExtractor<T> extends AbstractMapping<T> impleme
             columnList.add(lookupColumnName(rsmd, i));
         }
 
-        List<T> results = new ArrayList<>();
+        List<T> results = this.rowsExpected > 0 ? new ArrayList<>(this.rowsExpected) : new ArrayList<>();
         int rowNum = 0;
         while (rs.next()) {
-            results.add(this.extractRow(columnList, rs, rowNum++));
+            T mapRow = this.extractRow(columnList, rs, rowNum++);
+            if (testRow(mapRow)) {
+                results.add(mapRow);
+                if (this.rowsExpected > 0 && results.size() >= this.rowsExpected) {
+                    break;
+                }
+            }
         }
         return results;
     }
 
     private static String lookupColumnName(final ResultSetMetaData resultSetMetaData, final int columnIndex) throws SQLException {
         String name = resultSetMetaData.getColumnLabel(columnIndex);
-        if (name == null || name.length() < 1) {
+        if (name == null || name.isEmpty()) {
             name = resultSetMetaData.getColumnName(columnIndex);
         }
         return name;
+    }
+
+    protected boolean testRow(T mapRow) {
+        return true;
     }
 }

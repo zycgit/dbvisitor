@@ -35,6 +35,7 @@ public class StatementDef {
     private final String                configNamespace;
     private final String                configId;
     private       SqlConfig             config;
+    private       boolean               usingCollection;
     private       Class<?>              resultType;
     private       ResultSetExtractor<?> resultExtractor;
     private       RowCallbackHandler    resultRowCallback;
@@ -44,6 +45,7 @@ public class StatementDef {
         this.configNamespace = Objects.requireNonNull(configNamespace);
         this.configId = Objects.requireNonNull(configId);
         this.config = Objects.requireNonNull(config);
+        this.usingCollection = true;
     }
 
     public String getConfigNamespace() {
@@ -60,6 +62,14 @@ public class StatementDef {
 
     public void setConfig(SqlConfig config) {
         this.config = config;
+    }
+
+    public boolean isUsingCollection() {
+        return this.usingCollection;
+    }
+
+    public void setUsingCollection(boolean usingCollection) {
+        this.usingCollection = usingCollection;
     }
 
     public Class<?> getResultType() {

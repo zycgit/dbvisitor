@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.session;
+package net.hasor.dbvisitor.session;
 import net.hasor.cobble.CollectionUtils;
 
 import java.util.*;
@@ -24,7 +24,7 @@ import java.util.function.BiConsumer;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2016-07-17
  */
-class MergedMap<K, T> extends AbstractMap<K, T> {
+public class MergedMap<K, T> extends AbstractMap<K, T> {
     private final Map<K, T>       unmerged  = new HashMap<>();
     private final List<Map<K, T>> merged    = new ArrayList<>();
     private final List<Boolean>   keyLocked = new ArrayList<>();
