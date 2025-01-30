@@ -335,8 +335,6 @@
                     </xs:restriction>
                 </xs:simpleType>
             </xs:attribute>
-            <xs:attribute name="resultType"/>
-            <xs:attribute name="resultHandler"/>
         </xs:complexType>
     </xs:element>
 

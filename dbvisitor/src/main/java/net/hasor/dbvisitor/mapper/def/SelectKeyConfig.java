@@ -31,8 +31,6 @@ public class SelectKeyConfig extends SqlConfig {
     private String        keyProperty   = null;
     private String        keyColumn     = null;
     private String        order         = null;
-    private String        resultType    = null;
-    private String        resultHandler = null;
 
     public SelectKeyConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
@@ -43,8 +41,6 @@ public class SelectKeyConfig extends SqlConfig {
             this.keyProperty = config.apply(KEY_PROPERTY);
             this.keyColumn = config.apply(KEY_COLUMN);
             this.order = config.apply(ORDER);
-            this.resultType = config.apply(RESULT_TYPE);
-            this.resultHandler = config.apply(RESULT_HANDLER);
         }
     }
 
@@ -99,21 +95,5 @@ public class SelectKeyConfig extends SqlConfig {
 
     public void setOrder(String order) {
         this.order = order;
-    }
-
-    public String getResultType() {
-        return this.resultType;
-    }
-
-    public void setResultType(String resultType) {
-        this.resultType = resultType;
-    }
-
-    public String getResultHandler() {
-        return this.resultHandler;
-    }
-
-    public void setResultHandler(String resultHandler) {
-        this.resultHandler = resultHandler;
     }
 }

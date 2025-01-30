@@ -18,7 +18,6 @@ package net.hasor.dbvisitor.mapper;
 import net.hasor.dbvisitor.mapper.def.*;
 import net.hasor.dbvisitor.mapper.dto.*;
 import net.hasor.dbvisitor.template.jdbc.mapper.BeanMappingRowMapper;
-import net.hasor.dbvisitor.types.handler.string.StringTypeHandler;
 import org.junit.Test;
 
 /**
@@ -182,8 +181,6 @@ public class AnnoConfigMapperTest {
         assert keyConfig.getKeyProperty().equals("userUuid");
         assert keyConfig.getKeyColumn().equals("uid");
         assert keyConfig.getOrder().equals("After");
-        assert keyConfig.getResultType().equals("java.lang.String");
-        assert keyConfig.getResultHandler().equals(StringTypeHandler.class.getName());
     }
 
     @Test

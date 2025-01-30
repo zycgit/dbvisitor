@@ -18,6 +18,7 @@ import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.mapper.Execute;
 import net.hasor.dbvisitor.mapper.Query;
 import net.hasor.dbvisitor.mapper.SimpleMapper;
+import net.hasor.dbvisitor.mapper.StatementType;
 
 import java.util.List;
 import java.util.Map;
@@ -28,16 +29,18 @@ import java.util.Map;
  */
 @SimpleMapper
 public interface CoreCallableStatementExecuteMapper {
-    @Execute(value = {//
+    @Execute(statementType = StatementType.Callable, value = {//
             "{call proc_select_cross_table_for_stat(#{arg0,jdbcType=varchar},#{arg1,mode=out,jdbcType=varchar})}",//
             "      @{resultSet,name=res1}",   //
             "      @{resultSet,name=res2}" }, //
             bindOut = { "arg1", "res1", "res2" })
-    Map<String, Object> executeCall1(String arg);
+    Map<String, Object> executeCall1(String arg0, String arg1);
 
-    @Execute("{call proc_select_cross_table_for_stat(#{arg0,jdbcType=varchar},#{arg1,mode=out,jdbcType=varchar})}")
-    Map<String, Object> executeCall2(String arg);
+    @Execute(statementType = StatementType.Callable, value = //
+            "{call proc_select_cross_table_for_stat(#{arg0,jdbcType=varchar},#{arg1,mode=out,jdbcType=varchar})}")
+    Map<String, Object> executeCall2(String arg0, String arg1);
 
-    @Query("select * 1")
+    @Query(statementType = StatementType.Callable, value = //
+            "select * 1")
     List<UserInfo> selectByPage(Page page);
 }

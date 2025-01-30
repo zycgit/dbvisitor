@@ -263,8 +263,6 @@ public class XmlSqlConfigResolve implements SqlConfigResolve<Node>, ConfigKeys {
         cfg.put(KEY_PROPERTY, getNodeAttributeValue(curXmlNode, "keyProperty"));
         cfg.put(KEY_COLUMN, getNodeAttributeValue(curXmlNode, "keyColumn"));
         cfg.put(ORDER, getNodeAttributeValue(curXmlNode, "order"));
-        cfg.put(RESULT_TYPE, getNodeAttributeValue(curXmlNode, "resultType"));
-        cfg.put(RESULT_HANDLER, getNodeAttributeValue(curXmlNode, "resultHandler"));
 
         ArrayDynamicSql parent = new ArrayDynamicSql();
         this.parseNodeList(namespace, parent, curXmlNode.getChildNodes());

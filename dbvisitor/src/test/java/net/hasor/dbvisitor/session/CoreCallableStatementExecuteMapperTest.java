@@ -48,7 +48,7 @@ public class CoreCallableStatementExecuteMapperTest {
             Map<String, Object> ctx = CollectionUtils.asMap(//
                     "arg0", "aaa",//
                     "arg1", "this is arg");
-            Map<String, Object> result = (Map<String, Object>) exec.execute(con, def, ctx, null);
+            Map<String, Object> result = (Map<String, Object>) exec.execute(con, def, ctx, null, false);
 
             assert result.size() == 3;
             assert result.get("arg1").equals("aaa");
@@ -72,7 +72,7 @@ public class CoreCallableStatementExecuteMapperTest {
             Map<String, Object> ctx = CollectionUtils.asMap(//
                     "arg0", "aaa",//
                     "arg1", "this is arg");
-            Map<String, Object> result = (Map<String, Object>) exec.execute(con, def, ctx, null);
+            Map<String, Object> result = (Map<String, Object>) exec.execute(con, def, ctx, null, false);
 
             assert result.size() == 4;
             assert result.get("arg1").equals("aaa");

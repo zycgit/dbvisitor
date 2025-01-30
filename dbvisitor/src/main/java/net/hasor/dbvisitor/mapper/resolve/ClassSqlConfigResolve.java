@@ -22,7 +22,6 @@ import net.hasor.dbvisitor.mapper.*;
 import net.hasor.dbvisitor.mapper.def.*;
 import net.hasor.dbvisitor.mapping.MappingHelper;
 import net.hasor.dbvisitor.mapping.ResultMap;
-import net.hasor.dbvisitor.types.handler.UnknownTypeHandler;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -59,8 +58,6 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
             cfg.put(KEY_PROPERTY, keySql.keyProperty());
             cfg.put(KEY_COLUMN, keySql.keyColumn());
             cfg.put(ORDER, keySql.order().name());
-            cfg.put(RESULT_TYPE, (keySql.resultType() == Object.class) ? null : keySql.resultType().getName());
-            cfg.put(RESULT_HANDLER, (keySql.resultHandler() == UnknownTypeHandler.class) ? null : keySql.resultHandler().getName());
 
             ArrayDynamicSql dynamicSql = new ArrayDynamicSql();
             dynamicSql.addChildNode(new PlanDynamicSql(StringUtils.join(keySql.value(), " ")));

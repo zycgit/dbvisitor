@@ -39,5 +39,4 @@ public interface ConfigKeys {
     String KEY_COLUMN           = "keyColumn";
     // SELECT KEY
     String ORDER                = "order";
-    String RESULT_HANDLER       = "resultHandler";
 }

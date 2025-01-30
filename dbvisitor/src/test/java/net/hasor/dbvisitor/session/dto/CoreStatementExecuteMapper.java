@@ -26,30 +26,38 @@ import java.util.Map;
  */
 @SimpleMapper
 public interface CoreStatementExecuteMapper {
-    @Execute(value = { "set @userName = convert(${arg0} USING utf8);       @{resultUpdate,name=upd}",//
+    @Execute(statementType = StatementType.Statement, value = { //
+            "set @userName = convert(${arg0} USING utf8);          @{resultUpdate,name=upd}",//
             "select * from user_info where user_name  = @userName; @{resultSet,name=res1,javaType=net.hasor.dbvisitor.session.dto.UserInfo}",   //
             "select * from user_info where user_name != @userName; @{resultSet,name=res2,javaType=net.hasor.dbvisitor.session.dto.UserInfo}" }, //
             bindOut = { "res1", "res2" })
     Map<String, Object> selectList1(String arg);
 
-    @Query("select * from user_info where user_name = ${arg0};")
+    @Query(statementType = StatementType.Statement, value =//
+            "select * from user_info where user_name = ${arg0};")
     List<UserInfo> selectList2(String arg);
 
-    @Query("select * from user_info where user_uuid = ${arg0}")
+    @Query(statementType = StatementType.Statement, value =//
+            "select * from user_info where user_uuid = ${arg0}")
     Map<String, Object> queryById(UserInfo info);
 
-    @Query("select count(*) from user_info;")
+    @Query(statementType = StatementType.Statement, value =//
+            "select count(*) from user_info;")
     int selectCount();
 
-    @Insert("insert into user_info(user_uuid, user_name, login_name, login_password, email, seq, register_time) values (${arg0}, ${arg1}, ${arg2}, ${arg3}, ${arg4}, ${arg5}, ${arg6});")
+    @Insert(statementType = StatementType.Statement, value =//
+            "insert into user_info(user_uuid, user_name, login_name, login_password, email, seq, register_time) values (${arg0}, ${arg1}, ${arg2}, ${arg3}, ${arg4}, ${arg5}, ${arg6});")
     int insertBean(UserInfo info);
 
-    @Update("update user_info set login_name = ${arg0};")
+    @Update(statementType = StatementType.Statement, value =//
+            "update user_info set login_name = ${arg0};")
     int updateBean(String arg);
 
-    @Delete("delete from user_info where login_name = ${arg0};")
+    @Delete(statementType = StatementType.Statement, value =//
+            "delete from user_info where login_name = ${arg0};")
     void deleteBean(String arg);
 
-    @Query("select * from user_info")
+    @Query(statementType = StatementType.Statement, value =//
+            "select * from user_info")
     List<UserInfo> selectByPage(Page page);
 }

@@ -15,7 +15,6 @@
  */
 package net.hasor.dbvisitor.mapper.dto;
 import net.hasor.dbvisitor.mapper.*;
-import net.hasor.dbvisitor.types.handler.string.StringTypeHandler;
 
 import java.util.List;
 
@@ -75,9 +74,7 @@ public interface AnnoBasicConfigMapper {
             resultSetType = ResultSetType.FORWARD_ONLY, //
             keyProperty = "userUuid",               //
             keyColumn = "uid",                      //
-            order = Order.After,                    //
-            resultType = String.class,              //
-            resultHandler = StringTypeHandler.class)
+            order = Order.After)
     @Insert(value = "insert into console_job (uid,name,login) values (#{info.userUuid}, #{info.name}, #{info.loginName})",//
             statementType = StatementType.Callable, //
             timeout = 123,                          //

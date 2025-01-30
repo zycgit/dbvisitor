@@ -70,8 +70,8 @@ public abstract class AbstractStatementExecute {
         }
     }
 
-    public final Object execute(Connection conn, StatementDef def, Map<String, Object> data, Page pageInfo) throws SQLException {
-        return this.execute(conn, def, data, pageInfo, false);
+    public final Object execute(Connection conn, StatementDef def, Map<String, Object> data) throws SQLException {
+        return this.execute(conn, def, data, null, false);
     }
 
     public final Object execute(Connection conn, StatementDef def, Map<String, Object> data, Page pageInfo, boolean pageResult) throws SQLException {

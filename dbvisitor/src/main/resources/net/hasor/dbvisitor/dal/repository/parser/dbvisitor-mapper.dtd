@@ -191,8 +191,6 @@
         keyProperty CDATA #REQUIRED
         keyColumn CDATA #IMPLIED
         order (BEFORE|AFTER) #IMPLIED
-        resultType CDATA #IMPLIED
-        resultHandler CDATA #IMPLIED
         >
 
 <!ELEMENT include EMPTY>

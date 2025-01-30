@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.execute;
+package net.hasor.dbvisitor.session;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.ref.BeanMap;
+import net.hasor.dbvisitor.mapper.StatementDef;
 import net.hasor.dbvisitor.mapper.def.SelectKeyConfig;
 
 import java.sql.Connection;
@@ -29,31 +30,34 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-11-05
  */
-class SelectKeyExecute {
-    private final SelectKeyConfig  keySqlConfig;
-    private final SelectKeyHandler selectKeyHandler;
+class ProxySelectKey {
+    private final SelectKeyConfig          config;
+    private final StatementDef             configDef;
+    private final AbstractStatementExecute execute;
 
-    SelectKeyExecute(SelectKeyConfig keySqlConfig, SelectKeyHandler selectKeyHandler) {
-        this.keySqlConfig = keySqlConfig;
-        this.selectKeyHandler = selectKeyHandler;
+    ProxySelectKey(StatementDef parentDef, SelectKeyConfig config, AbstractStatementExecute execute) {
+        this.config = config;
+        this.configDef = new StatementDef(parentDef.getConfigNamespace(), parentDef.getConfigId() + "_selectKey", config);
+        this.execute = execute;
+
     }
 
     public void processBefore(Connection conn, Map<String, Object> parameter) throws SQLException {
-        if (StringUtils.equalsIgnoreCase("BEFORE", this.keySqlConfig.getOrder())) {
-            this.processSelectKey(conn, parameter, true);
+        if (StringUtils.equalsIgnoreCase("BEFORE", this.config.getOrder())) {
+            this.processSelectKey(conn, parameter);
         }
     }
 
     public void processAfter(Connection conn, Map<String, Object> parameter) throws SQLException {
-        if (StringUtils.equalsIgnoreCase("AFTER", this.keySqlConfig.getOrder())) {
-            this.processSelectKey(conn, parameter, false);
+        if (StringUtils.equalsIgnoreCase("AFTER", this.config.getOrder())) {
+            this.processSelectKey(conn, parameter);
         }
     }
 
-    private void processSelectKey(Connection conn, Map<String, Object> parameter, boolean isBefore) throws SQLException {
-        String keyColumn = this.keySqlConfig.getKeyColumn();
-        String keyProperty = this.keySqlConfig.getKeyProperty();
-        Object resultValue = this.selectKeyHandler.processSelectKey(conn, parameter, isBefore);
+    private void processSelectKey(Connection conn, Map<String, Object> parameter) throws SQLException {
+        String keyColumn = this.config.getKeyColumn();
+        String keyProperty = this.config.getKeyProperty();
+        Object resultValue = this.execute.execute(conn, this.configDef, parameter);
 
         if (resultValue instanceof List) {
             resultValue = ((List<?>) resultValue).get(0);

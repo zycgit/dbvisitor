@@ -24,7 +24,6 @@ import java.util.function.Function;
  * @version : 2021-06-19
  */
 public class SelectConfig extends DqlConfig {
-
     public SelectConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
     }

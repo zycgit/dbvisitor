@@ -40,7 +40,7 @@ public class CoreStatementExecuteTest {
             reinit(con);
 
             Map<String, Object> ctx = CollectionUtils.asMap("arg0", "'user_1'");
-            Map<String, Object> result = (Map<String, Object>) exec.execute(con, def, ctx, null);
+            Map<String, Object> result = (Map<String, Object>) exec.execute(con, def, ctx, null, false);
 
             assert result.size() == 2;
             assert result.get("res1") instanceof List && ((List) result.get("res1")).size() == 1 && ((List) result.get("res1")).get(0) instanceof UserInfo;
@@ -61,7 +61,7 @@ public class CoreStatementExecuteTest {
             reinit(con);
 
             Map<String, Object> ctx = CollectionUtils.asMap("arg0", "'user_1'");
-            List result = (List) exec.execute(con, def, ctx, null);
+            List result = (List) exec.execute(con, def, ctx, null, false);
 
             assert result.size() == 1 && result.get(0) instanceof UserInfo;
         }
@@ -90,10 +90,10 @@ public class CoreStatementExecuteTest {
         try (Connection con = DsUtils.mysqlConn()) {
             reinit(con);
 
-            int insertResult = (int) exec.execute(con, def1, ctx, null);
+            int insertResult = (int) exec.execute(con, def1, ctx, null, false);
             assert insertResult == 1;
 
-            Map<String, Object> queryResult = (Map<String, Object>) exec.execute(con, def2, ctx, null);
+            Map<String, Object> queryResult = (Map<String, Object>) exec.execute(con, def2, ctx, null, false);
             assert queryResult.get("user_name").equals("user_10");
         }
     }
@@ -112,11 +112,11 @@ public class CoreStatementExecuteTest {
             reinit(con);
 
             Map<String, Object> ctx1 = CollectionUtils.asMap("arg0", "'upd_1000'");
-            int insertResult = (int) exec.execute(con, def1, ctx1, null);
+            int insertResult = (int) exec.execute(con, def1, ctx1, null, false);
             assert insertResult == 3;
 
             Map<String, Object> ctx2 = CollectionUtils.asMap("arg0", "'1'");
-            Map<String, Object> queryResult = (Map<String, Object>) exec.execute(con, def2, ctx2, null);
+            Map<String, Object> queryResult = (Map<String, Object>) exec.execute(con, def2, ctx2, null, false);
             assert queryResult.get("login_name").equals("upd_1000");
             assert queryResult.get("login_password").equals("1");
         }
@@ -135,14 +135,14 @@ public class CoreStatementExecuteTest {
         try (Connection con = DsUtils.mysqlConn()) {
             reinit(con);
 
-            int cnt1 = (int) exec.execute(con, def1, null, null);
+            int cnt1 = (int) exec.execute(con, def1, null, null, false);
             assert cnt1 == 3;
 
             Map<String, Object> ctx2 = CollectionUtils.asMap("arg0", "'1'");
-            int deleteResult = (int) exec.execute(con, def2, ctx2, null);
+            int deleteResult = (int) exec.execute(con, def2, ctx2, null, false);
             assert deleteResult == 1;
 
-            int cnt2 = (int) exec.execute(con, def1, null, null);
+            int cnt2 = (int) exec.execute(con, def1, null, null, false);
             assert cnt2 == 2;
         }
     }
