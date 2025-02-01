@@ -29,15 +29,15 @@ public interface DynamicSql {
     /** 是否包含替换占位符，如果包含替换占位符那么不能使用批量模式 */
     boolean isHaveInjection();
 
-    void buildQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException;
+    void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException;
 
-    default SqlBuilder buildQuery(SqlArgSource data, RegistryManager context) throws SQLException {
+    default SqlBuilder buildQuery(SqlArgSource data, QueryContext context) throws SQLException {
         SqlBuilder fxBuilder = new SqlBuilder();
         this.buildQuery(data, context, fxBuilder);
         return fxBuilder;
     }
 
-    default SqlBuilder buildQuery(Map<String, Object> data, RegistryManager context) throws SQLException {
+    default SqlBuilder buildQuery(Map<String, Object> data, QueryContext context) throws SQLException {
         SqlBuilder fxBuilder = new SqlBuilder();
         this.buildQuery(new MapSqlArgSource(data), context, fxBuilder);
         return fxBuilder;

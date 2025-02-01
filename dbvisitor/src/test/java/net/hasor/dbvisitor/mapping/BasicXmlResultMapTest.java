@@ -31,7 +31,7 @@ public class BasicXmlResultMapTest {
     @Test
     public void xmlResultMap_1_1() throws IOException {
         MappingRegistry registry = new MappingRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
+        registry.loadMapping("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
         TableMapping<?> tab = registry.findBySpace("", "pojo_bean1");
 
         assert tab.getCatalog().equals("");
@@ -98,7 +98,7 @@ public class BasicXmlResultMapTest {
     @Test
     public void xmlResultMap_1_2() throws IOException {
         MappingRegistry registry = new MappingRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
+        registry.loadMapping("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
         TableMapping<?> tab = registry.findBySpace("", "pojo_bean2");
 
         assert tab.getCatalog().equals("");
@@ -165,7 +165,7 @@ public class BasicXmlResultMapTest {
     @Test
     public void xmlResultMap_2() throws IOException {
         MappingRegistry registry = new MappingRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_2.xml");
+        registry.loadMapping("/dbvisitor_coverage/basic_mapping/basic_result_2.xml");
 
         TableMapping<?> def1 = registry.findByEntity(PojoBean1.class);
         TableMapping<?> def2 = registry.findBySpace("resultMap_test", PojoBean1.class);
@@ -179,7 +179,7 @@ public class BasicXmlResultMapTest {
     @Test
     public void xmlResultMap_3() throws IOException {
         MappingRegistry registry = new MappingRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_3.xml");
+        registry.loadMapping("/dbvisitor_coverage/basic_mapping/basic_result_3.xml");
         TableMapping<?> ent1 = registry.findBySpace("abc", "aac");
 
         TableMapping<?> def1 = registry.findByEntity(PojoBean1.class);
@@ -203,19 +203,19 @@ public class BasicXmlResultMapTest {
     @Test
     public void error_1() throws IOException {
         MappingRegistry registry = new MappingRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
+        registry.loadMapping("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
+        registry.loadMapping("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
         assert true;
     }
 
     @Test
     public void error_2() throws IOException {
         MappingRegistry registry = new MappingRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
+        registry.loadMapping("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
 
         try {
             registry.loaded.clear();// clear cache
-            registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
+            registry.loadMapping("/dbvisitor_coverage/basic_mapping/basic_result_1.xml");
             assert false;
         } catch (Exception e) {
             assert e.getMessage().endsWith("the resultMap 'pojo_bean1' already exists.");

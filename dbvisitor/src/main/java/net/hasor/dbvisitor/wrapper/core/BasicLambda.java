@@ -21,7 +21,7 @@ import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
@@ -40,10 +40,10 @@ public abstract class BasicLambda<R, T, P> {
     private final          boolean         exampleIsMap;
     private final          TableMapping<?> tableMapping;
     //
-    protected final        RegistryManager registry;
+    protected final        MappingRegistry registry;
     protected final        JdbcTemplate    jdbc;
 
-    public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+    public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
         this.exampleType = Objects.requireNonNull(exampleType, "exampleType is null.");
         this.exampleIsMap = Map.class == exampleType || Map.class.isAssignableFrom(this.exampleType());
         this.tableMapping = Objects.requireNonNull(tableMapping, "tableMapping is null.");

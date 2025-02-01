@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.mapper;
-import net.hasor.dbvisitor.mapping.MappingRegistry;
-import net.hasor.dbvisitor.template.jdbc.mapper.BeanMappingRowMapper;
-import net.hasor.test.dto.ProcedureTestUserDTO;
+package net.hasor.dbvisitor.dynamic.rule;
+import net.hasor.dbvisitor.dynamic.QueryContext;
+import net.hasor.dbvisitor.dynamic.SqlArgSource;
+import net.hasor.dbvisitor.dynamic.SqlBuilder;
+
+import java.sql.SQLException;
 
 /**
+ * 动态 SQL 中定义的规则。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-12-10
+ * @version : 2021-06-05
  */
-public class ProcedureTestUserDTOMapper extends BeanMappingRowMapper<ProcedureTestUserDTO> {
-    public ProcedureTestUserDTOMapper() {
-        super(ProcedureTestUserDTO.class, MappingRegistry.DEFAULT);
-    }
+public interface SqlRule {
+    boolean test(SqlArgSource data, QueryContext context, String activeExpr);
+
+    void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException;
 }

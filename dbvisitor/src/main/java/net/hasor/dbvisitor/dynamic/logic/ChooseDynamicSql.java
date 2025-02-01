@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.dynamic.logic;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 
@@ -49,7 +49,7 @@ public class ChooseDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException {
+    public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
         boolean useDefault = true;
         try {
             for (DynamicSql dynamicSql : this.subNodes) {

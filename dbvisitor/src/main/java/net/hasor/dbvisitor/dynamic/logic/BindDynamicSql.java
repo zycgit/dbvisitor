@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.dynamic.logic;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.internal.OgnlUtils;
@@ -41,7 +41,7 @@ public class BindDynamicSql implements DynamicSql {
     }
 
     @Override
-    public void buildQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) {
+    public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) {
         if (StringUtils.isNotBlank(this.name)) {
             Object testExprResult = OgnlUtils.evalOgnl(this.valueExpr, data);
             data.putValue(this.name, testExprResult);

@@ -190,7 +190,7 @@ public class PlanDynamicSql implements Cloneable, DynamicSql {
     }
 
     @Override
-    public void buildQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException {
+    public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
         for (SqlSegment fxSegment : this.queryStringPlan) {
             fxSegment.buildQuery(data, context, sqlBuilder);
         }

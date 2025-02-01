@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.segment;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 
 import java.sql.SQLException;
 
 public interface SqlSegment extends Cloneable {
-    void buildQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException;
+    void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException;
 
     SqlSegment clone();
 }

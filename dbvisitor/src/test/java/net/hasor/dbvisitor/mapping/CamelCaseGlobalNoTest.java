@@ -33,7 +33,7 @@ public class CamelCaseGlobalNoTest extends AbstractDbTest {
     @Before
     public void beforeTest() throws Exception {
         this.registry = new MappingRegistry();
-        this.registry.loadMapper("/dbvisitor_coverage/basic_mapping/camel_case_global_no.xml");
+        this.registry.loadMapping("/dbvisitor_coverage/basic_mapping/camel_case_global_no.xml");
     }
 
     @Test

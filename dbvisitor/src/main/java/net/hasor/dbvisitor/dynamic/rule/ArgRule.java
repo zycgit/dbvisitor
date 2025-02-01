@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.dynamic.rule;
 import net.hasor.cobble.NumberUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.SqlMode;
@@ -34,7 +34,7 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-05
  */
-public class ArgRule implements SqlBuildRule {
+public class ArgRule implements SqlRule {
     public static final ArgRule INSTANCE             = new ArgRule();
     public static final String  CFG_KEY_MODE         = "mode";
     public static final String  CFG_KEY_JDBC_TYPE    = "jdbcType";
@@ -78,12 +78,12 @@ public class ArgRule implements SqlBuildRule {
     }
 
     @Override
-    public boolean test(SqlArgSource data, RegistryManager context, String activeExpr) {
+    public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         return true;
     }
 
     @Override
-    public void executeRule(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
+    public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         String[] testSplit = ruleValue.split(",");
         if (testSplit.length > 6 || testSplit.length == 0) {
             throw new IllegalArgumentException("analysisSQL failed, format error -> '#{valueExpr [,mode= IN|OUT|INOUT] [,jdbcType=INT] [,javaType=java.lang.String] [,typeHandler=YouTypeHandlerClassName]}'");
@@ -96,7 +96,7 @@ public class ArgRule implements SqlBuildRule {
         this.executeRule(data, context, sqlBuilder, expr, config);
     }
 
-    public void executeRule(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder, String expr, Map<String, String> config) throws SQLException {
+    public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String expr, Map<String, String> config) throws SQLException {
         SqlMode sqlMode = this.convertSqlMode((config != null) ? config.get(CFG_KEY_MODE) : null);
         Integer jdbcType = this.convertJdbcType((config != null) ? config.get(CFG_KEY_JDBC_TYPE) : null);
         Class<?> javaType = this.convertJavaType(context, (config != null) ? config.get(CFG_KEY_JAVA_TYPE) : null);
@@ -155,7 +155,7 @@ public class ArgRule implements SqlBuildRule {
         return null;
     }
 
-    private Class<?> convertJavaType(RegistryManager context, String javaType) {
+    private Class<?> convertJavaType(QueryContext context, String javaType) {
         try {
             if (StringUtils.isNotBlank(javaType)) {
                 return context.loadClass(javaType);
@@ -166,7 +166,7 @@ public class ArgRule implements SqlBuildRule {
         return null;
     }
 
-    private TypeHandler<?> createTypeHandler(RegistryManager context, Class<?> javaType, String handlerType, Object argValue) throws SQLException {
+    private TypeHandler<?> createTypeHandler(QueryContext context, Class<?> javaType, String handlerType, Object argValue) throws SQLException {
         if (StringUtils.isBlank(handlerType)) {
             return null;
         }
@@ -194,7 +194,7 @@ public class ArgRule implements SqlBuildRule {
         }
     }
 
-    private <T> T createObject(RegistryManager context, Class<?> clazz) {
+    private <T> T createObject(QueryContext context, Class<?> clazz) {
         if (clazz == null) {
             return null;
         } else {

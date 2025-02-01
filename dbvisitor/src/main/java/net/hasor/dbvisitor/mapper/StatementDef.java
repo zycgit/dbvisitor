@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.mapper;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.mapper.def.SqlConfig;
 import net.hasor.dbvisitor.template.ResultSetExtractor;
@@ -104,7 +104,7 @@ public class StatementDef {
         this.resultRowMapper = resultRowMapper;
     }
 
-    public SqlBuilder buildQuery(Map<String, Object> ctx, RegistryManager context) throws SQLException {
+    public SqlBuilder buildQuery(Map<String, Object> ctx, QueryContext context) throws SQLException {
         return this.config.buildQuery(ctx, context);
     }
 

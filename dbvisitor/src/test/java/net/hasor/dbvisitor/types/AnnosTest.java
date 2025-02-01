@@ -15,9 +15,8 @@
  */
 package net.hasor.dbvisitor.types;
 import net.hasor.cobble.WellKnowFormat;
-import net.hasor.dbvisitor.dynamic.MacroRegistry;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
-import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.custom.MyStringTypeHandler1;
 import net.hasor.dbvisitor.types.custom.UserTable;
@@ -69,13 +68,14 @@ public class AnnosTest {
     @Test
     public void customTypeHandlerTest_2() throws SQLException {
         TypeHandlerRegistry registry = new TypeHandlerRegistry();
-        RegistryManager context = new RegistryManager(registry, RuleRegistry.DEFAULT, MacroRegistry.DEFAULT);
+        MappingRegistry context = new MappingRegistry(null, registry, null);
+        JdbcQueryContext jqc = new JdbcQueryContext();
+        jqc.setTypeRegistry(registry);
 
         MyStringTypeHandler1 handler1 = new MyStringTypeHandler1();
         registry.registerHandler(MyStringTypeHandler1.class, handler1);
-
         try (Connection c = DsUtils.h2Conn()) {
-            JdbcTemplate jdbc = new JdbcTemplate(c, context);
+            JdbcTemplate jdbc = new JdbcTemplate(c, context, jqc);
 
             jdbc.execute("insert into user_table values (10, 'Verdi', 66, '2021-05-11 00:00:00');");
 

@@ -31,16 +31,16 @@ import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-05
  */
-public class InRule implements SqlBuildRule {
-    public static final SqlBuildRule INSTANCE = new InRule(false);
-    private final       boolean      usingIf;
+public class InRule implements SqlRule {
+    public static final SqlRule INSTANCE = new InRule(false);
+    private final       boolean usingIf;
 
     public InRule(boolean usingIf) {
         this.usingIf = usingIf;
     }
 
     @Override
-    public boolean test(SqlArgSource data, RegistryManager context, String activeExpr) {
+    public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         if (this.usingIf) {
             return StringUtils.isBlank(activeExpr) || Boolean.TRUE.equals(evalOgnl(activeExpr, data));
         } else {
@@ -49,7 +49,7 @@ public class InRule implements SqlBuildRule {
     }
 
     @Override
-    public void executeRule(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
+    public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         String expr = "";
         if (this.usingIf) {
             expr = (StringUtils.isBlank(ruleValue) ? "" : ruleValue);

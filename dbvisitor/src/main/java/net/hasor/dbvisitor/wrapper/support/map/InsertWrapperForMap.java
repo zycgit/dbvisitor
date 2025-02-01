@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.dialect.BatchBoundSql.BatchBoundSqlObj;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.BoundSql.BoundSqlObj;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.template.jdbc.ConnectionCallback;
@@ -47,7 +47,7 @@ import java.util.Map;
 public class InsertWrapperForMap extends AbstractInsertWrapper<InsertWrapper<Map<String, Object>>, Map<String, Object>, String> //
         implements MapInsertWrapper {
 
-    public InsertWrapperForMap(TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+    public InsertWrapperForMap(TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
         super(Map.class, tableMapping, registry, jdbc);
     }
 

@@ -54,7 +54,6 @@ import java.util.function.Function;
  * @version : 2020-10-31
  */
 public final class TypeHandlerRegistry {
-
     private static final Map<String, Integer>  javaTypeToJdbcTypeMap = new ConcurrentHashMap<>();
     private static final Map<String, Class<?>> typeHandlerTypeCache  = new ConcurrentHashMap<>();
     public static final  TypeHandlerRegistry   DEFAULT               = new TypeHandlerRegistry();

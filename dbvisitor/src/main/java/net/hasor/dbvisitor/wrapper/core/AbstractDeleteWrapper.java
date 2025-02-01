@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.wrapper.core;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.wrapper.segment.MergeSqlSegment;
@@ -34,7 +34,7 @@ import static net.hasor.dbvisitor.wrapper.segment.SqlKeyword.*;
 public abstract class AbstractDeleteWrapper<R, T, P> extends BasicQueryCompare<R, T, P> implements DeleteExecute<R> {
     private boolean allowEmptyWhere = false;
 
-    public AbstractDeleteWrapper(Class<?> exampleType, TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+    public AbstractDeleteWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
         super(exampleType, tableMapping, registry, jdbc);
     }
 

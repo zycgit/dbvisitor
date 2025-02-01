@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.logic;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.internal.OgnlUtils;
@@ -34,13 +34,13 @@ public class IfDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException {
+    public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
         if (test(data)) {
             this.buildBody(data, context, sqlBuilder);
         }
     }
 
-    public void buildBody(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException {
+    public void buildBody(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
         super.buildQuery(data, context, sqlBuilder);
     }
 

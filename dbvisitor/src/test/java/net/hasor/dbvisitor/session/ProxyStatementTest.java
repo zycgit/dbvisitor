@@ -3,7 +3,6 @@ import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.ref.BeanMap;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.session.dto.AutoIncrID;
 import net.hasor.dbvisitor.session.dto.ProxyStatementMapper;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
@@ -31,10 +30,10 @@ public class ProxyStatementTest {
 
     @Test
     public void selectList_1() throws Exception {
-        RegistryManager registry = new RegistryManager();
-        registry.setDialect(new MySqlDialect());
-        registry.getMapperRegistry().loadMapper(ProxyStatementMapper.class);
-        ProxyStatement proxy = new ProxyStatement(ProxyStatementMapper.class.getName(), "selectList1", registry);
+        Configuration config = new Configuration();
+        config.options().setDefaultDialect(new MySqlDialect());
+        config.loadMapper(ProxyStatementMapper.class);
+        FacadeStatement proxy = new FacadeStatement(ProxyStatementMapper.class.getName(), "selectList1", config);
 
         try (Connection con = DsUtils.mysqlConn()) {
             reinit(con);
@@ -48,10 +47,10 @@ public class ProxyStatementTest {
 
     @Test
     public void selectList_2() throws Exception {
-        RegistryManager registry = new RegistryManager();
-        registry.setDialect(new MySqlDialect());
-        registry.getMapperRegistry().loadMapper(ProxyStatementMapper.class);
-        ProxyStatement proxy = new ProxyStatement(ProxyStatementMapper.class.getName(), "selectList2", registry);
+        Configuration config = new Configuration();
+        config.options().setDefaultDialect(new MySqlDialect());
+        config.loadMapper(ProxyStatementMapper.class);
+        FacadeStatement proxy = new FacadeStatement(ProxyStatementMapper.class.getName(), "selectList2", config);
 
         try (Connection con = DsUtils.mysqlConn()) {
             reinit(con);
@@ -65,10 +64,10 @@ public class ProxyStatementTest {
 
     @Test
     public void insertBean_1() throws Exception {
-        RegistryManager registry = new RegistryManager();
-        registry.setDialect(new MySqlDialect());
-        registry.getMapperRegistry().loadMapper(ProxyStatementMapper.class);
-        ProxyStatement proxy = new ProxyStatement(ProxyStatementMapper.class.getName(), "insertBean1", registry);
+        Configuration config = new Configuration();
+        config.options().setDefaultDialect(new MySqlDialect());
+        config.loadMapper(ProxyStatementMapper.class);
+        FacadeStatement proxy = new FacadeStatement(ProxyStatementMapper.class.getName(), "insertBean1", config);
 
         Map<String, Object> ctx = CollectionUtils.asMap(//
                 "arg0", "10",       //
@@ -88,10 +87,10 @@ public class ProxyStatementTest {
 
     @Test
     public void insertBean_2() throws Exception {
-        RegistryManager registry = new RegistryManager();
-        registry.setDialect(new MySqlDialect());
-        registry.getMapperRegistry().loadMapper(ProxyStatementMapper.class);
-        ProxyStatement proxy = new ProxyStatement(ProxyStatementMapper.class.getName(), "insertBean2", registry);
+        Configuration config = new Configuration();
+        config.options().setDefaultDialect(new MySqlDialect());
+        config.loadMapper(ProxyStatementMapper.class);
+        FacadeStatement proxy = new FacadeStatement(ProxyStatementMapper.class.getName(), "insertBean2", config);
 
         Map<String, Object> ctx = CollectionUtils.asMap(//
                 "arg0", "10",       //
@@ -111,10 +110,10 @@ public class ProxyStatementTest {
 
     @Test
     public void insertBean_3() throws Exception {
-        RegistryManager registry = new RegistryManager();
-        registry.setDialect(new MySqlDialect());
-        registry.getMapperRegistry().loadMapper(ProxyStatementMapper.class);
-        ProxyStatement proxy = new ProxyStatement(ProxyStatementMapper.class.getName(), "insertBean2", registry);
+        Configuration config = new Configuration();
+        config.options().setDefaultDialect(new MySqlDialect());
+        config.loadMapper(ProxyStatementMapper.class);
+        FacadeStatement proxy = new FacadeStatement(ProxyStatementMapper.class.getName(), "insertBean2", config);
 
         AutoIncrID incrID = new AutoIncrID();
         incrID.setUid("10");

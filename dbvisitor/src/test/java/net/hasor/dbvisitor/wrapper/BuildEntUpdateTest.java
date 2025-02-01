@@ -18,10 +18,10 @@ import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
-import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.dynamic.RuleRegistry;
 import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.wrapper.dto.AnnoUserInfoDTO;
@@ -39,9 +39,14 @@ import java.util.Map;
  */
 public class BuildEntUpdateTest {
     private WrapperAdapter newLambda() {
-        MappingRegistry registry = new MappingRegistry(null, new TypeHandlerRegistry(), MappingOptions.buildNew().defaultDialect(new MySqlDialect()));
-        RegistryManager manager = new RegistryManager(registry, new RuleRegistry(), new MacroRegistry());
-        return new WrapperAdapter((DataSource) null, manager);
+        MappingOptions opt = MappingOptions.buildNew().defaultDialect(new MySqlDialect());
+        JdbcQueryContext context = new JdbcQueryContext();
+        context.setTypeRegistry(new TypeHandlerRegistry());
+        context.setMacroRegistry(new MacroRegistry());
+        context.setRuleRegistry(new RuleRegistry());
+        MappingRegistry registry = new MappingRegistry(null, context.getTypeRegistry(), opt);
+
+        return new WrapperAdapter((DataSource) null, registry, context);
     }
 
     @Test

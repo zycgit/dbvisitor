@@ -62,7 +62,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MapperRegistry {
     private static final Logger                                 logger    = LoggerFactory.getLogger(MapperRegistry.class);
-    public static final  MapperRegistry                         DEFAULT   = new MapperRegistry(MacroRegistry.DEFAULT, MappingRegistry.DEFAULT, TypeHandlerRegistry.DEFAULT);
     private final        Map<String, Map<String, StatementDef>> configMap = new ConcurrentHashMap<>();
     protected final      ClassLoader                            classLoader;
     protected final      MappingRegistry                        mappingRegistry;
@@ -78,11 +77,11 @@ public class MapperRegistry {
         this.loaded = new HashSet<>();
     }
 
-    public MapperRegistry(MacroRegistry macroRegistry, MappingRegistry mappingRegistry, TypeHandlerRegistry typeRegistry) {
-        this.classLoader = mappingRegistry.getClassLoader();
-        this.mappingRegistry = mappingRegistry;
-        this.typeRegistry = typeRegistry;
-        this.macroRegistry = macroRegistry;
+    public MapperRegistry(MappingRegistry mapping, MacroRegistry macro) {
+        this.classLoader = mapping.getClassLoader();
+        this.mappingRegistry = mapping;
+        this.typeRegistry = mapping.getTypeRegistry();
+        this.macroRegistry = (macro == null) ? MacroRegistry.DEFAULT : macro;
         this.loaded = new HashSet<>();
     }
 
@@ -163,7 +162,7 @@ public class MapperRegistry {
     private void tryLoadResourceFile(String resource) throws Exception {
         this.tryLoaded(resource, r -> {
             // try load mapping
-            this.mappingRegistry.loadMapper(r);
+            this.mappingRegistry.loadMapping(r);
 
             // try load mapper
             try (InputStream stream = this.classLoader.getResourceAsStream(r)) {
@@ -206,7 +205,7 @@ public class MapperRegistry {
             SqlConfig sqlConfig = resolve.parseSqlConfig(configSpace, node);
             if (sqlConfig.getType() == QueryType.Segment) {
                 String macroId = StringUtils.isBlank(configSpace) ? configId : (configSpace + "." + configId);
-                this.macroRegistry.addMacro(macroId, sqlConfig);
+                this.macroRegistry.register(macroId, sqlConfig);
             } else if (sqlConfig.getType() == QueryType.Select) {
                 StatementDef def = new StatementDef(configSpace, configId, sqlConfig);
                 this.applyResultConfig(def);

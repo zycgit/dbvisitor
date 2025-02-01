@@ -13,17 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.extractor;
-import net.hasor.dbvisitor.template.jdbc.extractor.RowMapperResultSetExtractor;
-import net.hasor.test.dto.ProcedureTestUserDTO;
-import net.hasor.test.mapper.ProcedureTestUserDTOMapper;
+package net.hasor.dbvisitor.dynamic;
 
-/**
- * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-12-10
- */
-public class ProcedureTestUserDTOExtractor extends RowMapperResultSetExtractor<ProcedureTestUserDTO> {
-    public ProcedureTestUserDTOExtractor() {
-        super(new ProcedureTestUserDTOMapper());
-    }
+import net.hasor.dbvisitor.dynamic.rule.SqlRule;
+import net.hasor.dbvisitor.mapping.MappingOptions;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
+
+public interface QueryContext {
+
+    SqlRule findRule(String ruleName);
+
+    DynamicSql findMacro(String name);
+
+    Class<?> loadClass(String typeName) throws ClassNotFoundException;
+
+    Object createObject(Class<?> clazz);
+
+    TypeHandlerRegistry getTypeRegistry();
+
+    MappingOptions options();
 }

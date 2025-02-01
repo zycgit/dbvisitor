@@ -23,7 +23,7 @@ public class ErrorMappingTest {
     public void alreadyExists() {
         try {
             MappingRegistry registry = new MappingRegistry();
-            registry.loadMapper("/dbvisitor_coverage/basic_mapping/error_1.xml");
+            registry.loadMapping("/dbvisitor_coverage/basic_mapping/error_1.xml");
             registry.loadResultMapToSpace(UserInfoUsingMap.class);
             assert false;
         } catch (Exception e) {

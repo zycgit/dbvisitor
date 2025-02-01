@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.wrapper;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.mapping.MappingHelper;
 import net.hasor.dbvisitor.mapping.MappingOptions;
@@ -45,14 +45,14 @@ import java.util.Objects;
  * @version : 2022-04-02
  */
 public class WrapperAdapter implements WrapperOperations {
-    protected RegistryManager registry;
+    protected MappingRegistry registry;
     protected JdbcTemplate    jdbc;
 
     /**
      * Construct a new LambdaTemplate for bean usage.
      */
     public WrapperAdapter() {
-        this((DataSource) null, RegistryManager.DEFAULT);
+        this((DataSource) null, MappingRegistry.DEFAULT, null);
     }
 
     /**
@@ -61,18 +61,19 @@ public class WrapperAdapter implements WrapperOperations {
      * @param dataSource the JDBC DataSource to obtain connections from
      */
     public WrapperAdapter(final DataSource dataSource) {
-        this(dataSource, RegistryManager.DEFAULT);
+        this(dataSource, MappingRegistry.DEFAULT, null);
     }
 
     /**
      * Construct a new WrapperAdapter, given a DataSource to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param dataSource the JDBC DataSource to obtain connections from
-     * @param registry the DynamicContext
+     * @param registry the mapping context
+     * @param buildContext the sql build context
      */
-    public WrapperAdapter(final DataSource dataSource, RegistryManager registry) {
+    public WrapperAdapter(final DataSource dataSource, MappingRegistry registry, QueryContext buildContext) {
         this.registry = Objects.requireNonNull(registry, "registry is null.");
-        this.jdbc = (dataSource == null) ? null : new JdbcTemplate(dataSource, registry);
+        this.jdbc = (dataSource == null) ? null : new JdbcTemplate(dataSource, registry, buildContext);
     }
 
     /**
@@ -81,18 +82,19 @@ public class WrapperAdapter implements WrapperOperations {
      * @param conn the JDBC Connection
      */
     public WrapperAdapter(final Connection conn) {
-        this(conn, RegistryManager.DEFAULT);
+        this(conn, MappingRegistry.DEFAULT, null);
     }
 
     /**
      * Construct a new WrapperAdapter, given a Connection to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param conn the JDBC Connection
-     * @param registry the DynamicContext
+     * @param registry the mapping context
+     * @param buildContext the sql build context
      */
-    public WrapperAdapter(final Connection conn, RegistryManager registry) {
+    public WrapperAdapter(final Connection conn, MappingRegistry registry, QueryContext buildContext) {
         this.registry = Objects.requireNonNull(registry, "registry is null.");
-        this.jdbc = (conn == null) ? null : new JdbcTemplate(conn, registry);
+        this.jdbc = (conn == null) ? null : new JdbcTemplate(conn, registry, buildContext);
     }
 
     /**
@@ -101,18 +103,19 @@ public class WrapperAdapter implements WrapperOperations {
      * @param dynamicConn the JDBC Connection of dynamic
      */
     public WrapperAdapter(final DynamicConnection dynamicConn) {
-        this(dynamicConn, RegistryManager.DEFAULT);
+        this(dynamicConn, MappingRegistry.DEFAULT, null);
     }
 
     /**
      * Construct a new WrapperAdapter, given a Connection to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param dynamicConn the JDBC Connection of dynamic
-     * @param registry the DynamicContext
+     * @param registry the mapping context
+     * @param buildContext the sql build context
      */
-    public WrapperAdapter(final DynamicConnection dynamicConn, RegistryManager registry) {
+    public WrapperAdapter(final DynamicConnection dynamicConn, MappingRegistry registry, QueryContext buildContext) {
         this.registry = Objects.requireNonNull(registry, "registry is null.");
-        this.jdbc = (dynamicConn == null) ? null : new JdbcTemplate(dynamicConn, registry);
+        this.jdbc = (dynamicConn == null) ? null : new JdbcTemplate(dynamicConn, registry, buildContext);
     }
 
     /**
@@ -129,7 +132,7 @@ public class WrapperAdapter implements WrapperOperations {
         return this.jdbc;
     }
 
-    public RegistryManager getRegistry() {
+    public MappingRegistry getRegistry() {
         return this.registry;
     }
 
@@ -202,24 +205,23 @@ public class WrapperAdapter implements WrapperOperations {
     }
 
     protected TableMapping<Map<String, String>> freedomMapping(String catalog, String schema, String table) {
-        MappingRegistry registry = this.registry.getMappingRegistry();
-        MappingOptions usingOpt = registry.getGlobalOptions();
+        MappingOptions usingOpt = this.registry.getGlobalOptions();
 
         boolean usingAutoProperty = usingOpt.getAutoMapping() == null || usingOpt.getAutoMapping();
         boolean usingUseDelimited = Boolean.TRUE.equals(usingOpt.getUseDelimited());
         boolean usingMapUnderscoreToCamelCase = Boolean.TRUE.equals(usingOpt.getMapUnderscoreToCamelCase());
         boolean usingCaseInsensitive = MappingHelper.caseInsensitive(usingOpt);
 
-        SqlDialect defaultDialect = this.registry.getMappingRegistry().getGlobalOptions().getDefaultDialect();
+        SqlDialect defaultDialect = this.registry.getGlobalOptions().getDefaultDialect();
         TableDef<?> def = new TableDef<>(catalog, schema, table, LinkedHashMap.class, defaultDialect,//
                 usingAutoProperty, usingUseDelimited, usingCaseInsensitive, usingMapUnderscoreToCamelCase);
         return (TableMapping<Map<String, String>>) def;
     }
 
     protected <T> TableMapping<T> findTableMapping(Class<T> entityType, String space) {
-        TableMapping<T> tableMapping = this.registry.getMappingRegistry().findBySpace(space, entityType);
+        TableMapping<T> tableMapping = this.registry.findBySpace(space, entityType);
         if (tableMapping == null) {
-            tableMapping = this.registry.getMappingRegistry().loadEntityToSpace(entityType, space, entityType.getName());
+            tableMapping = this.registry.loadEntityToSpace(entityType, space, entityType.getName());
             if (tableMapping == null) {
                 throw new RuntimeSQLException("tableMapping not found.");
             }
@@ -228,7 +230,7 @@ public class WrapperAdapter implements WrapperOperations {
     }
 
     protected <T> TableMapping<T> findTableMapping(String catalog, String schema, String table, String specifyName) {
-        TableMapping<T> tableMapping = this.registry.getMappingRegistry().findByTable(catalog, schema, table, specifyName);
+        TableMapping<T> tableMapping = this.registry.findByTable(catalog, schema, table, specifyName);
         if (tableMapping == null) {
             throw new RuntimeSQLException("tableMapping not found.");
         } else {

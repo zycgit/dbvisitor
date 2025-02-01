@@ -18,7 +18,7 @@ import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
@@ -44,7 +44,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     private   Segment         nextSegmentPrefix = null;
     private   boolean         lockCondition     = false;
 
-    public BasicQueryCompare(Class<?> exampleType, TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+    public BasicQueryCompare(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
         super(exampleType, tableMapping, registry, jdbc);
     }
 

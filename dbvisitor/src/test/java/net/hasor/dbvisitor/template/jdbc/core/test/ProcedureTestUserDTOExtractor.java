@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.dal;
-import net.hasor.dbvisitor.mapper.BaseMapper;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
-import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.test.dto.UserInfo2;
+package net.hasor.dbvisitor.template.jdbc.core.test;
+import net.hasor.dbvisitor.template.jdbc.extractor.RowMapperResultSetExtractor;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-12-10
  */
-@SimpleMapper
-public interface Mapper3Dal extends BaseMapper<UserInfo2> {
-    default BoundSql testBind(String abc) {
-        return query().eq(UserInfo2::getName, abc).getBoundSql();
+public class ProcedureTestUserDTOExtractor extends RowMapperResultSetExtractor<ProcedureTestUserDTO> {
+    public ProcedureTestUserDTOExtractor() {
+        super(new ProcedureTestUserDTOMapper());
     }
 }

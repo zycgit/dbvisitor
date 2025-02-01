@@ -2,7 +2,6 @@ package net.hasor.dbvisitor.session;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dialect.PageObject;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.mapper.StatementDef;
 import net.hasor.dbvisitor.session.dto.CoreCallableStatementExecuteMapper;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
@@ -35,12 +34,12 @@ public class CoreCallableStatementExecuteMapperTest {
 
     @Test
     public void executeCall_1() throws Exception {
-        RegistryManager registry = new RegistryManager();
-        registry.setDialect(new MySqlDialect());
-        CallableStatementExecute exec = new CallableStatementExecute(registry);
+        Configuration config = new Configuration();
+        config.options().setDefaultDialect(new MySqlDialect());
+        CallableStatementExecute exec = new CallableStatementExecute(config);
 
-        registry.getMapperRegistry().loadMapper(CoreCallableStatementExecuteMapper.class);
-        StatementDef def = registry.getMapperRegistry().findStatement(CoreCallableStatementExecuteMapper.class, "executeCall1");
+        config.loadMapper(CoreCallableStatementExecuteMapper.class);
+        StatementDef def = config.findStatement(CoreCallableStatementExecuteMapper.class, "executeCall1");
 
         try (Connection con = DsUtils.mysqlConn()) {
             reinit(con);
@@ -59,12 +58,12 @@ public class CoreCallableStatementExecuteMapperTest {
 
     @Test
     public void executeCall_2() throws Exception {
-        RegistryManager registry = new RegistryManager();
-        registry.setDialect(new MySqlDialect());
-        CallableStatementExecute exec = new CallableStatementExecute(registry);
+        Configuration config = new Configuration();
+        config.options().setDefaultDialect(new MySqlDialect());
+        CallableStatementExecute exec = new CallableStatementExecute(config);
 
-        registry.getMapperRegistry().loadMapper(CoreCallableStatementExecuteMapper.class);
-        StatementDef def = registry.getMapperRegistry().findStatement(CoreCallableStatementExecuteMapper.class, "executeCall2");
+        config.loadMapper(CoreCallableStatementExecuteMapper.class);
+        StatementDef def = config.findStatement(CoreCallableStatementExecuteMapper.class, "executeCall2");
 
         try (Connection con = DsUtils.mysqlConn()) {
             reinit(con);
@@ -84,12 +83,12 @@ public class CoreCallableStatementExecuteMapperTest {
 
     @Test
     public void page_1() throws Exception {
-        RegistryManager registry = new RegistryManager();
-        registry.setDialect(new MySqlDialect());
-        CallableStatementExecute exec = new CallableStatementExecute(registry);
+        Configuration config = new Configuration();
+        config.options().setDefaultDialect(new MySqlDialect());
+        CallableStatementExecute exec = new CallableStatementExecute(config);
 
-        registry.getMapperRegistry().loadMapper(CoreCallableStatementExecuteMapper.class);
-        StatementDef def = registry.getMapperRegistry().findStatement(CoreCallableStatementExecuteMapper.class, "selectByPage");
+        config.loadMapper(CoreCallableStatementExecuteMapper.class);
+        StatementDef def = config.findStatement(CoreCallableStatementExecuteMapper.class, "selectByPage");
 
         try (Connection con = DsUtils.mysqlConn()) {
             reinit(con);

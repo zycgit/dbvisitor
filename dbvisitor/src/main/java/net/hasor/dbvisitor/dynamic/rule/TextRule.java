@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.dynamic.rule;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 
@@ -26,16 +26,16 @@ import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-05
  */
-public class TextRule implements SqlBuildRule {
-    public static final SqlBuildRule INSTANCE = new TextRule(false);
-    private final       boolean      usingIf;
+public class TextRule implements SqlRule {
+    public static final SqlRule INSTANCE = new TextRule(false);
+    private final       boolean usingIf;
 
     public TextRule(boolean usingIf) {
         this.usingIf = usingIf;
     }
 
     @Override
-    public boolean test(SqlArgSource data, RegistryManager context, String activeExpr) {
+    public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         if (this.usingIf) {
             return StringUtils.isBlank(activeExpr) || Boolean.TRUE.equals(evalOgnl(activeExpr, data));
         } else {
@@ -44,7 +44,7 @@ public class TextRule implements SqlBuildRule {
     }
 
     @Override
-    public void executeRule(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) {
+    public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) {
         if (this.usingIf) {
             sqlBuilder.appendSql(ruleValue);
         } else {

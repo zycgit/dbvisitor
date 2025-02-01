@@ -14,14 +14,14 @@ public class MD5RuleTest {
     @Test
     public void md5RuleTest_1() throws SQLException {
         Map<String, Object> ctx1 = CollectionUtils.asMap("data", "abc");
-        SqlBuilder sqlBuilder1 = DynamicParsed.getParsedSql("@{md5,:data}").buildQuery(ctx1, new RegistryManager());
+        SqlBuilder sqlBuilder1 = DynamicParsed.getParsedSql("@{md5,:data}").buildQuery(ctx1, new TestQueryContext());
         assert sqlBuilder1.getSqlString().equals("?");
         assert sqlBuilder1.getArgs().length == 1;
         assert ((SqlArg) sqlBuilder1.getArgs()[0]).getValue().equals("6cd3f2864a1e06fa55cf1d7657196a89");
 
         // // "id =" will be ignored.
         Map<String, Object> ctx2 = CollectionUtils.asMap("data", "abc");
-        SqlBuilder sqlBuilder2 = DynamicParsed.getParsedSql("@{md5, id = :data}").buildQuery(ctx2, new RegistryManager());
+        SqlBuilder sqlBuilder2 = DynamicParsed.getParsedSql("@{md5, id = :data}").buildQuery(ctx2, new TestQueryContext());
         assert sqlBuilder2.getSqlString().equals("?");
         assert sqlBuilder2.getArgs().length == 1;
         assert ((SqlArg) sqlBuilder2.getArgs()[0]).getValue().equals("6cd3f2864a1e06fa55cf1d7657196a89");
@@ -33,7 +33,7 @@ public class MD5RuleTest {
         Map<String, Object> ctx = CollectionUtils.asMap("array", Collections.emptyList());
 
         try {
-            segment.buildQuery(ctx, new RegistryManager());
+            segment.buildQuery(ctx, new TestQueryContext());
             assert false;
         } catch (Exception e) {
             assert e.getMessage().startsWith("role MD5 args error, require 1, but 2");
@@ -45,7 +45,7 @@ public class MD5RuleTest {
         try {
             PlanDynamicSql segment = DynamicParsed.getParsedSql("@{md5,'abc'}");
             Map<String, Object> ctx = CollectionUtils.asMap("array", Collections.emptyList());
-            segment.buildQuery(ctx, new RegistryManager());
+            segment.buildQuery(ctx, new TestQueryContext());
             assert false;
         } catch (Exception e) {
             assert e.getMessage().startsWith("role MD5 args error, require 1, but 0");
@@ -54,7 +54,7 @@ public class MD5RuleTest {
         try {
             PlanDynamicSql segment = DynamicParsed.getParsedSql("@{md5}");
             Map<String, Object> ctx = CollectionUtils.asMap("array", Collections.emptyList());
-            segment.buildQuery(ctx, new RegistryManager());
+            segment.buildQuery(ctx, new TestQueryContext());
             assert false;
         } catch (Exception e) {
             assert e.getMessage().startsWith("role MD5 args error, require 1, but 0");

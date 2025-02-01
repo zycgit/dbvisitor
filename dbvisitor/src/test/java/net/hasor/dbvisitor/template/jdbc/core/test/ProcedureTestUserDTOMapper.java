@@ -13,9 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package net.hasor.dbvisitor.template.jdbc.core.test;
+import net.hasor.dbvisitor.template.jdbc.mapper.BeanMappingRowMapper;
+
 /**
- * dynamicSql 执行器，支持 Statement、Prepared、Callable。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2017-03-23
+ * @version : 2013-12-10
  */
-package net.hasor.dbvisitor.dal.execute;
+public class ProcedureTestUserDTOMapper extends BeanMappingRowMapper<ProcedureTestUserDTO> {
+    public ProcedureTestUserDTOMapper() {
+        super(ProcedureTestUserDTO.class);
+    }
+}

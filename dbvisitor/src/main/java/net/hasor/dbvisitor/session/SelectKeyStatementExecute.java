@@ -30,12 +30,12 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-11-05
  */
-class ProxySelectKey {
+class SelectKeyStatementExecute {
     private final SelectKeyConfig          config;
     private final StatementDef             configDef;
     private final AbstractStatementExecute execute;
 
-    ProxySelectKey(StatementDef parentDef, SelectKeyConfig config, AbstractStatementExecute execute) {
+    SelectKeyStatementExecute(StatementDef parentDef, SelectKeyConfig config, AbstractStatementExecute execute) {
         this.config = config;
         this.configDef = new StatementDef(parentDef.getConfigNamespace(), parentDef.getConfigId() + "_selectKey", config);
         this.execute = execute;

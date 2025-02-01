@@ -1,14 +1,23 @@
 package net.hasor.dbvisitor.session;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
-import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.Page;
+import net.hasor.dbvisitor.JdbcHelper;
+import net.hasor.dbvisitor.dialect.*;
 import net.hasor.dbvisitor.types.SqlArg;
 
 import java.io.StringReader;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.List;
 
 class SessionHelper {
+    public static PageSqlDialect findDialect(Connection conn) throws SQLException {
+        DatabaseMetaData metaData = conn.getMetaData();
+        String tmpDbType = JdbcHelper.getDbType(metaData.getURL(), metaData.getDriverName());
+        SqlDialect tempDialect = SqlDialectRegister.findOrCreate(tmpDbType);
+        return (!(tempDialect instanceof PageSqlDialect)) ? DefaultSqlDialect.DEFAULT : (PageSqlDialect) tempDialect;
+    }
 
     public static boolean usingPage(Page pageInfo) {
         return pageInfo != null && pageInfo.getPageSize() > 0;

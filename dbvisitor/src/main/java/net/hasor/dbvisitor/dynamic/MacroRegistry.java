@@ -32,16 +32,15 @@ public class MacroRegistry {
         return this.macroMap.get(dynamicId);
     }
 
-    public void addMacro(String macroName, String sqlSegment) {
+    public void register(String macroName, String sqlSegment) {
         if (StringUtils.isNotBlank(macroName)) {
             this.macroMap.put(macroName, DynamicParsed.getParsedSql(sqlSegment));
         }
     }
 
-    public void addMacro(String macroName, DynamicSql sqlSegment) {
+    public void register(String macroName, DynamicSql sqlSegment) {
         if (StringUtils.isNotBlank(macroName)) {
             this.macroMap.put(macroName, sqlSegment);
         }
     }
-
 }

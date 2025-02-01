@@ -68,7 +68,7 @@ public class CallableMultipleResultSetExtractor extends AbstractMultipleResultSe
     @Override
     protected void beforeExecute(Statement s) throws SQLException {
         if (ArrayUtils.isNotEmpty(this.useArgs)) {
-            TypeHandlerRegistry registry = this.getRegistry().getTypeRegistry();
+            TypeHandlerRegistry registry = this.getTypeRegistry();
             for (int i = 0; i < this.useArgs.length; i++) {
                 registry.setParameterValue((CallableStatement) s, i + 1, this.useArgs[i]);
             }
@@ -116,7 +116,7 @@ public class CallableMultipleResultSetExtractor extends AbstractMultipleResultSe
                 Object resultValue = this.processResultSet(procedureArg, rs);
                 resultMap.put(name, resultValue);
             } else {
-                TypeHandlerRegistry registry = this.getRegistry().getTypeRegistry();
+                TypeHandlerRegistry registry = this.getTypeRegistry();
                 Object resultValue = registry.getParameterValue((CallableStatement) s, i, sqlArg);
                 resultMap.put(name, resultValue);
             }

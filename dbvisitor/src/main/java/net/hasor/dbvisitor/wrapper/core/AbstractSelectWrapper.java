@@ -18,7 +18,7 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.template.ResultSetExtractor;
 import net.hasor.dbvisitor.template.RowCallbackHandler;
@@ -50,7 +50,7 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
     private         boolean         lockGroupBy  = false;
     private         boolean         lockOrderBy  = false;
 
-    public AbstractSelectWrapper(Class<?> exampleType, TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+    public AbstractSelectWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
         super(exampleType, tableMapping, registry, jdbc);
     }
 

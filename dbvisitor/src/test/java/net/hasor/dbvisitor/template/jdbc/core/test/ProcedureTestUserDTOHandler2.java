@@ -13,20 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dynamic.rule;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
-import net.hasor.dbvisitor.dynamic.SqlArgSource;
-import net.hasor.dbvisitor.dynamic.SqlBuilder;
+package net.hasor.dbvisitor.template.jdbc.core.test;
+import net.hasor.dbvisitor.template.RowCallbackHandler;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * 动态 SQL 中定义的规则。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-05
+ * @version : 2013-12-10
  */
-public interface SqlBuildRule {
-    boolean test(SqlArgSource data, RegistryManager context, String activeExpr);
+public class ProcedureTestUserDTOHandler2 implements RowCallbackHandler {
+    private static final List<ProcedureTestUserDTO> result = new ArrayList<>();
 
-    void executeRule(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException;
+    public static List<ProcedureTestUserDTO> getResult() {
+        return result;
+    }
+
+    @Override
+    public void processRow(ResultSet rs, int rowNum) throws SQLException {
+        result.add(new ProcedureTestUserDTOMapper().mapRow(rs, rowNum));
+    }
 }

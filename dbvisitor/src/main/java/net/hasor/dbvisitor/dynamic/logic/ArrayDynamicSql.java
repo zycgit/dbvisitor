@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.dynamic.logic;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
@@ -74,7 +74,7 @@ public class ArrayDynamicSql implements DynamicSql {
     }
 
     @Override
-    public void buildQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException {
+    public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
         for (int i = 0; i < this.subNodes.size(); i++) {
             DynamicSql dynamicSql = this.subNodes.get(i);
             if (visitItem(i, dynamicSql, context, sqlBuilder)) {
@@ -83,7 +83,7 @@ public class ArrayDynamicSql implements DynamicSql {
         }
     }
 
-    protected boolean visitItem(int i, DynamicSql dynamicSql, RegistryManager context, SqlBuilder sqlBuilder) {
+    protected boolean visitItem(int i, DynamicSql dynamicSql, QueryContext context, SqlBuilder sqlBuilder) {
         return true;
     }
 }

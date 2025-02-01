@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.segment;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
-import net.hasor.dbvisitor.dynamic.rule.SqlBuildRule;
+import net.hasor.dbvisitor.dynamic.rule.SqlRule;
 
 import java.sql.SQLException;
 
@@ -51,8 +51,8 @@ public class RuleSqlSegment implements SqlSegment {
     }
 
     @Override
-    public void buildQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException {
-        SqlBuildRule ruleByName = context.getRuleRegistry().findByName(this.ruleName);
+    public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
+        SqlRule ruleByName = context.findRule(this.ruleName);
         if (ruleByName == null) {
             throw new UnsupportedOperationException("rule `" + this.ruleName + "` Unsupported.");
         }

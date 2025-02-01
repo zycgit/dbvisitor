@@ -30,13 +30,13 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-05
  */
-public final class ResultRule implements SqlBuildRule {
-    public static final String       FUNC_RESULT_SET            = "resultSet";
-    public static final String       FUNC_RESULT_UPDATE         = "resultUpdate";
-    public static final String       FUNC_DEFAULT_RESULT        = "defaultResult";
-    public static final SqlBuildRule INSTANCE_OF_RESULT_SET     = new ResultRule(FUNC_RESULT_SET);
-    public static final SqlBuildRule INSTANCE_OF_RESULT_UPDATE  = new ResultRule(FUNC_RESULT_UPDATE);
-    public static final SqlBuildRule INSTANCE_OF_DEFAULT_RESULT = new ResultRule(FUNC_DEFAULT_RESULT);
+public final class ResultRule implements SqlRule {
+    public static final String  FUNC_RESULT_SET            = "resultSet";
+    public static final String  FUNC_RESULT_UPDATE         = "resultUpdate";
+    public static final String  FUNC_DEFAULT_RESULT        = "defaultResult";
+    public static final SqlRule INSTANCE_OF_RESULT_SET     = new ResultRule(FUNC_RESULT_SET);
+    public static final SqlRule INSTANCE_OF_RESULT_UPDATE  = new ResultRule(FUNC_RESULT_UPDATE);
+    public static final SqlRule INSTANCE_OF_DEFAULT_RESULT = new ResultRule(FUNC_DEFAULT_RESULT);
 
     private final String        ruleName;
     private final ResultArgType argType;
@@ -60,16 +60,16 @@ public final class ResultRule implements SqlBuildRule {
     }
 
     @Override
-    public boolean test(SqlArgSource data, RegistryManager context, String activeExpr) {
+    public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         return true;
     }
 
     @Override
-    public void executeRule(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
+    public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         sqlBuilder.appendResult(parserConfig(context, activeExpr, ruleValue, this.argType));
     }
 
-    public static ResultArg parserConfig(RegistryManager registry, String activeExpr, String ruleValue, ResultArgType argType) {
+    public static ResultArg parserConfig(QueryContext registry, String activeExpr, String ruleValue, ResultArgType argType) {
         // restore body
         String body = "";
         if (activeExpr != null) {
@@ -125,7 +125,7 @@ public final class ResultRule implements SqlBuildRule {
         return arg;
     }
 
-    private static Class<?> convertJavaType(RegistryManager registry, String javaType) {
+    private static Class<?> convertJavaType(QueryContext registry, String javaType) {
         try {
             if (StringUtils.isNotBlank(javaType)) {
                 return registry.loadClass(javaType);
@@ -136,8 +136,8 @@ public final class ResultRule implements SqlBuildRule {
         return null;
     }
 
-    private static ResultSetExtractor<?> defaultExtractor(RegistryManager registry) {
-        boolean resultsCaseInsensitive = MappingHelper.caseInsensitive(registry.getMappingRegistry().getGlobalOptions());
+    private static ResultSetExtractor<?> defaultExtractor(QueryContext registry) {
+        boolean resultsCaseInsensitive = MappingHelper.caseInsensitive(registry.options());
         return new ColumnMapResultSetExtractor(0, registry.getTypeRegistry(), resultsCaseInsensitive);
     }
 }

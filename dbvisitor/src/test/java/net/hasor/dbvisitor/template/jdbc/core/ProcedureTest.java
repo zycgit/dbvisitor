@@ -16,13 +16,13 @@
 package net.hasor.dbvisitor.template.jdbc.core;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.template.jdbc.CallableStatementCreator;
+import net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTO;
+import net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOHandler;
+import net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOHandler2;
 import net.hasor.dbvisitor.template.jdbc.extractor.CallableMultipleResultSetExtractor;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.handler.number.LongTypeHandler;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.ProcedureTestUserDTO;
-import net.hasor.test.handler.ProcedureTestUserDTOHandler;
-import net.hasor.test.handler.ProcedureTestUserDTOHandler2;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -178,13 +178,13 @@ public class ProcedureTest extends AbstractDbTest {
         jdbcTemplate.execute("insert into proc_table_forcaller (c_id,c_name) values (2, 'bbb');");
         jdbcTemplate.execute("insert into proc_table_forcaller (c_id,c_name) values (3, 'ccc');");
 
-        jdbcTemplate.execute("drop procedure if exists proc_select_table;");
+        jdbcTemplate.execute("drop procedure if exists proc_select_table_1;");
         jdbcTemplate.execute("drop procedure if exists proc_select_multiple_table;");
-        jdbcTemplate.execute("create procedure proc_select_table(in p_name varchar(200)) begin select * from proc_table_forcaller where c_name = p_name ; end;");
+        jdbcTemplate.execute("create procedure proc_select_table_1(in p_name varchar(200)) begin select * from proc_table_forcaller where c_name = p_name ; end;");
         jdbcTemplate.execute("create procedure proc_select_multiple_table(in p_name varchar(200)) begin select * from proc_table_forcaller where c_name = p_name ; select * from proc_table_forcaller where c_name = p_name ; end;");
 
-        jdbcTemplate.execute("drop procedure if exists proc_select_table2;");
-        jdbcTemplate.execute("create procedure proc_select_table2(in userName varchar(200), out outName varchar(200)) " + //
+        jdbcTemplate.execute("drop procedure if exists proc_select_table_2;");
+        jdbcTemplate.execute("create procedure proc_select_table_2(in userName varchar(200), out outName varchar(200)) " + //
                 "begin " + //
                 "  select * from proc_table_forcaller where c_name = userName;" + //
                 "  select * from proc_table_forcaller;" + //
@@ -203,7 +203,7 @@ public class ProcedureTest extends AbstractDbTest {
     @Test
     public void one_result_as_map_using_nameless_1() throws SQLException {
         try (Connection conn = initConnection()) {
-            Map<String, Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_table(?)}", "aaa");
+            Map<String, Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_table_1(?)}", "aaa");
 
             assert objectMap.size() == 2;
             assert objectMap.get("#result-set-1") instanceof ArrayList;
@@ -217,7 +217,7 @@ public class ProcedureTest extends AbstractDbTest {
     @Test
     public void one_result_as_map_using_named_1() throws SQLException {
         try (Connection conn = initConnection()) {
-            Map<String, Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_table(?)} @{resultSet,name=res}", "aaa");
+            Map<String, Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_table_1(?)} @{resultSet,name=res}", "aaa");
 
             assert objectMap.size() == 2;
             assert objectMap.get("res") instanceof ArrayList;
@@ -231,7 +231,7 @@ public class ProcedureTest extends AbstractDbTest {
     @Test
     public void one_result_as_map_using_javaType_1() throws SQLException {
         try (Connection conn = initConnection()) {
-            Map<String, Object> objectMap1 = new JdbcTemplate(conn).call("{call proc_select_table(?)} @{resultSet,name=res,javaType=net.hasor.test.dto.ProcedureTestUserDTO}", "aaa");
+            Map<String, Object> objectMap1 = new JdbcTemplate(conn).call("{call proc_select_table_1(?)} @{resultSet,name=res,javaType=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTO}", "aaa");
             assert objectMap1.size() == 2;
             assert objectMap1.get("res") instanceof ArrayList;
             assert objectMap1.get("#update-count-2").equals(0);
@@ -239,7 +239,7 @@ public class ProcedureTest extends AbstractDbTest {
             assert ((ProcedureTestUserDTO) ((ArrayList<?>) objectMap1.get("res")).get(0)).getName().equals("aaa");
             assert ((ProcedureTestUserDTO) ((ArrayList<?>) objectMap1.get("res")).get(0)).getId() == 1;
 
-            Map<String, Object> objectMap2 = new JdbcTemplate(conn).call("{call proc_select_table(?)} @{resultSet,javaType=net.hasor.test.dto.ProcedureTestUserDTO}", "aaa");
+            Map<String, Object> objectMap2 = new JdbcTemplate(conn).call("{call proc_select_table_1(?)} @{resultSet,javaType=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTO}", "aaa");
             assert objectMap2.size() == 2;
             assert objectMap2.get("#result-set-1") instanceof ArrayList;
             assert objectMap2.get("#update-count-2").equals(0);
@@ -252,7 +252,7 @@ public class ProcedureTest extends AbstractDbTest {
     @Test
     public void one_result_as_map_using_mapper_1() throws SQLException {
         try (Connection conn = initConnection()) {
-            Map<String, Object> objectMap1 = new JdbcTemplate(conn).call("{call proc_select_table(?)} @{resultSet,name=res,rowMapper=net.hasor.test.mapper.ProcedureTestUserDTOMapper}", "aaa");
+            Map<String, Object> objectMap1 = new JdbcTemplate(conn).call("{call proc_select_table_1(?)} @{resultSet,name=res,rowMapper=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOMapper}", "aaa");
             assert objectMap1.size() == 2;
             assert objectMap1.get("res") instanceof ArrayList;
             assert objectMap1.get("#update-count-2").equals(0);
@@ -260,7 +260,7 @@ public class ProcedureTest extends AbstractDbTest {
             assert ((ProcedureTestUserDTO) ((ArrayList<?>) objectMap1.get("res")).get(0)).getName().equals("aaa");
             assert ((ProcedureTestUserDTO) ((ArrayList<?>) objectMap1.get("res")).get(0)).getId() == 1;
 
-            Map<String, Object> objectMap2 = new JdbcTemplate(conn).call("{call proc_select_table(?)} @{resultSet,rowMapper=net.hasor.test.mapper.ProcedureTestUserDTOMapper}", "aaa");
+            Map<String, Object> objectMap2 = new JdbcTemplate(conn).call("{call proc_select_table_1(?)} @{resultSet,rowMapper=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOMapper}", "aaa");
             assert objectMap2.size() == 2;
             assert objectMap2.get("#result-set-1") instanceof ArrayList;
             assert objectMap2.get("#update-count-2").equals(0);
@@ -273,7 +273,7 @@ public class ProcedureTest extends AbstractDbTest {
     @Test
     public void one_result_as_map_using_extractor_1() throws SQLException {
         try (Connection conn = initConnection()) {
-            Map<String, Object> objectMap1 = new JdbcTemplate(conn).call("{call proc_select_table(?)} @{resultSet,name=res,extractor=net.hasor.test.extractor.ProcedureTestUserDTOExtractor}", "aaa");
+            Map<String, Object> objectMap1 = new JdbcTemplate(conn).call("{call proc_select_table_1(?)} @{resultSet,name=res,extractor=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOExtractor}", "aaa");
             assert objectMap1.size() == 2;
             assert objectMap1.get("res") instanceof ArrayList;
             assert objectMap1.get("#update-count-2").equals(0);
@@ -281,7 +281,7 @@ public class ProcedureTest extends AbstractDbTest {
             assert ((ProcedureTestUserDTO) ((ArrayList<?>) objectMap1.get("res")).get(0)).getName().equals("aaa");
             assert ((ProcedureTestUserDTO) ((ArrayList<?>) objectMap1.get("res")).get(0)).getId() == 1;
 
-            Map<String, Object> objectMap2 = new JdbcTemplate(conn).call("{call proc_select_table(?)} @{resultSet,extractor=net.hasor.test.extractor.ProcedureTestUserDTOExtractor}", "aaa");
+            Map<String, Object> objectMap2 = new JdbcTemplate(conn).call("{call proc_select_table_1(?)} @{resultSet,extractor=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOExtractor}", "aaa");
             assert objectMap2.size() == 2;
             assert objectMap2.get("#result-set-1") instanceof ArrayList;
             assert objectMap2.get("#update-count-2").equals(0);
@@ -295,7 +295,7 @@ public class ProcedureTest extends AbstractDbTest {
     public void one_result_as_map_using_handler_1() throws SQLException {
         try (Connection conn = initConnection()) {
             ProcedureTestUserDTOHandler.getResult().clear();
-            Map<String, Object> objectMap1 = new JdbcTemplate(conn).call("{call proc_select_table(?)} @{resultSet,name=res,rowHandler=net.hasor.test.handler.ProcedureTestUserDTOHandler}", "aaa");
+            Map<String, Object> objectMap1 = new JdbcTemplate(conn).call("{call proc_select_table_1(?)} @{resultSet,name=res,rowHandler=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOHandler}", "aaa");
             assert objectMap1.size() == 2;
             assert objectMap1.get("res").equals("resultSet returned from stored procedure was processed");
             assert objectMap1.get("#update-count-2").equals(0);
@@ -306,7 +306,7 @@ public class ProcedureTest extends AbstractDbTest {
 
             //
             ProcedureTestUserDTOHandler.getResult().clear();
-            Map<String, Object> objectMap2 = new JdbcTemplate(conn).call("{call proc_select_table(?)} @{resultSet,rowHandler=net.hasor.test.handler.ProcedureTestUserDTOHandler}", "aaa");
+            Map<String, Object> objectMap2 = new JdbcTemplate(conn).call("{call proc_select_table_1(?)} @{resultSet,rowHandler=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOHandler}", "aaa");
             assert objectMap2.size() == 2;
             assert objectMap2.get("#result-set-1").equals("resultSet returned from stored procedure was processed");
             assert objectMap2.get("#update-count-2").equals(0);
@@ -371,7 +371,7 @@ public class ProcedureTest extends AbstractDbTest {
     public void multiple_result_as_map_using_javaType_1() throws SQLException {
         try (Connection conn = initConnection()) {
             Map<String, Object> objectMap1 = new JdbcTemplate(conn).call(//
-                    "{call proc_select_multiple_table(?)} @{resultSet,name=res1,javaType=net.hasor.test.dto.ProcedureTestUserDTO} @{resultSet,name=res2,javaType=net.hasor.test.dto.ProcedureTestUserDTO}", "aaa");
+                    "{call proc_select_multiple_table(?)} @{resultSet,name=res1,javaType=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTO} @{resultSet,name=res2,javaType=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTO}", "aaa");
             assert objectMap1.size() == 3;
             assert objectMap1.get("res1") instanceof ArrayList;
             assert objectMap1.get("res2") instanceof ArrayList;
@@ -385,7 +385,7 @@ public class ProcedureTest extends AbstractDbTest {
 
             //
             Map<String, Object> objectMap2 = new JdbcTemplate(conn).call(//
-                    "{call proc_select_multiple_table(?)} @{resultSet,name=res1,javaType=net.hasor.test.dto.ProcedureTestUserDTO}", "aaa");
+                    "{call proc_select_multiple_table(?)} @{resultSet,name=res1,javaType=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTO}", "aaa");
             assert objectMap2.size() == 3;
             assert objectMap2.get("res1") instanceof ArrayList;
             assert objectMap2.get("#result-set-2") instanceof ArrayList;
@@ -403,7 +403,7 @@ public class ProcedureTest extends AbstractDbTest {
     public void multiple_result_as_map_using_mapper_1() throws SQLException {
         try (Connection conn = initConnection()) {
             Map<String, Object> objectMap1 = new JdbcTemplate(conn).call(//
-                    "{call proc_select_multiple_table(?)} @{resultSet,name=res1,rowMapper=net.hasor.test.mapper.ProcedureTestUserDTOMapper} @{resultSet,name=res2,rowMapper=net.hasor.test.mapper.ProcedureTestUserDTOMapper}", "aaa");
+                    "{call proc_select_multiple_table(?)} @{resultSet,name=res1,rowMapper=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOMapper} @{resultSet,name=res2,rowMapper=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOMapper}", "aaa");
             assert objectMap1.size() == 3;
             assert objectMap1.get("res1") instanceof ArrayList;
             assert objectMap1.get("res2") instanceof ArrayList;
@@ -417,7 +417,7 @@ public class ProcedureTest extends AbstractDbTest {
 
             //
             Map<String, Object> objectMap2 = new JdbcTemplate(conn).call(//
-                    "{call proc_select_multiple_table(?)} @{resultSet,name=res1,rowMapper=net.hasor.test.mapper.ProcedureTestUserDTOMapper}", "aaa");
+                    "{call proc_select_multiple_table(?)} @{resultSet,name=res1,rowMapper=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOMapper}", "aaa");
             assert objectMap2.size() == 3;
             assert objectMap2.get("res1") instanceof ArrayList;
             assert objectMap2.get("#result-set-2") instanceof ArrayList;
@@ -435,7 +435,7 @@ public class ProcedureTest extends AbstractDbTest {
     public void multiple_result_as_map_using_extractor_1() throws SQLException {
         try (Connection conn = initConnection()) {
             Map<String, Object> objectMap1 = new JdbcTemplate(conn).call(//
-                    "{call proc_select_multiple_table(?)} @{resultSet,name=res1,extractor=net.hasor.test.extractor.ProcedureTestUserDTOExtractor} @{resultSet,name=res2,extractor=net.hasor.test.extractor.ProcedureTestUserDTOExtractor}", "aaa");
+                    "{call proc_select_multiple_table(?)} @{resultSet,name=res1,extractor=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOExtractor} @{resultSet,name=res2,extractor=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOExtractor}", "aaa");
             assert objectMap1.size() == 3;
             assert objectMap1.get("res1") instanceof ArrayList;
             assert objectMap1.get("res2") instanceof ArrayList;
@@ -449,7 +449,7 @@ public class ProcedureTest extends AbstractDbTest {
 
             //
             Map<String, Object> objectMap2 = new JdbcTemplate(conn).call(//
-                    "{call proc_select_multiple_table(?)} @{resultSet,name=res1,extractor=net.hasor.test.extractor.ProcedureTestUserDTOExtractor}", "aaa");
+                    "{call proc_select_multiple_table(?)} @{resultSet,name=res1,extractor=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOExtractor}", "aaa");
             assert objectMap2.size() == 3;
             assert objectMap2.get("res1") instanceof ArrayList;
             assert objectMap2.get("#result-set-2") instanceof ArrayList;
@@ -469,7 +469,7 @@ public class ProcedureTest extends AbstractDbTest {
             ProcedureTestUserDTOHandler.getResult().clear();
             ProcedureTestUserDTOHandler2.getResult().clear();
             Map<String, Object> objectMap1 = new JdbcTemplate(conn).call(//
-                    "{call proc_select_multiple_table(?)} @{resultSet,name=res1,rowHandler=net.hasor.test.handler.ProcedureTestUserDTOHandler} @{resultSet,name=res2,rowHandler=net.hasor.test.handler.ProcedureTestUserDTOHandler2}", "aaa");
+                    "{call proc_select_multiple_table(?)} @{resultSet,name=res1,rowHandler=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOHandler} @{resultSet,name=res2,rowHandler=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOHandler2}", "aaa");
             assert objectMap1.size() == 3;
             assert objectMap1.get("res1").equals("resultSet returned from stored procedure was processed");
             assert objectMap1.get("res2").equals("resultSet returned from stored procedure was processed");
@@ -487,7 +487,7 @@ public class ProcedureTest extends AbstractDbTest {
             ProcedureTestUserDTOHandler.getResult().clear();
             ProcedureTestUserDTOHandler2.getResult().clear();
             Map<String, Object> objectMap2 = new JdbcTemplate(conn).call(//
-                    "{call proc_select_multiple_table(?)} @{resultSet,name=res1,rowHandler=net.hasor.test.handler.ProcedureTestUserDTOHandler}", "aaa");
+                    "{call proc_select_multiple_table(?)} @{resultSet,name=res1,rowHandler=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTOHandler}", "aaa");
             assert objectMap2.size() == 3;
             assert objectMap2.get("res1").equals("resultSet returned from stored procedure was processed");
             assert objectMap2.get("#result-set-2") instanceof ArrayList;
@@ -564,7 +564,7 @@ public class ProcedureTest extends AbstractDbTest {
     public void callBack_2() throws SQLException {
         try (Connection conn = initConnection()) {
             List<Object> objectMap = new JdbcTemplate(conn).executeCreator((CallableStatementCreator) con -> {
-                CallableStatement cs = con.prepareCall("{call proc_select_table2(?,?)}");
+                CallableStatement cs = con.prepareCall("{call proc_select_table_2(?,?)}");
                 cs.setString(1, "aaa");
                 cs.registerOutParameter(2, Types.VARCHAR);
                 return cs;
@@ -625,7 +625,7 @@ public class ProcedureTest extends AbstractDbTest {
                     "end;");
 
             //            conn.setAutoCommit(false);
-            Map<String, Object> objectMap1 = new JdbcTemplate(conn).call("{call proc_out_cursor(?,#{res,mode=cursor,javaType=net.hasor.test.dto.ProcedureTestUserDTO})}", "aaa");
+            Map<String, Object> objectMap1 = new JdbcTemplate(conn).call("{call proc_out_cursor(?,#{res,mode=cursor,javaType=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTO})}", "aaa");
             assert objectMap1.size() == 2;
             assert objectMap1.get("res") instanceof ArrayList;
             assert objectMap1.get("#update-count-1").equals(-1); // oracle is -1
@@ -635,7 +635,7 @@ public class ProcedureTest extends AbstractDbTest {
 
             //
             //            conn.setAutoCommit(false);
-            Map<String, Object> objectMap2 = new JdbcTemplate(conn).call("{call proc_out_cursor(?,#{name=res,mode=cursor,javaType=net.hasor.test.dto.ProcedureTestUserDTO})}", "aaa");
+            Map<String, Object> objectMap2 = new JdbcTemplate(conn).call("{call proc_out_cursor(?,#{name=res,mode=cursor,javaType=net.hasor.dbvisitor.template.jdbc.core.test.ProcedureTestUserDTO})}", "aaa");
             assert objectMap2.size() == 2;
             assert objectMap2.get("res") instanceof ArrayList;
             assert objectMap2.get("#update-count-1").equals(-1); // oracle is -1

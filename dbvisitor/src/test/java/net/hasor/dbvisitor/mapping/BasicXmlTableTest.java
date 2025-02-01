@@ -30,7 +30,7 @@ public class BasicXmlTableTest {
     @Test
     public void xmlTableInfo_1() throws IOException {
         MappingRegistry registry = new MappingRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_entity_1.xml");
+        registry.loadMapping("/dbvisitor_coverage/basic_mapping/basic_entity_1.xml");
         TableMapping<?> tab = registry.findByTable("master", "dbo", "blob_resource");
 
         assert tab.getCatalog().equals("master");
@@ -121,7 +121,7 @@ public class BasicXmlTableTest {
     @Test
     public void xmlTableInfo_2_1() throws IOException {
         MappingRegistry registry = new MappingRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_entity_1.xml");
+        registry.loadMapping("/dbvisitor_coverage/basic_mapping/basic_entity_1.xml");
         TableMapping<?> ent1 = registry.findByTable("master", "dbo", "blob_resource");
 
         TableMapping<?> def1 = registry.findByEntity(PojoBean1.class);
@@ -138,7 +138,7 @@ public class BasicXmlTableTest {
     @Test
     public void xmlTableInfo_2_2() throws IOException {
         MappingRegistry registry = new MappingRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_entity_2.xml");
+        registry.loadMapping("/dbvisitor_coverage/basic_mapping/basic_entity_2.xml");
         TableMapping<?> ent1 = registry.findByTable("master", "dbo", "blob_resource");
 
         TableMapping<?> def1 = registry.findByEntity(PojoBean1.class);
@@ -155,7 +155,7 @@ public class BasicXmlTableTest {
     @Test
     public void xmlTableInfo_3() throws IOException {
         MappingRegistry registry = new MappingRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_entity_3.xml");
+        registry.loadMapping("/dbvisitor_coverage/basic_mapping/basic_entity_3.xml");
         TableMapping<?> ent1 = registry.findBySpace("abc", "aac");
 
         TableMapping<?> def1 = registry.findByEntity(PojoBean1.class);
@@ -182,18 +182,18 @@ public class BasicXmlTableTest {
     @Test
     public void error_1() throws IOException {
         MappingRegistry registry = new MappingRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_entity_1.xml");
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_entity_1.xml");
+        registry.loadMapping("/dbvisitor_coverage/basic_mapping/basic_entity_1.xml");
+        registry.loadMapping("/dbvisitor_coverage/basic_mapping/basic_entity_1.xml");
         assert true;
     }
 
     @Test
     public void error_2() throws IOException {
         MappingRegistry registry = new MappingRegistry();
-        registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_entity_1.xml");
+        registry.loadMapping("/dbvisitor_coverage/basic_mapping/basic_entity_1.xml");
         try {
             registry.loaded.clear();// clear cache
-            registry.loadMapper("/dbvisitor_coverage/basic_mapping/basic_entity_1.xml");
+            registry.loadMapping("/dbvisitor_coverage/basic_mapping/basic_entity_1.xml");
             assert false;
         } catch (Exception e) {
             assert e.getMessage().endsWith("the entity '" + PojoBean1.class.getName() + "' already exists.");

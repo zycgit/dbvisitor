@@ -33,7 +33,7 @@ public class AutoItemNoTest extends AbstractDbTest {
     @Before
     public void beforeTest() throws Exception {
         this.registry = new MappingRegistry();
-        this.registry.loadMapper("/dbvisitor_coverage/basic_mapping/auto_item_no.xml");
+        this.registry.loadMapping("/dbvisitor_coverage/basic_mapping/auto_item_no.xml");
     }
 
     @Test

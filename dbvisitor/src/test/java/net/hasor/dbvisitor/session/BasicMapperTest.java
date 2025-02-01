@@ -1,14 +1,10 @@
 package net.hasor.dbvisitor.session;
 import net.hasor.cobble.WellKnowFormat;
 import net.hasor.dbvisitor.mapper.BaseMapper;
-import net.hasor.dbvisitor.mapping.MappingOptions;
-import net.hasor.dbvisitor.session.dal.MapperRegistry;
-import net.hasor.dbvisitor.session.dal.DalSession;
-import net.hasor.test.dto.UserInfo2;
+import net.hasor.dbvisitor.session.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
-import java.sql.Connection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
@@ -36,21 +32,23 @@ public class BasicMapperTest {
 
     @Test
     public void basic_1() throws Exception {
-        try (Connection con = DsUtils.h2Conn()) {
-            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
-            DalSession dalSession = new DalSession(con, dalRegistry);
-            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
 
-            assert mapper.getSession() == dalSession;
+        try (Session s = config.newSession(DsUtils.h2Conn())) {
+            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
+
+            assert mapper.session() == s;
         }
     }
 
     @Test
     public void insert_1() throws Exception {
-        try (Connection con = DsUtils.h2Conn()) {
-            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
-            DalSession dalSession = new DalSession(con, dalRegistry);
-            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Session s = config.newSession(DsUtils.h2Conn())) {
+            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
             mapper.delete().allowEmptyWhere().doDelete();
 
             UserInfo2 user1 = new UserInfo2();
@@ -97,10 +95,11 @@ public class BasicMapperTest {
 
     @Test
     public void insert_2() throws Exception {
-        try (Connection con = DsUtils.h2Conn()) {
-            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
-            DalSession dalSession = new DalSession(con, dalRegistry);
-            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Session s = config.newSession(DsUtils.h2Conn())) {
+            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
             mapper.delete().allowEmptyWhere().doDelete();
 
             UserInfo2 user1 = new UserInfo2();
@@ -131,10 +130,11 @@ public class BasicMapperTest {
 
     @Test
     public void listBySample_1() throws Exception {
-        try (Connection con = DsUtils.h2Conn()) {
-            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
-            DalSession dalSession = new DalSession(con, dalRegistry);
-            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Session s = config.newSession(DsUtils.h2Conn())) {
+            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
 
             assert mapper.countAll() == 3;
 
@@ -150,10 +150,11 @@ public class BasicMapperTest {
 
     @Test
     public void listBySample_2() throws Exception {
-        try (Connection con = DsUtils.h2Conn()) {
-            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
-            DalSession dalSession = new DalSession(con, dalRegistry);
-            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Session s = config.newSession(DsUtils.h2Conn())) {
+            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
 
             assert mapper.countAll() == 3;
 
@@ -168,10 +169,11 @@ public class BasicMapperTest {
 
     @Test
     public void listBySample_3() throws Exception {
-        try (Connection con = DsUtils.h2Conn()) {
-            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
-            DalSession dalSession = new DalSession(con, dalRegistry);
-            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Session s = config.newSession(DsUtils.h2Conn())) {
+            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
 
             assert mapper.countAll() == 3;
 
@@ -192,10 +194,11 @@ public class BasicMapperTest {
 
     @Test
     public void listBySample_4() throws Exception {
-        try (Connection con = DsUtils.h2Conn()) {
-            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
-            DalSession dalSession = new DalSession(con, dalRegistry);
-            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Session s = config.newSession(DsUtils.h2Conn())) {
+            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
 
             assert mapper.countAll() == 3;
 
@@ -224,10 +227,11 @@ public class BasicMapperTest {
 
     @Test
     public void upsertById_1() throws Exception {
-        try (Connection con = DsUtils.h2Conn()) {
-            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
-            DalSession dalSession = new DalSession(con, dalRegistry);
-            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Session s = config.newSession(DsUtils.h2Conn())) {
+            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
 
             assert mapper.countAll() == 3;
 
@@ -255,10 +259,11 @@ public class BasicMapperTest {
 
     @Test
     public void upsertById_2() throws Exception {
-        try (Connection con = DsUtils.h2Conn()) {
-            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
-            DalSession dalSession = new DalSession(con, dalRegistry);
-            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Session s = config.newSession(DsUtils.h2Conn())) {
+            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
 
             assert mapper.countAll() == 3;
             List<UserInfo2> all = mapper.query().queryForList();
@@ -287,10 +292,11 @@ public class BasicMapperTest {
 
     @Test
     public void updateByMap_1() throws Exception {
-        try (Connection con = DsUtils.h2Conn()) {
-            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
-            DalSession dalSession = new DalSession(con, dalRegistry);
-            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Session s = config.newSession(DsUtils.h2Conn())) {
+            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
 
             assert mapper.countAll() == 3;
             List<UserInfo2> all = mapper.query().queryForList();
@@ -319,10 +325,11 @@ public class BasicMapperTest {
 
     @Test
     public void deleteById_1() throws Exception {
-        try (Connection con = DsUtils.h2Conn()) {
-            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
-            DalSession dalSession = new DalSession(con, dalRegistry);
-            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Session s = config.newSession(DsUtils.h2Conn())) {
+            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
 
             assert mapper.countAll() == 3;
             List<UserInfo2> all = mapper.query().queryForList();
@@ -336,10 +343,11 @@ public class BasicMapperTest {
 
     @Test
     public void deleteById_2() throws Exception {
-        try (Connection con = DsUtils.h2Conn()) {
-            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
-            DalSession dalSession = new DalSession(con, dalRegistry);
-            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Session s = config.newSession(DsUtils.h2Conn())) {
+            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
 
             assert mapper.countAll() == 3;
             List<UserInfo2> all = mapper.query().queryForList();
@@ -352,10 +360,11 @@ public class BasicMapperTest {
 
     @Test
     public void delete_1() throws Exception {
-        try (Connection con = DsUtils.h2Conn()) {
-            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
-            DalSession dalSession = new DalSession(con, dalRegistry);
-            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Session s = config.newSession(DsUtils.h2Conn())) {
+            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
 
             assert mapper.countAll() == 3;
             List<UserInfo2> all = mapper.query().queryForList();
@@ -368,10 +377,11 @@ public class BasicMapperTest {
 
     @Test
     public void selectById_1() throws Exception {
-        try (Connection con = DsUtils.h2Conn()) {
-            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
-            DalSession dalSession = new DalSession(con, dalRegistry);
-            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Session s = config.newSession(DsUtils.h2Conn())) {
+            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
 
             assert mapper.countAll() == 3;
             List<UserInfo2> all = mapper.query().queryForList();
@@ -382,10 +392,11 @@ public class BasicMapperTest {
 
     @Test
     public void selectById_2() throws Exception {
-        try (Connection con = DsUtils.h2Conn()) {
-            MapperRegistry dalRegistry = new MapperRegistry(MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
-            DalSession dalSession = new DalSession(con, dalRegistry);
-            BaseMapper<UserInfo2> mapper = dalSession.createBaseMapper(UserInfo2.class);
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Session s = config.newSession(DsUtils.h2Conn())) {
+            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
 
             assert mapper.countAll() == 3;
             List<UserInfo2> all = mapper.query().queryForList();

@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.mapper.def;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
@@ -69,7 +69,7 @@ public abstract class SqlConfig implements DynamicSql, ConfigKeys {
     }
 
     @Override
-    public void buildQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException {
+    public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
         this.target.buildQuery(data, context, sqlBuilder);
     }
 }

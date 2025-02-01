@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.session.dto;
+import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.mapper.*;
 
 import java.util.List;
@@ -37,4 +38,7 @@ public interface ProxyStatementMapper {
     @SelectKeySql(value = "select last_insert_id() as idid", keyProperty = "id", keyColumn = "idid", order = Order.After)
     @Insert("insert into auto_id(uid, name) values (?, ?);")
     int insertBean2(AutoIncrID info);
+
+    @Query("select * from user_info")
+    List<UserInfo> selectByPage(Page page);
 }

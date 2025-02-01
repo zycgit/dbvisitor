@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.dynamic.rule;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 
@@ -29,16 +29,16 @@ import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-05
  */
-public class IfRule implements SqlBuildRule {
-    public static final SqlBuildRule INSTANCE_IF = new IfRule();
+public class IfRule implements SqlRule {
+    public static final SqlRule INSTANCE_IF = new IfRule();
 
     @Override
-    public boolean test(SqlArgSource data, RegistryManager context, String activeExpr) {
+    public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         return StringUtils.isBlank(activeExpr) || Boolean.TRUE.equals(evalOgnl(activeExpr, data));
     }
 
     @Override
-    public void executeRule(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
+    public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         if (ruleValue != null) {
             DynamicParsed.getParsedSql(ruleValue).buildQuery(data, context, sqlBuilder);
         }

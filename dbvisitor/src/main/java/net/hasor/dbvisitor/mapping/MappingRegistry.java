@@ -43,7 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MappingRegistry {
     private static final Logger                                                              logger      = LoggerFactory.getLogger(MappingRegistry.class);
-    public static final  MappingRegistry                                                     DEFAULT     = new MappingRegistry();
+    public static final  MappingRegistry                                                     DEFAULT     = new MappingRegistry(null);
     private final        Map<String, Map<String, Map<String, Map<String, TableMapping<?>>>>> mapForLevel = new ConcurrentHashMap<>();
     private final        Map<String, Map<String, TableMapping<?>>>                           mapForSpace = new ConcurrentHashMap<>();
     protected final      ClassLoader                                                         classLoader;
@@ -61,15 +61,14 @@ public class MappingRegistry {
         this(classLoader, TypeHandlerRegistry.DEFAULT, MappingOptions.buildNew());
     }
 
-    public MappingRegistry(ClassLoader classLoader, TypeHandlerRegistry registry) {
-        this(classLoader, registry, MappingOptions.buildNew());
-        Objects.requireNonNull(registry, "registry is null.");
+    public MappingRegistry(ClassLoader classLoader, MappingOptions global) {
+        this(classLoader, TypeHandlerRegistry.DEFAULT, global);
     }
 
     public MappingRegistry(ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions global) {
         this.classLoader = classLoader != null ? classLoader : Thread.currentThread().getContextClassLoader();
         this.typeRegistry = (typeRegistry == null) ? TypeHandlerRegistry.DEFAULT : typeRegistry;
-        this.global = global;
+        this.global = (global == null) ? MappingOptions.buildNew() : global;
         this.xmlMappingResolve = new XmlTableMappingResolve();
         this.entityClassResolve = new ClassTableMappingResolve();
         this.loaded = new HashSet<>();
@@ -92,12 +91,12 @@ public class MappingRegistry {
     }
 
     /** load `mapper.xml` and escape decoding is not used */
-    public void loadMapper(final String resource) throws IOException {
-        this.loadMapper(resource, false);
+    public void loadMapping(final String resource) throws IOException {
+        this.loadMapping(resource, false);
     }
 
     /** load `mapper.xml` */
-    public void loadMapper(final String resource, boolean escape) throws IOException {
+    public void loadMapping(final String resource, boolean escape) throws IOException {
         if (StringUtils.isBlank(resource)) {
             return;
         }
@@ -116,7 +115,7 @@ public class MappingRegistry {
                     NamedNodeMap rootAttributes = root.getAttributes();
 
                     String namespace = MappingHelper.readAttribute("namespace", rootAttributes);
-                    this.loadMapper(namespace, root);
+                    this.loadMapping(namespace, root);
                 } catch (ParserConfigurationException | SAXException | ReflectiveOperationException e) {
                     throw new IOException(e);
                 }
@@ -124,7 +123,7 @@ public class MappingRegistry {
         });
     }
 
-    protected void loadMapper(String space, Element configRoot) throws IOException, ReflectiveOperationException {
+    protected void loadMapping(String space, Element configRoot) throws IOException, ReflectiveOperationException {
         MappingOptions optInfile = this.xmlMappingResolve.fromXmlNode(configRoot.getAttributes(), this.global);
 
         NodeList childNodes = configRoot.getChildNodes();

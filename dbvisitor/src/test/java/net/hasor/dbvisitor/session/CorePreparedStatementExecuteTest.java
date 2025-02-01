@@ -3,7 +3,6 @@ import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dialect.PageObject;
 import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.mapper.StatementDef;
 import net.hasor.dbvisitor.session.dto.CorePreparedStatementExecuteMapper;
 import net.hasor.dbvisitor.session.dto.UserInfo;
@@ -31,12 +30,12 @@ public class CorePreparedStatementExecuteTest {
 
     @Test
     public void selectList_1() throws Exception {
-        RegistryManager registry = new RegistryManager();
-        registry.setDialect(new MySqlDialect());
-        PreparedStatementExecute exec = new PreparedStatementExecute(registry);
+        Configuration config = new Configuration();
+        config.options().setDefaultDialect(new MySqlDialect());
+        PreparedStatementExecute exec = new PreparedStatementExecute(config);
 
-        registry.getMapperRegistry().loadMapper(CorePreparedStatementExecuteMapper.class);
-        StatementDef def = registry.getMapperRegistry().findStatement(CorePreparedStatementExecuteMapper.class, "selectList1");
+        config.loadMapper(CorePreparedStatementExecuteMapper.class);
+        StatementDef def = config.findStatement(CorePreparedStatementExecuteMapper.class, "selectList1");
 
         try (Connection con = DsUtils.mysqlConn()) {
             reinit(con);
@@ -52,12 +51,12 @@ public class CorePreparedStatementExecuteTest {
 
     @Test
     public void selectList_2() throws Exception {
-        RegistryManager registry = new RegistryManager();
-        registry.setDialect(new MySqlDialect());
-        PreparedStatementExecute exec = new PreparedStatementExecute(registry);
+        Configuration config = new Configuration();
+        config.options().setDefaultDialect(new MySqlDialect());
+        PreparedStatementExecute exec = new PreparedStatementExecute(config);
 
-        registry.getMapperRegistry().loadMapper(CorePreparedStatementExecuteMapper.class);
-        StatementDef def = registry.getMapperRegistry().findStatement(CorePreparedStatementExecuteMapper.class, "selectList2");
+        config.loadMapper(CorePreparedStatementExecuteMapper.class);
+        StatementDef def = config.findStatement(CorePreparedStatementExecuteMapper.class, "selectList2");
 
         try (Connection con = DsUtils.mysqlConn()) {
             reinit(con);
@@ -71,13 +70,13 @@ public class CorePreparedStatementExecuteTest {
 
     @Test
     public void insertBean_1() throws Exception {
-        RegistryManager registry = new RegistryManager();
-        registry.setDialect(new MySqlDialect());
-        PreparedStatementExecute exec = new PreparedStatementExecute(registry);
+        Configuration config = new Configuration();
+        config.options().setDefaultDialect(new MySqlDialect());
+        PreparedStatementExecute exec = new PreparedStatementExecute(config);
 
-        registry.getMapperRegistry().loadMapper(CorePreparedStatementExecuteMapper.class);
-        StatementDef def1 = registry.getMapperRegistry().findStatement(CorePreparedStatementExecuteMapper.class, "insertBean");
-        StatementDef def2 = registry.getMapperRegistry().findStatement(CorePreparedStatementExecuteMapper.class, "queryById");
+        config.loadMapper(CorePreparedStatementExecuteMapper.class);
+        StatementDef def1 = config.findStatement(CorePreparedStatementExecuteMapper.class, "insertBean");
+        StatementDef def2 = config.findStatement(CorePreparedStatementExecuteMapper.class, "queryById");
 
         Map<String, Object> ctx = CollectionUtils.asMap(//
                 "arg0", "10",       //
@@ -102,13 +101,13 @@ public class CorePreparedStatementExecuteTest {
 
     @Test
     public void updateBean_1() throws Exception {
-        RegistryManager registry = new RegistryManager();
-        registry.setDialect(new MySqlDialect());
-        PreparedStatementExecute exec = new PreparedStatementExecute(registry);
+        Configuration config = new Configuration();
+        config.options().setDefaultDialect(new MySqlDialect());
+        PreparedStatementExecute exec = new PreparedStatementExecute(config);
 
-        registry.getMapperRegistry().loadMapper(CorePreparedStatementExecuteMapper.class);
-        StatementDef def1 = registry.getMapperRegistry().findStatement(CorePreparedStatementExecuteMapper.class, "updateBean");
-        StatementDef def2 = registry.getMapperRegistry().findStatement(CorePreparedStatementExecuteMapper.class, "queryById");
+        config.loadMapper(CorePreparedStatementExecuteMapper.class);
+        StatementDef def1 = config.findStatement(CorePreparedStatementExecuteMapper.class, "updateBean");
+        StatementDef def2 = config.findStatement(CorePreparedStatementExecuteMapper.class, "queryById");
 
         try (Connection con = DsUtils.mysqlConn()) {
             reinit(con);
@@ -126,13 +125,13 @@ public class CorePreparedStatementExecuteTest {
 
     @Test
     public void deleteBean_1() throws Exception {
-        RegistryManager registry = new RegistryManager();
-        registry.setDialect(new MySqlDialect());
-        PreparedStatementExecute exec = new PreparedStatementExecute(registry);
+        Configuration config = new Configuration();
+        config.options().setDefaultDialect(new MySqlDialect());
+        PreparedStatementExecute exec = new PreparedStatementExecute(config);
 
-        registry.getMapperRegistry().loadMapper(CorePreparedStatementExecuteMapper.class);
-        StatementDef def1 = registry.getMapperRegistry().findStatement(CorePreparedStatementExecuteMapper.class, "selectCount");
-        StatementDef def2 = registry.getMapperRegistry().findStatement(CorePreparedStatementExecuteMapper.class, "deleteBean");
+        config.loadMapper(CorePreparedStatementExecuteMapper.class);
+        StatementDef def1 = config.findStatement(CorePreparedStatementExecuteMapper.class, "selectCount");
+        StatementDef def2 = config.findStatement(CorePreparedStatementExecuteMapper.class, "deleteBean");
 
         try (Connection con = DsUtils.mysqlConn()) {
             reinit(con);
@@ -151,12 +150,12 @@ public class CorePreparedStatementExecuteTest {
 
     @Test
     public void page_1() throws Exception {
-        RegistryManager registry = new RegistryManager();
-        registry.setDialect(new MySqlDialect());
-        PreparedStatementExecute exec = new PreparedStatementExecute(registry);
+        Configuration config = new Configuration();
+        config.options().setDefaultDialect(new MySqlDialect());
+        PreparedStatementExecute exec = new PreparedStatementExecute(config);
 
-        registry.getMapperRegistry().loadMapper(CorePreparedStatementExecuteMapper.class);
-        StatementDef def = registry.getMapperRegistry().findStatement(CorePreparedStatementExecuteMapper.class, "selectByPage");
+        config.loadMapper(CorePreparedStatementExecuteMapper.class);
+        StatementDef def = config.findStatement(CorePreparedStatementExecuteMapper.class, "selectByPage");
 
         try (Connection con = DsUtils.mysqlConn()) {
             reinit(con);

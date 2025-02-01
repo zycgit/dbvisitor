@@ -21,7 +21,7 @@ import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.session.dal.DalSession;
+import net.hasor.dbvisitor.template.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.wrapper.EntityDeleteWrapper;
 import net.hasor.dbvisitor.wrapper.EntityQueryWrapper;
 import net.hasor.dbvisitor.wrapper.EntityUpdateWrapper;
@@ -40,21 +40,17 @@ import java.util.stream.Collectors;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-05-19
  */
-public class DefaultBaseMapper implements BaseMapper<Object> {
-    private final String               space;
+class DefaultBaseMapper implements BaseMapper<Object> {
     private final Class<Object>        entityType;
-    private final DalSession           dalSession;
-    private final WrapperAdapter       template;
-    private final TableMapping<Object> tableMapping;
+    private final Session              session;
+    private final TableMapping<Object> tabMapping;
 
-    public DefaultBaseMapper(String space, Class<?> entityType, DalSession dalSession) {
-        this.space = space;
-        this.entityType = (Class<Object>) entityType;
-        this.dalSession = dalSession;
-        this.template = dalSession.newTemplate(this.space);
-        this.tableMapping = dalSession.getRegistry().findBySpace(space, this.entityType);
+    DefaultBaseMapper(TableMapping<Object> tabMapping, Session session) {
+        this.entityType = tabMapping.entityType();
+        this.session = session;
+        this.tabMapping = tabMapping;
 
-        Objects.requireNonNull(this.tableMapping, "entityType '" + entityType + "' undefined.");
+        Objects.requireNonNull(this.tabMapping, "entityType '" + entityType + "' undefined.");
     }
 
     @Override
@@ -63,21 +59,26 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
     }
 
     @Override
-    public WrapperAdapter template() {
-        return this.template;
+    public WrapperAdapter wrapper() {
+        return this.session.wrapper();
     }
 
     @Override
-    public DalSession getSession() {
-        return this.dalSession;
+    public JdbcOperations jdbc() {
+        return this.session.jdbc();
+    }
+
+    @Override
+    public Session session() {
+        return this.session;
     }
 
     private TableMapping<Object> getMapping() {
-        return this.tableMapping;
+        return this.tabMapping;
     }
 
     protected List<ColumnMapping> foundPrimaryKey() {
-        return getMapping().getProperties().stream().filter(ColumnMapping::isPrimaryKey).collect(Collectors.toList());
+        return this.getMapping().getProperties().stream().filter(ColumnMapping::isPrimaryKey).collect(Collectors.toList());
     }
 
     @Override
@@ -86,12 +87,12 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
             throw new NullPointerException("entity is null.");
         }
 
-        List<ColumnMapping> pks = foundPrimaryKey();
+        List<ColumnMapping> pks = this.foundPrimaryKey();
         if (pks.isEmpty()) {
             throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
-        EntityUpdateWrapper<Object> update = update();
+        EntityUpdateWrapper<Object> update = this.update();
 
         for (ColumnMapping pk : pks) {
             Object o = pk.getHandler().get(entity);
@@ -103,7 +104,7 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
         }
 
         try {
-            TableMapping<Object> tableMapping = getMapping();
+            TableMapping<Object> tableMapping = this.getMapping();
             return update.updateToSample(entity, property -> {
                 return !tableMapping.getPropertyByName(property).isPrimaryKey();
             }).doUpdate();
@@ -118,13 +119,13 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
             throw new NullPointerException("entity is null.");
         }
 
-        List<ColumnMapping> pks = foundPrimaryKey();
+        List<ColumnMapping> pks = this.foundPrimaryKey();
         if (pks.isEmpty()) {
             throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
-        EntityQueryWrapper<Object> query = query();
-        EntityUpdateWrapper<Object> update = update();
+        EntityQueryWrapper<Object> query = this.query();
+        EntityUpdateWrapper<Object> update = this.update();
 
         for (ColumnMapping pk : pks) {
             Object o = pk.getHandler().get(entity);
@@ -139,9 +140,9 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
 
         try {
             if (query.queryForCount() == 0) {
-                return insert().applyEntity(entity).executeSumResult();
+                return this.insert().applyEntity(entity).executeSumResult();
             } else {
-                TableMapping<Object> tableMapping = getMapping();
+                TableMapping<Object> tableMapping = this.getMapping();
                 return update.updateToSample(entity, property -> {
                     return !tableMapping.getPropertyByName(property).isPrimaryKey();
                 }).doUpdate();
@@ -162,7 +163,7 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
             throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
-        EntityUpdateWrapper<Object> update = update();
+        EntityUpdateWrapper<Object> update = this.update();
 
         boolean isPrimaryKeyEmpty = true;
         for (ColumnMapping pk : pks) {
@@ -188,7 +189,7 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
         }
 
         try {
-            TableMapping<Object> tableMapping = getMapping();
+            TableMapping<Object> tableMapping = this.getMapping();
             return update.updateToSampleMap(map, property -> {
                 return !tableMapping.getPropertyByName(property).isPrimaryKey();
             }).doUpdate();
@@ -203,12 +204,12 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
             throw new NullPointerException("entity is null.");
         }
 
-        List<ColumnMapping> pks = foundPrimaryKey();
+        List<ColumnMapping> pks = this.foundPrimaryKey();
         if (pks.isEmpty()) {
             throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
-        EntityDeleteWrapper<Object> delete = delete();
+        EntityDeleteWrapper<Object> delete = this.delete();
 
         for (ColumnMapping pk : pks) {
             Object o = pk.getHandler().get(entity);
@@ -232,12 +233,12 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
             return 0;
         }
 
-        List<ColumnMapping> pks = foundPrimaryKey();
+        List<ColumnMapping> pks = this.foundPrimaryKey();
         if (pks.isEmpty()) {
             throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
-        EntityDeleteWrapper<Object> delete = delete();
+        EntityDeleteWrapper<Object> delete = this.delete();
         if (pks.size() == 1) {
             delete.and().eq(pks.get(0).getProperty(), id);
         } else {
@@ -264,7 +265,7 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
             return 0;
         }
 
-        List<ColumnMapping> pks = foundPrimaryKey();
+        List<ColumnMapping> pks = this.foundPrimaryKey();
         if (pks.isEmpty()) {
             throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
@@ -276,7 +277,7 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
                 throw new RuntimeSQLException(e);
             }
         } else {
-            EntityDeleteWrapper<Object> delete = delete();
+            EntityDeleteWrapper<Object> delete = this.delete();
             for (Object obj : idList) {
                 delete.or(queryCompare -> {
                     for (ColumnMapping pkColumn : pks) {
@@ -304,12 +305,12 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
             return null;
         }
 
-        List<ColumnMapping> pks = foundPrimaryKey();
+        List<ColumnMapping> pks = this.foundPrimaryKey();
         if (pks.isEmpty()) {
             throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
-        EntityQueryWrapper<Object> query = query();
+        EntityQueryWrapper<Object> query = this.query();
         if (pks.size() == 1) {
             query.and().eq(pks.get(0).getProperty(), id);
         } else {
@@ -336,19 +337,19 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
             return Collections.emptyList();
         }
 
-        List<ColumnMapping> pks = foundPrimaryKey();
+        List<ColumnMapping> pks = this.foundPrimaryKey();
         if (pks.isEmpty()) {
             throw new RuntimeSQLException(entityType() + " no primary key is identified");
         }
 
         if (pks.size() == 1) {
             try {
-                return query().and().in(pks.get(0).getProperty(), idList).queryForList();
+                return this.query().and().in(pks.get(0).getProperty(), idList).queryForList();
             } catch (SQLException e) {
                 throw new RuntimeSQLException(e);
             }
         } else {
-            EntityQueryWrapper<Object> query = query();
+            EntityQueryWrapper<Object> query = this.query();
             for (Object obj : idList) {
                 query.or(queryCompare -> {
                     for (ColumnMapping pkColumn : pks) {
@@ -371,10 +372,10 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
     }
 
     protected EntityQueryWrapper<Object> buildQueryBySample(Object sample) {
-        EntityQueryWrapper<Object> query = query();
+        EntityQueryWrapper<Object> query = this.query();
 
         if (sample != null) {
-            for (ColumnMapping mapping : getMapping().getProperties()) {
+            for (ColumnMapping mapping : this.getMapping().getProperties()) {
                 Object value = mapping.getHandler().get(sample);
                 if (value != null) {
                     query.and().eq(mapping.getProperty(), value);
@@ -388,7 +389,7 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
     @Override
     public List<Object> listBySample(Object sample) throws RuntimeSQLException {
         try {
-            return buildQueryBySample(sample).queryForList();
+            return this.buildQueryBySample(sample).queryForList();
         } catch (SQLException e) {
             throw new RuntimeSQLException(e);
         }
@@ -397,7 +398,7 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
     @Override
     public int countBySample(Object sample) throws RuntimeSQLException {
         try {
-            return buildQueryBySample(sample).queryForCount();
+            return this.buildQueryBySample(sample).queryForCount();
         } catch (SQLException e) {
             throw new RuntimeSQLException(e);
         }
@@ -406,7 +407,7 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
     @Override
     public int countAll() throws RuntimeSQLException {
         try {
-            return query().queryForCount();
+            return this.query().queryForCount();
         } catch (SQLException e) {
             throw new RuntimeSQLException(e);
         }
@@ -415,7 +416,7 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
     @Override
     public PageResult<Object> pageBySample(Object sample, Page page) throws RuntimeSQLException {
         try {
-            List<Object> result = buildQueryBySample(sample).usePage(page).queryForList();
+            List<Object> result = this.buildQueryBySample(sample).usePage(page).queryForList();
             return new PageResult<>(page, result);
         } catch (SQLException e) {
             throw new RuntimeSQLException(e);
@@ -424,10 +425,9 @@ public class DefaultBaseMapper implements BaseMapper<Object> {
 
     @Override
     public Page initPageBySample(Object sample, int pageSize, int pageNumberOffset) throws RuntimeSQLException {
-        int totalCount = countBySample(sample);
+        int totalCount = this.countBySample(sample);
         PageObject pageObject = new PageObject(pageSize, totalCount);
         pageObject.setPageNumberOffset(pageNumberOffset);
         return pageObject;
     }
-
 }

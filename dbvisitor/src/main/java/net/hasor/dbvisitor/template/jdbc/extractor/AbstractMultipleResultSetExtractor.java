@@ -18,17 +18,18 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.ResultArg;
 import net.hasor.dbvisitor.dynamic.ResultArgType;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.rule.ResultRule;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.template.ResultSetExtractor;
 import net.hasor.dbvisitor.template.RowCallbackHandler;
 import net.hasor.dbvisitor.template.RowMapper;
 import net.hasor.dbvisitor.template.jdbc.CallableStatementCallback;
 import net.hasor.dbvisitor.template.jdbc.mapper.BeanMappingRowMapper;
 import net.hasor.dbvisitor.template.jdbc.mapper.SingleColumnRowMapper;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -47,7 +48,7 @@ public abstract class AbstractMultipleResultSetExtractor {
     private static final Logger          logger                 = LoggerFactory.getLogger(AbstractMultipleResultSetExtractor.class);
     private final        List<ResultArg> resultArgs;
     private              boolean         resultsCaseInsensitive = false;
-    private              RegistryManager registry               = RegistryManager.DEFAULT;
+    protected            MappingRegistry mappingRegistry        = MappingRegistry.DEFAULT;
 
     public AbstractMultipleResultSetExtractor() {
         this.resultArgs = Collections.emptyList();
@@ -65,12 +66,8 @@ public abstract class AbstractMultipleResultSetExtractor {
         this.resultsCaseInsensitive = resultsCaseInsensitive;
     }
 
-    public RegistryManager getRegistry() {
-        return this.registry;
-    }
-
-    public void setRegistry(RegistryManager registry) {
-        this.registry = registry;
+    protected TypeHandlerRegistry getTypeRegistry() {
+        return this.mappingRegistry.getTypeRegistry();
     }
 
     protected Map<String, Object> createResultsMap() {
@@ -194,11 +191,11 @@ public abstract class AbstractMultipleResultSetExtractor {
         }
 
         if (arg.getJavaType() != null) {
-            if (this.registry.getTypeRegistry().hasTypeHandler(arg.getJavaType())) {
+            if (this.getTypeRegistry().hasTypeHandler(arg.getJavaType())) {
                 RowMapper<?> rowMapper = new SingleColumnRowMapper<>(arg.getJavaType());
                 return new RowMapperResultSetExtractor<>(rowMapper).extractData(rs);
             } else {
-                RowMapper<?> rowMapper = new BeanMappingRowMapper<>(arg.getJavaType(), this.registry.getMappingRegistry());
+                RowMapper<?> rowMapper = new BeanMappingRowMapper<>(arg.getJavaType(), this.mappingRegistry);
                 return new RowMapperResultSetExtractor<>(rowMapper).extractData(rs);
             }
         } else if (arg.getRowMapper() != null) {
@@ -216,6 +213,6 @@ public abstract class AbstractMultipleResultSetExtractor {
     }
 
     protected ResultSetExtractor<?> defaultExtractor() {
-        return new ColumnMapResultSetExtractor(0, this.registry.getTypeRegistry(), this.resultsCaseInsensitive);
+        return new ColumnMapResultSetExtractor(0, this.getTypeRegistry(), this.resultsCaseInsensitive);
     }
 }

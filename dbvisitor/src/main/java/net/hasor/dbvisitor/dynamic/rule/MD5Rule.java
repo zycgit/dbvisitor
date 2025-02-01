@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.dynamic.rule;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.codec.MD5;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.types.SqlArg;
@@ -33,17 +33,17 @@ import java.sql.Types;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-10-31
  */
-public class MD5Rule implements SqlBuildRule {
+public class MD5Rule implements SqlRule {
     private static final TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
-    public static final  SqlBuildRule   INSTANCE    = new MD5Rule();
+    public static final  SqlRule        INSTANCE    = new MD5Rule();
 
     @Override
-    public boolean test(SqlArgSource data, RegistryManager context, String activeExpr) {
+    public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         return true;
     }
 
     @Override
-    public void executeRule(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
+    public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         String expr = "";
         if (activeExpr != null) {
             expr += activeExpr;

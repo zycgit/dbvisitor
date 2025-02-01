@@ -13,29 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.handler;
-import net.hasor.dbvisitor.template.RowCallbackHandler;
-import net.hasor.test.dto.ProcedureTestUserDTO;
-import net.hasor.test.mapper.ProcedureTestUserDTOMapper;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+package net.hasor.dbvisitor.template.jdbc.core.test;
+import net.hasor.dbvisitor.mapping.Column;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-12-10
  */
-public class ProcedureTestUserDTOHandler2 implements RowCallbackHandler {
-    private static final List<ProcedureTestUserDTO> result = new ArrayList<>();
+public class ProcedureTestUserDTO {
+    @Column("c_id")
+    private int    id;
+    @Column("c_name")
+    private String name;
 
-    public static List<ProcedureTestUserDTO> getResult() {
-        return result;
+    public int getId() {
+        return id;
     }
 
-    @Override
-    public void processRow(ResultSet rs, int rowNum) throws SQLException {
-        result.add(new ProcedureTestUserDTOMapper().mapRow(rs, rowNum));
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

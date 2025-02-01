@@ -20,7 +20,7 @@ package net.hasor.dbvisitor.dynamic.rule;
  * @version : 2021-06-05
  */
 public class SetRule extends ConditionRule {
-    public static final SqlBuildRule INSTANCE = new SetRule(false);
+    public static final SqlRule INSTANCE = new SetRule(false);
 
     public SetRule(boolean usingIf) {
         super(usingIf, new String[] { "set", "," }, "set", "set ", ", ");

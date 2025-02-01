@@ -16,12 +16,13 @@
 package net.hasor.dbvisitor.mapper;
 
 import net.hasor.cobble.CollectionUtils;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.mapper.def.InsertConfig;
 import net.hasor.dbvisitor.mapper.def.QueryType;
 import net.hasor.dbvisitor.mapper.dto.AnnoBasicCrudMapper;
 import net.hasor.dbvisitor.mapper.dto.UserInfo;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.types.SqlArg;
 import org.junit.Test;
 
@@ -44,7 +45,7 @@ public class AnnoBasicMapperTest {
         assert def.getResultType() == UserInfo.class;
         assert def.getConfig().getType() == QueryType.Select;
 
-        SqlBuilder sqlBuilder = def.buildQuery(ctx, new RegistryManager());
+        SqlBuilder sqlBuilder = def.buildQuery(ctx, new JdbcQueryContext());
         assert sqlBuilder.getSqlString().equals("select * from console_job where aac = ?");
         assert sqlBuilder.getArgs().length == 1;
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getValue().equals("this is abc");
@@ -62,7 +63,7 @@ public class AnnoBasicMapperTest {
         assert def.getResultType() == UserInfo.class;
         assert def.getConfig().getType() == QueryType.Select;
 
-        SqlBuilder sqlBuilder = def.buildQuery(ctx, new RegistryManager());
+        SqlBuilder sqlBuilder = def.buildQuery(ctx, new Configuration());
         assert sqlBuilder.getSqlString().equals("select * from t_blog where title = ? and content = ?");
         assert sqlBuilder.getArgs().length == 2;
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getValue().equals("this is title");
@@ -85,7 +86,7 @@ public class AnnoBasicMapperTest {
         assert def.getResultType() == null;
         assert def.getConfig().getType() == QueryType.Insert;
 
-        SqlBuilder sqlBuilder = def.buildQuery(ctx, new RegistryManager());
+        SqlBuilder sqlBuilder = def.buildQuery(ctx, new Configuration());
         assert sqlBuilder.getSqlString().equals("insert into console_job (uid,name,login) values (?, ?, ?)");
         assert sqlBuilder.getArgs().length == 3;
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getValue().equals("this is title");
@@ -107,7 +108,7 @@ public class AnnoBasicMapperTest {
         assert def.getResultType() == null;
         assert def.getConfig().getType() == QueryType.Update;
 
-        SqlBuilder sqlBuilder = def.buildQuery(ctx, new RegistryManager());
+        SqlBuilder sqlBuilder = def.buildQuery(ctx, new Configuration());
         assert sqlBuilder.getSqlString().equals("update console_job set uid = ? where id = ?");
         assert sqlBuilder.getArgs().length == 2;
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getValue().equals("this is uuid");
@@ -126,7 +127,7 @@ public class AnnoBasicMapperTest {
         assert def.getResultType() == null;
         assert def.getConfig().getType() == QueryType.Delete;
 
-        SqlBuilder sqlBuilder = def.buildQuery(ctx, new RegistryManager());
+        SqlBuilder sqlBuilder = def.buildQuery(ctx, new Configuration());
         assert sqlBuilder.getSqlString().equals("delete console_job where id = ?");
         assert sqlBuilder.getArgs().length == 1;
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getValue().equals(11);
@@ -143,7 +144,7 @@ public class AnnoBasicMapperTest {
         assert def.getResultType() == null;
         assert def.getConfig().getType() == QueryType.Execute;
 
-        SqlBuilder sqlBuilder = def.buildQuery(null, new RegistryManager());
+        SqlBuilder sqlBuilder = def.buildQuery(null, new Configuration());
         assert sqlBuilder.getSqlString().equals("create table console_job (uid int,name varchar(200),login varchar(200))");
         assert sqlBuilder.getArgs().length == 0;
     }

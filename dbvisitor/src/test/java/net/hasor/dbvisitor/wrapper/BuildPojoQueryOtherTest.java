@@ -16,10 +16,10 @@
 package net.hasor.dbvisitor.wrapper;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
-import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
+import net.hasor.dbvisitor.dynamic.RuleRegistry;
 import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.wrapper.dto.UserInfo;
 import org.junit.Test;
@@ -35,10 +35,13 @@ import java.util.Map;
 public class BuildPojoQueryOtherTest {
     private WrapperAdapter newLambda() {
         MappingOptions opt = MappingOptions.buildNew();
-        MappingRegistry registry = new MappingRegistry(null, new TypeHandlerRegistry(), opt);
-        RegistryManager manager = new RegistryManager(registry, new RuleRegistry(), new MacroRegistry());
+        JdbcQueryContext context = new JdbcQueryContext();
+        context.setTypeRegistry(new TypeHandlerRegistry());
+        context.setMacroRegistry(new MacroRegistry());
+        context.setRuleRegistry(new RuleRegistry());
+        MappingRegistry registry = new MappingRegistry(null, context.getTypeRegistry(), opt);
 
-        return new WrapperAdapter((DataSource) null, manager);
+        return new WrapperAdapter((DataSource) null, registry, context);
     }
 
     @Test

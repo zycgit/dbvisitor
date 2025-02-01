@@ -16,7 +16,6 @@
 package net.hasor.dbvisitor.session;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.Page;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.mapper.ResultSetType;
 import net.hasor.dbvisitor.mapper.def.DqlConfig;
@@ -35,7 +34,7 @@ import java.util.Map;
  * @version : 2021-07-20
  */
 public class StatementExecute extends AbstractStatementExecute {
-    public StatementExecute(RegistryManager registry) {
+    public StatementExecute(Configuration registry) {
         super(registry);
     }
 

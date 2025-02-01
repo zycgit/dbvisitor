@@ -23,7 +23,7 @@ import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.args.ArraySqlArgSource;
@@ -33,6 +33,7 @@ import net.hasor.dbvisitor.dynamic.args.SqlArgDisposer;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.error.UncategorizedSQLException;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.template.ResultSetExtractor;
 import net.hasor.dbvisitor.template.RowCallbackHandler;
 import net.hasor.dbvisitor.template.RowMapper;
@@ -73,7 +74,8 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     /* 当JDBC 结果集中如出现相同的列名仅仅大小写不同时。是否保留大小写列名敏感。
      * 如果为 true 表示不敏感，并且结果集Map中保留两个记录。如果为 false 则表示敏感，如出现冲突列名后者将会覆盖前者。*/
     private              boolean         resultsCaseInsensitive = true;
-    private              RegistryManager registry               = RegistryManager.DEFAULT;
+    private final        MappingRegistry registry;
+    private final        QueryContext    buildContext;
 
     /**
      * Construct a new JdbcTemplate for bean usage.
@@ -82,6 +84,8 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
      */
     public JdbcTemplate() {
         super();
+        this.registry = MappingRegistry.DEFAULT;
+        this.buildContext = new JdbcQueryContext();
     }
 
     /**
@@ -90,18 +94,20 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
      * @param dataSource the JDBC DataSource to obtain connections from
      */
     public JdbcTemplate(final DataSource dataSource) {
-        super(dataSource);
+        this(dataSource, MappingRegistry.DEFAULT, null);
     }
 
     /**
      * Construct a new JdbcTemplate, given a DataSource to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param dataSource the JDBC DataSource to obtain connections from
-     * @param registry the DynamicContext
+     * @param registry the mapping context
+     * @param buildContext the sql build context
      */
-    public JdbcTemplate(final DataSource dataSource, RegistryManager registry) {
+    public JdbcTemplate(final DataSource dataSource, MappingRegistry registry, QueryContext buildContext) {
         super(dataSource);
         this.registry = Objects.requireNonNull(registry, "registry is null.");
+        this.buildContext = buildContext == null ? new JdbcQueryContext() : buildContext;
     }
 
     /**
@@ -110,18 +116,19 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
      * @param conn the JDBC Connection
      */
     public JdbcTemplate(final Connection conn) {
-        super(conn);
+        this(conn, MappingRegistry.DEFAULT, null);
     }
 
     /**
      * Construct a new JdbcTemplate, given a Connection to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
-     * @param conn the JDBC Connection
-     * @param registry the DynamicContext
+     * @param registry the mapping context
+     * @param buildContext the sql build context
      */
-    public JdbcTemplate(final Connection conn, RegistryManager registry) {
+    public JdbcTemplate(final Connection conn, MappingRegistry registry, QueryContext buildContext) {
         super(conn);
         this.registry = Objects.requireNonNull(registry, "registry is null.");
+        this.buildContext = buildContext == null ? new JdbcQueryContext() : buildContext;
     }
 
     /**
@@ -130,18 +137,20 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
      * @param dynamicConn the JDBC Connection of Dynamic
      */
     public JdbcTemplate(final DynamicConnection dynamicConn) {
-        super(dynamicConn);
+        this(dynamicConn, MappingRegistry.DEFAULT, null);
     }
 
     /**
      * Construct a new JdbcTemplate, given a Connection to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param dynamicConn the JDBC Connection of dynamic
-     * @param registry the DynamicContext
+     * @param registry the mapping context
+     * @param buildContext the sql build context
      */
-    public JdbcTemplate(final DynamicConnection dynamicConn, RegistryManager registry) {
+    public JdbcTemplate(final DynamicConnection dynamicConn, MappingRegistry registry, QueryContext buildContext) {
         super(dynamicConn);
         this.registry = Objects.requireNonNull(registry, "registry is null.");
+        this.buildContext = buildContext == null ? new JdbcQueryContext() : buildContext;
     }
 
     public boolean isResultsCaseInsensitive() {
@@ -152,12 +161,12 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         this.resultsCaseInsensitive = resultsCaseInsensitive;
     }
 
-    public RegistryManager getRegistry() {
+    public MappingRegistry getRegistry() {
         return this.registry;
     }
 
-    public void setRegistry(RegistryManager registry) {
-        this.registry = registry;
+    public QueryContext getQueryContext() {
+        return this.buildContext;
     }
 
     public void loadSQL(final String sqlResource) throws IOException, SQLException {
@@ -330,7 +339,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             throw new UnsupportedOperationException("please use method call(String, CallableStatementSetter, CallableStatementCallback<T>).");
         } else {
             PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(callString);
-            SqlBuilder buildSql = parsedSql.buildQuery(toSqlArgSource(args), this.getRegistry());
+            SqlBuilder buildSql = parsedSql.buildQuery(toSqlArgSource(args), this.buildContext);
 
             CallableStatementCreator creator = this.getCallableStatementCreator(buildSql.getSqlString(), null);
             CallableMultipleResultSetExtractor callback = new CallableMultipleResultSetExtractor(buildSql);
@@ -356,7 +365,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         } else {
             PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(sql);
             SqlArgSource argSource = toSqlArgSource(args);
-            SqlBuilder buildSql = parsedSql.buildQuery(argSource, this.getRegistry());
+            SqlBuilder buildSql = parsedSql.buildQuery(argSource, this.buildContext);
 
             String sqlToUse = buildSql.getSqlString();
             Object[] paramArray = buildSql.getArgs();
@@ -364,7 +373,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                 return this.executeCreator(con -> {
                     PreparedStatement ps = con.prepareStatement(sqlToUse);
                     if (paramArray.length > 0) {
-                        TypeHandlerRegistry typeRegistry = getRegistry().getTypeRegistry();
+                        TypeHandlerRegistry typeRegistry = this.buildContext.getTypeRegistry();
                         for (int i = 0; i < paramArray.length; i++) {
                             typeRegistry.setParameterValue(ps, i + 1, paramArray[i]);
                         }
@@ -632,7 +641,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
 
     /** Create a new RowMapper for reading columns as key-value pairs. */
     protected RowMapper<Map<String, Object>> createMapRowMapper() {
-        return new ColumnMapRowMapper(this.isResultsCaseInsensitive(), this.getRegistry().getTypeRegistry()) {
+        return new ColumnMapRowMapper(this.isResultsCaseInsensitive(), this.buildContext.getTypeRegistry()) {
             @Override
             protected Map<String, Object> createColumnMap(final int columnCount) {
                 return createResultsMap();
@@ -647,17 +656,17 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             return (RowMapper<T>) this.createMapRowMapper();
         }
 
-        if (this.getRegistry().getTypeRegistry().hasTypeHandler(requiredType) || requiredType.isEnum()) {
+        if (this.buildContext.getTypeRegistry().hasTypeHandler(requiredType) || requiredType.isEnum()) {
             return this.createSingleColumnRowMapper(requiredType);
         }
 
-        return new BeanMappingRowMapper<>(requiredType, this.getRegistry().getMappingRegistry());
+        return new BeanMappingRowMapper<>(requiredType, this.registry);
     }
 
     /** Create a new RowMapper for reading result objects from a single column. */
     protected <T> RowMapper<T> createSingleColumnRowMapper(final Class<T> requiredType) {
         Objects.requireNonNull(requiredType, "requiredType is null.");
-        return new SingleColumnRowMapper<>(requiredType, this.getRegistry().getTypeRegistry());
+        return new SingleColumnRowMapper<>(requiredType, this.buildContext.getTypeRegistry());
     }
 
     /** Create a new RowMapper for reading columns as Bean pairs. */
@@ -668,12 +677,12 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             return new RowMapperResultSetExtractor<>(mapRowMapper);
         }
 
-        if (this.getRegistry().getTypeRegistry().hasTypeHandler(requiredType) || requiredType.isEnum()) {
+        if (this.buildContext.getTypeRegistry().hasTypeHandler(requiredType) || requiredType.isEnum()) {
             RowMapper<T> mapRowMapper = this.createSingleColumnRowMapper(requiredType);
             return new RowMapperResultSetExtractor<>(mapRowMapper);
         }
 
-        return new BeanMappingResultSetExtractor<>(requiredType, this.getRegistry().getMappingRegistry());
+        return new BeanMappingResultSetExtractor<>(requiredType, this.registry);
     }
 
     /** Build a PreparedStatementCreator based on the given SQL and args parameters. */
@@ -800,7 +809,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
             Object[][] prepareArgs = new Object[batchArgs.length][];
             for (int i = 0; i < batchArgs.length; i++) {
                 PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(sql);
-                SqlBuilder sqlBuilder = parsedSql.buildQuery(toSqlArgSource(batchArgs[i]), this.getRegistry());
+                SqlBuilder sqlBuilder = parsedSql.buildQuery(toSqlArgSource(batchArgs[i]), this.buildContext);
 
                 if (i == 0) {
                     prepareSql = sqlBuilder.getSqlString();
@@ -814,7 +823,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                 }
             }
 
-            TypeHandlerRegistry typeRegistry = getRegistry().getTypeRegistry();
+            TypeHandlerRegistry typeRegistry = this.buildContext.getTypeRegistry();
             return this.executeBatch(prepareSql, new BatchPreparedStatementSetter() {
 
                 @Override
@@ -986,14 +995,14 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
 
         @Override
         public PreparedStatement createPreparedStatement(final Connection con) throws SQLException {
-            SqlBuilder buildSql = this.segment.buildQuery(this.paramSource, getRegistry());
+            SqlBuilder buildSql = this.segment.buildQuery(this.paramSource, buildContext);
 
             String sqlToUse = buildSql.getSqlString();
             Object[] paramArray = buildSql.getArgs();
 
             PreparedStatement ps = con.prepareStatement(sqlToUse);
             if (paramArray.length > 0) {
-                TypeHandlerRegistry typeRegistry = getRegistry().getTypeRegistry();
+                TypeHandlerRegistry typeRegistry = buildContext.getTypeRegistry();
                 for (int i = 0; i < paramArray.length; i++) {
                     typeRegistry.setParameterValue(ps, i + 1, paramArray[i]);
                 }
@@ -1053,7 +1062,7 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                 } else {
                     return new ArraySqlArgSource(ArraySqlArgSource.toArgs(args));
                 }
-            } else if (this.getRegistry().getTypeRegistry().hasTypeHandler(argType)) {
+            } else if (this.buildContext.getTypeRegistry().hasTypeHandler(argType)) {
                 return new ArraySqlArgSource(new Object[] { args });
             } else {
                 return new BeanSqlArgSource(args);

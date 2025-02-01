@@ -18,7 +18,7 @@ import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
@@ -47,7 +47,7 @@ public abstract class AbstractUpdateWrapper<R, T, P> extends BasicQueryCompare<R
     private         boolean                    allowEmptyWhere = false;
     private         boolean                    allowUpdateKey  = false;
 
-    public AbstractUpdateWrapper(Class<?> exampleType, TableMapping<?> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+    public AbstractUpdateWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
         super(exampleType, tableMapping, registry, jdbc);
 
         Set<String> allowUpdateKeys = new LinkedHashSet<>();

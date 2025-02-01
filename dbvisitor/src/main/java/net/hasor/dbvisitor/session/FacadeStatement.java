@@ -16,7 +16,6 @@
 package net.hasor.dbvisitor.session;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.Page;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.mapper.StatementDef;
 import net.hasor.dbvisitor.mapper.StatementType;
 import net.hasor.dbvisitor.mapper.def.InsertConfig;
@@ -31,16 +30,16 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-07-20
  */
-public class ProxyStatement {
-    private final StatementDef             statementDef;
-    private final AbstractStatementExecute statementExecute;
-    private       ProxySelectKey           selectKeyExecute;
+class FacadeStatement {
+    private final StatementDef              statementDef;
+    private final AbstractStatementExecute  statementExecute;
+    private       SelectKeyStatementExecute selectKeyExecute;
 
-    public ProxyStatement(String namespace, String statementId, RegistryManager registry) {
+    FacadeStatement(String namespace, String statementId, Configuration registry) {
         this.statementDef = registry.getMapperRegistry().findStatement(namespace, statementId);
         if (this.statementDef == null) {
             String fullName = StringUtils.isBlank(namespace) ? statementId : (namespace + "." + statementId);
-            throw new NullPointerException("statement '" + fullName + "' is not found.");
+            throw new IllegalStateException("statement '" + fullName + "' is not found.");
         }
 
         this.statementExecute = this.createExecute(this.statementDef.getConfig().getStatementType(), registry);
@@ -48,12 +47,12 @@ public class ProxyStatement {
             SelectKeyConfig keyConfig = ((InsertConfig) this.statementDef.getConfig()).getSelectKey();
             if (keyConfig != null) {
                 AbstractStatementExecute selectKey = this.createExecute(this.statementDef.getConfig().getStatementType(), registry);
-                this.selectKeyExecute = new ProxySelectKey(this.statementDef, keyConfig, selectKey);
+                this.selectKeyExecute = new SelectKeyStatementExecute(this.statementDef, keyConfig, selectKey);
             }
         }
     }
 
-    private AbstractStatementExecute createExecute(StatementType statementType, RegistryManager registry) {
+    private AbstractStatementExecute createExecute(StatementType statementType, Configuration registry) {
         switch (statementType) {
             case Statement:
                 return new StatementExecute(registry);

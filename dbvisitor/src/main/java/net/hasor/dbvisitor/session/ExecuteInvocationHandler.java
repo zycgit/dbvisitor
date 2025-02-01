@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dal.session;
+package net.hasor.dbvisitor.session;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.ref.BeanMap;
-import net.hasor.dbvisitor.dal.MapperRegistry;
-import net.hasor.dbvisitor.dal.execute.ExecuteProxy;
-import net.hasor.dbvisitor.dialect.PageSqlDialect;
-import net.hasor.dbvisitor.dynamic.DynamicSql;
-import net.hasor.dbvisitor.jdbc.ConnectionCallback;
-import net.hasor.dbvisitor.mapper.BaseMapper;
-import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageResult;
+import net.hasor.dbvisitor.dynamic.DynamicSql;
+import net.hasor.dbvisitor.mapper.BaseMapper;
+import net.hasor.dbvisitor.mapper.Param;
+import net.hasor.dbvisitor.template.jdbc.ConnectionCallback;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
@@ -44,33 +41,32 @@ import java.util.*;
  */
 class ExecuteInvocationHandler implements InvocationHandler {
     private final String                            space;
-    private final DalSession                        dalSession;
-    private final Map<String, ExecuteProxy>         dynamicSqlMap = new HashMap<>();
+    private final Session                           session;
+    private final Map<String, FacadeStatement>      dynamicSqlMap = new HashMap<>();
     private final Map<String, Integer>              pageInfoMap   = new HashMap<>();
     private final Map<String, Map<String, Integer>> argNamesMap   = new HashMap<>();
-    private final BaseMapperHandler                 mapperHandler;
+    private final DefaultBaseMapper                 mapperHandler;
 
-    public ExecuteInvocationHandler(DalSession dalSession, Class<?> dalType, MapperRegistry dalRegistry, BaseMapperHandler mapperHandler) {
+    public ExecuteInvocationHandler(Session session, Class<?> dalType, Configuration configuration, DefaultBaseMapper mapperHandler) {
         this.space = dalType.getName();
-        this.dalSession = dalSession;
-        this.initDynamicSqlMap(dalType, dalRegistry);
+        this.session = session;
+        this.initDynamicSqlMap(dalType, configuration);
         this.mapperHandler = mapperHandler;
     }
 
-    private void initDynamicSqlMap(Class<?> dalType, MapperRegistry dalRegistry) {
+    private void initDynamicSqlMap(Class<?> dalType, Configuration registry) {
         for (Method method : dalType.getMethods()) {
             if (method.getDeclaringClass() == BaseMapper.class || method.getDeclaringClass() == Object.class) {
                 continue;
             }
 
             String dynamicId = method.getName();
-            DynamicSql parseXml = dalRegistry.findDynamicSql(this.space, dynamicId);
+            DynamicSql parseXml = null;//registry.findDynamicSql(this.space, dynamicId);
             if (parseXml == null) {
                 continue;
             }
 
-            DalContext context = new DalContext(this.space, dalRegistry);
-            this.dynamicSqlMap.put(dynamicId, new ExecuteProxy(dynamicId, context));
+            this.dynamicSqlMap.put(dynamicId, new FacadeStatement(this.space, dynamicId, registry));
             Map<String, Integer> argNames = this.argNamesMap.computeIfAbsent(dynamicId, s -> new HashMap<>());
 
             int parameterCount = method.getParameterCount();
@@ -144,13 +140,13 @@ class ExecuteInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
         if (method.getName().equals("toString") && method.getParameterCount() == 0) {
-            return "Mapper Proxy " + this.space + " [" + this.dalSession + "]";
+            return "Mapper Proxy " + this.space + " [" + this.session + "]";
         }
         if (this.mapperHandler != null && method.getDeclaringClass() == BaseMapper.class) {
             return method.invoke(this.mapperHandler, objects);
         }
         String dynamicId = method.getName();
-        final ExecuteProxy execute = this.dynamicSqlMap.get(dynamicId);
+        final FacadeStatement execute = this.dynamicSqlMap.get(dynamicId);
         if (execute != null) {
             // use xml mapper
             Object result = executeByMapper(dynamicId, execute, method, objects);
@@ -169,14 +165,13 @@ class ExecuteInvocationHandler implements InvocationHandler {
         }
     }
 
-    private Object executeByMapper(String dynamicId, ExecuteProxy execute, Method method, Object[] objects) throws SQLException {
+    private Object executeByMapper(String dynamicId, FacadeStatement execute, Method method, Object[] objects) throws SQLException {
         Page page = extractPage(dynamicId, objects);
         boolean pageResult = method.getReturnType() == PageResult.class;
         Map<String, Object> data = extractData(dynamicId, objects);
 
-        PageSqlDialect dialect = this.dalSession.getDialect();
-        return this.dalSession.lambdaTemplate().getJdbc().execute((ConnectionCallback<Object>) con -> {
-            return execute.execute(con, data, page, pageResult, dialect);
+        return this.session.jdbc().execute((ConnectionCallback<Object>) con -> {
+            return execute.execute(con, data, page, pageResult);
         });
     }
 

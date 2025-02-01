@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.handler;
+package net.hasor.dbvisitor.template.jdbc.core.test;
 import net.hasor.dbvisitor.template.RowCallbackHandler;
-import net.hasor.test.dto.ProcedureTestUserDTO;
-import net.hasor.test.mapper.ProcedureTestUserDTOMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

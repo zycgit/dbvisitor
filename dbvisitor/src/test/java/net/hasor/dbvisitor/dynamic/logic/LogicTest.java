@@ -15,8 +15,8 @@
  */
 package net.hasor.dbvisitor.dynamic.logic;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.dynamic.TestQueryContext;
 import net.hasor.dbvisitor.dynamic.dto.UserFutures;
 import net.hasor.dbvisitor.dynamic.dto.UsersDTO;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
@@ -34,6 +34,9 @@ import java.util.Map;
  * @version : 2021-05-24
  */
 public class LogicTest {
+    private TestQueryContext registryCtx() {
+        return new TestQueryContext();
+    }
 
     @Test
     public void bindDynamicSql() throws SQLException {
@@ -47,7 +50,7 @@ public class LogicTest {
         assert dto.getFutures().getExt2() == null;
 
         BindDynamicSql bindSql = new BindDynamicSql("userName", "users.futures.ext2 = ctxNumber");
-        SqlBuilder sqlBuilder = bindSql.buildQuery(ctx, RegistryManager.DEFAULT);
+        SqlBuilder sqlBuilder = bindSql.buildQuery(ctx, registryCtx());
 
         assert !bindSql.isHaveInjection();
         assert sqlBuilder.getSqlString().equals("");
@@ -58,7 +61,7 @@ public class LogicTest {
     @Test
     public void planDynamicSql_1() throws SQLException {
         PlanDynamicSql textSql = new PlanDynamicSql("text body");
-        SqlBuilder sqlBuilder = textSql.buildQuery(Collections.emptyMap(), RegistryManager.DEFAULT);
+        SqlBuilder sqlBuilder = textSql.buildQuery(Collections.emptyMap(), registryCtx());
 
         assert !textSql.isHaveInjection();
         assert sqlBuilder.getSqlString().equals("text body");
@@ -70,7 +73,7 @@ public class LogicTest {
         PlanDynamicSql textSql = new PlanDynamicSql();
         textSql.appendString(null);
         textSql.appendString("text body");
-        SqlBuilder sqlBuilder = textSql.buildQuery(Collections.emptyMap(), RegistryManager.DEFAULT);
+        SqlBuilder sqlBuilder = textSql.buildQuery(Collections.emptyMap(), registryCtx());
 
         assert !textSql.isHaveInjection();
         assert sqlBuilder.getSqlString().equals("text body");
@@ -82,7 +85,7 @@ public class LogicTest {
         PlanDynamicSql textSql = new PlanDynamicSql("");
         textSql.appendString(null);
         textSql.appendString("text body");
-        SqlBuilder sqlBuilder = textSql.buildQuery(Collections.emptyMap(), RegistryManager.DEFAULT);
+        SqlBuilder sqlBuilder = textSql.buildQuery(Collections.emptyMap(), registryCtx());
 
         assert !textSql.isHaveInjection();
         assert sqlBuilder.getSqlString().equals("text body");
@@ -96,7 +99,7 @@ public class LogicTest {
         PlanDynamicSql textSql = new PlanDynamicSql("");
         textSql.appendString(null);
         textSql.parsedAppend("text body ${ctxNumber}");
-        SqlBuilder sqlBuilder = textSql.buildQuery(ctx, RegistryManager.DEFAULT);
+        SqlBuilder sqlBuilder = textSql.buildQuery(ctx, registryCtx());
 
         assert textSql.isHaveInjection();
         assert sqlBuilder.getSqlString().equals("text body 456");
@@ -110,13 +113,13 @@ public class LogicTest {
         ifSql.addChildNode(DynamicParsed.getParsedSql("#{ctxNumber}"));
 
         //
-        SqlBuilder build1 = ifSql.buildQuery(Collections.singletonMap("ctxNumber", 123), RegistryManager.DEFAULT);
+        SqlBuilder build1 = ifSql.buildQuery(Collections.singletonMap("ctxNumber", 123), registryCtx());
         assert !ifSql.isHaveInjection();
         assert build1.getSqlString().equals("age = ?");
         assert build1.getArgs().length == 1 && build1.getArgs()[0].equals(123);
 
         //
-        SqlBuilder build2 = ifSql.buildQuery(Collections.singletonMap("ctxNumber", 456), RegistryManager.DEFAULT);
+        SqlBuilder build2 = ifSql.buildQuery(Collections.singletonMap("ctxNumber", 456), registryCtx());
         assert !ifSql.isHaveInjection();
         assert build2.getSqlString().equals("");
         assert build2.getArgs().length == 0;
@@ -128,7 +131,7 @@ public class LogicTest {
         ifSql.addChildNode(new PlanDynamicSql("age = ${ctxNumber}"));
 
         //
-        SqlBuilder build1 = ifSql.buildQuery(Collections.singletonMap("ctxNumber", 123), RegistryManager.DEFAULT);
+        SqlBuilder build1 = ifSql.buildQuery(Collections.singletonMap("ctxNumber", 123), registryCtx());
         assert ifSql.isHaveInjection();
         assert build1.getSqlString().equals("age = 123");
         assert build1.getArgs().length == 0;
@@ -146,18 +149,18 @@ public class LogicTest {
         assert chooseSql.subNodes.size() == 2;
 
         //
-        SqlBuilder build1 = chooseSql.buildQuery(Collections.singletonMap("ctxNumber", 100), RegistryManager.DEFAULT);
+        SqlBuilder build1 = chooseSql.buildQuery(Collections.singletonMap("ctxNumber", 100), registryCtx());
         assert build1.getSqlString().equals("age = ?");
         assert build1.getArgs().length == 1 && build1.getArgs()[0].equals(100);
 
         //
-        SqlBuilder build2 = chooseSql.buildQuery(Collections.singletonMap("ctxNumber", 400), RegistryManager.DEFAULT);
+        SqlBuilder build2 = chooseSql.buildQuery(Collections.singletonMap("ctxNumber", 400), registryCtx());
         assert chooseSql.isHaveInjection();
         assert build2.getSqlString().equals("age = 400");
         assert build2.getArgs().length == 0;
 
         //
-        SqlBuilder build3 = chooseSql.buildQuery(Collections.singletonMap("ctxNumber", 500), RegistryManager.DEFAULT);
+        SqlBuilder build3 = chooseSql.buildQuery(Collections.singletonMap("ctxNumber", 500), registryCtx());
         assert chooseSql.isHaveInjection();
         assert build3.getSqlString().equals("1 = 1");
         assert build3.getArgs().length == 0;
@@ -166,7 +169,7 @@ public class LogicTest {
     @Test
     public void setDynamicSql_1() throws SQLException {
         SetDynamicSql setSql = new SetDynamicSql();
-        SqlBuilder sqlBuilder = setSql.buildQuery(Collections.emptyMap(), RegistryManager.DEFAULT);
+        SqlBuilder sqlBuilder = setSql.buildQuery(Collections.emptyMap(), registryCtx());
 
         assert !setSql.isHaveInjection();
         assert sqlBuilder.getSqlString().equals("");
@@ -179,7 +182,7 @@ public class LogicTest {
 
         SetDynamicSql setSql = new SetDynamicSql();
         setSql.addChildNode(new PlanDynamicSql("abc = #{ctxNumber}"));
-        SqlBuilder sqlBuilder = setSql.buildQuery(ctx, RegistryManager.DEFAULT);
+        SqlBuilder sqlBuilder = setSql.buildQuery(ctx, registryCtx());
 
         assert !setSql.isHaveInjection();
         assert sqlBuilder.getSqlString().equals("set abc = ? ");
@@ -194,7 +197,7 @@ public class LogicTest {
         setSql.addChildNode(new PlanDynamicSql("abc = #{ctxNumber},"));
         setSql.addChildNode(new PlanDynamicSql("abc = #{ctxNumber},"));
 
-        SqlBuilder sqlBuilder = setSql.buildQuery(ctx, RegistryManager.DEFAULT);
+        SqlBuilder sqlBuilder = setSql.buildQuery(ctx, registryCtx());
 
         assert !setSql.isHaveInjection();
         assert sqlBuilder.getSqlString().equals("set abc = ?,abc = ? ");
@@ -204,7 +207,7 @@ public class LogicTest {
     @Test
     public void whereDynamicSql_1() throws SQLException {
         WhereDynamicSql setSql = new WhereDynamicSql();
-        SqlBuilder sqlBuilder = setSql.buildQuery(Collections.emptyMap(), RegistryManager.DEFAULT);
+        SqlBuilder sqlBuilder = setSql.buildQuery(Collections.emptyMap(), registryCtx());
 
         assert !setSql.isHaveInjection();
         assert sqlBuilder.getSqlString().equals("");
@@ -217,7 +220,7 @@ public class LogicTest {
 
         WhereDynamicSql setSql = new WhereDynamicSql();
         setSql.addChildNode(new PlanDynamicSql("abc = #{ctxNumber}"));
-        SqlBuilder sqlBuilder = setSql.buildQuery(ctx, RegistryManager.DEFAULT);
+        SqlBuilder sqlBuilder = setSql.buildQuery(ctx, registryCtx());
 
         assert !setSql.isHaveInjection();
         assert sqlBuilder.getSqlString().equals("where abc = ? ");
@@ -232,7 +235,7 @@ public class LogicTest {
         setSql.addChildNode(new PlanDynamicSql(" and abc = #{ctxNumber}"));
         setSql.addChildNode(new PlanDynamicSql(" and abc = #{ctxNumber}"));
 
-        SqlBuilder sqlBuilder = setSql.buildQuery(ctx, RegistryManager.DEFAULT);
+        SqlBuilder sqlBuilder = setSql.buildQuery(ctx, registryCtx());
 
         assert !setSql.isHaveInjection();
         assert sqlBuilder.getSqlString().equals("where  abc = ? and abc = ? ");
@@ -241,8 +244,8 @@ public class LogicTest {
 
     @Test
     public void macroDynamicSql_1() throws SQLException {
-        RegistryManager manager = new RegistryManager();
-        manager.getMacroRegistry().addMacro("abc", "aacc");
+        TestQueryContext manager = new TestQueryContext();
+        manager.addMacro("abc", "aacc");
 
         Map<String, Object> ctx = Collections.singletonMap("ctxNumber", 456);
         MacroDynamicSql macroSql = new MacroDynamicSql("abc");
@@ -255,8 +258,8 @@ public class LogicTest {
 
     @Test
     public void foreachDynamicSql_1() throws SQLException {
-        RegistryManager manager = new RegistryManager();
-        manager.getMacroRegistry().addMacro("abc", "aacc");
+        TestQueryContext manager = new TestQueryContext();
+        manager.addMacro("abc", "aacc");
 
         ForeachDynamicSql forSql = new ForeachDynamicSql("array", "item", "(", ")", ",");
         forSql.addChildNode(new PlanDynamicSql("#{item}"));

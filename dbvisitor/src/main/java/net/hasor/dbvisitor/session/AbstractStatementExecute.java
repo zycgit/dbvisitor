@@ -22,7 +22,6 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.mapper.StatementDef;
 import net.hasor.dbvisitor.mapper.def.DmlConfig;
@@ -48,10 +47,10 @@ import java.util.Map;
  * @version : 2021-07-20
  */
 public abstract class AbstractStatementExecute {
-    protected static final Logger          logger = LoggerFactory.getLogger(AbstractStatementExecute.class);
-    protected final        RegistryManager registry;
+    protected static final Logger        logger = LoggerFactory.getLogger(AbstractStatementExecute.class);
+    protected final        Configuration registry;
 
-    public AbstractStatementExecute(RegistryManager registry) {
+    public AbstractStatementExecute(Configuration registry) {
         this.registry = registry;
     }
 
@@ -88,7 +87,7 @@ public abstract class AbstractStatementExecute {
         // prepare page
         long resultCount = 0L;
         if (SessionHelper.usingPage(pageInfo)) {
-            PageSqlDialect dialect = this.registry.getDialect();
+            PageSqlDialect dialect = (PageSqlDialect) this.registry.options().getDefaultDialect();
             long position = pageInfo.getFirstRecordPosition();
             long pageSize = pageInfo.getPageSize();
             execSql = dialect.pageSql(oriSql, position, pageSize);

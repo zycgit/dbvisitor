@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.template.jdbc.mapper;
-import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.UserInfo2;
@@ -36,7 +35,7 @@ public class MappingRowMapperTest extends AbstractDbTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<UserInfo2> users = jdbcTemplate.queryForList("select * from user_info", new BeanMappingRowMapper<>(UserInfo2.class, MappingRegistry.DEFAULT));
+            List<UserInfo2> users = jdbcTemplate.queryForList("select * from user_info", new BeanMappingRowMapper<>(UserInfo2.class));
             assert users.size() == 3;
             assert TestUtils.beanForData1().getUserUuid().equals(users.get(0).getUid());
             assert TestUtils.beanForData2().getUserUuid().equals(users.get(1).getUid());

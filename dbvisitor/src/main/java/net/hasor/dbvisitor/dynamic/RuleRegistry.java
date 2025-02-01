@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.dynamic.rule;
+package net.hasor.dbvisitor.dynamic;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
+import net.hasor.dbvisitor.dynamic.rule.*;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * SqlBuildRule 注册器
@@ -24,8 +26,8 @@ import java.util.Map;
  * @version : 2021-06-05
  */
 public class RuleRegistry {
-    public static final RuleRegistry              DEFAULT = new RuleRegistry();
-    private final       Map<String, SqlBuildRule> ruleMap = new LinkedCaseInsensitiveMap<>();
+    public static final RuleRegistry         DEFAULT = new RuleRegistry();
+    private final       Map<String, SqlRule> ruleMap = new LinkedCaseInsensitiveMap<>();
 
     static {
         DEFAULT.register("if", IfRule.INSTANCE_IF);
@@ -51,16 +53,16 @@ public class RuleRegistry {
         DEFAULT.register(ResultRule.FUNC_DEFAULT_RESULT, ResultRule.INSTANCE_OF_DEFAULT_RESULT);
     }
 
-    public SqlBuildRule findByName(String ruleName) {
-        SqlBuildRule rule = this.ruleMap.get(ruleName);
+    public SqlRule findRule(String ruleName) {
+        SqlRule rule = this.ruleMap.get(ruleName);
         if (rule == null && this != DEFAULT) {
-            rule = DEFAULT.findByName(ruleName);
+            rule = DEFAULT.findRule(ruleName);
         }
         return rule;
     }
 
     /** 注册 SqlBuildRule */
-    public void register(String ruleName, SqlBuildRule sqlBuildRule) {
-        this.ruleMap.put(ruleName, sqlBuildRule);
+    public void register(String ruleName, SqlRule rule) {
+        this.ruleMap.put(ruleName, Objects.requireNonNull(rule, "rule is null."));
     }
 }

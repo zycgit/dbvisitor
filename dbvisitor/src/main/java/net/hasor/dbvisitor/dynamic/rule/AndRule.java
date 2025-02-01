@@ -20,7 +20,7 @@ package net.hasor.dbvisitor.dynamic.rule;
  * @version : 2021-06-05
  */
 public class AndRule extends ConditionRule {
-    public static final SqlBuildRule INSTANCE = new AndRule(false);
+    public static final SqlRule INSTANCE = new AndRule(false);
 
     public AndRule(boolean usingIf) {
         super(usingIf, DEFAULT_TEST_PREFIX, "where", "where ", "and ");

@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.dynamic.logic;
 import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 
@@ -57,7 +57,7 @@ public class TrimDynamicSql extends ArrayDynamicSql {
     }
 
     @Override
-    public void buildQuery(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder) throws SQLException {
+    public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
         SqlBuilder tempDalSqlBuilder = new SqlBuilder();
         super.buildQuery(data, context, tempDalSqlBuilder);
         //

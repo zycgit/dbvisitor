@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.wrapper.support.entity;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.reflect.SFunction;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.wrapper.EntityUpdateWrapper;
@@ -34,7 +34,7 @@ import java.util.Collection;
  * @version : 2022-04-02
  */
 public class UpdateWrapperForEntity<T> extends AbstractUpdateWrapper<EntityUpdateWrapper<T>, T, SFunction<T>> implements EntityUpdateWrapper<T> {
-    public UpdateWrapperForEntity(TableMapping<T> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+    public UpdateWrapperForEntity(TableMapping<T> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
         super(tableMapping.entityType(), tableMapping, registry, jdbc);
     }
 

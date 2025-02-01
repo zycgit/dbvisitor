@@ -17,7 +17,8 @@ package net.hasor.dbvisitor.mapper;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
-import net.hasor.dbvisitor.session.dal.DalSession;
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.template.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.wrapper.*;
 
 import java.io.Serializable;
@@ -34,34 +35,36 @@ public interface BaseMapper<T> extends Mapper {
 
     Class<T> entityType();
 
-    WrapperAdapter template();
+    WrapperAdapter wrapper();
 
-    DalSession getSession();
+    JdbcOperations jdbc();
+
+    Session session();
 
     /** return LambdaInsert for insert */
     default InsertWrapper<T> insert() {
-        return template().insertByEntity(entityType());
+        return wrapper().insertByEntity(entityType());
     }
 
     /** return LambdaUpdate for update */
     default EntityUpdateWrapper<T> update() {
-        return template().updateByEntity(entityType());
+        return wrapper().updateByEntity(entityType());
     }
 
     /** return LambdaDelete for delete */
     default EntityDeleteWrapper<T> delete() {
-        return template().deleteByEntity(entityType());
+        return wrapper().deleteByEntity(entityType());
     }
 
     /** return LambdaQuery for query */
     default EntityQueryWrapper<T> query() {
-        return template().queryByEntity(entityType());
+        return wrapper().queryByEntity(entityType());
     }
 
     /** 执行 Mapper 配置文件中的 SQL */
-    default int executeStatement(String stId, Object parameter) throws RuntimeSQLException {
+    default Object executeStatement(String stId, Object parameter) throws RuntimeSQLException {
         try {
-            return this.getSession().executeStatement(stId, parameter);
+            return this.session().executeStatement(stId, parameter);
         } catch (SQLException e) {
             throw new RuntimeSQLException(e);
         }
@@ -69,13 +72,17 @@ public interface BaseMapper<T> extends Mapper {
 
     /** 执行 Mapper 配置文件中的 SQL */
     default <E> List<E> queryStatement(String stId, Object parameter) throws RuntimeSQLException {
-        return this.queryStatement(stId, parameter, null);
+        try {
+            return this.session().queryStatement(stId, parameter, null);
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
     }
 
     /** 执行 Mapper 配置文件中的 SQL */
     default <E> List<E> queryStatement(String stId, Object parameter, Page page) throws RuntimeSQLException {
         try {
-            return this.getSession().queryStatement(stId, parameter, page);
+            return this.session().queryStatement(stId, parameter, page);
         } catch (SQLException e) {
             throw new RuntimeSQLException(e);
         }

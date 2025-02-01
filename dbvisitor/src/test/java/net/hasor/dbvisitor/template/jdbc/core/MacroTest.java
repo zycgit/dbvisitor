@@ -38,7 +38,7 @@ public class MacroTest extends AbstractDbTest {
 
             Map<String, Object> args = CollectionUtils.asMap("seq", 1, "name", "muhammad");
 
-            jdbcTemplate.getRegistry().getMacroRegistry().addMacro("includeSeq", "@{and, seq = :seq}");
+            ((JdbcQueryContext) jdbcTemplate.getQueryContext()).addMacro("includeSeq", "@{and, seq = :seq}");
 
             Map<String, Object> mapData = jdbcTemplate.queryForMap("select * from user_info where login_name = :name and @{macro, includeSeq}", args);
 

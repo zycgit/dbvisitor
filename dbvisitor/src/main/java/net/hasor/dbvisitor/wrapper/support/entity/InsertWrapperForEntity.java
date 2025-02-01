@@ -20,8 +20,8 @@ import net.hasor.cobble.reflect.SFunction;
 import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BatchBoundSql.BatchBoundSqlObj;
 import net.hasor.dbvisitor.dialect.SqlDialect;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.template.jdbc.ConnectionCallback;
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  * @version : 2022-04-02
  */
 public class InsertWrapperForEntity<T> extends AbstractInsertWrapper<InsertWrapper<T>, T, SFunction<T>> implements EntityInsertWrapper<T> {
-    public InsertWrapperForEntity(TableMapping<T> tableMapping, RegistryManager registry, JdbcTemplate jdbc) {
+    public InsertWrapperForEntity(TableMapping<T> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
         super(tableMapping.entityType(), tableMapping, registry, jdbc);
     }
 

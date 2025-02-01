@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.dynamic.rule;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
@@ -30,7 +30,7 @@ import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-05
  */
-public abstract class ConditionRule implements SqlBuildRule {
+public abstract class ConditionRule implements SqlRule {
     protected static final String[] DEFAULT_TEST_PREFIX = new String[] { "where", ",", "and", "or", "not", "!" };
     private final          String[] testPrefix;
     private final          String   mustHave;
@@ -49,7 +49,7 @@ public abstract class ConditionRule implements SqlBuildRule {
     protected abstract String name();
 
     @Override
-    public boolean test(SqlArgSource data, RegistryManager context, String activeExpr) {
+    public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         if (this.usingIf) {
             return StringUtils.isBlank(activeExpr) || Boolean.TRUE.equals(evalOgnl(activeExpr, data));
         } else {
@@ -62,7 +62,7 @@ public abstract class ConditionRule implements SqlBuildRule {
     protected abstract boolean allowMultipleValue();
 
     @Override
-    public void executeRule(SqlArgSource data, RegistryManager context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
+    public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         String expr = "";
         if (this.usingIf) {
             expr = (StringUtils.isBlank(ruleValue) ? "" : ruleValue);

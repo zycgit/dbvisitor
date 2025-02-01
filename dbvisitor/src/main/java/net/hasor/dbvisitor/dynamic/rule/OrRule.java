@@ -20,7 +20,7 @@ package net.hasor.dbvisitor.dynamic.rule;
  * @version : 2021-06-05
  */
 public class OrRule extends ConditionRule {
-    public static final SqlBuildRule INSTANCE = new OrRule(false);
+    public static final SqlRule INSTANCE = new OrRule(false);
 
     public OrRule(boolean usingIf) {
         super(usingIf, DEFAULT_TEST_PREFIX, "where", "where ", "or ");
