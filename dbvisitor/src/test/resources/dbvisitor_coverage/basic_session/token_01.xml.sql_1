@@ -1,8 +1,0 @@
-
-    param1 = ?
-    
-    param2 = ?
-    
-    param3 = user_name asc
-    
-    param4 = where  owner_type = ?

@@ -19,9 +19,10 @@ import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.ref.BeanMap;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageResult;
-import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapper.Param;
+import net.hasor.dbvisitor.mapper.Segment;
+import net.hasor.dbvisitor.mapping.MappingHelper;
 import net.hasor.dbvisitor.template.jdbc.ConnectionCallback;
 
 import java.lang.annotation.Annotation;
@@ -45,28 +46,26 @@ class ExecuteInvocationHandler implements InvocationHandler {
     private final Map<String, FacadeStatement>      dynamicSqlMap = new HashMap<>();
     private final Map<String, Integer>              pageInfoMap   = new HashMap<>();
     private final Map<String, Map<String, Integer>> argNamesMap   = new HashMap<>();
-    private final DefaultBaseMapper                 mapperHandler;
+    private final DefaultBaseMapper                 baseMapper;
 
-    public ExecuteInvocationHandler(Session session, Class<?> dalType, Configuration configuration, DefaultBaseMapper mapperHandler) {
-        this.space = dalType.getName();
+    ExecuteInvocationHandler(String space, Class<?> dalType, Session session, Configuration config, DefaultBaseMapper baseMapper) {
+        this.space = space;
         this.session = session;
-        this.initDynamicSqlMap(dalType, configuration);
-        this.mapperHandler = mapperHandler;
+        this.initDynamicSqlMap(dalType, config);
+        this.baseMapper = baseMapper;
     }
 
-    private void initDynamicSqlMap(Class<?> dalType, Configuration registry) {
+    private void initDynamicSqlMap(Class<?> dalType, Configuration config) {
         for (Method method : dalType.getMethods()) {
             if (method.getDeclaringClass() == BaseMapper.class || method.getDeclaringClass() == Object.class) {
                 continue;
             }
-
-            String dynamicId = method.getName();
-            DynamicSql parseXml = null;//registry.findDynamicSql(this.space, dynamicId);
-            if (parseXml == null) {
+            if (method.isDefault() || method.isAnnotationPresent(Segment.class)) {
                 continue;
             }
 
-            this.dynamicSqlMap.put(dynamicId, new FacadeStatement(this.space, dynamicId, registry));
+            String dynamicId = method.getName();
+            this.dynamicSqlMap.put(dynamicId, new FacadeStatement(this.space, dynamicId, config));
             Map<String, Integer> argNames = this.argNamesMap.computeIfAbsent(dynamicId, s -> new HashMap<>());
 
             int parameterCount = method.getParameterCount();
@@ -117,16 +116,23 @@ class ExecuteInvocationHandler implements InvocationHandler {
             return new HashMap<>();
         }
 
+        // args
         Map<String, Integer> argNames = this.argNamesMap.get(dynamicId);
-        MergedMap<String, Object> mergedMap = new MergedMap<>();
-
         Map<String, Object> argMap = new HashMap<>();
         argNames.forEach((key, idx) -> argMap.put(key, objects[idx]));
+
+        // result data
+        MergedMap<String, Object> mergedMap = new MergedMap<>();
         mergedMap.appendMap(argMap, false);
 
+        // special case
         if (objects.length == 1) {
-            if (objects[0] instanceof Map) {
+            if (objects[0] == null) {
+                // null
+            } else if (objects[0] instanceof Map) {
                 mergedMap.appendMap((Map<? extends String, ?>) objects[0], true);
+            } else if (!MappingHelper.typeName(objects[0].getClass()).contains(".")) {
+                // basic type
             } else if (!(objects[0] instanceof Collection)) {
                 BeanMap beanMap = new BeanMap(objects[0]);
                 beanMap.setTransformConvert(ConverterBean.getInstance());
@@ -142,15 +148,14 @@ class ExecuteInvocationHandler implements InvocationHandler {
         if (method.getName().equals("toString") && method.getParameterCount() == 0) {
             return "Mapper Proxy " + this.space + " [" + this.session + "]";
         }
-        if (this.mapperHandler != null && method.getDeclaringClass() == BaseMapper.class) {
-            return method.invoke(this.mapperHandler, objects);
+        if (this.baseMapper != null && method.getDeclaringClass() == BaseMapper.class) {
+            return method.invoke(this.baseMapper, objects);
         }
         String dynamicId = method.getName();
         final FacadeStatement execute = this.dynamicSqlMap.get(dynamicId);
         if (execute != null) {
-            // use xml mapper
-            Object result = executeByMapper(dynamicId, execute, method, objects);
-            return processResult(result, method.getReturnType());
+            Object result = this.executeByMapper(dynamicId, execute, method, objects);
+            return this.processResult(result, method.getReturnType());
         } else if (method.isDefault()) {
             // use interface default method
             MethodHandle handle;
@@ -168,10 +173,9 @@ class ExecuteInvocationHandler implements InvocationHandler {
     private Object executeByMapper(String dynamicId, FacadeStatement execute, Method method, Object[] objects) throws SQLException {
         Page page = extractPage(dynamicId, objects);
         boolean pageResult = method.getReturnType() == PageResult.class;
-        Map<String, Object> data = extractData(dynamicId, objects);
 
         return this.session.jdbc().execute((ConnectionCallback<Object>) con -> {
-            return execute.execute(con, data, page, pageResult);
+            return execute.execute(con, extractData(dynamicId, objects), page, pageResult);
         });
     }
 

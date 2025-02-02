@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.session;
-import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
@@ -22,8 +21,6 @@ import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.mapper.BaseMapper;
-import net.hasor.dbvisitor.mapper.DalMapper;
-import net.hasor.dbvisitor.mapper.RefMapper;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.template.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.template.jdbc.DynamicConnection;
@@ -34,7 +31,6 @@ import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import javax.sql.DataSource;
 import java.io.Closeable;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
@@ -63,7 +59,7 @@ public class Session extends JdbcAccessor implements Closeable {
     }
 
     public Session(DynamicConnection dc, SessionPrototype prototype, Configuration configuration) {
-        this.setDynamic(Objects.requireNonNull(dc, "DynamicConnection is null."));
+        this.setDynamic(Objects.requireNonNull(dc, "dynamicConnection is null."));
         this.prototype = Objects.requireNonNull(prototype, "prototype is null.");
         this.configuration = Objects.requireNonNull(configuration, "configuration is null.");
         this.adapter = configuration.newWrapper(dc);
@@ -138,50 +134,30 @@ public class Session extends JdbcAccessor implements Closeable {
         return (BaseMapper<T>) new DefaultBaseMapper((TableMapping<Object>) entity, this);
     }
 
-    public <T> T createMapper(Class<T> mapperType) {
-        if (!mapperType.isInterface()) {
-            throw new UnsupportedOperationException("mapperType " + mapperType.getName() + " is not interface.");
-        }
+    public <T> T createMapper(Class<T> mapperType) throws Exception {
+        this.configuration.loadMapper(mapperType);
 
-        boolean isMapper = false;
-        String resource = null;
-        Annotation[] annotations = mapperType.getDeclaredAnnotations();
-        for (Annotation annotation : annotations) {
-            if (annotation instanceof RefMapper) {
-                resource = ((RefMapper) annotation).value();
-            }
-            if (annotation instanceof DalMapper || annotation.annotationType().getAnnotation(DalMapper.class) != null) {
-                isMapper = true;
-                break;
-            }
-        }
-        //        if (!isMapper && !this.registry.hasScope(mapperType)) {
-        //            throw new UnsupportedOperationException("type '" + mapperType.getName() + "' need @RefMapper or @SimpleMapper or @DalMapper");
-        //        }
+        String space = mapperType.getName();
+        DefaultBaseMapper baseMapper = null;
 
-        if (StringUtils.isNotBlank(resource) /*&& !this.dalRegistry.hasLoaded(resource)*/) {
-            try {
-                //  this.registry.loadMapper(resource);
-            } catch (Exception e) {
-                log.error("loadMapper '" + resource + "' failed, " + e.getMessage(), e);
-            }
-        }
-
-        DefaultBaseMapper mapperHandler = null;
         if (BaseMapper.class.isAssignableFrom(mapperType)) {
             ResolvableType type = ResolvableType.forClass(mapperType).as(BaseMapper.class);
             Class<?>[] generics = type.resolveGenerics(Object.class);
             Class<?> entityType = generics[0];
 
-            //            if (this.registry.findByEntity(entityType) == null) {
-            //                this.registry.loadEntityToSpace(entityType);
-            //            }
+            TableMapping<?> entity = this.configuration.findBySpace(space, entityType);
+            if (entity == null) {
+                entity = this.configuration.findByEntity(entityType);
+                if (entity == null) {
+                    entity = this.configuration.loadEntityToSpace(entityType, space);
+                }
+            }
 
-            mapperHandler = null;// new DefaultBaseMapper(mapperType.getName(), entityType, this);
+            baseMapper = new DefaultBaseMapper((TableMapping<Object>) entity, this);
         }
 
         ClassLoader classLoader = this.configuration.getClassLoader();
-        InvocationHandler handler = new ExecuteInvocationHandler(this, mapperType, this.configuration, mapperHandler);
+        InvocationHandler handler = new ExecuteInvocationHandler(space, mapperType, this, this.configuration, baseMapper);
         return (T) Proxy.newProxyInstance(classLoader, new Class[] { mapperType }, handler);
     }
 }

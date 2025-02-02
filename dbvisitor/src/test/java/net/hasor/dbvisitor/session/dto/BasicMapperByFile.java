@@ -13,12 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.dal.execute;
+package net.hasor.dbvisitor.session.dto;
 import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.mapper.RefMapper;
-import net.hasor.test.dto.AutoId;
-import net.hasor.test.dto.UserInfo;
-import net.hasor.test.dto.UserInfo2;
 
 import java.util.List;
 import java.util.Map;
@@ -27,8 +24,8 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-12-10
  */
-@RefMapper("/dbvisitor_coverage/dal_session/basic_execute.xml")
-public interface TestExecuteDal {
+@RefMapper("/dbvisitor_coverage/basic_session/basic_mapper_file.xml")
+public interface BasicMapperByFile {
     int createUser(UserInfo tbUser);
 
     int initUser();
@@ -39,7 +36,7 @@ public interface TestExecuteDal {
 
     Map<String, Object> callSelectUser(Map<String, Object> args);
 
-    int insertAutoID_1(AutoId autoId);
+    int insertAutoID_1(AutoIncrID autoId);
 
-    int insertAutoID_2(AutoId autoId);
+    int insertAutoID_2(AutoIncrID autoId);
 }

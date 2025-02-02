@@ -78,8 +78,14 @@ public abstract class AbstractStatementExecute {
         this.doCheck(conn, config, data, pageInfo);
 
         // prepare sql
-        MergedMap<String, Object> dataCtx = new MergedMap<>();
-        dataCtx.appendMap(data, true);
+        MergedMap<String, Object> dataCtx = null;
+        if (data instanceof MergedMap) {
+            dataCtx = (MergedMap<String, Object>) data;
+        } else {
+            dataCtx = new MergedMap<>();
+            dataCtx.appendMap(data, true);
+        }
+
         SqlBuilder oriSql = config.buildQuery(dataCtx, this.registry);
         BoundSql execSql = oriSql;
         BoundSql countSql = null;

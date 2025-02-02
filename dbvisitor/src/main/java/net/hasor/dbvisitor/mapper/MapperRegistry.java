@@ -237,6 +237,13 @@ public class MapperRegistry {
             Map<String, StatementDef> defMap = this.configMap.computeIfAbsent(configSpace, s -> new ConcurrentHashMap<>());
             if (hasAnnoConf) {
                 StatementDef def = new StatementDef(configSpace, configId, resolve.parseSqlConfig(configSpace, m));
+
+                if (def.getConfig().getType() == QueryType.Segment) {
+                    String macroId = configId;//TODO StringUtils.isBlank(configSpace) ? configId : (configSpace + "." + configId);
+                    this.macroRegistry.register(macroId, def.getConfig());
+                    return;
+                }
+
                 def.setUsingCollection(Collection.class.isAssignableFrom(m.getReturnType()));
                 this.applyResultConfig(def);// for DqlConfig
                 defMap.put(configId, def);
@@ -453,7 +460,7 @@ public class MapperRegistry {
         }
     }
 
-    protected static void testMapper(Class<?> mapperType) {
+    public static void testMapper(Class<?> mapperType) {
         if (!mapperType.isInterface()) {
             throw new UnsupportedOperationException("the '" + mapperType.getName() + "' must interface.");
         }

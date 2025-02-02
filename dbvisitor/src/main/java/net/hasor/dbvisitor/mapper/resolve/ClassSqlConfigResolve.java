@@ -44,7 +44,10 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
                 || annotation instanceof Delete //
                 || annotation instanceof Update //
                 || annotation instanceof Query  //
-                || annotation instanceof Execute;
+                || annotation instanceof Execute//
+                || annotation instanceof Call   //
+                || annotation instanceof Segment//
+                ;
     }
 
     protected void parseSelectKey(InsertConfig parentConfig, Method dalMethod) {
@@ -65,8 +68,8 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
         }
     }
 
-    protected SqlConfig createDynamicSql(Method dalMethod, Annotation annotation) throws ParserConfigurationException, IOException, SAXException {
-        Class<?> requiredClass = MappingHelper.resolveReturnType(dalMethod);
+    protected SqlConfig createDynamicSql(Method method, Annotation annotation) throws ParserConfigurationException, IOException, SAXException {
+        Class<?> requiredClass = MappingHelper.resolveReturnType(method);
         if (annotation instanceof Insert) {
             Map<String, String> cfg = new HashMap<>();
             cfg.put(STATEMENT_TYPE, ((Insert) annotation).statementType().getTypeName());
@@ -78,7 +81,7 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
             ArrayDynamicSql dynamicSql = new ArrayDynamicSql();
             dynamicSql.addChildNode(new PlanDynamicSql(StringUtils.join(((Insert) annotation).value(), " ")));
             InsertConfig insertConfig = new InsertConfig(dynamicSql, cfg::get);
-            this.parseSelectKey(insertConfig, dalMethod);
+            this.parseSelectKey(insertConfig, method);
             return insertConfig;
         } else if (annotation instanceof Delete) {
             Map<String, String> cfg = new HashMap<>();
@@ -105,6 +108,15 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
             ArrayDynamicSql dynamicSql = new ArrayDynamicSql();
             dynamicSql.addChildNode(new PlanDynamicSql(StringUtils.join(((Execute) annotation).value(), " ")));
             return new ExecuteConfig(dynamicSql, cfg::get);
+        } else if (annotation instanceof Call) {
+            Map<String, String> cfg = new HashMap<>();
+            cfg.put(STATEMENT_TYPE, StatementType.Callable.getTypeName());
+            cfg.put(TIMEOUT, String.valueOf(((Call) annotation).timeout()));
+            cfg.put(BIND_OUT, StringUtils.join(((Call) annotation).bindOut(), ","));
+
+            ArrayDynamicSql dynamicSql = new ArrayDynamicSql();
+            dynamicSql.addChildNode(new PlanDynamicSql(StringUtils.join(((Call) annotation).value(), " ")));
+            return new ExecuteConfig(dynamicSql, cfg::get);
         } else if (annotation instanceof Query) {
             Map<String, String> cfg = new HashMap<>();
             cfg.put(STATEMENT_TYPE, ((Query) annotation).statementType().getTypeName());
@@ -118,15 +130,15 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
                 cfg.put(RESULT_ROW_CALLBACK, ((Query) annotation).resultRowCallback().getName());
             } else if (((Query) annotation).resultRowMapper() != Object.class) {
                 cfg.put(RESULT_ROW_MAPPER, ((Query) annotation).resultRowMapper().getName());
-            } else if (dalMethod.isAnnotationPresent(ResultMap.class)) {
-                MappingHelper.NameInfo nameInfo = MappingHelper.findNameInfo(dalMethod);
+            } else if (method.isAnnotationPresent(ResultMap.class)) {
+                MappingHelper.NameInfo nameInfo = MappingHelper.findNameInfo(method);
                 if (nameInfo == null) {
-                    throw new IllegalArgumentException("the @ResultMap annotation on the method(" + dalMethod + ") is incorrectly configured");
+                    throw new IllegalArgumentException("the @ResultMap annotation on the method(" + method + ") is incorrectly configured");
                 }
-                cfg.put(RESULT_MAP_SPACE, StringUtils.isBlank(nameInfo.getSpace()) ? dalMethod.getDeclaringClass().getName() : nameInfo.getSpace());
+                cfg.put(RESULT_MAP_SPACE, StringUtils.isBlank(nameInfo.getSpace()) ? method.getDeclaringClass().getName() : nameInfo.getSpace());
                 cfg.put(RESULT_MAP_ID, nameInfo.getName());
             } else {
-                cfg.put(RESULT_MAP_SPACE, dalMethod.getDeclaringClass().getName());
+                cfg.put(RESULT_MAP_SPACE, method.getDeclaringClass().getName());
                 cfg.put(RESULT_MAP_ID, null);
                 cfg.put(RESULT_TYPE, MappingHelper.typeName(requiredClass));
             }
@@ -136,18 +148,22 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
             ArrayDynamicSql dynamicSql = new ArrayDynamicSql();
             dynamicSql.addChildNode(new PlanDynamicSql(StringUtils.join(((Query) annotation).value(), " ")));
             return new SelectConfig(dynamicSql, cfg::get);
+        } else if (annotation instanceof Segment) {
+            ArrayDynamicSql dynamicSql = new ArrayDynamicSql();
+            dynamicSql.addChildNode(new PlanDynamicSql(StringUtils.join(((Segment) annotation).value(), " ")));
+            return new SegmentConfig(dynamicSql, s -> null);
         } else {
             return null;
         }
     }
 
     @Override
-    public SqlConfig parseSqlConfig(String namespace, Method dalMethod) {
-        Objects.requireNonNull(dalMethod, "dalMethod is null.");
-        for (Annotation anno : dalMethod.getAnnotations()) {
+    public SqlConfig parseSqlConfig(String namespace, Method method) {
+        Objects.requireNonNull(method, "dalMethod is null.");
+        for (Annotation anno : method.getAnnotations()) {
             if (matchAnnotation(anno)) {
                 try {
-                    return this.createDynamicSql(dalMethod, anno);
+                    return this.createDynamicSql(method, anno);
                 } catch (ParserConfigurationException | IOException | SAXException e) {
                     throw ExceptionUtils.toRuntime(e);
                 }
