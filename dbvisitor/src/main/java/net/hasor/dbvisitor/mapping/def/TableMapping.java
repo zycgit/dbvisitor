@@ -39,6 +39,8 @@ public interface TableMapping<T> {
 
     Annotations getAnnotations();
 
+    boolean useGeneratedKey();
+
     /** 映射的实体是否是基于 Map */
     boolean isMapEntity();
 

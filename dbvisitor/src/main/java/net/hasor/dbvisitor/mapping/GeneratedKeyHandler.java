@@ -38,7 +38,7 @@ public interface GeneratedKeyHandler {
         return false;
     }
 
-    default Object afterApply(ResultSet rs, Object entity, int argsIndex, ColumnMapping mapping) throws SQLException {
+    default Object afterApply(ResultSet generatedKeys, Object entity, int argsIndex, ColumnMapping mapping) throws SQLException {
         return null;
     }
 }

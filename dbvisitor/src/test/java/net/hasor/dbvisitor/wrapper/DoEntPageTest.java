@@ -43,7 +43,7 @@ import static net.hasor.test.utils.TestUtils.INSERT_ARRAY;
  */
 public class DoEntPageTest {
 
-    private WrapperAdapter newLambda() {
+    private WrapperAdapter newLambda() throws SQLException {
         MappingOptions opt = MappingOptions.buildNew().defaultDialect(new MySqlDialect());
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());
@@ -54,7 +54,7 @@ public class DoEntPageTest {
         return new WrapperAdapter((DataSource) null, registry, context);
     }
 
-    private WrapperAdapter newLambda(Connection c) {
+    private WrapperAdapter newLambda(Connection c) throws SQLException {
         MappingOptions opt = MappingOptions.buildNew().defaultDialect(new MySqlDialect());
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());
@@ -66,7 +66,7 @@ public class DoEntPageTest {
     }
 
     @Test
-    public void buildPageTest_1() {
+    public void buildPageTest_1() throws SQLException {
         BoundSql boundSql = newLambda().queryByEntity(UserInfo2.class).select(UserInfo2::getLoginName)//
                 .initPage(10, 2)//
                 .getBoundSql();
@@ -76,7 +76,7 @@ public class DoEntPageTest {
     }
 
     @Test
-    public void buildPageTest_2() {
+    public void buildPageTest_2() throws SQLException {
         BoundSql boundSql = newLambda().queryByEntity(UserInfo2.class).select(UserInfo2::getLoginName)//
                 .eq(UserInfo2::getSeq, 1)//
                 .rangeBetween(UserInfo2::getLoginName, 2, 3)//
@@ -91,7 +91,7 @@ public class DoEntPageTest {
     }
 
     @Test
-    public void buildPageTest_3() {
+    public void buildPageTest_3() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo2.class).select(UserInfo2::getLoginName)//
                 .orderBy(UserInfo2::getUid).initPage(5, 0).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT login_name FROM user_info ORDER BY user_uuid LIMIT ?");

@@ -44,17 +44,17 @@ public class SessionPrototype {
     }
 
     /** create {@link Session} using {@link SessionPrototype} */
-    public Session newSession(Connection conn) {
+    public Session newSession(Connection conn) throws SQLException {
         return new Session(conn, this, this.configuration);
     }
 
     /** create {@link Session} using {@link SessionPrototype} */
-    public Session newSession(DataSource ds) {
+    public Session newSession(DataSource ds) throws SQLException {
         return new Session(ds, this, this.configuration);
     }
 
     /** create {@link Session} using {@link SessionPrototype} */
-    public Session newSession(DynamicConnection dc) {
+    public Session newSession(DynamicConnection dc) throws SQLException {
         return new Session(dc, this, this.configuration);
     }
 

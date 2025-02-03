@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.wrapper;
+import net.hasor.dbvisitor.JdbcHelper;
+import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
@@ -22,6 +24,7 @@ import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableDef;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.template.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.template.jdbc.DynamicConnection;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.wrapper.support.entity.DeleteWrapperForEntity;
@@ -35,6 +38,7 @@ import net.hasor.dbvisitor.wrapper.support.freedom.UpdateWrapperForFreedom;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -47,11 +51,12 @@ import java.util.Objects;
 public class WrapperAdapter implements WrapperOperations {
     protected MappingRegistry registry;
     protected JdbcTemplate    jdbc;
+    protected SqlDialect      dialect;
 
     /**
      * Construct a new LambdaTemplate for bean usage.
      */
-    public WrapperAdapter() {
+    public WrapperAdapter() throws SQLException {
         this((DataSource) null, MappingRegistry.DEFAULT, null);
     }
 
@@ -60,7 +65,7 @@ public class WrapperAdapter implements WrapperOperations {
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param dataSource the JDBC DataSource to obtain connections from
      */
-    public WrapperAdapter(final DataSource dataSource) {
+    public WrapperAdapter(final DataSource dataSource) throws SQLException {
         this(dataSource, MappingRegistry.DEFAULT, null);
     }
 
@@ -71,9 +76,10 @@ public class WrapperAdapter implements WrapperOperations {
      * @param registry the mapping context
      * @param buildContext the sql build context
      */
-    public WrapperAdapter(final DataSource dataSource, MappingRegistry registry, QueryContext buildContext) {
+    public WrapperAdapter(final DataSource dataSource, MappingRegistry registry, QueryContext buildContext) throws SQLException {
         this.registry = Objects.requireNonNull(registry, "registry is null.");
         this.jdbc = (dataSource == null) ? null : new JdbcTemplate(dataSource, registry, buildContext);
+        this.dialect = findSqlDialect(registry, this.jdbc);
     }
 
     /**
@@ -81,7 +87,7 @@ public class WrapperAdapter implements WrapperOperations {
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param conn the JDBC Connection
      */
-    public WrapperAdapter(final Connection conn) {
+    public WrapperAdapter(final Connection conn) throws SQLException {
         this(conn, MappingRegistry.DEFAULT, null);
     }
 
@@ -92,9 +98,10 @@ public class WrapperAdapter implements WrapperOperations {
      * @param registry the mapping context
      * @param buildContext the sql build context
      */
-    public WrapperAdapter(final Connection conn, MappingRegistry registry, QueryContext buildContext) {
+    public WrapperAdapter(final Connection conn, MappingRegistry registry, QueryContext buildContext) throws SQLException {
         this.registry = Objects.requireNonNull(registry, "registry is null.");
         this.jdbc = (conn == null) ? null : new JdbcTemplate(conn, registry, buildContext);
+        this.dialect = findSqlDialect(registry, this.jdbc);
     }
 
     /**
@@ -102,7 +109,7 @@ public class WrapperAdapter implements WrapperOperations {
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param dynamicConn the JDBC Connection of dynamic
      */
-    public WrapperAdapter(final DynamicConnection dynamicConn) {
+    public WrapperAdapter(final DynamicConnection dynamicConn) throws SQLException {
         this(dynamicConn, MappingRegistry.DEFAULT, null);
     }
 
@@ -113,9 +120,10 @@ public class WrapperAdapter implements WrapperOperations {
      * @param registry the mapping context
      * @param buildContext the sql build context
      */
-    public WrapperAdapter(final DynamicConnection dynamicConn, MappingRegistry registry, QueryContext buildContext) {
+    public WrapperAdapter(final DynamicConnection dynamicConn, MappingRegistry registry, QueryContext buildContext) throws SQLException {
         this.registry = Objects.requireNonNull(registry, "registry is null.");
         this.jdbc = (dynamicConn == null) ? null : new JdbcTemplate(dynamicConn, registry, buildContext);
+        this.dialect = findSqlDialect(registry, this.jdbc);
     }
 
     /**
@@ -123,9 +131,10 @@ public class WrapperAdapter implements WrapperOperations {
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param jdbc the JdbcTemplate
      */
-    public WrapperAdapter(JdbcTemplate jdbc) {
-        this.jdbc = Objects.requireNonNull(jdbc, "jdbc is null.");
+    public WrapperAdapter(JdbcTemplate jdbc) throws SQLException {
         this.registry = jdbc.getRegistry();
+        this.jdbc = Objects.requireNonNull(jdbc, "jdbc is null.");
+        this.dialect = jdbc.execute((ConnectionCallback<SqlDialect>) JdbcHelper::findDialect);
     }
 
     public JdbcTemplate getJdbc() {
@@ -136,72 +145,80 @@ public class WrapperAdapter implements WrapperOperations {
         return this.registry;
     }
 
+    public SqlDialect getDialect() {
+        return this.dialect;
+    }
+
+    public void setDialect(SqlDialect dialect) {
+        this.dialect = dialect;
+    }
+
     @Override
     public <T> EntityInsertWrapper<T> insertBySpace(Class<T> entityType, String space) {
         TableMapping<T> tableMapping = this.findTableMapping(entityType, space);
-        return new InsertWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
+        return new InsertWrapperForEntity<>(tableMapping, this.registry, this.jdbc, this.dialect);
     }
 
     @Override
     public <T> EntityInsertWrapper<T> insertByTable(String catalog, String schema, String table, String specifyName) {
         TableMapping<T> tableMapping = this.findTableMapping(catalog, schema, table, specifyName);
-        return new InsertWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
+        return new InsertWrapperForEntity<>(tableMapping, this.registry, this.jdbc, this.dialect);
     }
 
     @Override
     public <T> EntityUpdateWrapper<T> updateBySpace(Class<T> entityType, String space) {
         TableMapping<T> tableMapping = this.findTableMapping(entityType, space);
-        return new UpdateWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
+        return new UpdateWrapperForEntity<>(tableMapping, this.registry, this.jdbc, this.dialect);
     }
 
     @Override
     public <T> EntityUpdateWrapper<T> updateByTable(String catalog, String schema, String table, String specifyName) {
         TableMapping<T> tableMapping = this.findTableMapping(catalog, schema, table, specifyName);
-        return new UpdateWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
+        return new UpdateWrapperForEntity<>(tableMapping, this.registry, this.jdbc, this.dialect);
     }
 
     @Override
     public <T> EntityDeleteWrapper<T> deleteBySpace(Class<T> entityType, String space) {
         TableMapping<T> tableMapping = this.findTableMapping(entityType, space);
-        return new DeleteWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
+        return new DeleteWrapperForEntity<>(tableMapping, this.registry, this.jdbc, this.dialect);
     }
 
     @Override
     public <T> EntityDeleteWrapper<T> deleteByTable(String catalog, String schema, String table, String specifyName) {
         TableMapping<T> tableMapping = this.findTableMapping(catalog, schema, table, specifyName);
-        return new DeleteWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
+        return new DeleteWrapperForEntity<>(tableMapping, this.registry, this.jdbc, this.dialect);
     }
 
     @Override
     public <T> EntityQueryWrapper<T> queryBySpace(Class<T> entityType, String space) {
         TableMapping<T> tableMapping = this.findTableMapping(entityType, space);
-        return new SelectWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
+        return new SelectWrapperForEntity<>(tableMapping, this.registry, this.jdbc, this.dialect);
     }
 
     @Override
     public <T> EntityQueryWrapper<T> queryByTable(String catalog, String schema, String table, String specifyName) {
         TableMapping<T> tableMapping = this.findTableMapping(catalog, schema, table, specifyName);
-        return new SelectWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
+        return new SelectWrapperForEntity<>(tableMapping, this.registry, this.jdbc, this.dialect);
     }
 
     @Override
     public MapInsertWrapper freedomInsert(String catalog, String schema, String table) {
-        return new InsertWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc);
+        return new InsertWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc, this.dialect);
     }
 
     @Override
     public MapUpdateWrapper freedomUpdate(String catalog, String schema, String table) {
-        return new UpdateWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc);
+        return new UpdateWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc, this.dialect);
     }
 
     @Override
     public MapDeleteWrapper freedomDelete(String catalog, String schema, String table) {
-        return new DeleteWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc);
+        return new DeleteWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc, this.dialect);
     }
 
     @Override
     public MapQueryWrapper freedomQuery(String catalog, String schema, String table) {
-        return new SelectWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc);
+        return new SelectWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc, this.dialect);
     }
 
     protected TableMapping<Map<String, String>> freedomMapping(String catalog, String schema, String table) {
@@ -235,6 +252,14 @@ public class WrapperAdapter implements WrapperOperations {
             throw new RuntimeSQLException("tableMapping not found.");
         } else {
             return tableMapping;
+        }
+    }
+
+    private static SqlDialect findSqlDialect(MappingRegistry registry, JdbcTemplate jdbc) throws SQLException {
+        if (registry.getGlobalOptions().getDefaultDialect() != null) {
+            return registry.getGlobalOptions().getDefaultDialect();
+        } else {
+            return (jdbc == null) ? DefaultSqlDialect.DEFAULT : jdbc.execute((ConnectionCallback<SqlDialect>) JdbcHelper::findDialect);
         }
     }
 }

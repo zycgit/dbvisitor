@@ -50,7 +50,7 @@ public class Session extends JdbcAccessor implements Closeable {
     private final        WrapperAdapter   adapter;
     private final        JdbcTemplate     jdbc;
 
-    public Session(Connection conn, SessionPrototype prototype, Configuration configuration) {
+    public Session(Connection conn, SessionPrototype prototype, Configuration configuration) throws SQLException {
         this.setConnection(Objects.requireNonNull(conn, "connection is null."));
         this.prototype = Objects.requireNonNull(prototype, "prototype is null.");
         this.configuration = Objects.requireNonNull(configuration, "configuration is null.");
@@ -58,7 +58,7 @@ public class Session extends JdbcAccessor implements Closeable {
         this.jdbc = this.adapter.getJdbc();
     }
 
-    public Session(DynamicConnection dc, SessionPrototype prototype, Configuration configuration) {
+    public Session(DynamicConnection dc, SessionPrototype prototype, Configuration configuration) throws SQLException {
         this.setDynamic(Objects.requireNonNull(dc, "dynamicConnection is null."));
         this.prototype = Objects.requireNonNull(prototype, "prototype is null.");
         this.configuration = Objects.requireNonNull(configuration, "configuration is null.");
@@ -66,7 +66,7 @@ public class Session extends JdbcAccessor implements Closeable {
         this.jdbc = this.adapter.getJdbc();
     }
 
-    public Session(DataSource ds, SessionPrototype prototype, Configuration configuration) {
+    public Session(DataSource ds, SessionPrototype prototype, Configuration configuration) throws SQLException {
         this.setDataSource(Objects.requireNonNull(ds, "dataSource is null."));
         this.prototype = Objects.requireNonNull(prototype, "prototype is null.");
         this.configuration = Objects.requireNonNull(configuration, "configuration is null.");

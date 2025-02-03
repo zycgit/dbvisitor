@@ -53,7 +53,7 @@ public class BuildEntInsertTest {
         return map;
     }
 
-    private WrapperAdapter newLambda() {
+    private WrapperAdapter newLambda() throws SQLException {
         MappingOptions opt = MappingOptions.buildNew().defaultDialect(new MySqlDialect());
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());

@@ -19,13 +19,15 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.wrapper.dto.AnnoUserInfoDTO;
 import org.junit.Test;
 
+import java.sql.SQLException;
+
 /***
  * @version : 2021-3-22
  * @author 赵永春 (zyc@hasor.net)
  */
 public class BuildEntDeleteTest {
     @Test
-    public void deleteBuilder_1() {
+    public void deleteBuilder_1() throws SQLException {
         EntityDeleteWrapper<AnnoUserInfoDTO> lambda = new WrapperAdapter().deleteByEntity(AnnoUserInfoDTO.class);
         lambda.allowEmptyWhere();
 
@@ -34,7 +36,7 @@ public class BuildEntDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_1_2map() {
+    public void deleteBuilder_1_2map() throws SQLException {
         MapDeleteWrapper lambda = new WrapperAdapter().deleteByEntity(AnnoUserInfoDTO.class).asMap();
         lambda.allowEmptyWhere();
 
@@ -43,7 +45,7 @@ public class BuildEntDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_2() {
+    public void deleteBuilder_2() throws SQLException {
         EntityDeleteWrapper<AnnoUserInfoDTO> lambda = new WrapperAdapter().deleteByEntity(AnnoUserInfoDTO.class);
         lambda.and(queryBuilder -> {
             queryBuilder.eq(AnnoUserInfoDTO::getSeq, 123);
@@ -56,7 +58,7 @@ public class BuildEntDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_2_2map() {
+    public void deleteBuilder_2_2map() throws SQLException {
         MapDeleteWrapper lambda = new WrapperAdapter().deleteByEntity(AnnoUserInfoDTO.class).asMap();
         lambda.and(queryBuilder -> {
             queryBuilder.eq("seq", 123);
@@ -69,7 +71,7 @@ public class BuildEntDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_3() {
+    public void deleteBuilder_3() throws SQLException {
         EntityDeleteWrapper<AnnoUserInfoDTO> lambda = new WrapperAdapter().deleteByEntity(AnnoUserInfoDTO.class);
         lambda.eq(AnnoUserInfoDTO::getLoginName, "admin").and().eq(AnnoUserInfoDTO::getPassword, "pass");
 
@@ -78,7 +80,7 @@ public class BuildEntDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_3_2map() {
+    public void deleteBuilder_3_2map() throws SQLException {
         MapDeleteWrapper lambda = new WrapperAdapter().deleteByEntity(AnnoUserInfoDTO.class).asMap();
         lambda.eq("loginName", "admin").and().eq("password", "pass");
 
@@ -87,7 +89,7 @@ public class BuildEntDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_4() {
+    public void deleteBuilder_4() throws SQLException {
         AnnoUserInfoDTO userInfo = new AnnoUserInfoDTO();
         userInfo.setName("zyc");
         userInfo.setLoginName("login");
@@ -120,7 +122,7 @@ public class BuildEntDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_4_2map() {
+    public void deleteBuilder_4_2map() throws SQLException {
         AnnoUserInfoDTO userInfo = new AnnoUserInfoDTO();
         userInfo.setName("zyc");
         userInfo.setLoginName("login");
@@ -153,7 +155,7 @@ public class BuildEntDeleteTest {
     }
 
     @Test
-    public void bad_1() {
+    public void bad_1() throws SQLException {
         try {
             EntityDeleteWrapper<AnnoUserInfoDTO> lambdaDelete = new WrapperAdapter().deleteByEntity(AnnoUserInfoDTO.class);
             lambdaDelete.getBoundSql();
@@ -164,7 +166,7 @@ public class BuildEntDeleteTest {
     }
 
     @Test
-    public void bad_2() {
+    public void bad_2() throws SQLException {
         try {
             EntityDeleteWrapper<AnnoUserInfoDTO> lambdaDelete = new WrapperAdapter().deleteByEntity(AnnoUserInfoDTO.class);
             lambdaDelete.getBoundSql();

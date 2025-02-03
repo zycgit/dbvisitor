@@ -33,6 +33,7 @@ import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * 解析动态 SQL 配置
@@ -104,32 +105,32 @@ public class Configuration implements QueryContext {
     }
 
     /** create {@link WrapperAdapter} for {@link Connection} */
-    public WrapperAdapter newWrapper(Connection conn) {
+    public WrapperAdapter newWrapper(Connection conn) throws SQLException {
         return new WrapperAdapter(conn, this.getMappingRegistry(), this);
     }
 
     /** create {@link WrapperAdapter} for {@link DataSource} */
-    public WrapperAdapter newWrapper(DataSource ds) {
+    public WrapperAdapter newWrapper(DataSource ds) throws SQLException {
         return new WrapperAdapter(ds, this.getMappingRegistry(), this);
     }
 
     /** create {@link WrapperAdapter} for {@link DynamicConnection} */
-    public WrapperAdapter newWrapper(DynamicConnection dc) {
+    public WrapperAdapter newWrapper(DynamicConnection dc) throws SQLException {
         return new WrapperAdapter(dc, this.getMappingRegistry(), this);
     }
 
     /** create {@link Session} for {@link Connection} */
-    public Session newSession(Connection conn) {
+    public Session newSession(Connection conn) throws SQLException {
         return this.prototype.newSession(conn);
     }
 
     /** create {@link Session} for {@link DataSource} */
-    public Session newSession(DataSource ds) {
+    public Session newSession(DataSource ds) throws SQLException {
         return this.prototype.newSession(ds);
     }
 
     /** create {@link Session} for {@link DynamicConnection} */
-    public Session newSession(DynamicConnection dc) {
+    public Session newSession(DynamicConnection dc) throws SQLException {
         return this.prototype.newSession(dc);
     }
 

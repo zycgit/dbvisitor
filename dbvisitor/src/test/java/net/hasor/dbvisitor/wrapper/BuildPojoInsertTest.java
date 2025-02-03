@@ -39,7 +39,7 @@ import static net.hasor.test.utils.TestUtils.newID;
  * @version : 2021-3-22
  */
 public class BuildPojoInsertTest {
-    private WrapperAdapter newLambda() {
+    private WrapperAdapter newLambda() throws SQLException {
         MappingOptions opt = MappingOptions.buildNew().defaultDialect(new MySqlDialect());
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());

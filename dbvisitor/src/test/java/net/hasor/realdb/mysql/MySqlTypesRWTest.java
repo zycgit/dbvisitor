@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.realdb.mysql;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -27,24 +27,24 @@ import java.util.List;
 import java.util.Map;
 
 public class MySqlTypesRWTest {
-    protected void preTable(JdbcTemplate jdbcTemplate) throws SQLException, IOException {
+    protected void preTable(JdbcTemplate jdbc) throws SQLException, IOException {
         try {
-            jdbcTemplate.executeUpdate("drop table tb_mysql_types");
+            jdbc.executeUpdate("drop table tb_mysql_types");
         } catch (Exception e) {
             /**/
         }
-        jdbcTemplate.loadSQL("/dbvisitor_coverage/all_types/tb_mysql_types.sql");
+        jdbc.loadSQL("/dbvisitor_coverage/all_types/tb_mysql_types.sql");
     }
 
     @Test
     public void testMySqlYear() throws Exception {
         try (Connection conn = DsUtils.mysqlConn()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            preTable(jdbcTemplate);
+            JdbcTemplate jdbc = new JdbcTemplate(conn);
+            preTable(jdbc);
             //
-            jdbcTemplate.execute("insert into tb_mysql_types (c_year,c_year_n) values ('1998','2001')");
+            jdbc.execute("insert into tb_mysql_types (c_year,c_year_n) values ('1998','2001')");
             //
-            List<Map<String, Object>> list = jdbcTemplate.queryForList("select c_year,c_year_n from tb_mysql_types");
+            List<Map<String, Object>> list = jdbc.queryForList("select c_year,c_year_n from tb_mysql_types");
             assert list.size() == 1;
             assert list.get(0).get("c_year") instanceof Date;
             String dateString1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(list.get(0).get("c_year"));

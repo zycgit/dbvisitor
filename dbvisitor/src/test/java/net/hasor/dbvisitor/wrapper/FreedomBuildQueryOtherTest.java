@@ -24,6 +24,7 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +33,7 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class FreedomBuildQueryOtherTest {
-    private WrapperAdapter newLambda() {
+    private WrapperAdapter newLambda() throws SQLException {
         MappingOptions opt = MappingOptions.buildNew();
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());
@@ -44,7 +45,7 @@ public class FreedomBuildQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_apply_1() {
+    public void queryBuilder_apply_1() throws SQLException {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
                 .eq("loginName", "a")//
                 .eq("loginName", "b")//
@@ -56,7 +57,7 @@ public class FreedomBuildQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_eq_sample_1() {
+    public void queryBuilder_eq_sample_1() throws SQLException {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
                 .eqBySample(new HashMap<>()).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info");
@@ -64,7 +65,7 @@ public class FreedomBuildQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_eq_sample_2() {
+    public void queryBuilder_eq_sample_2() throws SQLException {
         Map<String, Object> map = new HashMap<>();
         map.put("loginName", "abc");
         map.put("seq", 1);
@@ -77,7 +78,7 @@ public class FreedomBuildQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_group_by_1() {
+    public void queryBuilder_group_by_1() throws SQLException {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
                 .eq("loginName", "a").eq("loginName", "b")//
                 .groupBy("seq").getBoundSql();
@@ -95,7 +96,7 @@ public class FreedomBuildQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_group_by_2() {
+    public void queryBuilder_group_by_2() throws SQLException {
         try {
             newLambda().freedomQuery("user_info")//
                     .eq("loginName", "a")//
@@ -135,7 +136,7 @@ public class FreedomBuildQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_order_by_1() {
+    public void queryBuilder_order_by_1() throws SQLException {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
                 .eq("loginName", "a")//
                 .asc("loginName").getBoundSql();
@@ -172,7 +173,7 @@ public class FreedomBuildQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_select_1() {
+    public void queryBuilder_select_1() throws SQLException {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info").applySelect("a, b, c, d")//
                 .eq("seq", 1)//
                 .or()//
@@ -186,7 +187,7 @@ public class FreedomBuildQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_select_2() {
+    public void queryBuilder_select_2() throws SQLException {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
                 .selectAdd("loginName").selectAdd("seq")//
                 .eq("seq", 1)//
@@ -201,7 +202,7 @@ public class FreedomBuildQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_select_3() {
+    public void queryBuilder_select_3() throws SQLException {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
                 .select("loginName")//
                 .eq("seq", 1)//
@@ -216,7 +217,7 @@ public class FreedomBuildQueryOtherTest {
     }
 
     @Test
-    public void bad_1() {
+    public void bad_1() throws SQLException {
         try {
             newLambda().freedomQuery("user_info")//
                     .eq("loginName", "muhammad").apply("limit 1")//

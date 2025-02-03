@@ -53,7 +53,7 @@ public class FreedomToCamelBuildInsertTest {
         return map;
     }
 
-    private WrapperAdapter newLambda() {
+    private WrapperAdapter newLambda() throws SQLException {
         MappingOptions opt = MappingOptions.buildNew().defaultDialect(new MySqlDialect()).mapUnderscoreToCamelCase(true);
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());

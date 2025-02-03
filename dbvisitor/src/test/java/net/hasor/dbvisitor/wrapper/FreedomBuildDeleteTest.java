@@ -19,6 +19,8 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.wrapper.dto.AnnoUserInfoDTO;
 import org.junit.Test;
 
+import java.sql.SQLException;
+
 /**
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-3-22
@@ -26,7 +28,7 @@ import org.junit.Test;
 public class FreedomBuildDeleteTest {
 
     @Test
-    public void deleteBuilder_1() {
+    public void deleteBuilder_1() throws SQLException {
         MapDeleteWrapper lambda = new WrapperAdapter().freedomDelete("user_info");
         lambda.allowEmptyWhere();
 
@@ -35,7 +37,7 @@ public class FreedomBuildDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_2() {
+    public void deleteBuilder_2() throws SQLException {
         MapDeleteWrapper lambda = new WrapperAdapter().freedomDelete("user_info");
         lambda.and(queryBuilder -> {
             queryBuilder.eq("seq", 123);
@@ -48,7 +50,7 @@ public class FreedomBuildDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_3() {
+    public void deleteBuilder_3() throws SQLException {
         MapDeleteWrapper lambda = new WrapperAdapter().freedomDelete("user_info");
         lambda.eq("loginName", "admin").and().eq("loginPassword", "pass");
 
@@ -57,7 +59,7 @@ public class FreedomBuildDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_4() {
+    public void deleteBuilder_4() throws SQLException {
         AnnoUserInfoDTO userInfo = new AnnoUserInfoDTO();
         userInfo.setName("zyc");
         userInfo.setLoginName("login");
@@ -88,5 +90,4 @@ public class FreedomBuildDeleteTest {
         assert boundSql2.getSqlString().equals("DELETE FROM user_info WHERE seq > ?");
         assert boundSql2.getArgs()[0].equals(1);
     }
-
 }

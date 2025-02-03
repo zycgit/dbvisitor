@@ -27,6 +27,7 @@ import net.hasor.dbvisitor.wrapper.dto.UserInfo;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -37,7 +38,7 @@ import java.util.Map;
  * @version : 2021-3-22
  */
 public class BuildPojoUpdateTest {
-    private WrapperAdapter newLambda() {
+    private WrapperAdapter newLambda() throws SQLException {
         MappingOptions opt = MappingOptions.buildNew();
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());
@@ -104,7 +105,7 @@ public class BuildPojoUpdateTest {
     }
 
     @Test
-    public void updateBuilder_bad_2() {
+    public void updateBuilder_bad_2() throws SQLException {
         EntityUpdateWrapper<UserInfo> lambdaUpdate = newLambda().updateByEntity(UserInfo.class);
         lambdaUpdate.allowEmptyWhere();
 
@@ -117,7 +118,7 @@ public class BuildPojoUpdateTest {
     }
 
     @Test
-    public void updateBuilder_bad_2_2map() {
+    public void updateBuilder_bad_2_2map() throws SQLException {
         MapUpdateWrapper lambdaUpdate = newLambda().updateByEntity(UserInfo.class).asMap();
         lambdaUpdate.allowEmptyWhere();
 
@@ -130,7 +131,7 @@ public class BuildPojoUpdateTest {
     }
 
     @Test
-    public void updateBuilder_1_1() {
+    public void updateBuilder_1_1() throws SQLException {
         UserInfo data = new UserInfo();
         data.setLoginName("acc");
         data.setPassword("pwd");
@@ -146,7 +147,7 @@ public class BuildPojoUpdateTest {
     }
 
     @Test
-    public void updateBuilder_1_1_2map() {
+    public void updateBuilder_1_1_2map() throws SQLException {
         Map<String, Object> map = new HashMap<>();
         map.put("loginName", "acc");
         map.put("password", "pwd");
@@ -164,7 +165,7 @@ public class BuildPojoUpdateTest {
     }
 
     @Test
-    public void updateBuilder_1_2() {
+    public void updateBuilder_1_2() throws SQLException {
         UserInfo data = new UserInfo();
         data.setLoginName("acc");
         data.setPassword("pwd");
@@ -180,7 +181,7 @@ public class BuildPojoUpdateTest {
     }
 
     @Test
-    public void updateBuilder_1_2_2map() {
+    public void updateBuilder_1_2_2map() throws SQLException {
         Map<String, Object> map = new HashMap<>();
         map.put("loginName", "acc");
         map.put("password", "pwd");
@@ -198,7 +199,7 @@ public class BuildPojoUpdateTest {
     }
 
     @Test
-    public void updateBuilder_2_1() {
+    public void updateBuilder_2_1() throws SQLException {
         UserInfo data = new UserInfo();
         data.setLoginName("acc");
         data.setPassword("pwd");
@@ -211,7 +212,7 @@ public class BuildPojoUpdateTest {
     }
 
     @Test
-    public void updateBuilder_2_1_map() {
+    public void updateBuilder_2_1_map() throws SQLException {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("loginName", "acc");
         map.put("password", "pwd");
@@ -225,7 +226,7 @@ public class BuildPojoUpdateTest {
     }
 
     @Test
-    public void updateBuilder_by_sample_1() {
+    public void updateBuilder_by_sample_1() throws SQLException {
         WrapperAdapter lambdaTemplate = newLambda();
 
         Map<String, Object> whereValue = new HashMap<>();
@@ -248,7 +249,7 @@ public class BuildPojoUpdateTest {
     }
 
     @Test
-    public void updateBuilder_by_sample_1_2map() {
+    public void updateBuilder_by_sample_1_2map() throws SQLException {
         WrapperAdapter lambdaTemplate = newLambda();
 
         Map<String, Object> whereValue = new HashMap<>();

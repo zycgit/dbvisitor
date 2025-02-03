@@ -25,6 +25,7 @@ import net.hasor.dbvisitor.wrapper.dto.UserInfo;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +34,7 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class BuildPojoQueryOtherTest {
-    private WrapperAdapter newLambda() {
+    private WrapperAdapter newLambda() throws SQLException {
         MappingOptions opt = MappingOptions.buildNew();
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());
@@ -45,7 +46,7 @@ public class BuildPojoQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_apply_1() {
+    public void queryBuilder_apply_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a")//
                 .eq(UserInfo::getLoginName, "b")//
@@ -58,7 +59,7 @@ public class BuildPojoQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_apply_1_2map() {
+    public void queryBuilder_apply_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("loginName", "a")//
                 .eq("loginName", "b")//
@@ -71,7 +72,7 @@ public class BuildPojoQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_eq_sample_1() {
+    public void queryBuilder_eq_sample_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eqBySample(new UserInfo()).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo");
@@ -79,7 +80,7 @@ public class BuildPojoQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_eq_sample_1_2map() {
+    public void queryBuilder_eq_sample_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eqBySample(new HashMap<>()).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo");
@@ -87,7 +88,7 @@ public class BuildPojoQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_eq_sample_2() {
+    public void queryBuilder_eq_sample_2() throws SQLException {
         UserInfo dto = new UserInfo();
         dto.setLoginName("abc");
         dto.setSeq(1);
@@ -100,7 +101,7 @@ public class BuildPojoQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_eq_sample_2_2map() {
+    public void queryBuilder_eq_sample_2_2map() throws SQLException {
         Map<String, Object> map = new HashMap<>();
         map.put("loginName", "abc");
         map.put("seq", 1);
@@ -113,7 +114,7 @@ public class BuildPojoQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_group_by_1() {
+    public void queryBuilder_group_by_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a").eq(UserInfo::getLoginName, "b")//
                 .groupBy(UserInfo::getSeq).getBoundSql();
@@ -131,7 +132,7 @@ public class BuildPojoQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_group_by_1_map() {
+    public void queryBuilder_group_by_1_map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("loginName", "a").eq("loginName", "b")//
                 .groupBy("seq").getBoundSql();
@@ -229,7 +230,7 @@ public class BuildPojoQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_order_by_1() {
+    public void queryBuilder_order_by_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a")//
                 .asc(UserInfo::getLoginName).getBoundSql();
@@ -266,7 +267,7 @@ public class BuildPojoQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_order_by_1_2map() {
+    public void queryBuilder_order_by_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("loginName", "a")//
                 .asc("loginName").getBoundSql();
@@ -303,7 +304,7 @@ public class BuildPojoQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_select_1() {
+    public void queryBuilder_select_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).applySelect("a, b, c, d")//
                 .eq(UserInfo::getSeq, 1)//
                 .or()//
@@ -317,7 +318,7 @@ public class BuildPojoQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_select_1_2map() {
+    public void queryBuilder_select_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .applySelect("a, b, c, d")//
                 .eq("seq", 1)//
@@ -332,7 +333,7 @@ public class BuildPojoQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_select_2() {
+    public void queryBuilder_select_2() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .selectAdd(UserInfo::getLoginName).selectAdd(UserInfo::getSeq)//
                 .eq(UserInfo::getSeq, 1)//
@@ -347,7 +348,7 @@ public class BuildPojoQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_select_2_2map() {
+    public void queryBuilder_select_2_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .selectAdd("loginName").selectAdd("seq")//
                 .eq("seq", 1)//
@@ -362,7 +363,7 @@ public class BuildPojoQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_select_3() {
+    public void queryBuilder_select_3() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .select(UserInfo::getLoginName)//
                 .eq(UserInfo::getSeq, 1)//
@@ -377,7 +378,7 @@ public class BuildPojoQueryOtherTest {
     }
 
     @Test
-    public void queryBuilder_select_3_2map() {
+    public void queryBuilder_select_3_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .select("loginName")//
                 .eq("seq", 1)//

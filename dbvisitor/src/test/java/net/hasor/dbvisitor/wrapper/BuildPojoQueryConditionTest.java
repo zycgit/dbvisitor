@@ -25,6 +25,7 @@ import net.hasor.dbvisitor.wrapper.dto.UserInfo;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,7 +35,7 @@ import java.util.List;
  */
 public class BuildPojoQueryConditionTest {
 
-    private WrapperAdapter newLambda() {
+    private WrapperAdapter newLambda() throws SQLException {
         MappingOptions opt = MappingOptions.buildNew();
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());
@@ -46,19 +47,19 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_0() {
+    public void queryBuild_0() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo");
     }
 
     @Test
-    public void queryBuild_0_2map() {
+    public void queryBuild_0_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap().getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo");
     }
 
     @Test
-    public void queryBuild_1() {
+    public void queryBuild_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE loginName = ?");
@@ -66,7 +67,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_1_2map() {
+    public void queryBuild_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE loginName = ?");
@@ -74,7 +75,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_1() {
+    public void queryBuild_not_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .not().eq(UserInfo::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE NOT loginName = ?");
@@ -82,7 +83,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_1_2map() {
+    public void queryBuild_not_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .not().eq("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE NOT loginName = ?");
@@ -90,7 +91,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_and_1() {
+    public void queryBuild_and_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).eq(UserInfo::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName = ?");
@@ -105,7 +106,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_and_1_2map() {
+    public void queryBuild_and_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).eq("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName = ?");
@@ -120,7 +121,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_or_1() {
+    public void queryBuild_or_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).or().eq(UserInfo::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR loginName = ?");
@@ -129,7 +130,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_or_1_2map() {
+    public void queryBuild_or_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).or().eq("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? OR loginName = ?");
@@ -138,7 +139,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_ne_1() {
+    public void queryBuild_ne_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).ne(UserInfo::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName <> ?");
@@ -159,7 +160,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_ne_1_2map() {
+    public void queryBuild_ne_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).ne("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName <> ?");
@@ -180,7 +181,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_gt_1() {
+    public void queryBuild_gt_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).gt(UserInfo::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName > ?");
@@ -201,7 +202,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_gt_1_2map() {
+    public void queryBuild_gt_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).gt("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName > ?");
@@ -222,7 +223,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_ge_1() {
+    public void queryBuild_ge_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).ge(UserInfo::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName >= ?");
@@ -243,7 +244,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_ge_1_2map() {
+    public void queryBuild_ge_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).ge("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName >= ?");
@@ -264,7 +265,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_lt_1() {
+    public void queryBuild_lt_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).lt(UserInfo::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName < ?");
@@ -285,7 +286,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_lt_1_2map() {
+    public void queryBuild_lt_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).lt("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName < ?");
@@ -306,7 +307,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_le_1() {
+    public void queryBuild_le_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).le(UserInfo::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName <= ?");
@@ -327,7 +328,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_le_1_2map() {
+    public void queryBuild_le_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).le("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName <= ?");
@@ -348,7 +349,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_is_null_1() {
+    public void queryBuild_is_null_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).isNull(UserInfo::getLoginName).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName IS NULL");
@@ -366,7 +367,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_is_null_1_2map() {
+    public void queryBuild_is_null_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).isNull("loginName").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName IS NULL");
@@ -384,7 +385,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_is_not_null_1() {
+    public void queryBuild_is_not_null_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).isNotNull(UserInfo::getLoginName).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName IS NOT NULL");
@@ -402,7 +403,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_is_not_null_1_2map() {
+    public void queryBuild_is_not_null_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).isNotNull("loginName").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName IS NOT NULL");
@@ -420,7 +421,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_in_1() {
+    public void queryBuild_in_1() throws SQLException {
         List<String> inData = Arrays.asList("a", "b", "c");
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).in(UserInfo::getLoginName, inData).getBoundSql();
@@ -448,7 +449,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_in_1_2map() {
+    public void queryBuild_in_1_2map() throws SQLException {
         List<String> inData = Arrays.asList("a", "b", "c");
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).in("loginName", inData).getBoundSql();
@@ -476,7 +477,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_in_1() {
+    public void queryBuild_not_in_1() throws SQLException {
         List<String> notInData = Arrays.asList("a", "b", "c");
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).notIn(UserInfo::getLoginName, notInData).getBoundSql();
@@ -504,7 +505,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_in_1_2map() {
+    public void queryBuild_not_in_1_2map() throws SQLException {
         List<String> notInData = Arrays.asList("a", "b", "c");
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).notIn("loginName", notInData).getBoundSql();
@@ -532,7 +533,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_between_1() {
+    public void queryBuild_between_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).rangeBetween(UserInfo::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName BETWEEN ? AND ?");
@@ -556,7 +557,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_between_1_2map() {
+    public void queryBuild_between_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).rangeBetween("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName BETWEEN ? AND ?");
@@ -580,7 +581,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_between_1() {
+    public void queryBuild_not_between_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).rangeNotBetween(UserInfo::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName NOT BETWEEN ? AND ?");
@@ -604,7 +605,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_between_1_2map() {
+    public void queryBuild_not_between_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).rangeNotBetween("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName NOT BETWEEN ? AND ?");
@@ -628,7 +629,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_rangeOpenOpen_1() {
+    public void queryBuild_rangeOpenOpen_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).rangeOpenOpen(UserInfo::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? < loginName AND loginName < ? )");
@@ -652,7 +653,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_rangeOpenOpen_1_2map() {
+    public void queryBuild_rangeOpenOpen_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).rangeOpenOpen("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? < loginName AND loginName < ? )");
@@ -676,7 +677,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_rangeOpenOpen_1() {
+    public void queryBuild_not_rangeOpenOpen_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).rangeNotOpenOpen(UserInfo::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? < loginName AND loginName < ? )");
@@ -700,7 +701,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_rangeOpenOpen_1_2map() {
+    public void queryBuild_not_rangeOpenOpen_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).rangeNotOpenOpen("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? < loginName AND loginName < ? )");
@@ -724,7 +725,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_rangeOpenClosed_1() {
+    public void queryBuild_rangeOpenClosed_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).rangeOpenClosed(UserInfo::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? < loginName AND loginName <= ? )");
@@ -748,7 +749,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_rangeOpenClosed_1_2map() {
+    public void queryBuild_rangeOpenClosed_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).rangeOpenClosed("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? < loginName AND loginName <= ? )");
@@ -772,7 +773,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_rangeOpenClosed_1() {
+    public void queryBuild_not_rangeOpenClosed_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).rangeNotOpenClosed(UserInfo::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? < loginName AND loginName <= ? )");
@@ -796,7 +797,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_rangeOpenClosed_1_2map() {
+    public void queryBuild_not_rangeOpenClosed_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).rangeNotOpenClosed("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? < loginName AND loginName <= ? )");
@@ -820,7 +821,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_rangeClosedOpen_1() {
+    public void queryBuild_rangeClosedOpen_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).rangeClosedOpen(UserInfo::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? <= loginName AND loginName < ? )");
@@ -844,7 +845,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_rangeClosedOpen_1_2map() {
+    public void queryBuild_rangeClosedOpen_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).rangeClosedOpen("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? <= loginName AND loginName < ? )");
@@ -868,7 +869,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_rangeClosedOpen_1() {
+    public void queryBuild_not_rangeClosedOpen_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).rangeNotClosedOpen(UserInfo::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? <= loginName AND loginName < ? )");
@@ -892,7 +893,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_rangeClosedOpen_1_2map() {
+    public void queryBuild_not_rangeClosedOpen_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).rangeNotClosedOpen("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? <= loginName AND loginName < ? )");
@@ -916,7 +917,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_rangeClosedClosed_1() {
+    public void queryBuild_rangeClosedClosed_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).rangeClosedClosed(UserInfo::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? <= loginName AND loginName <= ? )");
@@ -940,7 +941,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_rangeClosedClosed_1_2map() {
+    public void queryBuild_rangeClosedClosed_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).rangeClosedClosed("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND ( ? <= loginName AND loginName <= ? )");
@@ -964,7 +965,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_rangeClosedClosed_1() {
+    public void queryBuild_not_rangeClosedClosed_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).rangeNotClosedClosed(UserInfo::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? <= loginName AND loginName <= ? )");
@@ -988,7 +989,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_rangeClosedClosed_1_2map() {
+    public void queryBuild_not_rangeClosedClosed_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).rangeNotClosedClosed("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND NOT ( ? <= loginName AND loginName <= ? )");
@@ -1012,7 +1013,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_like_1() {
+    public void queryBuild_like_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).like(UserInfo::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName LIKE CONCAT('%', ? ,'%')");
@@ -1033,7 +1034,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_like_1_2map() {
+    public void queryBuild_like_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).like("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName LIKE CONCAT('%', ? ,'%')");
@@ -1054,7 +1055,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_like_1() {
+    public void queryBuild_not_like_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).notLike(UserInfo::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName NOT LIKE CONCAT('%', ? ,'%')");
@@ -1075,7 +1076,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_like_1_2map() {
+    public void queryBuild_not_like_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).notLike("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName NOT LIKE CONCAT('%', ? ,'%')");
@@ -1096,7 +1097,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_like_right_1() {
+    public void queryBuild_like_right_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).likeRight(UserInfo::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName LIKE CONCAT( ? ,'%')");
@@ -1117,7 +1118,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_like_right_1_2map() {
+    public void queryBuild_like_right_1_2map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).likeRight("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName LIKE CONCAT( ? ,'%')");
@@ -1138,7 +1139,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_like_right_1() {
+    public void queryBuild_not_like_right_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).notLikeRight(UserInfo::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName NOT LIKE CONCAT( ? ,'%')");
@@ -1159,7 +1160,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_like_right_1_map() {
+    public void queryBuild_not_like_right_1_map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).notLikeRight("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName NOT LIKE CONCAT( ? ,'%')");
@@ -1180,7 +1181,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_like_left_1() {
+    public void queryBuild_like_left_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).likeLeft(UserInfo::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName LIKE CONCAT('%', ? )");
@@ -1201,7 +1202,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_like_left_1_map() {
+    public void queryBuild_like_left_1_map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).likeLeft("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName LIKE CONCAT('%', ? )");
@@ -1222,7 +1223,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_like_left_1() {
+    public void queryBuild_not_like_left_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
                 .eq(UserInfo::getSeq, 1).notLikeLeft(UserInfo::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName NOT LIKE CONCAT('%', ? )");
@@ -1243,7 +1244,7 @@ public class BuildPojoQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_like_left_1_map() {
+    public void queryBuild_not_like_left_1_map() throws SQLException {
         BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
                 .eq("seq", 1).notLikeLeft("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM UserInfo WHERE seq = ? AND loginName NOT LIKE CONCAT('%', ? )");

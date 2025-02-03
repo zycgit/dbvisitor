@@ -26,13 +26,14 @@ import net.hasor.dbvisitor.wrapper.dto.UserInfo;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 
 /***
  * @version : 2021-3-22
  * @author 赵永春 (zyc@hasor.net)
  */
 public class BuildPojoDeleteTest {
-    private WrapperAdapter newLambda() {
+    private WrapperAdapter newLambda() throws SQLException {
         MappingOptions opt = MappingOptions.buildNew();
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());
@@ -44,7 +45,7 @@ public class BuildPojoDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_1() {
+    public void deleteBuilder_1() throws SQLException {
         EntityDeleteWrapper<UserInfo> lambda = newLambda().deleteByEntity(UserInfo.class);
         lambda.allowEmptyWhere();
 
@@ -53,7 +54,7 @@ public class BuildPojoDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_1_2map() {
+    public void deleteBuilder_1_2map() throws SQLException {
         MapDeleteWrapper lambda = newLambda().deleteByEntity(UserInfo.class).asMap();
         lambda.allowEmptyWhere();
 
@@ -62,7 +63,7 @@ public class BuildPojoDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_2() {
+    public void deleteBuilder_2() throws SQLException {
         EntityDeleteWrapper<UserInfo> lambda = newLambda().deleteByEntity(UserInfo.class);
         lambda.and(queryBuilder -> {
             queryBuilder.eq(UserInfo::getSeq, 123);
@@ -75,7 +76,7 @@ public class BuildPojoDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_2_2map() {
+    public void deleteBuilder_2_2map() throws SQLException {
         MapDeleteWrapper lambda = newLambda().deleteByEntity(UserInfo.class).asMap();
         lambda.and(queryBuilder -> {
             queryBuilder.eq("seq", 123);
@@ -88,7 +89,7 @@ public class BuildPojoDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_3() {
+    public void deleteBuilder_3() throws SQLException {
         EntityDeleteWrapper<UserInfo> lambda = newLambda().deleteByEntity(UserInfo.class);
         lambda.eq(UserInfo::getLoginName, "admin").and().eq(UserInfo::getPassword, "pass");
 
@@ -97,7 +98,7 @@ public class BuildPojoDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_3_2map() {
+    public void deleteBuilder_3_2map() throws SQLException {
         MapDeleteWrapper lambda = newLambda().deleteByEntity(UserInfo.class).asMap();
         lambda.eq("loginName", "admin").and().eq("password", "pass");
 
@@ -106,7 +107,7 @@ public class BuildPojoDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_4() {
+    public void deleteBuilder_4() throws SQLException {
         UserInfo userInfo = new UserInfo();
         userInfo.setName("zyc");
         userInfo.setLoginName("login");
@@ -139,7 +140,7 @@ public class BuildPojoDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_4_2map() {
+    public void deleteBuilder_4_2map() throws SQLException {
         UserInfo userInfo = new UserInfo();
         userInfo.setName("zyc");
         userInfo.setLoginName("login");
@@ -172,7 +173,7 @@ public class BuildPojoDeleteTest {
     }
 
     @Test
-    public void bad_1() {
+    public void bad_1() throws SQLException {
         try {
             EntityDeleteWrapper<UserInfo> lambdaDelete = newLambda().deleteByEntity(UserInfo.class);
             lambdaDelete.getBoundSql();
@@ -183,7 +184,7 @@ public class BuildPojoDeleteTest {
     }
 
     @Test
-    public void bad_2() {
+    public void bad_2() throws SQLException {
         try {
             EntityDeleteWrapper<UserInfo> lambdaDelete = newLambda().deleteByEntity(UserInfo.class);
             lambdaDelete.getBoundSql();

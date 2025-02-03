@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.mapping.def;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.cobble.reflect.Annotations;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Primary;
 
 import java.util.*;
@@ -41,6 +42,7 @@ public class TableDef<T> implements TableMapping<T> {
     private       TableDescription                 description;
     //
     private final boolean                          mapBased;
+    private       boolean                          useGeneratedKey;
     private final List<ColumnMapping>              columnMappings;
     private final Map<String, ColumnMapping>       mapByProperty;
     private final Map<String, List<ColumnMapping>> mapByColumn;
@@ -57,6 +59,7 @@ public class TableDef<T> implements TableMapping<T> {
         this.useDelimited = useDelimited;
         this.caseInsensitive = caseInsensitive;
         this.mapBased = Map.class.isAssignableFrom(entityType);
+        this.useGeneratedKey = false;
         this.columnMappings = new ArrayList<>();
         this.mapByProperty = (caseInsensitive && Map.class.isAssignableFrom(entityType)) ? new LinkedCaseInsensitiveMap<>() : new LinkedHashMap<>();
         this.mapByColumn = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new LinkedHashMap<>();
@@ -101,6 +104,11 @@ public class TableDef<T> implements TableMapping<T> {
     @Override
     public Annotations getAnnotations() {
         return this.annotations;
+    }
+
+    @Override
+    public boolean useGeneratedKey() {
+        return this.useGeneratedKey;
     }
 
     public void setAnnotations(Annotations annotations) {
@@ -183,6 +191,10 @@ public class TableDef<T> implements TableMapping<T> {
 
         this.mapByProperty.put(propertyName, mapping);
         this.columnMappings.add(mapping);
+
+        if (mapping.getKeyTpe() == KeyType.Auto) {
+            this.useGeneratedKey = true;
+        }
     }
 
     @Override

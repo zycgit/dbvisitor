@@ -37,8 +37,8 @@ public class AutoKeySeqHolderFactory implements GeneratedKeyHandlerFactory {
             }
 
             @Override
-            public Object afterApply(ResultSet rs, Object entity, int argsIndex, ColumnMapping mapping) throws SQLException {
-                Object value = mapping.getTypeHandler().getResult(rs, argsIndex + 1);
+            public Object afterApply(ResultSet generatedKeys, Object entity, int argsIndex, ColumnMapping mapping) throws SQLException {
+                Object value = mapping.getTypeHandler().getResult(generatedKeys, argsIndex + 1);
                 mapping.getHandler().set(entity, value);
                 return value;
             }

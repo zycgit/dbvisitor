@@ -39,7 +39,7 @@ import static net.hasor.test.utils.TestUtils.newID;
  * @version : 2021-3-22
  */
 public class BuildToCamelPojoInsertTest {
-    private WrapperAdapter newLambda() {
+    private WrapperAdapter newLambda() throws SQLException {
         MappingOptions opt = MappingOptions.buildNew().mapUnderscoreToCamelCase(true).defaultDialect(new MySqlDialect());
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());

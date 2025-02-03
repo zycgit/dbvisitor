@@ -47,8 +47,8 @@ import java.util.Map;
 public class InsertWrapperForMap extends AbstractInsertWrapper<InsertWrapper<Map<String, Object>>, Map<String, Object>, String> //
         implements MapInsertWrapper {
 
-    public InsertWrapperForMap(TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
-        super(Map.class, tableMapping, registry, jdbc);
+    public InsertWrapperForMap(TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, SqlDialect dialect) {
+        super(Map.class, tableMapping, registry, jdbc, dialect);
     }
 
     @Override

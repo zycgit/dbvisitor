@@ -50,8 +50,8 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
     private         boolean         lockGroupBy  = false;
     private         boolean         lockOrderBy  = false;
 
-    public AbstractSelectWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
-        super(exampleType, tableMapping, registry, jdbc);
+    public AbstractSelectWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, SqlDialect dialect) {
+        super(exampleType, tableMapping, registry, jdbc, dialect);
     }
 
     @Override

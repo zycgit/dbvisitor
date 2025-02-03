@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.wrapper.support.map;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
@@ -32,8 +33,8 @@ import java.util.Map;
 public class SelectWrapperForMap extends AbstractSelectWrapper<MapQueryWrapper, Map<String, Object>, String> //
         implements MapQueryWrapper {
 
-    public SelectWrapperForMap(TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
-        super(Map.class, tableMapping, registry, jdbc);
+    public SelectWrapperForMap(TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, SqlDialect dialect) {
+        super(Map.class, tableMapping, registry, jdbc, dialect);
     }
 
     @Override

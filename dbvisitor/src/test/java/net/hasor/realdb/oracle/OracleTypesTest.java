@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.realdb.oracle;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -26,24 +26,24 @@ import java.util.List;
 import java.util.Map;
 
 public class OracleTypesTest {
-    protected void preTable(JdbcTemplate jdbcTemplate) throws SQLException, IOException {
+    protected void preTable(JdbcTemplate jdbc) throws SQLException, IOException {
         try {
-            jdbcTemplate.executeUpdate("drop table tb_oracle_types");
+            jdbc.executeUpdate("drop table tb_oracle_types");
         } catch (Exception e) {
             /**/
         }
-        jdbcTemplate.loadSQL("/dbvisitor_coverage/all_types/tb_oracle_types.sql");
+        jdbc.loadSQL("/dbvisitor_coverage/all_types/tb_oracle_types.sql");
     }
 
     @Test
     public void testOracleClob() throws Exception {
         try (Connection conn = DsUtils.oracleConn()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            preTable(jdbcTemplate);
+            JdbcTemplate jdbc = new JdbcTemplate(conn);
+            preTable(jdbc);
 
-            jdbcTemplate.execute("insert into tb_oracle_types (id,c_clob,c_nclob) values ('1','123','456')");
+            jdbc.execute("insert into tb_oracle_types (id,c_clob,c_nclob) values ('1','123','456')");
 
-            List<Map<String, Object>> list = jdbcTemplate.queryForList("select c_clob,c_nclob from tb_oracle_types where id = '1'");
+            List<Map<String, Object>> list = jdbc.queryForList("select c_clob,c_nclob from tb_oracle_types where id = '1'");
             assert list.size() == 1;
             assert list.get(0).get("c_clob").equals("123");
             assert list.get(0).get("c_nclob").equals("456");
@@ -53,12 +53,12 @@ public class OracleTypesTest {
     @Test
     public void testOracleTime() throws Exception {
         try (Connection conn = DsUtils.oracleConn()) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            preTable(jdbcTemplate);
+            JdbcTemplate jdbc = new JdbcTemplate(conn);
+            preTable(jdbc);
             Date time = new Date(System.currentTimeMillis());
-            jdbcTemplate.executeUpdate("insert into tb_oracle_types (id,c_timestamp,c_timestamp_n) values (?,?,?)", new Object[] { "1", time, time });
+            jdbc.executeUpdate("insert into tb_oracle_types (id,c_timestamp,c_timestamp_n) values (?,?,?)", new Object[] { "1", time, time });
 
-            List<Map<String, Object>> list = jdbcTemplate.queryForList("select c_timestamp,c_timestamp_n from tb_oracle_types where id = '1'");
+            List<Map<String, Object>> list = jdbc.queryForList("select c_timestamp,c_timestamp_n from tb_oracle_types where id = '1'");
             assert list.size() == 1;
             assert list.get(0).get("c_timestamp") instanceof Date;
             assert list.get(0).get("c_timestamp_n") instanceof Date;

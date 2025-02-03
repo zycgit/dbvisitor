@@ -38,7 +38,7 @@ import static net.hasor.test.utils.TestUtils.newID;
  * @version : 2021-3-22
  */
 public class FreedomBuildInsertTest {
-    private static Map<String, Object> mapForData1() {
+    private static Map<String, Object> mapForData1() throws SQLException {
         HashMap<String, Object> map = new HashMap<>();
         map.put("uid", newID());
         map.put("name", "Carmen");
@@ -52,7 +52,7 @@ public class FreedomBuildInsertTest {
         return map;
     }
 
-    private WrapperAdapter newLambda() {
+    private WrapperAdapter newLambda() throws SQLException {
         MappingOptions opt = MappingOptions.buildNew().defaultDialect(new MySqlDialect());
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());

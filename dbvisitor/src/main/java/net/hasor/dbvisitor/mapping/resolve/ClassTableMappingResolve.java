@@ -296,6 +296,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
 
             if (keyType != null) {
                 GeneratedKeyHandlerContext holderCtx = new GeneratedKeyHandlerContext(typeRegistry, def, colDef, classLoader, propertyAnno);
+                colDef.setKeyTpe(keyType);
                 colDef.setKeySeqHolder(keyType.createHolder(holderCtx));
             }
         }

@@ -26,6 +26,7 @@ import net.hasor.dbvisitor.wrapper.dto.AnnoUserInfoDTO;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
@@ -33,7 +34,7 @@ import javax.sql.DataSource;
  */
 public class FreedomToCamelBuildDeleteTest {
 
-    private WrapperAdapter newLambda() {
+    private WrapperAdapter newLambda() throws SQLException {
         MappingOptions opt = MappingOptions.buildNew().mapUnderscoreToCamelCase(true);
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());
@@ -45,7 +46,7 @@ public class FreedomToCamelBuildDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_1() {
+    public void deleteBuilder_1() throws SQLException {
         MapDeleteWrapper lambda = newLambda().freedomDelete("user_info");
         lambda.allowEmptyWhere();
 
@@ -54,7 +55,7 @@ public class FreedomToCamelBuildDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_2() {
+    public void deleteBuilder_2() throws SQLException {
         MapDeleteWrapper lambda = newLambda().freedomDelete("user_info");
         lambda.and(queryBuilder -> {
             queryBuilder.eq("seq", 123);
@@ -67,7 +68,7 @@ public class FreedomToCamelBuildDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_3() {
+    public void deleteBuilder_3() throws SQLException {
         MapDeleteWrapper lambda = newLambda().freedomDelete("user_info");
         lambda.eq("loginName", "admin").and().eq("loginPassword", "pass");
 
@@ -76,7 +77,7 @@ public class FreedomToCamelBuildDeleteTest {
     }
 
     @Test
-    public void deleteBuilder_4() {
+    public void deleteBuilder_4() throws SQLException {
         AnnoUserInfoDTO userInfo = new AnnoUserInfoDTO();
         userInfo.setName("zyc");
         userInfo.setLoginName("login");

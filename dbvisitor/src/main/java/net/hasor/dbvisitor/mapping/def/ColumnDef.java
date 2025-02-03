@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.mapping.def;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.reflect.Annotations;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
+import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.types.TypeHandler;
 
 /**
@@ -32,6 +33,7 @@ public class ColumnDef implements ColumnMapping {
     private final TypeHandler<?>      typeHandler;
     private final Property            handler;
     private       Annotations         annotations;
+    private       KeyType             keyTpe;
     private       GeneratedKeyHandler keySeqHolder;
     //
     private       boolean             insert;
@@ -98,6 +100,15 @@ public class ColumnDef implements ColumnMapping {
 
     public void setAnnotations(Annotations annotations) {
         this.annotations = annotations;
+    }
+
+    @Override
+    public KeyType getKeyTpe() {
+        return this.keyTpe;
+    }
+
+    public void setKeyTpe(KeyType keyTpe) {
+        this.keyTpe = keyTpe;
     }
 
     @Override

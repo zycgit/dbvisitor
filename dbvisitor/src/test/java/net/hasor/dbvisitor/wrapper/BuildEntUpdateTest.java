@@ -28,6 +28,7 @@ import net.hasor.dbvisitor.wrapper.dto.AnnoUserInfoDTO;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -38,7 +39,7 @@ import java.util.Map;
  * @version : 2021-3-22
  */
 public class BuildEntUpdateTest {
-    private WrapperAdapter newLambda() {
+    private WrapperAdapter newLambda() throws SQLException {
         MappingOptions opt = MappingOptions.buildNew().defaultDialect(new MySqlDialect());
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());
@@ -107,7 +108,7 @@ public class BuildEntUpdateTest {
     }
 
     @Test
-    public void updateBuilder_bad_2() {
+    public void updateBuilder_bad_2() throws SQLException {
         EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = newLambda().updateByEntity(AnnoUserInfoDTO.class);
         lambdaUpdate.allowEmptyWhere();
 
@@ -120,7 +121,7 @@ public class BuildEntUpdateTest {
     }
 
     @Test
-    public void updateBuilder_bad_2_2map() {
+    public void updateBuilder_bad_2_2map() throws SQLException {
         MapUpdateWrapper lambdaUpdate = newLambda().updateByEntity(AnnoUserInfoDTO.class).asMap();
         lambdaUpdate.allowEmptyWhere();
 
@@ -133,7 +134,7 @@ public class BuildEntUpdateTest {
     }
 
     @Test
-    public void updateBuilder_1_1() {
+    public void updateBuilder_1_1() throws SQLException {
         AnnoUserInfoDTO data = new AnnoUserInfoDTO();
         data.setLoginName("acc");
         data.setPassword("pwd");
@@ -149,7 +150,7 @@ public class BuildEntUpdateTest {
     }
 
     @Test
-    public void updateBuilder_1_1_2map() {
+    public void updateBuilder_1_1_2map() throws SQLException {
         Map<String, Object> map = new HashMap<>();
         map.put("loginName", "acc");
         map.put("password", "pwd");
@@ -167,7 +168,7 @@ public class BuildEntUpdateTest {
     }
 
     @Test
-    public void updateBuilder_1_2() {
+    public void updateBuilder_1_2() throws SQLException {
         AnnoUserInfoDTO data = new AnnoUserInfoDTO();
         data.setLoginName("acc");
         data.setPassword("pwd");
@@ -183,7 +184,7 @@ public class BuildEntUpdateTest {
     }
 
     @Test
-    public void updateBuilder_1_2_2map() {
+    public void updateBuilder_1_2_2map() throws SQLException {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("loginName", "acc");
         map.put("password", "pwd");
@@ -201,7 +202,7 @@ public class BuildEntUpdateTest {
     }
 
     @Test
-    public void updateBuilder_2_1() {
+    public void updateBuilder_2_1() throws SQLException {
         AnnoUserInfoDTO data = new AnnoUserInfoDTO();
         data.setLoginName("acc");
         data.setPassword("pwd");
@@ -214,7 +215,7 @@ public class BuildEntUpdateTest {
     }
 
     @Test
-    public void updateBuilder_2_1_map() {
+    public void updateBuilder_2_1_map() throws SQLException {
         Map<String, Object> map = new HashMap<>();
         map.put("loginName", "acc");
         map.put("password", "pwd");
@@ -228,7 +229,7 @@ public class BuildEntUpdateTest {
     }
 
     @Test
-    public void updateBuilder_by_sample_1() {
+    public void updateBuilder_by_sample_1() throws SQLException {
         WrapperAdapter lambdaTemplate = new WrapperAdapter();
 
         Map<String, Object> whereValue = new HashMap<>();
@@ -254,7 +255,7 @@ public class BuildEntUpdateTest {
     }
 
     @Test
-    public void updateBuilder_by_sample_1_2map() {
+    public void updateBuilder_by_sample_1_2map() throws SQLException {
         WrapperAdapter lambdaTemplate = new WrapperAdapter();
 
         Map<String, Object> whereValue = new HashMap<>();

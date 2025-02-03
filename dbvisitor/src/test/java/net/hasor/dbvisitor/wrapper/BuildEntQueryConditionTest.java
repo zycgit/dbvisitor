@@ -18,6 +18,7 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.wrapper.dto.AnnoUserInfoDTO;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,19 +28,19 @@ import java.util.List;
  */
 public class BuildEntQueryConditionTest {
     @Test
-    public void queryBuild_0() {
+    public void queryBuild_0() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info");
     }
 
     @Test
-    public void queryBuild_0_2map() {
+    public void queryBuild_0_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap().getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info");
     }
 
     @Test
-    public void queryBuild_1() {
+    public void queryBuild_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ?");
@@ -47,7 +48,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_1_2map() {
+    public void queryBuild_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ?");
@@ -55,7 +56,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_1() {
+    public void queryBuild_not_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .not().eq(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE NOT login_name = ?");
@@ -63,7 +64,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_1_2map() {
+    public void queryBuild_not_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .not().eq("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE NOT login_name = ?");
@@ -71,7 +72,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_and_1() {
+    public void queryBuild_and_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).eq(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name = ?");
@@ -86,7 +87,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_and_1_2map() {
+    public void queryBuild_and_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).eq("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name = ?");
@@ -101,7 +102,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_or_1() {
+    public void queryBuild_or_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).or().eq(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR login_name = ?");
@@ -110,7 +111,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_or_1_2map() {
+    public void queryBuild_or_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).or().eq("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR login_name = ?");
@@ -119,7 +120,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_ne_1() {
+    public void queryBuild_ne_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).ne(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name <> ?");
@@ -140,7 +141,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_ne_1_2map() {
+    public void queryBuild_ne_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).ne("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name <> ?");
@@ -161,7 +162,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_gt_1() {
+    public void queryBuild_gt_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).gt(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name > ?");
@@ -182,7 +183,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_gt_1_2map() {
+    public void queryBuild_gt_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).gt("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name > ?");
@@ -203,7 +204,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_ge_1() {
+    public void queryBuild_ge_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).ge(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name >= ?");
@@ -224,7 +225,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_ge_1_2map() {
+    public void queryBuild_ge_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).ge("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name >= ?");
@@ -245,7 +246,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_lt_1() {
+    public void queryBuild_lt_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).lt(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name < ?");
@@ -266,7 +267,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_lt_1_2map() {
+    public void queryBuild_lt_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).lt("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name < ?");
@@ -287,7 +288,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_le_1() {
+    public void queryBuild_le_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).le(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name <= ?");
@@ -308,7 +309,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_le_1_2map() {
+    public void queryBuild_le_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).le("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name <= ?");
@@ -329,7 +330,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_is_null_1() {
+    public void queryBuild_is_null_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).isNull(AnnoUserInfoDTO::getLoginName).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name IS NULL");
@@ -347,7 +348,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_is_null_1_2map() {
+    public void queryBuild_is_null_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).isNull("loginName").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name IS NULL");
@@ -365,7 +366,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_is_not_null_1() {
+    public void queryBuild_is_not_null_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).isNotNull(AnnoUserInfoDTO::getLoginName).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name IS NOT NULL");
@@ -383,7 +384,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_is_not_null_1_2map() {
+    public void queryBuild_is_not_null_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).isNotNull("loginName").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name IS NOT NULL");
@@ -401,7 +402,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_in_1() {
+    public void queryBuild_in_1() throws SQLException {
         List<String> inData = Arrays.asList("a", "b", "c");
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).in(AnnoUserInfoDTO::getLoginName, inData).getBoundSql();
@@ -429,7 +430,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_in_1_2map() {
+    public void queryBuild_in_1_2map() throws SQLException {
         List<String> inData = Arrays.asList("a", "b", "c");
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).in("loginName", inData).getBoundSql();
@@ -457,7 +458,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_in_1() {
+    public void queryBuild_not_in_1() throws SQLException {
         List<String> notInData = Arrays.asList("a", "b", "c");
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).notIn(AnnoUserInfoDTO::getLoginName, notInData).getBoundSql();
@@ -485,7 +486,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_in_1_2map() {
+    public void queryBuild_not_in_1_2map() throws SQLException {
         List<String> notInData = Arrays.asList("a", "b", "c");
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).notIn("loginName", notInData).getBoundSql();
@@ -513,7 +514,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_between_1() {
+    public void queryBuild_between_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).rangeBetween(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name BETWEEN ? AND ?");
@@ -537,7 +538,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_between_1_2map() {
+    public void queryBuild_between_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).rangeBetween("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name BETWEEN ? AND ?");
@@ -561,7 +562,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_between_1() {
+    public void queryBuild_not_between_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).rangeNotBetween(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name NOT BETWEEN ? AND ?");
@@ -585,7 +586,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_between_1_2map() {
+    public void queryBuild_not_between_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).rangeNotBetween("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name NOT BETWEEN ? AND ?");
@@ -609,7 +610,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_rangeOpenOpen_1() {
+    public void queryBuild_rangeOpenOpen_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).rangeOpenOpen(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? < login_name AND login_name < ? )");
@@ -633,7 +634,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_rangeOpenOpen_1_2map() {
+    public void queryBuild_rangeOpenOpen_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).rangeOpenOpen("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? < login_name AND login_name < ? )");
@@ -657,7 +658,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_rangeOpenOpen_1() {
+    public void queryBuild_not_rangeOpenOpen_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).rangeNotOpenOpen(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? < login_name AND login_name < ? )");
@@ -681,7 +682,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_rangeOpenOpen_1_2map() {
+    public void queryBuild_not_rangeOpenOpen_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).rangeNotOpenOpen("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? < login_name AND login_name < ? )");
@@ -705,7 +706,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_rangeOpenClosed_1() {
+    public void queryBuild_rangeOpenClosed_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).rangeOpenClosed(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? < login_name AND login_name <= ? )");
@@ -729,7 +730,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_rangeOpenClosed_1_2map() {
+    public void queryBuild_rangeOpenClosed_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).rangeOpenClosed("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? < login_name AND login_name <= ? )");
@@ -753,7 +754,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_rangeOpenClosed_1() {
+    public void queryBuild_not_rangeOpenClosed_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).rangeNotOpenClosed(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? < login_name AND login_name <= ? )");
@@ -777,7 +778,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_rangeOpenClosed_1_2map() {
+    public void queryBuild_not_rangeOpenClosed_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).rangeNotOpenClosed("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? < login_name AND login_name <= ? )");
@@ -801,7 +802,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_rangeClosedOpen_1() {
+    public void queryBuild_rangeClosedOpen_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).rangeClosedOpen(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? <= login_name AND login_name < ? )");
@@ -825,7 +826,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_rangeClosedOpen_1_2map() {
+    public void queryBuild_rangeClosedOpen_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).rangeClosedOpen("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? <= login_name AND login_name < ? )");
@@ -849,7 +850,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_rangeClosedOpen_1() {
+    public void queryBuild_not_rangeClosedOpen_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).rangeNotClosedOpen(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? <= login_name AND login_name < ? )");
@@ -873,7 +874,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_rangeClosedOpen_1_2map() {
+    public void queryBuild_not_rangeClosedOpen_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).rangeNotClosedOpen("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? <= login_name AND login_name < ? )");
@@ -897,7 +898,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_rangeClosedClosed_1() {
+    public void queryBuild_rangeClosedClosed_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).rangeClosedClosed(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? <= login_name AND login_name <= ? )");
@@ -921,7 +922,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_rangeClosedClosed_1_2map() {
+    public void queryBuild_rangeClosedClosed_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).rangeClosedClosed("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? <= login_name AND login_name <= ? )");
@@ -945,7 +946,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_rangeClosedClosed_1() {
+    public void queryBuild_not_rangeClosedClosed_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).rangeNotClosedClosed(AnnoUserInfoDTO::getLoginName, 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? <= login_name AND login_name <= ? )");
@@ -969,7 +970,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_rangeClosedClosed_1_2map() {
+    public void queryBuild_not_rangeClosedClosed_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).rangeNotClosedClosed("loginName", 2, 3).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? <= login_name AND login_name <= ? )");
@@ -993,7 +994,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_like_1() {
+    public void queryBuild_like_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).like(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name LIKE CONCAT('%', ? ,'%')");
@@ -1014,7 +1015,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_like_1_2map() {
+    public void queryBuild_like_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).like("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name LIKE CONCAT('%', ? ,'%')");
@@ -1035,7 +1036,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_like_1() {
+    public void queryBuild_not_like_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).notLike(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name NOT LIKE CONCAT('%', ? ,'%')");
@@ -1056,7 +1057,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_like_1_2map() {
+    public void queryBuild_not_like_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).notLike("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name NOT LIKE CONCAT('%', ? ,'%')");
@@ -1077,7 +1078,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_like_right_1() {
+    public void queryBuild_like_right_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).likeRight(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name LIKE CONCAT( ? ,'%')");
@@ -1098,7 +1099,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_like_right_1_2map() {
+    public void queryBuild_like_right_1_2map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).likeRight("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name LIKE CONCAT( ? ,'%')");
@@ -1119,7 +1120,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_like_right_1() {
+    public void queryBuild_not_like_right_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).notLikeRight(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name NOT LIKE CONCAT( ? ,'%')");
@@ -1140,7 +1141,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_like_right_1_map() {
+    public void queryBuild_not_like_right_1_map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).notLikeRight("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name NOT LIKE CONCAT( ? ,'%')");
@@ -1161,7 +1162,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_like_left_1() {
+    public void queryBuild_like_left_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).likeLeft(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name LIKE CONCAT('%', ? )");
@@ -1182,7 +1183,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_like_left_1_map() {
+    public void queryBuild_like_left_1_map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).likeLeft("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name LIKE CONCAT('%', ? )");
@@ -1203,7 +1204,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_like_left_1() {
+    public void queryBuild_not_like_left_1() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getSeq, 1).notLikeLeft(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name NOT LIKE CONCAT('%', ? )");
@@ -1224,7 +1225,7 @@ public class BuildEntQueryConditionTest {
     }
 
     @Test
-    public void queryBuild_not_like_left_1_map() {
+    public void queryBuild_not_like_left_1_map() throws SQLException {
         BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
                 .eq("seq", 1).notLikeLeft("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND login_name NOT LIKE CONCAT('%', ? )");

@@ -47,8 +47,8 @@ public abstract class AbstractUpdateWrapper<R, T, P> extends BasicQueryCompare<R
     private         boolean                    allowEmptyWhere = false;
     private         boolean                    allowUpdateKey  = false;
 
-    public AbstractUpdateWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
-        super(exampleType, tableMapping, registry, jdbc);
+    public AbstractUpdateWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, SqlDialect dialect) {
+        super(exampleType, tableMapping, registry, jdbc, dialect);
 
         Set<String> allowUpdateKeys = new LinkedHashSet<>();
         Set<String> primaryKeys = new LinkedHashSet<>();

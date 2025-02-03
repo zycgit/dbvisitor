@@ -55,8 +55,8 @@ public abstract class AbstractInsertWrapper<R, T, P> extends BasicLambda<R, T, P
     protected final List<InsertEntity>   insertValues;
     protected final List<InsertEntity>   fillBackEntityList;
 
-    public AbstractInsertWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
-        super(exampleType, tableMapping, registry, jdbc);
+    public AbstractInsertWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, SqlDialect dialect) {
+        super(exampleType, tableMapping, registry, jdbc, dialect);
 
         List<ColumnMapping> primaryKeys = new ArrayList<>();
         List<ColumnMapping> insertProperties = new ArrayList<>();
@@ -189,7 +189,7 @@ public abstract class AbstractInsertWrapper<R, T, P> extends BasicLambda<R, T, P
     }
 
     protected PreparedStatement createPrepareStatement(Connection con, String sqlString) throws SQLException {
-        if (this.hasKeySeqHolderColumn) {
+        if (this.getTableMapping().useGeneratedKey()) {
             return con.prepareStatement(sqlString, RETURN_GENERATED_KEYS);
         } else {
             return con.prepareStatement(sqlString);

@@ -24,13 +24,14 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 
 /***
  * @version : 2021-3-22
  * @author 赵永春 (zyc@hasor.net)
  */
 public class FreedomToCamelBuildQueryNestedTest {
-    private WrapperAdapter newLambda() {
+    private WrapperAdapter newLambda() throws SQLException {
         MappingOptions opt = MappingOptions.buildNew().mapUnderscoreToCamelCase(true);
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());
@@ -42,7 +43,7 @@ public class FreedomToCamelBuildQueryNestedTest {
     }
 
     @Test
-    public void queryBuilder_nested_or_1() {
+    public void queryBuilder_nested_or_1() throws SQLException {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
                 .eq("loginName", "a").or(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
@@ -65,7 +66,7 @@ public class FreedomToCamelBuildQueryNestedTest {
     }
 
     @Test
-    public void queryBuilder_nested_or_2() {
+    public void queryBuilder_nested_or_2() throws SQLException {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
                 .nested(qc -> {
                     qc.eq("loginName", "user-1").eq("seq", 1);
@@ -80,7 +81,7 @@ public class FreedomToCamelBuildQueryNestedTest {
     }
 
     @Test
-    public void queryBuilder_nested_and_1() {
+    public void queryBuilder_nested_and_1() throws SQLException {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
                 .eq("loginName", "a").and(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
@@ -105,7 +106,7 @@ public class FreedomToCamelBuildQueryNestedTest {
     }
 
     @Test
-    public void queryBuilder_nested_and_2() {
+    public void queryBuilder_nested_and_2() throws SQLException {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
                 .nested(qc -> {
                     qc.eq("seq", 1).or().eq("seq", 2);
@@ -120,7 +121,7 @@ public class FreedomToCamelBuildQueryNestedTest {
     }
 
     @Test
-    public void queryBuilder_nested_1() {
+    public void queryBuilder_nested_1() throws SQLException {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
                 .eq("loginName", "a").nested(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
@@ -163,7 +164,7 @@ public class FreedomToCamelBuildQueryNestedTest {
     }
 
     @Test
-    public void queryBuilder_nested_not_1() {
+    public void queryBuilder_nested_not_1() throws SQLException {
         BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
                 .not(qc -> {
                     qc.eq("seq", 1).or().eq("loginName", "a");

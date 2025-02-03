@@ -51,13 +51,13 @@ import java.util.stream.Collectors;
  * @version : 2022-04-02
  */
 public class InsertWrapperForEntity<T> extends AbstractInsertWrapper<InsertWrapper<T>, T, SFunction<T>> implements EntityInsertWrapper<T> {
-    public InsertWrapperForEntity(TableMapping<T> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
-        super(tableMapping.entityType(), tableMapping, registry, jdbc);
+    public InsertWrapperForEntity(TableMapping<T> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, SqlDialect dialect) {
+        super(tableMapping.entityType(), tableMapping, registry, jdbc, dialect);
     }
 
     @Override
     public MapInsertWrapper asMap() {
-        return new InsertWrapperForMap(this.getTableMapping(), this.registry, this.jdbc);
+        return new InsertWrapperForMap(this.getTableMapping(), this.registry, this.jdbc, this.dialect);
     }
 
     @Override
@@ -277,10 +277,15 @@ public class InsertWrapperForEntity<T> extends AbstractInsertWrapper<InsertWrapp
         if (!this.hasKeySeqHolderColumn) {
             return;
         }
-        ResultSet rs = fillBack.getGeneratedKeys();
+
+        ResultSet rs = null;
+        if (this.getTableMapping().useGeneratedKey()) {
+            rs = fillBack.getGeneratedKeys();
+        }
+
         for (InsertEntity entity : this.fillBackEntityList) {
             for (Object obj : entity.objList) {
-                if (!rs.next()) {
+                if (rs != null && !rs.next()) {
                     break;
                 }
                 for (int i = 0; i < this.fillAfterProperties.size(); i++) {

@@ -15,11 +15,12 @@
  */
 package net.hasor.dbvisitor;
 import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
+import net.hasor.dbvisitor.dialect.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
+import java.sql.*;
 
 /**
  * 工具类来自于 druid-1.1.23.jar
@@ -65,6 +66,13 @@ public class JdbcHelper {
     public static final String KDB              = "kdb";
     /** Aliyun PolarDB */
     public static final String POLARDB          = "polardb";
+
+    public static PageSqlDialect findDialect(Connection conn) throws SQLException {
+        DatabaseMetaData metaData = conn.getMetaData();
+        String tmpDbType = JdbcHelper.getDbType(metaData.getURL(), metaData.getDriverName());
+        SqlDialect tempDialect = SqlDialectRegister.findOrCreate(tmpDbType);
+        return (!(tempDialect instanceof PageSqlDialect)) ? DefaultSqlDialect.DEFAULT : (PageSqlDialect) tempDialect;
+    }
 
     public static String getDbType(String rawUrl, String driverClassName) {
         if (rawUrl == null) {

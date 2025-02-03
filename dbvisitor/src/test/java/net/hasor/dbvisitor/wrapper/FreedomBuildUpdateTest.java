@@ -26,6 +26,7 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -36,7 +37,7 @@ import java.util.Map;
  * @version : 2021-3-22
  */
 public class FreedomBuildUpdateTest {
-    private WrapperAdapter newLambda() {
+    private WrapperAdapter newLambda() throws SQLException {
         MappingOptions opt = MappingOptions.buildNew();
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());
@@ -76,7 +77,7 @@ public class FreedomBuildUpdateTest {
     }
 
     @Test
-    public void updateBuilder_bad_2() {
+    public void updateBuilder_bad_2() throws SQLException {
         MapUpdateWrapper lambdaUpdate = newLambda().freedomUpdate("user_info");
         lambdaUpdate.allowEmptyWhere();
 
@@ -89,7 +90,7 @@ public class FreedomBuildUpdateTest {
     }
 
     @Test
-    public void updateBuilder_1_1() {
+    public void updateBuilder_1_1() throws SQLException {
         Map<String, Object> map = new HashMap<>();
         map.put("loginName", "acc");
         map.put("password", "pwd");
@@ -108,7 +109,7 @@ public class FreedomBuildUpdateTest {
     }
 
     @Test
-    public void updateBuilder_1_2() {
+    public void updateBuilder_1_2() throws SQLException {
         Map<String, Object> map = new HashMap<>();
         map.put("loginName", "acc");
         map.put("password", "pwd");
@@ -127,7 +128,7 @@ public class FreedomBuildUpdateTest {
     }
 
     @Test
-    public void updateBuilder_2_1() {
+    public void updateBuilder_2_1() throws SQLException {
         Map<String, Object> map = new HashMap<>();
         map.put("loginName", "acc");
         map.put("password", "pwd");
@@ -141,7 +142,7 @@ public class FreedomBuildUpdateTest {
     }
 
     @Test
-    public void updateBuilder_by_sample_1() {
+    public void updateBuilder_by_sample_1() throws SQLException {
         WrapperAdapter lambdaTemplate = newLambda();
 
         Map<String, Object> whereValue = new LinkedHashMap<>();
