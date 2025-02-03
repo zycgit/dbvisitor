@@ -18,10 +18,10 @@ import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.args.BeanSqlArgSource;
 import net.hasor.dbvisitor.template.jdbc.PreparedStatementSetter;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.UserInfo;
 import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
 import net.hasor.test.utils.TestUtils;
+import net.hasor.test.utils.UserInfo;
 import org.junit.Test;
 
 import java.sql.Connection;

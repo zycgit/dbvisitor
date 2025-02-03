@@ -13,24 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.dto;
-import net.hasor.dbvisitor.types.handler.string.EnumOfCode;
+package net.hasor.dbvisitor.template.jdbc.core.test;
+import net.hasor.dbvisitor.template.RowCallbackHandler;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * 大小写不敏感
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-11-29
+ * @version : 2013-12-10
  */
-public enum CharacterSensitiveEnum implements EnumOfCode<CharacterSensitiveEnum> {
-    a,
-    A;
+public class UserNameRowCallback implements RowCallbackHandler {
+    private final List<String> result = new ArrayList<>();
 
-    public CharacterSensitiveEnum valueOfCode(String name) {
-        for (CharacterSensitiveEnum item : CharacterSensitiveEnum.values()) {
-            if (item.name().equalsIgnoreCase(name)) {
-                return item;
-            }
-        }
-        return null;
+    public int size() {
+        return result.size();
+    }
+
+    public String getName(int i) {
+        return result.get(i);
+    }
+
+    @Override
+    public void processRow(ResultSet rs, int rowNum) throws SQLException {
+        this.result.add(rs.getString("name"));
     }
 }

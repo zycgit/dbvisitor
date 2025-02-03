@@ -2,7 +2,7 @@ package net.hasor.dbvisitor.template.jdbc.core;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.dbvisitor.template.jdbc.PreparedStatementSetter;
-import net.hasor.scene.UserNameRowCallback;
+import net.hasor.dbvisitor.template.jdbc.core.test.UserNameRowCallback;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.test.utils;
-import net.hasor.test.dto.UserInfo;
 
 import java.util.Date;
 import java.util.HashMap;

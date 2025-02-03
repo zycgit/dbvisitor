@@ -15,8 +15,6 @@
  */
 package net.hasor.dbvisitor.session;
 import net.hasor.cobble.io.IOUtils;
-import net.hasor.cobble.logging.Logger;
-import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageResult;
@@ -44,11 +42,10 @@ import java.util.Objects;
  * @version : 2021-05-19
  */
 public class Session extends JdbcAccessor implements Closeable {
-    private static final Logger           log = LoggerFactory.getLogger(Session.class);
-    private final        Configuration    configuration;
-    private final        SessionPrototype prototype;
-    private final        WrapperAdapter   adapter;
-    private final        JdbcTemplate     jdbc;
+    private final Configuration    configuration;
+    private final SessionPrototype prototype;
+    private final WrapperAdapter   adapter;
+    private final JdbcTemplate     jdbc;
 
     public Session(Connection conn, SessionPrototype prototype, Configuration configuration) throws SQLException {
         this.setConnection(Objects.requireNonNull(conn, "connection is null."));

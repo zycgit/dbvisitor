@@ -29,7 +29,7 @@ public class MySqlPerformanceTest {
         InsertWrapper<UserInfo2> insert = wrapper.insertByEntity(UserInfo2.class);
         for (int i = 0; i < count; i++) {
             UserInfo2 tbUser = new UserInfo2();
-            tbUser.setUid("id_" + i);
+            //tbUser.setUid("id_" + i);
             tbUser.setName(String.format("默认用户_%s", i));
             tbUser.setLoginName(String.format("acc_%s", i));
             tbUser.setPassword(String.format("pwd_%s", i));

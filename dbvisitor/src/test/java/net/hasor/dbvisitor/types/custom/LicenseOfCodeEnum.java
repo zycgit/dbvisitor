@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.dto;
+package net.hasor.dbvisitor.types.custom;
+import net.hasor.dbvisitor.types.handler.string.EnumOfCode;
+
 /**
  * 授权协议类型
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2016年08月11日
  */
-public enum LicenseEnum {
+public enum LicenseOfCodeEnum implements EnumOfCode<LicenseOfCodeEnum> {
     Private(0, "Private"),//
     AGPLv3(1, "AGPLv3"),//
     GPLv3(2, "GPLv3"), //
@@ -33,7 +35,7 @@ public enum LicenseEnum {
     private int    type;
     private String desc;
 
-    LicenseEnum(int type, String desc) {
+    LicenseOfCodeEnum(int type, String desc) {
         this.type = type;
         this.desc = desc;
     }
@@ -44,5 +46,19 @@ public enum LicenseEnum {
 
     public String getDesc() {
         return desc;
+    }
+
+    @Override
+    public String codeName() {
+        return this.desc;
+    }
+
+    public LicenseOfCodeEnum valueOfCode(String name) {
+        for (LicenseOfCodeEnum item : LicenseOfCodeEnum.values()) {
+            if (item.codeName().equalsIgnoreCase(name)) {
+                return item;
+            }
+        }
+        return null;
     }
 }

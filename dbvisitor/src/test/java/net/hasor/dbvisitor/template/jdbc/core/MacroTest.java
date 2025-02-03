@@ -16,9 +16,9 @@
 package net.hasor.dbvisitor.template.jdbc.core;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.UserInfo;
 import net.hasor.test.utils.DsUtils;
 import net.hasor.test.utils.TestUtils;
+import net.hasor.test.utils.UserInfo;
 import org.junit.Test;
 
 import java.sql.Connection;

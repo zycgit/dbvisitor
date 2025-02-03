@@ -1,4 +1,5 @@
 package net.hasor.scene.casesensitive;
+import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.wrapper.InsertWrapper;
 import net.hasor.dbvisitor.wrapper.MapQueryWrapper;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
@@ -15,21 +16,21 @@ public class CaseSensitiveTest {
     @Test
     public void insertMapByUpperKeys() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
-            lambdaTemplate.deleteByTable("USER_TABLE").allowEmptyWhere().doDelete();
+            WrapperAdapter wrapper = new WrapperAdapter(c);
+            wrapper.freedomDelete("USER_TABLE").allowEmptyWhere().doDelete();
 
             Map<String, Object> userData = new LinkedHashMap<>();
             userData.put("AGE", 120);
             userData.put("NAME", "default user");
             userData.put("CREATE_TIME", "2022-01-01 12:12:12");
 
-            InsertWrapper<Map<String, Object>> insert = lambdaTemplate.insertByTable("USER_TABLE").asMap().applyMap(userData);
+            InsertWrapper<Map<String, Object>> insert = wrapper.freedomInsert("USER_TABLE").applyMap(userData);
             assert insert.getBoundSql().getSqlString().equals("INSERT INTO USER_TABLE (AGE, NAME, CREATE_TIME) VALUES (?, ?, ?)");
             assert insert.executeSumResult() == 1;
 
             // 校验结果
-            MapQueryWrapper lambdaQuery = lambdaTemplate.queryByTable("USER_TABLE").asMap();
-            Map<String, Object> resultData = lambdaQuery.eq("AGE", 120).queryForObject();
+            MapQueryWrapper query = wrapper.freedomQuery("USER_TABLE");
+            Map<String, Object> resultData = query.eq("AGE", 120).queryForObject();
             assert resultData.get("name").equals("default user");
         }
     }
@@ -38,21 +39,21 @@ public class CaseSensitiveTest {
     @Test
     public void insertMapByLowerKeys() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
-            lambdaTemplate.deleteByTable("USER_TABLE").allowEmptyWhere().doDelete();
+            WrapperAdapter wrapper = new WrapperAdapter(c);
+            wrapper.freedomDelete("USER_TABLE").allowEmptyWhere().doDelete();
 
             Map<String, Object> userData = new LinkedHashMap<>();
             userData.put("AGE", 120);
             userData.put("NAME", "default user");
             userData.put("CREATE_TIME", "2022-01-01 12:12:12");
 
-            InsertWrapper<Map<String, Object>> insert = lambdaTemplate.insertByTable("USER_TABLE").asMap().applyMap(userData);
+            InsertWrapper<Map<String, Object>> insert = wrapper.freedomInsert("USER_TABLE").applyMap(userData);
             assert insert.getBoundSql().getSqlString().equals("INSERT INTO USER_TABLE (AGE, NAME, CREATE_TIME) VALUES (?, ?, ?)");
             assert insert.executeSumResult() == 1;
 
             // 校验结果
-            MapQueryWrapper lambdaQuery = lambdaTemplate.queryByTable("user_table").asMap();
-            Map<String, Object> resultData = lambdaQuery.eq("age", 120).queryForObject();
+            MapQueryWrapper query = wrapper.freedomQuery("user_table");
+            Map<String, Object> resultData = query.eq("age", 120).queryForObject();
             assert resultData.get("name").equals("default user");
         }
     }
@@ -61,12 +62,10 @@ public class CaseSensitiveTest {
     @Test
     public void caseSensitive() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
-
-            lambdaTemplate.getJdbc().setResultsCaseInsensitive(false); //设置为敏感
+            WrapperAdapter wrapper = new WrapperAdapter(c, MappingOptions.buildNew().caseInsensitive(false));
 
             // H2 列名/表名 默认都是大写的
-            Map<String, Object> resultData = lambdaTemplate.queryByTable("USER_TABLE").asMap()//
+            Map<String, Object> resultData = wrapper.freedomQuery("USER_TABLE")//
                     .eq("ID", 1).queryForObject();
 
             // H2 列名默认都是大写的
@@ -79,15 +78,13 @@ public class CaseSensitiveTest {
     @Test
     public void qualifierTest() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
-            //lambdaTemplate.setUseQualifier(true); //请求参数使用限定符
+            WrapperAdapter wrapper1 = new WrapperAdapter(c, MappingOptions.buildNew().defaultDelimited(true));
 
-            String sqlString1 = lambdaTemplate.queryByTable("USER_TABLE").eq("ID", 1).getBoundSql().getSqlString();
+            String sqlString1 = wrapper1.freedomQuery("USER_TABLE").eq("ID", 1).getBoundSql().getSqlString();
             assert sqlString1.equals("SELECT * FROM \"USER_TABLE\" WHERE \"ID\" = ?");
 
-            //lambdaTemplate.setUseQualifier(false); //请求参数不使用限定符
-
-            String sqlString2 = lambdaTemplate.queryByTable("USER_TABLE").eq("ID", 1).getBoundSql().getSqlString();
+            WrapperAdapter wrapper2 = new WrapperAdapter(c, MappingOptions.buildNew().defaultDelimited(false));
+            String sqlString2 = wrapper2.freedomQuery("USER_TABLE").eq("ID", 1).getBoundSql().getSqlString();
             assert sqlString2.equals("SELECT * FROM USER_TABLE WHERE ID = ?");
         }
     }

@@ -25,7 +25,7 @@ public class PojoCrudTestCase {
     @Test
     public void insertByBean() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
             UserTable userData = new UserTable();
             userData.setId(100);// POJO 由于没有配置忽略信息，因此无法享受自增ID，必须指定ID
@@ -47,7 +47,7 @@ public class PojoCrudTestCase {
     @Test
     public void insertByMap() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
             Map<String, Object> userData = new HashMap<>();
             userData.put("id", 100);// POJO 由于没有配置忽略信息，因此无法享受自增ID，必须指定ID
@@ -69,7 +69,7 @@ public class PojoCrudTestCase {
     @Test
     public void updateOneColumn() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
             // update user set name = 'new name is abc' where id = 1
             lambdaTemplate.updateByEntity(UserTable.class) //
@@ -88,7 +88,7 @@ public class PojoCrudTestCase {
     @Test
     public void updateMultipleColumn() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
             // update user set name = 'new name is abc', age = 120 where id = 1
             lambdaTemplate.updateByEntity(UserTable.class) //
@@ -109,7 +109,7 @@ public class PojoCrudTestCase {
     @Test
     public void updateByMap() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
             Map<String, Object> newValue = new HashMap<>();
             newValue.put("name", "new name is abc");
@@ -133,7 +133,7 @@ public class PojoCrudTestCase {
     @Test
     public void updateBySample() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
             UserTable newData = new UserTable();
             newData.setName("new name is abc");
@@ -158,7 +158,7 @@ public class PojoCrudTestCase {
     public void updateRow() throws SQLException {
         LoggerFactory.useStdOutLogger();
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
             // 除了 name 和 pk 之外，其它列应该都是 null。
             UserTable newData = new UserTable();
@@ -187,7 +187,7 @@ public class PojoCrudTestCase {
     @Test
     public void deleteByID() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
             // delete from user where id = 1;
             int i = lambdaTemplate.deleteByEntity(UserTable.class) //
@@ -206,7 +206,7 @@ public class PojoCrudTestCase {
     @Test
     public void deleteBySample() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
             // 条件对象
             UserTable sample = new UserTable();
@@ -230,7 +230,7 @@ public class PojoCrudTestCase {
     @Test
     public void deleteBySampleMap() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
             Map<String, Object> newValue = new HashMap<>();
             newValue.put("id", 1);
@@ -253,7 +253,7 @@ public class PojoCrudTestCase {
     @Test
     public void deleteALL() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
             // delete from user;
             int i = lambdaTemplate.deleteByEntity(UserTable.class) //
@@ -270,7 +270,7 @@ public class PojoCrudTestCase {
     @Test
     public void batchInsertByPojo() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
+            WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
             InsertWrapper<UserTable> lambdaInsert = lambdaTemplate.insertByEntity(UserTable.class);
             for (int i = 0; i < 10; i++) {

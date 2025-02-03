@@ -1,6 +1,6 @@
 package net.hasor.dbvisitor.template.jdbc.dynamic;
+import net.hasor.dbvisitor.template.jdbc.UserDTO;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
-import net.hasor.scene.UserDTO;
 import org.junit.Test;
 
 import java.sql.SQLException;

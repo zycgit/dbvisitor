@@ -19,8 +19,8 @@ import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.custom.MyStringTypeHandler1;
+import net.hasor.dbvisitor.types.custom.MyTypeHandler;
 import net.hasor.dbvisitor.types.custom.UserTable;
-import net.hasor.test.types.MyTypeHandler;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 

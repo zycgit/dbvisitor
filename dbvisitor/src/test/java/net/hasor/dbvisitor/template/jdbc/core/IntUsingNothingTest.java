@@ -1,8 +1,8 @@
 package net.hasor.dbvisitor.template.jdbc.core;
 import net.hasor.dbvisitor.dynamic.args.BeanSqlArgSource;
-import net.hasor.test.dto.UserInfo;
 import net.hasor.test.utils.DsUtils;
 import net.hasor.test.utils.TestUtils;
+import net.hasor.test.utils.UserInfo;
 import org.junit.Test;
 
 import java.sql.Connection;

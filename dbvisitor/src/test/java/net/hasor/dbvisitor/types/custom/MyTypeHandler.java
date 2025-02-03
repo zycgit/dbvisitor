@@ -1,4 +1,4 @@
-package net.hasor.test.types;
+package net.hasor.dbvisitor.types.custom;
 import net.hasor.dbvisitor.types.MappedCrossTypes;
 import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 

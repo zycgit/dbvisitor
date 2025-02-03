@@ -17,10 +17,10 @@ package net.hasor.dbvisitor.types.handler;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.transaction.Isolation;
 import net.hasor.dbvisitor.types.SqlArg;
+import net.hasor.dbvisitor.types.custom.CharacterSensitiveEnum;
+import net.hasor.dbvisitor.types.custom.LicenseOfCodeEnum;
+import net.hasor.dbvisitor.types.custom.LicenseOfValueEnum;
 import net.hasor.dbvisitor.types.handler.string.EnumTypeHandler;
-import net.hasor.test.dto.CharacterSensitiveEnum;
-import net.hasor.test.dto.LicenseOfCodeEnum;
-import net.hasor.test.dto.LicenseOfValueEnum;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 

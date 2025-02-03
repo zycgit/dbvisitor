@@ -142,4 +142,22 @@ public class LoadSqlTest extends AbstractDbTest {
             assert hasTable(jdbcTemplate, null, MYSQL_SCHEMA_NAME, "user_info");
         }
     }
+
+    @Test
+    public void badTest_1() {
+        try {
+            new JdbcTemplate().loadSplitSQL(";", StandardCharsets.UTF_8, "abc");
+        } catch (Exception e) {
+            assert e.getMessage().equals("can't find resource 'abc'");
+        }
+    }
+
+    @Test
+    public void badTest_2() {
+        try {
+            new JdbcTemplate().executeBatch(new String[0]);
+        } catch (NullPointerException | SQLException e) {
+            assert e.getMessage().equals("SQL array must not be empty");
+        }
+    }
 }

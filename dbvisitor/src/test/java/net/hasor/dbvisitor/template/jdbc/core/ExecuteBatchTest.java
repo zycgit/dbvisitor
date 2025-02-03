@@ -21,6 +21,7 @@ import net.hasor.dbvisitor.template.jdbc.AnnoUserInfoDTO;
 import net.hasor.dbvisitor.template.jdbc.BatchPreparedStatementSetter;
 import net.hasor.dbvisitor.template.jdbc.PreparedStatementSetter;
 import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
 import net.hasor.test.utils.TestUtils;
 import org.junit.Test;
@@ -39,6 +40,44 @@ import java.util.stream.Collectors;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class ExecuteBatchTest extends AbstractDbTest {
+    @Test
+    public void badTest_1() throws SQLException {
+        int[] ints1 = new JdbcTemplate().executeBatch("insert abc(id) values (?)", new SqlArgSource[0]);
+        assert ints1.length == 0;
+
+        int[] ints2 = new JdbcTemplate().executeBatch("insert abc(id) values (:id)", new SqlArgSource[0]);
+        assert ints2.length == 0;
+
+        int[] ints3 = new JdbcTemplate().executeBatch("insert abc(id,name) values (:id,?)", new SqlArgSource[0]);
+        assert ints3.length == 0;
+    }
+
+    @Test
+    public void badTest_2() throws Throwable {
+        try (Connection c = DsUtils.h2Conn()) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
+
+            List<user_info> tbUsers1 = jdbcTemplate.queryForList("select * from user_info", user_info.class);
+            Set<String> collect1 = tbUsers1.stream().map(user_info::getUser_name).collect(Collectors.toSet());
+            assert collect1.size() == 3;
+            assert collect1.contains(TestUtils.beanForData1().getName());
+            assert collect1.contains(TestUtils.beanForData2().getName());
+            assert collect1.contains(TestUtils.beanForData3().getName());
+
+            SqlArgSource[] ids = new SqlArgSource[] {//
+                    new BeanSqlArgSource(TestUtils.beanForData1()),//
+                    new BeanSqlArgSource(TestUtils.beanForData2()),//
+                    new BeanSqlArgSource(TestUtils.beanForData3()) //
+            };
+
+            try {
+                jdbcTemplate.executeBatch("update user_info set user_name = CONCAT(user_name, '~' ) where user_uuid = ${\"'\" + userUuid + \"'\"}", ids);
+            } catch (SQLException e) {
+                assert e.getMessage().startsWith("executeBatch, each set of parameters must be able to derive the same SQL.");
+            }
+        }
+    }
+
     @Test
     public void noargs_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {

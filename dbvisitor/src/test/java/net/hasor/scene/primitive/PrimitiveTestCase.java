@@ -1,20 +1,20 @@
 package net.hasor.scene.primitive;
-import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import net.hasor.scene.primitive.dto.PrimitiveDTO;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 public class PrimitiveTestCase {
 
     @Test
-    public void stringTestCase() throws SQLException {
+    public void stringTestCase() throws Exception {
+        Configuration conf = new Configuration();
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter template = new WrapperAdapter(c);
+            WrapperAdapter template = conf.newWrapper(c);
             template.deleteByEntity(PrimitiveDTO.class).allowEmptyWhere().doDelete();
 
             PrimitiveDTO dto = new PrimitiveDTO();
@@ -41,7 +41,7 @@ public class PrimitiveTestCase {
             assert strings2.get(1).equals("string 2");
 
             // using dal
-            PrimitiveMapper mapper = new DalSession(c).createMapper(PrimitiveMapper.class);
+            PrimitiveMapper mapper = conf.newSession(c).createMapper(PrimitiveMapper.class);
             List<String> strings3 = mapper.queryString();
             assert strings3.get(0).equals("string 1");
             assert strings3.get(1).equals("string 2");
@@ -49,9 +49,10 @@ public class PrimitiveTestCase {
     }
 
     @Test
-    public void intTestCase() throws SQLException {
+    public void intTestCase() throws Exception {
+        Configuration conf = new Configuration();
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter template = new WrapperAdapter(c);
+            WrapperAdapter template = conf.newWrapper(c);
             template.deleteByEntity(PrimitiveDTO.class).allowEmptyWhere().doDelete();
 
             PrimitiveDTO dto = new PrimitiveDTO();
@@ -78,7 +79,7 @@ public class PrimitiveTestCase {
             assert ints2.get(1).equals(20);
 
             // using dal
-            PrimitiveMapper mapper = new DalSession(c).createMapper(PrimitiveMapper.class);
+            PrimitiveMapper mapper = conf.newSession(c).createMapper(PrimitiveMapper.class);
             List<Integer> ints3 = mapper.queryInteger();
             assert ints3.get(0).equals(10);
             assert ints3.get(1).equals(20);

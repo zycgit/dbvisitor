@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.template.jdbc.core;
+import net.hasor.dbvisitor.template.jdbc.core.test.UserNameResultSetExtractor;
+import net.hasor.dbvisitor.template.jdbc.core.test.UserNameRowCallback;
+import net.hasor.dbvisitor.template.jdbc.core.test.UserNameRowMapper;
 import net.hasor.dbvisitor.template.jdbc.mapper.BeanMappingRowMapper;
-import net.hasor.scene.UserNameResultSetExtractor;
-import net.hasor.scene.UserNameRowCallback;
-import net.hasor.scene.UserNameRowMapper;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;

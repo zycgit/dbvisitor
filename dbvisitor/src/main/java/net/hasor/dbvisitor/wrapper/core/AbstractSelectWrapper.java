@@ -27,6 +27,7 @@ import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.template.jdbc.extractor.BeanMappingResultSetExtractor;
 import net.hasor.dbvisitor.template.jdbc.extractor.MapMappingResultSetExtractor;
 import net.hasor.dbvisitor.template.jdbc.mapper.BeanMappingRowMapper;
+import net.hasor.dbvisitor.template.jdbc.mapper.ColumnMapRowMapper;
 import net.hasor.dbvisitor.template.jdbc.mapper.MapMappingRowMapper;
 import net.hasor.dbvisitor.wrapper.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.wrapper.segment.Segment;
@@ -264,8 +265,15 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
     public T queryForObject() throws SQLException {
         Objects.requireNonNull(this.jdbc, "Connection unavailable, JdbcTemplate is required.");
 
+        RowMapper<T> rowMapper;
+        if (Map.class.isAssignableFrom(this.getTableMapping().entityType())) {
+            boolean caseInsensitive = this.getTableMapping().isCaseInsensitive();
+            rowMapper = (RowMapper<T>) new ColumnMapRowMapper(caseInsensitive, this.registry.getTypeRegistry());
+        } else {
+            rowMapper = new BeanMappingRowMapper<>(getTableMapping());
+        }
+
         BoundSql boundSql = getBoundSql();
-        RowMapper<T> rowMapper = new BeanMappingRowMapper<>(getTableMapping());
         return this.jdbc.queryForObject(boundSql.getSqlString(), boundSql.getArgs(), rowMapper);
     }
 

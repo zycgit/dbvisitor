@@ -13,19 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.scene;
-import net.hasor.dbvisitor.jdbc.RowMapper;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
+package net.hasor.dbvisitor.types.custom;
+import net.hasor.dbvisitor.types.handler.string.EnumOfCode;
 
 /**
+ * 大小写不敏感
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-12-10
+ * @version : 2020-11-29
  */
-public class UserNameRowMapper implements RowMapper<String> {
-    @Override
-    public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return rs.getString("name");
+public enum CharacterSensitiveEnum implements EnumOfCode<CharacterSensitiveEnum> {
+    a,
+    A;
+
+    public CharacterSensitiveEnum valueOfCode(String name) {
+        for (CharacterSensitiveEnum item : CharacterSensitiveEnum.values()) {
+            if (item.name().equalsIgnoreCase(name)) {
+                return item;
+            }
+        }
+        return null;
     }
 }

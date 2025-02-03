@@ -110,7 +110,11 @@ public class MapperRegistry {
             // load resource.
             boolean refXml = mapperType.isAnnotationPresent(RefMapper.class);
             if (refXml) {
-                this.tryLoadRefMapperFile(mapperType, mapperType.getAnnotation(RefMapper.class));
+                RefMapper refMapper = mapperType.getAnnotation(RefMapper.class);
+                logger.info("mapper '" + mapperType.getName() + "' using '" + refMapper.value() + "'");
+                this.tryLoadRefMapperFile(mapperType, refMapper);
+            } else {
+                logger.info("mapper '" + mapperType.getName() + "' using default.");
             }
 
             // load entity.

@@ -73,6 +73,16 @@ public class WrapperAdapter implements WrapperOperations {
      * Construct a new WrapperAdapter, given a DataSource to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param dataSource the JDBC DataSource to obtain connections from
+     * @param options the options
+     */
+    public WrapperAdapter(final DataSource dataSource, MappingOptions options) throws SQLException {
+        this(dataSource, new MappingRegistry(null, options), null);
+    }
+
+    /**
+     * Construct a new WrapperAdapter, given a DataSource to obtain connections from.
+     * <p>Note: This will not trigger initialization of the exception translator.
+     * @param dataSource the JDBC DataSource to obtain connections from
      * @param registry the mapping context
      * @param buildContext the sql build context
      */
@@ -89,6 +99,16 @@ public class WrapperAdapter implements WrapperOperations {
      */
     public WrapperAdapter(final Connection conn) throws SQLException {
         this(conn, MappingRegistry.DEFAULT, null);
+    }
+
+    /**
+     * Construct a new WrapperAdapter, given a DataSource to obtain connections from.
+     * <p>Note: This will not trigger initialization of the exception translator.
+     * @param conn the JDBC Connection
+     * @param options the options
+     */
+    public WrapperAdapter(final Connection conn, MappingOptions options) throws SQLException {
+        this(conn, new MappingRegistry(null, options), null);
     }
 
     /**
@@ -111,6 +131,16 @@ public class WrapperAdapter implements WrapperOperations {
      */
     public WrapperAdapter(final DynamicConnection dynamicConn) throws SQLException {
         this(dynamicConn, MappingRegistry.DEFAULT, null);
+    }
+
+    /**
+     * Construct a new WrapperAdapter, given a DataSource to obtain connections from.
+     * <p>Note: This will not trigger initialization of the exception translator.
+     * @param dynamicConn the JDBC Connection of dynamic
+     * @param options the options
+     */
+    public WrapperAdapter(final DynamicConnection dynamicConn, MappingOptions options) throws SQLException {
+        this(dynamicConn, new MappingRegistry(null, options), null);
     }
 
     /**

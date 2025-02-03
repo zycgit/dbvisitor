@@ -100,9 +100,6 @@ public abstract class AbstractInsertWrapper<R, T, P> extends BasicLambda<R, T, P
                 List<ColumnMapping> properties = tableMapping.getPropertyByColumn(column);
                 throw new RuntimeSQLException("conflict, there are " + properties.size() + " properties mapping the same column '" + column + "', and not declare primary.");
             }
-            if (!mapping.isInsert()) {
-                continue;
-            }
 
             GeneratedKeyHandler keySeqHolder = mapping.getKeySeqHolder();
             if (keySeqHolder != null) {
@@ -116,8 +113,9 @@ public abstract class AbstractInsertWrapper<R, T, P> extends BasicLambda<R, T, P
 
             if (mapping.isPrimaryKey()) {
                 primaryKeys.add(mapping);
-                insert.add(mapping);
-            } else {
+            }
+
+            if (mapping.isInsert()) {
                 insert.add(mapping);
             }
         }

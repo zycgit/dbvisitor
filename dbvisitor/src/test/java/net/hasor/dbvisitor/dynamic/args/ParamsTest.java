@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.dynamic.args;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.UserInfo;
+import net.hasor.test.utils.UserInfo;
 import org.junit.Test;
 
 import java.util.*;

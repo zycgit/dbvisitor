@@ -13,28 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.test.dto;
+package net.hasor.dbvisitor.template.jdbc.core.test;
+import net.hasor.dbvisitor.template.RowMapper;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 /**
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-12-10
  */
-public class keywords_table {
-    private String user;
-    private String index;
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public String getIndex() {
-        return index;
-    }
-
-    public void setIndex(String index) {
-        this.index = index;
+public class UserNameRowMapper implements RowMapper<String> {
+    @Override
+    public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return rs.getString("name");
     }
 }

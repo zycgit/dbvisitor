@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.scene;
+package net.hasor.dbvisitor.template.jdbc;
 import java.util.Date;
 
 /**
