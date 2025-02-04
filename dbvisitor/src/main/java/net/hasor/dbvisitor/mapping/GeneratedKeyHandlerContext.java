@@ -19,7 +19,6 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /**
  * KeySeqHolderFactory 的调用参数
@@ -27,22 +26,20 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  * @version : 2022-12-01
  */
 public class GeneratedKeyHandlerContext {
-    private final TypeHandlerRegistry typeRegistry;
-    private final TableMapping<?>     tableDef;
-    private final ColumnMapping       colDef;
-    private final ClassLoader         classLoader;
-    private final Annotations         annotations;
+    private final MappingRegistry registry;
+    private final TableMapping<?> tableDef;
+    private final ColumnMapping   colDef;
+    private final Annotations     annotations;
 
-    public GeneratedKeyHandlerContext(TypeHandlerRegistry typeRegistry, TableMapping<?> tableDef, ColumnMapping colDef, ClassLoader classLoader, Annotations annotations) {
-        this.typeRegistry = typeRegistry;
+    public GeneratedKeyHandlerContext(MappingRegistry registry, TableMapping<?> tableDef, ColumnMapping colDef, Annotations annotations) {
+        this.registry = registry;
         this.tableDef = tableDef;
         this.colDef = colDef;
-        this.classLoader = classLoader;
         this.annotations = annotations;
     }
 
-    public TypeHandlerRegistry getTypeRegistry() {
-        return this.typeRegistry;
+    public MappingRegistry getRegistry() {
+        return this.registry;
     }
 
     public String getCatalog() {
@@ -94,11 +91,7 @@ public class GeneratedKeyHandlerContext {
     }
 
     public SqlDialect getSqlDialect() {
-        return this.tableDef.getDialect();
-    }
-
-    public ClassLoader getClassLoader() {
-        return this.classLoader;
+        return this.registry.getGlobalOptions().getDefaultDialect();
     }
 
     public Annotations getAnnotations() {

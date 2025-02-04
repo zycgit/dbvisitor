@@ -44,7 +44,7 @@ public class HolderKeySeqHolderFactory implements GeneratedKeyHandlerFactory {
             return null;
         }
 
-        Class<?> keyHolderType = keyHolder.getClass("value", context.getClassLoader(), false);
+        Class<?> keyHolderType = keyHolder.getClass("value", context.getRegistry().getClassLoader(), false);
         if (keyHolderType == null) {
             return null;
         }

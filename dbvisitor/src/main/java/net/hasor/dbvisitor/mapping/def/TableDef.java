@@ -16,7 +16,6 @@
 package net.hasor.dbvisitor.mapping.def;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.cobble.reflect.Annotations;
-import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Primary;
 
@@ -37,7 +36,6 @@ public class TableDef<T> implements TableMapping<T> {
     private final boolean                          useDelimited;
     private final boolean                          caseInsensitive;
     private final boolean                          mapUnderscoreToCamelCase;
-    private       SqlDialect                       dialect;
     //
     private       TableDescription                 description;
     //
@@ -49,7 +47,7 @@ public class TableDef<T> implements TableMapping<T> {
     private final Map<String, ColumnMapping>       mapByColumnForPrimary;
     private final List<IndexDescription>           indexList;
 
-    public TableDef(String catalog, String schema, String table, Class<T> entityType, SqlDialect dialect, //
+    public TableDef(String catalog, String schema, String table, Class<T> entityType,  //
             boolean autoProperty, boolean useDelimited, boolean caseInsensitive, boolean mapUnderscoreToCamelCase) {
         this.catalog = catalog;
         this.schema = schema;
@@ -66,7 +64,6 @@ public class TableDef<T> implements TableMapping<T> {
         this.mapByColumnForPrimary = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new LinkedHashMap<>();
         this.indexList = new ArrayList<>();
         this.mapUnderscoreToCamelCase = mapUnderscoreToCamelCase;
-        this.dialect = dialect;
     }
 
     @Override
@@ -219,15 +216,6 @@ public class TableDef<T> implements TableMapping<T> {
 
     public void setDescription(TableDescription description) {
         this.description = description;
-    }
-
-    @Override
-    public SqlDialect getDialect() {
-        return this.dialect;
-    }
-
-    public void setDialect(SqlDialect dialect) {
-        this.dialect = dialect;
     }
 
     @Override

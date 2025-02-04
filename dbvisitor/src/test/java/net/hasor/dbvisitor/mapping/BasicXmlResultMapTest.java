@@ -42,7 +42,6 @@ public class BasicXmlResultMapTest {
         assert !tab.useDelimited();
         assert tab.isCaseInsensitive();
         assert !tab.isToCamelCase();
-        assert tab.getDialect() == null;
         assert !tab.isMapEntity();
 
         assert tab.getDescription() == null;
@@ -109,7 +108,6 @@ public class BasicXmlResultMapTest {
         assert !tab.useDelimited();
         assert tab.isCaseInsensitive();
         assert !tab.isToCamelCase();
-        assert tab.getDialect() == null;
         assert !tab.isMapEntity();
 
         assert tab.getDescription() == null;

@@ -175,14 +175,6 @@ public class WrapperAdapter implements WrapperOperations {
         return this.registry;
     }
 
-    public SqlDialect getDialect() {
-        return this.dialect;
-    }
-
-    public void setDialect(SqlDialect dialect) {
-        this.dialect = dialect;
-    }
-
     @Override
     public <T> EntityInsertWrapper<T> insertBySpace(Class<T> entityType, String space) {
         TableMapping<T> tableMapping = this.findTableMapping(entityType, space);
@@ -259,8 +251,7 @@ public class WrapperAdapter implements WrapperOperations {
         boolean usingMapUnderscoreToCamelCase = Boolean.TRUE.equals(usingOpt.getMapUnderscoreToCamelCase());
         boolean usingCaseInsensitive = MappingHelper.caseInsensitive(usingOpt);
 
-        SqlDialect defaultDialect = this.registry.getGlobalOptions().getDefaultDialect();
-        TableDef<?> def = new TableDef<>(catalog, schema, table, LinkedHashMap.class, defaultDialect,//
+        TableDef<?> def = new TableDef<>(catalog, schema, table, LinkedHashMap.class, //
                 usingAutoProperty, usingUseDelimited, usingCaseInsensitive, usingMapUnderscoreToCamelCase);
         return (TableMapping<Map<String, String>>) def;
     }

@@ -20,7 +20,6 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.reflect.Annotation;
 import net.hasor.cobble.reflect.Annotations;
-import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.*;
 import net.hasor.dbvisitor.mapping.def.*;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -43,7 +42,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
     private final Map<Class<?>, TableDef<?>> CACHE_TABLE_MAP = new WeakHashMap<>();
 
     @Override
-    public <V> TableDef<V> resolveTableMapping(Class<?> entityType, MappingOptions usingOpt, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException, IOException {
+    public <V> TableDef<V> resolveTableMapping(Class<?> entityType, MappingOptions usingOpt, MappingRegistry registry) throws ReflectiveOperationException, IOException {
         if (CACHE_TABLE_MAP.containsKey(entityType)) {
             return (TableDef<V>) CACHE_TABLE_MAP.get(entityType);
         } else {
@@ -55,20 +54,20 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
                 TableDef<?> tableDef;
                 Annotations classAnno = Annotations.ofClass(entityType);
                 if (classAnno.getAnnotation(Table.class) != null) {
-                    tableDef = this.resolveTableInfo(classAnno, entityType, usingOpt, classLoader, typeRegistry);
+                    tableDef = this.resolveTableInfo(classAnno, entityType, usingOpt, registry);
                 } else if (classAnno.getAnnotation(ResultMap.class) != null) {
-                    tableDef = this.resolveResultInfo(classAnno, entityType, usingOpt, classLoader, typeRegistry);
+                    tableDef = this.resolveResultInfo(classAnno, entityType, usingOpt, registry);
                 } else {
                     boolean usingAutoProperty = usingOpt.getAutoMapping() == null || usingOpt.getAutoMapping();
                     boolean usingUseDelimited = Boolean.TRUE.equals(usingOpt.getUseDelimited());
                     boolean usingMapUnderscoreToCamelCase = Boolean.TRUE.equals(usingOpt.getMapUnderscoreToCamelCase());
                     boolean usingCaseInsensitive = MappingHelper.caseInsensitive(usingOpt);
 
-                    tableDef = new TableDef<>(usingOpt.getCatalog(), usingOpt.getSchema(), null, entityType, usingOpt.getDefaultDialect(), //
+                    tableDef = new TableDef<>(usingOpt.getCatalog(), usingOpt.getSchema(), null, entityType,  //
                             usingAutoProperty, usingUseDelimited, usingCaseInsensitive, usingMapUnderscoreToCamelCase);
                     tableDef.setAnnotations(classAnno);
 
-                    this.resolveTableAndColumn(false, classAnno, tableDef, classLoader, typeRegistry);
+                    this.resolveTableAndColumn(false, classAnno, tableDef, registry);
                 }
                 CACHE_TABLE_MAP.put(entityType, tableDef);
                 return (TableDef<V>) tableDef;
@@ -76,7 +75,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         }
     }
 
-    private TableDef<?> resolveTableInfo(Annotations classAnno, Class<?> entityType, MappingOptions usingOpt, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
+    private TableDef<?> resolveTableInfo(Annotations classAnno, Class<?> entityType, MappingOptions usingOpt, MappingRegistry registry) throws ReflectiveOperationException {
         Annotation tableInfo = classAnno.getAnnotation(Table.class);
         String catalog = tableInfo.getString("catalog", usingOpt.getCatalog());
         String schema = tableInfo.getString("schema", usingOpt.getSchema());
@@ -90,9 +89,8 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         boolean mapUnderscoreToCamelCase = tableInfo.getBoolean("mapUnderscoreToCamelCase", Boolean.TRUE.equals(usingOpt.getMapUnderscoreToCamelCase()));
         boolean caseInsensitive = tableInfo.getBoolean("caseInsensitive", MappingHelper.caseInsensitive(usingOpt));
         DdlAuto ddlAuto = (DdlAuto) tableInfo.getEnum("ddlAuto", DdlAuto.values(), DdlAuto.None, DdlAuto::valueOfCode);
-        SqlDialect dialect = usingOpt.getDefaultDialect();
 
-        TableDef<?> def = new TableDef<>(catalog, schema, table, entityType, dialect, //
+        TableDef<?> def = new TableDef<>(catalog, schema, table, entityType,  //
                 autoMapping, useDelimited, caseInsensitive, mapUnderscoreToCamelCase);
         def.setAnnotations(classAnno);
 
@@ -109,7 +107,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
             this.loadTableIndex(classAnno, def);
         }
 
-        this.resolveTableAndColumn(true, classAnno, def, classLoader, typeRegistry);
+        this.resolveTableAndColumn(true, classAnno, def, registry);
         return def;
     }
 
@@ -141,24 +139,23 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         }
     }
 
-    private TableDef<?> resolveResultInfo(Annotations classAnno, Class<?> entityType, MappingOptions usingOpt, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
+    private TableDef<?> resolveResultInfo(Annotations classAnno, Class<?> entityType, MappingOptions usingOpt, MappingRegistry registry) throws ReflectiveOperationException {
         Annotation resultInfo = classAnno.getAnnotation(ResultMap.class);
 
         boolean autoMapping = resultInfo.getBoolean("autoMapping", (usingOpt.getAutoMapping() == null || usingOpt.getAutoMapping()));
         boolean useDelimited = resultInfo.getBoolean("useDelimited", Boolean.TRUE.equals(usingOpt.getUseDelimited()));
         boolean mapUnderscoreToCamelCase = resultInfo.getBoolean("mapUnderscoreToCamelCase", Boolean.TRUE.equals(usingOpt.getMapUnderscoreToCamelCase()));
         boolean caseInsensitive = resultInfo.getBoolean("caseInsensitive", MappingHelper.caseInsensitive(usingOpt));
-        SqlDialect dialect = usingOpt.getDefaultDialect();
 
-        TableDef<?> def = new TableDef<>("", "", "", entityType, dialect, //
+        TableDef<?> def = new TableDef<>("", "", "", entityType,  //
                 autoMapping, useDelimited, caseInsensitive, mapUnderscoreToCamelCase);
         def.setAnnotations(classAnno);
 
-        this.resolveTableAndColumn(false, classAnno, def, classLoader, typeRegistry);
+        this.resolveTableAndColumn(false, classAnno, def, registry);
         return def;
     }
 
-    public void resolveTableAndColumn(boolean isEntity, Annotations classAnno, TableDef<?> def, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
+    public void resolveTableAndColumn(boolean isEntity, Annotations classAnno, TableDef<?> def, MappingRegistry registry) throws ReflectiveOperationException {
         Class<?> entityType = def.entityType();
         Map<String, Property> properties = BeanUtils.getPropertyFunc(entityType);
 
@@ -180,11 +177,11 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         for (String name : names) {
             Property property = properties.get(name);
             Class<?> type = BeanUtils.getPropertyType(property);
-            this.resolveProperty(isEntity, classAnno, def, name, type, property, classLoader, typeRegistry);
+            this.resolveProperty(isEntity, classAnno, def, name, type, property, registry);
         }
     }
 
-    protected void resolveProperty(boolean isEntity, Annotations classAnno, TableDef<?> def, String name, Class<?> type, Property handler, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException {
+    protected void resolveProperty(boolean isEntity, Annotations classAnno, TableDef<?> def, String name, Class<?> type, Property handler, MappingRegistry registry) throws ReflectiveOperationException {
         Annotations propertyAnno = Annotations.merge(                                          //
                 classAnno.getField(name),                                                      //
                 classAnno.getMethod("is" + StringUtils.firstCharToUpperCase(name)), //
@@ -209,6 +206,8 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
                 column = hump2Line(name, def.isMapUnderscoreToCamelCase());
             }
 
+            TypeHandlerRegistry typeRegistry = registry.getTypeRegistry();
+            ClassLoader classLoader = registry.getClassLoader();
             Class<?> javaType = info.getClass("specialJavaType", classLoader, false);
             if (javaType == null) {
                 javaType = CLASS_MAPPING_MAP.getOrDefault(type, type);
@@ -244,7 +243,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
             String column = hump2Line(name, def.isMapUnderscoreToCamelCase());
             Class<?> javaType = CLASS_MAPPING_MAP.getOrDefault(type, type);
             int jdbcType = TypeHandlerRegistry.toSqlType(javaType);
-            TypeHandler<?> typeHandler = typeRegistry.getTypeHandler(javaType);
+            TypeHandler<?> typeHandler = registry.getTypeRegistry().getTypeHandler(javaType);
 
             colDef = new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler);
             colDef.setAnnotations(propertyAnno);
@@ -295,7 +294,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
             }
 
             if (keyType != null) {
-                GeneratedKeyHandlerContext holderCtx = new GeneratedKeyHandlerContext(typeRegistry, def, colDef, classLoader, propertyAnno);
+                GeneratedKeyHandlerContext holderCtx = new GeneratedKeyHandlerContext(registry, def, colDef, propertyAnno);
                 colDef.setKeyTpe(keyType);
                 colDef.setKeySeqHolder(keyType.createHolder(holderCtx));
             }

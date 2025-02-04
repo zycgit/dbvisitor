@@ -1,6 +1,6 @@
 package net.hasor.scene.json;
-import net.hasor.dbvisitor.dal.MapperRegistry;
-import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import net.hasor.scene.json.dto.Project1;
 import net.hasor.scene.json.dto.Project2;
@@ -8,9 +8,7 @@ import net.hasor.scene.json.dto.ProjectFeature;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -31,14 +29,14 @@ public class JsonColumnXmlTestCase {
     }
 
     @Test
-    public void result_1_TestCase() throws SQLException, IOException {
-        MapperRegistry dalRegistry = new MapperRegistry();
-        dalRegistry.loadMapper("/dbvisitor_scene/json/json-column-1.xml");
-        dalRegistry.loadEntityToSpace(Project1.class);
+    public void result_1_TestCase() throws Exception {
+        Configuration config = new Configuration();
+        config.loadMapper("/dbvisitor_scene/json/json-column-1.xml");
+        config.loadEntityToSpace(Project1.class);
 
         try (Connection c = DsUtils.mysqlConn()) {
-            DalSession dalSession = new DalSession(c, dalRegistry);
-            WrapperAdapter template = dalSession.lambdaTemplate();
+            Session session = config.newSession(c);
+            WrapperAdapter template = session.wrapper();
 
             template.getJdbc().execute("drop table if exists `project`");
             template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
@@ -46,7 +44,7 @@ public class JsonColumnXmlTestCase {
             Project1 project = newProject("abc", Arrays.asList("CN", "EN"));
             assert template.insertByEntity(Project1.class).applyEntity(project).executeSumResult() == 1;
 
-            List<Object> list = dalSession.queryStatement("resultMap_test.selectProject", project);
+            List<Object> list = session.queryStatement("resultMap_test.selectProject", project);
 
             Project1 result = (Project1) list.get(0);
             assert result.getName().equals("abc");
@@ -58,14 +56,14 @@ public class JsonColumnXmlTestCase {
     }
 
     @Test
-    public void args_1_TestCase() throws SQLException, IOException {
-        MapperRegistry dalRegistry = new MapperRegistry();
-        dalRegistry.loadMapper("/dbvisitor_scene/json/json-column-1.xml");
-        dalRegistry.loadEntityToSpace(Project1.class);
+    public void args_1_TestCase() throws Exception {
+        Configuration config = new Configuration();
+        config.loadMapper("/dbvisitor_scene/json/json-column-1.xml");
+        config.loadEntityToSpace(Project1.class);
 
         try (Connection c = DsUtils.mysqlConn()) {
-            DalSession dalSession = new DalSession(c, dalRegistry);
-            WrapperAdapter template = dalSession.lambdaTemplate();
+            Session session = config.newSession(c);
+            WrapperAdapter template = session.wrapper();
 
             template.getJdbc().execute("drop table if exists `project`");
             template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
@@ -75,7 +73,7 @@ public class JsonColumnXmlTestCase {
             Project1 project3 = newProject("abc3", Arrays.asList("JP", "EN"));
             assert template.insertByEntity(Project1.class).applyEntity(project1, project2, project3).executeSumResult() == 3;
 
-            List<Object> list = dalSession.queryStatement("resultMap_test.selectByJSON", project1);
+            List<Object> list = session.queryStatement("resultMap_test.selectByJSON", project1);
             assert list.size() == 2;
             assert ((Project1) list.get(0)).getId() == 1;
             assert ((Project1) list.get(1)).getId() == 2;
@@ -91,14 +89,14 @@ public class JsonColumnXmlTestCase {
     }
 
     @Test
-    public void result_2_TestCase() throws SQLException, IOException {
-        MapperRegistry dalRegistry = new MapperRegistry();
-        dalRegistry.loadMapper("/dbvisitor_scene/json/json-column-2.xml");
-        dalRegistry.loadEntityToSpace(Project1.class);
+    public void result_2_TestCase() throws Exception {
+        Configuration config = new Configuration();
+        config.loadMapper("/dbvisitor_scene/json/json-column-2.xml");
+        config.loadEntityToSpace(Project1.class);
 
         try (Connection c = DsUtils.mysqlConn()) {
-            DalSession dalSession = new DalSession(c, dalRegistry);
-            WrapperAdapter template = dalSession.lambdaTemplate();
+            Session session = config.newSession(c);
+            WrapperAdapter template = session.wrapper();
 
             template.getJdbc().execute("drop table if exists `project`");
             template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
@@ -106,7 +104,7 @@ public class JsonColumnXmlTestCase {
             Project1 project = newProject("abc", Arrays.asList("CN", "EN"));
             assert template.insertByEntity(Project1.class).applyEntity(project).executeSumResult() == 1;
 
-            List<Object> list = dalSession.queryStatement("resultMap_test.selectProject", project);
+            List<Object> list = session.queryStatement("resultMap_test.selectProject", project);
 
             Project2 result = (Project2) list.get(0);
             assert result.getName().equals("abc");
@@ -118,14 +116,14 @@ public class JsonColumnXmlTestCase {
     }
 
     @Test
-    public void args_2_TestCase() throws SQLException, IOException {
-        MapperRegistry dalRegistry = new MapperRegistry();
-        dalRegistry.loadMapper("/dbvisitor_scene/json/json-column-2.xml");
-        dalRegistry.loadEntityToSpace(Project1.class);
+    public void args_2_TestCase() throws Exception {
+        Configuration config = new Configuration();
+        config.loadMapper("/dbvisitor_scene/json/json-column-2.xml");
+        config.loadEntityToSpace(Project1.class);
 
         try (Connection c = DsUtils.mysqlConn()) {
-            DalSession dalSession = new DalSession(c, dalRegistry);
-            WrapperAdapter template = dalSession.lambdaTemplate();
+            Session session = config.newSession(c);
+            WrapperAdapter template = session.wrapper();
 
             template.getJdbc().execute("drop table if exists `project`");
             template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
@@ -135,7 +133,7 @@ public class JsonColumnXmlTestCase {
             Project1 project3 = newProject("abc3", Arrays.asList("JP", "EN"));
             assert template.insertByEntity(Project1.class).applyEntity(project1, project2, project3).executeSumResult() == 3;
 
-            List<Object> list = dalSession.queryStatement("resultMap_test.selectByJSON", project1);
+            List<Object> list = session.queryStatement("resultMap_test.selectByJSON", project1);
             assert list.size() == 2;
             assert ((Project2) list.get(0)).getId() == 1;
             assert ((Project2) list.get(1)).getId() == 2;
@@ -149,5 +147,4 @@ public class JsonColumnXmlTestCase {
             assert result.getFeature().getTags().contains("EN");
         }
     }
-
 }

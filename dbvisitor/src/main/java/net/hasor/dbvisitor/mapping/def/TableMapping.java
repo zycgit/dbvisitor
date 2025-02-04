@@ -15,7 +15,6 @@
  */
 package net.hasor.dbvisitor.mapping.def;
 import net.hasor.cobble.reflect.Annotations;
-import net.hasor.dbvisitor.dialect.SqlDialect;
 
 import java.util.Collection;
 import java.util.List;
@@ -68,8 +67,6 @@ public interface TableMapping<T> {
 
     /** 获取补充描述信息 */
     TableDescription getDescription();
-
-    SqlDialect getDialect();
 
     /** 获取索引描述信息 */
     List<IndexDescription> getIndexes();

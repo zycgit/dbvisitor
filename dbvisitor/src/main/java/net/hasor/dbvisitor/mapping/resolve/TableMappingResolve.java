@@ -15,8 +15,8 @@
  */
 package net.hasor.dbvisitor.mapping.resolve;
 import net.hasor.dbvisitor.mapping.MappingOptions;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 import java.io.IOException;
 
@@ -26,5 +26,5 @@ import java.io.IOException;
  * @version : 2021-06-21
  */
 public interface TableMappingResolve<T> {
-    <V> TableMapping<V> resolveTableMapping(T refData, MappingOptions refFile, ClassLoader classLoader, TypeHandlerRegistry typeRegistry) throws ReflectiveOperationException, IOException;
+    <V> TableMapping<V> resolveTableMapping(T refData, MappingOptions refFile, MappingRegistry registry) throws ReflectiveOperationException, IOException;
 }

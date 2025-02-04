@@ -67,13 +67,13 @@ public class SeqKeySeqHolderFactory implements GeneratedKeyHandlerFactory {
             Class<?> javaType = context.getJavaType();
             Integer jdbcType = context.getJdbcType();
             if (jdbcType != null) {
-                typeHandler = context.getTypeRegistry().getTypeHandler(javaType, jdbcType);
+                typeHandler = context.getRegistry().getTypeRegistry().getTypeHandler(javaType, jdbcType);
             } else {
-                typeHandler = context.getTypeRegistry().getTypeHandler(javaType);
+                typeHandler = context.getRegistry().getTypeRegistry().getTypeHandler(javaType);
             }
         }
         if (typeHandler == null) {
-            typeHandler = context.getTypeRegistry().getDefaultTypeHandler();
+            typeHandler = context.getRegistry().getTypeRegistry().getDefaultTypeHandler();
         }
 
         TypeHandler<?> finalTypeHandler = typeHandler;

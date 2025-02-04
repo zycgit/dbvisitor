@@ -9,7 +9,7 @@
 
     <select id="selectByJSON" resultMap="projectMap_1">
         select * from project
-        where feature = #{feature,typeHandler=net.hasor.dbvisitor.types.handler.JsonTypeHandler}
+        where feature = #{feature,typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler}
         order by id asc
     </select>
 </mapper>

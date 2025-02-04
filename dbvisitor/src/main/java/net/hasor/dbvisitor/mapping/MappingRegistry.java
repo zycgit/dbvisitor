@@ -153,7 +153,7 @@ public class MappingRegistry {
                 idStr = typeString;
             }
 
-            TableDef<?> def = this.xmlMappingResolve.resolveTableMapping(node, optInfile, this.classLoader, this.typeRegistry);
+            TableDef<?> def = this.xmlMappingResolve.resolveTableMapping(node, optInfile, this);
             this.saveDefToSpace(space, idStr, def, isEntity);
         }
     }
@@ -179,7 +179,7 @@ public class MappingRegistry {
         }
 
         try {
-            TableDef<T> def = this.entityClassResolve.resolveTableMapping(entityType, this.global, this.classLoader, this.typeRegistry);
+            TableDef<T> def = this.entityClassResolve.resolveTableMapping(entityType, this.global, this);
 
             return this.saveDefToSpace(space, name, def, true);
         } catch (IOException | ReflectiveOperationException e) {
@@ -197,7 +197,7 @@ public class MappingRegistry {
         }
 
         try {
-            TableDef<T> def = this.entityClassResolve.resolveTableMapping(entityType, this.global, this.classLoader, this.typeRegistry);
+            TableDef<T> def = this.entityClassResolve.resolveTableMapping(entityType, this.global, this);
             def.setTable(table);
 
             return this.saveDefToSpace("", entityType.getName(), def, true);
@@ -216,7 +216,7 @@ public class MappingRegistry {
         }
 
         try {
-            TableDef<T> def = this.entityClassResolve.resolveTableMapping(entityType, this.global, this.classLoader, this.typeRegistry);
+            TableDef<T> def = this.entityClassResolve.resolveTableMapping(entityType, this.global, this);
             def.setCatalog(catalog);
             def.setSchema(schema);
             def.setTable(table);
@@ -234,7 +234,7 @@ public class MappingRegistry {
         }
 
         try {
-            TableDef<T> def = this.entityClassResolve.resolveTableMapping(resultType, this.global, this.classLoader, this.typeRegistry);
+            TableDef<T> def = this.entityClassResolve.resolveTableMapping(resultType, this.global, this);
             MappingHelper.NameInfo nameInfo = MappingHelper.findNameInfo(resultType);
             return this.saveDefToSpace(nameInfo.getSpace(), nameInfo.getName(), def, false);
         } catch (IOException | ReflectiveOperationException e) {
@@ -252,7 +252,7 @@ public class MappingRegistry {
         }
 
         try {
-            TableDef<T> def = this.entityClassResolve.resolveTableMapping(resultType, this.global, this.classLoader, this.typeRegistry);
+            TableDef<T> def = this.entityClassResolve.resolveTableMapping(resultType, this.global, this);
 
             return this.saveDefToSpace(space, name, def, false);
         } catch (IOException | ReflectiveOperationException e) {
