@@ -16,12 +16,15 @@
 package net.hasor.dbvisitor.session;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.convert.ConverterBean;
+import net.hasor.cobble.logging.Logger;
+import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.BeanMap;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.mapper.Segment;
+import net.hasor.dbvisitor.mapper.StatementDef;
 import net.hasor.dbvisitor.mapping.MappingHelper;
 import net.hasor.dbvisitor.template.jdbc.ConnectionCallback;
 
@@ -41,18 +44,23 @@ import java.util.*;
  * @version : 2021-10-30
  */
 class ExecuteInvocationHandler implements InvocationHandler {
-    private final String                            space;
-    private final Session                           session;
-    private final Map<String, FacadeStatement>      dynamicSqlMap = new HashMap<>();
-    private final Map<String, Integer>              pageInfoMap   = new HashMap<>();
-    private final Map<String, Map<String, Integer>> argNamesMap   = new HashMap<>();
-    private final DefaultBaseMapper                 baseMapper;
+    private static final Logger                            logger        = LoggerFactory.getLogger(ExecuteInvocationHandler.class);
+    private final        String                            space;
+    private final        Session                           session;
+    private final        Map<String, FacadeStatement>      dynamicSqlMap = new HashMap<>();
+    private final        Map<String, Integer>              pageInfoMap   = new HashMap<>();
+    private final        Map<String, Map<String, Integer>> argNamesMap   = new HashMap<>();
+    private final        DefaultBaseMapper                 baseMapper;
 
     ExecuteInvocationHandler(String space, Class<?> dalType, Session session, Configuration config, DefaultBaseMapper baseMapper) {
         this.space = space;
         this.session = session;
         this.initDynamicSqlMap(dalType, config);
         this.baseMapper = baseMapper;
+    }
+
+    private static boolean ignoreNonExistStatement(Boolean ignoreNonExistStatement) {
+        return ignoreNonExistStatement != null && ignoreNonExistStatement;
     }
 
     private void initDynamicSqlMap(Class<?> dalType, Configuration config) {
@@ -64,8 +72,22 @@ class ExecuteInvocationHandler implements InvocationHandler {
                 continue;
             }
 
+            // check not found.
             String dynamicId = method.getName();
-            this.dynamicSqlMap.put(dynamicId, new FacadeStatement(this.space, dynamicId, config));
+            StatementDef def = config.getMapperRegistry().findStatement(this.space, dynamicId);
+            if (def == null) {
+                String fullName = StringUtils.isBlank(this.space) ? dynamicId : (this.space + "." + dynamicId);
+                String msg = "statement '" + fullName + "' is not found.";
+                if (ignoreNonExistStatement(config.options().getIgnoreNonExistStatement())) {
+                    logger.warn(msg);
+                    continue;
+                } else {
+                    throw new IllegalStateException(msg);
+                }
+            }
+
+            //
+            this.dynamicSqlMap.put(dynamicId, new FacadeStatement(def, config));
             Map<String, Integer> argNames = this.argNamesMap.computeIfAbsent(dynamicId, s -> new HashMap<>());
 
             int parameterCount = method.getParameterCount();

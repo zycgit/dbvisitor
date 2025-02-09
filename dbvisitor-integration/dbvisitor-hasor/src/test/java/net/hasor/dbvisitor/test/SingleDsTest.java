@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.test;
 import net.hasor.core.AppContext;
 import net.hasor.core.Hasor;
 import net.hasor.dbvisitor.DbVisitorModule;
-import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.dao.role.RoleMapper;
 import net.hasor.dbvisitor.test.dao.user.UserMapper;
 import net.hasor.dbvisitor.test.dto.UserDTO;
@@ -35,13 +35,13 @@ public class SingleDsTest {
     @Inject
     private RoleMapper roleMapper;
     @Inject
-    private DalSession dalSession;
+    private Session    dalSession;
 
     @Test
     public void getListTest() throws SQLException, IOException {
         AppContext injector = Hasor.create().mainSettingWith("single-ds.properties").build(new DbVisitorModule());
         injector.justInject(this);
-        this.dalSession.lambdaTemplate().loadSQL("CreateDB.sql");
+        this.dalSession.jdbc().loadSQL("CreateDB.sql");
 
         assert userMapper != null;
         assert roleMapper != null;

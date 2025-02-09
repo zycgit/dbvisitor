@@ -16,25 +16,22 @@
 package net.hasor.dbvisitor.spring.support;
 
 import net.hasor.dbvisitor.mapper.Mapper;
-import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.session.Session;
 
 /**
  * BeanFactory that enables injection of user mapper interfaces.
  * <p>
  * Sample configuration:
- *
  * <pre class="code">
  * {@code
  *     <bean id="dalRegistry" class="net.hasor.dbvisitor.spring.support.DalRegistryBean">
  *         <property name="mapperResources" value="classpath*:dbvisitor/mapper/*Mapper.xml"/>
  *     </bean>
- *
- *     <bean id="dalSession" class="net.hasor.dbvisitor.spring.support.DalSessionBean">
+ *     <bean id="dalSession" class="net.hasor.dbvisitor.spring.support.SessionBean">
  *         <property name="dalRegistry" ref="dalRegistry"/>
  *         <property name="dialectName" value="mysql"/>
  *     </bean>
- *
- *     <bean id="oneMapper" class="net.hasor.dbvisitor.spring.support.DalMapperBean">
+ *     <bean id="oneMapper" class="net.hasor.dbvisitor.spring.support.MapperBean">
  *         <property name="dalSession" ref="dalSession"/>
  *         <property name="mapperInterface" value="net.hasor.dbvisitor.test.TestUserDAO"/>
  *     </bean>
@@ -42,26 +39,25 @@ import net.hasor.dbvisitor.dal.session.DalSession;
  * </pre>
  * <p>
  * Note that this factory can only inject <em>interfaces</em>, not concrete classes.
- *
- * @version : 2022-04-29
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-29
  * @see Mapper
  */
-public class DalMapperBean extends AbstractSupportBean<Object> {
-    private DalSession dalSession;
-    private Class<?>   mapperInterface;
-    private Object     mapperObject;
+public class MapperBean extends AbstractSupportBean<Object> {
+    private Session  session;
+    private Class<?> mapperInterface;
+    private Object   mapperObject;
 
     @Override
-    public void afterPropertiesSet() {
+    public void afterPropertiesSet() throws Exception {
         if (this.mapperInterface == null) {
             throw new NullPointerException("mapperInterface is null.");
         }
-        if (this.dalSession == null) {
+        if (this.session == null) {
             throw new IllegalStateException("dalSession is null.");
         }
 
-        this.mapperObject = this.dalSession.createMapper(this.mapperInterface);
+        this.mapperObject = this.session.createMapper(this.mapperInterface);
     }
 
     @Override
@@ -74,8 +70,8 @@ public class DalMapperBean extends AbstractSupportBean<Object> {
         return this.mapperInterface;
     }
 
-    public void setDalSession(DalSession dalSession) {
-        this.dalSession = dalSession;
+    public void setSession(Session session) {
+        this.session = session;
     }
 
     public void setMapperInterface(Class<?> mapperInterface) {

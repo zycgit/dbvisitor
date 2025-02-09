@@ -16,9 +16,9 @@
 package net.hasor.dbvisitor.spring.mapper;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.mapper.DalMapper;
-import net.hasor.dbvisitor.dal.session.DalSession;
-import net.hasor.dbvisitor.spring.support.DalMapperBean;
+import net.hasor.dbvisitor.mapper.MapperDef;
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.spring.support.MapperBean;
 import org.springframework.aop.scope.ScopedProxyFactoryBean;
 import org.springframework.aop.scope.ScopedProxyUtils;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
@@ -46,11 +46,9 @@ import java.util.Set;
  * <p>
  * This functionality was previously a private class of {@link MapperScannerConfigurer}, but was broken out in version
  * 1.2.0.
- *
  * @author Hunter Presnall
  * @author Eduardo Macarron
- *
- * @see DalMapperBean
+ * @see MapperBean
  * @since 1.2.0
  */
 public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
@@ -58,9 +56,9 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
     private              boolean                     mapperDisabled;
     private              Class<? extends Annotation> annotationClass;
     private              Class<?>                    markerInterface;
-    private              String                      dalSessionRef;
-    private              DalSession                  dalSession;
-    private              Class<?>                    mapperFactoryBeanClass = DalMapperBean.class;
+    private              Session                     session;
+    private              String                      sessionRef;
+    private              Class<?>                    mapperFactoryBeanClass = MapperBean.class;
     private              boolean                     lazyInitialization;
     private              String                      defaultScope;
     private              String                      dependsOn;
@@ -74,8 +72,8 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
         // if specified, use the given annotation and / or marker interface
         if (this.annotationClass != null) {
-            if (this.annotationClass == DalMapper.class) {
-                addIncludeFilter(new AnnotationTypeFilter(DalMapper.class, true));
+            if (this.annotationClass == MapperDef.class) {
+                addIncludeFilter(new AnnotationTypeFilter(MapperDef.class, true));
             } else {
                 addIncludeFilter(new AnnotationTypeFilter(this.annotationClass));
             }
@@ -142,20 +140,20 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
         // the mapper interface is the original class of the bean but, the actual class of the bean is MapperFactoryBean
         definition.getPropertyValues().add("mapperInterface", beanClassName);
-        definition.setBeanClass(this.mapperFactoryBeanClass != null ? this.mapperFactoryBeanClass : DalMapperBean.class);
+        definition.setBeanClass(this.mapperFactoryBeanClass != null ? this.mapperFactoryBeanClass : MapperBean.class);
 
         // Attribute for MockitoPostProcessor
         // https://github.com/mybatis/spring-boot-starter/issues/475
         // Copy of FactoryBean#OBJECT_TYPE_ATTRIBUTE which was added in Spring 5.2
         definition.setAttribute("factoryBeanObjectType", beanClassName);
 
-        // dalSession
+        // configuration
         boolean explicitFactoryUsed = false;
-        if (StringUtils.hasText(this.dalSessionRef)) {
-            definition.getPropertyValues().add("dalSession", new RuntimeBeanReference(this.dalSessionRef));
+        if (StringUtils.hasText(this.sessionRef)) {
+            definition.getPropertyValues().add("session", new RuntimeBeanReference(this.sessionRef));
             explicitFactoryUsed = true;
-        } else if (this.dalSession != null) {
-            definition.getPropertyValues().add("dalSession", this.dalSession);
+        } else if (this.session != null) {
+            definition.getPropertyValues().add("session", this.session);
             explicitFactoryUsed = true;
         }
         if (!explicitFactoryUsed) {
@@ -215,12 +213,12 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
         this.markerInterface = markerInterface;
     }
 
-    public void setDalSessionRef(String dalSessionRef) {
-        this.dalSessionRef = dalSessionRef;
+    public void setSessionRef(String sessionRef) {
+        this.sessionRef = sessionRef;
     }
 
-    public void setDalSession(DalSession dalSession) {
-        this.dalSession = dalSession;
+    public void setSession(Session session) {
+        this.session = session;
     }
 
     public void setMapperFactoryBeanClass(Class<?> mapperFactoryBeanClass) {

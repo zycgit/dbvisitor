@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.test;
-import net.hasor.dbvisitor.dal.session.DalSession;
-import net.hasor.dbvisitor.test.dao.RoleMapper;
-import net.hasor.dbvisitor.test.dao.UserMapper;
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.test.dao.role.RoleMapper;
+import net.hasor.dbvisitor.test.dao.user.UserMapper;
 import net.hasor.dbvisitor.test.dto.UserDTO;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,18 +31,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "classpath:spring-xml-1.xml" })
+@ContextConfiguration("classpath:spring-xml-1.xml")
 public class SpringXml1Test {
     @Resource
     private UserMapper userMapper;
     @Resource
     private RoleMapper roleMapper;
     @Resource
-    private DalSession dalSession;
+    private Session    dalSession;
 
     @Before
     public void beforeTest() throws SQLException, IOException {
-        this.dalSession.lambdaTemplate().loadSQL("CreateDB.sql");
+        this.dalSession.jdbc().loadSQL("CreateDB.sql");
     }
 
     @Test

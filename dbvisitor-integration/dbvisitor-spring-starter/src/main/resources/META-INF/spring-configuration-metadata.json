@@ -90,6 +90,12 @@
       "sourceMethod": "getUseDelimited()"
     },
     {
+      "name": "dbvisitor.ignore-non-exist-statement",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getIgnoreNonExistStatement()"
+    },
+    {
       "name": "dbvisitor.dialect",
       "type": "java.lang.String",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",

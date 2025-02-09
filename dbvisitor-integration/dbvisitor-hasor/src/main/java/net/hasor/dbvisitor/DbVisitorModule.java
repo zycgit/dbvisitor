@@ -22,22 +22,21 @@ import net.hasor.cobble.loader.ScanEvent;
 import net.hasor.cobble.loader.providers.ClassPathResourceLoader;
 import net.hasor.core.*;
 import net.hasor.core.setting.SettingNode;
-import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
-import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
+import net.hasor.dbvisitor.mapping.Options;
+import net.hasor.dbvisitor.provider.JdbcTemplateProvider;
+import net.hasor.dbvisitor.provider.TransactionManagerProvider;
+import net.hasor.dbvisitor.provider.WrapperAdapterProvider;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.template.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcAccessor;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcConnection;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.wrapper.WrapperOperations;
-import net.hasor.dbvisitor.wrapper.WrapperAdapter;
-import net.hasor.dbvisitor.mapping.MappingOptions;
-import net.hasor.dbvisitor.provider.JdbcTemplateProvider;
-import net.hasor.dbvisitor.provider.LambdaTemplateProvider;
-import net.hasor.dbvisitor.provider.TransactionManagerProvider;
 import net.hasor.dbvisitor.transaction.*;
 import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
+import net.hasor.dbvisitor.wrapper.WrapperOperations;
 import net.hasor.utils.ScanClassPath;
 
 import javax.sql.DataSource;
@@ -57,58 +56,34 @@ import static net.hasor.dbvisitor.ConfigKeys.*;
  *
  */
 public class DbVisitorModule implements net.hasor.core.Module {
-    private final MappingOptions options = MappingOptions.buildNew();
-
     @Override
     public void loadModule(ApiBinder apiBinder) throws Exception {
-        Settings settings = apiBinder.getEnvironment().getSettings();
-        String multipleDs = settings.getString(MultipleDataSource.getConfigKey());
-        String optAutoMapping = settings.getString(OptAutoMapping.getConfigKey(), OptAutoMapping.getDefaultValue());
-        String optCamelCase = settings.getString(OptCamelCase.getConfigKey(), OptCamelCase.getDefaultValue());
-        String optCaseInsensitive = settings.getString(OptCaseInsensitive.getConfigKey(), OptCaseInsensitive.getDefaultValue());
-        String optUseDelimited = settings.getString(OptUseDelimited.getConfigKey(), OptUseDelimited.getDefaultValue());
-        String optSqlDialect = settings.getString(OptSqlDialect.getConfigKey(), OptSqlDialect.getDefaultValue());
-        if (StringUtils.isNotBlank(optAutoMapping)) {
-            this.options.setAutoMapping(Boolean.parseBoolean(optAutoMapping));
-        }
-        if (StringUtils.isNotBlank(optCamelCase)) {
-            this.options.setMapUnderscoreToCamelCase(Boolean.parseBoolean(optCamelCase));
-        }
-        if (StringUtils.isNotBlank(optCaseInsensitive)) {
-            this.options.setCaseInsensitive(Boolean.parseBoolean(optCaseInsensitive));
-        }
-        if (StringUtils.isNotBlank(optUseDelimited)) {
-            this.options.setUseDelimited(Boolean.parseBoolean(optUseDelimited));
-        }
-        if (StringUtils.isNotBlank(optSqlDialect)) {
-            this.options.setDefaultDialect(SqlDialectRegister.findOrCreate(optSqlDialect, null));
-        }
-
+        String multipleDs = apiBinder.getEnvironment().getSettings().getString(MultipleDataSource.getConfigKey());
         if (StringUtils.isNotBlank(multipleDs)) {
             String[] dsNames = multipleDs.split(",");
             for (String dbName : dsNames) {
-                configOneDb(dbName, apiBinder, settings);
+                configOneDb(dbName, apiBinder);
             }
         } else {
-            configOneDb(null, apiBinder, settings);
+            configOneDb(null, apiBinder);
         }
     }
 
-    private void configOneDb(String dbName, ApiBinder apiBinder, Settings settings) throws Exception {
-        BindInfo<DataSource> dsInfo = this.configDataSource(dbName, apiBinder, settings);
-        Supplier<DataSource> dsProvider = apiBinder.getProvider(dsInfo);
+    private void configOneDb(String dbName, ApiBinder apiBinder) throws Exception {
+        BindInfo<DataSource> dsInfo = this.configDataSource(dbName, apiBinder);
 
+        Supplier<DataSource> dsProvider = apiBinder.getProvider(dsInfo);
         this.bindJdbc(dbName, apiBinder, dsProvider);
         this.bindTrans(dbName, apiBinder, dsProvider);
 
-        BindInfo<TypeHandlerRegistry> typeInfo = this.configTypeRegistry(dbName, apiBinder, settings);
-        BindInfo<RuleRegistry> ruleInfo = this.configRuleRegistry(dbName, apiBinder, settings);
-        BindInfo<DalSession> dalInfo = this.configDalSession(dbName, apiBinder, settings, dsInfo, typeInfo, ruleInfo);
+        BindInfo<Configuration> configInfo = configureBySettings(dbName, apiBinder);
+        BindInfo<Session> session = this.configSession(dbName, apiBinder, dsInfo, configInfo);
 
-        this.loadMapper(dbName, apiBinder, dalInfo, settings);
+        this.loadMapper(dbName, apiBinder, session);
     }
 
-    private BindInfo<DataSource> configDataSource(String dbName, ApiBinder apiBinder, Settings settings) throws Exception {
+    private BindInfo<DataSource> configDataSource(String dbName, ApiBinder apiBinder) throws Exception {
+        Settings settings = apiBinder.getEnvironment().getSettings();
         String configKey = DataSourceType.buildConfigKey(dbName);
         String dataSourceType = settings.getString(configKey, DataSourceType.getDefaultValue());
         DataSource dataSource;
@@ -136,7 +111,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
 
     private void bindJdbc(String dbName, ApiBinder apiBinder, Supplier<DataSource> dsProvider) {
         JdbcTemplateProvider tempProvider = new JdbcTemplateProvider(dsProvider);
-        LambdaTemplateProvider lambdaProvider = new LambdaTemplateProvider(dsProvider);
+        WrapperAdapterProvider lambdaProvider = new WrapperAdapterProvider(dsProvider);
 
         if (StringUtils.isBlank(dbName)) {
             apiBinder.bindType(JdbcAccessor.class).toProvider(tempProvider);
@@ -174,50 +149,50 @@ public class DbVisitorModule implements net.hasor.core.Module {
         apiBinder.bindInterceptor(new ClassAnnotationOf(Transactional.class), new MethodAnnotationOf(Transactional.class), tranInter);
     }
 
-    private BindInfo<TypeHandlerRegistry> configTypeRegistry(String dbName, ApiBinder apiBinder, Settings settings) {
-        String configKey = RefTypeRegistry.buildConfigKey(dbName);
-        String refTypeRegistry = settings.getString(configKey, RefTypeRegistry.getDefaultValue());
+    private BindInfo<Configuration> configureBySettings(String dbName, ApiBinder apiBinder) {
+        Options options = Options.of();
+        Settings settings = apiBinder.getEnvironment().getSettings();
+        String optAutoMapping = this.configValueOrDefault(dbName, OptAutoMapping, settings);
+        String optCamelCase = this.configValueOrDefault(dbName, OptCamelCase, settings);
+        String optCaseInsensitive = this.configValueOrDefault(dbName, OptCaseInsensitive, settings);
+        String optUseDelimited = this.configValueOrDefault(dbName, OptUseDelimited, settings);
+        String optIgnoreNonExistStatement = this.configValueOrDefault(dbName, OptIgnoreNonExistStatement, settings);
+        String optSqlDialect = this.configValueOrDefault(dbName, OptSqlDialect, settings);
 
-        BindInfo<?> bindInfo;
-        if (StringUtils.isNotBlank(refTypeRegistry)) {
-            bindInfo = apiBinder.getBindInfo(refTypeRegistry);
-            if (bindInfo == null) {
-                bindInfo = apiBinder.findBindingRegister(refTypeRegistry, TypeHandlerRegistry.class);
-            }
-        } else {
-            bindInfo = apiBinder.getBindInfo(TypeHandlerRegistry.class);
+        if (StringUtils.isNotBlank(optAutoMapping)) {
+            options.setAutoMapping(Boolean.parseBoolean(optAutoMapping));
+        }
+        if (StringUtils.isNotBlank(optCamelCase)) {
+            options.setMapUnderscoreToCamelCase(Boolean.parseBoolean(optCamelCase));
+        }
+        if (StringUtils.isNotBlank(optCaseInsensitive)) {
+            options.setCaseInsensitive(Boolean.parseBoolean(optCaseInsensitive));
+        }
+        if (StringUtils.isNotBlank(optUseDelimited)) {
+            options.setUseDelimited(Boolean.parseBoolean(optUseDelimited));
+        }
+        if (StringUtils.isNotBlank(optIgnoreNonExistStatement)) {
+            options.setIgnoreNonExistStatement(Boolean.parseBoolean(optIgnoreNonExistStatement));
+        }
+        if (StringUtils.isNotBlank(optSqlDialect)) {
+            ClassLoader classLoader = apiBinder.getEnvironment().getClassLoader();
+            options.setDefaultDialect(SqlDialectRegister.findOrCreate(optSqlDialect, classLoader));
         }
 
-        if (bindInfo == null) {
-            bindInfo = apiBinder.bindType(TypeHandlerRegistry.class).toInstance(TypeHandlerRegistry.DEFAULT).toInfo();
-        }
-
-        return (BindInfo<TypeHandlerRegistry>) bindInfo;
+        return configureByConfig(dbName, apiBinder, new Configuration(options));
     }
 
-    private BindInfo<RuleRegistry> configRuleRegistry(String dbName, ApiBinder apiBinder, Settings settings) {
-        String configKey = RefRuleRegistry.buildConfigKey(dbName);
-        String refRuleRegistry = settings.getString(configKey, RefRuleRegistry.getDefaultValue());
-
-        BindInfo<?> bindInfo;
-        if (StringUtils.isNotBlank(refRuleRegistry)) {
-            bindInfo = apiBinder.getBindInfo(refRuleRegistry);
-            if (bindInfo == null) {
-                bindInfo = apiBinder.findBindingRegister(refRuleRegistry, RuleRegistry.class);
-            }
+    private BindInfo<Configuration> configureByConfig(String dbName, ApiBinder apiBinder, Configuration config) {
+        if (StringUtils.isBlank(dbName)) {
+            return apiBinder.bindType(Configuration.class).toInstance(config).toInfo();
         } else {
-            bindInfo = apiBinder.getBindInfo(RuleRegistry.class);
+            return apiBinder.bindType(Configuration.class).nameWith(dbName).toInstance(config).toInfo();
         }
-
-        if (bindInfo == null) {
-            bindInfo = apiBinder.bindType(RuleRegistry.class).toInstance(RuleRegistry.DEFAULT).toInfo();
-        }
-
-        return (BindInfo<RuleRegistry>) bindInfo;
     }
 
-    private BindInfo<DalSession> configDalSession(String dbName, ApiBinder apiBinder, Settings settings,//
-            BindInfo<DataSource> dsInfo, BindInfo<TypeHandlerRegistry> typeInfo, BindInfo<RuleRegistry> ruleInfo) throws IOException {
+    private BindInfo<Session> configSession(String dbName, ApiBinder apiBinder,//
+            BindInfo<DataSource> dsInfo, BindInfo<Configuration> configInfo) throws IOException {
+        Settings settings = apiBinder.getEnvironment().getSettings();
         String configKey = MapperLocations.buildConfigKey(dbName);
         String resources = settings.getString(configKey, MapperLocations.getDefaultValue());
         Set<URI> mappers = new HashSet<>();
@@ -237,52 +212,16 @@ public class DbVisitorModule implements net.hasor.core.Module {
             }
         }
 
-        DalSessionSupplier sessionSupplier = HasorUtils.autoAware(apiBinder.getEnvironment(), new DalSessionSupplier(this.options, dsInfo, typeInfo, ruleInfo, mappers));
+        SessionSupplier sessionSupplier = HasorUtils.autoAware(apiBinder.getEnvironment(), new SessionSupplier(configInfo, dsInfo, mappers));
         if (StringUtils.isBlank(dbName)) {
-            return apiBinder.bindType(DalSession.class).toProvider(sessionSupplier).toInfo();
+            return apiBinder.bindType(Session.class).toProvider(sessionSupplier).toInfo();
         } else {
-            return apiBinder.bindType(DalSession.class).nameWith(dbName).toProvider(sessionSupplier).toInfo();
+            return apiBinder.bindType(Session.class).nameWith(dbName).toProvider(sessionSupplier).toInfo();
         }
     }
 
-    private static String lineToHump(String name) {
-        // copy from spring jdbc 6.0.12 JdbcUtils.convertUnderscoreNameToPropertyName
-        StringBuilder result = new StringBuilder();
-        boolean nextIsUpper = false;
-        if (name != null && name.length() > 0) {
-            if (name.length() > 1 && name.charAt(1) == '-') {
-                result.append(Character.toUpperCase(name.charAt(0)));
-            } else {
-                result.append(Character.toLowerCase(name.charAt(0)));
-            }
-            for (int i = 1; i < name.length(); i++) {
-                char c = name.charAt(i);
-                if (c == '-') {
-                    nextIsUpper = true;
-                } else {
-                    if (nextIsUpper) {
-                        result.append(Character.toUpperCase(c));
-                        nextIsUpper = false;
-                    } else {
-                        result.append(Character.toLowerCase(c));
-                    }
-                }
-            }
-        }
-        return result.toString();
-    }
-
-    //    private void loadResources(String dbName, ApiBinder apiBinder, Settings settings,//
-    //            final BindInfo<TypeHandlerRegistry> typeInfo, final BindInfo<RuleRegistry> ruleInfo) throws IOException {
-    //        HasorUtils.autoAware(apiBinder.getEnvironment(), appContext -> {
-    //            TypeHandlerRegistry handlerRegistry = appContext.getInstance(typeInfo);
-    //            RuleRegistry ruleRegistry = appContext.getInstance(ruleInfo);
-    //            //
-    //            // TODO setup.
-    //        });
-    //    }
-
-    private void loadMapper(String dbName, ApiBinder apiBinder, BindInfo<DalSession> dalInfo, Settings settings) throws ClassNotFoundException {
+    private void loadMapper(String dbName, ApiBinder apiBinder, BindInfo<Session> dalInfo) throws ClassNotFoundException {
+        Settings settings = apiBinder.getEnvironment().getSettings();
         String configMapperDisabled = MapperDisabled.buildConfigKey(dbName);
         String configMapperPackages = MapperPackages.buildConfigKey(dbName);
         String configMapperScope = MapperScope.buildConfigKey(dbName);
@@ -323,7 +262,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
         for (Class<?> mapper : finalResult) {
             Class<Object> mapperCast = (Class<Object>) mapper;
 
-            DalMapperSupplier dalMapper = new DalMapperSupplier(mapperCast, dalInfo);
+            MapperSupplier dalMapper = new MapperSupplier(mapperCast, dalInfo);
             HasorUtils.pushStartListener(apiBinder.getEnvironment(), dalMapper);
 
             if (StringUtils.isBlank(dbName)) {
@@ -404,7 +343,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
             }
         }
 
-        /** 在方法上找 Transactional ，如果找不到在到 类上找 Transactional ，如果依然没有，那么在所处的包(包括父包)上找 Transactional。*/
+        /** 在方法上找 Transactional ，如果找不到在到 类上找 Transactional ，如果依然没有，那么在所处的包(包括父包)上找 Transactional。 */
         private Transactional tranAnnotation(Method targetMethod) {
             Transactional tran = targetMethod.getAnnotation(Transactional.class);
             if (tran == null) {
@@ -460,6 +399,42 @@ public class DbVisitorModule implements net.hasor.core.Module {
             } else {
                 return matcherType.getDeclaringClass().isAnnotationPresent(this.annotationType);
             }
+        }
+    }
+
+    private static String lineToHump(String name) {
+        // copy from spring jdbc 6.0.12 JdbcUtils.convertUnderscoreNameToPropertyName
+        StringBuilder result = new StringBuilder();
+        boolean nextIsUpper = false;
+        if (name != null && name.length() > 0) {
+            if (name.length() > 1 && name.charAt(1) == '-') {
+                result.append(Character.toUpperCase(name.charAt(0)));
+            } else {
+                result.append(Character.toLowerCase(name.charAt(0)));
+            }
+            for (int i = 1; i < name.length(); i++) {
+                char c = name.charAt(i);
+                if (c == '-') {
+                    nextIsUpper = true;
+                } else {
+                    if (nextIsUpper) {
+                        result.append(Character.toUpperCase(c));
+                        nextIsUpper = false;
+                    } else {
+                        result.append(Character.toLowerCase(c));
+                    }
+                }
+            }
+        }
+        return result.toString();
+    }
+
+    private String configValueOrDefault(String dbName, ConfigKeys configKey, Settings settings) {
+        String s = settings.getString(configKey.buildConfigKey(dbName), null);
+        if (StringUtils.isBlank(s)) {
+            return settings.getString(configKey.getConfigKey(), configKey.getDefaultValue());
+        } else {
+            return s;
         }
     }
 }

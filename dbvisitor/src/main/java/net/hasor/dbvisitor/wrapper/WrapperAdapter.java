@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.wrapper;
-import net.hasor.dbvisitor.JdbcHelper;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.QueryContext;
@@ -24,6 +23,7 @@ import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.mapping.def.TableDef;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.template.JdbcHelper;
 import net.hasor.dbvisitor.template.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.template.jdbc.DynamicConnection;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;

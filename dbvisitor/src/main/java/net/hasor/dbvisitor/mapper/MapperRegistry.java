@@ -85,6 +85,24 @@ public class MapperRegistry {
         this.loaded = new HashSet<>();
     }
 
+    public ClassLoader getClassLoader() {
+        return this.classLoader;
+    }
+
+    public MappingRegistry getMappingRegistry() {
+        return this.mappingRegistry;
+    }
+
+    public MacroRegistry getMacroRegistry() {
+        return this.macroRegistry;
+    }
+
+    public TypeHandlerRegistry getTypeRegistry() {
+        return this.typeRegistry;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
     public StatementDef findStatement(Class<?> namespace, String statement) {
         return this.findStatement(namespace.getName(), statement);
     }
@@ -272,7 +290,7 @@ public class MapperRegistry {
 
             // some check option.
             StatementDef def = defMap.get(configId);
-            if (def.getResultType() != null && requiredClass != null) {
+            if (def != null && def.getResultType() != null && requiredClass != null) {
                 Class<?> resultType = def.getResultType();
                 if (requiredClass == String.class) {
                     // string compatibility is very strong
@@ -477,7 +495,7 @@ public class MapperRegistry {
         boolean testMapper = false;
         java.lang.annotation.Annotation[] annotations = mapperType.getDeclaredAnnotations();
         for (java.lang.annotation.Annotation annotation : annotations) {
-            if (annotation instanceof DalMapper || annotation.annotationType().getAnnotation(DalMapper.class) != null) {
+            if (annotation instanceof MapperDef || annotation.annotationType().getAnnotation(MapperDef.class) != null) {
                 testMapper = true;
                 break;
             }

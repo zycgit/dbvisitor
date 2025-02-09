@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.boot;
-import net.hasor.dbvisitor.spring.support.DalMapperBean;
+import net.hasor.dbvisitor.spring.support.MapperBean;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -29,7 +29,7 @@ public class DbVisitorProperties {
     private             String[]                           mapperLocations;
     private             Boolean                            mapperDisabled;
     private             Class<? extends BeanNameGenerator> mapperNameGenerator;
-    private             Class<? extends DalMapperBean>     mapperFactoryBean;
+    private             Class<? extends MapperBean>        mapperFactoryBean;
     private             Boolean                            mapperLazyInit;
     private             String                             mapperScope;
     private             Class<? extends Annotation>        markerAnnotation;
@@ -40,6 +40,7 @@ public class DbVisitorProperties {
     private             Boolean                            camelCase;
     private             Boolean                            caseInsensitive;
     private             Boolean                            useDelimited;
+    private             Boolean                            ignoreNonExistStatement;
     private             String                             dialect;
 
     public String[] getMapperPackages() {
@@ -74,11 +75,11 @@ public class DbVisitorProperties {
         this.mapperNameGenerator = mapperNameGenerator;
     }
 
-    public Class<? extends DalMapperBean> getMapperFactoryBean() {
+    public Class<? extends MapperBean> getMapperFactoryBean() {
         return mapperFactoryBean;
     }
 
-    public void setMapperFactoryBean(Class<? extends DalMapperBean> mapperFactoryBean) {
+    public void setMapperFactoryBean(Class<? extends MapperBean> mapperFactoryBean) {
         this.mapperFactoryBean = mapperFactoryBean;
     }
 
@@ -152,6 +153,14 @@ public class DbVisitorProperties {
 
     public void setUseDelimited(Boolean useDelimited) {
         this.useDelimited = useDelimited;
+    }
+
+    public Boolean getIgnoreNonExistStatement() {
+        return this.ignoreNonExistStatement;
+    }
+
+    public void setIgnoreNonExistStatement(Boolean ignoreNonExistStatement) {
+        this.ignoreNonExistStatement = ignoreNonExistStatement;
     }
 
     public String getDialect() {

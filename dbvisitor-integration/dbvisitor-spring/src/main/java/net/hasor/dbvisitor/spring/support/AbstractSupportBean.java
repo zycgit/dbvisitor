@@ -23,9 +23,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 /**
- *
- * @version : 2022-04-29
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-29
  * @see Mapper
  */
 public abstract class AbstractSupportBean<T> implements FactoryBean<T>, BeanClassLoaderAware, ApplicationContextAware, InitializingBean {

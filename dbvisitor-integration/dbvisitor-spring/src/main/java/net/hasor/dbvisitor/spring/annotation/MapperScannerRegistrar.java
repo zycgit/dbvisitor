@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.spring.annotation;
 import net.hasor.dbvisitor.spring.mapper.ClassPathMapperScanner;
 import net.hasor.dbvisitor.spring.mapper.MapperFileConfigurer;
 import net.hasor.dbvisitor.spring.mapper.MapperScannerConfigurer;
-import net.hasor.dbvisitor.spring.support.DalMapperBean;
+import net.hasor.dbvisitor.spring.support.MapperBean;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -38,9 +38,8 @@ import java.util.stream.Collectors;
  * A {@link ImportBeanDefinitionRegistrar} to allow annotation configuration of dbVisitor mapper scanning. Using
  * an @Enable annotation allows beans to be registered via @Component configuration, whereas implementing
  * {@code BeanDefinitionRegistryPostProcessor} will work for XML configuration.
- *
- * @version 2022-04-29
  * @author 赵永春 (zyc@hasor.net)
+ * @version 2022-04-29
  * @see ClassPathMapperScanner
  * @since 1.2.0
  */
@@ -124,8 +123,8 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
         }
 
         // attr - factoryBean
-        Class<? extends DalMapperBean> mapperFactoryBeanClass = annoAttrs.getClass("factoryBean");
-        if (!DalMapperBean.class.equals(mapperFactoryBeanClass)) {
+        Class<? extends MapperBean> mapperFactoryBeanClass = annoAttrs.getClass("factoryBean");
+        if (!MapperBean.class.equals(mapperFactoryBeanClass)) {
             builder.addPropertyValue("mapperFactoryBeanClass", mapperFactoryBeanClass);
         }
 

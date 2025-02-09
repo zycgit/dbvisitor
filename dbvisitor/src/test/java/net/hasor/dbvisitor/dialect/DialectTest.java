@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
-import net.hasor.dbvisitor.JdbcHelper;
+import net.hasor.dbvisitor.template.JdbcHelper;
 import net.hasor.dbvisitor.dialect.provider.OracleDialect;
 import net.hasor.dbvisitor.dialect.provider.SqlServerDialect;
 import net.hasor.test.AbstractDbTest;

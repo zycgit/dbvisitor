@@ -29,6 +29,7 @@ public class Options {
     private Boolean    caseInsensitive;
     private Boolean    useDelimited;
     private SqlDialect defaultDialect;
+    private Boolean    ignoreNonExistStatement;
 
     public Options() {
     }
@@ -42,14 +43,28 @@ public class Options {
             this.caseInsensitive = options.caseInsensitive;
             this.useDelimited = options.useDelimited;
             this.defaultDialect = options.defaultDialect;
+            this.ignoreNonExistStatement = options.ignoreNonExistStatement;
         }
+    }
+
+    public static Options of() {
+        return new Options();
+    }
+
+    public static Options of(Options options) {
+        return new Options(options);
     }
 
     @Override
     public String toString() {
         String dialect = defaultDialect == null ? null : defaultDialect.getClass().getName();
-        String key = this.autoMapping + "," + this.mapUnderscoreToCamelCase + "," + this.caseInsensitive + "," + this.useDelimited + "," + dialect;
-        return "MappingOptions[" + key + "]";
+        String key = autoMapping + "," + //
+                this.mapUnderscoreToCamelCase + "," +//
+                this.caseInsensitive + "," +//
+                this.useDelimited + "," +//
+                this.ignoreNonExistStatement + "," +//
+                dialect;
+        return "Options[" + key + "]";
     }
 
     public String getCatalog() {
@@ -143,12 +158,17 @@ public class Options {
         return this;
     }
 
-    public static Options of() {
-        return new Options();
+    public Boolean getIgnoreNonExistStatement() {
+        return this.ignoreNonExistStatement;
     }
 
-    public static Options of(Options options) {
-        return new Options(options);
+    public void setIgnoreNonExistStatement(Boolean ignoreNonExistStatement) {
+        this.ignoreNonExistStatement = ignoreNonExistStatement;
+    }
+
+    public Options ignoreNonExistStatement(Boolean ignoreNonExistStatement) {
+        setIgnoreNonExistStatement(ignoreNonExistStatement);
+        return this;
     }
 
     //MappingDefault

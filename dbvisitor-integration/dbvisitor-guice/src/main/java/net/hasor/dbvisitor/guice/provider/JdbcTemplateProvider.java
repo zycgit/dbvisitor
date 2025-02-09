@@ -20,9 +20,8 @@ import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
 
 /**
- *
- * @version : 2014年7月17日
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2014年7月17日
  */
 public class JdbcTemplateProvider implements Provider<JdbcTemplate> {
     private final Provider<DataSource> dataSource;

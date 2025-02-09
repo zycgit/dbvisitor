@@ -19,7 +19,7 @@ import net.hasor.core.Hasor;
 import net.hasor.core.Inject;
 import net.hasor.core.Type;
 import net.hasor.dbvisitor.DbVisitorModule;
-import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.dao.role.RoleMapper;
 import net.hasor.dbvisitor.test.dao.user.UserMapper;
 import net.hasor.dbvisitor.test.dto.UserDTO;
@@ -36,13 +36,13 @@ public class MultiDsTest {
     @Inject(byType = Type.ByName, value = "two")
     private UserMapper userMapper;
     @Inject(byType = Type.ByName, value = "three")
-    private DalSession dalSession;
+    private Session    dalSession;
 
     @Test
     public void getListTest() throws SQLException, IOException {
         AppContext injector = Hasor.create().mainSettingWith("multi-ds.properties").build(new DbVisitorModule());
         injector.justInject(this);
-        this.dalSession.lambdaTemplate().loadSQL("CreateDB.sql");
+        this.dalSession.jdbc().loadSQL("CreateDB.sql");
 
         assert userMapper != null;
         assert roleMapper != null;

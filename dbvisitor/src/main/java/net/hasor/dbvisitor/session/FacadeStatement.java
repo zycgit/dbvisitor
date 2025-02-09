@@ -24,6 +24,7 @@ import net.hasor.dbvisitor.mapper.def.SelectKeyConfig;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 执行器总入口
@@ -32,21 +33,29 @@ import java.util.Map;
  */
 class FacadeStatement {
     private final StatementDef              statementDef;
-    private final AbstractStatementExecute  statementExecute;
+    private       AbstractStatementExecute  statementExecute;
     private       SelectKeyStatementExecute selectKeyExecute;
 
-    FacadeStatement(String namespace, String statementId, Configuration registry) {
-        this.statementDef = registry.getMapperRegistry().findStatement(namespace, statementId);
+    FacadeStatement(String namespace, String statementId, Configuration config) {
+        this.statementDef = config.getMapperRegistry().findStatement(namespace, statementId);
         if (this.statementDef == null) {
             String fullName = StringUtils.isBlank(namespace) ? statementId : (namespace + "." + statementId);
             throw new IllegalStateException("statement '" + fullName + "' is not found.");
         }
+        this.initExecute(config);
+    }
 
-        this.statementExecute = this.createExecute(this.statementDef.getConfig().getStatementType(), registry);
+    FacadeStatement(StatementDef def, Configuration config) {
+        this.statementDef = Objects.requireNonNull(def, "statementDef is null.");
+        this.initExecute(config);
+    }
+
+    private void initExecute(Configuration config) {
+        this.statementExecute = this.createExecute(this.statementDef.getConfig().getStatementType(), config);
         if (this.statementDef.getConfig() instanceof InsertConfig) {
             SelectKeyConfig keyConfig = ((InsertConfig) this.statementDef.getConfig()).getSelectKey();
             if (keyConfig != null) {
-                AbstractStatementExecute selectKey = this.createExecute(this.statementDef.getConfig().getStatementType(), registry);
+                AbstractStatementExecute selectKey = this.createExecute(this.statementDef.getConfig().getStatementType(), config);
                 this.selectKeyExecute = new SelectKeyStatementExecute(this.statementDef, keyConfig, selectKey);
             }
         }

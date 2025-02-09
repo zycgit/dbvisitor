@@ -16,8 +16,8 @@
 package net.hasor.dbvisitor.spring.support;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.mapper.Mapper;
-import net.hasor.dbvisitor.dal.MapperRegistry;
-import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.spring.adapter.AbstractDsAdapter;
 import net.hasor.dbvisitor.spring.adapter.SpringDsAdapter;
 
@@ -28,32 +28,29 @@ import java.util.Objects;
  * BeanFactory that enables injection of DalSession.
  * <p>
  * Sample configuration:
- *
  * <pre class="code">
  * {@code
- *     <bean id="dalRegistry" class="net.hasor.dbvisitor.spring.support.DalRegistryBean">
+ *     <bean id="configBean" class="net.hasor.dbvisitor.spring.support.ConfigurationBean">
  *         <property name="mapperResources" value="classpath*:dbvisitor/mapper/*Mapper.xml"/>
  *     </bean>
- *
- *     <bean id="dalSession" class="net.hasor.dbvisitor.spring.support.DalSessionBean">
- *         <property name="dalRegistry" ref="dalRegistry"/>
- *         <property name="dialectName" value="mysql"/>
+ *     <bean id="dalSession" class="net.hasor.dbvisitor.spring.support.SessionBean">
+ *         <property name="config" ref="configBean"/>
  *     </bean>
  * }
  * </pre>
- *
- * @version : 2022-04-29
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-29
  * @see Mapper
  */
-public class DalSessionBean extends AbstractSupportBean<DalSession> {
-    private MapperRegistry dalRegistry;
-    private DalSession     dalSession;
+public class SessionBean extends AbstractSupportBean<Session> {
+    private Configuration     config;
     // - dsAdapter
     private AbstractDsAdapter dsAdapter;
     private Class<?>          dsAdapterClass;
     private String            dsAdapterName;
     private DataSource        dataSource;
+    //
+    private Session           session;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -66,11 +63,7 @@ public class DalSessionBean extends AbstractSupportBean<DalSession> {
 
         initDsAdapter();
 
-        if (this.dalRegistry == null) {
-            this.dalSession = new DalSession(this.dsAdapter, MapperRegistry.DEFAULT);
-        } else {
-            this.dalSession = new DalSession(this.dsAdapter, this.dalRegistry);
-        }
+        this.session = this.config.newSession(this.dsAdapter);
     }
 
     private void initDsAdapter() throws Exception {
@@ -102,17 +95,17 @@ public class DalSessionBean extends AbstractSupportBean<DalSession> {
     }
 
     @Override
-    public DalSession getObject() {
-        return Objects.requireNonNull(this.dalSession, "dalSession not init.");
+    public Session getObject() {
+        return Objects.requireNonNull(this.session, "Session not init.");
     }
 
     @Override
     public Class<?> getObjectType() {
-        return DalSession.class;
+        return Session.class;
     }
 
-    public void setDalRegistry(MapperRegistry dalRegistry) {
-        this.dalRegistry = dalRegistry;
+    public void setConfig(Configuration config) {
+        this.config = config;
     }
 
     public void setDataSource(DataSource dataSource) {

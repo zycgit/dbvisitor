@@ -28,16 +28,14 @@ import java.sql.Connection;
  *         <property name="dsAdapterClass" value="net.hasor.dbvisitor.spring.support.SpringDsAdapter"/>
  *         ...
  *     </bean>
- *
  *     <bean id="oneMapper" class="net.hasor.dbvisitor.spring.support.DalMapperBean">
  *         <property name="dalSession" ref="dalSession"/>
  *         <property name="mapperInterface" value="net.hasor.dbvisitor.test.TestUserDAO"/>
  *     </bean>
  * }
  * </pre>
- *
- * @version : 2022-04-29
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2022-04-29
  * @see Mapper
  */
 public class SpringDsAdapter extends AbstractDsAdapter {

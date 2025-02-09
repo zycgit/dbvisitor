@@ -21,9 +21,9 @@ import java.lang.annotation.*;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-19
  */
-@DalMapper
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@MapperDef
 public @interface SimpleMapper {
 }

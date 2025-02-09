@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.spring.mapper;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.spring.annotation.MapperScan;
 import net.hasor.dbvisitor.spring.annotation.MappingScan;
 import org.springframework.beans.PropertyValues;
@@ -37,17 +37,17 @@ import java.util.stream.Stream;
 public class MapperFileConfigurer extends AbstractConfigurer implements InitializingBean {
     private static final Logger                              logger   = LoggerFactory.getLogger(MapperFileConfigurer.class);
     private static final PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-    private              DalSession                          dalSession;
-    private              String                              dalSessionRef;
+    private              Configuration                       config;
+    private              String                              configRef;
     private              String                              mapperLocations;
     private              boolean                             processPropertyPlaceHolders;
 
-    public void setDalSession(DalSession dalSession) {
-        this.dalSession = dalSession;
+    public void setConfig(Configuration config) {
+        this.config = config;
     }
 
-    public void setDalSessionRef(String dalSessionRef) {
-        this.dalSessionRef = dalSessionRef;
+    public void setConfigRef(String configRef) {
+        this.configRef = configRef;
     }
 
     public void setMapperLocations(String mapperLocations) {
@@ -64,13 +64,13 @@ public class MapperFileConfigurer extends AbstractConfigurer implements Initiali
             processPropertyPlaceHolders();
         }
 
-        if (this.dalSession == null) {
-            if (StringUtils.hasText(this.dalSessionRef)) {
-                logger.info("load MapperFile to DalSession '" + this.dalSessionRef + "'");
-                this.dalSession = (DalSession) this.applicationContext.getBean(this.dalSessionRef);
+        if (this.config == null) {
+            if (StringUtils.hasText(this.configRef)) {
+                logger.info("load MapperFile to Configuration '" + this.configRef + "'");
+                this.config = (Configuration) this.applicationContext.getBean(this.configRef);
             } else {
-                logger.info("load MapperFile to default DalSession.");
-                this.dalSession = this.applicationContext.getBean(DalSession.class);
+                logger.info("load MapperFile to default Configuration.");
+                this.config = this.applicationContext.getBean(Configuration.class);
             }
         }
 
@@ -79,7 +79,7 @@ public class MapperFileConfigurer extends AbstractConfigurer implements Initiali
                 .flatMap(location -> Stream.of(getResources(location))).toArray(Resource[]::new);
         for (Resource resource : mapperResources) {
             String string = resource.getURI().toString();
-            this.dalSession.getDalRegistry().loadMapper(string, false);
+            this.config.loadMapper(string);
         }
     }
 
@@ -113,10 +113,10 @@ public class MapperFileConfigurer extends AbstractConfigurer implements Initiali
             }
 
             PropertyValues values = mapperScannerBean.getPropertyValues();
-            this.dalSessionRef = getPropertyValue("dalSessionRef", values);
+            this.configRef = getPropertyValue("configRef", values);
             this.mapperLocations = getPropertyValue("mapperLocations", values);
         }
-        this.dalSessionRef = Optional.ofNullable(this.dalSessionRef).map(getEnvironment()::resolvePlaceholders).orElse(null);
+        this.configRef = Optional.ofNullable(this.configRef).map(getEnvironment()::resolvePlaceholders).orElse(null);
         this.mapperLocations = Optional.ofNullable(this.mapperLocations).map(getEnvironment()::resolvePlaceholders).orElse(null);
     }
 }

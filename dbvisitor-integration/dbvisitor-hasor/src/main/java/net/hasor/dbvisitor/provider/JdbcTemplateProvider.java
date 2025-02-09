@@ -20,9 +20,8 @@ import javax.sql.DataSource;
 import java.util.function.Supplier;
 
 /**
- *
- * @version : 2014年7月17日
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2014年7月17日
  */
 public class JdbcTemplateProvider implements Supplier<JdbcTemplate> {
     private final Supplier<DataSource> dataSource;

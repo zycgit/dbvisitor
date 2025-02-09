@@ -16,18 +16,15 @@
 package net.hasor.dbvisitor.spring.boot;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.mapper.Mapper;
-import net.hasor.dbvisitor.mapper.DalMapper;
-import net.hasor.dbvisitor.dal.MapperRegistry;
-import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
-import net.hasor.dbvisitor.dynamic.MacroRegistry;
-import net.hasor.dbvisitor.dynamic.RegistryManager;
-import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
-import net.hasor.dbvisitor.mapping.MappingOptions;
+import net.hasor.dbvisitor.mapper.Mapper;
+import net.hasor.dbvisitor.mapper.MapperDef;
+import net.hasor.dbvisitor.mapping.Options;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.spring.mapper.MapperFileConfigurer;
 import net.hasor.dbvisitor.spring.mapper.MapperScannerConfigurer;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
+import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.*;
@@ -44,19 +41,19 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.List;
 
 import static net.hasor.dbvisitor.spring.boot.DbVisitorProperties.PREFIX;
 
-@Configuration
-@ConditionalOnClass({ DalSession.class, MapperRegistry.class })
+@org.springframework.context.annotation.Configuration
+@ConditionalOnClass({ Session.class, Configuration.class })
 @ConditionalOnSingleCandidate(DataSource.class)
 @EnableConfigurationProperties(DbVisitorProperties.class)
 @AutoConfigureAfter(DataSourceAutoConfiguration.class)
@@ -88,43 +85,50 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
 
     @Bean
     @ConditionalOnMissingBean
-    public MapperRegistry dalRegistry(ObjectProvider<TypeHandlerRegistry> typeHandlersProvider, ObjectProvider<RuleRegistry> ruleRegistryProvider) {
-        TypeHandlerRegistry typeHandlerRegistry = typeHandlersProvider.getIfAvailable();
-        RuleRegistry ruleRegistry = ruleRegistryProvider.getIfAvailable();
-
-        MappingOptions options = MappingOptions.buildNew();
+    public Configuration dbVisitorConfiguration() {
+        Options options = Options.of();
         options.setAutoMapping(this.properties.getAutoMapping());
         options.setMapUnderscoreToCamelCase(this.properties.getCamelCase());
         options.setCaseInsensitive(this.properties.getCaseInsensitive());
         options.setUseDelimited(this.properties.getUseDelimited());
+        options.setIgnoreNonExistStatement(this.properties.getIgnoreNonExistStatement());
         if (StringUtils.hasText(this.properties.getDialect())) {
             options.setDefaultDialect(SqlDialectRegister.findOrCreate(this.properties.getDialect(), this.classLoader));
         }
-        return new MapperRegistry(this.classLoader, typeHandlerRegistry, ruleRegistry, options);
+
+        return new Configuration(options);
     }
 
-    @Bean
+    @Bean(name = "jdbcSession")
     @ConditionalOnMissingBean
-    public DalSession dalSession(DataSource dataSource, MapperRegistry dalRegistry) throws Exception {
+    public Session jdbcSession(DataSource dataSource, Configuration config) throws Exception {
         String refSessionBean = this.properties.getRefSessionBean();
         if (StringUtils.hasText(refSessionBean)) {
-            return (DalSession) this.applicationContext.getBean(refSessionBean);
+            return (Session) this.applicationContext.getBean(refSessionBean);
         } else {
-            return new DalSession(dataSource, dalRegistry);
+            return config.newSession(dataSource);
         }
     }
 
-    //  jdbcTemplate name of the conflict
-
-    @Bean
+    @Bean(name = "jdbcAdapter")
     @ConditionalOnMissingBean
-    public WrapperAdapter lambdaTemplate(DataSource dataSource, ObjectProvider<TypeHandlerRegistry> typeHandlersProvider) {
-        TypeHandlerRegistry typeHandlerRegistry = typeHandlersProvider.getIfAvailable();
-        if (typeHandlerRegistry == null) {
+    public JdbcTemplate jdbcAdapter(DataSource dataSource, ObjectProvider<Configuration> configProvider) throws SQLException {
+        Configuration configuration = configProvider.getIfAvailable();
+        if (configuration == null) {
+            return new JdbcTemplate(dataSource);
+        } else {
+            return configuration.newJdbc(dataSource);
+        }
+    }
+
+    @Bean(name = "jdbcWrapper")
+    @ConditionalOnMissingBean
+    public WrapperAdapter jdbcWrapper(DataSource dataSource, ObjectProvider<Configuration> configProvider) throws SQLException {
+        Configuration configuration = configProvider.getIfAvailable();
+        if (configuration == null) {
             return new WrapperAdapter(dataSource);
         } else {
-            RegistryManager manager = new RegistryManager(typeHandlerRegistry, RuleRegistry.DEFAULT, MacroRegistry.DEFAULT);
-            return new WrapperAdapter(dataSource, manager);
+            return configuration.newWrapper(dataSource);
         }
     }
 
@@ -132,9 +136,9 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
      * If mapper registering configuration or mapper scanning configuration not present,
      * this configuration allow to scan mappers based on the same component-scanning path as Spring Boot itself.
      */
-    @Configuration
+    @org.springframework.context.annotation.Configuration
     @Import(AutoConfiguredMapperScannerRegistrar.class)
-    @ConditionalOnMissingBean({ DalSession.class, MapperScannerConfigurer.class })
+    @ConditionalOnMissingBean({ Session.class, MapperScannerConfigurer.class })
     public static class MapperScannerRegistrarNotFoundConfiguration implements InitializingBean {
         public void afterPropertiesSet() {
             logger.debug("Not found configuration for registering mapper bean using @MapperScan, DalSessionBean and MapperScannerConfigurer.");
@@ -165,7 +169,7 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
             BeanDefinitionBuilder fileBuilder = BeanDefinitionBuilder.genericBeanDefinition(MapperFileConfigurer.class);
             fileBuilder.addPropertyValue("processPropertyPlaceHolders", true);
             fileBuilder.addPropertyValue("mapperLocations", "${" + PREFIX + ".mapper-locations:classpath*:/dbvisitor/mapper/**/*.xml}");
-            fileBuilder.addPropertyValue("dalSessionRef", "${" + PREFIX + ".ref-session-bean:}");
+            fileBuilder.addPropertyValue("configRef", "${" + PREFIX + ".ref-config:}");
             registry.registerBeanDefinition(fileBeanName, fileBuilder.getBeanDefinition());
 
             // load mapper interface
@@ -178,9 +182,9 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
             mapperBuilder.addPropertyValue("defaultScope", "${" + PREFIX + ".mapper-scope:" + AbstractBeanDefinition.SCOPE_DEFAULT + "}");
             mapperBuilder.addPropertyValue("lazyInitialization", "${" + PREFIX + ".mapper-lazy-initialization:false}");
             mapperBuilder.addPropertyValue("nameGeneratorName", "${" + PREFIX + ".mapper-name-generator:}");
-            mapperBuilder.addPropertyValue("annotationClassName", "${" + PREFIX + ".marker-annotation:" + DalMapper.class.getName() + "}");
+            mapperBuilder.addPropertyValue("annotationClassName", "${" + PREFIX + ".marker-annotation:" + MapperDef.class.getName() + "}");
             mapperBuilder.addPropertyValue("markerInterfaceName", "${" + PREFIX + ".marker-interface:" + Mapper.class.getName() + "}");
-            mapperBuilder.addPropertyValue("dalSessionRef", "${" + PREFIX + ".ref-session-bean:}");
+            mapperBuilder.addPropertyValue("sessionRef", "${" + PREFIX + ".ref-session:}");
             mapperBuilder.addPropertyValue("dependsOn", fileBeanName);
 
             registry.registerBeanDefinition(mapperBeanName, mapperBuilder.getBeanDefinition());

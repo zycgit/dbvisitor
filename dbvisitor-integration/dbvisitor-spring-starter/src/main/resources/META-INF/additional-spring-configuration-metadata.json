@@ -90,6 +90,12 @@
       "sourceMethod": "getUseDelimited()"
     },
     {
+      "name": "dbvisitor.ignore-non-exist-statement",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getIgnoreNonExistStatement()"
+    },
+    {
       "name": "dbvisitor.dialect",
       "type": "java.lang.String",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
@@ -151,20 +157,20 @@
       "type": "java.lang.Class",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
       "description": "mapper interface marker annotation type.",
-      "defaultValue": "net.hasor.dbvisitor.dal.repository.DalMapper"
+      "defaultValue": "net.hasor.dbvisitor.mapper.MapperDef"
     },
     {
       "name": "dbvisitor.marker-interface",
       "type": "java.lang.Class",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
       "description": "mapper interface marker type.",
-      "defaultValue": "net.hasor.dbvisitor.dal.mapper.Mapper"
+      "defaultValue": "net.hasor.dbvisitor.mapper.Mapper"
     },
     {
       "name": "dbvisitor.ref-session-bean",
       "type": "java.lang.String",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
-      "description": "mapper object use special DalSession.",
+      "description": "mapper object use special Session.",
       "defaultValue": ""
     },
     {
@@ -192,14 +198,21 @@
       "name": "dbvisitor.use-delimited",
       "type": "java.lang.Boolean",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
-      "description": "LambdaTemplate build sql use delimited.",
+      "description": "wrapper build sql use delimited.",
+      "defaultValue": ""
+    },
+    {
+      "name": "dbvisitor.ignore-non-exist-statement",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "wrapper build sql use delimited.",
       "defaultValue": ""
     },
     {
       "name": "dbvisitor.dialect",
       "type": "java.lang.String",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
-      "description": "SqlDialect for LambdaTemplate/DalSession",
+      "description": "SqlDialect for wrapper/Session",
       "defaultValue": ""
     }
   ],

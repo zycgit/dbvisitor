@@ -15,9 +15,9 @@
  */
 package net.hasor.dbvisitor.spring.mapper;
 import net.hasor.cobble.ExceptionUtils;
-import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.spring.annotation.MapperScan;
-import net.hasor.dbvisitor.spring.support.DalMapperBean;
+import net.hasor.dbvisitor.spring.support.MapperBean;
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.InitializingBean;
@@ -39,9 +39,9 @@ import static org.springframework.util.Assert.notNull;
 
 /**
  * A resource load for {@link MapperScan}.
- * @version 2022-04-29
  * @author 赵永春 (zyc@hasor.net)
- * @see DalMapperBean
+ * @version 2022-04-29
+ * @see MapperBean
  * @see ClassPathMapperScanner
  */
 public class MapperScannerConfigurer extends AbstractConfigurer implements BeanDefinitionRegistryPostProcessor, InitializingBean {
@@ -52,8 +52,8 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
     private Class<? extends Annotation> annotationClass;
     private String                      markerInterfaceName;
     private Class<?>                    markerInterface;
-    private String                      dalSessionRef;
-    private DalSession                  dalSession;
+    private Session                     session;
+    private String                      sessionRef;
     private String                      mapperDisabled;
     private String                      mapperFactoryBeanClassName;
     private Class<?>                    mapperFactoryBeanClass;
@@ -103,8 +103,8 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
         }
         scanner.setAnnotationClass(this.annotationClass);
         scanner.setMarkerInterface(this.markerInterface);
-        scanner.setDalSessionRef(this.dalSessionRef);
-        scanner.setDalSession(this.dalSession);
+        scanner.setSessionRef(this.sessionRef);
+        scanner.setSession(this.session);
         scanner.setResourceLoader(this.applicationContext);
         scanner.setBeanNameGenerator(this.nameGenerator);
         scanner.setMapperFactoryBeanClass(this.mapperFactoryBeanClass);
@@ -147,7 +147,7 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
             this.markerInterfaceName = getPropertyValue("markerInterfaceName", values);
             this.mapperFactoryBeanClassName = getPropertyValue("mapperFactoryBeanClassName", values);
             this.basePackage = getPropertyValue("basePackage", values);
-            this.dalSessionRef = getPropertyValue("dalSessionRef", values);
+            this.sessionRef = getPropertyValue("sessionRef", values);
             this.mapperDisabled = getPropertyValue("mapperDisabled", values);
             this.lazyInitialization = getPropertyValue("lazyInitialization", values);
             this.defaultScope = getPropertyValue("defaultScope", values);
@@ -157,7 +157,7 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
         this.markerInterfaceName = Optional.ofNullable(this.markerInterfaceName).map(getEnvironment()::resolvePlaceholders).orElse(null);
         this.mapperFactoryBeanClassName = Optional.ofNullable(this.mapperFactoryBeanClassName).map(getEnvironment()::resolvePlaceholders).orElse(null);
         this.basePackage = Optional.ofNullable(this.basePackage).map(getEnvironment()::resolvePlaceholders).orElse(null);
-        this.dalSessionRef = Optional.ofNullable(this.dalSessionRef).map(getEnvironment()::resolvePlaceholders).orElse(null);
+        this.sessionRef = Optional.ofNullable(this.sessionRef).map(getEnvironment()::resolvePlaceholders).orElse(null);
         this.mapperDisabled = Optional.ofNullable(this.mapperDisabled).map(getEnvironment()::resolvePlaceholders).orElse(null);
         this.lazyInitialization = Optional.ofNullable(this.lazyInitialization).map(getEnvironment()::resolvePlaceholders).orElse(null);
         this.defaultScope = Optional.ofNullable(this.defaultScope).map(getEnvironment()::resolvePlaceholders).orElse(null);
@@ -191,12 +191,12 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
         this.markerInterface = markerInterface;
     }
 
-    public void setDalSessionRef(String dalSessionRef) {
-        this.dalSessionRef = dalSessionRef;
+    public void setSessionRef(String sessionRef) {
+        this.sessionRef = sessionRef;
     }
 
-    public void setDalSession(DalSession dalSession) {
-        this.dalSession = dalSession;
+    public void setSession(Session session) {
+        this.session = session;
     }
 
     public void setMapperDisabled(String mapperDisabled) {
@@ -207,7 +207,7 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
         this.mapperFactoryBeanClassName = mapperFactoryBeanClassName;
     }
 
-    public void setMapperFactoryBeanClass(Class<? extends DalMapperBean> mapperFactoryBeanClass) {
+    public void setMapperFactoryBeanClass(Class<? extends MapperBean> mapperFactoryBeanClass) {
         this.mapperFactoryBeanClass = mapperFactoryBeanClass;
     }
 

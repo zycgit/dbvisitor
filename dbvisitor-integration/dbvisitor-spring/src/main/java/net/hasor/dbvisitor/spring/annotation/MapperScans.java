@@ -21,15 +21,13 @@ import java.lang.annotation.*;
 
 /**
  * The Container annotation that aggregates several {@link MapperScan} annotations.
- *
  * <p>
  * Can be used natively, declaring several nested {@link MapperScan} annotations. Can also be used in conjunction with
  * Java 8's support for repeatable annotations, where {@link MapperScan} can simply be declared several times on the
  * same method, implicitly generating this container annotation.
- *
  * @author Kazuki Shimizu
- * @version 2022-04-29
  * @author 赵永春 (zyc@hasor.net)
+ * @version 2022-04-29
  * @see MapperScan
  */
 @Retention(RetentionPolicy.RUNTIME)

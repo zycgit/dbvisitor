@@ -17,8 +17,8 @@ package net.hasor.dbvisitor.dialect;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
-import net.hasor.dbvisitor.JdbcHelper;
 import net.hasor.dbvisitor.dialect.provider.*;
+import net.hasor.dbvisitor.template.JdbcHelper;
 
 import java.util.Map;
 

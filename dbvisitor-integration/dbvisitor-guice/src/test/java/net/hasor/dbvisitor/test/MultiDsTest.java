@@ -17,8 +17,8 @@ package net.hasor.dbvisitor.test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import net.hasor.cobble.ResourcesUtils;
-import net.hasor.dbvisitor.dal.session.DalSession;
 import net.hasor.dbvisitor.guice.DbVisitorModule;
+import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.dao.role.RoleMapper;
 import net.hasor.dbvisitor.test.dao.user.UserMapper;
 import net.hasor.dbvisitor.test.dto.UserDTO;
@@ -43,7 +43,7 @@ public class MultiDsTest {
 
     @Named("three")
     @Inject()
-    private DalSession dalSession;
+    private Session dalSession;
 
     @Test
     public void getListTest() throws SQLException, IOException {
@@ -52,7 +52,7 @@ public class MultiDsTest {
 
         Injector injector = Guice.createInjector(new DbVisitorModule(properties));
         injector.injectMembers(this);
-        this.dalSession.lambdaTemplate().loadSQL("CreateDB.sql");
+        this.dalSession.jdbc().loadSQL("CreateDB.sql");
 
         assert this.userMapper != null;
         assert this.roleMapper != null;

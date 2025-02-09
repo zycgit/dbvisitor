@@ -13,29 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.guice.provider;
+package net.hasor.dbvisitor.provider;
 
-import com.google.inject.Provider;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
+import java.util.function.Supplier;
 
 /**
- * @version : 2021-07-20
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2021-07-20
  */
-public class LambdaTemplateProvider implements Provider<WrapperAdapter> {
-    private final Provider<DataSource> dataSource;
+public class WrapperAdapterProvider implements Supplier<WrapperAdapter> {
+    private final Supplier<DataSource> dataSource;
 
-    public LambdaTemplateProvider(DataSource dataSource) {
+    public WrapperAdapterProvider(DataSource dataSource) {
         this(() -> dataSource);
     }
 
-    public LambdaTemplateProvider(Provider<DataSource> dataSource) {
+    public WrapperAdapterProvider(Supplier<DataSource> dataSource) {
         this.dataSource = dataSource;
     }
 
     public WrapperAdapter get() {
-        return new WrapperAdapter(this.dataSource.get());
+        try {
+            return new WrapperAdapter(this.dataSource.get());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

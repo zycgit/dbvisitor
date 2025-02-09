@@ -21,7 +21,7 @@ import java.lang.annotation.*;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-05-19
  */
-@DalMapper
+@MapperDef
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

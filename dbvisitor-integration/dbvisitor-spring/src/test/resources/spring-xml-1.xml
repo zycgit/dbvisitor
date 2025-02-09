@@ -25,26 +25,25 @@
     <!-- 开启事务注解 -->
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
-    <!-- DalRegistry -->
-    <bean id="dalRegistry" class="net.hasor.dbvisitor.spring.support.DalRegistryBean">
-        <property name="mapperResources" value="classpath*:hasordb/mapper/*Mapper.xml"/>
+    <!-- dbVisitor -->
+    <bean id="ormConf" class="net.hasor.dbvisitor.spring.support.ConfigurationBean">
+        <property name="mapperResources" value="classpath*:dbvisitor/mapper/*Mapper.xml"/>
+        <property name="dialectName" value="mysql"/>
     </bean>
-
-    <!-- DalSession -->
-    <bean id="dalSession" class="net.hasor.dbvisitor.spring.support.DalSessionBean">
-        <property name="dalRegistry" ref="dalRegistry"/>
+    <bean id="ormSession" class="net.hasor.dbvisitor.spring.support.SessionBean">
+        <property name="config" ref="ormConf"/>
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
     <!-- userMapper -->
-    <bean id="userMapper" class="net.hasor.dbvisitor.spring.support.DalMapperBean">
-        <property name="dalSession" ref="dalSession"/>
-        <property name="mapperInterface" value="net.hasor.dbvisitor.test.dao.UserMapper"/>
+    <bean id="userMapper" class="net.hasor.dbvisitor.spring.support.MapperBean">
+        <property name="session" ref="ormSession"/>
+        <property name="mapperInterface" value="net.hasor.dbvisitor.test.dao.user.UserMapper"/>
     </bean>
 
     <!-- roleMapper -->
-    <bean id="roleMapper" class="net.hasor.dbvisitor.spring.support.DalMapperBean">
-        <property name="dalSession" ref="dalSession"/>
-        <property name="mapperInterface" value="net.hasor.dbvisitor.test.dao.RoleMapper"/>
+    <bean id="roleMapper" class="net.hasor.dbvisitor.spring.support.MapperBean">
+        <property name="session" ref="ormSession"/>
+        <property name="mapperInterface" value="net.hasor.dbvisitor.test.dao.role.RoleMapper"/>
     </bean>
 </beans>

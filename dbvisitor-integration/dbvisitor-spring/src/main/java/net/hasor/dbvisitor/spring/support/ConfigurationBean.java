@@ -15,14 +15,16 @@
  */
 package net.hasor.dbvisitor.spring.support;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.mapper.Mapper;
-import net.hasor.dbvisitor.dal.MapperRegistry;
-import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
-import net.hasor.dbvisitor.dynamic.rule.RuleRegistry;
-import net.hasor.dbvisitor.dynamic.rule.SqlBuildRule;
-import net.hasor.dbvisitor.mapping.MappingOptions;
+import net.hasor.dbvisitor.dynamic.MacroRegistry;
+import net.hasor.dbvisitor.dynamic.RuleRegistry;
+import net.hasor.dbvisitor.dynamic.rule.SqlRule;
+import net.hasor.dbvisitor.mapper.Mapper;
+import net.hasor.dbvisitor.mapper.MapperRegistry;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
+import net.hasor.dbvisitor.mapping.Options;
+import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.springframework.core.io.Resource;
@@ -36,7 +38,7 @@ import java.util.Objects;
  * Sample configuration:
  * <pre class="code">
  * {@code
- *     <bean id="dalRegistry" class="net.hasor.dbvisitor.spring.support.DalRegistryBean">
+ *     <bean id="dalRegistry" class="net.hasor.dbvisitor.spring.support.ConfigurationBean">
  *         <property name="mapperResources" value="classpath*:dbvisitor/mapper/*Mapper.xml"/>
  *         ...
  *     </bean>
@@ -46,34 +48,30 @@ import java.util.Objects;
  * @version : 2022-04-29
  * @see Mapper
  */
-public class DalRegistryBean extends AbstractSupportBean<MapperRegistry> {
-    // - dalTypeRegistry
+public class ConfigurationBean extends AbstractSupportBean<Configuration> {
+    // - registry`s
     private TypeHandlerRegistry   typeRegistry;
     private Map<Class<?>, Object> javaTypeHandlerMap;
     private Map<Integer, Object>  jdbcTypeHandlerMap;
-    // - dalRuleRegistry
     private RuleRegistry          ruleRegistry;
     private Map<String, Object>   ruleHandlerMap;
-    // - dalRegistry
-    private MapperRegistry        dalRegistry;
+    // options
     private Boolean               autoMapping;
     private Boolean               camelCase;
     private Boolean               caseInsensitive;
     private Boolean               useDelimited;
     private String                dialectName;
     private SqlDialect            dialect;
+    private Boolean               ignoreNonExistStatement;
     // mappers
     private Resource[]            mapperResources;
     private Class<?>[]            mapperInterfaces;
+    //
+    private Configuration         configuration;
 
-    private void initDialect() throws Exception {
+    private void initDialect() {
         if (this.dialect == null && StringUtils.isNotBlank(this.dialectName)) {
-            Class<?> dialectClass = this.classLoader.loadClass(dialectName);
-            if (this.applicationContext != null) {
-                this.dialect = (PageSqlDialect) createBeanByType(dialectClass, this.applicationContext);
-            } else {
-                this.dialect = (PageSqlDialect) dialectClass.newInstance();
-            }
+            this.dialect = SqlDialectRegister.findOrCreate(this.dialectName, this.classLoader);
         }
     }
 
@@ -84,18 +82,23 @@ public class DalRegistryBean extends AbstractSupportBean<MapperRegistry> {
         ClassLoader classLoader = this.classLoader != null ? this.classLoader : Thread.currentThread().getContextClassLoader();
         initDialect();
 
-        MappingOptions options = MappingOptions.buildNew();
+        // create config
+        Options options = Options.of();
         options.setAutoMapping(this.autoMapping);
         options.setMapUnderscoreToCamelCase(this.camelCase);
         options.setCaseInsensitive(this.caseInsensitive);
         options.setUseDelimited(this.useDelimited);
+        options.setIgnoreNonExistStatement(this.ignoreNonExistStatement);
         if (this.dialect != null) {
             options.setDefaultDialect(this.dialect);
         } else if (StringUtils.isNotBlank(this.dialectName)) {
             options.setDefaultDialect(SqlDialectRegister.findOrCreate(this.dialectName, this.classLoader));
         }
 
-        this.dalRegistry = new MapperRegistry(classLoader, typeRegistry, ruleRegistry, options);
+        MappingRegistry mappingRegistry = new MappingRegistry(classLoader, typeRegistry, options);
+        MacroRegistry macroRegistry = new MacroRegistry();
+        MapperRegistry mapperRegistry = new MapperRegistry(mappingRegistry, macroRegistry);
+        this.configuration = new Configuration(mapperRegistry, ruleRegistry);
 
         // typeHandler
         if (this.javaTypeHandlerMap != null) {
@@ -122,17 +125,17 @@ public class DalRegistryBean extends AbstractSupportBean<MapperRegistry> {
         }
 
         // mapperResources
-        if (this.mapperResources != null && this.mapperResources.length > 0) {
+        if (this.mapperResources != null) {
             for (Resource resource : this.mapperResources) {
                 String string = resource.getURI().toString();
-                this.dalRegistry.loadMapper(string, false);
+                this.configuration.loadMapper(string);
             }
         }
 
         // mapperInterfaces
-        if (this.mapperInterfaces != null && this.mapperInterfaces.length > 0) {
+        if (this.mapperInterfaces != null) {
             for (Class<?> mapperInterface : this.mapperInterfaces) {
-                this.dalRegistry.loadMapper(mapperInterface);
+                this.configuration.loadMapper(mapperInterface);
             }
         }
     }
@@ -166,25 +169,25 @@ public class DalRegistryBean extends AbstractSupportBean<MapperRegistry> {
         }
     }
 
-    private SqlBuildRule castToRuleHandler(Object handlerObject) throws Exception {
-        SqlBuildRule handler = null;
-        if (handlerObject instanceof SqlBuildRule) {
-            handler = (SqlBuildRule) handlerObject;
+    private SqlRule castToRuleHandler(Object handlerObject) throws Exception {
+        SqlRule handler = null;
+        if (handlerObject instanceof SqlRule) {
+            handler = (SqlRule) handlerObject;
         } else if (handlerObject instanceof Class) {
             Class<?> handlerClass = (Class) handlerObject;
-            if (SqlBuildRule.class.isAssignableFrom(handlerClass)) {
+            if (SqlRule.class.isAssignableFrom(handlerClass)) {
                 if (this.applicationContext != null) {
-                    handler = (SqlBuildRule) createBeanByType(handlerClass, this.applicationContext);
+                    handler = (SqlRule) createBeanByType(handlerClass, this.applicationContext);
                 } else {
-                    handler = (SqlBuildRule) handlerClass.newInstance();
+                    handler = (SqlRule) handlerClass.newInstance();
                 }
             }
         } else if (handlerObject instanceof String) {
             Class<?> handlerClass = this.classLoader.loadClass(handlerObject.toString());
             if (this.applicationContext != null) {
-                handler = (SqlBuildRule) createBeanByType(handlerClass, this.applicationContext);
+                handler = (SqlRule) createBeanByType(handlerClass, this.applicationContext);
             } else {
-                handler = (SqlBuildRule) handlerClass.newInstance();
+                handler = (SqlRule) handlerClass.newInstance();
             }
         }
 
@@ -196,13 +199,13 @@ public class DalRegistryBean extends AbstractSupportBean<MapperRegistry> {
     }
 
     @Override
-    public MapperRegistry getObject() {
-        return Objects.requireNonNull(this.dalRegistry, "dalRegistry not init.");
+    public Configuration getObject() {
+        return Objects.requireNonNull(this.configuration, "Configuration not init.");
     }
 
     @Override
     public Class<?> getObjectType() {
-        return MapperRegistry.class;
+        return Configuration.class;
     }
 
     public void setTypeRegistry(TypeHandlerRegistry typeRegistry) {
@@ -247,6 +250,10 @@ public class DalRegistryBean extends AbstractSupportBean<MapperRegistry> {
 
     public void setDialect(SqlDialect dialect) {
         this.dialect = dialect;
+    }
+
+    public void setIgnoreNonExistStatement(Boolean ignoreNonExistStatement) {
+        this.ignoreNonExistStatement = ignoreNonExistStatement;
     }
 
     /**

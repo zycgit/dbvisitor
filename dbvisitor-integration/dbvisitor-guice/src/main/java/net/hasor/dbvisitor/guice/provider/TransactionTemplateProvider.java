@@ -23,9 +23,8 @@ import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
 import javax.sql.DataSource;
 
 /**
- *
- * @version : 2015年11月10日
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2015年11月10日
  */
 public class TransactionTemplateProvider implements Provider<TransactionTemplate> {
     private final TransactionTemplate transactionTemplate;

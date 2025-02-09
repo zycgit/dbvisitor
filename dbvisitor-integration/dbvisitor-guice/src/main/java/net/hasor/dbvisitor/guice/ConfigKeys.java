@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.guice;
 
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.mapper.Mapper;
-import net.hasor.dbvisitor.mapper.DalMapper;
+import net.hasor.dbvisitor.mapper.MapperDef;
 
 import javax.inject.Singleton;
 
@@ -30,16 +30,11 @@ public enum ConfigKeys {
     /** 数据源配置 */
     DataSourceType("dbvisitor", "jdbc-ds", DefaultDataSource.class.getName()),
 
-    /** 使用的 TypeRegistry（为空表示使用全局默认的） */
-    NamedTypeRegistry("dbvisitor", "named-type-registry", null),
-    /** 使用的 RuleRegistry（为空表示使用全局默认的） */
-    NamedRuleRegistry("", "named-rule-registry", null),
     /** 加载的 Mapper 资源 */
     MapperLocations("dbvisitor", "mapper-locations", "dbvisitor/mapper/*.xml"),
-
     MapperDisabled("dbvisitor", "mapper-disabled", "false"),
     MapperPackages("dbvisitor", "mapper-packages", null),
-    ScanMarkerAnnotation("dbvisitor", "marker-annotation", DalMapper.class.getName()),
+    ScanMarkerAnnotation("dbvisitor", "marker-annotation", MapperDef.class.getName()),
     ScanMarkerInterface("dbvisitor", "marker-interface", Mapper.class.getName()),
     MapperScope("dbvisitor", "mapper-scope", Singleton.class.getName()),
 
@@ -47,6 +42,7 @@ public enum ConfigKeys {
     OptCamelCase("dbvisitor", "camel-case", null),
     OptCaseInsensitive("dbvisitor", "case-insensitive", null),
     OptUseDelimited("dbvisitor", "use-delimited", null),
+    OptIgnoreNonExistStatement("dbvisitor", "ignoreNonExistStatement", null),
     OptSqlDialect("dbvisitor", "dialect", null),
     ;
 

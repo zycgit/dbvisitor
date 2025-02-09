@@ -66,6 +66,28 @@ public class Configuration implements QueryContext {
         this.prototype = new SessionPrototype(this);
     }
 
+    public Configuration(MappingRegistry mapping, MacroRegistry macroRegistry, RuleRegistry ruleRegistry) {
+        this.classLoader = mapping.getClassLoader();
+        this.options = mapping.getGlobalOptions();
+        this.typeRegistry = mapping.getTypeRegistry();
+        this.macroRegistry = macroRegistry;
+        this.ruleRegistry = ruleRegistry;
+        this.mappingRegistry = mapping;
+        this.mapperRegistry = new MapperRegistry(this.mappingRegistry, this.macroRegistry);
+        this.prototype = new SessionPrototype(this);
+    }
+
+    public Configuration(MapperRegistry mapper, RuleRegistry rule) {
+        this.classLoader = mapper.getClassLoader();
+        this.options = mapper.getMappingRegistry().getGlobalOptions();
+        this.typeRegistry = mapper.getTypeRegistry();
+        this.macroRegistry = mapper.getMacroRegistry();
+        this.ruleRegistry = rule == null ? new RuleRegistry() : rule;
+        this.mappingRegistry = mapper.getMappingRegistry();
+        this.mapperRegistry = mapper;
+        this.prototype = new SessionPrototype(this);
+    }
+
     /** load mapperType. */
     public void loadMapper(Class<?> mapperType) throws Exception {
         this.mapperRegistry.loadMapper(mapperType);
