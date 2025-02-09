@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.dynamic;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.dbvisitor.dynamic.rule.SqlRule;
-import net.hasor.dbvisitor.mapping.MappingOptions;
+import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /**
@@ -49,8 +49,8 @@ public class TestQueryContext implements QueryContext {
     }
 
     @Override
-    public MappingOptions options() {
-        return MappingOptions.buildNew();
+    public Options options() {
+        return Options.of();
     }
 
     public ClassLoader getClassLoader() {

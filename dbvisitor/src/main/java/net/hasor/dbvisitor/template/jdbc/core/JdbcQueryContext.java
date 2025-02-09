@@ -20,14 +20,14 @@ import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.RuleRegistry;
 import net.hasor.dbvisitor.dynamic.rule.SqlRule;
-import net.hasor.dbvisitor.mapping.MappingOptions;
+import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 public class JdbcQueryContext implements QueryContext {
     private TypeHandlerRegistry typeRegistry  = TypeHandlerRegistry.DEFAULT;
     private MacroRegistry       macroRegistry = MacroRegistry.DEFAULT;
     private RuleRegistry        ruleRegistry  = RuleRegistry.DEFAULT;
-    private MappingOptions      options       = MappingOptions.buildNew();
+    private Options             options       = Options.of();
 
     public MacroRegistry getMacroRegistry() {
         return this.macroRegistry;
@@ -49,11 +49,11 @@ public class JdbcQueryContext implements QueryContext {
         this.ruleRegistry = ruleRegistry;
     }
 
-    public MappingOptions getOptions() {
+    public Options getOptions() {
         return this.options;
     }
 
-    public void setOptions(MappingOptions options) {
+    public void setOptions(Options options) {
         this.options = options;
     }
 
@@ -73,7 +73,7 @@ public class JdbcQueryContext implements QueryContext {
     }
 
     @Override
-    public MappingOptions options() {
+    public Options options() {
         return this.options;
     }
 

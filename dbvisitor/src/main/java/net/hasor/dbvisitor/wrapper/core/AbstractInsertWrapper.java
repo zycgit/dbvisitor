@@ -55,8 +55,8 @@ public abstract class AbstractInsertWrapper<R, T, P> extends BasicLambda<R, T, P
     protected final List<InsertEntity>   insertValues;
     protected final List<InsertEntity>   fillBackEntityList;
 
-    public AbstractInsertWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, SqlDialect dialect) {
-        super(exampleType, tableMapping, registry, jdbc, dialect);
+    public AbstractInsertWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
+        super(exampleType, tableMapping, registry, jdbc);
 
         List<ColumnMapping> primaryKeys = new ArrayList<>();
         List<ColumnMapping> insertProperties = new ArrayList<>();

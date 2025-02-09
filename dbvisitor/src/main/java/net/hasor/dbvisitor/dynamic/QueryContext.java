@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.dynamic;
 
 import net.hasor.dbvisitor.dynamic.rule.SqlRule;
-import net.hasor.dbvisitor.mapping.MappingOptions;
+import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 public interface QueryContext {
@@ -31,5 +31,5 @@ public interface QueryContext {
 
     TypeHandlerRegistry getTypeRegistry();
 
-    MappingOptions options();
+    Options options();
 }

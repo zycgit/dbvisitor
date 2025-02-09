@@ -18,7 +18,6 @@ import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.KeyHolder;
 import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Table;
-import net.hasor.scene.MyKeySeqHolder;
 
 import java.util.Date;
 

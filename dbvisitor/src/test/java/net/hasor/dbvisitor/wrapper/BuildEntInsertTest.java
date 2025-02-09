@@ -19,8 +19,8 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.RuleRegistry;
-import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
+import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.wrapper.dto.AnnoUserInfoDTO;
@@ -54,7 +54,7 @@ public class BuildEntInsertTest {
     }
 
     private WrapperAdapter newLambda() throws SQLException {
-        MappingOptions opt = MappingOptions.buildNew().defaultDialect(new MySqlDialect());
+        Options opt = Options.of().defaultDialect(new MySqlDialect());
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());
         context.setMacroRegistry(new MacroRegistry());

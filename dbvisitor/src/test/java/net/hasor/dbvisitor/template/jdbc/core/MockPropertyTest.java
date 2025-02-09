@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.template.jdbc.core;
-import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
+import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.template.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.template.jdbc.StatementCallback;
 import net.hasor.dbvisitor.transaction.ConnectionProxy;
@@ -144,7 +144,7 @@ public class MockPropertyTest extends AbstractDbTest {
     public void jdbcTemplateTest_6() {
         DataSource dataSource = PowerMockito.mock(DataSource.class);
         TypeHandlerRegistry typeRegistry = new TypeHandlerRegistry();
-        MappingRegistry mappingRegistry = new MappingRegistry(null, typeRegistry, MappingOptions.buildNew());
+        MappingRegistry mappingRegistry = new MappingRegistry(null, typeRegistry, Options.of());
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(typeRegistry);
 

@@ -23,8 +23,8 @@ import net.hasor.dbvisitor.dynamic.RuleRegistry;
 import net.hasor.dbvisitor.dynamic.rule.SqlRule;
 import net.hasor.dbvisitor.mapper.MapperRegistry;
 import net.hasor.dbvisitor.mapper.StatementDef;
-import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
+import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.template.jdbc.DynamicConnection;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
@@ -42,7 +42,7 @@ import java.sql.SQLException;
  */
 public class Configuration implements QueryContext {
     private       ClassLoader         classLoader;
-    private       MappingOptions      options;
+    private       Options             options;
     private       TypeHandlerRegistry typeRegistry;
     private       MacroRegistry       macroRegistry;
     private       RuleRegistry        ruleRegistry;
@@ -51,9 +51,13 @@ public class Configuration implements QueryContext {
     private final SessionPrototype    prototype;
 
     public Configuration() {
-        MappingRegistry newMapping = new MappingRegistry();
+        this(Options.of().defaultDialect(new DefaultSqlDialect()));
+    }
+
+    public Configuration(Options options) {
+        MappingRegistry newMapping = new MappingRegistry(Configuration.class.getClassLoader(), options);
         this.classLoader = newMapping.getClassLoader();
-        this.options = MappingOptions.buildNew().defaultDialect(new DefaultSqlDialect());
+        this.options = options;
         this.typeRegistry = newMapping.getTypeRegistry();
         this.macroRegistry = new MacroRegistry();
         this.ruleRegistry = new RuleRegistry();
@@ -162,7 +166,7 @@ public class Configuration implements QueryContext {
     }
 
     @Override
-    public MappingOptions options() {
+    public Options options() {
         return this.options;
     }
 
@@ -218,11 +222,11 @@ public class Configuration implements QueryContext {
         this.classLoader = classLoader;
     }
 
-    public MappingOptions getOptions() {
+    public Options getOptions() {
         return this.options;
     }
 
-    public void setOptions(MappingOptions options) {
+    public void setOptions(Options options) {
         this.options = options;
     }
 }

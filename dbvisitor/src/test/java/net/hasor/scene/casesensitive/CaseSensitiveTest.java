@@ -1,5 +1,6 @@
 package net.hasor.scene.casesensitive;
-import net.hasor.dbvisitor.mapping.MappingOptions;
+import net.hasor.dbvisitor.JdbcHelper;
+import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.wrapper.InsertWrapper;
 import net.hasor.dbvisitor.wrapper.MapQueryWrapper;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
@@ -62,7 +63,7 @@ public class CaseSensitiveTest {
     @Test
     public void caseSensitive() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter wrapper = new WrapperAdapter(c, MappingOptions.buildNew().caseInsensitive(false));
+            WrapperAdapter wrapper = new WrapperAdapter(c, Options.of().caseInsensitive(false));
 
             // H2 列名/表名 默认都是大写的
             Map<String, Object> resultData = wrapper.freedomQuery("USER_TABLE")//
@@ -78,12 +79,13 @@ public class CaseSensitiveTest {
     @Test
     public void qualifierTest() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter wrapper1 = new WrapperAdapter(c, MappingOptions.buildNew().defaultDelimited(true));
-
+            Options o1 = Options.of().defaultDialect(JdbcHelper.findDialect(c)).defaultDelimited(true);
+            WrapperAdapter wrapper1 = new WrapperAdapter(c, o1);
             String sqlString1 = wrapper1.freedomQuery("USER_TABLE").eq("ID", 1).getBoundSql().getSqlString();
             assert sqlString1.equals("SELECT * FROM \"USER_TABLE\" WHERE \"ID\" = ?");
 
-            WrapperAdapter wrapper2 = new WrapperAdapter(c, MappingOptions.buildNew().defaultDelimited(false));
+            Options o2 = Options.of().defaultDialect(JdbcHelper.findDialect(c)).defaultDelimited(false);
+            WrapperAdapter wrapper2 = new WrapperAdapter(c, o2);
             String sqlString2 = wrapper2.freedomQuery("USER_TABLE").eq("ID", 1).getBoundSql().getSqlString();
             assert sqlString2.equals("SELECT * FROM USER_TABLE WHERE ID = ?");
         }

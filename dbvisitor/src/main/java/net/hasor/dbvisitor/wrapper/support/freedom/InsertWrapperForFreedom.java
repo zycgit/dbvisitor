@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.wrapper.support.freedom;
-import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
@@ -27,8 +26,8 @@ import net.hasor.dbvisitor.wrapper.support.map.InsertWrapperForMap;
  * @version : 2022-04-02
  */
 public class InsertWrapperForFreedom extends InsertWrapperForMap {
-    public InsertWrapperForFreedom(TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, SqlDialect dialect) {
-        super(tableMapping, registry, jdbc, dialect);
+    public InsertWrapperForFreedom(TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
+        super(tableMapping, registry, jdbc);
     }
 
     @Override

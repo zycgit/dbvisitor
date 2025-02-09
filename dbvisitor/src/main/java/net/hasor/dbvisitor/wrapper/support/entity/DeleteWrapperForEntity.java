@@ -17,7 +17,6 @@ package net.hasor.dbvisitor.wrapper.support.entity;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.reflect.SFunction;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
-import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
@@ -35,13 +34,13 @@ import java.util.Collection;
  * @version : 2022-04-02
  */
 public class DeleteWrapperForEntity<T> extends AbstractDeleteWrapper<EntityDeleteWrapper<T>, T, SFunction<T>> implements EntityDeleteWrapper<T> {
-    public DeleteWrapperForEntity(TableMapping<T> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, SqlDialect dialect) {
-        super(tableMapping.entityType(), tableMapping, registry, jdbc, dialect);
+    public DeleteWrapperForEntity(TableMapping<T> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
+        super(tableMapping.entityType(), tableMapping, registry, jdbc);
     }
 
     @Override
     public MapDeleteWrapper asMap() {
-        return new DeleteWrapperForMap(this.getTableMapping(), this.registry, this.jdbc, this.dialect);
+        return new DeleteWrapperForMap(this.getTableMapping(), this.registry, this.jdbc);
     }
 
     @Override

@@ -116,7 +116,7 @@ public class MappingHelper {
         }
     }
 
-    public static boolean caseInsensitive(MappingOptions global) {
+    public static boolean caseInsensitive(Options global) {
         Boolean caseInsensitive = global == null ? null : global.getCaseInsensitive();
         return caseInsensitive == null || caseInsensitive;
     }

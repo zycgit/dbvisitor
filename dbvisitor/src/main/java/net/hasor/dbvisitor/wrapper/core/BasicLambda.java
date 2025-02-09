@@ -19,6 +19,7 @@ import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.BoundSql;
+import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
@@ -43,14 +44,18 @@ public abstract class BasicLambda<R, T, P> {
     protected final        JdbcTemplate    jdbc;
     protected final        SqlDialect      dialect;
 
-    public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, SqlDialect dialect) {
+    public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
         this.exampleType = Objects.requireNonNull(exampleType, "exampleType is null.");
         this.exampleIsMap = Map.class == exampleType || Map.class.isAssignableFrom(this.exampleType());
         this.tableMapping = Objects.requireNonNull(tableMapping, "tableMapping is null.");
-
         this.registry = Objects.requireNonNull(registry, "registry is null.");
         this.jdbc = jdbc;
-        this.dialect = dialect;
+
+        if (registry.getGlobalOptions().getDefaultDialect() != null) {
+            this.dialect = registry.getGlobalOptions().getDefaultDialect();
+        } else {
+            this.dialect = DefaultSqlDialect.DEFAULT;
+        }
     }
 
     public final Class<?> exampleType() {

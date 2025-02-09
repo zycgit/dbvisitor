@@ -135,7 +135,7 @@ public class JdbcHelper {
         } else if (rawUrl.startsWith("jdbc:timesten:")) {
             return "timesten";
         } else if (rawUrl.startsWith("jdbc:as400:")) {
-            return "as400";
+            return DB2;
         } else if (rawUrl.startsWith("jdbc:sapdb:")) {
             return "sapdb";
         } else if (rawUrl.startsWith("jdbc:JSQLConnect:")) {

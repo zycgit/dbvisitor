@@ -61,7 +61,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         return false;
     }
 
-    protected TableDef<?> resolveTableInfo(boolean isEntity, NamedNodeMap xmlAttr, MappingOptions usingOpt, MappingRegistry registry) throws ClassNotFoundException, IOException {
+    protected TableDef<?> resolveTableInfo(boolean isEntity, NamedNodeMap xmlAttr, Options usingOpt, MappingRegistry registry) throws ClassNotFoundException, IOException {
         String autoMapping = MappingHelper.readAttribute("autoMapping", xmlAttr);
         String useDelimited = MappingHelper.readAttribute("useDelimited", xmlAttr);
         String mapUnderscoreToCamelCase = MappingHelper.readAttribute("mapUnderscoreToCamelCase", xmlAttr);
@@ -104,13 +104,13 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
         return def;
     }
 
-    public MappingOptions fromXmlNode(NamedNodeMap xmlAttr, MappingOptions parent) {
+    public Options fromXmlNode(NamedNodeMap xmlAttr, Options parent) {
         String caseInsensitive = MappingHelper.readAttribute("caseInsensitive", xmlAttr);
         String mapUnderscoreToCamelCase = MappingHelper.readAttribute("mapUnderscoreToCamelCase", xmlAttr);
         String autoMapping = MappingHelper.readAttribute("autoMapping", xmlAttr);
         String useDelimited = MappingHelper.readAttribute("useDelimited", xmlAttr);
 
-        MappingOptions fileScope = MappingOptions.buildNew(parent);
+        Options fileScope = Options.of(parent);
         if (StringUtils.isNotBlank(caseInsensitive)) {
             fileScope.setCaseInsensitive(Boolean.parseBoolean(caseInsensitive));
         }
@@ -127,7 +127,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
     }
 
     @Override
-    public TableDef<?> resolveTableMapping(Node refData, MappingOptions usingOpt, MappingRegistry registry) throws ReflectiveOperationException, IOException {
+    public TableDef<?> resolveTableMapping(Node refData, Options usingOpt, MappingRegistry registry) throws ReflectiveOperationException, IOException {
         NodeList childNodes = refData.getChildNodes();
         NamedNodeMap xmlAttr = refData.getAttributes();
 

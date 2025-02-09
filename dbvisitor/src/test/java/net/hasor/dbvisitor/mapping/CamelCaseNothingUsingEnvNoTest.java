@@ -33,7 +33,7 @@ public class CamelCaseNothingUsingEnvNoTest extends AbstractDbTest {
 
     @Before
     public void beforeTest() throws Exception {
-        this.registry = new MappingRegistry(null, TypeHandlerRegistry.DEFAULT, MappingOptions.buildNew().mapUnderscoreToCamelCase(false));
+        this.registry = new MappingRegistry(null, TypeHandlerRegistry.DEFAULT, Options.of().mapUnderscoreToCamelCase(false));
         this.registry.loadMapping("/dbvisitor_coverage/basic_mapping/camel_case_nothing.xml");
     }
 

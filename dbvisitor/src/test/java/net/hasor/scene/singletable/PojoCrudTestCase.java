@@ -1,6 +1,6 @@
 package net.hasor.scene.singletable;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.mapping.MappingOptions;
+import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.wrapper.EntityQueryWrapper;
 import net.hasor.dbvisitor.wrapper.InsertWrapper;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 /** 使用标准的 pojo 来做 DTO 进行数据 插入 */
 public class PojoCrudTestCase {
 
-    private static final MappingOptions options = MappingOptions.buildNew().mapUnderscoreToCamelCase(true);
+    private static final Options options = Options.of().mapUnderscoreToCamelCase(true);
 
     // 简单的将普通 Bean 映射到表
     @Test

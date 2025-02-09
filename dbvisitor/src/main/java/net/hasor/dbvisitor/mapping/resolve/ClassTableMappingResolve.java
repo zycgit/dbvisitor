@@ -42,7 +42,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
     private final Map<Class<?>, TableDef<?>> CACHE_TABLE_MAP = new WeakHashMap<>();
 
     @Override
-    public <V> TableDef<V> resolveTableMapping(Class<?> entityType, MappingOptions usingOpt, MappingRegistry registry) throws ReflectiveOperationException, IOException {
+    public <V> TableDef<V> resolveTableMapping(Class<?> entityType, Options usingOpt, MappingRegistry registry) throws ReflectiveOperationException, IOException {
         if (CACHE_TABLE_MAP.containsKey(entityType)) {
             return (TableDef<V>) CACHE_TABLE_MAP.get(entityType);
         } else {
@@ -75,7 +75,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         }
     }
 
-    private TableDef<?> resolveTableInfo(Annotations classAnno, Class<?> entityType, MappingOptions usingOpt, MappingRegistry registry) throws ReflectiveOperationException {
+    private TableDef<?> resolveTableInfo(Annotations classAnno, Class<?> entityType, Options usingOpt, MappingRegistry registry) throws ReflectiveOperationException {
         Annotation tableInfo = classAnno.getAnnotation(Table.class);
         String catalog = tableInfo.getString("catalog", usingOpt.getCatalog());
         String schema = tableInfo.getString("schema", usingOpt.getSchema());
@@ -139,7 +139,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
         }
     }
 
-    private TableDef<?> resolveResultInfo(Annotations classAnno, Class<?> entityType, MappingOptions usingOpt, MappingRegistry registry) throws ReflectiveOperationException {
+    private TableDef<?> resolveResultInfo(Annotations classAnno, Class<?> entityType, Options usingOpt, MappingRegistry registry) throws ReflectiveOperationException {
         Annotation resultInfo = classAnno.getAnnotation(ResultMap.class);
 
         boolean autoMapping = resultInfo.getBoolean("autoMapping", (usingOpt.getAutoMapping() == null || usingOpt.getAutoMapping()));

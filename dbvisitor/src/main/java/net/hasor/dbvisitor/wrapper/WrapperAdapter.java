@@ -20,8 +20,8 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.mapping.MappingHelper;
-import net.hasor.dbvisitor.mapping.MappingOptions;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
+import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.mapping.def.TableDef;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.template.jdbc.ConnectionCallback;
@@ -51,7 +51,6 @@ import java.util.Objects;
 public class WrapperAdapter implements WrapperOperations {
     protected MappingRegistry registry;
     protected JdbcTemplate    jdbc;
-    protected SqlDialect      dialect;
 
     /**
      * Construct a new LambdaTemplate for bean usage.
@@ -75,7 +74,7 @@ public class WrapperAdapter implements WrapperOperations {
      * @param dataSource the JDBC DataSource to obtain connections from
      * @param options the options
      */
-    public WrapperAdapter(final DataSource dataSource, MappingOptions options) throws SQLException {
+    public WrapperAdapter(final DataSource dataSource, Options options) throws SQLException {
         this(dataSource, new MappingRegistry(null, options), null);
     }
 
@@ -89,7 +88,6 @@ public class WrapperAdapter implements WrapperOperations {
     public WrapperAdapter(final DataSource dataSource, MappingRegistry registry, QueryContext buildContext) throws SQLException {
         this.registry = Objects.requireNonNull(registry, "registry is null.");
         this.jdbc = (dataSource == null) ? null : new JdbcTemplate(dataSource, registry, buildContext);
-        this.dialect = findSqlDialect(registry, this.jdbc);
     }
 
     /**
@@ -107,7 +105,7 @@ public class WrapperAdapter implements WrapperOperations {
      * @param conn the JDBC Connection
      * @param options the options
      */
-    public WrapperAdapter(final Connection conn, MappingOptions options) throws SQLException {
+    public WrapperAdapter(final Connection conn, Options options) throws SQLException {
         this(conn, new MappingRegistry(null, options), null);
     }
 
@@ -121,7 +119,6 @@ public class WrapperAdapter implements WrapperOperations {
     public WrapperAdapter(final Connection conn, MappingRegistry registry, QueryContext buildContext) throws SQLException {
         this.registry = Objects.requireNonNull(registry, "registry is null.");
         this.jdbc = (conn == null) ? null : new JdbcTemplate(conn, registry, buildContext);
-        this.dialect = findSqlDialect(registry, this.jdbc);
     }
 
     /**
@@ -139,7 +136,7 @@ public class WrapperAdapter implements WrapperOperations {
      * @param dynamicConn the JDBC Connection of dynamic
      * @param options the options
      */
-    public WrapperAdapter(final DynamicConnection dynamicConn, MappingOptions options) throws SQLException {
+    public WrapperAdapter(final DynamicConnection dynamicConn, Options options) throws SQLException {
         this(dynamicConn, new MappingRegistry(null, options), null);
     }
 
@@ -153,7 +150,6 @@ public class WrapperAdapter implements WrapperOperations {
     public WrapperAdapter(final DynamicConnection dynamicConn, MappingRegistry registry, QueryContext buildContext) throws SQLException {
         this.registry = Objects.requireNonNull(registry, "registry is null.");
         this.jdbc = (dynamicConn == null) ? null : new JdbcTemplate(dynamicConn, registry, buildContext);
-        this.dialect = findSqlDialect(registry, this.jdbc);
     }
 
     /**
@@ -164,7 +160,6 @@ public class WrapperAdapter implements WrapperOperations {
     public WrapperAdapter(JdbcTemplate jdbc) throws SQLException {
         this.registry = jdbc.getRegistry();
         this.jdbc = Objects.requireNonNull(jdbc, "jdbc is null.");
-        this.dialect = jdbc.execute((ConnectionCallback<SqlDialect>) JdbcHelper::findDialect);
     }
 
     public JdbcTemplate getJdbc() {
@@ -178,73 +173,73 @@ public class WrapperAdapter implements WrapperOperations {
     @Override
     public <T> EntityInsertWrapper<T> insertBySpace(Class<T> entityType, String space) {
         TableMapping<T> tableMapping = this.findTableMapping(entityType, space);
-        return new InsertWrapperForEntity<>(tableMapping, this.registry, this.jdbc, this.dialect);
+        return new InsertWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
     }
 
     @Override
     public <T> EntityInsertWrapper<T> insertByTable(String catalog, String schema, String table, String specifyName) {
         TableMapping<T> tableMapping = this.findTableMapping(catalog, schema, table, specifyName);
-        return new InsertWrapperForEntity<>(tableMapping, this.registry, this.jdbc, this.dialect);
+        return new InsertWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
     }
 
     @Override
     public <T> EntityUpdateWrapper<T> updateBySpace(Class<T> entityType, String space) {
         TableMapping<T> tableMapping = this.findTableMapping(entityType, space);
-        return new UpdateWrapperForEntity<>(tableMapping, this.registry, this.jdbc, this.dialect);
+        return new UpdateWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
     }
 
     @Override
     public <T> EntityUpdateWrapper<T> updateByTable(String catalog, String schema, String table, String specifyName) {
         TableMapping<T> tableMapping = this.findTableMapping(catalog, schema, table, specifyName);
-        return new UpdateWrapperForEntity<>(tableMapping, this.registry, this.jdbc, this.dialect);
+        return new UpdateWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
     }
 
     @Override
     public <T> EntityDeleteWrapper<T> deleteBySpace(Class<T> entityType, String space) {
         TableMapping<T> tableMapping = this.findTableMapping(entityType, space);
-        return new DeleteWrapperForEntity<>(tableMapping, this.registry, this.jdbc, this.dialect);
+        return new DeleteWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
     }
 
     @Override
     public <T> EntityDeleteWrapper<T> deleteByTable(String catalog, String schema, String table, String specifyName) {
         TableMapping<T> tableMapping = this.findTableMapping(catalog, schema, table, specifyName);
-        return new DeleteWrapperForEntity<>(tableMapping, this.registry, this.jdbc, this.dialect);
+        return new DeleteWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
     }
 
     @Override
     public <T> EntityQueryWrapper<T> queryBySpace(Class<T> entityType, String space) {
         TableMapping<T> tableMapping = this.findTableMapping(entityType, space);
-        return new SelectWrapperForEntity<>(tableMapping, this.registry, this.jdbc, this.dialect);
+        return new SelectWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
     }
 
     @Override
     public <T> EntityQueryWrapper<T> queryByTable(String catalog, String schema, String table, String specifyName) {
         TableMapping<T> tableMapping = this.findTableMapping(catalog, schema, table, specifyName);
-        return new SelectWrapperForEntity<>(tableMapping, this.registry, this.jdbc, this.dialect);
+        return new SelectWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
     }
 
     @Override
     public MapInsertWrapper freedomInsert(String catalog, String schema, String table) {
-        return new InsertWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc, this.dialect);
+        return new InsertWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc);
     }
 
     @Override
     public MapUpdateWrapper freedomUpdate(String catalog, String schema, String table) {
-        return new UpdateWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc, this.dialect);
+        return new UpdateWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc);
     }
 
     @Override
     public MapDeleteWrapper freedomDelete(String catalog, String schema, String table) {
-        return new DeleteWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc, this.dialect);
+        return new DeleteWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc);
     }
 
     @Override
     public MapQueryWrapper freedomQuery(String catalog, String schema, String table) {
-        return new SelectWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc, this.dialect);
+        return new SelectWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc);
     }
 
     protected TableMapping<Map<String, String>> freedomMapping(String catalog, String schema, String table) {
-        MappingOptions usingOpt = this.registry.getGlobalOptions();
+        Options usingOpt = this.registry.getGlobalOptions();
 
         boolean usingAutoProperty = usingOpt.getAutoMapping() == null || usingOpt.getAutoMapping();
         boolean usingUseDelimited = Boolean.TRUE.equals(usingOpt.getUseDelimited());

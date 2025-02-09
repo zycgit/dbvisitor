@@ -1,4 +1,6 @@
 package net.hasor.realdb.oracle;
+import net.hasor.dbvisitor.JdbcHelper;
+import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.wrapper.InsertWrapper;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import net.hasor.test.dto.UserInfo2;
@@ -50,12 +52,13 @@ public class OraclePerformanceTest {
     @Test
     public void oracleInsertQuery_1() throws SQLException {
         long t = System.currentTimeMillis();
-        try (Connection con = DsUtils.oracleConn()) {
-            WrapperAdapter wrapper = new WrapperAdapter(con);
+        try (Connection c = DsUtils.oracleConn()) {
+            Options o = Options.of().defaultDialect(JdbcHelper.findDialect(c));
+            WrapperAdapter wrapper = new WrapperAdapter(c, o);
             wrapper.getJdbc().setPrintStmtError(true);
 
-            reinit(con);
-            initData(con, 2000);
+            reinit(c);
+            initData(c, 2000);
 
             int tbUsersCount = wrapper.queryByEntity(UserInfo2.class).queryForCount();
             System.out.println("query for list/map.");
@@ -68,12 +71,13 @@ public class OraclePerformanceTest {
     @Test
     public void oracleInsertQuery_2() throws SQLException {
         long t = System.currentTimeMillis();
-        try (Connection con = DsUtils.oracleConn()) {
-            WrapperAdapter wrapper = new WrapperAdapter(con);
-            //
-            reinit(con);
-            initData(con, 1000);
-            //
+        try (Connection c = DsUtils.oracleConn()) {
+            Options o = Options.of().defaultDialect(JdbcHelper.findDialect(c));
+            WrapperAdapter wrapper = new WrapperAdapter(c, o);
+
+            reinit(c);
+            initData(c, 1000);
+
             int tbUsersCount = wrapper.queryByEntity(UserInfo2.class).queryForCount();
             System.out.println("query for list/map.");
             wrapper.queryByEntity(UserInfo2.class).queryForMapList();

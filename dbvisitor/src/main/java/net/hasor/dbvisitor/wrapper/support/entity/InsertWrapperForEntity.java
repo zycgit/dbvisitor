@@ -51,13 +51,13 @@ import java.util.stream.Collectors;
  * @version : 2022-04-02
  */
 public class InsertWrapperForEntity<T> extends AbstractInsertWrapper<InsertWrapper<T>, T, SFunction<T>> implements EntityInsertWrapper<T> {
-    public InsertWrapperForEntity(TableMapping<T> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, SqlDialect dialect) {
-        super(tableMapping.entityType(), tableMapping, registry, jdbc, dialect);
+    public InsertWrapperForEntity(TableMapping<T> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
+        super(tableMapping.entityType(), tableMapping, registry, jdbc);
     }
 
     @Override
     public MapInsertWrapper asMap() {
-        return new InsertWrapperForMap(this.getTableMapping(), this.registry, this.jdbc, this.dialect);
+        return new InsertWrapperForMap(this.getTableMapping(), this.registry, this.jdbc);
     }
 
     @Override

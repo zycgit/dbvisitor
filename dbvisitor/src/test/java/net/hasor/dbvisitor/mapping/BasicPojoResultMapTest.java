@@ -29,7 +29,7 @@ import java.util.Date;
 public class BasicPojoResultMapTest {
     @Test
     public void pojoBean_1() {
-        MappingOptions options = MappingOptions.buildNew().mapUnderscoreToCamelCase(true).catalog("master").schema("dbo");
+        Options options = Options.of().mapUnderscoreToCamelCase(true).catalog("master").schema("dbo");
         MappingRegistry registry = new MappingRegistry(null, TypeHandlerRegistry.DEFAULT, options);
         TableMapping<?> tab = registry.loadResultMapToSpace(PojoBean1.class, "", "pojo_bean1");
 

@@ -1,4 +1,4 @@
-package net.hasor.scene;
+package net.hasor.scene.keyholder.dto;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerContext;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerFactory;

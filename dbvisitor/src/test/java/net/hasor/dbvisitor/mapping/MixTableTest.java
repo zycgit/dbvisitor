@@ -70,7 +70,7 @@ public class MixTableTest {
 
     @Test
     public void annoTableInfo_6() {
-        MappingRegistry registry = new MappingRegistry(null, TypeHandlerRegistry.DEFAULT, MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+        MappingRegistry registry = new MappingRegistry(null, TypeHandlerRegistry.DEFAULT, Options.of().mapUnderscoreToCamelCase(true));
         TableMapping<?> tab = registry.loadEntityToSpace(MixTableInfoBean1.class);
 
         assert tab.getCatalog().equals("master");

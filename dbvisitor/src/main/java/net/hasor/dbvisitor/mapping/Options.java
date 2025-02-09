@@ -21,7 +21,7 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-21
  */
-public class MappingOptions {
+public class Options {
     private String     catalog;
     private String     schema;
     private Boolean    autoMapping;
@@ -30,10 +30,10 @@ public class MappingOptions {
     private Boolean    useDelimited;
     private SqlDialect defaultDialect;
 
-    public MappingOptions() {
+    public Options() {
     }
 
-    public MappingOptions(MappingOptions options) {
+    public Options(Options options) {
         if (options != null) {
             this.catalog = options.catalog;
             this.schema = options.schema;
@@ -60,7 +60,7 @@ public class MappingOptions {
         this.catalog = catalog;
     }
 
-    public MappingOptions catalog(String catalog) {
+    public Options catalog(String catalog) {
         setCatalog(catalog);
         return this;
     }
@@ -73,7 +73,7 @@ public class MappingOptions {
         this.schema = schema;
     }
 
-    public MappingOptions schema(String schema) {
+    public Options schema(String schema) {
         setSchema(schema);
         return this;
     }
@@ -86,7 +86,7 @@ public class MappingOptions {
         this.autoMapping = autoMapping;
     }
 
-    public MappingOptions autoMapping(Boolean autoMapping) {
+    public Options autoMapping(Boolean autoMapping) {
         setAutoMapping(autoMapping);
         return this;
     }
@@ -99,7 +99,7 @@ public class MappingOptions {
         this.mapUnderscoreToCamelCase = mapUnderscoreToCamelCase;
     }
 
-    public MappingOptions mapUnderscoreToCamelCase(Boolean mapUnderscoreToCamelCase) {
+    public Options mapUnderscoreToCamelCase(Boolean mapUnderscoreToCamelCase) {
         setMapUnderscoreToCamelCase(mapUnderscoreToCamelCase);
         return this;
     }
@@ -112,7 +112,7 @@ public class MappingOptions {
         this.caseInsensitive = caseInsensitive;
     }
 
-    public MappingOptions caseInsensitive(Boolean caseInsensitive) {
+    public Options caseInsensitive(Boolean caseInsensitive) {
         setCaseInsensitive(caseInsensitive);
         return this;
     }
@@ -125,7 +125,7 @@ public class MappingOptions {
         this.defaultDialect = defaultDialect;
     }
 
-    public MappingOptions defaultDialect(SqlDialect defaultDialect) {
+    public Options defaultDialect(SqlDialect defaultDialect) {
         setDefaultDialect(defaultDialect);
         return this;
     }
@@ -138,17 +138,17 @@ public class MappingOptions {
         this.useDelimited = useDelimited;
     }
 
-    public MappingOptions defaultDelimited(Boolean useDelimited) {
+    public Options defaultDelimited(Boolean useDelimited) {
         setUseDelimited(useDelimited);
         return this;
     }
 
-    public static MappingOptions buildNew() {
-        return new MappingOptions();
+    public static Options of() {
+        return new Options();
     }
 
-    public static MappingOptions buildNew(MappingOptions options) {
-        return new MappingOptions(options);
+    public static Options of(Options options) {
+        return new Options(options);
     }
 
     //MappingDefault

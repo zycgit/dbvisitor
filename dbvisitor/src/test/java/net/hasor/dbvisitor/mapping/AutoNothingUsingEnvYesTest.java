@@ -33,7 +33,7 @@ public class AutoNothingUsingEnvYesTest extends AbstractDbTest {
 
     @Before
     public void beforeTest() throws Exception {
-        this.registry = new MappingRegistry(null, TypeHandlerRegistry.DEFAULT, MappingOptions.buildNew().autoMapping(true));
+        this.registry = new MappingRegistry(null, TypeHandlerRegistry.DEFAULT, Options.of().autoMapping(true));
         this.registry.loadMapping("/dbvisitor_coverage/basic_mapping/auto_nothing.xml");
     }
 

@@ -48,27 +48,27 @@ public class MappingRegistry {
     private final        Map<String, Map<String, TableMapping<?>>>                           mapForSpace = new ConcurrentHashMap<>();
     protected final      ClassLoader                                                         classLoader;
     protected final      TypeHandlerRegistry                                                 typeRegistry;
-    protected final      MappingOptions                                                      global;
+    protected final      Options                                                             global;
     private final        XmlTableMappingResolve                                              xmlMappingResolve;
     private final        ClassTableMappingResolve                                            entityClassResolve;
     protected final      Set<String>                                                         loaded;
 
     public MappingRegistry() {
-        this(null, TypeHandlerRegistry.DEFAULT, MappingOptions.buildNew());
+        this(null, TypeHandlerRegistry.DEFAULT, Options.of());
     }
 
     public MappingRegistry(ClassLoader classLoader) {
-        this(classLoader, TypeHandlerRegistry.DEFAULT, MappingOptions.buildNew());
+        this(classLoader, TypeHandlerRegistry.DEFAULT, Options.of());
     }
 
-    public MappingRegistry(ClassLoader classLoader, MappingOptions global) {
+    public MappingRegistry(ClassLoader classLoader, Options global) {
         this(classLoader, TypeHandlerRegistry.DEFAULT, global);
     }
 
-    public MappingRegistry(ClassLoader classLoader, TypeHandlerRegistry typeRegistry, MappingOptions global) {
-        this.classLoader = classLoader != null ? classLoader : Thread.currentThread().getContextClassLoader();
+    public MappingRegistry(ClassLoader classLoader, TypeHandlerRegistry typeRegistry, Options global) {
+        this.classLoader = classLoader != null ? classLoader : MappingRegistry.class.getClassLoader();
         this.typeRegistry = (typeRegistry == null) ? TypeHandlerRegistry.DEFAULT : typeRegistry;
-        this.global = (global == null) ? MappingOptions.buildNew() : global;
+        this.global = (global == null) ? Options.of() : global;
         this.xmlMappingResolve = new XmlTableMappingResolve();
         this.entityClassResolve = new ClassTableMappingResolve();
         this.loaded = new HashSet<>();
@@ -86,7 +86,7 @@ public class MappingRegistry {
         return this.typeRegistry;
     }
 
-    public MappingOptions getGlobalOptions() {
+    public Options getGlobalOptions() {
         return this.global;
     }
 
@@ -124,7 +124,7 @@ public class MappingRegistry {
     }
 
     protected void loadMapping(String space, Element configRoot) throws IOException, ReflectiveOperationException {
-        MappingOptions optInfile = this.xmlMappingResolve.fromXmlNode(configRoot.getAttributes(), this.global);
+        Options optInfile = this.xmlMappingResolve.fromXmlNode(configRoot.getAttributes(), this.global);
 
         NodeList childNodes = configRoot.getChildNodes();
         for (int i = 0, len = childNodes.getLength(); i < len; i++) {
