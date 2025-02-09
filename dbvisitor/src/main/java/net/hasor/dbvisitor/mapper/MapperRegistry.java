@@ -169,7 +169,7 @@ public class MapperRegistry {
             this.mappingRegistry.loadMapping(r);
 
             // try load mapper
-            try (InputStream stream = this.classLoader.getResourceAsStream(r)) {
+            try (InputStream stream = ResourcesUtils.getResourceAsStream(this.classLoader, r)) {
                 if (stream == null) {
                     throw new FileNotFoundException("not found mapper file '" + r + "'"); // Don't block the app from launching
                 }
@@ -226,6 +226,11 @@ public class MapperRegistry {
             // skip.
             if (m.isDefault()) {
                 return;
+            }
+            if (BaseMapper.class.isAssignableFrom(mapperType)) {
+                if (m.getDeclaringClass() == BaseMapper.class || m.getDeclaringClass() == Mapper.class) {
+                    return;
+                }
             }
 
             // check conflict
