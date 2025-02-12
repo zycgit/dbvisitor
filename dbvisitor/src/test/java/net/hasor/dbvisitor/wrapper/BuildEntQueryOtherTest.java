@@ -29,7 +29,7 @@ import java.util.Map;
 public class BuildEntQueryOtherTest {
     @Test
     public void queryBuilder_apply_1() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a")//
                 .eq(AnnoUserInfoDTO::getLoginName, "b")//
                 .apply("limit ?", 123).getBoundSql();
@@ -42,7 +42,7 @@ public class BuildEntQueryOtherTest {
 
     @Test
     public void queryBuilder_apply_1_2map() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a")//
                 .eq("loginName", "b")//
                 .apply("limit ?", 123).getBoundSql();
@@ -55,7 +55,7 @@ public class BuildEntQueryOtherTest {
 
     @Test
     public void queryBuilder_eq_sample_1() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .eqBySample(new AnnoUserInfoDTO()).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info");
         assert boundSql1.getArgs().length == 0;
@@ -63,7 +63,7 @@ public class BuildEntQueryOtherTest {
 
     @Test
     public void queryBuilder_eq_sample_1_2map() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .eqBySample(new HashMap<>()).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info");
         assert boundSql1.getArgs().length == 0;
@@ -75,7 +75,7 @@ public class BuildEntQueryOtherTest {
         dto.setLoginName("abc");
         dto.setSeq(1);
 
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .eqBySample(dto).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE ( login_name = ? AND seq = ? )");
         assert boundSql1.getArgs()[0].equals("abc");
@@ -88,7 +88,7 @@ public class BuildEntQueryOtherTest {
         map.put("loginName", "abc");
         map.put("seq", 1);
 
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .eqBySample(map).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE ( login_name = ? AND seq = ? )");
         assert boundSql1.getArgs()[0].equals("abc");
@@ -97,14 +97,14 @@ public class BuildEntQueryOtherTest {
 
     @Test
     public void queryBuilder_group_by_1() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a").eq(AnnoUserInfoDTO::getLoginName, "b")//
                 .groupBy(AnnoUserInfoDTO::getSeq).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT seq FROM user_info WHERE login_name = ? AND login_name = ? GROUP BY seq");
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
 
-        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql2 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a")//
                 .eq(AnnoUserInfoDTO::getLoginName, "b")//
                 .apply("limit 1")//
@@ -115,14 +115,14 @@ public class BuildEntQueryOtherTest {
 
     @Test
     public void queryBuilder_group_by_1_map() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a").eq("loginName", "b")//
                 .groupBy("seq").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT seq FROM user_info WHERE login_name = ? AND login_name = ? GROUP BY seq");
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
 
-        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql2 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a")//
                 .eq("loginName", "b")//
                 .apply("limit 1")//
@@ -134,7 +134,7 @@ public class BuildEntQueryOtherTest {
     @Test
     public void queryBuilder_group_by_2() throws SQLException {
         try {
-            new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+            new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "a")//
                     .eq(AnnoUserInfoDTO::getLoginName, "b")//
                     .apply("limit 1")//
@@ -146,7 +146,7 @@ public class BuildEntQueryOtherTest {
         }
 
         try {
-            new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+            new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "a")//
                     .eq(AnnoUserInfoDTO::getLoginName, "b")//
                     .apply("limit 1")//
@@ -158,7 +158,7 @@ public class BuildEntQueryOtherTest {
         }
 
         try {
-            new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+            new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "a")//
                     .eq(AnnoUserInfoDTO::getLoginName, "b")//
                     .apply("limit 1")//
@@ -174,7 +174,7 @@ public class BuildEntQueryOtherTest {
     @Test
     public void queryBuilder_group_by_2_map() throws SQLException {
         try {
-            new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+            new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "a")//
                     .eq("loginName", "b")//
                     .apply("limit 1")//
@@ -186,7 +186,7 @@ public class BuildEntQueryOtherTest {
         }
 
         try {
-            new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+            new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "a")//
                     .eq("loginName", "b")//
                     .apply("limit 1")//
@@ -198,7 +198,7 @@ public class BuildEntQueryOtherTest {
         }
 
         try {
-            new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+            new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "a")//
                     .eq("loginName", "b")//
                     .apply("limit 1")//
@@ -213,34 +213,34 @@ public class BuildEntQueryOtherTest {
 
     @Test
     public void queryBuilder_order_by_1() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a")//
                 .asc(AnnoUserInfoDTO::getLoginName).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC");
         assert boundSql1.getArgs()[0].equals("a");
 
-        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql2 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a")//
                 .asc(AnnoUserInfoDTO::getLoginName).asc(AnnoUserInfoDTO::getSeq)//
                 .getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC , seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
 
-        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql3 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a")//
                 .desc(AnnoUserInfoDTO::getLoginName)//
                 .getBoundSql();
         assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name DESC");
         assert boundSql3.getArgs()[0].equals("a");
 
-        BoundSql boundSql4 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql4 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a")//
                 .asc(AnnoUserInfoDTO::getSeq).desc(AnnoUserInfoDTO::getLoginName)//
                 .getBoundSql();
         assert boundSql4.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY seq ASC , login_name DESC");
         assert boundSql4.getArgs()[0].equals("a");
 
-        BoundSql boundSql5 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql5 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a")//
                 .orderBy(AnnoUserInfoDTO::getSeq)//
                 .getBoundSql();
@@ -250,34 +250,34 @@ public class BuildEntQueryOtherTest {
 
     @Test
     public void queryBuilder_order_by_1_2map() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a")//
                 .asc("loginName").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC");
         assert boundSql1.getArgs()[0].equals("a");
 
-        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql2 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a")//
                 .asc("loginName").asc("seq")//
                 .getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC , seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
 
-        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql3 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a")//
                 .desc("loginName")//
                 .getBoundSql();
         assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name DESC");
         assert boundSql3.getArgs()[0].equals("a");
 
-        BoundSql boundSql4 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql4 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a")//
                 .asc("seq").desc("loginName")//
                 .getBoundSql();
         assert boundSql4.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY seq ASC , login_name DESC");
         assert boundSql4.getArgs()[0].equals("a");
 
-        BoundSql boundSql5 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql5 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a")//
                 .orderBy("seq")//
                 .getBoundSql();
@@ -287,7 +287,7 @@ public class BuildEntQueryOtherTest {
 
     @Test
     public void queryBuilder_select_1() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).applySelect("a, b, c, d")//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class).applySelect("a, b, c, d")//
                 .eq(AnnoUserInfoDTO::getSeq, 1)//
                 .or()//
                 .rangeBetween(AnnoUserInfoDTO::getLoginName, 2, 3)//
@@ -301,7 +301,7 @@ public class BuildEntQueryOtherTest {
 
     @Test
     public void queryBuilder_select_1_2map() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .applySelect("a, b, c, d")//
                 .eq("seq", 1)//
                 .or()//
@@ -316,7 +316,7 @@ public class BuildEntQueryOtherTest {
 
     @Test
     public void queryBuilder_select_2() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .selectAdd(AnnoUserInfoDTO::getLoginName).selectAdd(AnnoUserInfoDTO::getSeq)//
                 .eq(AnnoUserInfoDTO::getSeq, 1)//
                 .or()//
@@ -331,7 +331,7 @@ public class BuildEntQueryOtherTest {
 
     @Test
     public void queryBuilder_select_2_2map() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .selectAdd("loginName").selectAdd("seq")//
                 .eq("seq", 1)//
                 .or()//
@@ -346,7 +346,7 @@ public class BuildEntQueryOtherTest {
 
     @Test
     public void queryBuilder_select_3() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .select(AnnoUserInfoDTO::getLoginName)//
                 .eq(AnnoUserInfoDTO::getSeq, 1)//
                 .or()//
@@ -361,7 +361,7 @@ public class BuildEntQueryOtherTest {
 
     @Test
     public void queryBuilder_select_3_2map() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .select("loginName")//
                 .eq("seq", 1)//
                 .or()//
@@ -377,7 +377,7 @@ public class BuildEntQueryOtherTest {
     @Test
     public void bad_1() throws SQLException {
         try {
-            new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+            new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
             assert false;

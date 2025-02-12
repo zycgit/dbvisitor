@@ -18,15 +18,15 @@ import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
+import net.hasor.dbvisitor.jdbc.ConnectionCallback;
+import net.hasor.dbvisitor.jdbc.DynamicConnection;
+import net.hasor.dbvisitor.jdbc.JdbcHelper;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingHelper;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.mapping.def.TableDef;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.template.JdbcHelper;
-import net.hasor.dbvisitor.template.jdbc.ConnectionCallback;
-import net.hasor.dbvisitor.template.jdbc.DynamicConnection;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.wrapper.support.entity.DeleteWrapperForEntity;
 import net.hasor.dbvisitor.wrapper.support.entity.InsertWrapperForEntity;
 import net.hasor.dbvisitor.wrapper.support.entity.SelectWrapperForEntity;
@@ -162,7 +162,7 @@ public class WrapperAdapter implements WrapperOperations {
         this.jdbc = Objects.requireNonNull(jdbc, "jdbc is null.");
     }
 
-    public JdbcTemplate getJdbc() {
+    public JdbcTemplate jdbc() {
         return this.jdbc;
     }
 
@@ -171,70 +171,70 @@ public class WrapperAdapter implements WrapperOperations {
     }
 
     @Override
-    public <T> EntityInsertWrapper<T> insertBySpace(Class<T> entityType, String space) {
+    public <T> EntityInsertWrapper<T> insert(Class<T> entityType, String space) {
         TableMapping<T> tableMapping = this.findTableMapping(entityType, space);
         return new InsertWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
     }
 
     @Override
-    public <T> EntityInsertWrapper<T> insertByTable(String catalog, String schema, String table, String specifyName) {
+    public <T> EntityInsertWrapper<T> insert(String catalog, String schema, String table, String specifyName) {
         TableMapping<T> tableMapping = this.findTableMapping(catalog, schema, table, specifyName);
         return new InsertWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
     }
 
     @Override
-    public <T> EntityUpdateWrapper<T> updateBySpace(Class<T> entityType, String space) {
+    public <T> EntityUpdateWrapper<T> update(Class<T> entityType, String space) {
         TableMapping<T> tableMapping = this.findTableMapping(entityType, space);
         return new UpdateWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
     }
 
     @Override
-    public <T> EntityUpdateWrapper<T> updateByTable(String catalog, String schema, String table, String specifyName) {
+    public <T> EntityUpdateWrapper<T> update(String catalog, String schema, String table, String specifyName) {
         TableMapping<T> tableMapping = this.findTableMapping(catalog, schema, table, specifyName);
         return new UpdateWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
     }
 
     @Override
-    public <T> EntityDeleteWrapper<T> deleteBySpace(Class<T> entityType, String space) {
+    public <T> EntityDeleteWrapper<T> delete(Class<T> entityType, String space) {
         TableMapping<T> tableMapping = this.findTableMapping(entityType, space);
         return new DeleteWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
     }
 
     @Override
-    public <T> EntityDeleteWrapper<T> deleteByTable(String catalog, String schema, String table, String specifyName) {
+    public <T> EntityDeleteWrapper<T> delete(String catalog, String schema, String table, String specifyName) {
         TableMapping<T> tableMapping = this.findTableMapping(catalog, schema, table, specifyName);
         return new DeleteWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
     }
 
     @Override
-    public <T> EntityQueryWrapper<T> queryBySpace(Class<T> entityType, String space) {
+    public <T> EntityQueryWrapper<T> query(Class<T> entityType, String space) {
         TableMapping<T> tableMapping = this.findTableMapping(entityType, space);
         return new SelectWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
     }
 
     @Override
-    public <T> EntityQueryWrapper<T> queryByTable(String catalog, String schema, String table, String specifyName) {
+    public <T> EntityQueryWrapper<T> query(String catalog, String schema, String table, String specifyName) {
         TableMapping<T> tableMapping = this.findTableMapping(catalog, schema, table, specifyName);
         return new SelectWrapperForEntity<>(tableMapping, this.registry, this.jdbc);
     }
 
     @Override
-    public MapInsertWrapper freedomInsert(String catalog, String schema, String table) {
+    public MapInsertWrapper insertFreedom(String catalog, String schema, String table) {
         return new InsertWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc);
     }
 
     @Override
-    public MapUpdateWrapper freedomUpdate(String catalog, String schema, String table) {
+    public MapUpdateWrapper updateFreedom(String catalog, String schema, String table) {
         return new UpdateWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc);
     }
 
     @Override
-    public MapDeleteWrapper freedomDelete(String catalog, String schema, String table) {
+    public MapDeleteWrapper deleteFreedom(String catalog, String schema, String table) {
         return new DeleteWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc);
     }
 
     @Override
-    public MapQueryWrapper freedomQuery(String catalog, String schema, String table) {
+    public MapQueryWrapper queryFreedom(String catalog, String schema, String table) {
         return new SelectWrapperForFreedom(this.freedomMapping(catalog, schema, table), this.registry, this.jdbc);
     }
 

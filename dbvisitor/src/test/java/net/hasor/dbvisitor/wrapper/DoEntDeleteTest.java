@@ -33,7 +33,7 @@ public class DoEntDeleteTest {
     @Test
     public void delete_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            int delete = new WrapperAdapter(c).deleteByEntity(AnnoUserInfoDTO.class)//
+            int delete = new WrapperAdapter(c).delete(AnnoUserInfoDTO.class)//
                     .allowEmptyWhere().doDelete();
             assert delete == 3;
         }
@@ -42,7 +42,7 @@ public class DoEntDeleteTest {
     @Test
     public void delete_1_2map() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            int delete = new WrapperAdapter(c).deleteByEntity(AnnoUserInfoDTO.class).asMap()//
+            int delete = new WrapperAdapter(c).delete(AnnoUserInfoDTO.class).asMap()//
                     .allowEmptyWhere().doDelete();
             assert delete == 3;
         }
@@ -51,12 +51,12 @@ public class DoEntDeleteTest {
     @Test
     public void delete_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            int delete = new WrapperAdapter(c).deleteByEntity(AnnoUserInfoDTO.class)//
+            int delete = new WrapperAdapter(c).delete(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
                     .doDelete();
             assert delete == 1;
 
-            List<AnnoUserInfoDTO> tbUsers = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class)//
+            List<AnnoUserInfoDTO> tbUsers = new WrapperAdapter(c).query(AnnoUserInfoDTO.class)//
                     .queryForList();
 
             assert tbUsers.size() == 2;
@@ -69,12 +69,12 @@ public class DoEntDeleteTest {
     @Test
     public void delete_2_2map() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            int delete = new WrapperAdapter(c).deleteByEntity(AnnoUserInfoDTO.class).asMap()//
+            int delete = new WrapperAdapter(c).delete(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", beanForData1().getLoginName())//
                     .doDelete();
             assert delete == 1;
 
-            List<AnnoUserInfoDTO> tbUsers = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class)//
+            List<AnnoUserInfoDTO> tbUsers = new WrapperAdapter(c).query(AnnoUserInfoDTO.class)//
                     .queryForList();
 
             assert tbUsers.size() == 2;
@@ -87,7 +87,7 @@ public class DoEntDeleteTest {
     @Test
     public void allowEmptyWhere_1() {
         try (Connection c = DsUtils.h2Conn()) {
-            new WrapperAdapter(c).deleteByEntity(AnnoUserInfoDTO.class)//
+            new WrapperAdapter(c).delete(AnnoUserInfoDTO.class)//
                     .doDelete();
             assert false;
         } catch (Exception e) {
@@ -98,7 +98,7 @@ public class DoEntDeleteTest {
     @Test
     public void allowEmptyWhere_1_2map() {
         try (Connection c = DsUtils.h2Conn()) {
-            new WrapperAdapter(c).deleteByEntity(AnnoUserInfoDTO.class).asMap()//
+            new WrapperAdapter(c).delete(AnnoUserInfoDTO.class).asMap()//
                     .doDelete();
             assert false;
         } catch (Exception e) {

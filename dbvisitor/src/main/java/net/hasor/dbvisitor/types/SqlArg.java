@@ -15,9 +15,9 @@
  */
 package net.hasor.dbvisitor.types;
 import net.hasor.dbvisitor.dynamic.SqlMode;
-import net.hasor.dbvisitor.template.ResultSetExtractor;
-import net.hasor.dbvisitor.template.RowCallbackHandler;
-import net.hasor.dbvisitor.template.RowMapper;
+import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
+import net.hasor.dbvisitor.jdbc.RowMapper;
 
 import java.util.Objects;
 
@@ -70,7 +70,7 @@ public class SqlArg {
         return new SqlArg(null, obj, SqlMode.In, jdbcType, null, null);
     }
 
-    public static Object asOut(String name, Class<String> javaType) {
+    public static SqlArg asOut(String name, Class<String> javaType) {
         if (javaType == null) {
             return new SqlArg(name, null, SqlMode.Out, null, null, null);
         } else {
@@ -80,7 +80,7 @@ public class SqlArg {
         }
     }
 
-    public static Object asOut(String name, int jdbcType) {
+    public static SqlArg asOut(String name, int jdbcType) {
         TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(jdbcType);
         return new SqlArg(name, null, SqlMode.Out, jdbcType, null, typeHandler);
     }
@@ -89,13 +89,13 @@ public class SqlArg {
         return new SqlArg(name, null, SqlMode.Out, jdbcType, null, typeHandler);
     }
 
-    public static Object asInOut(String name, Object value, Class<String> javaType) {
+    public static SqlArg asInOut(String name, Object value, Class<String> javaType) {
         int jdbcType = TypeHandlerRegistry.toSqlType(javaType);
         TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(javaType);
         return new SqlArg(name, value, SqlMode.InOut, jdbcType, javaType, typeHandler);
     }
 
-    public static Object asInOut(String name, Object value, int jdbcType) {
+    public static SqlArg asInOut(String name, Object value, int jdbcType) {
         TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(jdbcType);
         return new SqlArg(name, value, SqlMode.InOut, jdbcType, null, typeHandler);
     }

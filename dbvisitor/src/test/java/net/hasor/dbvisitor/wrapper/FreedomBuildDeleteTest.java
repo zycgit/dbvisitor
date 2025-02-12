@@ -29,7 +29,7 @@ public class FreedomBuildDeleteTest {
 
     @Test
     public void deleteBuilder_1() throws SQLException {
-        MapDeleteWrapper lambda = new WrapperAdapter().freedomDelete("user_info");
+        MapDeleteWrapper lambda = new WrapperAdapter().deleteFreedom("user_info");
         lambda.allowEmptyWhere();
 
         BoundSql boundSql1 = lambda.getBoundSql();
@@ -38,7 +38,7 @@ public class FreedomBuildDeleteTest {
 
     @Test
     public void deleteBuilder_2() throws SQLException {
-        MapDeleteWrapper lambda = new WrapperAdapter().freedomDelete("user_info");
+        MapDeleteWrapper lambda = new WrapperAdapter().deleteFreedom("user_info");
         lambda.and(queryBuilder -> {
             queryBuilder.eq("seq", 123);
         });
@@ -51,7 +51,7 @@ public class FreedomBuildDeleteTest {
 
     @Test
     public void deleteBuilder_3() throws SQLException {
-        MapDeleteWrapper lambda = new WrapperAdapter().freedomDelete("user_info");
+        MapDeleteWrapper lambda = new WrapperAdapter().deleteFreedom("user_info");
         lambda.eq("loginName", "admin").and().eq("loginPassword", "pass");
 
         BoundSql boundSql1 = lambda.getBoundSql();
@@ -66,7 +66,7 @@ public class FreedomBuildDeleteTest {
         userInfo.setPassword("pwd");
 
         //case 1
-        MapDeleteWrapper delCase1 = new WrapperAdapter().freedomDelete("user_info");
+        MapDeleteWrapper delCase1 = new WrapperAdapter().deleteFreedom("user_info");
         boolean isZyc1 = userInfo.getName().equals("zyc");
         delCase1.eq(isZyc1, "loginName", userInfo.getLoginName())//
                 .eq(isZyc1, "loginPassword", userInfo.getPassword())//
@@ -80,7 +80,7 @@ public class FreedomBuildDeleteTest {
 
         // case 2
         userInfo.setName("cyz");
-        MapDeleteWrapper delCase2 = new WrapperAdapter().freedomDelete("user_info");
+        MapDeleteWrapper delCase2 = new WrapperAdapter().deleteFreedom("user_info");
         boolean isZyc2 = userInfo.getName().equals("zyc");
         delCase2.eq(isZyc2, "loginName", userInfo.getLoginName())//
                 .eq(isZyc2, "loginPassword", userInfo.getPassword())//

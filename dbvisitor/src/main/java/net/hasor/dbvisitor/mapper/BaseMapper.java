@@ -17,8 +17,8 @@ package net.hasor.dbvisitor.mapper;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
+import net.hasor.dbvisitor.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.template.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.wrapper.*;
 
 import java.io.Serializable;
@@ -43,22 +43,22 @@ public interface BaseMapper<T> extends Mapper {
 
     /** return LambdaInsert for insert */
     default InsertWrapper<T> insert() {
-        return wrapper().insertByEntity(entityType());
+        return wrapper().insert(entityType());
     }
 
     /** return LambdaUpdate for update */
     default EntityUpdateWrapper<T> update() {
-        return wrapper().updateByEntity(entityType());
+        return wrapper().update(entityType());
     }
 
     /** return LambdaDelete for delete */
     default EntityDeleteWrapper<T> delete() {
-        return wrapper().deleteByEntity(entityType());
+        return wrapper().delete(entityType());
     }
 
     /** return LambdaQuery for query */
     default EntityQueryWrapper<T> query() {
-        return wrapper().queryByEntity(entityType());
+        return wrapper().query(entityType());
     }
 
     /** 执行 Mapper 配置文件中的 SQL */

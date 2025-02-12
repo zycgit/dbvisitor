@@ -33,7 +33,7 @@ public class DoEntUpdateTest {
     @Test
     public void update_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            int update = new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class)//
+            int update = new WrapperAdapter(c).update(AnnoUserInfoDTO.class)//
                     .updateTo(AnnoUserInfoDTO::getName, "aaa")//
                     .allowEmptyWhere().doUpdate();
             assert update == 3;
@@ -43,7 +43,7 @@ public class DoEntUpdateTest {
     @Test
     public void update_1_2map() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            int update = new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            int update = new WrapperAdapter(c).update(AnnoUserInfoDTO.class).asMap()//
                     .updateTo("name", "aaa")//
                     .allowEmptyWhere().doUpdate();
             assert update == 3;
@@ -53,7 +53,7 @@ public class DoEntUpdateTest {
     @Test
     public void allowEmptyWhere_1() {
         try (Connection c = DsUtils.h2Conn()) {
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class)//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class)//
                     .updateTo(AnnoUserInfoDTO::getName, "aaa")//
                     .doUpdate();
             assert false;
@@ -65,7 +65,7 @@ public class DoEntUpdateTest {
     @Test
     public void allowEmptyWhere_1_2map() {
         try (Connection c = DsUtils.h2Conn()) {
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class).asMap()//
                     .updateTo("name", "aaa")//
                     .doUpdate();
             assert false;
@@ -82,13 +82,13 @@ public class DoEntUpdateTest {
             value.setName("abc");
             value.setPassword("def");
 
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class)//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateToSample(value)//
                     .doUpdate();
 
             // check
-            AnnoUserInfoDTO tbUser2 = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = new WrapperAdapter(c).query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("abc");
@@ -104,13 +104,13 @@ public class DoEntUpdateTest {
             value.put("name", "abc");
             value.put("password", "def");
 
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .updateToSample(value)//
                     .doUpdate();
 
             // check
-            AnnoUserInfoDTO tbUser2 = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = new WrapperAdapter(c).query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("abc");
@@ -124,7 +124,7 @@ public class DoEntUpdateTest {
             WrapperAdapter lambda = new WrapperAdapter(c);
 
             // before
-            AnnoUserInfoDTO tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser1 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
                     .queryForObject();
             assert tbUser1.getName() != null;
@@ -135,13 +135,13 @@ public class DoEntUpdateTest {
             valueMap.put("name", "abc");
             valueMap.put("password", "pwd");
 
-            int update = lambda.updateByEntity(AnnoUserInfoDTO.class).eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+            int update = lambda.update(AnnoUserInfoDTO.class).eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateToSampleMap(valueMap)//
                     .doUpdate();
             assert update == 1;
 
             // check
-            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("abc");
@@ -155,7 +155,7 @@ public class DoEntUpdateTest {
             WrapperAdapter lambda = new WrapperAdapter(c);
 
             // before
-            AnnoUserInfoDTO tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser1 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
                     .queryForObject();
             assert tbUser1.getName() != null;
@@ -166,14 +166,14 @@ public class DoEntUpdateTest {
             valueMap.put("name", "abc");
             valueMap.put("password", "pwd");
 
-            int update = lambda.updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            int update = lambda.update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .updateToSampleMap(valueMap)//
                     .doUpdate();
             assert update == 1;
 
             // check
-            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("abc");
@@ -187,7 +187,7 @@ public class DoEntUpdateTest {
             WrapperAdapter lambda = new WrapperAdapter(c);
 
             // before
-            AnnoUserInfoDTO tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser1 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
                     .queryForObject();
             assert tbUser1.getName() != null;
@@ -198,14 +198,14 @@ public class DoEntUpdateTest {
             valueMap.put("name", "abc");
             valueMap.put("password", "pwd");
 
-            int update = lambda.updateByEntity(AnnoUserInfoDTO.class)//
+            int update = lambda.update(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateToSampleMap(valueMap, s -> s.equals("name"))//
                     .doUpdate();
             assert update == 1;
 
             // check
-            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("abc");
@@ -219,7 +219,7 @@ public class DoEntUpdateTest {
             WrapperAdapter lambda = new WrapperAdapter(c);
 
             // before
-            AnnoUserInfoDTO tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser1 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
                     .queryForObject();
             assert tbUser1.getName() != null;
@@ -230,14 +230,14 @@ public class DoEntUpdateTest {
             valueMap.put("name", "abc");
             valueMap.put("password", "pwd");
 
-            int update = lambda.updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            int update = lambda.update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .updateToSampleMap(valueMap, s -> s.equals("name"))//
                     .doUpdate();
             assert update == 1;
 
             // check
-            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("abc");
@@ -253,7 +253,7 @@ public class DoEntUpdateTest {
             value.setPassword(null);
 
             // update
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class)//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateToSample(value)//
                     .doUpdate();
@@ -268,7 +268,7 @@ public class DoEntUpdateTest {
             value.put("name", null);
             value.put("password", null);
 
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class)//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateToSampleMap(value)//
                     .doUpdate();
@@ -285,7 +285,7 @@ public class DoEntUpdateTest {
 
         try (Connection c = DsUtils.h2Conn()) {
             // update
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .updateToSample(value)//
                     .doUpdate();
@@ -296,7 +296,7 @@ public class DoEntUpdateTest {
         }
 
         try (Connection c = DsUtils.h2Conn()) {
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .updateToSampleMap(value)//
                     .doUpdate();
@@ -313,7 +313,7 @@ public class DoEntUpdateTest {
             value.setPassword("abc");
 
             // update
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class)//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateToSample(value, s -> s.equals("name"))//
                     .doUpdate();
@@ -327,7 +327,7 @@ public class DoEntUpdateTest {
             value.put("name", null);
             value.put("password", "abc");
 
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class)//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateToSampleMap(value, s -> s.equals("name"))//
                     .doUpdate();
@@ -344,7 +344,7 @@ public class DoEntUpdateTest {
 
         try (Connection c = DsUtils.h2Conn()) {
             // update
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .updateToSample(value, s -> s.equals("name"))//
                     .doUpdate();
@@ -354,7 +354,7 @@ public class DoEntUpdateTest {
         }
 
         try (Connection c = DsUtils.h2Conn()) {
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .updateToSampleMap(value, s -> s.equals("name"))//
                     .doUpdate();
@@ -367,14 +367,14 @@ public class DoEntUpdateTest {
     public void updateTo_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             // update
-            int update = new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class)//
+            int update = new WrapperAdapter(c).update(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateTo(AnnoUserInfoDTO::getName, "aabbcc")//
                     .doUpdate();
             assert update == 1;
 
             // check
-            AnnoUserInfoDTO tbUser2 = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = new WrapperAdapter(c).query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("aabbcc");
@@ -385,14 +385,14 @@ public class DoEntUpdateTest {
     public void updateTo_1_2map() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             // update
-            int update = new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            int update = new WrapperAdapter(c).update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .updateTo("name", "aabbcc")//
                     .doUpdate();
             assert update == 1;
 
             // check
-            AnnoUserInfoDTO tbUser2 = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = new WrapperAdapter(c).query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("aabbcc");
@@ -403,7 +403,7 @@ public class DoEntUpdateTest {
     public void updateTo_2() {
         try (Connection c = DsUtils.h2Conn()) {
             // update
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class)//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateTo(false, AnnoUserInfoDTO::getName, "aabbcc")//
                     .doUpdate();
@@ -417,7 +417,7 @@ public class DoEntUpdateTest {
     public void updateTo_2_2map() {
         try (Connection c = DsUtils.h2Conn()) {
             // update
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .updateTo(false, "loginName", "aabbcc")//
                     .doUpdate();
@@ -432,14 +432,14 @@ public class DoEntUpdateTest {
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter lambda = new WrapperAdapter(c);
             // update
-            EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = lambda.updateByEntity(AnnoUserInfoDTO.class);
+            EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = lambda.update(AnnoUserInfoDTO.class);
             int update = lambdaUpdate.eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateToUsingStr("name", "aabbcc")//
                     .doUpdate();
             assert update == 1;
 
             // check
-            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("aabbcc");
@@ -451,14 +451,14 @@ public class DoEntUpdateTest {
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter lambda = new WrapperAdapter(c);
             // update
-            MapUpdateWrapper lambdaUpdate = lambda.updateByEntity(AnnoUserInfoDTO.class).asMap();
+            MapUpdateWrapper lambdaUpdate = lambda.update(AnnoUserInfoDTO.class).asMap();
             int update = lambdaUpdate.eq("loginName", "muhammad")//
                     .updateToUsingStr("name", "aabbcc")//
                     .doUpdate();
             assert update == 1;
 
             // check
-            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("aabbcc");
@@ -469,7 +469,7 @@ public class DoEntUpdateTest {
     public void updateToUsingStr_2() {
         try (Connection c = DsUtils.h2Conn()) {
             // update
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class)//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateToUsingStr(false, "name", "aabbcc")//
                     .doUpdate();
@@ -483,7 +483,7 @@ public class DoEntUpdateTest {
     public void updateToUsingStr_2_2map() {
         try (Connection c = DsUtils.h2Conn()) {
             // update
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .updateToUsingStr(false, "name", "aabbcc")//
                     .doUpdate();
@@ -499,7 +499,7 @@ public class DoEntUpdateTest {
             WrapperAdapter lambda = new WrapperAdapter(c);
 
             // before
-            AnnoUserInfoDTO tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser1 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
                     .queryForObject();
 
@@ -507,7 +507,7 @@ public class DoEntUpdateTest {
             tbUser1.setName("abc");
             tbUser1.setPassword("pwd");
 
-            EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = lambda.updateByEntity(AnnoUserInfoDTO.class);
+            EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = lambda.update(AnnoUserInfoDTO.class);
             int update = lambdaUpdate.eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .allowUpdateKey()   //
                     .updateRow(tbUser1) //
@@ -515,7 +515,7 @@ public class DoEntUpdateTest {
             assert update == 1;
 
             // check
-            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("abc");
@@ -529,7 +529,7 @@ public class DoEntUpdateTest {
             WrapperAdapter lambda = new WrapperAdapter(c);
 
             // before
-            Map<String, Object> tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            Map<String, Object> tbUser1 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
                     .queryForMap();
 
@@ -537,7 +537,7 @@ public class DoEntUpdateTest {
             tbUser1.put("name", "abc");
             tbUser1.put("password", "pwd");
 
-            MapUpdateWrapper lambdaUpdate = lambda.updateByEntity(AnnoUserInfoDTO.class).asMap();
+            MapUpdateWrapper lambdaUpdate = lambda.update(AnnoUserInfoDTO.class).asMap();
             int update = lambdaUpdate.eq("loginName", "muhammad")//
                     .allowUpdateKey()   //
                     .updateRow(tbUser1) //
@@ -545,7 +545,7 @@ public class DoEntUpdateTest {
             assert update == 1;
 
             // check
-            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("abc");
@@ -559,7 +559,7 @@ public class DoEntUpdateTest {
             WrapperAdapter lambda = new WrapperAdapter(c);
 
             // before
-            AnnoUserInfoDTO tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser1 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
                     .queryForObject();
 
@@ -567,7 +567,7 @@ public class DoEntUpdateTest {
             tbUser1.setName("abc");
             tbUser1.setPassword("pwd");
 
-            int update = lambda.updateByEntity(AnnoUserInfoDTO.class)//
+            int update = lambda.update(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .allowUpdateKey()   //
                     .updateRow(tbUser1, s -> s.equals("name")) //
@@ -575,7 +575,7 @@ public class DoEntUpdateTest {
             assert update == 1;
 
             // check
-            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("abc");
@@ -589,7 +589,7 @@ public class DoEntUpdateTest {
             WrapperAdapter lambda = new WrapperAdapter(c);
 
             // before
-            Map<String, Object> tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            Map<String, Object> tbUser1 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
                     .queryForMap();
 
@@ -597,7 +597,7 @@ public class DoEntUpdateTest {
             tbUser1.put("name", "abc");
             tbUser1.put("password", "pwd");
 
-            int update = lambda.updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            int update = lambda.update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .allowUpdateKey()   //
                     .updateRow(tbUser1, s -> s.equals("name")) //
@@ -605,7 +605,7 @@ public class DoEntUpdateTest {
             assert update == 1;
 
             // check
-            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("abc");
@@ -619,7 +619,7 @@ public class DoEntUpdateTest {
             WrapperAdapter lambda = new WrapperAdapter(c);
 
             // before
-            AnnoUserInfoDTO tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser1 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
                     .queryForObject();
 
@@ -627,7 +627,7 @@ public class DoEntUpdateTest {
             tbUser1.setName("abc");
             tbUser1.setPassword("pwd");
 
-            lambda.updateByEntity(AnnoUserInfoDTO.class)//
+            lambda.update(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateRow(tbUser1) //
                     .doUpdate();
@@ -643,7 +643,7 @@ public class DoEntUpdateTest {
             WrapperAdapter lambda = new WrapperAdapter(c);
 
             // before
-            Map<String, Object> tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            Map<String, Object> tbUser1 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
                     .queryForMap();
 
@@ -651,7 +651,7 @@ public class DoEntUpdateTest {
             tbUser1.put("name", "abc");
             tbUser1.put("password", "pwd");
 
-            lambda.updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            lambda.update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .updateRow(tbUser1) //
                     .doUpdate();
@@ -667,7 +667,7 @@ public class DoEntUpdateTest {
             WrapperAdapter lambda = new WrapperAdapter(c);
 
             // before
-            Map<String, Object> tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            Map<String, Object> tbUser1 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
                     .queryForMap();
 
@@ -675,7 +675,7 @@ public class DoEntUpdateTest {
             tbUser1.put("name", "abc");
             tbUser1.remove("password");
 
-            EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = lambda.updateByEntity(AnnoUserInfoDTO.class);
+            EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = lambda.update(AnnoUserInfoDTO.class);
             int update = lambdaUpdate.eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .allowUpdateKey()   //
                     .updateRowUsingMap(tbUser1) //
@@ -683,7 +683,7 @@ public class DoEntUpdateTest {
             assert update == 1;
 
             // check
-            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("abc");
@@ -697,7 +697,7 @@ public class DoEntUpdateTest {
             WrapperAdapter lambda = new WrapperAdapter(c);
 
             // before
-            Map<String, Object> tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            Map<String, Object> tbUser1 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
                     .queryForMap();
 
@@ -705,7 +705,7 @@ public class DoEntUpdateTest {
             tbUser1.put("name", "abc");
             tbUser1.remove("password");
 
-            int update = lambda.updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            int update = lambda.update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .allowUpdateKey()   //
                     .updateRowUsingMap(tbUser1) //
@@ -713,7 +713,7 @@ public class DoEntUpdateTest {
             assert update == 1;
 
             // check
-            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("abc");
@@ -727,7 +727,7 @@ public class DoEntUpdateTest {
             WrapperAdapter lambda = new WrapperAdapter(c);
 
             // before
-            Map<String, Object> tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            Map<String, Object> tbUser1 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
                     .queryForMap();
 
@@ -735,7 +735,7 @@ public class DoEntUpdateTest {
             tbUser1.put("name", "abc");
             tbUser1.remove("password");
 
-            EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = lambda.updateByEntity(AnnoUserInfoDTO.class);
+            EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = lambda.update(AnnoUserInfoDTO.class);
             int update = lambdaUpdate.eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .allowUpdateKey() //
                     .updateRowUsingMap(tbUser1, s -> s.equals("name")) //
@@ -743,7 +743,7 @@ public class DoEntUpdateTest {
             assert update == 1;
 
             // check
-            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("abc");
@@ -757,7 +757,7 @@ public class DoEntUpdateTest {
             WrapperAdapter lambda = new WrapperAdapter(c);
 
             // before
-            Map<String, Object> tbUser1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            Map<String, Object> tbUser1 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
                     .queryForMap();
 
@@ -765,7 +765,7 @@ public class DoEntUpdateTest {
             tbUser1.put("name", "abc");
             tbUser1.remove("password");
 
-            int update = lambda.updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            int update = lambda.update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .allowUpdateKey() //
                     .updateRowUsingMap(tbUser1, s -> s.equals("name")) //
@@ -773,7 +773,7 @@ public class DoEntUpdateTest {
             assert update == 1;
 
             // check
-            AnnoUserInfoDTO tbUser2 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForObject();
             assert tbUser2.getName().equals("abc");
@@ -784,14 +784,14 @@ public class DoEntUpdateTest {
     @Test
     public void updatePK_0_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            int update = new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class)//
+            int update = new WrapperAdapter(c).update(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .allowUpdateKey()//
                     .updateTo(AnnoUserInfoDTO::getUid, "123321")//
                     .doUpdate();
             assert update == 1;
 
-            AnnoUserInfoDTO tbUser2 = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = new WrapperAdapter(c).query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad").queryForObject();
             assert tbUser2.getUid().equals("123321");
         }
@@ -800,14 +800,14 @@ public class DoEntUpdateTest {
     @Test
     public void updatePK_0_1_2map() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            int update = new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            int update = new WrapperAdapter(c).update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .allowUpdateKey()//
                     .updateTo("uid", "123321")//
                     .doUpdate();
             assert update == 1;
 
-            AnnoUserInfoDTO tbUser2 = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = new WrapperAdapter(c).query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad").queryForObject();
             assert tbUser2.getUid().equals("123321");
         }
@@ -816,7 +816,7 @@ public class DoEntUpdateTest {
     @Test
     public void updatePK_0_2() {
         try (Connection c = DsUtils.h2Conn()) {
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class)//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     //.allowUpdateKey()//
                     .updateTo(AnnoUserInfoDTO::getUid, "123321")//
@@ -830,7 +830,7 @@ public class DoEntUpdateTest {
     @Test
     public void updatePK_0_2_2map() {
         try (Connection c = DsUtils.h2Conn()) {
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     //.allowUpdateKey()//
                     .updateTo("uid", "123321")//
@@ -848,14 +848,14 @@ public class DoEntUpdateTest {
             HashMap<String, Object> valueMap = new HashMap<>();
             valueMap.put("uid", "123321");
 
-            int update = new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class)//
+            int update = new WrapperAdapter(c).update(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .allowUpdateKey()//
                     .updateToSampleMap(valueMap)//
                     .doUpdate();
             assert update == 1;
 
-            AnnoUserInfoDTO tbUser2 = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = new WrapperAdapter(c).query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad").queryForObject();
             assert tbUser2.getUid().equals("123321");
         }
@@ -868,14 +868,14 @@ public class DoEntUpdateTest {
             HashMap<String, Object> valueMap = new HashMap<>();
             valueMap.put("uid", "123321");
 
-            int update = new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            int update = new WrapperAdapter(c).update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .allowUpdateKey()//
                     .updateToSampleMap(valueMap)//
                     .doUpdate();
             assert update == 1;
 
-            AnnoUserInfoDTO tbUser2 = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser2 = new WrapperAdapter(c).query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad").queryForObject();
             assert tbUser2.getUid().equals("123321");
         }
@@ -887,7 +887,7 @@ public class DoEntUpdateTest {
             HashMap<String, Object> valueMap = new HashMap<>();
             valueMap.put("uid", "123321");
 
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class)//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     //.allowUpdateKey()//
                     .updateToSampleMap(valueMap)//
@@ -904,7 +904,7 @@ public class DoEntUpdateTest {
             HashMap<String, Object> valueMap = new HashMap<>();
             valueMap.put("uid", "123321");
 
-            new WrapperAdapter(c).updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            new WrapperAdapter(c).update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     //.allowUpdateKey()//
                     .updateToSampleMap(valueMap)//

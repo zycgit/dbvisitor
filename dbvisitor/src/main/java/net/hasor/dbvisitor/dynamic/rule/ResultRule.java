@@ -18,9 +18,9 @@ import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dynamic.*;
+import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor;
 import net.hasor.dbvisitor.mapping.MappingHelper;
-import net.hasor.dbvisitor.template.ResultSetExtractor;
-import net.hasor.dbvisitor.template.jdbc.extractor.ColumnMapResultSetExtractor;
 
 import java.sql.SQLException;
 import java.util.Map;

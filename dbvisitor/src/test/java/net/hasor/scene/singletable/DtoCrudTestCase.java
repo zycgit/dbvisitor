@@ -19,7 +19,7 @@ public class DtoCrudTestCase {
     public void insertByBean() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter wrapper = new WrapperAdapter(c);
-            wrapper.deleteByEntity(UserTableDTO.class).allowEmptyWhere().doDelete();
+            wrapper.delete(UserTableDTO.class).allowEmptyWhere().doDelete();
 
             UserTableDTO userData = new UserTableDTO();
             userData.setAge(36);
@@ -27,12 +27,12 @@ public class DtoCrudTestCase {
             userData.setCreateTime(new Date());
             assert userData.getId() == null;
 
-            InsertWrapper<UserTableDTO> insert = wrapper.insertByEntity(UserTableDTO.class);
+            InsertWrapper<UserTableDTO> insert = wrapper.insert(UserTableDTO.class);
             assert 1 == insert.applyEntity(userData).executeSumResult();
             assert userData.getId() != null;// 自增 ID 回填
 
             // 根据 ID 反查
-            EntityQueryWrapper<UserTableDTO> query = wrapper.queryByEntity(UserTableDTO.class);
+            EntityQueryWrapper<UserTableDTO> query = wrapper.query(UserTableDTO.class);
             UserTableDTO resultData = query.eq(UserTableDTO::getId, userData.getId()).queryForObject();
             assert resultData.getName().equals("default user");
         }
@@ -43,7 +43,7 @@ public class DtoCrudTestCase {
     public void insertByMap() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter wrapper = new WrapperAdapter(c);
-            wrapper.deleteByEntity(UserTableDTO.class).allowEmptyWhere().doDelete();
+            wrapper.delete(UserTableDTO.class).allowEmptyWhere().doDelete();
 
             Map<String, Object> userData = new HashMap<>();
             userData.put("age", 36);
@@ -51,13 +51,13 @@ public class DtoCrudTestCase {
             userData.put("create_time", new Date());// 默认驼峰转换是关闭的，因此在没有任何配置的情况下 key 需要和列名完全一致。
             assert userData.get("id") == null;
 
-            InsertWrapper<UserTableDTO> insert = wrapper.insertByEntity(UserTableDTO.class);
+            InsertWrapper<UserTableDTO> insert = wrapper.insert(UserTableDTO.class);
             int res = insert.applyMap(userData).executeSumResult();
             assert res == 1;
             assert userData.get("id") != null;// 根据 UserDTO 属性信息，自增 ID 回填
 
             // 校验结果
-            EntityQueryWrapper<UserTableDTO> query = wrapper.queryByEntity(UserTableDTO.class);
+            EntityQueryWrapper<UserTableDTO> query = wrapper.query(UserTableDTO.class);
             UserTableDTO resultData = query.eq(UserTableDTO::getId, userData.get("id")).queryForObject();
             assert resultData.getName().equals("default user");
         }
@@ -70,13 +70,13 @@ public class DtoCrudTestCase {
             WrapperAdapter wrapper = new WrapperAdapter(c);
 
             // update user set name = 'new name is abc' where id = 1
-            wrapper.updateByEntity(UserTableDTO.class) //
+            wrapper.update(UserTableDTO.class) //
                     .eq(UserTableDTO::getId, 1)       //
                     .updateTo(UserTableDTO::getName, "new name is abc")//
                     .doUpdate();
 
             // 校验结果
-            EntityQueryWrapper<UserTableDTO> query = wrapper.queryByEntity(UserTableDTO.class);
+            EntityQueryWrapper<UserTableDTO> query = wrapper.query(UserTableDTO.class);
             UserTableDTO resultData = query.eq(UserTableDTO::getId, 1).queryForObject();
             assert resultData.getName().equals("new name is abc");
         }
@@ -89,14 +89,14 @@ public class DtoCrudTestCase {
             WrapperAdapter wrapper = new WrapperAdapter(c);
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            wrapper.updateByEntity(UserTableDTO.class) //
+            wrapper.update(UserTableDTO.class) //
                     .eq(UserTableDTO::getId, 1)       //
                     .updateTo(UserTableDTO::getName, "new name is abc")//
                     .updateTo(UserTableDTO::getAge, 120)//
                     .doUpdate();
 
             // 校验结果
-            EntityQueryWrapper<UserTableDTO> query = wrapper.queryByEntity(UserTableDTO.class);
+            EntityQueryWrapper<UserTableDTO> query = wrapper.query(UserTableDTO.class);
             UserTableDTO resultData = query.eq(UserTableDTO::getId, 1).queryForObject();
             assert resultData.getName().equals("new name is abc");
             assert resultData.getAge() == 120;
@@ -114,13 +114,13 @@ public class DtoCrudTestCase {
             newValue.put("age", 120);
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            wrapper.updateByEntity(UserTableDTO.class) //
+            wrapper.update(UserTableDTO.class) //
                     .eq(UserTableDTO::getId, 1)//
                     .updateToSampleMap(newValue)   //
                     .doUpdate();
 
             // 校验结果
-            EntityQueryWrapper<UserTableDTO> query = wrapper.queryByEntity(UserTableDTO.class);
+            EntityQueryWrapper<UserTableDTO> query = wrapper.query(UserTableDTO.class);
             UserTableDTO resultData = query.eq(UserTableDTO::getId, 1).queryForObject();
             assert resultData.getName().equals("new name is abc");
             assert resultData.getAge() == 120;
@@ -138,13 +138,13 @@ public class DtoCrudTestCase {
             newData.setAge(120);
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            wrapper.updateByEntity(UserTableDTO.class) //
+            wrapper.update(UserTableDTO.class) //
                     .eq(UserTableDTO::getId, 1) //
                     .updateToSample(newData)  //
                     .doUpdate();
 
             // 校验结果
-            EntityQueryWrapper<UserTableDTO> query = wrapper.queryByEntity(UserTableDTO.class);
+            EntityQueryWrapper<UserTableDTO> query = wrapper.query(UserTableDTO.class);
             UserTableDTO resultData = query.eq(UserTableDTO::getId, 1).queryForObject();
             assert resultData.getName().equals("new name is abc");
             assert resultData.getAge() == 120;
@@ -162,14 +162,14 @@ public class DtoCrudTestCase {
             newData.setName("new name is abc");
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            int i = wrapper.updateByEntity(UserTableDTO.class) //
+            int i = wrapper.update(UserTableDTO.class) //
                     .eq(UserTableDTO::getId, 1) //
                     .updateRow(newData)  //
                     .doUpdate();
             assert i == 1;
 
             // 校验结果（除 id 和 name 外全部都被设置为空了）
-            EntityQueryWrapper<UserTableDTO> query = wrapper.queryByEntity(UserTableDTO.class);
+            EntityQueryWrapper<UserTableDTO> query = wrapper.query(UserTableDTO.class);
             UserTableDTO resultData = query.eq(UserTableDTO::getId, 1).queryForObject();
             assert resultData.getId() == 1;
             assert resultData.getName().equals("new name is abc");
@@ -190,7 +190,7 @@ public class DtoCrudTestCase {
             newData.setName("new name is abc");
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            int i = wrapper.updateByEntity(UserTableDTO.class) //
+            int i = wrapper.update(UserTableDTO.class) //
                     .eq(UserTableDTO::getId, 1) //
                     .allowUpdateKey()  // 需要启用 allowUpdateKey
                     .updateToSample(newData)  //
@@ -198,7 +198,7 @@ public class DtoCrudTestCase {
             assert i == 1;
 
             // 校验结果
-            EntityQueryWrapper<UserTableDTO> query = wrapper.queryByEntity(UserTableDTO.class);
+            EntityQueryWrapper<UserTableDTO> query = wrapper.query(UserTableDTO.class);
             UserTableDTO resultData = query.eq(UserTableDTO::getId, 112).queryForObject();
             assert resultData.getId() == 112;
             assert resultData.getName().equals("new name is abc");
@@ -214,13 +214,13 @@ public class DtoCrudTestCase {
             WrapperAdapter wrapper = new WrapperAdapter(c);
 
             // delete from user where id = 1;
-            int i = wrapper.deleteByEntity(UserTableDTO.class) //
+            int i = wrapper.delete(UserTableDTO.class) //
                     .eq(UserTableDTO::getId, 1) //
                     .doDelete();
             assert i == 1;
 
             // 校验结果
-            EntityQueryWrapper<UserTableDTO> query = wrapper.queryByEntity(UserTableDTO.class);
+            EntityQueryWrapper<UserTableDTO> query = wrapper.query(UserTableDTO.class);
             UserTableDTO resultData = query.eq(UserTableDTO::getId, 1).queryForObject();
             assert resultData == null;
         }
@@ -238,13 +238,13 @@ public class DtoCrudTestCase {
             sample.setName("mali");
 
             // delete from user where id = 1 and name = 'mail';
-            int i = wrapper.deleteByEntity(UserTableDTO.class) //
+            int i = wrapper.delete(UserTableDTO.class) //
                     .eqBySample(sample)//
                     .doDelete();
             assert i == 1;
 
             // 校验结果
-            EntityQueryWrapper<UserTableDTO> query = wrapper.queryByEntity(UserTableDTO.class);
+            EntityQueryWrapper<UserTableDTO> query = wrapper.query(UserTableDTO.class);
             UserTableDTO resultData = query.eq(UserTableDTO::getId, 1).queryForObject();
             assert resultData == null;
         }
@@ -261,13 +261,13 @@ public class DtoCrudTestCase {
             newValue.put("name", "mali");
 
             // delete from user where id = 1 and name = 'mail';
-            int i = wrapper.deleteByEntity(UserTableDTO.class) //
+            int i = wrapper.delete(UserTableDTO.class) //
                     .eqBySampleMap(newValue)//
                     .doDelete();
             assert i == 1;
 
             // 校验结果
-            EntityQueryWrapper<UserTableDTO> query = wrapper.queryByEntity(UserTableDTO.class);
+            EntityQueryWrapper<UserTableDTO> query = wrapper.query(UserTableDTO.class);
             UserTableDTO resultData = query.eq(UserTableDTO::getId, 1).queryForObject();
             assert resultData == null;
         }
@@ -280,13 +280,13 @@ public class DtoCrudTestCase {
             WrapperAdapter wrapper = new WrapperAdapter(c);
 
             // delete from user;
-            int i = wrapper.deleteByEntity(UserTableDTO.class) //
+            int i = wrapper.delete(UserTableDTO.class) //
                     .allowEmptyWhere()// 无条件删除需要启用空条件
                     .doDelete();
             assert i == 5;
 
             // 校验结果
-            EntityQueryWrapper<UserTableDTO> query = wrapper.queryByEntity(UserTableDTO.class);
+            EntityQueryWrapper<UserTableDTO> query = wrapper.query(UserTableDTO.class);
             assert query.queryForCount() == 0;
         }
     }
@@ -296,9 +296,9 @@ public class DtoCrudTestCase {
     public void batchInsertByDTO() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter wrapper = new WrapperAdapter(c);
-            wrapper.deleteByEntity(UserTableDTO.class).allowEmptyWhere().doDelete();
+            wrapper.delete(UserTableDTO.class).allowEmptyWhere().doDelete();
 
-            InsertWrapper<UserTableDTO> lambdaInsert = wrapper.insertByEntity(UserTableDTO.class);
+            InsertWrapper<UserTableDTO> lambdaInsert = wrapper.insert(UserTableDTO.class);
             List<UserTableDTO> insertData = new ArrayList<>();
             for (int i = 0; i < 10; i++) {
                 UserTableDTO userData = new UserTableDTO();
@@ -315,7 +315,7 @@ public class DtoCrudTestCase {
             }
 
             // 校验结果
-            EntityQueryWrapper<UserTableDTO> query = wrapper.queryByEntity(UserTableDTO.class);
+            EntityQueryWrapper<UserTableDTO> query = wrapper.query(UserTableDTO.class);
             List<UserTableDTO> resultData = query.likeRight(UserTableDTO::getName, "default user ").queryForList();
             List<String> result = resultData.stream().map(UserTableDTO::getName).collect(Collectors.toList());
             assert result.size() == 10;

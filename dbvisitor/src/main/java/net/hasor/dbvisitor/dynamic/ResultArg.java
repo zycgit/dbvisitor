@@ -15,9 +15,9 @@
  */
 package net.hasor.dbvisitor.dynamic;
 import net.hasor.dbvisitor.dynamic.rule.ArgRule;
-import net.hasor.dbvisitor.template.ResultSetExtractor;
-import net.hasor.dbvisitor.template.RowCallbackHandler;
-import net.hasor.dbvisitor.template.RowMapper;
+import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
+import net.hasor.dbvisitor.jdbc.RowMapper;
 
 public class ResultArg {
     public static final String                CFG_KEY_NAME        = ArgRule.CFG_KEY_NAME;

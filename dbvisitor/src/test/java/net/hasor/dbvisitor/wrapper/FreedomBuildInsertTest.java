@@ -19,9 +19,9 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.RuleRegistry;
+import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.junit.Test;
 
@@ -65,7 +65,7 @@ public class FreedomBuildInsertTest {
 
     @Test
     public void insert_1() throws SQLException {
-        MapInsertWrapper lambdaInsert = newLambda().freedomInsert("user_info");
+        MapInsertWrapper lambdaInsert = newLambda().insertFreedom("user_info");
         lambdaInsert.applyMap(mapForData1());
 
         BoundSql boundSql1 = lambdaInsert.getBoundSql();
@@ -75,7 +75,7 @@ public class FreedomBuildInsertTest {
 
     @Test
     public void insert_duplicateKeyBlock_1() throws SQLException {
-        MapInsertWrapper lambdaInsert = newLambda().freedomInsert("user_info");
+        MapInsertWrapper lambdaInsert = newLambda().insertFreedom("user_info");
         lambdaInsert.applyMap(mapForData1());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Into);
 
@@ -86,7 +86,7 @@ public class FreedomBuildInsertTest {
 
     @Test
     public void insert_duplicateKeyUpdate_1() throws SQLException {
-        MapInsertWrapper lambdaInsert = newLambda().freedomInsert("user_info");
+        MapInsertWrapper lambdaInsert = newLambda().insertFreedom("user_info");
         lambdaInsert.applyMap(mapForData1());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Update);
 
@@ -97,7 +97,7 @@ public class FreedomBuildInsertTest {
 
     @Test
     public void insert_duplicateKeyIgnore_1() throws SQLException {
-        MapInsertWrapper lambdaInsert = newLambda().freedomInsert("user_info");
+        MapInsertWrapper lambdaInsert = newLambda().insertFreedom("user_info");
         lambdaInsert.applyMap(mapForData1());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Ignore);
 

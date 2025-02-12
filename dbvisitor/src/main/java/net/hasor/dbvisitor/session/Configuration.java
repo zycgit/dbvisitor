@@ -21,13 +21,13 @@ import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.RuleRegistry;
 import net.hasor.dbvisitor.dynamic.rule.SqlRule;
+import net.hasor.dbvisitor.jdbc.DynamicConnection;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapper.MapperRegistry;
 import net.hasor.dbvisitor.mapper.StatementDef;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.template.jdbc.DynamicConnection;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 

@@ -17,9 +17,9 @@ package net.hasor.dbvisitor.wrapper;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.RuleRegistry;
+import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.junit.Test;
 
@@ -44,7 +44,7 @@ public class FreedomBuildQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_or_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eq("loginName", "a").or(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
                     nestedQuery.le("createTime", 2); // <= ?
@@ -54,7 +54,7 @@ public class FreedomBuildQueryNestedTest {
         assert boundSql1.getArgs()[1].equals(1);
         assert boundSql1.getArgs()[2].equals(2);
 
-        BoundSql boundSql2 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql2 = newLambda().queryFreedom("user_info")//
                 .eq("loginName", "a").or().nested(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
                     nestedQuery.le("createTime", 2); // <= ?
@@ -67,7 +67,7 @@ public class FreedomBuildQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_or_2() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().freedomQuery("user_info")//
+        BoundSql boundSql1 = new WrapperAdapter().queryFreedom("user_info")//
                 .nested(qc -> {
                     qc.eq("loginName", "user-1").eq("seq", 1);
                 }).or(qc -> {
@@ -82,7 +82,7 @@ public class FreedomBuildQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_and_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eq("loginName", "a").and(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
                     nestedQuery.le("createTime", 2); // <= ?
@@ -93,7 +93,7 @@ public class FreedomBuildQueryNestedTest {
         assert boundSql1.getArgs()[2].equals(2);
         assert boundSql1.getArgs()[3].equals(123);
 
-        BoundSql boundSql2 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql2 = newLambda().queryFreedom("user_info")//
                 .eq("loginName", "a").and().nested(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
                     nestedQuery.le("createTime", 2); // <= ?
@@ -107,7 +107,7 @@ public class FreedomBuildQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_and_2() throws SQLException {
-        BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .nested(qc -> {
                     qc.eq("seq", 1).or().eq("seq", 2);
                 }).and(qc -> {
@@ -122,7 +122,7 @@ public class FreedomBuildQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eq("loginName", "a").nested(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
                     nestedQuery.le("createTime", 2); // <= ?
@@ -133,7 +133,7 @@ public class FreedomBuildQueryNestedTest {
         assert boundSql1.getArgs()[2].equals(2);
         assert boundSql1.getArgs()[3].equals(123);
 
-        BoundSql boundSql2 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql2 = newLambda().queryFreedom("user_info")//
                 .nested(nq0 -> {
                     nq0.nested(nq1 -> {
                         nq1.ge("createTime", 1); // >= ?
@@ -148,7 +148,7 @@ public class FreedomBuildQueryNestedTest {
         assert boundSql2.getArgs()[2].equals(1);
         assert boundSql2.getArgs()[3].equals(123);
 
-        BoundSql boundSql3 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql3 = newLambda().queryFreedom("user_info")//
                 .nested(nq0 -> {
                     nq0.nested(nq1 -> {
                         nq1.ge("createTime", 1); // >= ?
@@ -165,7 +165,7 @@ public class FreedomBuildQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_not_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .not(qc -> {
                     qc.eq("seq", 1).or().eq("loginName", "a");
                 }).getBoundSql();

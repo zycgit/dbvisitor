@@ -1,6 +1,6 @@
 package net.hasor.scene.keyholder;
-import net.hasor.dbvisitor.template.JdbcHelper;
 import net.hasor.dbvisitor.mapping.Options;
+import net.hasor.dbvisitor.jdbc.JdbcHelper;
 import net.hasor.dbvisitor.wrapper.InsertWrapper;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import net.hasor.scene.keyholder.dto.UserDTO_32;
@@ -20,7 +20,7 @@ public class AutoIdKeyHolderTestCase {
     public void autoUUID32TestCase() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter wrapper = new WrapperAdapter(c);
-            wrapper.deleteByEntity(UserDTO_32.class).allowEmptyWhere().doDelete();
+            wrapper.delete(UserDTO_32.class).allowEmptyWhere().doDelete();
 
             UserDTO_32 userData = new UserDTO_32();
             userData.setAge(36);
@@ -28,7 +28,7 @@ public class AutoIdKeyHolderTestCase {
             assert userData.getId() == null;
             assert userData.getName() == null;
 
-            InsertWrapper<UserDTO_32> insert = wrapper.insertByEntity(UserDTO_32.class);
+            InsertWrapper<UserDTO_32> insert = wrapper.insert(UserDTO_32.class);
             assert 1 == insert.applyEntity(userData).executeSumResult();
 
             assert userData.getId() != null;
@@ -40,7 +40,7 @@ public class AutoIdKeyHolderTestCase {
     public void autoUUID36TestCase() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter wrapper = new WrapperAdapter(c);
-            wrapper.deleteByEntity(UserDTO_36.class).allowEmptyWhere().doDelete();
+            wrapper.delete(UserDTO_36.class).allowEmptyWhere().doDelete();
 
             UserDTO_36 userData = new UserDTO_36();
             userData.setAge(36);
@@ -48,7 +48,7 @@ public class AutoIdKeyHolderTestCase {
             assert userData.getId() == null;
             assert userData.getName() == null;
 
-            InsertWrapper<UserDTO_36> insert = wrapper.insertByEntity(UserDTO_36.class);
+            InsertWrapper<UserDTO_36> insert = wrapper.insert(UserDTO_36.class);
             assert 1 == insert.applyEntity(userData).executeSumResult();
 
             assert userData.getId() != null;
@@ -61,7 +61,7 @@ public class AutoIdKeyHolderTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             Options o = Options.of().defaultDialect(JdbcHelper.findDialect(c));
             WrapperAdapter wrapper = new WrapperAdapter(c, o);
-            wrapper.deleteByEntity(UserDTO_SEQ.class).allowEmptyWhere().doDelete();
+            wrapper.delete(UserDTO_SEQ.class).allowEmptyWhere().doDelete();
 
             UserDTO_SEQ userData = new UserDTO_SEQ();
             userData.setAge(36);
@@ -69,7 +69,7 @@ public class AutoIdKeyHolderTestCase {
             assert userData.getId() == null;
             assert userData.getName() == null;
 
-            InsertWrapper<UserDTO_SEQ> insert = wrapper.insertByEntity(UserDTO_SEQ.class);
+            InsertWrapper<UserDTO_SEQ> insert = wrapper.insert(UserDTO_SEQ.class);
             assert 1 == insert.applyEntity(userData).executeSumResult();
 
             assert userData.getId() == 1;
@@ -81,7 +81,7 @@ public class AutoIdKeyHolderTestCase {
     public void myHolderTestCase() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter wrapper = new WrapperAdapter(c);
-            wrapper.deleteByEntity(UserDTO_KEYHOLDER.class).allowEmptyWhere().doDelete();
+            wrapper.delete(UserDTO_KEYHOLDER.class).allowEmptyWhere().doDelete();
 
             UserDTO_KEYHOLDER userData = new UserDTO_KEYHOLDER();
             userData.setAge(36);
@@ -89,7 +89,7 @@ public class AutoIdKeyHolderTestCase {
             assert userData.getId() == null;
             assert userData.getName() == null;
 
-            InsertWrapper<UserDTO_KEYHOLDER> insert = wrapper.insertByEntity(UserDTO_KEYHOLDER.class);
+            InsertWrapper<UserDTO_KEYHOLDER> insert = wrapper.insert(UserDTO_KEYHOLDER.class);
             assert 1 == insert.applyEntity(userData).executeSumResult();
 
             assert userData.getId() == 111111;

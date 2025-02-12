@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.wrapper;
-import net.hasor.dbvisitor.template.jdbc.extractor.RowMapperResultSetExtractor;
-import net.hasor.dbvisitor.template.jdbc.mapper.ColumnMapRowMapper;
+import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
 import net.hasor.dbvisitor.wrapper.dto.AnnoUserInfoDTO;
 import net.hasor.dbvisitor.wrapper.dto.UserInfo;
 import net.hasor.test.dto.UserInfo2;
@@ -39,7 +39,7 @@ public class DoEntQueryTest {
     @Test
     public void selectAll_forList_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            List<AnnoUserInfoDTO> users = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class).queryForList();
+            List<AnnoUserInfoDTO> users = new WrapperAdapter(c).query(AnnoUserInfoDTO.class).queryForList();
             List<String> collect = users.stream().map(AnnoUserInfoDTO::getName).collect(Collectors.toList());
 
             assert collect.size() == 3;
@@ -52,7 +52,7 @@ public class DoEntQueryTest {
     @Test
     public void selectAll_forList_1_2map() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            List<Map<String, Object>> users = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class).asMap()//
+            List<Map<String, Object>> users = new WrapperAdapter(c).query(AnnoUserInfoDTO.class).asMap()//
                     .queryForList();
             List<String> collect = users.stream().map(m -> m.get("name").toString()).collect(Collectors.toList());
 
@@ -66,7 +66,7 @@ public class DoEntQueryTest {
     @Test
     public void selectAll_forList_2() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            List<UserInfo> users = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class).queryForList(UserInfo.class);
+            List<UserInfo> users = new WrapperAdapter(c).query(AnnoUserInfoDTO.class).queryForList(UserInfo.class);
             List<String> collect = users.stream().map(UserInfo::getEmail).collect(Collectors.toList());
 
             assert collect.size() == 3;
@@ -79,7 +79,7 @@ public class DoEntQueryTest {
     @Test
     public void selectAll_forList_2_2map() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            List<UserInfo> users = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class).asMap()//
+            List<UserInfo> users = new WrapperAdapter(c).query(AnnoUserInfoDTO.class).asMap()//
                     .queryForList(UserInfo.class);
             List<String> collect = users.stream().map(UserInfo::getEmail).collect(Collectors.toList());
 
@@ -93,7 +93,7 @@ public class DoEntQueryTest {
     @Test
     public void selectAll_forMapList_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            List<Map<String, Object>> users = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class).queryForMapList();
+            List<Map<String, Object>> users = new WrapperAdapter(c).query(AnnoUserInfoDTO.class).queryForMapList();
             List<String> collect2 = users.stream().map(tbUser -> (String) tbUser.get("name")).collect(Collectors.toList());
 
             assert collect2.size() == 3;
@@ -106,7 +106,7 @@ public class DoEntQueryTest {
     @Test
     public void selectAll_forMapList_1_2map() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            List<Map<String, Object>> users = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class).asMap()//
+            List<Map<String, Object>> users = new WrapperAdapter(c).query(AnnoUserInfoDTO.class).asMap()//
                     .queryForMapList();
             List<String> collect2 = users.stream().map(tbUser -> (String) tbUser.get("name")).collect(Collectors.toList());
 
@@ -121,7 +121,7 @@ public class DoEntQueryTest {
     public void selectAll_forCallBack_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             List<String> users = new ArrayList<>();
-            new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class).query((rs, rowNum) -> {
+            new WrapperAdapter(c).query(AnnoUserInfoDTO.class).query((rs, rowNum) -> {
                 users.add(rs.getString("user_name"));
             });
 
@@ -136,7 +136,7 @@ public class DoEntQueryTest {
     public void selectAll_forCallBack_1_2map() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
             List<String> users = new ArrayList<>();
-            new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class).asMap()//
+            new WrapperAdapter(c).query(AnnoUserInfoDTO.class).asMap()//
                     .query((rs, rowNum) -> {
                         users.add(rs.getString("user_name"));
                     });
@@ -151,7 +151,7 @@ public class DoEntQueryTest {
     @Test
     public void selectAll_forExtractor_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            List<Map<String, Object>> list = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class)//
+            List<Map<String, Object>> list = new WrapperAdapter(c).query(AnnoUserInfoDTO.class)//
                     .query(new RowMapperResultSetExtractor<>(new ColumnMapRowMapper()));
 
             List<String> collect = list.stream().map(tbUser -> {
@@ -168,7 +168,7 @@ public class DoEntQueryTest {
     @Test
     public void selectAll_forExtractor_1_2map() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            List<Map<String, Object>> list = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class).asMap()//
+            List<Map<String, Object>> list = new WrapperAdapter(c).query(AnnoUserInfoDTO.class).asMap()//
                     .query(new RowMapperResultSetExtractor<>(new ColumnMapRowMapper()));
 
             List<String> collect = list.stream().map(tbUser -> {
@@ -185,7 +185,7 @@ public class DoEntQueryTest {
     @Test
     public void selectAll_forRowMapper_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            List<Map<String, Object>> list = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class)//
+            List<Map<String, Object>> list = new WrapperAdapter(c).query(AnnoUserInfoDTO.class)//
                     .queryForList(new ColumnMapRowMapper());
 
             List<String> collect = list.stream().map(tbUser -> {
@@ -202,7 +202,7 @@ public class DoEntQueryTest {
     @Test
     public void selectAll_forRowMapper_1_2map() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            List<Map<String, Object>> list = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class).asMap()//
+            List<Map<String, Object>> list = new WrapperAdapter(c).query(AnnoUserInfoDTO.class).asMap()//
                     .queryForList(new ColumnMapRowMapper());
 
             List<String> collect = list.stream().map(tbUser -> {
@@ -221,8 +221,8 @@ public class DoEntQueryTest {
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter lambda = new WrapperAdapter(c);
 
-            List<AnnoUserInfoDTO> users1 = lambda.queryByEntity(AnnoUserInfoDTO.class).selectAll().queryForList();
-            List<AnnoUserInfoDTO> users2 = lambda.queryByEntity(AnnoUserInfoDTO.class).queryForList();
+            List<AnnoUserInfoDTO> users1 = lambda.query(AnnoUserInfoDTO.class).selectAll().queryForList();
+            List<AnnoUserInfoDTO> users2 = lambda.query(AnnoUserInfoDTO.class).queryForList();
             assert users1.size() == 3;
             assert users2.size() == 3;
         }
@@ -233,7 +233,7 @@ public class DoEntQueryTest {
         try (Connection c = DsUtils.h2Conn()) {
             Map<String, Object> forData1 = mapForData1();
 
-            List<AnnoUserInfoDTO> users = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class)//
+            List<AnnoUserInfoDTO> users = new WrapperAdapter(c).query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, forData1.get("loginName")).queryForList();
 
             assert users.size() == 1;
@@ -246,7 +246,7 @@ public class DoEntQueryTest {
     @Test
     public void selectObject_condition_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            AnnoUserInfoDTO tbUser = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class)//
+            AnnoUserInfoDTO tbUser = new WrapperAdapter(c).query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad").apply("limit 1").queryForObject();
 
             assert tbUser.getName().equals("默罕默德");
@@ -256,7 +256,7 @@ public class DoEntQueryTest {
     @Test
     public void selectMap_condition_1() throws Throwable {
         try (Connection c = DsUtils.h2Conn()) {
-            Map<String, Object> tbUser = new WrapperAdapter(c).queryByEntity(AnnoUserInfoDTO.class)//
+            Map<String, Object> tbUser = new WrapperAdapter(c).query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
 
@@ -270,13 +270,13 @@ public class DoEntQueryTest {
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter lambda = new WrapperAdapter(c);
 
-            int lambdaCount1 = lambda.queryByEntity(AnnoUserInfoDTO.class)//
+            int lambdaCount1 = lambda.query(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .queryForCount();
 
             assert lambdaCount1 == 1;
-            assert lambda.queryByEntity(UserInfo2.class).queryForCount() == 3;
-            assert lambda.queryByEntity(UserInfo2.class).queryForLargeCount() == 3L;
+            assert lambda.query(UserInfo2.class).queryForCount() == 3;
+            assert lambda.query(UserInfo2.class).queryForLargeCount() == 3L;
         }
     }
 }

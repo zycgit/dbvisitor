@@ -15,13 +15,15 @@
  */
 package net.hasor.dbvisitor.wrapper.core;
 import net.hasor.dbvisitor.dialect.Page;
-import net.hasor.dbvisitor.template.ResultSetExtractor;
-import net.hasor.dbvisitor.template.RowCallbackHandler;
-import net.hasor.dbvisitor.template.RowMapper;
+import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
+import net.hasor.dbvisitor.jdbc.RowMapper;
 
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Query 复杂操作构造器。
@@ -177,24 +179,24 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
     /** 生成 select count() 查询语句并查询总数。 */
     long queryForLargeCount() throws SQLException;
 
-    //    /** 迭代器方式获取 limit 条(-1 表示所有)，每批 200条。 */
-    //    default Iterator<T> iteratorForLimit(long limit) {
-    //        return this.iteratorForLimit(limit, 200, r -> r);
-    //    }
-    //
-    //    /** 迭代器方式获取 limit 条(-1 表示所有)，batchSize 表示每批条数。 */
-    //    default Iterator<T> iteratorForLimit(long limit, int batchSize) {
-    //        return this.iteratorForLimit(limit, batchSize, r -> r);
-    //    }
-    //
-    //    /** 分页方式 获取每一条数据,并通过 transform 对变换 */
-    //    <D> Iterator<D> iteratorForLimit(long limit, int batchSize, Function<T, D> transform);
-    //
-    //    /** 迭代器方式获取 limit 条(-1 表示所有)，每批 200条。 */
-    //    default Iterator<T> iteratorByBatch(int batchSize) {
-    //        return this.iteratorByBatch(batchSize, r -> r);
-    //    }
-    //
-    //    /** 分页方式 获取每一条数据,并通过 transform 对变换 */
-    //    <D> Iterator<D> iteratorByBatch(int batchSize, Function<T, D> transform);
+    /** 迭代器方式获取 limit 条(-1 表示所有)，每批 200条。 */
+    default Iterator<T> iteratorForLimit(long limit) {
+        return this.iteratorForLimit(limit, 200, r -> r);
+    }
+
+    /** 迭代器方式获取 limit 条(-1 表示所有)，batchSize 表示每批条数。 */
+    default Iterator<T> iteratorForLimit(long limit, int batchSize) {
+        return this.iteratorForLimit(limit, batchSize, r -> r);
+    }
+
+    /** 分页方式 获取每一条数据,并通过 transform 对变换 */
+    <D> Iterator<D> iteratorForLimit(long limit, int batchSize, Function<T, D> transform);
+
+    /** 迭代器方式获取 limit 条(-1 表示所有)，每批 200条。 */
+    default Iterator<T> iteratorByBatch(int batchSize) {
+        return this.iteratorByBatch(batchSize, r -> r);
+    }
+
+    /** 分页方式 获取每一条数据,并通过 transform 对变换 */
+    <D> Iterator<D> iteratorByBatch(int batchSize, Function<T, D> transform);
 }

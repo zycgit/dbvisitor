@@ -33,11 +33,11 @@ public class PojoCrudTestCase {
             userData.setName("default user");
             userData.setCreate_time(new Date());// 默认驼峰转换是关闭的，因此在没有任何配置的情况下普通 pojo 的列名需要和表名字段完全一致。
 
-            InsertWrapper<UserTable> lambdaInsert = lambdaTemplate.insertByEntity(UserTable.class);
+            InsertWrapper<UserTable> lambdaInsert = lambdaTemplate.insert(UserTable.class);
             assert 1 == lambdaInsert.applyEntity(userData).executeSumResult();
 
             // 校验结果
-            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.queryByEntity(UserTable.class);
+            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.query(UserTable.class);
             UserTable resultData = lambdaQuery.eq(UserTable::getName, "default user").queryForObject();
             assert resultData.getName().equals(userData.getName());
         }
@@ -55,11 +55,11 @@ public class PojoCrudTestCase {
             userData.put("name", "default user");
             userData.put("create_time", new Date());// 默认驼峰转换是关闭的，因此在没有任何配置的情况下 key 需要和列名完全一致。
 
-            InsertWrapper<UserTable> lambdaInsert = lambdaTemplate.insertByEntity(UserTable.class);
+            InsertWrapper<UserTable> lambdaInsert = lambdaTemplate.insert(UserTable.class);
             assert 1 == lambdaInsert.applyMap(userData).executeSumResult();
 
             // 校验结果
-            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.queryByEntity(UserTable.class);
+            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.query(UserTable.class);
             UserTable resultData = lambdaQuery.eq(UserTable::getName, "default user").queryForObject();
             assert resultData.getName().equals(userData.get("name"));
         }
@@ -72,13 +72,13 @@ public class PojoCrudTestCase {
             WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
             // update user set name = 'new name is abc' where id = 1
-            lambdaTemplate.updateByEntity(UserTable.class) //
+            lambdaTemplate.update(UserTable.class) //
                     .eq(UserTable::getId, 1)         //
                     .updateTo(UserTable::getName, "new name is abc")//
                     .doUpdate();
 
             // 校验结果
-            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.queryByEntity(UserTable.class);
+            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.query(UserTable.class);
             UserTable resultData = lambdaQuery.eq(UserTable::getId, 1).queryForObject();
             assert resultData.getName().equals("new name is abc");
         }
@@ -91,14 +91,14 @@ public class PojoCrudTestCase {
             WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            lambdaTemplate.updateByEntity(UserTable.class) //
+            lambdaTemplate.update(UserTable.class) //
                     .eq(UserTable::getId, 1)         //
                     .updateTo(UserTable::getName, "new name is abc")//
                     .updateTo(UserTable::getAge, 120)//
                     .doUpdate();
 
             // 校验结果
-            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.queryByEntity(UserTable.class);
+            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.query(UserTable.class);
             UserTable resultData = lambdaQuery.eq(UserTable::getId, 1).queryForObject();
             assert resultData.getName().equals("new name is abc");
             assert resultData.getAge() == 120;
@@ -116,13 +116,13 @@ public class PojoCrudTestCase {
             newValue.put("age", 120);
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            lambdaTemplate.updateByEntity(UserTable.class) //
+            lambdaTemplate.update(UserTable.class) //
                     .eq(UserTable::getId, 1)//
                     .updateToSampleMap(newValue)   //
                     .doUpdate();
 
             // 校验结果
-            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.queryByEntity(UserTable.class);
+            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.query(UserTable.class);
             UserTable resultData = lambdaQuery.eq(UserTable::getId, 1).queryForObject();
             assert resultData.getName().equals("new name is abc");
             assert resultData.getAge() == 120;
@@ -140,13 +140,13 @@ public class PojoCrudTestCase {
             newData.setAge(120);
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            lambdaTemplate.updateByEntity(UserTable.class) //
+            lambdaTemplate.update(UserTable.class) //
                     .eq(UserTable::getId, 1) //
                     .updateToSample(newData)  //
                     .doUpdate();
 
             // 校验结果
-            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.queryByEntity(UserTable.class);
+            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.query(UserTable.class);
             UserTable resultData = lambdaQuery.eq(UserTable::getId, 1).queryForObject();
             assert resultData.getName().equals("new name is abc");
             assert resultData.getAge() == 120;
@@ -166,14 +166,14 @@ public class PojoCrudTestCase {
             newData.setName("new name is abc");
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            int i = lambdaTemplate.updateByEntity(UserTable.class) //
+            int i = lambdaTemplate.update(UserTable.class) //
                     .eq(UserTable::getId, 1) //
                     .updateRow(newData)  //
                     .doUpdate();
             assert i == 1;
 
             // 校验结果
-            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.queryByEntity(UserTable.class);
+            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.query(UserTable.class);
             UserTable resultData = lambdaQuery.eq(UserTable::getName, "new name is abc").queryForObject();
 
             assert resultData.getId() == 1;
@@ -190,13 +190,13 @@ public class PojoCrudTestCase {
             WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
             // delete from user where id = 1;
-            int i = lambdaTemplate.deleteByEntity(UserTable.class) //
+            int i = lambdaTemplate.delete(UserTable.class) //
                     .eq(UserTable::getId, 1) //
                     .doDelete();
             assert i == 1;
 
             // 校验结果
-            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.queryByEntity(UserTable.class);
+            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.query(UserTable.class);
             UserTable resultData = lambdaQuery.eq(UserTable::getId, 1).queryForObject();
             assert resultData == null;
         }
@@ -214,13 +214,13 @@ public class PojoCrudTestCase {
             sample.setName("mali");
 
             // delete from user where id = 1 and name = 'mail';
-            int i = lambdaTemplate.deleteByEntity(UserTable.class) //
+            int i = lambdaTemplate.delete(UserTable.class) //
                     .eqBySample(sample)//
                     .doDelete();
             assert i == 1;
 
             // 校验结果
-            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.queryByEntity(UserTable.class);
+            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.query(UserTable.class);
             UserTable resultData = lambdaQuery.eq(UserTable::getId, 1).queryForObject();
             assert resultData == null;
         }
@@ -237,13 +237,13 @@ public class PojoCrudTestCase {
             newValue.put("name", "mali");
 
             // delete from user where id = 1 and name = 'mail';
-            int i = lambdaTemplate.deleteByEntity(UserTable.class) //
+            int i = lambdaTemplate.delete(UserTable.class) //
                     .eqBySampleMap(newValue)//
                     .doDelete();
             assert i == 1;
 
             // 校验结果
-            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.queryByEntity(UserTable.class);
+            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.query(UserTable.class);
             UserTable resultData = lambdaQuery.eq(UserTable::getId, 1).queryForObject();
             assert resultData == null;
         }
@@ -256,13 +256,13 @@ public class PojoCrudTestCase {
             WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
             // delete from user;
-            int i = lambdaTemplate.deleteByEntity(UserTable.class) //
+            int i = lambdaTemplate.delete(UserTable.class) //
                     .allowEmptyWhere()// 无条件删除需要启用空条件
                     .doDelete();
             assert i == 5;
 
             // 校验结果
-            assert lambdaTemplate.queryByEntity(UserTable.class).queryForCount() == 0;
+            assert lambdaTemplate.query(UserTable.class).queryForCount() == 0;
         }
     }
 
@@ -272,7 +272,7 @@ public class PojoCrudTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter lambdaTemplate = new WrapperAdapter(c, options);
 
-            InsertWrapper<UserTable> lambdaInsert = lambdaTemplate.insertByEntity(UserTable.class);
+            InsertWrapper<UserTable> lambdaInsert = lambdaTemplate.insert(UserTable.class);
             for (int i = 0; i < 10; i++) {
                 UserTable userData = new UserTable();
                 userData.setId(i + 10);
@@ -285,7 +285,7 @@ public class PojoCrudTestCase {
             assert res == 10;
 
             // 校验结果
-            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.queryByEntity(UserTable.class);
+            EntityQueryWrapper<UserTable> lambdaQuery = lambdaTemplate.query(UserTable.class);
             List<UserTable> resultData = lambdaQuery.likeRight(UserTable::getName, "default user ").queryForList();
             List<String> result = resultData.stream().map(UserTable::getName).collect(Collectors.toList());
             assert result.size() == 10;

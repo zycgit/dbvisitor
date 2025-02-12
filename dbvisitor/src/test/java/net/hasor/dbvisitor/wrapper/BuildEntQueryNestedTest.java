@@ -28,7 +28,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_or_1() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a").or(qc -> {
                     qc.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
                     qc.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
@@ -38,7 +38,7 @@ public class BuildEntQueryNestedTest {
         assert boundSql1.getArgs()[1].equals(1);
         assert boundSql1.getArgs()[2].equals(2);
 
-        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql2 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a").or().nested(qc -> {
                     qc.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
                     qc.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
@@ -51,7 +51,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_or_1_2map() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a").or(qc -> {
                     qc.ge("createTime", 1); // >= ?
                     qc.le("createTime", 2); // <= ?
@@ -61,7 +61,7 @@ public class BuildEntQueryNestedTest {
         assert boundSql1.getArgs()[1].equals(1);
         assert boundSql1.getArgs()[2].equals(2);
 
-        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql2 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a").or().nested(qc -> {
                     qc.ge("createTime", 1); // >= ?
                     qc.le("createTime", 2); // <= ?
@@ -74,7 +74,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_or_2() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .nested(qc -> {
                     qc.eq(AnnoUserInfoDTO::getName, "user-1").eq(AnnoUserInfoDTO::getSeq, 1);
                 }).or(qc -> {
@@ -89,7 +89,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_or_2_2map() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .nested(qc -> {
                     qc.eq("name", "user-1").eq("seq", 1);
                 }).or(qc -> {
@@ -104,7 +104,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_and_1() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a").and(qc -> {
                     qc.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
                     qc.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
@@ -115,7 +115,7 @@ public class BuildEntQueryNestedTest {
         assert boundSql1.getArgs()[2].equals(2);
         assert boundSql1.getArgs()[3].equals(123);
 
-        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql2 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a").and().nested(qc -> {
                     qc.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
                     qc.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
@@ -129,7 +129,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_and_1_2map() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a").and(qc -> {
                     qc.ge("createTime", 1); // >= ?
                     qc.le("createTime", 2); // <= ?
@@ -140,7 +140,7 @@ public class BuildEntQueryNestedTest {
         assert boundSql1.getArgs()[2].equals(2);
         assert boundSql1.getArgs()[3].equals(123);
 
-        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql2 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a").and().nested(qc -> {
                     qc.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
                     qc.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
@@ -154,7 +154,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_and_2() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .nested(qc -> {
                     qc.eq(AnnoUserInfoDTO::getSeq, 1).or().eq(AnnoUserInfoDTO::getSeq, 2);
                 }).and(qc -> {
@@ -169,7 +169,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_and_2_2map() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .nested(qc -> {
                     qc.eq("seq", 1).or().eq("seq", 2);
                 }).and(qc -> {
@@ -184,7 +184,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_1() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a").nested(qc -> {
                     qc.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
                     qc.le(AnnoUserInfoDTO::getCreateTime, 2); // <= ?
@@ -195,7 +195,7 @@ public class BuildEntQueryNestedTest {
         assert boundSql1.getArgs()[2].equals(2);
         assert boundSql1.getArgs()[3].equals(123);
 
-        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql2 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .nested(nq0 -> {
                     nq0.nested(nq1 -> {
                         nq1.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
@@ -210,7 +210,7 @@ public class BuildEntQueryNestedTest {
         assert boundSql2.getArgs()[2].equals(1);
         assert boundSql2.getArgs()[3].equals(123);
 
-        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql3 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .nested(nq0 -> {
                     nq0.nested(nq1 -> {
                         nq1.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
@@ -227,7 +227,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_1_2map() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .eq("loginName", "a").nested(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
                     nestedQuery.le("createTime", 2); // <= ?
@@ -238,7 +238,7 @@ public class BuildEntQueryNestedTest {
         assert boundSql1.getArgs()[2].equals(2);
         assert boundSql1.getArgs()[3].equals(123);
 
-        BoundSql boundSql2 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql2 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .nested(nq0 -> {
                     nq0.nested(nq1 -> {
                         nq1.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
@@ -253,7 +253,7 @@ public class BuildEntQueryNestedTest {
         assert boundSql2.getArgs()[2].equals(1);
         assert boundSql2.getArgs()[3].equals(123);
 
-        BoundSql boundSql3 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql3 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .nested(nq0 -> {
                     nq0.nested(nq1 -> {
                         nq1.ge(AnnoUserInfoDTO::getCreateTime, 1); // >= ?
@@ -270,7 +270,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_not_1() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class)//
                 .not(qc -> {
                     qc.eq(AnnoUserInfoDTO::getSeq, 1).or().eq(AnnoUserInfoDTO::getLoginName, "a");
                 }).getBoundSql();
@@ -281,7 +281,7 @@ public class BuildEntQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_not_1_2map() throws SQLException {
-        BoundSql boundSql1 = new WrapperAdapter().queryByEntity(AnnoUserInfoDTO.class).asMap()//
+        BoundSql boundSql1 = new WrapperAdapter().query(AnnoUserInfoDTO.class).asMap()//
                 .not(qc -> {
                     qc.eq("seq", 1).or().eq("loginName", "a");
                 }).getBoundSql();

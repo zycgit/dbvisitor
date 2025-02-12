@@ -15,9 +15,9 @@
  */
 package net.hasor.dbvisitor.types;
 import net.hasor.cobble.WellKnowFormat;
+import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.custom.MyStringTypeHandler1;
 import net.hasor.dbvisitor.types.custom.MyTypeHandler;
 import net.hasor.dbvisitor.types.custom.UserTable;

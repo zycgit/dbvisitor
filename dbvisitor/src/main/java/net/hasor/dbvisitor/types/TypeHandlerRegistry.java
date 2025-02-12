@@ -18,7 +18,7 @@ import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.reflect.TypeReference;
 import net.hasor.dbvisitor.dynamic.SqlMode;
-import net.hasor.dbvisitor.template.JdbcHelper;
+import net.hasor.dbvisitor.jdbc.JdbcHelper;
 import net.hasor.dbvisitor.types.handler.ObjectTypeHandler;
 import net.hasor.dbvisitor.types.handler.UnknownTypeHandler;
 import net.hasor.dbvisitor.types.handler.array.ArrayTypeHandler;

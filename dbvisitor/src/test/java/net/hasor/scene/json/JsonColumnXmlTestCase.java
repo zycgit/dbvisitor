@@ -38,11 +38,11 @@ public class JsonColumnXmlTestCase {
             Session session = config.newSession(c);
             WrapperAdapter template = session.wrapper();
 
-            template.getJdbc().execute("drop table if exists `project`");
-            template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
+            template.jdbc().execute("drop table if exists `project`");
+            template.jdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
 
             Project1 project = newProject("abc", Arrays.asList("CN", "EN"));
-            assert template.insertByEntity(Project1.class).applyEntity(project).executeSumResult() == 1;
+            assert template.insert(Project1.class).applyEntity(project).executeSumResult() == 1;
 
             List<Object> list = session.queryStatement("resultMap_test.selectProject", project);
 
@@ -65,13 +65,13 @@ public class JsonColumnXmlTestCase {
             Session session = config.newSession(c);
             WrapperAdapter template = session.wrapper();
 
-            template.getJdbc().execute("drop table if exists `project`");
-            template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
+            template.jdbc().execute("drop table if exists `project`");
+            template.jdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
 
             Project1 project1 = newProject("abc1", Arrays.asList("CN", "EN"));
             Project1 project2 = newProject("abc2", Arrays.asList("CN", "EN"));
             Project1 project3 = newProject("abc3", Arrays.asList("JP", "EN"));
-            assert template.insertByEntity(Project1.class).applyEntity(project1, project2, project3).executeSumResult() == 3;
+            assert template.insert(Project1.class).applyEntity(project1, project2, project3).executeSumResult() == 3;
 
             List<Object> list = session.queryStatement("resultMap_test.selectByJSON", project1);
             assert list.size() == 2;
@@ -98,11 +98,11 @@ public class JsonColumnXmlTestCase {
             Session session = config.newSession(c);
             WrapperAdapter template = session.wrapper();
 
-            template.getJdbc().execute("drop table if exists `project`");
-            template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
+            template.jdbc().execute("drop table if exists `project`");
+            template.jdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
 
             Project1 project = newProject("abc", Arrays.asList("CN", "EN"));
-            assert template.insertByEntity(Project1.class).applyEntity(project).executeSumResult() == 1;
+            assert template.insert(Project1.class).applyEntity(project).executeSumResult() == 1;
 
             List<Object> list = session.queryStatement("resultMap_test.selectProject", project);
 
@@ -125,13 +125,13 @@ public class JsonColumnXmlTestCase {
             Session session = config.newSession(c);
             WrapperAdapter template = session.wrapper();
 
-            template.getJdbc().execute("drop table if exists `project`");
-            template.getJdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
+            template.jdbc().execute("drop table if exists `project`");
+            template.jdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
 
             Project1 project1 = newProject("abc1", Arrays.asList("CN", "EN"));
             Project1 project2 = newProject("abc2", Arrays.asList("CN", "EN"));
             Project1 project3 = newProject("abc3", Arrays.asList("JP", "EN"));
-            assert template.insertByEntity(Project1.class).applyEntity(project1, project2, project3).executeSumResult() == 3;
+            assert template.insert(Project1.class).applyEntity(project1, project2, project3).executeSumResult() == 3;
 
             List<Object> list = session.queryStatement("resultMap_test.selectByJSON", project1);
             assert list.size() == 2;

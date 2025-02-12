@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.wrapper.support.freedom;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.wrapper.support.map.SelectWrapperForMap;
 
 /**

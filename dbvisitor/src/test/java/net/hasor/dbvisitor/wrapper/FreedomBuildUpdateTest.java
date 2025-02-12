@@ -18,9 +18,9 @@ import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.RuleRegistry;
+import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.junit.Test;
@@ -51,7 +51,7 @@ public class FreedomBuildUpdateTest {
     @Test
     public void updateBuilder_bad_1() {
         try {
-            MapUpdateWrapper lambdaUpdate = newLambda().freedomUpdate("user_info");
+            MapUpdateWrapper lambdaUpdate = newLambda().updateFreedom("user_info");
             assert lambdaUpdate.getBoundSql() == null;
             lambdaUpdate.doUpdate();
             assert false;
@@ -60,14 +60,14 @@ public class FreedomBuildUpdateTest {
         }
 
         try {
-            newLambda().freedomUpdate("user_info").updateToSample(null);
+            newLambda().updateFreedom("user_info").updateToSample(null);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().contains("newValue is null.");
         }
 
         try {
-            MapUpdateWrapper lambdaUpdate = newLambda().freedomUpdate("user_info")//
+            MapUpdateWrapper lambdaUpdate = newLambda().updateFreedom("user_info")//
                     .updateRow(new HashMap<>());
             lambdaUpdate.doUpdate();
             assert false;
@@ -78,7 +78,7 @@ public class FreedomBuildUpdateTest {
 
     @Test
     public void updateBuilder_bad_2() throws SQLException {
-        MapUpdateWrapper lambdaUpdate = newLambda().freedomUpdate("user_info");
+        MapUpdateWrapper lambdaUpdate = newLambda().updateFreedom("user_info");
         lambdaUpdate.allowEmptyWhere();
 
         try {
@@ -96,7 +96,7 @@ public class FreedomBuildUpdateTest {
         map.put("password", "pwd");
         map.put("abc", "pwd2");
 
-        MapUpdateWrapper lambdaUpdate = newLambda().freedomUpdate("user_info");
+        MapUpdateWrapper lambdaUpdate = newLambda().updateFreedom("user_info");
         lambdaUpdate.and(qb -> qb.eq("seq", 123)).updateToSample(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -115,7 +115,7 @@ public class FreedomBuildUpdateTest {
         map.put("password", "pwd");
         map.put("abc", "pwd2");
 
-        MapUpdateWrapper lambdaUpdate = newLambda().freedomUpdate("user_info");
+        MapUpdateWrapper lambdaUpdate = newLambda().updateFreedom("user_info");
         lambdaUpdate.and(qb -> qb.eq("seq", 123)).updateToSample(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -134,7 +134,7 @@ public class FreedomBuildUpdateTest {
         map.put("password", "pwd");
         map.put("abc", "pwd");
 
-        MapUpdateWrapper lambdaUpdate = newLambda().freedomUpdate("user_info");
+        MapUpdateWrapper lambdaUpdate = newLambda().updateFreedom("user_info");
         lambdaUpdate.eq("loginName", "admin").and().eq("password", "pass").updateRow(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -158,7 +158,7 @@ public class FreedomBuildUpdateTest {
         setValue.put("createTime", new Date());
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql1 = lambdaTemplate.freedomUpdate("user_info").eqBySampleMap(whereValue).updateToSampleMap(setValue).getBoundSql();
+        BoundSql boundSql1 = lambdaTemplate.updateFreedom("user_info").eqBySampleMap(whereValue).updateToSampleMap(setValue).getBoundSql();
         assert boundSql1.getSqlString().equals("UPDATE user_info SET userName = ? , name = ? , abc = ? , createTime = ? WHERE ( id = ? AND userName = ? AND name = ? AND abc = ? )");
         assert ((SqlArg) boundSql1.getArgs()[0]).getValue().equals("mali2");
         assert ((SqlArg) boundSql1.getArgs()[1]).getValue().equals("321");

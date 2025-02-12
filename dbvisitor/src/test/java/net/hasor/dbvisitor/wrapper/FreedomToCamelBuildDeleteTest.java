@@ -18,9 +18,9 @@ import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.RuleRegistry;
+import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.wrapper.dto.AnnoUserInfoDTO;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class FreedomToCamelBuildDeleteTest {
 
     @Test
     public void deleteBuilder_1() throws SQLException {
-        MapDeleteWrapper lambda = newLambda().freedomDelete("user_info");
+        MapDeleteWrapper lambda = newLambda().deleteFreedom("user_info");
         lambda.allowEmptyWhere();
 
         BoundSql boundSql1 = lambda.getBoundSql();
@@ -56,7 +56,7 @@ public class FreedomToCamelBuildDeleteTest {
 
     @Test
     public void deleteBuilder_2() throws SQLException {
-        MapDeleteWrapper lambda = newLambda().freedomDelete("user_info");
+        MapDeleteWrapper lambda = newLambda().deleteFreedom("user_info");
         lambda.and(queryBuilder -> {
             queryBuilder.eq("seq", 123);
         });
@@ -69,7 +69,7 @@ public class FreedomToCamelBuildDeleteTest {
 
     @Test
     public void deleteBuilder_3() throws SQLException {
-        MapDeleteWrapper lambda = newLambda().freedomDelete("user_info");
+        MapDeleteWrapper lambda = newLambda().deleteFreedom("user_info");
         lambda.eq("loginName", "admin").and().eq("loginPassword", "pass");
 
         BoundSql boundSql1 = lambda.getBoundSql();
@@ -84,7 +84,7 @@ public class FreedomToCamelBuildDeleteTest {
         userInfo.setPassword("pwd");
 
         //case 1
-        MapDeleteWrapper delCase1 = newLambda().freedomDelete("user_info");
+        MapDeleteWrapper delCase1 = newLambda().deleteFreedom("user_info");
         boolean isZyc1 = userInfo.getName().equals("zyc");
         delCase1.eq(isZyc1, "loginName", userInfo.getLoginName())//
                 .eq(isZyc1, "loginPassword", userInfo.getPassword())//
@@ -98,7 +98,7 @@ public class FreedomToCamelBuildDeleteTest {
 
         // case 2
         userInfo.setName("cyz");
-        MapDeleteWrapper delCase2 = newLambda().freedomDelete("user_info");
+        MapDeleteWrapper delCase2 = newLambda().deleteFreedom("user_info");
         boolean isZyc2 = userInfo.getName().equals("zyc");
         delCase2.eq(isZyc2, "loginName", userInfo.getLoginName())//
                 .eq(isZyc2, "loginPassword", userInfo.getPassword())//

@@ -1,6 +1,6 @@
 package net.hasor.realdb.oracle;
-import net.hasor.dbvisitor.template.JdbcHelper;
 import net.hasor.dbvisitor.mapping.Options;
+import net.hasor.dbvisitor.jdbc.JdbcHelper;
 import net.hasor.dbvisitor.wrapper.InsertWrapper;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import net.hasor.test.dto.UserInfo2;
@@ -15,12 +15,12 @@ public class OraclePerformanceTest {
     private void reinit(Connection con) throws SQLException {
         WrapperAdapter wrapper = new WrapperAdapter(con);
         try {
-            wrapper.getJdbc().execute("drop table user_info");
+            wrapper.jdbc().execute("drop table user_info");
         } catch (Exception e) {
             e.printStackTrace();
         }
         try {
-            wrapper.getJdbc().loadSQL("/dbvisitor_coverage/user_info_for_oracle.sql");
+            wrapper.jdbc().loadSQL("/dbvisitor_coverage/user_info_for_oracle.sql");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -29,7 +29,7 @@ public class OraclePerformanceTest {
     private void initData(Connection con, int count) throws SQLException {
         con.setAutoCommit(false);
         WrapperAdapter wrapper = new WrapperAdapter(con);
-        InsertWrapper<UserInfo2> insert = wrapper.insertByEntity(UserInfo2.class);
+        InsertWrapper<UserInfo2> insert = wrapper.insert(UserInfo2.class);
         for (int i = 0; i < count; i++) {
             UserInfo2 tbUser = new UserInfo2();
             //tbUser.setUid("id_" + i);
@@ -55,14 +55,14 @@ public class OraclePerformanceTest {
         try (Connection c = DsUtils.oracleConn()) {
             Options o = Options.of().defaultDialect(JdbcHelper.findDialect(c));
             WrapperAdapter wrapper = new WrapperAdapter(c, o);
-            wrapper.getJdbc().setPrintStmtError(true);
+            wrapper.jdbc().setPrintStmtError(true);
 
             reinit(c);
             initData(c, 2000);
 
-            int tbUsersCount = wrapper.queryByEntity(UserInfo2.class).queryForCount();
+            int tbUsersCount = wrapper.query(UserInfo2.class).queryForCount();
             System.out.println("query for list/map.");
-            wrapper.queryByEntity(UserInfo2.class).queryForMapList();
+            wrapper.query(UserInfo2.class).queryForMapList();
             assert tbUsersCount == 2000;
             System.out.println("cost: " + (System.currentTimeMillis() - t));
         }
@@ -78,9 +78,9 @@ public class OraclePerformanceTest {
             reinit(c);
             initData(c, 1000);
 
-            int tbUsersCount = wrapper.queryByEntity(UserInfo2.class).queryForCount();
+            int tbUsersCount = wrapper.query(UserInfo2.class).queryForCount();
             System.out.println("query for list/map.");
-            wrapper.queryByEntity(UserInfo2.class).queryForMapList();
+            wrapper.query(UserInfo2.class).queryForMapList();
             assert tbUsersCount == 1000;
             System.out.println("cost: " + (System.currentTimeMillis() - t));
         }

@@ -15,9 +15,9 @@
  */
 package net.hasor.dbvisitor.mapper;
 
+import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
 import net.hasor.dbvisitor.mapper.def.*;
 import net.hasor.dbvisitor.mapper.dto.*;
-import net.hasor.dbvisitor.template.jdbc.mapper.BeanMappingRowMapper;
 import org.junit.Test;
 
 /**

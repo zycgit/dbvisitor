@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.dto;
-import net.hasor.dbvisitor.template.ResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

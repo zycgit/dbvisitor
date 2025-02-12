@@ -18,9 +18,9 @@ import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.RuleRegistry;
+import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.wrapper.dto.UserInfo;
@@ -52,7 +52,7 @@ public class BuildPojoUpdateTest {
     @Test
     public void updateBuilder_bad_1() {
         try {
-            EntityUpdateWrapper<UserInfo> lambdaUpdate = newLambda().updateByEntity(UserInfo.class);
+            EntityUpdateWrapper<UserInfo> lambdaUpdate = newLambda().update(UserInfo.class);
             assert lambdaUpdate.getBoundSql() == null;
             lambdaUpdate.doUpdate();
             assert false;
@@ -61,14 +61,14 @@ public class BuildPojoUpdateTest {
         }
 
         try {
-            newLambda().updateByEntity(UserInfo.class).updateToSample(null);
+            newLambda().update(UserInfo.class).updateToSample(null);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().contains("newValue is null.");
         }
 
         try {
-            EntityUpdateWrapper<UserInfo> lambdaUpdate = newLambda().updateByEntity(UserInfo.class).updateRow(new UserInfo());
+            EntityUpdateWrapper<UserInfo> lambdaUpdate = newLambda().update(UserInfo.class).updateRow(new UserInfo());
             lambdaUpdate.doUpdate();
             assert false;
         } catch (Exception e) {
@@ -79,7 +79,7 @@ public class BuildPojoUpdateTest {
     @Test
     public void updateBuilder_bad_1_2map() {
         try {
-            MapUpdateWrapper lambdaUpdate = newLambda().updateByEntity(UserInfo.class).asMap();
+            MapUpdateWrapper lambdaUpdate = newLambda().update(UserInfo.class).asMap();
             assert lambdaUpdate.getBoundSql() == null;
             lambdaUpdate.doUpdate();
             assert false;
@@ -88,14 +88,14 @@ public class BuildPojoUpdateTest {
         }
 
         try {
-            newLambda().updateByEntity(UserInfo.class).updateToSample(null);
+            newLambda().update(UserInfo.class).updateToSample(null);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().contains("newValue is null.");
         }
 
         try {
-            MapUpdateWrapper lambdaUpdate = newLambda().updateByEntity(UserInfo.class).asMap()//
+            MapUpdateWrapper lambdaUpdate = newLambda().update(UserInfo.class).asMap()//
                     .updateRow(new HashMap<>());
             lambdaUpdate.doUpdate();
             assert false;
@@ -106,7 +106,7 @@ public class BuildPojoUpdateTest {
 
     @Test
     public void updateBuilder_bad_2() throws SQLException {
-        EntityUpdateWrapper<UserInfo> lambdaUpdate = newLambda().updateByEntity(UserInfo.class);
+        EntityUpdateWrapper<UserInfo> lambdaUpdate = newLambda().update(UserInfo.class);
         lambdaUpdate.allowEmptyWhere();
 
         try {
@@ -119,7 +119,7 @@ public class BuildPojoUpdateTest {
 
     @Test
     public void updateBuilder_bad_2_2map() throws SQLException {
-        MapUpdateWrapper lambdaUpdate = newLambda().updateByEntity(UserInfo.class).asMap();
+        MapUpdateWrapper lambdaUpdate = newLambda().update(UserInfo.class).asMap();
         lambdaUpdate.allowEmptyWhere();
 
         try {
@@ -135,7 +135,7 @@ public class BuildPojoUpdateTest {
         UserInfo data = new UserInfo();
         data.setLoginName("acc");
         data.setPassword("pwd");
-        EntityUpdateWrapper<UserInfo> lambdaUpdate = newLambda().updateByEntity(UserInfo.class);
+        EntityUpdateWrapper<UserInfo> lambdaUpdate = newLambda().update(UserInfo.class);
         lambdaUpdate.and(qb -> qb.eq(UserInfo::getSeq, 123)).updateToSample(data);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -153,7 +153,7 @@ public class BuildPojoUpdateTest {
         map.put("password", "pwd");
         map.put("abc", "pwd");
 
-        MapUpdateWrapper lambdaUpdate = newLambda().updateByEntity(UserInfo.class).asMap();
+        MapUpdateWrapper lambdaUpdate = newLambda().update(UserInfo.class).asMap();
         lambdaUpdate.and(qb -> qb.eq("seq", 123)).updateToSample(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -169,7 +169,7 @@ public class BuildPojoUpdateTest {
         UserInfo data = new UserInfo();
         data.setLoginName("acc");
         data.setPassword("pwd");
-        EntityUpdateWrapper<UserInfo> lambdaUpdate = newLambda().updateByEntity(UserInfo.class);
+        EntityUpdateWrapper<UserInfo> lambdaUpdate = newLambda().update(UserInfo.class);
         lambdaUpdate.and(qb -> qb.eq(UserInfo::getSeq, 123)).updateToSample(data);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -187,7 +187,7 @@ public class BuildPojoUpdateTest {
         map.put("password", "pwd");
         map.put("abc", "pwd");
 
-        MapUpdateWrapper lambdaUpdate = newLambda().updateByEntity(UserInfo.class).asMap();
+        MapUpdateWrapper lambdaUpdate = newLambda().update(UserInfo.class).asMap();
         lambdaUpdate.and(qb -> qb.eq("seq", 123)).updateToSample(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -204,7 +204,7 @@ public class BuildPojoUpdateTest {
         data.setLoginName("acc");
         data.setPassword("pwd");
 
-        EntityUpdateWrapper<UserInfo> lambdaUpdate = newLambda().updateByEntity(UserInfo.class);
+        EntityUpdateWrapper<UserInfo> lambdaUpdate = newLambda().update(UserInfo.class);
         lambdaUpdate.eq(UserInfo::getLoginName, "admin").and().eq(UserInfo::getPassword, "pass").updateRow(data);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -218,7 +218,7 @@ public class BuildPojoUpdateTest {
         map.put("password", "pwd");
         map.put("abc", "pwd");
 
-        MapUpdateWrapper lambdaUpdate = newLambda().updateByEntity(UserInfo.class).asMap();
+        MapUpdateWrapper lambdaUpdate = newLambda().update(UserInfo.class).asMap();
         lambdaUpdate.eq("loginName", "admin").and().eq("password", "pass").updateRow(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -242,7 +242,7 @@ public class BuildPojoUpdateTest {
         setValue.put("create_time", new Date());
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql1 = lambdaTemplate.updateByEntity(UserInfo.class).eqBySampleMap(whereValue).updateToSampleMap(setValue).getBoundSql();
+        BoundSql boundSql1 = lambdaTemplate.update(UserInfo.class).eqBySampleMap(whereValue).updateToSampleMap(setValue).getBoundSql();
         assert boundSql1.getSqlString().equals("UPDATE UserInfo SET name = ? WHERE ( name = ? )");
         assert ((SqlArg) boundSql1.getArgs()[0]).getValue().equals("321");
         assert ((SqlArg) boundSql1.getArgs()[1]).getValue().equals("123");
@@ -265,7 +265,7 @@ public class BuildPojoUpdateTest {
         setValue.put("create_time", new Date());
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql1 = lambdaTemplate.updateByEntity(UserInfo.class).asMap().eqBySampleMap(whereValue).updateToSampleMap(setValue).getBoundSql();
+        BoundSql boundSql1 = lambdaTemplate.update(UserInfo.class).asMap().eqBySampleMap(whereValue).updateToSampleMap(setValue).getBoundSql();
         assert boundSql1.getSqlString().equals("UPDATE UserInfo SET name = ? WHERE ( name = ? )");
         assert ((SqlArg) boundSql1.getArgs()[0]).getValue().equals("321");
         assert ((SqlArg) boundSql1.getArgs()[1]).getValue().equals("123");

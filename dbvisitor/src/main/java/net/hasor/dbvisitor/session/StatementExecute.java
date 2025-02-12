@@ -17,10 +17,10 @@ package net.hasor.dbvisitor.session;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.jdbc.extractor.PreparedMultipleResultSetExtractor;
 import net.hasor.dbvisitor.mapper.ResultSetType;
 import net.hasor.dbvisitor.mapper.def.DqlConfig;
 import net.hasor.dbvisitor.mapper.def.SqlConfig;
-import net.hasor.dbvisitor.template.jdbc.extractor.PreparedMultipleResultSetExtractor;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

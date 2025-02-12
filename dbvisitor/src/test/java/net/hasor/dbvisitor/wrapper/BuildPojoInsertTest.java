@@ -19,9 +19,9 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.RuleRegistry;
+import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.wrapper.dto.UserInfo;
 import org.junit.Test;
@@ -66,7 +66,7 @@ public class BuildPojoInsertTest {
 
     @Test
     public void insert_1() throws SQLException {
-        InsertWrapper<UserInfo> lambdaInsert = newLambda().insertByEntity(UserInfo.class);
+        InsertWrapper<UserInfo> lambdaInsert = newLambda().insert(UserInfo.class);
         lambdaInsert.applyMap(mapForData1());
 
         BoundSql boundSql1 = lambdaInsert.getBoundSql();
@@ -78,7 +78,7 @@ public class BuildPojoInsertTest {
     public void insert_1_2map() throws SQLException {
         Map<String, Object> data = mapForData1();
 
-        InsertWrapper<Map<String, Object>> lambdaInsert = newLambda().insertByEntity(UserInfo.class).asMap();
+        InsertWrapper<Map<String, Object>> lambdaInsert = newLambda().insert(UserInfo.class).asMap();
         lambdaInsert.applyMap(data);
 
         BoundSql boundSql1 = lambdaInsert.getBoundSql();
@@ -88,7 +88,7 @@ public class BuildPojoInsertTest {
 
     @Test
     public void insert_duplicateKeyBlock_1() throws SQLException {
-        InsertWrapper<UserInfo> lambdaInsert = newLambda().insertByEntity(UserInfo.class);
+        InsertWrapper<UserInfo> lambdaInsert = newLambda().insert(UserInfo.class);
         lambdaInsert.applyMap(mapForData1());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Into);
 
@@ -99,7 +99,7 @@ public class BuildPojoInsertTest {
 
     @Test
     public void insert_duplicateKeyBlock_1_2map() throws SQLException {
-        InsertWrapper<Map<String, Object>> lambdaInsert = newLambda().insertByEntity(UserInfo.class).asMap();
+        InsertWrapper<Map<String, Object>> lambdaInsert = newLambda().insert(UserInfo.class).asMap();
         lambdaInsert.applyMap(mapForData1());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Into);
 
@@ -110,7 +110,7 @@ public class BuildPojoInsertTest {
 
     @Test
     public void insert_duplicateKeyUpdate_1() throws SQLException {
-        InsertWrapper<UserInfo> lambdaInsert = newLambda().insertByEntity(UserInfo.class);
+        InsertWrapper<UserInfo> lambdaInsert = newLambda().insert(UserInfo.class);
         lambdaInsert.applyMap(mapForData1());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Update);
 
@@ -121,7 +121,7 @@ public class BuildPojoInsertTest {
 
     @Test
     public void insert_duplicateKeyUpdate_1_2map() throws SQLException {
-        InsertWrapper<Map<String, Object>> lambdaInsert = newLambda().insertByEntity(UserInfo.class).asMap();
+        InsertWrapper<Map<String, Object>> lambdaInsert = newLambda().insert(UserInfo.class).asMap();
         lambdaInsert.applyMap(mapForData1());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Update);
 
@@ -132,7 +132,7 @@ public class BuildPojoInsertTest {
 
     @Test
     public void insert_duplicateKeyIgnore_1() throws SQLException {
-        InsertWrapper<UserInfo> lambdaInsert = newLambda().insertByEntity(UserInfo.class);
+        InsertWrapper<UserInfo> lambdaInsert = newLambda().insert(UserInfo.class);
         lambdaInsert.applyMap(mapForData1());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Ignore);
 
@@ -143,7 +143,7 @@ public class BuildPojoInsertTest {
 
     @Test
     public void insert_duplicateKeyIgnore_1_2map() throws SQLException {
-        InsertWrapper<Map<String, Object>> lambdaInsert = newLambda().insertByEntity(UserInfo.class).asMap();
+        InsertWrapper<Map<String, Object>> lambdaInsert = newLambda().insert(UserInfo.class).asMap();
         lambdaInsert.applyMap(mapForData1());
         lambdaInsert.onDuplicateStrategy(DuplicateKeyStrategy.Ignore);
 

@@ -3,9 +3,9 @@ import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.ref.BeanMap;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.session.dto.AutoIncrID;
 import net.hasor.dbvisitor.session.dto.ProxyStatementMapper;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 

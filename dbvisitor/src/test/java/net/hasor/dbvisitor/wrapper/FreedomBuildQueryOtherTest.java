@@ -17,9 +17,9 @@ package net.hasor.dbvisitor.wrapper;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.RuleRegistry;
+import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.junit.Test;
 
@@ -46,7 +46,7 @@ public class FreedomBuildQueryOtherTest {
 
     @Test
     public void queryBuilder_apply_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eq("loginName", "a")//
                 .eq("loginName", "b")//
                 .apply("limit ?", 123).getBoundSql();
@@ -58,7 +58,7 @@ public class FreedomBuildQueryOtherTest {
 
     @Test
     public void queryBuilder_eq_sample_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eqBySample(new HashMap<>()).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info");
         assert boundSql1.getArgs().length == 0;
@@ -70,7 +70,7 @@ public class FreedomBuildQueryOtherTest {
         map.put("loginName", "abc");
         map.put("seq", 1);
 
-        BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eqBySample(map).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE ( loginName = ? AND seq = ? )");
         assert boundSql1.getArgs()[0].equals("abc");
@@ -79,14 +79,14 @@ public class FreedomBuildQueryOtherTest {
 
     @Test
     public void queryBuilder_group_by_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eq("loginName", "a").eq("loginName", "b")//
                 .groupBy("seq").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT seq FROM user_info WHERE loginName = ? AND loginName = ? GROUP BY seq");
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
 
-        BoundSql boundSql2 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql2 = newLambda().queryFreedom("user_info")//
                 .eq("loginName", "a")//
                 .eq("loginName", "b")//
                 .apply("limit 1")//
@@ -98,7 +98,7 @@ public class FreedomBuildQueryOtherTest {
     @Test
     public void queryBuilder_group_by_2() throws SQLException {
         try {
-            newLambda().freedomQuery("user_info")//
+            newLambda().queryFreedom("user_info")//
                     .eq("loginName", "a")//
                     .eq("loginName", "b")//
                     .apply("limit 1")//
@@ -110,7 +110,7 @@ public class FreedomBuildQueryOtherTest {
         }
 
         try {
-            newLambda().freedomQuery("user_info")//
+            newLambda().queryFreedom("user_info")//
                     .eq("loginName", "a")//
                     .eq("loginName", "b")//
                     .apply("limit 1")//
@@ -122,7 +122,7 @@ public class FreedomBuildQueryOtherTest {
         }
 
         try {
-            newLambda().freedomQuery("user_info")//
+            newLambda().queryFreedom("user_info")//
                     .eq("loginName", "a")//
                     .eq("loginName", "b")//
                     .apply("limit 1")//
@@ -137,34 +137,34 @@ public class FreedomBuildQueryOtherTest {
 
     @Test
     public void queryBuilder_order_by_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eq("loginName", "a")//
                 .asc("loginName").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE loginName = ? ORDER BY loginName ASC");
         assert boundSql1.getArgs()[0].equals("a");
 
-        BoundSql boundSql2 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql2 = newLambda().queryFreedom("user_info")//
                 .eq("loginName", "a")//
                 .asc("loginName").asc("seq")//
                 .getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE loginName = ? ORDER BY loginName ASC , seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
 
-        BoundSql boundSql3 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql3 = newLambda().queryFreedom("user_info")//
                 .eq("loginName", "a")//
                 .desc("loginName")//
                 .getBoundSql();
         assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE loginName = ? ORDER BY loginName DESC");
         assert boundSql3.getArgs()[0].equals("a");
 
-        BoundSql boundSql4 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql4 = newLambda().queryFreedom("user_info")//
                 .eq("loginName", "a")//
                 .asc("seq").desc("loginName")//
                 .getBoundSql();
         assert boundSql4.getSqlString().equals("SELECT * FROM user_info WHERE loginName = ? ORDER BY seq ASC , loginName DESC");
         assert boundSql4.getArgs()[0].equals("a");
 
-        BoundSql boundSql5 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql5 = newLambda().queryFreedom("user_info")//
                 .eq("loginName", "a")//
                 .orderBy("seq")//
                 .getBoundSql();
@@ -174,7 +174,7 @@ public class FreedomBuildQueryOtherTest {
 
     @Test
     public void queryBuilder_select_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().freedomQuery("user_info").applySelect("a, b, c, d")//
+        BoundSql boundSql1 = newLambda().queryFreedom("user_info").applySelect("a, b, c, d")//
                 .eq("seq", 1)//
                 .or()//
                 .rangeBetween("loginName", 2, 3)//
@@ -188,7 +188,7 @@ public class FreedomBuildQueryOtherTest {
 
     @Test
     public void queryBuilder_select_2() throws SQLException {
-        BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .selectAdd("loginName").selectAdd("seq")//
                 .eq("seq", 1)//
                 .or()//
@@ -203,7 +203,7 @@ public class FreedomBuildQueryOtherTest {
 
     @Test
     public void queryBuilder_select_3() throws SQLException {
-        BoundSql boundSql1 = newLambda().freedomQuery("user_info")//
+        BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .select("loginName")//
                 .eq("seq", 1)//
                 .or()//
@@ -219,7 +219,7 @@ public class FreedomBuildQueryOtherTest {
     @Test
     public void bad_1() throws SQLException {
         try {
-            newLambda().freedomQuery("user_info")//
+            newLambda().queryFreedom("user_info")//
                     .eq("loginName", "muhammad").apply("limit 1")//
                     .queryForMap();
             assert false;

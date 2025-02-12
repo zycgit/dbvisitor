@@ -14,29 +14,30 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.wrapper.core;
+import net.hasor.cobble.ExceptionUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
+import net.hasor.dbvisitor.jdbc.RowMapper;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.jdbc.extractor.BeanMappingResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.extractor.MapMappingResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
+import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
+import net.hasor.dbvisitor.jdbc.mapper.MapMappingRowMapper;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.template.ResultSetExtractor;
-import net.hasor.dbvisitor.template.RowCallbackHandler;
-import net.hasor.dbvisitor.template.RowMapper;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.template.jdbc.extractor.BeanMappingResultSetExtractor;
-import net.hasor.dbvisitor.template.jdbc.extractor.MapMappingResultSetExtractor;
-import net.hasor.dbvisitor.template.jdbc.mapper.BeanMappingRowMapper;
-import net.hasor.dbvisitor.template.jdbc.mapper.ColumnMapRowMapper;
-import net.hasor.dbvisitor.template.jdbc.mapper.MapMappingRowMapper;
 import net.hasor.dbvisitor.wrapper.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.wrapper.segment.Segment;
 import net.hasor.dbvisitor.wrapper.segment.SqlKeyword;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 
 /**
  * 提供 lambda query 基础能力。
@@ -365,91 +366,91 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
         return new BoundSql.BoundSqlObj(sqlQuery, args);
     }
 
-    //    @Override
-    //    public <D> Iterator<D> iteratorForLimit(long limit, int batchSize, Function<T, D> transform) {
-    //        Page pageInfo = new PageObjectForLambda(batchSize, this::queryForLargeCount);
-    //        pageInfo.setCurrentPage(0);
-    //        pageInfo.setPageNumberOffset(0);
-    //        return new StreamIterator<>(limit, pageInfo, this, transform, null);
-    //    }
-    //
-    //    @Override
-    //    public <D> Iterator<D> iteratorByBatch(int batchSize, Function<T, D> transform) {
-    //        Page pageInfo = new PageObjectForLambda(batchSize, this::queryForLargeCount);
-    //        pageInfo.setCurrentPage(0);
-    //        pageInfo.setPageNumberOffset(0);
-    //        return new StreamIterator<>(-1, pageInfo, this, transform, null);
-    //    }
-    //
-    //    private static class StreamIterator<R, T, P, D> implements Iterator<D> {
-    //        private final Page                          pageInfo;
-    //        private final AbstractSelectLambda<R, T, P> lambda;
-    //        private final RowMapper<T>                  rowMapper;
-    //        //
-    //        private       Iterator<T>                   currentIterator;
-    //        private final Function<T, D>                transform;
-    //        private final AtomicLong                    limitCounter;
-    //        private       boolean                       eof = false;
-    //
-    //        public StreamIterator(long limit, Page pageInfo, AbstractSelectLambda<R, T, P> lambda, Function<T, D> transform, RowMapper<T> rowMapper) {
-    //            this.limitCounter = limit < 0 ? null : new AtomicLong(limit);
-    //            this.pageInfo = pageInfo;
-    //            this.lambda = lambda;
-    //            this.transform = transform;
-    //            this.rowMapper = rowMapper;
-    //        }
-    //
-    //        private synchronized void fetchData() {
-    //            try {
-    //                this.lambda.usePage(this.pageInfo);
-    //                List<T> queryResult;
-    //                if (this.rowMapper == null) {
-    //                    queryResult = this.lambda.queryForList();
-    //                } else {
-    //                    queryResult = this.lambda.query(this.rowMapper);
-    //                }
-    //                if (queryResult == null || queryResult.isEmpty()) {
-    //                    this.eof = true;
-    //                    this.currentIterator = Collections.emptyIterator();
-    //                } else {
-    //                    this.currentIterator = queryResult.iterator();
-    //                }
-    //            } catch (SQLException e) {
-    //                throw ExceptionUtils.toRuntime(e);
-    //            }
-    //        }
-    //
-    //        @Override
-    //        public synchronized boolean hasNext() {
-    //            if (this.limitCounter != null && this.limitCounter.get() <= 0) {
-    //                return false;
-    //            }
-    //
-    //            if (this.currentIterator == null) {
-    //                this.fetchData();
-    //            }
-    //
-    //            if (this.currentIterator.hasNext()) {
-    //                return true;
-    //            } else if (!this.eof) {
-    //                this.pageInfo.nextPage();
-    //                this.fetchData();
-    //                return this.currentIterator.hasNext();
-    //            } else {
-    //                return false;
-    //            }
-    //        }
-    //
-    //        @Override
-    //        public synchronized D next() {
-    //            if (this.hasNext()) {
-    //                if (this.limitCounter != null) {
-    //                    this.limitCounter.decrementAndGet();
-    //                }
-    //                return this.transform.apply(this.currentIterator.next());
-    //            } else {
-    //                throw new NoSuchElementException();
-    //            }
-    //        }
-    //    }
+    @Override
+    public <D> Iterator<D> iteratorForLimit(long limit, int batchSize, Function<T, D> transform) {
+        Page pageInfo = new PageObjectForWrapper(batchSize, this::queryForLargeCount);
+        pageInfo.setCurrentPage(0);
+        pageInfo.setPageNumberOffset(0);
+        return new StreamIterator<>(limit, pageInfo, this, transform, null);
+    }
+
+    @Override
+    public <D> Iterator<D> iteratorByBatch(int batchSize, Function<T, D> transform) {
+        Page pageInfo = new PageObjectForWrapper(batchSize, this::queryForLargeCount);
+        pageInfo.setCurrentPage(0);
+        pageInfo.setPageNumberOffset(0);
+        return new StreamIterator<>(-1, pageInfo, this, transform, null);
+    }
+
+    private static class StreamIterator<R, T, P, D> implements Iterator<D> {
+        private final Page                           pageInfo;
+        private final AbstractSelectWrapper<R, T, P> wrapper;
+        private final RowMapper<T>                   rowMapper;
+        //
+        private       Iterator<T>                    currentIterator;
+        private final Function<T, D>                 transform;
+        private final AtomicLong                     limitCounter;
+        private       boolean                        eof = false;
+
+        public StreamIterator(long limit, Page pageInfo, AbstractSelectWrapper<R, T, P> wrapper, Function<T, D> transform, RowMapper<T> rowMapper) {
+            this.limitCounter = limit < 0 ? null : new AtomicLong(limit);
+            this.pageInfo = pageInfo;
+            this.wrapper = wrapper;
+            this.transform = transform;
+            this.rowMapper = rowMapper;
+        }
+
+        private synchronized void fetchData() {
+            try {
+                this.wrapper.usePage(this.pageInfo);
+                List<T> queryResult;
+                if (this.rowMapper == null) {
+                    queryResult = this.wrapper.queryForList();
+                } else {
+                    queryResult = this.wrapper.queryForList(this.rowMapper);
+                }
+                if (queryResult == null || queryResult.isEmpty()) {
+                    this.eof = true;
+                    this.currentIterator = Collections.emptyIterator();
+                } else {
+                    this.currentIterator = queryResult.iterator();
+                }
+            } catch (SQLException e) {
+                throw ExceptionUtils.toRuntime(e);
+            }
+        }
+
+        @Override
+        public synchronized boolean hasNext() {
+            if (this.limitCounter != null && this.limitCounter.get() <= 0) {
+                return false;
+            }
+
+            if (this.currentIterator == null) {
+                this.fetchData();
+            }
+
+            if (this.currentIterator.hasNext()) {
+                return true;
+            } else if (!this.eof) {
+                this.pageInfo.nextPage();
+                this.fetchData();
+                return this.currentIterator.hasNext();
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public synchronized D next() {
+            if (this.hasNext()) {
+                if (this.limitCounter != null) {
+                    this.limitCounter.decrementAndGet();
+                }
+                return this.transform.apply(this.currentIterator.next());
+            } else {
+                throw new NoSuchElementException();
+            }
+        }
+    }
 }

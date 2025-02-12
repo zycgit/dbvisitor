@@ -17,9 +17,9 @@ package net.hasor.dbvisitor.wrapper;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.RuleRegistry;
+import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.wrapper.dto.UserInfo;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class BuildToCamelPojoQueryOtherTest {
 
     @Test
     public void queryBuilder_apply_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a")//
                 .eq(UserInfo::getLoginName, "b")//
                 .apply("limit ?", 123).getBoundSql();
@@ -59,7 +59,7 @@ public class BuildToCamelPojoQueryOtherTest {
 
     @Test
     public void queryBuilder_apply_1_2map() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class).asMap()//
                 .eq("loginName", "a")//
                 .eq("loginName", "b")//
                 .apply("limit ?", 123).getBoundSql();
@@ -72,7 +72,7 @@ public class BuildToCamelPojoQueryOtherTest {
 
     @Test
     public void queryBuilder_eq_sample_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class)//
                 .eqBySample(new UserInfo()).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info");
         assert boundSql1.getArgs().length == 0;
@@ -80,7 +80,7 @@ public class BuildToCamelPojoQueryOtherTest {
 
     @Test
     public void queryBuilder_eq_sample_1_2map() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class).asMap()//
                 .eqBySample(new HashMap<>()).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info");
         assert boundSql1.getArgs().length == 0;
@@ -92,7 +92,7 @@ public class BuildToCamelPojoQueryOtherTest {
         dto.setLoginName("abc");
         dto.setSeq(1);
 
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class)//
                 .eqBySample(dto).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE ( login_name = ? AND seq = ? )");
         assert boundSql1.getArgs()[0].equals("abc");
@@ -105,7 +105,7 @@ public class BuildToCamelPojoQueryOtherTest {
         map.put("loginName", "abc");
         map.put("seq", 1);
 
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class).asMap()//
                 .eqBySample(map).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE ( login_name = ? AND seq = ? )");
         assert boundSql1.getArgs()[0].equals("abc");
@@ -114,14 +114,14 @@ public class BuildToCamelPojoQueryOtherTest {
 
     @Test
     public void queryBuilder_group_by_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a").eq(UserInfo::getLoginName, "b")//
                 .groupBy(UserInfo::getSeq).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT seq FROM user_info WHERE login_name = ? AND login_name = ? GROUP BY seq");
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
 
-        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql2 = newLambda().query(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a")//
                 .eq(UserInfo::getLoginName, "b")//
                 .apply("limit 1")//
@@ -132,14 +132,14 @@ public class BuildToCamelPojoQueryOtherTest {
 
     @Test
     public void queryBuilder_group_by_1_map() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class).asMap()//
                 .eq("loginName", "a").eq("loginName", "b")//
                 .groupBy("seq").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT seq FROM user_info WHERE login_name = ? AND login_name = ? GROUP BY seq");
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
 
-        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql2 = newLambda().query(UserInfo.class).asMap()//
                 .eq("loginName", "a")//
                 .eq("loginName", "b")//
                 .apply("limit 1")//
@@ -151,7 +151,7 @@ public class BuildToCamelPojoQueryOtherTest {
     @Test
     public void queryBuilder_group_by_2() throws SQLException {
         try {
-            newLambda().queryByEntity(UserInfo.class)//
+            newLambda().query(UserInfo.class)//
                     .eq(UserInfo::getLoginName, "a")//
                     .eq(UserInfo::getLoginName, "b")//
                     .apply("limit 1")//
@@ -163,7 +163,7 @@ public class BuildToCamelPojoQueryOtherTest {
         }
 
         try {
-            newLambda().queryByEntity(UserInfo.class)//
+            newLambda().query(UserInfo.class)//
                     .eq(UserInfo::getLoginName, "a")//
                     .eq(UserInfo::getLoginName, "b")//
                     .apply("limit 1")//
@@ -175,7 +175,7 @@ public class BuildToCamelPojoQueryOtherTest {
         }
 
         try {
-            newLambda().queryByEntity(UserInfo.class)//
+            newLambda().query(UserInfo.class)//
                     .eq(UserInfo::getLoginName, "a")//
                     .eq(UserInfo::getLoginName, "b")//
                     .apply("limit 1")//
@@ -191,7 +191,7 @@ public class BuildToCamelPojoQueryOtherTest {
     @Test
     public void queryBuilder_group_by_2_map() throws SQLException {
         try {
-            newLambda().queryByEntity(UserInfo.class).asMap()//
+            newLambda().query(UserInfo.class).asMap()//
                     .eq("loginName", "a")//
                     .eq("loginName", "b")//
                     .apply("limit 1")//
@@ -203,7 +203,7 @@ public class BuildToCamelPojoQueryOtherTest {
         }
 
         try {
-            newLambda().queryByEntity(UserInfo.class).asMap()//
+            newLambda().query(UserInfo.class).asMap()//
                     .eq("loginName", "a")//
                     .eq("loginName", "b")//
                     .apply("limit 1")//
@@ -215,7 +215,7 @@ public class BuildToCamelPojoQueryOtherTest {
         }
 
         try {
-            newLambda().queryByEntity(UserInfo.class).asMap()//
+            newLambda().query(UserInfo.class).asMap()//
                     .eq("loginName", "a")//
                     .eq("loginName", "b")//
                     .apply("limit 1")//
@@ -230,34 +230,34 @@ public class BuildToCamelPojoQueryOtherTest {
 
     @Test
     public void queryBuilder_order_by_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a")//
                 .asc(UserInfo::getLoginName).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC");
         assert boundSql1.getArgs()[0].equals("a");
 
-        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql2 = newLambda().query(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a")//
                 .asc(UserInfo::getLoginName).asc(UserInfo::getSeq)//
                 .getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC , seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
 
-        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql3 = newLambda().query(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a")//
                 .desc(UserInfo::getLoginName)//
                 .getBoundSql();
         assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name DESC");
         assert boundSql3.getArgs()[0].equals("a");
 
-        BoundSql boundSql4 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql4 = newLambda().query(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a")//
                 .asc(UserInfo::getSeq).desc(UserInfo::getLoginName)//
                 .getBoundSql();
         assert boundSql4.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY seq ASC , login_name DESC");
         assert boundSql4.getArgs()[0].equals("a");
 
-        BoundSql boundSql5 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql5 = newLambda().query(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a")//
                 .orderBy(UserInfo::getSeq)//
                 .getBoundSql();
@@ -267,34 +267,34 @@ public class BuildToCamelPojoQueryOtherTest {
 
     @Test
     public void queryBuilder_order_by_1_2map() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class).asMap()//
                 .eq("loginName", "a")//
                 .asc("loginName").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC");
         assert boundSql1.getArgs()[0].equals("a");
 
-        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql2 = newLambda().query(UserInfo.class).asMap()//
                 .eq("loginName", "a")//
                 .asc("loginName").asc("seq")//
                 .getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC , seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
 
-        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql3 = newLambda().query(UserInfo.class).asMap()//
                 .eq("loginName", "a")//
                 .desc("loginName")//
                 .getBoundSql();
         assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name DESC");
         assert boundSql3.getArgs()[0].equals("a");
 
-        BoundSql boundSql4 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql4 = newLambda().query(UserInfo.class).asMap()//
                 .eq("loginName", "a")//
                 .asc("seq").desc("loginName")//
                 .getBoundSql();
         assert boundSql4.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY seq ASC , login_name DESC");
         assert boundSql4.getArgs()[0].equals("a");
 
-        BoundSql boundSql5 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql5 = newLambda().query(UserInfo.class).asMap()//
                 .eq("loginName", "a")//
                 .orderBy("seq")//
                 .getBoundSql();
@@ -304,7 +304,7 @@ public class BuildToCamelPojoQueryOtherTest {
 
     @Test
     public void queryBuilder_select_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).applySelect("a, b, c, d")//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class).applySelect("a, b, c, d")//
                 .eq(UserInfo::getSeq, 1)//
                 .or()//
                 .rangeBetween(UserInfo::getLoginName, 2, 3)//
@@ -318,7 +318,7 @@ public class BuildToCamelPojoQueryOtherTest {
 
     @Test
     public void queryBuilder_select_1_2map() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class).asMap()//
                 .applySelect("a, b, c, d")//
                 .eq("seq", 1)//
                 .or()//
@@ -333,7 +333,7 @@ public class BuildToCamelPojoQueryOtherTest {
 
     @Test
     public void queryBuilder_select_2() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class)//
                 .selectAdd(UserInfo::getLoginName).selectAdd(UserInfo::getSeq)//
                 .eq(UserInfo::getSeq, 1)//
                 .or()//
@@ -348,7 +348,7 @@ public class BuildToCamelPojoQueryOtherTest {
 
     @Test
     public void queryBuilder_select_2_2map() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class).asMap()//
                 .selectAdd("loginName").selectAdd("seq")//
                 .eq("seq", 1)//
                 .or()//
@@ -363,7 +363,7 @@ public class BuildToCamelPojoQueryOtherTest {
 
     @Test
     public void queryBuilder_select_3() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class)//
                 .select(UserInfo::getLoginName)//
                 .eq(UserInfo::getSeq, 1)//
                 .or()//
@@ -378,7 +378,7 @@ public class BuildToCamelPojoQueryOtherTest {
 
     @Test
     public void queryBuilder_select_3_2map() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class).asMap()//
                 .select("loginName")//
                 .eq("seq", 1)//
                 .or()//
@@ -394,7 +394,7 @@ public class BuildToCamelPojoQueryOtherTest {
     @Test
     public void bad_1() throws SQLException {
         try {
-            newLambda().queryByEntity(UserInfo.class)//
+            newLambda().query(UserInfo.class)//
                     .eq(UserInfo::getLoginName, "muhammad").apply("limit 1")//
                     .queryForMap();
             assert false;

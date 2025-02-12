@@ -19,7 +19,7 @@ import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.ref.BeanMap;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageResult;
-import net.hasor.dbvisitor.template.jdbc.DynamicConnection;
+import net.hasor.dbvisitor.jdbc.DynamicConnection;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -43,19 +43,23 @@ public class SessionPrototype {
         this.configuration = configuration;
     }
 
+    public Configuration getConfiguration() {
+        return this.configuration;
+    }
+
     /** create {@link Session} using {@link SessionPrototype} */
     public Session newSession(Connection conn) throws SQLException {
-        return new Session(conn, this, this.configuration);
+        return new Session(conn, this);
     }
 
     /** create {@link Session} using {@link SessionPrototype} */
     public Session newSession(DataSource ds) throws SQLException {
-        return new Session(ds, this, this.configuration);
+        return new Session(ds, this);
     }
 
     /** create {@link Session} using {@link SessionPrototype} */
     public Session newSession(DynamicConnection dc) throws SQLException {
-        return new Session(dc, this, this.configuration);
+        return new Session(dc, this);
     }
 
     public boolean hasStatement(String stId) {

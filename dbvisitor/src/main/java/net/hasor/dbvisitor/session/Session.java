@@ -18,12 +18,12 @@ import net.hasor.cobble.io.IOUtils;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageResult;
+import net.hasor.dbvisitor.jdbc.ConnectionCallback;
+import net.hasor.dbvisitor.jdbc.DynamicConnection;
+import net.hasor.dbvisitor.jdbc.core.JdbcAccessor;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.template.jdbc.ConnectionCallback;
-import net.hasor.dbvisitor.template.jdbc.DynamicConnection;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcAccessor;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import javax.sql.DataSource;
@@ -47,28 +47,28 @@ public class Session extends JdbcAccessor implements Closeable {
     private final WrapperAdapter   adapter;
     private final JdbcTemplate     jdbc;
 
-    public Session(Connection conn, SessionPrototype prototype, Configuration configuration) throws SQLException {
+    public Session(Connection conn, SessionPrototype prototype) throws SQLException {
         this.setConnection(Objects.requireNonNull(conn, "connection is null."));
         this.prototype = Objects.requireNonNull(prototype, "prototype is null.");
-        this.configuration = Objects.requireNonNull(configuration, "configuration is null.");
-        this.adapter = configuration.newWrapper(conn);
-        this.jdbc = this.adapter.getJdbc();
+        this.configuration = Objects.requireNonNull(prototype.getConfiguration(), "configuration is null.");
+        this.adapter = this.configuration.newWrapper(conn);
+        this.jdbc = this.adapter.jdbc();
     }
 
-    public Session(DynamicConnection dc, SessionPrototype prototype, Configuration configuration) throws SQLException {
+    public Session(DynamicConnection dc, SessionPrototype prototype) throws SQLException {
         this.setDynamic(Objects.requireNonNull(dc, "dynamicConnection is null."));
         this.prototype = Objects.requireNonNull(prototype, "prototype is null.");
-        this.configuration = Objects.requireNonNull(configuration, "configuration is null.");
-        this.adapter = configuration.newWrapper(dc);
-        this.jdbc = this.adapter.getJdbc();
+        this.configuration = Objects.requireNonNull(prototype.getConfiguration(), "configuration is null.");
+        this.adapter = this.configuration.newWrapper(dc);
+        this.jdbc = this.adapter.jdbc();
     }
 
-    public Session(DataSource ds, SessionPrototype prototype, Configuration configuration) throws SQLException {
+    public Session(DataSource ds, SessionPrototype prototype) throws SQLException {
         this.setDataSource(Objects.requireNonNull(ds, "dataSource is null."));
         this.prototype = Objects.requireNonNull(prototype, "prototype is null.");
-        this.configuration = Objects.requireNonNull(configuration, "configuration is null.");
-        this.adapter = configuration.newWrapper(ds);
-        this.jdbc = this.adapter.getJdbc();
+        this.configuration = Objects.requireNonNull(prototype.getConfiguration(), "configuration is null.");
+        this.adapter = this.configuration.newWrapper(ds);
+        this.jdbc = this.adapter.jdbc();
     }
 
     @Override

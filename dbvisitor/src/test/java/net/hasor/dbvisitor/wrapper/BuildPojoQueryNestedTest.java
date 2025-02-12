@@ -17,9 +17,9 @@ package net.hasor.dbvisitor.wrapper;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.RuleRegistry;
+import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.wrapper.dto.UserInfo;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class BuildPojoQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_or_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a").or(nestedQuery -> {
                     nestedQuery.ge(UserInfo::getCreateTime, 1); // >= ?
                     nestedQuery.le(UserInfo::getCreateTime, 2); // <= ?
@@ -55,7 +55,7 @@ public class BuildPojoQueryNestedTest {
         assert boundSql1.getArgs()[1].equals(1);
         assert boundSql1.getArgs()[2].equals(2);
 
-        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql2 = newLambda().query(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a").or().nested(nestedQuery -> {
                     nestedQuery.ge(UserInfo::getCreateTime, 1); // >= ?
                     nestedQuery.le(UserInfo::getCreateTime, 2); // <= ?
@@ -68,7 +68,7 @@ public class BuildPojoQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_or_1_2map() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class).asMap()//
                 .eq("loginName", "a").or(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
                     nestedQuery.le("createTime", 2); // <= ?
@@ -78,7 +78,7 @@ public class BuildPojoQueryNestedTest {
         assert boundSql1.getArgs()[1].equals(1);
         assert boundSql1.getArgs()[2].equals(2);
 
-        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql2 = newLambda().query(UserInfo.class).asMap()//
                 .eq("loginName", "a").or().nested(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
                     nestedQuery.le("createTime", 2); // <= ?
@@ -91,7 +91,7 @@ public class BuildPojoQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_or_2() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class)//
                 .nested(qc -> {
                     qc.eq(UserInfo::getName, "user-1").eq(UserInfo::getSeq, 1);
                 }).or(qc -> {
@@ -106,7 +106,7 @@ public class BuildPojoQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_or_2_2map() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class).asMap()//
                 .nested(qc -> {
                     qc.eq("name", "user-1").eq("seq", 1);
                 }).or(qc -> {
@@ -121,7 +121,7 @@ public class BuildPojoQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_and_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a").and(nestedQuery -> {
                     nestedQuery.ge(UserInfo::getCreateTime, 1); // >= ?
                     nestedQuery.le(UserInfo::getCreateTime, 2); // <= ?
@@ -132,7 +132,7 @@ public class BuildPojoQueryNestedTest {
         assert boundSql1.getArgs()[2].equals(2);
         assert boundSql1.getArgs()[3].equals(123);
 
-        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql2 = newLambda().query(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a").and().nested(nestedQuery -> {
                     nestedQuery.ge(UserInfo::getCreateTime, 1); // >= ?
                     nestedQuery.le(UserInfo::getCreateTime, 2); // <= ?
@@ -146,7 +146,7 @@ public class BuildPojoQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_and_1_2map() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class).asMap()//
                 .eq("loginName", "a").and(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
                     nestedQuery.le("createTime", 2); // <= ?
@@ -157,7 +157,7 @@ public class BuildPojoQueryNestedTest {
         assert boundSql1.getArgs()[2].equals(2);
         assert boundSql1.getArgs()[3].equals(123);
 
-        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql2 = newLambda().query(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a").and().nested(nestedQuery -> {
                     nestedQuery.ge(UserInfo::getCreateTime, 1); // >= ?
                     nestedQuery.le(UserInfo::getCreateTime, 2); // <= ?
@@ -171,7 +171,7 @@ public class BuildPojoQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_and_2() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class)//
                 .nested(qc -> {
                     qc.eq(UserInfo::getSeq, 1).or().eq(UserInfo::getSeq, 2);
                 }).and(qc -> {
@@ -186,7 +186,7 @@ public class BuildPojoQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_and_2_2map() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class).asMap()//
                 .nested(qc -> {
                     qc.eq("seq", 1).or().eq("seq", 2);
                 }).and(qc -> {
@@ -201,7 +201,7 @@ public class BuildPojoQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class)//
                 .eq(UserInfo::getLoginName, "a").nested(nestedQuery -> {
                     nestedQuery.ge(UserInfo::getCreateTime, 1); // >= ?
                     nestedQuery.le(UserInfo::getCreateTime, 2); // <= ?
@@ -212,7 +212,7 @@ public class BuildPojoQueryNestedTest {
         assert boundSql1.getArgs()[2].equals(2);
         assert boundSql1.getArgs()[3].equals(123);
 
-        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql2 = newLambda().query(UserInfo.class)//
                 .nested(nq0 -> {
                     nq0.nested(nq1 -> {
                         nq1.ge(UserInfo::getCreateTime, 1); // >= ?
@@ -227,7 +227,7 @@ public class BuildPojoQueryNestedTest {
         assert boundSql2.getArgs()[2].equals(1);
         assert boundSql2.getArgs()[3].equals(123);
 
-        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql3 = newLambda().query(UserInfo.class)//
                 .nested(nq0 -> {
                     nq0.nested(nq1 -> {
                         nq1.ge(UserInfo::getCreateTime, 1); // >= ?
@@ -244,7 +244,7 @@ public class BuildPojoQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_1_2map() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class).asMap()//
                 .eq("loginName", "a").nested(nestedQuery -> {
                     nestedQuery.ge("createTime", 1); // >= ?
                     nestedQuery.le("createTime", 2); // <= ?
@@ -255,7 +255,7 @@ public class BuildPojoQueryNestedTest {
         assert boundSql1.getArgs()[2].equals(2);
         assert boundSql1.getArgs()[3].equals(123);
 
-        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql2 = newLambda().query(UserInfo.class)//
                 .nested(nq0 -> {
                     nq0.nested(nq1 -> {
                         nq1.ge(UserInfo::getCreateTime, 1); // >= ?
@@ -270,7 +270,7 @@ public class BuildPojoQueryNestedTest {
         assert boundSql2.getArgs()[2].equals(1);
         assert boundSql2.getArgs()[3].equals(123);
 
-        BoundSql boundSql3 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql3 = newLambda().query(UserInfo.class)//
                 .nested(nq0 -> {
                     nq0.nested(nq1 -> {
                         nq1.ge(UserInfo::getCreateTime, 1); // >= ?
@@ -287,7 +287,7 @@ public class BuildPojoQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_not_1() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class)//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class)//
                 .not(qc -> {
                     qc.eq(UserInfo::getSeq, 1).or().eq(UserInfo::getLoginName, "a");
                 }).getBoundSql();
@@ -298,7 +298,7 @@ public class BuildPojoQueryNestedTest {
 
     @Test
     public void queryBuilder_nested_not_1_2map() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo.class).asMap()//
+        BoundSql boundSql1 = newLambda().query(UserInfo.class).asMap()//
                 .not(qc -> {
                     qc.eq("seq", 1).or().eq("loginName", "a");
                 }).getBoundSql();

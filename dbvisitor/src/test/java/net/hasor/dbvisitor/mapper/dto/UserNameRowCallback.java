@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.dto;
-import net.hasor.dbvisitor.template.RowCallbackHandler;
+import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

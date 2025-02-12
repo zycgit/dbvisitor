@@ -15,9 +15,9 @@
  */
 package net.hasor.dbvisitor.mapper;
 
-import net.hasor.dbvisitor.template.ResultSetExtractor;
-import net.hasor.dbvisitor.template.RowCallbackHandler;
-import net.hasor.dbvisitor.template.RowMapper;
+import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
+import net.hasor.dbvisitor.jdbc.RowMapper;
 
 import java.lang.annotation.*;
 

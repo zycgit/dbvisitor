@@ -27,16 +27,16 @@ public class MapCrudTestCase {
             userData.put("name", "default user");
             userData.put("create_time", new Date());// Map 方式下 key 就是列名
 
-            InsertWrapper<Map<String, Object>> insert = wrapper.freedomInsert("user_table");
+            InsertWrapper<Map<String, Object>> insert = wrapper.insertFreedom("user_table");
             assert 1 == insert.applyEntity(userData).executeSumResult();
 
             // 校验结果（默认大小写不敏感，使用小写ID属性名反查）
-            MapQueryWrapper query1 = wrapper.freedomQuery("user_table");
+            MapQueryWrapper query1 = wrapper.queryFreedom("user_table");
             Map<String, Object> resultData1 = query1.eq("ID", userData.get("id")).queryForObject();
             assert resultData1.get("name").equals(userData.get("name"));
 
             // 校验结果（默认大小写不敏感，使用大写ID属性名反查）
-            MapQueryWrapper query2 = wrapper.freedomQuery("USER_TABLE");
+            MapQueryWrapper query2 = wrapper.queryFreedom("USER_TABLE");
             Map<String, Object> resultData2 = query2.eq("ID", userData.get("id")).queryForObject();
             assert resultData2.get("name").equals(userData.get("name"));
         }
@@ -54,16 +54,16 @@ public class MapCrudTestCase {
             userData.put("name", "default user");
             userData.put("create_time", new Date());// Map 方式下 key 就是列名
 
-            InsertWrapper<Map<String, Object>> insert = wrapper.freedomInsert("user_table");
+            InsertWrapper<Map<String, Object>> insert = wrapper.insertFreedom("user_table");
             assert 1 == insert.applyMap(userData).executeSumResult();
 
             // 校验结果（默认大小写不敏感，使用小写ID属性名反查）
-            MapQueryWrapper query1 = wrapper.freedomQuery("user_table");
+            MapQueryWrapper query1 = wrapper.queryFreedom("user_table");
             Map<String, Object> resultData1 = query1.eq("ID", userData.get("id")).queryForObject();
             assert resultData1.get("name").equals(userData.get("name"));
 
             // 校验结果（默认大小写不敏感，使用大写ID属性名反查）
-            MapQueryWrapper query2 = wrapper.freedomQuery("user_table");
+            MapQueryWrapper query2 = wrapper.queryFreedom("user_table");
             Map<String, Object> resultData2 = query2.eq("ID", userData.get("id")).queryForObject();
             assert resultData2.get("name").equals(userData.get("name"));
         }
@@ -76,13 +76,13 @@ public class MapCrudTestCase {
             WrapperAdapter wrapper = new WrapperAdapter(c);
 
             // update user set name = 'new name is abc' where id = 1
-            wrapper.freedomUpdate("user_table") //
+            wrapper.updateFreedom("user_table") //
                     .eq("id", 1)       //
                     .updateTo("name", "new name is abc")//
                     .doUpdate();
 
             // 校验结果
-            MapQueryWrapper query = wrapper.freedomQuery("user_table");
+            MapQueryWrapper query = wrapper.queryFreedom("user_table");
             Map<String, Object> resultData = query.eq("id", 1).queryForObject();
             assert resultData.get("name").equals("new name is abc");
         }
@@ -95,14 +95,14 @@ public class MapCrudTestCase {
             WrapperAdapter wrapper = new WrapperAdapter(c);
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            wrapper.freedomUpdate("user_table")  //
+            wrapper.updateFreedom("user_table")  //
                     .eq("id", 1)        //
                     .updateTo("name", "new name is abc")//
                     .updateTo("age", 120)//
                     .doUpdate();
 
             // 校验结果
-            MapQueryWrapper query = wrapper.freedomQuery("user_table");
+            MapQueryWrapper query = wrapper.queryFreedom("user_table");
             Map<String, Object> resultData = query.eq("id", 1).queryForObject();
             assert resultData.get("name").equals("new name is abc");
             assert resultData.get("age").equals(120);
@@ -120,13 +120,13 @@ public class MapCrudTestCase {
             newValue.put("age", 120);
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            wrapper.freedomUpdate("user_table") //
+            wrapper.updateFreedom("user_table") //
                     .eq("id", 1)//
                     .updateToSampleMap(newValue)   //
                     .doUpdate();
 
             // 校验结果
-            MapQueryWrapper query = wrapper.freedomQuery("user_table");
+            MapQueryWrapper query = wrapper.queryFreedom("user_table");
             Map<String, Object> resultData = query.eq("id", 1).queryForObject();
             assert resultData.get("name").equals("new name is abc");
             assert resultData.get("age").equals(120);
@@ -144,13 +144,13 @@ public class MapCrudTestCase {
             newData.put("age", 120);
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            wrapper.freedomUpdate("user_table") //
+            wrapper.updateFreedom("user_table") //
                     .eq("id", 1) //
                     .updateToSample(newData)  // updateBySample 在 map 模式下和 updateByMap 行为一样；
                     .doUpdate();
 
             // 校验结果
-            MapQueryWrapper query = wrapper.freedomQuery("user_table");
+            MapQueryWrapper query = wrapper.queryFreedom("user_table");
             Map<String, Object> resultData = query.eq("id", 1).queryForObject();
             assert resultData.get("name").equals("new name is abc");
             assert resultData.get("age").equals(120);
@@ -170,14 +170,14 @@ public class MapCrudTestCase {
             newData.put("name", "new name is abc");
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            int i = wrapper.freedomUpdate("user_table") //
+            int i = wrapper.updateFreedom("user_table") //
                     .eq("id", 1) //
                     .updateRow(newData)  //
                     .doUpdate();
             assert i == 1;
 
             // 校验结果（不同于 DTO 模式，只会更新 newData 中包含的列）
-            MapQueryWrapper query = wrapper.freedomQuery("user_table");
+            MapQueryWrapper query = wrapper.queryFreedom("user_table");
             Map<String, Object> resultData = query.eq("id", 1).queryForObject();
             assert resultData.get("id").equals(1);
             assert resultData.get("name").equals("new name is abc");
@@ -198,7 +198,7 @@ public class MapCrudTestCase {
             newData.put("name", "new name is abc");
 
             // update user set name = 'new name is abc', age = 120 where id = 1
-            int i = wrapper.freedomUpdate("user_table") //
+            int i = wrapper.updateFreedom("user_table") //
                     .eq("id", 1) //
                     .allowUpdateKey()  // 需要启用 allowUpdateKey
                     .updateToSample(newData)  //
@@ -206,7 +206,7 @@ public class MapCrudTestCase {
             assert i == 1;
 
             // 通过新 id 反查数据
-            MapQueryWrapper query = wrapper.freedomQuery("user_table");
+            MapQueryWrapper query = wrapper.queryFreedom("user_table");
             Map<String, Object> resultData = query.eq("id", 112).queryForObject();
             assert resultData.get("id").equals(112);
             assert resultData.get("name").equals("new name is abc");
@@ -222,13 +222,13 @@ public class MapCrudTestCase {
             WrapperAdapter wrapper = new WrapperAdapter(c);
 
             // delete from user where id = 1;
-            int i = wrapper.freedomDelete("user_table") //
+            int i = wrapper.deleteFreedom("user_table") //
                     .eq("id", 1) //
                     .doDelete();
             assert i == 1;
 
             // 校验结果
-            MapQueryWrapper query = wrapper.freedomQuery("user_table");
+            MapQueryWrapper query = wrapper.queryFreedom("user_table");
             Map<String, Object> resultData = query.eq("id", 1).queryForObject();
             assert resultData == null;
         }
@@ -246,13 +246,13 @@ public class MapCrudTestCase {
             sample.put("name", "mali");
 
             // delete from user where id = 1 and name = 'mail';
-            int i = wrapper.freedomDelete("user_table") //
+            int i = wrapper.deleteFreedom("user_table") //
                     .eqBySample(sample)//
                     .doDelete();
             assert i == 1;
 
             // 校验结果
-            MapQueryWrapper query = wrapper.freedomQuery("user_table");
+            MapQueryWrapper query = wrapper.queryFreedom("user_table");
             Map<String, Object> resultData = query.eq("id", 1).queryForObject();
             assert resultData == null;
         }
@@ -269,13 +269,13 @@ public class MapCrudTestCase {
             newValue.put("name", "mali");
 
             // delete from user where id = 1 and name = 'mail';
-            int i = wrapper.freedomDelete("user_table") //
+            int i = wrapper.deleteFreedom("user_table") //
                     .eqBySampleMap(newValue)//
                     .doDelete();
             assert i == 1;
 
             // 校验结果
-            MapQueryWrapper query = wrapper.freedomQuery("user_table");
+            MapQueryWrapper query = wrapper.queryFreedom("user_table");
             Map<String, Object> resultData = query.eq("id", 1).queryForObject();
             assert resultData == null;
         }
@@ -288,13 +288,13 @@ public class MapCrudTestCase {
             WrapperAdapter wrapper = new WrapperAdapter(c);
 
             // delete from user;
-            int i = wrapper.freedomDelete("user_table") //
+            int i = wrapper.deleteFreedom("user_table") //
                     .allowEmptyWhere()// 无条件删除需要启用空条件
                     .doDelete();
             assert i == 5;
 
             // 校验结果
-            assert wrapper.freedomQuery("user_table").queryForCount() == 0;
+            assert wrapper.queryFreedom("user_table").queryForCount() == 0;
         }
     }
 
@@ -304,7 +304,7 @@ public class MapCrudTestCase {
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter wrapper = new WrapperAdapter(c);
 
-            InsertWrapper<Map<String, Object>> insert = wrapper.freedomInsert("user_table");
+            InsertWrapper<Map<String, Object>> insert = wrapper.insertFreedom("user_table");
             for (int i = 0; i < 10; i++) {
                 Map<String, Object> userData = new HashMap<>();
                 userData.put("id", i + 10);
@@ -317,7 +317,7 @@ public class MapCrudTestCase {
             assert res == 10;
 
             // 校验结果
-            EntityQueryWrapper<UserTableDTO> query = wrapper.queryByEntity(UserTableDTO.class);
+            EntityQueryWrapper<UserTableDTO> query = wrapper.query(UserTableDTO.class);
             List<UserTableDTO> resultData = query.likeRight(UserTableDTO::getName, "default user ").queryForList();
             List<String> result = resultData.stream().map(UserTableDTO::getName).collect(Collectors.toList());
             assert result.size() == 10;

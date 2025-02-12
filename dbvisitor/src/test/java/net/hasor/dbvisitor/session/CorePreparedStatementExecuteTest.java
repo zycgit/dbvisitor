@@ -3,10 +3,10 @@ import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dialect.PageObject;
 import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapper.StatementDef;
 import net.hasor.dbvisitor.session.dto.CorePreparedStatementExecuteMapper;
 import net.hasor.dbvisitor.session.dto.UserInfo;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 

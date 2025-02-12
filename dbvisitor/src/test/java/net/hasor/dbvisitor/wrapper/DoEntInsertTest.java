@@ -58,14 +58,14 @@ public class DoEntInsertTest {
 
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
-            lambdaTemplate.getJdbc().execute("delete from user_info");
+            lambdaTemplate.jdbc().execute("delete from user_info");
 
-            InsertWrapper<AnnoUserInfoDTO> insert = lambdaTemplate.insertByEntity(AnnoUserInfoDTO.class);
+            InsertWrapper<AnnoUserInfoDTO> insert = lambdaTemplate.insert(AnnoUserInfoDTO.class);
             insert.applyEntity(user1, user2);
 
             assert insert.executeSumResult() == 2;
 
-            List<UserInfo2> tbUsers = lambdaTemplate.queryByEntity(UserInfo2.class).queryForList();
+            List<UserInfo2> tbUsers = lambdaTemplate.query(UserInfo2.class).queryForList();
             List<String> ids = tbUsers.stream().map(UserInfo2::getUid).collect(Collectors.toList());
             assert ids.contains(user1.getUid());
             assert ids.contains(user2.getUid());
@@ -94,14 +94,14 @@ public class DoEntInsertTest {
 
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
-            lambdaTemplate.getJdbc().execute("delete from user_info");
+            lambdaTemplate.jdbc().execute("delete from user_info");
 
-            MapInsertWrapper insert = lambdaTemplate.insertByEntity(AnnoUserInfoDTO.class).asMap();
+            MapInsertWrapper insert = lambdaTemplate.insert(AnnoUserInfoDTO.class).asMap();
             insert.applyEntity(user1, user2);
 
             assert insert.executeSumResult() == 2;
 
-            List<UserInfo2> tbUsers = lambdaTemplate.queryByEntity(UserInfo2.class).queryForList();
+            List<UserInfo2> tbUsers = lambdaTemplate.query(UserInfo2.class).queryForList();
             List<String> ids = tbUsers.stream().map(UserInfo2::getUid).collect(Collectors.toList());
             assert ids.contains(user1.get("uid"));
             assert ids.contains(user2.get("uid"));
@@ -130,14 +130,14 @@ public class DoEntInsertTest {
 
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
-            lambdaTemplate.getJdbc().execute("delete from user_info");
+            lambdaTemplate.jdbc().execute("delete from user_info");
 
-            InsertWrapper<AnnoUserInfoDTO> insert = lambdaTemplate.insertByEntity(AnnoUserInfoDTO.class);
+            InsertWrapper<AnnoUserInfoDTO> insert = lambdaTemplate.insert(AnnoUserInfoDTO.class);
             insert.applyMap(user1, user2);
 
             assert insert.executeSumResult() == 2;
 
-            List<UserInfo2> tbUsers = lambdaTemplate.queryByEntity(UserInfo2.class).queryForList();
+            List<UserInfo2> tbUsers = lambdaTemplate.query(UserInfo2.class).queryForList();
             List<String> ids = tbUsers.stream().map(UserInfo2::getUid).collect(Collectors.toList());
             assert ids.contains(user1.get("uid"));
             assert ids.contains(user2.get("uid"));
@@ -166,14 +166,14 @@ public class DoEntInsertTest {
 
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
-            lambdaTemplate.getJdbc().execute("delete from user_info");
+            lambdaTemplate.jdbc().execute("delete from user_info");
 
-            MapInsertWrapper insert = lambdaTemplate.insertByEntity(AnnoUserInfoDTO.class).asMap();
+            MapInsertWrapper insert = lambdaTemplate.insert(AnnoUserInfoDTO.class).asMap();
             insert.applyMap(user1, user2);
 
             assert insert.executeSumResult() == 2;
 
-            List<UserInfo2> tbUsers = lambdaTemplate.queryByEntity(UserInfo2.class).queryForList();
+            List<UserInfo2> tbUsers = lambdaTemplate.query(UserInfo2.class).queryForList();
             List<String> ids = tbUsers.stream().map(UserInfo2::getUid).collect(Collectors.toList());
             assert ids.contains(user1.get("uid"));
             assert ids.contains(user2.get("uid"));
@@ -202,16 +202,16 @@ public class DoEntInsertTest {
 
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
-            lambdaTemplate.getJdbc().execute("delete from user_info");
+            lambdaTemplate.jdbc().execute("delete from user_info");
 
-            InsertWrapper<AnnoUserInfoDTO> insert = lambdaTemplate.insertByEntity(AnnoUserInfoDTO.class);
+            InsertWrapper<AnnoUserInfoDTO> insert = lambdaTemplate.insert(AnnoUserInfoDTO.class);
             insert.applyEntity(user1);
             insert.applyMap(user2);
 
             assert insert.getBoundSql() instanceof BatchBoundSql;
             assert insert.executeSumResult() == 2;
 
-            List<UserInfo2> tbUsers = lambdaTemplate.queryByEntity(UserInfo2.class).queryForList();
+            List<UserInfo2> tbUsers = lambdaTemplate.query(UserInfo2.class).queryForList();
             assert tbUsers.size() == 2;
             List<String> ids = tbUsers.stream().map(UserInfo2::getUid).collect(Collectors.toList());
             assert ids.contains(user1.getUid());
@@ -241,16 +241,16 @@ public class DoEntInsertTest {
 
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
-            lambdaTemplate.getJdbc().execute("delete from user_info");
+            lambdaTemplate.jdbc().execute("delete from user_info");
 
-            MapInsertWrapper insert = lambdaTemplate.insertByEntity(AnnoUserInfoDTO.class).asMap();
+            MapInsertWrapper insert = lambdaTemplate.insert(AnnoUserInfoDTO.class).asMap();
             insert.applyEntity(user1);
             insert.applyMap(user2);
 
             assert insert.getBoundSql() instanceof BatchBoundSql;
             assert insert.executeSumResult() == 2;
 
-            List<UserInfo2> tbUsers = lambdaTemplate.queryByEntity(UserInfo2.class).queryForList();
+            List<UserInfo2> tbUsers = lambdaTemplate.query(UserInfo2.class).queryForList();
             assert tbUsers.size() == 2;
             List<String> ids = tbUsers.stream().map(UserInfo2::getUid).collect(Collectors.toList());
             assert ids.contains(user1.get("uid"));

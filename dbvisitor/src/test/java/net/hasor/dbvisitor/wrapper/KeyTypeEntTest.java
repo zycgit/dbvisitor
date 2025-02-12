@@ -46,9 +46,9 @@ public class KeyTypeEntTest {
 
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
-            lambdaTemplate.getJdbc().execute("delete from user_info");
+            lambdaTemplate.jdbc().execute("delete from user_info");
 
-            InsertWrapper<AnnoUserInfoDTO> insert = lambdaTemplate.insertByEntity(AnnoUserInfoDTO.class);
+            InsertWrapper<AnnoUserInfoDTO> insert = lambdaTemplate.insert(AnnoUserInfoDTO.class);
             insert.applyEntity(user1);
 
             assert insert.getBoundSql() instanceof BatchBoundSql;
@@ -56,7 +56,7 @@ public class KeyTypeEntTest {
             int i = insert.executeSumResult();
             assert i == 1;
 
-            List<UserInfo2> tbUsers = lambdaTemplate.queryByEntity(UserInfo2.class).queryForList();
+            List<UserInfo2> tbUsers = lambdaTemplate.query(UserInfo2.class).queryForList();
             assert tbUsers.size() == 1;
             List<String> ids = tbUsers.stream().map(UserInfo2::getUid).collect(Collectors.toList());
             assert ids.contains(user1.getUid());
@@ -77,9 +77,9 @@ public class KeyTypeEntTest {
 
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter lambdaTemplate = new WrapperAdapter(c);
-            lambdaTemplate.getJdbc().execute("delete from user_info");
+            lambdaTemplate.jdbc().execute("delete from user_info");
 
-            InsertWrapper<AnnoUserInfoDTO> lambdaInsert = lambdaTemplate.insertByEntity(AnnoUserInfoDTO.class);
+            InsertWrapper<AnnoUserInfoDTO> lambdaInsert = lambdaTemplate.insert(AnnoUserInfoDTO.class);
             lambdaInsert.applyEntity(user1);
 
             assert lambdaInsert.getBoundSql() instanceof BatchBoundSql;
@@ -89,7 +89,7 @@ public class KeyTypeEntTest {
             int i = lambdaInsert.executeSumResult();
             assert i == 1;
 
-            List<AnnoUserInfoDTO> tbUsers = lambdaTemplate.queryByEntity(AnnoUserInfoDTO.class).queryForList();
+            List<AnnoUserInfoDTO> tbUsers = lambdaTemplate.query(AnnoUserInfoDTO.class).queryForList();
             assert tbUsers.size() == 1;
             List<String> ids = tbUsers.stream().map(AnnoUserInfoDTO::getUid).collect(Collectors.toList());
             assert ids.contains(uidFor1);

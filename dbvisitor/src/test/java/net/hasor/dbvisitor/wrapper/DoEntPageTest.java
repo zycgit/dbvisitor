@@ -18,10 +18,10 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.RuleRegistry;
+import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.wrapper.dto.AnnoUserInfoDTO;
 import net.hasor.test.dto.UserInfo2;
@@ -67,7 +67,7 @@ public class DoEntPageTest {
 
     @Test
     public void buildPageTest_1() throws SQLException {
-        BoundSql boundSql = newLambda().queryByEntity(UserInfo2.class).select(UserInfo2::getLoginName)//
+        BoundSql boundSql = newLambda().query(UserInfo2.class).select(UserInfo2::getLoginName)//
                 .initPage(10, 2)//
                 .getBoundSql();
         assert boundSql.getSqlString().equals("SELECT login_name FROM user_info LIMIT ?, ?");
@@ -77,7 +77,7 @@ public class DoEntPageTest {
 
     @Test
     public void buildPageTest_2() throws SQLException {
-        BoundSql boundSql = newLambda().queryByEntity(UserInfo2.class).select(UserInfo2::getLoginName)//
+        BoundSql boundSql = newLambda().query(UserInfo2.class).select(UserInfo2::getLoginName)//
                 .eq(UserInfo2::getSeq, 1)//
                 .rangeBetween(UserInfo2::getLoginName, 2, 3)//
                 .initPage(10, 2)//
@@ -92,12 +92,12 @@ public class DoEntPageTest {
 
     @Test
     public void buildPageTest_3() throws SQLException {
-        BoundSql boundSql1 = newLambda().queryByEntity(UserInfo2.class).select(UserInfo2::getLoginName)//
+        BoundSql boundSql1 = newLambda().query(UserInfo2.class).select(UserInfo2::getLoginName)//
                 .orderBy(UserInfo2::getUid).initPage(5, 0).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT login_name FROM user_info ORDER BY user_uuid LIMIT ?");
         assert boundSql1.getArgs()[0].equals(5L);
 
-        BoundSql boundSql2 = newLambda().queryByEntity(UserInfo2.class).select(UserInfo2::getLoginName)//
+        BoundSql boundSql2 = newLambda().query(UserInfo2.class).select(UserInfo2::getLoginName)//
                 .orderBy(UserInfo2::getUid).initPage(5, 1).getBoundSql();
         assert boundSql2.getSqlString().equals("SELECT login_name FROM user_info ORDER BY user_uuid LIMIT ?, ?");
         assert boundSql2.getArgs()[0].equals(5L);
@@ -133,11 +133,11 @@ public class DoEntPageTest {
 
             // pageQuery
             WrapperAdapter lambda = newLambda(c);
-            List<AnnoUserInfoDTO> page0 = lambda.queryByEntity(AnnoUserInfoDTO.class).orderBy(AnnoUserInfoDTO::getSeq).initPage(5, 0).queryForList();
-            List<AnnoUserInfoDTO> page1 = lambda.queryByEntity(AnnoUserInfoDTO.class).orderBy(AnnoUserInfoDTO::getSeq).initPage(5, 1).queryForList();
-            List<AnnoUserInfoDTO> page2 = lambda.queryByEntity(AnnoUserInfoDTO.class).orderBy(AnnoUserInfoDTO::getSeq).initPage(5, 2).queryForList();
-            List<AnnoUserInfoDTO> page3 = lambda.queryByEntity(AnnoUserInfoDTO.class).orderBy(AnnoUserInfoDTO::getSeq).initPage(5, 3).queryForList();
-            List<AnnoUserInfoDTO> page4 = lambda.queryByEntity(AnnoUserInfoDTO.class).orderBy(AnnoUserInfoDTO::getSeq).initPage(5, 4).queryForList();
+            List<AnnoUserInfoDTO> page0 = lambda.query(AnnoUserInfoDTO.class).orderBy(AnnoUserInfoDTO::getSeq).initPage(5, 0).queryForList();
+            List<AnnoUserInfoDTO> page1 = lambda.query(AnnoUserInfoDTO.class).orderBy(AnnoUserInfoDTO::getSeq).initPage(5, 1).queryForList();
+            List<AnnoUserInfoDTO> page2 = lambda.query(AnnoUserInfoDTO.class).orderBy(AnnoUserInfoDTO::getSeq).initPage(5, 2).queryForList();
+            List<AnnoUserInfoDTO> page3 = lambda.query(AnnoUserInfoDTO.class).orderBy(AnnoUserInfoDTO::getSeq).initPage(5, 3).queryForList();
+            List<AnnoUserInfoDTO> page4 = lambda.query(AnnoUserInfoDTO.class).orderBy(AnnoUserInfoDTO::getSeq).initPage(5, 4).queryForList();
 
             assert page0.size() == 5;
             assert page1.size() == 5;

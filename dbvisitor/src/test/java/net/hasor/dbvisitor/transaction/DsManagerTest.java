@@ -1,6 +1,6 @@
 package net.hasor.dbvisitor.transaction;
-import net.hasor.dbvisitor.template.jdbc.ConnectionCallback;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.jdbc.ConnectionCallback;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
 import net.hasor.test.utils.DefaultDs;
 import net.hasor.test.utils.DsUtils;

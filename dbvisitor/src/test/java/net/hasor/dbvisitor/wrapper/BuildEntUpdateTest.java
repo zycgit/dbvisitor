@@ -19,9 +19,9 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.dynamic.RuleRegistry;
+import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.dbvisitor.wrapper.dto.AnnoUserInfoDTO;
@@ -53,7 +53,7 @@ public class BuildEntUpdateTest {
     @Test
     public void updateBuilder_bad_1() {
         try {
-            EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = newLambda().updateByEntity(AnnoUserInfoDTO.class);
+            EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = newLambda().update(AnnoUserInfoDTO.class);
             assert lambdaUpdate.getBoundSql() == null;
             lambdaUpdate.doUpdate();
             assert false;
@@ -62,7 +62,7 @@ public class BuildEntUpdateTest {
         }
 
         try {
-            new WrapperAdapter().updateByEntity(AnnoUserInfoDTO.class).updateToSample(null);
+            new WrapperAdapter().update(AnnoUserInfoDTO.class).updateToSample(null);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().contains("newValue is null.");
@@ -70,7 +70,7 @@ public class BuildEntUpdateTest {
 
         try {
             EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = new WrapperAdapter()//
-                    .updateByEntity(AnnoUserInfoDTO.class)//
+                    .update(AnnoUserInfoDTO.class)//
                     .updateRow(new AnnoUserInfoDTO());
             lambdaUpdate.doUpdate();
             assert false;
@@ -82,7 +82,7 @@ public class BuildEntUpdateTest {
     @Test
     public void updateBuilder_bad_1_2map() {
         try {
-            MapUpdateWrapper lambdaUpdate = newLambda().updateByEntity(AnnoUserInfoDTO.class).asMap();
+            MapUpdateWrapper lambdaUpdate = newLambda().update(AnnoUserInfoDTO.class).asMap();
             assert lambdaUpdate.getBoundSql() == null;
             lambdaUpdate.doUpdate();
             assert false;
@@ -91,14 +91,14 @@ public class BuildEntUpdateTest {
         }
 
         try {
-            new WrapperAdapter().updateByEntity(AnnoUserInfoDTO.class).updateToSample(null);
+            new WrapperAdapter().update(AnnoUserInfoDTO.class).updateToSample(null);
             assert false;
         } catch (Exception e) {
             assert e.getMessage().contains("newValue is null.");
         }
 
         try {
-            MapUpdateWrapper lambdaUpdate = new WrapperAdapter().updateByEntity(AnnoUserInfoDTO.class).asMap()//
+            MapUpdateWrapper lambdaUpdate = new WrapperAdapter().update(AnnoUserInfoDTO.class).asMap()//
                     .updateRow(new HashMap<>());
             lambdaUpdate.doUpdate();
             assert false;
@@ -109,7 +109,7 @@ public class BuildEntUpdateTest {
 
     @Test
     public void updateBuilder_bad_2() throws SQLException {
-        EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = newLambda().updateByEntity(AnnoUserInfoDTO.class);
+        EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = newLambda().update(AnnoUserInfoDTO.class);
         lambdaUpdate.allowEmptyWhere();
 
         try {
@@ -122,7 +122,7 @@ public class BuildEntUpdateTest {
 
     @Test
     public void updateBuilder_bad_2_2map() throws SQLException {
-        MapUpdateWrapper lambdaUpdate = newLambda().updateByEntity(AnnoUserInfoDTO.class).asMap();
+        MapUpdateWrapper lambdaUpdate = newLambda().update(AnnoUserInfoDTO.class).asMap();
         lambdaUpdate.allowEmptyWhere();
 
         try {
@@ -138,7 +138,7 @@ public class BuildEntUpdateTest {
         AnnoUserInfoDTO data = new AnnoUserInfoDTO();
         data.setLoginName("acc");
         data.setPassword("pwd");
-        EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = new WrapperAdapter().updateByEntity(AnnoUserInfoDTO.class);
+        EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = new WrapperAdapter().update(AnnoUserInfoDTO.class);
         lambdaUpdate.and(qb -> qb.eq(AnnoUserInfoDTO::getSeq, 123)).updateToSample(data);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -156,7 +156,7 @@ public class BuildEntUpdateTest {
         map.put("password", "pwd");
         map.put("abc", "pwd");
 
-        MapUpdateWrapper lambdaUpdate = new WrapperAdapter().updateByEntity(AnnoUserInfoDTO.class).asMap();
+        MapUpdateWrapper lambdaUpdate = new WrapperAdapter().update(AnnoUserInfoDTO.class).asMap();
         lambdaUpdate.and(qb -> qb.eq("seq", 123)).updateToSample(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -172,7 +172,7 @@ public class BuildEntUpdateTest {
         AnnoUserInfoDTO data = new AnnoUserInfoDTO();
         data.setLoginName("acc");
         data.setPassword("pwd");
-        EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = new WrapperAdapter().updateByEntity(AnnoUserInfoDTO.class);
+        EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = new WrapperAdapter().update(AnnoUserInfoDTO.class);
         lambdaUpdate.and(qb -> qb.eq(AnnoUserInfoDTO::getSeq, 123)).updateToSample(data);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -190,7 +190,7 @@ public class BuildEntUpdateTest {
         map.put("password", "pwd");
         map.put("abc", "pwd");
 
-        MapUpdateWrapper lambdaUpdate = new WrapperAdapter().updateByEntity(AnnoUserInfoDTO.class).asMap();
+        MapUpdateWrapper lambdaUpdate = new WrapperAdapter().update(AnnoUserInfoDTO.class).asMap();
         lambdaUpdate.and(qb -> qb.eq("seq", 123)).updateToSample(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -207,7 +207,7 @@ public class BuildEntUpdateTest {
         data.setLoginName("acc");
         data.setPassword("pwd");
 
-        EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = new WrapperAdapter().updateByEntity(AnnoUserInfoDTO.class);
+        EntityUpdateWrapper<AnnoUserInfoDTO> lambdaUpdate = new WrapperAdapter().update(AnnoUserInfoDTO.class);
         lambdaUpdate.eq(AnnoUserInfoDTO::getLoginName, "admin").and().eq(AnnoUserInfoDTO::getPassword, "pass").updateRow(data);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -221,7 +221,7 @@ public class BuildEntUpdateTest {
         map.put("password", "pwd");
         map.put("abc", "pwd");
 
-        MapUpdateWrapper lambdaUpdate = new WrapperAdapter().updateByEntity(AnnoUserInfoDTO.class).asMap();
+        MapUpdateWrapper lambdaUpdate = new WrapperAdapter().update(AnnoUserInfoDTO.class).asMap();
         lambdaUpdate.eq("loginName", "admin").and().eq("password", "pass").updateRow(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
@@ -245,7 +245,7 @@ public class BuildEntUpdateTest {
         setValue.put("create_time", new Date());
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql1 = lambdaTemplate.updateByEntity(AnnoUserInfoDTO.class)//
+        BoundSql boundSql1 = lambdaTemplate.update(AnnoUserInfoDTO.class)//
                 .eqBySampleMap(whereValue)//
                 .updateToSampleMap(setValue)//
                 .getBoundSql();
@@ -271,7 +271,7 @@ public class BuildEntUpdateTest {
         setValue.put("create_time", new Date());
 
         // delete from user where id = 1 and name = 'mail';
-        BoundSql boundSql1 = lambdaTemplate.updateByEntity(AnnoUserInfoDTO.class).asMap().eqBySampleMap(whereValue).updateToSampleMap(setValue).getBoundSql();
+        BoundSql boundSql1 = lambdaTemplate.update(AnnoUserInfoDTO.class).asMap().eqBySampleMap(whereValue).updateToSampleMap(setValue).getBoundSql();
         assert boundSql1.getSqlString().equals("UPDATE user_info SET user_name = ? WHERE ( user_name = ? )");
         assert ((SqlArg) boundSql1.getArgs()[0]).getValue().equals("321");
         assert ((SqlArg) boundSql1.getArgs()[1]).getValue().equals("123");

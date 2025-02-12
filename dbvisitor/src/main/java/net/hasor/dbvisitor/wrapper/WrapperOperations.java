@@ -25,126 +25,126 @@ public interface WrapperOperations {
     // ----------------------------------------------------------------------------------
 
     /** 相当于 insert ... */
-    default <T> EntityInsertWrapper<T> insertByEntity(Class<T> entityType) {
-        return this.insertBySpace(entityType, "");
+    default <T> EntityInsertWrapper<T> insert(Class<T> entityType) {
+        return this.insert(entityType, "");
     }
 
     /** 相当于 insert ... */
-    <T> EntityInsertWrapper<T> insertBySpace(Class<T> entityType, String space);
+    <T> EntityInsertWrapper<T> insert(Class<T> entityType, String space);
 
     /** 相当于 insert ... */
-    default <T> EntityInsertWrapper<T> insertByTable(String table) {
-        return this.insertByTable(null, null, table, null);
+    default <T> EntityInsertWrapper<T> insert(String table) {
+        return this.insert(null, null, table, null);
     }
 
     /** 相当于 insert ... */
-    default <T> EntityInsertWrapper<T> insertByTable(String catalog, String schema, String table) {
-        return this.insertByTable(catalog, schema, table, null);
+    default <T> EntityInsertWrapper<T> insert(String catalog, String schema, String table) {
+        return this.insert(catalog, schema, table, null);
     }
 
     /** 相当于 insert ... */
-    <T> EntityInsertWrapper<T> insertByTable(String catalog, String schema, String table, String specifyName);
+    <T> EntityInsertWrapper<T> insert(String catalog, String schema, String table, String specifyName);
 
     // ----------------------------------------------------------------------------------
     // Update
     // ----------------------------------------------------------------------------------
 
     /** 相当于 update ... */
-    default <T> EntityUpdateWrapper<T> updateByEntity(Class<T> entityType) {
-        return this.updateBySpace(entityType, "");
+    default <T> EntityUpdateWrapper<T> update(Class<T> entityType) {
+        return this.update(entityType, "");
     }
 
     /** 相当于 update ... */
-    <T> EntityUpdateWrapper<T> updateBySpace(Class<T> entityType, String space);
+    <T> EntityUpdateWrapper<T> update(Class<T> entityType, String space);
 
     /** 相当于 update ... */
-    default <T> EntityUpdateWrapper<T> updateByTable(String table) {
-        return this.updateByTable(null, null, table, null);
+    default <T> EntityUpdateWrapper<T> update(String table) {
+        return this.update(null, null, table, null);
     }
 
     /** 相当于 update ... */
-    default <T> EntityUpdateWrapper<T> updateByTable(String catalog, String schema, String table) {
-        return this.updateByTable(catalog, schema, table, null);
+    default <T> EntityUpdateWrapper<T> update(String catalog, String schema, String table) {
+        return this.update(catalog, schema, table, null);
     }
 
     /** 相当于 update ... */
-    <T> EntityUpdateWrapper<T> updateByTable(String catalog, String schema, String table, String specifyName);
+    <T> EntityUpdateWrapper<T> update(String catalog, String schema, String table, String specifyName);
 
     // ----------------------------------------------------------------------------------
     //
     // ----------------------------------------------------------------------------------
 
     /** 相当于 delete ... */
-    default <T> EntityDeleteWrapper<T> deleteByEntity(Class<T> entityType) {
-        return this.deleteBySpace(entityType, "");
+    default <T> EntityDeleteWrapper<T> delete(Class<T> entityType) {
+        return this.delete(entityType, "");
     }
 
     /** 相当于 delete ... */
-    <T> EntityDeleteWrapper<T> deleteBySpace(Class<T> entityType, String space);
+    <T> EntityDeleteWrapper<T> delete(Class<T> entityType, String space);
 
     /** 相当于 delete ... */
-    default <T> EntityDeleteWrapper<T> deleteByTable(String table) {
-        return this.deleteByTable(null, null, table, null);
+    default <T> EntityDeleteWrapper<T> delete(String table) {
+        return this.delete(null, null, table, null);
     }
 
     /** 相当于 delete ... */
-    default <T> EntityDeleteWrapper<T> deleteByTable(String catalog, String schema, String table) {
-        return this.deleteByTable(catalog, schema, table, null);
+    default <T> EntityDeleteWrapper<T> delete(String catalog, String schema, String table) {
+        return this.delete(catalog, schema, table, null);
     }
 
     /** 相当于 delete ... */
-    <T> EntityDeleteWrapper<T> deleteByTable(String catalog, String schema, String table, String specifyName);
+    <T> EntityDeleteWrapper<T> delete(String catalog, String schema, String table, String specifyName);
 
     // ----------------------------------------------------------------------------------
     //
     // ----------------------------------------------------------------------------------
 
     /** 相当于 select ... */
-    default <T> EntityQueryWrapper<T> queryByEntity(Class<T> entityType) {
-        return this.queryBySpace(entityType, "");
+    default <T> EntityQueryWrapper<T> query(Class<T> entityType) {
+        return this.query(entityType, "");
     }
 
     /** 相当于 select ... */
-    <T> EntityQueryWrapper<T> queryBySpace(Class<T> entityType, String space);
+    <T> EntityQueryWrapper<T> query(Class<T> entityType, String space);
 
     /** 相当于 select ... */
-    default <T> EntityQueryWrapper<T> queryByTable(String table) {
-        return this.queryByTable(null, null, table, null);
+    default <T> EntityQueryWrapper<T> query(String table) {
+        return this.query(null, null, table, null);
     }
 
     /** 相当于 select ... */
-    default <T> EntityQueryWrapper<T> queryByTable(String catalog, String schema, String table) {
-        return this.queryByTable(catalog, schema, table, null);
+    default <T> EntityQueryWrapper<T> query(String catalog, String schema, String table) {
+        return this.query(catalog, schema, table, null);
     }
 
     /** 相当于 select ... */
-    <T> EntityQueryWrapper<T> queryByTable(String catalog, String schema, String table, String specifyName);
+    <T> EntityQueryWrapper<T> query(String catalog, String schema, String table, String specifyName);
 
     // ----------------------------------------------------------------------------------
     //
     // ----------------------------------------------------------------------------------
 
-    default MapInsertWrapper freedomInsert(String table) {
-        return this.freedomInsert(null, null, table);
+    default MapInsertWrapper insertFreedom(String table) {
+        return this.insertFreedom(null, null, table);
     }
 
-    MapInsertWrapper freedomInsert(String catalog, String schema, String table);
+    MapInsertWrapper insertFreedom(String catalog, String schema, String table);
 
-    default MapUpdateWrapper freedomUpdate(String table) {
-        return this.freedomUpdate(null, null, table);
+    default MapUpdateWrapper updateFreedom(String table) {
+        return this.updateFreedom(null, null, table);
     }
 
-    MapUpdateWrapper freedomUpdate(String catalog, String schema, String table);
+    MapUpdateWrapper updateFreedom(String catalog, String schema, String table);
 
-    default MapDeleteWrapper freedomDelete(String table) {
-        return this.freedomDelete(null, null, table);
+    default MapDeleteWrapper deleteFreedom(String table) {
+        return this.deleteFreedom(null, null, table);
     }
 
-    MapDeleteWrapper freedomDelete(String catalog, String schema, String table);
+    MapDeleteWrapper deleteFreedom(String catalog, String schema, String table);
 
-    default MapQueryWrapper freedomQuery(String table) {
-        return this.freedomQuery(null, null, table);
+    default MapQueryWrapper queryFreedom(String table) {
+        return this.queryFreedom(null, null, table);
     }
 
-    MapQueryWrapper freedomQuery(String catalog, String schema, String table);
+    MapQueryWrapper queryFreedom(String catalog, String schema, String table);
 }

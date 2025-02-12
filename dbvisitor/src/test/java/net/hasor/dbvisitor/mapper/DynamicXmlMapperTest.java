@@ -17,11 +17,11 @@ package net.hasor.dbvisitor.mapper;
 
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.mapper.def.InsertConfig;
 import net.hasor.dbvisitor.mapper.def.SelectKeyConfig;
 import net.hasor.dbvisitor.mapper.dto.DynamicXmlMapper;
 import net.hasor.dbvisitor.mapper.dto.UserInfo;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.types.SqlArg;
 import org.junit.Test;
 

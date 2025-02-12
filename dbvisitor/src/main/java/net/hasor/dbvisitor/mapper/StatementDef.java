@@ -17,10 +17,10 @@ package net.hasor.dbvisitor.mapper;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
+import net.hasor.dbvisitor.jdbc.RowMapper;
 import net.hasor.dbvisitor.mapper.def.SqlConfig;
-import net.hasor.dbvisitor.template.ResultSetExtractor;
-import net.hasor.dbvisitor.template.RowCallbackHandler;
-import net.hasor.dbvisitor.template.RowMapper;
 
 import java.sql.SQLException;
 import java.util.Map;
