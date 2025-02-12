@@ -1,7 +1,7 @@
 package com.example.demo.quick.curd;
 import com.example.demo.DsUtils;
 import com.example.demo.PrintUtils;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -13,12 +13,11 @@ public class CurdMain {
     public static void main(String[] args) throws SQLException, IOException {
         DataSource dataSource = DsUtils.dsMySql();
 
-        LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
-
-        lambdaTemplate.loadSQL("CreateDB.sql");
+        WrapperAdapter wrapper = new WrapperAdapter(dataSource);
+        wrapper.jdbc().loadSQL("CreateDB.sql");
 
         // 查询，所有数据
-        List<TestUser> dtoList = lambdaTemplate.lambdaQuery(TestUser.class)//
+        List<TestUser> dtoList = wrapper.query(TestUser.class)//
                 .queryForList();
         PrintUtils.printObjectList(dtoList);
 
@@ -27,26 +26,26 @@ public class CurdMain {
         newUser.setName("new User");
         newUser.setAge(33);
         newUser.setCreateTime(new Date());
-        int result1 = lambdaTemplate.lambdaInsert(TestUser.class)//
+        int result1 = wrapper.insert(TestUser.class)//
                 .applyEntity(newUser).executeSumResult();
 
-        dtoList = lambdaTemplate.lambdaQuery(TestUser.class).queryForList();
+        dtoList = wrapper.query(TestUser.class).queryForList();
         PrintUtils.printObjectList(dtoList);
 
         // 更新，将name 从 mali 更新为 mala
         TestUser sample = new TestUser();
         sample.setName("mala");
-        int result2 = lambdaTemplate.lambdaUpdate(TestUser.class)//
+        int result2 = wrapper.update(TestUser.class)//
                 .eq(TestUser::getId, 1).updateToSample(sample).doUpdate();
 
-        dtoList = lambdaTemplate.lambdaQuery(TestUser.class).queryForList();
+        dtoList = wrapper.query(TestUser.class).queryForList();
         PrintUtils.printObjectList(dtoList);
 
         // 删除，ID 为 2 的数据删掉
-        int result3 = lambdaTemplate.lambdaDelete(TestUser.class)//
+        int result3 = wrapper.delete(TestUser.class)//
                 .eq(TestUser::getId, 2).doDelete();
 
-        dtoList = lambdaTemplate.lambdaQuery(TestUser.class).queryForList();
+        dtoList = wrapper.query(TestUser.class).queryForList();
         PrintUtils.printObjectList(dtoList);
     }
 }

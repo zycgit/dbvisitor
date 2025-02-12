@@ -1,6 +1,6 @@
 package com.example.demo.dao;
 import com.example.demo.dto.UserDTO;
-import net.hasor.dbvisitor.dal.mapper.BaseMapper;
+import net.hasor.dbvisitor.mapper.BaseMapper;
 
 import java.util.List;
 

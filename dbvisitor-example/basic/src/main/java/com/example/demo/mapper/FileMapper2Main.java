@@ -1,7 +1,8 @@
 package com.example.demo.mapper;
 import com.example.demo.DsUtils;
 import com.example.demo.PrintUtils;
-import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.session.Session;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
@@ -11,11 +12,12 @@ import java.util.Map;
 
 public class FileMapper2Main {
     public static void main(String[] args) throws Exception {
-        DataSource dataSource = DsUtils.dsMySql();
-        DalSession dalSession = new DalSession(dataSource);
-        dalSession.lambdaTemplate().loadSQL("CreateDB.sql");
+        Configuration config = new Configuration();
+        config.loadMapper("/mapper/mapper_1/TestUserMapper.xml");
 
-        dalSession.getDalRegistry().loadMapper("/mapper/mapper_1/TestUserMapper.xml");
+        DataSource dataSource = DsUtils.dsMySql();
+        Session dalSession = config.newSession(dataSource);
+        dalSession.jdbc().loadSQL("CreateDB.sql");
 
         Map<String, Object> ages = new HashMap<>();
         ages.put("age", 26);
@@ -23,6 +25,5 @@ public class FileMapper2Main {
         ages.put("ids", Arrays.asList(1, 2, 3, 4));
         List<Object> listByAge4 = dalSession.queryStatement("queryByNameAndAge", ages);
         PrintUtils.printObjectList(listByAge4);
-
     }
 }

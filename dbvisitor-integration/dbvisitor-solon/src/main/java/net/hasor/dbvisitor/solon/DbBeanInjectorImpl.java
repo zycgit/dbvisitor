@@ -1,10 +1,9 @@
-package net.hasor.dbvisitor.solon.integration;
+package net.hasor.dbvisitor.solon;
 
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.solon.annotation.Db;
-import net.hasor.dbvisitor.template.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import org.noear.solon.core.BeanInjector;
 import org.noear.solon.core.BeanWrap;

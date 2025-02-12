@@ -3,32 +3,27 @@ package com.example.demo;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.service.UserService;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import org.junit.Before;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@SpringBootTest
+@SpringBootTest()
 class DemoApplicationTests {
 
-    @Resource
+    @Autowired
     private UserService userService;
-    @Resource
+    @Autowired
     private DataSource  dataSource;
 
-    @Before
-    public void beforeTest() throws SQLException, IOException {
-        new JdbcTemplate(this.dataSource).loadSQL("CreateDB.sql");
-    }
-
     @Test
-    void contextLoads() {
+    void contextLoads() throws SQLException, IOException {
+        new JdbcTemplate(this.dataSource).loadSQL("CreateDB.sql");
         List<UserDTO> users = userService.getAllUsers();
 
         assert users.size() == 5;

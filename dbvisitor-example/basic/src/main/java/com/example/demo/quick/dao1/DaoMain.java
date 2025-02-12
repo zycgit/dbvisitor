@@ -1,8 +1,9 @@
 package com.example.demo.quick.dao1;
 import com.example.demo.DsUtils;
 import com.example.demo.PrintUtils;
-import net.hasor.dbvisitor.dal.mapper.BaseMapper;
-import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.mapper.BaseMapper;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.session.Session;
 
 import javax.sql.DataSource;
 import java.util.Date;
@@ -12,10 +13,11 @@ public class DaoMain {
     public static void main(String[] args) throws Exception {
         DataSource dataSource = DsUtils.dsMySql();
 
-        DalSession session = new DalSession(dataSource);
+        Configuration config = new Configuration();
+        Session session = config.newSession(dataSource);
         BaseMapper<TestUser> baseMapper = session.createBaseMapper(TestUser.class);
 
-        baseMapper.template().loadSQL("CreateDB.sql");
+        baseMapper.jdbc().loadSQL("CreateDB.sql");
 
         // 查询，所有数据
         List<TestUser> dtoList = baseMapper.query().queryForList();

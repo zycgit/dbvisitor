@@ -1,8 +1,8 @@
 package com.example.demo.mapper;
 import com.example.demo.DsUtils;
 import com.example.demo.PrintUtils;
-import net.hasor.dbvisitor.dal.repository.DalRegistry;
-import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.session.Session;
 
 import javax.sql.DataSource;
 import java.util.Date;
@@ -12,13 +12,13 @@ import java.util.Map;
 
 public class FileMapper1Main {
     public static void main(String[] args) throws Exception {
-        DalRegistry dalRegistry = new DalRegistry();
-        dalRegistry.loadMapper("/mapper/mapper_1/TestUserMapper.xml");
+        Configuration config = new Configuration();
+        config.loadMapper("/mapper/mapper_1/TestUserMapper.xml");
 
         DataSource dataSource = DsUtils.dsMySql();
 
-        DalSession dalSession = new DalSession(dataSource, dalRegistry);
-        dalSession.lambdaTemplate().loadSQL("CreateDB.sql");
+        Session dalSession = config.newSession(dataSource);
+        dalSession.jdbc().loadSQL("CreateDB.sql");
 
         Map<String, Object> ages = new HashMap<>();
         ages.put("age", 26);
@@ -38,8 +38,8 @@ public class FileMapper1Main {
         params.put("name", "form app");
         params.put("age", 128);
         params.put("createTime", new Date());
-        int result = dalSession.executeStatement("insertUser", params);
-        PrintUtils.printObjectList(dalSession.lambdaTemplate().queryForList("select * from `test_user`"));
+        int result = (int) dalSession.executeStatement("insertUser", params);
+        PrintUtils.printObjectList(dalSession.jdbc().queryForList("select * from `test_user`"));
 
     }
 }

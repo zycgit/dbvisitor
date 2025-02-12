@@ -6,7 +6,8 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Map;
 
 public class MultiQuerySqlMain {
     public static void main(String[] args) throws SQLException, IOException {
@@ -16,9 +17,9 @@ public class MultiQuerySqlMain {
 
         String querySql = "set @userName = convert(? USING utf8); select * from test_user where name = @userName;";
         Object[] queryArg = new Object[] { "dative" };
-        List<Object> resultMap = jdbcTemplate.multipleExecute(querySql, queryArg);
+        Map<String, Object> resultMap = jdbcTemplate.multipleExecute(querySql, queryArg);
 
-        PrintUtils.printObjectList((List) resultMap.get(1));
+        PrintUtils.printObjectList(Arrays.asList(resultMap.values().toArray()));
 
     }
 }

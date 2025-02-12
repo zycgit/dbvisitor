@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.spring.adapter;
 
-import net.hasor.dbvisitor.template.jdbc.DynamicConnection;
+import net.hasor.dbvisitor.jdbc.DynamicConnection;
 
 import javax.sql.DataSource;
 

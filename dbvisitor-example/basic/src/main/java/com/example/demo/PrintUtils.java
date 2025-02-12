@@ -24,23 +24,22 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /**
- *
- * @version : 2014年7月11日
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2014年7月11日
  */
 public class PrintUtils {
 
-    /**打印列表内容*/
+    /** 打印列表内容 */
     public static <T> String printObjectList(final List<T> dataList) {
         return printObjectList(dataList, System.out);
     }
 
-    /**打印列表内容*/
+    /** 打印列表内容 */
     public static String printMapList(final List<Map<String, Object>> dataList) {
         return printMapList(dataList, System.out);
     }
 
-    /**打印列表内容*/
+    /** 打印列表内容 */
     public static <T> String printObjectList(final List<T> dataList, final PrintStream out) {
         List<Map<String, Object>> newDataList = new ArrayList<>();
         for (T obj : dataList) {
@@ -58,7 +57,7 @@ public class PrintUtils {
         return printMapList(newDataList, out);
     }
 
-    /**打印列表内容*/
+    /** 打印列表内容 */
     public static String printMapList(final List<Map<String, Object>> dataList, final PrintStream out) {
         List<Map<String, String>> newValues = new ArrayList<>();
         Map<String, Integer> titleConfig = new LinkedHashMap<>();

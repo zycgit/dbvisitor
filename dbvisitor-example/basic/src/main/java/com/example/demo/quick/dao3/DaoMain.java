@@ -1,8 +1,8 @@
 package com.example.demo.quick.dao3;
 import com.example.demo.DsUtils;
 import com.example.demo.PrintUtils;
-import net.hasor.dbvisitor.dal.repository.DalRegistry;
-import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.session.Session;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -12,14 +12,14 @@ public class DaoMain {
         DataSource dataSource = DsUtils.dsMySql();
 
         // 创建 DalRegistry 并注册 TestUserDAO
-        DalRegistry dalRegistry = new DalRegistry();
-        dalRegistry.loadMapper(TestUserDAO.class);
+        Configuration config = new Configuration();
+        config.loadMapper(TestUserDAO.class);
         // 使用 DalRegistry 创建 Session
-        DalSession session = new DalSession(dataSource, dalRegistry);
+        Session session = config.newSession(dataSource);
         // 创建 DAO 接口
         TestUserDAO userDAO = session.createMapper(TestUserDAO.class);
 
-        userDAO.template().loadSQL("CreateDB.sql");
+        userDAO.jdbc().loadSQL("CreateDB.sql");
 
         int result1 = userDAO.insertUser("abc", 123);
         PrintUtils.printObjectList(userDAO.queryAll());

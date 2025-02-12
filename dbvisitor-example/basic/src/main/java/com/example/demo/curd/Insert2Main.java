@@ -2,8 +2,8 @@ package com.example.demo.curd;
 import com.example.demo.DsUtils;
 import com.example.demo.PrintUtils;
 import net.hasor.cobble.DateFormatType;
-import net.hasor.dbvisitor.lambda.InsertOperation;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.wrapper.EntityInsertWrapper;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -15,9 +15,9 @@ public class Insert2Main {
     // 使用实体映射 Table，但是数据插入使用 Map
     public static void main(String[] args) throws SQLException, IOException {
         DataSource dataSource = DsUtils.dsMySql();
-        LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
-        lambdaTemplate.loadSQL("CreateDB.sql");
-        lambdaTemplate.execute("delete from test_user");
+        WrapperAdapter wrapper = new WrapperAdapter(dataSource);
+        wrapper.jdbc().loadSQL("CreateDB.sql");
+        wrapper.jdbc().execute("delete from test_user");
 
         Map<String, Object> newValue = new HashMap<>();
         newValue.put("id", 20);
@@ -25,9 +25,9 @@ public class Insert2Main {
         newValue.put("age", 88);
         newValue.put("createTime", DateFormatType.s_yyyyMMdd_HHmmss.toDate("2000-01-01 12:12:12"));
 
-        InsertOperation<TestUser> insert = lambdaTemplate.lambdaInsert(TestUser.class);
+        EntityInsertWrapper<TestUser> insert = wrapper.insert(TestUser.class);
         int result = insert.applyMap(newValue).executeSumResult();
 
-        PrintUtils.printObjectList(lambdaTemplate.queryForList("select * from test_user"));
+        PrintUtils.printObjectList(wrapper.jdbc().queryForList("select * from test_user"));
     }
 }

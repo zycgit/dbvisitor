@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.solon.annotation;
+package net.hasor.dbvisitor.solon;
 
 import java.lang.annotation.*;
 

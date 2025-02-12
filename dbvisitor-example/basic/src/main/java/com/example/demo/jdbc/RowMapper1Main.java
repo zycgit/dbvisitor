@@ -3,8 +3,8 @@ import com.example.demo.DsUtils;
 import com.example.demo.PrintUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
 import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
-import net.hasor.dbvisitor.jdbc.mapper.MappingRowMapper;
 import net.hasor.dbvisitor.jdbc.mapper.SingleColumnRowMapper;
 
 import javax.sql.DataSource;
@@ -26,7 +26,7 @@ public class RowMapper1Main {
         PrintUtils.printObjectList(mapList);
 
         List<TestUser> dtoList = jdbcTemplate//
-                .queryForList("select * from test_user where age > 40", new MappingRowMapper<>(TestUser.class));
+                .queryForList("select * from test_user where age > 40", new BeanMappingRowMapper<>(TestUser.class));
         PrintUtils.printObjectList(dtoList);
         dtoList = jdbcTemplate.queryForList("select * from test_user where age > 40", TestUser.class);
         PrintUtils.printObjectList(dtoList);

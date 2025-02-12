@@ -262,6 +262,7 @@
             <xs:attribute name="id" use="required"/>
             <xs:attribute name="statementType" type="statementType_type"/>
             <xs:attribute name="timeout"/>
+            <xs:attribute name="bindOut"/>
         </xs:complexType>
     </xs:element>
 
@@ -282,6 +283,9 @@
             <xs:attribute name="timeout"/>
             <xs:attribute name="resultMap"/>
             <xs:attribute name="resultType"/>
+            <xs:attribute name="resultSetExtractor"/>
+            <xs:attribute name="resultRowCallback"/>
+            <xs:attribute name="resultRowMapper"/>
             <xs:attribute name="fetchSize"/>
             <xs:attribute name="resultSetType" type="resultSetType_type"/>
             <xs:attribute name="bindOut"/>
@@ -331,8 +335,6 @@
                     </xs:restriction>
                 </xs:simpleType>
             </xs:attribute>
-            <xs:attribute name="resultType"/>
-            <xs:attribute name="resultHandler"/>
         </xs:complexType>
     </xs:element>
 

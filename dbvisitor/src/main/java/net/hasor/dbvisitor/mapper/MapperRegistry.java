@@ -500,6 +500,9 @@ public class MapperRegistry {
                 break;
             }
         }
+        if (!testMapper) {
+            testMapper = Mapper.class.isAssignableFrom(mapperType);
+        }
 
         if (!testMapper) {
             throw new UnsupportedOperationException("type '" + mapperType.getName() + "' need @RefMapper or @SimpleMapper or @DalMapper");

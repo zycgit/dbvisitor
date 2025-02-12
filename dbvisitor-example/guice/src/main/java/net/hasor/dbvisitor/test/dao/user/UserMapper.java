@@ -1,6 +1,6 @@
 package net.hasor.dbvisitor.test.dao.user;
-import net.hasor.dbvisitor.dal.mapper.BaseMapper;
-import net.hasor.dbvisitor.dal.repository.Param;
+import net.hasor.dbvisitor.mapper.BaseMapper;
+import net.hasor.dbvisitor.mapper.Param;
 import net.hasor.dbvisitor.test.dto.UserDTO;
 
 import java.util.List;

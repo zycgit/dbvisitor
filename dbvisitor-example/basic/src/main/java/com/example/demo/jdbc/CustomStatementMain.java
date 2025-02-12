@@ -3,7 +3,7 @@ import com.example.demo.DsUtils;
 import net.hasor.dbvisitor.jdbc.PreparedStatementCreator;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.jdbc.mapper.MappingRowMapper;
+import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class CustomStatementMain {
         };
 
         // 行读取工具
-        MappingRowMapper<TestUser> rowMapper = new MappingRowMapper<>(TestUser.class);
+        BeanMappingRowMapper<TestUser> rowMapper = new BeanMappingRowMapper<>(TestUser.class);
 
         // 流式消费数据
         RowCallbackHandler handler = (rs, rowNum) -> {

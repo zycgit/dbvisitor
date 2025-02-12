@@ -2,9 +2,9 @@ package com.example.demo.curd;
 import com.example.demo.DsUtils;
 import com.example.demo.PrintUtils;
 import net.hasor.cobble.DateFormatType;
-import net.hasor.dbvisitor.lambda.InsertOperation;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.mapping.resolve.MappingOptions;
+import net.hasor.dbvisitor.mapping.Options;
+import net.hasor.dbvisitor.wrapper.EntityInsertWrapper;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -16,9 +16,9 @@ public class Insert4Main {
     // 纯 Map 模式，开启驼峰转换，因此都是属性名。
     public static void main(String[] args) throws SQLException, IOException {
         DataSource dataSource = DsUtils.dsMySql();
-        LambdaTemplate lambdaTemplate = new LambdaTemplate(dataSource);
-        lambdaTemplate.loadSQL("CreateDB.sql");
-        lambdaTemplate.execute("delete from test_user");
+        WrapperAdapter wrapper = new WrapperAdapter(dataSource, Options.of().mapUnderscoreToCamelCase(true));
+        wrapper.jdbc().loadSQL("CreateDB.sql");
+        wrapper.jdbc().execute("delete from test_user");
 
         Map<String, Object> newValue = new HashMap<>();
         newValue.put("id", 20);
@@ -26,9 +26,9 @@ public class Insert4Main {
         newValue.put("age", 88);
         newValue.put("createTime", DateFormatType.s_yyyyMMdd_HHmmss.toDate("2000-01-01 12:12:12"));
 
-        InsertOperation<Map<String, Object>> insert = lambdaTemplate.lambdaInsert(null, null, "test_user", MappingOptions.buildNew().mapUnderscoreToCamelCase(true));
+        EntityInsertWrapper<Map<String, Object>> insert = wrapper.insert(null, null, "test_user");
         int result = insert.applyMap(newValue).executeSumResult();
 
-        PrintUtils.printObjectList(lambdaTemplate.queryForList("select * from test_user"));
+        PrintUtils.printObjectList(wrapper.jdbc().queryForList("select * from test_user"));
     }
 }

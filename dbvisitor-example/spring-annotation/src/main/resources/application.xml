@@ -28,15 +28,15 @@
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <!-- dbVisitor -->
-    <bean id="dalRegistry" class="net.hasor.dbvisitor.spring.support.DalRegistryBean">
+    <bean id="dalRegistry" class="net.hasor.dbvisitor.spring.support.ConfigurationBean">
         <property name="mapperResources" value="classpath*:dbvisitor/mapper/*Mapper.xml"/>
     </bean>
-    <bean id="dalSession" class="net.hasor.dbvisitor.spring.support.DalSessionBean">
-        <property name="dalRegistry" ref="dalRegistry"/>
+    <bean id="dalSession" class="net.hasor.dbvisitor.spring.support.SessionBean">
+        <property name="config" ref="dalRegistry"/>
         <property name="dataSource" ref="dataSource"/>
     </bean>
     <bean id="dalMapperScanner" class="net.hasor.dbvisitor.spring.mapper.MapperScannerConfigurer">
-        <property name="dalSession" ref="dalSession"/>
+        <property name="session" ref="dalSession"/>
         <property name="basePackage" value="com.example.demo.dao"/>
     </bean>
 

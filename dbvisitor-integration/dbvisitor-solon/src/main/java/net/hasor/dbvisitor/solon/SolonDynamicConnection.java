@@ -1,6 +1,6 @@
-package net.hasor.dbvisitor.solon.integration;
+package net.hasor.dbvisitor.solon;
 
-import net.hasor.dbvisitor.template.jdbc.DynamicConnection;
+import net.hasor.dbvisitor.jdbc.DynamicConnection;
 import org.noear.solon.data.tran.TranUtils;
 
 import javax.sql.DataSource;

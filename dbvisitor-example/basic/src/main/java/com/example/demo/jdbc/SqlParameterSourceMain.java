@@ -1,9 +1,9 @@
 package com.example.demo.jdbc;
 import com.example.demo.DsUtils;
 import com.example.demo.PrintUtils;
+import net.hasor.dbvisitor.dynamic.args.BeanSqlArgSource;
+import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.jdbc.paramer.BeanSqlParameterSource;
-import net.hasor.dbvisitor.jdbc.paramer.MapSqlParameterSource;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -30,14 +30,14 @@ public class SqlParameterSourceMain {
 
         String querySql3 = "select * from test_user where age > :age";
         Map<String, Object> argMap = Collections.singletonMap("age", 40);
-        MapSqlParameterSource queryArg3 = new MapSqlParameterSource(argMap);
+        MapSqlArgSource queryArg3 = new MapSqlArgSource(argMap);
         List<Map<String, Object>> mapList3 = jdbcTemplate.queryForList(querySql3, queryArg3);
         PrintUtils.printObjectList(mapList3);
 
         String querySql4 = "select * from test_user where age > :age";
         TestUser argDTO = new TestUser();
         argDTO.setAge(40);
-        BeanSqlParameterSource queryArg4 = new BeanSqlParameterSource(argDTO);
+        BeanSqlArgSource queryArg4 = new BeanSqlArgSource(argDTO);
         List<Map<String, Object>> mapList4 = jdbcTemplate.queryForList(querySql4, queryArg4);
         PrintUtils.printObjectList(mapList4);
     }

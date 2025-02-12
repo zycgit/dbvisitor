@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.test.service;
-import net.hasor.dbvisitor.dal.session.DalSession;
+import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.test.dao.role.RoleMapper;
 import net.hasor.dbvisitor.test.dao.user.UserMapper;
 import net.hasor.dbvisitor.test.dto.UserDTO;
@@ -37,11 +37,11 @@ public class MultiDsService {
 
     @Named("three")
     @Inject()
-    private DalSession dalSession;
+    private Session dalSession;
 
     @PostConstruct
     public void init() throws SQLException, IOException {
-        this.dalSession.lambdaTemplate().loadSQL("CreateDB.sql");
+        this.dalSession.jdbc().loadSQL("CreateDB.sql");
     }
 
     public List<UserDTO> queryUsers() {

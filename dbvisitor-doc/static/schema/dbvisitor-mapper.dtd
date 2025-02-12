@@ -158,6 +158,7 @@
         id CDATA #REQUIRED
         statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
         timeout CDATA #IMPLIED
+        bindOut CDATA #IMPLIED
         >
 
 <!ELEMENT select (#PCDATA | include | trim | where | set | foreach | choose | if | bind)*>
@@ -165,10 +166,13 @@
         id CDATA #REQUIRED
         statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
         timeout CDATA #IMPLIED
-        resultMap CDATA #IMPLIED
-        resultType CDATA #IMPLIED
         fetchSize CDATA #IMPLIED
         resultSetType (FORWARD_ONLY | SCROLL_INSENSITIVE | SCROLL_SENSITIVE | DEFAULT) #IMPLIED
+        resultMap CDATA #IMPLIED
+        resultType CDATA #IMPLIED
+        resultSetExtractor CDATA #IMPLIED
+        resultRowCallback CDATA #IMPLIED
+        resultRowMapper CDATA #IMPLIED
         bindOut CDATA #IMPLIED
         >
 
@@ -187,8 +191,6 @@
         keyProperty CDATA #REQUIRED
         keyColumn CDATA #IMPLIED
         order (BEFORE|AFTER) #IMPLIED
-        resultType CDATA #IMPLIED
-        resultHandler CDATA #IMPLIED
         >
 
 <!ELEMENT include EMPTY>

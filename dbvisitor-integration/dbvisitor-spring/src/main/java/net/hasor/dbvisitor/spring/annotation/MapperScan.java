@@ -15,8 +15,8 @@
  */
 package net.hasor.dbvisitor.spring.annotation;
 import net.hasor.dbvisitor.spring.mapper.MapperScannerConfigurer;
-import net.hasor.dbvisitor.spring.support.MapperBean;
 import net.hasor.dbvisitor.spring.support.ConfigurationBean;
+import net.hasor.dbvisitor.spring.support.MapperBean;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.context.annotation.Import;
