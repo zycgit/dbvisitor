@@ -16,6 +16,8 @@
 package net.hasor.dbvisitor.wrapper.segment;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 
+import java.sql.SQLException;
+
 /**
  * SQL 片段。
  * @author 赵永春 (zyc@hasor.net)
@@ -24,5 +26,5 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 @FunctionalInterface
 public interface Segment {
     /** 获取 SQL 内容 */
-    String getSqlSegment(SqlDialect dialect);
+    String getSqlSegment(SqlDialect dialect) throws SQLException;
 }

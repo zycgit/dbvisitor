@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.wrapper.support.map;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
@@ -30,8 +31,8 @@ import java.util.Map;
 public class DeleteWrapperForMap extends AbstractDeleteWrapper<MapDeleteWrapper, Map<String, Object>, String> //
         implements MapDeleteWrapper {
 
-    public DeleteWrapperForMap(TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
-        super(Map.class, tableMapping, registry, jdbc);
+    public DeleteWrapperForMap(TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {
+        super(Map.class, tableMapping, registry, jdbc, ctx);
     }
 
     @Override

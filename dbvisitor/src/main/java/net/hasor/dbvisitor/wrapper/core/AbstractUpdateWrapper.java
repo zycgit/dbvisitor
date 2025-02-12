@@ -18,6 +18,7 @@ import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
@@ -47,8 +48,8 @@ public abstract class AbstractUpdateWrapper<R, T, P> extends BasicQueryCompare<R
     private         boolean                    allowEmptyWhere = false;
     private         boolean                    allowUpdateKey  = false;
 
-    public AbstractUpdateWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
-        super(exampleType, tableMapping, registry, jdbc);
+    public AbstractUpdateWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {
+        super(exampleType, tableMapping, registry, jdbc, ctx);
 
         Set<String> allowUpdateKeys = new LinkedHashSet<>();
         Set<String> primaryKeys = new LinkedHashSet<>();
@@ -310,7 +311,7 @@ public abstract class AbstractUpdateWrapper<R, T, P> extends BasicQueryCompare<R
     }
 
     @Override
-    protected BoundSql buildBoundSql(SqlDialect dialect) {
+    protected BoundSql buildBoundSql(SqlDialect dialect) throws SQLException {
         if (this.updateValueMap.isEmpty()) {
             throw new IllegalStateException("there nothing to update.");
         }

@@ -20,6 +20,7 @@ import net.hasor.cobble.reflect.SFunction;
 import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BatchBoundSql.BatchBoundSqlObj;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
@@ -51,13 +52,13 @@ import java.util.stream.Collectors;
  * @version : 2022-04-02
  */
 public class InsertWrapperForEntity<T> extends AbstractInsertWrapper<InsertWrapper<T>, T, SFunction<T>> implements EntityInsertWrapper<T> {
-    public InsertWrapperForEntity(TableMapping<T> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
-        super(tableMapping.entityType(), tableMapping, registry, jdbc);
+    public InsertWrapperForEntity(TableMapping<T> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {
+        super(tableMapping.entityType(), tableMapping, registry, jdbc, ctx);
     }
 
     @Override
     public MapInsertWrapper asMap() {
-        return new InsertWrapperForMap(this.getTableMapping(), this.registry, this.jdbc);
+        return new InsertWrapperForMap(this.getTableMapping(), this.registry, this.jdbc, this.queryContext);
     }
 
     @Override
@@ -135,7 +136,7 @@ public class InsertWrapperForEntity<T> extends AbstractInsertWrapper<InsertWrapp
     }
 
     @Override
-    protected BatchBoundSql buildBoundSql(SqlDialect dialect) {
+    protected BatchBoundSql buildBoundSql(SqlDialect dialect) throws SQLException {
         try {
             List<String> useColumns = this.findInsertColumns();
             String insertSql = super.buildInsert(dialect, this.forBuildPrimaryKeys, useColumns, this.forBuildInsertColumnTerms);

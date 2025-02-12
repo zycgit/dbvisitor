@@ -21,12 +21,14 @@ import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.wrapper.segment.Segment;
 
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -41,15 +43,17 @@ public abstract class BasicLambda<R, T, P> {
     private final          TableMapping<?> tableMapping;
     //
     protected final        MappingRegistry registry;
+    protected final        QueryContext    queryContext;
     protected final        JdbcTemplate    jdbc;
     protected final        SqlDialect      dialect;
 
-    public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
+    public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {
         this.exampleType = Objects.requireNonNull(exampleType, "exampleType is null.");
         this.exampleIsMap = Map.class == exampleType || Map.class.isAssignableFrom(this.exampleType());
         this.tableMapping = Objects.requireNonNull(tableMapping, "tableMapping is null.");
         this.registry = Objects.requireNonNull(registry, "registry is null.");
         this.jdbc = jdbc;
+        this.queryContext = ctx;
 
         if (registry.getGlobalOptions().getDefaultDialect() != null) {
             this.dialect = registry.getGlobalOptions().getDefaultDialect();
@@ -178,11 +182,11 @@ public abstract class BasicLambda<R, T, P> {
         return this.dialect;
     }
 
-    public final BoundSql getBoundSql() {
+    public final BoundSql getBoundSql() throws SQLException {
         return buildBoundSql(dialect());
     }
 
-    protected abstract BoundSql buildBoundSql(SqlDialect dialect);
+    protected abstract BoundSql buildBoundSql(SqlDialect dialect) throws SQLException;
 
     protected abstract R getSelf();
 

@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.wrapper.segment;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +45,7 @@ public final class MergeSqlSegment implements Segment {
     }
 
     @Override
-    public String getSqlSegment(SqlDialect dialect) {
+    public String getSqlSegment(SqlDialect dialect) throws SQLException {
         return this.getSqlSegment(dialect, this.segments);
     }
 
@@ -52,11 +53,11 @@ public final class MergeSqlSegment implements Segment {
         return new MergeSqlSegment(this.segments.subList(form, this.segments.size()));
     }
 
-    public String noFirstSqlSegment(SqlDialect dialect) {
+    public String noFirstSqlSegment(SqlDialect dialect) throws SQLException {
         return this.getSqlSegment(dialect, this.segments.subList(1, this.segments.size()));
     }
 
-    private String getSqlSegment(SqlDialect dialect, List<Segment> dataList) {
+    private String getSqlSegment(SqlDialect dialect, List<Segment> dataList) throws SQLException {
         StringBuilder strBuilder = new StringBuilder("");
         for (Segment segment : dataList) {
             String str = segment.getSqlSegment(dialect);

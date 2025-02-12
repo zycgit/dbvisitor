@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.wrapper.support.freedom;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
@@ -26,8 +27,8 @@ import net.hasor.dbvisitor.wrapper.support.map.DeleteWrapperForMap;
  * @version : 2022-04-02
  */
 public class DeleteWrapperForFreedom extends DeleteWrapperForMap {
-    public DeleteWrapperForFreedom(TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
-        super(tableMapping, registry, jdbc);
+    public DeleteWrapperForFreedom(TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {
+        super(tableMapping, registry, jdbc, ctx);
     }
 
     @Override

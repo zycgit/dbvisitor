@@ -18,6 +18,11 @@ import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
+import net.hasor.dbvisitor.dynamic.DynamicParsed;
+import net.hasor.dbvisitor.dynamic.QueryContext;
+import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.dynamic.args.ArraySqlArgSource;
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
@@ -44,8 +49,8 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     private   Segment         nextSegmentPrefix = null;
     private   boolean         lockCondition     = false;
 
-    public BasicQueryCompare(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
-        super(exampleType, tableMapping, registry, jdbc);
+    public BasicQueryCompare(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {
+        super(exampleType, tableMapping, registry, jdbc, ctx);
     }
 
     @Override
@@ -116,17 +121,17 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     }
 
     @Override
-    public R apply(String sqlString, Object... args) {
+    public R apply(final String sqlString, final Object... args) {
         if (StringUtils.isBlank(sqlString)) {
             return this.getSelf();
         }
         this.queryTemplate.addSegment(d -> {
-            if (args != null) {
-                for (Object arg : args) {
-                    format("?", arg);
-                }
+            PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(sqlString);
+            SqlBuilder build = parsedSql.buildQuery(new ArraySqlArgSource(args), this.queryContext);
+            for (Object arg : build.getArgs()) {
+                format("?", arg);
             }
-            return sqlString;
+            return build.getSqlString();
         });
         return this.getSelf();
     }

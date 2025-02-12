@@ -19,6 +19,7 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.RowMapper;
@@ -52,8 +53,8 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
     private         boolean         lockGroupBy  = false;
     private         boolean         lockOrderBy  = false;
 
-    public AbstractSelectWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
-        super(exampleType, tableMapping, registry, jdbc);
+    public AbstractSelectWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {
+        super(exampleType, tableMapping, registry, jdbc, ctx);
     }
 
     @Override
@@ -314,7 +315,7 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
     }
 
     @Override
-    protected BoundSql buildBoundSql(final SqlDialect dialect) {
+    protected BoundSql buildBoundSql(final SqlDialect dialect) throws SQLException {
         long pageSize = pageInfo().getPageSize();
         if (pageSize > 0) {
             BoundSql sqlWithoutPage = buildBoundSqlWithoutPage(dialect);
@@ -325,7 +326,7 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
         }
     }
 
-    private BoundSql buildBoundSqlWithoutPage(SqlDialect dialect) {
+    private BoundSql buildBoundSqlWithoutPage(SqlDialect dialect) throws SQLException {
         MergeSqlSegment sqlSegment = new MergeSqlSegment();
         sqlSegment.addSegment(SqlKeyword.SELECT);
         if (this.customSelect.isEmpty()) {

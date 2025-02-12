@@ -16,6 +16,8 @@
 package net.hasor.dbvisitor.wrapper.core;
 import net.hasor.dbvisitor.dialect.BoundSql;
 
+import java.sql.SQLException;
+
 /**
  * 提供 BoundSql 。
  * @author 赵永春 (zyc@hasor.net)
@@ -23,5 +25,5 @@ import net.hasor.dbvisitor.dialect.BoundSql;
  */
 @FunctionalInterface
 public interface BoundSqlBuilder {
-    BoundSql getBoundSql();
+    BoundSql getBoundSql() throws SQLException;
 }

@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.wrapper.core;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
@@ -34,8 +35,8 @@ import static net.hasor.dbvisitor.wrapper.segment.SqlKeyword.*;
 public abstract class AbstractDeleteWrapper<R, T, P> extends BasicQueryCompare<R, T, P> implements DeleteExecute<R> {
     private boolean allowEmptyWhere = false;
 
-    public AbstractDeleteWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
-        super(exampleType, tableMapping, registry, jdbc);
+    public AbstractDeleteWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {
+        super(exampleType, tableMapping, registry, jdbc, ctx);
     }
 
     @Override
@@ -66,7 +67,7 @@ public abstract class AbstractDeleteWrapper<R, T, P> extends BasicQueryCompare<R
     }
 
     @Override
-    protected BoundSql buildBoundSql(SqlDialect dialect) {
+    protected BoundSql buildBoundSql(SqlDialect dialect) throws SQLException {
         // must be clean , The getOriginalBoundSql will reinitialize.
         this.queryParam.clear();
         //

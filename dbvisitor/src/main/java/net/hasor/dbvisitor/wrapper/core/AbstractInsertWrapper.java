@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.wrapper.core;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
@@ -55,8 +56,8 @@ public abstract class AbstractInsertWrapper<R, T, P> extends BasicLambda<R, T, P
     protected final List<InsertEntity>   insertValues;
     protected final List<InsertEntity>   fillBackEntityList;
 
-    public AbstractInsertWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
-        super(exampleType, tableMapping, registry, jdbc);
+    public AbstractInsertWrapper(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {
+        super(exampleType, tableMapping, registry, jdbc, ctx);
 
         List<ColumnMapping> primaryKeys = new ArrayList<>();
         List<ColumnMapping> insertProperties = new ArrayList<>();

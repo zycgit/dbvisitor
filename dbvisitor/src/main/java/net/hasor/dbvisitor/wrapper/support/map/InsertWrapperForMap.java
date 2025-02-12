@@ -20,6 +20,7 @@ import net.hasor.dbvisitor.dialect.BatchBoundSql.BatchBoundSqlObj;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.BoundSql.BoundSqlObj;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
@@ -47,8 +48,8 @@ import java.util.Map;
 public class InsertWrapperForMap extends AbstractInsertWrapper<InsertWrapper<Map<String, Object>>, Map<String, Object>, String> //
         implements MapInsertWrapper {
 
-    public InsertWrapperForMap(TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc) {
-        super(Map.class, tableMapping, registry, jdbc);
+    public InsertWrapperForMap(TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {
+        super(Map.class, tableMapping, registry, jdbc, ctx);
     }
 
     @Override
@@ -67,7 +68,7 @@ public class InsertWrapperForMap extends AbstractInsertWrapper<InsertWrapper<Map
     }
 
     @Override
-    protected BoundSql buildBoundSql(SqlDialect dialect) {
+    protected BoundSql buildBoundSql(SqlDialect dialect) throws SQLException {
         if (this.insertValuesCount.get() == 0) {
             return null;
         }
