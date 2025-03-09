@@ -47,7 +47,7 @@ public interface BasicMapperByAnno {
     @Query("select @{macro,user_do_allColumns} from user_info where user_name = #{abc}")
     List<UserInfo2> listUserList_2(@Param("abc") String name);
 
-    @Call(value = "{call proc_select_user(#{abc, mode=out, jdbcType=decimal})}")
+    @Call("{call proc_select_user(#{abc, mode=out, jdbcType=decimal})}")
     Map<String, Object> callSelectUser(Map<String, Object> args);
 
     @SelectKeySql(value = "SELECT LAST_INSERT_ID()", keyProperty = "id", order = Order.After)

@@ -1,10 +1,10 @@
-package net.hasor.scene.json;
+package net.hasor.scene.types.json;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
-import net.hasor.scene.json.dto.Project1;
-import net.hasor.scene.json.dto.Project2;
-import net.hasor.scene.json.dto.ProjectFeature;
+import net.hasor.scene.types.json.dto.Project1;
+import net.hasor.scene.types.json.dto.Project2;
+import net.hasor.scene.types.json.dto.ProjectFeature;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 

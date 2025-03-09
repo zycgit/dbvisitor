@@ -1,7 +1,7 @@
-package net.hasor.scene.primitive;
+package net.hasor.scene.types.primitive;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
-import net.hasor.scene.primitive.dto.PrimitiveDTO;
+import net.hasor.scene.types.primitive.dto.PrimitiveDTO;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 

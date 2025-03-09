@@ -1,4 +1,4 @@
-package net.hasor.scene.casesensitive;
+package net.hasor.scene.wrapper.casesensitive;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.wrapper.InsertWrapper;

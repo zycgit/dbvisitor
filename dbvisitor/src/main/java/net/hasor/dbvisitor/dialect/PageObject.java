@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -132,5 +132,21 @@ public class PageObject implements Page {
     /** 设置记录总数 */
     public void setTotalCount(long totalCount) {
         this.totalCount = totalCount;
+    }
+
+    public static Page of(int pageNumber, int pageSize) {
+        Page pageInfo = new PageObject();
+        pageInfo.setPageNumberOffset(0);
+        pageInfo.setPageSize(pageSize);
+        pageInfo.setCurrentPage(pageNumber);
+        return pageInfo;
+    }
+
+    public static Page of(int pageNumber, int pageSize, int pageNumberOffset) {
+        Page pageInfo = new PageObject();
+        pageInfo.setPageNumberOffset(pageNumberOffset);
+        pageInfo.setPageSize(pageSize);
+        pageInfo.setCurrentPage(pageNumber);
+        return pageInfo;
     }
 }

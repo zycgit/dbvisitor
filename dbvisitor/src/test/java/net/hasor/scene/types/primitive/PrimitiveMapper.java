@@ -1,4 +1,4 @@
-package net.hasor.scene.primitive;
+package net.hasor.scene.types.primitive;
 import net.hasor.dbvisitor.mapper.RefMapper;
 
 import java.util.List;

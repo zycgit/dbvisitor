@@ -326,8 +326,8 @@
             <xs:attribute name="fetchSize"/>
             <xs:attribute name="resultSetType"/>
             <xs:attribute name="keyProperty" use="required"/>
-            <xs:attribute name="keyColumn" use="required"/>
-            <xs:attribute name="order">
+            <xs:attribute name="keyColumn"/>
+            <xs:attribute name="order" use="required">
                 <xs:simpleType>
                     <xs:restriction base="xs:token">
                         <xs:enumeration value="BEFORE"/>

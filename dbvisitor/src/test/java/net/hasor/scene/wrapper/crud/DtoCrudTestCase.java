@@ -1,8 +1,8 @@
-package net.hasor.scene.singletable;
+package net.hasor.scene.wrapper.crud;
 import net.hasor.dbvisitor.wrapper.EntityQueryWrapper;
 import net.hasor.dbvisitor.wrapper.InsertWrapper;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
-import net.hasor.scene.singletable.dto.UserTableDTO;
+import net.hasor.scene.wrapper.crud.dto.UserTableDTO;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 

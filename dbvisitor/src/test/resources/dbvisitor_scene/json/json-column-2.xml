@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="resultMap_test">
-    <resultMap id="projectMap_1" type="net.hasor.scene.json.dto.Project2">
+    <resultMap id="projectMap_1" type="net.hasor.scene.types.json.dto.Project2">
         <result column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="feature" property="feature" typeHandler="net.hasor.dbvisitor.types.handler.json.JsonTypeHandler"/>

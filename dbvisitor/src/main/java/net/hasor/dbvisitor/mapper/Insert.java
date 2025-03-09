@@ -39,13 +39,13 @@ public @interface Insert {
     boolean useGeneratedKeys() default false;
 
     /**
-     * 回填自增属性值的 Bean 属性名。
+     * 当 {@link #useGeneratedKeys()} 设置为 true 后，用于回填自增后属性值的 Bean 属性名。
      * - 如果同时配置了 SelectKey 注解该配置将会失效。
      */
     String keyProperty() default "";
 
     /**
-     * 回填自增属性值时候选择的 查询结果列名。
+     * 当 {@link #useGeneratedKeys()} 设置为 true 后，回填自增属性值时候选择的查询结果列名。
      * - 如果同时配置了 SelectKey 注解该配置将会失效。
      */
     String keyColumn() default "";

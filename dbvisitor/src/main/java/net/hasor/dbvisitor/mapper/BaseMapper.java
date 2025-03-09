@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper;
+import java.io.Serializable;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.wrapper.*;
-
-import java.io.Serializable;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Mapper 继承该接口后可以获得 CRUD 功能
@@ -116,13 +116,13 @@ public interface BaseMapper<T> extends Mapper {
      * 修改
      * @param entity 实体对象
      */
-    int updateById(T entity) throws RuntimeSQLException;
+    int update(T entity) throws RuntimeSQLException;
 
     /**
      * 保存或修改
      * @param entity 实体对象
      */
-    int upsertById(T entity) throws RuntimeSQLException;
+    int upsert(T entity) throws RuntimeSQLException;
 
     /**
      * 局部修改

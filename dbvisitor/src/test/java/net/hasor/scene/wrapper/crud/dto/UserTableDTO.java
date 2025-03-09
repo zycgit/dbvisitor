@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.scene.singletable.dto;
+package net.hasor.scene.wrapper.crud.dto;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Table;

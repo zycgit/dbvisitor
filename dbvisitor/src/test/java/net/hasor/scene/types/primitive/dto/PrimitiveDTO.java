@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.scene.primitive.dto;
+package net.hasor.scene.types.primitive.dto;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Table;

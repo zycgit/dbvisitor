@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.scene.page;
+package net.hasor.scene.wrapper.stream;
 import net.hasor.dbvisitor.dialect.provider.H2Dialect;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;

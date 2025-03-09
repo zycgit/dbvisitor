@@ -1,16 +1,17 @@
 package net.hasor.dbvisitor.session;
-import net.hasor.cobble.WellKnowFormat;
-import net.hasor.dbvisitor.mapper.BaseMapper;
-import net.hasor.dbvisitor.session.dto.UserInfo2;
-import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import org.junit.Test;
+
+import net.hasor.cobble.WellKnowFormat;
+import net.hasor.dbvisitor.mapper.BaseMapper;
+import net.hasor.dbvisitor.session.dto.UserInfo2;
+import net.hasor.test.utils.DsUtils;
 
 public class BasicMapperTest {
     public static Date passer(String date) throws ParseException {
@@ -209,8 +210,8 @@ public class BasicMapperTest {
             dat1.setEmail("abc");
             dat2.setEmail("abc");
 
-            assert mapper.updateById(dat1) == 1;
-            assert mapper.updateById(dat2) == 1;
+            assert mapper.update(dat1) == 1;
+            assert mapper.update(dat2) == 1;
 
             UserInfo2 sample = new UserInfo2();
             sample.setEmail("abc");
@@ -244,7 +245,7 @@ public class BasicMapperTest {
             user1.setSeq(16);
             user1.setCreateTime(passer("2021-07-20 12:34:56"));
 
-            assert mapper.upsertById(user1) == 1;
+            assert mapper.upsert(user1) == 1;
             assert mapper.countAll() == 4;
 
             UserInfo2 tbUser1 = mapper.selectById("11");
@@ -277,7 +278,7 @@ public class BasicMapperTest {
             user1.setSeq(16);
             user1.setCreateTime(passer("2021-07-20 12:34:56"));
 
-            assert mapper.upsertById(user1) == 1;
+            assert mapper.upsert(user1) == 1;
             assert mapper.countAll() == 3;
 
             UserInfo2 tbUser1 = mapper.selectById(userInfo.getUid());

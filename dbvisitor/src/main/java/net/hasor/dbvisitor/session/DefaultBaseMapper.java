@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.session;
+import java.io.Serializable;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageObject;
 import net.hasor.dbvisitor.dialect.PageResult;
@@ -26,14 +34,6 @@ import net.hasor.dbvisitor.wrapper.EntityDeleteWrapper;
 import net.hasor.dbvisitor.wrapper.EntityQueryWrapper;
 import net.hasor.dbvisitor.wrapper.EntityUpdateWrapper;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
-
-import java.io.Serializable;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * BaseMapper 接口的实现类。
@@ -82,7 +82,7 @@ class DefaultBaseMapper implements BaseMapper<Object> {
     }
 
     @Override
-    public int updateById(Object entity) throws RuntimeSQLException {
+    public int update(Object entity) throws RuntimeSQLException {
         if (entity == null) {
             throw new NullPointerException("entity is null.");
         }
@@ -114,7 +114,7 @@ class DefaultBaseMapper implements BaseMapper<Object> {
     }
 
     @Override
-    public int upsertById(Object entity) throws RuntimeSQLException {
+    public int upsert(Object entity) throws RuntimeSQLException {
         if (entity == null) {
             throw new NullPointerException("entity is null.");
         }
@@ -388,6 +388,10 @@ class DefaultBaseMapper implements BaseMapper<Object> {
 
     @Override
     public List<Object> listBySample(Object sample) throws RuntimeSQLException {
+        if (sample == null) {
+            return Collections.emptyList();
+        }
+
         try {
             return this.buildQueryBySample(sample).queryForList();
         } catch (SQLException e) {
@@ -397,6 +401,10 @@ class DefaultBaseMapper implements BaseMapper<Object> {
 
     @Override
     public int countBySample(Object sample) throws RuntimeSQLException {
+        if (sample == null) {
+            return -1;
+        }
+
         try {
             return this.buildQueryBySample(sample).queryForCount();
         } catch (SQLException e) {
