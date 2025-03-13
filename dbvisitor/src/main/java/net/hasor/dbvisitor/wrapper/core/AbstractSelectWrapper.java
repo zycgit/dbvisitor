@@ -75,18 +75,42 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
         return this.getSelf();
     }
 
+    @SafeVarargs
     @Override
-    public R selectAdd(P[] properties) {
-        return this.selectApply(properties, false);
+    public final R selectAdd(P first, P... other) {
+        if (first == null && other == null) {
+            throw new IndexOutOfBoundsException("properties is empty.");
+        } else if (first != null && other != null) {
+            List<P> list = new ArrayList<>();
+            list.add(first);
+            list.addAll(Arrays.asList(other));
+            return this.selectApply(list, false);
+        } else if (first == null) {
+            return this.selectApply(Arrays.asList(other), false);
+        } else {
+            return this.selectApply(Collections.singletonList(first), false);
+        }
     }
 
+    @SafeVarargs
     @Override
-    public final R select(P[] properties) {
-        return this.selectApply(properties, true);
+    public final R select(P first, P... other) {
+        if (first == null && other == null) {
+            throw new IndexOutOfBoundsException("properties is empty.");
+        } else if (first != null && other != null) {
+            List<P> list = new ArrayList<>();
+            list.add(first);
+            list.addAll(Arrays.asList(other));
+            return this.selectApply(list, true);
+        } else if (first == null) {
+            return this.selectApply(Arrays.asList(other), true);
+        } else {
+            return this.selectApply(Collections.singletonList(first), true);
+        }
     }
 
-    protected R selectApply(P[] properties, boolean cleanSelect) {
-        if (properties == null || properties.length == 0) {
+    protected R selectApply(List<P> properties, boolean cleanSelect) {
+        if (properties == null || properties.isEmpty()) {
             throw new IndexOutOfBoundsException("properties is empty.");
         }
 
@@ -123,15 +147,31 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
         this.lockGroupBy = true;
     }
 
+    @SafeVarargs
     @Override
-    public final R groupBy(P[] groupBy) {
+    public final R groupBy(P first, P... other) {
         if (this.lockGroupBy) {
             throw new IllegalStateException("must before order by invoke it.");
         }
 
         lockCondition();
 
-        if (groupBy != null && groupBy.length > 0) {
+        //
+        List<P> groupBy;
+        if (first == null && other == null) {
+            throw new IndexOutOfBoundsException("properties is empty.");
+        } else if (first != null && other != null) {
+            groupBy = new ArrayList<>();
+            groupBy.add(first);
+            groupBy.addAll(Arrays.asList(other));
+        } else if (first == null) {
+            groupBy = Arrays.asList(other);
+        } else {
+            groupBy = Collections.singletonList(first);
+        }
+
+        //
+        if (!groupBy.isEmpty()) {
             if (this.groupByList.isEmpty()) {
                 this.queryTemplate.addSegment(SqlKeyword.GROUP_BY);
                 this.queryTemplate.addSegment(this.groupByList);
@@ -152,7 +192,7 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
         this.lockGroupBy = true;
     }
 
-    protected R addOrderBy(OrderType orderType, P[] orderBy, OrderNullsStrategy strategy) {
+    protected R addOrderBy(OrderType orderType, List<P> orderBy, OrderNullsStrategy strategy) {
         if (this.lockOrderBy) {
             throw new IllegalStateException("must before order by invoke it.");
         }
@@ -160,7 +200,7 @@ public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R
         lockCondition();
         lockGroupBy();
 
-        if (orderBy != null && orderBy.length > 0) {
+        if (orderBy != null && !orderBy.isEmpty()) {
             if (this.orderByList.isEmpty()) {
                 this.queryTemplate.addSegment(SqlKeyword.ORDER_BY);
                 this.queryTemplate.addSegment(this.orderByList);

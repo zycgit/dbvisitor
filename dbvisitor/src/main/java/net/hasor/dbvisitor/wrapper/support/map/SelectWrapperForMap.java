@@ -23,7 +23,7 @@ import net.hasor.dbvisitor.wrapper.core.AbstractSelectWrapper;
 import net.hasor.dbvisitor.wrapper.core.OrderNullsStrategy;
 import net.hasor.dbvisitor.wrapper.core.OrderType;
 
-import java.util.Map;
+import java.util.*;
 
 /**
  * 提供 lambda query 能力，是 MapQueryOperation 接口的实现类。
@@ -47,48 +47,31 @@ public class SelectWrapperForMap extends AbstractSelectWrapper<MapQueryWrapper, 
         return property;
     }
 
+    @SafeVarargs
     @Override
-    public MapQueryWrapper select(String property) {
-        return this.select(new String[] { property });
-    }
+    public final MapQueryWrapper orderBy(OrderType orderType, OrderNullsStrategy strategy, String first, String... other) {
+        List<String> orderBy;
+        if (first == null && other == null) {
+            throw new IndexOutOfBoundsException("properties is empty.");
+        } else if (first != null && other != null) {
+            orderBy = new ArrayList<>();
+            orderBy.add(first);
+            orderBy.addAll(Arrays.asList(other));
+        } else if (first == null) {
+            orderBy = Arrays.asList(other);
+        } else {
+            orderBy = Collections.singletonList(first);
+        }
 
-    @Override
-    public MapQueryWrapper selectAdd(String property) {
-        return this.selectAdd(new String[] { property });
-    }
-
-    @Override
-    public MapQueryWrapper groupBy(String property1) {
-        return this.groupBy(new String[] { property1 });
-    }
-
-    @Override
-    public MapQueryWrapper orderBy(String property1) {
-        return this.addOrderBy(OrderType.DEFAULT, new String[] { property1 }, OrderNullsStrategy.DEFAULT);
-    }
-
-    @Override
-    public MapQueryWrapper orderBy(String[] orderBy) {
-        return this.addOrderBy(OrderType.DEFAULT, orderBy, OrderNullsStrategy.DEFAULT);
-    }
-
-    @Override
-    public MapQueryWrapper orderBy(String property1, OrderType orderType, OrderNullsStrategy strategy) {
-        return this.orderBy(new String[] { property1 }, orderType, strategy);
-    }
-
-    @Override
-    public MapQueryWrapper orderBy(String[] properties, OrderType orderType, OrderNullsStrategy strategy) {
         switch (orderType) {
             case ASC:
-                return this.addOrderBy(OrderType.ASC, properties, strategy);
+                return this.addOrderBy(OrderType.ASC, orderBy, strategy);
             case DESC:
-                return this.addOrderBy(OrderType.DESC, properties, strategy);
+                return this.addOrderBy(OrderType.DESC, orderBy, strategy);
             case DEFAULT:
-                return this.addOrderBy(OrderType.DEFAULT, properties, strategy);
+                return this.addOrderBy(OrderType.DEFAULT, orderBy, strategy);
             default:
                 throw new UnsupportedOperationException("orderType " + orderType + " Unsupported.");
         }
     }
-
 }

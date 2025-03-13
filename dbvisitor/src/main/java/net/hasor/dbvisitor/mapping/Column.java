@@ -44,7 +44,7 @@ public @interface Column {
     /** 如果当前属性是一个抽象类型，那么可以通过 specialJavaType 来指定具体的实现类 */
     Class<?> specialJavaType() default Object.class;
 
-    /** 指定使用的 typeHandler（功效和 Mybatis 的 TypeHandler 相同） */
+    /** 指定使用的 typeHandler */
     Class<? extends TypeHandler<?>> typeHandler() default UnknownTypeHandler.class;
 
     /** (选填) key 生成策略，当列的属性为 null 的时。采用一种生成算法来生成 key 值。通常做用于 自增。 */

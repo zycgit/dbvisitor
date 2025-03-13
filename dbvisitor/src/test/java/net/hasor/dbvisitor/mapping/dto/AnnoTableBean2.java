@@ -1,34 +1,25 @@
 package net.hasor.dbvisitor.mapping.dto;
-
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.KeyType;
-import net.hasor.dbvisitor.mapping.ResultMap;
+import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.test.dto.ResourceType;
+
 import java.util.Date;
 
-@ResultMap
-public class AnnoResultMapBean1 {
-
-    @Column(name = "id", primary = true, keyType = KeyType.Auto)
-    private Long id;
-
-    @Column(name = "gmt_create", update = false)
-    private Date gmtCreate;
-
-    @Column(name = "gmt_modified")
-    private Date gmtModified;
-
-    @Column(name = "instance_id")
-    private String instanceId;
-
-    @Column(name = "owner_name")
-    private String ownerName;
-
-    @Column(name = "owner_type")
+/**
+ * @author 赵永春 (zyc@hasor.net)
+ * @version : 2013-12-10
+ */
+@Table
+public class AnnoTableBean2 {
+    @Column(primary = true, keyType = KeyType.Auto)
+    private Long         id;
+    private Date         gmtCreate;
+    private Date         gmtModified;
+    private String       instanceId;
+    private String       ownerName;
     private ResourceType ownerType;
-
-    @Column(name = "content")
-    private byte[] content;
+    private byte[]       content;
 
     public Long getId() {
         return id;

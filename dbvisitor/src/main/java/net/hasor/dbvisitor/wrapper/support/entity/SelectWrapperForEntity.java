@@ -29,7 +29,7 @@ import net.hasor.dbvisitor.wrapper.core.OrderType;
 import net.hasor.dbvisitor.wrapper.segment.SqlKeyword;
 import net.hasor.dbvisitor.wrapper.support.map.SelectWrapperForMap;
 
-import java.util.Collection;
+import java.util.*;
 
 /**
  * 提供 lambda query 能力。是 EntityQueryOperation<T> 接口的实现类。
@@ -56,45 +56,29 @@ public class SelectWrapperForEntity<T> extends AbstractSelectWrapper<EntityQuery
         return BeanUtils.toProperty(property);
     }
 
+    @SafeVarargs
     @Override
-    public EntityQueryWrapper<T> select(SFunction<T> property) {
-        return this.select(new SFunction[] { property });
-    }
+    public final EntityQueryWrapper<T> orderBy(OrderType orderType, OrderNullsStrategy strategy, SFunction<T> first, SFunction<T>... other) {
+        List<SFunction<T>> orderBy;
+        if (first == null && other == null) {
+            throw new IndexOutOfBoundsException("properties is empty.");
+        } else if (first != null && other != null) {
+            orderBy = new ArrayList<>();
+            orderBy.add(first);
+            orderBy.addAll(Arrays.asList(other));
+        } else if (first == null) {
+            orderBy = Arrays.asList(other);
+        } else {
+            orderBy = Collections.singletonList(first);
+        }
 
-    @Override
-    public EntityQueryWrapper<T> selectAdd(SFunction<T> property) {
-        return this.selectAdd(new SFunction[] { property });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> groupBy(SFunction<T> property1) {
-        return this.groupBy(new SFunction[] { property1 });
-    }
-
-    @Override
-    public EntityQueryWrapper<T> orderBy(SFunction<T> property1) {
-        return this.addOrderBy(OrderType.DEFAULT, new SFunction[] { property1 }, OrderNullsStrategy.DEFAULT);
-    }
-
-    @Override
-    public EntityQueryWrapper<T> orderBy(SFunction<T>[] orderBy) {
-        return this.addOrderBy(OrderType.DEFAULT, orderBy, OrderNullsStrategy.DEFAULT);
-    }
-
-    @Override
-    public EntityQueryWrapper<T> orderBy(SFunction<T> property1, OrderType orderType, OrderNullsStrategy strategy) {
-        return this.orderBy(new SFunction[] { property1 }, orderType, strategy);
-    }
-
-    @Override
-    public EntityQueryWrapper<T> orderBy(SFunction<T>[] properties, OrderType orderType, OrderNullsStrategy strategy) {
         switch (orderType) {
             case ASC:
-                return this.addOrderBy(OrderType.ASC, properties, strategy);
+                return this.addOrderBy(OrderType.ASC, orderBy, strategy);
             case DESC:
-                return this.addOrderBy(OrderType.DESC, properties, strategy);
+                return this.addOrderBy(OrderType.DESC, orderBy, strategy);
             case DEFAULT:
-                return this.addOrderBy(OrderType.DEFAULT, properties, strategy);
+                return this.addOrderBy(OrderType.DEFAULT, orderBy, strategy);
             default:
                 throw new UnsupportedOperationException("orderType " + orderType + " Unsupported.");
         }

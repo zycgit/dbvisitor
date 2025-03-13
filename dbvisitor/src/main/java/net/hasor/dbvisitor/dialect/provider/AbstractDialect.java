@@ -114,7 +114,7 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
         if (this.keywords().contains(name.toUpperCase())) {
             useQualifier = true;
         }
-        if (!useQualifier && name.length() > 0) {
+        if (!useQualifier && !name.isEmpty()) {
             useQualifier = FIRST_CHAR.contains(String.valueOf(name.charAt(0)));
         }
         String leftQualifier = useQualifier ? leftQualifier() : "";

@@ -43,14 +43,25 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
      * <p>在分组查询下，返回所有分组列而不是所有列</p>
      * <p>selectAll、select、applySelect 三个当同时调用时只有最后一个生效</p>
      */
-    R select(P property);
+    default R select(P property) {
+        return this.select(property, (P[]) null);
+    }
 
     /**
      * 查询部分字段
      * <p>在分组查询下，返回所有分组列而不是所有列</p>
      * <p>selectAll、select、applySelect 三个当同时调用时只有最后一个生效</p>
      */
-    R select(P[] properties);
+    default R select(P[] properties) {
+        return this.select(null, properties);
+    }
+
+    /**
+     * 查询部分字段
+     * <p>在分组查询下，返回所有分组列而不是所有列</p>
+     * <p>selectAll、select、applySelect 三个当同时调用时只有最后一个生效</p>
+     */
+    R select(P first, P... other);
 
     /**
      * 拼接 sql 方式来自定义 select 和 form 之间的语句，一旦使用自定义那么 selectAll 和 select 将会失效。
@@ -65,12 +76,21 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
     /**
      * 追加查询一个字段，不同于 {@link #select(Object)} 的是不会清空已有选择条件。
      */
-    R selectAdd(P property);
+    default R selectAdd(P property) {
+        return this.selectAdd(property, (P[]) null);
+    }
 
     /**
      * 追加查询部分字段，不同于 {@link #select(Object[])} 的是不会清空已有选择条件。
      */
-    R selectAdd(P[] properties);
+    default R selectAdd(P[] properties) {
+        return this.selectAdd(null, properties);
+    }
+
+    /**
+     * 追加查询部分字段，不同于 {@link #select(Object[])} 的是不会清空已有选择条件。
+     */
+    R selectAdd(P first, P... other);
 
     /**
      * 追加拼接 sql 方式，不同于 {@link #applySelect(String)} 的是不会清空已有选择条件。
@@ -78,61 +98,99 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
     R applySelectAdd(String select);
 
     /** 分组条件，类似：group by xxx */
-    R groupBy(P property1);
+    default R groupBy(P property) {
+        return this.groupBy(property, (P[]) null);
+    }
 
     /** 分组条件，类似：group by xxx */
-    R groupBy(P[] properties);
+    default R groupBy(P[] properties) {
+        return this.groupBy(null, properties);
+    }
+
+    /** 分组条件，类似：group by xxx */
+    R groupBy(P first, P... other);
 
     /** 排序条件，类似：order by xxx */
-    R orderBy(P property1);
+    default R orderBy(P property) {
+        return this.orderBy(OrderType.DEFAULT, OrderNullsStrategy.DEFAULT, property, (P[]) null);
+    }
 
     /** 排序条件，类似：order by xxx */
-    R orderBy(P[] properties);
+    default R orderBy(P[] properties) {
+        return this.orderBy(OrderType.DEFAULT, OrderNullsStrategy.DEFAULT, null, properties);
+    }
+
+    /** 分组条件，类似：group by xxx */
+    default R orderBy(P first, P... other) {
+        return this.orderBy(OrderType.DEFAULT, OrderNullsStrategy.DEFAULT, first, other);
+    }
 
     /** 排序条件，类似：order by xxx */
-    R orderBy(P property1, OrderType orderType, OrderNullsStrategy strategy);
+    default R orderBy(OrderType orderType, OrderNullsStrategy strategy, P property) {
+        return this.orderBy(orderType, strategy, property, (P[]) null);
+    }
 
     /** 排序条件，类似：order by xxx */
-    R orderBy(P[] properties, OrderType orderType, OrderNullsStrategy strategy);
+    default R orderBy(OrderType orderType, OrderNullsStrategy strategy, P[] properties) {
+        return this.orderBy(orderType, strategy, null, properties);
+    }
+
+    /** 排序条件，类似：order by xxx */
+    R orderBy(OrderType orderType, OrderNullsStrategy strategy, P first, P... other);
 
     /** 排序(升序)，类似：order by xxx asc */
-    default R asc(P property1) {
-        return this.orderBy(property1, OrderType.ASC, OrderNullsStrategy.DEFAULT);
+    default R asc(P property) {
+        return this.orderBy(OrderType.ASC, OrderNullsStrategy.DEFAULT, property, (P[]) null);
     }
 
     /** 排序(升序)，类似：order by xxx asc */
     default R asc(P[] properties) {
-        return this.orderBy(properties, OrderType.ASC, OrderNullsStrategy.DEFAULT);
+        return this.orderBy(OrderType.ASC, OrderNullsStrategy.DEFAULT, null, properties);
     }
 
     /** 排序(升序)，类似：order by xxx asc */
-    default R asc(P property1, OrderNullsStrategy strategy) {
-        return this.orderBy(property1, OrderType.ASC, strategy);
+    default R asc(P first, P... other) {
+        return this.orderBy(OrderType.ASC, OrderNullsStrategy.DEFAULT, first, other);
     }
 
     /** 排序(升序)，类似：order by xxx asc */
-    default R asc(P[] properties, OrderNullsStrategy strategy) {
-        return this.orderBy(properties, OrderType.ASC, strategy);
+    default R asc(OrderNullsStrategy strategy, P property) {
+        return this.orderBy(OrderType.ASC, strategy, property, (P[]) null);
+    }
+
+    /** 排序(升序)，类似：order by xxx asc */
+    default R asc(OrderNullsStrategy strategy, P[] properties) {
+        return this.orderBy(OrderType.ASC, strategy, null, properties);
+    }
+
+    /** 排序(升序)，类似：order by xxx asc */
+    default R asc(OrderNullsStrategy strategy, P first, P... other) {
+        return this.orderBy(OrderType.ASC, strategy, first, other);
     }
 
     /** 排序(降序)，类似：order by xxx desc */
-    default R desc(P property1) {
-        return this.orderBy(property1, OrderType.DESC, OrderNullsStrategy.DEFAULT);
+    default R desc(P property) {
+        return this.orderBy(OrderType.DESC, OrderNullsStrategy.DEFAULT, property, (P[]) null);
     }
 
     /** 排序(降序)，类似：order by xxx desc */
     default R desc(P[] properties) {
-        return this.orderBy(properties, OrderType.DESC, OrderNullsStrategy.DEFAULT);
+        return this.orderBy(OrderType.DESC, OrderNullsStrategy.DEFAULT, null, properties);
     }
 
     /** 排序(降序)，类似：order by xxx desc */
-    default R desc(P property1, OrderNullsStrategy strategy) {
-        return this.orderBy(property1, OrderType.DESC, strategy);
+    default R desc(OrderNullsStrategy strategy, P property) {
+        return this.orderBy(OrderType.DESC, strategy, property, (P[]) null);
     }
 
     /** 排序(降序)，类似：order by xxx desc */
-    default R desc(P[] properties, OrderNullsStrategy strategy) {
-        return this.orderBy(properties, OrderType.DESC, strategy);
+    default R desc(OrderNullsStrategy strategy, P[] properties) {
+        return this.orderBy(OrderType.DESC, strategy, null, properties);
+    }
+
+    /** 排序(降序)，类似：order by xxx desc */
+    default R desc(OrderNullsStrategy strategy, P first, P... other) {
+        return this.orderBy(OrderType.DESC, strategy, first, other);
     }
 
     /** 设置分页信息 */

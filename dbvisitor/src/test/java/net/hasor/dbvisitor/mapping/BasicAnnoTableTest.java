@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.mapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.mapping.dto.AnnoTableBean1;
+import net.hasor.dbvisitor.mapping.dto.AnnoTableBean2;
 import net.hasor.dbvisitor.types.handler.number.LongTypeHandler;
 import net.hasor.dbvisitor.types.handler.string.EnumTypeHandler;
 import net.hasor.dbvisitor.types.handler.string.StringTypeHandler;
@@ -157,6 +158,122 @@ public class BasicAnnoTableTest {
 
         TableMapping<?> def8 = registry.findBySpace("abc", "aac");
         assert ent1 == def8;
+    }
+
+    @Test
+    public void annoTableInfo_4() {
+        MappingRegistry registry = new MappingRegistry();
+        TableMapping<?> tab = registry.loadEntityToSpace(AnnoTableBean2.class);
+
+        assert tab.getCatalog() == null;
+        assert tab.getSchema() == null;
+        assert tab.getTable().equals("AnnoTableBean2");
+        assert tab.entityType() == AnnoTableBean2.class;
+        assert tab.isAutoProperty();
+        assert !tab.useDelimited();
+        assert tab.isCaseInsensitive();
+        assert !tab.isToCamelCase();
+        assert !tab.isMapEntity();
+
+        assert tab.getDescription() == null;
+
+        assert tab.getPropertyByName("id").isPrimaryKey();
+        assert tab.getPropertyByName("id").isInsert();
+        assert tab.getPropertyByName("id").isUpdate();
+        assert tab.getPropertyByName("id").getColumn().equals("id");
+        assert tab.getPropertyByName("id").getJavaType() == Long.class;
+        assert tab.getPropertyByName("id").getTypeHandler() instanceof LongTypeHandler;
+        assert tab.getPropertyByName("id").getKeySeqHolder().toString().startsWith("Auto@");
+
+        assert !tab.getPropertyByName("gmtCreate").isPrimaryKey();
+        assert tab.getPropertyByName("gmtCreate").isInsert();
+        assert tab.getPropertyByName("gmtCreate").isUpdate();
+        assert tab.getPropertyByName("gmtCreate").getColumn().equals("gmtCreate");
+        assert tab.getPropertyByName("gmtCreate").getJavaType() == Date.class;
+        assert tab.getPropertyByName("gmtCreate").getTypeHandler() instanceof SqlTimestampAsDateTypeHandler;
+        assert tab.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
+
+        assert !tab.getPropertyByName("gmtModified").isPrimaryKey();
+        assert tab.getPropertyByName("gmtModified").isInsert();
+        assert tab.getPropertyByName("gmtModified").isUpdate();
+        assert tab.getPropertyByName("gmtModified").getColumn().equals("gmtModified");
+        assert tab.getPropertyByName("gmtModified").getJavaType() == Date.class;
+        assert tab.getPropertyByName("gmtModified").getTypeHandler() instanceof SqlTimestampAsDateTypeHandler;
+        assert tab.getPropertyByName("gmtModified").getKeySeqHolder() == null;
+
+        assert !tab.getPropertyByName("instanceId").isPrimaryKey();
+        assert tab.getPropertyByName("instanceId").isInsert();
+        assert tab.getPropertyByName("instanceId").isUpdate();
+        assert tab.getPropertyByName("instanceId").getColumn().equals("instanceId");
+        assert tab.getPropertyByName("instanceId").getJavaType() == String.class;
+        assert tab.getPropertyByName("instanceId").getTypeHandler() instanceof StringTypeHandler;
+        assert tab.getPropertyByName("instanceId").getKeySeqHolder() == null;
+
+        assert !tab.getPropertyByName("ownerType").isPrimaryKey();
+        assert tab.getPropertyByName("ownerType").isInsert();
+        assert tab.getPropertyByName("ownerType").isUpdate();
+        assert tab.getPropertyByName("ownerType").getColumn().equals("ownerType");
+        assert tab.getPropertyByName("ownerType").getJavaType() == ResourceType.class;
+        assert tab.getPropertyByName("ownerType").getTypeHandler() instanceof EnumTypeHandler;
+        assert tab.getPropertyByName("ownerType").getKeySeqHolder() == null;
+    }
+
+    @Test
+    public void annoTableInfo_5() {
+        MappingRegistry registry = new MappingRegistry(null, Options.of().mapUnderscoreToCamelCase(true));
+        TableMapping<?> tab = registry.loadEntityToSpace(AnnoTableBean2.class);
+
+        assert tab.getCatalog() == null;
+        assert tab.getSchema() == null;
+        assert tab.getTable().equals("anno_table_bean2");
+        assert tab.entityType() == AnnoTableBean2.class;
+        assert tab.isAutoProperty();
+        assert !tab.useDelimited();
+        assert tab.isCaseInsensitive();
+        assert tab.isToCamelCase();
+        assert !tab.isMapEntity();
+
+        assert tab.getDescription() == null;
+
+        assert tab.getPropertyByName("id").isPrimaryKey();
+        assert tab.getPropertyByName("id").isInsert();
+        assert tab.getPropertyByName("id").isUpdate();
+        assert tab.getPropertyByName("id").getColumn().equals("id");
+        assert tab.getPropertyByName("id").getJavaType() == Long.class;
+        assert tab.getPropertyByName("id").getTypeHandler() instanceof LongTypeHandler;
+        assert tab.getPropertyByName("id").getKeySeqHolder().toString().startsWith("Auto@");
+
+        assert !tab.getPropertyByName("gmtCreate").isPrimaryKey();
+        assert tab.getPropertyByName("gmtCreate").isInsert();
+        assert tab.getPropertyByName("gmtCreate").isUpdate();
+        assert tab.getPropertyByName("gmtCreate").getColumn().equals("gmt_create");
+        assert tab.getPropertyByName("gmtCreate").getJavaType() == Date.class;
+        assert tab.getPropertyByName("gmtCreate").getTypeHandler() instanceof SqlTimestampAsDateTypeHandler;
+        assert tab.getPropertyByName("gmtCreate").getKeySeqHolder() == null;
+
+        assert !tab.getPropertyByName("gmtModified").isPrimaryKey();
+        assert tab.getPropertyByName("gmtModified").isInsert();
+        assert tab.getPropertyByName("gmtModified").isUpdate();
+        assert tab.getPropertyByName("gmtModified").getColumn().equals("gmt_modified");
+        assert tab.getPropertyByName("gmtModified").getJavaType() == Date.class;
+        assert tab.getPropertyByName("gmtModified").getTypeHandler() instanceof SqlTimestampAsDateTypeHandler;
+        assert tab.getPropertyByName("gmtModified").getKeySeqHolder() == null;
+
+        assert !tab.getPropertyByName("instanceId").isPrimaryKey();
+        assert tab.getPropertyByName("instanceId").isInsert();
+        assert tab.getPropertyByName("instanceId").isUpdate();
+        assert tab.getPropertyByName("instanceId").getColumn().equals("instance_id");
+        assert tab.getPropertyByName("instanceId").getJavaType() == String.class;
+        assert tab.getPropertyByName("instanceId").getTypeHandler() instanceof StringTypeHandler;
+        assert tab.getPropertyByName("instanceId").getKeySeqHolder() == null;
+
+        assert !tab.getPropertyByName("ownerType").isPrimaryKey();
+        assert tab.getPropertyByName("ownerType").isInsert();
+        assert tab.getPropertyByName("ownerType").isUpdate();
+        assert tab.getPropertyByName("ownerType").getColumn().equals("owner_type");
+        assert tab.getPropertyByName("ownerType").getJavaType() == ResourceType.class;
+        assert tab.getPropertyByName("ownerType").getTypeHandler() instanceof EnumTypeHandler;
+        assert tab.getPropertyByName("ownerType").getKeySeqHolder() == null;
     }
 
     @Test
