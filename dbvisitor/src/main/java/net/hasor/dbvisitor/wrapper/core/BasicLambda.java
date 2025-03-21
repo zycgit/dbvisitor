@@ -55,8 +55,8 @@ public abstract class BasicLambda<R, T, P> {
         this.jdbc = jdbc;
         this.queryContext = ctx;
 
-        if (registry.getGlobalOptions().getDefaultDialect() != null) {
-            this.dialect = registry.getGlobalOptions().getDefaultDialect();
+        if (registry.getGlobalOptions().getDialect() != null) {
+            this.dialect = registry.getGlobalOptions().getDialect();
         } else {
             this.dialect = DefaultSqlDialect.DEFAULT;
         }

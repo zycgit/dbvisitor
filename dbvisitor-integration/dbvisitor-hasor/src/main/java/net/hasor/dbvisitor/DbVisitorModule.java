@@ -17,11 +17,14 @@ package net.hasor.dbvisitor;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.MatchUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.loader.ClassMatcher;
+import net.hasor.cobble.loader.CobbleClassScanner;
 import net.hasor.cobble.loader.MatchType;
 import net.hasor.cobble.loader.ScanEvent;
 import net.hasor.cobble.loader.providers.ClassPathResourceLoader;
 import net.hasor.core.*;
 import net.hasor.core.setting.SettingNode;
+import static net.hasor.dbvisitor.ConfigKeys.*;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.jdbc.core.JdbcAccessor;
@@ -37,7 +40,6 @@ import net.hasor.dbvisitor.transaction.*;
 import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import net.hasor.dbvisitor.wrapper.WrapperOperations;
-import net.hasor.utils.ScanClassPath;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -49,8 +51,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-
-import static net.hasor.dbvisitor.ConfigKeys.*;
 
 /**
  *
@@ -176,7 +176,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
         }
         if (StringUtils.isNotBlank(optSqlDialect)) {
             ClassLoader classLoader = apiBinder.getEnvironment().getClassLoader();
-            options.setDefaultDialect(SqlDialectRegister.findOrCreate(optSqlDialect, classLoader));
+            options.setDialect(SqlDialectRegister.findOrCreate(optSqlDialect, classLoader));
         }
 
         return configureByConfig(dbName, apiBinder, new Configuration(options));
@@ -234,27 +234,24 @@ public class DbVisitorModule implements net.hasor.core.Module {
         String scanMarkerAnnotation = settings.getString(configScanMarkerAnnotation, ScanMarkerAnnotation.getDefaultValue());
         String scanMarkerInterface = settings.getString(configScanMarkerInterface, ScanMarkerInterface.getDefaultValue());
 
-        if (mapperDisabled) {
-            return;
-        }
-
-        if (StringUtils.isBlank(mapperPackageConfig)) {
+        if (mapperDisabled || StringUtils.isBlank(mapperPackageConfig)) {
             return;
         }
 
         String[] mapperPackages = mapperPackageConfig.split(",");
         Set<Class<?>> finalResult = new HashSet<>();
+        CobbleClassScanner scanner = new CobbleClassScanner(apiBinder.getEnvironment().getClassLoader());
 
         if (StringUtils.isNotBlank(scanMarkerAnnotation)) {
             Class<?> scanAnnotationType = apiBinder.getEnvironment().getClassLoader().loadClass(scanMarkerAnnotation);
-            Set<Class<?>> result1 = ScanClassPath.newInstance(mapperPackages).getClassSet(scanAnnotationType);
+            Set<Class<?>> result1 = scanner.getClassSet(mapperPackages, c -> testClass(c, scanAnnotationType));
             finalResult.addAll(result1);
             finalResult.remove(scanAnnotationType);
         }
 
         if (StringUtils.isNotBlank(scanMarkerInterface)) {
             Class<?> scanInterfaceType = apiBinder.getEnvironment().getClassLoader().loadClass(scanMarkerInterface);
-            Set<Class<?>> result2 = ScanClassPath.newInstance(mapperPackages).getClassSet(scanInterfaceType);
+            Set<Class<?>> result2 = scanner.getClassSet(mapperPackages, c -> testClass(c, scanInterfaceType));
             finalResult.addAll(result2);
             finalResult.remove(scanInterfaceType);
         }
@@ -400,6 +397,28 @@ public class DbVisitorModule implements net.hasor.core.Module {
                 return matcherType.getDeclaringClass().isAnnotationPresent(this.annotationType);
             }
         }
+    }
+
+    private static boolean testClass(ClassMatcher.ClassMatcherContext matcherContext, Class<?> compareType) {
+        ClassMatcher.ClassInfo classInfo = matcherContext.getClassInfo();
+        String compareTypeName = compareType.getName();
+
+        if (classInfo.className.equals(compareTypeName) || classInfo.superName.equals(compareTypeName)) {
+            return true;
+        }
+
+        for (String castType : classInfo.castType) {
+            if (castType.equals(compareTypeName)) {
+                return true;
+            }
+        }
+        for (String face : classInfo.annos) {
+            if (face.equals(compareTypeName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static String lineToHump(String name) {

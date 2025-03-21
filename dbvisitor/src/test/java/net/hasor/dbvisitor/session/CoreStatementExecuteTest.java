@@ -29,7 +29,7 @@ public class CoreStatementExecuteTest {
     @Test
     public void selectList_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         StatementExecute exec = new StatementExecute(config);
 
         config.loadMapper(CoreStatementExecuteMapper.class);
@@ -50,7 +50,7 @@ public class CoreStatementExecuteTest {
     @Test
     public void selectList_2() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         StatementExecute exec = new StatementExecute(config);
 
         config.loadMapper(CoreStatementExecuteMapper.class);
@@ -69,7 +69,7 @@ public class CoreStatementExecuteTest {
     @Test
     public void insertBean_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         StatementExecute exec = new StatementExecute(config);
 
         config.loadMapper(CoreStatementExecuteMapper.class);
@@ -100,7 +100,7 @@ public class CoreStatementExecuteTest {
     @Test
     public void updateBean_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         StatementExecute exec = new StatementExecute(config);
 
         config.loadMapper(CoreStatementExecuteMapper.class);
@@ -124,7 +124,7 @@ public class CoreStatementExecuteTest {
     @Test
     public void deleteBean_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         StatementExecute exec = new StatementExecute(config);
 
         config.loadMapper(CoreStatementExecuteMapper.class);
@@ -149,7 +149,7 @@ public class CoreStatementExecuteTest {
     @Test
     public void page_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         StatementExecute exec = new StatementExecute(config);
 
         config.loadMapper(CoreStatementExecuteMapper.class);

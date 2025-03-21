@@ -54,7 +54,7 @@ public class FreedomToCamelBuildInsertTest {
     }
 
     private WrapperAdapter newLambda() throws SQLException {
-        Options opt = Options.of().defaultDialect(new MySqlDialect()).mapUnderscoreToCamelCase(true);
+        Options opt = Options.of().dialect(new MySqlDialect()).mapUnderscoreToCamelCase(true);
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());
         context.setMacroRegistry(new MacroRegistry());

@@ -35,7 +35,7 @@ public class CoreCallableStatementExecuteMapperTest {
     @Test
     public void executeCall_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         CallableStatementExecute exec = new CallableStatementExecute(config);
 
         config.loadMapper(CoreCallableStatementExecuteMapper.class);
@@ -59,7 +59,7 @@ public class CoreCallableStatementExecuteMapperTest {
     @Test
     public void executeCall_2() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         CallableStatementExecute exec = new CallableStatementExecute(config);
 
         config.loadMapper(CoreCallableStatementExecuteMapper.class);
@@ -84,7 +84,7 @@ public class CoreCallableStatementExecuteMapperTest {
     @Test
     public void page_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         CallableStatementExecute exec = new CallableStatementExecute(config);
 
         config.loadMapper(CoreCallableStatementExecuteMapper.class);

@@ -194,7 +194,7 @@ public class DbVisitorPlugin implements Plugin {
             opt.ignoreNonExistStatement(Boolean.parseBoolean(optIgnoreNonExistStatement));
         }
         if (StringUtils.isNotBlank(optSqlDialect)) {
-            opt.defaultDialect(SqlDialectRegister.findOrCreate(optSqlDialect, classLoader));
+            opt.dialect(SqlDialectRegister.findOrCreate(optSqlDialect, classLoader));
         }
         return opt;
     }

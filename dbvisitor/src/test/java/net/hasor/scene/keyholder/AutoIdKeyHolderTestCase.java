@@ -59,7 +59,7 @@ public class AutoIdKeyHolderTestCase {
     @Test
     public void autoSeqTestCase() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            Options o = Options.of().defaultDialect(JdbcHelper.findDialect(c));
+            Options o = Options.of().dialect(JdbcHelper.findDialect(c));
             WrapperAdapter wrapper = new WrapperAdapter(c, o);
             wrapper.delete(UserDTO_SEQ.class).allowEmptyWhere().doDelete();
 

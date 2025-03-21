@@ -44,7 +44,7 @@ import static net.hasor.test.utils.TestUtils.INSERT_ARRAY;
 public class DoEntPageTest {
 
     private WrapperAdapter newLambda() throws SQLException {
-        Options opt = Options.of().defaultDialect(new MySqlDialect());
+        Options opt = Options.of().dialect(new MySqlDialect());
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());
         context.setMacroRegistry(new MacroRegistry());
@@ -55,7 +55,7 @@ public class DoEntPageTest {
     }
 
     private WrapperAdapter newLambda(Connection c) throws SQLException {
-        Options opt = Options.of().defaultDialect(new MySqlDialect());
+        Options opt = Options.of().dialect(new MySqlDialect());
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());
         context.setMacroRegistry(new MacroRegistry());

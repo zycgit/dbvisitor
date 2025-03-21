@@ -91,7 +91,7 @@ public class GeneratedKeyHandlerContext {
     }
 
     public SqlDialect getSqlDialect() {
-        return this.registry.getGlobalOptions().getDefaultDialect();
+        return this.registry.getGlobalOptions().getDialect();
     }
 
     public Annotations getAnnotations() {

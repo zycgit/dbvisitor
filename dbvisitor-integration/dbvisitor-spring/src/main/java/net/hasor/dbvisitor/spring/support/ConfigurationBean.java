@@ -90,9 +90,9 @@ public class ConfigurationBean extends AbstractSupportBean<Configuration> {
         options.setUseDelimited(this.useDelimited);
         options.setIgnoreNonExistStatement(this.ignoreNonExistStatement);
         if (this.dialect != null) {
-            options.setDefaultDialect(this.dialect);
+            options.setDialect(this.dialect);
         } else if (StringUtils.isNotBlank(this.dialectName)) {
-            options.setDefaultDialect(SqlDialectRegister.findOrCreate(this.dialectName, this.classLoader));
+            options.setDialect(SqlDialectRegister.findOrCreate(this.dialectName, this.classLoader));
         }
 
         MappingRegistry mappingRegistry = new MappingRegistry(classLoader, typeRegistry, options);

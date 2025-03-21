@@ -32,6 +32,7 @@ import net.hasor.cobble.setting.BasicSettings;
 import net.hasor.cobble.setting.SettingNode;
 import net.hasor.cobble.setting.Settings;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
+import static net.hasor.dbvisitor.guice.ConfigKeys.*;
 import net.hasor.dbvisitor.guice.provider.JdbcTemplateProvider;
 import net.hasor.dbvisitor.guice.provider.TransactionManagerProvider;
 import net.hasor.dbvisitor.guice.provider.WrapperAdapterProvider;
@@ -57,8 +58,6 @@ import java.net.URI;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import static net.hasor.dbvisitor.guice.ConfigKeys.*;
 
 /**
  *
@@ -199,7 +198,7 @@ public class DbVisitorModule implements com.google.inject.Module {
             options.setIgnoreNonExistStatement(Boolean.parseBoolean(optIgnoreNonExistStatement));
         }
         if (StringUtils.isNotBlank(optSqlDialect)) {
-            options.setDefaultDialect(SqlDialectRegister.findOrCreate(optSqlDialect, this.classLoader));
+            options.setDialect(SqlDialectRegister.findOrCreate(optSqlDialect, this.classLoader));
         }
 
         return configureByConfig(dbName, binder, new Configuration(options));
@@ -264,11 +263,7 @@ public class DbVisitorModule implements com.google.inject.Module {
         String scanMarkerAnnotation = this.settings.getString(configScanMarkerAnnotation, ScanMarkerAnnotation.getDefaultValue());
         String scanMarkerInterface = this.settings.getString(configScanMarkerInterface, ScanMarkerInterface.getDefaultValue());
 
-        if (mapperDisabled) {
-            return;
-        }
-
-        if (StringUtils.isBlank(mapperPackageConfig)) {
+        if (mapperDisabled || StringUtils.isBlank(mapperPackageConfig)) {
             return;
         }
 

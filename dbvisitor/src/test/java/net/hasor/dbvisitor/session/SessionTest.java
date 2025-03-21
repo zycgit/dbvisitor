@@ -30,7 +30,7 @@ public class SessionTest {
     @Test
     public void selectList_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         config.loadMapper(ProxyStatementMapper.class);
 
         try (Connection con = DsUtils.mysqlConn()) {
@@ -45,7 +45,7 @@ public class SessionTest {
     @Test
     public void selectList_2() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         config.loadMapper(ProxyStatementMapper.class);
 
         try (Connection con = DsUtils.mysqlConn()) {
@@ -60,7 +60,7 @@ public class SessionTest {
     @Test
     public void insertBean_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         config.loadMapper(ProxyStatementMapper.class);
 
         Map<String, Object> ctx = CollectionUtils.asMap(//
@@ -82,7 +82,7 @@ public class SessionTest {
     @Test
     public void insertBean_2() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         config.loadMapper(ProxyStatementMapper.class);
 
         Map<String, Object> ctx = CollectionUtils.asMap(//
@@ -104,7 +104,7 @@ public class SessionTest {
     @Test
     public void insertBean_3() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         config.loadMapper(ProxyStatementMapper.class);
 
         AutoIncrID incrID = new AutoIncrID();
@@ -124,7 +124,7 @@ public class SessionTest {
     @Test
     public void page_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         config.loadMapper(ProxyStatementMapper.class);
 
         try (Connection con = DsUtils.mysqlConn()) {

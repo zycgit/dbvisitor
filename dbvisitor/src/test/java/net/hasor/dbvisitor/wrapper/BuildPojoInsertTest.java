@@ -40,7 +40,7 @@ import static net.hasor.test.utils.TestUtils.newID;
  */
 public class BuildPojoInsertTest {
     private WrapperAdapter newLambda() throws SQLException {
-        Options opt = Options.of().defaultDialect(new MySqlDialect());
+        Options opt = Options.of().dialect(new MySqlDialect());
         JdbcQueryContext context = new JdbcQueryContext();
         context.setTypeRegistry(new TypeHandlerRegistry());
         context.setMacroRegistry(new MacroRegistry());

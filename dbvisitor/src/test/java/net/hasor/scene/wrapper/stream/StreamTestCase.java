@@ -35,7 +35,7 @@ import java.util.List;
 public class StreamTestCase extends AbstractDbTest {
     @Test
     public void lambdaQuery_stream_page_0() throws Throwable {
-        Configuration conf = new Configuration(Options.of().defaultDialect(new H2Dialect()));
+        Configuration conf = new Configuration(Options.of().dialect(new H2Dialect()));
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter wrapper = conf.newWrapper(c);
             //
@@ -51,7 +51,7 @@ public class StreamTestCase extends AbstractDbTest {
 
     @Test
     public void lambdaQuery_stream_page_1() throws Throwable {
-        Configuration conf = new Configuration(Options.of().defaultDialect(new H2Dialect()));
+        Configuration conf = new Configuration(Options.of().dialect(new H2Dialect()));
         try (Connection c = DsUtils.h2Conn()) {
             WrapperAdapter wrapper = conf.newWrapper(c);
             //

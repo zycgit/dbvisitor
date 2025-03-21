@@ -28,7 +28,7 @@ public class Options {
     private Boolean    mapUnderscoreToCamelCase;
     private Boolean    caseInsensitive;
     private Boolean    useDelimited;
-    private SqlDialect defaultDialect;
+    private SqlDialect dialect;
     private Boolean    ignoreNonExistStatement;
 
     public Options() {
@@ -42,7 +42,7 @@ public class Options {
             this.mapUnderscoreToCamelCase = options.mapUnderscoreToCamelCase;
             this.caseInsensitive = options.caseInsensitive;
             this.useDelimited = options.useDelimited;
-            this.defaultDialect = options.defaultDialect;
+            this.dialect = options.dialect;
             this.ignoreNonExistStatement = options.ignoreNonExistStatement;
         }
     }
@@ -57,7 +57,7 @@ public class Options {
 
     @Override
     public String toString() {
-        String dialect = defaultDialect == null ? null : defaultDialect.getClass().getName();
+        String dialect = this.dialect == null ? null : this.dialect.getClass().getName();
         String key = autoMapping + "," + //
                 this.mapUnderscoreToCamelCase + "," +//
                 this.caseInsensitive + "," +//
@@ -132,16 +132,16 @@ public class Options {
         return this;
     }
 
-    public SqlDialect getDefaultDialect() {
-        return this.defaultDialect;
+    public SqlDialect getDialect() {
+        return this.dialect;
     }
 
-    public void setDefaultDialect(SqlDialect defaultDialect) {
-        this.defaultDialect = defaultDialect;
+    public void setDialect(SqlDialect dialect) {
+        this.dialect = dialect;
     }
 
-    public Options defaultDialect(SqlDialect defaultDialect) {
-        setDefaultDialect(defaultDialect);
+    public Options dialect(SqlDialect dialect) {
+        setDialect(dialect);
         return this;
     }
 
@@ -153,7 +153,7 @@ public class Options {
         this.useDelimited = useDelimited;
     }
 
-    public Options defaultDelimited(Boolean useDelimited) {
+    public Options useDelimited(Boolean useDelimited) {
         setUseDelimited(useDelimited);
         return this;
     }

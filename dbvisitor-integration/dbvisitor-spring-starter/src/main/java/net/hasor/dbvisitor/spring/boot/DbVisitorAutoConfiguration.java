@@ -23,6 +23,7 @@ import net.hasor.dbvisitor.mapper.MapperDef;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
+import static net.hasor.dbvisitor.spring.boot.DbVisitorProperties.PREFIX;
 import net.hasor.dbvisitor.spring.mapper.MapperFileConfigurer;
 import net.hasor.dbvisitor.spring.mapper.MapperScannerConfigurer;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
@@ -49,8 +50,6 @@ import org.springframework.util.StringUtils;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.List;
-
-import static net.hasor.dbvisitor.spring.boot.DbVisitorProperties.PREFIX;
 
 @org.springframework.context.annotation.Configuration
 @ConditionalOnClass({ Session.class, Configuration.class })
@@ -93,7 +92,7 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
         options.setUseDelimited(this.properties.getUseDelimited());
         options.setIgnoreNonExistStatement(this.properties.getIgnoreNonExistStatement());
         if (StringUtils.hasText(this.properties.getDialect())) {
-            options.setDefaultDialect(SqlDialectRegister.findOrCreate(this.properties.getDialect(), this.classLoader));
+            options.setDialect(SqlDialectRegister.findOrCreate(this.properties.getDialect(), this.classLoader));
         }
 
         return new Configuration(options);

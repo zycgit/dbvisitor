@@ -31,7 +31,7 @@ public class ProxyStatementTest {
     @Test
     public void selectList_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         config.loadMapper(ProxyStatementMapper.class);
         FacadeStatement proxy = new FacadeStatement(ProxyStatementMapper.class.getName(), "selectList1", config);
 
@@ -48,7 +48,7 @@ public class ProxyStatementTest {
     @Test
     public void selectList_2() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         config.loadMapper(ProxyStatementMapper.class);
         FacadeStatement proxy = new FacadeStatement(ProxyStatementMapper.class.getName(), "selectList2", config);
 
@@ -65,7 +65,7 @@ public class ProxyStatementTest {
     @Test
     public void insertBean_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         config.loadMapper(ProxyStatementMapper.class);
         FacadeStatement proxy = new FacadeStatement(ProxyStatementMapper.class.getName(), "insertBean1", config);
 
@@ -88,7 +88,7 @@ public class ProxyStatementTest {
     @Test
     public void insertBean_2() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         config.loadMapper(ProxyStatementMapper.class);
         FacadeStatement proxy = new FacadeStatement(ProxyStatementMapper.class.getName(), "insertBean2", config);
 
@@ -111,7 +111,7 @@ public class ProxyStatementTest {
     @Test
     public void insertBean_3() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         config.loadMapper(ProxyStatementMapper.class);
         FacadeStatement proxy = new FacadeStatement(ProxyStatementMapper.class.getName(), "insertBean2", config);
 

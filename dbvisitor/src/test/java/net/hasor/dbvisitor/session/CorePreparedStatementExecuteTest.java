@@ -31,7 +31,7 @@ public class CorePreparedStatementExecuteTest {
     @Test
     public void selectList_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         PreparedStatementExecute exec = new PreparedStatementExecute(config);
 
         config.loadMapper(CorePreparedStatementExecuteMapper.class);
@@ -52,7 +52,7 @@ public class CorePreparedStatementExecuteTest {
     @Test
     public void selectList_2() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         PreparedStatementExecute exec = new PreparedStatementExecute(config);
 
         config.loadMapper(CorePreparedStatementExecuteMapper.class);
@@ -71,7 +71,7 @@ public class CorePreparedStatementExecuteTest {
     @Test
     public void insertBean_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         PreparedStatementExecute exec = new PreparedStatementExecute(config);
 
         config.loadMapper(CorePreparedStatementExecuteMapper.class);
@@ -102,7 +102,7 @@ public class CorePreparedStatementExecuteTest {
     @Test
     public void updateBean_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         PreparedStatementExecute exec = new PreparedStatementExecute(config);
 
         config.loadMapper(CorePreparedStatementExecuteMapper.class);
@@ -126,7 +126,7 @@ public class CorePreparedStatementExecuteTest {
     @Test
     public void deleteBean_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         PreparedStatementExecute exec = new PreparedStatementExecute(config);
 
         config.loadMapper(CorePreparedStatementExecuteMapper.class);
@@ -151,7 +151,7 @@ public class CorePreparedStatementExecuteTest {
     @Test
     public void page_1() throws Exception {
         Configuration config = new Configuration();
-        config.options().setDefaultDialect(new MySqlDialect());
+        config.options().setDialect(new MySqlDialect());
         PreparedStatementExecute exec = new PreparedStatementExecute(config);
 
         config.loadMapper(CorePreparedStatementExecuteMapper.class);

@@ -51,11 +51,23 @@ public class Configuration implements QueryContext {
     private final SessionPrototype    prototype;
 
     public Configuration() {
-        this(Options.of().defaultDialect(new DefaultSqlDialect()));
+        this(Options.of().dialect(new DefaultSqlDialect()));
     }
 
     public Configuration(Options options) {
         MappingRegistry newMapping = new MappingRegistry(Configuration.class.getClassLoader(), options);
+        this.classLoader = newMapping.getClassLoader();
+        this.options = options;
+        this.typeRegistry = newMapping.getTypeRegistry();
+        this.macroRegistry = new MacroRegistry();
+        this.ruleRegistry = new RuleRegistry();
+        this.mappingRegistry = newMapping;
+        this.mapperRegistry = new MapperRegistry(this.mappingRegistry, this.macroRegistry);
+        this.prototype = new SessionPrototype(this);
+    }
+
+    public Configuration(Options options, ClassLoader classLoader) {
+        MappingRegistry newMapping = new MappingRegistry(classLoader, options);
         this.classLoader = newMapping.getClassLoader();
         this.options = options;
         this.typeRegistry = newMapping.getTypeRegistry();

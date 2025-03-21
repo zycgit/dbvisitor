@@ -19,8 +19,6 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.mapper.Mapper;
 import net.hasor.dbvisitor.mapper.MapperDef;
 
-import javax.inject.Singleton;
-
 /**
  *
  */
@@ -36,7 +34,7 @@ public enum ConfigKeys {
     MapperPackages("dbvisitor", "mapper-packages", null),
     ScanMarkerAnnotation("dbvisitor", "marker-annotation", MapperDef.class.getName()),
     ScanMarkerInterface("dbvisitor", "marker-interface", Mapper.class.getName()),
-    MapperScope("dbvisitor", "mapper-scope", Singleton.class.getName()),
+    MapperScope("dbvisitor", "mapper-scope", "singleton"),
 
     OptAutoMapping("dbvisitor", "auto-mapping", null),
     OptCamelCase("dbvisitor", "camel-case", null),

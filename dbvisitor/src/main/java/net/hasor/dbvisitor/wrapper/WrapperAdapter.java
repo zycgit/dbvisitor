@@ -277,8 +277,8 @@ public class WrapperAdapter implements WrapperOperations {
     }
 
     private static SqlDialect findSqlDialect(MappingRegistry registry, JdbcTemplate jdbc) throws SQLException {
-        if (registry.getGlobalOptions().getDefaultDialect() != null) {
-            return registry.getGlobalOptions().getDefaultDialect();
+        if (registry.getGlobalOptions().getDialect() != null) {
+            return registry.getGlobalOptions().getDialect();
         } else {
             return (jdbc == null) ? DefaultSqlDialect.DEFAULT : jdbc.execute((ConnectionCallback<SqlDialect>) JdbcHelper::findDialect);
         }
