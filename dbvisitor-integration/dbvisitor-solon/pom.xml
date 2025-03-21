@@ -24,6 +24,10 @@
         </developer>
     </developers>
 
+    <properties>
+        <solon.version>3.0.7</solon.version>
+    </properties>
+
     <!-- 引用依赖 -->
     <dependencies>
         <dependency>
@@ -33,7 +37,7 @@
         <dependency>
             <groupId>org.noear</groupId>
             <artifactId>solon-data</artifactId>
-            <version>3.0.7</version>
+            <version>${solon.version}</version>
         </dependency>
 
         <!-- test -->
@@ -58,6 +62,12 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.4.7</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.noear</groupId>
+            <artifactId>solon-test-junit4</artifactId>
+            <version>${solon.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

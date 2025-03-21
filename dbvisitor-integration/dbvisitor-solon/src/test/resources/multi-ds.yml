@@ -1,0 +1,20 @@
+solon.dataSources:
+  one:
+    class: "com.zaxxer.hikari.HikariDataSource"
+    jdbcUrl: "jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true&user=root&password=123456"
+  two:
+    class: "com.zaxxer.hikari.HikariDataSource"
+    jdbcUrl: "jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true&user=root&password=123456"
+  three:
+    class: "com.zaxxer.hikari.HikariDataSource"
+    jdbcUrl: "jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true&user=root&password=123456"
+
+dbvisitor:
+  one:
+    mapperLocations: classpath:dbvisitor/mapper/role/*.xml
+    mapperPackages: net.hasor.dbvisitor.test.dao.role
+  two:
+    mapperLocations: classpath:dbvisitor/mapper/user/*.xml
+    mapperPackages: net.hasor.dbvisitor.test.dao.user
+  three:
+    mapperDisabled: true

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.dbvisitor.test.dao.user.UserMapper">
+
+    <resultMap id="userDTO" table="stb_user" type="net.hasor.dbvisitor.test.dto.UserDTO" autoMapping="true" mapUnderscoreToCamelCase="true" caseInsensitive="true"/>
+
+    <select id="queryAll" resultMap="userDTO">
+        select * from `stb_user` order by id asc
+    </select>
+
+    <insert id="insertUser">
+        <selectKey keyProperty="id" resultType="int" order="BEFORE">
+            SELECT CONCAT('1', CEILING(RAND() * 1000 + 1000))
+        </selectKey>
+        insert into `test_user` (
+        `id`, `name`, `age`, `create_time`
+        ) values (
+        #{id}, #{name}, #{age}, #{createTime}
+        )
+    </insert>
+</mapper>
