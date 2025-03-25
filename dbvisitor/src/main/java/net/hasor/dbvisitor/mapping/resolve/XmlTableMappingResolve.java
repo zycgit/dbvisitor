@@ -323,9 +323,9 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
                 default:
                     return null;
             }
-        } else if (StringUtils.startsWithIgnoreCase(keyType, "KeySeq::")) {
+        } else if (StringUtils.startsWithIgnoreCase(keyType, "Sequence::")) {
             Annotation mockKeySeq = Annotation.create();
-            mockKeySeq.putData("value", keyType.substring("KeySeq::".length()));
+            mockKeySeq.putData("value", keyType.substring("Sequence::".length()));
             Annotations mockAnno = Annotations.create();
             mockAnno.putTypeData(KeySeq.class.getName(), mockKeySeq);
             return KeyType.Sequence.createHolder(new GeneratedKeyHandlerContext(registry, tableDef, colDef, mockAnno));
