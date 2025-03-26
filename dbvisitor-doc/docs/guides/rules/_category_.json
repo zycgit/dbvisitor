@@ -1,0 +1,9 @@
+{
+  "label": "7. 规则",
+  "position": 7,
+  "className": "red",
+  "link": {
+    "type": "doc",
+    "id": "about"
+  }
+}

@@ -1,0 +1,64 @@
+---
+id: overview
+sidebar_position: 1
+hide_table_of_contents: true
+title: 1. 介绍
+description: dbVisitor 提供 Java 对关系数据库更加自然的访问。
+---
+import Vars from '@site/plugins/projectVars';
+
+# 介绍
+
+dbVisitor 提供 Java 对关系数据库更加自然的访问。
+
+dbVisitor 是建立在 JDBC 基础之上，如果您的数据源有 JDBC 驱动程序，则可以很方便的将其与 dbVisitor 一起使用。
+它改进了 JDBC 低级接口提供更加自然的 API。
+
+dbVisitor 是方便 Java 访问数据库的库，虽然有些类似 ORM 但和真正意义上的 ORM 理念比起来还是有很多不同点。
+
+dbVisitor 是简单的，它专注数据库的访问。任何带有具体业务含义的特定功能都不属于 dbVisitor 范畴。尽管如此你仍然可以利用 dbVisitor 巧妙的设计来满足特定业务的需要。
+
+## 为什么使用它？
+
+基于 JDBC 的数据库访问的方式和库已经非常多并且其中不缺乏有很多知名的工具。即便如此人们依然在寻找对数据的访问更加简单便利的方法，这也使得有更多先进或更有意思的数据访问方式出现。
+
+从 EJB 到 Hibernate 再到后来的 MyBatis、SpringJDBC 及曾经或者依然活跃的 ActiveRecord、QueryWrapper、Row、Chain、JPA 等等。
+每种新方式都有给人带来惊喜同时也会带来其固有的局限性。
+
+dbVisitor 并没有开创某种新型的访问方式而是将广为流行的访问方式加以整合汇聚，使用者可以选择适合的方式访问数据库。
+
+## 使用 dbVisitor
+
+- dbVisitor 使用商业友好的 [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.html) 许可协议。
+- dbVisitor 只有 [Cobble](https://gitee.com/zycgit/cobble) 一个依赖（cobble 是一个类似 Apache Commons 或 Guava 的工具包）
+- 所有 dbVisitor 模块以及依赖项都可以通过 [Maven Central](https://central.sonatype.com/search?q=dbvisitor) 获得。
+
+## JVM 兼容性
+
+dbVisitor 可在所有 Java 8 或更高版本上运行，所有版本均使用 Java 8 编译构建。
+
+## 入门
+
+- dbVisitor 支持通过原始 SQL 方式利用 [编程式 API](./api/program_api) 来访问数据库。
+- dbVisitor 支持在接口上通过注解标记以 [声明式 API](./api/declarative_api) 方式来访问数据库。
+- dbVisitor 支持通过 [构造器](./api/wrapper_api) 方式用同一种 API 来访问所有框架支持的数据库。
+- dbVisitor 支持通过 [BaseMapper](./api/base_mapper) 中预定的方法对数据库进行常规操作，从而简化应用。
+- dbVisitor 支持使用 [使用 Mapper XML](./api/file_mapper) 文件配置统一管理 SQL 语句。
+- dbVisitor 提供多种方式处理 [参数传递](./args/about)，相信在各种特殊场景中总能找到一个适合的方式处理它们。
+- dbVisitor 提供了一种更加灵活和高效的 [规则](./rules/about) 机制，通过规则可以更加简洁的维护应用程序 SQL。
+- dbVisitor 内置多种 [类型处理器](./types/about)，可以方便的处理绝大多数数据库类型。
+- dbVisitor 支持在多个不同方法调用之间使用 [数据库事务](./transaction/about)。
+
+## 框架整合
+
+- [dbvisitor-spring](./yourproject/with_spring)，支持最低使用 [Spring 4.x](https://spring.io/projects/spring-framework) 及 [Spring Boot 2、Spring Boot 3](https://spring.io/projects/spring-boot) 中自动配置和注入 dbVisitor 配置的 Mapper 和实例。
+- [dbvisitor-solon](./yourproject/with_solon)，支持在使用了 [Solon](https://solon.noear.org/) 作为应用程序开发框架的程序中自动配置和注入 dbVisitor 配置的 Mapper 和实例。
+- [dbvisitor-hasor](./yourproject/with_hasor)，支持在使用了 [Hasor](https://www.hasor.net/) 作为应用程序开发框架的程序中自动配置和注入 dbVisitor 配置的 Mapper 和实例。
+- [dbvisitor-guice](./yourproject/with_guice)，支持在使用了 [Google Guice](https://github.com/google/guice) 依赖注入的应用程序中自动配置和注入 dbVisitor 配置的 Mapper 和实例。
+
+## 版本事件
+
+- 目前最新版本 v{Vars.lastReleaseVer} ({Vars.lastReleaseTime})
+- `6.x` 版本 是一次全新的升级，在继承了 5.x 的功能，并真对不同风格 API 的实现做了较大改进使其在各个方面的用法和行为保持统一。
+- `5.x` 版本 dbVisitor 正式从 Hasor 框架中分离出来并提供 编程式 API、声明式 API、构造器 三种不同风格的 API 来访问数据库。
+- `4.x` 及以前版本中没有自己独立的版本，其发布跟随 [Hasor](https://www.hasor.net/) 框架发布。

@@ -1,29 +1,52 @@
 ---
-id: enum_handler
-sidebar_position: 2
-title: 枚举类型处理器
-description: dbVisitor ORM 工具处理枚举类型映射。
+id: enum-handler
+sidebar_position: 4
+title: 8.4 枚举类型处理器
+description: dbVisitor ORM 工具处理枚举类型处理器。
 ---
 
 # 枚举类型处理器
 
-## 基于枚举的 name
+dbVisitor 对于枚举类型通常会自动选择 `EnumTypeHandler` 进行处理，一般情况下无需干预。
 
-枚举类型的映射无需指定特殊的 `TypeHandler` 在 dbVisitor 中它会自动被处理，具体映射规则为：
-- 数据库中字段类型必须为 `字符串`，而字段值内容是映射到枚举的枚举的 `name` 上
-
-```java {3}
-@Table(mapUnderscoreToCamelCase = true)
-public class TestUser {
+```java title='如对象映射中存在 userType 枚举' {2}
+public class User {
     private UserType userType;
 
     // getters and setters omitted
 }
 ```
 
-## 将数值映射到枚举
+```java title='程序无需特别处理'
+// 查询结果
+jdbc.queryForList("select * from users", User.class);
 
-将数值类型映射成为枚举值，需要枚举类型实现 `net.hasor.dbvisitor.types.EnumOfValue` 接口。
+// 查询参数
+User userInfo= ...
+jdbc.queryForList("select * from users where user_type = #{userType}", userInfo);
+```
+
+## 显示声明
+
+```java title='在参数传递中'
+// 查询参数
+User userInfo= ...
+jdbc.queryForList("select * from users where user_type = #{userType, typeHandler=net.<省略>.EnumTypeHandler}", userInfo);
+```
+- EnumTypeHandler 完整名称为：net.hasor.dbvisitor.types.handler.string.EnumTypeHandler
+
+```java title='在对象映射中'
+public class User {
+    @Column(typeHandler = net.hasor.dbvisitor.types.handler.string.EnumTypeHandler)
+    private UserType userType;
+
+    // getters and setters omitted
+}
+```
+
+## 将数值映射到枚举 {#ofvalue}
+
+若想将数据库中的数字值类型应为 Java 的枚举时候，枚举需要实现 `net.hasor.dbvisitor.types.handler.string.EnumOfValue` 接口以完成数据的转换。
 
 ```java
 public enum LicenseEnum implements EnumOfValue<LicenseEnum> {
@@ -52,11 +75,11 @@ public enum LicenseEnum implements EnumOfValue<LicenseEnum> {
 }
 ```
 
-## 将Code映射到枚举
+## 将Code映射到枚举 {#ofcode}
 
-`Code` 是一个字符串值，区别于枚举的 `name` 属性，它可以由用户自定义规则。从而不再担心枚举元素的变更。
+通常情况下枚举类型的 name 属性将会作为最终数据读写数据库，但在一些特殊环境中若是枚举的 name 并不能直接做映射此时通常需要 [自定义类型处理器](./custom-handler) 来处理。
 
-将 Code 类型映射成为枚举值，需要枚举类型实现 `net.hasor.dbvisitor.types.EnumOfCode` 接口。
+dbVisitor 允许在不动用类型处理器的情况下通过让枚举实现 `net.hasor.dbvisitor.types.handler.string.EnumOfCode` 接口来负责枚举值的映射，已完成此类需求。
 
 ```java
 public enum LicenseEnum implements EnumOfCode<LicenseEnum> {

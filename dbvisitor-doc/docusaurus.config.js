@@ -16,13 +16,11 @@ const config = {
     onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',
     organizationName: 'zycgit', // Usually your GitHub org/user name.
-    projectName: 'dbvisitor',   // Usually your repo name.
-
+    projectName: 'dbVisitor',   // Usually your repo name.
     i18n: {
         defaultLocale: 'zh-cn',
         locales: ['zh-cn', 'en'],
     },
-
     presets: [
         [
             'classic',
@@ -30,7 +28,7 @@ const config = {
             ({
                 docs: {
                     sidebarPath: require.resolve('./sidebars.js'),
-                    editUrl: 'https://gitee.com/zycgit/dbvisitor/tree/master/dbvisitor-doc',
+                    editUrl: 'https://gitee.com/zycgit/dbvisitor/blob/main/dbvisitor-doc/',
                 },
                 theme: {
                     customCss: require.resolve('./src/css/custom.css'),
@@ -38,11 +36,16 @@ const config = {
             }),
         ],
     ],
-
     themeConfig: /** @type {import('@docusaurus/preset-classic').ThemeConfig} */ {
         metadata: [
-            {name: 'keywords', content: 'orm,mybatis,mybatis plus,dbvisitor,jooq,spring,springboot,spring框架,jdbc,jdbctemplate,spring orm,开源,开源软件,java开源,开源项目,开源代码'},
-            {name: 'description', content: 'dbVisitor 是一个轻量小巧的数据库 ORM 工具，提供ORM、丰富的TypeHandler、动态SQL、存储过程、 内置分页方言20+、支持嵌套事务、多数据源、条件构造器、INSERT 策略、多语句/多结果。兼容 Spring 及 MyBatis 用法。'}
+            {
+                name: 'keywords',
+                content: 'orm,mybatis,mybatis plus,dbvisitor,jooq,spring,springboot,spring框架,jdbc,jdbctemplate,spring orm,开源,开源软件,java开源,开源项目,开源代码'
+            },
+            {
+                name: 'description',
+                content: 'dbVisitor 是一个轻量小巧的数据库 ORM 工具，提供ORM、丰富的TypeHandler、动态SQL、存储过程、 内置分页方言20+、支持嵌套事务、多数据源、条件构造器、INSERT 策略、多语句/多结果。兼容 Spring 及 MyBatis 用法。'
+            }
         ],
         colorMode: {
             disableSwitch: true,
@@ -56,7 +59,7 @@ const config = {
                 {
                     position: 'left',
                     label: 'dbVisitor 框架',
-                    href: '/dbvisitor'
+                    href: '/docs/guides/overview'
                 },
                 {
                     type: 'doc',
@@ -99,11 +102,9 @@ const config = {
 <div id="analyticsDiv" style="display: inline-block;"></div>`,
         },
     },
-
     plugins: [
         analyticsPlugin
     ],
-
     themes: [
         // ... Your other themes.
         [
@@ -118,6 +119,9 @@ const config = {
             }),
         ],
     ],
+    future: {
+        experimental_faster: true
+    }
 };
 
 module.exports = config;

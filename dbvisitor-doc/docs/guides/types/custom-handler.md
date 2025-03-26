@@ -1,41 +1,28 @@
 ---
-id: custom_handler
-sidebar_position: 4
-title: 自定义类型处理器
-description: 通过 DalSession 执行 Mapper 文件中定义的 SQL。
+id: custom-handler
+sidebar_position: 2
+title: 8.2 自定义类型处理器
+description: 当 dbVisitor 所提供的类型处理器无法满足需要时，可以根据自身需要自定义类型处理器。
 ---
 
 # 自定义类型处理器
 
-## 开发处理器
+当 dbVisitor 所提供的类型处理器无法满足需要时，可以根据自身需要自定义类型处理器。
 
-某些数据类型的写入需要特殊处理，例如将字符串数据按照某种格式转换成为时间日期类型。这就需要用到 `TypeHandler`。
-
-例如，数据库中保存的是时间类型，需要将其读取成格式为 `yyyy-MM-dd` 的字符串。
-
-```java {3}
-@Table(mapUnderscoreToCamelCase = true)
-public class TestUser {
-    @Column(typeHandler = MyDateTypeHandler.class)
-    private String myTime;
-
-    // getters and setters omitted
-}
-```
-
-类型读写器为：
-
-```java
+```java title='演示：如何将字符串以 Timestamp 类型方式写入数据库'
+package net.demos.dto;
 public class MyDateTypeHandler extends AbstractTypeHandler<String> {
-    public void setNonNullParameter(PreparedStatement ps, int i,
-                    String parameter, Integer jdbcType) {
-
-        Date date = new SimpleDateFormat("yyyy-MM-dd").parse(parameter);
-        ps.setTimestamp(i, new Timestamp(date.getTime()));
+    public void setNonNullParameter(PreparedStatement ps, int i, String parameter, Integer jdbcType) {
+        try {
+            Date date = new SimpleDateFormat("yyyy-MM-dd").parse(parameter);
+            ps.setTimestamp(i, new Timestamp(date.getTime()));
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
     }
 
     public String getNullableResult(ResultSet rs, String columnName) {
-        return fmtDate(rs.getTimestamp(columnIndex));
+        return fmtDate(rs.getTimestamp(columnName));
     }
 
     public String getNullableResult(ResultSet rs, int columnIndex) {
@@ -56,73 +43,213 @@ public class MyDateTypeHandler extends AbstractTypeHandler<String> {
 }
 ```
 
-:::tip
-dbVisitor 内置了 70 多个 TypeHandler，基本涵盖了各种情况以及数据类型。详细的信息请看 **[类型处理器](./type-handlers.md)** 相关章节。
-:::
+## 显示引用
 
-## 绑定到 Jdbc Type
+显示引用类型处理器是最常见的使用方式，即通过查询语句或者代码中明确指定使用的类型处理器。
 
-将类型处理器绑定到 `Types.VARCHAR` 上
-
-```java
-TypeHandlerRegistry.DEFAULT.register(Types.VARCHAR, new MyTypeHandler());
+```java title='在参数传递中使用自定义类型处理器'
+// 查询参数
+String time = "2019-10-11";
+jdbc.queryForList("select * from users where create_time = #{arg0, typeHandler=net.demos.dto.MyDateTypeHandler}", time);
 ```
 
-下面代码使用注解方式和上面是等效的
+- 查询中使用了 `#{...}` 写法，利用 [位置参数名称化](../args/position#pos_named) 方式传递参数。
+- 借助 [typeHandler](../args/options#normal) 参数选项，设置 MyDateTypeHandler 类处理参数的读写请求。
 
-```java {1,7}
-@MappedJdbcTypes(Types.VARCHAR)
-public class MyTypeHandler extends AbstractTypeHandler<String> {
+```java title='在对象映射中使用自定义类型处理器'
+public class User {
+    @Column(typeHandler = MyDateTypeHandler.class)
+    private String myTime;
+
+    // getters and setters omitted
+}
+
+// 查询参数
+jdbc.queryForList("select * from users where id > ?", 2, User.class);
+```
+
+```xml title='在 XML 文件中定义实体时使用自定义类型处理器'
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+                        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper>
+    <entity table="users" type="net.demos.dto.User">
+        ...
+        <mapping column="my_time" property="myTime" typeHandler="net.demos.dto.MyDateTypeHandler"/>
+        ...
+    </entity>
+</mapper>
+```
+
+```xml title='在 XML 文件中定义结果集映射时使用自定义类型处理器'
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+                        "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.demos.dto">
+    <resultMap id="user_resultMap" type="net.demos.dto.User">
+        ...
+        <result column="my_time" property="myTime" typeHandler="net.demos.dto.MyDateTypeHandler"/>
+        ...
+    </resultMap>
+</mapper>
+```
+
+## 隐式引用
+
+隐式方式主要目的是用来替代已有 dbVisitor 提供的默认类型处理器，或者当某个全新类型没有支持的情况下使其作为默认处理而使用。
+
+```java title='使用自定义类型处理器替代默认 StringTypeHandler'
+// 自定义处理器
+@MappedJavaTypes(String.class)
+public class MyStringTypeHandler extends AbstractTypeHandler<String> {
     ...
 }
 
 // 注册处理器
-TypeHandlerRegistry.DEFAULT.register(MyTypeHandler.class, new MyTypeHandler());
+TypeHandlerRegistry.DEFAULT.registerHandler(MyStringTypeHandler.class, new MyStringTypeHandler());
+
+// 使用处理器，此时 dbVisitor 的所有查询中涉及字符串处理都会走 MyStringTypeHandler，
+// 因此 User 类无需 typeHandler 属性来明确指定。
+jdbc.queryForList("select * from user_table where name = ?", arg, User.class);
 ```
 
-:::tip
+:::info
 `TypeHandlerRegistry.DEFAULT` 是全局类型处理器注册中心，如需要特殊定制可以 new 一个。
 :::
 
-## 绑定到 Java Type
+## 类型绑定
 
-将类型处理器绑定到 `StringBuilder` 类型上
+### 绑定到 Java 类型
 
-```java
-TypeHandlerRegistry.DEFAULT.register(StringBuilder.class, new MyTypeHandler());
+```text title='查询示例'
+select * from users where name = #{name, javaType=java.lang.String}
 ```
 
-下面代码使用注解方式和上面是等效的
-
-```java {1,7}
-@MappedJavaTypes(StringBuilder.class)
-public class MyTypeHandler extends AbstractTypeHandler<String> {
+```java title='编程方式注册'
+public class MyStringTypeHandler extends AbstractTypeHandler<String> {
     ...
 }
 
-// 注册处理器
-TypeHandlerRegistry.DEFAULT.register(MyTypeHandler.class, new MyTypeHandler());
+TypeHandlerRegistry typeRegistry = ...
+typeRegistry.register(String.class, new MyStringTypeHandler());
 ```
 
-## 交叉绑定
-
-只有当 Java类型为 `InputStream` 并且 Jdbc Type 为 `Types.BIGINT` 时
-
-```java
-TypeHandlerRegistry.DEFAULT.registerCross(
-            Types.BIGINT, InputStream.class, new MyTypeHandler());
-```
-
-下面代码使用注解方式和上面是等效的
-
-```java {1-3,9}
-@MappedCross(
-        javaTypes = @MappedJavaTypes(InputStream.class), 
-        jdbcType = @MappedJdbcTypes(Types.BIGINT))
-public class MyTypeHandler extends AbstractTypeHandler<String> {
+```java title='注解方式注册'
+@MappedJavaTypes(String.class)
+public class MyStringTypeHandler extends AbstractTypeHandler<String> {
     ...
 }
 
-// 注册处理器
-TypeHandlerRegistry.DEFAULT.register(MyTypeHandler.class, new MyTypeHandler());
+TypeHandlerRegistry typeRegistry = ...
+typeRegistry.registerHandler(MyStringTypeHandler.class, new MyStringTypeHandler());
 ```
+
+### 绑定到 JDBC 类型
+
+```text title='查询示例'
+select * from users where name = #{name, jdbcType=varchar}
+```
+
+```java title='编程方式注册'
+public class MyStringTypeHandler extends AbstractTypeHandler<String> {
+    ...
+}
+
+TypeHandlerRegistry typeRegistry = ...
+typeRegistry.register(Types.VARCHAR, new MyStringTypeHandler());
+```
+
+```java title='注解方式注册'
+@MappedJdbcTypes(String.class)
+public class MyStringTypeHandler extends AbstractTypeHandler<String> {
+    ...
+}
+
+TypeHandlerRegistry typeRegistry = ...
+typeRegistry.registerHandler(MyStringTypeHandler.class, new MyStringTypeHandler());
+```
+
+### 类型交叉绑定
+
+```text title='查询示例'
+select * from users where name = #{name, jdbcType=nvarchar, javaType=java.lang.String}
+```
+
+```java title='编程方式注册'
+public class MyStringTypeHandler extends AbstractTypeHandler<String> {
+    ...
+}
+
+TypeHandlerRegistry typeRegistry = ...
+typeRegistry.register(Types.NVARCHAR, String.class, new MyStringTypeHandler());
+```
+
+```java title='注解方式注册'
+@MappedCrossTypes(javaType = String.class, jdbcType = Types.NVARCHAR)
+public class MyStringTypeHandler extends AbstractTypeHandler<String> {
+    ...
+}
+
+TypeHandlerRegistry typeRegistry = ...
+typeRegistry.registerHandler(MyStringTypeHandler.class, new MyStringTypeHandler());
+```
+
+## 处理器参数
+
+dbVisitor 允许自定义类型处理器具有一个类型为 `Class` 的构造方法作为参数。
+
+比如：当查询参数为枚举时或者结果集映射到对象中的枚举字段时，类型处理器需要知道将字段值如何翻译成枚举对象。
+- **处理器参数** 便可让类型处理器感知到具体正在操作的 Java 类型（dbVisitor 内置的 `EnumTypeHandler` 便是利用此机制）
+
+```java title='用法'
+public class MyTypeHandler extends AbstractTypeHandler<Object> {
+    public MyTypeHandler(Class<?> argType) {
+        ...
+    }
+}
+```
+
+### @NoCache 注释
+
+注册器 TypeHandlerRegistry 类具备缓存机制，目的是为了加速 TypeHandler 使用过程中的创建和获取步骤。
+
+当类型处理器使用了处理器参数后，缓存机制可能会命中到已创建的 typeHandler 而忽略相同 typeHandler 但参数不同的情况。例如：
+
+```test
+select * from users 
+where user_type = #{arg0, javaType= net.demos.dto.UserTypeEnum, ➊
+                          typeHandler=net.demos.dto.MyTypeHandler}
+
+
+select * from users 
+where auth_type = #{arg0, javaType= net.demos.dto.AuthTypeEnum, ➋
+                          typeHandler=net.demos.dto.MyTypeHandler}
+```
+
+- ➊,➋ 两次查询使用了相同的类型处理器 MyTypeHandler 来处理不同的 Java 枚举类型。
+- 在不使用 `@NoCache` 注解的情况下第二次查询 dbVisitor 会把参数当成 UserTypeEnum 进行处理，这就造成了混乱。
+
+
+通过 `@NoCache` 注解可以避免缓存机制的干扰，具体用法如下：
+
+```java
+@NoCache
+public class MyTypeHandler extends AbstractTypeHandler<Object> {
+    public MyTypeHandler(Class<?> argType) {
+        ...
+    }
+}
+```
+
+:::info
+任何主动将 TypeHandler 注册到 TypeHandlerRegistry 的操作 @NoCache 都不会对其产生影响。
+
+比如：通过如下三种方式，无论是否具有 @NoCache 标志依然能够成功将 MyTypeHandler 实例对象永久绑定到对应类型组合中。
+
+```java
+typeRegistry.registerHandler(MyTypeHandler.class, new MyTypeHandler());
+typeRegistry.register(String.class, new MyTypeHandler());
+typeRegistry.register(Types.NVARCHAR, new MyTypeHandler());
+typeRegistry.register(Types.NVARCHAR, String.class, new MyTypeHandler());
+```
+:::
+
+只有当使用 TypeHandlerRegistry 的 createTypeHandler 方法被动创建 TypeHandler 时 @NoCache 才会生效。

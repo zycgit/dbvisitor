@@ -1,0 +1,285 @@
+---
+id: with_spring
+sidebar_position: 3
+hide_table_of_contents: true
+title: 3.3 Spring 整合
+description: dbVisitor ORM 工具和 Spring Boot 整合使用。
+---
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import Vars from '@site/plugins/projectVars';
+
+export const Highlight = ({children, color}) => (
+<span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+);
+
+## 什么是 Spring
+
+Spring 是一个广泛应用的轻量级的开源框架，旨在简化企业级应用开发的复杂性。
+它通过核心的 BeanFactory 实现了底层类的实例化和生命周期管理。
+
+- String 项目地址：https://spring.io/
+
+## dbvisitor-spring 特性
+
+- 广泛的版本支持
+    - SpringBoot 2/3
+    - Spring 4.0.0 最低
+- 多种配置方式
+    - application.properties 配置文件
+    - 注解化
+    - Spring XML 方式配置
+
+## 配置方法
+
+首先引入依赖包，当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+
+<Tabs>
+  <TabItem value="a" label="SpringBoot 项目" default>
+
+  ```xml
+  <dependency>
+      <groupId>net.hasor</groupId>
+      <artifactId>dbvisitor-spring-starter</artifactId>
+      <version>最新版本的版本号</version>
+  </dependency>
+  ```
+
+  </TabItem>
+  <TabItem value="b" label="非 SpringBoot 项目">
+
+  ```xml
+  <dependency>
+      <groupId>net.hasor</groupId>
+      <artifactId>dbvisitor-spring</artifactId>
+      <version>最新版本的版本号</version>
+  </dependency>
+  ```
+
+  </TabItem>
+</Tabs>
+
+```xml title='选用 HikariCP 作为数据库链接池'
+<dependency>
+    <groupId>com.zaxxer</groupId>
+    <artifactId>HikariCP</artifactId>
+    <version>4.0.3</version>
+</dependency>
+```
+
+<Tabs>
+  <TabItem value="a" label="基于 application.properties 配置文件" default>
+
+  ```properties
+  # Spring JDBC 数据源配置
+  spring.datasource.url=jdbc:mysql://127.0.0.1:3306/devtester
+  spring.datasource.username=root
+  spring.datasource.password=123456
+  # 必选
+  dbvisitor.mapper-packages=com.example.demo.dao
+  dbvisitor.mapper-locations=classpath:dbvisitor/mapper/*.xml
+  ```
+
+  </TabItem>
+  <TabItem value="b" label="基于注解化配置">
+
+  ```java
+  @Configuration
+  @MapperScan(basePackages    = "com.example.demo.dao",
+              mapperLocations = "classpath:dbvisitor/mapper/*.xml")
+  public class DemoApplication {
+      ...
+  }
+  ```
+
+  </TabItem>
+  <TabItem value="c" label="基于 XML 配置">
+
+  ```xml
+  <!-- Configuration -->
+  <bean id="configuration" class="net.hasor.dbvisitor.spring.support.ConfigurationBean">
+      <property name="mapperResources" value="classpath*:dbvisitor/mapper/*Mapper.xml"/>
+  </bean>
+  
+  <!-- Session -->
+  <bean id="session" class="net.hasor.dbvisitor.spring.support.SessionBean">
+      <property name="configuration" ref="configuration"/>
+      <property name="dataSource" ref="dataSource"/>
+  </bean>
+
+  <!-- userMapper -->
+  <bean id="userMapper" class="net.hasor.dbvisitor.spring.support.MapperBean">
+      <property name="session" ref="session"/>
+      <property name="mapperInterface" value="com.example.demo.dao.UserMapper"/>
+  </bean>
+  ```
+
+如果为每个 Mapper 单独添加 XML 配置较为繁琐，那么可以通过 `MapperScannerConfigurer` 来扫描注册。
+
+  ```xml
+  <!-- Mapper Scanner -->
+  <bean class="net.hasor.dbvisitor.spring.mapper.MapperScannerConfigurer">
+      <property name="basePackage" value="com.example.demo.dao"/>
+      <property name="session" ref="session"/>
+  </bean>
+  ```
+
+  </TabItem>
+</Tabs>
+
+```java title='注入 Mapper'
+public class ServiceTest {
+    @Resource // 或 @Autowired
+    private UserMapper userMapper;
+    ...
+}
+```
+
+## 使用事务 {#tran}
+
+<Tabs>
+  <TabItem value="a" label="基于注解化配置">
+
+  ```java
+  @Configuration
+  public class DsConfig {
+    @Bean
+    public PlatformTransactionManager txManager(DataSource dataSource) {
+        return new DataSourceTransactionManager(dataSource);
+    }
+  }
+  ```
+
+  </TabItem>
+  <TabItem value="b" label="基于 XML 配置">
+
+  ```xml
+  <!-- 事务管理器 -->
+  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dataSource"/>
+  </bean>
+
+  <!-- 开启事务注解 -->
+  <tx:annotation-driven transaction-manager="transactionManager"/>
+  ```
+
+  </TabItem>
+</Tabs>
+
+```java title='通过 @Transactional 注解进行事务控制'
+import org.springframework.transaction.annotation.Transactional;
+
+public class TxExample {
+    @Transactional(propagation = Propagation.REQUIRES)
+    public void exampleMethod() {
+        ...
+    }
+}
+```
+
+## 样例工程 {#example}
+
+:::info[Example]
+- 基于 application.properties 的 [SpringBoot2 案例](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/springboot2/)、[SpringBoot3 案例](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/springboot3/)
+- [基于 XML 配置的 Example 工程](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/spring-xml1/)
+- [基于 XML 配置并使用 MapperScannerConfigurer 扫描器案例](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/spring-xml2/)
+:::
+
+## 配置项说明
+
+### application.properties 配置项
+
+| 属性名                                 | 描述                                                                                                                                   |
+|-------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| dbvisitor.mapper-packages           | <TagGray/> 要扫描加载的 Mapper 接口定义所在的包名，如果有多个包使用 `,` 号分割                                                                                  |
+| dbvisitor.mapper-locations          | <TagGray/> 要扫描加载的 Mapper 映射文件所在路径，默认值为 `classpath*:/dbvisitor/mapper/**/*.xml`，如果有多个可以通过一下任意一个字符进行分割 `,; \t\n`                       |
+| dbvisitor.mapper-disabled           | <TagGray/> 使用 `true/false` 表示是否禁用 `dbvisitor.mapper-packages` 扫描到的 Mapper 接口。<br/>默认值为 false 当与某些框架合用同一个 mapper 文件时如果遇到冲突可考虑设置为 true |
+| dbvisitor.mapper-name-generator     | <TagGray/> 用于自定义生成 mapper bean 名字的生成器类名。需要实现 BeanNameGenerator 接口，默认为：空。                                                             |
+| dbvisitor.marker-annotation         | <TagGray/> 设置一个扫描路径当扫描到的 Mapper 接口身上标有某个特定类型的注解时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.mapper.MapperDef`                          |
+| dbvisitor.marker-interface          | <TagGray/> 设置一个扫描路径当扫描到的 Mapper 接口实现了某个特定接口时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.mapper.Mapper`                                 |
+| dbvisitor.mapper-factory-bean       | <TagGray/> 创建 Mapper 的工厂类，默认为 `net.hasor.dbvisitor.spring.support.MapperBean`                                                        |
+| dbvisitor.ref-session               | <TagGray/> 用于自定义 Mapper Bean 所使用的 Session Bean 的名字。                                                                                  |
+| dbvisitor.mapper-lazy-init          | <TagGray/> Mapper Bean 的 `lazyInit` 属性，默认为 `false`                                                                                   |
+| dbvisitor.mapper-scope              | <TagGray/> Mapper Bean 所处的 Spring 作用域，默认值为 `AbstractBeanDefinition.SCOPE_DEFAULT` 确定。<br/>如果设置建议为 singleton。                         |
+| dbvisitor.auto-mapping              | <TagGray/> 是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Column 注解声明                                                           |                                                                                                                         
+| dbvisitor.camel-case                | <TagGray/> 表名和属性名，根据驼峰规则转换为带有下划线的表名和列名                                                                                               |                                                                                                                        
+| dbvisitor.case-insensitive          | <TagGray/> 强制在生成 表名/列名/索引名 时候增加标识符限定，例如：通过设置该属性来解决列名为关键字的问题。默认是 false 不设置。                                                           |                                                                                                                               
+| dbvisitor.use-delimited             | <TagGray/> 是否对表名列名敏感，默认 true 不敏感                                                                                                     |                                                                                                                               
+| dbvisitor.ignore-nonexist-statement | <TagGray/> 在 Mapper 接口方法映射到 XML 过程中是否忽略缺失的映射。默认是 false，遇到缺失会报错。                                                                      |
+| dbvisitor.dialect                   | <TagGray/> 默认使用的数据库方言                                                                                                                |
+
+### @MapperScan 注解属性详解
+
+| 属性名                                   | 描述                                    |
+|---------------------------------------|---------------------------------------|
+| value、basePackages、basePackageClasses | 参考 dbvisitor.mapper-packages 配置       |
+| mapperLocations                       | 参考 dbvisitor.mapper-locations 配置      |
+| nameGenerator                         | 参考 dbvisitor.mapper-name-generator 配置 |
+| annotationClass                       | 参考 dbvisitor.marker-annotation 配置     |
+| markerInterface                       | 参考 dbvisitor.marker-interface 配置      |
+| sessionRef                            | 参考 dbvisitor.ref-session 配置           |
+| factoryBean                           | 参考 dbvisitor.mapper-factory-bean 配置   |
+| lazyInit                              | 参考 dbvisitor.mapper-lazy-init 配置      |
+| defaultScope                          | 参考 dbvisitor.mapper-scope 配置          |
+| mapperDisabled                        | 参考 dbvisitor.mapper-disabled 配置       |
+
+:::tip
+注解配置优先级高于配置文件（推荐 application.properties，配置更简单）
+:::
+
+### ConfigurationBean 属性详解
+
+| 属性名                     | 描述                                                                      |
+|-------------------------|-------------------------------------------------------------------------|
+| mapperResources         | 参考 dbvisitor.mapper-locations 配置                                        |
+| mapperInterfaces        | 参考 dbvisitor.marker-interface 配置，ConfigurationBean 会加载 Mapper 上声明的资源引用。 |
+| typeRegistry            | 用于自定义 [类型处理](../types/about) 注册器                                        |
+| javaTypeHandlerMap      | 用于将自定义 [TypeHandler](../types/about) 作为某 Java 类型的处理器                    |
+| jdbcTypeHandlerMap      | 用于将自定义 [TypeHandler](../types/about) 作为某 JDBC 类型的处理器                    |
+| ruleRegistry            | 用于自定义 [规则](../rules/about) 注册器                                          |
+| ruleHandlerMap          | 用于注册自定义[规则](../rules/about)                                             |
+| autoMapping             | 参考 dbvisitor.auto-mapping 配置                                            |
+| camelCase               | 参考 dbvisitor.camel-case                                                 |
+| caseInsensitive         | 参考 dbvisitor.case-insensitive                                           |
+| useDelimited            | 参考 dbvisitor.use-delimited                                              |
+| dialectName             | 参考 dbvisitor.dialect                                                    |
+| ignoreNonExistStatement | 参考 dbvisitor.ignore-nonexist-statement                                  |
+
+### SessionBean 属性详解
+
+| 属性名            | 描述                                                        |
+|----------------|-----------------------------------------------------------|
+| configuration  | SessionBean 创建的 Session 所使用的 Configuration                |
+| dataSource     | 所使用的 DataSource                                           |
+| dsAdapter      | AbstractDsAdapter 类型对象，该类决定了如何从 dataSource 中获取 Connection |
+| dsAdapterClass | dsAdapter 类型名，Class 类型。于 dsAdapterName 属性等价               |
+| dsAdapterName  | dsAdapter 类型名，String 类型。于 dsAdapterClass 属性等价             |
+
+### MapperBean 属性详解
+
+| 属性名             | 描述                                  |
+|-----------------|-------------------------------------|
+| session         | MapperBean 创建 Mapper 对象所使用的 Session |
+| mapperInterface | MapperBean 创建的具体 Mapper             |
+
+### MapperScannerConfigurer 属性详解
+
+| 属性名                        | 描述                                        |
+|----------------------------|-------------------------------------------|
+| basePackage                | 参考 dbvisitor.mapper-packages 配置           |
+| nameGeneratorName          | 参考 dbvisitor.mapper-name-generator 配置，类型名 |
+| nameGenerator              | 参考 dbvisitor.mapper-name-generator 配置，对象化 |
+| annotationClassName        | 参考 dbvisitor.marker-annotation 配置，类型名     |
+| annotationClass            | 参考 dbvisitor.marker-annotation 配置，类型      |
+| markerInterfaceName        | 参考 dbvisitor.marker-interface 配置，类型名      |
+| markerInterface            | 参考 dbvisitor.marker-interface 配置，类型       |
+| session                    | 参考 dbvisitor.ref-session 配置，对象            |
+| sessionRef                 | 参考 dbvisitor.ref-session 配置，引用的 Bean 名    |
+| mapperFactoryBeanClassName | 参考 dbvisitor.mapper-factory-bean 配置，类型名   |
+| mapperFactoryBeanClass     | 参考 dbvisitor.mapper-factory-bean 配置，类型    |
+| mapperDisabled             | 参考 dbvisitor.mapper-disabled 配置           |
+| lazyInit                   | 参考 dbvisitor.mapper-lazy-init 配置          |
+| defaultScope               | 参考 dbvisitor.mapper-scope 配置              |
+| dependsOn                  | Mapper 在创建时依赖的前置 Bean                     |

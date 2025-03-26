@@ -190,7 +190,7 @@
         resultSetType CDATA #IMPLIED
         keyProperty CDATA #REQUIRED
         keyColumn CDATA #IMPLIED
-        order (BEFORE|AFTER) #IMPLIED
+        order (BEFORE|AFTER) #REQUIRED
         >
 
 <!ELEMENT include EMPTY>

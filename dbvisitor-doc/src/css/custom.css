@@ -16,13 +16,15 @@
     --ifm-color-secondary: #ffffff;
     --ifm-breadcrumb-padding-vertical: 1px;
     --ifm-breadcrumb-separator-size: 0.8rem;
-    --ifm-table-cell-padding: 0.3rem;
+    --ifm-table-cell-padding: 0.2rem;
     --ifm-font-size-base: 85%;
     --ifm-font-weight-bold: 500;
     --ifm-code-font-size: 75%;
     --ifm-line-height-base: 22px;
     --ifm-pre-padding: 0.3rem;
-    --doc-sidebar-width: 220px !important;
+    --doc-sidebar-width: 240px !important;
+    --ifm-tabs-padding-vertical: 0.2rem;
+    --ifm-container-width-xl: auto;
 }
 
 :where(:root) {
@@ -48,6 +50,11 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
     padding-top: 10px;
     padding-left: 5px;
     padding-right: 5px;
+}
+
+.table-of-contents li{
+    font-size: 13.6px;
+    line-height: initial;
 }
 
 h1 {

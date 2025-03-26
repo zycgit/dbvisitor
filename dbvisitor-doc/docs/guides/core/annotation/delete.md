@@ -1,0 +1,38 @@
+---
+id: delete
+sidebar_position: 5
+hide_table_of_contents: true
+title: Delete 注解
+description: Delete 注解用来标记在接口方法上，它接受一个字符串参数或字符串数组表示执行一个 DELETE 语句。
+---
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# @Delete 注解
+## 注解说明
+
+用来标记在接口方法上，它接受一个字符串参数或字符串数组表示执行一个 DELETE 语句。
+
+:::info
+如果传入的是一个字符串数组，它们会被连接起来，并且中间用一个空格隔开。<br/>
+通过字符串数组以合理阅读方式来管理SQL。
+:::
+
+```java title='示例：根据 id 字段删除用户'
+@SimpleMapper
+public interface UserMapper {
+    @Delete({"delete from users ",    // 1. 定义 SQL 语句
+             "where id = #{userId}"}) //
+    int deleteUserById(               // 2. userId 参数
+            @Param("userId") int userId
+    );
+}
+```
+
+## 属性清单
+
+| 属性名              | 描述                                                                                                                                                                                                |
+|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| value            | <TagRed/> 将要被执行的查询语句。                                                                                                                                                                             |
+| statementType    | <TagGray/> 表示查询类型，表示 JDBC 查询使用何种方式。默认值为 `PREPARED`<br/> - `STATEMENT` 对应 `java.sql.Statement`<br/> - `PREPARED` 对应 `java.sql.PreparedStatement`<br/> - `CALLABLE` 对应 `java.sql.CallableStatement` |
+| timeout          | <TagGray/> 通过设置一个大于 `0` 时会被设置到 `java.sql.Statement.setQueryTimeout(int)` 可以让查询在执行时候设置一个超时时间，单位是秒，默认值为 `-1`                                                                                        |

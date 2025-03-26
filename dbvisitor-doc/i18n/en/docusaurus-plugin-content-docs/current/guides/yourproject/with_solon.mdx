@@ -1,0 +1,118 @@
+---
+id: with_solon
+sidebar_position: 4
+hide_table_of_contents: true
+title: 3.4 Solon 整合
+description: dbVisitor ORM 工具和 Solon 整合使用。
+---
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+import Vars from '@site/plugins/projectVars';
+
+export const Highlight = ({children, color}) => (
+  <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+);
+
+## 什么是 Solon
+面向全场景的 Java 企业级应用开发框架：克制、高效、开放、生态！并发高 300%；内存省 50%；启动快 10 倍；
+打包小 90%；同时兼容 java8 ~ java23。（可替换 Spring）
+
+- Solon 项目地址：https://solon.noear.org/
+
+## dbvisitor-solon 特性
+
+- 自动配置数据源
+- Mapper 接口注入
+- 支持多数据源
+- 支持事务控制
+
+## 配置方法
+
+首先引入依赖包，当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+
+```xml title='Maven 依赖'
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>dbvisitor-solon</artifactId>
+    <version>最新版本的版本号</version>
+</dependency>
+```
+
+```xml title='选用 HikariCP 作为数据库链接池'
+<dependency>
+    <groupId>com.zaxxer</groupId>
+    <artifactId>HikariCP</artifactId>
+    <version>4.0.3</version>
+</dependency>
+```
+
+```yaml title='配置文件'
+solon.dataSources:
+  default!:  # 数据源名称（尾部 ! 标识默认数据源）
+    class: "com.zaxxer.hikari.HikariDataSource"
+    jdbcUrl: "jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true&user=root&password=123456"
+dbvisitor:
+  default:   # 对应的数据源名称
+    mapperLocations: classpath:dbvisitor/mapper/*.xml
+    mapperPackages: net.hasor.dbvisitor.test.dao.*
+```
+
+```java title='注入 Mapper'
+@Controller
+public class HelloController {
+  @Inject
+  private UserMapper userMapper;
+
+  @Get
+  @Mapping("/hello")
+  public String hello(String name) {
+    return ...
+  }
+}
+```
+
+:::info[Example]
+[Example 工程](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/solon/)
+:::
+
+## 可注入类型
+
+- JdbcOperations 接口，[JdbcTemplate](../core/jdbc/about) 是它的实现类
+- WrapperOperations 接口，[WrapperAdapter](../core/wrapper/about) 是它的实现类
+- Configuration 配置类
+- Session 类
+- 自定义 Mapper
+
+:::info[注入提示]
+- 以上注入的类型支持 @Db、@Inject 注解
+- @Db 可以通过 @Db("name") 在多数据源下指定数据源名称
+:::
+
+## 使用事务 {#tran}
+
+```java title='通过 @Tran 注解进行事务控制'
+import org.noear.solon.data.annotation.Tran;
+
+public class TxExample {
+    @Tran(policy = TranPolicy.required)
+    public void exampleMethod() throws SQLException {
+      ...
+    }
+}
+```
+
+## 配置项说明
+
+| 属性名                     | 描述                                                                                                                                   |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| mapperLocations         | <TagGray/> 要扫描加载的 Mapper 映射文件所在路径，默认值为 `dbvisitor/mapper/*.xml`                                                                      |
+| mapperPackages          | <TagGray/> 要扫描加载的 Mapper 接口定义所在的包名，如果有多个包使用 `,` 号分割                                                                                  |
+| mapperDisabled          | <TagGray/> 使用 `true/false` 表示是否禁用 `dbvisitor.mapper-packages` 扫描到的 Mapper 接口。<br/>默认值为 false 当与某些框架合用同一个 mapper 文件时如果遇到冲突可考虑设置为 true |
+| markerAnnotation        | <TagGray/> 设置一个扫描路径当扫描到的 Mapper 接口身上标有某个特定类型的注解时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.mapper.MapperDef`                          |
+| markerInterface         | <TagGray/> 设置一个扫描路径当扫描到的 Mapper 接口实现了某个特定接口时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.mapper.Mapper`                                 |
+| autoMapping             | <TagGray/> 是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Column 注解声明                                                           |                                                                                                                         
+| camelCase               | <TagGray/> 表名和属性名，根据驼峰规则转换为带有下划线的表名和列名                                                                                               |                                                                                                                        
+| caseInsensitive         | <TagGray/> 强制在生成 表名/列名/索引名 时候增加标识符限定，例如：通过设置该属性来解决列名为关键字的问题。默认是 false 不设置。                                                           |                                                                                                                               
+| useDelimited            | <TagGray/> 是否对表名列名敏感，默认 true 不敏感                                                                                                     |                                                                                                                               
+| ignoreNonExistStatement | <TagGray/> 在 Mapper 接口方法映射到 XML 过程中是否忽略缺失的映射。默认是 false，遇到缺失会报错。                                                                      |
+| dialect                 | <TagGray/> 默认使用的数据库方言                                                                                                                |

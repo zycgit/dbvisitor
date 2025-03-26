@@ -1,0 +1,170 @@
+---
+id: feature
+sidebar_position: 9
+hide_table_of_contents: true
+title: 高级特性
+description: 本节介绍 JdbcTemplate 的一些高级特性和相关参数。
+---
+import TOCInline from '@theme/TOCInline';
+
+本节介绍 JdbcTemplate 的一些高级特性和相关参数：
+
+<TOCInline toc={toc} />
+
+## 打印错误日志和SQL {#stmterror}
+
+通过设置 _**printStmtError**_ 参数在遇到 SQL 报错时打印报错的 SQL。
+- 属性名：_**printStmtError**_。
+- 默认值：_**false**_，表示不打印日志。
+
+```text title='例如：在 printStmtError = true 后'
+// highlight-next-line
+Failed SQL statement [select * from test_user2 where id > 10].
+java.sql.SQLSyntaxErrorException: Table 'devtester.test_user2' doesn't exist
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:120)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:122)
+	at com.mysql.cj.jdbc.StatementImpl.executeQuery(StatementImpl.java:1200)
+	at com.zaxxer.hikari.pool.ProxyStatement.executeQuery(ProxyStatement.java:110)
+	at com.zaxxer.hikari.pool.HikariProxyStatement.executeQuery(HikariProxyStatement.java)
+	at net.hasor.dbvisitor.jdbc.core.JdbcTemplate.lambda$query$14(JdbcTemplate.java:468)
+	at net.hasor.dbvisitor.jdbc.core.JdbcTemplate.lambda$execute$0(JdbcTemplate.java:240)
+	at net.hasor.dbvisitor.jdbc.core.JdbcConnection.execute(JdbcConnection.java:162)
+	at net.hasor.dbvisitor.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:237)
+	at net.hasor.dbvisitor.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:467)
+	at net.hasor.dbvisitor.jdbc.core.JdbcTemplate.queryForList(JdbcTemplate.java:581)
+	at com.example.demo.jdbc.Execute1SqlMain.main(Execute1SqlMain.java:24)
+```
+
+## 来自数据库的警告消息 {#warnings}
+
+通过设置 _**ignoreWarnings**_，dbVisitor 将在 SQL 警告时抛出异常。
+- 属性名：_**ignoreWarnings**_。
+- 默认值：_**true**_，表示忽略 SQL 告警。
+
+```sql title="MySQL 8.0 触发告警的 SQL"
+create table test_table (
+    id   bigint,
+    name national char(10)
+)
+```
+
+```text title="告警内容"
+NATIONAL/NCHAR/NVARCHAR implies the character set UTF8MB3, which will be replaced by UTF8MB4 in a future release. 
+Please consider using CHAR(x) CHARACTER SET UTF8MB4 in order to be unambiguous.
+```
+
+```text title='在 ignoreWarnings = false 时'
+Exception in thread "main" java.sql.SQLException: Warning not ignored
+	at net.hasor.dbvisitor.jdbc.core.JdbcConnection.handleWarnings(JdbcConnection.java:225)
+	at net.hasor.dbvisitor.jdbc.core.JdbcConnection.lambda$execute$0(JdbcConnection.java:182)
+	at net.hasor.dbvisitor.jdbc.core.JdbcConnection.execute(JdbcConnection.java:162)
+	at net.hasor.dbvisitor.jdbc.core.JdbcConnection.execute(JdbcConnection.java:176)
+	at net.hasor.dbvisitor.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:229)
+	at com.example.demo.jdbc.Execute1SqlMain.main(Execute1SqlMain.java:20)
+Caused by: java.sql.SQLWarning: NATIONAL/NCHAR/NVARCHAR implies the character set UTF8MB3, which will be replaced by UTF8MB4 in a future release. Please consider using CHAR(x) CHARACTER SET UTF8MB4 in order to be unambiguous.
+	at com.mysql.cj.protocol.a.NativeProtocol.convertShowWarningsToSQLWarnings(NativeProtocol.java:2204)
+	at com.mysql.cj.jdbc.StatementImpl.getWarnings(StatementImpl.java:1733)
+	at com.zaxxer.hikari.pool.HikariProxyStatement.getWarnings(HikariProxyStatement.java)
+	at net.hasor.dbvisitor.jdbc.core.JdbcConnection.handleWarnings(JdbcConnection.java:223)
+	... 5 more
+```
+
+## 设置查询超时 {#timeout}
+
+通过设置 _**queryTimeout**_ 为大于零的值，让 JdbcTemplate 在执行查询的 Statement 上时设定一个超时时间，例如：`java.sql.Statement.setQueryTimeout`。
+- 属性名：_**queryTimeout**_。
+- 默认值：_**0**_，表示不设置。
+- 单位：_**秒**_。
+
+```java
+jdbc.setQueryTimeout(6);//属性设置后会影响后续所有查询
+jdbc.queryForList("select * from users");
+```
+
+## 查询结果的 fetchSize {#fetchsize}
+
+通过设置 _**fetchSize**_ 为大于零的值，让 JdbcTemplate 在执行查询时通过 Statement 为 JDBC 驱动程序提供一个提示。
+它提示此 Statement 生成的 ResultSet 对象需要更多行时应该从数据库获取的行数。
+指定的行数仅影响使用此语句创建的结果集合。例如：`java.sql.Statement.setFetchSize`。
+- 属性名：_**fetchSize**_。
+- 默认值：_**0**_，表示不设置。
+- 单位：_**条**_。
+
+```java
+jdbc.setFetchSize(256);
+jdbc.queryForList("select * from users");
+```
+
+:::info[该参数的使用通常受到数据库驱动的影响]
+```java title='MySQL 流式查询的用法'
+PreparedStatement ps = con.prepareStatement(
+        "select * from test_user",
+        ResultSet.TYPE_FORWARD_ONLY,
+        ResultSet.CONCUR_READ_ONLY
+    );
+ps.setFetchSize(Integer.MIN_VALUE);
+```
+
+```java title='Postgres 7.4+'
+con.setAutoCommit(false);
+PreparedStatement ps = con.prepareStatement(
+        "select * from test_user",
+        ResultSet.TYPE_FORWARD_ONLY,
+        ResultSet.CONCUR_READ_ONLY
+    );
+ps.setFetchSize(255);
+```
+:::
+
+## maxRows {#maxrows}
+
+通过设置 _**maxRows**_ 为大于零的值，让 JdbcTemplate 在执行查询时通过 Statement 为JDBC 驱动程序提供一个提示。
+用于限制从 ResultSet 中返回的最大行数。
+
+例如，将 maxRows 设置为 100，则只会从 ResultSet 中获取前 100 行，并忽略后面的行。
+- 属性名：_**maxRows**_。
+- 默认值：_**0**_，表示不设置。
+- 单位：_**条**_。
+
+
+```java
+jdbc.setMaxRows(200);//属性设置后会影响后续所有查询
+jdbc.queryForList("select * from users");
+```
+
+:::info[请注意]
+在一些数据库驱动中设置了 maxRows 并不代表查询结果会在获取到指定数量数据后能立即结束查询。
+- 例如：MySQL 在拿到 maxRows 数量的结果集后仍然会将服务器返回的多余行数据进行消费，只不过这些数据不会放入结果集。
+:::
+
+## 动态数据源 {#dynamic}
+
+由于一些原因可能无法在创建 _**JdbcTemplate**_ 的时提供 DataSource 或 Connection，又或者 JdbcTemplate 的方法在被调用时会操作不同的 DataSource 或 Connection。
+这时就需要用到 _**DynamicConnection**_ 动态数据源接口替代。
+
+```java title='使用 自定义动态数据源'
+class LocalDynamicConnection implements DynamicConnection {
+    @Override
+    public Connection getConnection() throws SQLException {
+        return ...;// 获取 Connection 用于查询
+    }
+
+    @Override
+    public void releaseConnection(Connection conn) throws SQLException {
+        // 查询结束释放 Connection
+    }
+}
+```
+
+```java title='使用 动态数据源'
+JdbcTemplate jdbc = new JdbcTemplate(new LocalDynamicConnection());
+```
+
+:::info[拓展信息]
+**SpringDsAdapter** 通过使用 Spring 的 **DataSourceUtils** 来获取和释放数据源链接，来作为 DynamicConnection 实现逻辑。
+因此可以让 dbVisitor 和 Spring JDBC 的事务管理器管理协同工作。
+
+使用它需要依赖(按需选择)：
+- _**[net.hasor:dbvisitor-spring](https://central.sonatype.com/artifact/net.hasor/dbvisitor-spring)**_
+- _**[net.hasor:dbvisitor-spring-starter](https://central.sonatype.com/artifact/net.hasor/dbvisitor-spring-starter)**_
+:::

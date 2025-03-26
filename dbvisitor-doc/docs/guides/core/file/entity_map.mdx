@@ -1,0 +1,94 @@
+---
+id: entity_map
+sidebar_position: 6
+hide_table_of_contents: true
+title: 映射表
+description: 在 Mapper 文件中通过 entity 和 resultMap 标签映射结果和表。
+---
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# 映射表
+
+在 Mapper 文件中映射查询结果可以使用 &lt;resultMap&gt; 或 &lt;entity&gt;，区别是：
+- [&lt;resultMap&gt;](./result_map)，标签适用于对 SQL 查询结果的映射。
+- [&lt;entity&gt;](./entity_map)，适用于对一个具体表的映射。
+
+:::tip[resultMap 和 entity 如何选择？]
+- 在有些时候 resultMap、entity 区分并不明显，例如：针对同一个表的不同条件查询或者查询这个表的不同列。
+  - entity 适合查询结果中的列来自同一个表，resultMap 适合来自多个表的列。
+- 如果使用 [构造器 API](../wrapper/about) 则必须使用 entity 来映射表或者使用 [对象映射](../mapping/about) 相关注解映射表。
+- 如果查询列语句中包含（别名、函数、case、等特殊情况时）或者查询的列来自不同的表，这时 resultMap 是最佳选择。
+:::
+
+## &lt;entity&gt; 标签
+
+```xml title='定义和使用 resultMap'
+<entity id="user_resultMap" table="users" type="com.example.dto.UserBean">
+    <id column="id" property="id"/>
+    <mapping column="name" property="name"/>
+    <mapping column="age" property="age"/>
+    <mapping column="create_time" property="createTime"/>
+</entity>
+
+<select id="queryById" resultMap="user_resultMap">
+    select
+        id, name, age, create_time
+    from
+        users
+    where
+        id = #{id}
+</select>
+```
+
+### 标签属性
+
+**&lt;entity&gt; 标签**
+
+| 属性名                      | 描述                                                                                                                 |
+|--------------------------|--------------------------------------------------------------------------------------------------------------------|
+| id                       | <TagGray/> 如果为空那么将会以 type 属性为替代。主要是用于标识。                                                                           |
+| catalog                  | <TagGray/> 表示映射的表位于 catalog 的名字。                                                                                   |
+| schema                   | <TagGray/> 表示映射的表位于 Schema 的名字。                                                                                    |
+| table                    | <TagGray/> 映射的表。                                                                                                   |
+| type                     | <TagRed/> 类型全名，用于决定映射到的具体类型。                                                                                       |
+| caseInsensitive          | <TagGray/> 在处理映射列名和属性名时是否对大小写不敏感，默认是 true 不敏感。对于某些数据库查询结果始终返回大写，利用这个功能可以方便的映射到属性上。                                 |
+| autoMapping              | <TagGray/> 用于决定是否进行 [自动映射](./automapping)。默认是 true 自动映射。                                                           |
+| mapUnderscoreToCamelCase | <TagGray/> 配合 autoMapping 使用，用于决定属性名在映射到列名时，是否按照驼峰命名法转换为下划线命名法，例如：属性名 `createTime` 被转换为 `create_time`。默认 false 不转换 |
+| useDelimited             | <TagGray/> 用于决定在生成 SQL 语句时，表名/列名 是否强制使用限定符。默认：false 不使用。                                                           |
+| character-set            | <TagGray/> 用于描述表使用的字符集（在 TableDescription 接口中可获取）                                                                  |
+| collation                | <TagGray/> 用于描述表使用的排序规则（在 TableDescription 接口中可获取）                                                                 |
+| comment                  | <TagGray/> 用于描述表的备注（在 TableDescription 接口中可获取）                                                                     |
+| other                    | <TagGray/> 用于描述表的其它参数（在 TableDescription 接口中可获取）                                                                   |
+| ddlAuto                  | <TagGray/> 自动建表方式，可选值范围：`none、create、add、update、create-drop`，（目前还不支持自动建表）                                          |
+
+**&lt;id&gt; 标签** 和 **&lt;mapping&gt; 标签**
+
+| 属性名                | 描述                                                                                                                             |
+|--------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| column             | <TagRed/> 查询结果的列名。                                                                                                             |
+| property           | <TagRed/> 映射类型的属性名。                                                                                                            |
+| javaType           | <TagGray/> 通常会自动识别类型，除非属性是一个抽象类或者接口，则需要配置具体的实现类。                                                                               |
+| jdbcType           | <TagGray/> 默认按照 [Java 和 JDBC 类型关系](../../types/java-jdbc) 进行映射，可通过该属性来强制指定 jdbcType。                                           |
+| typeHandler        | <TagGray/> 根据 [类型处理器](../../types/about) 所描述的优先级进行查找，可通过该属性强制指定一个具体的 typeHandler。                                              |
+| keyType            | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。表示当属性值为 null 时所采用的数据生成算法。详细请了解 [主键生成器](../mapping/keytype#xml)。                   |
+| insert             | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。表示当在 insert 操作时是否参与新增。详细请了解 [写入策略](../mapping/write_policy)。                      |
+| update             | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。表示当在 update 操作时是否参与新增。详细请了解 [写入策略](../mapping/write_policy)。                      |
+| selectTemplate     | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。当用作 select 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。                |
+| insertTemplate     | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。当用作 insert 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。                       |
+| setColTemplate     | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。当用作 update 的 set 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。          |
+| setValueTemplate   | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。当用作 update set 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。                   |
+| whereColTemplate   | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。当用作 update/delete 的 where 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。 |
+| whereValueTemplate | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。当用作 update/delete 的 where 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。        |
+| groupByColTemplate | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。当用作 group by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。              |
+| orderByColTemplate | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。当用作 order by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。              |
+| sqlType            | <TagGray/> 用于描述列的数据类型（在 TableDescription 接口中可获取）                                                                               |  
+| length             | <TagGray/> 用于描述列的数据类型长度（在 TableDescription 接口中可获取）                                                                             |  
+| precision          | <TagGray/> 用于描述列的数值精度（在 TableDescription 接口中可获取）                                                                               |  
+| scale              | <TagGray/> 用于描述列的数值刻度（在 TableDescription 接口中可获取）                                                                               |  
+| character-set      | <TagGray/> 用于描述列的字符集（在 TableDescription 接口中可获取）                                                                                |  
+| collation          | <TagGray/> 用于描述列的排序规则（在 TableDescription 接口中可获取）                                                                               |  
+| nullable           | <TagGray/> 用于描述列是否允许为空，对于 &lt;id&gt; 标签该属性不能被设置且表示 true（在 TableDescription 接口中可获取）                                             |  
+| default            | <TagGray/> 用于描述列的默认值（在 TableDescription 接口中可获取）                                                                                |  
+| comment            | <TagGray/> 用于描述列的备注（在 TableDescription 接口中可获取）                                                                                 |  
+| other              | <TagGray/> 用于描述列的其它参数（在 TableDescription 接口中可获取）                                                                               |  

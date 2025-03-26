@@ -1,0 +1,179 @@
+---
+id: sql_element
+sidebar_position: 3
+hide_table_of_contents: true
+title: SQL 标签
+description: 了解 dbVisitor 中 Mapper 文件的元素都有哪些可以配置。
+---
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# SQL 标签
+
+SQL 标签主要由以下具体标签构成：
+- [&lt;select&gt; 标签](./sql_element#select)，用于配置 SELECT 语句。
+- [&lt;update&gt; 标签、&lt;delete&gt; 标签](./sql_element#update_delete)，用于配置 UPDATE 和 DELETE 语句。
+- [&lt;insert&gt; 标签](./sql_element#insert)，用于配置 INSERT 语句。
+- [&lt;selectKey&gt; 标签](./sql_element#selectKey)，在 &lt;insert&gt; 标签内可以使用 &lt;selectKey&gt; 标签获取自增主键，从而避免再次查询数据库。
+- [&lt;execute&gt; 标签](./sql_element#execute)，可以用来执行任意的 SQL 语句。
+- [&lt;sql&gt; 标签](./sql_element#sql)，定义 SQL 片段。
+
+## select 标签 {#select}
+
+&lt;select&gt; 标签等同于 [@Query 注解](../annotation/query)，用于配置 SELECT 语句，对于简单的情况只需要具体的 SQL 语句即可。例如:
+
+```xml title='例1：简单案例'
+<select id="queryListByAge">
+    select * from users where age = #{age}
+</select>
+```
+
+```xml title='例2：使用 resultType 属性将查询结果映射到类型'
+<select id="queryById" resultType="com.example.dto.UserBean">
+    select 
+        id, name, age, create_time
+    from
+        users
+    where
+        id = #{id}
+</select>
+```
+
+### 标签属性
+
+| 属性名                | 描述                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| id                 | <TagRed/> 用于标识查询命令                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| statementType      | <TagGray/> 表示查询类型，表示 JDBC 查询使用何种方式。默认值为 `PREPARED`<br/> - `STATEMENT` 对应 `java.sql.Statement`<br/> - `PREPARED` 对应 `java.sql.PreparedStatement`<br/> - `CALLABLE` 对应 `java.sql.CallableStatement`                                                                                                                                                                                                                                                                                                                          |
+| timeout            | <TagGray/> 通过设置一个大于 `0` 时会被设置到 `java.sql.Statement.setQueryTimeout(int)` 可以让查询在执行时候设置一个超时时间，单位是秒，默认值为 `-1`                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| fetchSize          | <TagGray/> 通过设置一个大于 `0` 时会被设置到 `java.sql.Statement.setFetchSize(int)`，用于为 JDBC 驱动程序提供一个提示。它提示此查询生成的 ResultSet 对象需要更多行时应该从数据库获取的行数。默认值是 `256`                                                                                                                                                                                                                                                                                                                                                                               |
+| resultMap          | <TagGray/> 引用 [&lt;resultMap&gt;](./result_map) 或 [&lt;entity&gt;](./entity_map) 标签配置的映射。<br/>- 可以使用 `resultMap` 和 `resultType` 其中一个属性但不应同时使用它们。如果都没有配置将会参照映射的接口返回值类型决定。                                                                                                                                                                                                                                                                                                                                                   |
+| resultType         | <TagGray/> 将返回的预期类型的完全限定类名或 [类型别名](./sort_type_name)。提示：在集合的情况下，这应该是集合的元素类型，而不是集合本身的类型。<br/>- 可以使用 `resultMap` 和 `resultType` 其中一个属性但不应同时使用它们。如果都没有配置将会参照映射的接口返回值类型决定。                                                                                                                                                                                                                                                                                                                                                     |
+| resultSetType      | <TagGray/> 当通过 `java.sql.Connection` 创建查询 statement 时候，该值决定了 `resultSetType` 参数的具体值。<br/> - 可选值列表： `FORWARD_ONLY`、`SCROLL_INSENSITIVE`、`SCROLL_SENSITIVE` 和 `DEFAULT`。默认值为 `DEFAULT` 相当于未设置。<br/> - statementType 为 `STATEMENT` 时对应 `java.sql.Connection.createStatement(int, int)` 方法第一个参数。<br/> - statementType 为 `PREPARED` 时对应 `java.sql.Connection.prepareStatement(java.lang.String, int, int)`方法第二个参数。<br/> - statementType 为 `CALLABLE` 时对应 `java.sql.Connection..prepareCall(java.lang.String, int, int)`方法第二个参数。 |
+| resultSetExtractor | <TagGray/> 可为查询配置一个 [ResultSetExtractor](../../result/for_extractor) 对象用于结果集处理（如果配置了 bindOut 那么该配置将会失效）                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| resultRowCallback  | <TagGray/> 可为查询配置一个 [RowCallbackHandler](../../result/row_callback) 对象用于结果集处理（如果配置了 bindOut 那么该配置将会失效）                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| resultRowMapper    | <TagGray/> 可为查询配置一个 [RowMapper](../../result/row_callback) 对象用于结果集处理（如果配置了 bindOut 那么该配置将会失效）                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| bindOut            | <TagGray/> 当 Query 中使用了 [多值](../jdbc/multi) 或者 [存储过程调用](../jdbc/procedure)，使用 bindOut 参数可以绑定其中的输出参数。<br/>请注意：一旦使用了该参数那么接口返回值类型必须为 **Map&lt;String,Object&gt;** 类型。                                                                                                                                                                                                                                                                                                                                                         |
+
+## update 和 delete 标签 {#update_delete}
+
+&lt;update&gt; 标签等同于 [@Update 注解](../annotation/update)、&lt;delete&gt; 标签等同于 [@Delete 注解](../annotation/delete)。用于配置对应的 UPDATE、DELETE 语句。
+
+```xml
+<update id="updateAge">
+    update users set age = #{age} where id = #{id}
+</update>
+
+<delete id="deleteById">
+    delete from users where id = #{id}
+</delete>
+```
+
+### 标签属性
+
+| 属性名           | 描述                                                                                                                                                                                                |
+|---------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| id            | <TagRed/> 用于标识查询命令                                                                                                                                                                                |
+| statementType | <TagGray/> 表示查询类型，表示 JDBC 查询使用何种方式。默认值为 `PREPARED`<br/> - `STATEMENT` 对应 `java.sql.Statement`<br/> - `PREPARED` 对应 `java.sql.PreparedStatement`<br/> - `CALLABLE` 对应 `java.sql.CallableStatement` |
+| timeout       | <TagGray/> 通过设置一个大于 `0` 时会被设置到 `java.sql.Statement.setQueryTimeout(int)` 可以让查询在执行时候设置一个超时时间，单位是秒，默认值为 `-1`                                                                                        |
+
+## insert 标签 {#insert}
+
+&lt;insert&gt; 标签等同于 [@Insert 注解](../annotation/insert)，用于配置对应的 INSERT 语句。
+
+```xml
+<insert id="insertUser">
+    insert into users (
+        id,    name,    age,    create_time
+    ) values (
+        #{id}, #{name}, #{age}, #{createTime}
+    )
+</insert>
+```
+
+### 标签属性
+
+| 属性名              | 描述                                                                                                                                                                                                |
+|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| id               | <TagRed/> 用于标识查询命令                                                                                                                                                                                |
+| statementType    | <TagGray/> 表示查询类型，表示 JDBC 查询使用何种方式。默认值为 `PREPARED`<br/> - `STATEMENT` 对应 `java.sql.Statement`<br/> - `PREPARED` 对应 `java.sql.PreparedStatement`<br/> - `CALLABLE` 对应 `java.sql.CallableStatement` |
+| timeout          | <TagGray/> 通过设置一个大于 `0` 时会被设置到 `java.sql.Statement.setQueryTimeout(int)` 可以让查询在执行时候设置一个超时时间，单位是秒，默认值为 `-1`                                                                                        |
+| useGeneratedKeys | <TagGray/> 是否使用自增属性。<br/> - 如果同时配置了 `SelectKeySql` 注释，如果同时配置了 SelectKey 注解该配置将会失效。                                                                                                                |
+| keyProperty      | <TagGray/> 当 useGeneratedKeys 设置为 true 后，用于回填自增后属性值的 Bean 属性名。如果同时配置了 SelectKey 注解该属性将会失效。                                                                                                        |
+| keyColumn        | <TagGray/> 当 useGeneratedKeys 设置为 true 后，回填自增属性值时候选择的查询结果列名。如果同时配置了 SelectKey 注解该属性将会失效。                                                                                                          |
+
+## selectKey 标签 {#selectKey}
+
+&lt;selectKey&gt; 标签需要和 &lt;insert&gt; 标签一起才能工作，它等同于 [@SelectKeySql 注解](../annotation/insert#selectkey)。
+
+有时候新增一条数据不仅仅要知道是否插入成功，因为后面的逻辑可能还需要这条新增数据的主键。
+这时候可以使用 &lt;selectKey&gt; 标签获取自增主键从而避免再次查询数据库。
+另外有些业务需要自定义数据表的主键，这个时候也可以使用 &lt;selectKey&gt; 标签来实现，它可以随意的设置生成主键的方式。
+
+```xml
+<insert id="insertUser">
+    <selectKey keyProperty="id" resultType="int" order="BEFORE">
+        SELECT CONCAT('1', CEILING(RAND() * 1000 + 1000))
+    </selectKey>
+    insert into `test_user` (
+        `id`, `name`, `age`, `create_time`
+    ) values (
+        #{id}, #{name}, #{age}, #{createTime}
+    )
+</insert>
+```
+
+### 标签属性
+
+| 属性名           | 描述                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| keyProperty   | <TagRed/> 用于回填自增后属性值的 Bean 属性名。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| keyColumn     | <TagGray/> 用于回填自增属性值时候选择的查询结果列名。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| order         | <TagRed/> 可以选择 Before 或者 After，表示用于获取自增主键的 SQL 执行时机是在 INERT 操作之前还是之后。                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| statementType | <TagGray/> 表示查询类型，表示 JDBC 查询使用何种方式。默认值为 `PREPARED`<br/> - `STATEMENT` 对应 `java.sql.Statement`<br/> - `PREPARED` 对应 `java.sql.PreparedStatement`<br/> - `CALLABLE` 对应 `java.sql.CallableStatement`                                                                                                                                                                                                                                                                                                                          |
+| timeout       | <TagGray/> 通过设置一个大于 `0` 时会被设置到 `java.sql.Statement.setQueryTimeout(int)` 可以让查询在执行时候设置一个超时时间，单位是秒，默认值为 `-1`                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| fetchSize     | <TagGray/> 通过设置一个大于 `0` 时会被设置到 `java.sql.Statement.setFetchSize(int)`，用于为 JDBC 驱动程序提供一个提示。它提示此查询生成的 ResultSet 对象需要更多行时应该从数据库获取的行数。默认值是 `256`                                                                                                                                                                                                                                                                                                                                                                               |
+| resultSetType | <TagGray/> 当通过 `java.sql.Connection` 创建查询 statement 时候，该值决定了 `resultSetType` 参数的具体值。<br/> - 可选值列表： `FORWARD_ONLY`、`SCROLL_INSENSITIVE`、`SCROLL_SENSITIVE` 和 `DEFAULT`。默认值为 `DEFAULT` 相当于未设置。<br/> - statementType 为 `STATEMENT` 时对应 `java.sql.Connection.createStatement(int, int)` 方法第一个参数。<br/> - statementType 为 `PREPARED` 时对应 `java.sql.Connection.prepareStatement(java.lang.String, int, int)`方法第二个参数。<br/> - statementType 为 `CALLABLE` 时对应 `java.sql.Connection..prepareCall(java.lang.String, int, int)`方法第二个参数。 |
+
+## execute 标签 {#execute}
+
+&lt;execute&gt; 标签等同于 [@Execute 注解](../annotation/execute)。用于配置任意 SQL 语句。
+
+```xml
+<execute id="updateAge">
+    update users set age = #{age} where id = #{id}
+</execute>
+```
+
+### 标签属性
+
+| 属性名           | 描述                                                                                                                                                                                                |
+|---------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| id            | <TagRed/> 用于标识查询命令                                                                                                                                                                                |
+| statementType | <TagGray/> 表示查询类型，表示 JDBC 查询使用何种方式。默认值为 `PREPARED`<br/> - `STATEMENT` 对应 `java.sql.Statement`<br/> - `PREPARED` 对应 `java.sql.PreparedStatement`<br/> - `CALLABLE` 对应 `java.sql.CallableStatement` |
+| timeout       | <TagGray/> 通过设置一个大于 `0` 时会被设置到 `java.sql.Statement.setQueryTimeout(int)` 可以让查询在执行时候设置一个超时时间，单位是秒，默认值为 `-1`                                                                                        |
+| bindOut       | <TagGray/> 对输出参数进行过滤，用来确定哪些结果参数会被接收，如果不指定将会接收所有参数。<br/>请注意：一旦使用了该参数那么接口返回值类型必须为 **Map&lt;String,Object&gt;** 类型。                                                                                  |
+
+## sql 标签 {#sql}
+
+此标签可用于定义一段 SQL 并在同一个 Mapper 文件内进行引用，从而减少重复的 SQL 片段，例如：定义列名。
+
+```xml
+<sql id="testuser_columns">
+    name,age,create_time
+</sql>
+
+<insert id="insertUser">
+    insert into `test_user` (
+        <include refid="testuser_columns"/>
+    ) values (
+        #{name}, #{age}, now()
+    )
+</insert>
+```
+
+### 标签属性
+
+| 属性名 | 描述                  |
+|-----|---------------------|
+| id  | <TagRed/> 用于标识片段名称。 |

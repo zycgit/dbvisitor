@@ -1,0 +1,9 @@
+{
+  "label": "9. 接收结果",
+  "position": 9,
+  "className": "red",
+  "link": {
+    "type": "doc",
+    "id": "about"
+  }
+}

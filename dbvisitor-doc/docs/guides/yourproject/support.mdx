@@ -1,0 +1,36 @@
+---
+id: support
+sidebar_position: 2
+hide_table_of_contents: true
+title: 3.2 数据库支持性
+description: dbVisitor 的各项功能特性对于不同数据库的支持性。
+---
+import Vars from '@site/plugins/projectVars';
+
+export const Highlight = ({children, color}) => (
+  <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+);
+
+# 数据库支持性
+
+dbVisitor 的各项功能特性对于不同数据库的支持性如下表所示：
+
+| 数据库           |  分页查询  | 冲突策略                      | 空值排序策略 | 序列  |
+|---------------|:------:|:--------------------------|--------|-----|
+| DB2           |   支持   | Into                      |        |     |
+| Apache Derby  |   支持   | Into                      |        |     |
+| 达梦            |   支持   | Into、Ignore（表要有主键）        |        |     |
+| H2            |   支持   | Into                      |        | 支持  |
+| Hive          |   支持   | Into                      |        |     |
+| HSQL          |   支持   | Into                      |        |     |
+| Apache Impala |   支持   | Into                      |        |     |
+| IBM Informix  |   支持   | Into                      |        |     |
+| 人大金仓          |   支持   | Into                      |        |     |
+| MariaDB       |   支持   | Into                      |        |     |
+| MySQL         |   支持   | Into、Update、Ignore        | 支持     |     |
+| Oracle        |   支持   | Into、Update、Ignore（表要有主键） |        |     |
+| Phoenix       |   支持   | Into                      |        |     |
+| PostgreSQL    |   支持   | Into、Update、Ignore        |        |     |
+| SQLite        |   支持   | Into                      |        |     |
+| SQL SERVER    |   支持   | Into                      |        |     |
+| 虚谷数据库         |   支持   | Into                      |        |     |

@@ -1,0 +1,9 @@
+{
+  "label": "10.1 事务管理器",
+  "position": 1,
+  "className": "red",
+  "link": {
+    "type": "doc",
+    "id": "about"
+  }
+}

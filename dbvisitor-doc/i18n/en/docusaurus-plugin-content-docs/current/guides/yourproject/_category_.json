@@ -1,0 +1,9 @@
+{
+  "label": "3. 在项目中使用",
+  "position": 3,
+  "className": "red",
+  "link": {
+    "type": "doc",
+    "id": "buildtools"
+  }
+}

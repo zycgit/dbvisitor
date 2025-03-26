@@ -1,9 +1,9 @@
 {
-  "label": "类型",
-  "position": 5,
+  "label": "8. 类型处理器",
+  "position": 8,
   "className": "red",
   "link": {
-    "type": "generated-index",
-    "title": "目录总揽"
+    "type": "doc",
+    "id": "about"
   }
 }

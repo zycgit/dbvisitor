@@ -1,13 +1,14 @@
 ---
-id: java_jdbc_map
-sidebar_position: 5
-title: 附录：类型映射
+id: java-jdbc
+sidebar_position: 1
+hide_table_of_contents: true
+title: 8.1 Java/JDBC 类型关系
 description: dbVisitor ORM 工具 Java类型映射表介绍。
 ---
 
-# 附录：类型映射
+# Java/JDBC 类型关系
 
-根据 Java 类型获取对应的 JDBC Type
+在没有明确指定 JDBC 类型时，dbVisitor 会根据下面表格中的映射自动选择 Java 类型对应的 JDBC 类型作为参数。
 
 | Java 类型                                                                                                                                         | JDBC 类型                         |
 |-------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|

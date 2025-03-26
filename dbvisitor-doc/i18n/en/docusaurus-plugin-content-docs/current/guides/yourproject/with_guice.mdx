@@ -1,0 +1,112 @@
+---
+id: with_guice
+sidebar_position: 6
+hide_table_of_contents: true
+title: 3.6 Guice 整合
+description: dbVisitor ORM 工具和 Guice 整合使用。
+---
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+import Vars from '@site/plugins/projectVars';
+
+export const Highlight = ({children, color}) => (
+  <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+);
+
+## 什么是 Guice
+Guice 是 Google 开源的一个轻量化依赖注入工具，Spring 包含依赖注入能力之外含有很多其它能里。若只想在项目中使用依赖注入那么可以考虑使用 Guice。
+
+- Guice 项目地址：https://github.com/google/guice
+
+## dbvisitor-guice 特性
+
+- 自动配置数据源
+- 注解化事务控制
+- Mapper 接口注入
+- 支持多数据源
+
+## 如何使用
+
+首先引入依赖包，当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+
+```xml title='Maven 依赖'
+<dependency>
+  <groupId>net.hasor</groupId>
+  <artifactId>dbvisitor-guice</artifactId>
+  <version>最新版本的版本号</version>
+</dependency>
+```
+
+```xml title='选用 HikariCP 作为数据库链接池'
+<dependency>
+    <groupId>com.zaxxer</groupId>
+    <artifactId>HikariCP</artifactId>
+    <version>4.0.3</version>
+</dependency>
+```
+
+```properties title='配置文件'
+# 数据源使用 HikariCP
+dbvisitor.jdbc-ds=com.zaxxer.hikari.HikariDataSource
+dbvisitor.jdbc-ds.jdbc-url=jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true
+dbvisitor.jdbc-ds.username=root
+dbvisitor.jdbc-ds.password=123456
+dbvisitor.jdbc-ds.minimum-idle=5
+dbvisitor.jdbc-ds.maximum-pool-size=12
+dbvisitor.jdbc-ds.max-lifetime=1200000
+dbvisitor.jdbc-ds.auto-commit=true
+dbvisitor.jdbc-ds.connection-timeout=20000
+dbvisitor.mapper-locations=classpath:dbvisitor/mapper/*.xml
+dbvisitor.mapper-packages=net.hasor.dbvisitor.test.dao
+```
+
+```java title='注入 Mapper'
+public class ServiceTest {
+    @Inject
+    private UserMapper userMapper;
+    ...
+}
+```
+
+```java title='启动 Guice'
+// 加载配置文件
+Properties properties = new Properties();
+properties.load(ResourcesUtils.getResourceAsStream("jdbc.properties"));
+
+// 初始化 Guice 并加载 DbVisitorModule 插件
+Injector injector = Guice.createInjector(new DbVisitorModule(properties));
+
+// 尽情享受
+ServiceTest service = injector.getInstance(ServiceTest.class);
+...
+```
+
+:::info[Example]
+[Example 工程](https://gitee.com/zycgit/dbvisitor/tree/main/dbvisitor-example/guice/)
+:::
+
+## 注册的类型 {#inject}
+
+- JdbcOperations 接口，[JdbcTemplate](../core/jdbc/about) 是它的实现类
+- WrapperOperations 接口，[WrapperAdapter](../core/wrapper/about) 是它的实现类
+- TransactionManager 接口，是开发 [编程式](../transaction/manager/program) 事务的 API 接口
+- TransactionTemplate 接口，是开发 [模版](../transaction/manager/template) 事务的 API 接口
+- Configuration 配置类
+- Session 类
+- 自定义 Mapper
+
+## 配置项说明
+
+| 属性名                                 | 描述                                                                                                                                   |
+|-------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| dbvisitor.mapper-locations          | <TagGray/> 要扫描加载的 Mapper 映射文件所在路径，默认值为 `dbvisitor/mapper/*.xml`                                                                      |
+| dbvisitor.mapper-packages           | <TagGray/> 要扫描加载的 Mapper 接口定义所在的包名，如果有多个包使用 `,` 号分割                                                                                  |
+| dbvisitor.mapper-disabled           | <TagGray/> 使用 `true/false` 表示是否禁用 `dbvisitor.mapper-packages` 扫描到的 Mapper 接口。<br/>默认值为 false 当与某些框架合用同一个 mapper 文件时如果遇到冲突可考虑设置为 true |
+| dbvisitor.marker-annotation         | <TagGray/> 设置一个扫描路径当扫描到的 Mapper 接口身上标有某个特定类型的注解时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.mapper.MapperDef`                          |
+| dbvisitor.marker-interface          | <TagGray/> 设置一个扫描路径当扫描到的 Mapper 接口实现了某个特定接口时才会被认作 Mapper 接口类。默认为：`net.hasor.dbvisitor.mapper.Mapper`                                 |
+| dbvisitor.auto-mapping              | <TagGray/> 是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Column 注解声明                                                           |                                                                                                                         
+| dbvisitor.camel-case                | <TagGray/> 表名和属性名，根据驼峰规则转换为带有下划线的表名和列名                                                                                               |                                                                                                                        
+| dbvisitor.case-insensitive          | <TagGray/> 强制在生成 表名/列名/索引名 时候增加标识符限定，例如：通过设置该属性来解决列名为关键字的问题。默认是 false 不设置。                                                           |                                                                                                                               
+| dbvisitor.use-delimited             | <TagGray/> 是否对表名列名敏感，默认 true 不敏感                                                                                                     |                                                                                                                               
+| dbvisitor.ignore-nonexist-statement | <TagGray/> 在 Mapper 接口方法映射到 XML 过程中是否忽略缺失的映射。默认是 false，遇到缺失会报错。                                                                      |
+| dbvisitor.dialect                   | <TagGray/> 默认使用的数据库方言                                                                                                                |

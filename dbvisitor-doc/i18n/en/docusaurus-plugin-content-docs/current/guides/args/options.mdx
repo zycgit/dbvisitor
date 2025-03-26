@@ -1,0 +1,165 @@
+---
+id: options
+sidebar_position: 7
+hide_table_of_contents: true
+title: 6.6 参数选项
+description: 了解使用参数选项和其用法。
+---
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+import TagYellow from '@site/src/components/tags/TagYellow';
+
+# 参数选项
+
+参数选项主要分为如下三种类别：
+- [常规选项](./options#normal)，介绍和演示常用的选项参数功效和用法。
+- [存储过程扩展选项](./options#call)，存储过程相关的几个选项。
+- [游标参数扩展选项](./options#cursor)，对于游标类型参数的扩展选项及其用法。
+
+## 常规选项 {#normal}
+
+**javaType**、**typeHandler**、**jdbcType** 是三个常见参数选项，通过它们通常可以解决绝大部分传参需要。
+
+| 名称          | 类型          | 说明                                                                        |
+|-------------|-------------|---------------------------------------------------------------------------|
+| javaType    | Class       | <TagGray/> 参数使用的 Java 类型。                                                 |
+| jdbcType    | Integer     | <TagGray/> 参数对应的 JDBC Type，可以是 java.sql.JDBCType 枚举名称也可以是具体数字。            |
+| typeHandler | TypeHandler | <TagGray/> 使用的类型处理器，通过指定该选项可以覆盖 dbVisitor 为参数选择的 [类型处理器](../types/about)。 |
+
+```text title='例1：javaType 选项'
+select * from users where name = #{name,javaType=java.lang.Integer}
+```
+
+- javaType 选项可以指定 TypeHandlerRegistry 中支持的任意 [Java 类型](../types/handlers/about#single_type)。
+
+```text title='例2：jdbcType 选项'
+select * from users where name = #{name,jdbcType=varchar}
+```
+
+- jdbcType 选项可以指定 TypeHandlerRegistry 中支持的任意 [JDBC 类型](../types/handlers/about#single_type)。
+
+:::info
+`javaType` 选项和 `jdbcType` 也可以联合使用，用来确定具体 **[TypeHandler](../types/handlers/about#mix_type)**。
+:::
+
+```text title='例3：typeHandler 选项'
+select * from users where name = #{name,typeHandler=net.hasor.dbvisitor.types.handler.string.StringTypeHandler}
+```
+
+:::info
+typeHandler 选项明确指定所使用的具体 TypeHandler，dbVisitor 已经内置了大量 **[类型处理器](../types/about)** 可以选用。
+:::
+
+
+```text title='例4：字段使用 Json 结构序列化/反序列化'
+select * 
+from users 
+where name = #{name,
+               javaType= net.demos.UserDTO,
+               typeHandler=net.hasor.dbvisitor.types.handler.json.JsonUseForFastjson2TypeHandler}
+```
+
+- 通过同时设置 `javaType`、`typeHandler` 可以实现 JSON 类型字段读写自动序列化/反序列化。
+
+## 存储过程扩展选项 {#call}
+
+通过改变 **mode** 参数的值可以适配存储过程参数的不同类型。
+- 当 `mode` 参数值为 `IN` 时，表示向存储过程传入值。此时传参用法和 **常规选项** 相同。
+- 当 `mode` 参数值为 `OUT`、`INOUT` 可以在 **常规选项** 基础上可以额外使用下列表格的选项。
+
+| 名称       | 类型      | 说明                                                                                               |
+|----------|---------|--------------------------------------------------------------------------------------------------|
+| mode     | SqlMode | <TagYellow/> 参数的传输方向，默认值为 `IN`。通常不需要设置，可以用来处理存储过程的 OUT 参数。                                       |
+| jdbcType | Integer | <TagYellow/> 参数对应的 JDBC Type，可以是 java.sql.JDBCType 枚举名称也可以是具体数字。                                 |
+| name     | String  | <TagGray/> OUT 参数在结果集中的名称。当 mode 为 `INOUT` 时可以用来而进一步用来区分参数在传入和传出时分别的名称。                          |
+| typeName | String  | <TagGray/> OUT 参数类型名，在调用存储过程时候的可选值。详细请了解 `java.sql.CallableStatement.registerOutParameter`       |
+| scale    | Integer | <TagGray/> OUT 参数 scale 参数，在调用存储过程时候的可选值。详细请了解 `java.sql.CallableStatement.registerOutParameter` |
+
+```text title='例1：存储过程参数 arg 为传入参数'
+{call test_procedure(#{arg, mode=in})} -- 可简写为 {call test_procedure(#{arg})}
+```
+
+```text title='例2：存储过程参数 arg 为传出参数，JDBC 类型为 VARCHAR'
+{call test_procedure(#{arg, mode=out, jdbcType=varchar})}
+```
+
+```text title='例3：存储过程参数 arg 为传入传出参数，JDBC 类型为 VARCHAR'
+{call test_procedure(#{arg, mode=inout, jdbcType=varchar})}
+```
+
+```text title='例4：为存储过程 OUT 参数 arg 指定 jdbcType 和 jdbcTypeName'
+{call test_procedure(#{arg, mode=out, jdbcType=varchar, typeName=varchar2})}
+```
+
+```text title='例5：为存储过程 OUT 参数 arg 指定 jdbcType 和 scale'
+{call test_procedure(#{arg, mode=out, jdbcType=varchar, scale=3})}
+```
+
+:::info
+**typeName**、**scale** 两个参数当同时出现时 typeName 会优先于 scale。几种常见 OUT 参数选项组合优先级如下：
+- jdbcType 搭配 typeName，第一优先。
+- jdbcType, 搭配 scale，第二优先。
+- jdbcType 最末。
+- 详细信息请了解 `java.sql.CallableStatement.registerOutParameter` 方法。
+:::
+
+```text title='例6：存储过程参数 arg 为传出参数，JDBC 类型为 VARCHAR，使用 StringAsMonthDayTypeHandler 处理参数读写'
+{call test_procedure(#{arg, 
+                       mode=out,
+                       jdbcType=varchar,
+                       typeHandler=net.hasor.dataql.sqlproc.types.handler.StringAsMonthDayTypeHandler})
+}
+```
+
+```text title='例7：为存储过程 INOUT 参数 arg 设定别名，并将传出结果使用 outArg 名称保存。'
+{call test_procedure(#{arg, name=outArg, mode=out, jdbcType=varchar})}
+```
+
+## 游标参数扩展选项 {#cursor}
+
+游标参数通常是一个结果集，它通常位于存储过程的 `OUT` 类型参数上。处理游标数据可以使用 `rowMapper`、`rowHandler`、`extractor` 选项。
+
+| 名称         | 类型                 | 说明                                                                            |
+|------------|--------------------|-------------------------------------------------------------------------------|
+| mode       | SqlMode            | <TagRed/> 使用游标参数，该选项必须设置为 `CURSOR`。                                           |
+| name       | String             | <TagGray/> 游标参数在结果集中的名称。                                                      |
+| javaType   | Class              | <TagGray/> 用于将游标代表的数据集映射到具体 Java 类型。有关详细请信息请了解 [对象映射](../core/mapping/about)。 |
+| rowMapper  | RowMapper          | <TagGray/> 同上，详情参考 [RowMapper](../result/for_mapper)。                         |
+| rowHandler | RowCallbackHandler | <TagGray/> 同上，详情参考 [RowCallbackHandler](../result/row_callback)。              |
+| extractor  | ResultSetExtractor | <TagGray/> 同上，详情参考 [ResultSetExtractor](../result/for_extractor)。             |
+
+```sql title='有 Oracle 存储过程，它会产生一个游标 OUT 类型参数。'
+create or replace procedure proc_out_cursor(
+    userName in varchar2,
+    tableCursor out sys_refcursor)
+as
+begin
+    open tableCursor for select * from my_users where c_name = userName;
+end;
+```
+
+```text title='例1：将游标结果集映射到 UserDTO 类型'
+{call proc_out_cursor(#{name},#{res,
+                                mode=cursor,
+                                javaType=net.demos.dto.UserDTO})}
+```
+
+```text title='例2：将游标结果集使用自定义 UserRowMapper 映射'
+{call proc_out_cursor(#{name},#{res,
+                                mode=cursor,
+                                rowMapper=net.demos.mapper.UserRowMapper})}
+```
+
+```text title='例3：在处理接收游标数据集时，所指的输出结果集使用 UserRowHandler 进行处理。'
+{call proc_out_cursor(#{name},#{res,
+                                mode=cursor,
+                                rowHandler=net.demos.handler.UserRowHandler})}
+```
+
+:::info
+由于 `RowCallbackHandler` 接口特性，在游标数据处理完成后并不会产生结果集。详情参考 **[RowCallbackHandler](../result/row_callback)**。
+:::
+
+:::info
+**javaType**、**rowMapper**、**rowHandler**、**extractor** 在同时或部分同时出现时只有一个选项有效，它们的优先级是：**javaType** > **rowMapper** > **rowHandler** > **extractor**。
+:::

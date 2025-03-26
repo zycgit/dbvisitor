@@ -1,9 +1,9 @@
 {
-  "label": "资源与事务",
+  "label": "10. 数据库事务",
   "position": 10,
   "className": "red",
   "link": {
-    "type": "generated-index",
-    "title": "目录总揽"
+    "type": "doc",
+    "id": "about"
   }
 }

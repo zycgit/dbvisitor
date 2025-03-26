@@ -1,0 +1,109 @@
+---
+id: basic
+sidebar_position: 2
+hide_table_of_contents: true
+title: 映射表
+description: dbVisitor 中如何映射对象到数据库的表。
+---
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+
+# 映射表
+
+```java title='例1：默认情况下类名即为表名'
+@Table
+public class Users {      // 映射为 Users 表
+    private Integer id;   // 映射为 id 列
+    private String  name; // 映射为 name 列
+    private Integer age;  // 映射为 age 列
+
+    // getters and setters omitted
+}
+```
+
+```java title='例2：使用特定名称'
+@Table("admin_users")
+public class AdminUsers {       // 表名映射为 admin_users 表
+    private Integer id;         // 映射为 id 列
+    private String  name;       // 映射为 name 列
+    private Integer age;        // 映射为 age 列
+    @Column("create_time")
+    private Date    createTime; // 映射为 create_time 列
+
+    // getters and setters omitted
+}
+```
+
+```java title='例3：指定 catalog/schema 信息'
+@Table(catalog = "co", 
+       schema  = "example", 
+       table   = "admin_users")
+public class AdminUsers {       // 表名映射为 co.example.admin_users
+    private Integer id;         // 映射为 id 列
+    private String  name;       // 映射为 name 列
+    private Integer age;        // 映射为 age 列
+
+    // getters and setters omitted
+}
+```
+
+```java title='例4：按照注解进行精确映射'
+@Table(table = "admin_users", autoMapping = false)
+public class AdminUsers {       // 表名映射为 admin_users
+    private Integer id;         // 不映射
+    private String  name;       // 不映射
+    @Column
+    private Integer age;        // 映射为 age 列
+    @Column("create_time")
+    private Date    createTime; // 映射为 create_time 列
+
+    // getters and setters omitted
+}
+```
+
+```java title='例5：忽略某个属性的列映射'
+@Table(table = "admin_users")
+public class AdminUsers {       // 表名映射为 admin_users
+    private Integer id;         // 映射为 id 列
+    private String  name;       // 映射为 name 列
+    private Integer age;        // 映射为 age 列
+    @Ignore
+    private Date    modifyTime; // 忽略到列的映射
+}
+```
+
+### @Table 注解属性
+
+| 属性名                      | 描述                                                                                                      |
+|--------------------------|---------------------------------------------------------------------------------------------------------|
+| catalog                  | <TagGray/> 映射的 catalog 名，默认值为：空。                                                                        |
+| schema                   | <TagGray/> 映射的 schema 名，默认值为：空。                                                                         |
+| table                    | <TagGray/> 映射的 table，为空的话表示采用类名为表名，默认为：空。<br/>- 提示：value 属性和 table 具有同等效力，当所有属性都采用默认值时候可以利用 例3 方式省略属性名。 |
+| value                    | <TagGray/> 映射的 table，为空的话表示采用类名为表名，默认为：空。<br/>- 提示：value 属性和 table 具有同等效力，当所有属性都采用默认值时候可以利用 例3 方式省略属性名。 |
+| autoMapping              | <TagGray/> 自动映射，默认为 true 表示使用自动映射。当设置为 false 后所有列的映射必须通过 @Column 注解声明。                                  |
+| useDelimited             | <TagGray/> 会在生成的 SQL 语句中使用限定符将表或列的名称包裹起来，用于处理关键字为名称的情况。默认为 false 表示不使用限定符。                              |
+| caseInsensitive          | <TagGray/> 是否对表名列名敏感，默认 true 不敏感。该属性作用于获取查询结果时。                                                         |
+| mapUnderscoreToCamelCase | <TagGray/> 表名和属性名，根据驼峰规则转换为带有下划线的表名和列名，默认不启用。                                                           |
+| ddlAuto                  | <TagGray/> 自动建表方式，可选值范围：`none、create、add、update、create-drop`（目前还不支持自动建表）                                |
+
+### @Column 注解属性
+
+| 属性名                | 描述                                                                                                                                     |
+|--------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| name               | <TagGray/> 列名，为空的话表示采用属性名为列名。                                                                                                          |
+| value              | <TagGray/> 列名，为空的话表示采用属性名为列名。                                                                                                          |
+| jdbcType           | <TagGray/> 指定使用的 jdbcType，默认值为：Types.JAVA_OBJECT                                                                                       |
+| specialJavaType    | <TagGray/> 如果属性是一个抽象类型，那么可以通过 specialJavaType 来指定具体的实现类。                                                                               |
+| typeHandler        | <TagGray/> 指定使用的 typeHandler 处理类型的读写                                                                                                   |
+| keyType            | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。表示当属性值为 null 时所采用的数据生成算法。详细请了解 [主键生成器](./keytype#anno)。                                   |
+| primary            | <TagGray/> 是否为主键，默认为 false，表示不是主键                                                                                                      |
+| insert             | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。表示当在 insert 操作时是否参与新增。详细请了解 [写入策略](./write_policy)。                               |
+| update             | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。表示当在 update 操作时是否参与新增。详细请了解 [写入策略](./write_policy)。                               |
+| selectTemplate     | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。当用作 select 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。                |
+| insertTemplate     | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。当用作 insert 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。                       |
+| setColTemplate     | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。当用作 update 的 set 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。          |
+| setValueTemplate   | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。当用作 update set 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。                   |
+| whereColTemplate   | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。当用作 update/delete 的 where 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。 |
+| whereValueTemplate | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。当用作 update/delete 的 where 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。        |
+| groupByColTemplate | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。当用作 group by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。              |
+| orderByColTemplate | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。当用作 order by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。              |

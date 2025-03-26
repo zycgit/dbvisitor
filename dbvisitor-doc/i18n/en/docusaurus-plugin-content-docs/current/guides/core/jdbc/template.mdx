@@ -1,0 +1,84 @@
+---
+id: template
+sidebar_position: 8
+hide_table_of_contents: true
+title: 模版方法
+description: 了解使用 JdbcTemplate 支持的模版方法。
+---
+import TOCInline from '@theme/TOCInline';
+
+dbVisitor 支持以下几种方式使用模版方法：
+
+<TOCInline toc={toc} />
+
+## 获取 Connection {#conn}
+
+使用 `ConnectionCallback` 接口参数的核心模版方法可以获取原始的 `java.sql.Connection`。
+_**JdbcTemplate**_ 会处理获取连接、释放连接、捕获异常。上层代码只需要专注于使用 _**Connection**_ 即可。
+
+```java
+T resultList = jdbcTemplate.execute((ConnectionCallback<T>) con -> {
+    return ...;
+});
+```
+
+## 获取 Statement {#stmt}
+
+使用 `StatementCallback` 接口参数的核心模版方法可以获取原始的 `java.sql.Statement`。
+_**JdbcTemplate**_ 会处理获取连接、创建 _**Statement**_、关闭 _**Statement**_、释放连接、捕获异常。上层代码只需要专注于使用 _**Statement**_ 即可。
+
+```java
+T resultList = jdbcTemplate.execute((StatementCallback<T>) stmt -> {
+    return ...;
+});
+```
+
+## SQL 参数化 {#psset}
+
+模版方法允许自定义 _**PreparedStatement**_ 的创建过程。
+
+- 使用 **PreparedStatement** 设置参数，使用 _**[ResultSetExtractor](../../result/for_extractor)**_ 接收结果。
+    ```java
+    T result = jdbc.executeCreator(con -> {
+        PreparedStatement ps = con.prepareStatement("select * from users where id > ?");
+        ps.setString(1, "Bob");
+        return ps;
+    }, (ResultSetExtractor) rs -> {
+        return ...;
+    });
+    ```
+- 使用 **PreparedStatement** 设置参数，使用 _**[RowMapper](../../result/for_mapper)**_ 接收结果。
+    ```java
+    List<User> result = jdbc.executeCreator(con -> {
+        PreparedStatement ps = con.prepareStatement("select * from users where id > ?");
+        ps.setString(1, "Bob");
+        return ps;
+    }, (RowMapper<User>) (rs, rowNum) -> {
+        return ...;
+    });
+    ```
+- 使用 **PreparedStatement** 设置参数，使用 _**[RowCallbackHandler](../../result/row_callback)**_ 处理结果。
+    ```java
+    jdbc.executeCreator(con -> {
+        PreparedStatement ps = con.prepareStatement("select * from users where id > ?");
+        ps.setString(1, "Bob");
+        return ps;
+    }, (RowCallbackHandler) (rs, rowNum) -> {
+        return ...;
+    });
+    ```
+
+## 调用存储过程 {#call}
+
+```java
+List<Object> objectMap = new JdbcTemplate(conn).call("{call proc_select_table(?,?)}", cs -> {
+    cs.setString(1, "dative");
+    cs.registerOutParameter(2, Types.VARCHAR);
+}, cs -> {
+    // 使用 MultipleResultSetExtractor 接收所有结果
+    List<Object> objects = new MultipleResultSetExtractor().doInCallableStatement(cs);
+    // 获取输出参数
+    objects.add(cs.getString(2));
+    return objects;
+});
+```
