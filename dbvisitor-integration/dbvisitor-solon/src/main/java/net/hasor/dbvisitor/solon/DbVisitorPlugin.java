@@ -1,3 +1,18 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.hasor.dbvisitor.solon;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.MatchUtils;
@@ -9,9 +24,11 @@ import net.hasor.cobble.loader.ScanEvent;
 import net.hasor.cobble.loader.providers.ClassPathResourceLoader;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
+import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import org.noear.solon.Solon;
 import org.noear.solon.core.AppContext;
 import org.noear.solon.core.BeanWrap;
@@ -23,8 +40,8 @@ import java.net.URI;
 import java.util.*;
 
 /**
- * @author noear
- * @since 1.8
+ * @author 赵永春 (zyc@hasor.net)
+ * @version 2025-03-20
  */
 public class DbVisitorPlugin implements Plugin {
     private static final Logger log = Logger.getLogger(DbVisitorPlugin.class);
@@ -61,37 +78,73 @@ public class DbVisitorPlugin implements Plugin {
         // add Mapper to solon
         Set<Class<?>> ambiguousMapper = fetchAmbiguousMapper(mapperWrapMap);
         context.subWrapsOfType(DataSource.class, bw -> {
-            if (mapperWrapMap.containsKey(bw.name())) {
-                loadCoreInject(context, bw, mapperWrapMap, ambiguousMapper);
+            try {
+                if (mapperWrapMap.containsKey(bw.name())) {
+                    loadCoreInject(context, bw, mapperWrapMap, ambiguousMapper);
+                }
+
+                if (bw.typed()) {
+                    loadTypedInject(context, bw, mapperWrapMap, ambiguousMapper);
+                }
+            } catch (Exception e) {
+                throw ExceptionUtils.toRuntime(e);
             }
         });
     }
 
-    private void loadCoreInject(AppContext context, BeanWrap dsBw, Map<String, MapperWrap> wrapMap, Set<Class<?>> ambiguousMapper) {
-        DataSource ds = dsBw.get();
-        MapperWrap mapperWrap = wrapMap.get(dsBw.name());
+    private void loadCoreInject(AppContext context, BeanWrap dsBw, Map<String, MapperWrap> wrapMap, Set<Class<?>> ambiguousMapper) throws Exception {
+        MapperWrap wrap = wrapMap.get(dsBw.name());
 
         // basic api for this DataSource.
         context.beanInjectorAdd(Db.class, new DbVisitorInjector(wrapMap));
 
-        // mapper for this DataSource.
-        try {
-            Session session = mapperWrap.getConf().newSession(ds);
-            for (Class<?> mapperType : mapperWrap.getMapperType()) {
-                if (ambiguousMapper.contains(mapperType)) {
-                    continue;
-                }
-
-                Object mapper = session.createMapper(mapperType);
-                BeanWrap beanWrap = Solon.context().wrap(mapperType.getSimpleName(), mapper);
-                beanWrap.singletonSet(mapperWrap.isSingleton(mapperType));
-                context.putWrap(mapperType, beanWrap);
+        // mappers
+        Session dbvSession = DsHelper.fetchSession(dsBw, wrap);
+        for (Class<?> mapperType : wrap.getMapperType()) {
+            if (ambiguousMapper.contains(mapperType)) {
+                continue;// skip ambiguous.
             }
-        } catch (Exception e) {
-            throw ExceptionUtils.toRuntime(e);
-        }
 
+            Object mapper = dbvSession.createMapper(mapperType);
+            BeanWrap beanWrap = Solon.context().wrap(mapperType.getSimpleName(), mapper);
+            beanWrap.singletonSet(wrap.isSingleton(mapperType));
+            context.putWrap(mapperType, beanWrap);
+        }
+    }
+
+    private void loadTypedInject(AppContext context, BeanWrap dsBw, Map<String, MapperWrap> mapperWrapMap, Set<Class<?>> ambiguousMapper) throws Exception {
         //ambiguousMapper using default.
+        final MapperWrap mapperWrap = mapperWrapMap.get(dsBw.name());
+        final Session dbvSession = DsHelper.fetchSession(dsBw, mapperWrap);
+        BeanWrap beanWrap;
+
+        //@Inject JdbcTemplate
+        beanWrap = Solon.context().wrap(JdbcTemplate.class.getSimpleName(), dbvSession.jdbc(), true);
+        beanWrap.singletonSet(true);
+        context.putWrap(JdbcTemplate.class, beanWrap);
+
+        //@Inject WrapperAdapter
+        beanWrap = Solon.context().wrap(WrapperAdapter.class.getSimpleName(), dbvSession.wrapper(), true);
+        beanWrap.singletonSet(true);
+        context.putWrap(WrapperAdapter.class, beanWrap);
+
+        //@Inject Configuration
+        beanWrap = Solon.context().wrap(Configuration.class.getSimpleName(), dbvSession.getConfiguration(), true);
+        beanWrap.singletonSet(true);
+        context.putWrap(Configuration.class, beanWrap);
+
+        //@Inject Session, session include status.
+        //beanWrap = Solon.context().wrap(Session.class.getSimpleName(), Session.class);
+        //beanWrap.singletonSet(true);
+        //beanWrap.rawSet(dbvSession.shadow());
+        //context.putWrap(Session.class, beanWrap);
+
+        //@Inject TransactionManager
+        //beanWrap = Solon.context().wrap(TransactionManager.class.getSimpleName(), TransactionManager.class);
+        //beanWrap.singletonSet(true);
+        //context.putWrap(TransactionManager.class, beanWrap);
+
+        //@Inject TransactionTemplate
     }
 
     private static Set<Class<?>> fetchAmbiguousMapper(Map<String, MapperWrap> mapperWrapMap) {

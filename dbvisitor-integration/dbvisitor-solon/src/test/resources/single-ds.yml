@@ -1,9 +1,8 @@
-demo.one:
-  driverClassName: "com.zaxxer.hikari.HikariDataSource"
-  jdbcUrl: "jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true"
-  username: "root"
-  paasword: "123456"
-
-dbvisitor.one:
-  mapperLocations: classpath:dbvisitor/mapper/*.xml
-  mapperPackages: net.solon.dbvisitor.test.dao
+solon.dataSources:
+  default!:
+    class: "com.zaxxer.hikari.HikariDataSource"
+    jdbcUrl: "jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true&user=root&password=123456"
+dbvisitor:
+  default:
+    mapperLocations: classpath:dbvisitor/mapper/*.xml
+    mapperPackages: net.hasor.dbvisitor.test.dao.*

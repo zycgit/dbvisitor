@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.solon;
-
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.mapper.Mapper;
 import net.hasor.dbvisitor.mapper.MapperDef;
 
 /**
- *
+ * @author 赵永春 (zyc@hasor.net)
+ * @version 2025-03-20
  */
 public enum ConfigKeys {
     /** 加载的 Mapper 资源 */

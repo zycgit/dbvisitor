@@ -14,16 +14,31 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.solon;
-import java.lang.annotation.*;
+import net.hasor.dbvisitor.jdbc.DynamicConnection;
+import org.noear.solon.data.tran.TranUtils;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
  * @version 2025-03-20
  */
-@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface Db {
-    /** datsSource bean name */
-    String value() default "";
+public class ConnectionProxy implements DynamicConnection {
+    private final DataSource dataSource;
+
+    public ConnectionProxy(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    @Override
+    public Connection getConnection() throws SQLException {
+        return TranUtils.getConnectionProxy(dataSource);
+    }
+
+    @Override
+    public void releaseConnection(Connection conn) throws SQLException {
+        conn.close();
+    }
 }

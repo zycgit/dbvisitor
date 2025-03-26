@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.test;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.solon.Db;
 import net.hasor.dbvisitor.test.dao.role.RoleMapper;
 import net.hasor.dbvisitor.test.dao.user.UserMapper;
 import net.hasor.dbvisitor.test.dto.UserDTO;
@@ -29,19 +30,21 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Import(profiles = "classpath:single-ds.yml")
+@Import(profiles = "classpath:multi-ds.yml")
 @RunWith(SolonJUnit4ClassRunner.class)
-public class SingleDsTest {
-    @Inject
-    private UserMapper   userMapper;
+public class MultiDsTest2 {
     @Inject
     private RoleMapper   roleMapper;
     @Inject
-    private JdbcTemplate jdbc;
+    private UserMapper   userMapper;
+    @Db("one") // in multi-ds this is ambiguous.
+    private JdbcTemplate jdbc1;
+    @Db("two") // in multi-ds this is ambiguous.
+    private JdbcTemplate jdbc2;
 
     @Test
     public void getListTest() throws SQLException, IOException {
-        this.jdbc.loadSQL("CreateDB.sql");
+        this.jdbc1.loadSQL("CreateDB.sql");
 
         assert userMapper != null;
         assert roleMapper != null;
