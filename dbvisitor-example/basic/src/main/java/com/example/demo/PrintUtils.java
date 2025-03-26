@@ -25,7 +25,7 @@ import java.util.Map.Entry;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2014年7月11日
+ * @version 2014-07-11
  */
 public class PrintUtils {
 

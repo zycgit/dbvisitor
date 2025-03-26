@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * SqlLite 的 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public class SqlLiteDialect extends AbstractDialect implements PageSqlDialect {
     @Override

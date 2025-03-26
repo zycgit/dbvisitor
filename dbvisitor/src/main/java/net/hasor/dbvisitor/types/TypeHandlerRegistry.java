@@ -51,7 +51,7 @@ import java.util.function.Function;
 /**
  * JDBC 4.2 full  compatible
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public final class TypeHandlerRegistry {
     private static final Map<String, Integer>  javaTypeToJdbcTypeMap = new ConcurrentHashMap<>();

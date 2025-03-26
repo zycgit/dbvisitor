@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * 负责参数化SQL调用的执行器
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-07-20
+ * @version 2021-07-20
  */
 public class PreparedStatementExecute extends AbstractStatementExecute {
     public PreparedStatementExecute(Configuration registry) {

@@ -34,7 +34,7 @@ import java.util.Set;
 /**
  * 公共 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect {
     private static final Logger      logger     = LoggerFactory.getLogger(AbstractDialect.class);

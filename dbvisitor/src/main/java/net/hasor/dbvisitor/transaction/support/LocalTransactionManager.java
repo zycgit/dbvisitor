@@ -35,7 +35,7 @@ import static net.hasor.dbvisitor.transaction.Propagation.*;
  * 它们之前都会按照先后顺序依次压入事务管理器的“事务栈”中。一旦有事务被处理（commit,rollback）这个事务才会被从事务栈中弹出。
  * <p>倘若被弹出的事务(A)并不是栈顶的事务，那么在事务(A)被处理（commit,rollback）时会优先处理自事务(A)以后开启的其它事务。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-10-30
+ * @version 2013-10-30
  */
 public class LocalTransactionManager implements TransactionManager {
     private static final Logger                        logger       = LoggerFactory.getLogger(LocalTransactionManager.class);

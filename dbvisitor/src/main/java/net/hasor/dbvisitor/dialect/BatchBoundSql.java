@@ -19,7 +19,7 @@ import java.util.Arrays;
 /**
  * SQL
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public interface BatchBoundSql extends BoundSql {
     String getSqlString();

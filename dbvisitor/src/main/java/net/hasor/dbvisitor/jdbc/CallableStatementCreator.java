@@ -21,7 +21,7 @@ import java.sql.SQLException;
 /**
  * 该接口用于创建 {@link CallableStatement} 对象。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-10-9
+ * @version 2013-10-9
  */
 @FunctionalInterface
 public interface CallableStatementCreator {

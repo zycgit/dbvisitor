@@ -18,7 +18,7 @@ import net.hasor.dbvisitor.mapping.ResultMap;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-12-10
+ * @version 2013-12-10
  */
 @ResultMap(space = "net.hasor.dbvisitor.mapping.dto", id = "userInfo")
 public class UserInfoUsingMap extends UserInfo1 {

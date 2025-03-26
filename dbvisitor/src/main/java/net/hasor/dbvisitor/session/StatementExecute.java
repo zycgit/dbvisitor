@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * 负责一般SQL调用的执行器
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-07-20
+ * @version 2021-07-20
  */
 public class StatementExecute extends AbstractStatementExecute {
     public StatementExecute(Configuration registry) {

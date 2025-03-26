@@ -18,7 +18,7 @@ import net.hasor.dbvisitor.mapper.RefMapper;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-12-10
+ * @version 2013-12-10
  */
 @RefMapper("/dbvisitor_coverage/basic_mapper/basic_result_type_mix.xml")
 public interface ResultTypeMixMapper {

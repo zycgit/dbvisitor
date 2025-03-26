@@ -19,7 +19,7 @@ import net.hasor.dbvisitor.mapper.def.SqlConfig;
 /**
  * 解析动态 SQL 配置
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-05
+ * @version 2021-06-05
  */
 public interface SqlConfigResolve<T> {
     SqlConfig parseSqlConfig(String namespace, T config);

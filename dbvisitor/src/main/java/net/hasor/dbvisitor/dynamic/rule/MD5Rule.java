@@ -31,7 +31,7 @@ import java.sql.Types;
 /**
  * 进行 OGNL 求值，值结果用 MD5 进行编码然后加入到 SQL 参数中
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-10-31
+ * @version 2021-10-31
  */
 public class MD5Rule implements SqlRule {
     private static final TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);

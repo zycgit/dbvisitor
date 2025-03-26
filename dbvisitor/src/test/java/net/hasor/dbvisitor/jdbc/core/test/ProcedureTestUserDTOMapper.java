@@ -18,7 +18,7 @@ import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-12-10
+ * @version 2013-12-10
  */
 public class ProcedureTestUserDTOMapper extends BeanMappingRowMapper<ProcedureTestUserDTO> {
     public ProcedureTestUserDTOMapper() {

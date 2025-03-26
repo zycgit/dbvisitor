@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * lambda Query for Map.
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-04-02
+ * @version 2022-04-02
  */
 public interface MapQueryWrapper extends                        //
         BasicFunc<MapQueryWrapper>,                             //

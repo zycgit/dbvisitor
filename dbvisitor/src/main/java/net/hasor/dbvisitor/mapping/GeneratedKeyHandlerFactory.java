@@ -18,7 +18,7 @@ package net.hasor.dbvisitor.mapping;
 /**
  * 主键生成器
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-12-01
+ * @version 2022-12-01
  */
 public interface GeneratedKeyHandlerFactory {
     GeneratedKeyHandler createHolder(GeneratedKeyHandlerContext context) throws ClassNotFoundException;

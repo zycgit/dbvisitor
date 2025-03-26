@@ -20,7 +20,7 @@ import java.sql.Savepoint;
 /**
  * Savepoint Manager
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-12-14
+ * @version 2021-12-14
  */
 public interface SavepointManager {
     /** 则表示当前数据库连接是否被打开(被打开的连接一定有引用) */

@@ -29,7 +29,7 @@ import java.util.Objects;
 /**
  * 执行器总入口
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-07-20
+ * @version 2021-07-20
  */
 class FacadeStatement {
     private final StatementDef              statementDef;

@@ -25,7 +25,7 @@ import java.sql.SQLException;
 /**
  * 使用 jdbc 接受来自数据库的自增回填值
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-12-01
+ * @version 2022-12-01
  */
 public class AutoKeySeqHolderFactory implements GeneratedKeyHandlerFactory {
     @Override

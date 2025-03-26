@@ -26,7 +26,7 @@ import java.util.List;
 
 /***
  *
- * @version : 2014-1-13
+ * @version 2014-1-13
  * @author 赵永春 (zyc@hasor.net)
  */
 public class MappingRowMapperTest extends AbstractDbTest {

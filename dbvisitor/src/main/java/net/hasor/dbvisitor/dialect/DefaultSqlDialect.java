@@ -24,7 +24,7 @@ import java.util.Set;
 /**
  * 默认 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, InsertSqlDialect {
     public static final DefaultSqlDialect DEFAULT = new DefaultSqlDialect();

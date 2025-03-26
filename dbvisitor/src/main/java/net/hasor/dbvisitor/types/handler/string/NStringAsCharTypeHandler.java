@@ -24,7 +24,7 @@ import java.sql.SQLException;
 /**
  * 以 char 方式读写 NString 数据。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public class NStringAsCharTypeHandler extends AbstractTypeHandler<Character> {
     @Override

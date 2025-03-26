@@ -39,7 +39,7 @@ import java.util.Objects;
 /**
  * 基础数据库操作接口
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-05-19
+ * @version 2021-05-19
  */
 public class Session extends JdbcAccessor implements Closeable {
     private final Configuration    configuration;
@@ -89,6 +89,10 @@ public class Session extends JdbcAccessor implements Closeable {
     /** {@link JdbcTemplate} */
     public JdbcTemplate jdbc() {
         return this.jdbc;
+    }
+
+    public Configuration getConfiguration() {
+        return this.configuration;
     }
 
     public Object executeStatement(String stId, Object parameter) throws SQLException {

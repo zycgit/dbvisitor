@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.guice.provider;
-
 import com.google.inject.Provider;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
@@ -23,7 +22,7 @@ import java.sql.SQLException;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-07-20
+ * @version 2022-07-18
  */
 public class WrapperAdapterProvider implements Provider<WrapperAdapter> {
     private final Provider<DataSource> dataSource;

@@ -33,7 +33,7 @@ import java.sql.Statement;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2014-1-13
+ * @version 2014-1-13
  */
 public class MockPropertyTest extends AbstractDbTest {
     @Test

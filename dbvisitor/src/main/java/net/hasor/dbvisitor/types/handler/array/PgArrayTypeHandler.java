@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * PostgreSQL，数组类型
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2023-02-19
+ * @version 2023-02-19
  */
 @NoCache
 public class PgArrayTypeHandler extends ArrayTypeHandler {

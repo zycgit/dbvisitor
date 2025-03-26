@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.mapping.keyseq.*;
 /**
  * 键生成策略
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-12-01
+ * @version 2022-12-01
  */
 public enum KeyType {
     /** 不指定 */

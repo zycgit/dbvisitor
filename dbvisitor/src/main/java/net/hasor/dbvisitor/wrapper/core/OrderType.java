@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.wrapper.core;
 /**
  * 排序相关的关键字。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-11-02
+ * @version 2020-11-02
  */
 public enum OrderType {
     DEFAULT,

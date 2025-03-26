@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.wrapper.core;
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-04-02
+ * @version 2022-04-02
  */
 public interface BasicFunc<R> {
     Class<?> exampleType();

@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 支持 @KeyHolder 注解方式
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-12-01
+ * @version 2022-12-01
  */
 public class HolderKeySeqHolderFactory implements GeneratedKeyHandlerFactory {
     private static final Map<Class<?>, GeneratedKeyHandlerFactory> HolderCache = new ConcurrentHashMap<>();

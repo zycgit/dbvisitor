@@ -23,7 +23,7 @@ import net.hasor.dbvisitor.wrapper.support.entity.EntityQueryCompare;
 /**
  * lambda Update for Entity.
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-04-02
+ * @version 2022-04-02
  */
 public interface EntityUpdateWrapper<T> extends                //
         BasicFunc<EntityUpdateWrapper<T>>,                     //

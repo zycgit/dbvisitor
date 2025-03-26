@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * {@link PreparedStatementCallback} 接口实现类用于处理存储过程的参数传递和调用。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2024-09-29
+ * @version 2024-09-29
  */
 public class PreparedMultipleResultSetExtractor extends AbstractMultipleResultSetExtractor implements PreparedStatementCallback<Map<String, Object>> {
 

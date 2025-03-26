@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * 本处理器，兼容 @{...}、#{...}、${...} 三种写法。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-03-28
+ * @version 2020-03-28
  */
 public interface DynamicSql {
     /** 是否包含替换占位符，如果包含替换占位符那么不能使用批量模式 */

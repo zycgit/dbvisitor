@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.boot;
+import static net.hasor.dbvisitor.spring.boot.DbVisitorProperties.PREFIX;
 import net.hasor.dbvisitor.spring.support.MapperBean;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.lang.annotation.Annotation;
 
-import static net.hasor.dbvisitor.spring.boot.DbVisitorProperties.PREFIX;
-
+/**
+ * @author 赵永春 (zyc@hasor.net)
+ * @version 2022-05-01
+ */
 @ConfigurationProperties(prefix = PREFIX)
 public class DbVisitorProperties {
     public final static String                             PREFIX = "dbvisitor";

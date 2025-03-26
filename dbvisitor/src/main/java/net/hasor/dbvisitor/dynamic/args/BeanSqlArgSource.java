@@ -22,7 +22,7 @@ import java.util.*;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2014-3-31
+ * @version 2014-3-31
  */
 public class BeanSqlArgSource extends BindSqlArgSource implements SqlArgSource, SqlArgDisposer {
     private final Object                dataBean;

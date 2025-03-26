@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * 负责处理 SelectKey 的执行
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-11-05
+ * @version 2021-11-05
  */
 class SelectKeyStatementExecute {
     private final SelectKeyConfig          config;

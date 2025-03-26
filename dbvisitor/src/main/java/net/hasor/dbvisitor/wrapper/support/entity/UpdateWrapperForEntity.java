@@ -32,7 +32,7 @@ import java.util.Collection;
 /**
  * 提供 lambda update 能力，是 EntityUpdateOperation 接口的实现类。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-04-02
+ * @version 2022-04-02
  */
 public class UpdateWrapperForEntity<T> extends AbstractUpdateWrapper<EntityUpdateWrapper<T>, T, SFunction<T>> implements EntityUpdateWrapper<T> {
     public UpdateWrapperForEntity(TableMapping<T> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {

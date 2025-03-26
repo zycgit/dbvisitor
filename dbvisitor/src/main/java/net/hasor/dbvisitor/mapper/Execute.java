@@ -20,7 +20,7 @@ import java.lang.annotation.*;
 /**
  * 用于执行任意语句
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2024-09-19
+ * @version 2024-09-19
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

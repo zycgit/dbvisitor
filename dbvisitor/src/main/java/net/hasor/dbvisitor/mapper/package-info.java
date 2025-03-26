@@ -16,6 +16,6 @@
 /**
  * 负责解析配置文件并构建和管路 dynamicSql，同时提供注解 @RefMapper 的解析。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2017-03-23
+ * @version 2017-03-23
  */
 package net.hasor.dbvisitor.mapper;

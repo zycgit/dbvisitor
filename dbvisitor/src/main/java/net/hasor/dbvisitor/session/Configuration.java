@@ -38,7 +38,7 @@ import java.sql.SQLException;
 /**
  * 解析动态 SQL 配置
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-05
+ * @version 2021-06-05
  */
 public class Configuration implements QueryContext {
     private       ClassLoader         classLoader;

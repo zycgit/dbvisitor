@@ -25,7 +25,7 @@ import static net.hasor.test.utils.TestUtils.*;
 
 /***
  * 创建JDBC环境
- * @version : 2014-1-13
+ * @version 2014-1-13
  * @author 赵永春 (zyc@hasor.net)
  */
 public class DsUtils {

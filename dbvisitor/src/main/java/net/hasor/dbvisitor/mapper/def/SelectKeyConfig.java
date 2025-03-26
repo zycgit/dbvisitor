@@ -23,7 +23,7 @@ import java.util.function.Function;
 /**
  * <selectKey> 标签
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-10-04
+ * @version 2021-10-04
  */
 public class SelectKeyConfig extends SqlConfig {
     private int           fetchSize     = 256;

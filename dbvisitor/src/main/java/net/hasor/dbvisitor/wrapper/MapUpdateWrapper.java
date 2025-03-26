@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * lambda Update for Map.
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-04-02
+ * @version 2022-04-02
  */
 public interface MapUpdateWrapper extends                             //
         BasicFunc<MapUpdateWrapper>,                                  //

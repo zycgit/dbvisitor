@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.mapping.def;
 /**
  * 接口 ColumnDescription 的实现类
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-12-06
+ * @version 2022-12-06
  */
 public class ColumnDescDef implements ColumnDescription {
     private String  sqlType;

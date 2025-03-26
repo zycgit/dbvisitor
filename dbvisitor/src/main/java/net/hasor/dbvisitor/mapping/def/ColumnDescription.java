@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.mapping.def;
 /**
  * 列的 DDL 补充信息，用于补充生成 DDL 语句
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-12-06
+ * @version 2022-12-06
  */
 public interface ColumnDescription {
     /** 列数据类型，如果配置了该值将会忽略其它属性项 */

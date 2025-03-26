@@ -21,7 +21,7 @@ import java.util.function.Function;
 /**
  * All DML SqlConfig
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-19
+ * @version 2021-06-19
  */
 public abstract class DmlConfig extends SqlConfig {
     public DmlConfig(ArrayDynamicSql target, Function<String, String> config) {

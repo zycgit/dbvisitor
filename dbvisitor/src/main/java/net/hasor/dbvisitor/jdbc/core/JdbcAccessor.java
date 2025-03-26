@@ -21,7 +21,7 @@ import java.sql.Connection;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-10-16
+ * @version 2013-10-16
  */
 public class JdbcAccessor {
     private DataSource        dataSource;

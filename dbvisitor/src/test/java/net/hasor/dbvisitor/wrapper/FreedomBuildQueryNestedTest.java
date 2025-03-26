@@ -27,7 +27,7 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 
 /***
- * @version : 2021-3-22
+ * @version 2021-3-22
  * @author 赵永春 (zyc@hasor.net)
  */
 public class FreedomBuildQueryNestedTest {

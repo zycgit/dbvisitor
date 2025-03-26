@@ -19,7 +19,7 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 /**
  * <resultMap> or <mapper>
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-21
+ * @version 2021-06-21
  */
 public class Options {
     private String     catalog;

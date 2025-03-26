@@ -24,7 +24,7 @@ import java.time.LocalTime;
 /**
  * 使用 {@link LocalTime} 类型读写 jdbc {@link java.sql.Timestamp} 数据。缺失的时间信息使用 0000-01-01 补充。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public class SqlTimestampAsLocalTimeTypeHandler extends AbstractTypeHandler<LocalTime> {
     @Override

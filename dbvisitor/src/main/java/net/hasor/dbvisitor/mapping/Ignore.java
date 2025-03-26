@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
  * 当使用 @Table 注解并且设置了 autoMapping = true 之后，可以通过该注解忽略列的映射。
  * 注意：注解 @Ignore/Column 一起出现的情况下映射会被忽略。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 @Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

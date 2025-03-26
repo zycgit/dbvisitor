@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 /**
  * 当配置出现冲突时用于标识出哪一个配置主要的，即默认最优选择
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 @Target({ ElementType.TYPE, ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

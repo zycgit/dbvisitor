@@ -27,7 +27,7 @@ import java.time.Month;
 /**
  * 使用 {@link Month} 类型读写 jdbc string 数据。可以是数字形式 1～12，可以是 {@link Month} 枚举所表示的月名
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public class StringAsMonthTypeHandler extends AbstractTypeHandler<Month> {
     @Override

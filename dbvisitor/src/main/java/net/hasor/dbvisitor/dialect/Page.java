@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * 分页
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-02-04
+ * @version 2021-02-04
  */
 public interface Page {
     /** 获取页大小，默认是 -1 表示无穷大。 */

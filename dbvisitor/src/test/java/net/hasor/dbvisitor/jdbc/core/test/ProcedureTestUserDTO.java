@@ -18,7 +18,7 @@ import net.hasor.dbvisitor.mapping.Column;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-12-10
+ * @version 2013-12-10
  */
 public class ProcedureTestUserDTO {
     @Column("c_id")

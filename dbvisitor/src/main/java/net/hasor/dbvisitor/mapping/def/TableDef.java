@@ -24,7 +24,7 @@ import java.util.*;
 /**
  * 一个实体的映射信息
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public class TableDef<T> implements TableMapping<T> {
     private       String                           catalog;

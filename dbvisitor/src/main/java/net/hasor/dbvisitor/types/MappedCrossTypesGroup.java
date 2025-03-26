@@ -21,7 +21,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-3-26
+ * @version 2013-3-26
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

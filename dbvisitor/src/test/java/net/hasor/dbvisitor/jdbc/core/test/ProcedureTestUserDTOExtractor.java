@@ -18,7 +18,7 @@ import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-12-10
+ * @version 2013-12-10
  */
 public class ProcedureTestUserDTOExtractor extends RowMapperResultSetExtractor<ProcedureTestUserDTO> {
     public ProcedureTestUserDTOExtractor() {

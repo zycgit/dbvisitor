@@ -44,7 +44,7 @@ import java.util.Map;
 /**
  * 执行器基类
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-07-20
+ * @version 2021-07-20
  */
 public abstract class AbstractStatementExecute {
     protected static final Logger        logger = LoggerFactory.getLogger(AbstractStatementExecute.class);

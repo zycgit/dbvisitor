@@ -22,7 +22,7 @@ import java.util.function.Predicate;
 /**
  * lambda Update 执行器
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public interface UpdateExecute<R, T, P> extends BasicFunc<R>, ConditionFunc<R>, BoundSqlBuilder {
     /** 生成 select count() 查询语句并查询总数。 */

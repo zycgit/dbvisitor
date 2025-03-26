@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.provider;
-
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import javax.sql.DataSource;
@@ -23,7 +22,7 @@ import java.util.function.Supplier;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-07-20
+ * @version 2025-02-09
  */
 public class WrapperAdapterProvider implements Supplier<WrapperAdapter> {
     private final Supplier<DataSource> dataSource;

@@ -24,7 +24,7 @@ import java.util.function.Function;
 /**
  * has result query.
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-19
+ * @version 2021-06-19
  */
 public abstract class DqlConfig extends SqlConfig {
     private int           fetchSize          = 256;

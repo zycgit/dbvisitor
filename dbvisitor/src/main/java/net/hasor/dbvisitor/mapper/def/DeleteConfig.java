@@ -21,7 +21,7 @@ import java.util.function.Function;
 /**
  * Delete SqlConfig
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-19
+ * @version 2021-06-19
  */
 public class DeleteConfig extends DmlConfig {
     public DeleteConfig(ArrayDynamicSql target, Function<String, String> config) {

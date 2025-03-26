@@ -19,7 +19,7 @@ import net.hasor.dbvisitor.mapping.Table;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-12-10
+ * @version 2013-12-10
  */
 @Table("point_table")
 public class PointTable {

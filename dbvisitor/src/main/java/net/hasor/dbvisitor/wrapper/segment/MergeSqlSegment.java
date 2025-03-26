@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * 提供多个 Segment 汇聚成为一个的工具。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-11-02
+ * @version 2020-11-02
  */
 public final class MergeSqlSegment implements Segment {
     private final List<Segment> segments = new ArrayList<>();

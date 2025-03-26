@@ -28,7 +28,7 @@ import java.util.*;
 /**
  * 提供 lambda query 能力，是 MapQueryOperation 接口的实现类。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-04-02
+ * @version 2022-04-02
  */
 public class SelectWrapperForMap extends AbstractSelectWrapper<MapQueryWrapper, Map<String, Object>, String> //
         implements MapQueryWrapper {

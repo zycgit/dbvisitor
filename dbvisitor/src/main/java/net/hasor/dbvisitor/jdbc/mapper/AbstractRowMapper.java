@@ -27,7 +27,7 @@ import java.util.Objects;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2014年5月23日
+ * @version 2014-05-23
  */
 public abstract class AbstractRowMapper<T> implements RowMapper<T> {
     private final TypeHandlerRegistry handlerRegistry;

@@ -22,7 +22,7 @@ import java.sql.SQLException;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-12-10
+ * @version 2013-12-10
  */
 public class H2DynamicConnection implements DynamicConnection {
     @Override

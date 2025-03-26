@@ -22,7 +22,7 @@ import java.sql.Connection;
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-12-3
+ * @version 2013-12-3
  */
 public interface ConnectionProxy extends Connection, Closeable {
     /**

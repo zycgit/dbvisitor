@@ -16,6 +16,6 @@
 /**
  * 负责动态 SQL 的生成
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-03-28
+ * @version 2020-03-28
  */
 package net.hasor.dbvisitor.mapper.resolve;

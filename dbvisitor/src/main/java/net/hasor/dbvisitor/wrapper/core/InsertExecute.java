@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * lambda Insert 执行器
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public interface InsertExecute<R, T> extends BasicFunc<R>, BoundSqlBuilder {
     /** 执行插入，并且将返回的int结果相加。 */

@@ -30,7 +30,7 @@ import static net.hasor.test.utils.TestUtils.arrayForData4;
 /**
  * 基础 事务控制
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2015年11月10日
+ * @version 2015-11-10
  */
 public class BasicTranTest extends AbstractDbTest {
     @Test

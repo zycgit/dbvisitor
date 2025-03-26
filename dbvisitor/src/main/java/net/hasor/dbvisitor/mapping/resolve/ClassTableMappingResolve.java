@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 /**
  * 通过 Class 来解析 TableMapping
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-21
+ * @version 2021-06-21
  */
 public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<?>> {
     private final Map<Class<?>, TableDef<?>> CACHE_TABLE_MAP = new WeakHashMap<>();

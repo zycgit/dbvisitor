@@ -25,7 +25,7 @@ import java.time.MonthDay;
 /**
  * 使用 {@link java.time.MonthDay} 类型读写 jdbc int 数据。格式为 MMdd，例如：523，1123
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public class IntegerAsMonthDayTypeHandler extends AbstractTypeHandler<MonthDay> {
     @Override

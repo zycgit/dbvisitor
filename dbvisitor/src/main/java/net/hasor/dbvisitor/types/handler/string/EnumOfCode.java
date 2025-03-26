@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.types.handler.string;
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-11-29
+ * @version 2020-11-29
  */
 public interface EnumOfCode<T> {
     default String codeName() {

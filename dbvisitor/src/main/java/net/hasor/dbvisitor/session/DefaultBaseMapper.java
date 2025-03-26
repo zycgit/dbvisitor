@@ -38,7 +38,7 @@ import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 /**
  * BaseMapper 接口的实现类。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-05-19
+ * @version 2021-05-19
  */
 class DefaultBaseMapper implements BaseMapper<Object> {
     private final Class<Object>        entityType;

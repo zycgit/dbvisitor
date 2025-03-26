@@ -25,7 +25,7 @@ import java.sql.*;
 /**
  * 读写 Number 类型数据，由于 Number 类型是一个抽象类型。会根据 Object 具体类型来决定如何读写
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-11-16
+ * @version 2020-11-16
  */
 public class NumberTypeHandler extends AbstractTypeHandler<Number> {
     @Override

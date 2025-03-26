@@ -18,7 +18,7 @@ import java.util.Date;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-12-10
+ * @version 2014-1-13
  */
 public class UserInfo1 {
     private String  userUuid;

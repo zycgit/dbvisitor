@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-10-30
+ * @version 2013-10-30
  */
 class SyncManager extends DataSourceUtils {
     public static void setSync(TransactionObject tranConn) {

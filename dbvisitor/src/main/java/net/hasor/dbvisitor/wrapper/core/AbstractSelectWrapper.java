@@ -43,7 +43,7 @@ import java.util.function.Function;
 /**
  * 提供 lambda query 基础能力。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-27
+ * @version 2020-10-27
  */
 public abstract class AbstractSelectWrapper<R, T, P> extends BasicQueryCompare<R, T, P> implements QueryFunc<R, T, P> {
     protected final MergeSqlSegment customSelect = new MergeSqlSegment();

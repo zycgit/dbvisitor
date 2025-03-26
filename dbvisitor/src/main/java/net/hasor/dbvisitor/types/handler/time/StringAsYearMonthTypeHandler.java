@@ -26,7 +26,7 @@ import java.time.YearMonth;
 /**
  * 使用 {@link java.time.YearMonth} 类型读写 jdbc string 数据。格式为 yyyy-MM，例如：2007-12
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public class StringAsYearMonthTypeHandler extends AbstractTypeHandler<YearMonth> {
     @Override

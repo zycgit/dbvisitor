@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.wrapper.core;
 /**
  * lambda Delete for Entity.
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-04-02
+ * @version 2022-04-02
  */
 public interface ConditionFunc<R> {
 

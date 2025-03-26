@@ -27,7 +27,7 @@ import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
 /**
  * 如果参数不为空，则生成 'column = ?'。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-05
+ * @version 2021-06-05
  */
 public class IfRule implements SqlRule {
     public static final SqlRule INSTANCE_IF = new IfRule();

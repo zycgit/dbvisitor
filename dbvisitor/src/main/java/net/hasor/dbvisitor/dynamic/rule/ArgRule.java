@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * 动态参数规则，负责动态 SQL 中 #{} 的解析。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-05
+ * @version 2021-06-05
  */
 public class ArgRule implements SqlRule {
     public static final ArgRule INSTANCE             = new ArgRule();

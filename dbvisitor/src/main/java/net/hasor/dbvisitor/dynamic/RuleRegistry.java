@@ -23,7 +23,7 @@ import java.util.Objects;
 /**
  * SqlBuildRule 注册器
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-05
+ * @version 2021-06-05
  */
 public class RuleRegistry {
     public static final RuleRegistry         DEFAULT = new RuleRegistry();

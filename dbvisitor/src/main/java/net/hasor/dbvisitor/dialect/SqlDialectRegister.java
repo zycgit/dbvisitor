@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * 方言管理器
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public class SqlDialectRegister {
     private static final Map<String, Class<?>>   dialectAliasMap = new LinkedCaseInsensitiveMap<>();

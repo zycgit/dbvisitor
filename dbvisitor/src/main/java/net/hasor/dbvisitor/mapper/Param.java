@@ -19,7 +19,7 @@ import java.lang.annotation.*;
 /**
  * 参数
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-05-19
+ * @version 2021-05-19
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

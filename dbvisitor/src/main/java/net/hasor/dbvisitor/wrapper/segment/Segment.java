@@ -21,7 +21,7 @@ import java.sql.SQLException;
 /**
  * SQL 片段。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-11-02
+ * @version 2020-11-02
  */
 @FunctionalInterface
 public interface Segment {

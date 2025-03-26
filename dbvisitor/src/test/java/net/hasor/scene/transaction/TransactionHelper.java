@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 /**
  * 可以标记在：方法、类 上面
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-10-30
+ * @version 2013-10-30
  */
 public class TransactionHelper {
 

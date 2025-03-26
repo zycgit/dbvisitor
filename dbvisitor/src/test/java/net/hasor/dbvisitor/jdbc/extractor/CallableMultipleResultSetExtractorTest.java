@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 /***
- * @version : 2020-11-12
+ * @version 2020-11-12
  * @author 赵永春 (zyc@hasor.net)
  */
 public class CallableMultipleResultSetExtractorTest extends AbstractDbTest {

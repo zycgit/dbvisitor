@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * prototype is a no database status session.
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2025-02-02
+ * @version 2025-02-02
  */
 public class SessionPrototype {
     private final Configuration                configuration;

@@ -19,7 +19,7 @@ import net.hasor.dbvisitor.types.handler.string.EnumOfCode;
 /**
  * 授权协议类型
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2016年08月11日
+ * @version 2016-08-11
  */
 public enum LicenseOfCodeEnum implements EnumOfCode<LicenseOfCodeEnum> {
     Private(0, "Private"),//

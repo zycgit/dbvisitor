@@ -18,7 +18,7 @@ package net.hasor.dbvisitor.mapper;
 /**
  * 表示语句执行的时机
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-05-19
+ * @version 2021-05-19
  */
 public enum Order {
     /** 在之前。 */

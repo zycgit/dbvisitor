@@ -31,7 +31,7 @@
 //
 // * 承载 @TableDefault 配置信息
 // * @author 赵永春 (zyc@hasor.net)
-// * @version : 2021-06-21
+// * @version 2021-06-21
 // */
 //class TableDefaultInfo implements Table, TableDescribe {
 //    private final String  catalog;

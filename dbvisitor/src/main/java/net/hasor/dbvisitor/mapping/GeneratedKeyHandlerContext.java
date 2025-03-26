@@ -23,7 +23,7 @@ import net.hasor.dbvisitor.types.TypeHandler;
 /**
  * KeySeqHolderFactory 的调用参数
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-12-01
+ * @version 2022-12-01
  */
 public class GeneratedKeyHandlerContext {
     private final MappingRegistry registry;

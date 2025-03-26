@@ -23,7 +23,7 @@ import java.io.IOException;
 /**
  * TableMapping 解析器
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-21
+ * @version 2021-06-21
  */
 public interface TableMappingResolve<T> {
     <V> TableMapping<V> resolveTableMapping(T refData, Options refFile, MappingRegistry registry) throws ReflectiveOperationException, IOException;

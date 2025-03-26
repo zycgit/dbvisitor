@@ -27,7 +27,7 @@ import java.util.Arrays;
  * 对应XML中 <trim>
  * @author zhangxu
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-05-24
+ * @version 2021-05-24
  */
 public class TrimDynamicSql extends ArrayDynamicSql {
     /** 前缀  prefix */

@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import static net.hasor.test.utils.TestUtils.*;
 
 /***
- * @version : 2020-11-12
+ * @version 2020-11-12
  * @author 赵永春 (zyc@hasor.net)
  */
 public class FilterNullResultSetExtractorTest extends AbstractDbTest {

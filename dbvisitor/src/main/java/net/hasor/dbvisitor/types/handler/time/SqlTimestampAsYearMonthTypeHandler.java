@@ -24,7 +24,7 @@ import java.time.YearMonth;
 /**
  * 使用 {@link java.time.YearMonth} 类型读写 jdbc {@link java.sql.Timestamp} 数据。缺失的时间信息使用 0 补充，月份/日期使用 1。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public class SqlTimestampAsYearMonthTypeHandler extends AbstractTypeHandler<YearMonth> {
     @Override

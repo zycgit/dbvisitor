@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * Result 规则，是一个特殊规则。在正常查询中不会产生任何效果，但通过 call 方法执行数据库 存储过程/函数调用 时可以用于决定结果集如何获取。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-05
+ * @version 2021-06-05
  */
 public final class ResultRule implements SqlRule {
     public static final String  FUNC_RESULT_SET            = "resultSet";

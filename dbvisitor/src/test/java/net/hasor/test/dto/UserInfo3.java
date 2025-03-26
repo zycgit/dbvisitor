@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.types.handler.json.JsonUseForFastjson2TypeHandler;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-12-10
+ * @version 2013-12-10
  */
 @Table("user_info")
 public class UserInfo3 extends UserInfo2 {

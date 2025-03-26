@@ -16,6 +16,6 @@
 /**
  * 提供 dynamicSql 机制并可以生成 SQL 和其附属必要的参数等信息。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2017-03-23
+ * @version 2017-03-23
  */
 package net.hasor.dbvisitor.dynamic;

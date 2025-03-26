@@ -22,7 +22,7 @@ import java.util.function.Consumer;
  * 动态拼条件。
  * <p>主动调用or表示紧接着下一个方法不是用and连接!(不调用or则默认为使用and连接)</p>
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public interface QueryCompare<R, T, P> {
 

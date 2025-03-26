@@ -25,7 +25,7 @@ import java.util.UUID;
 /**
  * 使用 32 长度 UUID 作为默认 Key 值
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-12-01
+ * @version 2022-12-01
  */
 public class Uuid32KeySeqHolderFactory implements GeneratedKeyHandlerFactory {
     @Override

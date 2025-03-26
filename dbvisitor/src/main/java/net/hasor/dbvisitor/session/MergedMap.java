@@ -22,7 +22,7 @@ import java.util.function.BiConsumer;
 /**
  * 可以将多个Map合并成一个Map对象进行操作。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2016-07-17
+ * @version 2016-07-17
  */
 public class MergedMap<K, T> extends AbstractMap<K, T> {
     private final Map<K, T>       unmerged  = new HashMap<>();

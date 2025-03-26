@@ -23,7 +23,7 @@ import net.hasor.dbvisitor.wrapper.support.entity.EntityQueryCompare;
 /**
  * lambda Delete for Entity.
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-04-02
+ * @version 2022-04-02
  */
 public interface EntityDeleteWrapper<T> extends               //
         BasicFunc<EntityDeleteWrapper<T>>,                    //

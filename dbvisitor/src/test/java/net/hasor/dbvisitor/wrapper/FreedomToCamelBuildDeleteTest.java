@@ -30,7 +30,7 @@ import java.sql.SQLException;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-3-22
+ * @version 2021-3-22
  */
 public class FreedomToCamelBuildDeleteTest {
 

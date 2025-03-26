@@ -30,7 +30,7 @@
 //
 ///**
 // * 事务传播属性
-// * @version : 2015年11月10日
+// * @version 2015-11-10
 // * @author 赵永春 (zyc@hasor.net)
 // */
 //@IgnoreProxy(ignore = false)

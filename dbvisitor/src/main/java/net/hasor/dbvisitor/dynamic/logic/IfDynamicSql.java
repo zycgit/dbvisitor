@@ -24,7 +24,7 @@ import java.sql.SQLException;
 /**
  * <if> 标签
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-05-24
+ * @version 2021-05-24
  */
 public class IfDynamicSql extends ArrayDynamicSql {
     private final String testExpr;   // 判断表达式

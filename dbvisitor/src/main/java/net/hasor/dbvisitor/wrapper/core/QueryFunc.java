@@ -28,7 +28,7 @@ import java.util.function.Function;
 /**
  * Query 复杂操作构造器。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
     /**

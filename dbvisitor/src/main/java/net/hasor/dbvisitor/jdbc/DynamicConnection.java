@@ -20,7 +20,7 @@ import java.sql.SQLException;
 /**
  * 动态获取 Connection。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-04-10
+ * @version 2022-04-10
  */
 public interface DynamicConnection {
     Connection getConnection() throws SQLException;

@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.wrapper;
 /**
  * 提供 lambda 方式生成 SQL。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-27
+ * @version 2020-10-27
  */
 public interface WrapperOperations {
     // ----------------------------------------------------------------------------------

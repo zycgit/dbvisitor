@@ -28,7 +28,7 @@ import java.util.Collection;
  * 对应XML中 <foreach>
  * @author jmxd
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-05-24
+ * @version 2021-05-24
  */
 public class ForeachDynamicSql extends ArrayDynamicSql {
     /** 数据集合、支持Collection、数组 */

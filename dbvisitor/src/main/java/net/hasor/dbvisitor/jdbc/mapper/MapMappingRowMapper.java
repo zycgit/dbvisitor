@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * 用于 POJO 的 RowMapper，带有 ORM 能力
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public class MapMappingRowMapper extends AbstractMapping<Map<String, Object>> implements RowMapper<Map<String, Object>> {
     private final boolean caseInsensitive;

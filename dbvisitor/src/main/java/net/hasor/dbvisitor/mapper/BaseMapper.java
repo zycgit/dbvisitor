@@ -29,7 +29,7 @@ import net.hasor.dbvisitor.wrapper.*;
 /**
  * Mapper 继承该接口后可以获得 CRUD 功能
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-10-31
+ * @version 2021-10-31
  */
 public interface BaseMapper<T> extends Mapper {
 

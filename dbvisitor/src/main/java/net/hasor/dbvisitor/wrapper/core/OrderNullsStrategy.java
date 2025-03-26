@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.wrapper.core;
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2024-11-10
+ * @version 2024-11-10
  */
 public enum OrderNullsStrategy {
     /** 默认行为 */

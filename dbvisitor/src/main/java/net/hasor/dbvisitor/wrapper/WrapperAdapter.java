@@ -46,7 +46,7 @@ import java.util.Objects;
 /**
  * 继承自 WrapperAdapter 并提供 lambda 方式生成 SQL。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-04-02
+ * @version 2022-04-02
  */
 public class WrapperAdapter implements WrapperOperations {
     protected final MappingRegistry registry;

@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2014年7月17日
+ * @version 2017-07-12
  */
 public class JdbcTemplateProvider implements Supplier<JdbcTemplate> {
     private final Supplier<DataSource> dataSource;

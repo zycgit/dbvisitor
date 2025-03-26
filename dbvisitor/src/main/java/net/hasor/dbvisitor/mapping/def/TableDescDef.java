@@ -19,7 +19,7 @@ import net.hasor.dbvisitor.mapping.DdlAuto;
 /**
  * 接口 TableDescription 的实现
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-12-06
+ * @version 2022-12-06
  */
 public class TableDescDef implements TableDescription {
     private DdlAuto ddlAuto;

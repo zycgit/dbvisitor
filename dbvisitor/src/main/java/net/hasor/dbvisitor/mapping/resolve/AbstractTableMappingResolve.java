@@ -21,7 +21,7 @@ import java.util.*;
 /**
  * TableMappingResolve 的公共方法
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-10-37
+ * @version 2022-10-37
  */
 public abstract class AbstractTableMappingResolve<T> implements TableMappingResolve<T> {
     protected static final Map<Class<?>, Class<?>> CLASS_MAPPING_MAP = new HashMap<>();

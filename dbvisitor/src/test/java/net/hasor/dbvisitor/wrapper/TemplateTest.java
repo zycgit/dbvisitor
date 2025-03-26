@@ -33,7 +33,7 @@ import java.util.Map;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-3-22
+ * @version 2021-3-22
  */
 public class TemplateTest {
     private static Map<String, Object> mapForData1() {

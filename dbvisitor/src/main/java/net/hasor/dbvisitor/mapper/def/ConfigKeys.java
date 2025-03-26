@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.mapper.def;
 /**
  * Segment SqlConfig
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-19
+ * @version 2021-06-19
  */
 public interface ConfigKeys {
     // COMMON

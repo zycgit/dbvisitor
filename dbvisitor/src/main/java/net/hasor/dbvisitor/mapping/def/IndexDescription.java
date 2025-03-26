@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * 表的 Index 信息，用于补充生成 DDL 语句
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-12-06
+ * @version 2022-12-06
  */
 public interface IndexDescription {
     /** 索引名 */

@@ -30,7 +30,7 @@ import java.util.Map;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-12-10
+ * @version 2013-12-10
  */
 public class AnnoBasicMapperTest {
     @Test

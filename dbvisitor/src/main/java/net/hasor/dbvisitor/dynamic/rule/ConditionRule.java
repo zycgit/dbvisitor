@@ -28,7 +28,7 @@ import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
 /**
  * 如果参数不为空，则生成 'and column = ?' 或者 'column = ?' 。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-05
+ * @version 2021-06-05
  */
 public abstract class ConditionRule implements SqlRule {
     protected static final String[] DEFAULT_TEST_PREFIX = new String[] { "where", ",", "and", "or", "not", "!" };

@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.transaction;
 /**
  * 事务模版
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2015年8月11日
+ * @version 2015-08-11
  */
 @FunctionalInterface
 public interface TransactionCallback<T> {

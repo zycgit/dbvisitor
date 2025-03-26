@@ -29,7 +29,7 @@ import java.util.Map;
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-10-9
+ * @version 2013-10-9
  */
 public interface JdbcOperations {
 

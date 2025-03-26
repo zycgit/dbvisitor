@@ -21,7 +21,7 @@ import java.util.function.Function;
 /**
  * Update SqlConfig
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-19
+ * @version 2021-06-19
  */
 public class UpdateConfig extends DmlConfig {
     public UpdateConfig(ArrayDynamicSql target, Function<String, String> config) {

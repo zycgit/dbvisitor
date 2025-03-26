@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 /**
  * 可以标记在：方法、类 上面。 通过 TransactionHelper 或者 TransactionalInterceptor 来使用该注解。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-10-30
+ * @version 2013-10-30
  */
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)

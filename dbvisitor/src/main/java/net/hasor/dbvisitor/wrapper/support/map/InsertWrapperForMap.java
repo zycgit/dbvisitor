@@ -43,7 +43,7 @@ import java.util.Map;
 /**
  * 提供 lambda insert 能力。是 InsertOperation 接口的实现类。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-04-02
+ * @version 2022-04-02
  */
 public class InsertWrapperForMap extends AbstractInsertWrapper<InsertWrapper<Map<String, Object>>, Map<String, Object>, String> //
         implements MapInsertWrapper {

@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.jdbc;
 /**
  * JdbcTemplate 中日志打印 SQL 使用
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-10-14
+ * @version 2013-10-14
  */
 public interface SqlProvider {
     String getSql();

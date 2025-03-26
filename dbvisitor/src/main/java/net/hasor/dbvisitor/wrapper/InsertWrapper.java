@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.wrapper.core.InsertExecute;
 /**
  * lambda Insert for Entity.
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-04-02
+ * @version 2022-04-02
  */
 public interface InsertWrapper<T> extends  //
         BasicFunc<InsertWrapper<T>>,       //

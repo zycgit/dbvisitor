@@ -24,7 +24,7 @@
 // * - @TableDefault 注解可以在父包和子包中同时配置
 // * - 属性的查找和生效策略是，子包优先
 // * @author 赵永春 (zyc@hasor.net)
-// * @version : 2022-12-06
+// * @version 2022-12-06
 // */
 //@Target(ElementType.PACKAGE)
 //@Retention(RetentionPolicy.RUNTIME)

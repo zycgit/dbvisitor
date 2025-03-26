@@ -22,7 +22,7 @@ import java.sql.SQLException;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2014-1-18
+ * @version 2014-1-18
  */
 public class TransactionObject {
     private final ConnectionHolder holder;

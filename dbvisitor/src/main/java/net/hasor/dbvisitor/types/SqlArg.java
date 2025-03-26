@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * 代表一个动态 SQL Build 之后的具体 SQL 和其参数
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-05
+ * @version 2021-06-05
  */
 public class SqlArg {
     private String                name;         // mappingTo #{xxx}

@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * PostgreSQL 对象名有大小写敏感不敏感的问题
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect, InsertSqlDialect {
     @Override

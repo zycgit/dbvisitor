@@ -21,7 +21,7 @@ import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-12-10
+ * @version 2013-12-10
  */
 @Table(table = "project")
 public class Project1 {

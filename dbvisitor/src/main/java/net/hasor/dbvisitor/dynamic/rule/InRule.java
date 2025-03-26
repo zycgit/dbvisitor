@@ -29,7 +29,7 @@ import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
 /**
  * in 规则，用于自动生成 in 语句后的多重参数，例如： where col in (?,?,?,?)。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-05
+ * @version 2021-06-05
  */
 public class InRule implements SqlRule {
     public static final SqlRule INSTANCE = new InRule(false);

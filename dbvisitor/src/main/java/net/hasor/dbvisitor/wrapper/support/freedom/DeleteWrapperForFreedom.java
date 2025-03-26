@@ -24,7 +24,7 @@ import net.hasor.dbvisitor.wrapper.support.map.DeleteWrapperForMap;
 /**
  * 提供 lambda delete 能力，是 MapDeleteOperation 接口的实现类。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-04-02
+ * @version 2022-04-02
  */
 public class DeleteWrapperForFreedom extends DeleteWrapperForMap {
     public DeleteWrapperForFreedom(TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {

@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
  * <li>在类型上：表示该类型作为结果集映射</li>
  * <li>在方法上：当标记在方法上时用来表示引用的 resultMap。</li>
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

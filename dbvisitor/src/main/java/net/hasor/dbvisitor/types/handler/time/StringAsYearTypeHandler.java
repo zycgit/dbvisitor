@@ -26,7 +26,7 @@ import java.time.Year;
 /**
  * 使用 {@link java.time.Year} 类型读写 jdbc string 数据。格式为 yyyy，数值范围 0000 to 9999
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public class StringAsYearTypeHandler extends AbstractTypeHandler<Year> {
     @Override

@@ -30,7 +30,7 @@ import java.util.List;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-3-22
+ * @version 2021-3-22
  */
 public class StreamTestCase extends AbstractDbTest {
     @Test

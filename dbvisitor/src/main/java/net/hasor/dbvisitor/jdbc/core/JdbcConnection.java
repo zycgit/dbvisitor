@@ -35,7 +35,7 @@ import java.util.Objects;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-10-16
+ * @version 2013-10-16
  */
 public class JdbcConnection extends JdbcAccessor {
     private static final Logger  logger         = LoggerFactory.getLogger(JdbcConnection.class);

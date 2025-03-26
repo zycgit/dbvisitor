@@ -36,7 +36,7 @@ import java.util.Map;
 
 /***
  * 存储过程测试
- * @version : 2014-1-13
+ * @version 2014-1-13
  * @author 赵永春 (zyc@hasor.net)
  */
 public class ProcedureTest extends AbstractDbTest {

@@ -19,7 +19,7 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 /**
  * SQL 查询相关的关键字。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public enum SqlKeyword implements Segment {
     AND("AND"),                 //

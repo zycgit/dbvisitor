@@ -37,7 +37,7 @@ import java.util.function.Predicate;
 /**
  * 提供 lambda update 基础能力。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-27
+ * @version 2020-10-27
  */
 public abstract class AbstractUpdateWrapper<R, T, P> extends BasicQueryCompare<R, T, P> implements UpdateExecute<R, T, P> {
     protected final Set<String>                allowUpdateKeys;

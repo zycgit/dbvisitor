@@ -23,7 +23,7 @@ import java.sql.SQLException;
 /**
  * 动态 SQL 中定义的规则。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-05
+ * @version 2021-06-05
  */
 public interface SqlRule {
     boolean test(SqlArgSource data, QueryContext context, String activeExpr);

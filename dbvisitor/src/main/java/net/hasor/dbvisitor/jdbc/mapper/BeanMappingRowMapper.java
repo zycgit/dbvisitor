@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * 用于 POJO 的 RowMapper，带有 ORM 能力
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public class BeanMappingRowMapper<T> extends AbstractMapping<T> implements RowMapper<T> {
     /**

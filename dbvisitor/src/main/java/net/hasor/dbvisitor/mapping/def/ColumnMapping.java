@@ -23,7 +23,7 @@ import net.hasor.dbvisitor.types.TypeHandler;
 /**
  * 字段映射信息
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public interface ColumnMapping {
     /** 列名 */

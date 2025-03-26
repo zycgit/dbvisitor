@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * TableMappingResolve 的公共方法
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-21
+ * @version 2021-06-21
  */
 public class MappingRegistry {
     private static final Logger                                                              logger      = LoggerFactory.getLogger(MappingRegistry.class);

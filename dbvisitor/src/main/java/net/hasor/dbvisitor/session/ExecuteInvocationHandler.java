@@ -41,7 +41,7 @@ import java.util.*;
 /**
  * Mapper 代理接口类
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-10-30
+ * @version 2021-10-30
  */
 class ExecuteInvocationHandler implements InvocationHandler {
     private static final Logger                            logger        = LoggerFactory.getLogger(ExecuteInvocationHandler.class);

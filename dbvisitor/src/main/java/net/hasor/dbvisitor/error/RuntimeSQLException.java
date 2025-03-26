@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
 /**
  * 将 SQLException 转换为 RuntimeException
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-10-31
+ * @version 2021-10-31
  */
 public class RuntimeSQLException extends RuntimeException implements Iterable<Throwable> {
 

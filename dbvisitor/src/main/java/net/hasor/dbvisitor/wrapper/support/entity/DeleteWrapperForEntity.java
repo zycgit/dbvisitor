@@ -32,7 +32,7 @@ import java.util.Collection;
 /**
  * 提供 lambda delete 能力，是 EntityDeleteOperation 接口的实现类。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-04-02
+ * @version 2022-04-02
  */
 public class DeleteWrapperForEntity<T> extends AbstractDeleteWrapper<EntityDeleteWrapper<T>, T, SFunction<T>> implements EntityDeleteWrapper<T> {
     public DeleteWrapperForEntity(TableMapping<T> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {

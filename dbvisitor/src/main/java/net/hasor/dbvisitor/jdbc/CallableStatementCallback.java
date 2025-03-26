@@ -20,7 +20,7 @@ import java.sql.SQLException;
 /**
  * 处理存储过程的调用。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-10-9
+ * @version 2013-10-9
  */
 @FunctionalInterface
 public interface CallableStatementCallback<T> {

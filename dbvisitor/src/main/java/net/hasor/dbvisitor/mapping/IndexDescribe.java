@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
  * 标记在类型上用于配置对应的索引，该注解能力有限。并不能替代纯 SQL 方式。
  * - 如果存在 xml 和注解共用的情况下，注解配置将会失效。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-12-06
+ * @version 2022-12-06
  */
 @Repeatable(IndexDescribeSet.class)
 @Retention(RetentionPolicy.RUNTIME)

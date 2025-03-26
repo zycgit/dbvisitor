@@ -32,7 +32,7 @@ import static net.hasor.test.utils.TestUtils.newID;
 /**
  * Lambda 方式执行 Insert 操作
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-3-22
+ * @version 2021-3-22
  */
 public class KeyTypeMapTest {
     @Test

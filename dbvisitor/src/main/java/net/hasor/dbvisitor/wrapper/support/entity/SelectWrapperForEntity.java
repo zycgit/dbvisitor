@@ -34,7 +34,7 @@ import java.util.*;
 /**
  * 提供 lambda query 能力。是 EntityQueryOperation<T> 接口的实现类。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-04-02
+ * @version 2022-04-02
  */
 public class SelectWrapperForEntity<T> extends AbstractSelectWrapper<EntityQueryWrapper<T>, T, SFunction<T>> implements EntityQueryWrapper<T> {
     public SelectWrapperForEntity(TableMapping<T> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {

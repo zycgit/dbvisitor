@@ -22,7 +22,7 @@ import java.sql.SQLException;
 
 /**
  * @author 赵永春 (zyc@byshell.org)
- * @version : 2014年5月23日
+ * @version 2014-05-23
  */
 public class SingleColumnRowMapper<T> extends AbstractRowMapper<T> {
     private final Class<T> requiredType;

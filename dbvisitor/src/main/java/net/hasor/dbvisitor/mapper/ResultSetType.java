@@ -21,7 +21,7 @@ import java.sql.ResultSet;
 /**
  * FORWARD_ONLY，SCROLL_SENSITIVE, SCROLL_INSENSITIVE 或 DEFAULT（等价于 unset） 中的一个，默认值为 unset （依赖数据库驱动）。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-19
+ * @version 2021-06-19
  */
 public enum ResultSetType {
     FORWARD_ONLY("FORWARD_ONLY", ResultSet.TYPE_FORWARD_ONLY),

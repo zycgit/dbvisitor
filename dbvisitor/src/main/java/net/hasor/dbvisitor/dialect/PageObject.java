@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.dialect;
 /**
  * 分页接口 Page 的实现类
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-02-04
+ * @version 2021-02-04
  */
 public class PageObject implements Page {
     /** 满足条件的总记录数 */

@@ -21,7 +21,7 @@
 //
 ///**
 // *
-// * @version : 2013-12-10
+// * @version 2013-12-10
 // * @author 赵永春 (zyc@hasor.net)
 // */
 //@BindTypeHandler(JsonUseForFastjson2TypeHandler.class)

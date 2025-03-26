@@ -24,7 +24,7 @@ import java.util.*;
 /**
  * 本处理器，兼容 @{...}、#{...}、${...} 三种写法。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-05
+ * @version 2021-06-05
  */
 public class PlanDynamicSql implements Cloneable, DynamicSql {
     private final StringBuilder    queryStringOri  = new StringBuilder("");

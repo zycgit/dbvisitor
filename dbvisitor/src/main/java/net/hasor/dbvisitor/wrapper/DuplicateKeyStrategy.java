@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.wrapper;
 /**
  * 遇到重复 Key 的策略
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-10-25
+ * @version 2021-10-25
  */
 public enum DuplicateKeyStrategy {
     /** 使用标准 insert into */

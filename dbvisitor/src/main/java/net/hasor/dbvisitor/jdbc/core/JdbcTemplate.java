@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
  * @author Juergen Hoeller
  * @author Thomas Risberg
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-10-12
+ * @version 2013-10-12
  * @see PreparedStatementCreator
  * @see PreparedStatementSetter
  * @see CallableStatementCreator

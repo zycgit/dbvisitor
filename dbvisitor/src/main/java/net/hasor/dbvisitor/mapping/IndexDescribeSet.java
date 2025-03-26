@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 /**
  * 可以标记多个索引。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-12-06
+ * @version 2022-12-06
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

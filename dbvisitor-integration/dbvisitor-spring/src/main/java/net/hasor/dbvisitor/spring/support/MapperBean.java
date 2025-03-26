@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.support;
-
 import net.hasor.dbvisitor.mapper.Mapper;
 import net.hasor.dbvisitor.session.Session;
 
@@ -40,7 +39,7 @@ import net.hasor.dbvisitor.session.Session;
  * <p>
  * Note that this factory can only inject <em>interfaces</em>, not concrete classes.
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2022-04-29
+ * @version 2022-04-29
  * @see Mapper
  */
 public class MapperBean extends AbstractSupportBean<Object> {

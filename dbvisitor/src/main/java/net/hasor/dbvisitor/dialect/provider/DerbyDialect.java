@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Apache DerbyDB
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-10-31
+ * @version 2020-10-31
  */
 public class DerbyDialect extends AbstractDialect implements PageSqlDialect {
     @Override

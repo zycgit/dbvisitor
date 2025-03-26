@@ -19,7 +19,7 @@ import java.sql.SQLException;
 /**
  * 表示一个事务状态
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2013-10-30
+ * @version 2013-10-30
  */
 public interface TransactionStatus {
     /** 获取事务使用的传播行为 */

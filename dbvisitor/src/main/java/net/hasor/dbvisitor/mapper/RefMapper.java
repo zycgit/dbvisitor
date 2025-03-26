@@ -19,7 +19,7 @@ import java.lang.annotation.*;
 /**
  * 引用 Mapper 配置文件中的 SQL。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-05-19
+ * @version 2021-05-19
  */
 @MapperDef
 @Documented

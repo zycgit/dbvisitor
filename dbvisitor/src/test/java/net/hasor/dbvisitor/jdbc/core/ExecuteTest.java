@@ -31,7 +31,7 @@ import static net.hasor.test.utils.TestUtils.beanForData1;
 
 /***
  * execute 系列方法测试
- * @version : 2014-1-13
+ * @version 2014-1-13
  * @author 赵永春 (zyc@hasor.net)
  */
 public class ExecuteTest extends AbstractDbTest {

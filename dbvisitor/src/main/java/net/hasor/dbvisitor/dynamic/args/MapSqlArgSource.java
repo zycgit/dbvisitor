@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * 一个 Map 到 SqlParameterSource 的桥，同时支持自动识别 Supplier 接口以获取具体参数。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2014-3-31
+ * @version 2014-3-31
  */
 public class MapSqlArgSource extends BindSqlArgSource {
     public MapSqlArgSource(final Map<String, ?> values) {

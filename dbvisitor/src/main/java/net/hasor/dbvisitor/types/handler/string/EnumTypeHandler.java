@@ -25,7 +25,7 @@ import java.sql.SQLException;
 /**
  * 读写枚举类型，支持枚举实现 {@link EnumOfCode}、{@link EnumOfValue} 接口。
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2020-11-29
+ * @version 2020-11-29
  */
 @NoCache
 public class EnumTypeHandler<E extends Enum<E>> extends AbstractTypeHandler<E> {

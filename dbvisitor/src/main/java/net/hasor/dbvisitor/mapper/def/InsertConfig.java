@@ -22,7 +22,7 @@ import java.util.function.Function;
 /**
  * Insert SqlConfig
  * @author 赵永春 (zyc@hasor.net)
- * @version : 2021-06-19
+ * @version 2021-06-19
  */
 public class InsertConfig extends DmlConfig {
     private SelectKeyConfig selectKey;
