@@ -36,13 +36,12 @@ public enum ConfigKeys {
     MapperPackages("dbvisitor", "mapper-packages", null),
     ScanMarkerAnnotation("dbvisitor", "marker-annotation", MapperDef.class.getName()),
     ScanMarkerInterface("dbvisitor", "marker-interface", Mapper.class.getName()),
-    MapperScope("dbvisitor", "mapper-scope", Singleton.class.getName()),
 
     OptAutoMapping("dbvisitor", "auto-mapping", null),
     OptCamelCase("dbvisitor", "camel-case", null),
     OptCaseInsensitive("dbvisitor", "case-insensitive", null),
     OptUseDelimited("dbvisitor", "use-delimited", null),
-    OptIgnoreNonExistStatement("dbvisitor", "ignoreNonExistStatement", null),
+    OptIgnoreNonExistStatement("dbvisitor", "ignore-nonexist-statement", null),
     OptSqlDialect("dbvisitor", "dialect", null),
     ;
 

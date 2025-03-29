@@ -42,8 +42,8 @@ import java.lang.annotation.*;
  *     return new EmbeddedDatabaseBuilder().addScript("schema.sql").build();
  *   }
  *   &#064;Bean
- *   public DalSession dalSession() throws Exception {
- *     return new DalSession(dataSource());
+ *   public Session session(Configuration c) throws Exception {
+ *     return c.newSession(dataSource());
  *   }
  * }
  * </pre>
@@ -75,8 +75,6 @@ public @interface MapperScan {
      */
     String[] basePackages() default {};
 
-    String[] mapperLocations() default "";
-
     /**
      * Type-safe alternative to {@link #basePackages()} for specifying the packages to scan for annotated components. The
      * package of each class specified will be scanned.
@@ -86,6 +84,8 @@ public @interface MapperScan {
      * @return classes that indicate base package for scanning mapper interface
      */
     Class<?>[] basePackageClasses() default {};
+
+    String[] mapperLocations() default "";
 
     /**
      * The {@link BeanNameGenerator} class to be used for naming detected components within the Spring container.
@@ -146,6 +146,6 @@ public @interface MapperScan {
      */
     String defaultScope() default AbstractBeanDefinition.SCOPE_DEFAULT;
 
-    /** 是否禁用 mapper 的加载 只加载 mapperLocations*/
+    /** 是否禁用 mapper 的加载 只加载 mapperLocations */
     boolean mapperDisabled() default false;
 }

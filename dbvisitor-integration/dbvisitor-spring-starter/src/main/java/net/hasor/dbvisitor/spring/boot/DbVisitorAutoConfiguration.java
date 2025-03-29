@@ -105,7 +105,7 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
     @Bean(name = "jdbcSession")
     @ConditionalOnMissingBean
     public Session jdbcSession(DataSource dataSource, Configuration config) throws Exception {
-        String refSessionBean = this.properties.getRefSessionBean();
+        String refSessionBean = this.properties.getRefSession();
         if (StringUtils.hasText(refSessionBean)) {
             return (Session) this.applicationContext.getBean(refSessionBean);
         } else {
@@ -172,7 +172,7 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
             BeanDefinitionBuilder fileBuilder = BeanDefinitionBuilder.genericBeanDefinition(MapperFileConfigurer.class);
             fileBuilder.addPropertyValue("processPropertyPlaceHolders", true);
             fileBuilder.addPropertyValue("mapperLocations", "${" + PREFIX + ".mapper-locations:classpath*:/dbvisitor/mapper/**/*.xml}");
-            fileBuilder.addPropertyValue("configRef", "${" + PREFIX + ".ref-config:}");
+            fileBuilder.addPropertyValue("sessionRef", "${" + PREFIX + ".ref-session:}");
             registry.registerBeanDefinition(fileBeanName, fileBuilder.getBeanDefinition());
 
             // load mapper interface
@@ -181,13 +181,13 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
             mapperBuilder.addPropertyValue("mapperDisabled", "${" + PREFIX + ".mapper-disabled:false}");
             mapperBuilder.addPropertyValue("processPropertyPlaceHolders", true);
             mapperBuilder.addPropertyValue("basePackage", "${" + PREFIX + ".mapper-packages:" + StringUtils.collectionToCommaDelimitedString(packages) + "}");
-            mapperBuilder.addPropertyValue("mapperFactoryBeanClassName", "${" + PREFIX + ".mapper-factory-bean:}");
-            mapperBuilder.addPropertyValue("defaultScope", "${" + PREFIX + ".mapper-scope:" + AbstractBeanDefinition.SCOPE_DEFAULT + "}");
-            mapperBuilder.addPropertyValue("lazyInitialization", "${" + PREFIX + ".mapper-lazy-initialization:false}");
             mapperBuilder.addPropertyValue("nameGeneratorName", "${" + PREFIX + ".mapper-name-generator:}");
             mapperBuilder.addPropertyValue("annotationClassName", "${" + PREFIX + ".marker-annotation:" + MapperDef.class.getName() + "}");
             mapperBuilder.addPropertyValue("markerInterfaceName", "${" + PREFIX + ".marker-interface:" + Mapper.class.getName() + "}");
+            mapperBuilder.addPropertyValue("mapperFactoryBeanClassName", "${" + PREFIX + ".mapper-factory-bean:}");
             mapperBuilder.addPropertyValue("sessionRef", "${" + PREFIX + ".ref-session:}");
+            mapperBuilder.addPropertyValue("lazyInit", "${" + PREFIX + ".mapper-lazy-init:false}");
+            mapperBuilder.addPropertyValue("defaultScope", "${" + PREFIX + ".mapper-scope:" + AbstractBeanDefinition.SCOPE_DEFAULT + "}");
             mapperBuilder.addPropertyValue("dependsOn", fileBeanName);
 
             registry.registerBeanDefinition(mapperBeanName, mapperBuilder.getBeanDefinition());

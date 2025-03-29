@@ -24,11 +24,13 @@ import net.hasor.cobble.loader.ScanEvent;
 import net.hasor.cobble.loader.providers.ClassPathResourceLoader;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
+import net.hasor.dbvisitor.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
+import net.hasor.dbvisitor.wrapper.WrapperOperations;
 import org.noear.solon.Solon;
 import org.noear.solon.core.AppContext;
 import org.noear.solon.core.BeanWrap;
@@ -122,22 +124,27 @@ public class DbVisitorPlugin implements Plugin {
         beanWrap = Solon.context().wrap(JdbcTemplate.class.getSimpleName(), dbvSession.jdbc(), true);
         beanWrap.singletonSet(true);
         context.putWrap(JdbcTemplate.class, beanWrap);
+        beanWrap = Solon.context().wrap(JdbcOperations.class.getSimpleName(), dbvSession.jdbc(), true);
+        beanWrap.singletonSet(true);
+        context.putWrap(JdbcOperations.class, beanWrap);
 
         //@Inject WrapperAdapter
         beanWrap = Solon.context().wrap(WrapperAdapter.class.getSimpleName(), dbvSession.wrapper(), true);
         beanWrap.singletonSet(true);
         context.putWrap(WrapperAdapter.class, beanWrap);
+        beanWrap = Solon.context().wrap(WrapperOperations.class.getSimpleName(), dbvSession.wrapper(), true);
+        beanWrap.singletonSet(true);
+        context.putWrap(WrapperOperations.class, beanWrap);
 
         //@Inject Configuration
         beanWrap = Solon.context().wrap(Configuration.class.getSimpleName(), dbvSession.getConfiguration(), true);
         beanWrap.singletonSet(true);
         context.putWrap(Configuration.class, beanWrap);
 
-        //@Inject Session, session include status.
-        //beanWrap = Solon.context().wrap(Session.class.getSimpleName(), Session.class);
-        //beanWrap.singletonSet(true);
-        //beanWrap.rawSet(dbvSession.shadow());
-        //context.putWrap(Session.class, beanWrap);
+        //@Inject Session
+        beanWrap = Solon.context().wrap(Session.class.getSimpleName(), dbvSession, true);
+        beanWrap.singletonSet(true);
+        context.putWrap(Configuration.class, beanWrap);
 
         //@Inject TransactionManager
         //beanWrap = Solon.context().wrap(TransactionManager.class.getSimpleName(), TransactionManager.class);
@@ -179,9 +186,7 @@ public class DbVisitorPlugin implements Plugin {
         ClassLoader classLoader = mapperWrap.getConf().getClassLoader();
         String scanMarkerAnnotation = itemProps.get(ConfigKeys.ScanMarkerAnnotation.getConfigKey(), ConfigKeys.ScanMarkerAnnotation.getDefaultValue());
         String scanMarkerInterface = itemProps.get(ConfigKeys.ScanMarkerInterface.getConfigKey(), ConfigKeys.ScanMarkerInterface.getDefaultValue());
-        String mapperScope = itemProps.get(ConfigKeys.MapperScope.getConfigKey(), ConfigKeys.MapperScope.getDefaultValue());
 
-        boolean useSingleton = StringUtils.equalsIgnoreCase(mapperScope, "singleton");
         String[] mapperPackages = mapperPackageConfig.split(",");
         CobbleClassScanner classScanner = new CobbleClassScanner(classLoader);
         Set<Class<?>> finalResult = new HashSet<>();
@@ -201,7 +206,7 @@ public class DbVisitorPlugin implements Plugin {
         }
 
         for (Class<?> mapperType : finalResult) {
-            mapperWrap.addMapper(mapperType, useSingleton);
+            mapperWrap.addMapper(mapperType, true);
         }
     }
 

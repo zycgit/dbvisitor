@@ -37,8 +37,6 @@ import net.hasor.dbvisitor.guice.provider.JdbcTemplateProvider;
 import net.hasor.dbvisitor.guice.provider.TransactionManagerProvider;
 import net.hasor.dbvisitor.guice.provider.WrapperAdapterProvider;
 import net.hasor.dbvisitor.jdbc.JdbcOperations;
-import net.hasor.dbvisitor.jdbc.core.JdbcAccessor;
-import net.hasor.dbvisitor.jdbc.core.JdbcConnection;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
@@ -138,15 +136,11 @@ public class DbVisitorModule implements com.google.inject.Module {
         WrapperAdapterProvider wrapperProvider = new WrapperAdapterProvider(dsProvider);
 
         if (StringUtils.isBlank(dbName)) {
-            binder.bind(JdbcAccessor.class).toProvider(tempProvider);
-            binder.bind(JdbcConnection.class).toProvider(tempProvider);
             binder.bind(JdbcTemplate.class).toProvider(tempProvider);
             binder.bind(JdbcOperations.class).toProvider(tempProvider);
             binder.bind(WrapperAdapter.class).toProvider(wrapperProvider);
             binder.bind(WrapperOperations.class).toProvider(wrapperProvider);
         } else {
-            binder.bind(JdbcAccessor.class).annotatedWith(Names.named(dbName)).toProvider(tempProvider);
-            binder.bind(JdbcConnection.class).annotatedWith(Names.named(dbName)).toProvider(tempProvider);
             binder.bind(JdbcTemplate.class).annotatedWith(Names.named(dbName)).toProvider(tempProvider);
             binder.bind(JdbcOperations.class).annotatedWith(Names.named(dbName)).toProvider(tempProvider);
             binder.bind(WrapperAdapter.class).annotatedWith(Names.named(dbName)).toProvider(wrapperProvider);
@@ -254,13 +248,11 @@ public class DbVisitorModule implements com.google.inject.Module {
     private void loadMapper(String dbName, Binder binder, Key<Session> dalInfo) throws ClassNotFoundException {
         String configMapperDisabled = MapperDisabled.buildConfigKey(dbName);
         String configMapperPackages = MapperPackages.buildConfigKey(dbName);
-        String configMapperScope = MapperScope.buildConfigKey(dbName);
         String configScanMarkerAnnotation = ScanMarkerAnnotation.buildConfigKey(dbName);
         String configScanMarkerInterface = ScanMarkerInterface.buildConfigKey(dbName);
 
         Boolean mapperDisabled = this.settings.getBoolean(configMapperDisabled, Boolean.parseBoolean(MapperDisabled.getDefaultValue()));
         String mapperPackageConfig = this.settings.getString(configMapperPackages, MapperPackages.getDefaultValue());
-        String mapperScope = this.settings.getString(configMapperScope, MapperScope.getDefaultValue());
         String scanMarkerAnnotation = this.settings.getString(configScanMarkerAnnotation, ScanMarkerAnnotation.getDefaultValue());
         String scanMarkerInterface = this.settings.getString(configScanMarkerInterface, ScanMarkerInterface.getDefaultValue());
 
@@ -299,12 +291,7 @@ public class DbVisitorModule implements com.google.inject.Module {
                 mapperKey = Key.get(mapperCast, Names.named(dbName));
             }
 
-            if (StringUtils.isNotBlank(mapperScope)) {
-                Class<?> scopeType = this.classLoader.loadClass(mapperScope);
-                binder.bind(mapperKey).toProvider(dalMapper).in((Class<? extends Annotation>) scopeType);
-            } else {
-                binder.bind(mapperKey).toProvider(dalMapper).asEagerSingleton();
-            }
+            binder.bind(mapperKey).toProvider(dalMapper).asEagerSingleton();
         }
     }
 

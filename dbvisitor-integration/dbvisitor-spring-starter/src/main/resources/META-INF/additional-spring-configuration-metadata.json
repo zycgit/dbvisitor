@@ -24,24 +24,6 @@
       "sourceMethod": "getMapperDisabled()"
     },
     {
-      "name": "dbvisitor.mapper-factory-bean",
-      "type": "java.lang.Class",
-      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
-      "sourceMethod": "getMapperFactoryBean()"
-    },
-    {
-      "name": "dbvisitor.mapper-scope",
-      "type": "java.lang.String",
-      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
-      "sourceMethod": "getMapperScope()"
-    },
-    {
-      "name": "dbvisitor.mapper-lazy-initialization",
-      "type": "java.lang.Boolean",
-      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
-      "sourceMethod": "getMapperLazyInit()"
-    },
-    {
       "name": "dbvisitor.mapper-name-generator",
       "type": "java.lang.Class",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
@@ -60,10 +42,28 @@
       "sourceMethod": "getMarkerInterface()"
     },
     {
-      "name": "dbvisitor.ref-session-bean",
+      "name": "dbvisitor.mapper-factory-bean",
+      "type": "java.lang.Class",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getMapperFactoryBean()"
+    },
+    {
+      "name": "dbvisitor.ref-session",
       "type": "java.lang.String",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
-      "sourceMethod": "getRefSessionBean()"
+      "sourceMethod": "getRefSession()"
+    },
+    {
+      "name": "dbvisitor.mapper-lazy-init",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getMapperLazyInit()"
+    },
+    {
+      "name": "dbvisitor.mapper-scope",
+      "type": "java.lang.String",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "sourceMethod": "getMapperScope()"
     },
     {
       "name": "dbvisitor.auto-mapping",
@@ -90,7 +90,7 @@
       "sourceMethod": "getUseDelimited()"
     },
     {
-      "name": "dbvisitor.ignore-non-exist-statement",
+      "name": "dbvisitor.ignore-nonexist-statement",
       "type": "java.lang.Boolean",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
       "sourceMethod": "getIgnoreNonExistStatement()"
@@ -125,27 +125,6 @@
       "defaultValue": "false"
     },
     {
-      "name": "dbvisitor.mapper-factory-bean",
-      "type": "java.lang.Class",
-      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
-      "description": "create mapper object factory bean.",
-      "defaultValue": "net.hasor.dbvisitor.spring.support.DalMapperBean"
-    },
-    {
-      "name": "dbvisitor.mapper-scope",
-      "type": "java.lang.String",
-      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
-      "description": "create mapper object effective scope, default is 'singleton'",
-      "defaultValue": "net.hasor.dbvisitor.spring.support.DalMapperBean"
-    },
-    {
-      "name": "dbvisitor.mapper-lazy-initialization",
-      "type": "java.lang.Boolean",
-      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
-      "description": "create mapper object factory bean lazy init.",
-      "defaultValue": "false"
-    },
-    {
       "name": "dbvisitor.mapper-name-generator",
       "type": "java.lang.Class",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
@@ -167,11 +146,32 @@
       "defaultValue": "net.hasor.dbvisitor.mapper.Mapper"
     },
     {
-      "name": "dbvisitor.ref-session-bean",
+      "name": "dbvisitor.mapper-factory-bean",
+      "type": "java.lang.Class",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "create mapper object factory bean.",
+      "defaultValue": "net.hasor.dbvisitor.spring.support.MapperBean"
+    },
+    {
+      "name": "dbvisitor.ref-session",
       "type": "java.lang.String",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
-      "description": "mapper object use special Session.",
+      "description": "mapper object use special SessionBean.",
       "defaultValue": ""
+    },
+    {
+      "name": "dbvisitor.mapper-lazy-init",
+      "type": "java.lang.Boolean",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "create mapper object factory bean lazy init.",
+      "defaultValue": "false"
+    },
+    {
+      "name": "dbvisitor.mapper-scope",
+      "type": "java.lang.String",
+      "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
+      "description": "create mapper object effective scope, default is 'singleton'",
+      "defaultValue": "net.hasor.dbvisitor.spring.support.MapperBean"
     },
     {
       "name": "dbvisitor.auto-mapping",
@@ -191,28 +191,28 @@
       "name": "dbvisitor.case-insensitive",
       "type": "java.lang.Boolean",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
-      "description": "resultset are case insensitive",
+      "description": "resultSet are case insensitive",
       "defaultValue": ""
     },
     {
       "name": "dbvisitor.use-delimited",
       "type": "java.lang.Boolean",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
-      "description": "wrapper build sql use delimited.",
+      "description": "build sql use delimited.",
       "defaultValue": ""
     },
     {
-      "name": "dbvisitor.ignore-non-exist-statement",
+      "name": "dbvisitor.ignore-nonexist-statement",
       "type": "java.lang.Boolean",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
-      "description": "wrapper build sql use delimited.",
+      "description": "Whether to ignore missing mappings during Mapper interface method mapping to XML. The default is false, and errors are reported when missing.",
       "defaultValue": ""
     },
     {
       "name": "dbvisitor.dialect",
       "type": "java.lang.String",
       "sourceType": "net.hasor.dbvisitor.spring.boot.DbVisitorProperties",
-      "description": "SqlDialect for wrapper/Session",
+      "description": "SqlDialect for DataBase",
       "defaultValue": ""
     }
   ],

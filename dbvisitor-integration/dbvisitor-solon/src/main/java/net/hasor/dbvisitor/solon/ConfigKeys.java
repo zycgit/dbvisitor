@@ -29,7 +29,6 @@ public enum ConfigKeys {
     MapperPackages("dbvisitor", "mapperPackages", null),
     ScanMarkerAnnotation("dbvisitor", "markerAnnotation", MapperDef.class.getName()),
     ScanMarkerInterface("dbvisitor", "markerInterface", Mapper.class.getName()),
-    MapperScope("dbvisitor", "mapperScope", "singleton"),
 
     OptAutoMapping("dbvisitor", "autoMapping", null),
     OptCamelCase("dbvisitor", "camelCase", null),

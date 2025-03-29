@@ -27,8 +27,6 @@ import net.hasor.core.setting.SettingNode;
 import static net.hasor.dbvisitor.ConfigKeys.*;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.jdbc.JdbcOperations;
-import net.hasor.dbvisitor.jdbc.core.JdbcAccessor;
-import net.hasor.dbvisitor.jdbc.core.JdbcConnection;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.provider.JdbcTemplateProvider;
@@ -115,15 +113,11 @@ public class DbVisitorModule implements net.hasor.core.Module {
         WrapperAdapterProvider lambdaProvider = new WrapperAdapterProvider(dsProvider);
 
         if (StringUtils.isBlank(dbName)) {
-            apiBinder.bindType(JdbcAccessor.class).toProvider(tempProvider);
-            apiBinder.bindType(JdbcConnection.class).toProvider(tempProvider);
             apiBinder.bindType(JdbcTemplate.class).toProvider(tempProvider);
             apiBinder.bindType(JdbcOperations.class).toProvider(tempProvider);
             apiBinder.bindType(WrapperAdapter.class).toProvider(lambdaProvider);
             apiBinder.bindType(WrapperOperations.class).toProvider(lambdaProvider);
         } else {
-            apiBinder.bindType(JdbcAccessor.class).nameWith(dbName).toProvider(tempProvider);
-            apiBinder.bindType(JdbcConnection.class).nameWith(dbName).toProvider(tempProvider);
             apiBinder.bindType(JdbcTemplate.class).nameWith(dbName).toProvider(tempProvider);
             apiBinder.bindType(JdbcOperations.class).nameWith(dbName).toProvider(tempProvider);
             apiBinder.bindType(WrapperAdapter.class).nameWith(dbName).toProvider(lambdaProvider);
@@ -225,13 +219,11 @@ public class DbVisitorModule implements net.hasor.core.Module {
         Settings settings = apiBinder.getEnvironment().getSettings();
         String configMapperDisabled = MapperDisabled.buildConfigKey(dbName);
         String configMapperPackages = MapperPackages.buildConfigKey(dbName);
-        String configMapperScope = MapperScope.buildConfigKey(dbName);
         String configScanMarkerAnnotation = ScanMarkerAnnotation.buildConfigKey(dbName);
         String configScanMarkerInterface = ScanMarkerInterface.buildConfigKey(dbName);
 
         Boolean mapperDisabled = settings.getBoolean(configMapperDisabled, Boolean.parseBoolean(MapperDisabled.getDefaultValue()));
         String mapperPackageConfig = settings.getString(configMapperPackages, MapperPackages.getDefaultValue());
-        String mapperScope = settings.getString(configMapperScope, MapperScope.getDefaultValue());
         String scanMarkerAnnotation = settings.getString(configScanMarkerAnnotation, ScanMarkerAnnotation.getDefaultValue());
         String scanMarkerInterface = settings.getString(configScanMarkerInterface, ScanMarkerInterface.getDefaultValue());
 
@@ -264,9 +256,9 @@ public class DbVisitorModule implements net.hasor.core.Module {
             HasorUtils.pushStartListener(apiBinder.getEnvironment(), dalMapper);
 
             if (StringUtils.isBlank(dbName)) {
-                apiBinder.bindType(mapperCast).toProvider(dalMapper).toScope(mapperScope);
+                apiBinder.bindType(mapperCast).toProvider(dalMapper).asEagerSingleton();
             } else {
-                apiBinder.bindType(mapperCast).nameWith(dbName).toProvider(dalMapper).toScope(mapperScope);
+                apiBinder.bindType(mapperCast).nameWith(dbName).toProvider(dalMapper).asEagerSingleton();
             }
         }
     }

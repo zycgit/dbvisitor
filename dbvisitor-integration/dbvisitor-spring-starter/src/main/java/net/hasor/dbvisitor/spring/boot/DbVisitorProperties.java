@@ -32,12 +32,12 @@ public class DbVisitorProperties {
     private             String[]                           mapperLocations;
     private             Boolean                            mapperDisabled;
     private             Class<? extends BeanNameGenerator> mapperNameGenerator;
-    private             Class<? extends MapperBean>        mapperFactoryBean;
-    private             Boolean                            mapperLazyInit;
-    private             String                             mapperScope;
     private             Class<? extends Annotation>        markerAnnotation;
     private             Class<?>                           markerInterface;
-    private             String                             refSessionBean;
+    private             Class<? extends MapperBean>        mapperFactoryBean;
+    private             String                             refSession;
+    private             Boolean                            mapperLazyInit;
+    private             String                             mapperScope;
     // opt
     private             Boolean                            autoMapping;
     private             Boolean                            camelCase;
@@ -118,12 +118,12 @@ public class DbVisitorProperties {
         this.markerInterface = markerInterface;
     }
 
-    public String getRefSessionBean() {
-        return refSessionBean;
+    public String getRefSession() {
+        return refSession;
     }
 
-    public void setRefSessionBean(String refSessionBean) {
-        this.refSessionBean = refSessionBean;
+    public void setRefSession(String refSession) {
+        this.refSession = refSession;
     }
 
     public Boolean getAutoMapping() {

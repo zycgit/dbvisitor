@@ -5,4 +5,4 @@ solon.dataSources:
 dbvisitor:
   default:
     mapperLocations: classpath:dbvisitor/mapper/*.xml
-    mapperPackages: net.hasor.dbvisitor.test.dao.*
+    mapperPackages: net.hasor.dbvisitor.test.dao

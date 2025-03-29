@@ -15,11 +15,13 @@
  */
 package net.hasor.dbvisitor.solon;
 import net.hasor.cobble.ExceptionUtils;
+import net.hasor.dbvisitor.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
+import net.hasor.dbvisitor.wrapper.WrapperOperations;
 import org.noear.solon.core.BeanInjector;
 import org.noear.solon.core.BeanWrap;
 import org.noear.solon.core.VarHolder;
@@ -59,9 +61,21 @@ public class DbVisitorInjector implements BeanInjector<Db> {
         final Class<?> clz = vh.getType();
         final Session dbvSession = DsHelper.fetchSession(dsBw, mapperWrap);
 
+        //@Db("db1") JdbcOperations
+        if (JdbcOperations.class.isAssignableFrom(clz)) {
+            vh.setValue(dbvSession.jdbc());
+            return;
+        }
+
         //@Db("db1") JdbcTemplate
         if (JdbcTemplate.class.isAssignableFrom(clz)) {
             vh.setValue(dbvSession.jdbc());
+            return;
+        }
+
+        //@Db("db1") WrapperOperations
+        if (WrapperOperations.class.isAssignableFrom(clz)) {
+            vh.setValue(dbvSession.wrapper());
             return;
         }
 
@@ -73,7 +87,13 @@ public class DbVisitorInjector implements BeanInjector<Db> {
 
         //@Db("db1") Configuration
         if (Configuration.class.isAssignableFrom(clz)) {
-            vh.setValue(dbvSession.getConnection());
+            vh.setValue(dbvSession.getConfiguration());
+            return;
+        }
+
+        //@Db("db1") Session
+        if (Session.class.isAssignableFrom(clz)) {
+            vh.setValue(dbvSession);
             return;
         }
 
@@ -87,12 +107,6 @@ public class DbVisitorInjector implements BeanInjector<Db> {
                 vh.setValue(mapper);
             }
         }
-
-        //@Db("db1") Session, session include status.
-        //if (Session.class.isAssignableFrom(clz)) {
-        //    vh.setValue(conf.newSession(dconn));
-        //    return;
-        //}
 
         //@Db("db1") TransactionManager
         //if (TransactionManager.class.isAssignableFrom(clz)) {
