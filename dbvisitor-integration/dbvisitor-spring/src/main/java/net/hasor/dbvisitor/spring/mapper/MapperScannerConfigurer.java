@@ -53,10 +53,10 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
     private Class<?>                    markerInterface;
     private Session                     session;
     private String                      sessionRef;
-    private String                      mapperDisabled;
     private String                      mapperFactoryBeanClassName;
     private Class<?>                    mapperFactoryBeanClass;
-    private String                      lazyInitialization;
+    private String                      mapperDisabled;
+    private String                      lazyInit;
     private String                      defaultScope;
     private boolean                     processPropertyPlaceHolders;
     private String                      dependsOn;
@@ -108,8 +108,8 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
         scanner.setBeanNameGenerator(this.nameGenerator);
         scanner.setMapperFactoryBeanClass(this.mapperFactoryBeanClass);
         scanner.setDependsOn(this.dependsOn);
-        if (StringUtils.hasText(this.lazyInitialization)) {
-            scanner.setLazyInitialization(Boolean.parseBoolean(this.lazyInitialization));
+        if (StringUtils.hasText(this.lazyInit)) {
+            scanner.setLazyInit(Boolean.parseBoolean(this.lazyInit));
         }
         if (StringUtils.hasText(this.defaultScope)) {
             scanner.setDefaultScope(this.defaultScope);
@@ -148,7 +148,7 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
             this.basePackage = getPropertyValue("basePackage", values);
             this.sessionRef = getPropertyValue("sessionRef", values);
             this.mapperDisabled = getPropertyValue("mapperDisabled", values);
-            this.lazyInitialization = getPropertyValue("lazyInitialization", values);
+            this.lazyInit = getPropertyValue("lazyInit", values);
             this.defaultScope = getPropertyValue("defaultScope", values);
         }
         this.nameGeneratorName = Optional.ofNullable(this.nameGeneratorName).map(getEnvironment()::resolvePlaceholders).orElse(null);
@@ -158,7 +158,7 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
         this.basePackage = Optional.ofNullable(this.basePackage).map(getEnvironment()::resolvePlaceholders).orElse(null);
         this.sessionRef = Optional.ofNullable(this.sessionRef).map(getEnvironment()::resolvePlaceholders).orElse(null);
         this.mapperDisabled = Optional.ofNullable(this.mapperDisabled).map(getEnvironment()::resolvePlaceholders).orElse(null);
-        this.lazyInitialization = Optional.ofNullable(this.lazyInitialization).map(getEnvironment()::resolvePlaceholders).orElse(null);
+        this.lazyInit = Optional.ofNullable(this.lazyInit).map(getEnvironment()::resolvePlaceholders).orElse(null);
         this.defaultScope = Optional.ofNullable(this.defaultScope).map(getEnvironment()::resolvePlaceholders).orElse(null);
     }
 
@@ -198,10 +198,6 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
         this.session = session;
     }
 
-    public void setMapperDisabled(String mapperDisabled) {
-        this.mapperDisabled = mapperDisabled;
-    }
-
     public void setMapperFactoryBeanClassName(String mapperFactoryBeanClassName) {
         this.mapperFactoryBeanClassName = mapperFactoryBeanClassName;
     }
@@ -210,8 +206,12 @@ public class MapperScannerConfigurer extends AbstractConfigurer implements BeanD
         this.mapperFactoryBeanClass = mapperFactoryBeanClass;
     }
 
-    public void setLazyInitialization(String lazyInitialization) {
-        this.lazyInitialization = lazyInitialization;
+    public void setMapperDisabled(String mapperDisabled) {
+        this.mapperDisabled = mapperDisabled;
+    }
+
+    public void setLazyInit(String lazyInit) {
+        this.lazyInit = lazyInit;
     }
 
     public void setDefaultScope(String defaultScope) {

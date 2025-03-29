@@ -30,11 +30,11 @@ import java.util.Objects;
  * Sample configuration:
  * <pre class="code">
  * {@code
- *     <bean id="configBean" class="net.hasor.dbvisitor.spring.support.ConfigurationBean">
+ *     <bean id="configuration" class="net.hasor.dbvisitor.spring.support.ConfigurationBean">
  *         <property name="mapperResources" value="classpath*:dbvisitor/mapper/*Mapper.xml"/>
  *     </bean>
- *     <bean id="dalSession" class="net.hasor.dbvisitor.spring.support.SessionBean">
- *         <property name="config" ref="configBean"/>
+ *     <bean id="session" class="net.hasor.dbvisitor.spring.support.SessionBean">
+ *         <property name="configuration" ref="configuration"/>
  *     </bean>
  * }
  * </pre>
@@ -43,7 +43,7 @@ import java.util.Objects;
  * @see Mapper
  */
 public class SessionBean extends AbstractSupportBean<Session> {
-    private Configuration     config;
+    private Configuration     configuration;
     // - dsAdapter
     private AbstractDsAdapter dsAdapter;
     private Class<?>          dsAdapterClass;
@@ -63,7 +63,7 @@ public class SessionBean extends AbstractSupportBean<Session> {
 
         initDsAdapter();
 
-        this.session = this.config.newSession(this.dsAdapter);
+        this.session = this.configuration.newSession(this.dsAdapter);
     }
 
     private void initDsAdapter() throws Exception {
@@ -104,8 +104,8 @@ public class SessionBean extends AbstractSupportBean<Session> {
         return Session.class;
     }
 
-    public void setConfig(Configuration config) {
-        this.config = config;
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     public void setDataSource(DataSource dataSource) {

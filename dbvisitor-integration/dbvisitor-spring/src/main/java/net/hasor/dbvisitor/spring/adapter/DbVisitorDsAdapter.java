@@ -25,13 +25,13 @@ import java.sql.SQLException;
 /**
  * <pre class="code">
  * {@code
- *     <bean id="dalSession" class="net.hasor.dbvisitor.spring.support.DalSessionBean">
+ *     <bean id="session" class="net.hasor.dbvisitor.spring.support.SessionBean">
  *         ...
- *         <property name="dsAdapterClass" value="net.hasor.dbvisitor.spring.support.DbVisitorDsAdapter"/>
+ *         <property name="dsAdapterClass" value="net.hasor.dbvisitor.spring.adapter.DbVisitorDsAdapter"/>
  *         ...
  *     </bean>
- *     <bean id="oneMapper" class="net.hasor.dbvisitor.spring.support.DalMapperBean">
- *         <property name="dalSession" ref="dalSession"/>
+ *     <bean id="oneMapper" class="net.hasor.dbvisitor.spring.support.MapperBean">
+ *         <property name="session" ref="session"/>
  *         <property name="mapperInterface" value="net.hasor.dbvisitor.test.TestUserDAO"/>
  *     </bean>
  * }

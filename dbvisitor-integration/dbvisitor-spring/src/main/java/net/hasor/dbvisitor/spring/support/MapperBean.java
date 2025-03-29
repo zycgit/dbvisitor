@@ -23,15 +23,14 @@ import net.hasor.dbvisitor.session.Session;
  * Sample configuration:
  * <pre class="code">
  * {@code
- *     <bean id="dalRegistry" class="net.hasor.dbvisitor.spring.support.DalRegistryBean">
+ *     <bean id="configuration" class="net.hasor.dbvisitor.spring.support.ConfigurationBean">
  *         <property name="mapperResources" value="classpath*:dbvisitor/mapper/*Mapper.xml"/>
  *     </bean>
- *     <bean id="dalSession" class="net.hasor.dbvisitor.spring.support.SessionBean">
- *         <property name="dalRegistry" ref="dalRegistry"/>
- *         <property name="dialectName" value="mysql"/>
+ *     <bean id="session" class="net.hasor.dbvisitor.spring.support.SessionBean">
+ *         <property name="configuration" ref="configuration"/>
  *     </bean>
  *     <bean id="oneMapper" class="net.hasor.dbvisitor.spring.support.MapperBean">
- *         <property name="dalSession" ref="dalSession"/>
+ *         <property name="session" ref="session"/>
  *         <property name="mapperInterface" value="net.hasor.dbvisitor.test.TestUserDAO"/>
  *     </bean>
  * }

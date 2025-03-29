@@ -38,11 +38,11 @@ public class SpringXml1Test {
     @Resource
     private RoleMapper roleMapper;
     @Resource
-    private Session    dalSession;
+    private Session    session;
 
     @Before
     public void beforeTest() throws SQLException, IOException {
-        this.dalSession.jdbc().loadSQL("CreateDB.sql");
+        this.session.jdbc().loadSQL("CreateDB.sql");
     }
 
     @Test

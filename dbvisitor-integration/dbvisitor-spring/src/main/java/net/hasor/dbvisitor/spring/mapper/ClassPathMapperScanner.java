@@ -58,7 +58,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
     private              Session                     session;
     private              String                      sessionRef;
     private              Class<?>                    mapperFactoryBeanClass = MapperBean.class;
-    private              boolean                     lazyInitialization;
+    private              boolean                     lazyInit;
     private              String                      defaultScope;
     private              String                      dependsOn;
 
@@ -135,7 +135,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
             scopedProxy = true;
         }
         String beanClassName = definition.getBeanClassName();
-        logger.debug("Creating DalMapperBean with name '" + beanDef.getBeanName() + "' and '" + beanClassName + "' mapperInterface");
+        logger.debug("Creating MapperBean with name '" + beanDef.getBeanName() + "' and '" + beanClassName + "' mapperInterface");
 
         // the mapper interface is the original class of the bean but, the actual class of the bean is MapperFactoryBean
         definition.getPropertyValues().add("mapperInterface", beanClassName);
@@ -161,7 +161,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
         }
 
         // lazy
-        definition.setLazyInit(this.lazyInitialization);
+        definition.setLazyInit(this.lazyInit);
 
         if (StringUtils.hasText(dependsOn)) {
             definition.setDependsOn(new String[] { dependsOn });
@@ -224,8 +224,8 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
         this.mapperFactoryBeanClass = mapperFactoryBeanClass;
     }
 
-    public void setLazyInitialization(boolean lazyInitialization) {
-        this.lazyInitialization = lazyInitialization;
+    public void setLazyInit(boolean lazyInit) {
+        this.lazyInit = lazyInit;
     }
 
     public void setDefaultScope(String defaultScope) {

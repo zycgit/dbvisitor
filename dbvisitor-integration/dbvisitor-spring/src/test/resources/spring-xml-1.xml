@@ -31,7 +31,7 @@
         <property name="dialectName" value="mysql"/>
     </bean>
     <bean id="ormSession" class="net.hasor.dbvisitor.spring.support.SessionBean">
-        <property name="config" ref="ormConf"/>
+        <property name="configuration" ref="ormConf"/>
         <property name="dataSource" ref="dataSource"/>
     </bean>
 

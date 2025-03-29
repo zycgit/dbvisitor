@@ -38,7 +38,7 @@ import java.util.Objects;
  * Sample configuration:
  * <pre class="code">
  * {@code
- *     <bean id="dalRegistry" class="net.hasor.dbvisitor.spring.support.ConfigurationBean">
+ *     <bean id="configuration" class="net.hasor.dbvisitor.spring.support.ConfigurationBean">
  *         <property name="mapperResources" value="classpath*:dbvisitor/mapper/*Mapper.xml"/>
  *         ...
  *     </bean>

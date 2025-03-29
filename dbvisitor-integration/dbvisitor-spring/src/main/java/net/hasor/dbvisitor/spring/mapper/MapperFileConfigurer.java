@@ -16,9 +16,8 @@
 package net.hasor.dbvisitor.spring.mapper;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.spring.annotation.MapperScan;
-import net.hasor.dbvisitor.spring.annotation.MappingScan;
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -34,24 +33,24 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * A resource load for {@link MappingScan}、{@link MapperScan}.
+ * A resource load for {@link MapperScan}.
  * @author 赵永春 (zyc@hasor.net)
  * @version 2022-04-29
  */
 public class MapperFileConfigurer extends AbstractConfigurer implements InitializingBean {
     private static final Logger                              logger   = LoggerFactory.getLogger(MapperFileConfigurer.class);
     private static final PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-    private              Configuration                       config;
-    private              String                              configRef;
+    private              Session                             session;
+    private              String                              sessionRef;
     private              String                              mapperLocations;
     private              boolean                             processPropertyPlaceHolders;
 
-    public void setConfig(Configuration config) {
-        this.config = config;
+    public void setSession(Session session) {
+        this.session = session;
     }
 
-    public void setConfigRef(String configRef) {
-        this.configRef = configRef;
+    public void setSessionRef(String sessionRef) {
+        this.sessionRef = sessionRef;
     }
 
     public void setMapperLocations(String mapperLocations) {
@@ -68,13 +67,13 @@ public class MapperFileConfigurer extends AbstractConfigurer implements Initiali
             processPropertyPlaceHolders();
         }
 
-        if (this.config == null) {
-            if (StringUtils.hasText(this.configRef)) {
-                logger.info("load MapperFile to Configuration '" + this.configRef + "'");
-                this.config = (Configuration) this.applicationContext.getBean(this.configRef);
+        if (this.session == null) {
+            if (StringUtils.hasText(this.sessionRef)) {
+                logger.info("load MapperFile to Session '" + this.sessionRef + "'");
+                this.session = (Session) this.applicationContext.getBean(this.sessionRef);
             } else {
-                logger.info("load MapperFile to default Configuration.");
-                this.config = this.applicationContext.getBean(Configuration.class);
+                logger.info("load MapperFile to default Session.");
+                this.session = this.applicationContext.getBean(Session.class);
             }
         }
 
@@ -83,7 +82,7 @@ public class MapperFileConfigurer extends AbstractConfigurer implements Initiali
                 .flatMap(location -> Stream.of(getResources(location))).toArray(Resource[]::new);
         for (Resource resource : mapperResources) {
             String string = resource.getURI().toString();
-            this.config.loadMapper(string);
+            this.session.getConfiguration().loadMapper(string);
         }
     }
 
@@ -117,10 +116,10 @@ public class MapperFileConfigurer extends AbstractConfigurer implements Initiali
             }
 
             PropertyValues values = mapperScannerBean.getPropertyValues();
-            this.configRef = getPropertyValue("configRef", values);
+            this.sessionRef = getPropertyValue("sessionRef", values);
             this.mapperLocations = getPropertyValue("mapperLocations", values);
         }
-        this.configRef = Optional.ofNullable(this.configRef).map(getEnvironment()::resolvePlaceholders).orElse(null);
+        this.sessionRef = Optional.ofNullable(this.sessionRef).map(getEnvironment()::resolvePlaceholders).orElse(null);
         this.mapperLocations = Optional.ofNullable(this.mapperLocations).map(getEnvironment()::resolvePlaceholders).orElse(null);
     }
 }

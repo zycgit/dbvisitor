@@ -25,7 +25,7 @@ import java.lang.annotation.*;
 
 /**
  * Use this annotation to register dbVisitor mapper interfaces when using Java Config. It performs when same work as
- * {@link MapperScannerConfigurer} via {@link MapperScannerRegistrar}.
+ * {@link MapperScannerConfigurer} via {@link ScannerRegistrar}.
  * <p>
  * Either {@link #basePackageClasses} or {@link #basePackages} (or its alias {@link #value}) may be specified to define
  * specific packages to scan. If specific packages are not defined, scanning will occur from the package of
@@ -51,13 +51,13 @@ import java.lang.annotation.*;
  * @author Eduardo Macarron
  * @author 赵永春 (zyc@hasor.net)
  * @version 2022-04-29
- * @see MapperScannerRegistrar
+ * @see ScannerRegistrar
  * @see ConfigurationBean
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(MapperScannerRegistrar.class)
+@Import(ScannerRegistrar.class)
 @Repeatable(MapperScans.class)
 public @interface MapperScan {
 
@@ -115,11 +115,11 @@ public @interface MapperScan {
     Class<?> markerInterface() default Class.class;
 
     /**
-     * Specifies which {@code SqlSessionTemplate} to use in the case that there is more than one in the spring context.
+     * Specifies which {@code Session} to use in the case that there is more than one in the spring context.
      * Usually this is only needed when you have more than one datasource.
-     * @return the bean name of {@code DalSession}
+     * @return the bean name of {@code Session}
      */
-    String dalSessionRef() default "";
+    String sessionRef() default "";
 
     /**
      * Specifies a custom DalMapperBean to return a dbVisitor proxy as spring bean.
@@ -128,14 +128,14 @@ public @interface MapperScan {
     Class<? extends MapperBean> factoryBean() default MapperBean.class;
 
     /**
-     * Whether enable lazy initialization of mapper bean.
+     * Whether enable lazy init of mapper bean.
      * <p>
      * Default is {@code false}.
      * </p>
-     * @return set {@code true} to enable lazy initialization
+     * @return set {@code true} to enable lazy init
      * @since 2.0.2
      */
-    String lazyInitialization() default "";
+    String lazyInit() default "";
 
     /**
      * Specifies the default scope of scanned mappers.
@@ -145,4 +145,7 @@ public @interface MapperScan {
      * @return the default scope
      */
     String defaultScope() default AbstractBeanDefinition.SCOPE_DEFAULT;
+
+    /** 是否禁用 mapper 的加载 只加载 mapperLocations*/
+    boolean mapperDisabled() default false;
 }
