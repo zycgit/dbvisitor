@@ -40,6 +40,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -77,6 +78,7 @@ public class MappingHelper {
         putTypeMap("void", void.class);
         putTypeMap("map", Map.class);
         putTypeMap("hashmap", HashMap.class);
+        putTypeMap("linkedmap", LinkedHashMap.class);
         putTypeMap("caseinsensitivemap", LinkedCaseInsensitiveMap.class);
         putTypeMap("date", java.util.Date.class);
         putTypeMap("sqldate", java.sql.Date.class);
