@@ -18,8 +18,6 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.mapper.Mapper;
 import net.hasor.dbvisitor.mapper.MapperDef;
 
-import javax.inject.Singleton;
-
 /**
  * @author 赵永春 (zyc@hasor.net)
  * @version 2022-07-18
