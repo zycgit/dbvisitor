@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.provider;
 import net.hasor.cobble.provider.SingleProvider;
 import net.hasor.dbvisitor.transaction.TransactionManager;
-import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
+import net.hasor.dbvisitor.transaction.support.TransactionHelper;
 
 import javax.sql.DataSource;
 import java.util.function.Supplier;
@@ -26,25 +26,13 @@ import java.util.function.Supplier;
  * @version 2017-07-12
  */
 public class TransactionManagerProvider implements Supplier<TransactionManager> {
-    private final    Supplier<DataSource> dataSource;
-    private volatile TransactionManager   transactionManager;
-
-    public TransactionManagerProvider(DataSource dataSource) {
-        this(() -> dataSource);
-    }
+    private final Supplier<DataSource> dataSource;
 
     public TransactionManagerProvider(Supplier<DataSource> dataSource) {
         this.dataSource = new SingleProvider<>(dataSource);
     }
 
     public TransactionManager get() {
-        if (this.transactionManager == null) {
-            synchronized (this) {
-                if (this.transactionManager == null) {
-                    this.transactionManager = new LocalTransactionManager(this.dataSource.get());
-                }
-            }
-        }
-        return this.transactionManager;
+        return TransactionHelper.txManager(this.dataSource.get());
     }
 }

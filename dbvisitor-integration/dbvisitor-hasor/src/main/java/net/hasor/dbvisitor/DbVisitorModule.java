@@ -31,11 +31,12 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.provider.JdbcTemplateProvider;
 import net.hasor.dbvisitor.provider.TransactionManagerProvider;
+import net.hasor.dbvisitor.provider.TransactionTemplateProvider;
 import net.hasor.dbvisitor.provider.WrapperAdapterProvider;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.transaction.*;
-import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
+import net.hasor.dbvisitor.transaction.support.TransactionHelper;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import net.hasor.dbvisitor.wrapper.WrapperOperations;
 
@@ -127,10 +128,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
 
     private void bindTrans(String dbName, ApiBinder apiBinder, Supplier<DataSource> dsProvider) {
         Supplier<TransactionManager> managerProvider = new TransactionManagerProvider(dsProvider);
-        Supplier<TransactionTemplate> templateProvider = () -> {
-            TransactionManager tm = new LocalTransactionManager(dsProvider.get());
-            return new TransactionTemplateManager(tm);
-        };
+        Supplier<TransactionTemplate> templateProvider = new TransactionTemplateProvider(dsProvider);
 
         if (StringUtils.isBlank(dbName)) {
             apiBinder.bindType(TransactionManager.class).toProvider(managerProvider);
@@ -264,22 +262,10 @@ public class DbVisitorModule implements net.hasor.core.Module {
     }
 
     private static class TranInterceptor implements MethodInterceptor {
-        private final    Supplier<DataSource> dataSource;
-        private volatile TransactionManager   transactionManager;
+        private final Supplier<DataSource> dataSource;
 
         public TranInterceptor(Supplier<DataSource> dataSource) {
             this.dataSource = Objects.requireNonNull(dataSource, "dataSource Provider is null.");
-        }
-
-        private TransactionManager getTxManager() {
-            if (this.transactionManager == null) {
-                synchronized (this) {
-                    if (this.transactionManager == null) {
-                        this.transactionManager = new LocalTransactionManager(this.dataSource.get());
-                    }
-                }
-            }
-            return this.transactionManager;
         }
 
         /* 是否不需要回滚:true表示不要回滚 */
@@ -310,7 +296,7 @@ public class DbVisitorModule implements net.hasor.core.Module {
                 return invocation.proceed();
             }
             //0.准备事务环境
-            TransactionManager manager = getTxManager();
+            TransactionManager manager = TransactionHelper.txManager(this.dataSource.get());
             Propagation behavior = tranInfo.propagation();
             Isolation level = tranInfo.isolation();
             TransactionStatus tranStatus = manager.begin(behavior, level);

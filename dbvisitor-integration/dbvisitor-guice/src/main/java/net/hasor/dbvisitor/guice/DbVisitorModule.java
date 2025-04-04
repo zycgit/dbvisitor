@@ -35,6 +35,7 @@ import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import static net.hasor.dbvisitor.guice.ConfigKeys.*;
 import net.hasor.dbvisitor.guice.provider.JdbcTemplateProvider;
 import net.hasor.dbvisitor.guice.provider.TransactionManagerProvider;
+import net.hasor.dbvisitor.guice.provider.TransactionTemplateProvider;
 import net.hasor.dbvisitor.guice.provider.WrapperAdapterProvider;
 import net.hasor.dbvisitor.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
@@ -42,7 +43,7 @@ import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.transaction.*;
-import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
+import net.hasor.dbvisitor.transaction.support.TransactionHelper;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 import net.hasor.dbvisitor.wrapper.WrapperOperations;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -150,10 +151,7 @@ public class DbVisitorModule implements com.google.inject.Module {
 
     private void bindTrans(String dbName, Binder binder, Provider<DataSource> dsProvider) {
         Provider<TransactionManager> managerProvider = new TransactionManagerProvider(dsProvider);
-        Provider<TransactionTemplate> templateProvider = () -> {
-            TransactionManager tm = new LocalTransactionManager(dsProvider.get());
-            return new TransactionTemplateManager(tm);
-        };
+        Provider<TransactionTemplate> templateProvider = new TransactionTemplateProvider(dsProvider);
 
         if (StringUtils.isBlank(dbName)) {
             binder.bind(TransactionManager.class).toProvider(managerProvider);
@@ -296,22 +294,10 @@ public class DbVisitorModule implements com.google.inject.Module {
     }
 
     private static class TranInterceptor implements MethodInterceptor {
-        private final    Provider<DataSource> dataSource;
-        private volatile TransactionManager   transactionManager;
+        private final Provider<DataSource> dataSource;
 
         public TranInterceptor(Provider<DataSource> dataSource) {
             this.dataSource = Objects.requireNonNull(dataSource, "dataSource Provider is null.");
-        }
-
-        private TransactionManager getTxManager() {
-            if (this.transactionManager == null) {
-                synchronized (this) {
-                    if (this.transactionManager == null) {
-                        this.transactionManager = new LocalTransactionManager(this.dataSource.get());
-                    }
-                }
-            }
-            return this.transactionManager;
         }
 
         /* 是否不需要回滚:true表示不要回滚 */
@@ -342,7 +328,7 @@ public class DbVisitorModule implements com.google.inject.Module {
                 return invocation.proceed();
             }
             //0.准备事务环境
-            TransactionManager manager = getTxManager();
+            TransactionManager manager = TransactionHelper.txManager(this.dataSource.get());
             Propagation behavior = tranInfo.propagation();
             Isolation level = tranInfo.isolation();
             TransactionStatus tranStatus = manager.begin(behavior, level);

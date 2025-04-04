@@ -27,10 +27,6 @@ import java.sql.SQLException;
 public class WrapperAdapterProvider implements Provider<WrapperAdapter> {
     private final Provider<DataSource> dataSource;
 
-    public WrapperAdapterProvider(DataSource dataSource) {
-        this(() -> dataSource);
-    }
-
     public WrapperAdapterProvider(Provider<DataSource> dataSource) {
         this.dataSource = dataSource;
     }

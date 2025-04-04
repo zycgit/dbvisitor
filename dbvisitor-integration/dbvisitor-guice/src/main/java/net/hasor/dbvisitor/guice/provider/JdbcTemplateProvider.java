@@ -26,10 +26,6 @@ import javax.sql.DataSource;
 public class JdbcTemplateProvider implements Provider<JdbcTemplate> {
     private final Provider<DataSource> dataSource;
 
-    public JdbcTemplateProvider(DataSource dataSource) {
-        this(() -> dataSource);
-    }
-
     public JdbcTemplateProvider(Provider<DataSource> dataSource) {
         this.dataSource = dataSource;
     }

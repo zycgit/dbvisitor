@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.transaction.support;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.transaction.*;
+import static net.hasor.dbvisitor.transaction.Propagation.*;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -25,8 +26,6 @@ import java.sql.SQLException;
 import java.util.Deque;
 import java.util.Objects;
 import java.util.concurrent.LinkedBlockingDeque;
-
-import static net.hasor.dbvisitor.transaction.Propagation.*;
 
 /**
  * 某一个数据源的事务管理器
@@ -370,7 +369,7 @@ public class LocalTransactionManager implements TransactionManager {
         Connection conn = holder.getConnection();
 
         // 当设置了隔离级别则设置 recoverIsolation
-        if (defStatus.getIsolationLevel() == null) {
+        if (defStatus.getIsolationLevel() == null || defStatus.getIsolationLevel() == Isolation.DEFAULT) {
             return new TransactionObject(holder, null, this.getDataSource());
         } else {
             Isolation recoverIsolation = Isolation.valueOf(conn.getTransactionIsolation());

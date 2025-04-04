@@ -38,6 +38,10 @@ public abstract class AbstractPropagationTest extends AbstractDbTest {
         return new JdbcTemplate(conn).queryForInt("select count(*) from user_info");
     }
 
+    protected int selectCount(JdbcTemplate jdbc) throws SQLException {
+        return jdbc.queryForInt("select count(*) from user_info");
+    }
+
     protected int selectCount(DataSource dataSource) throws SQLException {
         return new JdbcTemplate(dataSource).queryForInt("select count(*) from user_info");
     }

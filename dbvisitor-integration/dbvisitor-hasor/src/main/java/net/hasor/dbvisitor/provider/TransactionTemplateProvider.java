@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.provider;
-import net.hasor.dbvisitor.transaction.TransactionManager;
+import net.hasor.cobble.provider.SingleProvider;
 import net.hasor.dbvisitor.transaction.TransactionTemplate;
 import net.hasor.dbvisitor.transaction.TransactionTemplateManager;
-import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
+import net.hasor.dbvisitor.transaction.support.TransactionHelper;
 
 import javax.sql.DataSource;
 import java.util.function.Supplier;
@@ -27,18 +27,13 @@ import java.util.function.Supplier;
  * @version 2017-07-12
  */
 public class TransactionTemplateProvider implements Supplier<TransactionTemplate> {
-    private final TransactionTemplate transactionTemplate;
+    private final Supplier<DataSource> dataSource;
 
-    public TransactionTemplateProvider(DataSource dataSource) {
-        TransactionManager rm = new LocalTransactionManager(dataSource);
-        this.transactionTemplate = new TransactionTemplateManager(rm);
-    }
-
-    public TransactionTemplateProvider(TransactionManager transactionManager) {
-        this.transactionTemplate = new TransactionTemplateManager(transactionManager);
+    public TransactionTemplateProvider(Supplier<DataSource> dataSource) {
+        this.dataSource = new SingleProvider<>(dataSource);
     }
 
     public TransactionTemplate get() {
-        return this.transactionTemplate;
+        return new TransactionTemplateManager(TransactionHelper.txManager(this.dataSource.get()));
     }
 }

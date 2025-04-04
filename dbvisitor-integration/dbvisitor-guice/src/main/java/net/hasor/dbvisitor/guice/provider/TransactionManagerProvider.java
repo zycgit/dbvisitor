@@ -16,7 +16,7 @@
 package net.hasor.dbvisitor.guice.provider;
 import com.google.inject.Provider;
 import net.hasor.dbvisitor.transaction.TransactionManager;
-import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
+import net.hasor.dbvisitor.transaction.support.TransactionHelper;
 
 import javax.sql.DataSource;
 
@@ -25,25 +25,13 @@ import javax.sql.DataSource;
  * @version 2022-07-18
  */
 public class TransactionManagerProvider implements Provider<TransactionManager> {
-    private final    Provider<DataSource> dataSource;
-    private volatile TransactionManager   transactionManager;
-
-    public TransactionManagerProvider(DataSource dataSource) {
-        this(() -> dataSource);
-    }
+    private final Provider<DataSource> dataSource;
 
     public TransactionManagerProvider(Provider<DataSource> dataSource) {
         this.dataSource = new InnerSingleProvider<>(dataSource);
     }
 
     public TransactionManager get() {
-        if (this.transactionManager == null) {
-            synchronized (this) {
-                if (this.transactionManager == null) {
-                    this.transactionManager = new LocalTransactionManager(this.dataSource.get());
-                }
-            }
-        }
-        return this.transactionManager;
+        return TransactionHelper.txManager(this.dataSource.get());
     }
 }

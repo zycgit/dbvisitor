@@ -30,7 +30,7 @@ public class TransactionObject {
     private final Isolation        recoverIsolation; //创建事务对象时的隔离级别，当事物结束之后用以恢复隔离级别
     private       boolean          recoverMark = false;
 
-    public TransactionObject(final ConnectionHolder holder, final Isolation recoverIsolation, final DataSource dataSource) throws SQLException {
+    public TransactionObject(final ConnectionHolder holder, final Isolation recoverIsolation, final DataSource dataSource) {
         this.holder = holder;
         this.dataSource = dataSource;
         this.recoverIsolation = recoverIsolation;
