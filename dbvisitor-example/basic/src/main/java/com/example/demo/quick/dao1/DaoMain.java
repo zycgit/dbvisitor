@@ -36,7 +36,7 @@ public class DaoMain {
         // 更新，将name 从 mali 更新为 mala
         TestUser sample = baseMapper.selectById(1);
         sample.setName("mala");
-        int result2 = baseMapper.updateById(sample);
+        int result2 = baseMapper.update(sample);
 
         dtoList = baseMapper.query().queryForList();
         PrintUtils.printObjectList(dtoList);

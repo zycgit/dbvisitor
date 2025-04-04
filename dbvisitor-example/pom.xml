@@ -11,8 +11,9 @@
         <module>basic</module>
         <module>hasor</module>
         <module>guice</module>
-        <module>spring-xml</module>
-        <module>spring-annotation</module>
+        <module>solon</module>
+        <module>spring-xml1</module>
+        <module>spring-xml2</module>
         <module>springboot2</module>
         <module>springboot3</module>
     </modules>

@@ -6,7 +6,7 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class MultiQuerySqlMain {
@@ -19,7 +19,7 @@ public class MultiQuerySqlMain {
         Object[] queryArg = new Object[] { "dative" };
         Map<String, Object> resultMap = jdbcTemplate.multipleExecute(querySql, queryArg);
 
-        PrintUtils.printObjectList(Arrays.asList(resultMap.values().toArray()));
-
+        System.out.println(resultMap.get("#update-count-1"));
+        PrintUtils.printObjectList((List<?>) resultMap.get("#result-set-2"));
     }
 }

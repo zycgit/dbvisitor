@@ -1,5 +1,6 @@
 package com.example.demo.jdbc;
 import com.example.demo.DsUtils;
+import com.example.demo.PrintUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.SqlArg;
 
@@ -27,5 +28,8 @@ public class Call1SqlMain {
         List<Map<String, Object>> result1 = (List<Map<String, Object>>) resultMap.get("#result-set-1");
         List<Map<String, Object>> result2 = (List<Map<String, Object>>) resultMap.get("#result-set-2");
 
+        System.out.println(outName);
+        PrintUtils.printObjectList(result1);
+        PrintUtils.printObjectList(result2);
     }
 }

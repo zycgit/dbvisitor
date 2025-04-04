@@ -1,0 +1,12 @@
+solon.app:
+  name: demo-app
+  group: demo
+
+solon.dataSources:
+  default!: # 带上 ! 表示为默认数据源。
+    class: "com.zaxxer.hikari.HikariDataSource"
+    jdbcUrl: "jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true&user=root&password=123456"
+dbvisitor:
+  default: # 为 default 数据源配置 dbVisitor
+    mapperLocations: classpath:dbvisitor/mapper/*.xml
+    mapperPackages: com.example.demo.dao

@@ -1,11 +1,11 @@
 package com.example.demo;
 
+import com.example.demo.dto.UserDTO;
+import com.example.demo.service.TestService;
 import net.hasor.core.AppContext;
 import net.hasor.core.Hasor;
 import net.hasor.core.Inject;
 import net.hasor.dbvisitor.DbVisitorModule;
-import net.hasor.dbvisitor.test.dto.UserDTO;
-import net.hasor.dbvisitor.test.service.TestService;
 import org.junit.Before;
 import org.junit.Test;
 

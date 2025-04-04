@@ -1,6 +1,8 @@
 package com.example.demo.mapper;
 import com.example.demo.DsUtils;
+import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
 import net.hasor.dbvisitor.mapper.BaseMapper;
+import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 
@@ -13,7 +15,7 @@ public class BaseMapper1Main {
     public static void main(String[] args) throws SQLException, IOException {
         DataSource dataSource = DsUtils.dsMySql();
 
-        Configuration config = new Configuration();
+        Configuration config = new Configuration(Options.of().dialect(new MySqlDialect()));
         Session session = config.newSession(dataSource);
         session.jdbc().loadSQL("CreateDB.sql");
 

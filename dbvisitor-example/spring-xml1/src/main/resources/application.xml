@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.1.xsd">
+
+    <!-- 数据源 -->
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <property name="jdbcUrl" value="jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true"/>
+        <property name="username" value="root"/>
+        <property name="password" value="123456"/>
+        <property name="minimumIdle" value="5"/>
+        <property name="maximumPoolSize" value="12"/>
+        <property name="maxLifetime" value="1200000"/>
+        <property name="autoCommit" value="true"/>
+        <property name="connectionTimeout" value="20000"/>
+    </bean>
+
+    <!-- 事务管理器 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 事务注解拦截器 -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <!-- dbVisitor -->
+    <bean id="configuration" class="net.hasor.dbvisitor.spring.support.ConfigurationBean">
+        <property name="mapperResources" value="classpath*:dbvisitor/mapper/*Mapper.xml"/>
+    </bean>
+    <bean id="session" class="net.hasor.dbvisitor.spring.support.SessionBean">
+        <property name="configuration" ref="configuration"/>
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- dao -->
+    <bean id="userMapper" class="net.hasor.dbvisitor.spring.support.MapperBean">
+        <property name="session" ref="session"/>
+        <property name="mapperInterface" value="com.example.demo.dao.UserMapper"/>
+    </bean>
+
+    <!-- service -->
+    <bean id="userService" class="com.example.demo.service.UserService">
+        <property name="userMapper" ref="userMapper"/>
+    </bean>
+</beans>

@@ -2,6 +2,8 @@ package com.example.demo.mapper;
 import com.example.demo.DsUtils;
 import com.example.demo.PrintUtils;
 import net.hasor.dbvisitor.dialect.PageObject;
+import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
+import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 
@@ -12,7 +14,7 @@ import java.util.Map;
 
 public class FileMapper3Main {
     public static void main(String[] args) throws Exception {
-        Configuration config = new Configuration();
+        Configuration config = new Configuration(Options.of().dialect(new MySqlDialect()));
         config.loadMapper("/mapper/mapper_1/TestUserMapper.xml");
 
         DataSource dataSource = DsUtils.dsMySql();

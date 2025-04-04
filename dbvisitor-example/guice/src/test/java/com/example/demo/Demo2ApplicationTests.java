@@ -4,8 +4,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.dbvisitor.guice.DbVisitorModule;
-import net.hasor.dbvisitor.test.dto.UserDTO;
-import net.hasor.dbvisitor.test.service.MultiDsService;
+import com.example.demo.dto.UserDTO;
+import com.example.demo.service.MultiDsService;
 import org.junit.Before;
 import org.junit.Test;
 

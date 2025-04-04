@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
-<mapper namespace="net.hasor.dbvisitor.test.dao.role.RoleMapper" mapUnderscoreToCamelCase="true">
+<mapper namespace="com.example.demo.dao.role.RoleMapper" mapUnderscoreToCamelCase="true">
 
-    <resultMap id="roleDTO" type="net.hasor.dbvisitor.test.dto.RoleDTO"/>
+    <resultMap id="roleDTO" type="com.example.demo.dto.RoleDTO"/>
 
     <insert id="insertUser">
-        <selectKey keyProperty="id" resultType="int" order="BEFORE">
+        <selectKey keyProperty="id" order="BEFORE">
             SELECT CONCAT('1', CEILING(RAND() * 1000 + 1000))
         </selectKey>
         insert into `test_user` (
-        `id`, `name`, `age`, `create_time`
+            `id`, `name`, `age`, `create_time`
         ) values (
-        #{id}, #{name}, #{age}, #{createTime}
+            #{id}, #{name}, #{age}, #{createTime}
         )
     </insert>
 </mapper>

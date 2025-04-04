@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper namespace="com.example.demo.quick.dao3.TestUserDAO">
     <resultMap id="testuser_resultMap" type="com.example.demo.quick.dao3.TestUser">
-        <id column="id" property="id"/>
+        <result column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="age" property="age"/>
         <result column="create_time" property="createTime"/>

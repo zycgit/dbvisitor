@@ -3,6 +3,8 @@ import com.example.demo.DsUtils;
 import com.example.demo.PrintUtils;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageObject;
+import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
+import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 
@@ -12,7 +14,7 @@ import java.util.List;
 public class PageMain1 {
     public static void main(String[] args) throws Exception {
         // 创建 DalRegistry 并注册 TestUserDAO
-        Configuration config = new Configuration();
+        Configuration config = new Configuration(Options.of().dialect(new MySqlDialect()));
         config.loadMapper(TestUserDAO.class);
         // 创建 Session 并初始化一些数据
         DataSource dataSource = DsUtils.dsMySql();

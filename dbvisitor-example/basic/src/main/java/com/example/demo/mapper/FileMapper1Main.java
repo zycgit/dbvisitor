@@ -17,20 +17,21 @@ public class FileMapper1Main {
 
         DataSource dataSource = DsUtils.dsMySql();
 
-        Session dalSession = config.newSession(dataSource);
-        dalSession.jdbc().loadSQL("CreateDB.sql");
+        Session session = config.newSession(dataSource);
+        session.jdbc().loadSQL("CreateDB.sql");
 
         Map<String, Object> ages = new HashMap<>();
         ages.put("age", 26);
-        List<Object> listByAge1 = dalSession.queryStatement("queryListByAge", ages);
+        List<Object> listByAge1 = session.queryStatement("queryListByAge", ages);
         PrintUtils.printObjectList(listByAge1);
 
-        List<Object> listByAge2 = dalSession.queryStatement("multipleListByAge", ages);
-        PrintUtils.printObjectList(listByAge2);
+        Map<String, Object> listByAge2 = (Map<String, Object>) (session.queryStatement("multipleListByAge", ages).get(0));
+        PrintUtils.printObjectList((List<?>) listByAge2.get("res1"));
+        PrintUtils.printObjectList((List<?>) listByAge2.get("res2"));
 
         ages.put("age", 26);
         ages.put("name", "mali");
-        List<Object> listByAge3 = dalSession.queryStatement("queryByNameAndAge", ages);
+        List<Object> listByAge3 = session.queryStatement("queryByNameAndAge", ages);
         PrintUtils.printObjectList(listByAge3);
 
         Map<String, Object> params = new HashMap<>();
@@ -38,8 +39,8 @@ public class FileMapper1Main {
         params.put("name", "form app");
         params.put("age", 128);
         params.put("createTime", new Date());
-        int result = (int) dalSession.executeStatement("insertUser", params);
-        PrintUtils.printObjectList(dalSession.jdbc().queryForList("select * from `test_user`"));
+        int result = (int) session.executeStatement("insertUser", params);
+        PrintUtils.printObjectList(session.jdbc().queryForList("select * from `test_user`"));
 
     }
 }

@@ -144,10 +144,10 @@ public class DbVisitorPlugin implements Plugin {
         //@Inject Session
         beanWrap = Solon.context().wrap(Session.class.getSimpleName(), dbvSession, true);
         beanWrap.singletonSet(true);
-        context.putWrap(Configuration.class, beanWrap);
+        context.putWrap(Session.class, beanWrap);
 
         //@Inject TransactionManager
-        //beanWrap = Solon.context().wrap(TransactionManager.class.getSimpleName(), TransactionManager.class);
+        //beanWrap = Solon.context().wrap(TransactionManager.class.getSimpleName(), TransactionHelper.txManager().class);
         //beanWrap.singletonSet(true);
         //context.putWrap(TransactionManager.class, beanWrap);
 

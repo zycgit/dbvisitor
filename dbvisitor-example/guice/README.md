@@ -1,1 +1,1 @@
-&emsp;&emsp;google-guice + dbVisitor
+&emsp;&emsp;Google Guice + dbVisitor

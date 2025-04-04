@@ -3,7 +3,7 @@ import com.example.demo.DsUtils;
 import com.example.demo.PrintUtils;
 import net.hasor.cobble.DateFormatType;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.wrapper.EntityInsertWrapper;
+import net.hasor.dbvisitor.wrapper.MapInsertWrapper;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import javax.sql.DataSource;
@@ -26,7 +26,7 @@ public class Insert4Main {
         newValue.put("age", 88);
         newValue.put("createTime", DateFormatType.s_yyyyMMdd_HHmmss.toDate("2000-01-01 12:12:12"));
 
-        EntityInsertWrapper<Map<String, Object>> insert = wrapper.insert(null, null, "test_user");
+        MapInsertWrapper insert = wrapper.insertFreedom(null, null, "test_user");
         int result = insert.applyMap(newValue).executeSumResult();
 
         PrintUtils.printObjectList(wrapper.jdbc().queryForList("select * from test_user"));

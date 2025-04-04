@@ -4,7 +4,9 @@ import com.example.demo.PrintUtils;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageObject;
 import net.hasor.dbvisitor.dialect.PageResult;
+import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
 import net.hasor.dbvisitor.mapper.BaseMapper;
+import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 
@@ -17,7 +19,7 @@ public class PageMain {
     public static void main(String[] args) throws SQLException, IOException {
         // 创建 Session 并初始化一些数据
         DataSource dataSource = DsUtils.dsMySql();
-        Configuration config = new Configuration();
+        Configuration config = new Configuration(Options.of().dialect(new MySqlDialect()));
         Session session = config.newSession(dataSource);
         session.jdbc().loadSQL("CreateDB.sql");
 

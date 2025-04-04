@@ -3,7 +3,7 @@
 <mapper namespace="com.example.demo.quick.page3.TestUserDAO">
 
     <resultMap id="testuser_resultMap" type="com.example.demo.quick.page3.TestUser">
-        <id column="id" property="id"/>
+        <result column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="age" property="age"/>
         <result column="create_time" property="createTime"/>

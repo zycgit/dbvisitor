@@ -22,7 +22,7 @@ public class Update2Main {
         newValue.put("age", 88);
 
         EntityUpdateWrapper<TestUser> update = wrapper.update(TestUser.class);
-        int result = update.eq(TestUser::getId, 1).updateRowUsingMap(newValue).doUpdate();
+        int result = update.eq(TestUser::getId, 1).updateToSampleMap(newValue).doUpdate();
 
         System.out.println("res = " + result);
         PrintUtils.printObjectList(wrapper.jdbc().queryForList("select * from test_user"));

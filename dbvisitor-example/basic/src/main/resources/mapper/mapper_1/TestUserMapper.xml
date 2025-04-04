@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
 <mapper>
-    <select id="multipleListByAge" resultType="com.example.demo.mapper.TestUserPojo,com.example.demo.mapper.TestUser" multipleResult="ALL">
-        select id, name, age, create_time as createTime from `test_user` where age = #{age};
-        select * from `test_user`;
+    <select id="multipleListByAge" bindOut="res1,res2">
+        select id, name, age, create_time as createTime from `test_user` where age = #{age}; @{resultSet,name=res1,javaType=com.example.demo.mapper.TestUserPojo}
+        select * from `test_user`;                                                           @{resultSet,name=res2,javaType=com.example.demo.mapper.TestUser}
     </select>
 
     <select id="queryListByAge">
@@ -20,7 +20,7 @@
     </select>
 
     <insert id="insertUser">
-        <selectKey keyProperty="id" resultType="int" order="BEFORE">
+        <selectKey keyProperty="id" order="BEFORE">
             SELECT CONCAT('1', CEILING(RAND() * 1000 + 1000))
         </selectKey>
         insert into `test_user` (
