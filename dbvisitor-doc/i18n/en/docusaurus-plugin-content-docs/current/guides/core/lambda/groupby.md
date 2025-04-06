@@ -9,14 +9,14 @@ description: 通过如下方式可以使用条件构造器构建分组查询。
 通过如下方式可以使用条件构造器构建分组查询。
 
 ```java
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 List<User> result = null;
-result = adapter.queryByEntity(User.class)
-                .ge(User::getId, 100)
-                .le(User::getId, 500)
-                .groupBy(User::getStatus)
-                .queryForList();
+result = lambda.query(User.class)
+               .ge(User::getId, 100)
+               .le(User::getId, 500)
+               .groupBy(User::getStatus)
+               .queryForList();
 // result 结果集 User 对象中将只有 status 会有值
 ```
 
@@ -33,16 +33,16 @@ class UserGroupBy{
     ...
 }
 
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 List<UserGroupBy> result = null;
-result = adapter.queryByEntity(User.class)
-                .ge(User::getId, 100)
-                .le(User::getId, 500)
-                .groupBy(User::getStatus)
-                .selectAdd(User::getStatus)
-                .applySelectAdd("count(*) as cnt")
-                .queryForList(UserGroupBy.class);
+result = lambda.query(User.class)
+               .ge(User::getId, 100)
+               .le(User::getId, 500)
+               .groupBy(User::getStatus)
+               .selectAdd(User::getStatus)
+               .applySelectAdd("count(*) as cnt")
+               .queryForList(UserGroupBy.class);
 ```
 
 ```java title='对应的 SQL'

@@ -1,5 +1,5 @@
 ---
-id: wrapper
+id: lambda
 sidebar_position: 3
 hide_table_of_contents: true
 title: 调用构造器 API
@@ -8,7 +8,7 @@ description: 通过 BaseMapper 接口无参的 insert、update、delete、query 
 
 # 调用构造器 API
 
-通过 BaseMapper 接口无参的 insert、update、delete、query 可以无需数据准备直接使用 [构造器 API](../wrapper/about#principle) 进行数据库操作。
+通过 BaseMapper 接口无参的 insert、update、delete、query 可以无需数据准备直接使用 [构造器 API](../lambda/about#principle) 进行数据库操作。
 
 ```java title='示例：新增'
 User user = ...
@@ -40,5 +40,5 @@ result = mapper.query().le(User::getId, 100)   // 匹配 ID 小于等于 100
 ```
 
 :::info[有关 构造器 API 的详细用法，请参阅：]
-- 详细请参考 [WrapperAdapter 类使用指引](../wrapper/about#guide)
+- 详细请参考 [LambdaTemplate 类使用指引](../lambda/about#guide)
 :::

@@ -15,10 +15,10 @@ user.setName("new name");
 user.setAge(88);
 user.setCreateTime(new Date());
 
-WrapperAdapter adapter = ...
-int result = adapter.insertByEntity(User.class)
-                    .applyEntity(user);
-                    .executeSumResult();
+LambdaTemplate lambda = ...
+int result = lambda.insert(User.class)
+                   .applyEntity(user);
+                   .executeSumResult();
 // 返回 result 为 1
 ```
 
@@ -29,10 +29,10 @@ newValue.put("name", "new name");
 newValue.put("age", 88);
 newValue.put("create_time", new Date());
 
-WrapperAdapter adapter = ...
-int result = adapter.insertByEntity(User.class)
-                    .applyMap(user);
-                    .executeSumResult();
+LambdaTemplate lambda = ...
+int result = lambda.insert(User.class)
+                   .applyMap(user);
+                   .executeSumResult();
 // 返回 result 为 1
 ```
 
@@ -48,12 +48,12 @@ User user2 = new User();
 User user3 = new User();
 ...
 
-WrapperAdapter adapter = ...
-int result = adapter.insertByEntity(User.class)
-                    .applyEntity(user1, user2, user3);               // 不定参方式
-                  //.applyEntity(new User[]{user1, user2, user3});  // 使用数组
-                  //.applyEntity(Arrays.asList(user1, user2, user3));// 使用 List
-                    .executeSumResult();
+LambdaTemplate lambda = ...
+int result = lambda.insert(User.class)
+                   .applyEntity(user1, user2, user3);               // 不定参方式
+                 //.applyEntity(new User[]{user1, user2, user3});  // 使用数组
+                 //.applyEntity(Arrays.asList(user1, user2, user3));// 使用 List
+                   .executeSumResult();
 // 返回 result 为 3
 ```
 
@@ -94,11 +94,11 @@ dbVisitor 中对于这种情况可以配置冲突策略，这样就可以避免�
 默认策略下将会使用普通的 `insert into` 语句进行数据插入，当遇到数据冲突通常数据库会报错。
 
 ```java title='默认策略可以不指定，也可以明确设置'
-WrapperAdapter adapter = ...
-int result = adapter.insertByEntity(User.class)
-                    .applyEntity(user);
-                    .onDuplicateStrategy(DuplicateKeyStrategy.Into) // 明确设置
-                    .executeSumResult();
+LambdaTemplate lambda = ...
+int result = lambda.insert(User.class)
+                   .applyEntity(user);
+                   .onDuplicateStrategy(DuplicateKeyStrategy.Into) // 明确设置
+                   .executeSumResult();
 ```
 
 ### 替换策略(UPDATE)
@@ -114,11 +114,11 @@ int result = adapter.insertByEntity(User.class)
 :::
 
 ```java title='使用方式'
-WrapperAdapter adapter = ...
-int result = adapter.insertByEntity(User.class)
-                    .applyEntity(user);
-                    .onDuplicateStrategy(DuplicateKeyStrategy.Update) // 冲突更新
-                    .executeSumResult();
+LambdaTemplate lambda = ...
+int result = lambda.insert(User.class)
+                   .applyEntity(user);
+                   .onDuplicateStrategy(DuplicateKeyStrategy.Update) // 冲突更新
+                   .executeSumResult();
 ```
 
 ### 忽略策略(IGNORE)
@@ -130,9 +130,9 @@ int result = adapter.insertByEntity(User.class)
 - 对于 达梦数据库将会使用数据库 HINT `IGNORE_ROW_ON_DUPKEY_INDEX` 根据主键列进行忽略。
 
 ```java title='使用方式'
-WrapperAdapter adapter = ...
-int result = adapter.insertByEntity(User.class)
-                    .applyEntity(user);
-                    .onDuplicateStrategy(DuplicateKeyStrategy.Ignore) // 冲突忽略
-                    .executeSumResult();
+LambdaTemplate lambda = ...
+int result = lambda.insert(User.class)
+                   .applyEntity(user);
+                   .onDuplicateStrategy(DuplicateKeyStrategy.Ignore) // 冲突忽略
+                   .executeSumResult();
 ```

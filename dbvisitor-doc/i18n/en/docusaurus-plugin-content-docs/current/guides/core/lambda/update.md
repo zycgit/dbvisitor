@@ -3,10 +3,10 @@ id: update
 sidebar_position: 3
 hide_table_of_contents: true
 title: 更新操作
-description: 在 dbVisitor 中使用 WrapperAdapter 更新数据有三种用法。
+description: 在 dbVisitor 中使用 LambdaTemplate 更新数据有三种用法。
 ---
 
-在 dbVisitor 中使用 WrapperAdapter 更新数据有三种用法，在使用过程中可以灵活搭配以满足需要。具体如下：
+在 dbVisitor 中使用 LambdaTemplate 更新数据有三种用法，在使用过程中可以灵活搭配以满足需要。具体如下：
 - [字段更新](./update#field)，更新某个或者某些特定的字段。
 - [参照样本](./update#sample)，在更新多个字段时参考样本对象中的数据。
 - [整行覆盖](./update#overwrite)，这种方式将会使用新数据覆盖整行数据。
@@ -18,22 +18,22 @@ description: 在 dbVisitor 中使用 WrapperAdapter 更新数据有三种用法�
 ## 字段更新 {#field}
 
 ```java title='基本用法 1：使用 Lambda 表达式'
-WrapperAdapter adapter = ...
-int result = adapter.updateByEntity(User.class)
-                    .eq(User::getId, 1)              // 匹配条件
-                    .updateTo(User::getName, "Mary") // 更新字段，使用 Lambda
-                    .updateTo(User::getStatus, 2)    // 可通过链式调用更新多个字段
-                    .doUpdate();
+LambdaTemplate lambda = ...
+int result = lambda.update(User.class)
+                   .eq(User::getId, 1)              // 匹配条件
+                   .updateTo(User::getName, "Mary") // 更新字段，使用 Lambda
+                   .updateTo(User::getStatus, 2)    // 可通过链式调用更新多个字段
+                   .doUpdate();
 // 返回 result 为受影响的行数
 ```
 
 ```java title='基本用法 2：使用 字符串属性'
-WrapperAdapter adapter = ...
-int result = adapter.updateByEntity(User.class)
-                    .eq(User::getId, 1)               // 匹配条件
-                    .updateToUsingStr("name", "Mary") // 更新字段，通过字符串指定属性
-                    .updateToUsingStr("status", 2)    // 可通过链式调用更新多个字段
-                    .doUpdate();
+LambdaTemplate lambda = ...
+int result = lambda.update(User.class)
+                   .eq(User::getId, 1)               // 匹配条件
+                   .updateToUsingStr("name", "Mary") // 更新字段，通过字符串指定属性
+                   .updateToUsingStr("status", 2)    // 可通过链式调用更新多个字段
+                   .doUpdate();
 // 返回 result 为受影响的行数
 ```
 
@@ -46,11 +46,11 @@ User sample = new User();
 sample.setName("new name");
 sample.setStatus(2);
 
-WrapperAdapter adapter = ...
-int result = adapter.updateByEntity(User.class)
-                    .ne(User::getStatus, 2) // 匹配条件 status 不为 2 的记录
-                    .updateToSample(sample) // 更新 name 和 status 两个属性
-                    .doUpdate();
+LambdaTemplate lambda = ...
+int result = lambda.update(User.class)
+                   .ne(User::getStatus, 2) // 匹配条件 status 不为 2 的记录
+                   .updateToSample(sample) // 更新 name 和 status 两个属性
+                   .doUpdate();
 // 返回 result 为受影响的行数
 ```
 
@@ -59,11 +59,11 @@ Map<String, Object> sample = new HashMap<>();
 sample.put("name", "new name");
 sample.put("status", 2);
 
-WrapperAdapter adapter = ...
-int result = adapter.updateByEntity(User.class)
-                    .ne(User::getStatus, 2)    // 匹配条件 status 不为 2 的记录
-                    .updateToSampleMap(sample) // 更新 name 和 status 两个属性
-                    .doUpdate();
+LambdaTemplate lambda = ...
+int result = lambda.update(User.class)
+                   .ne(User::getStatus, 2)    // 匹配条件 status 不为 2 的记录
+                   .updateToSampleMap(sample) // 更新 name 和 status 两个属性
+                   .doUpdate();
 // 返回 result 为受影响的行数
 ```
 
@@ -85,11 +85,11 @@ User user = new User();
 user.setName("new name");
 user.setStatus(2);
 
-WrapperAdapter adapter = ...
-int result = adapter.updateByEntity(User.class)
-        .ne(User::getStatus, 2) // 匹配条件 status 不为 2 的记录
-        .updateRow(user)        // 所有列都参照 user 对象的值进行更新
-        .doUpdate();
+LambdaTemplate lambda = ...
+int result = lambda.update(User.class)
+                   .ne(User::getStatus, 2) // 匹配条件 status 不为 2 的记录
+                   .updateRow(user)        // 所有列都参照 user 对象的值进行更新
+                   .doUpdate();
 // 返回 result 为受影响的行数
 ```
 
@@ -111,12 +111,12 @@ int result = adapter.updateByEntity(User.class)
 通过 dbVisitor 更新主键列，需要调用 allowUpdateKey 方法来允许本次更新操作更新主键列。
 
 ```java
-WrapperAdapter adapter = ...
-int result = adapter.updateByEntity(User.class)
-                    .eq(User::getId, 1)       // 匹配条件
-                    .allowUpdateKey()         // 允许更新主键
-                    .updateTo(User::getId, 2) // 更新主键
-                    .doUpdate();
+LambdaTemplate lambda = ...
+int result = lambda.update(User.class)
+                   .eq(User::getId, 1)       // 匹配条件
+                   .allowUpdateKey()         // 允许更新主键
+                   .updateTo(User::getId, 2) // 更新主键
+                   .doUpdate();
 // 返回 result 为受影响的行数
 ```
 
@@ -127,10 +127,10 @@ int result = adapter.updateByEntity(User.class)
 若想不指定条件更新整张表的数据需要调用 allowEmptyWhere 方法以打开此次查询的空条件。
 
 ```java
-WrapperAdapter adapter = ...
-int result = adapter.updateByEntity(User.class)
-                    .allowEmptyWhere()            // 允许本次更新不指定条件
-                    .updateTo(User::getStatus, 2) // 整张表的 status 字段都更新成 2
-                    .doUpdate();
+LambdaTemplate lambda = ...
+int result = lambda.update(User.class)
+                   .allowEmptyWhere()            // 允许本次更新不指定条件
+                   .updateTo(User::getStatus, 2) // 整张表的 status 字段都更新成 2
+                   .doUpdate();
 // 返回 result 为受影响的行数
 ```

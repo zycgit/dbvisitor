@@ -88,22 +88,22 @@ public class AdminUsers {       // 表名映射为 admin_users
 
 ### @Column 注解属性
 
-| 属性名                | 描述                                                                                                                                     |
-|--------------------|----------------------------------------------------------------------------------------------------------------------------------------|
-| name               | <TagGray/> 列名，为空的话表示采用属性名为列名。                                                                                                          |
-| value              | <TagGray/> 列名，为空的话表示采用属性名为列名。                                                                                                          |
-| jdbcType           | <TagGray/> 指定使用的 jdbcType，默认值为：Types.JAVA_OBJECT                                                                                       |
-| specialJavaType    | <TagGray/> 如果属性是一个抽象类型，那么可以通过 specialJavaType 来指定具体的实现类。                                                                               |
-| typeHandler        | <TagGray/> 指定使用的 typeHandler 处理类型的读写                                                                                                   |
-| keyType            | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。表示当属性值为 null 时所采用的数据生成算法。详细请了解 [主键生成器](./keytype#anno)。                                   |
-| primary            | <TagGray/> 是否为主键，默认为 false，表示不是主键                                                                                                      |
-| insert             | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。表示当在 insert 操作时是否参与新增。详细请了解 [写入策略](./write_policy)。                               |
-| update             | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。表示当在 update 操作时是否参与新增。详细请了解 [写入策略](./write_policy)。                               |
-| selectTemplate     | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。当用作 select 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。                |
-| insertTemplate     | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。当用作 insert 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。                       |
-| setColTemplate     | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。当用作 update 的 set 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。          |
-| setValueTemplate   | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。当用作 update set 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。                   |
-| whereColTemplate   | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。当用作 update/delete 的 where 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。 |
-| whereValueTemplate | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。当用作 update/delete 的 where 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。        |
-| groupByColTemplate | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。当用作 group by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。              |
-| orderByColTemplate | <TagGray/> 仅对 [构造器 API](../../core/wrapper/about) 有效。当用作 order by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。              |
+| 属性名                | 描述                                                                                                                                    |
+|--------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| name               | <TagGray/> 列名，为空的话表示采用属性名为列名。                                                                                                         |
+| value              | <TagGray/> 列名，为空的话表示采用属性名为列名。                                                                                                         |
+| jdbcType           | <TagGray/> 指定使用的 jdbcType，默认值为：Types.JAVA_OBJECT                                                                                      |
+| specialJavaType    | <TagGray/> 如果属性是一个抽象类型，那么可以通过 specialJavaType 来指定具体的实现类。                                                                              |
+| typeHandler        | <TagGray/> 指定使用的 typeHandler 处理类型的读写                                                                                                  |
+| keyType            | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。表示当属性值为 null 时所采用的数据生成算法。详细请了解 [主键生成器](./keytype#anno)。                                   |
+| primary            | <TagGray/> 是否为主键，默认为 false，表示不是主键                                                                                                     |
+| insert             | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。表示当在 insert 操作时是否参与新增。详细请了解 [写入策略](./write_policy)。                               |
+| update             | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。表示当在 update 操作时是否参与新增。详细请了解 [写入策略](./write_policy)。                               |
+| selectTemplate     | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 select 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。                |
+| insertTemplate     | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 insert 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。                       |
+| setColTemplate     | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 update 的 set 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。          |
+| setValueTemplate   | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 update set 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。                   |
+| whereColTemplate   | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 update/delete 的 where 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。 |
+| whereValueTemplate | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 update/delete 的 where 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。        |
+| groupByColTemplate | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 group by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。              |
+| orderByColTemplate | <TagGray/> 仅对 [构造器 API](../../core/lambda/about) 有效。当用作 order by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。              |

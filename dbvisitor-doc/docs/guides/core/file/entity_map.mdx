@@ -17,7 +17,7 @@ import TagGray from '@site/src/components/tags/TagGray';
 :::tip[resultMap 和 entity 如何选择？]
 - 在有些时候 resultMap、entity 区分并不明显，例如：针对同一个表的不同条件查询或者查询这个表的不同列。
   - entity 适合查询结果中的列来自同一个表，resultMap 适合来自多个表的列。
-- 如果使用 [构造器 API](../wrapper/about) 则必须使用 entity 来映射表或者使用 [对象映射](../mapping/about) 相关注解映射表。
+- 如果使用 [构造器 API](../lambda/about) 则必须使用 entity 来映射表或者使用 [对象映射](../mapping/about) 相关注解映射表。
 - 如果查询列语句中包含（别名、函数、case、等特殊情况时）或者查询的列来自不同的表，这时 resultMap 是最佳选择。
 :::
 
@@ -64,31 +64,31 @@ import TagGray from '@site/src/components/tags/TagGray';
 
 **&lt;id&gt; 标签** 和 **&lt;mapping&gt; 标签**
 
-| 属性名                | 描述                                                                                                                             |
-|--------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| column             | <TagRed/> 查询结果的列名。                                                                                                             |
-| property           | <TagRed/> 映射类型的属性名。                                                                                                            |
-| javaType           | <TagGray/> 通常会自动识别类型，除非属性是一个抽象类或者接口，则需要配置具体的实现类。                                                                               |
-| jdbcType           | <TagGray/> 默认按照 [Java 和 JDBC 类型关系](../../types/java-jdbc) 进行映射，可通过该属性来强制指定 jdbcType。                                           |
-| typeHandler        | <TagGray/> 根据 [类型处理器](../../types/about) 所描述的优先级进行查找，可通过该属性强制指定一个具体的 typeHandler。                                              |
-| keyType            | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。表示当属性值为 null 时所采用的数据生成算法。详细请了解 [主键生成器](../mapping/keytype#xml)。                   |
-| insert             | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。表示当在 insert 操作时是否参与新增。详细请了解 [写入策略](../mapping/write_policy)。                      |
-| update             | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。表示当在 update 操作时是否参与新增。详细请了解 [写入策略](../mapping/write_policy)。                      |
-| selectTemplate     | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。当用作 select 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。                |
-| insertTemplate     | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。当用作 insert 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。                       |
-| setColTemplate     | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。当用作 update 的 set 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。          |
-| setValueTemplate   | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。当用作 update set 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。                   |
-| whereColTemplate   | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。当用作 update/delete 的 where 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。 |
-| whereValueTemplate | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。当用作 update/delete 的 where 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。        |
-| groupByColTemplate | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。当用作 group by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。              |
-| orderByColTemplate | <TagGray/> 仅对 [构造器 API](../wrapper/about) 有效。当用作 order by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。              |
-| sqlType            | <TagGray/> 用于描述列的数据类型（在 TableDescription 接口中可获取）                                                                               |  
-| length             | <TagGray/> 用于描述列的数据类型长度（在 TableDescription 接口中可获取）                                                                             |  
-| precision          | <TagGray/> 用于描述列的数值精度（在 TableDescription 接口中可获取）                                                                               |  
-| scale              | <TagGray/> 用于描述列的数值刻度（在 TableDescription 接口中可获取）                                                                               |  
-| character-set      | <TagGray/> 用于描述列的字符集（在 TableDescription 接口中可获取）                                                                                |  
-| collation          | <TagGray/> 用于描述列的排序规则（在 TableDescription 接口中可获取）                                                                               |  
-| nullable           | <TagGray/> 用于描述列是否允许为空，对于 &lt;id&gt; 标签该属性不能被设置且表示 true（在 TableDescription 接口中可获取）                                             |  
-| default            | <TagGray/> 用于描述列的默认值（在 TableDescription 接口中可获取）                                                                                |  
-| comment            | <TagGray/> 用于描述列的备注（在 TableDescription 接口中可获取）                                                                                 |  
-| other              | <TagGray/> 用于描述列的其它参数（在 TableDescription 接口中可获取）                                                                               |  
+| 属性名                | 描述                                                                                                                            |
+|--------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| column             | <TagRed/> 查询结果的列名。                                                                                                            |
+| property           | <TagRed/> 映射类型的属性名。                                                                                                           |
+| javaType           | <TagGray/> 通常会自动识别类型，除非属性是一个抽象类或者接口，则需要配置具体的实现类。                                                                              |
+| jdbcType           | <TagGray/> 默认按照 [Java 和 JDBC 类型关系](../../types/java-jdbc) 进行映射，可通过该属性来强制指定 jdbcType。                                          |
+| typeHandler        | <TagGray/> 根据 [类型处理器](../../types/about) 所描述的优先级进行查找，可通过该属性强制指定一个具体的 typeHandler。                                             |
+| keyType            | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。表示当属性值为 null 时所采用的数据生成算法。详细请了解 [主键生成器](../mapping/keytype#xml)。                   |
+| insert             | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。表示当在 insert 操作时是否参与新增。详细请了解 [写入策略](../mapping/write_policy)。                      |
+| update             | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。表示当在 update 操作时是否参与新增。详细请了解 [写入策略](../mapping/write_policy)。                      |
+| selectTemplate     | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 select 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。                |
+| insertTemplate     | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 insert 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。                       |
+| setColTemplate     | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 update 的 set 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。          |
+| setValueTemplate   | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 update set 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。                   |
+| whereColTemplate   | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 update/delete 的 where 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。 |
+| whereValueTemplate | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 update/delete 的 where 语句时参数写法，默认是 ?。详细请了解 [语句模版](../mapping/template)。        |
+| groupByColTemplate | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 group by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。              |
+| orderByColTemplate | <TagGray/> 仅对 [构造器 API](../lambda/about) 有效。当用作 order by 语句时列名的写法。默认是空，表示列名本身。详细请了解 [语句模版](../mapping/template)。              |
+| sqlType            | <TagGray/> 用于描述列的数据类型（在 TableDescription 接口中可获取）                                                                              |  
+| length             | <TagGray/> 用于描述列的数据类型长度（在 TableDescription 接口中可获取）                                                                            |  
+| precision          | <TagGray/> 用于描述列的数值精度（在 TableDescription 接口中可获取）                                                                              |  
+| scale              | <TagGray/> 用于描述列的数值刻度（在 TableDescription 接口中可获取）                                                                              |  
+| character-set      | <TagGray/> 用于描述列的字符集（在 TableDescription 接口中可获取）                                                                               |  
+| collation          | <TagGray/> 用于描述列的排序规则（在 TableDescription 接口中可获取）                                                                              |  
+| nullable           | <TagGray/> 用于描述列是否允许为空，对于 &lt;id&gt; 标签该属性不能被设置且表示 true（在 TableDescription 接口中可获取）                                            |  
+| default            | <TagGray/> 用于描述列的默认值（在 TableDescription 接口中可获取）                                                                               |  
+| comment            | <TagGray/> 用于描述列的备注（在 TableDescription 接口中可获取）                                                                                |  
+| other              | <TagGray/> 用于描述列的其它参数（在 TableDescription 接口中可获取）                                                                              |  

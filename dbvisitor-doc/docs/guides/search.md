@@ -14,7 +14,7 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 ### 增、删、改
 - 使用原始 [SQL 语句](./core/jdbc/update)。
 - 使用注解 [@Insert](./core/annotation/insert)、[@Delete](./core/annotation/delete)、[@Update](./core/annotation/update)。
-- 使用查询构造器 [新增](./core/wrapper/insert)、[删除](./core/wrapper/delete)、[更新](./core/wrapper/update) 数据。
+- 使用查询构造器 [新增](./core/lambda/insert)、[删除](./core/lambda/delete)、[更新](./core/lambda/update) 数据。
 - 使用 [通用 Mapper](./core/mapper/common) 接口。
 - 在 Mapper File 中使用 [&lt;insert&gt;](./core/file/sql_element#insert) 标签新增数据。
 - 在 Mapper File 中通过 [&lt;selectKey&gt;](./core/file/sql_element#selectKey) 标签在插入数据时处理数据库自增 ID。
@@ -24,8 +24,8 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 - 使用 SQL 语句 [查询一行](./core/jdbc/query#row)、[查询单个值](./core/jdbc/query#value)、[查询值列表](./core/jdbc/query#values)。
 - 执行语句块并 [接收多个结果集](./core/jdbc/multi)。
 - 通过 [@Query](./core/annotation/query) 在接口上定义查询。
-- 使用构造器 [查询单个对象](./core/wrapper/query#object)、[查询列表](./core/wrapper/query#list)、[查询总数](./core/wrapper/query#count)。
-- 使用构造器进行 [分组查询](./core/wrapper/groupby)、[查询排序](./core/wrapper/orderby)。
+- 使用构造器 [查询单个对象](./core/lambda/query#object)、[查询列表](./core/lambda/query#list)、[查询总数](./core/lambda/query#count)。
+- 使用构造器进行 [分组查询](./core/lambda/groupby)、[查询排序](./core/lambda/orderby)。
 - 在 Mapper File 中使用 [&lt;select&gt;](./core/file/sql_element#select) 标签查询数据、使用 [&lt;sql&gt;](./core/file/sql_element#sql) 标签定义 SQL 片段。
 
 ### 参数传递
@@ -36,7 +36,7 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 - 通过 [规则](./args/rule) 在 SQL 语句中实现参数动态化。
 
 ### 分页查询
-- 查询构造器中使用 [分页查询](./core/wrapper/query#page)。
+- 查询构造器中使用 [分页查询](./core/lambda/query#page)。
 - 在 Mapper 接口中 @Query 注解方法通过增加分页参数实现 [分页查询](./core/annotation/query#page)。
 - 在 [通用 Mapper](./core/mapper/common#query_and_page) 中进行分页查询。
 - 利用 Session 对象的 [queryStatement、pageStatement](./core/mapper/file#page) 重载方法进行分页查询。

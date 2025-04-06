@@ -6,7 +6,7 @@ title: 语句模版
 description: 在使用构造器 API进行数据库操作时，语句模版可以决定生成的 SQL 的语句元素内容。
 ---
 
-在使用 [构造器 API](../../core/wrapper/about) 进行数据库操作时，语句模版可以决定生成的 SQL 的语句元素内容。
+在使用 [构造器 API](../../core/lambda/about) 进行数据库操作时，语句模版可以决定生成的 SQL 的语句元素内容。
 
 例如，对带有 point 类型的 MySQL 表进行读写操作时可以利用语句模版特性在生成的语句中使用数据库 `PointFromText`、`AsText` 函数。
 
@@ -38,29 +38,29 @@ UserPoints point = new UserPoints();
 point.setId(1);
 point.setPoint("point(1,2)");
 
-WrapperAdapter adapter = ...
-int result = adapter.insertByEntity(UserPoints.class)
-                    .applyEntity(point);
-                    .executeSumResult();
+LambdaTemplate lambda = ...
+int result = lambda.insert(UserPoints.class)
+                   .applyEntity(point);
+                   .executeSumResult();
 
 // 语句为：INSERT INTO user_points (id, point) VALUES (?, GeomFromText(?))
 ```
 
 ```java title='例：UPDATE 操作和对应语句'
-WrapperAdapter adapter = ...
-int result = adapter.updateByEntity(UserPoints.class)
-        .eq(UserPoints::getId, 1)                     // 匹配条件
-        .updateTo(UserPoints::getPoint, "point(1,2)") // 更新字段
-        .doUpdate();
+LambdaTemplate lambda = ...
+int result = lambda.update(UserPoints.class)
+                   .eq(UserPoints::getId, 1)                     // 匹配条件
+                   .updateTo(UserPoints::getPoint, "point(1,2)") // 更新字段
+                   .doUpdate();
 
 // 语句为：UPDATE user_points SET point = GeomFromText(?) WHERE ( id = ? )
 ```
 
 ```java title='例：DELETE 操作和对应语句'
-WrapperAdapter adapter = ...
-int result = adapter.deleteByEntity(User.class)
-        .eq(UserPoints::getPoint, "point(1,2)") // 匹配条件
-        .doDelete();
+LambdaTemplate lambda = ...
+int result = lambda.delete(User.class)
+                   .eq(UserPoints::getPoint, "point(1,2)") // 匹配条件
+                   .doDelete();
 
 // 语句为：DELETE FROM user_points WHERE ( AsText(point) = ? )
 ```

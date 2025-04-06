@@ -13,10 +13,10 @@ description: 条件构造器可以用于 query、update、delete 三类操作中
 - 关系式：[与关系](./where-builder#and)、[或关系](./where-builder#or)、[非关系](./where-builder#not)
 
 ```java title='使用案例'
-WrapperAdapter adapter = ...
-List<User> result = adapter.queryByEntity(User.class)
-                           .eq(User::getAge, 32)
-                           .queryForList();
+LambdaTemplate lambda = ...
+List<User> result = lambda.query(User.class)
+                          .eq(User::getAge, 32)
+                          .queryForList();
 ```
 
 ```sql title='对应的 SQL'
@@ -69,38 +69,38 @@ SELECT * FROM users WHERE age = ?
 - 例如：查询需求 “name、mail、uid 三个属性在有值时才会被设置为查询属性”，使用下面两种方式查询是等价的：
 
 ```java title='连续 eq 拼接条件'
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 User u = ...
 
 List<User> result = null;
-result = adapter.queryByEntity(User.class)
-                // name 参数不为空时，设置为条件
-                .eq(StringUtils.isNotBlank(c.getName()), User::getName, c.getName())
-                // email 参数不为空时，设置为条件
-                .eq(StringUtils.isNotBlank(c.getEmail()), User::getEmail, c.getEmail())
-                // uid 参数不为空时，设置为条件
-                .eq(StringUtils.isNotBlank(c.getUID()), User::getUID, c.getUID())
-                .queryForList();
+result = lambda.query(User.class)
+               // name 参数不为空时，设置为条件
+               .eq(StringUtils.isNotBlank(c.getName()), User::getName, c.getName())
+               // email 参数不为空时，设置为条件
+               .eq(StringUtils.isNotBlank(c.getEmail()), User::getEmail, c.getEmail())
+               // uid 参数不为空时，设置为条件
+               .eq(StringUtils.isNotBlank(c.getUID()), User::getUID, c.getUID())
+               .queryForList();
 ```
 
 ```java title='使用 Bean 作为样本对象'
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 User u = ...
 
 List<User> result = null;
-result = adapter.queryByEntity(User.class)
-                .eqBySample(u)
-                .queryForList();
+result = lambda.query(User.class)
+               .eqBySample(u)
+               .queryForList();
 ```
 
 ```java title='使用 Map 作为样本对象'
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 Map<String,Object> u = ...
 
 List<User> result = null;
-result = adapter.queryByEntity(User.class)
-                .eqBySampleMap(u)
-                .queryForList();
+result = lambda.query(User.class)
+               .eqBySampleMap(u)
+               .queryForList();
 ```
 
 :::info[使用提示]
@@ -116,22 +116,22 @@ result = adapter.queryByEntity(User.class)
 用于生成带有括号的条件组语句使用如下方式：
 
 ```java
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 List<User> result = null;
-result = adapter.queryByEntity(User.class)
-                .nested(qc -> {
-                    qc.eq(User::getName, "log1");
-                    qc.and();
-                    qc.eq(User::getEmail, "log1@xx.com");
-                })
-                .or()
-                .nested(qc -> {
-                    qc.eq(User::getName, "log2");
-                    qc.and();
-                    qc.eq(User::getEmail, "log2@xx.com");
-                })
-                .queryForList();
+result = lambda.query(User.class)
+               .nested(qc -> {
+                   qc.eq(User::getName, "log1");
+                   qc.and();
+                   qc.eq(User::getEmail, "log1@xx.com");
+               })
+               .or()
+               .nested(qc -> {
+                   qc.eq(User::getName, "log2");
+                   qc.and();
+                   qc.eq(User::getEmail, "log2@xx.com");
+               })
+               .queryForList();
 ```
 
 ```sql title='生成的 SQL'
@@ -150,14 +150,14 @@ SELECT * FROM users WHERE ( name = ? AND email = ? ) OR ( name = ? AND email = ?
 表达式之间的关系默认采用于关系，因此默认情况下可以不用明确指定表达式之间的关系。例如：
 
 ```java
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 List<User> result = null;
-result = adapter.queryByEntity(User.class)
-                .eq(User::getName, "123")
-              //.and() /* 默认关系可写，可不写 */
-                .eq(User::getAge, 12)
-                .queryForList();
+result = lambda.query(User.class)
+               .eq(User::getName, "123")
+             //.and() /* 默认关系可写，可不写 */
+               .eq(User::getAge, 12)
+               .queryForList();
 ```
 
 ```sql title='生成的 SQL'
@@ -167,19 +167,19 @@ SELECT * FROM users WHERE name = ? AND age = ?
 用于连接不同条件组之间的与关系可以使用如下方法：
 
 ```java
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 List<User> result = null;
-result = adapter.queryByEntity(User.class)
-                .nested(qc -> {
-                    qc.eq(User::getId, 1)
-                      .or()
-                      .eq(User::getId, 2);
-                }).and(qc -> {
-                    qc.eq(User::getName, "user-1")
-                      .or()
-                      .eq(User::getName, "user-2");
-                }).queryForList();
+result = lambda.query(User.class)
+               .nested(qc -> {
+                   qc.eq(User::getId, 1)
+                     .or()
+                     .eq(User::getId, 2);
+               }).and(qc -> {
+                   qc.eq(User::getName, "user-1")
+                     .or()
+                     .eq(User::getName, "user-2");
+               }).queryForList();
 ```
 
 ```sql title='生成的 SQL'
@@ -191,14 +191,14 @@ SELECT * FROM users WHERE (id = ? OR id = ?) AND (name = ? OR name = ?);
 表示两个条件之间的或关系使用如下方式：
 
 ```java
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 List<User> result = null;
-result = adapter.queryByEntity(User.class)
-                .eq(User::getName, "123") // 条件 1
-                .or()                     // 或关系
-                .eq(User::getAge, 12)     // 条件 2
-                .queryForList();
+result = lambda.query(User.class)
+               .eq(User::getName, "123") // 条件 1
+               .or()                     // 或关系
+               .eq(User::getAge, 12)     // 条件 2
+               .queryForList();
 ```
 
 ```sql title='对应的 SQL'
@@ -208,17 +208,17 @@ SELECT * FROM users WHERE name = ? OR age = ?
 用于连接不同条件组之间的或关系可以使用如下方法：
 
 ```java
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 List<User> result = null;
-result = adapter.queryByEntity(User.class)
-                .nested(qc -> {
-                    qc.eq(User::getName, "user-1")
-                      .eq(User::getStatus, 2);
-                }).or(qc -> {
-                    qc.eq(User::getName, "user-2")
-                      .eq(User::getStatus, 2);
-                }).queryForList();
+result = lambda.query(User.class)
+               .nested(qc -> {
+                   qc.eq(User::getName, "user-1")
+                     .eq(User::getStatus, 2);
+               }).or(qc -> {
+                   qc.eq(User::getName, "user-2")
+                     .eq(User::getStatus, 2);
+               }).queryForList();
 ```
 
 ```sql title='生成的 SQL'
@@ -230,13 +230,13 @@ SELECT * FROM users WHERE ( name = ? AND status = ? ) OR ( name = ? AND status =
 对一个匹配条件取反，可以使用下面方法：
 
 ```java
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 List<User> result = null;
-result = adapter.queryByEntity(User.class)
-                .not()   // 对后面的 eq 等值判断取反向操作
-                .eq(User::getName, "123")
-                .queryForList();
+result = lambda.query(User.class)
+               .not()   // 对后面的 eq 等值判断取反向操作
+               .eq(User::getName, "123")
+               .queryForList();
 ```
 
 ```sql title='对应的 SQL'
@@ -252,15 +252,15 @@ SELECT * FROM users WHERE not name = ?
 非关系的运算的设计主要是为了一些特定场景中使用，例如对整个条件组取反。
 
 ```java
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 List<User> result = null;
-result = adapter.queryByEntity(User.class)
-                .not(qc -> {
-                    qc.eq(User::getId, 1)
-                      .or()
-                      .eq(User::getId, 2);
-                }).queryForList();
+result = lambda.query(User.class)
+               .not(qc -> {
+                   qc.eq(User::getId, 1)
+                     .or()
+                     .eq(User::getId, 2);
+               }).queryForList();
 ```
 
 ```sql title='生成的 SQL'

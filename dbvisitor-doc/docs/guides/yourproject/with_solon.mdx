@@ -33,7 +33,7 @@ export const Highlight = ({children, color}) => (
 ```xml title='Maven 依赖'
 <dependency>
     <groupId>net.hasor</groupId>
-    <artifactId>dbvisitor-solon</artifactId>
+    <artifactId>dbvisitor-solon-plugin</artifactId>
     <version>最新版本的版本号</version>
 </dependency>
 ```
@@ -78,7 +78,7 @@ public class HelloController {
 ## 可注入类型
 
 - JdbcOperations 接口，[JdbcTemplate](../core/jdbc/about) 是它的实现类
-- WrapperOperations 接口，[WrapperAdapter](../core/wrapper/about) 是它的实现类
+- LambdaOperations 接口，[LambdaTemplate](../core/lambda/about) 是它的实现类
 - Configuration 配置类
 - Session 类
 - 自定义 Mapper

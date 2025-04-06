@@ -3,10 +3,10 @@ id: query
 sidebar_position: 4
 hide_table_of_contents: true
 title: 查询操作
-description: 在 dbVisitor 中使用 WrapperAdapter 查询数据可以有多种方式获取返回结果。
+description: 在 dbVisitor 中使用 LambdaTemplate 查询数据可以有多种方式获取返回结果。
 ---
 
-在 dbVisitor 中使用 WrapperAdapter 查询数据可以有多种方式获取返回结果，具体如下：
+在 dbVisitor 中使用 LambdaTemplate 查询数据可以有多种方式获取返回结果，具体如下：
 - [查询列表](./query#list)，执行查询并结果将被映射到一个对象列表。
 - [查询对象](./query#object)，执行查询并结果将被映射到一个对象。
 - [查询总数](./query#count)，通过 dbVisitor 所支持的数据库方言将查询语句转化为 COUNT 查询。
@@ -22,44 +22,44 @@ description: 在 dbVisitor 中使用 WrapperAdapter 查询数据可以有多种�
 执行查询，结果将被映射到一个对象列表。
 
 ```java title='结果集映射到：实体类型'
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 List<User> result = null;
-result = adapter.queryByEntity(User.class)
-                .le(User::getId, 100)   // 匹配 ID 小于等于 100
-                .queryForList();        // 将结果集映射实体类型
+result = lambda.query(User.class)
+               .le(User::getId, 100)   // 匹配 ID 小于等于 100
+               .queryForList();        // 将结果集映射实体类型
 ```
 
 ```java title='结果集映射到：特定类型'
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 List<UserVO> result = null;
-result = adapter.queryByEntity(User.class)
-                .le(User::getId, 100)        // 匹配 ID 小于等于 100
-                .queryForList(UserVO.class); // 结果集映射到指定类型
+result = lambda.query(User.class)
+               .le(User::getId, 100)        // 匹配 ID 小于等于 100
+               .queryForList(UserVO.class); // 结果集映射到指定类型
 ```
 
 - User 实体的查询结果将其映射到其它类型时，映射规则将会依据新类型而定。详细用法参考 [对象映射](../mapping/about) 相关内容。
 
 ```java title='结果集映射到：Map'
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 List<Map<String,Object>> result = null;
-result = adapter.queryByEntity(User.class)
-                .le(User::getId, 100)    // 匹配 ID 小于等于 100
-                .queryForMapList();      // 结果集使用 Map 结构
+result = lambda.query(User.class)
+               .le(User::getId, 100)    // 匹配 ID 小于等于 100
+               .queryForMapList();      // 结果集使用 Map 结构
 ```
 
 - Map 的 Keys 将会和 User 实体属性名对应。
 
 ```java
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 RowMapper<UserVO> rowMapper = new BeanMappingRowMapper(UserVO.class);
 
 List<UserVO> result = null;
-result = adapter.queryByEntity(User.class)
-                .le(User::getId, 100)    // 匹配 ID 小于等于 100
-                .queryForList(rowMapper);// 使用 RowMapper 处理结果集
+result = lambda.query(User.class)
+               .le(User::getId, 100)    // 匹配 ID 小于等于 100
+               .queryForList(rowMapper);// 使用 RowMapper 处理结果集
 ```
 
 - 使用 [RowMapper](../../result/for_mapper) 接口实现自定义 `ResultSet` 在读取每一行时的映射处理。
@@ -69,44 +69,44 @@ result = adapter.queryByEntity(User.class)
 执行查询并结果将被映射到一个对象，如果查询结果存在多个匹配那么会引发异常。
 
 ```java title='结果集映射到：实体类型'
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 User result = null;
-result = adapter.queryByEntity(User.class)
-                .eq(User::getId, 100)   // 匹配 ID 等于 100
-                .queryForObject();      // 将结果映射实体类型
+result = lambda.query(User.class)
+               .eq(User::getId, 100)   // 匹配 ID 等于 100
+               .queryForObject();      // 将结果映射实体类型
 ```
 
 ```java title='结果集映射到：特定类型'
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 UserVO result = null;
-result = adapter.queryByEntity(User.class)
-                .eq(User::getId, 100)          // 匹配 ID 等于 100
-                .queryForObject(UserVO.class); // 结果集映射到指定类型
+result = lambda.query(User.class)
+               .eq(User::getId, 100)          // 匹配 ID 等于 100
+               .queryForObject(UserVO.class); // 结果集映射到指定类型
 ```
 
 - User 实体的查询结果将其映射到其它类型时，映射规则将会依据新类型而定。详细用法参考 [对象映射](../mapping/about) 相关内容。
 
 ```java title='结果集映射到：Map'
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 Map<String,Object> result = null;
-result = adapter.queryByEntity(User.class)
-                .eq(User::getId, 100) // 匹配 ID 等于 100
-                .queryForMap();       // 结果集使用 Map 结构
+result = lambda.query(User.class)
+               .eq(User::getId, 100) // 匹配 ID 等于 100
+               .queryForMap();       // 结果集使用 Map 结构
 ```
 
 - Map 的 Keys 将会和 User 实体属性名对应。
 
 ```java
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 RowMapper<UserVO> rowMapper = new BeanMappingRowMapper(UserVO.class);
 
 List<UserVO> result = null;
-result = adapter.queryByEntity(User.class)
-                .le(User::getId, 100)    // 匹配 ID 小于等于 100
-                .queryForObject(rowMapper);// 使用 RowMapper 处理结果集
+result = lambda.query(User.class)
+               .le(User::getId, 100)    // 匹配 ID 小于等于 100
+               .queryForObject(rowMapper);// 使用 RowMapper 处理结果集
 ```
 
 - 使用 [RowMapper](../../result/for_mapper) 接口实现自定义 `ResultSet` 在读取每一行时的映射处理。
@@ -123,14 +123,14 @@ select count(*) from (select id, name from users where id <= 100;) as TEMP_T;
 ```
 
 ```java
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 RowMapper<UserVO> rowMapper = new BeanMappingRowMapper(UserVO.class);
 
 int count = null;
-count = adapter.queryByEntity(User.class)
-               .le(User::getId, 100)  // 匹配 ID 小于等于 100
-               .queryForCount();      // 查询总数，使用 int 类型
-             //.queryForLargeCount(); // 查询总数，使用 long 类型
+count = lambda.query(User.class)
+              .le(User::getId, 100)  // 匹配 ID 小于等于 100
+              .queryForCount();      // 查询总数，使用 int 类型
+            //.queryForLargeCount(); // 查询总数，使用 long 类型
 ```
 
 - 使用 queryForCount 或是 queryForLargeCount 根据具体需要来决定。
@@ -148,11 +148,11 @@ RowCallbackHandler handler = new RowCallbackHandler() {
 };
 
 
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
-adapter.queryByEntity(User.class)
-       .eq(User::getId, 100)  // 匹配 ID 等于 100
-       .query(handler);       // 通过 RowCallbackHandler 处理结果集
+lambda.query(User.class)
+      .eq(User::getId, 100)  // 匹配 ID 等于 100
+      .query(handler);       // 通过 RowCallbackHandler 处理结果集
 ```
 
 使用 [ResultSetExtractor](../../result/for_extractor) 自定义 `java.sql.ResultSet` 整个结果集的处理。
@@ -173,12 +173,12 @@ ResultSetExtractor extractor = new ResultSetExtractor<Map<Integer, String>>() {
 };
 
 
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 Map<Integer, String> result = null;
-result = adapter.queryByEntity(User.class)
-                .eq(User::getId, 100)  // 匹配 ID 等于 100
-                .query(extractor);     // 通过 ResultSetExtractor 处理结果集
+result = lambda.query(User.class)
+               .eq(User::getId, 100)  // 匹配 ID 等于 100
+               .query(extractor);     // 通过 ResultSetExtractor 处理结果集
 ```
 
 ## 分页查询 {#page}
@@ -190,18 +190,18 @@ result = adapter.queryByEntity(User.class)
 dbVisitor 内置了分页查询机制，使用方便且无需任何配置。具体工作方式为：
 
 ```java title='使用：分页参数'
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 List<User> result = null;
-result = adapter.queryByEntity(User.class)
-                .usePage(pageInfo)
-                .le(User::getId, 100) // 匹配 ID 小于等于 100
-                .initPage(10, 1)      // 每页 10 条，查询第 2 页(起始页码为 0)
-                .queryForList();      // 分页查询
+result = lambda.query(User.class)
+               .usePage(pageInfo)
+               .le(User::getId, 100) // 匹配 ID 小于等于 100
+               .initPage(10, 1)      // 每页 10 条，查询第 2 页(起始页码为 0)
+               .queryForList();      // 分页查询
 ```
 
 ```java title='使用：分页对象'
-WrapperAdapter adapter = ...
+LambdaTemplate lambda = ...
 
 // 分页对象
 Page page = new PageObject();
@@ -211,10 +211,10 @@ page.setCurrentPage(2);      // 查询第 2 页
 
 // 分页查询
 List<User> result = null;
-result = adapter.queryByEntity(User.class)
-                .le(User::getId, 100) // 匹配 ID 小于等于 100
-                .usePage(page)        // 分页信息
-                .queryForList();      // 分页查询
+result = lambda.query(User.class)
+               .le(User::getId, 100) // 匹配 ID 小于等于 100
+               .usePage(page)        // 分页信息
+               .queryForList();      // 分页查询
 ```
 
 - 分页对象提供了诸多方法可用，详细请参考 [分页对象](../global/page) 了解更多内容。

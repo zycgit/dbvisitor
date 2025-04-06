@@ -33,7 +33,7 @@ public class Users {
 
 ## 关键字处理
 
-通过 useDelimited 属性可以在使用 [构造器 API](../../core/wrapper/about) 操作数据库生成 SQL 时对名称增加限定符来解决名称关键字问题。
+通过 useDelimited 属性可以在使用 [构造器 API](../../core/lambda/about) 操作数据库生成 SQL 时对名称增加限定符来解决名称关键字问题。
 
 ```java
 @Table(useDelimited = true)

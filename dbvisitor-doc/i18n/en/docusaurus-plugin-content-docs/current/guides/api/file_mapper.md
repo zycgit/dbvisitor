@@ -8,7 +8,7 @@ description: 当遇到大段查询语句时将复杂的 SQL 放置于独立的 M
 
 # 文件 Mapper
 
-当遇到大段查询语句时 [编程式 API](../api/program_api)、[声明式 API](../api/declarative_api) 或 [查询构造器](../api/wrapper_api)
+当遇到大段查询语句时 [编程式 API](../api/program_api)、[声明式 API](../api/declarative_api) 或 [查询构造器](../api/lambda_api)
 都会因为逻辑太过复杂而导致整体可读性的下降，此时将复杂的 SQL 放置于独立的 Mapper 文件成为最佳选择。
 
 :::tip[特点]
