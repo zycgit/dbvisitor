@@ -15,7 +15,6 @@
  */
 package net.hasor.dbvisitor.mapping;
 import net.hasor.cobble.reflect.Annotations;
-import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -88,10 +87,6 @@ public class GeneratedKeyHandlerContext {
 
     public boolean isToCamelCase() {
         return this.tableDef.isToCamelCase();
-    }
-
-    public SqlDialect getSqlDialect() {
-        return this.registry.getGlobalOptions().getDialect();
     }
 
     public Annotations getAnnotations() {

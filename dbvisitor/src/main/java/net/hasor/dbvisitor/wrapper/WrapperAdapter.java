@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.wrapper;
-import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
-import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
-import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.DynamicConnection;
-import net.hasor.dbvisitor.jdbc.JdbcHelper;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingHelper;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
@@ -273,14 +269,6 @@ public class WrapperAdapter implements WrapperOperations {
             throw new RuntimeSQLException("tableMapping not found.");
         } else {
             return tableMapping;
-        }
-    }
-
-    private static SqlDialect findSqlDialect(MappingRegistry registry, JdbcTemplate jdbc) throws SQLException {
-        if (registry.getGlobalOptions().getDialect() != null) {
-            return registry.getGlobalOptions().getDialect();
-        } else {
-            return (jdbc == null) ? DefaultSqlDialect.DEFAULT : jdbc.execute((ConnectionCallback<SqlDialect>) JdbcHelper::findDialect);
         }
     }
 }

@@ -19,8 +19,8 @@ import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
@@ -54,12 +54,7 @@ public abstract class BasicLambda<R, T, P> {
         this.registry = Objects.requireNonNull(registry, "registry is null.");
         this.jdbc = jdbc;
         this.queryContext = ctx;
-
-        if (registry.getGlobalOptions().getDialect() != null) {
-            this.dialect = registry.getGlobalOptions().getDialect();
-        } else {
-            this.dialect = DefaultSqlDialect.DEFAULT;
-        }
+        this.dialect = SqlDialectRegister.findOrDefault(registry.getGlobalOptions());
     }
 
     public final Class<?> exampleType() {

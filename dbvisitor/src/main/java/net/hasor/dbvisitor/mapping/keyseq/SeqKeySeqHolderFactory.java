@@ -19,6 +19,7 @@ import net.hasor.cobble.reflect.Annotation;
 import net.hasor.cobble.reflect.Annotations;
 import net.hasor.dbvisitor.dialect.SeqSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerContext;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerFactory;
@@ -30,7 +31,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Objects;
 
 /**
  * 支持 @KeySequence 注解方式
@@ -40,7 +40,6 @@ import java.util.Objects;
 public class SeqKeySeqHolderFactory implements GeneratedKeyHandlerFactory {
     @Override
     public GeneratedKeyHandler createHolder(GeneratedKeyHandlerContext context) {
-        Objects.requireNonNull(context.getSqlDialect(), "sqlDialect is null.");
         Annotations annotations = context.getAnnotations();
         if (annotations == null) {
             return null;
@@ -56,7 +55,7 @@ public class SeqKeySeqHolderFactory implements GeneratedKeyHandlerFactory {
         }
 
         boolean useDelimited = context.useDelimited();
-        SqlDialect dialect = context.getSqlDialect();
+        SqlDialect dialect = SqlDialectRegister.findOrDefault(context.getRegistry().getGlobalOptions());
         if (!(dialect instanceof SeqSqlDialect)) {
             throw new ClassCastException(dialect.getClass().getName() + " is not SeqSqlDialect.");
         }

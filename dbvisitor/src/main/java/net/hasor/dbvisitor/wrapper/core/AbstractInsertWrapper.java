@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.wrapper.core;
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
@@ -33,8 +34,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 /**
  * 提供 lambda insert 基础能力。

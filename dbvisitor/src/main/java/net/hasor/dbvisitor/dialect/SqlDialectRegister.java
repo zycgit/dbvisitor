@@ -16,9 +16,11 @@
 package net.hasor.dbvisitor.dialect;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.provider.*;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
+import net.hasor.dbvisitor.mapping.Options;
 
 import java.util.Map;
 
@@ -28,6 +30,7 @@ import java.util.Map;
  * @version 2020-10-31
  */
 public class SqlDialectRegister {
+    private static final Logger                  log             = Logger.getLogger(SqlDialectRegister.class);
     private static final Map<String, Class<?>>   dialectAliasMap = new LinkedCaseInsensitiveMap<>();
     private static final Map<String, SqlDialect> dialectCache    = new LinkedCaseInsensitiveMap<>();
 
@@ -99,5 +102,14 @@ public class SqlDialectRegister {
         //
         dialectCache.put(dialectName, dialect);
         return dialect;
+    }
+
+    public static SqlDialect findOrDefault(Options option) {
+        if (option != null && option.getDialect() != null) {
+            return option.getDialect();
+        } else {
+            log.warn("No SQL dialect is specified, the default dialect is selected");
+            return DefaultSqlDialect.DEFAULT;
+        }
     }
 }

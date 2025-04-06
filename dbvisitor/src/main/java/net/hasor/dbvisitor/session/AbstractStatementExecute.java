@@ -18,10 +18,7 @@ import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.Page;
-import net.hasor.dbvisitor.dialect.PageResult;
-import net.hasor.dbvisitor.dialect.PageSqlDialect;
+import net.hasor.dbvisitor.dialect.*;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.jdbc.extractor.BeanMappingResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor;
@@ -93,7 +90,7 @@ public abstract class AbstractStatementExecute {
         // prepare page
         long resultCount = 0L;
         if (SessionHelper.usingPage(pageInfo)) {
-            PageSqlDialect dialect = (PageSqlDialect) this.registry.options().getDialect();
+            PageSqlDialect dialect = (PageSqlDialect) SqlDialectRegister.findOrDefault(this.registry.options());
             long position = pageInfo.getFirstRecordPosition();
             long pageSize = pageInfo.getPageSize();
             execSql = dialect.pageSql(oriSql, position, pageSize);
