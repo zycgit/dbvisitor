@@ -1,7 +1,7 @@
 package net.hasor.scene.types.json;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.wrapper.WrapperAdapter;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.scene.types.json.dto.Project1;
 import net.hasor.scene.types.json.dto.Project2;
 import net.hasor.scene.types.json.dto.ProjectFeature;
@@ -36,7 +36,7 @@ public class JsonColumnXmlTestCase {
 
         try (Connection c = DsUtils.mysqlConn()) {
             Session session = config.newSession(c);
-            WrapperAdapter template = session.wrapper();
+            LambdaTemplate template = session.lambda();
 
             template.jdbc().execute("drop table if exists `project`");
             template.jdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
@@ -63,7 +63,7 @@ public class JsonColumnXmlTestCase {
 
         try (Connection c = DsUtils.mysqlConn()) {
             Session session = config.newSession(c);
-            WrapperAdapter template = session.wrapper();
+            LambdaTemplate template = session.lambda();
 
             template.jdbc().execute("drop table if exists `project`");
             template.jdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
@@ -96,7 +96,7 @@ public class JsonColumnXmlTestCase {
 
         try (Connection c = DsUtils.mysqlConn()) {
             Session session = config.newSession(c);
-            WrapperAdapter template = session.wrapper();
+            LambdaTemplate template = session.lambda();
 
             template.jdbc().execute("drop table if exists `project`");
             template.jdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
@@ -123,7 +123,7 @@ public class JsonColumnXmlTestCase {
 
         try (Connection c = DsUtils.mysqlConn()) {
             Session session = config.newSession(c);
-            WrapperAdapter template = session.wrapper();
+            LambdaTemplate template = session.lambda();
 
             template.jdbc().execute("drop table if exists `project`");
             template.jdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");

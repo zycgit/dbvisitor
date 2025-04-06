@@ -1,9 +1,9 @@
 package net.hasor.scene.wrapper.casesensitive;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.wrapper.InsertWrapper;
-import net.hasor.dbvisitor.wrapper.MapQueryWrapper;
-import net.hasor.dbvisitor.wrapper.WrapperAdapter;
+import net.hasor.dbvisitor.lambda.Insert;
+import net.hasor.dbvisitor.lambda.MapQuery;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
@@ -17,7 +17,7 @@ public class CaseSensitiveTest {
     @Test
     public void insertMapByUpperKeys() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter wrapper = new WrapperAdapter(c);
+            LambdaTemplate wrapper = new LambdaTemplate(c);
             wrapper.deleteFreedom("USER_TABLE").allowEmptyWhere().doDelete();
 
             Map<String, Object> userData = new LinkedHashMap<>();
@@ -25,12 +25,12 @@ public class CaseSensitiveTest {
             userData.put("NAME", "default user");
             userData.put("CREATE_TIME", "2022-01-01 12:12:12");
 
-            InsertWrapper<Map<String, Object>> insert = wrapper.insertFreedom("USER_TABLE").applyMap(userData);
+            Insert<Map<String, Object>> insert = wrapper.insertFreedom("USER_TABLE").applyMap(userData);
             assert insert.getBoundSql().getSqlString().equals("INSERT INTO USER_TABLE (AGE, NAME, CREATE_TIME) VALUES (?, ?, ?)");
             assert insert.executeSumResult() == 1;
 
             // 校验结果
-            MapQueryWrapper query = wrapper.queryFreedom("USER_TABLE");
+            MapQuery query = wrapper.queryFreedom("USER_TABLE");
             Map<String, Object> resultData = query.eq("AGE", 120).queryForObject();
             assert resultData.get("name").equals("default user");
         }
@@ -40,7 +40,7 @@ public class CaseSensitiveTest {
     @Test
     public void insertMapByLowerKeys() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter wrapper = new WrapperAdapter(c);
+            LambdaTemplate wrapper = new LambdaTemplate(c);
             wrapper.deleteFreedom("USER_TABLE").allowEmptyWhere().doDelete();
 
             Map<String, Object> userData = new LinkedHashMap<>();
@@ -48,12 +48,12 @@ public class CaseSensitiveTest {
             userData.put("NAME", "default user");
             userData.put("CREATE_TIME", "2022-01-01 12:12:12");
 
-            InsertWrapper<Map<String, Object>> insert = wrapper.insertFreedom("USER_TABLE").applyMap(userData);
+            Insert<Map<String, Object>> insert = wrapper.insertFreedom("USER_TABLE").applyMap(userData);
             assert insert.getBoundSql().getSqlString().equals("INSERT INTO USER_TABLE (AGE, NAME, CREATE_TIME) VALUES (?, ?, ?)");
             assert insert.executeSumResult() == 1;
 
             // 校验结果
-            MapQueryWrapper query = wrapper.queryFreedom("user_table");
+            MapQuery query = wrapper.queryFreedom("user_table");
             Map<String, Object> resultData = query.eq("age", 120).queryForObject();
             assert resultData.get("name").equals("default user");
         }
@@ -63,7 +63,7 @@ public class CaseSensitiveTest {
     @Test
     public void caseSensitive() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter wrapper = new WrapperAdapter(c, Options.of().caseInsensitive(false));
+            LambdaTemplate wrapper = new LambdaTemplate(c, Options.of().caseInsensitive(false));
 
             // H2 列名/表名 默认都是大写的
             Map<String, Object> resultData = wrapper.queryFreedom("USER_TABLE")//
@@ -80,12 +80,12 @@ public class CaseSensitiveTest {
     public void qualifierTest() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             Options o1 = Options.of().dialect(SqlDialectRegister.findDialect(c)).useDelimited(true);
-            WrapperAdapter wrapper1 = new WrapperAdapter(c, o1);
+            LambdaTemplate wrapper1 = new LambdaTemplate(c, o1);
             String sqlString1 = wrapper1.queryFreedom("USER_TABLE").eq("ID", 1).getBoundSql().getSqlString();
             assert sqlString1.equals("SELECT * FROM \"USER_TABLE\" WHERE \"ID\" = ?");
 
             Options o2 = Options.of().dialect(SqlDialectRegister.findDialect(c)).useDelimited(false);
-            WrapperAdapter wrapper2 = new WrapperAdapter(c, o2);
+            LambdaTemplate wrapper2 = new LambdaTemplate(c, o2);
             String sqlString2 = wrapper2.queryFreedom("USER_TABLE").eq("ID", 1).getBoundSql().getSqlString();
             assert sqlString2.equals("SELECT * FROM USER_TABLE WHERE ID = ?");
         }

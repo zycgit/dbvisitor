@@ -17,14 +17,13 @@ package net.hasor.dbvisitor.dynamic.rule;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.*;
 import net.hasor.dbvisitor.dynamic.args.ArraySqlArgSource;
+import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Iterator;
-
-import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
 
 /**
  * in 规则，用于自动生成 in 语句后的多重参数，例如： where col in (?,?,?,?)。

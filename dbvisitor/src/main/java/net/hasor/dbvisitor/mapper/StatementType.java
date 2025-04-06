@@ -27,7 +27,8 @@ public enum StatementType {
     /** 使用 java.sql.PreparedStatement */
     Prepared("PREPARED"),
     /** 使用 java.sql.CallableStatement */
-    Callable("CALLABLE"),;
+    Callable("CALLABLE"),
+    ;
 
     private final String typeName;
 

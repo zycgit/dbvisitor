@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper;
-import java.io.Serializable;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.jdbc.JdbcOperations;
+import net.hasor.dbvisitor.lambda.Insert;
+import net.hasor.dbvisitor.lambda.*;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.wrapper.*;
+
+import java.io.Serializable;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Mapper 继承该接口后可以获得 CRUD 功能
@@ -35,30 +36,30 @@ public interface BaseMapper<T> extends Mapper {
 
     Class<T> entityType();
 
-    WrapperAdapter wrapper();
+    LambdaTemplate lambda();
 
     JdbcOperations jdbc();
 
     Session session();
 
     /** return LambdaInsert for insert */
-    default InsertWrapper<T> insert() {
-        return wrapper().insert(entityType());
+    default Insert<T> insert() {
+        return lambda().insert(entityType());
     }
 
     /** return LambdaUpdate for update */
-    default EntityUpdateWrapper<T> update() {
-        return wrapper().update(entityType());
+    default EntityUpdate<T> update() {
+        return lambda().update(entityType());
     }
 
     /** return LambdaDelete for delete */
-    default EntityDeleteWrapper<T> delete() {
-        return wrapper().delete(entityType());
+    default EntityDelete<T> delete() {
+        return lambda().delete(entityType());
     }
 
     /** return LambdaQuery for query */
-    default EntityQueryWrapper<T> query() {
-        return wrapper().query(entityType());
+    default EntityQuery<T> query() {
+        return lambda().query(entityType());
     }
 
     /** 执行 Mapper 配置文件中的 SQL */

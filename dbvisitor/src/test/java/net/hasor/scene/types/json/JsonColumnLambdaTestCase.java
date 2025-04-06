@@ -1,5 +1,5 @@
 package net.hasor.scene.types.json;
-import net.hasor.dbvisitor.wrapper.WrapperAdapter;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.scene.types.json.dto.Project1;
 import net.hasor.scene.types.json.dto.ProjectFeature;
 import net.hasor.test.utils.DsUtils;
@@ -30,7 +30,7 @@ public class JsonColumnLambdaTestCase {
     @Test
     public void insertTestCase() throws SQLException, IOException {
         try (Connection c = DsUtils.mysqlConn()) {
-            WrapperAdapter template = new WrapperAdapter(c);
+            LambdaTemplate template = new LambdaTemplate(c);
             template.jdbc().execute("drop table if exists `project`");
             template.jdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
 
@@ -50,7 +50,7 @@ public class JsonColumnLambdaTestCase {
     @Test
     public void updateTestCase() throws SQLException, IOException {
         try (Connection c = DsUtils.mysqlConn()) {
-            WrapperAdapter template = new WrapperAdapter(c);
+            LambdaTemplate template = new LambdaTemplate(c);
             template.jdbc().execute("drop table if exists `project`");
             template.jdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
 
@@ -75,7 +75,7 @@ public class JsonColumnLambdaTestCase {
     @Test
     public void whereTestCase() throws SQLException, IOException {
         try (Connection c = DsUtils.mysqlConn()) {
-            WrapperAdapter template = new WrapperAdapter(c);
+            LambdaTemplate template = new LambdaTemplate(c);
             template.jdbc().execute("drop table if exists `project`");
             template.jdbc().loadSQL("/dbvisitor_scene/project_for_mysql.sql");
 

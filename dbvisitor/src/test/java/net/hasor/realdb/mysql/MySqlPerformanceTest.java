@@ -1,6 +1,6 @@
 package net.hasor.realdb.mysql;
-import net.hasor.dbvisitor.wrapper.InsertWrapper;
-import net.hasor.dbvisitor.wrapper.WrapperAdapter;
+import net.hasor.dbvisitor.lambda.Insert;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
@@ -11,7 +11,7 @@ import java.util.Date;
 
 public class MySqlPerformanceTest {
     private void reinit(Connection con) throws SQLException {
-        WrapperAdapter wrapper = new WrapperAdapter(con);
+        LambdaTemplate wrapper = new LambdaTemplate(con);
         try {
             wrapper.jdbc().execute("drop table if exists user_info");
         } catch (Exception e) {
@@ -25,8 +25,8 @@ public class MySqlPerformanceTest {
     }
 
     private void initData(Connection con, int count) throws SQLException {
-        WrapperAdapter wrapper = new WrapperAdapter(con);
-        InsertWrapper<UserInfo2> insert = wrapper.insert(UserInfo2.class);
+        LambdaTemplate wrapper = new LambdaTemplate(con);
+        Insert<UserInfo2> insert = wrapper.insert(UserInfo2.class);
         for (int i = 0; i < count; i++) {
             UserInfo2 tbUser = new UserInfo2();
             //tbUser.setUid("id_" + i);
@@ -50,7 +50,7 @@ public class MySqlPerformanceTest {
     public void mysqlInsertQuery_1() throws SQLException {
         long t = System.currentTimeMillis();
         try (Connection con = DsUtils.mysqlConn()) {
-            WrapperAdapter wrapper = new WrapperAdapter(con);
+            LambdaTemplate wrapper = new LambdaTemplate(con);
             //
             reinit(con);
             initData(con, 2000);
@@ -67,7 +67,7 @@ public class MySqlPerformanceTest {
     public void mysqlInsertQuery_2() throws SQLException {
         long t = System.currentTimeMillis();
         try (Connection con = DsUtils.mysqlConn()) {
-            WrapperAdapter wrapper = new WrapperAdapter(con);
+            LambdaTemplate wrapper = new LambdaTemplate(con);
             //
             reinit(con);
             initData(con, 1000);

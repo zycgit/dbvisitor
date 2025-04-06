@@ -17,10 +17,9 @@ package net.hasor.dbvisitor.dynamic.segment;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
 
 import java.sql.SQLException;
-
-import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
 
 public class InjectionSqlSegment implements SqlSegment {
     private final String exprString;

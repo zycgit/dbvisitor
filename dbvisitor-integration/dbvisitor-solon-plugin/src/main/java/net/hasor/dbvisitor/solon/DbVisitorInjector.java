@@ -20,8 +20,8 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.wrapper.WrapperAdapter;
-import net.hasor.dbvisitor.wrapper.WrapperOperations;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.lambda.LambdaOperations;
 import org.noear.solon.core.BeanInjector;
 import org.noear.solon.core.BeanWrap;
 import org.noear.solon.core.VarHolder;
@@ -73,15 +73,15 @@ public class DbVisitorInjector implements BeanInjector<Db> {
             return;
         }
 
-        //@Db("db1") WrapperOperations
-        if (WrapperOperations.class.isAssignableFrom(clz)) {
-            vh.setValue(dbvSession.wrapper());
+        //@Db("db1") LambdaOperations
+        if (LambdaOperations.class.isAssignableFrom(clz)) {
+            vh.setValue(dbvSession.lambda());
             return;
         }
 
-        //@Db("db1") WrapperAdapter
-        if (WrapperAdapter.class.isAssignableFrom(clz)) {
-            vh.setValue(dbvSession.wrapper());
+        //@Db("db1") LambdaTemplate
+        if (LambdaTemplate.class.isAssignableFrom(clz)) {
+            vh.setValue(dbvSession.lambda());
             return;
         }
 

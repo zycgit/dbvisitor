@@ -26,7 +26,7 @@ import net.hasor.dbvisitor.session.Session;
 import static net.hasor.dbvisitor.spring.boot.DbVisitorProperties.PREFIX;
 import net.hasor.dbvisitor.spring.mapper.MapperFileConfigurer;
 import net.hasor.dbvisitor.spring.mapper.MapperScannerConfigurer;
-import net.hasor.dbvisitor.wrapper.WrapperAdapter;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.*;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -124,14 +124,14 @@ public class DbVisitorAutoConfiguration implements BeanClassLoaderAware, Applica
         }
     }
 
-    @Bean(name = "jdbcWrapper")
+    @Bean(name = "lambdaTemplate")
     @ConditionalOnMissingBean
-    public WrapperAdapter jdbcWrapper(DataSource dataSource, ObjectProvider<Configuration> configProvider) throws SQLException {
+    public LambdaTemplate lambdaTemplate(DataSource dataSource, ObjectProvider<Configuration> configProvider) throws SQLException {
         Configuration configuration = configProvider.getIfAvailable();
         if (configuration == null) {
-            return new WrapperAdapter(dataSource);
+            return new LambdaTemplate(dataSource);
         } else {
-            return configuration.newWrapper(dataSource);
+            return configuration.newLambda(dataSource);
         }
     }
 

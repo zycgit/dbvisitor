@@ -23,13 +23,13 @@ import net.hasor.dbvisitor.dynamic.RuleRegistry;
 import net.hasor.dbvisitor.dynamic.rule.SqlRule;
 import net.hasor.dbvisitor.jdbc.DynamicConnection;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapper.MapperRegistry;
 import net.hasor.dbvisitor.mapper.StatementDef;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -142,19 +142,19 @@ public class Configuration implements QueryContext {
         return new JdbcTemplate(dc, this.getMappingRegistry(), this);
     }
 
-    /** create {@link WrapperAdapter} for {@link Connection} */
-    public WrapperAdapter newWrapper(Connection conn) throws SQLException {
-        return new WrapperAdapter(conn, this.getMappingRegistry(), this);
+    /** create {@link LambdaTemplate} for {@link Connection} */
+    public LambdaTemplate newLambda(Connection conn) throws SQLException {
+        return new LambdaTemplate(conn, this.getMappingRegistry(), this);
     }
 
-    /** create {@link WrapperAdapter} for {@link DataSource} */
-    public WrapperAdapter newWrapper(DataSource ds) throws SQLException {
-        return new WrapperAdapter(ds, this.getMappingRegistry(), this);
+    /** create {@link LambdaTemplate} for {@link DataSource} */
+    public LambdaTemplate newLambda(DataSource ds) throws SQLException {
+        return new LambdaTemplate(ds, this.getMappingRegistry(), this);
     }
 
-    /** create {@link WrapperAdapter} for {@link DynamicConnection} */
-    public WrapperAdapter newWrapper(DynamicConnection dc) throws SQLException {
-        return new WrapperAdapter(dc, this.getMappingRegistry(), this);
+    /** create {@link LambdaTemplate} for {@link DynamicConnection} */
+    public LambdaTemplate newLambda(DynamicConnection dc) throws SQLException {
+        return new LambdaTemplate(dc, this.getMappingRegistry(), this);
     }
 
     /** create {@link Session} for {@link Connection} */

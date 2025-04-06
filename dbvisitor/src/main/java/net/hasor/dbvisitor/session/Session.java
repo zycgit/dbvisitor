@@ -22,9 +22,9 @@ import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.DynamicConnection;
 import net.hasor.dbvisitor.jdbc.core.JdbcAccessor;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import javax.sql.DataSource;
 import java.io.Closeable;
@@ -44,31 +44,31 @@ import java.util.Objects;
 public class Session extends JdbcAccessor implements Closeable {
     private final Configuration    configuration;
     private final SessionPrototype prototype;
-    private final WrapperAdapter   adapter;
+    private final LambdaTemplate   lambda;
     private final JdbcTemplate     jdbc;
 
     public Session(Connection conn, SessionPrototype prototype) throws SQLException {
         this.setConnection(Objects.requireNonNull(conn, "connection is null."));
         this.prototype = Objects.requireNonNull(prototype, "prototype is null.");
         this.configuration = Objects.requireNonNull(prototype.getConfiguration(), "configuration is null.");
-        this.adapter = this.configuration.newWrapper(conn);
-        this.jdbc = this.adapter.jdbc();
+        this.lambda = this.configuration.newLambda(conn);
+        this.jdbc = this.lambda.jdbc();
     }
 
     public Session(DynamicConnection dc, SessionPrototype prototype) throws SQLException {
         this.setDynamic(Objects.requireNonNull(dc, "dynamicConnection is null."));
         this.prototype = Objects.requireNonNull(prototype, "prototype is null.");
         this.configuration = Objects.requireNonNull(prototype.getConfiguration(), "configuration is null.");
-        this.adapter = this.configuration.newWrapper(dc);
-        this.jdbc = this.adapter.jdbc();
+        this.lambda = this.configuration.newLambda(dc);
+        this.jdbc = this.lambda.jdbc();
     }
 
     public Session(DataSource ds, SessionPrototype prototype) throws SQLException {
         this.setDataSource(Objects.requireNonNull(ds, "dataSource is null."));
         this.prototype = Objects.requireNonNull(prototype, "prototype is null.");
         this.configuration = Objects.requireNonNull(prototype.getConfiguration(), "configuration is null.");
-        this.adapter = this.configuration.newWrapper(ds);
-        this.jdbc = this.adapter.jdbc();
+        this.lambda = this.configuration.newLambda(ds);
+        this.jdbc = this.lambda.jdbc();
     }
 
     @Override
@@ -81,9 +81,9 @@ public class Session extends JdbcAccessor implements Closeable {
         this.setDynamic(null);
     }
 
-    /** {@link WrapperAdapter} */
-    public WrapperAdapter wrapper() {
-        return this.adapter;
+    /** {@link LambdaTemplate} */
+    public LambdaTemplate lambda() {
+        return this.lambda;
     }
 
     /** {@link JdbcTemplate} */

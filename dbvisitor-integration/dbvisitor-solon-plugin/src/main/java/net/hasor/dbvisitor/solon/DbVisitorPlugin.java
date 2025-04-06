@@ -29,8 +29,8 @@ import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.wrapper.WrapperAdapter;
-import net.hasor.dbvisitor.wrapper.WrapperOperations;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.lambda.LambdaOperations;
 import org.noear.solon.Solon;
 import org.noear.solon.core.AppContext;
 import org.noear.solon.core.BeanWrap;
@@ -133,12 +133,12 @@ public class DbVisitorPlugin implements Plugin {
         context.putWrap(JdbcOperations.class, beanWrap);
 
         //@Inject WrapperAdapter
-        beanWrap = Solon.context().wrap(WrapperAdapter.class.getSimpleName(), dbvSession.wrapper(), true);
+        beanWrap = Solon.context().wrap(LambdaTemplate.class.getSimpleName(), dbvSession.lambda(), true);
         beanWrap.singletonSet(true);
-        context.putWrap(WrapperAdapter.class, beanWrap);
-        beanWrap = Solon.context().wrap(WrapperOperations.class.getSimpleName(), dbvSession.wrapper(), true);
+        context.putWrap(LambdaTemplate.class, beanWrap);
+        beanWrap = Solon.context().wrap(LambdaOperations.class.getSimpleName(), dbvSession.lambda(), true);
         beanWrap.singletonSet(true);
-        context.putWrap(WrapperOperations.class, beanWrap);
+        context.putWrap(LambdaOperations.class, beanWrap);
 
         //@Inject Configuration
         beanWrap = Solon.context().wrap(Configuration.class.getSimpleName(), dbvSession.getConfiguration(), true);

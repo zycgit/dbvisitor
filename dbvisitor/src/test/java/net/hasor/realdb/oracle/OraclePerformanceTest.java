@@ -1,8 +1,8 @@
 package net.hasor.realdb.oracle;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.wrapper.InsertWrapper;
-import net.hasor.dbvisitor.wrapper.WrapperAdapter;
+import net.hasor.dbvisitor.lambda.Insert;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
@@ -13,7 +13,7 @@ import java.util.Date;
 
 public class OraclePerformanceTest {
     private void reinit(Connection con) throws SQLException {
-        WrapperAdapter wrapper = new WrapperAdapter(con);
+        LambdaTemplate wrapper = new LambdaTemplate(con);
         try {
             wrapper.jdbc().execute("drop table user_info");
         } catch (Exception e) {
@@ -28,8 +28,8 @@ public class OraclePerformanceTest {
 
     private void initData(Connection con, int count) throws SQLException {
         con.setAutoCommit(false);
-        WrapperAdapter wrapper = new WrapperAdapter(con);
-        InsertWrapper<UserInfo2> insert = wrapper.insert(UserInfo2.class);
+        LambdaTemplate wrapper = new LambdaTemplate(con);
+        Insert<UserInfo2> insert = wrapper.insert(UserInfo2.class);
         for (int i = 0; i < count; i++) {
             UserInfo2 tbUser = new UserInfo2();
             //tbUser.setUid("id_" + i);
@@ -54,7 +54,7 @@ public class OraclePerformanceTest {
         long t = System.currentTimeMillis();
         try (Connection c = DsUtils.oracleConn()) {
             Options o = Options.of().dialect(SqlDialectRegister.findDialect(c));
-            WrapperAdapter wrapper = new WrapperAdapter(c, o);
+            LambdaTemplate wrapper = new LambdaTemplate(c, o);
             wrapper.jdbc().setPrintStmtError(true);
 
             reinit(c);
@@ -73,7 +73,7 @@ public class OraclePerformanceTest {
         long t = System.currentTimeMillis();
         try (Connection c = DsUtils.oracleConn()) {
             Options o = Options.of().dialect(SqlDialectRegister.findDialect(c));
-            WrapperAdapter wrapper = new WrapperAdapter(c, o);
+            LambdaTemplate wrapper = new LambdaTemplate(c, o);
 
             reinit(c);
             initData(c, 1000);

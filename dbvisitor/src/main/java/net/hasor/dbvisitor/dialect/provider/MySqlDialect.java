@@ -18,7 +18,7 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
-import net.hasor.dbvisitor.wrapper.core.OrderType;
+import net.hasor.dbvisitor.lambda.core.OrderType;
 
 import java.util.ArrayList;
 import java.util.Arrays;

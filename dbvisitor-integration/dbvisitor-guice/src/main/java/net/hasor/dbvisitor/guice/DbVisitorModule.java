@@ -36,7 +36,7 @@ import static net.hasor.dbvisitor.guice.ConfigKeys.*;
 import net.hasor.dbvisitor.guice.provider.JdbcTemplateProvider;
 import net.hasor.dbvisitor.guice.provider.TransactionManagerProvider;
 import net.hasor.dbvisitor.guice.provider.TransactionTemplateProvider;
-import net.hasor.dbvisitor.guice.provider.WrapperAdapterProvider;
+import net.hasor.dbvisitor.guice.provider.LambdaTemplateProvider;
 import net.hasor.dbvisitor.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.Options;
@@ -44,8 +44,8 @@ import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.transaction.*;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
-import net.hasor.dbvisitor.wrapper.WrapperAdapter;
-import net.hasor.dbvisitor.wrapper.WrapperOperations;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.lambda.LambdaOperations;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -134,18 +134,18 @@ public class DbVisitorModule implements com.google.inject.Module {
 
     private void bindJdbc(String dbName, Binder binder, Provider<DataSource> dsProvider) {
         JdbcTemplateProvider tempProvider = new JdbcTemplateProvider(dsProvider);
-        WrapperAdapterProvider wrapperProvider = new WrapperAdapterProvider(dsProvider);
+        LambdaTemplateProvider wrapperProvider = new LambdaTemplateProvider(dsProvider);
 
         if (StringUtils.isBlank(dbName)) {
             binder.bind(JdbcTemplate.class).toProvider(tempProvider);
             binder.bind(JdbcOperations.class).toProvider(tempProvider);
-            binder.bind(WrapperAdapter.class).toProvider(wrapperProvider);
-            binder.bind(WrapperOperations.class).toProvider(wrapperProvider);
+            binder.bind(LambdaTemplate.class).toProvider(wrapperProvider);
+            binder.bind(LambdaOperations.class).toProvider(wrapperProvider);
         } else {
             binder.bind(JdbcTemplate.class).annotatedWith(Names.named(dbName)).toProvider(tempProvider);
             binder.bind(JdbcOperations.class).annotatedWith(Names.named(dbName)).toProvider(tempProvider);
-            binder.bind(WrapperAdapter.class).annotatedWith(Names.named(dbName)).toProvider(wrapperProvider);
-            binder.bind(WrapperOperations.class).annotatedWith(Names.named(dbName)).toProvider(wrapperProvider);
+            binder.bind(LambdaTemplate.class).annotatedWith(Names.named(dbName)).toProvider(wrapperProvider);
+            binder.bind(LambdaOperations.class).annotatedWith(Names.named(dbName)).toProvider(wrapperProvider);
         }
     }
 

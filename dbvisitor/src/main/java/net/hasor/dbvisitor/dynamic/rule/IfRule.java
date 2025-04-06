@@ -19,10 +19,9 @@ import net.hasor.dbvisitor.dynamic.DynamicParsed;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
 
 import java.sql.SQLException;
-
-import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
 
 /**
  * 如果参数不为空，则生成 'column = ?'。

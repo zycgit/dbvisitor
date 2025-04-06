@@ -17,7 +17,7 @@ package net.hasor.scene.wrapper.stream;
 import net.hasor.dbvisitor.dialect.provider.H2Dialect;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
-import net.hasor.dbvisitor.wrapper.WrapperAdapter;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
@@ -37,7 +37,7 @@ public class StreamTestCase extends AbstractDbTest {
     public void lambdaQuery_stream_page_0() throws Throwable {
         Configuration conf = new Configuration(Options.of().dialect(new H2Dialect()));
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter wrapper = conf.newWrapper(c);
+            LambdaTemplate wrapper = conf.newLambda(c);
             //
             List<String> userIds = new ArrayList<>();
             Iterator<UserInfo2> userIterator = wrapper.query(UserInfo2.class).iteratorForLimit(-1, 1);
@@ -53,7 +53,7 @@ public class StreamTestCase extends AbstractDbTest {
     public void lambdaQuery_stream_page_1() throws Throwable {
         Configuration conf = new Configuration(Options.of().dialect(new H2Dialect()));
         try (Connection c = DsUtils.h2Conn()) {
-            WrapperAdapter wrapper = conf.newWrapper(c);
+            LambdaTemplate wrapper = conf.newLambda(c);
             //
             List<String> userIds = new ArrayList<>();
             Iterator<UserInfo2> userIterator = wrapper.query(UserInfo2.class).iteratorForLimit(2, 1);

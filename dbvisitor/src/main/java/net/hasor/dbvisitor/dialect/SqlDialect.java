@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
-import net.hasor.dbvisitor.wrapper.core.OrderType;
+import net.hasor.dbvisitor.lambda.core.OrderType;
 
 import java.util.Set;
 

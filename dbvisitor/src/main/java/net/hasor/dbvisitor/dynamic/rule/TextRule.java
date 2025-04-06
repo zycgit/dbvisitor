@@ -18,7 +18,6 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
-
 import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
 
 /**
