@@ -1,5 +1,5 @@
 package net.hasor.scene.wrapper.casesensitive;
-import net.hasor.dbvisitor.jdbc.JdbcHelper;
+import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.wrapper.InsertWrapper;
 import net.hasor.dbvisitor.wrapper.MapQueryWrapper;
@@ -79,12 +79,12 @@ public class CaseSensitiveTest {
     @Test
     public void qualifierTest() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            Options o1 = Options.of().dialect(JdbcHelper.findDialect(c)).useDelimited(true);
+            Options o1 = Options.of().dialect(SqlDialectRegister.findDialect(c)).useDelimited(true);
             WrapperAdapter wrapper1 = new WrapperAdapter(c, o1);
             String sqlString1 = wrapper1.queryFreedom("USER_TABLE").eq("ID", 1).getBoundSql().getSqlString();
             assert sqlString1.equals("SELECT * FROM \"USER_TABLE\" WHERE \"ID\" = ?");
 
-            Options o2 = Options.of().dialect(JdbcHelper.findDialect(c)).useDelimited(false);
+            Options o2 = Options.of().dialect(SqlDialectRegister.findDialect(c)).useDelimited(false);
             WrapperAdapter wrapper2 = new WrapperAdapter(c, o2);
             String sqlString2 = wrapper2.queryFreedom("USER_TABLE").eq("ID", 1).getBoundSql().getSqlString();
             assert sqlString2.equals("SELECT * FROM USER_TABLE WHERE ID = ?");

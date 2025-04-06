@@ -1,5 +1,5 @@
 package net.hasor.scene.keyholder;
-import net.hasor.dbvisitor.jdbc.JdbcHelper;
+import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.wrapper.InsertWrapper;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
@@ -59,7 +59,7 @@ public class AutoIdKeyHolderTestCase {
     @Test
     public void autoSeqTestCase() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
-            Options o = Options.of().dialect(JdbcHelper.findDialect(c));
+            Options o = Options.of().dialect(SqlDialectRegister.findDialect(c));
             WrapperAdapter wrapper = new WrapperAdapter(c, o);
             wrapper.delete(UserDTO_SEQ.class).allowEmptyWhere().doDelete();
 

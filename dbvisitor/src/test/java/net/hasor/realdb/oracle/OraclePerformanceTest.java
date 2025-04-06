@@ -1,5 +1,5 @@
 package net.hasor.realdb.oracle;
-import net.hasor.dbvisitor.jdbc.JdbcHelper;
+import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.wrapper.InsertWrapper;
 import net.hasor.dbvisitor.wrapper.WrapperAdapter;
@@ -53,7 +53,7 @@ public class OraclePerformanceTest {
     public void oracleInsertQuery_1() throws SQLException {
         long t = System.currentTimeMillis();
         try (Connection c = DsUtils.oracleConn()) {
-            Options o = Options.of().dialect(JdbcHelper.findDialect(c));
+            Options o = Options.of().dialect(SqlDialectRegister.findDialect(c));
             WrapperAdapter wrapper = new WrapperAdapter(c, o);
             wrapper.jdbc().setPrintStmtError(true);
 
@@ -72,7 +72,7 @@ public class OraclePerformanceTest {
     public void oracleInsertQuery_2() throws SQLException {
         long t = System.currentTimeMillis();
         try (Connection c = DsUtils.oracleConn()) {
-            Options o = Options.of().dialect(JdbcHelper.findDialect(c));
+            Options o = Options.of().dialect(SqlDialectRegister.findDialect(c));
             WrapperAdapter wrapper = new WrapperAdapter(c, o);
 
             reinit(c);

@@ -115,6 +115,10 @@ public class DbVisitorPlugin implements Plugin {
     }
 
     private void loadTypedInject(AppContext context, BeanWrap dsBw, Map<String, MapperWrap> mapperWrapMap, Set<Class<?>> ambiguousMapper) throws Exception {
+        if (!mapperWrapMap.containsKey(dsBw.name())) {
+            return;
+        }
+
         //ambiguousMapper using default.
         final MapperWrap mapperWrap = mapperWrapMap.get(dsBw.name());
         final Session dbvSession = DsHelper.fetchSession(dsBw, mapperWrap);

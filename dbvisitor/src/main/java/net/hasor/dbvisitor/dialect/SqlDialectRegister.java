@@ -22,6 +22,9 @@ import net.hasor.dbvisitor.dialect.provider.*;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
 import net.hasor.dbvisitor.mapping.Options;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.Map;
 
 /**
@@ -111,5 +114,12 @@ public class SqlDialectRegister {
             log.warn("No SQL dialect is specified, the default dialect is selected");
             return DefaultSqlDialect.DEFAULT;
         }
+    }
+
+    public static PageSqlDialect findDialect(Connection conn) throws SQLException {
+        DatabaseMetaData metaData = conn.getMetaData();
+        String tmpDbType = JdbcHelper.getDbType(metaData.getURL(), metaData.getDriverName());
+        SqlDialect tempDialect = SqlDialectRegister.findOrCreate(tmpDbType);
+        return (!(tempDialect instanceof PageSqlDialect)) ? DefaultSqlDialect.DEFAULT : (PageSqlDialect) tempDialect;
     }
 }

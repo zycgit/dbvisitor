@@ -50,7 +50,7 @@
         <module>dbvisitor-integration/dbvisitor-spring-starter</module>
         <module>dbvisitor-integration/dbvisitor-hasor</module>
         <module>dbvisitor-integration/dbvisitor-guice</module>
-        <module>dbvisitor-integration/dbvisitor-solon</module>
+        <module>dbvisitor-integration/dbvisitor-solon-plugin</module>
     </modules>
 
     <dependencyManagement>

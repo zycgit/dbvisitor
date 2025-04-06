@@ -41,8 +41,8 @@
 
         <dependency>
             <groupId>net.hasor</groupId>
-            <artifactId>dbvisitor-solon</artifactId>
-            <version>6.0.0</version>
+            <artifactId>dbvisitor-solon-plugin</artifactId>
+            <version>6.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>

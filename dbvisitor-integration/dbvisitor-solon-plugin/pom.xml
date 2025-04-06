@@ -8,11 +8,11 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>dbvisitor-solon</artifactId>
+    <artifactId>dbvisitor-solon-plugin</artifactId>
     <packaging>jar</packaging>
 
     <!-- Project Info -->
-    <name>dbVisitor-solon</name>
+    <name>dbvisitor-solon-plugin</name>
     <description>integrate dbVisitor and Solon, make Solon easier to use JDBC/ORM.</description>
 
     <developers>
