@@ -6,6 +6,10 @@ title: 语句模版
 description: 在使用构造器 API进行数据库操作时，语句模版可以决定生成的 SQL 的语句元素内容。
 ---
 
+:::warning[请注意]
+- 由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险，或更换其它方案。例如：使用 [JdbcTemplate](../jdbc/about)。
+:::
+
 在使用 [构造器 API](../../core/lambda/about) 进行数据库操作时，语句模版可以决定生成的 SQL 的语句元素内容。
 
 例如，对带有 point 类型的 MySQL 表进行读写操作时可以利用语句模版特性在生成的语句中使用数据库 `PointFromText`、`AsText` 函数。

@@ -69,7 +69,6 @@ dbVisitor 默认会采用 `LinkedCaseInsensitiveMap` 工具类以不区分大小
 
 ```java
 JdbcTemplate jdbc = ...
-// highlight-next-line
 jdbc.setResultsCaseInsensitive(false);
 
 List<Map<String, Object>> result = jdbc.queryForList("select * from users");

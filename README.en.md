@@ -18,11 +18,14 @@ dbVisitor is straightforward as it focuses solely on database access. Any specif
 
 ## Why use it?
 
-There are already numerous ways and libraries for database access based on JDBC, and among them, there are many well - known tools. Even so, people are still looking for simpler and more convenient ways to access data, which has led to the emergence of more advanced or interesting data access methods.
+There are already numerous ways and libraries for database access based on JDBC, and there is no shortage of many well-known tools among them.
+Even so, people are still seeking simpler and more convenient methods for accessing data, which has led to the emergence of more advanced or interesting data access methods.
+From EJB to Hibernate, then to MyBatis, SpringJDBC, and the once or still active ActiveRecord, QueryWrapper, Row, Chain, JPA, etc.
+Each new method brings surprises to people while also having its inherent limitations.
 
-From EJB to Hibernate, and then to later ones like MyBatis, Spring JDBC, as well as ActiveRecord, QueryWrapper, Row, Chain, JPA, etc., which were once or still are active. Each new method brings both surprises and its inherent limitations.
+The core breakthrough of dbVisitor lies in the seamless integration of access patterns. Developers can mix and match different access paradigms within the same project. This design addresses the compatibility issues caused by the coexistence of multiple frameworks in traditional solutions, such as the different operation styles of JdbcTemplate and MyBatis.
 
-dbVisitor doesn't create a new type of access method. Instead, it integrates the widely - popular access methods. Users can choose the appropriate way to access the database rather than being restricted to a single mode.
+This multi-paradigm integrated architecture enables dbVisitor to adapt to different complexity scenarios: for small projects, ActiveRecord mode can be quickly enabled to enhance development efficiency; for medium-sized and large-scale systems, complex business logic can be realized through dynamic SQL and stored procedures.
 
 ## About dbVisitor
 
