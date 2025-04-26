@@ -17,34 +17,42 @@ package net.hasor.dbvisitor.mapper.def;
 import net.hasor.cobble.StringUtils;
 
 /**
- * 查询类型
- * @author 赵永春 (zyc@hasor.net)
- * @version 2021-06-19
+ * 查询类型枚举
+ * 定义了数据库操作的各种SQL语句类型
  */
 public enum QueryType {
-    /** Insert 类型 */
+    /** 插入数据操作类型 */
     Insert("insert"),
-    /** Delete 类型 */
+    /** 删除数据操作类型 */
     Delete("delete"),
-    /** Update 类型 */
+    /** 更新数据操作类型 */
     Update("update"),
-    /** 任意类型语句 */
+    /** 任意类型SQL语句执行 */
     Execute("execute"),
-    /** 查询类型 类型 */
+    /** 查询数据操作类型 */
     Select("select"),
-    /** Sql 片段，可以被 include */
+    /** SQL片段类型，可被其他SQL引用 */
     Segment("sql"),
     ;
     private final String xmlTag;
-
-    public String getXmlTag() {
-        return this.xmlTag;
-    }
 
     QueryType(String xmlTag) {
         this.xmlTag = xmlTag;
     }
 
+    /**
+     * 获取XML标签名
+     * @return 返回该类型对应的XML标签名
+     */
+    public String getXmlTag() {
+        return this.xmlTag;
+    }
+
+    /**
+     * 根据XML标签名查找对应的查询类型
+     * @param xmlTag XML标签名
+     * @return 匹配的查询类型，未找到返回null
+     */
     public static QueryType valueOfTag(String xmlTag) {
         for (QueryType tableType : QueryType.values()) {
             if (StringUtils.equalsIgnoreCase(tableType.xmlTag, xmlTag)) {

@@ -30,6 +30,6 @@ public interface EntityDelete<T> extends               //
         DeleteExecute<EntityDelete<T>>,                //
         QueryCompare<EntityDelete<T>, T, SFunction<T>>,//
         EntityQueryCompare<EntityDelete<T>> {
-
+    /** 转换为基于 Map 的 delete 接口。 */
     MapDelete asMap();
 }

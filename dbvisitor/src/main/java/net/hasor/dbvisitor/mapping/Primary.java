@@ -20,7 +20,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 当配置出现冲突时用于标识出哪一个配置主要的，即默认最优选择
+ * 主配置标识注解
+ * 当存在多个配置冲突时，用于标记哪个配置是主要的/默认的首选配置
+ * 可应用于类、字段或方法上
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */

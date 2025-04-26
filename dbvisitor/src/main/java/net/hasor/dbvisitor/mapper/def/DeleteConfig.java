@@ -19,15 +19,25 @@ import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
 import java.util.function.Function;
 
 /**
- * Delete SqlConfig
+ * DELETE操作SQL配置类
+ * 继承自DmlConfig，专门用于处理DELETE语句的配置
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-06-19
  */
 public class DeleteConfig extends DmlConfig {
+    /**
+     * 构造函数
+     * @param target 动态SQL数组
+     * @param config 配置函数
+     */
     public DeleteConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
     }
 
+    /**
+     * 获取查询类型
+     * @return 返回DELETE操作类型
+     */
     @Override
     public QueryType getType() {
         return QueryType.Delete;

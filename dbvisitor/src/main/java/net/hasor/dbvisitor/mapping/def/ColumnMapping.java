@@ -38,10 +38,13 @@ public interface ColumnMapping {
     /** 使用的 jdbcType,如果没有配置那么会通过 javaType 来自动推断 */
     Integer getJdbcType();
 
+    /** 获取类型处理器 */
     TypeHandler<?> getTypeHandler();
 
+    /** 获取属性处理器 */
     Property getHandler();
 
+    /** 获取注解信息 */
     Annotations getAnnotations();
 
     /** 是否为主键 */
@@ -53,32 +56,58 @@ public interface ColumnMapping {
     /** 参与新增 */
     boolean isInsert();
 
-    /** 用作 select 语句时 column name 的写法，默认是空 */
+    /**
+     * 用作 select 语句时 column name 的写法，默认是空。
+     * 注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险。
+     */
     String getSelectTemplate();
 
-    /** 用作 insert 语句时 value 的参数写法，默认是 ? */
+    /**
+     * 用作 insert 语句时 value 的参数写法，默认是 ?
+     * 注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险。
+     */
     String getInsertTemplate();
 
-    /** 用作 update 的 set 语句时 column name 的写法，默认是空 */
+    /**
+     * 用作 update 的 set 语句时 column name 的写法，默认是空
+     * 注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险。
+     */
     String getSetColTemplate();
 
-    /** 用作 update set 语句时 value 的参数写法，默认是 ? */
+    /**
+     * 用作 update set 语句时 value 的参数写法，默认是 ?
+     * 注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险。
+     */
     String getSetValueTemplate();
 
-    /** 用作 update/delete 的 where 语句时 column name 的写法，默认是空 */
+    /**
+     * 用作 update/delete 的 where 语句时 column name 的写法，默认是空
+     * 注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险。
+     */
     String getWhereColTemplate();
 
-    /** 用作 update/delete 的 where 语句时 value 的参数写法，默认是 ? */
+    /**
+     * 用作 update/delete 的 where 语句时 value 的参数写法，默认是 ?
+     * 注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险。
+     */
     String getWhereValueTemplate();
 
-    /** 用作 group by 时 column name 的写法，默认是空 */
+    /**
+     * 用作 group by 时 column name 的写法，默认是空
+     * 注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险。
+     */
     String getGroupByColTemplate();
 
-    /** 用作 order by 时 column name 的写法，默认是空 */
+    /**
+     * 用作 order by 时 column name 的写法，默认是空
+     * 注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险。
+     */
     String getOrderByColTemplate();
 
+    /** 获取主键生成策略类型 */
     KeyType getKeyTpe();
 
+    /** 获取主键生成处理器实例 */
     GeneratedKeyHandler getKeySeqHolder();
 
     /** 获取补充描述信息 */

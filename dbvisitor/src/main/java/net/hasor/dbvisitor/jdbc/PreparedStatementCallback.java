@@ -24,8 +24,6 @@ import java.sql.SQLException;
  */
 @FunctionalInterface
 public interface PreparedStatementCallback<T> {
-    /**
-     * 执行JDBC调用并返回所需的结果，开发者不需要关心数据库连接的状态和事务。
-     */
+    /** 执行JDBC调用并返回所需的结果，开发者不需要关心数据库连接的状态和事务。 */
     T doInPreparedStatement(PreparedStatement ps) throws SQLException;
 }

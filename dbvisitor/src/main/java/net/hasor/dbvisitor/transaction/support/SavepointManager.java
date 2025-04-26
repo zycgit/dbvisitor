@@ -18,20 +18,36 @@ import java.sql.SQLException;
 import java.sql.Savepoint;
 
 /**
- * Savepoint Manager
+ * 保存点管理器接口，提供保存点相关操作
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-12-14
  */
 public interface SavepointManager {
-    /** 则表示当前数据库连接是否被打开(被打开的连接一定有引用) */
+    /**
+     * 检查当前连接是否支持保存点
+     * @return true表示支持保存点，false表示不支持
+     * @throws SQLException 如果检查过程中发生数据库错误
+     */
     boolean supportSavepoint() throws SQLException;
 
-    /** 使用一个全新的名称创建一个保存点 */
+    /**
+     * 创建新的保存点
+     * @return 创建的保存点对象
+     * @throws SQLException 如果创建保存点时发生数据库错误
+     */
     Savepoint createSavepoint() throws SQLException;
 
-    /** 释放某个事务的保存点 */
+    /**
+     * 释放指定的保存点资源
+     * @param savepoint 要释放的保存点对象
+     * @throws SQLException 如果释放过程中发生数据库错误
+     */
     void releaseSavepoint(Savepoint savepoint) throws SQLException;
 
-    /** 回滚事务到一个指定的保存点 */
+    /**
+     * 回滚到指定保存点
+     * @param savepoint 要回滚到的保存点对象
+     * @throws SQLException 如果回滚过程中发生数据库错误
+     */
     void rollback(Savepoint savepoint) throws SQLException;
 }

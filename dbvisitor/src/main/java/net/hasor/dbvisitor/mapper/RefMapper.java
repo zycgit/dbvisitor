@@ -18,6 +18,7 @@ import java.lang.annotation.*;
 
 /**
  * 引用 Mapper 配置文件中的 SQL。
+ * 此注解可用于类上，通过指定值来引用对应的 Mapper 配置文件里的 SQL 定义。
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-05-19
  */
@@ -26,5 +27,9 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface RefMapper {
+    /**
+     * 获取要引用的 Mapper 配置文件中的 SQL 标识。默认值为空字符串，表示未指定具体的 SQL 标识。
+     * @return 要引用的 SQL 标识
+     */
     String value() default "";
 }

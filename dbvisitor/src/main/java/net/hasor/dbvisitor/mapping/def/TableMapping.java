@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * 查询的表
+ * 表映射信息接口，定义数据库表与Java实体类之间的映射关系
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
@@ -34,10 +34,13 @@ public interface TableMapping<T> {
     /** 表名 */
     String getTable();
 
+    /** 获取映射的实体类类型 */
     Class<T> entityType();
 
+    /** 获取表/实体类上的注解信息 */
     Annotations getAnnotations();
 
+    /** 是否使用自增主键 */
     boolean useGeneratedKey();
 
     /** 映射的实体是否是基于 Map */
@@ -55,14 +58,19 @@ public interface TableMapping<T> {
     /** 是否配置了驼峰转换（Map模式下依赖这个参数决定是否进行驼峰转换） */
     boolean isToCamelCase();
 
+    /** 获取所有列映射信息 */
     Collection<ColumnMapping> getProperties();
 
+    /** 获取所有列名 */
     Collection<String> getColumns();
 
+    /** 根据列名获取对应的属性映射信息 */
     List<ColumnMapping> getPropertyByColumn(String column);
 
+    /** 根据列名获取主键属性映射信息 */
     ColumnMapping getPrimaryPropertyByColumn(String column);
 
+    /** 根据属性名获取映射信息 */
     ColumnMapping getPropertyByName(String property);
 
     /** 获取补充描述信息 */

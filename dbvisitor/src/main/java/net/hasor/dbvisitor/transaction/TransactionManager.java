@@ -18,7 +18,8 @@ import java.io.Closeable;
 import java.sql.SQLException;
 
 /**
- * 数据源的事务管理器。
+ * 数据源的事务管理器接口。
+ * 提供事务的开启、提交、回滚等核心操作方法。
  * @author 赵永春 (zyc@hasor.net)
  * @version 2013-10-30
  */
@@ -54,18 +55,35 @@ public interface TransactionManager extends Closeable {
      */
     void commit(TransactionStatus status) throws SQLException;
 
-    /** 递交最近 begin 的那个事务 */
+    /**
+     * 提交最近begin的事务
+     * @throws SQLException 如果提交过程中发生错误
+     */
     void commit() throws SQLException;
 
-    /** 回滚事务 */
+    /**
+     * 回滚指定事务状态对应的事务
+     * @param status 要回滚的事务状态对象
+     * @throws SQLException 如果回滚过程中发生错误
+     */
     void rollBack(TransactionStatus status) throws SQLException;
 
-    /** 回滚最近 begin 的那个事务 */
+    /**
+     * 回滚最近begin的事务
+     * @throws SQLException 如果回滚过程中发生错误
+     */
     void rollBack() throws SQLException;
 
-    /** 是否存在处理中的事务 */
+    /**
+     * 检查当前是否存在活动的事务
+     * @return true表示存在活动事务，false表示没有活动事务
+     */
     boolean hasTransaction();
 
-    /** 测试事务状态是否位于栈顶 */
+    /**
+     * 测试事务状态是否位于栈顶
+     * @param status 要检查的事务状态对象
+     * @return true表示该事务位于栈顶，false表示不是栈顶事务
+     */
     boolean isTopTransaction(TransactionStatus status);
 }

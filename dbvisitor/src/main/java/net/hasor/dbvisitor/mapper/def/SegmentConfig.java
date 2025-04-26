@@ -19,11 +19,14 @@ import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
 import java.util.function.Function;
 
 /**
- * Segment SqlConfig
- * @author 赵永春 (zyc@hasor.net)
- * @version 2021-06-19
+ * SQL片段配置类，用于定义可重用的SQL片段
  */
 public class SegmentConfig extends SqlConfig {
+    /**
+     * 构造函数
+     * @param target 动态SQL构建目标对象
+     * @param config 配置获取函数
+     */
     public SegmentConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
     }

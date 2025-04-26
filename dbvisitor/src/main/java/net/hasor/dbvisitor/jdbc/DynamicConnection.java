@@ -23,7 +23,9 @@ import java.sql.SQLException;
  * @version 2022-04-10
  */
 public interface DynamicConnection {
+    /** 获取数据库连接 */
     Connection getConnection() throws SQLException;
 
+    /** 释放数据库连接 */
     void releaseConnection(Connection conn) throws SQLException;
 }

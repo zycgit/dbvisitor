@@ -16,13 +16,19 @@
 package net.hasor.dbvisitor.mapper;
 
 /**
- * 表示语句执行的时机
+ * 表示语句执行的时机的枚举类。
+ * 可用于指定某个操作是在另一个操作之前执行还是之后执行。
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-05-19
  */
 public enum Order {
-    /** 在之前。 */
+    /**
+     * 表示操作在另一个操作之前执行。
+     */
     Before,
-    /** 在之后。 */
+
+    /**
+     * 表示操作在另一个操作之后执行。
+     */
     After
 }

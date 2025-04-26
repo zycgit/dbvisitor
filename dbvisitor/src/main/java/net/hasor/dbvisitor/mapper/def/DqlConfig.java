@@ -22,21 +22,27 @@ import net.hasor.dbvisitor.mapper.ResultSetType;
 import java.util.function.Function;
 
 /**
- * has result query.
+ * DQL查询SQL配置基类
+ * 提供SELECT等查询操作的配置管理功能
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-06-19
  */
 public abstract class DqlConfig extends SqlConfig {
-    private int           fetchSize          = 256;
-    private ResultSetType resultSetType      = ResultSetType.DEFAULT;
-    private String        resultMapSpace     = null;
-    private String        resultMapId        = null;
-    private String        resultType         = null;
-    private String        resultSetExtractor = null;
-    private String        resultRowCallback  = null;
-    private String        resultRowMapper    = null;
-    private String[]      bindOut            = ArrayUtils.EMPTY_STRING_ARRAY;
+    private int           fetchSize          = 256;                           // 每次获取的记录数
+    private ResultSetType resultSetType      = ResultSetType.DEFAULT;         // 结果集类型
+    private String        resultMapSpace     = null;                          // 结果映射命名空间
+    private String        resultMapId        = null;                          // 结果映射ID
+    private String        resultType         = null;                          // 返回结果类型
+    private String        resultSetExtractor = null;                          // 结果集提取器
+    private String        resultRowCallback  = null;                          // 行回调处理器
+    private String        resultRowMapper    = null;                          // 行映射器
+    private String[]      bindOut            = ArrayUtils.EMPTY_STRING_ARRAY; // 输出参数绑定
 
+    /**
+     * 构造函数
+     * @param target 动态SQL数组
+     * @param config 配置转换函数
+     */
     public DqlConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
 

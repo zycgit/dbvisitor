@@ -22,10 +22,16 @@ import java.sql.SQLException;
  * @version 2013-10-30
  */
 public interface TransactionStatus {
-    /** 获取事务使用的传播行为 */
+    /**
+     * 获取事务使用的传播行为
+     * @return 当前事务的传播行为枚举值
+     */
     Propagation getPropagation();
 
-    /** 获取事务的隔离级别 */
+    /**
+     * 获取事务的隔离级别
+     * @return 当前事务的隔离级别枚举值
+     */
     Isolation getIsolationLevel();
 
     /**
@@ -34,16 +40,22 @@ public interface TransactionStatus {
      */
     boolean isCompleted();
 
-    /** 是否已被标记为回滚，如果返回值为 true 则在commit 时会回滚该事务 */
+    /**
+     * 检查事务是否已被标记为回滚
+     * @return true表示事务已被标记为回滚，commit 时将执行回滚操作
+     */
     boolean isRollbackOnly();
 
-    /** 是否为只读模式。 */
-    boolean isReadOnly();
-
-    /** 是否使用了一个全新的数据库连接开启事务 */
+    /**
+     * 检查事务是否使用全新数据库连接
+     * @return true表示使用新连接，false 表示复用现有连接
+     */
     boolean isNewConnection();
 
-    /** 测试该事务是否被挂起 */
+    /**
+     * 测试该事务是否被挂起
+     * @return true表示事务被挂起，false表示事务活跃中
+     */
     boolean isSuspend();
 
     /**

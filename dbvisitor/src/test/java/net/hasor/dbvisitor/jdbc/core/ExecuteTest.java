@@ -19,6 +19,7 @@ import net.hasor.dbvisitor.jdbc.StatementCallback;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.user_info;
 import net.hasor.test.utils.DsUtils;
+import static net.hasor.test.utils.TestUtils.beanForData1;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -26,8 +27,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static net.hasor.test.utils.TestUtils.beanForData1;
 
 /***
  * execute 系列方法测试

@@ -21,23 +21,46 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * 主键生成器
+ * 主键生成处理器接口，用于自定义数据库主键生成策略
  * @author 赵永春 (zyc@hasor.net)
  * @version 2022-12-01
  */
 public interface GeneratedKeyHandler {
+    /**
+     * 是否需要在插入操作前执行主键生成
+     * @return 默认返回 false（不执行前置生成）
+     */
     default boolean onBefore() {
         return false;
     }
 
+    /**
+     * 前置主键生成逻辑（在INSERT语句执行前调用）
+     * @param conn 数据库连接
+     * @param entity 实体对象
+     * @param mapping 列映射信息
+     * @return 生成的主键值
+     */
     default Object beforeApply(Connection conn, Object entity, ColumnMapping mapping) throws SQLException {
         return null;
     }
 
+    /**
+     * 是否需要在插入操作后执行主键获取
+     * @return 默认返回false（不执行后置获取）
+     */
     default boolean onAfter() {
         return false;
     }
 
+    /**
+     * 后置主键获取逻辑（在INSERT语句执行后调用）
+     * @param generatedKeys 数据库返回的生成键结果集
+     * @param entity 实体对象
+     * @param argsIndex 参数索引位置
+     * @param mapping 列映射信息
+     * @return 获取到的主键值
+     */
     default Object afterApply(ResultSet generatedKeys, Object entity, int argsIndex, ColumnMapping mapping) throws SQLException {
         return null;
     }

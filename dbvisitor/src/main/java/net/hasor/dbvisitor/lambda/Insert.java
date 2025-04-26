@@ -25,6 +25,6 @@ import net.hasor.dbvisitor.lambda.core.InsertExecute;
 public interface Insert<T> extends  //
         BasicFunc<Insert<T>>,       //
         InsertExecute<Insert<T>, T> {
-
+    /** 转换为基于 Map 的 insert 接口。 */
     MapInsert asMap();
 }

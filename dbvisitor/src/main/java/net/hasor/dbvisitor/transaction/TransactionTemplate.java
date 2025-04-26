@@ -14,42 +14,45 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.transaction;
-import java.sql.SQLException;
-
 /**
- * 事务模版接口
+ * 事务模板接口，提供统一的事务执行模板方法。
+ * 通过回调机制封装事务管理逻辑，简化编程式事务的使用。
+ *
  * @author 赵永春 (zyc@hasor.net)
  * @version 2015-10-22
  */
 public interface TransactionTemplate {
     /**
-     * 开始执行一个事务。
-     * @param callBack 调用方法执行事务。
+     * 使用默认传播行为(REQUIRED)和默认隔离级别执行事务
+     * @param <T> 返回结果类型
+     * @param callBack 事务回调接口，包含需要在事务中执行的业务逻辑
      * @return 返回 {@link TransactionCallback} 接口执行的返回值。
-     * @throws SQLException 执行期间发生SQL异常
+     * @throws Throwable 执行过程中可能抛出的异常
      */
     default <T> T execute(TransactionCallback<T> callBack) throws Throwable {
         return this.execute(callBack, Propagation.REQUIRED, null);
     }
 
     /**
-     * 开始执行一个事务。
-     * @param callBack 调用方法执行事务。
-     * @param behavior 传播属性
+     * 使用指定传播行为和默认隔离级别执行事务
+     * @param <T> 返回结果类型
+     * @param callBack 事务回调接口
+     * @param behavior 事务传播行为，定义事务如何传播(如REQUIRED, REQUIRES_NEW等)
      * @return 返回 {@link TransactionCallback} 接口执行的返回值。
-     * @throws SQLException 执行期间发生SQL异常
+     * @throws Throwable 执行过程中可能抛出的异常
      */
     default <T> T execute(TransactionCallback<T> callBack, Propagation behavior) throws Throwable {
         return this.execute(callBack, behavior, null);
     }
 
     /**
-     * 开始执行一个事务。
-     * @param callBack 调用方法执行事务。
-     * @param behavior 传播属性
-     * @param level 事务隔离级别
+     * 使用指定传播行为和隔离级别执行事务
+     * @param <T> 返回结果类型
+     * @param callBack 事务回调接口
+     * @param behavior 事务传播行为
+     * @param level 事务隔离级别(如READ_COMMITTED, SERIALIZABLE等)，null表示使用默认级别
      * @return 返回 {@link TransactionCallback} 接口执行的返回值。
-     * @throws SQLException 执行期间发生SQL异常
+     * @throws Throwable 执行过程中可能抛出的异常
      */
     <T> T execute(TransactionCallback<T> callBack, Propagation behavior, Isolation level) throws Throwable;
 }

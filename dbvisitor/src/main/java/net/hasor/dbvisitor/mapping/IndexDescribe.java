@@ -33,10 +33,10 @@ public @interface IndexDescribe {
     /** 唯一索引 */
     boolean unique() default false;
 
-    /** 通过列名来确定索引的列有哪些 */
+    /** 索引包含的列名 */
     String[] columns();
 
-    /** 索引备注 */
+    /** 索引备注信息 */
     String comment() default "";
 
     /** 在生成所以创建语句的时候用于拼接的其它信息，开发者可以随意指定。会在 'create index' 语句生成的最后时自动追加 */

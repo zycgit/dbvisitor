@@ -15,10 +15,12 @@
  */
 package net.hasor.dbvisitor.lambda.core;
 /**
+ * 基础函数式接口
  * @author 赵永春 (zyc@hasor.net)
  * @version 2022-04-02
  */
 public interface BasicFunc<R> {
+    /** 类型 */
     Class<?> exampleType();
 
     /** 重置所有状态 */

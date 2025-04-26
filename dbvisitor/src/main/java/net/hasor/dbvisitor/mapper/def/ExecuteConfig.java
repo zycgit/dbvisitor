@@ -29,6 +29,11 @@ public class ExecuteConfig extends SqlConfig {
     private String   resultType = null;
     private String[] bindOut    = ArrayUtils.EMPTY_STRING_ARRAY;
 
+    /**
+     * 构造函数
+     * @param target 动态SQL目标对象
+     * @param config 配置函数，用于获取配置项
+     */
     public ExecuteConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
 

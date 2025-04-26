@@ -26,10 +26,21 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Insert {
+    /**
+     * 要执行的INSERT SQL语句
+     */
     String[] value();
 
+    /**
+     * SQL语句执行类型
+     * @return 默认为预编译语句(Prepared)
+     */
     StatementType statementType() default StatementType.Prepared;
 
+    /**
+     * 执行超时时间(秒)
+     * @return 默认-1表示不设置超时
+     */
     int timeout() default -1;
 
     /**

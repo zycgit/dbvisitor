@@ -25,5 +25,6 @@ import java.sql.SQLException;
  */
 @FunctionalInterface
 public interface PreparedStatementCreator {
+    /** 创建 {@link PreparedStatement} 对象 */
     PreparedStatement createPreparedStatement(Connection con) throws SQLException;
 }

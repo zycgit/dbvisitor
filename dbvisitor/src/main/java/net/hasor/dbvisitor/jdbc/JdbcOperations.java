@@ -25,24 +25,51 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 该接口声明了一些 JDBC 基本操作。
- * @author Thomas Risberg
- * @author Juergen Hoeller
+ * JDBC核心操作接口
+ * 提供对JDBC操作的统一封装，包括SQL加载、执行和结果处理等功能
  * @author 赵永春 (zyc@hasor.net)
  * @version 2013-10-9
  */
 public interface JdbcOperations {
-
+    /**
+     * 加载 SQL 资源文件
+     * @param sqlResource SQL资源路径
+     */
     void loadSQL(String sqlResource) throws IOException, SQLException;
 
+    /**
+     * 使用指定字符集加载 SQL 资源文件
+     * @param charset 字符集
+     * @param sqlResource SQL资源路径
+     */
     void loadSQL(Charset charset, final String sqlResource) throws IOException, SQLException;
 
+    /**
+     * 从 Reader 加载 SQL
+     * @param sqlReader SQL内容读取器
+     */
     void loadSQL(Reader sqlReader) throws IOException, SQLException;
 
+    /**
+     * 加载并分割 SQL 资源文件
+     * @param splitChars 分割字符
+     * @param sqlResource SQL资源路径
+     */
     void loadSplitSQL(String splitChars, String sqlResource) throws IOException, SQLException;
 
+    /**
+     * 使用指定字符集加载并分割 SQL 资源文件
+     * @param splitChars 分割字符
+     * @param charset 字符集
+     * @param sqlResource SQL资源路径
+     */
     void loadSplitSQL(String splitChars, Charset charset, String sqlResource) throws IOException, SQLException;
 
+    /**
+     * 从 Reader 加载并分割 SQL
+     * @param splitChars 分割字符
+     * @param sqlReader SQL内容读取器
+     */
     void loadSplitSQL(String splitChars, Reader sqlReader) throws IOException, SQLException;
 
     /** 通过回调函数，执行一个JDBC数据访问操作 */

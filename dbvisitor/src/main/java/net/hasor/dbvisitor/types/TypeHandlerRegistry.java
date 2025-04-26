@@ -43,8 +43,8 @@ import java.net.URL;
 import java.sql.*;
 import java.time.*;
 import java.time.chrono.JapaneseDate;
-import java.util.Date;
 import java.util.*;
+import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
@@ -278,18 +278,39 @@ public final class TypeHandlerRegistry {
         }
     }
 
+    /**
+     * 根据类型处理器类名获取已注册的类型处理器
+     * @param handlerType 类型处理器的全限定类名
+     * @return 对应的类型处理器，如果未找到则返回 null
+     */
     public TypeHandler<?> getHandlerByHandlerType(String handlerType) {
         return this.cachedByHandlerType.getOrDefault(handlerType, null);
     }
 
+    /**
+     * 根据类型处理器类获取已注册的类型处理器
+     * @param handlerType 类型处理器类
+     * @return 对应的类型处理器，如果未找到则返回 null
+     */
     public TypeHandler<?> getHandlerByHandlerType(Class<?> handlerType) {
         return this.cachedByHandlerType.getOrDefault(handlerType.getName(), null);
     }
 
+    /**
+     * 创建指定类型的类型处理器实例
+     * @param typeHandler 类型处理器类
+     * @return 类型处理器实例
+     */
     public TypeHandler<?> createTypeHandler(Class<?> typeHandler) {
         return this.createTypeHandler(typeHandler, null);
     }
 
+    /**
+     * 创建指定类型的类型处理器实例
+     * @param typeHandler 类型处理器类
+     * @param argType 类型处理器构造参数类型
+     * @return 类型处理器实例
+     */
     public TypeHandler<?> createTypeHandler(Class<?> typeHandler, Class<?> argType) {
         return this.createTypeHandler(typeHandler, argType, type -> {
             try {
@@ -347,13 +368,21 @@ public final class TypeHandlerRegistry {
         }
     }
 
-    /** 注册 TypeHandler */
+    /**
+     * 注册 {@link TypeHandler} 到指定的 JDBC 类型
+     * @param jdbcType JDBC 类型代码
+     * @param typeHandler 类型处理器实例
+     */
     public void register(int jdbcType, TypeHandler<?> typeHandler) {
         this.cachedByJdbcType.put(jdbcType, typeHandler);
         registerTypeHandlerType(typeHandler);
     }
 
-    /** 注册 TypeHandler */
+    /**
+     * 注册 {@link TypeHandler} 到指定的 Java 类型
+     * @param javaType Java 类型
+     * @param typeHandler 类型处理器实例
+     */
     public void register(Class<?> javaType, TypeHandler<?> typeHandler) {
         if (isAbstract(javaType)) {
             this.abstractCachedByJavaType.put(javaType, typeHandler);
@@ -363,6 +392,12 @@ public final class TypeHandlerRegistry {
         registerTypeHandlerType(typeHandler);
     }
 
+    /**
+     * 注册 {@link TypeHandler} 到指定的 JDBC 类型和 Java 类型的组合
+     * @param jdbcType JDBC 类型代码
+     * @param javaType Java 类型
+     * @param typeHandler 类型处理器实例
+     */
     public void register(int jdbcType, Class<?> javaType, TypeHandler<?> typeHandler) {
         if (isAbstract(javaType)) {
             this.abstractCachedByCrossType.computeIfAbsent(javaType, k -> {
@@ -401,7 +436,7 @@ public final class TypeHandlerRegistry {
         register(Types.DECIMAL, jdbcType, typeHandler);
     }
 
-    /** 根据 @MappedJavaTypes @MappedJdbcTypes @MappedCross 注解注册 TypeHandler */
+    /** 根据 {@link MappedJavaTypes} {@link MappedJdbcTypes} 注解注册 {@link TypeHandler} */
     public void registerHandler(Class<?> handlerClass, TypeHandler<?> typeHandler) {
         MappedJavaTypes mappedTypes = handlerClass.getAnnotation(MappedJavaTypes.class);
         if (mappedTypes != null) {
@@ -430,15 +465,21 @@ public final class TypeHandlerRegistry {
         }
     }
 
+    /** 获取所有已注册的类型处理器 */
     public Collection<TypeHandler<?>> getTypeHandlers() {
         return Collections.unmodifiableCollection(this.cachedByJavaType.values());
     }
 
+    /** 获取所有已注册的 Java 类型名称 */
     public Collection<String> getHandlerJavaTypes() {
         return Collections.unmodifiableCollection(this.cachedByJavaType.keySet());
     }
 
-    /** 根据 Java 类型Derive a default SQL type from the given Java type. */
+    /**
+     * 根据Java类型名称获取默认的 JDBC 类型
+     * @param javaType Java 类型名称
+     * @return 对应的 JDBC 类型代码，如果未找到则返回 Types.OTHER
+     */
     public static int toSqlType(final String javaType) {
         Integer jdbcType = javaTypeToJdbcTypeMap.get(javaType);
         if (jdbcType != null) {
@@ -448,7 +489,11 @@ public final class TypeHandlerRegistry {
 
     }
 
-    /** 根据 Java 类型Derive a default SQL type from the given Java type. */
+    /**
+     * 根据 Java 类型获取默认的 JDBC 类型
+     * @param javaType Java 类型
+     * @return 对应的 JDBC 类型代码，如果未找到则返回 Types.OTHER
+     */
     public static int toSqlType(final Class<?> javaType) {
         Integer jdbcType = javaTypeToJdbcTypeMap.get(javaType.getName());
         if (jdbcType != null) {
@@ -457,6 +502,11 @@ public final class TypeHandlerRegistry {
         return Types.OTHER;
     }
 
+    /**
+     * 检查是否包含指定 Java 类型的类型处理器
+     * @param typeClass Java 类型
+     * @return 如果存在对应的类型处理器则返回 true
+     */
     public boolean hasTypeHandler(Class<?> typeClass) {
         Objects.requireNonNull(typeClass, "typeClass is null.");
         if (typeClass.isEnum()) {
@@ -475,15 +525,31 @@ public final class TypeHandlerRegistry {
         return false;
     }
 
+    /**
+     * 检查是否包含指定 Java 类型名称的类型处理器
+     * @param typeName Java 类型名称
+     * @return 如果存在对应的类型处理器则返回 true
+     */
     public boolean hasTypeHandler(String typeName) {
         Objects.requireNonNull(typeName, "typeName is null.");
         return this.cachedByJavaType.containsKey(typeName);
     }
 
+    /**
+     * 检查是否包含指定 JDBC 类型的类型处理器
+     * @param jdbcType JDBC类型代码
+     * @return 如果存在对应的类型处理器则返回 true
+     */
     public boolean hasTypeHandler(int jdbcType) {
         return this.cachedByJdbcType.containsKey(jdbcType);
     }
 
+    /**
+     * 检查是否包含指定 Java 类型和 JDBC 类型的类型处理器
+     * @param typeClass Java类型
+     * @param jdbcType JDBC类型代码
+     * @return 如果存在对应的类型处理器则返回 true
+     */
     public boolean hasTypeHandler(Class<?> typeClass, int jdbcType) {
         Objects.requireNonNull(typeClass, "typeClass is null.");
         if (typeClass.isEnum()) {
@@ -502,6 +568,11 @@ public final class TypeHandlerRegistry {
         return false;
     }
 
+    /**
+     * 根据 Java 类型名称获取类型处理器
+     * @param typeName Java 类型名称
+     * @return 对应的类型处理器，如果未找到则返回默认类型处理器
+     */
     public TypeHandler<?> getTypeHandler(String typeName) {
         if (StringUtils.isBlank(typeName)) {
             throw new NullPointerException("typeName is null.");
@@ -510,6 +581,11 @@ public final class TypeHandlerRegistry {
         return (typeHandler != null) ? typeHandler : this.defaultTypeHandler;
     }
 
+    /**
+     * 根据 Java 类型获取类型处理器
+     * @param typeClass Java 类型
+     * @return 对应的类型处理器，如果未找到则返回默认类型处理器
+     */
     public TypeHandler<?> getTypeHandler(Class<?> typeClass) {
         Objects.requireNonNull(typeClass, "typeClass is null.");
         String typeClassName = typeClass.getName();
@@ -541,6 +617,11 @@ public final class TypeHandlerRegistry {
         return typeHandler;
     }
 
+    /**
+     * 根据 JDBC 类型获取类型处理器
+     * @param jdbcType JDBC 类型代码
+     * @return 对应的类型处理器，如果未找到则返回默认类型处理器
+     */
     public TypeHandler<?> getTypeHandler(int jdbcType) {
         TypeHandler<?> typeHandler = this.cachedByJdbcType.get(jdbcType);
         return (typeHandler != null) ? typeHandler : this.defaultTypeHandler;
@@ -599,11 +680,12 @@ public final class TypeHandlerRegistry {
         return typeHandler;
     }
 
+    /** 获取默认类型处理器 */
     public UnknownTypeHandler getDefaultTypeHandler() {
         return this.defaultTypeHandler;
     }
 
-    /** 一个工具方法，会根据 value Type 自动的选择对应的 TypeHandler */
+    /** 一个工具方法，设置 {@link PreparedStatement} 参数值，自动选择对应的 {@link TypeHandler} */
     public void setParameterValue(final PreparedStatement ps, final int parameterPosition, final Object value) throws SQLException {
         if (value == null) {
             ps.setObject(parameterPosition, null);
@@ -638,7 +720,7 @@ public final class TypeHandlerRegistry {
         typeHandler.setParameter(ps, parameterPosition, value, toSqlType(valueClass));
     }
 
-    /** 一个工具方法，会根据 value Type 自动的选择对应的 TypeHandler */
+    /** 一个工具方法，设置 {@link CallableStatement} 参数值，自动选择对应的 {@link TypeHandler} */
     public void setParameterValue(final CallableStatement cs, final int parameterPosition, final Object value) throws SQLException {
         SqlMode sqlMode;
         Integer jdbcType;
@@ -703,6 +785,13 @@ public final class TypeHandlerRegistry {
         }
     }
 
+    /**
+     * 从 {@link CallableStatement} 获取输出参数值
+     * @param cs {@link CallableStatement} 对象
+     * @param i 参数位置
+     * @param arg 参数配置
+     * @return 参数值
+     */
     public Object getParameterValue(CallableStatement cs, int i, SqlArg arg) throws SQLException {
         TypeHandler<?> argHandler = arg.getTypeHandler();
         Class<?> argJavaType = arg.getJavaType();

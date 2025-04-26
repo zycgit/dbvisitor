@@ -56,7 +56,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Mapper 配置中心
+ * Mapper 配置中心，负责加载和管理 Mapper 相关的配置信息，
+ * 包括从类、XML 文件加载 Mapper 配置，查找 SQL 语句定义等功能。
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-06-05
  */
@@ -69,6 +70,9 @@ public class MapperRegistry {
     protected final      TypeHandlerRegistry                    typeRegistry;
     protected final      Set<String>                            loaded;
 
+    /**
+     * 默认构造函数，使用当前线程的上下文类加载器初始化 MapperRegistry。
+     */
     public MapperRegistry() {
         this.classLoader = Thread.currentThread().getContextClassLoader();
         this.mappingRegistry = new MappingRegistry(this.classLoader);
@@ -77,6 +81,11 @@ public class MapperRegistry {
         this.loaded = new HashSet<>();
     }
 
+    /**
+     * 带参数的构造函数，允许用户指定 MappingRegistry 和 MacroRegistry。
+     * @param mapping 映射注册表，用于管理实体类和数据库表之间的映射关系。
+     * @param macro 宏注册表，用于管理 SQL 宏定义。
+     */
     public MapperRegistry(MappingRegistry mapping, MacroRegistry macro) {
         this.classLoader = mapping.getClassLoader();
         this.mappingRegistry = mapping;
@@ -85,32 +94,66 @@ public class MapperRegistry {
         this.loaded = new HashSet<>();
     }
 
+    /**
+     * 获取当前使用的类加载器。
+     * @return 类加载器对象。
+     */
     public ClassLoader getClassLoader() {
         return this.classLoader;
     }
 
+    /**
+     * 获取映射注册表。
+     * @return 映射注册表对象。
+     */
     public MappingRegistry getMappingRegistry() {
         return this.mappingRegistry;
     }
 
+    /**
+     * 获取宏注册表。
+     * @return 宏注册表对象。
+     */
     public MacroRegistry getMacroRegistry() {
         return this.macroRegistry;
     }
 
+    /**
+     * 获取类型处理器注册表。
+     * @return 类型处理器注册表对象。
+     */
     public TypeHandlerRegistry getTypeRegistry() {
         return this.typeRegistry;
     }
 
     // --------------------------------------------------------------------------------------------
 
+    /**
+     * 根据命名空间类和 SQL 语句 ID 查找对应的 StatementDef 对象。
+     * @param namespace 命名空间类，使用类的全限定名作为命名空间。
+     * @param statement SQL 语句的 ID。
+     * @return 对应的 StatementDef 对象，如果未找到则返回 null。
+     */
     public StatementDef findStatement(Class<?> namespace, String statement) {
         return this.findStatement(namespace.getName(), statement);
     }
 
+    /**
+     * 根据命名空间类和方法查找对应的 StatementDef 对象，使用方法名作为 SQL 语句 ID。
+     * @param namespace 命名空间类，使用类的全限定名作为命名空间。
+     * @param statement 方法对象，使用方法名作为 SQL 语句的 ID。
+     * @return 对应的 StatementDef 对象，如果未找到则返回 null。
+     */
     public StatementDef findStatement(Class<?> namespace, Method statement) {
         return this.findStatement(namespace.getName(), statement.getName());
     }
 
+    /**
+     * 根据命名空间和 SQL 语句 ID 查找对应的 StatementDef 对象。
+     * @param namespace 命名空间字符串。
+     * @param statement SQL 语句的 ID。
+     * @return 对应的 StatementDef 对象，如果未找到则返回 null。
+     */
     public StatementDef findStatement(String namespace, String statement) {
         if (this.configMap.containsKey(namespace)) {
             return this.configMap.get(namespace).get(statement);
@@ -119,7 +162,15 @@ public class MapperRegistry {
         }
     }
 
-    /** load mapperType. */
+    /**
+     * 加载指定的 mapper 类型，包括其关联的 XML 资源、实体映射信息以及方法级别的 SQL 配置。
+     * 该方法会检查 mapper 类型是否已经加载过，避免重复加载。
+     * 如果 mapper 类型上存在 {@link } 注解，会尝试加载对应的 XML 文件；
+     * 如果 mapper 类型是 {@link } 的实现类，会加载其泛型对应的实体映射信息；
+     * 最后会加载 mapper 类型中所有方法的 SQL 配置。
+     *
+     * @param mapperType 要加载的 mapper 类型，必须是一个接口，并且需要有 @RefMapper 或 @SimpleMapper 或 @DalMapper 注解。
+     */
     public void loadMapper(Class<?> mapperType) throws Exception {
         testMapper(mapperType);
 
@@ -155,7 +206,11 @@ public class MapperRegistry {
         });
     }
 
-    /** load mapperFile. */
+    /**
+     * 加载指定资源路径的 mapper 文件。
+     * 如果资源路径为空，会抛出 FileNotFoundException。
+     * @param mapperResource 要加载的 mapper 文件的资源路径
+     */
     public void loadMapper(String mapperResource) throws Exception {
         if (StringUtils.isBlank(mapperResource)) {
             throw new FileNotFoundException("mapper file ios empty.");
@@ -487,7 +542,7 @@ public class MapperRegistry {
         }
     }
 
-    public static void testMapper(Class<?> mapperType) {
+    private static void testMapper(Class<?> mapperType) {
         if (!mapperType.isInterface()) {
             throw new UnsupportedOperationException("the '" + mapperType.getName() + "' must interface.");
         }
@@ -509,7 +564,7 @@ public class MapperRegistry {
         }
     }
 
-    protected static boolean matchType(Class<?> dalType) {
+    private static boolean matchType(Class<?> dalType) {
         if (!dalType.isInterface()) {
             return false;
         }
@@ -522,7 +577,7 @@ public class MapperRegistry {
         return false;
     }
 
-    protected static boolean matchMethod(Method dalMethod) {
+    private static boolean matchMethod(Method dalMethod) {
         if (dalMethod.getDeclaringClass() == Object.class) {
             return false;
         }
@@ -534,11 +589,11 @@ public class MapperRegistry {
         return false;
     }
 
-    protected SqlConfigResolve<Method> getMethodDynamicResolve() {
+    private SqlConfigResolve<Method> getMethodDynamicResolve() {
         return new ClassSqlConfigResolve();
     }
 
-    protected SqlConfigResolve<Node> getXmlDynamicResolve() {
+    private SqlConfigResolve<Node> getXmlDynamicResolve() {
         return new XmlSqlConfigResolve();
     }
 }

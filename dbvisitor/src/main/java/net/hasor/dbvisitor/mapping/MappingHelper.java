@@ -220,28 +220,4 @@ public class MappingHelper {
             return this.name;
         }
     }
-
-    //    public static class TableInfo {
-    //        private final String catalog;
-    //        private final String schema;
-    //        private final String table;
-    //
-    //        public TableInfo(String catalog, String schema, String table) {
-    //            this.catalog = catalog;
-    //            this.schema = schema;
-    //            this.table = table;
-    //        }
-    //
-    //        public String getCatalog() {
-    //            return this.catalog;
-    //        }
-    //
-    //        public String getSchema() {
-    //            return this.schema;
-    //        }
-    //
-    //        public String getTable() {
-    //            return this.table;
-    //        }
-    //    }
 }

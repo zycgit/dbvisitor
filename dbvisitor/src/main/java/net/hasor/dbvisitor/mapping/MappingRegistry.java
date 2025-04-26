@@ -53,18 +53,36 @@ public class MappingRegistry {
     private final        ClassTableMappingResolve                                            entityClassResolve;
     protected final      Set<String>                                                         loaded;
 
+    /**
+     * 默认构造方法，使用系统类加载器、默认类型处理器注册表和空配置选项
+     */
     public MappingRegistry() {
         this(null, TypeHandlerRegistry.DEFAULT, Options.of());
     }
 
+    /**
+     * 使用指定类加载器构造，使用默认类型处理器注册表和空配置选项
+     * @param classLoader 自定义类加载器，如果为null则使用系统类加载器
+     */
     public MappingRegistry(ClassLoader classLoader) {
         this(classLoader, TypeHandlerRegistry.DEFAULT, Options.of());
     }
 
+    /**
+     * 使用指定类加载器和全局配置构造，使用默认类型处理器注册表
+     * @param classLoader 自定义类加载器，如果为null则使用系统类加载器
+     * @param global 全局配置选项
+     */
     public MappingRegistry(ClassLoader classLoader, Options global) {
         this(classLoader, TypeHandlerRegistry.DEFAULT, global);
     }
 
+    /**
+     * 使用指定类加载器、类型处理器注册表和全局配置
+     * @param classLoader 自定义类加载器，如果为null则使用系统类加载器
+     * @param typeRegistry 类型处理器注册表，如果为null则使用默认注册表
+     * @param global 全局配置选项，如果为null则使用空配置
+     */
     public MappingRegistry(ClassLoader classLoader, TypeHandlerRegistry typeRegistry, Options global) {
         this.classLoader = classLoader != null ? classLoader : MappingRegistry.class.getClassLoader();
         this.typeRegistry = (typeRegistry == null) ? TypeHandlerRegistry.DEFAULT : typeRegistry;
@@ -74,18 +92,27 @@ public class MappingRegistry {
         this.loaded = new HashSet<>();
     }
 
+    /**
+     * 检查指定类是否是实体类（是否标记了@Table注解）
+     * @param testClass 要检查的类
+     * @param <T> 类类型
+     * @return 如果是实体类返回true，否则返回false
+     */
     public static <T> boolean isEntity(Class<T> testClass) {
         return testClass.isAnnotationPresent(Table.class);
     }
 
+    /** 获取当前使用的类加载器 */
     public ClassLoader getClassLoader() {
         return this.classLoader;
     }
 
+    /** 获取当前使用的类型处理器注册表 */
     public TypeHandlerRegistry getTypeRegistry() {
         return this.typeRegistry;
     }
 
+    /** 获取全局配置选项 */
     public Options getGlobalOptions() {
         return this.global;
     }
@@ -323,14 +350,34 @@ public class MappingRegistry {
         return (TableMapping<T>) def;
     }
 
+    /**
+     * 根据实体类在默认命名空间("")中查找映射配置
+     * @param entityType 要查找的实体类类型
+     * @param <T> 返回的映射类型
+     * @return 表映射配置，如果未找到则返回null
+     */
     public <T> TableMapping<T> findByEntity(Class<?> entityType) {
         return this.findBySpace("", entityType.getName());
     }
 
+    /**
+     * 根据命名空间和实体类查找映射配置
+     * @param space 命名空间
+     * @param entityType 实体类类型
+     * @param <T> 返回的映射类型
+     * @return 表映射配置，未找到返回null
+     */
     public <T> TableMapping<T> findBySpace(String space, Class<?> entityType) {
         return this.findBySpace(space, entityType.getName());
     }
 
+    /**
+     * 根据命名空间和映射名称查找映射配置
+     * @param space 命名空间
+     * @param name 映射名称(通常是类全名)
+     * @param <T> 返回的映射类型
+     * @return 表映射配置，未找到返回null
+     */
     public <T> TableMapping<T> findBySpace(String space, String name) {
         String findSpace = StringUtils.isBlank(space) ? "" : space;
 
@@ -342,15 +389,38 @@ public class MappingRegistry {
         }
     }
 
-    /** find Entity using (catalog = "", schema = "", table = argument, specifyName = ""), specifyName */
+    /**
+     * 根据表名查找映射配置（使用默认catalog和schema）
+     * @param table 表名
+     * @param <T> 返回的映射类型
+     * @return 表映射配置，如果不存在则返回null
+     */
     public <T> TableMapping<T> findByTable(String table) {
         return this.findByTable(null, null, table, null);
     }
 
+    /**
+     * 根据catalog、schema和表名查找映射配置
+     * @param catalog catalog名称
+     * @param schema schema名称
+     * @param table 表名
+     * @param <T> 返回的映射类型
+     * @return 表映射配置，如果不存在则返回null
+     */
     public <T> TableMapping<T> findByTable(String catalog, String schema, String table) {
         return this.findByTable(catalog, schema, table, null);
     }
 
+    /**
+     * 根据catalog、schema、表名和指定名称查找映射配置
+     * @param catalog catalog名称
+     * @param schema schema名称
+     * @param table 表名
+     * @param specifyName 指定的映射名称（当表有多个映射配置时需要指定）
+     * @param <T> 返回的映射类型
+     * @return 表映射配置，如果不存在则返回null
+     * @throws IllegalStateException 当表有多个映射配置但未指定名称时抛出
+     */
     public <T> TableMapping<T> findByTable(String catalog, String schema, String table, String specifyName) {
         catalog = StringUtils.isNotBlank(catalog) ? catalog : "";
         schema = StringUtils.isNotBlank(schema) ? schema : "";

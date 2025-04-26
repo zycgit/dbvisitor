@@ -18,12 +18,12 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.mapping.keyseq.*;
 
 /**
- * 键生成策略
+ * 主键生成策略枚举
  * @author 赵永春 (zyc@hasor.net)
  * @version 2022-12-01
  */
 public enum KeyType {
-    /** 不指定 */
+    /** 不指定主键生成策略 */
     None(null),
     /** 不会主动生成自增，但会接收来自数据库的自增 */
     Auto(new AutoKeySeqHolderFactory()),

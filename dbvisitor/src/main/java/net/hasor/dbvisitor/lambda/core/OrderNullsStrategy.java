@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.lambda.core;
 /**
+ * 排序中 null 值的排序策略。
  * @author 赵永春 (zyc@hasor.net)
  * @version 2024-11-10
  */

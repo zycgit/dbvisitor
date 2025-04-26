@@ -66,6 +66,12 @@ public class JdbcHelper {
     /** Aliyun PolarDB */
     public static final String POLARDB          = "polardb";
 
+    /**
+     * 根据 JDBC URL和驱动类名获取数据库类型
+     * @param rawUrl JDBC连接URL
+     * @param driverClassName 驱动类名
+     * @return 数据库类型标识字符串，无法识别时返回 null
+     */
     public static String getDbType(String rawUrl, String driverClassName) {
         if (rawUrl == null) {
             return null;
@@ -171,11 +177,21 @@ public class JdbcHelper {
         }
     }
 
+    /**
+     * 根据 Statement 获取数据库类型
+     * @param c Statement对象
+     * @return 数据库类型标识字符串
+     */
     public static String getDbType(Statement c) throws SQLException {
         DatabaseMetaData metaData = c.getConnection().getMetaData();
         return JdbcHelper.getDbType(metaData.getURL(), metaData.getDriverName());
     }
 
+    /**
+     * 获取游标类型的 JDBC 类型值
+     * @param dbType 数据库类型
+     * @return 游标类型的JDBC类型值，Oracle返回-10，其他数据库返回Types.REF_CURSOR
+     */
     public static Integer getCursorJdbcType(String dbType) {
         if (StringUtils.equals(dbType, JdbcHelper.ORACLE)) {
             return -10;// oracle driver oracle.jdbc.OracleTypes.CURSOR = -10

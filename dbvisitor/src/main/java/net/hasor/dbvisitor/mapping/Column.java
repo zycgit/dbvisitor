@@ -59,27 +59,51 @@ public @interface Column {
     /** (选填) 参与新增（在配置了 @Table 注解时，通过 {@link LambdaTemplate} 接口操作才有效） */
     boolean insert() default true;
 
-    /** (选填) 用作 select 语句时 column name 的写法，默认是空 */
+    /**
+     * (选填) 用作 select 语句时 column name 的写法，默认是空。
+     * 请注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险，或更换其它方案。例如：JdbcTemplate
+     */
     String selectTemplate() default "";
 
-    /** (选填) 用作 insert 语句时 value 的参数写法，默认是 ? */
+    /**
+     * (选填) 用作 insert 语句时 value 的参数写法，默认是 ?
+     * 请注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险，或更换其它方案。例如：JdbcTemplate
+     */
     String insertTemplate() default "";
 
-    /** (选填) 用作 update 的 set 语句时 column name 的写法，默认是空 */
+    /**
+     * (选填) 用作 update 的 set 语句时 column name 的写法，默认是空
+     * 请注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险，或更换其它方案。例如：JdbcTemplate
+     */
     String setColTemplate() default "";
 
-    /** (选填) 用作 update set 语句时 value 的参数写法，默认是 ? */
+    /**
+     * (选填) 用作 update set 语句时 value 的参数写法，默认是 ?
+     * 请注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险，或更换其它方案。例如：JdbcTemplate
+     */
     String setValueTemplate() default "";
 
-    /** (选填) 用作 update/delete 的 where 语句时 column name 的写法，默认是空 */
+    /**
+     * (选填) 用作 update/delete 的 where 语句时 column name 的写法，默认是空
+     * 请注意：请注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险，或更换其它方案。例如：JdbcTemplate
+     */
     String whereColTemplate() default "";
 
-    /** (选填) 用作 update/delete 的 where 语句时 value 的参数写法，默认是 ? */
+    /**
+     * (选填) 用作 update/delete 的 where 语句时 value 的参数写法，默认是 ?
+     * 请注意：请注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险，或更换其它方案。例如：JdbcTemplate
+     */
     String whereValueTemplate() default "";
 
-    /** (选填) 用作 group by 时 column name 的写法，默认是空 */
+    /**
+     * (选填) 用作 group by 时 column name 的写法，默认是空
+     * 请注意：请注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险，或更换其它方案。例如：JdbcTemplate
+     */
     String groupByColTemplate() default "";
 
-    /** (选填) 用作 order by 时 column name 的写法，默认是空 */
+    /**
+     * (选填) 用作 order by 时 column name 的写法，默认是空
+     * 请注意：请注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险，或更换其它方案。例如：JdbcTemplate
+     */
     String orderByColTemplate() default "";
 }

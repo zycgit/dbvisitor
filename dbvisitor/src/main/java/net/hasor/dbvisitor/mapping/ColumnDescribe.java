@@ -27,32 +27,34 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ColumnDescribe {
-
-    /** 列数据类型，如果配置了该值 length/precision/scale 都将会无效 */
+    /**
+     * 列数据类型（优先级最高，设置后length/precision/scale将失效）
+     * 示例：VARCHAR(255)/NUMBER(10,2)
+     */
     String sqlType();
 
-    /** 长度 */
+    /** 字段长度（适用于字符串类型） */
     String length() default "";
 
-    /** 精度 */
+    /** 数字类型总精度 */
     String precision() default "";
 
-    /** 小数位数 */
+    /** 数字类型小数位数 */
     String scale() default "";
 
-    /** 列字符集 */
+    /** 字符集（如utf8mb4） */
     String characterSet() default "";
 
-    /** 列排序规则 */
+    /** 排序规则（如utf8mb4_general_ci） */
     String collation() default "";
 
-    /** 表示列是否允许为空 */
+    /** 是否允许为空（默认true） */
     boolean nullable() default true;
 
-    /** 列上具有的默认值 */
+    /** 默认值（需符合数据库语法） */
     String defaultValue() default "";
 
-    /** 列备注 */
+    /** 列注释/说明 */
     String comment() default "";
 
     /** 在生成建表语句的时候用于拼接的其它信息，开发者可以随意指定。会在 'create table' / 'alter table' 语句生成时自动追加 */

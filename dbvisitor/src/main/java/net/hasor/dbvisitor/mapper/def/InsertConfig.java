@@ -30,6 +30,11 @@ public class InsertConfig extends DmlConfig {
     private String          keyProperty;
     private String          keyColumn;
 
+    /**
+     * 构造函数
+     * @param target 动态SQL构建目标对象
+     * @param config 配置获取函数
+     */
     public InsertConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
 

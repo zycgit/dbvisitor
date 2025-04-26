@@ -22,7 +22,9 @@ import net.hasor.dbvisitor.jdbc.RowMapper;
 import java.util.Objects;
 
 /**
- * 代表一个动态 SQL Build 之后的具体 SQL 和其参数
+ * 表示动态SQL构建后的具体SQL参数。
+ * 封装了SQL参数的各种属性，包括参数名、值、JDBC类型、Java类型等，
+ * 支持输入参数、输出参数和输入输出参数等多种模式。
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-06-05
  */
@@ -54,23 +56,47 @@ public class SqlArg {
         this.javaType = javaType;
     }
 
+    /**
+     * 创建输入参数
+     * @param obj 参数值
+     */
     public static SqlArg valueOf(Object obj) {
         return new SqlArg(null, obj, SqlMode.In, null, null, null);
     }
 
+    /**
+     * 创建带有指定类型的输入参数
+     * @param obj 参数值
+     * @param javaType Java类型
+     */
     public static SqlArg valueOf(Object obj, Class<?> javaType) {
         return new SqlArg(null, obj, SqlMode.In, null, javaType, null);
     }
 
+    /**
+     * 创建带有指定 {@link TypeHandler}。
+     * @param obj 参数值
+     * @param typeHandler typeHandler类型
+     */
     public static SqlArg valueOf(Object obj, TypeHandler<?> typeHandler) {
         return new SqlArg(null, obj, SqlMode.In, null, null, typeHandler);
     }
 
+    /**
+     * 创建带有指定 JDBC 类型
+     * @param obj 参数值
+     * @param jdbcType JDBC 类型
+     */
     public static SqlArg valueOf(Object obj, int jdbcType) {
         return new SqlArg(null, obj, SqlMode.In, jdbcType, null, null);
     }
 
-    public static SqlArg asOut(String name, Class<String> javaType) {
+    /**
+     * 创建输出参数(OUT) - 根据Java类型自动推断JDBC类型
+     * @param name 参数名称
+     * @param javaType Java类型
+     */
+    public static SqlArg asOut(String name, Class<?> javaType) {
         if (javaType == null) {
             return new SqlArg(name, null, SqlMode.Out, null, null, null);
         } else {
@@ -80,26 +106,56 @@ public class SqlArg {
         }
     }
 
+    /**
+     * 创建输出参数(OUT) - 指定JDBC类型
+     * @param name 参数名称
+     * @param jdbcType JDBC类型代码(来自java.sql.Types)
+     */
     public static SqlArg asOut(String name, int jdbcType) {
         TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(jdbcType);
         return new SqlArg(name, null, SqlMode.Out, jdbcType, null, typeHandler);
     }
 
+    /**
+     * 创建输出参数(OUT) - 指定JDBC类型和自定义类型处理器
+     * @param name 参数名称
+     * @param jdbcType JDBC类型代码(来自java.sql.Types)
+     * @param typeHandler 自定义类型处理器
+     */
     public static SqlArg asOut(String name, int jdbcType, TypeHandler<?> typeHandler) {
         return new SqlArg(name, null, SqlMode.Out, jdbcType, null, typeHandler);
     }
 
+    /**
+     * 创建输入输出参数(INOUT) - 根据Java类型自动推断JDBC类型
+     * @param name 参数名称
+     * @param value 参数值
+     * @param javaType Java类型
+     */
     public static SqlArg asInOut(String name, Object value, Class<String> javaType) {
         int jdbcType = TypeHandlerRegistry.toSqlType(javaType);
         TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(javaType);
         return new SqlArg(name, value, SqlMode.InOut, jdbcType, javaType, typeHandler);
     }
 
+    /**
+     * 创建输入输出参数(INOUT) - 指定JDBC类型
+     * @param name 参数名称
+     * @param value 参数值
+     * @param jdbcType JDBC类型代码(来自java.sql.Types)
+     */
     public static SqlArg asInOut(String name, Object value, int jdbcType) {
         TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(jdbcType);
         return new SqlArg(name, value, SqlMode.InOut, jdbcType, null, typeHandler);
     }
 
+    /**
+     * 创建输入输出参数(INOUT) - 指定JDBC类型和自定义类型处理器
+     * @param name 参数名称
+     * @param value 参数值
+     * @param jdbcType JDBC类型代码(来自java.sql.Types)
+     * @param typeHandler 自定义类型处理器
+     */
     public static SqlArg asInOut(String name, Object value, int jdbcType, TypeHandler<?> typeHandler) {
         return new SqlArg(name, value, SqlMode.InOut, jdbcType, null, typeHandler);
     }

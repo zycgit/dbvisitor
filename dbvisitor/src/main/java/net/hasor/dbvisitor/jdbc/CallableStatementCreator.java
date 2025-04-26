@@ -25,5 +25,6 @@ import java.sql.SQLException;
  */
 @FunctionalInterface
 public interface CallableStatementCreator {
+    /** 创建 {@link CallableStatement} 对象 */
     CallableStatement createCallableStatement(Connection con) throws SQLException;
 }

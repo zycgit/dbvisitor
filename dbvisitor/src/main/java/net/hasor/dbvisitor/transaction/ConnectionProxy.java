@@ -18,16 +18,16 @@ import java.io.Closeable;
 import java.sql.Connection;
 
 /**
- * Connection 连接代理。
- * @author Thomas Risberg
- * @author Juergen Hoeller
+ * 数据库连接代理接口，扩展了标准Connection接口
+ * 提供了获取原始连接的能力，并继承了Closeable接口
+ *
  * @author 赵永春 (zyc@hasor.net)
  * @version 2013-12-3
  */
 public interface ConnectionProxy extends Connection, Closeable {
     /**
-     * Return the target Connection of this proxy. <p>This will typically be the native driver Connection or a wrapper from a connection pool.
-     * @return the underlying Connection (never <code>null</code>)
+     * 获取被代理的原始数据库连接对象
+     * @return 底层原始连接对象（不会为null）
      */
     Connection getTargetConnection();
 }

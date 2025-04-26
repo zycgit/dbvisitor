@@ -26,5 +26,16 @@ import java.io.IOException;
  * @version 2021-06-21
  */
 public interface TableMappingResolve<T> {
+    /**
+     * 解析并返回表映射配置
+     *
+     * @param refData 要解析的引用数据，可以是类、注解或其他类型
+     * @param refFile 解析过程中使用的配置选项
+     * @param registry 映射注册表，用于存储和查找映射关系
+     * @param <V> 返回的TableMapping中映射的目标类型
+     * @return 解析后的表映射配置
+     * @throws ReflectiveOperationException 当反射操作失败时抛出
+     * @throws IOException 当IO操作失败时抛出
+     */
     <V> TableMapping<V> resolveTableMapping(T refData, Options refFile, MappingRegistry registry) throws ReflectiveOperationException, IOException;
 }

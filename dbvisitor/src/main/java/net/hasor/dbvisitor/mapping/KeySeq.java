@@ -20,13 +20,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 使用数据库序列。用于明确序列的名字
+ * 数据库序列注解，用于指定主键生成使用的数据库序列。
+ * 可标注在字段或方法上，通过value属性指定数据库序列名称
  * @author 赵永春 (zyc@hasor.net)
  * @version 2022-12-01
  */
 @Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface KeySeq {
-    /** 序列名 */
+    /** 数据库序列名称 */
     String value() default "";
 }

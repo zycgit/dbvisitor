@@ -21,7 +21,7 @@ import net.hasor.dbvisitor.mapper.ResultSetType;
 import java.util.function.Function;
 
 /**
- * <selectKey> 标签
+ * <selectKey> 标签配置类，用于处理数据库主键生成策略
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-10-04
  */
@@ -32,6 +32,11 @@ public class SelectKeyConfig extends SqlConfig {
     private String        keyColumn     = null;
     private String        order         = null;
 
+    /**
+     * 构造函数
+     * @param target 动态SQL构建目标对象
+     * @param config 配置获取函数
+     */
     public SelectKeyConfig(ArrayDynamicSql target, Function<String, String> config) {
         super(target, config);
 
