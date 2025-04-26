@@ -239,7 +239,11 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     public R eq(boolean test, P property, Object value) {
         if (test) {
             String propertyName = getPropertyName(property);
-            return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.EQ, formatValue(propertyName, value));
+            if (value == null) {
+                return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.IS_NULL);
+            } else {
+                return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.EQ, formatValue(propertyName, value));
+            }
         } else {
             return this.getSelf();
         }
@@ -249,7 +253,11 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     public R ne(boolean test, P property, Object value) {
         if (test) {
             String propertyName = getPropertyName(property);
-            return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.NE, formatValue(propertyName, value));
+            if (value == null) {
+                return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.IS_NOT_NULL);
+            } else {
+                return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.NE, formatValue(propertyName, value));
+            }
         } else {
             return this.getSelf();
         }
