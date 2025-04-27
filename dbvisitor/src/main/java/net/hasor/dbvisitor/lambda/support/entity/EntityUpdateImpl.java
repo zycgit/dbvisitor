@@ -167,7 +167,7 @@ public class EntityUpdateImpl<T> extends AbstractUpdate<EntityUpdate<T>, T, SFun
     @Override
     public EntityUpdate<T> isNull(boolean test, String property) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.IS_NULL);
+            return this.addCondition(buildConditionByProperty(property), SqlKeyword.IS, SqlKeyword.NULL);
         } else {
             return this.getSelf();
         }
@@ -176,7 +176,7 @@ public class EntityUpdateImpl<T> extends AbstractUpdate<EntityUpdate<T>, T, SFun
     @Override
     public EntityUpdate<T> isNotNull(boolean test, String property) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.IS_NOT_NULL);
+            return this.addCondition(buildConditionByProperty(property), SqlKeyword.IS, SqlKeyword.NOT, SqlKeyword.NULL);
         } else {
             return this.getSelf();
         }

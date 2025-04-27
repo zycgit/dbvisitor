@@ -240,7 +240,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
         if (test) {
             String propertyName = getPropertyName(property);
             if (value == null) {
-                return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.IS_NULL);
+                return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.IS, SqlKeyword.NULL);
             } else {
                 return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.EQ, formatValue(propertyName, value));
             }
@@ -254,7 +254,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
         if (test) {
             String propertyName = getPropertyName(property);
             if (value == null) {
-                return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.IS_NOT_NULL);
+                return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.IS, SqlKeyword.NOT, SqlKeyword.NULL);
             } else {
                 return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.NE, formatValue(propertyName, value));
             }
@@ -366,7 +366,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     @Override
     public R isNull(boolean test, P property) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(getPropertyName(property)), SqlKeyword.IS_NULL);
+            return this.addCondition(buildConditionByProperty(getPropertyName(property)), SqlKeyword.IS, SqlKeyword.NULL);
         } else {
             return this.getSelf();
         }
@@ -375,7 +375,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     @Override
     public R isNotNull(boolean test, P property) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(getPropertyName(property)), SqlKeyword.IS_NOT_NULL);
+            return this.addCondition(buildConditionByProperty(getPropertyName(property)), SqlKeyword.IS, SqlKeyword.NOT, SqlKeyword.NULL);
         } else {
             return this.getSelf();
         }

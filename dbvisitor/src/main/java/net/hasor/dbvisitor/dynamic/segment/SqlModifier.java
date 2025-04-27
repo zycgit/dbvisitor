@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.segment;
-
+/**
+ * SQL修饰符工具类，提供对SQL语句中不同参数类型的标识和检查功能
+ * @author 赵永春 (zyc@hasor.net)
+ * @version 2024-09-28
+ */
 public class SqlModifier {
     /**
      * the position arg.
@@ -33,18 +37,38 @@ public class SqlModifier {
      */
     public static final int RULE      = 8;
 
+    /**
+     * 检查是否包含位置参数
+     * @param modifier 修饰符值
+     * @return 如果包含位置参数返回 true，否则返回 false
+     */
     public static boolean hasPosition(int modifier) {
         return (POSITION & modifier) != 0;
     }
 
+    /**
+     * 检查是否包含命名参数
+     * @param modifier 修饰符值
+     * @return 如果包含命名参数返回 true，否则返回 false
+     */
     public static boolean hasNamed(int modifier) {
         return (NAMED & modifier) != 0;
     }
 
+    /**
+     * 检查是否包含SQL注入参数
+     * @param modifier 修饰符值
+     * @return 如果包含SQL注入参数返回 true，否则返回 false
+     */
     public static boolean hasInjection(int modifier) {
         return (INJECTION & modifier) != 0;
     }
 
+    /**
+     * 检查是否包含规则参数
+     * @param modifier 修饰符值
+     * @return 如果包含规则参数返回 true，否则返回 false
+     */
     public static boolean hasRule(int modifier) {
         return (RULE & modifier) != 0;
     }

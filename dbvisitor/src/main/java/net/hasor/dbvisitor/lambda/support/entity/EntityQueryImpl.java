@@ -197,7 +197,7 @@ public class EntityQueryImpl<T> extends AbstractSelect<EntityQuery<T>, T, SFunct
     @Override
     public EntityQuery<T> isNull(boolean test, String property) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.IS_NULL);
+            return this.addCondition(buildConditionByProperty(property), SqlKeyword.IS, SqlKeyword.NULL);
         } else {
             return this.getSelf();
         }
@@ -206,7 +206,7 @@ public class EntityQueryImpl<T> extends AbstractSelect<EntityQuery<T>, T, SFunct
     @Override
     public EntityQuery<T> isNotNull(boolean test, String property) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.IS_NOT_NULL);
+            return this.addCondition(buildConditionByProperty(property), SqlKeyword.IS, SqlKeyword.NOT, SqlKeyword.NULL);
         } else {
             return this.getSelf();
         }

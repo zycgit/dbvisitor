@@ -68,7 +68,7 @@ public class FreedomBuildUpdateTest {
 
         try {
             MapUpdate lambdaUpdate = newLambda().updateFreedom("user_info")//
-                    .updateRow(new HashMap<>());
+                    .allowUpdateKey().updateRow(new HashMap<>());
             lambdaUpdate.doUpdate();
             assert false;
         } catch (Exception e) {
@@ -135,7 +135,7 @@ public class FreedomBuildUpdateTest {
         map.put("abc", "pwd");
 
         MapUpdate lambdaUpdate = newLambda().updateFreedom("user_info");
-        lambdaUpdate.eq("loginName", "admin").and().eq("password", "pass").updateRow(map);
+        lambdaUpdate.eq("loginName", "admin").and().eq("password", "pass").allowUpdateKey().updateRow(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
         assert boundSql1.getSqlString().equals("UPDATE user_info SET password = ? , abc = ? , loginName = ? WHERE loginName = ? AND password = ?");

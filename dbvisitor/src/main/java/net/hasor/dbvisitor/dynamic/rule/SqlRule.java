@@ -21,12 +21,28 @@ import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import java.sql.SQLException;
 
 /**
- * 动态 SQL 中定义的规则。
+ * 动态SQL规则接口
+ * 定义动态SQL处理规则，用于在SQL构建过程中执行特定逻辑
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-06-05
  */
 public interface SqlRule {
+    /**
+     * 测试规则是否应该执行
+     * @param data 参数数据源
+     * @param context 查询上下文
+     * @param activeExpr 规则表达式
+     * @return 如果规则应该执行返回true，否则返回false
+     */
     boolean test(SqlArgSource data, QueryContext context, String activeExpr);
 
+    /**
+     * 执行规则逻辑
+     * @param data 参数数据源
+     * @param context 查询上下文
+     * @param sqlBuilder SQL构建器
+     * @param activeExpr 规则表达式
+     * @param ruleValue 规则值
+     */
     void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException;
 }

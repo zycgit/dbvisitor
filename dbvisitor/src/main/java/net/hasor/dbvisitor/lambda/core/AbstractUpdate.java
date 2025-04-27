@@ -182,6 +182,9 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
 
     @Override
     public R updateRow(T newValue) {
+        if (this.primaryKeys.isEmpty() && !this.allowUpdateKey) {
+            throw new UnsupportedOperationException("need to flag the primary key to ignore, or allowUpdateKey.");
+        }
         return this.updateRow(newValue, t -> true);
     }
 
@@ -217,6 +220,9 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
 
     @Override
     public R updateRowUsingMap(Map<String, Object> newValue) {
+        if (this.primaryKeys.isEmpty() && !this.allowUpdateKey) {
+            throw new UnsupportedOperationException("need to flag the primary key to ignore, or allowUpdateKey.");
+        }
         return this.updateRowUsingMap(newValue, t -> true);
     }
 
@@ -227,7 +233,11 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
         }
 
         Map<String, String> entityKeyMap = extractKeysMap(newValue);
-        Set<String> keys = this.isFreedom() ? entityKeyMap.keySet() : this.allowUpdateKeys;
+        Set<String> keys = this.isFreedom() ? entityKeyMap.keySet() : new LinkedHashSet<>(this.allowUpdateKeys);
+
+        if (!this.allowUpdateKey) {
+            keys.removeAll(this.primaryKeys);
+        }
 
         return this.updateToByCondition(keys, true, condition, entityKeyMap::get, newValue::get);
     }
@@ -357,7 +367,11 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
             }
 
             Object columnValue = this.updateValueMap.get(propertyName);
-            updateTemplate.addSegment(d -> colName, SqlKeyword.EQ, formatSegment(colValue, columnValue));
+            if (columnValue == null) {
+                updateTemplate.addSegment(d -> colName, SqlKeyword.EQ, SqlKeyword.NULL);
+            } else {
+                updateTemplate.addSegment(d -> colName, SqlKeyword.EQ, formatSegment(colValue, columnValue));
+            }
         }
 
         // WHERE

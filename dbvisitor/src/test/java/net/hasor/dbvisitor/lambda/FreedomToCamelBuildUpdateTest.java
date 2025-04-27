@@ -68,6 +68,7 @@ public class FreedomToCamelBuildUpdateTest {
 
         try {
             MapUpdate lambdaUpdate = newLambda().updateFreedom("user_info")//
+                    .allowUpdateKey()//
                     .updateRow(new HashMap<>());
             lambdaUpdate.doUpdate();
             assert false;
@@ -134,10 +135,13 @@ public class FreedomToCamelBuildUpdateTest {
         map.put("password", "pwd");
         map.put("abc", "pwd");
 
-        MapUpdate lambdaUpdate = newLambda().updateFreedom("user_info");
-        lambdaUpdate.eq("loginName", "admin").and().eq("password", "pass").updateRow(map);
-
-        BoundSql boundSql1 = lambdaUpdate.getBoundSql();
+        BoundSql boundSql1 = newLambda().updateFreedom("user_info")//
+                .eq("loginName", "admin")//
+                .and()//
+                .eq("password", "pass")//
+                .allowUpdateKey()//
+                .updateRow(map)//
+                .getBoundSql();
         assert boundSql1.getSqlString().equals("UPDATE user_info SET password = ? , abc = ? , login_name = ? WHERE login_name = ? AND password = ?");
     }
 

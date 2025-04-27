@@ -20,8 +20,20 @@ import net.hasor.dbvisitor.dynamic.SqlBuilder;
 
 import java.sql.SQLException;
 
+/**
+ * SQL片段接口，表示动态SQL中的一个可构建片段。
+ * @author 赵永春 (zyc@hasor.net)
+ * @version 2024-09-25
+ */
 public interface SqlSegment extends Cloneable {
+    /**
+     * 构建SQL查询片段
+     * @param data 参数数据源
+     * @param context 查询上下文
+     * @param sqlBuilder SQL构建器
+     */
     void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException;
 
+    /** 克隆当前SQL片段 */
     SqlSegment clone();
 }

@@ -68,7 +68,7 @@ public class BuildToCamelPojoUpdateTest {
         }
 
         try {
-            EntityUpdate<UserInfo> lambdaUpdate = newLambda().update(UserInfo.class).updateRow(new UserInfo());
+            EntityUpdate<UserInfo> lambdaUpdate = newLambda().update(UserInfo.class).allowUpdateKey().updateRow(new UserInfo());
             lambdaUpdate.doUpdate();
             assert false;
         } catch (Exception e) {
@@ -96,7 +96,7 @@ public class BuildToCamelPojoUpdateTest {
 
         try {
             MapUpdate lambdaUpdate = newLambda().update(UserInfo.class).asMap()//
-                    .updateRow(new HashMap<>());
+                    .allowUpdateKey().updateRow(new HashMap<>());
             lambdaUpdate.doUpdate();
             assert false;
         } catch (Exception e) {
@@ -205,10 +205,14 @@ public class BuildToCamelPojoUpdateTest {
         data.setPassword("pwd");
 
         EntityUpdate<UserInfo> lambdaUpdate = newLambda().update(UserInfo.class);
-        lambdaUpdate.eq(UserInfo::getLoginName, "admin").and().eq(UserInfo::getPassword, "pass").updateRow(data);
+        lambdaUpdate.eq(UserInfo::getLoginName, "admin").and().eq(UserInfo::getPassword, "pass").allowUpdateKey().updateRow(data);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
-        assert boundSql1.getSqlString().equals("UPDATE user_info SET uid = ? , name = ? , login_name = ? , password = ? , email = ? , seq = ? , create_time = ? WHERE login_name = ? AND password = ?");
+        assert boundSql1.getSqlString().equals("UPDATE user_info SET uid = NULL , name = NULL , login_name = ? , password = ? , email = NULL , seq = NULL , create_time = NULL WHERE login_name = ? AND password = ?");
+        assert boundSql1.getArgs()[0].equals("acc");
+        assert boundSql1.getArgs()[1].equals("pwd");
+        assert boundSql1.getArgs()[2].equals("admin");
+        assert boundSql1.getArgs()[3].equals("pass");
     }
 
     @Test
@@ -219,10 +223,14 @@ public class BuildToCamelPojoUpdateTest {
         map.put("abc", "pwd");
 
         MapUpdate lambdaUpdate = newLambda().update(UserInfo.class).asMap();
-        lambdaUpdate.eq("loginName", "admin").and().eq("password", "pass").updateRow(map);
+        lambdaUpdate.eq("loginName", "admin").and().eq("password", "pass").allowUpdateKey().updateRow(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
-        assert boundSql1.getSqlString().equals("UPDATE user_info SET uid = ? , name = ? , login_name = ? , password = ? , email = ? , seq = ? , create_time = ? WHERE login_name = ? AND password = ?");
+        assert boundSql1.getSqlString().equals("UPDATE user_info SET uid = NULL , name = NULL , login_name = ? , password = ? , email = NULL , seq = NULL , create_time = NULL WHERE login_name = ? AND password = ?");
+        assert boundSql1.getArgs()[0].equals("acc");
+        assert boundSql1.getArgs()[1].equals("pwd");
+        assert boundSql1.getArgs()[2].equals("admin");
+        assert boundSql1.getArgs()[3].equals("pass");
     }
 
     @Test

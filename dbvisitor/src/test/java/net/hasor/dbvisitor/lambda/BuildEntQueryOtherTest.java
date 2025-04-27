@@ -27,6 +27,29 @@ import java.util.Map;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class BuildEntQueryOtherTest {
+
+    @Test
+    public void queryBuilder_eq_null_1() throws SQLException {
+        BoundSql boundSql1 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getLoginName, null)//
+                .eq(AnnoUserInfoDTO::getLoginName, "b")//
+                .apply("limit ?", 123).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name IS NULL AND login_name = ? limit ?");
+        assert boundSql1.getArgs()[0].equals("b");
+        assert boundSql1.getArgs()[1].equals(123);
+    }
+
+    @Test
+    public void queryBuilder_ne_null_1() throws SQLException {
+        BoundSql boundSql1 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
+                .ne(AnnoUserInfoDTO::getLoginName, null)//
+                .eq(AnnoUserInfoDTO::getLoginName, "b")//
+                .apply("limit ?", 123).getBoundSql();
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name IS NOT NULL AND login_name = ? limit ?");
+        assert boundSql1.getArgs()[0].equals("b");
+        assert boundSql1.getArgs()[1].equals(123);
+    }
+
     @Test
     public void queryBuilder_apply_1() throws SQLException {
         BoundSql boundSql1 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
@@ -37,7 +60,6 @@ public class BuildEntQueryOtherTest {
         assert boundSql1.getArgs()[0].equals("a");
         assert boundSql1.getArgs()[1].equals("b");
         assert boundSql1.getArgs()[2].equals(123);
-
     }
 
     @Test

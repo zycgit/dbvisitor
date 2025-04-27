@@ -43,9 +43,7 @@ public interface UpdateExecute<R, T, P> extends BasicFunc<R>, ConditionFunc<R>, 
     /** 参照 sample 局部更新（只处理不为空的属性），通过 condition 可以进一步过滤某些列是否参与更新 */
     R updateToSampleMap(Map<String, Object> sample, Predicate<String> condition);
 
-    /**
-     * 整行更新，会触发主键的更新，通常需要配合启用 allowUpdateKey 使用（需要依赖 @Column 注解标识出主键列）
-     */
+    /** 排除主键进行整行更新，如果需要同时更新主键需通过 allowUpdateKey 启用更新主键。如果无法确定主键则可能引发异常 */
     R updateRow(T newValue);
 
     /** 增强 updateRow 方法，通过 condition 可以进一步过滤某些列是否参与更新 */

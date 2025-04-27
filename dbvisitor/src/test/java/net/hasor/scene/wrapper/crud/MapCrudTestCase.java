@@ -1,8 +1,8 @@
 package net.hasor.scene.wrapper.crud;
 import net.hasor.dbvisitor.lambda.EntityQuery;
 import net.hasor.dbvisitor.lambda.Insert;
-import net.hasor.dbvisitor.lambda.MapQuery;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.lambda.MapQuery;
 import net.hasor.scene.wrapper.crud.dto.UserTableDTO;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
@@ -172,6 +172,7 @@ public class MapCrudTestCase {
             // update user set name = 'new name is abc', age = 120 where id = 1
             int i = wrapper.updateFreedom("user_table") //
                     .eq("id", 1) //
+                    .allowUpdateKey()//
                     .updateRow(newData)  //
                     .doUpdate();
             assert i == 1;

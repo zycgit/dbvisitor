@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
+import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.lambda.dto.AnnoUserInfoDTO;
 import net.hasor.test.utils.DsUtils;
 import static net.hasor.test.utils.TestUtils.beanForData1;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -613,7 +615,7 @@ public class DoEntUpdateTest {
     }
 
     @Test
-    public void updateRow_3() {
+    public void updateRow_3_1() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambda = new LambdaTemplate(c);
 
@@ -626,18 +628,39 @@ public class DoEntUpdateTest {
             tbUser1.setName("abc");
             tbUser1.setPassword("pwd");
 
-            lambda.update(AnnoUserInfoDTO.class)//
+            BoundSql boundSql = lambda.update(AnnoUserInfoDTO.class)//
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateRow(tbUser1) //
-                    .doUpdate();
-            assert false;
-        } catch (Exception e) {
-            assert e.getMessage().equals("The dangerous UPDATE operation, You must call `allowUpdateKey()` to enable UPDATE PrimaryKey.");
+                    .getBoundSql();
+            assert boundSql.getSqlString().equals("UPDATE user_info SET user_name = ? , login_name = ? , login_password = ? , email = ? , seq = ? , register_time = ? WHERE login_name = ?");
         }
     }
 
     @Test
-    public void updateRow_3_2map() {
+    public void updateRow_3_2() throws SQLException {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambda = new LambdaTemplate(c);
+
+            // before
+            AnnoUserInfoDTO tbUser1 = lambda.query(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
+                    .queryForObject();
+
+            // update
+            tbUser1.setName("abc");
+            tbUser1.setPassword("pwd");
+
+            BoundSql boundSql = lambda.update(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
+                    .allowUpdateKey()//
+                    .updateRow(tbUser1) //
+                    .getBoundSql();
+            assert boundSql.getSqlString().equals("UPDATE user_info SET user_uuid = ? , user_name = ? , login_name = ? , login_password = ? , email = ? , seq = ? , register_time = ? WHERE login_name = ?");
+        }
+    }
+
+    @Test
+    public void updateRow_3_1map() throws SQLException {
         try (Connection c = DsUtils.h2Conn()) {
             LambdaTemplate lambda = new LambdaTemplate(c);
 
@@ -650,13 +673,34 @@ public class DoEntUpdateTest {
             tbUser1.put("name", "abc");
             tbUser1.put("password", "pwd");
 
-            lambda.update(AnnoUserInfoDTO.class).asMap()//
+            BoundSql boundSql = lambda.update(AnnoUserInfoDTO.class).asMap()//
                     .eq("loginName", "muhammad")//
                     .updateRow(tbUser1) //
-                    .doUpdate();
-            assert false;
-        } catch (Exception e) {
-            assert e.getMessage().equals("The dangerous UPDATE operation, You must call `allowUpdateKey()` to enable UPDATE PrimaryKey.");
+                    .getBoundSql();
+            assert boundSql.getSqlString().equals("UPDATE user_info SET user_name = ? , login_name = ? , login_password = ? , email = ? , seq = ? , register_time = ? WHERE login_name = ?");
+        }
+    }
+
+    @Test
+    public void updateRow_3_2map() throws SQLException {
+        try (Connection c = DsUtils.h2Conn()) {
+            LambdaTemplate lambda = new LambdaTemplate(c);
+
+            // before
+            Map<String, Object> tbUser1 = lambda.query(AnnoUserInfoDTO.class)//
+                    .eq(AnnoUserInfoDTO::getLoginName, beanForData1().getLoginName())//
+                    .queryForMap();
+
+            // update
+            tbUser1.put("name", "abc");
+            tbUser1.put("password", "pwd");
+
+            BoundSql boundSql = lambda.update(AnnoUserInfoDTO.class).asMap()//
+                    .eq("loginName", "muhammad")//
+                    .allowUpdateKey()//
+                    .updateRow(tbUser1) //
+                    .getBoundSql();
+            assert boundSql.getSqlString().equals("UPDATE user_info SET user_uuid = ? , user_name = ? , login_name = ? , login_password = ? , email = ? , seq = ? , register_time = ? WHERE login_name = ?");
         }
     }
 

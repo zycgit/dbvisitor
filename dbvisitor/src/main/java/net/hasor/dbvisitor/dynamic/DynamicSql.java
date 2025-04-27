@@ -21,22 +21,43 @@ import java.sql.SQLException;
 import java.util.Map;
 
 /**
- * 本处理器，兼容 @{...}、#{...}、${...} 三种写法。
+ * 本处理器，支持处理 @{...}、#{...}、${...} 三种写法。
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-03-28
  */
 public interface DynamicSql {
-    /** 是否包含替换占位符，如果包含替换占位符那么不能使用批量模式 */
+    /**
+     * 检查是否包含需要替换的占位符
+     * @return 如果包含替换占位符返回 true，否则返回 false
+     */
     boolean isHaveInjection();
 
+    /**
+     * 构建动态SQL查询
+     * @param data 参数数据源
+     * @param context 查询上下文
+     * @param sqlBuilder SQL构建器
+     */
     void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException;
 
+    /**
+     * 构建动态SQL查询（简化版）
+     * @param data 参数数据源
+     * @param context 查询上下文
+     * @return 构建完成的SQL构建器
+     */
     default SqlBuilder buildQuery(SqlArgSource data, QueryContext context) throws SQLException {
         SqlBuilder fxBuilder = new SqlBuilder();
         this.buildQuery(data, context, fxBuilder);
         return fxBuilder;
     }
 
+    /**
+     * 构建动态SQL查询（Map参数版）
+     * @param data Map类型参数
+     * @param context 查询上下文
+     * @return 构建完成的SQL构建器
+     */
     default SqlBuilder buildQuery(Map<String, Object> data, QueryContext context) throws SQLException {
         SqlBuilder fxBuilder = new SqlBuilder();
         this.buildQuery(new MapSqlArgSource(data), context, fxBuilder);

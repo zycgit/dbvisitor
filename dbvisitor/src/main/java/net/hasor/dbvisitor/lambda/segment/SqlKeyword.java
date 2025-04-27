@@ -33,8 +33,8 @@ public enum SqlKeyword implements Segment {
     GE(">="),                   //
     LT("<"),                    //
     LE("<="),                   //
-    IS_NULL("IS NULL"),         //
-    IS_NOT_NULL("IS NOT NULL"), //
+    IS("IS"),                   //
+    NULL("NULL"),               //
     BETWEEN("BETWEEN"),         //
 
     GROUP_BY("GROUP BY"),       //

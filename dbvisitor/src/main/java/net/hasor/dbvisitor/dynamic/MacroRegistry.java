@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 解析动态 SQL 配置
+ * 用于注册和管理 SQL 片段，也可称之为 SQL 宏定义。
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-06-05
  */
@@ -28,16 +28,19 @@ public class MacroRegistry {
     public static final MacroRegistry           DEFAULT  = new MacroRegistry();
     private final       Map<String, DynamicSql> macroMap = new HashMap<>();
 
+    /** 根据名称查找 SQL 片段 */
     public DynamicSql findMacro(String dynamicId) {
         return this.macroMap.get(dynamicId);
     }
 
+    /** 注册 SQL 片段 */
     public void register(String macroName, String sqlSegment) {
         if (StringUtils.isNotBlank(macroName)) {
             this.macroMap.put(macroName, DynamicParsed.getParsedSql(sqlSegment));
         }
     }
 
+    /** 注册 SQL 片段 */
     public void register(String macroName, DynamicSql sqlSegment) {
         if (StringUtils.isNotBlank(macroName)) {
             this.macroMap.put(macroName, sqlSegment);

@@ -15,15 +15,25 @@
  */
 package net.hasor.dbvisitor.dynamic.args;
 import net.hasor.cobble.ArrayUtils;
+import net.hasor.cobble.CollectionUtils;
+
+import java.util.List;
 
 /**
+ * 数组类型SQL参数源
+ * 将数组参数转换为命名参数形式 (arg0,arg1...) 的 SQL 参数源。
  * @author 赵永春 (zyc@hasor.net)
  * @version 2024-09-27
  */
 public class ArraySqlArgSource extends BindSqlArgSource {
+    /** 创建空参数的数组参数源 */
     public ArraySqlArgSource() {
     }
 
+    /**
+     * 创建数组参数源
+     * @param args 数组参数，会自动转换为arg0,arg1...的命名参数形式
+     */
     public ArraySqlArgSource(Object[] args) {
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; i < args.length; i++) {
@@ -32,6 +42,19 @@ public class ArraySqlArgSource extends BindSqlArgSource {
         }
     }
 
+    /**
+     * 创建集合参数源
+     * @param args 集合参数，会自动转换为arg0,arg1...的命名参数形式
+     */
+    public ArraySqlArgSource(List<?> args) {
+        if (CollectionUtils.isNotEmpty(args)) {
+            for (int i = 0; i < args.size(); i++) {
+                this.putValue("arg" + i, args.get(i));
+            }
+        }
+    }
+
+    /** 转换为对象数组 */
     public static Object[] toArgs(Object value) {
         if (value == null) {
             return ArrayUtils.EMPTY_OBJECT_ARRAY;

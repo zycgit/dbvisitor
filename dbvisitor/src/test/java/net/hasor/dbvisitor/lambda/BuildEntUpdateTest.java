@@ -211,7 +211,11 @@ public class BuildEntUpdateTest {
         lambdaUpdate.eq(AnnoUserInfoDTO::getLoginName, "admin").and().eq(AnnoUserInfoDTO::getPassword, "pass").updateRow(data);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
-        assert boundSql1.getSqlString().equals("UPDATE user_info SET user_name = ? , login_name = ? , login_password = ? , email = ? , seq = ? , register_time = ? WHERE login_name = ? AND login_password = ?");
+        assert boundSql1.getSqlString().equals("UPDATE user_info SET user_name = NULL , login_name = ? , login_password = ? , email = NULL , seq = NULL , register_time = NULL WHERE login_name = ? AND login_password = ?");
+        assert boundSql1.getArgs()[0].equals("acc");
+        assert boundSql1.getArgs()[1].equals("pwd");
+        assert boundSql1.getArgs()[2].equals("admin");
+        assert boundSql1.getArgs()[3].equals("pass");
     }
 
     @Test
@@ -225,7 +229,11 @@ public class BuildEntUpdateTest {
         lambdaUpdate.eq("loginName", "admin").and().eq("password", "pass").updateRow(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
-        assert boundSql1.getSqlString().equals("UPDATE user_info SET user_name = ? , login_name = ? , login_password = ? , email = ? , seq = ? , register_time = ? WHERE login_name = ? AND login_password = ?");
+        assert boundSql1.getSqlString().equals("UPDATE user_info SET user_name = NULL , login_name = ? , login_password = ? , email = NULL , seq = NULL , register_time = NULL WHERE login_name = ? AND login_password = ?");
+        assert boundSql1.getArgs()[0].equals("acc");
+        assert boundSql1.getArgs()[1].equals("pwd");
+        assert boundSql1.getArgs()[2].equals("admin");
+        assert boundSql1.getArgs()[3].equals("pass");
     }
 
     @Test

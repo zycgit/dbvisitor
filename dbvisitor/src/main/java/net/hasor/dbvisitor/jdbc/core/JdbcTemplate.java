@@ -1065,6 +1065,16 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
                 } else {
                     return new ArraySqlArgSource(ArraySqlArgSource.toArgs(args));
                 }
+            } else if (Collection.class.isAssignableFrom(argType)) {
+                if (List.class.isAssignableFrom(argType)) {
+                    if (((List<?>) args).isEmpty()) {
+                        return new ArraySqlArgSource(ArrayUtils.EMPTY_OBJECT_ARRAY);
+                    } else {
+                        return new ArraySqlArgSource((List<?>) args);
+                    }
+                } else {
+                    throw new UnsupportedOperationException("argsType " + argType + " Unsupported.");
+                }
             } else if (this.buildContext.getTypeRegistry().hasTypeHandler(argType)) {
                 return new ArraySqlArgSource(new Object[] { args });
             } else {

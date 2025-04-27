@@ -46,6 +46,9 @@ public interface TransactionStatus {
      */
     boolean isRollbackOnly();
 
+    /** 是否为只读模式。 */
+    boolean isReadOnly();
+
     /**
      * 检查事务是否使用全新数据库连接
      * @return true表示使用新连接，false 表示复用现有连接
