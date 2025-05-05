@@ -20,11 +20,11 @@ About
 		<img src="https://img.shields.io/badge/JDK-8-green.svg" alt="jdk-8" />
 	</a>
     <br />
-    <a target="_blank" href='https://gitee.com/opensolon/solon/stargazers'>
-		<img src='https://gitee.com/opensolon/solon/badge/star.svg' alt='gitee star'/>
+    <a target="_blank" href='https://gitee.com/zycgit/dbvisitor/stargazers'>
+		<img src='https://gitee.com/zycgit/dbvisitor/badge/star.svg' alt='gitee star'/>
 	</a>
-    <a target="_blank" href='https://github.com/opensolon/solon/stargazers'>
-		<img src="https://img.shields.io/github/stars/opensolon/solon.svg?style=flat&logo=github" alt="github star"/>
+    <a target="_blank" href='https://github.com/zycgit/dbvisitor/stargazers'>
+		<img src="https://img.shields.io/github/stars/zycgit/dbvisitor.svg?style=flat&logo=github" alt="github star"/>
 	</a>
     <br />
     [<a target="_blank" href='./README.en.md'>English</a>]
