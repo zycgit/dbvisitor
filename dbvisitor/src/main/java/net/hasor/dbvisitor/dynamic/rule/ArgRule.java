@@ -57,6 +57,13 @@ public class ArgRule implements SqlRule {
         }
     }
 
+    /**
+     * 解析参数配置
+     * @param content 配置内容数组
+     * @param start 起始索引
+     * @param length 解析长度
+     * @return 配置键值对映射
+     */
     public static Map<String, String> parserConfig(String[] content, int start, int length) {
         Map<String, String> exprMap = new LinkedCaseInsensitiveMap<>();
         for (int i = start; i < length; i++) {
@@ -77,11 +84,19 @@ public class ArgRule implements SqlRule {
         return exprMap;
     }
 
+    /**
+     * 测试条件是否满足（总是返回true）
+     * @param data 参数源
+     * @param context 查询上下文
+     * @param activeExpr 活动表达式
+     * @return 总是返回 true
+     */
     @Override
     public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         return true;
     }
 
+    /** 执行参数规则 */
     @Override
     public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         String[] testSplit = ruleValue.split(",");
@@ -96,6 +111,7 @@ public class ArgRule implements SqlRule {
         this.executeRule(data, context, sqlBuilder, expr, config);
     }
 
+    /** 执行参数规则 */
     public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String expr, Map<String, String> config) throws SQLException {
         SqlMode sqlMode = this.convertSqlMode((config != null) ? config.get(CFG_KEY_MODE) : null);
         Integer jdbcType = this.convertJdbcType((config != null) ? config.get(CFG_KEY_JDBC_TYPE) : null);

@@ -28,7 +28,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 /**
- * 方言管理器
+ * SQL 方言注册管理器
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
@@ -57,19 +57,36 @@ public class SqlDialectRegister {
         registerDialectAlias(JdbcHelper.XUGU, XuGuDialect.class);
     }
 
+    /** 清空方言缓存 */
     public static void clearDialectCache() {
         dialectCache.clear();
     }
 
+    /**
+     * 注册方言别名
+     * @param dialectName 方言名称
+     * @param dialectClass 方言类
+     */
     public static void registerDialectAlias(String dialectName, Class<? extends SqlDialect> dialectClass) {
         dialectAliasMap.put(dialectName, dialectClass);
         dialectAliasMap.put(dialectClass.getName(), dialectClass);
     }
 
+    /**
+     * 查找或创建方言实例（使用默认类加载器）
+     * @param dialectName 方言名称或类名
+     * @return 方言实例
+     */
     public static SqlDialect findOrCreate(String dialectName) {
         return findOrCreate(dialectName, null);
     }
 
+    /**
+     * 查找或创建方言实例
+     * @param dialectName 方言名称或类名
+     * @param loader 类加载器
+     * @return 方言实例
+     */
     public static SqlDialect findOrCreate(String dialectName, ClassLoader loader) {
         if (StringUtils.isBlank(dialectName)) {
             return DefaultSqlDialect.DEFAULT;
@@ -107,6 +124,11 @@ public class SqlDialectRegister {
         return dialect;
     }
 
+    /**
+     * 查找配置中的方言或返回默认方言
+     * @param option 配置选项
+     * @return 方言实例
+     */
     public static SqlDialect findOrDefault(Options option) {
         if (option != null && option.getDialect() != null) {
             return option.getDialect();
@@ -116,6 +138,12 @@ public class SqlDialectRegister {
         }
     }
 
+    /**
+     * 根据连接查找分页方言
+     * @param conn 数据库连接
+     * @return 分页方言实例
+     * @throws SQLException 如果获取元数据失败
+     */
     public static PageSqlDialect findDialect(Connection conn) throws SQLException {
         DatabaseMetaData metaData = conn.getMetaData();
         String tmpDbType = JdbcHelper.getDbType(metaData.getURL(), metaData.getDriverName());

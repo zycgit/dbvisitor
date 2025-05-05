@@ -141,9 +141,7 @@ public class LogicTest {
     public void chooseDynamicSql_1() throws SQLException {
         ChooseDynamicSql chooseSql = new ChooseDynamicSql();
         chooseSql.addThen("ctxNumber < 123", new PlanDynamicSql("age = #{ctxNumber}"));
-        chooseSql.addChildNode(new PlanDynamicSql(" abc "));
         chooseSql.addThen("ctxNumber < 500", new PlanDynamicSql("age = ${ctxNumber}"));
-        chooseSql.addChildNode(new PlanDynamicSql(" def "));
         chooseSql.setDefaultNode(new PlanDynamicSql("1 = 1"));
         assert chooseSql.isHaveInjection();
         assert chooseSql.subNodes.size() == 2;
@@ -164,6 +162,17 @@ public class LogicTest {
         assert chooseSql.isHaveInjection();
         assert build3.getSqlString().equals("1 = 1");
         assert build3.getArgs().length == 0;
+    }
+
+    @Test
+    public void chooseDynamicSql_2() {
+        try {
+            ChooseDynamicSql chooseSql = new ChooseDynamicSql();
+            chooseSql.addChildNode(new PlanDynamicSql(" abc "));
+            assert false;
+        } catch (Exception e) {
+            assert e.getMessage().contains("only supports IfDynamicSql nodes.");
+        }
     }
 
     @Test

@@ -25,7 +25,11 @@ import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
 import java.sql.SQLException;
 
 /**
- * 如果参数不为空，则生成 'and column = ?' 或者 'column = ?' 。
+ * 条件规则抽象基类，实现SQL条件语句的动态生成逻辑
+ * 功能特点：
+ * 1. 支持IF条件判断模式
+ * 2. 支持自动添加WHERE/AND等前缀
+ * 3. 提供空值和多值校验机制
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-06-05
  */
@@ -37,6 +41,14 @@ public abstract class ConditionRule implements SqlRule {
     private final          String   append;
     protected final        boolean  usingIf;
 
+    /**
+     * 构造函数
+     * @param usingIf 是否使用IF模式
+     * @param testPrefix 测试前缀集合
+     * @param mustHave 必须包含的关键字
+     * @param mustHaveAppend 必须关键字的追加内容
+     * @param append 默认追加内容
+     */
     protected ConditionRule(boolean usingIf, String[] testPrefix, String mustHave, String mustHaveAppend, String append) {
         this.usingIf = usingIf;
         this.testPrefix = testPrefix;
@@ -45,8 +57,16 @@ public abstract class ConditionRule implements SqlRule {
         this.append = append;
     }
 
+    /** 获取规则名称 */
     protected abstract String name();
 
+    /**
+     * 测试条件是否满足
+     * @param data 参数源
+     * @param context 查询上下文
+     * @param activeExpr 活动表达式
+     * @return 是否满足条件
+     */
     @Override
     public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         if (this.usingIf) {
@@ -56,10 +76,13 @@ public abstract class ConditionRule implements SqlRule {
         }
     }
 
+    /** 是否允许空值 */
     protected abstract boolean allowNullValue();
 
+    /** 是否允许多值 */
     protected abstract boolean allowMultipleValue();
 
+    /** 执行规则 */
     @Override
     public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         String expr = "";
@@ -124,6 +147,7 @@ public abstract class ConditionRule implements SqlRule {
         return this.name() + " [" + this.hashCode() + "]";
     }
 
+    /** 测试参数是否全为 null */
     private static boolean testNullValue(Object[] args) {
         if (args != null) {
             for (Object arg : args) {

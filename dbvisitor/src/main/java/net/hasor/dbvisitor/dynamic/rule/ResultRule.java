@@ -26,14 +26,21 @@ import java.sql.SQLException;
 import java.util.Map;
 
 /**
- * Result 规则，是一个特殊规则。在正常查询中不会产生任何效果，但通过 call 方法执行数据库 存储过程/函数调用 时可以用于决定结果集如何获取。
+ * 结果集规则实现类，用于处理存储过程/函数调用的结果集。
+ * 这是一个特殊规则。在正常查询中不会产生任何效果，但通过 call 方法执行数据库 存储过程/函数调用 时可以用于决定结果集如何获取。
+ * 功能特点：
+ * 1. 实现SqlRule接口，提供结果集处理功能
+ * 2. 支持三种结果集类型：ResultSet、ResultUpdate和Default
+ * 3. 支持多种结果集处理方式：Java类型映射、行映射器、行处理器和提取器
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-06-05
  */
 public final class ResultRule implements SqlRule {
+    // 内置规则名称
     public static final String  FUNC_RESULT_SET            = "resultSet";
     public static final String  FUNC_RESULT_UPDATE         = "resultUpdate";
     public static final String  FUNC_DEFAULT_RESULT        = "defaultResult";
+    // 预定义实例
     public static final SqlRule INSTANCE_OF_RESULT_SET     = new ResultRule(FUNC_RESULT_SET);
     public static final SqlRule INSTANCE_OF_RESULT_UPDATE  = new ResultRule(FUNC_RESULT_UPDATE);
     public static final SqlRule INSTANCE_OF_DEFAULT_RESULT = new ResultRule(FUNC_DEFAULT_RESULT);
@@ -41,6 +48,10 @@ public final class ResultRule implements SqlRule {
     private final String        ruleName;
     private final ResultArgType argType;
 
+    /**
+     * 构造函数
+     * @param ruleName 规则名称
+     */
     private ResultRule(String ruleName) {
         this.ruleName = ruleName;
         if (StringUtils.equalsIgnoreCase(ruleName, FUNC_RESULT_SET)) {
@@ -59,16 +70,32 @@ public final class ResultRule implements SqlRule {
         return this.ruleName + " [" + this.hashCode() + "]";
     }
 
+    /**
+     * 测试条件是否满足（总是返回true）
+     * @param data 参数源
+     * @param context 查询上下文
+     * @param activeExpr 活动表达式
+     * @return 总是返回true
+     */
     @Override
     public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         return true;
     }
 
+    /** 执行结果集规则 */
     @Override
     public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         sqlBuilder.appendResult(parserConfig(context, activeExpr, ruleValue, this.argType));
     }
 
+    /**
+     * 解析配置并创建结果集参数
+     * @param registry 查询上下文
+     * @param activeExpr 活动表达式
+     * @param ruleValue 规则值
+     * @param argType 结果集类型
+     * @return 结果集参数对象
+     */
     public static ResultArg parserConfig(QueryContext registry, String activeExpr, String ruleValue, ResultArgType argType) {
         // restore body
         String body = "";

@@ -25,8 +25,11 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 /**
- * 对应XML中 <foreach>
- * @author jmxd
+ * 对应XML中 <foreach> 标签的实现类
+ * 功能特点：
+ * 1. 支持遍历集合或数组
+ * 2. 支持设置遍历项变量名
+ * 3. 支持设置前后缀和分隔符
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-05-24
  */
@@ -42,6 +45,14 @@ public class ForeachDynamicSql extends ArrayDynamicSql {
     /** 分隔符 */
     private final String separator;
 
+    /**
+     * 构造函数
+     * @param collection 集合表达式(OGNL)
+     * @param item 遍历项变量名
+     * @param open 循环开始SQL
+     * @param close 循环结束SQL
+     * @param separator 分隔符
+     */
     public ForeachDynamicSql(String collection, String item, String open, String close, String separator) {
         this.collection = collection;
         this.item = item;
@@ -50,6 +61,7 @@ public class ForeachDynamicSql extends ArrayDynamicSql {
         this.separator = separator;
     }
 
+    /** 构建SQL查询 */
     @Override
     public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
         // 获取集合数据对象，数组形态

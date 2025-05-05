@@ -26,7 +26,11 @@ import java.sql.Types;
 import java.util.UUID;
 
 /**
- * 产生一个 36 字符长度的 `UUID`，并加入到 SQL 参数中
+ * UUID36 规则实现类，产生一个 36 字符长度的 `UUID`，并加入到 SQL 参数中
+ * 功能特点：
+ * 1. 实现SqlRule接口，提供UUID生成功能
+ * 2. 生成标准36位带连字符的UUID字符串
+ * 3. 使用VARCHAR类型和字符串类型处理器
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-10-31
  */
@@ -34,11 +38,19 @@ public class UUID36Rule implements SqlRule {
     private static final TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
     public static final  UUID36Rule     INSTANCE    = new UUID36Rule();
 
+    /**
+     * 测试条件是否满足（总是返回true）
+     * @param data 参数源
+     * @param context 查询上下文
+     * @param activeExpr 活动表达式
+     * @return 总是返回true
+     */
     @Override
     public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         return true;
     }
 
+    /** 执行 UUID36 规则 */
     @Override
     public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) {
         String uuidValue = UUID.randomUUID().toString();

@@ -21,12 +21,28 @@ import net.hasor.dbvisitor.dynamic.rule.SqlRule;
 
 import java.sql.SQLException;
 
+/**
+ * 规则 SQL 片段实现类，用于处理动态 SQL 规则
+ * 功能特点：
+ * 1. 实现 {@link SqlSegment} 接口，提供 SQL 片段构建功能
+ * 2. 支持动态规则处理（如if、where、set等）
+ * 3. 根据规则条件决定是否执行 SQL 片段
+ * @author 赵永春 (zyc@hasor.net)
+ * @version 2024-09-25
+ */
 public class RuleSqlSegment implements SqlSegment {
     private final String ruleExpr;
     private final String ruleName;
     private final String activeExpr;
     private final String ruleValue;
 
+    /**
+     * 构造函数
+     * @param ruleExpr 规则表达式
+     * @param ruleName 规则名称
+     * @param activeExpr 激活表达式
+     * @param ruleValue 规则值
+     */
     public RuleSqlSegment(String ruleExpr, String ruleName, String activeExpr, String ruleValue) {
         this.ruleExpr = ruleExpr;
         this.ruleName = ruleName;
@@ -34,22 +50,27 @@ public class RuleSqlSegment implements SqlSegment {
         this.ruleValue = ruleValue;
     }
 
+    /** 获取规则表达式 */
     public String getExpr() {
         return this.ruleExpr;
     }
 
+    /** 获取规则名称 */
     public String getRule() {
         return this.ruleName;
     }
 
+    /** 获取激活表达式 */
     public String getActiveExpr() {
         return this.activeExpr;
     }
 
+    /** 获取规则值 */
     public String getRuleValue() {
         return this.ruleValue;
     }
 
+    /** 构建 SQL 查询 */
     @Override
     public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
         SqlRule ruleByName = context.findRule(this.ruleName);
@@ -61,6 +82,7 @@ public class RuleSqlSegment implements SqlSegment {
         }
     }
 
+    /** 克隆当前对象，返回新的 {@link RuleSqlSegment} 实例 */
     @Override
     public RuleSqlSegment clone() {
         return new RuleSqlSegment(this.ruleExpr, this.ruleName, this.activeExpr, this.ruleValue);

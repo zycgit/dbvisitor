@@ -29,7 +29,11 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * 进行 OGNL 求值，值结果用 MD5 进行编码然后加入到 SQL 参数中
+ * MD5 编码规则实现类，用于对 SQL 参数进行 MD5 编码然后加入到 SQL 参数中
+ * 功能特点：
+ * 1. 实现SqlRule接口，提供参数MD5编码功能
+ * 2. 自动将参数值转换为MD5哈希值
+ * 3. 使用 VARCHAR 类型和字符串类型处理器
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-10-31
  */
@@ -37,11 +41,19 @@ public class MD5Rule implements SqlRule {
     private static final TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(String.class);
     public static final  SqlRule        INSTANCE    = new MD5Rule();
 
+    /**
+     * 测试条件是否满足（总是返回true）
+     * @param data 参数源
+     * @param context 查询上下文
+     * @param activeExpr 活动表达式
+     * @return 总是返回true
+     */
     @Override
     public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         return true;
     }
 
+    /** 执行宏规则 */
     @Override
     public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         String expr = "";

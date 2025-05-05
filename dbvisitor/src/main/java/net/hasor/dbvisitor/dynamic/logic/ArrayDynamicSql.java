@@ -63,6 +63,7 @@ public class ArrayDynamicSql implements DynamicSql {
         }
     }
 
+    /** 检查是否包含 SQL 注入片段 */
     @Override
     public boolean isHaveInjection() {
         for (DynamicSql dynamicSql : this.subNodes) {
@@ -73,6 +74,13 @@ public class ArrayDynamicSql implements DynamicSql {
         return false;
     }
 
+    /**
+     * 构建SQL查询
+     * @param data 参数源
+     * @param context 查询上下文
+     * @param sqlBuilder SQL构建器
+     * @throws SQLException 如果构建过程中出错
+     */
     @Override
     public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
         for (int i = 0; i < this.subNodes.size(); i++) {
@@ -83,6 +91,14 @@ public class ArrayDynamicSql implements DynamicSql {
         }
     }
 
+    /**
+     * 子类可重写的节点访问方法
+     * @param i 当前节点索引
+     * @param dynamicSql 当前节点
+     * @param context 查询上下文
+     * @param sqlBuilder SQL构建器
+     * @return 是否处理该节点（默认true）
+     */
     protected boolean visitItem(int i, DynamicSql dynamicSql, QueryContext context, SqlBuilder sqlBuilder) {
         return true;
     }

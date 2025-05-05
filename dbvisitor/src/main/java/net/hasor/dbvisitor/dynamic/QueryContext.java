@@ -20,15 +20,15 @@ import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /**
- * 动态SQL查询上下文接口，提供动态SQL处理过程中所需的上下文信息和方法
+ * 动态 SQL 查询上下文接口，提供动态 SQL 处理过程中所需的上下文信息和方法
  * @author 赵永春 (zyc@hasor.net)
- * @version 2020-03-28
+ * @version 2025-02-01
  */
 public interface QueryContext {
     /**
-     * 根据规则名称查找SQL处理规则
+     * 根据规则名称查找 SQL 处理规则
      * @param ruleName 规则名称
-     * @return 对应的SQL处理规则，找不到返回 null
+     * @return 对应的 SQL 处理规则，找不到返回 null
      */
     SqlRule findRule(String ruleName);
 

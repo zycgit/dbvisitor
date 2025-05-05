@@ -150,6 +150,10 @@ public class XmlSqlConfigResolve implements SqlConfigResolve<Node>, ConfigKeys {
     /** append text */
     protected void parseTextSqlNode(String namespace, ArrayDynamicSql parentSqlNode, Node curXmlNode) {
         String sqlNode = curXmlNode.getNodeValue();
+        if (StringUtils.isBlank(sqlNode)) {
+            return;
+        }
+
         if (parentSqlNode.lastIsText()) {
             ((PlanDynamicSql) parentSqlNode.lastNode()).parsedAppend(sqlNode);
         } else {

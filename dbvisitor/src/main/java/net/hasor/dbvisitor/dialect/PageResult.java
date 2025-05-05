@@ -56,10 +56,12 @@ public class PageResult<T> extends PageObject {
         this.data = data == null ? new ArrayList<>() : data;
     }
 
+    /** 获取分页数据 */
     public List<T> getData() {
         return this.data;
     }
 
+    /** 设置分页数据 */
     public void setData(List<T> data) {
         this.data = data;
     }

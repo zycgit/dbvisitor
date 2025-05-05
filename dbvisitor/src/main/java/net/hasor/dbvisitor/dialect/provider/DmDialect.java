@@ -199,28 +199,4 @@ public class DmDialect extends AbstractDialect implements PageSqlDialect, Insert
         strBuilder.append(")");
         return strBuilder.toString();
     }
-
-    public String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, Map<String, String> columnTerms, int recordSize) {
-        String tableName = this.tableName(useQualifier, catalog, schema, table);
-        StringBuilder select = new StringBuilder();
-
-        if (selectColumns == null || selectColumns.isEmpty()) {
-            select.append("*");
-        } else {
-            for (String col : selectColumns) {
-                if (select.length() > 0) {
-                    select.append(", ");
-                }
-
-                String valueTerm = columnTerms != null ? columnTerms.get(col) : null;
-                if (StringUtils.isNotBlank(valueTerm)) {
-                    select.append(valueTerm);
-                } else {
-                    select.append(this.fmtName(useQualifier, col));
-                }
-            }
-        }
-
-        return "select " + select + " from " + tableName + " order by rand() limit " + recordSize;
-    }
 }

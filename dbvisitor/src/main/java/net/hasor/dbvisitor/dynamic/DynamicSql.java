@@ -27,13 +27,13 @@ import java.util.Map;
  */
 public interface DynamicSql {
     /**
-     * 检查是否包含需要替换的占位符
+     * 检查是否包含 SQL 注入占位符
      * @return 如果包含替换占位符返回 true，否则返回 false
      */
     boolean isHaveInjection();
 
     /**
-     * 构建动态SQL查询
+     * 构建动态 SQL 查询
      * @param data 参数数据源
      * @param context 查询上下文
      * @param sqlBuilder SQL构建器
@@ -41,7 +41,7 @@ public interface DynamicSql {
     void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException;
 
     /**
-     * 构建动态SQL查询（简化版）
+     * 构建动态 SQL 查询（简化版）
      * @param data 参数数据源
      * @param context 查询上下文
      * @return 构建完成的SQL构建器
@@ -53,7 +53,7 @@ public interface DynamicSql {
     }
 
     /**
-     * 构建动态SQL查询（Map参数版）
+     * 构建动态 SQL 查询（Map参数版）
      * @param data Map类型参数
      * @param context 查询上下文
      * @return 构建完成的SQL构建器

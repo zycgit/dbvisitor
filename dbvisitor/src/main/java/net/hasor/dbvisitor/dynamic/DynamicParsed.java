@@ -53,7 +53,7 @@ public class DynamicParsed {
      */
     public static PlanDynamicSql getParsedSql(final String originalSql) {
         PlanDynamicSql segment = new PlanDynamicSql();
-        if (originalSql == null) {
+        if (StringUtils.isBlank(originalSql)) {
             return segment;
         }
 

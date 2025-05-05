@@ -26,7 +26,6 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,14 +36,21 @@ import java.util.Set;
  * @version 2020-10-31
  */
 public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect {
-    private static final Logger      logger     = LoggerFactory.getLogger(AbstractDialect.class);
-    private static final Set<String> FIRST_CHAR = new HashSet<>();
+    private static final Logger      logger = LoggerFactory.getLogger(AbstractDialect.class);
+    private static final char[]      FIRST_CHAR;
+    private static final char[]      CONTAINS_CHAR;
     private              Set<String> keyWords;
 
     static {
-        FIRST_CHAR.addAll(Arrays.asList("!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "=", "+", "~", "`", " "));
-        FIRST_CHAR.addAll(Arrays.asList("{", "}", "[", "]", "\\", "|", ";", ":", "\"", "'", ",", "<", ".", ">", "/", "?"));
-        FIRST_CHAR.addAll(Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"));
+        CONTAINS_CHAR = new char[] {//
+                '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '=', '+', '~', '`', ' ',     //
+                '{', '}', '[', ']', '\\', '|', ';', ':', '\"', '\'', ',', '<', '.', '>', '/', '?'   //
+        };
+        FIRST_CHAR = new char[] {//
+                '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '=', '+', '~', '`', ' ',     //
+                '{', '}', '[', ']', '\\', '|', ';', ':', '\"', '\'', ',', '<', '.', '>', '/', '?',  //
+                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'                                    //
+        };
     }
 
     @Override
@@ -99,11 +105,17 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
 
     @Override
     public String tableName(boolean useQualifier, String catalog, String schema, String table) {
-        if (StringUtils.isBlank(schema)) {
-            return fmtName(useQualifier, table);
-        } else {
-            return fmtName(useQualifier, schema) + "." + fmtName(useQualifier, table);
+        StringBuilder sqlBuilder = new StringBuilder();
+        if (StringUtils.isNotBlank(catalog)) {
+            sqlBuilder.append(fmtName(useQualifier, catalog));
+            sqlBuilder.append(".");
         }
+        if (StringUtils.isNotBlank(schema)) {
+            sqlBuilder.append(fmtName(useQualifier, schema));
+            sqlBuilder.append(".");
+        }
+        sqlBuilder.append(fmtName(useQualifier, table));
+        return sqlBuilder.toString();
     }
 
     @Override
@@ -115,7 +127,10 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
             useQualifier = true;
         }
         if (!useQualifier && !name.isEmpty()) {
-            useQualifier = FIRST_CHAR.contains(String.valueOf(name.charAt(0)));
+            useQualifier = StringUtils.containsAny(String.valueOf(name.charAt(0)), FIRST_CHAR);
+        }
+        if (!useQualifier && !name.isEmpty()) {
+            useQualifier = StringUtils.containsAny(name, CONTAINS_CHAR);
         }
         String leftQualifier = useQualifier ? leftQualifier() : "";
         String rightQualifier = useQualifier ? rightQualifier() : "";

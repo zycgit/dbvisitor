@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * SqlBuildRule 注册器
+ * SqlBuildRule 注册器，用于管理和查找 SQL 处理规则
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-06-05
  */
@@ -53,6 +53,11 @@ public class RuleRegistry {
         DEFAULT.register(ResultRule.FUNC_DEFAULT_RESULT, ResultRule.INSTANCE_OF_DEFAULT_RESULT);
     }
 
+    /**
+     * 查找SQL规则
+     * @param ruleName 规则名称
+     * @return 对应的 {@link SqlRule} 对象，找不到时尝试从 DEFAULT 实例查找
+     */
     public SqlRule findRule(String ruleName) {
         SqlRule rule = this.ruleMap.get(ruleName);
         if (rule == null && this != DEFAULT) {
@@ -61,7 +66,12 @@ public class RuleRegistry {
         return rule;
     }
 
-    /** 注册 SqlBuildRule */
+    /**
+     * 注册SQL规则
+     * @param ruleName 规则名称
+     * @param rule 规则实现
+     * @throws NullPointerException 如果 rule 为 null
+     */
     public void register(String ruleName, SqlRule rule) {
         this.ruleMap.put(ruleName, Objects.requireNonNull(rule, "rule is null."));
     }

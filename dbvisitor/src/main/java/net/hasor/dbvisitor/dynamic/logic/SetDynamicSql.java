@@ -15,12 +15,22 @@
  */
 package net.hasor.dbvisitor.dynamic.logic;
 /**
- * 对应XML中 <set>
- * @author zhangxu
+ * 对应XML中 <set>，继承自 {@link TrimDynamicSql}
+ * 功能特点：
+ * 1. 自动处理 UPDATE 语句中的 SET 子句
+ * 2. 自动移除多余的逗号
+ * 3. 如果子节点有输出，会自动添加 SET 关键字
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-05-24
  */
 public class SetDynamicSql extends TrimDynamicSql {
+    /**
+     * 构造函数，初始化set标签的trim参数
+     * 参数说明：
+     * 1. prefix: 前缀"set"
+     * 2. prefixOverrides: 无需要移除的前缀
+     * 3. suffixOverrides: 需要移除的后缀(",")
+     */
     public SetDynamicSql() {
         super("set", "", "", ",");
     }

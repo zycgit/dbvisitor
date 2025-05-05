@@ -15,48 +15,18 @@
  */
 package net.hasor.dbvisitor.dialect;
 import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.dialect.provider.AbstractDialect;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 默认 SqlDialect 实现
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
-public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, InsertSqlDialect {
+public class DefaultSqlDialect extends AbstractDialect implements ConditionSqlDialect, PageSqlDialect, InsertSqlDialect {
     public static final DefaultSqlDialect DEFAULT = new DefaultSqlDialect();
-
-    @Override
-    public Set<String> keywords() {
-        return Collections.emptySet();
-    }
-
-    @Override
-    public String leftQualifier() {
-        return "";
-    }
-
-    @Override
-    public String rightQualifier() {
-        return "";
-    }
-
-    @Override
-    public String tableName(boolean useQualifier, String catalog, String schema, String table) {
-        if (StringUtils.isBlank(schema)) {
-            return table;
-        } else {
-            return schema + "." + table;
-        }
-    }
-
-    @Override
-    public String fmtName(boolean useQualifier, String name) {
-        return name;
-    }
 
     @Override
     public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
@@ -118,5 +88,4 @@ public class DefaultSqlDialect implements ConditionSqlDialect, PageSqlDialect, I
     public String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms) {
         throw new UnsupportedOperationException();
     }
-
 }

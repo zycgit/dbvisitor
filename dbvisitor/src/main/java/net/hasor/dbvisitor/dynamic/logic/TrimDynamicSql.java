@@ -24,8 +24,11 @@ import java.sql.SQLException;
 import java.util.Arrays;
 
 /**
- * 对应XML中 <trim>
- * @author zhangxu
+ * 对应XML中 <trim> 标签实现类，用于动态SQL的字符串修剪
+ * 功能特点：
+ * 1. 继承自 {@link ArrayDynamicSql}，可包含多个子SQL节点
+ * 2. 支持添加前后缀
+ * 3. 支持移除多余的前后缀
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-05-24
  */
@@ -39,6 +42,13 @@ public class TrimDynamicSql extends ArrayDynamicSql {
     /** 后缀 suffixOverrides */
     private final String[] suffixOverrides;
 
+    /**
+     * 构造函数
+     * @param prefix 要添加的前缀
+     * @param suffix 要添加的后缀
+     * @param prefixOverrides 需要移除的前缀(多个用|分隔)
+     * @param suffixOverrides 需要移除的后缀(多个用|分隔)
+     */
     public TrimDynamicSql(String prefix, String suffix, String prefixOverrides, String suffixOverrides) {
         this.prefix = prefix;
         this.suffix = suffix;
@@ -48,14 +58,17 @@ public class TrimDynamicSql extends ArrayDynamicSql {
                 Arrays.stream(suffixOverrides.split("\\|")).map(String::trim).toArray(String[]::new);
     }
 
+    /** 检查字符串是否以指定前缀开头(忽略大小写) */
     private static boolean startsWith(String test, String prefix) {
         return StringUtils.startsWithIgnoreCase(test.trim(), prefix);
     }
 
+    /** 检查字符串是否以指定后缀结尾(忽略大小写) */
     private static boolean endsWith(String test, String suffix) {
         return StringUtils.endsWithIgnoreCase(test.trim(), suffix);
     }
 
+    /** 构建SQL查询 */
     @Override
     public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
         SqlBuilder tempDalSqlBuilder = new SqlBuilder();

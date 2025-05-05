@@ -22,22 +22,38 @@ import net.hasor.dbvisitor.dynamic.rule.ArgRule;
 import java.sql.SQLException;
 import java.util.Collections;
 
+/**
+ * 位置参数 SQL 片段实现类，用于处理按位置绑定的 SQL 参数
+ * 功能特点：
+ * 1. 实现 {@link SqlSegment} 接口，提供 SQL 片段构建功能
+ * 2. 支持按位置绑定参数
+ * 3. 使用 {@link ArgRule} 处理参数绑定
+ * @author 赵永春 (zyc@hasor.net)
+ * @version 2024-09-25
+ */
 public class PositionSqlSegment implements SqlSegment {
     private final int position;
 
+    /**
+     * 构造函数
+     * @param position 参数位置
+     */
     public PositionSqlSegment(int position) {
         this.position = position;
     }
 
+    /** 获取参数位置 */
     public int getPosition() {
         return this.position;
     }
 
+    /** 构建 SQL 查询 */
     @Override
     public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
         ArgRule.INSTANCE.executeRule(data, context, sqlBuilder, "arg" + position, Collections.emptyMap());
     }
 
+    /** 克隆当前对象，返回新的 {@link PositionSqlSegment} 实例 */
     @Override
     public PositionSqlSegment clone() {
         return new PositionSqlSegment(this.position);

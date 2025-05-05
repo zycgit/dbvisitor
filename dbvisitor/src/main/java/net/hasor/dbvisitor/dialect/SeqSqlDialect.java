@@ -15,11 +15,11 @@
  */
 package net.hasor.dbvisitor.dialect;
 /**
- * 查询序列的方言
+ * 生成查询序列的 SQL 语句方言接口
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
 public interface SeqSqlDialect extends SqlDialect {
-    /** 查询序列 */
+    /** 生成查询序列的 SQL 语句 */
     String selectSeq(boolean useQualifier, String catalog, String schema, String seqName);
 }

@@ -19,6 +19,14 @@ import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.RowMapper;
 
+/**
+ * 结果参数类，用于存储过程/函数调用的结果处理配置
+ * 功能特点：
+ * 1. 封装结果处理的多种配置方式
+ * 2. 支持Java类型、行映射器、行处理器和结果集提取器
+ * @author 赵永春 (zyc@hasor.net)
+ * @version 2024-09-30
+ */
 public class ResultArg {
     public static final String                CFG_KEY_NAME        = ArgRule.CFG_KEY_NAME;
     public static final String                CFG_KEY_JAVA_TYPE   = ArgRule.CFG_KEY_JAVA_TYPE;
@@ -32,11 +40,25 @@ public class ResultArg {
     private             RowCallbackHandler    rowHandler;
     private             ResultSetExtractor<?> extractor;
 
+    /**
+     * 构造函数（基础配置）
+     * @param name 参数名称
+     * @param argType 参数类型
+     */
     public ResultArg(String name, ResultArgType argType) {
         this.name = name;
         this.argType = argType;
     }
 
+    /**
+     * 构造函数（完整配置）
+     * @param name 参数名称
+     * @param argType 参数类型
+     * @param javaType Java类型
+     * @param rowMapper 行映射器
+     * @param rowHandler 行处理器
+     * @param extractor 结果集提取器
+     */
     public ResultArg(String name, ResultArgType argType, Class<?> javaType, RowMapper<?> rowMapper, RowCallbackHandler rowHandler, ResultSetExtractor<?> extractor) {
         this.name = name;
         this.argType = argType;

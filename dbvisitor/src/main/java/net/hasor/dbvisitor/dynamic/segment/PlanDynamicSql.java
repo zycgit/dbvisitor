@@ -22,18 +22,27 @@ import java.sql.SQLException;
 import java.util.*;
 
 /**
- * 本处理器，兼容 @{...}、#{...}、${...} 三种写法。
+ * 动态 SQL 解析和执行计划实现类，兼容 @{...}、#{...}、${...} 三种写法。
+ * 功能特点：
+ * 1. 实现 {@link SqlSegment} 接口，提供动态 SQL 构建功能。
+ * 2. 支持多种 SQL 片段类型 文本、注入表达式、规则、命名参数和位置参数。
+ * 3. 维护原始 SQL 字符串和执行计划。
  * @author 赵永春 (zyc@hasor.net)
- * @version 2021-06-05
+ * @version 2024-09-25
  */
 public class PlanDynamicSql implements Cloneable, DynamicSql {
     private final StringBuilder    queryStringOri  = new StringBuilder("");
     private final List<SqlSegment> queryStringPlan = new LinkedList<>();
     private       boolean          haveInjection   = false;
 
+    /** 默认构造函数 */
     public PlanDynamicSql() {
     }
 
+    /**
+     * 通过SQL字符串构造
+     * @param test SQL字符串
+     */
     public PlanDynamicSql(String test) {
         PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(test);
         this.queryStringOri.append(parsedSql.queryStringOri);
@@ -41,6 +50,7 @@ public class PlanDynamicSql implements Cloneable, DynamicSql {
         this.haveInjection = parsedSql.haveInjection;
     }
 
+    /** 解析并追加 SQL 片段 */
     public void parsedAppend(String append) {
         DynamicParsed.parsedSqlTo(append, this);
     }
@@ -117,6 +127,10 @@ public class PlanDynamicSql implements Cloneable, DynamicSql {
         return this.haveInjection;
     }
 
+    /**
+     * 获取 SQL 修饰符标志
+     * @see SqlModifier
+     */
     public int getSqlModifier() {
         boolean hasPosition = false;
         boolean hasNamed = false;
@@ -142,10 +156,17 @@ public class PlanDynamicSql implements Cloneable, DynamicSql {
         return i;
     }
 
+    /** 获取原始 SQL 字符串 */
     public String getOriSqlString() {
         return this.queryStringOri.toString();
     }
 
+    /** 是否为空白字符序列 */
+    public boolean isBlank() {
+        return StringUtils.isBlank(this.queryStringOri.toString());
+    }
+
+    /** 获取注入表达式列表 */
     public List<String> getInjectionList() {
         List<String> result = new ArrayList<>();
         for (SqlSegment segment : this.queryStringPlan) {
@@ -156,6 +177,7 @@ public class PlanDynamicSql implements Cloneable, DynamicSql {
         return result;
     }
 
+    /** 获取位置参数列表 */
     public List<Integer> getPositionList() {
         List<Integer> result = new ArrayList<>();
         for (SqlSegment segment : this.queryStringPlan) {
@@ -166,6 +188,7 @@ public class PlanDynamicSql implements Cloneable, DynamicSql {
         return result;
     }
 
+    /** 获取命名参数列表 */
     public List<NameInfo> getNamedList() {
         List<NameInfo> result = new ArrayList<>();
         for (SqlSegment segment : this.queryStringPlan) {
@@ -176,6 +199,7 @@ public class PlanDynamicSql implements Cloneable, DynamicSql {
         return result;
     }
 
+    /** 获取规则列表 */
     public List<RuleInfo> getRuleList() {
         List<RuleInfo> result = new ArrayList<>();
         for (SqlSegment segment : this.queryStringPlan) {
@@ -189,6 +213,7 @@ public class PlanDynamicSql implements Cloneable, DynamicSql {
         return result;
     }
 
+    /** 构建 SQL 查询 */
     @Override
     public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
         for (SqlSegment fxSegment : this.queryStringPlan) {
@@ -196,6 +221,7 @@ public class PlanDynamicSql implements Cloneable, DynamicSql {
         }
     }
 
+    /** 克隆当前对象，返回新的 {@link PlanDynamicSql} 实例 */
     @Override
     public DynamicSql clone() {
         PlanDynamicSql clone = new PlanDynamicSql();
@@ -207,6 +233,7 @@ public class PlanDynamicSql implements Cloneable, DynamicSql {
         return clone;
     }
 
+    /** 命名参数信息类 */
     public static class NameInfo {
         private final String              expr;
         private final Map<String, String> config;
@@ -225,6 +252,7 @@ public class PlanDynamicSql implements Cloneable, DynamicSql {
         }
     }
 
+    /** 规则信息类 */
     public static class RuleInfo {
         private final String ruleName;
         private final String activeExpr;

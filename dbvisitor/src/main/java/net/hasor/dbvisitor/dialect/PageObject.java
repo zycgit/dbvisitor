@@ -134,6 +134,12 @@ public class PageObject implements Page {
         this.totalCount = totalCount;
     }
 
+    /**
+     * 创建分页对象（偏移量为0）
+     * @param pageNumber 当前页码
+     * @param pageSize 每页记录数
+     * @return 分页对象
+     */
     public static Page of(int pageNumber, int pageSize) {
         Page pageInfo = new PageObject();
         pageInfo.setPageNumberOffset(0);
@@ -142,6 +148,13 @@ public class PageObject implements Page {
         return pageInfo;
     }
 
+    /**
+     * 创建分页对象（自定义页码偏移量）
+     * @param pageNumber 当前页码
+     * @param pageSize 每页记录数
+     * @param pageNumberOffset 页码偏移量
+     * @return 分页对象
+     */
     public static Page of(int pageNumber, int pageSize, int pageNumberOffset) {
         Page pageInfo = new PageObject();
         pageInfo.setPageNumberOffset(pageNumberOffset);

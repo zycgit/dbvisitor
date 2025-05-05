@@ -15,12 +15,22 @@
  */
 package net.hasor.dbvisitor.dynamic.logic;
 /**
- * 对应XML中 <where>
- * @author zhangxu
+ * 对应XML中 <where> 标签实现类，继承自 {@link TrimDynamicSql}
+ * 功能特点：
+ * 1. 自动处理WHERE条件前的AND/OR关键字
+ * 2. 如果子节点有输出，会自动添加WHERE关键字
+ * 3. 如果子节点无输出，不会生成任何SQL片段
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-05-24
  */
 public class WhereDynamicSql extends TrimDynamicSql {
+    /**
+     * 构造函数，初始化where标签的trim参数
+     * 参数说明：
+     * 1. prefix: 前缀"where"
+     * 2. prefixOverrides: 需要移除的前缀("and | or")
+     * 3. suffixOverrides: 无需要移除的后缀
+     */
     public WhereDynamicSql() {
         super("where", "", "and | or", "");
     }

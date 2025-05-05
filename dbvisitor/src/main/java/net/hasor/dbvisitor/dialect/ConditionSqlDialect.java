@@ -16,11 +16,8 @@
 package net.hasor.dbvisitor.dialect;
 import net.hasor.cobble.StringUtils;
 
-import java.util.List;
-import java.util.Map;
-
 /**
- * SQL 条件方言
+ * 条件 SQL 方言接口，扩展 {@link SqlDialect} 以支持条件查询
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
@@ -35,6 +32,12 @@ public interface ConditionSqlDialect extends SqlDialect {
         DEFAULT
     }
 
+    /**
+     * 生成 LIKE 条件 SQL 片段
+     * @param likeType LIKE 模式枚举值
+     * @param value 匹配值
+     * @return 生成的 LIKE 条件 SQL 片段
+     */
     default String like(SqlLike likeType, Object value) {
         if (value == null || StringUtils.isBlank(value.toString())) {
             return "%";
@@ -47,9 +50,5 @@ public interface ConditionSqlDialect extends SqlDialect {
             default:
                 return "CONCAT('%', ? ,'%')";
         }
-    }
-
-    default String randomQuery(boolean useQualifier, String catalog, String schema, String table, List<String> selectColumns, Map<String, String> columnTerms, int recordSize) {
-        throw new UnsupportedOperationException();
     }
 }

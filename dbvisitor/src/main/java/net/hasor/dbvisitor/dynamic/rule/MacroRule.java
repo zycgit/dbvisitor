@@ -24,7 +24,11 @@ import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
 import java.sql.SQLException;
 
 /**
- * 效果和使用 `<include refid="sqlid"/>` 标签相同
+ * 宏规则实现类，用于动态SQL中的宏引用，`<include refid="sqlid"/>` 标签相同
+ * 功能特点：
+ * 1. 实现SqlRule接口，提供宏引用功能
+ * 2. 支持IF模式条件判断
+ * 3. 通过上下文查找并执行宏定义
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-06-05
  */
@@ -32,10 +36,21 @@ public class MacroRule implements SqlRule {
     public static final SqlRule INSTANCE = new MacroRule(false);
     private final       boolean usingIf;
 
+    /**
+     * 构造函数
+     * @param usingIf 是否使用IF模式
+     */
     public MacroRule(boolean usingIf) {
         this.usingIf = usingIf;
     }
 
+    /**
+     * 测试条件是否满足
+     * @param data 参数源
+     * @param context 查询上下文
+     * @param activeExpr 条件表达式
+     * @return IF模式时检查条件，非IF模式总是返回true
+     */
     @Override
     public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         if (this.usingIf) {
@@ -45,6 +60,7 @@ public class MacroRule implements SqlRule {
         }
     }
 
+    /** 执行宏规则 */
     @Override
     public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         String name;

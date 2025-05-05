@@ -26,7 +26,11 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 /**
- * in 规则，用于自动生成 in 语句后的多重参数，例如： where col in (?,?,?,?)。
+ * IN 条件规则用于自动生成 in 语句后的多重参数，例如： where col in (?,?,?,?)。
+ * 功能特点：
+ * 1. 支持自动生成IN语句参数占位符(?,?,?)
+ * 2. 支持IF模式条件判断
+ * 3. 处理数组和集合类型参数
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-06-05
  */
@@ -34,10 +38,21 @@ public class InRule implements SqlRule {
     public static final SqlRule INSTANCE = new InRule(false);
     private final       boolean usingIf;
 
+    /**
+     * 构造函数
+     * @param usingIf 是否使用IF模式
+     */
     public InRule(boolean usingIf) {
         this.usingIf = usingIf;
     }
 
+    /**
+     * 测试条件是否满足
+     * @param data 参数源
+     * @param context 查询上下文
+     * @param activeExpr 条件表达式
+     * @return IF模式时检查条件，非IF模式总是返回true
+     */
     @Override
     public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         if (this.usingIf) {
@@ -47,6 +62,7 @@ public class InRule implements SqlRule {
         }
     }
 
+    /** 执行IN规则 */
     @Override
     public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) throws SQLException {
         String expr = "";

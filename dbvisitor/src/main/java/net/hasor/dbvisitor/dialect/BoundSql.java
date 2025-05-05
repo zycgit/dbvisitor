@@ -17,25 +17,36 @@ package net.hasor.dbvisitor.dialect;
 import java.util.Arrays;
 
 /**
- * SQL
+ * 封装 SQL 语句和参数
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
 public interface BoundSql {
+    /** 获取 SQL 字符串 */
     String getSqlString();
 
+    /** 获取参数数组 */
     Object[] getArgs();
 
+    /** {@link BoundSql} 的默认实现类 */
     class BoundSqlObj implements BoundSql {
-        /** SQL */
         private final String   sqlString;
         private final Object[] paramArray;
 
+        /**
+         * 构造函数
+         * @param sqlString SQL 字符串
+         */
         public BoundSqlObj(String sqlString) {
             this.sqlString = sqlString;
             this.paramArray = new Object[0];
         }
 
+        /**
+         * 构造函数
+         * @param sqlString SQL 字符串
+         * @param paramArray 参数数组
+         */
         public BoundSqlObj(String sqlString, Object[] paramArray) {
             this.sqlString = sqlString;
             this.paramArray = paramArray;

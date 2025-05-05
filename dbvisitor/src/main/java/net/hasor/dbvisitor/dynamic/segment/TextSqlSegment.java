@@ -20,22 +20,41 @@ import net.hasor.dbvisitor.dynamic.SqlBuilder;
 
 import java.sql.SQLException;
 
+/**
+ * 纯文本 SQL 片段实现类，用于处理静态 SQL 文本
+ * 功能特点：
+ * 1. 实现 {@link SqlSegment} 接口，提供 SQL 片段构建功能
+ * 2. 支持文本内容的动态追加
+ * 3. 直接输出文本内容，不做特殊处理
+ * @author 赵永春 (zyc@hasor.net)
+ * @version 2024-09-25
+ */
 public class TextSqlSegment implements SqlSegment {
     private final StringBuilder textString;
 
+    /**
+     * 构造函数
+     * @param exprString 初始SQL文本
+     */
     public TextSqlSegment(String exprString) {
         this.textString = new StringBuilder(exprString);
     }
 
+    /**
+     * 追加文本内容
+     * @param append 要追加的文本
+     */
     public void append(String append) {
         this.textString.append(append);
     }
 
+    /** 构建 SQL 查询 */
     @Override
     public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
         sqlBuilder.appendSql(this.textString.toString());
     }
 
+    /** 克隆当前对象，返回新的 {@link TextSqlSegment} 实例 */
     @Override
     public TextSqlSegment clone() {
         return new TextSqlSegment(this.textString.toString());

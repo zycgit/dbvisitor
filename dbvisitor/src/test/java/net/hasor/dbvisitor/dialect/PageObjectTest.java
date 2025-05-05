@@ -225,4 +225,27 @@ public class PageObjectTest {
         assert pageInfo.get("currentPage").equals(2L);
         assert pageInfo.get("recordPosition").equals(0L);
     }
+
+    @Test
+    public void pageTest_12() {
+        Page page = new PageObject();
+        assert page.getPageSize() == 0;
+        assert page.getCurrentPage() == 0;
+        assert page.getPageNumberOffset() == 0;
+        assert page.getFirstRecordPosition() == 0;
+        assert page.getTotalPage() == 0;
+        assert page.getTotalCount() == 0;
+
+        Page page2 = new PageObject();
+        page2.setPageSize(-1000);
+        assert page2.getPageSize() == 0;
+
+        Page page3 = new PageObject();
+        page3.setCurrentPage(-1000);
+        assert page3.getCurrentPage() == 0;
+        page3.setPageNumberOffset(2);
+        assert page3.getCurrentPage() == 2;
+        page3.setPageNumberOffset(-1000);
+        assert page3.getCurrentPage() == 0;
+    }
 }

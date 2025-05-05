@@ -22,13 +22,22 @@ import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import java.sql.SQLException;
 
 /**
- * <choose>、<when>、<otherwise> 标签
+ * <choose>、<when>、<otherwise> 标签实现类
+ * 功能特点：
+ * 1. 继承自ArrayDynamicSql，支持多个条件分支
+ * 2. 实现类似switch-case的条件选择逻辑
+ * 3. 支持默认分支(otherwise)处理
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-05-24
  */
 public class ChooseDynamicSql extends ArrayDynamicSql {
     private DynamicSql defaultDynamicSql;
 
+    /**
+     * 添加 when 条件分支
+     * @param test 条件表达式
+     * @param nodeBlock 条件成立时执行的SQL节点
+     */
     public void addThen(String test, DynamicSql nodeBlock) {
         IfDynamicSql whenSqlNode = new IfDynamicSql(test);
         whenSqlNode.addChildNode(nodeBlock);
@@ -36,10 +45,16 @@ public class ChooseDynamicSql extends ArrayDynamicSql {
         this.addChildNode(whenSqlNode);
     }
 
+    /**
+     * 重写父类方法，限制只能添加 {@link IfDynamicSql} 节点
+     * @param node 要添加的节点
+     */
     @Override
     public void addChildNode(DynamicSql node) {
         if (node instanceof IfDynamicSql) {
             this.subNodes.add(node);
+        } else {
+            throw new IllegalArgumentException("only supports IfDynamicSql nodes.");
         }
     }
 
@@ -48,6 +63,7 @@ public class ChooseDynamicSql extends ArrayDynamicSql {
         this.defaultDynamicSql = block;
     }
 
+    /** 构建SQL查询 */
     @Override
     public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
         boolean useDefault = true;

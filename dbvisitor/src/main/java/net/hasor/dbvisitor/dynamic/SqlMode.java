@@ -15,14 +15,29 @@
  */
 package net.hasor.dbvisitor.dynamic;
 /**
- * 参数模式
+ * SQL参数模式枚举，用于标识存储过程/函数参数的方向
+ *
+ * <p>枚举值说明：</p>
+ * <ul>
+ *   <li>In - 输入参数</li>
+ *   <li>Out - 输出参数</li>
+ *   <li>Cursor - 游标类型输出参数</li>
+ *   <li>InOut - 输入输出参数</li>
+ * </ul>
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-05-24
  */
 public enum SqlMode {
+    /** 输入参数 */
     In(true, false),
+
+    /** 输出参数 */
     Out(false, true),
+
+    /** 游标类型输出参数 */
     Cursor(false, true),
+
+    /** 输入输出参数 */
     InOut(true, true);
 
     private final boolean out;
@@ -33,10 +48,12 @@ public enum SqlMode {
         this.out = out;
     }
 
+    /** 是否为输入参数 */
     public boolean isIn() {
         return this.in;
     }
 
+    /** 是否为输出参数 */
     public boolean isOut() {
         return this.out;
     }

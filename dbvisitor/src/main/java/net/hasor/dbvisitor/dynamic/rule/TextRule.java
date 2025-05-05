@@ -21,7 +21,11 @@ import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
 
 /**
- * 动态参数规则，普通文本
+ * 动态参数规则，普通文本，用于处理普通文本SQL片段
+ * 功能特点：
+ * 1. 实现SqlRule接口，提供文本处理功能
+ * 2. 支持IF模式条件判断
+ * 3. 直接输出文本内容，不做特殊处理
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-06-05
  */
@@ -29,10 +33,21 @@ public class TextRule implements SqlRule {
     public static final SqlRule INSTANCE = new TextRule(false);
     private final       boolean usingIf;
 
+    /**
+     * 构造函数
+     * @param usingIf 是否使用IF模式
+     */
     public TextRule(boolean usingIf) {
         this.usingIf = usingIf;
     }
 
+    /**
+     * 测试条件是否满足
+     * @param data 参数源
+     * @param context 查询上下文
+     * @param activeExpr 条件表达式
+     * @return IF模式时检查条件，非IF模式总是返回 true
+     */
     @Override
     public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         if (this.usingIf) {
@@ -42,6 +57,7 @@ public class TextRule implements SqlRule {
         }
     }
 
+    /** 执行文本规则 */
     @Override
     public void executeRule(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder, String activeExpr, String ruleValue) {
         if (this.usingIf) {

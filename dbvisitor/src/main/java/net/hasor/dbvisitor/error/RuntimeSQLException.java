@@ -25,14 +25,26 @@ import java.util.NoSuchElementException;
  */
 public class RuntimeSQLException extends RuntimeException implements Iterable<Throwable> {
 
+    /**
+     * 获取封装的SQLException
+     * @return 封装的SQLException对象
+     */
     protected SQLException getSQLException() {
         return (SQLException) this.getCause();
     }
 
+    /**
+     * 使用SQLException构造RuntimeSQLException
+     * @param e 要封装的SQLException
+     */
     public RuntimeSQLException(SQLException e) {
         super(e);
     }
 
+    /**
+     * 使用错误消息构造RuntimeSQLException
+     * @param s 错误消息
+     */
     public RuntimeSQLException(String s) {
         super(new SQLException(s));
     }
@@ -92,6 +104,7 @@ public class RuntimeSQLException extends RuntimeException implements Iterable<Th
         };
     }
 
+    /** 解包获取原始 SQLException */
     public SQLException toSQLException() {
         return getSQLException();
     }

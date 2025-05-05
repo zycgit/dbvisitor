@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
+import net.hasor.dbvisitor.dialect.dto.TestDialect;
 import net.hasor.test.AbstractDbTest;
 import org.junit.Test;
 
@@ -38,11 +39,12 @@ public class RegisterTest extends AbstractDbTest {
             assert e.getMessage().equals("load dialect 'abc' class not found");
         }
     }
-    //    @Test
-    //    public void dialectRegisterTest_3() {
-    //        SqlDialectRegister.clearDialectCache();
-    //        SqlDialect dialect = SqlDialectRegister.findOrCreate("net.hasor.test.db.dialect.TestDialect");
-    //        assert dialect != null;
-    //        assert dialect instanceof TestDialect;
-    //    }
+
+    @Test
+    public void dialectRegisterTest_3() {
+        SqlDialectRegister.clearDialectCache();
+        SqlDialect dialect = SqlDialectRegister.findOrCreate("net.hasor.dbvisitor.dialect.dto.TestDialect");
+        assert dialect != null;
+        assert dialect instanceof TestDialect;
+    }
 }

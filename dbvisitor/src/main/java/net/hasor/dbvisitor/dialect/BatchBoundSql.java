@@ -17,16 +17,24 @@ package net.hasor.dbvisitor.dialect;
 import java.util.Arrays;
 
 /**
- * SQL
+ * 批量 SQL 绑定接口，扩展 {@link BoundSql} 以支持批量操作
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
 public interface BatchBoundSql extends BoundSql {
+    /** 获取 SQL 字符串 */
     String getSqlString();
 
+    /** 获取批量参数数组，二维参数数组，每行代表一组参数 */
     Object[][] getArgs();
 
+    /** {@link BatchBoundSql} 的默认实现类 */
     class BatchBoundSqlObj extends BoundSqlObj implements BatchBoundSql {
+        /**
+         * 构造函数
+         * @param sqlString SQL 字符串
+         * @param paramArray 批量参数数组
+         */
         public BatchBoundSqlObj(String sqlString, Object[][] paramArray) {
             super(sqlString, paramArray);
         }
@@ -41,5 +49,4 @@ public interface BatchBoundSql extends BoundSql {
             return "BoundSqlObj{'" + getSqlString() + '\'' + ", args=" + Arrays.toString(getArgs()) + '}';
         }
     }
-
 }

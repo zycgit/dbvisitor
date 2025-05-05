@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * SQL 插入数据方言。
+ * 插入 SQL 方言接口，扩展 {@link SqlDialect} 以支持多种插入操作
  * @author 赵永春 (zyc@hasor.net)
  * @version 2020-10-31
  */
@@ -27,15 +27,18 @@ public interface InsertSqlDialect extends SqlDialect {
     /** 是否支持 insert into */
     boolean supportInto(List<String> primaryKey, List<String> columns);
 
+    /** 生成标准 insert into 语句 */
     String insertInto(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms);
 
     /** 是否支持 insert ignore */
     boolean supportIgnore(List<String> primaryKey, List<String> columns);
 
+    /** 生成 insert ignore 语句，根据具体数据库类型生成语句不一定是 insert 例如 oracle 会使用 merge 语句。 */
     String insertIgnore(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms);
 
     /** 是否支持 insert replace */
     boolean supportReplace(List<String> primaryKey, List<String> columns);
 
+    /** 生成 insert replace 语句，根据具体数据库类型生成语句不一定是 insert 例如 oracle 会使用 merge 语句。 */
     String insertReplace(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> columns, Map<String, String> columnValueTerms);
 }
