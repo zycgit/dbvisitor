@@ -21,7 +21,12 @@ Object[] args = new Object[] { 2, "Dave"};
 jdbcTemplate.queryForList("select * from users where id > ? and name = ?", args);
 ```
 
-```java title='例2：当只有一个参数时可省略数组'
+```java title='例2：List 类型的集合传参数'
+List<?> args = Arrays.asList(2, "Dave");
+jdbcTemplate.queryForList("select * from users where id > ? and name = ?", args);
+```
+
+```java title='例3：当只有一个参数时可省略数组'
 jdbcTemplate.queryForList("select * from users where id > ?", 2);
 ```
 
