@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @SpringBootTest
-class DemoApplicationTests {
+public class DemoApplicationTests {
 
     @Resource
     private UserService userService;
@@ -22,7 +22,7 @@ class DemoApplicationTests {
     private DataSource  dataSource;
 
     @Test
-    void contextLoads() throws SQLException, IOException {
+    public void contextLoads() throws SQLException, IOException {
         new JdbcTemplate(this.dataSource).loadSQL("CreateDB.sql");
         List<UserDTO> users = userService.getAllUsers();
 

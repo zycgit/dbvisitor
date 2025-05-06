@@ -37,6 +37,5 @@ public class PageMain {
         pageInfo.nextPage();
         PageResult<TestUser> pageData2 = baseMapper.pageBySample(null, pageInfo);
         PrintUtils.printObjectList(pageData2.getData());
-
     }
 }

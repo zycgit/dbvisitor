@@ -14,5 +14,4 @@ public interface TestUserDAO extends BaseMapper<TestUser> {
     List<TestUser> queryByAge1(@Param("beginAge") int beginAge, @Param("endAge") int endAge, Page pageInfo);
 
     PageResult<TestUser> queryByAge2(@Param("beginAge") int beginAge, @Param("endAge") int endAge, Page pageInfo);
-
 }

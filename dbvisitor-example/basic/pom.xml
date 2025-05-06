@@ -2,9 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.example</groupId>
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>dbvisitor-example-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
     <artifactId>example-basic</artifactId>
-    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <build>
@@ -27,7 +31,11 @@
         <dependency>
             <groupId>net.hasor</groupId>
             <artifactId>dbvisitor</artifactId>
-            <version>6.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.hasor</groupId>
+            <artifactId>cobble-all</artifactId>
+            <version>4.7.0</version>
         </dependency>
 
         <!-- driver -->

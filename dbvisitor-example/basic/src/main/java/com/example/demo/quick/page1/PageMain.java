@@ -4,8 +4,8 @@ import com.example.demo.PrintUtils;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageObject;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.wrapper.WrapperAdapter;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -17,7 +17,7 @@ public class PageMain {
         DataSource dataSource = DsUtils.dsMySql();
 
         // 查询，所有数据
-        WrapperAdapter wrapper = new WrapperAdapter(dataSource, Options.of().dialect(new MySqlDialect()));
+        LambdaTemplate wrapper = new LambdaTemplate(dataSource, Options.of().dialect(new MySqlDialect()));
 
         wrapper.jdbc().loadSQL("CreateDB.sql");
 
@@ -34,6 +34,5 @@ public class PageMain {
         pageInfo.nextPage();
         List<TestUser> pageData2 = wrapper.query(TestUser.class).usePage(pageInfo).queryForList();
         PrintUtils.printObjectList(pageData2);
-
     }
 }

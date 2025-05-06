@@ -46,6 +46,7 @@
 
     <modules>
         <module>dbvisitor</module>
+        <module>dbvisitor-dependencies</module>
         <module>dbvisitor-integration/dbvisitor-spring</module>
         <module>dbvisitor-integration/dbvisitor-spring-starter</module>
         <module>dbvisitor-integration/dbvisitor-hasor</module>

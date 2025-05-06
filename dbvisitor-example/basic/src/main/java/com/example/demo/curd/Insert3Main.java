@@ -2,8 +2,8 @@ package com.example.demo.curd;
 import com.example.demo.DsUtils;
 import com.example.demo.PrintUtils;
 import net.hasor.cobble.DateFormatType;
-import net.hasor.dbvisitor.wrapper.MapInsertWrapper;
-import net.hasor.dbvisitor.wrapper.WrapperAdapter;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.lambda.MapInsert;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -15,7 +15,7 @@ public class Insert3Main {
     // 纯 Map 模式，默认不开启驼峰转换。因此都是列名。
     public static void main(String[] args) throws SQLException, IOException {
         DataSource dataSource = DsUtils.dsMySql();
-        WrapperAdapter wrapper = new WrapperAdapter(dataSource);
+        LambdaTemplate wrapper = new LambdaTemplate(dataSource);
         wrapper.jdbc().loadSQL("CreateDB.sql");
         wrapper.jdbc().execute("delete from test_user");
 
@@ -25,7 +25,7 @@ public class Insert3Main {
         newValue.put("age", 88);
         newValue.put("create_time", DateFormatType.s_yyyyMMdd_HHmmss.toDate("2000-01-01 12:12:12"));
 
-        MapInsertWrapper insert = wrapper.insertFreedom("test_user");
+        MapInsert insert = wrapper.insertFreedom("test_user");
         int result = insert.applyMap(newValue).executeSumResult();
 
         PrintUtils.printObjectList(wrapper.jdbc().queryForList("select * from test_user"));
