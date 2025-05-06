@@ -165,8 +165,8 @@ public class MapperRegistry {
     /**
      * 加载指定的 mapper 类型，包括其关联的 XML 资源、实体映射信息以及方法级别的 SQL 配置。
      * 该方法会检查 mapper 类型是否已经加载过，避免重复加载。
-     * 如果 mapper 类型上存在 {@link } 注解，会尝试加载对应的 XML 文件；
-     * 如果 mapper 类型是 {@link } 的实现类，会加载其泛型对应的实体映射信息；
+     * 如果 mapper 类型上存在 {@link RefMapper} 注解，会尝试加载对应的 XML 文件；
+     * 如果 mapper 类型是 {@link BaseMapper} 的实现类，会加载其泛型对应的实体映射信息；
      * 最后会加载 mapper 类型中所有方法的 SQL 配置。
      *
      * @param mapperType 要加载的 mapper 类型，必须是一个接口，并且需要有 @RefMapper 或 @SimpleMapper 或 @DalMapper 注解。
