@@ -34,14 +34,6 @@ public class JsonTypeHandler extends AbstractJsonTypeHandler<Object> {
     private static final Map<String, EFunction<Class<?>, AbstractJsonTypeHandler<?>, ClassNotFoundException>> CREATOR = new LinkedHashMap<>();
 
     static {
-        CREATOR.put("com.alibaba.fastjson2.JSON", type -> {
-            getClassLoader(type).loadClass("com.alibaba.fastjson2.JSON");
-            return new JsonUseForFastjson2TypeHandler(type);
-        });
-        CREATOR.put("com.alibaba.fastjson.JSON", type -> {
-            getClassLoader(type).loadClass("com.alibaba.fastjson.JSON");
-            return new JsonUseForFastjsonTypeHandler(type);
-        });
         CREATOR.put("com.fasterxml.jackson.databind.ObjectMapper", type -> {
             getClassLoader(type).loadClass("com.fasterxml.jackson.databind.ObjectMapper");
             return new JsonUseForJacksonTypeHandler(type);
@@ -49,6 +41,14 @@ public class JsonTypeHandler extends AbstractJsonTypeHandler<Object> {
         CREATOR.put("com.google.gson.Gson", type -> {
             getClassLoader(type).loadClass("com.google.gson.Gson");
             return new JsonUseForGsonTypeHandler(type);
+        });
+        CREATOR.put("com.alibaba.fastjson.JSON", type -> {
+            getClassLoader(type).loadClass("com.alibaba.fastjson.JSON");
+            return new JsonUseForFastjsonTypeHandler(type);
+        });
+        CREATOR.put("com.alibaba.fastjson2.JSON", type -> {
+            getClassLoader(type).loadClass("com.alibaba.fastjson2.JSON");
+            return new JsonUseForFastjson2TypeHandler(type);
         });
     }
 
