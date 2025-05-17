@@ -190,6 +190,11 @@ public interface BaseMapper<T> extends Mapper {
     int delete(T entity) throws RuntimeSQLException;
 
     /**
+     * 根据 Map 删除
+     */
+    int deleteByMap(Map<String, Object> map) throws RuntimeSQLException;
+
+    /**
      * 根据 ID 删除
      * @param id 主键ID
      */

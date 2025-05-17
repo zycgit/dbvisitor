@@ -15,13 +15,12 @@
  */
 package net.hasor.test.utils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import static net.hasor.test.utils.TestUtils.*;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Collections;
-
-import static net.hasor.test.utils.TestUtils.*;
 
 /***
  * 创建JDBC环境
@@ -89,7 +88,7 @@ public class DsUtils {
         jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData1());
         jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData2());
         jdbcTemplate.executeUpdate(INSERT_ARRAY, arrayForData3());
-
+        jdbcTemplate.executeBatch(INSERT_ARRAY3, new Object[] { DATA_13, DATA_23, DATA_33, DATA_43, DATA_53, DATA_63 });
         return conn;
     }
 

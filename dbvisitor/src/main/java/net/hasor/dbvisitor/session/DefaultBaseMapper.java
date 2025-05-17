@@ -83,21 +83,64 @@ class DefaultBaseMapper implements BaseMapper<Object> {
         if (entity == null) {
             throw new NullPointerException("entity is null.");
         }
-
+        if (!this.entityType.isInstance(entity)) {
+            throw new ClassCastException("entity is not " + entityType());
+        }
         List<ColumnMapping> pks = this.foundPrimaryKey();
         if (pks.isEmpty()) {
-            throw new RuntimeSQLException(entityType() + " no primary key is identified");
+            throw new UnsupportedOperationException(entityType() + " no primary key is identified");
         }
 
         EntityUpdate<Object> update = this.update();
-
         for (ColumnMapping pk : pks) {
             update.and().eq(pk.getProperty(), pk.getHandler().get(entity));
         }
 
         try {
             TableMapping<Object> tableMapping = this.getMapping();
-            return update.updateToSample(entity, property -> {
+            return update.updateRow(entity, property -> {
+                return !tableMapping.getPropertyByName(property).isPrimaryKey(); // 忽略主键
+            }).doUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
+    }
+
+    @Override
+    public int updateByMap(Map<String, Object> map) throws RuntimeSQLException {
+        if (map == null) {
+            throw new NullPointerException("map is null.");
+        }
+        Map<String, Object> copy = new LinkedHashMap<>(map);
+        List<ColumnMapping> pks = foundPrimaryKey();
+        if (pks.isEmpty()) {
+            throw new UnsupportedOperationException(entityType() + " no primary key is identified");
+        }
+
+        EntityUpdate<Object> update = this.update();
+        boolean missingPrimary = true;
+        for (ColumnMapping pk : pks) {
+            String key = pk.getProperty();
+            if (!copy.containsKey(key)) {
+                continue;
+            }
+
+            update.and().eq(key, copy.get(key));
+            copy.remove(key);
+            missingPrimary = false;
+        }
+
+        if (missingPrimary) {
+            throw new UnsupportedOperationException("missing primary key.");
+        }
+
+        if (copy.isEmpty()) {
+            throw new UnsupportedOperationException("update is empty.");
+        }
+
+        try {
+            TableMapping<Object> tableMapping = this.getMapping();
+            return update.updateToSampleMap(copy, property -> {
                 return !tableMapping.getPropertyByName(property).isPrimaryKey();
             }).doUpdate();
         } catch (SQLException e) {
@@ -110,10 +153,12 @@ class DefaultBaseMapper implements BaseMapper<Object> {
         if (entity == null) {
             throw new NullPointerException("entity is null.");
         }
-
+        if (!this.entityType.isInstance(entity)) {
+            throw new ClassCastException("entity is not " + entityType());
+        }
         List<ColumnMapping> pks = this.foundPrimaryKey();
         if (pks.isEmpty()) {
-            throw new RuntimeSQLException(entityType() + " no primary key is identified");
+            throw new UnsupportedOperationException(entityType() + " no primary key is identified");
         }
 
         EntityQuery<Object> query = this.query();
@@ -130,51 +175,10 @@ class DefaultBaseMapper implements BaseMapper<Object> {
                 return this.insert().applyEntity(entity).executeSumResult();
             } else {
                 TableMapping<Object> tableMapping = this.getMapping();
-                return update.updateToSample(entity, property -> {
-                    return !tableMapping.getPropertyByName(property).isPrimaryKey();
+                return update.updateRow(entity, property -> {
+                    return !tableMapping.getPropertyByName(property).isPrimaryKey(); // 忽略主键
                 }).doUpdate();
             }
-        } catch (SQLException e) {
-            throw new RuntimeSQLException(e);
-        }
-    }
-
-    @Override
-    public int updateByMap(Map<String, Object> map) throws RuntimeSQLException {
-        if (map == null) {
-            throw new NullPointerException("map is null.");
-        }
-
-        Map<String, Object> copy = new LinkedHashMap<>(map);
-        List<ColumnMapping> pks = foundPrimaryKey();
-        if (pks.isEmpty()) {
-            throw new RuntimeSQLException(entityType() + " no primary key is identified");
-        }
-
-        EntityUpdate<Object> update = this.update();
-
-        boolean isPrimaryKeyEmpty = true;
-        for (ColumnMapping pk : pks) {
-            String key = pk.getProperty();
-            update.and().eq(key, copy.get(key));
-
-            copy.remove(key);
-            isPrimaryKeyEmpty = false;
-        }
-
-        if (isPrimaryKeyEmpty) {
-            throw new NullPointerException("primary key is empty.");
-        }
-
-        if (copy.isEmpty()) {
-            throw new NullPointerException("map is empty.");
-        }
-
-        try {
-            TableMapping<Object> tableMapping = this.getMapping();
-            return update.updateToSampleMap(copy, property -> {
-                return !tableMapping.getPropertyByName(property).isPrimaryKey();
-            }).doUpdate();
         } catch (SQLException e) {
             throw new RuntimeSQLException(e);
         }
@@ -185,16 +189,49 @@ class DefaultBaseMapper implements BaseMapper<Object> {
         if (entity == null) {
             throw new NullPointerException("entity is null.");
         }
-
+        if (!this.entityType.isInstance(entity)) {
+            throw new ClassCastException("entity is not " + entityType());
+        }
         List<ColumnMapping> pks = this.foundPrimaryKey();
         if (pks.isEmpty()) {
-            throw new RuntimeSQLException(entityType() + " no primary key is identified");
+            throw new UnsupportedOperationException(entityType() + " no primary key is identified");
         }
 
         EntityDelete<Object> delete = this.delete();
-
         for (ColumnMapping pk : pks) {
             delete.and().eq(pk.getProperty(), pk.getHandler().get(entity));
+        }
+
+        try {
+            return delete.doDelete();
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
+    }
+
+    @Override
+    public int deleteByMap(Map<String, Object> map) throws RuntimeSQLException {
+        if (map == null) {
+            throw new NullPointerException("map is null.");
+        }
+        List<ColumnMapping> pks = foundPrimaryKey();
+        if (pks.isEmpty()) {
+            throw new UnsupportedOperationException(entityType() + " no primary key is identified");
+        }
+
+        EntityDelete<Object> delete = this.delete();
+        boolean missingPrimary = true;
+        for (ColumnMapping pk : pks) {
+            String key = pk.getProperty();
+            if (!map.containsKey(key)) {
+                continue;
+            }
+
+            delete.and().eq(key, map.get(key));
+            missingPrimary = false;
+        }
+        if (missingPrimary) {
+            throw new UnsupportedOperationException("missing primary key.");
         }
 
         try {
@@ -212,7 +249,7 @@ class DefaultBaseMapper implements BaseMapper<Object> {
 
         List<ColumnMapping> pks = this.foundPrimaryKey();
         if (pks.isEmpty()) {
-            throw new RuntimeSQLException(entityType() + " no primary key is identified");
+            throw new UnsupportedOperationException(entityType() + " no primary key is identified");
         }
 
         EntityDelete<Object> delete = this.delete();
@@ -239,7 +276,7 @@ class DefaultBaseMapper implements BaseMapper<Object> {
 
         List<ColumnMapping> pks = this.foundPrimaryKey();
         if (pks.isEmpty()) {
-            throw new RuntimeSQLException(entityType() + " no primary key is identified");
+            throw new UnsupportedOperationException(entityType() + " no primary key is identified");
         }
 
         if (pks.size() == 1) {
@@ -274,12 +311,17 @@ class DefaultBaseMapper implements BaseMapper<Object> {
 
         List<ColumnMapping> pks = this.foundPrimaryKey();
         if (pks.isEmpty()) {
-            throw new RuntimeSQLException(entityType() + " no primary key is identified");
+            throw new UnsupportedOperationException(entityType() + " no primary key is identified");
         }
 
         EntityQuery<Object> query = this.query();
         if (pks.size() == 1) {
-            query.and().eq(pks.get(0).getProperty(), id);
+            ColumnMapping pkc = pks.get(0);
+            if (this.entityType.isInstance(id)) {
+                query.and().eq(pkc.getProperty(), pkc.getHandler().get(id));
+            } else {
+                query.and().eq(pkc.getProperty(), id);
+            }
         } else {
             for (ColumnMapping pk : pks) {
                 query.and().eq(pk.getProperty(), pk.getHandler().get(id));
@@ -301,7 +343,7 @@ class DefaultBaseMapper implements BaseMapper<Object> {
 
         List<ColumnMapping> pks = this.foundPrimaryKey();
         if (pks.isEmpty()) {
-            throw new RuntimeSQLException(entityType() + " no primary key is identified");
+            throw new UnsupportedOperationException(entityType() + " no primary key is identified");
         }
 
         if (pks.size() == 1) {

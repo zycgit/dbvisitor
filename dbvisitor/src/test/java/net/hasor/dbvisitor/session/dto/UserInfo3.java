@@ -25,11 +25,11 @@ import java.util.Date;
  * @author 赵永春 (zyc@hasor.net)
  * @version 2013-12-10
  */
-@Table("user_info")
-public class UserInfo2 implements Serializable {
+@Table("user_info3")
+public class UserInfo3 implements Serializable {
     @Column(value = "user_uuid", primary = true, keyType = KeyType.UUID32)
     private String  uid;
-    @Column("user_name")
+    @Column(value = "user_name", primary = true, keyType = KeyType.UUID32)
     private String  name;
     @Column("login_name")
     private String  loginName;

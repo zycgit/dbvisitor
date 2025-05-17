@@ -25,15 +25,24 @@ import java.util.UUID;
  * @version 2013-12-10
  */
 public class TestUtils {
-    public static final  String   INSERT_ARRAY = "insert into user_info (user_uuid,user_name,login_name,login_password,email,seq,register_time) values (?,?,?,?,?,?,?);";
-    public static final  String   INSERT_MAP   = "insert into user_info (user_uuid,user_name,login_name,login_password,email,seq,register_time) values (:userUUID,:name,:loginName,:loginPassword,:email,:index,:registerTime);";
-    private static final Object[] DATA_1       = new Object[] { newID(), "默罕默德", "muhammad", "1", "muhammad@hasor.net", 1, new Date() };
-    private static final Object[] DATA_2       = new Object[] { newID(), "安妮.贝隆", "belon", "2", "belon@hasor.net", 2, new Date() };
-    private static final Object[] DATA_3       = new Object[] { newID(), "赵飞燕", "feiyan", "3", "feiyan@hasor.net", 3, new Date() };
-    private static final Object[] DATA_4       = new Object[] { newID(), "赵子龙", "zhaoyun", "4", "zhaoyun@hasor.net", 4, new Date() };
-    private static final Object[] DATA_5       = new Object[] { newID(), "诸葛亮", "wolong", "5", "wolong@hasor.net", 5, new Date() };
-    private static final Object[] DATA_6       = new Object[] { newID(), "张果老", "guolao", null, "guolao@hasor.net", 6, new Date() };
-    private static final Object[] DATA_7       = new Object[] { newID(), "吴广", "wuguang", null, "wuguang@hasor.net", 7, new Date() };
+    public static final String   INSERT_ARRAY  = "insert into user_info (user_uuid,user_name,login_name,login_password,email,seq,register_time) values (?,?,?,?,?,?,?);";
+    public static final String   INSERT_MAP    = "insert into user_info (user_uuid,user_name,login_name,login_password,email,seq,register_time) values (:userUUID,:name,:loginName,:loginPassword,:email,:index,:registerTime);";
+    public static final Object[] DATA_1        = new Object[] { newID(), "默罕默德", "muhammad", "1", "muhammad@hasor.net", 1, new Date() };
+    public static final Object[] DATA_2        = new Object[] { newID(), "安妮.贝隆", "belon", "2", "belon@hasor.net", 2, new Date() };
+    public static final Object[] DATA_3        = new Object[] { newID(), "赵飞燕", "feiyan", "3", "feiyan@hasor.net", 3, new Date() };
+    public static final Object[] DATA_4        = new Object[] { newID(), "赵子龙", "zhaoyun", "4", "zhaoyun@hasor.net", 4, new Date() };
+    public static final Object[] DATA_5        = new Object[] { newID(), "诸葛亮", "wolong", "5", "wolong@hasor.net", 5, new Date() };
+    public static final Object[] DATA_6        = new Object[] { newID(), "张果老", "guolao", null, "guolao@hasor.net", 6, new Date() };
+    public static final Object[] DATA_7        = new Object[] { newID(), "吴广", "wuguang", null, "wuguang@hasor.net", 7, new Date() };
+    //
+    public static final String   INSERT_ARRAY3 = "insert into user_info3 (user_uuid,user_name,login_name,login_password,email,seq,register_time) values (?,?,?,?,?,?,?);";
+    public static final String   INSERT_MAP3   = "insert into user_info3 (user_uuid,user_name,login_name,login_password,email,seq,register_time) values (:userUUID,:name,:loginName,:loginPassword,:email,:index,:registerTime);";
+    public static final Object[] DATA_13       = new Object[] { "11", "默罕默德", "muhammad", "1", "muhammad@hasor.net", 1, new Date() };
+    public static final Object[] DATA_23       = new Object[] { "11", "安妮.贝隆", "belon", "2", "belon@hasor.net", 2, new Date() };
+    public static final Object[] DATA_33       = new Object[] { "22", "赵飞燕", "feiyan", "3", "feiyan@hasor.net", 3, new Date() };
+    public static final Object[] DATA_43       = new Object[] { "22", "赵子龙", "zhaoyun", "4", "zhaoyun@hasor.net", 4, new Date() };
+    public static final Object[] DATA_53       = new Object[] { "33", "诸葛亮", "wolong", "5", "wolong@hasor.net", 5, new Date() };
+    public static final Object[] DATA_63       = new Object[] { "33", "张果老", "guolao", null, "guolao@hasor.net", 6, new Date() };
 
     public static String newID() {
         return UUID.randomUUID().toString();
