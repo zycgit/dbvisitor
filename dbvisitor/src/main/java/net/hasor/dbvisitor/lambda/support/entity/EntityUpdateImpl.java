@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.lambda.support.entity;
 import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.ObjectUtils;
 import net.hasor.cobble.reflect.SFunction;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
 import net.hasor.dbvisitor.dynamic.QueryContext;
@@ -59,7 +60,11 @@ public class EntityUpdateImpl<T> extends AbstractUpdate<EntityUpdate<T>, T, SFun
     @Override
     public EntityUpdate<T> eq(boolean test, String property, Object value) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.EQ, formatValue(property, value));
+            if (value == null) {
+                return this.addCondition(buildConditionByProperty(property), SqlKeyword.IS, SqlKeyword.NULL);
+            } else {
+                return this.addCondition(buildConditionByProperty(property), SqlKeyword.EQ, formatValue(property, value));
+            }
         } else {
             return this.getSelf();
         }
@@ -68,7 +73,11 @@ public class EntityUpdateImpl<T> extends AbstractUpdate<EntityUpdate<T>, T, SFun
     @Override
     public EntityUpdate<T> ne(boolean test, String property, Object value) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.NE, formatValue(property, value));
+            if (value == null) {
+                return this.addCondition(buildConditionByProperty(property), SqlKeyword.IS, SqlKeyword.NOT, SqlKeyword.NULL);
+            } else {
+                return this.addCondition(buildConditionByProperty(property), SqlKeyword.NE, formatValue(property, value));
+            }
         } else {
             return this.getSelf();
         }
@@ -185,6 +194,7 @@ public class EntityUpdateImpl<T> extends AbstractUpdate<EntityUpdate<T>, T, SFun
     @Override
     public EntityUpdate<T> in(boolean test, String property, Collection<?> value) {
         if (test) {
+            ObjectUtils.assertTrue(!value.isEmpty(), "build in failed, value is empty.");
             return this.addCondition(buildConditionByProperty(property), SqlKeyword.IN, SqlKeyword.LEFT, formatValue(property, value.toArray()), SqlKeyword.RIGHT);
         } else {
             return this.getSelf();
@@ -194,6 +204,7 @@ public class EntityUpdateImpl<T> extends AbstractUpdate<EntityUpdate<T>, T, SFun
     @Override
     public EntityUpdate<T> notIn(boolean test, String property, Collection<?> value) {
         if (test) {
+            ObjectUtils.assertTrue(!value.isEmpty(), "build notIn failed, value is empty.");
             return this.addCondition(buildConditionByProperty(property), SqlKeyword.NOT, SqlKeyword.IN, SqlKeyword.LEFT, formatValue(property, value.toArray()), SqlKeyword.RIGHT);
         } else {
             return this.getSelf();

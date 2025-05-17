@@ -284,4 +284,46 @@ public class BuildEntUpdateTest {
         assert ((SqlArg) boundSql1.getArgs()[0]).getValue().equals("321");
         assert ((SqlArg) boundSql1.getArgs()[1]).getValue().equals("123");
     }
+
+    @Test
+    public void updateBuilder_eq_ne() throws SQLException {
+        AnnoUserInfoDTO data = new AnnoUserInfoDTO();
+        data.setLoginName("acc");
+        data.setPassword("pwd");
+
+        EntityUpdate<AnnoUserInfoDTO> lambda1 = new LambdaTemplate().update(AnnoUserInfoDTO.class);
+        lambda1.eq(AnnoUserInfoDTO::getLoginName, "admin").and().eq(AnnoUserInfoDTO::getPassword, null).updateToSample(data);
+        BoundSql boundSql1 = lambda1.getBoundSql();
+        assert boundSql1.getSqlString().equals("UPDATE user_info SET login_name = ? , login_password = ? WHERE login_name = ? AND login_password IS NULL");
+        EntityUpdate<AnnoUserInfoDTO> lambda2 = new LambdaTemplate().update(AnnoUserInfoDTO.class);
+        lambda2.eq("loginName", "admin").and().eq("password", null).updateToSample(data);
+        BoundSql boundSql2 = lambda2.getBoundSql();
+        assert boundSql2.getSqlString().equals("UPDATE user_info SET login_name = ? , login_password = ? WHERE login_name = ? AND login_password IS NULL");
+
+        EntityUpdate<AnnoUserInfoDTO> lambda3 = new LambdaTemplate().update(AnnoUserInfoDTO.class);
+        lambda3.ne(AnnoUserInfoDTO::getLoginName, "admin").and().ne(AnnoUserInfoDTO::getPassword, null).updateToSample(data);
+        BoundSql boundSql3 = lambda3.getBoundSql();
+        assert boundSql3.getSqlString().equals("UPDATE user_info SET login_name = ? , login_password = ? WHERE login_name <> ? AND login_password IS NOT NULL");
+        EntityUpdate<AnnoUserInfoDTO> lambda4 = new LambdaTemplate().update(AnnoUserInfoDTO.class);
+        lambda4.ne("loginName", "admin").and().ne("password", null).updateToSample(data);
+        BoundSql boundSql4 = lambda4.getBoundSql();
+        assert boundSql4.getSqlString().equals("UPDATE user_info SET login_name = ? , login_password = ? WHERE login_name <> ? AND login_password IS NOT NULL");
+    }
+
+    @Test
+    public void updateBuilder_eq_ne_map() throws SQLException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("loginName", "acc");
+        data.put("password", "pwd");
+
+        MapUpdate lambda1 = new LambdaTemplate().update(AnnoUserInfoDTO.class).asMap();
+        lambda1.eq("loginName", "admin").and().eq("password", null).updateToSample(data);
+        BoundSql boundSql1 = lambda1.getBoundSql();
+        assert boundSql1.getSqlString().equals("UPDATE user_info SET login_name = ? , login_password = ? WHERE login_name = ? AND login_password IS NULL");
+
+        MapUpdate lambda3 = new LambdaTemplate().update(AnnoUserInfoDTO.class).asMap();
+        lambda3.ne("loginName", "admin").and().ne("password", null).updateToSample(data);
+        BoundSql boundSql3 = lambda3.getBoundSql();
+        assert boundSql3.getSqlString().equals("UPDATE user_info SET login_name = ? , login_password = ? WHERE login_name <> ? AND login_password IS NOT NULL");
+    }
 }

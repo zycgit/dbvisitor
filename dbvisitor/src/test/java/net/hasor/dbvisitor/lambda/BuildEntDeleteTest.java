@@ -155,7 +155,41 @@ public class BuildEntDeleteTest {
     }
 
     @Test
-    public void bad_1() throws SQLException {
+    public void deleteBuilder_ne_eq() throws SQLException {
+        EntityDelete<AnnoUserInfoDTO> lambda1 = new LambdaTemplate().delete(AnnoUserInfoDTO.class);
+        lambda1.eq(AnnoUserInfoDTO::getLoginName, "admin").and().eq(AnnoUserInfoDTO::getPassword, null);
+        BoundSql boundSql1 = lambda1.getBoundSql();
+        assert boundSql1.getSqlString().equals("DELETE FROM user_info WHERE login_name = ? AND login_password IS NULL");
+        EntityDelete<AnnoUserInfoDTO> lambda2 = new LambdaTemplate().delete(AnnoUserInfoDTO.class);
+        lambda2.eq("loginName", "admin").and().eq("password", null);
+        BoundSql boundSql2 = lambda2.getBoundSql();
+        assert boundSql2.getSqlString().equals("DELETE FROM user_info WHERE login_name = ? AND login_password IS NULL");
+
+        EntityDelete<AnnoUserInfoDTO> lambda3 = new LambdaTemplate().delete(AnnoUserInfoDTO.class);
+        lambda3.ne(AnnoUserInfoDTO::getLoginName, "admin").and().ne(AnnoUserInfoDTO::getPassword, null);
+        BoundSql boundSql3 = lambda3.getBoundSql();
+        assert boundSql3.getSqlString().equals("DELETE FROM user_info WHERE login_name <> ? AND login_password IS NOT NULL");
+        EntityDelete<AnnoUserInfoDTO> lambda4 = new LambdaTemplate().delete(AnnoUserInfoDTO.class);
+        lambda4.ne("loginName", "admin").and().ne("password", null);
+        BoundSql boundSql4 = lambda4.getBoundSql();
+        assert boundSql4.getSqlString().equals("DELETE FROM user_info WHERE login_name <> ? AND login_password IS NOT NULL");
+    }
+
+    @Test
+    public void deleteBuilder_ne_eq_map() throws SQLException {
+        MapDelete lambda1 = new LambdaTemplate().delete(AnnoUserInfoDTO.class).asMap();
+        lambda1.eq("loginName", "admin").and().eq("password", null);
+        BoundSql boundSql1 = lambda1.getBoundSql();
+        assert boundSql1.getSqlString().equals("DELETE FROM user_info WHERE login_name = ? AND login_password IS NULL");
+
+        MapDelete lambda3 = new LambdaTemplate().delete(AnnoUserInfoDTO.class).asMap();
+        lambda3.ne("loginName", "admin").and().ne("password", null);
+        BoundSql boundSql3 = lambda3.getBoundSql();
+        assert boundSql3.getSqlString().equals("DELETE FROM user_info WHERE login_name <> ? AND login_password IS NOT NULL");
+    }
+
+    @Test
+    public void bad_1() {
         try {
             EntityDelete<AnnoUserInfoDTO> lambdaDelete = new LambdaTemplate().delete(AnnoUserInfoDTO.class);
             lambdaDelete.getBoundSql();
@@ -166,7 +200,7 @@ public class BuildEntDeleteTest {
     }
 
     @Test
-    public void bad_2() throws SQLException {
+    public void bad_2() {
         try {
             EntityDelete<AnnoUserInfoDTO> lambdaDelete = new LambdaTemplate().delete(AnnoUserInfoDTO.class);
             lambdaDelete.getBoundSql();

@@ -29,10 +29,7 @@ import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -95,12 +92,7 @@ class DefaultBaseMapper implements BaseMapper<Object> {
         EntityUpdate<Object> update = this.update();
 
         for (ColumnMapping pk : pks) {
-            Object o = pk.getHandler().get(entity);
-            if (o == null) {
-                update.and().isNull(pk.getProperty());
-            } else {
-                update.and().eq(pk.getProperty(), o);
-            }
+            update.and().eq(pk.getProperty(), pk.getHandler().get(entity));
         }
 
         try {
@@ -129,13 +121,8 @@ class DefaultBaseMapper implements BaseMapper<Object> {
 
         for (ColumnMapping pk : pks) {
             Object o = pk.getHandler().get(entity);
-            if (o == null) {
-                query.and().isNull(pk.getProperty());
-                update.and().isNull(pk.getProperty());
-            } else {
-                query.and().eq(pk.getProperty(), o);
-                update.and().eq(pk.getProperty(), o);
-            }
+            query.and().eq(pk.getProperty(), o);
+            update.and().eq(pk.getProperty(), o);
         }
 
         try {
@@ -158,6 +145,7 @@ class DefaultBaseMapper implements BaseMapper<Object> {
             throw new NullPointerException("map is null.");
         }
 
+        Map<String, Object> copy = new LinkedHashMap<>(map);
         List<ColumnMapping> pks = foundPrimaryKey();
         if (pks.isEmpty()) {
             throw new RuntimeSQLException(entityType() + " no primary key is identified");
@@ -168,15 +156,9 @@ class DefaultBaseMapper implements BaseMapper<Object> {
         boolean isPrimaryKeyEmpty = true;
         for (ColumnMapping pk : pks) {
             String key = pk.getProperty();
-            Object o = map.get(key);
+            update.and().eq(key, copy.get(key));
 
-            if (o == null) {
-                update.and().isNull(key);
-            } else {
-                update.and().eq(key, o);
-            }
-
-            map.remove(key);
+            copy.remove(key);
             isPrimaryKeyEmpty = false;
         }
 
@@ -184,13 +166,13 @@ class DefaultBaseMapper implements BaseMapper<Object> {
             throw new NullPointerException("primary key is empty.");
         }
 
-        if (map.isEmpty()) {
+        if (copy.isEmpty()) {
             throw new NullPointerException("map is empty.");
         }
 
         try {
             TableMapping<Object> tableMapping = this.getMapping();
-            return update.updateToSampleMap(map, property -> {
+            return update.updateToSampleMap(copy, property -> {
                 return !tableMapping.getPropertyByName(property).isPrimaryKey();
             }).doUpdate();
         } catch (SQLException e) {
@@ -212,12 +194,7 @@ class DefaultBaseMapper implements BaseMapper<Object> {
         EntityDelete<Object> delete = this.delete();
 
         for (ColumnMapping pk : pks) {
-            Object o = pk.getHandler().get(entity);
-            if (o == null) {
-                delete.and().isNull(pk.getProperty());
-            } else {
-                delete.and().eq(pk.getProperty(), o);
-            }
+            delete.and().eq(pk.getProperty(), pk.getHandler().get(entity));
         }
 
         try {
@@ -243,12 +220,7 @@ class DefaultBaseMapper implements BaseMapper<Object> {
             delete.and().eq(pks.get(0).getProperty(), id);
         } else {
             for (ColumnMapping pk : pks) {
-                Object o = pk.getHandler().get(id);
-                if (o == null) {
-                    delete.and().isNull(pk.getProperty());
-                } else {
-                    delete.and().eq(pk.getProperty(), o);
-                }
+                delete.and().eq(pk.getProperty(), pk.getHandler().get(id));
             }
         }
 
@@ -279,14 +251,9 @@ class DefaultBaseMapper implements BaseMapper<Object> {
         } else {
             EntityDelete<Object> delete = this.delete();
             for (Object obj : idList) {
-                delete.or(queryCompare -> {
-                    for (ColumnMapping pkColumn : pks) {
-                        Object keyValue = pkColumn.getHandler().get(obj);
-                        if (keyValue == null) {
-                            queryCompare.and().isNull(pkColumn.getProperty());
-                        } else {
-                            queryCompare.and().eq(pkColumn.getProperty(), keyValue);
-                        }
+                delete.or(c -> {
+                    for (ColumnMapping pk : pks) {
+                        c.and().eq(pk.getProperty(), pk.getHandler().get(obj));
                     }
                 });
             }
@@ -315,12 +282,7 @@ class DefaultBaseMapper implements BaseMapper<Object> {
             query.and().eq(pks.get(0).getProperty(), id);
         } else {
             for (ColumnMapping pk : pks) {
-                Object o = pk.getHandler().get(id);
-                if (o == null) {
-                    query.and().isNull(pk.getProperty());
-                } else {
-                    query.and().eq(pk.getProperty(), o);
-                }
+                query.and().eq(pk.getProperty(), pk.getHandler().get(id));
             }
         }
 
@@ -351,14 +313,9 @@ class DefaultBaseMapper implements BaseMapper<Object> {
         } else {
             EntityQuery<Object> query = this.query();
             for (Object obj : idList) {
-                query.or(queryCompare -> {
-                    for (ColumnMapping pkColumn : pks) {
-                        Object keyValue = pkColumn.getHandler().get(obj);
-                        if (keyValue == null) {
-                            queryCompare.and().isNull(pkColumn.getProperty());
-                        } else {
-                            queryCompare.and().eq(pkColumn.getProperty(), keyValue);
-                        }
+                query.or(c -> {
+                    for (ColumnMapping pk : pks) {
+                        c.and().eq(pk.getProperty(), pk.getHandler().get(obj));
                     }
                 });
             }

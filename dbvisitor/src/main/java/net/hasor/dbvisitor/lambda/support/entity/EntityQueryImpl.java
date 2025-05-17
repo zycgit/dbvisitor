@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.lambda.support.entity;
 import net.hasor.cobble.BeanUtils;
+import net.hasor.cobble.ObjectUtils;
 import net.hasor.cobble.reflect.SFunction;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
 import net.hasor.dbvisitor.dynamic.QueryContext;
@@ -89,7 +90,11 @@ public class EntityQueryImpl<T> extends AbstractSelect<EntityQuery<T>, T, SFunct
     @Override
     public EntityQuery<T> eq(boolean test, String property, Object value) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.EQ, formatValue(property, value));
+            if (value == null) {
+                return this.addCondition(buildConditionByProperty(property), SqlKeyword.IS, SqlKeyword.NULL);
+            } else {
+                return this.addCondition(buildConditionByProperty(property), SqlKeyword.EQ, formatValue(property, value));
+            }
         } else {
             return this.getSelf();
         }
@@ -98,7 +103,11 @@ public class EntityQueryImpl<T> extends AbstractSelect<EntityQuery<T>, T, SFunct
     @Override
     public EntityQuery<T> ne(boolean test, String property, Object value) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.NE, formatValue(property, value));
+            if (value == null) {
+                return this.addCondition(buildConditionByProperty(property), SqlKeyword.IS, SqlKeyword.NOT, SqlKeyword.NULL);
+            } else {
+                return this.addCondition(buildConditionByProperty(property), SqlKeyword.NE, formatValue(property, value));
+            }
         } else {
             return this.getSelf();
         }
@@ -215,6 +224,7 @@ public class EntityQueryImpl<T> extends AbstractSelect<EntityQuery<T>, T, SFunct
     @Override
     public EntityQuery<T> in(boolean test, String property, Collection<?> value) {
         if (test) {
+            ObjectUtils.assertTrue(!value.isEmpty(), "build in failed, value is empty.");
             return this.addCondition(buildConditionByProperty(property), SqlKeyword.IN, SqlKeyword.LEFT, formatValue(property, value.toArray()), SqlKeyword.RIGHT);
         } else {
             return this.getSelf();
@@ -224,6 +234,7 @@ public class EntityQueryImpl<T> extends AbstractSelect<EntityQuery<T>, T, SFunct
     @Override
     public EntityQuery<T> notIn(boolean test, String property, Collection<?> value) {
         if (test) {
+            ObjectUtils.assertTrue(!value.isEmpty(), "build notIn failed, value is empty.");
             return this.addCondition(buildConditionByProperty(property), SqlKeyword.NOT, SqlKeyword.IN, SqlKeyword.LEFT, formatValue(property, value.toArray()), SqlKeyword.RIGHT);
         } else {
             return this.getSelf();

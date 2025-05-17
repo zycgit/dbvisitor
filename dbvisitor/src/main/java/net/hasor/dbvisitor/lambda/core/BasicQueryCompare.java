@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.lambda.core;
 import net.hasor.cobble.ArrayUtils;
+import net.hasor.cobble.ObjectUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
@@ -384,6 +385,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     @Override
     public R in(boolean test, P property, Collection<?> value) {
         if (test) {
+            ObjectUtils.assertTrue(!value.isEmpty(), "build notIn failed, value is empty.");
             String propertyName = getPropertyName(property);
             return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.IN, SqlKeyword.LEFT, formatValue(propertyName, value.toArray()), SqlKeyword.RIGHT);
         } else {
@@ -394,6 +396,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     @Override
     public R notIn(boolean test, P property, Collection<?> value) {
         if (test) {
+            ObjectUtils.assertTrue(!value.isEmpty(), "build notIn failed, value is empty.");
             String propertyName = getPropertyName(property);
             return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.NOT, SqlKeyword.IN, SqlKeyword.LEFT, formatValue(propertyName, value.toArray()), SqlKeyword.RIGHT);
         } else {

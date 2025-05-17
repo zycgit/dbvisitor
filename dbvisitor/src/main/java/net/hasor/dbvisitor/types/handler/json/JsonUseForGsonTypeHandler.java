@@ -16,28 +16,51 @@
 package net.hasor.dbvisitor.types.handler.json;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.hasor.cobble.ObjectUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.dbvisitor.types.NoCache;
 
+import java.util.function.Function;
+
 /**
+ * 基于 Gson 库实现的 JSON 类型处理器，用于数据库字段与 Java 对象之间的 JSON 格式转换。
+ * 支持通过静态方法全局配置 Gson 或按类型动态获取 Gson。
  * 读写 {@link Object}  类型数据
  * @author 赵永春 (zyc@hasor.net)
  */
 @NoCache
 public class JsonUseForGsonTypeHandler extends AbstractJsonTypeHandler<Object> {
-    private static final Logger logger = Logger.getLogger(JsonUseForGsonTypeHandler.class);
-    private final        Gson   gson;
+    private static final Logger                   logger        = Logger.getLogger(JsonUseForGsonTypeHandler.class);
+    private static       Gson                     GSON          = new GsonBuilder().create();
+    private static       Function<Class<?>, Gson> GSON_FUNCTION = rawType -> GSON;
+
+    /** 获取当前使用的全局 Gson 实例 */
+    public static Gson getGson() {
+        return GSON;
+    }
+
+    /** 设置全局使用的 Gson 实例 */
+    public static void setGson(Gson gson) {
+        ObjectUtils.checkNotNull(gson, "Gson should not be null");
+        GSON = gson;
+    }
+
+    /** 获取当前配置的 Gson 获取函数 */
+    public static Function<Class<?>, Gson> getGsonFunction() {
+        return GSON_FUNCTION;
+    }
+
+    /** 设置按类型获取 Gson 的函数 */
+    public static void setGsonFunction(Function<Class<?>, Gson> function) {
+        ObjectUtils.checkNotNull(function, "ObjectMapperFunction should not be null");
+        GSON_FUNCTION = function;
+    }
 
     public JsonUseForGsonTypeHandler(Class<?> type) {
         if (logger.isTraceEnabled()) {
             logger.trace("JsonUseForGsonTypeHandler(" + type + ")");
         }
         this.rawType = type;
-        this.gson = this.createGson(type);
-    }
-
-    protected Gson createGson(Class<?> type) {
-        return new GsonBuilder().create();
     }
 
     @Override
@@ -47,11 +70,11 @@ public class JsonUseForGsonTypeHandler extends AbstractJsonTypeHandler<Object> {
 
     @Override
     protected Object parse(String json) {
-        return this.gson.fromJson(json, this.rawType);
+        return getGsonFunction().apply(this.rawType).fromJson(json, this.rawType);
     }
 
     @Override
     protected String toJson(Object obj) {
-        return this.gson.toJson(obj);
+        return getGsonFunction().apply(this.rawType).toJson(obj);
     }
 }

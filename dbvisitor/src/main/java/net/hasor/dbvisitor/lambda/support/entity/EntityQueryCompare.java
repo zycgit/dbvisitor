@@ -42,26 +42,26 @@ public interface EntityQueryCompare<R> {
     //     R orNotInSql(SFunction<T> property, String subQuery, Object... subArgs);
 
     /**
-     * 等值条件，类似：'col = ?'
+     * 等值条件，类似：'col = ?'，当 value 只为 null 时会自动使用 col is null.
      */
     default R eq(String property, Object value) {
         return this.eq(true, property, value);
     }
 
     /**
-     * 当 test 条件为真时才使用等值条件，类似：'if test then col = ?'
+     * 当 test 条件为真时才使用等值条件，类似：'if test then col = ?'，当 value 只为 null 时会自动使用 col is null.
      */
     R eq(boolean test, String property, Object value);
 
     /**
-     * 不等于条件，类似：'col <> ?'
+     * 不等于条件，类似：'col <> ?'，当 value 只为 null 时会自动使用 col is not null.
      */
     default R ne(String property, Object value) {
         return this.ne(true, property, value);
     }
 
     /**
-     * 当 test 条件为真时才使用不等于条件，类似：'if test then col <> ?'
+     * 当 test 条件为真时才使用不等于条件，类似：'if test then col <> ?'，当 value 只为 null 时会自动使用 col is not null.
      */
     R ne(boolean test, String property, Object value);
 

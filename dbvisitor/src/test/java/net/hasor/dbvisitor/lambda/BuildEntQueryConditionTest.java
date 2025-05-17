@@ -45,6 +45,19 @@ public class BuildEntQueryConditionTest {
                 .eq(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ?");
         assert boundSql1.getArgs()[0].equals("abc");
+        BoundSql boundSql2 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
+                .eq("loginName", "abc").getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ?");
+        assert boundSql2.getArgs()[0].equals("abc");
+
+        BoundSql boundSql3 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
+                .eq(AnnoUserInfoDTO::getLoginName, null).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE login_name IS NULL");
+        assert boundSql3.getArgs().length == 0;
+        BoundSql boundSql4 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
+                .eq("loginName", null).getBoundSql();
+        assert boundSql4.getSqlString().equals("SELECT * FROM user_info WHERE login_name IS NULL");
+        assert boundSql4.getArgs().length == 0;
     }
 
     @Test
@@ -53,6 +66,11 @@ public class BuildEntQueryConditionTest {
                 .eq("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ?");
         assert boundSql1.getArgs()[0].equals("abc");
+
+        BoundSql boundSql2 = new LambdaTemplate().query(AnnoUserInfoDTO.class).asMap()//
+                .eq("loginName", null).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name IS NULL");
+        assert boundSql2.getArgs().length == 0;
     }
 
     @Test
@@ -61,6 +79,19 @@ public class BuildEntQueryConditionTest {
                 .not().eq(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE NOT login_name = ?");
         assert boundSql1.getArgs()[0].equals("abc");
+        BoundSql boundSql2 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
+                .not().eq(AnnoUserInfoDTO::getLoginName, "abc").getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE NOT login_name = ?");
+        assert boundSql2.getArgs()[0].equals("abc");
+
+        BoundSql boundSql3 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
+                .not().ne(AnnoUserInfoDTO::getLoginName, null).getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE NOT login_name IS NOT NULL");
+        assert boundSql3.getArgs().length == 0;
+        BoundSql boundSql4 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
+                .not().ne("loginName", null).getBoundSql();
+        assert boundSql4.getSqlString().equals("SELECT * FROM user_info WHERE NOT login_name IS NOT NULL");
+        assert boundSql4.getArgs().length == 0;
     }
 
     @Test
@@ -69,6 +100,20 @@ public class BuildEntQueryConditionTest {
                 .not().eq("loginName", "abc").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE NOT login_name = ?");
         assert boundSql1.getArgs()[0].equals("abc");
+        BoundSql boundSql2 = new LambdaTemplate().query(AnnoUserInfoDTO.class).asMap()//
+                .not().eq("loginName", null).getBoundSql();
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE NOT login_name IS NULL");
+        assert boundSql2.getArgs().length == 0;
+
+        BoundSql boundSql3 = new LambdaTemplate().query(AnnoUserInfoDTO.class).asMap()//
+                .not().ne("loginName", "abc").getBoundSql();
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE NOT login_name <> ?");
+        assert boundSql3.getArgs()[0].equals("abc");
+        BoundSql boundSql4 = new LambdaTemplate().query(AnnoUserInfoDTO.class).asMap()//
+                .not().ne("loginName", null).getBoundSql();
+        assert boundSql4.getSqlString().equals("SELECT * FROM user_info WHERE NOT login_name IS NOT NULL");
+        assert boundSql4.getArgs().length == 0;
+
     }
 
     @Test
