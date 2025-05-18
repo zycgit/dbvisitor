@@ -35,10 +35,7 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 提供 lambda insert 能力。是 MapInsert 接口的实现类。
@@ -77,6 +74,11 @@ public class MapInsertImpl extends AbstractInsert<Insert<Map<String, Object>>, M
         BoundSqlObj boundSqlObj = this.buildBoundSql(dialect, (Map) entity.objList.get(0));
 
         return new BatchBoundSqlObj(boundSqlObj.getSqlString(), new SqlArg[][] { (SqlArg[]) boundSqlObj.getArgs() });
+    }
+
+    @Override
+    public Insert<Map<String, Object>> applyEntity(Map<String, Object>... entity) throws SQLException {
+        return this.applyMap(Arrays.asList(entity));
     }
 
     @Override

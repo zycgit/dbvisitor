@@ -40,10 +40,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -69,6 +66,19 @@ public class EntityInsertImpl<T> extends AbstractInsert<Insert<T>, T, SFunction<
     @Override
     protected String getPropertyName(SFunction<T> property) {
         return BeanUtils.toProperty(property);
+    }
+
+    @Override
+    public Insert<T> applyEntity(T... entity) throws SQLException {
+        if (this.exampleIsMap()) {
+            Map<String, Object>[] array = new Map[entity.length];
+            for (int i = 0; i < entity.length; i++) {
+                array[i] = (Map<String, Object>) entity[i];
+            }
+            return this.applyMap(array);
+        } else {
+            return this.applyEntity(Arrays.asList(entity));
+        }
     }
 
     @Override
@@ -240,7 +250,7 @@ public class EntityInsertImpl<T> extends AbstractInsert<Insert<T>, T, SFunction<
 
             processKeySeqHolderBefore(executeConn, mapping, entity, false);
 
-            Object arg = mapping.getHandler().get(entity);
+            Object arg = (entity instanceof Map) ? ((Map<?, ?>) entity).get(mapping.getProperty()) : mapping.getHandler().get(entity);
             args[j] = (arg == null) ? null : new SqlArg(arg, jdbcType, typeHandler);
         }
         return args;

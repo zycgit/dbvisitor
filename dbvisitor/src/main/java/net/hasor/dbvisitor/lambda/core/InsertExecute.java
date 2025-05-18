@@ -52,13 +52,15 @@ public interface InsertExecute<R, T> extends BasicFunc<R>, BoundSqlBuilder {
 
     /** 批量插入记录 */
     default R applyEntity(T entity) throws SQLException {
-        return applyEntity(Collections.singletonList(entity));
+        if (entity instanceof Map) {
+            return this.applyMap(Collections.singletonList((Map<String, Object>) entity));
+        } else {
+            return this.applyEntity(Collections.singletonList(entity));
+        }
     }
 
     /** 批量插入记录 */
-    default R applyEntity(T... entity) throws SQLException {
-        return applyEntity(Arrays.asList(entity));
-    }
+    R applyEntity(T... entity) throws SQLException;
 
     /** 批量插入记录 */
     R applyEntity(List<T> entityList) throws SQLException;

@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 基础Mapper接口，提供通用的CRUD操作方法。
- * 继承该接口的Mapper可以获得基本的数据库操作能力。
+ * 基础 Mapper 接口，提供通用的 CRUD 操作方法。
+ * 继承该接口的 Mapper 可以获得基本的数据库操作能力。
  *
  * @param <T> 实体类型，对应数据库表结构
  * @author 赵永春 (zyc@hasor.net)
@@ -125,7 +125,7 @@ public interface BaseMapper<T> extends Mapper {
     }
 
     /**
-     * 执行Mapper配置文件中定义的SQL查询（带分页）
+     * 执行 Mapper 配置文件中定义的SQL查询（带分页）
      * @param stId SQL语句ID
      * @param parameter 参数对象
      * @param page 分页参数
@@ -166,61 +166,105 @@ public interface BaseMapper<T> extends Mapper {
     }
 
     /**
-     * 修改，使用时需注意数据被替换的问题
-     * @param entity 实体对象
+     * （替换更新）根据实体对象的主键值更新数据库记录。方法会自动提取实体中的主键字段作为更新条件，非主键字段作为更新内容。
+     * 注意：无主键表的更新请使用 {@link #update()} 条件构造器。
+     * @param entity 实体对象（支持 Map，效果等同于 replaceByMap）
      */
-    int update(T entity) throws RuntimeSQLException;
+    int replace(T entity) throws RuntimeSQLException;
 
     /**
-     * 保存或修改
+     * （替换更新）允许使用 Map 作为实体数据对象。方法会自动提取实体中的主键字段作为更新条件，非主键字段作为更新内容。
+     * 注意：Map 中不存在的列将会按照 null 来处理，无主键表的更新请使用 {@link #update()} 条件构造器。
+     * @param entity 更新对象
+     */
+    int replaceByMap(Map<String, Object> entity) throws RuntimeSQLException;
+
+    /**
+     * （局部更新）根据实体对象的主键值更新数据库记录。方法会自动提取实体中的主键字段作为更新条件，非主键的非空字段作为更新内容。
+     * 注意：无主键表的更新请使用 {@link #update()} 条件构造器。
+     * @param sample 样本
+     */
+    int update(T sample) throws RuntimeSQLException;
+
+    /**
+     * （局部更新）允许使用 Map 作为实体数据对象。方法会自动提取实体中的主键字段作为更新条件，非主键字段作为更新内容。
+     * 注意：Map 中不存在的列不参与更新，无主键表的更新请使用 {@link #update()} 条件构造器。
+     * @param sample 更新对象
+     */
+    int updateByMap(Map<String, Object> sample) throws RuntimeSQLException;
+
+    /**
+     * 在 {@link #replace(Object)} 基础之上，当更新对象不存在时会执行 {@link #insert(Object)}
      * @param entity 实体对象
      */
     int upsert(T entity) throws RuntimeSQLException;
 
     /**
-     * 局部修改
-     * @param map 局部更新对象
+     * 在 {@link #replaceByMap(Map)} 基础之上，当更新对象不存在时会执行 {@link #insert(Object)}
+     * @param entity 实体对象
      */
-    int updateByMap(Map<String, Object> map) throws RuntimeSQLException;
+    int upsertByMap(Map<String, Object> entity) throws RuntimeSQLException;
 
     /**
-     * 删除
+     * 根据实体对象的主键值删除数据库记录。
      * @param entity 实体对象
      */
     int delete(T entity) throws RuntimeSQLException;
 
     /**
-     * 根据 Map 删除
+     * 允许使用 Map 作为实体数据对象。方法会自动提取实体中的主键字段作为删除条件。
      */
-    int deleteByMap(Map<String, Object> map) throws RuntimeSQLException;
+    int deleteByMap(Map<String, Object> entity) throws RuntimeSQLException;
 
     /**
-     * 根据 ID 删除
+     * 根据实体对象的主键值批量化删除数据库记录。
+     * @param entityList 实体对象列表
+     */
+    int deleteList(List<T> entityList) throws RuntimeSQLException;
+
+    /**
+     * 允许使用 Map 作为实体数据对象，批量化删除数据库记录。方法会自动提取实体中的主键字段作为删除条件。
+     * @param entityList 实体对象列表
+     */
+    int deleteListByMap(List<Map<String, Object>> entityList) throws RuntimeSQLException;
+
+    /**
+     * 根据 ID 删除。联合主键表的删除需要使用 {@link #delete(Object)} 或 {@link #deleteByMap(Map)} 或 {@link #delete()}
      * @param id 主键ID
      */
     int deleteById(Serializable id) throws RuntimeSQLException;
 
     /**
-     * 根据 ID 删除
-     * @param idList 主键ID
+     * 根据 ID 批量删除。联合主键表的批量删除需要使用 {@link #deleteList(List)} 或 {@link #deleteListByMap(List)} 或 {@link #delete()}
+     * @param idList 主键IDs
      */
     int deleteByIds(List<? extends Serializable> idList) throws RuntimeSQLException;
 
     /**
-     * 根据ID查询单条记录
+     * 根据 ID 查询单条记录。联合主键表的查询需要使用 {@link #loadBy(Object)} 或 {@link #query()}
      * @param id 主键值
-     * @return 实体对象，未找到返回null
-     * @throws RuntimeSQLException 数据库操作异常
      */
     T selectById(Serializable id) throws RuntimeSQLException;
 
     /**
-     * 批量ID查询
+     * 根据 ID 批量查询。联合主键表的查询需要使用 {@link #loadListBy(List)} 或 {@link #query()}
      * @param idList 主键值列表
-     * @return 实体对象列表，未找到返回空列表
-     * @throws RuntimeSQLException 数据库操作异常
      */
     List<T> selectByIds(List<? extends Serializable> idList) throws RuntimeSQLException;
+
+    /**
+     * 根据参考对象加载数据库记录，参考对象必须包含主键字段。
+     * 与 {@link #selectById(Serializable)} 方法的区别在于，该方法会自动提取参考对象中的主键字段作为查询条件。参考对象可以是 Map、实体对象或其它类型。
+     * @param refData 参考对象
+     */
+    T loadBy(Object refData) throws RuntimeSQLException;
+
+    /**
+     * 根据参考对象加载数据库记录，参考对象必须包含主键字段。
+     * 与 {@link #selectByIds(List)} 方法的区别在于，该方法会自动提取参考对象中的主键字段作为查询条件。参考对象可以是 Map、实体对象或其它类型。
+     * @param refDataList 参考对象
+     */
+    List<T> loadListBy(List<?> refDataList) throws RuntimeSQLException;
 
     /**
      * 根据 entity 条件，作为样本 null 将不会被列入条件。
