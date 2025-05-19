@@ -59,7 +59,7 @@ public class PageObjectTest {
 
     @Test
     public void pageTest_3() {
-        Page page1 = new PageObject(10, 10L);
+        Page page1 = new PageObject(0, 10, 10L);
         assert page1.getPageSize() == 10;
         assert page1.getCurrentPage() == 0;
         assert page1.getPageNumberOffset() == 0;
@@ -67,7 +67,7 @@ public class PageObjectTest {
         assert page1.getTotalPage() == 1;
         assert page1.getTotalCount() == 10;
 
-        Page page2 = new PageObject(10, 7L);
+        Page page2 = new PageObject(0, 10, 7L);
         assert page2.getPageSize() == 10;
         assert page2.getCurrentPage() == 0;
         assert page2.getPageNumberOffset() == 0;
@@ -75,7 +75,7 @@ public class PageObjectTest {
         assert page2.getTotalPage() == 1;
         assert page2.getTotalCount() == 7;
 
-        Page page3 = new PageObject(0, 7L);
+        Page page3 = new PageObject(0, 0, 7L);
         assert page3.getPageSize() == 0;
         assert page3.getCurrentPage() == 0;
         assert page3.getPageNumberOffset() == 0;
@@ -86,7 +86,7 @@ public class PageObjectTest {
 
     @Test
     public void pageTest_4() {
-        Page page1 = new PageObject(10, 10L);
+        Page page1 = new PageObject(0, 10, 10L);
         page1.setPageNumberOffset(2);
         assert page1.getPageSize() == 10;
         assert page1.getCurrentPage() == 2;     // offset +2
@@ -98,31 +98,31 @@ public class PageObjectTest {
 
     @Test
     public void pageTest_5() {
-        Page page1 = new PageObject(4, 15L);
+        Page page1 = new PageObject(0, 4, 15L);
         assert page1.getTotalPage() == 4;
 
-        Page page2 = new PageObject(4, 16L);
+        Page page2 = new PageObject(0, 4, 16L);
         assert page2.getTotalPage() == 4;
 
-        Page page3 = new PageObject(4, 17L);
+        Page page3 = new PageObject(0, 4, 17L);
         assert page3.getTotalPage() == 5;
     }
 
     @Test
     public void pageTest_6() {
-        Page page1 = new PageObject(4, 15L);
+        Page page1 = new PageObject(0, 4, 15L);
         page1.setCurrentPage(1);
         assert page1.getFirstRecordPosition() == 4;
         page1.setCurrentPage(4);
         assert page1.getFirstRecordPosition() == 16;
 
-        Page page2 = new PageObject(4, 16L);
+        Page page2 = new PageObject(0, 4, 16L);
         page2.setCurrentPage(1);
         assert page2.getFirstRecordPosition() == 4;
         page2.setCurrentPage(4);
         assert page2.getFirstRecordPosition() == 16;
 
-        Page page3 = new PageObject(4, 17L);
+        Page page3 = new PageObject(0, 4, 17L);
         page3.setCurrentPage(1);
         assert page3.getFirstRecordPosition() == 4;
         page3.setCurrentPage(4);
@@ -131,7 +131,7 @@ public class PageObjectTest {
 
     @Test
     public void pageTest_7() {
-        Page page = new PageObject(4, 15L);
+        Page page = new PageObject(0, 4, 15L);
         assert page.getFirstRecordPosition() == 0;
 
         page.nextPage();
@@ -148,7 +148,7 @@ public class PageObjectTest {
 
     @Test
     public void pageTest_8() {
-        Page page = new PageObject(4, 15L);
+        Page page = new PageObject(0, 4, 15L);
         page.setCurrentPage(6);
         assert page.getFirstRecordPosition() == 24;
 
@@ -170,7 +170,7 @@ public class PageObjectTest {
 
     @Test
     public void pageTest_9() {
-        Page page = new PageObject(4, 15L);
+        Page page = new PageObject(0, 4, 15L);
         page.setCurrentPage(6);
         assert page.getFirstRecordPosition() == 24;
 
@@ -182,7 +182,7 @@ public class PageObjectTest {
 
     @Test
     public void pageTest_10() {
-        Page page = new PageObject(4, 15L);
+        Page page = new PageObject(0, 4, 15L);
         page.setCurrentPage(6);
         Map<String, Object> pageInfo = page.toPageInfo();
 
@@ -205,7 +205,7 @@ public class PageObjectTest {
 
     @Test
     public void pageTest_11() {
-        Page page = new PageObject(0, 15L);
+        Page page = new PageObject(0, 0, 15L);
         page.setCurrentPage(6);
         Map<String, Object> pageInfo = page.toPageInfo();
 

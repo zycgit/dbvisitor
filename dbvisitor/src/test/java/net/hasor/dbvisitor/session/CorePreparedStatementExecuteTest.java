@@ -164,7 +164,7 @@ public class CorePreparedStatementExecuteTest {
             List<?> pageData;
 
             // pageQuery 1
-            pageResult = (PageResult<?>) exec.execute(con, def, null, new PageObject(2, 0), true);
+            pageResult = (PageResult<?>) exec.execute(con, def, null, new PageObject(0, 2, 0), true);
             pageData = pageResult.getData();
             assert pageData.size() == 2;
 
@@ -185,7 +185,7 @@ public class CorePreparedStatementExecuteTest {
         StatementDef def = config.findStatement(CorePreparedStatementExecuteMapper.class, "selectByPage");
 
         try (Connection con = DsUtils.mysqlConn()) {
-            exec.execute(con, def, null, new PageObject(2, 0), true);
+            exec.execute(con, def, null, new PageObject(0, 2, 0), true);
             assert false;
         } catch (Exception e) {
             assert e instanceof UnsupportedOperationException;

@@ -59,8 +59,77 @@ public class EntityQueryImpl<T> extends AbstractSelect<EntityQuery<T>, T, SFunct
 
     @SafeVarargs
     @Override
+    public final EntityQuery<T> groupBy(String first, String... other) {
+        if (this.lockGroupBy) {
+            throw new IllegalStateException("must before order by invoke it.");
+        }
+
+        lockCondition();
+
+        //
+        List<String> groupBy;
+        if (first == null && other == null) {
+            throw new IndexOutOfBoundsException("properties is empty.");
+        } else if (first != null && other != null) {
+            groupBy = new ArrayList<>();
+            groupBy.add(first);
+            groupBy.addAll(Arrays.asList(other));
+        } else if (first == null) {
+            groupBy = Arrays.asList(other);
+        } else {
+            groupBy = Collections.singletonList(first);
+        }
+
+        //
+        if (!groupBy.isEmpty()) {
+            if (this.groupByList.isEmpty()) {
+                this.queryTemplate.addSegment(SqlKeyword.GROUP_BY);
+                this.queryTemplate.addSegment(this.groupByList);
+            }
+
+            for (String property : groupBy) {
+                if (!this.groupByList.isEmpty()) {
+                    this.groupByList.addSegment(d -> ",");
+                }
+                this.groupByList.addSegment(buildGroupByProperty(property));
+
+            }
+        }
+        return this.getSelf();
+    }
+
+    @SafeVarargs
+    @Override
     public final EntityQuery<T> orderBy(OrderType orderType, OrderNullsStrategy strategy, SFunction<T> first, SFunction<T>... other) {
-        List<SFunction<T>> orderBy;
+        List<String> orderBy;
+        if (first == null && other == null) {
+            throw new IndexOutOfBoundsException("properties is empty.");
+        } else if (first != null && other != null) {
+            orderBy = new ArrayList<>();
+            orderBy.add(getPropertyName(first));
+            Arrays.stream(other).map(this::getPropertyName).forEach(orderBy::add);
+        } else if (first == null) {
+            orderBy = new ArrayList<>();
+            Arrays.stream(other).map(this::getPropertyName).forEach(orderBy::add);
+        } else {
+            orderBy = Collections.singletonList(getPropertyName(first));
+        }
+
+        switch (orderType) {
+            case ASC:
+                return this.addOrderBy(OrderType.ASC, orderBy, strategy);
+            case DESC:
+                return this.addOrderBy(OrderType.DESC, orderBy, strategy);
+            case DEFAULT:
+                return this.addOrderBy(OrderType.DEFAULT, orderBy, strategy);
+            default:
+                throw new UnsupportedOperationException("orderType " + orderType + " Unsupported.");
+        }
+    }
+
+    @Override
+    public EntityQuery<T> orderBy(OrderType orderType, OrderNullsStrategy strategy, String first, String... other) {
+        List<String> orderBy;
         if (first == null && other == null) {
             throw new IndexOutOfBoundsException("properties is empty.");
         } else if (first != null && other != null) {
@@ -256,6 +325,40 @@ public class EntityQueryImpl<T> extends AbstractSelect<EntityQuery<T>, T, SFunct
             return this.addCondition(buildConditionByProperty(property), SqlKeyword.NOT, SqlKeyword.BETWEEN, formatValue(property, value1), SqlKeyword.AND, formatValue(property, value2));
         } else {
             return this.getSelf();
+        }
+    }
+
+    @SafeVarargs
+    @Override
+    public final EntityQuery<T> selectAdd(String first, String... other) {
+        if (first == null && other == null) {
+            throw new IndexOutOfBoundsException("properties is empty.");
+        } else if (first != null && other != null) {
+            List<String> list = new ArrayList<>();
+            list.add(first);
+            list.addAll(Arrays.asList(other));
+            return this.selectApply(list, false);
+        } else if (first == null) {
+            return this.selectApply(Arrays.asList(other), false);
+        } else {
+            return this.selectApply(Collections.singletonList(first), false);
+        }
+    }
+
+    @SafeVarargs
+    @Override
+    public final EntityQuery<T> select(String first, String... other) {
+        if (first == null && other == null) {
+            throw new IndexOutOfBoundsException("properties is empty.");
+        } else if (first != null && other != null) {
+            List<String> list = new ArrayList<>();
+            list.add(first);
+            list.addAll(Arrays.asList(other));
+            return this.selectApply(list, true);
+        } else if (first == null) {
+            return this.selectApply(Arrays.asList(other), true);
+        } else {
+            return this.selectApply(Collections.singletonList(first), true);
         }
     }
 }

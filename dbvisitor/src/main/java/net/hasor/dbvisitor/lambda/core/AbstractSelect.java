@@ -50,8 +50,8 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
     protected final MergeSqlSegment groupByList  = new MergeSqlSegment();
     protected final MergeSqlSegment orderByList  = new MergeSqlSegment();
     private final   Page            pageInfo     = new PageObjectForFetchCount(0, this::queryForLargeCount);
-    private         boolean         lockGroupBy  = false;
-    private         boolean         lockOrderBy  = false;
+    protected       boolean         lockGroupBy  = false;
+    protected       boolean         lockOrderBy  = false;
 
     public AbstractSelect(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {
         super(exampleType, tableMapping, registry, jdbc, ctx);
@@ -81,14 +81,16 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
         if (first == null && other == null) {
             throw new IndexOutOfBoundsException("properties is empty.");
         } else if (first != null && other != null) {
-            List<P> list = new ArrayList<>();
-            list.add(first);
-            list.addAll(Arrays.asList(other));
+            List<String> list = new ArrayList<>();
+            list.add(getPropertyName(first));
+            Arrays.stream(other).map(this::getPropertyName).forEach(list::add);
             return this.selectApply(list, false);
         } else if (first == null) {
-            return this.selectApply(Arrays.asList(other), false);
+            List<String> list = new ArrayList<>();
+            Arrays.stream(other).map(this::getPropertyName).forEach(list::add);
+            return this.selectApply(list, false);
         } else {
-            return this.selectApply(Collections.singletonList(first), false);
+            return this.selectApply(Collections.singletonList(getPropertyName(first)), false);
         }
     }
 
@@ -98,18 +100,20 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
         if (first == null && other == null) {
             throw new IndexOutOfBoundsException("properties is empty.");
         } else if (first != null && other != null) {
-            List<P> list = new ArrayList<>();
-            list.add(first);
-            list.addAll(Arrays.asList(other));
+            List<String> list = new ArrayList<>();
+            list.add(getPropertyName(first));
+            Arrays.stream(other).map(this::getPropertyName).forEach(list::add);
             return this.selectApply(list, true);
         } else if (first == null) {
-            return this.selectApply(Arrays.asList(other), true);
+            List<String> list = new ArrayList<>();
+            Arrays.stream(other).map(this::getPropertyName).forEach(list::add);
+            return this.selectApply(list, true);
         } else {
-            return this.selectApply(Collections.singletonList(first), true);
+            return this.selectApply(Collections.singletonList(getPropertyName(first)), true);
         }
     }
 
-    protected R selectApply(List<P> properties, boolean cleanSelect) {
+    protected R selectApply(List<String> properties, boolean cleanSelect) {
         if (properties == null || properties.isEmpty()) {
             throw new IndexOutOfBoundsException("properties is empty.");
         }
@@ -118,11 +122,11 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
             this.customSelect.cleanSegment();
         }
 
-        for (P property : properties) {
+        for (String property : properties) {
             if (!this.customSelect.isEmpty()) {
                 this.customSelect.addSegment(d -> ",");
             }
-            this.customSelect.addSegment(buildSelectByProperty(getPropertyName(property)));
+            this.customSelect.addSegment(buildSelectByProperty(property));
         }
         return this.getSelf();
     }
@@ -192,7 +196,7 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
         this.lockGroupBy = true;
     }
 
-    protected R addOrderBy(OrderType orderType, List<P> orderBy, OrderNullsStrategy strategy) {
+    protected R addOrderBy(OrderType orderType, List<String> orderBy, OrderNullsStrategy strategy) {
         if (this.lockOrderBy) {
             throw new IllegalStateException("must before order by invoke it.");
         }
@@ -205,12 +209,12 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
                 this.queryTemplate.addSegment(SqlKeyword.ORDER_BY);
                 this.queryTemplate.addSegment(this.orderByList);
             }
-            for (P property : orderBy) {
+            for (String property : orderBy) {
                 if (!this.orderByList.isEmpty()) {
                     this.orderByList.addSegment(d -> ",");
                 }
 
-                this.orderByList.addSegment(buildOrderByProperty(getPropertyName(property), orderType, strategy));
+                this.orderByList.addSegment(buildOrderByProperty(property, orderType, strategy));
             }
         }
         return this.getSelf();

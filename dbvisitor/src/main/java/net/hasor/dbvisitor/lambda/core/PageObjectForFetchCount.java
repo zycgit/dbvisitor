@@ -33,7 +33,7 @@ class PageObjectForFetchCount extends PageObject {
     private final AtomicBoolean                 totalCountInited = new AtomicBoolean(false);
 
     public PageObjectForFetchCount(long pageSize, ESupplier<Long, SQLException> totalCountSupplier) {
-        super(pageSize, 0);
+        super(0, pageSize, 0);
         Objects.requireNonNull(totalCountSupplier, "totalCountSupplier is null.");
         this.totalCountSupplier = totalCountSupplier;
     }

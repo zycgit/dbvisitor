@@ -25,6 +25,8 @@ import net.hasor.dbvisitor.lambda.EntityDelete;
 import net.hasor.dbvisitor.lambda.EntityQuery;
 import net.hasor.dbvisitor.lambda.EntityUpdate;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
+import net.hasor.dbvisitor.lambda.core.OrderType;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
@@ -658,26 +660,43 @@ class DefaultBaseMapper implements BaseMapper<Object> {
     }
 
     protected EntityQuery<Object> buildQueryBySample(Object sample) {
-        EntityQuery<Object> query = this.query();
+        if (sample == null) {
+            throw new NullPointerException("sample is null.");
+        }
 
-        if (sample != null) {
+        EntityQuery<Object> query = this.query();
+        if (sample instanceof Map) {
+            Map<?, ?> refMap = (Map<?, ?>) sample;
+            if (!refMap.isEmpty()) {
+                for (ColumnMapping mapping : this.getMapping().getProperties()) {
+                    if (refMap.containsKey(mapping.getProperty())) {
+                        query.eq(mapping.getProperty(), refMap.get(mapping.getProperty()));
+                    }
+                }
+            }
+        } else if (this.entityType.isInstance(sample)) {
             for (ColumnMapping mapping : this.getMapping().getProperties()) {
                 Object value = mapping.getHandler().get(sample);
                 if (value != null) {
-                    query.and().eq(mapping.getProperty(), value);
+                    query.eq(mapping.getProperty(), value);
+                }
+            }
+        } else {
+            Map<String, Property> funcMap = BeanUtils.getPropertyFunc(sample.getClass());
+            for (ColumnMapping mapping : this.getMapping().getProperties()) {
+                if (funcMap.containsKey(mapping.getProperty())) {
+                    Object value = funcMap.get(mapping.getProperty()).get(sample);
+                    if (value != null) {
+                        query.eq(mapping.getProperty(), value);
+                    }
                 }
             }
         }
-
         return query;
     }
 
     @Override
     public List<Object> listBySample(Object sample) throws RuntimeSQLException {
-        if (sample == null) {
-            return Collections.emptyList();
-        }
-
         try {
             return this.buildQueryBySample(sample).queryForList();
         } catch (SQLException e) {
@@ -687,10 +706,6 @@ class DefaultBaseMapper implements BaseMapper<Object> {
 
     @Override
     public int countBySample(Object sample) throws RuntimeSQLException {
-        if (sample == null) {
-            return -1;
-        }
-
         try {
             return this.buildQueryBySample(sample).queryForCount();
         } catch (SQLException e) {
@@ -708,19 +723,26 @@ class DefaultBaseMapper implements BaseMapper<Object> {
     }
 
     @Override
-    public PageResult<Object> pageBySample(Object sample, Page page) throws RuntimeSQLException {
+    public PageResult<Object> pageBySample(Object sample, Page page, Map<String, OrderType> orderBy, Map<String, OrderNullsStrategy> nulls) throws RuntimeSQLException {
         try {
-            List<Object> result = this.buildQueryBySample(sample).usePage(page).queryForList();
-            return new PageResult<>(page, result);
+            EntityQuery<Object> usedPage = this.buildQueryBySample(sample).usePage(page);
+            if (orderBy != null) {
+                orderBy.forEach((property, orderType) -> {
+                    OrderNullsStrategy nullsStrategy = (nulls == null) ? OrderNullsStrategy.DEFAULT : nulls.getOrDefault(property, OrderNullsStrategy.DEFAULT);
+                    OrderType orderStrategy = orderBy.getOrDefault(property, OrderType.DEFAULT);
+                    usedPage.orderBy(orderStrategy, nullsStrategy, property);
+                });
+            }
+            return new PageResult<>(page, usedPage.queryForList());
         } catch (SQLException e) {
             throw new RuntimeSQLException(e);
         }
     }
 
     @Override
-    public Page initPageBySample(Object sample, int pageSize, int pageNumberOffset) throws RuntimeSQLException {
+    public Page pageInitBySample(Object sample, long pageNumber, long pageSize, int pageNumberOffset) throws RuntimeSQLException {
         int totalCount = this.countBySample(sample);
-        PageObject pageObject = new PageObject(pageSize, totalCount);
+        PageObject pageObject = new PageObject(pageNumber, pageSize, totalCount);
         pageObject.setPageNumberOffset(pageNumberOffset);
         return pageObject;
     }

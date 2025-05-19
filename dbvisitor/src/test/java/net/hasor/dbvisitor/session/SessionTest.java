@@ -134,7 +134,7 @@ public class SessionTest {
             List<?> pageData;
 
             // pageQuery 1
-            pageResult = s.pageStatement(ProxyStatementMapper.class.getName() + ".selectByPage", null, new PageObject(2, 0));
+            pageResult = s.pageStatement(ProxyStatementMapper.class.getName() + ".selectByPage", null, new PageObject(0, 2, 0));
             pageData = pageResult.getData();
             assert pageData.size() == 2;
 

@@ -34,9 +34,18 @@ public class PageObject implements Page {
     public PageObject() {
     }
 
-    public PageObject(long pageSize, long totalCount) {
+    public PageObject(long pageNumber, long pageSize) {
+        this.currentPage = pageNumber;
+        this.pageSize = pageSize;
+        this.totalCount = 0;
+        this.refreshTotalCount = true;
+    }
+
+    public PageObject(long pageNumber, long pageSize, long totalCount) {
+        this.currentPage = pageNumber;
         this.pageSize = pageSize;
         this.totalCount = totalCount;
+        this.refreshTotalCount = totalCount <= 0;
     }
 
     /** 获取分页的页大小 */

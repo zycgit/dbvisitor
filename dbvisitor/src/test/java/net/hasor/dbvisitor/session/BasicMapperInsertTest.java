@@ -12,9 +12,8 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class BasicMapperTest {
+public class BasicMapperInsertTest {
     private static Date passer(String date) throws ParseException {
         if (date == null) {
             return null;
@@ -29,18 +28,6 @@ public class BasicMapperTest {
         } else {
             ZonedDateTime zonedDateTime = date.toInstant().atZone(ZoneId.systemDefault());
             return WellKnowFormat.WKF_DATE_TIME24.toPattern().format(zonedDateTime);
-        }
-    }
-
-    @Test
-    public void basic_1() throws Exception {
-        Configuration config = new Configuration();
-        config.options().mapUnderscoreToCamelCase(true);
-
-        try (Session s = config.newSession(DsUtils.h2Conn())) {
-            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
-
-            assert mapper.session() == s;
         }
     }
 
@@ -129,102 +116,4 @@ public class BasicMapperTest {
             assert format(user1.getCreateTime()).equals(format(tbUser1.getCreateTime()));
         }
     }
-
-    @Test
-    public void listBySample_1() throws Exception {
-        Configuration config = new Configuration();
-        config.options().mapUnderscoreToCamelCase(true);
-
-        try (Session s = config.newSession(DsUtils.h2Conn())) {
-            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
-
-            assert mapper.countAll() == 3;
-
-            List<UserInfo2> all1 = mapper.listBySample(null);
-            List<UserInfo2> all2 = mapper.query().queryForList();
-
-            List<String> all1Ids = all1.stream().map(UserInfo2::getUid).collect(Collectors.toList());
-            List<String> all2Ids = all2.stream().map(UserInfo2::getUid).collect(Collectors.toList());
-            all1Ids.removeAll(all2Ids);
-            assert all1Ids.isEmpty();
-        }
-    }
-
-    @Test
-    public void listBySample_2() throws Exception {
-        Configuration config = new Configuration();
-        config.options().mapUnderscoreToCamelCase(true);
-
-        try (Session s = config.newSession(DsUtils.h2Conn())) {
-            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
-
-            assert mapper.countAll() == 3;
-
-            List<UserInfo2> all = mapper.query().queryForList();
-
-            List<UserInfo2> result = mapper.listBySample(all.get(0));
-            assert result.size() == 1;
-            assert result.get(0).getUid().equals(all.get(0).getUid());
-            assert mapper.countBySample(all.get(0)) == 1;
-        }
-    }
-
-    @Test
-    public void listBySample_3() throws Exception {
-        Configuration config = new Configuration();
-        config.options().mapUnderscoreToCamelCase(true);
-
-        try (Session s = config.newSession(DsUtils.h2Conn())) {
-            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
-
-            assert mapper.countAll() == 3;
-
-            List<UserInfo2> all = mapper.query().queryForList();
-
-            UserInfo2 sample = all.get(0);
-            sample.setPassword(null);
-            sample.setEmail(null);
-            sample.setUid(null);
-
-            List<UserInfo2> result = mapper.listBySample(sample);
-            assert result.size() == 1;
-            assert result.get(0).getName().equals(all.get(0).getName());
-            assert result.get(0).getLoginName().equals(all.get(0).getLoginName());
-            assert mapper.countBySample(sample) == 1;
-        }
-    }
-
-    @Test
-    public void listBySample_4() throws Exception {
-        Configuration config = new Configuration();
-        config.options().mapUnderscoreToCamelCase(true);
-
-        try (Session s = config.newSession(DsUtils.h2Conn())) {
-            BaseMapper<UserInfo2> mapper = s.createBaseMapper(UserInfo2.class);
-
-            assert mapper.countAll() == 3;
-
-            List<UserInfo2> all = mapper.query().queryForList();
-
-            UserInfo2 dat1 = all.get(0);
-            UserInfo2 dat2 = all.get(1);
-            dat1.setEmail("abc");
-            dat2.setEmail("abc");
-
-            assert mapper.replace(dat1) == 1;
-            assert mapper.replace(dat2) == 1;
-
-            UserInfo2 sample = new UserInfo2();
-            sample.setEmail("abc");
-            List<UserInfo2> result = mapper.listBySample(sample);
-
-            assert result.size() == 2;
-            assert result.get(0).getEmail().equals("abc");
-            assert result.get(1).getEmail().equals("abc");
-            List<String> all1Ids = result.stream().map(UserInfo2::getUid).collect(Collectors.toList());
-            assert all1Ids.contains(dat1.getUid());
-            assert all1Ids.contains(dat2.getUid());
-        }
-    }
-
 }

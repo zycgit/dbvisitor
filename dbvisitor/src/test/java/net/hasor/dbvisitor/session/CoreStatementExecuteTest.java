@@ -159,7 +159,7 @@ public class CoreStatementExecuteTest {
             reinit(con);
 
             try {
-                exec.execute(con, def, null, new PageObject(2, 0), true);
+                exec.execute(con, def, null, new PageObject(0, 2, 0), true);
                 assert false;
             } catch (Exception e) {
                 assert e.getMessage().equals("STATEMENT does not support paging query, please using PREPARED.");

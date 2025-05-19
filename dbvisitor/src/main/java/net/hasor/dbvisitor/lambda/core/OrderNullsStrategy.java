@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
+import net.hasor.cobble.StringUtils;
+
 /**
  * 排序中 null 值的排序策略。
  * @author 赵永春 (zyc@hasor.net)
@@ -25,5 +27,14 @@ public enum OrderNullsStrategy {
     /** 排序中 null 值位于前面 */
     FIRST,
     /** 排序中 null 值位于后面 */
-    LAST
+    LAST;
+
+    public static OrderNullsStrategy valueOfCode(String code) {
+        for (OrderNullsStrategy s : OrderNullsStrategy.values()) {
+            if (StringUtils.equalsIgnoreCase(s.name(), code)) {
+                return s;
+            }
+        }
+        return null;
+    }
 }

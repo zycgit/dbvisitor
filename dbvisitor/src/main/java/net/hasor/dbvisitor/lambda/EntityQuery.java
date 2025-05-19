@@ -19,6 +19,7 @@ import net.hasor.dbvisitor.lambda.core.BasicFunc;
 import net.hasor.dbvisitor.lambda.core.QueryCompare;
 import net.hasor.dbvisitor.lambda.core.QueryFunc;
 import net.hasor.dbvisitor.lambda.support.entity.EntityQueryCompare;
+import net.hasor.dbvisitor.lambda.support.entity.EntityQueryFunc;
 
 /**
  * lambda Query for Entity.
@@ -28,6 +29,7 @@ import net.hasor.dbvisitor.lambda.support.entity.EntityQueryCompare;
 public interface EntityQuery<T> extends               //
         BasicFunc<EntityQuery<T>>,                    //
         QueryFunc<EntityQuery<T>, T, SFunction<T>>,   //
+        EntityQueryFunc<EntityQuery<T>>,              //
         QueryCompare<EntityQuery<T>, T, SFunction<T>>,//
         EntityQueryCompare<EntityQuery<T>> {
 

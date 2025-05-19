@@ -20,10 +20,13 @@ import net.hasor.dbvisitor.error.RuntimeSQLException;
 import net.hasor.dbvisitor.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.lambda.*;
 import net.hasor.dbvisitor.lambda.Insert;
+import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
+import net.hasor.dbvisitor.lambda.core.OrderType;
 import net.hasor.dbvisitor.session.Session;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -275,12 +278,11 @@ public interface BaseMapper<T> extends Mapper {
     List<T> listBySample(T entity) throws RuntimeSQLException;
 
     /**
-     * 根据 entity 条件，作为样本 null 将不会被列入条件。
-     * 如果想匹配 null 值需要使用 queryByCondition 方法
-     * @param entity 实体对象
-     * @return T
+     * 根据参考对象查询符合条件的记录数量，参考对象可以是 Map、实体对象或其它类型。
+     * 注意：如果想匹配 null 值需要使用 queryByCondition 方法
+     * @param sample 参考对象可以是 Map、实体对象或其它类型。
      */
-    int countBySample(T entity) throws RuntimeSQLException;
+    int countBySample(Object sample) throws RuntimeSQLException;
 
     /**
      * 相当于 select count(1) form xxxx
@@ -289,13 +291,35 @@ public interface BaseMapper<T> extends Mapper {
     int countAll() throws RuntimeSQLException;
 
     /**
-     * 分页查询
-     * @param sample 查询条件样本对象
+     * 使用参考对象作为查询条件，进行分页查询。参考对象可以是 Map、实体对象或其它类型。
+     * 注意：如果想匹配 null 值需要使用 queryByCondition 方法
+     * @param sample 参考对象可以是 Map、实体对象或其它类型。
      * @param page 分页参数对象
-     * @return 包含分页信息的查询结果
-     * @throws RuntimeSQLException 数据库操作异常
      */
-    PageResult<T> pageBySample(Object sample, Page page) throws RuntimeSQLException;
+    default PageResult<T> pageBySample(Object sample, Page page) throws RuntimeSQLException {
+        return this.pageBySample(sample, page, Collections.emptyMap(), Collections.emptyMap());
+    }
+
+    /**
+     * 使用参考对象作为查询条件，进行分页查询。参考对象可以是 Map、实体对象或其它类型。
+     * 注意：如果想匹配 null 值需要使用 queryByCondition 方法
+     * @param sample 参考对象可以是 Map、实体对象或其它类型。
+     * @param page 分页参数对象
+     * @param orderBy 排序字段和排序方式。
+     */
+    default PageResult<T> pageBySample(Object sample, Page page, Map<String, OrderType> orderBy) throws RuntimeSQLException {
+        return this.pageBySample(sample, page, orderBy, Collections.emptyMap());
+    }
+
+    /**
+     * 使用参考对象作为查询条件，进行分页查询。参考对象可以是 Map、实体对象或其它类型。
+     * 注意：如果想匹配 null 值需要使用 queryByCondition 方法
+     * @param sample 参考对象可以是 Map、实体对象或其它类型。
+     * @param page 分页参数对象
+     * @param orderBy 排序字段和排序方式。
+     * @param nulls 排序字段的 NULL 值排序方式。
+     */
+    PageResult<T> pageBySample(Object sample, Page page, Map<String, OrderType> orderBy, Map<String, OrderNullsStrategy> nulls) throws RuntimeSQLException;
 
     /**
      * 初始化分页查询对象
@@ -304,8 +328,8 @@ public interface BaseMapper<T> extends Mapper {
      * @return 初始化后的分页对象
      * @throws RuntimeSQLException 数据库操作异常
      */
-    default Page initPageBySample(Object sample, int pageSize) throws RuntimeSQLException {
-        return this.initPageBySample(sample, pageSize, 0);
+    default Page pageInitBySample(Object sample, long pageNumber, long pageSize) throws RuntimeSQLException {
+        return this.pageInitBySample(sample, pageNumber, pageSize, 0);
     }
 
     /**
@@ -316,5 +340,5 @@ public interface BaseMapper<T> extends Mapper {
      * @return 分页对象
      * @throws RuntimeSQLException 数据库操作异常
      */
-    Page initPageBySample(Object sample, int pageSize, int pageNumberOffset) throws RuntimeSQLException;
+    Page pageInitBySample(Object sample, long pageNumber, long pageSize, int pageNumberOffset) throws RuntimeSQLException;
 }

@@ -94,7 +94,7 @@ public class CoreCallableStatementExecuteMapperTest {
             reinit(con);
 
             try {
-                exec.execute(con, def, null, new PageObject(2, 0), true);
+                exec.execute(con, def, null, new PageObject(0, 2, 0), true);
                 assert false;
             } catch (Exception e) {
                 assert e.getMessage().equals("CALLABLE does not support paging query, please using PREPARED.");
