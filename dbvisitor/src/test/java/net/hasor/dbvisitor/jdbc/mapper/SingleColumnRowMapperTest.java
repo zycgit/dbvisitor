@@ -81,7 +81,7 @@ public class SingleColumnRowMapperTest {
         try (Connection c = DsUtils.h2Conn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(c);
 
-            List<UserInfo3> users1 = jdbcTemplate.queryForList("select *,'{''ext1'':''abc'',''ext2'':123,''ext3'':true}' as futures from user_info", UserInfo3.class);
+            List<UserInfo3> users1 = jdbcTemplate.queryForList("select *,'{\"ext1\":\"abc\",\"ext2\":123,\"ext3\":true}' as futures from user_info", UserInfo3.class);
             assert users1.size() == 3;
             users1.forEach(user -> {
                 assert user.getFutures() != null;
@@ -91,7 +91,7 @@ public class SingleColumnRowMapperTest {
                 assert user.getFutures().getExt4() == null;
             });
 
-            List<UserInfo4> users2 = jdbcTemplate.queryForList("select *,'{''ext1'':''abc'',''ext2'':123,''ext3'':true}' as futures from user_info", UserInfo4.class);
+            List<UserInfo4> users2 = jdbcTemplate.queryForList("select *,'{\"ext1\":\"abc\",\"ext2\":123,\"ext3\":true}' as futures from user_info", UserInfo4.class);
             assert users2.size() == 3;
             users2.forEach(user -> {
                 assert user.getFutures() != null;
