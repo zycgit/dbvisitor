@@ -38,7 +38,7 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 ### 分页查询
 - 查询构造器中使用 [分页查询](./core/lambda/query#page)。
 - 在 Mapper 接口中 @Query 注解方法通过增加分页参数实现 [分页查询](./core/annotation/query#page)。
-- 在 [通用 Mapper](./core/mapper/common#query_and_page) 中进行分页查询。
+- 在 [通用 Mapper](./core/mapper/common#page) 中进行分页查询（包含排序、Null值排序）
 - 利用 Session 对象的 [queryStatement、pageStatement](./core/mapper/file#page) 重载方法进行分页查询。
 - Mapper 接口在和 Mapper XML 文件建立关系后通过 [分页对象](./core/file/page) 进行分页查询。
 

@@ -197,13 +197,13 @@ public interface BaseMapper<T> extends Mapper {
     int updateByMap(Map<String, Object> sample) throws RuntimeSQLException;
 
     /**
-     * 在 {@link #replace(Object)} 基础之上，当更新对象不存在时会执行 {@link #insert(Object)}
+     * （插入或替换更新）在 {@link #replace(Object)} 基础之上，当更新对象不存在时会执行 {@link #insert(Object)}
      * @param entity 实体对象
      */
     int upsert(T entity) throws RuntimeSQLException;
 
     /**
-     * 在 {@link #replaceByMap(Map)} 基础之上，当更新对象不存在时会执行 {@link #insert(Object)}
+     * （插入或替换更新）在 {@link #replaceByMap(Map)} 基础之上，当更新对象不存在时会执行 {@link #insert(Object)}
      * @param entity 实体对象
      */
     int upsertByMap(Map<String, Object> entity) throws RuntimeSQLException;

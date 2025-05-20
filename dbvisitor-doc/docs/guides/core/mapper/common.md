@@ -21,12 +21,17 @@ BaseMapper<User> mapper = session.createBaseMapper(User.class);
 int res = mapper.insert(Arrays.asList(user1, user2));
 ```
 
-```java title='更新'
+```java title='局部更新'
 BaseMapper<User> mapper = session.createBaseMapper(User.class);
-int res = mapper.update(user); // 根据 user 对象中的主键值进行更新
+int res = mapper.update(user); // 根据主键，更新 user 对象中不为空的数据
 ```
 
-```java title='插入或更新'
+```java title='替换更新'
+BaseMapper<User> mapper = session.createBaseMapper(User.class);
+int res = mapper.replace(user); // 根据主键，替换 user 表整行数据
+```
+
+```java title='插入或替换更新'
 BaseMapper<User> mapper = session.createBaseMapper(User.class);
 int res = mapper.upsert(user); // 根据 user 对象中的主键，在数据库中不存在时会使用 insert 否则会进行更新
 ```
@@ -46,7 +51,7 @@ BaseMapper<User> mapper = session.createBaseMapper(User.class);
 int res = mapper.deleteByIds(Arrays.asList(userId1, userId2));
 ```
 
-## 查询和分页 {#query_and_page}
+## 查询 {#query}
 
 ```java title='根据 ID 查询对象'
 BaseMapper<User> mapper = session.createBaseMapper(User.class);
@@ -63,7 +68,11 @@ BaseMapper<User> mapper = session.createBaseMapper(User.class);
 List<User> users = mapper.listBySample(sampleUser);
 ```
 
-```java title='根据样本进行分页查询'
+## 分页 {#page}
+
+- PageResult 分页结果中还会包含 **原始分页信息**、**总记录数**、**总页数**。
+
+```java title='分页查询'
 User sample = ...
 Page pageInfo = PageObject.of(0, 20);   // 第 0 页每页 20条，页码从 0 开始
 //or pageInfo = PageObject.of(1, 20, 1);// 第 1 页每页 20条，页码从 1 开始
@@ -71,4 +80,30 @@ BaseMapper<User> mapper = session.createBaseMapper(User.class);
 PageResult<User> result = mapper.pageBySample(sample, pageInfo);
 ```
 
-- PageResult 分页结果中还会包含 **原始分页信息**、**总记录数**、**总页数**。
+```java title='分页查询并指定排序策略'
+User sample = ...
+Page pageInfo = PageObject.of(0, 20);   // 第 0 页每页 20条，页码从 0 开始
+//or pageInfo = PageObject.of(1, 20, 1);// 第 1 页每页 20条，页码从 1 开始
+Map<String, OrderType> orderBy = new HashMap<>();
+orderBy.put("id", OrderType.DESC);
+orderBy.put("name", OrderType.ASC);
+
+BaseMapper<User> mapper = session.createBaseMapper(User.class);
+PageResult<User> result = mapper.pageBySample(sample, pageInfo, orderBy);
+```
+
+```java title='在排序时指定 Null 值排序策略'
+User sample = ...
+Page pageInfo = PageObject.of(0, 20);   // 第 0 页每页 20条，页码从 0 开始
+//or pageInfo = PageObject.of(1, 20, 1);// 第 1 页每页 20条，页码从 1 开始
+
+Map<String, OrderType> orderBy = new HashMap<>();
+orderBy.put("id", OrderType.DESC);
+orderBy.put("name", OrderType.ASC);
+
+Map<String, OrderNullsStrategy> nulls = new HashMap<>();
+nulls.put("name", OrderNullsStrategy.FIRST);
+
+BaseMapper<User> mapper = session.createBaseMapper(User.class);
+PageResult<User> result = mapper.pageBySample(sample, pageInfo, orderBy, nulls);
+```
