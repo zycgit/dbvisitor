@@ -25,37 +25,31 @@
                 <groupId>net.hasor</groupId>
                 <artifactId>dbvisitor</artifactId>
                 <version>${project.version}</version>
-                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>net.hasor</groupId>
                 <artifactId>dbvisitor-spring</artifactId>
                 <version>${project.version}</version>
-                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>net.hasor</groupId>
                 <artifactId>dbvisitor-guice</artifactId>
                 <version>${project.version}</version>
-                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>net.hasor</groupId>
                 <artifactId>dbvisitor-hasor</artifactId>
                 <version>${project.version}</version>
-                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>net.hasor</groupId>
                 <artifactId>dbvisitor-solon-plugin</artifactId>
                 <version>${project.version}</version>
-                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>net.hasor</groupId>
                 <artifactId>dbvisitor-spring-starter</artifactId>
                 <version>${project.version}</version>
-                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
