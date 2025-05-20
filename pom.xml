@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.hasor</groupId>
     <artifactId>dbvisitor-parent</artifactId>
-    <version>6.0.3-SNAPSHOT</version>
+    <version>6.0.3</version>
     <packaging>pom</packaging>
 
     <!-- 配置属性 -->
@@ -34,7 +34,7 @@
         <connection>scm:git:git@git.oschina.net:zycgit/dbvisitor.git</connection>
         <developerConnection>scm:git:git@git.oschina.net:zycgit/dbvisitor.git</developerConnection>
         <url>git@git.oschina.net:zycgit/dbvisitor.git</url>
-        <tag>v5.4.4</tag>
+        <tag>v6.0.3</tag>
     </scm>
 
     <developers>
