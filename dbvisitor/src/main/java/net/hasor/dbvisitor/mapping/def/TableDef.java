@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.def;
+import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.cobble.reflect.Annotations;
 import net.hasor.dbvisitor.mapping.KeyType;
@@ -36,6 +37,7 @@ public class TableDef<T> implements TableMapping<T> {
     private final boolean                          useDelimited;
     private final boolean                          caseInsensitive;
     private final boolean                          mapUnderscoreToCamelCase;
+    private       boolean                          hashSelectTemplate;
     //
     private       TableDescription                 description;
     //
@@ -64,6 +66,7 @@ public class TableDef<T> implements TableMapping<T> {
         this.mapByColumnForPrimary = caseInsensitive ? new LinkedCaseInsensitiveMap<>() : new LinkedHashMap<>();
         this.indexList = new ArrayList<>();
         this.mapUnderscoreToCamelCase = mapUnderscoreToCamelCase;
+        this.hashSelectTemplate = false;
     }
 
     @Override
@@ -132,6 +135,11 @@ public class TableDef<T> implements TableMapping<T> {
         return this.mapUnderscoreToCamelCase;
     }
 
+    @Override
+    public boolean hashSelectTemplate() {
+        return this.hashSelectTemplate;
+    }
+
     public boolean isMapUnderscoreToCamelCase() {
         return this.mapUnderscoreToCamelCase;
     }
@@ -192,6 +200,8 @@ public class TableDef<T> implements TableMapping<T> {
         if (mapping.getKeyTpe() == KeyType.Auto) {
             this.useGeneratedKey = true;
         }
+
+        this.hashSelectTemplate = this.hashSelectTemplate || StringUtils.isNotBlank(mapping.getSelectTemplate());
     }
 
     @Override

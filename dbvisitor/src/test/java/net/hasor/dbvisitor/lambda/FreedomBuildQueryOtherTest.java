@@ -80,6 +80,7 @@ public class FreedomBuildQueryOtherTest {
     @Test
     public void queryBuilder_group_by_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
+                .select("seq")//
                 .eq("loginName", "a").eq("loginName", "b")//
                 .groupBy("seq").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT seq FROM user_info WHERE loginName = ? AND loginName = ? GROUP BY seq");
@@ -87,6 +88,7 @@ public class FreedomBuildQueryOtherTest {
         assert boundSql1.getArgs()[1].equals("b");
 
         BoundSql boundSql2 = newLambda().queryFreedom("user_info")//
+                .select("seq")//
                 .eq("loginName", "a")//
                 .eq("loginName", "b")//
                 .apply("limit 1")//

@@ -22,6 +22,11 @@ public class TestDialect implements SqlDialect {
     }
 
     @Override
+    public String aliasSeparator() {
+        return " ";
+    }
+
+    @Override
     public String tableName(boolean useQualifier, String catalog, String schema, String table) {
         return "";
     }

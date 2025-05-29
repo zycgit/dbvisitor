@@ -38,6 +38,9 @@ public interface SqlDialect {
     /** 获取有右限定符 */
     String rightQualifier();
 
+    /** 列/表 别名的间隔符 */
+    String aliasSeparator();
+
     /** 生成完整的表名 */
     String tableName(boolean useQualifier, String catalog, String schema, String table);
 

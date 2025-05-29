@@ -77,7 +77,13 @@ public abstract class BasicLambda<R, T, P> {
 
     protected Segment buildSelectByProperty(String propertyName) {
         ColumnMapping property = this.findPropertyByName(propertyName);
-        return this.buildColName(property.getSelectTemplate(), property);
+        String specialCol = property.getSelectTemplate();
+        if (StringUtils.isNotBlank(specialCol)) {
+            return d -> specialCol + d.aliasSeparator() + d.fmtName(isQualifier(), property.getColumn());
+        } else {
+            String columnName = property.getColumn();
+            return d -> d.fmtName(isQualifier(), columnName);
+        }
     }
 
     protected Segment buildConditionByProperty(String propertyName) {
@@ -88,6 +94,15 @@ public abstract class BasicLambda<R, T, P> {
     protected Segment buildGroupByProperty(String propertyName) {
         ColumnMapping property = this.findPropertyByName(propertyName);
         return this.buildColName(property.getGroupByColTemplate(), property);
+    }
+
+    private Segment buildColName(String specialCol, ColumnMapping property) {
+        if (StringUtils.isNotBlank(specialCol)) {
+            return d -> specialCol;
+        } else {
+            String columnName = property.getColumn();
+            return d -> d.fmtName(isQualifier(), columnName);
+        }
     }
 
     protected Segment buildOrderByProperty(String propertyName, OrderType orderType, OrderNullsStrategy nullsStrategy) {
@@ -107,15 +122,6 @@ public abstract class BasicLambda<R, T, P> {
                 default:
                     return d -> d.orderByDefault(isQualifier(), columnName, orderType);
             }
-        }
-    }
-
-    private Segment buildColName(String specialCol, ColumnMapping property) {
-        if (StringUtils.isNotBlank(specialCol)) {
-            return d -> specialCol;
-        } else {
-            String columnName = property.getColumn();
-            return d -> d.fmtName(isQualifier(), columnName);
         }
     }
 

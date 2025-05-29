@@ -372,16 +372,25 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
 
     private BoundSql buildBoundSqlWithoutPage(SqlDialect dialect) throws SQLException {
         MergeSqlSegment sqlSegment = new MergeSqlSegment();
+
+        // select
         sqlSegment.addSegment(SqlKeyword.SELECT);
         if (this.customSelect.isEmpty()) {
-            if (this.groupByList.isEmpty()) {
-                sqlSegment.addSegment(d -> "*");
+            if (this.getTableMapping().hashSelectTemplate() && !this.isFreedom()) {
+                MergeSqlSegment tmp = new MergeSqlSegment();
+                this.getTableMapping().getProperties().forEach(cm -> {
+                    tmp.addSegment(d -> ",");
+                    tmp.addSegment(buildSelectByProperty(cm.getProperty()));
+                });
+                sqlSegment.addSegment(tmp.sub(1));
             } else {
-                sqlSegment.addSegment(this.groupByList);
+                sqlSegment.addSegment(d -> "*");
             }
         } else {
             sqlSegment.addSegment(this.customSelect);
         }
+
+        // from
         sqlSegment.addSegment(SqlKeyword.FROM);
         sqlSegment.addSegment(d -> {
             TableMapping<?> tableMapping = this.getTableMapping();

@@ -120,6 +120,7 @@ public class BuildEntQueryOtherTest {
     @Test
     public void queryBuilder_group_by_1() throws SQLException {
         BoundSql boundSql1 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
+                .select(AnnoUserInfoDTO::getSeq)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a").eq(AnnoUserInfoDTO::getLoginName, "b")//
                 .groupBy(AnnoUserInfoDTO::getSeq).getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT seq FROM user_info WHERE login_name = ? AND login_name = ? GROUP BY seq");
@@ -127,6 +128,7 @@ public class BuildEntQueryOtherTest {
         assert boundSql1.getArgs()[1].equals("b");
 
         BoundSql boundSql2 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
+                .select(AnnoUserInfoDTO::getSeq)//
                 .eq(AnnoUserInfoDTO::getLoginName, "a")//
                 .eq(AnnoUserInfoDTO::getLoginName, "b")//
                 .apply("limit 1")//
@@ -138,6 +140,7 @@ public class BuildEntQueryOtherTest {
     @Test
     public void queryBuilder_group_by_1_map() throws SQLException {
         BoundSql boundSql1 = new LambdaTemplate().query(AnnoUserInfoDTO.class).asMap()//
+                .select("seq")//
                 .eq("loginName", "a").eq("loginName", "b")//
                 .groupBy("seq").getBoundSql();
         assert boundSql1.getSqlString().equals("SELECT seq FROM user_info WHERE login_name = ? AND login_name = ? GROUP BY seq");
@@ -145,6 +148,7 @@ public class BuildEntQueryOtherTest {
         assert boundSql1.getArgs()[1].equals("b");
 
         BoundSql boundSql2 = new LambdaTemplate().query(AnnoUserInfoDTO.class).asMap()//
+                .select("seq")//
                 .eq("loginName", "a")//
                 .eq("loginName", "b")//
                 .apply("limit 1")//

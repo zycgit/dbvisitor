@@ -18,8 +18,8 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -28,7 +28,7 @@ import java.util.List;
  * @version 2020-11-02
  */
 public final class MergeSqlSegment implements Segment {
-    private final List<Segment> segments = new ArrayList<>();
+    private final List<Segment> segments = new LinkedList<>();
 
     public MergeSqlSegment(List<Segment> segments) {
         this.segments.addAll(segments);
@@ -51,10 +51,6 @@ public final class MergeSqlSegment implements Segment {
 
     public MergeSqlSegment sub(int form) {
         return new MergeSqlSegment(this.segments.subList(form, this.segments.size()));
-    }
-
-    public String noFirstSqlSegment(SqlDialect dialect) throws SQLException {
-        return this.getSqlSegment(dialect, this.segments.subList(1, this.segments.size()));
     }
 
     private String getSqlSegment(SqlDialect dialect, List<Segment> dataList) throws SQLException {

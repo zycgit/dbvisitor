@@ -148,4 +148,9 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
     public String rightQualifier() {
         return this.defaultQualifier();
     }
+
+    @Override
+    public String aliasSeparator() {
+        return " ";
+    }
 }

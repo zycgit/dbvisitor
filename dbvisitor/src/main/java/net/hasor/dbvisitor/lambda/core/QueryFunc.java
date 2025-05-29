@@ -93,7 +93,13 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
     R selectAdd(P first, P... other);
 
     /**
-     * 追加拼接 sql 方式，不同于 {@link #applySelect(String)} 的是不会清空已有选择条件。
+     * 追加拼接 sql 方式来自定义 select 和 form 之间的语句，一旦使用自定义那么 selectAll 和 select 将会失效。
+     * 不同于 {@link #applySelect(String)} 的是不会清空已有选择条件。
+     * <p>selectAll、select、applySelect 三个当同时调用时只有最后一个生效</p>
+     * <p>!! 会有 sql 注入风险 !!</p>
+     * <p>例1: applySelectAdd("count(*)")</p>
+     * <p>例2: applySelectAdd("date_format(dateColumn,'%Y-%m-%d') as date")</p>
+     * <p>例3: applySelectAdd("max(columnA) , min(columnB)")</p>
      */
     R applySelectAdd(String select);
 

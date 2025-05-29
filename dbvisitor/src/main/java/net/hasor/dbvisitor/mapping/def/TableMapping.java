@@ -58,6 +58,9 @@ public interface TableMapping<T> {
     /** 是否配置了驼峰转换（Map模式下依赖这个参数决定是否进行驼峰转换） */
     boolean isToCamelCase();
 
+    /** 映射中是否在 select 字句中要求使用 SQL 模版 */
+    boolean hashSelectTemplate();
+
     /** 获取所有列映射信息 */
     Collection<ColumnMapping> getProperties();
 
