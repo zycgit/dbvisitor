@@ -118,10 +118,7 @@ const config = {
                 language: ["en", "zh"],
             }),
         ],
-    ],
-    future: {
-        experimental_faster: true
-    }
+    ]
 };
 
 module.exports = config;
