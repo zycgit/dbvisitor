@@ -60,5 +60,5 @@ select * from users where status = true @{in,and id in :ids}
 
 :::info[关于规则]
 - dbVisitor 内置了丰富的规则可以完成不同需要。
-- 更多相信资料请 [点击这里](../rules/about) 查看。
+- 更多详细资料请 [点击这里](../rules/about) 查看。
 :::
