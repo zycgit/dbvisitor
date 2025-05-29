@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Oracle 的 SqlDialect 实现
@@ -154,7 +155,7 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
 
         buildMergeInfoBasic(useQualifier, catalog, schema, table, primaryKey, columns, columnValueTerms, mergeBuilder);
 
-        buildMergeInfoWhenMatched(useQualifier, catalog, schema, table, columns, mergeBuilder);
+        buildMergeInfoWhenMatched(useQualifier, catalog, schema, table, primaryKey, columns, mergeBuilder);
         buildMergeInfoWhenNotMatched(useQualifier, catalog, schema, table, columns, mergeBuilder);
 
         return mergeBuilder.toString();
@@ -173,14 +174,14 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
 
             String valueTerm = columnValueTerms != null ? columnValueTerms.get(colName) : null;
             if (StringUtils.isNotBlank(valueTerm)) {
-                mergeBuilder.append(valueTerm);
+                mergeBuilder.append(valueTerm).append(" ");
             } else {
-                mergeBuilder.append("?");
+                mergeBuilder.append("?").append(" ");
             }
             mergeBuilder.append(fmtName(useQualifier, columns.get(i)));
         }
 
-        mergeBuilder.append(" FROM dual ) SRC ON (");
+        mergeBuilder.append(" FROM dual) SRC ON (");
         for (int i = 0; i < primaryKey.size(); i++) {
             if (i != 0) {
                 mergeBuilder.append(" AND ");
@@ -205,16 +206,17 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
             argBuilder.append("SRC.").append(fmtName(useQualifier, allColumns.get(i)));
         }
 
-        mergeBuilder.append(") VALUES( ");
+        mergeBuilder.append(") VALUES ( ");
         mergeBuilder.append(argBuilder);
-        mergeBuilder.append(") ");
+        mergeBuilder.append(")");
     }
 
-    private void buildMergeInfoWhenMatched(boolean useQualifier, String catalog, String schema, String table, List<String> allColumns, StringBuilder mergeBuilder) {
+    private void buildMergeInfoWhenMatched(boolean useQualifier, String catalog, String schema, String table, List<String> primaryKey, List<String> allColumns, StringBuilder mergeBuilder) {
         mergeBuilder.append("WHEN MATCHED THEN ");
         mergeBuilder.append("UPDATE SET ");
-        for (int i = 0; i < allColumns.size(); i++) {
-            String column = allColumns.get(i);
+        List<String> updateColumns = allColumns.stream().filter(c -> !primaryKey.contains(c)).collect(Collectors.toList());
+        for (int i = 0; i < updateColumns.size(); i++) {
+            String column = updateColumns.get(i);
             if (i != 0) {
                 mergeBuilder.append(", ");
             }

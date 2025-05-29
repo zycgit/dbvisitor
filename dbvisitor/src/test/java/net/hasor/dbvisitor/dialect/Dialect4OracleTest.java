@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
+
+import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dialect.provider.OracleDialect;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
 import org.junit.Test;
+
+import java.util.List;
+import java.util.Map;
 
 /***
  * Oracle 方言
@@ -72,4 +77,18 @@ public class Dialect4OracleTest extends AbstractDialectTest {
     //                + "WHEN MATCHED THEN UPDATE SET userUUID = SRC.userUUID, name = SRC.name, loginName = SRC.loginName, loginPassword = SRC.loginPassword, email = SRC.email, \"index\" = SRC.\"index\", registerTime = SRC.registerTime " //
     //                + "WHEN NOT MATCHED THEN INSERT (userUUID, name, loginName, loginPassword, email, \"index\", registerTime) VALUES( SRC.userUUID, SRC.name, SRC.loginName, SRC.loginPassword, SRC.email, SRC.\"index\", SRC.registerTime) ");
     //    }
+
+    @Test
+    public void dialect_oracle_2() {
+        OracleDialect dialect = this.findDialect();
+
+        String table = "examination";
+        List<String> keys = CollectionUtils.asList("student", "course");
+        List<String> columns = CollectionUtils.asList("student", "course", "score", "passed", "teacher");
+        Map<String, String> terms = CollectionUtils.asMap("passed", "to_char(?)");
+
+        String sql = dialect.insertReplace(false, null, null, table, keys, columns, terms);
+        assert sql.equals("MERGE INTO examination TMP USING (SELECT ? student, ? course, ? score, to_char(?) passed, ? teacher FROM dual) SRC ON (TMP.student = SRC.student AND TMP.course = SRC.course) WHEN MATCHED THEN UPDATE SET score = SRC.score, passed = SRC.passed, teacher = SRC.teacher WHEN NOT MATCHED THEN INSERT (student, course, score, passed, teacher) VALUES ( SRC.student, SRC.course, SRC.score, SRC.passed, SRC.teacher)");
+    }
+
 }
