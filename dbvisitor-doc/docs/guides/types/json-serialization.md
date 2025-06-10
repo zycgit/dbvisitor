@@ -32,7 +32,7 @@ dbVisitor 内置支持了 4 个常见 json 序列化服务提供程序可供选�
 
 | 类型处理器                          | 作用                                                                                       |
 |--------------------------------|------------------------------------------------------------------------------------------|
-| JsonTypeHandler                | 根据用户依赖环境以 Fastjso2、Fastjson、Jackson、Gson 为顺序依次尝试寻找可用的 JSON 服务提供者。                        |
+| JsonTypeHandler                | 根据用户依赖环境以 Jackson、Gson、Fastjson、Fastjson2 为顺序依次尝试寻找可用的 JSON 服务提供者。                       |
 | JsonUseForFastjsonTypeHandler  | 使用 Fastjson 作为 JSON 序列化/反序列化 服务提供者。<br/> - 项目地址：https://github.com/alibaba/fastjson      |
 | JsonUseForFastjson2TypeHandler | 使用 Fastjson2 作为 JSON 序列化/反序列化 服务提供者。<br/> - 项目地址：https://github.com/alibaba/fastjson2    |
 | JsonUseForGsonTypeHandler      | 使用 Gson 作为 JSON 序列化/反序列化 服务提供者。<br/> - 项目地址：https://github.com/google/gson               |
