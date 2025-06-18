@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.dynamic.rule;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.*;
 import net.hasor.dbvisitor.dynamic.args.ArraySqlArgSource;
-import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
+import net.hasor.dbvisitor.internal.OgnlUtils;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 
@@ -56,7 +56,7 @@ public class InRule implements SqlRule {
     @Override
     public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         if (this.usingIf) {
-            return StringUtils.isBlank(activeExpr) || Boolean.TRUE.equals(evalOgnl(activeExpr, data));
+            return StringUtils.isBlank(activeExpr) || Boolean.TRUE.equals(OgnlUtils.evalOgnl(activeExpr, data));
         } else {
             return true;
         }

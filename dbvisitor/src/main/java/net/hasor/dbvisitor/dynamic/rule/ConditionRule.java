@@ -20,7 +20,7 @@ import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
-import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
+import net.hasor.dbvisitor.internal.OgnlUtils;
 
 import java.sql.SQLException;
 
@@ -70,7 +70,7 @@ public abstract class ConditionRule implements SqlRule {
     @Override
     public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         if (this.usingIf) {
-            return StringUtils.isBlank(activeExpr) || Boolean.TRUE.equals(evalOgnl(activeExpr, data));
+            return StringUtils.isBlank(activeExpr) || Boolean.TRUE.equals(OgnlUtils.evalOgnl(activeExpr, data));
         } else {
             return true;
         }

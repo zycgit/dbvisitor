@@ -17,7 +17,6 @@ package net.hasor.dbvisitor.transaction.support;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.transaction.*;
-import static net.hasor.dbvisitor.transaction.Propagation.*;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -103,20 +102,20 @@ public class LocalTransactionManager implements TransactionManager {
         ===============================================================*/
         if (this.isExistingTransaction(defStatus)) {
             /*REQUIRES_NEW：独立事务*/
-            if (behavior == REQUIRES_NEW) {
+            if (behavior == Propagation.REQUIRES_NEW) {
                 this.suspend(defStatus);/*挂起当前事务*/
                 this.doBegin(defStatus);/*开启新事务*/
             }
             /*NESTED：嵌套事务*/
-            if (behavior == NESTED) {
+            if (behavior == Propagation.NESTED) {
                 defStatus.markSavepoint();/*设置保存点*/
             }
             /*NOT_SUPPORTED：非事务方式*/
-            if (behavior == NOT_SUPPORTED) {
+            if (behavior == Propagation.NOT_SUPPORTED) {
                 this.suspend(defStatus);/*挂起事务*/
             }
             /*NEVER：排除事务*/
-            if (behavior == NEVER) {
+            if (behavior == Propagation.NEVER) {
                 this.cleanupAfterCompletion(defStatus);
                 throw new SQLException("existing transaction found for transaction marked with propagation 'never'");
             }
@@ -134,15 +133,15 @@ public class LocalTransactionManager implements TransactionManager {
         | MANDATORY    ：强制要求事务（异常）
         ===============================================================*/
         /*REQUIRED：加入已有事务*/
-        if (behavior == REQUIRED ||
+        if (behavior == Propagation.REQUIRED ||
                 /*REQUIRES_NEW：独立事务*/
-                behavior == REQUIRES_NEW ||
+                behavior == Propagation.REQUIRES_NEW ||
                 /*NESTED：嵌套事务*/
-                behavior == NESTED) {
+                behavior == Propagation.NESTED) {
             this.doBegin(defStatus);/*开启新事务*/
         }
         /*MANDATORY：强制要求事务*/
-        if (behavior == MANDATORY) {
+        if (behavior == Propagation.MANDATORY) {
             this.cleanupAfterCompletion(defStatus);
             throw new SQLException("no existing transaction found for transaction marked with propagation 'mandatory'");
         }

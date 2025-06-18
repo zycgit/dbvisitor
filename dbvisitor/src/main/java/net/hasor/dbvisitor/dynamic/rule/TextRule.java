@@ -18,7 +18,7 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
-import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
+import net.hasor.dbvisitor.internal.OgnlUtils;
 
 /**
  * 动态参数规则，普通文本，用于处理普通文本SQL片段
@@ -51,7 +51,7 @@ public class TextRule implements SqlRule {
     @Override
     public boolean test(SqlArgSource data, QueryContext context, String activeExpr) {
         if (this.usingIf) {
-            return StringUtils.isBlank(activeExpr) || Boolean.TRUE.equals(evalOgnl(activeExpr, data));
+            return StringUtils.isBlank(activeExpr) || Boolean.TRUE.equals(OgnlUtils.evalOgnl(activeExpr, data));
         } else {
             return true;
         }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.InsertSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
@@ -31,6 +30,7 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -188,7 +188,7 @@ public abstract class AbstractInsert<R, T, P> extends BasicLambda<R, T, P> imple
 
     protected PreparedStatement createPrepareStatement(Connection con, String sqlString) throws SQLException {
         if (this.getTableMapping().useGeneratedKey()) {
-            return con.prepareStatement(sqlString, RETURN_GENERATED_KEYS);
+            return con.prepareStatement(sqlString, Statement.RETURN_GENERATED_KEYS);
         } else {
             return con.prepareStatement(sqlString);
         }

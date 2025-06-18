@@ -17,7 +17,7 @@ package net.hasor.dbvisitor.dynamic.segment;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
-import static net.hasor.dbvisitor.internal.OgnlUtils.evalOgnl;
+import net.hasor.dbvisitor.internal.OgnlUtils;
 
 import java.sql.SQLException;
 
@@ -50,7 +50,7 @@ public class InjectionSqlSegment implements SqlSegment {
     /** 构建 SQL 查询 */
     @Override
     public void buildQuery(SqlArgSource data, QueryContext context, SqlBuilder sqlBuilder) throws SQLException {
-        sqlBuilder.appendSql(String.valueOf(evalOgnl(this.exprString, data)));
+        sqlBuilder.appendSql(String.valueOf(OgnlUtils.evalOgnl(this.exprString, data)));
     }
 
     /** 克隆当前对象，返回新的 {@link InjectionSqlSegment} 实例 */
