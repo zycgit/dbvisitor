@@ -1,23 +1,21 @@
 package net.hasor.dbvisitor.driver;
 
-import net.hasor.dbvisitor.dynamic.SqlMode;
-
 class JdbcArg {
-    private SqlMode mode;
-    private String  name;
-    private String  type;
-    private Object  value;
+    private JdbcArgMode mode;
+    private String      name;
+    private String      type;
+    private Object      value;
 
-    public JdbcArg(String name, SqlMode mode) {
+    public JdbcArg(String name, JdbcArgMode mode) {
         this.mode = mode;
         this.name = name;
     }
 
-    public SqlMode getMode() {
+    public JdbcArgMode getMode() {
         return this.mode;
     }
 
-    public void setMode(SqlMode mode) {
+    public void setMode(JdbcArgMode mode) {
         this.mode = mode;
     }
 

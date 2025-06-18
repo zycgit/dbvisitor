@@ -10,8 +10,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class JdbcDriver implements java.sql.Driver {
-    private static final Logger loggerParent = Logger.getLogger("dbvisitor.adapter");
-    private static final Logger logger       = Logger.getLogger("dbvisitor.adapter.driver");
+    private static final Logger      loggerParent = Logger.getLogger("dbvisitor.adapter");
+    private static final Logger      logger       = Logger.getLogger("dbvisitor.adapter.driver");
+    private static final ClassLoader classLoader  = JdbcDriver.class.getClassLoader();
 
     //
     public static final String P_SERVER       = "server";
@@ -29,7 +30,7 @@ public class JdbcDriver implements java.sql.Driver {
 
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
-        return new JdbcConnection(url, parseURL(url, info));
+        return new JdbcConnection(url, parseURL(url, info), classLoader);
     }
 
     @Override
@@ -109,7 +110,7 @@ public class JdbcDriver implements java.sql.Driver {
             return new DriverPropertyInfo[0];
         }
 
-        String[] knownProperties = AdapterManager.propertyNames(adapterName, copy);
+        String[] knownProperties = AdapterManager.propertyNames(adapterName, copy, classLoader);
         DriverPropertyInfo[] props = new DriverPropertyInfo[knownProperties.length];
         for (int i = 0; i < props.length; ++i) {
             String name = knownProperties[i];

@@ -2,7 +2,6 @@ package net.hasor.dbvisitor.driver;
 
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
-import net.hasor.dbvisitor.dynamic.SqlMode;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -41,7 +40,7 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
         this.parameters.clear();
     }
 
-    protected void setParameter(SqlMode mode, String parameterName, String typeName, Object object) throws SQLException {
+    protected void setParameter(JdbcArgMode mode, String parameterName, String typeName, Object object) throws SQLException {
         this.checkOpen();
         switch (mode) {
             case In:
@@ -61,14 +60,14 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
         }
 
         if ((jdbcArg.getMode().isIn() && mode.isOut()) || (jdbcArg.getMode().isOut() && mode.isIn())) {
-            jdbcArg.setMode(SqlMode.InOut);
+            jdbcArg.setMode(JdbcArgMode.InOut);
         }
     }
 
     private void setStringReader(String parameterName, Reader reader) throws SQLException {
         try {
             String value = reader == null ? null : IOUtils.readToString(reader);
-            this.setParameter(SqlMode.In, parameterName, AdapterType.String, value);
+            this.setParameter(JdbcArgMode.In, parameterName, AdapterType.String, value);
         } catch (IOException e) {
             throw new SQLException(e);
         }
@@ -77,7 +76,7 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
     private void setStringReader(String parameterName, Reader reader, long length) throws SQLException {
         try {
             String value = reader == null ? null : IOUtils.readToString(reader, length);
-            this.setParameter(SqlMode.In, parameterName, AdapterType.String, value);
+            this.setParameter(JdbcArgMode.In, parameterName, AdapterType.String, value);
         } catch (IOException e) {
             throw new SQLException(e);
         }
@@ -85,12 +84,12 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
     private void setBinaryStream(String parameterName, InputStream x) throws SQLException {
         if (x == null) {
-            this.setParameter(SqlMode.In, parameterName, AdapterType.Bytes, null);
+            this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Bytes, null);
         } else {
             try {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 IOUtils.copyLarge(x, out);
-                this.setParameter(SqlMode.In, parameterName, AdapterType.Bytes, out.toByteArray());
+                this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Bytes, out.toByteArray());
             } catch (IOException e) {
                 throw new SQLException(e);
             }
@@ -99,12 +98,12 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
     private void setBinaryStream(String parameterName, InputStream x, long length) throws SQLException {
         if (x == null) {
-            this.setParameter(SqlMode.In, parameterName, AdapterType.Bytes, null);
+            this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Bytes, null);
         } else {
             try {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 IOUtils.copyLarge(x, out, 0, length);
-                this.setParameter(SqlMode.In, parameterName, AdapterType.Bytes, out.toByteArray());
+                this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Bytes, out.toByteArray());
             } catch (IOException e) {
                 throw new SQLException(e);
             }
@@ -129,72 +128,72 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, this.getTypeName(sqlType), null);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, this.getTypeName(sqlType), null);
     }
 
     @Override
     public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
         if (StringUtils.isNotBlank(typeName)) {
-            this.setParameter(SqlMode.In, "arg" + parameterIndex, typeName, null);
+            this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, typeName, null);
         } else {
-            this.setParameter(SqlMode.In, "arg" + parameterIndex, this.getTypeName(sqlType), null);
+            this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, this.getTypeName(sqlType), null);
         }
     }
 
     @Override
     public void setBoolean(int parameterIndex, boolean x) throws SQLException {
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.Boolean, x);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Boolean, x);
     }
 
     @Override
     public void setByte(int parameterIndex, byte x) throws SQLException {
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.Byte, x);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Byte, x);
     }
 
     @Override
     public void setShort(int parameterIndex, short x) throws SQLException {
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.Short, x);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Short, x);
     }
 
     @Override
     public void setInt(int parameterIndex, int x) throws SQLException {
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.Int, x);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Int, x);
     }
 
     @Override
     public void setLong(int parameterIndex, long x) throws SQLException {
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.Long, x);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Long, x);
     }
 
     @Override
     public void setFloat(int parameterIndex, float x) throws SQLException {
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.Float, x);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Float, x);
     }
 
     @Override
     public void setDouble(int parameterIndex, double x) throws SQLException {
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.Double, x);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Double, x);
     }
 
     @Override
     public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.BigDecimal, x);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.BigDecimal, x);
     }
 
     @Override
     public void setURL(int parameterIndex, URL val) throws SQLException {
         String value = val == null ? null : val.toString();
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.String, value);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.String, value);
     }
 
     @Override
     public void setString(int parameterIndex, String value) throws SQLException {
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.String, value);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.String, value);
     }
 
     @Override
     public void setNString(int parameterIndex, String value) throws SQLException {
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.String, value);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.String, value);
     }
 
     @Override
@@ -263,7 +262,7 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
     @Override
     public void setBytes(int parameterIndex, byte[] x) throws SQLException {
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.Bytes, x);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Bytes, x);
     }
 
     @Override
@@ -313,60 +312,60 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
     @Override
     public void setDate(int parameterIndex, Date x) throws SQLException {
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.SqlDate, x);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.SqlDate, x);
     }
 
     @Override
     public void setDate(int parameterIndex, Date x, Calendar cal) throws SQLException {
         if (x == null) {
-            this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.SqlDate, null);
+            this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.SqlDate, null);
         } else {
             if (cal == null) {
-                this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.SqlDate, x);
+                this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.SqlDate, x);
             } else {
                 ZonedDateTime zonedDate = x.toLocalDate().atStartOfDay(cal.getTimeZone().toZoneId());
                 OffsetDateTime offsetDateTime = zonedDate.toOffsetDateTime();
-                this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.OffsetDateTime, offsetDateTime);
+                this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.OffsetDateTime, offsetDateTime);
             }
         }
     }
 
     @Override
     public void setTime(int parameterIndex, Time x) throws SQLException {
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.SqlTime, x);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.SqlTime, x);
     }
 
     @Override
     public void setTime(int parameterIndex, Time x, Calendar cal) throws SQLException {
         if (x == null) {
-            this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.SqlTime, null);
+            this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.SqlTime, null);
         } else {
             if (cal == null) {
-                this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.SqlTime, x);
+                this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.SqlTime, x);
             } else {
                 ZonedDateTime zonedTime = x.toInstant().atZone(cal.getTimeZone().toZoneId());
                 OffsetTime offsetTime = OffsetTime.of(zonedTime.toLocalTime(), zonedTime.getOffset());
-                this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.OffsetTime, offsetTime);
+                this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.OffsetTime, offsetTime);
             }
         }
     }
 
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.SqlTimestamp, x);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.SqlTimestamp, x);
     }
 
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) throws SQLException {
         if (x == null) {
-            this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.SqlTimestamp, null);
+            this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.SqlTimestamp, null);
         } else {
             if (cal == null) {
-                this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.SqlTimestamp, x);
+                this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.SqlTimestamp, x);
             } else {
                 ZonedDateTime zonedTime = x.toInstant().atZone(cal.getTimeZone().toZoneId());
                 OffsetDateTime offsetDateTime = zonedTime.toOffsetDateTime();
-                this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.OffsetDateTime, offsetDateTime);
+                this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.OffsetDateTime, offsetDateTime);
             }
         }
     }
@@ -398,16 +397,16 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
     @Override
     public void setObject(int parameterIndex, Object x) throws SQLException {
         if (x == null) {
-            this.setParameter(SqlMode.In, "arg" + parameterIndex, AdapterType.Unknown, null);
+            this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Unknown, null);
         } else {
             String typeName = this.jdbcConn.typeSupport().getTypeName(x.getClass());
-            this.setParameter(SqlMode.In, "arg" + parameterIndex, typeName, x);
+            this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, typeName, x);
         }
     }
 
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
-        this.setParameter(SqlMode.In, "arg" + parameterIndex, this.getTypeName(targetSqlType), x);
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, this.getTypeName(targetSqlType), x);
     }
 
     @Override
@@ -419,10 +418,10 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType) throws SQLException {
         if (targetSqlType != null) {
             if (StringUtils.isNotBlank(targetSqlType.getName())) {
-                this.setParameter(SqlMode.In, "arg" + parameterIndex, targetSqlType.getName(), x);
+                this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, targetSqlType.getName(), x);
             }
             if (targetSqlType.getVendorTypeNumber() != null) {
-                this.setParameter(SqlMode.In, "arg" + parameterIndex, this.getTypeName(targetSqlType.getVendorTypeNumber()), x);
+                this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, this.getTypeName(targetSqlType.getVendorTypeNumber()), x);
             }
         }
 

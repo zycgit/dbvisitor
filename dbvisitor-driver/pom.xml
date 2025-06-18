@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>net.hasor</groupId>
+        <artifactId>dbvisitor-parent</artifactId>
+        <version>6.0.5-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>dbvisitor-driver</artifactId>
+    <packaging>jar</packaging>
+
+    <!-- Project Info -->
+    <name>dbVisitor JDBC Drier Adapter</name>
+    <description>
+        JDBC Driver adapter module, which abstracts the details of implementing a JDBC driver.
+        It allows non-relational databases to be quickly integrated into JDBC services using a request/response model,
+        and simplifies database access operations by integrating with dbVisitor.
+    </description>
+
+    <developers>
+        <developer>
+            <name>赵永春(Mr.Zhao)</name>
+            <email>zyc@hasor.net</email>
+        </developer>
+    </developers>
+
+    <!-- 引用依赖 -->
+    <dependencies>
+        <dependency>
+            <groupId>net.hasor</groupId>
+            <artifactId>cobble-all</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

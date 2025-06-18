@@ -7,6 +7,12 @@
     <version>6.0.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <!-- Project Info -->
+    <name>dbVisitor POM</name>
+    <description>the DataBase visitor ORM Tools.</description>
+    <url>https://www.dbvisitor.net/</url>
+    <inceptionYear>2022</inceptionYear>
+
     <!-- 配置属性 -->
     <properties>
         <downloadSources>true</downloadSources>
@@ -15,12 +21,6 @@
         <!--<maven.test.skip>true</maven.test.skip>-->
         <!--<skipTests>true</skipTests>-->
     </properties>
-
-    <!-- Project Info -->
-    <name>dbVisitor POM</name>
-    <description>the DataBase visitor ORM Tools.</description>
-    <url>https://www.dbvisitor.net/</url>
-    <inceptionYear>2022</inceptionYear>
 
     <!-- 授权协议 -->
     <licenses>
@@ -32,9 +32,9 @@
 
     <!-- SCM -->
     <scm>
-        <connection>scm:git:git@git.oschina.net:zycgit/dbvisitor.git</connection>
-        <developerConnection>scm:git:git@git.oschina.net:zycgit/dbvisitor.git</developerConnection>
-        <url>git@git.oschina.net:zycgit/dbvisitor.git</url>
+        <connection>scm:git:git@gitee.com:zycgit/dbvisitor.git</connection>
+        <developerConnection>scm:git:git@gitee.com:zycgit/dbvisitor.git</developerConnection>
+        <url>https://www.dbvisitor.net/</url>
         <tag>v5.4.4</tag>
     </scm>
 
@@ -47,12 +47,16 @@
 
     <modules>
         <module>dbvisitor</module>
+        <module>dbvisitor-driver</module>
         <module>dbvisitor-dependencies</module>
         <module>dbvisitor-integration/dbvisitor-spring</module>
         <module>dbvisitor-integration/dbvisitor-spring-starter</module>
         <module>dbvisitor-integration/dbvisitor-hasor</module>
         <module>dbvisitor-integration/dbvisitor-guice</module>
         <module>dbvisitor-integration/dbvisitor-solon-plugin</module>
+        <module>dbvisitor-adapter/adapter-mongodb</module>
+        <module>dbvisitor-adapter/adapter-elasticsearch6</module>
+        <module>dbvisitor-adapter/adapter-elasticsearch7</module>
     </modules>
 
     <dependencyManagement>
@@ -60,11 +64,16 @@
             <dependency>
                 <groupId>net.hasor</groupId>
                 <artifactId>cobble-all</artifactId>
-                <version>4.7.0</version>
+                <version>4.7.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>net.hasor</groupId>
                 <artifactId>dbvisitor</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.hasor</groupId>
+                <artifactId>dbvisitor-driver</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -225,7 +234,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
-                        <version>2.5.3</version>
+                        <version>3.0.1</version>
                         <configuration>
                             <autoVersionSubmodules>true</autoVersionSubmodules>
                             <useReleaseProfile>false</useReleaseProfile>
@@ -247,7 +256,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>3.1.2</version>
+                        <version>3.2.5</version>
                         <configuration>
                             <testFailureIgnore>true</testFailureIgnore>
                         </configuration>
@@ -266,7 +275,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>3.1.2</version>
+                        <version>3.2.5</version>
                         <configuration>
                             <testFailureIgnore>true</testFailureIgnore>
                             <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED</argLine>
