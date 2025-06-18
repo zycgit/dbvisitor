@@ -11,16 +11,21 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.*;
 import java.sql.Date;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 class JdbcResultSet implements ResultSet, Closeable {
-    private final AdapterCursor        cursor;
-    private final JdbcStatement        statement;
-    private       boolean              closed      = false;
-    private       boolean              wasNull     = false;
-    private       boolean              wasLast     = false;
-    private       int                  rowNumber;
-    private final Map<String, Integer> nameToIndex = new LinkedHashMap<>();
+    private final AdapterCursor            cursor;
+    private final JdbcStatement            statement;
+    private       boolean                  closed        = false;
+    private       boolean                  wasNull       = false;
+    private       boolean                  wasLast       = false;
+    private       int                      rowNumber;
+    private final Map<String, Integer>     nameToIndex   = new LinkedHashMap<>();
+    private final Map<String, String>      nameToType    = new LinkedHashMap<>();
+    private final Map<String, TypeConvert> nameToConvert = new LinkedHashMap<>();
 
     JdbcResultSet(JdbcStatement statement, AdapterCursor cursor) {
         this.statement = statement;
@@ -28,6 +33,7 @@ class JdbcResultSet implements ResultSet, Closeable {
         List<JdbcColumn> columns = cursor.columns();
         for (int i = 0; i < columns.size(); i++) {
             this.nameToIndex.put(columns.get(i).name, i + 1);
+            this.nameToType.put(columns.get(i).name, columns.get(i).type);
         }
     }
 
@@ -50,6 +56,36 @@ class JdbcResultSet implements ResultSet, Closeable {
         }
         this.wasNull = (object == null);
         return object;
+    }
+
+    private <T> T convertTo(String columnLabel, Object value, Class<?> toType) {
+        if (value == null) {
+            return null;
+        }
+
+        TypeConvert convert = this.nameToConvert.computeIfAbsent(columnLabel, c -> {
+            String typeName = this.nameToType.getOrDefault(c, AdapterType.Unknown);
+            TypeSupport typeSupport = this.statement.jdbcConn.typeSupport();
+            return typeSupport.findConvert(typeName, toType);
+        });
+        if (convert != null) {
+            return (T) convert.convert(toType, value);
+        } else {
+            throw new ClassCastException("the type " + value.getClass().getName() + " cannot be as " + toType.getName());
+        }
+    }
+
+    private Object convertTimeZone(Object value, Calendar cal) {
+        if (cal != null) {
+            if (value instanceof OffsetTime) {
+                ZoneOffset zoneOffset = ZoneOffset.of(cal.getTimeZone().getID());
+                value = ((OffsetTime) value).withOffsetSameInstant(zoneOffset);
+            } else if (value instanceof OffsetDateTime) {
+                ZoneOffset zoneOffset = ZoneOffset.of(cal.getTimeZone().getID());
+                value = ((OffsetDateTime) value).withOffsetSameInstant(zoneOffset);
+            }
+        }
+        return value;
     }
 
     @Override
@@ -344,8 +380,12 @@ class JdbcResultSet implements ResultSet, Closeable {
     @Override
     public Date getDate(String columnLabel, Calendar cal) throws SQLException {
         this.checkOpen();
-        TypeSupport typeSupport = this.statement.jdbcConn.typeSupport();
-        return typeSupport.convertToData(this.columnValue(columnLabel), cal);
+        Object value = this.columnValue(columnLabel);
+        if (value == null) {
+            return null;
+        } else {
+            return this.convertTo(columnLabel, this.convertTimeZone(value, cal), Date.class);
+        }
     }
 
     @Override
@@ -366,8 +406,12 @@ class JdbcResultSet implements ResultSet, Closeable {
     @Override
     public Time getTime(String columnLabel, Calendar cal) throws SQLException {
         this.checkOpen();
-        TypeSupport typeSupport = this.statement.jdbcConn.typeSupport();
-        return typeSupport.convertToTime(this.columnValue(columnLabel), cal);
+        Object value = this.columnValue(columnLabel);
+        if (value == null) {
+            return null;
+        } else {
+            return this.convertTo(columnLabel, this.convertTimeZone(value, cal), Time.class);
+        }
     }
 
     @Override
@@ -388,8 +432,12 @@ class JdbcResultSet implements ResultSet, Closeable {
     @Override
     public Timestamp getTimestamp(String columnLabel, Calendar cal) throws SQLException {
         this.checkOpen();
-        TypeSupport typeSupport = this.statement.jdbcConn.typeSupport();
-        return typeSupport.convertToTimestamp(this.columnValue(columnLabel), cal);
+        Object value = this.columnValue(columnLabel);
+        if (value == null) {
+            return null;
+        } else {
+            return this.convertTo(columnLabel, this.convertTimeZone(value, cal), Timestamp.class);
+        }
     }
 
     @Override
@@ -544,8 +592,8 @@ class JdbcResultSet implements ResultSet, Closeable {
     @Override
     public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
         this.checkOpen();
-        TypeSupport typeSupport = this.statement.jdbcConn.typeSupport();
-        return typeSupport.convertToType(this.columnValue(columnLabel), type);
+        Object value = this.columnValue(columnLabel);
+        return this.convertTo(columnLabel, value, Objects.requireNonNull(type, "the to type is null."));
     }
 
     @Override
@@ -556,8 +604,13 @@ class JdbcResultSet implements ResultSet, Closeable {
     @Override
     public Object getObject(String columnLabel, Map<String, Class<?>> map) throws SQLException {
         this.checkOpen();
-        TypeSupport typeSupport = this.statement.jdbcConn.typeSupport();
-        return typeSupport.convertToType(this.columnValue(columnLabel), map);
+        Object value = this.columnValue(columnLabel);
+        if (value == null) {
+            return null;
+        }
+        // 该方法是为了数据库自定义类型而设计，基本上涉及 SQL STRUCT、REF 或 ARRAY 类型。目前属于不支持的状态。
+        // map 参数中是用来表示数据库自定义类型字段的 java 映射类型。
+        throw new SQLFeatureNotSupportedException("not support getObject(String,Map)");
     }
 
     @Override

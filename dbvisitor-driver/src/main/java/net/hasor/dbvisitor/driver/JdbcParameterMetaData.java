@@ -1,7 +1,5 @@
 package net.hasor.dbvisitor.driver;
 
-import net.hasor.dbvisitor.dynamic.SqlMode;
-
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -49,7 +47,7 @@ class JdbcParameterMetaData implements ParameterMetaData {
 
     @Override
     public int getParameterMode(int param) throws SQLException {
-        SqlMode mode = this.checkAndGet("arg" + param).getMode();
+        JdbcArgMode mode = this.checkAndGet("arg" + param).getMode();
         switch (mode) {
             case In:
                 return parameterModeIn;

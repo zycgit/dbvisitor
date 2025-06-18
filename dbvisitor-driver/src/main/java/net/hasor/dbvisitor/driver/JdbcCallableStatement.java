@@ -2,7 +2,6 @@ package net.hasor.dbvisitor.driver;
 
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
-import net.hasor.dbvisitor.dynamic.SqlMode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -44,7 +43,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public void registerOutParameter(String parameterName, SQLType sqlType, String typeName) throws SQLException {
         if (StringUtils.isNotBlank(typeName)) {
-            this.setParameter(SqlMode.Out, parameterName, typeName, null);
+            this.setParameter(JdbcArgMode.Out, parameterName, typeName, null);
         } else {
             this.registerOutParameter(parameterName, sqlType);
         }
@@ -59,10 +58,10 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     public void registerOutParameter(String parameterName, SQLType sqlType) throws SQLException {
         if (sqlType != null) {
             if (StringUtils.isNotBlank(sqlType.getName())) {
-                this.setParameter(SqlMode.Out, parameterName, sqlType.getName(), null);
+                this.setParameter(JdbcArgMode.Out, parameterName, sqlType.getName(), null);
             }
             if (sqlType.getVendorTypeNumber() != null) {
-                this.setParameter(SqlMode.Out, parameterName, this.getTypeName(sqlType.getVendorTypeNumber()), null);
+                this.setParameter(JdbcArgMode.Out, parameterName, this.getTypeName(sqlType.getVendorTypeNumber()), null);
             }
         }
 
@@ -71,20 +70,20 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
 
     @Override
     public void registerOutParameter(String parameterName, int sqlType) throws SQLException {
-        this.setParameter(SqlMode.Out, parameterName, this.getTypeName(sqlType), null);
+        this.setParameter(JdbcArgMode.Out, parameterName, this.getTypeName(sqlType), null);
     }
 
     @Override
     public void registerOutParameter(String parameterName, int sqlType, int scale) throws SQLException {
-        this.setParameter(SqlMode.Out, parameterName, this.getTypeName(sqlType), null);
+        this.setParameter(JdbcArgMode.Out, parameterName, this.getTypeName(sqlType), null);
     }
 
     @Override
     public void registerOutParameter(String parameterName, int sqlType, String typeName) throws SQLException {
         if (StringUtils.isNotBlank(typeName)) {
-            this.setParameter(SqlMode.Out, parameterName, typeName, null);
+            this.setParameter(JdbcArgMode.Out, parameterName, typeName, null);
         } else {
-            this.setParameter(SqlMode.Out, parameterName, this.getTypeName(sqlType), null);
+            this.setParameter(JdbcArgMode.Out, parameterName, this.getTypeName(sqlType), null);
         }
     }
 
@@ -105,12 +104,12 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
 
     @Override
     public void registerOutParameter(int parameterIndex, int sqlType) throws SQLException {
-        this.setParameter(SqlMode.Out, "arg" + parameterIndex, this.getTypeName(sqlType), null);
+        this.setParameter(JdbcArgMode.Out, "arg" + parameterIndex, this.getTypeName(sqlType), null);
     }
 
     @Override
     public void registerOutParameter(int parameterIndex, int sqlType, int scale) throws SQLException {
-        this.setParameter(SqlMode.Out, "arg" + parameterIndex, this.getTypeName(sqlType), null);
+        this.setParameter(JdbcArgMode.Out, "arg" + parameterIndex, this.getTypeName(sqlType), null);
     }
 
     @Override
@@ -496,72 +495,72 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
 
     @Override
     public void setNull(String parameterName, int sqlType) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, this.getTypeName(sqlType), null);
+        this.setParameter(JdbcArgMode.In, parameterName, this.getTypeName(sqlType), null);
     }
 
     @Override
     public void setNull(String parameterName, int sqlType, String typeName) throws SQLException {
         if (StringUtils.isNotBlank(typeName)) {
-            this.setParameter(SqlMode.In, parameterName, typeName, null);
+            this.setParameter(JdbcArgMode.In, parameterName, typeName, null);
         } else {
-            this.setParameter(SqlMode.In, parameterName, this.getTypeName(sqlType), null);
+            this.setParameter(JdbcArgMode.In, parameterName, this.getTypeName(sqlType), null);
         }
     }
 
     @Override
     public void setBoolean(String parameterName, boolean x) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, AdapterType.Boolean, x);
+        this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Boolean, x);
     }
 
     @Override
     public void setByte(String parameterName, byte x) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, AdapterType.Byte, x);
+        this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Byte, x);
     }
 
     @Override
     public void setShort(String parameterName, short x) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, AdapterType.Short, x);
+        this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Short, x);
     }
 
     @Override
     public void setInt(String parameterName, int x) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, AdapterType.Int, x);
+        this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Int, x);
     }
 
     @Override
     public void setLong(String parameterName, long x) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, AdapterType.Long, x);
+        this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Long, x);
     }
 
     @Override
     public void setFloat(String parameterName, float x) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, AdapterType.Float, x);
+        this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Float, x);
     }
 
     @Override
     public void setDouble(String parameterName, double x) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, AdapterType.Double, x);
+        this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Double, x);
     }
 
     @Override
     public void setBigDecimal(String parameterName, BigDecimal x) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, AdapterType.BigDecimal, x);
+        this.setParameter(JdbcArgMode.In, parameterName, AdapterType.BigDecimal, x);
     }
 
     @Override
     public void setURL(String parameterName, URL val) throws SQLException {
         String value = val == null ? null : val.toString();
-        this.setParameter(SqlMode.In, parameterName, AdapterType.String, value);
+        this.setParameter(JdbcArgMode.In, parameterName, AdapterType.String, value);
     }
 
     @Override
     public void setString(String parameterName, String value) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, AdapterType.String, value);
+        this.setParameter(JdbcArgMode.In, parameterName, AdapterType.String, value);
     }
 
     @Override
     public void setNString(String parameterName, String value) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, AdapterType.String, value);
+        this.setParameter(JdbcArgMode.In, parameterName, AdapterType.String, value);
     }
 
     @Override
@@ -569,7 +568,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
         this.checkOpen();
         try {
             String value = reader == null ? null : IOUtils.readToString(reader);
-            this.setParameter(SqlMode.In, parameterName, AdapterType.String, value);
+            this.setParameter(JdbcArgMode.In, parameterName, AdapterType.String, value);
         } catch (IOException e) {
             throw new SQLException(e);
         }
@@ -580,7 +579,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
         this.checkOpen();
         try {
             String value = reader == null ? null : IOUtils.readToString(reader, length);
-            this.setParameter(SqlMode.In, parameterName, AdapterType.String, value);
+            this.setParameter(JdbcArgMode.In, parameterName, AdapterType.String, value);
         } catch (IOException e) {
             throw new SQLException(e);
         }
@@ -633,19 +632,19 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
 
     @Override
     public void setBytes(String parameterName, byte[] x) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, AdapterType.Bytes, x);
+        this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Bytes, x);
     }
 
     @Override
     public void setBinaryStream(String parameterName, InputStream x) throws SQLException {
         if (x == null) {
-            this.setParameter(SqlMode.In, parameterName, AdapterType.Bytes, null);
+            this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Bytes, null);
         } else {
             this.checkOpen();
             try {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 IOUtils.copyLarge(x, out);
-                this.setParameter(SqlMode.In, parameterName, AdapterType.Bytes, out.toByteArray());
+                this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Bytes, out.toByteArray());
             } catch (IOException e) {
                 throw new SQLException(e);
             }
@@ -660,13 +659,13 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public void setBinaryStream(String parameterName, InputStream x, long length) throws SQLException {
         if (x == null) {
-            this.setParameter(SqlMode.In, parameterName, AdapterType.Bytes, null);
+            this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Bytes, null);
         } else {
             this.checkOpen();
             try {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 IOUtils.copyLarge(x, out, 0, length);
-                this.setParameter(SqlMode.In, parameterName, AdapterType.Bytes, out.toByteArray());
+                this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Bytes, out.toByteArray());
             } catch (IOException e) {
                 throw new SQLException(e);
             }
@@ -705,60 +704,60 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
 
     @Override
     public void setDate(String parameterName, Date x) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, AdapterType.SqlDate, x);
+        this.setParameter(JdbcArgMode.In, parameterName, AdapterType.SqlDate, x);
     }
 
     @Override
     public void setDate(String parameterName, Date x, Calendar cal) throws SQLException {
         if (x == null) {
-            this.setParameter(SqlMode.In, parameterName, AdapterType.SqlDate, null);
+            this.setParameter(JdbcArgMode.In, parameterName, AdapterType.SqlDate, null);
         } else {
             if (cal == null) {
-                this.setParameter(SqlMode.In, parameterName, AdapterType.SqlDate, x);
+                this.setParameter(JdbcArgMode.In, parameterName, AdapterType.SqlDate, x);
             } else {
                 ZonedDateTime zonedDate = x.toLocalDate().atStartOfDay(cal.getTimeZone().toZoneId());
                 OffsetDateTime offsetDateTime = zonedDate.toOffsetDateTime();
-                this.setParameter(SqlMode.In, parameterName, AdapterType.OffsetDateTime, offsetDateTime);
+                this.setParameter(JdbcArgMode.In, parameterName, AdapterType.OffsetDateTime, offsetDateTime);
             }
         }
     }
 
     @Override
     public void setTime(String parameterName, Time x) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, AdapterType.SqlTime, x);
+        this.setParameter(JdbcArgMode.In, parameterName, AdapterType.SqlTime, x);
     }
 
     @Override
     public void setTime(String parameterName, Time x, Calendar cal) throws SQLException {
         if (x == null) {
-            this.setParameter(SqlMode.In, parameterName, AdapterType.SqlTime, null);
+            this.setParameter(JdbcArgMode.In, parameterName, AdapterType.SqlTime, null);
         } else {
             if (cal == null) {
-                this.setParameter(SqlMode.In, parameterName, AdapterType.SqlTime, x);
+                this.setParameter(JdbcArgMode.In, parameterName, AdapterType.SqlTime, x);
             } else {
                 ZonedDateTime zonedTime = x.toInstant().atZone(cal.getTimeZone().toZoneId());
                 OffsetTime offsetTime = OffsetTime.of(zonedTime.toLocalTime(), zonedTime.getOffset());
-                this.setParameter(SqlMode.In, parameterName, AdapterType.OffsetTime, offsetTime);
+                this.setParameter(JdbcArgMode.In, parameterName, AdapterType.OffsetTime, offsetTime);
             }
         }
     }
 
     @Override
     public void setTimestamp(String parameterName, Timestamp x) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, AdapterType.SqlTimestamp, x);
+        this.setParameter(JdbcArgMode.In, parameterName, AdapterType.SqlTimestamp, x);
     }
 
     @Override
     public void setTimestamp(String parameterName, Timestamp x, Calendar cal) throws SQLException {
         if (x == null) {
-            this.setParameter(SqlMode.In, parameterName, AdapterType.SqlTimestamp, null);
+            this.setParameter(JdbcArgMode.In, parameterName, AdapterType.SqlTimestamp, null);
         } else {
             if (cal == null) {
-                this.setParameter(SqlMode.In, parameterName, AdapterType.SqlTimestamp, x);
+                this.setParameter(JdbcArgMode.In, parameterName, AdapterType.SqlTimestamp, x);
             } else {
                 ZonedDateTime zonedTime = x.toInstant().atZone(cal.getTimeZone().toZoneId());
                 OffsetDateTime offsetDateTime = zonedTime.toOffsetDateTime();
-                this.setParameter(SqlMode.In, parameterName, AdapterType.OffsetDateTime, offsetDateTime);
+                this.setParameter(JdbcArgMode.In, parameterName, AdapterType.OffsetDateTime, offsetDateTime);
             }
         }
     }
@@ -778,31 +777,31 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public void setObject(String parameterName, Object x) throws SQLException {
         if (x == null) {
-            this.setParameter(SqlMode.In, parameterName, AdapterType.Unknown, null);
+            this.setParameter(JdbcArgMode.In, parameterName, AdapterType.Unknown, null);
         } else {
             String typeName = this.jdbcConn.typeSupport().getTypeName(x.getClass());
-            this.setParameter(SqlMode.In, parameterName, typeName, x);
+            this.setParameter(JdbcArgMode.In, parameterName, typeName, x);
         }
     }
 
     @Override
     public void setObject(String parameterName, Object x, int targetSqlType) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, this.getTypeName(targetSqlType), x);
+        this.setParameter(JdbcArgMode.In, parameterName, this.getTypeName(targetSqlType), x);
     }
 
     @Override
     public void setObject(String parameterName, Object x, int targetSqlType, int scale) throws SQLException {
-        this.setParameter(SqlMode.In, parameterName, this.getTypeName(targetSqlType), x);
+        this.setParameter(JdbcArgMode.In, parameterName, this.getTypeName(targetSqlType), x);
     }
 
     @Override
     public void setObject(String parameterName, Object x, SQLType targetSqlType) throws SQLException {
         if (targetSqlType != null) {
             if (StringUtils.isNotBlank(targetSqlType.getName())) {
-                this.setParameter(SqlMode.In, parameterName, targetSqlType.getName(), x);
+                this.setParameter(JdbcArgMode.In, parameterName, targetSqlType.getName(), x);
             }
             if (targetSqlType.getVendorTypeNumber() != null) {
-                this.setParameter(SqlMode.In, parameterName, this.getTypeName(targetSqlType.getVendorTypeNumber()), x);
+                this.setParameter(JdbcArgMode.In, parameterName, this.getTypeName(targetSqlType.getVendorTypeNumber()), x);
             }
         }
 

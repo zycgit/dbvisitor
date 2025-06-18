@@ -2,7 +2,6 @@ package net.hasor.dbvisitor.driver;
 
 import net.hasor.dbvisitor.driver.lob.JdbcBob;
 import net.hasor.dbvisitor.driver.lob.JdbcCob;
-import net.hasor.dbvisitor.driver.types.BasicTypeSupport;
 
 import java.io.Closeable;
 import java.sql.*;
@@ -17,15 +16,15 @@ class JdbcConnection implements Connection, Closeable {
     private final TypeSupport        typeSupport;
     private final TransactionSupport txSupport;
 
-    JdbcConnection(String jdbcUrl, Properties properties) throws SQLException {
+    JdbcConnection(String jdbcUrl, Properties properties, ClassLoader cl) throws SQLException {
         Objects.requireNonNull(properties, "parameter properties is null.");
         String adapter = properties.getProperty(JdbcDriver.P_ADAPTER_NAME);
 
-        AdapterFactory factory = AdapterManager.lookup(adapter);
+        AdapterFactory factory = AdapterManager.lookup(adapter, cl);
         TypeSupport ts = factory.getTypeSupport();
 
         this.connection = factory.createConnection(jdbcUrl, properties);
-        this.typeSupport = ts == null ? BasicTypeSupport.DEFAULT : ts;
+        this.typeSupport = ts == null ? AdapterTypeSupport.DEFAULT : ts;
         this.txSupport = this.connection instanceof TransactionSupport ? (TransactionSupport) this.connection : null;
     }
 
