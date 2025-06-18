@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.time;
-import static java.time.temporal.ChronoField.DAY_OF_MONTH;
-import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
@@ -26,6 +24,7 @@ import java.sql.SQLException;
 import java.time.MonthDay;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 
 /**
  * 使用 {@link MonthDay} 类型读写 jdbc string 数据。数据格式为：MM-dd，例如: "01-03"、"12-03"
@@ -34,9 +33,9 @@ import java.time.format.DateTimeFormatterBuilder;
  */
 public class StringAsMonthDayTypeHandler extends AbstractTypeHandler<MonthDay> {
     private static final DateTimeFormatter PARSER = new DateTimeFormatterBuilder()//
-            .appendValue(MONTH_OF_YEAR, 2)  //
+            .appendValue(ChronoField.MONTH_OF_YEAR, 2)  //
             .appendLiteral('-')                   //
-            .appendValue(DAY_OF_MONTH, 2)   //
+            .appendValue(ChronoField.DAY_OF_MONTH, 2)   //
             .toFormatter();
 
     @Override
