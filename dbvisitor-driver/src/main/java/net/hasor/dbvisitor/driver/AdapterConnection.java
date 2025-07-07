@@ -117,10 +117,6 @@ public abstract class AdapterConnection implements Closeable {
         }
     }
 
-    public <T> T unwrapType(Class<T> iface, Object target) throws SQLException {
-        return null;
-    }
-
     //
 
     public void startTimer(String traceId, int timeoutMs, TimerTask timerTask) {
@@ -145,9 +141,9 @@ public abstract class AdapterConnection implements Closeable {
 
     public abstract AdapterRequest newRequest(String sql);
 
-    public abstract void doRequest(AdapterRequest request, AdapterDataContainer receive);
+    public abstract void doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException;
 
-    public abstract void cancelQuery(String traceId);
+    public abstract void cancelQuery(AdapterRequest request);
 
     @Override
     public abstract void close();

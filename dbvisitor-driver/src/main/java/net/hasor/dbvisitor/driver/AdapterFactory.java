@@ -8,7 +8,7 @@ public interface AdapterFactory {
 
     String[] getPropertyNames();
 
-    TypeSupport getTypeSupport();
+    TypeSupport createTypeSupport(Properties properties);
 
     AdapterConnection createConnection(String jdbcUrl, Properties properties) throws SQLException;
 }

@@ -1188,7 +1188,7 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
     private ResultSet emptySet(Object... cols) throws SQLException {
         this.jdbcConnection.checkOpen();
         JdbcStatement s = new JdbcStatement(this.jdbcConnection);
-        return new JdbcResultSet(s, new AdapterMemoryCursor(columnInfo(cols), null, s.dataContainer));
+        return new JdbcResultSet(s, new AdapterMemoryCursor(columnInfo(cols), null));
     }
 
     private static List<JdbcColumn> columnInfo(Object... cols) {

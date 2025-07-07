@@ -6,15 +6,13 @@ import java.util.Collections;
 import java.util.List;
 
 class AdapterMemoryCursor implements AdapterCursor {
-    private       AdapterDataContainer container;
-    private final List<JdbcColumn>     columns;
-    private final Object[][]           data;
-    private       int                  row = -1;
+    private List<JdbcColumn> columns;
+    private Object[][]       data;
+    private int              row = -1;
 
-    AdapterMemoryCursor(List<JdbcColumn> info, Object[][] data, AdapterDataContainer container) {
+    AdapterMemoryCursor(List<JdbcColumn> info, Object[][] data) {
         this.columns = info;
         this.data = data;
-        this.container = container;
     }
 
     @Override
@@ -24,6 +22,10 @@ class AdapterMemoryCursor implements AdapterCursor {
 
     @Override
     public boolean next() {
+        if (this.data == null) {
+            return false;
+        }
+
         if (!ArrayUtils.isEmpty(this.data) && this.row < this.data.length - 1) {
             this.row++;
             return true;
@@ -33,20 +35,26 @@ class AdapterMemoryCursor implements AdapterCursor {
 
     @Override
     public Object column(int column) {
+        if (this.data == null) {
+            return null;
+        }
+
         return this.data[this.row][column];
     }
 
     @Override
     public int batchSize() {
+        if (this.data == null) {
+            return 0;
+        }
+
         return ArrayUtils.isEmpty(this.data) ? 0 : this.data.length;
     }
 
     @Override
     public void close() {
-        if (this.container != null) {
-            this.container.resultSetWasClosed(this);
-        }
-        this.container = null;
+        this.data = null;
+        this.columns = Collections.emptyList();
     }
 
     @Override

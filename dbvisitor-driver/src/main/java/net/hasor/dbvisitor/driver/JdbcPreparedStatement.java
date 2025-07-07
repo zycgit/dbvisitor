@@ -33,8 +33,8 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
     }
 
     @Override
-    protected void beforeReceive(AdapterRequest request) {
-        super.beforeReceive(request);
+    protected void beforeExecute(AdapterRequest request, AdapterDataContainer container) {
+        super.beforeExecute(request, container);
         this.parametersKeep.clear();
         this.parametersKeep.putAll(this.parameters);
         this.parameters.clear();
@@ -478,12 +478,13 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
         this.checkResultSet();
-        if (this.dataContainer.isEmpty()) {
+        if (this.container.emptyResult()) {
             throw new SQLException("no search any results found.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
         }
 
-        if (this.dataContainer.isResultSet()) {
-            return new JdbcResultSetMetaData(this, this.dataContainer.peekResult().columns());
+        AdapterResponse result = this.container.firstResult();
+        if (result.isResult()) {
+            return new JdbcResultSetMetaData(this, result.getColumnList());
         } else {
             throw new SQLException("No results were returned by the query.", JdbcErrorCode.SQL_STATE_QUERY_IS_UPDATE_COUNT);
         }

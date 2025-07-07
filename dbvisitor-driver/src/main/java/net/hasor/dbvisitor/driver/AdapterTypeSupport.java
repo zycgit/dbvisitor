@@ -15,9 +15,9 @@ import java.time.chrono.JapaneseDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 
 public class AdapterTypeSupport implements TypeSupport {
-    public static final  TypeSupport DEFAULT          = new AdapterTypeSupport();
     private static final Tuple       defaultTypeTuple = Tuple.of(Types.OTHER, Object.class);
     private static final TypeConvert defaultConverter = ConverterUtils::convert;
 
@@ -27,16 +27,16 @@ public class AdapterTypeSupport implements TypeSupport {
     private final Map<String, Tuple>                    typeMap             = new HashMap<>();
     private final Map<String, Map<String, TypeConvert>> typeConvertMap      = new HashMap<>();
 
-    public AdapterTypeSupport() {
-        this.initNumberTypeMapping();
-        this.initClassTypeMapping();
-        this.initTypeAlias();
-        this.initTypeMappingTo();
-        this.initTypeConvert();
+    public AdapterTypeSupport(Properties properties) {
+        this.initNumberTypeMapping(properties);
+        this.initClassTypeMapping(properties);
+        this.initTypeAlias(properties);
+        this.initTypeMappingTo(properties);
+        this.initTypeConvert(properties);
     }
 
     // from jdbcType to NameType.
-    protected void initNumberTypeMapping() {
+    protected void initNumberTypeMapping(Properties properties) {
         this.addNumberMapping(Types.BIT, AdapterType.Bit);
         this.addNumberMapping(Types.BOOLEAN, AdapterType.Boolean);
         this.addNumberMapping(Types.TINYINT, AdapterType.Byte);
@@ -73,7 +73,7 @@ public class AdapterTypeSupport implements TypeSupport {
     }
 
     // from classType to NameType.
-    protected void initClassTypeMapping() {
+    protected void initClassTypeMapping(Properties properties) {
         this.addClassMapping(Boolean.class, AdapterType.Boolean);
         this.addClassMapping(boolean.class, AdapterType.Boolean);
         this.addClassMapping(Byte.class, AdapterType.Byte);
@@ -121,7 +121,7 @@ public class AdapterTypeSupport implements TypeSupport {
     }
 
     // from NameType to jdbcType and classType.
-    protected void initTypeMappingTo() {
+    protected void initTypeMappingTo(Properties properties) {
         this.addTypeMappingTo(AdapterType.Unknown, Types.OTHER, Object.class);
         this.addTypeMappingTo(AdapterType.Null, Types.NULL, Void.class);
         this.addTypeMappingTo(AdapterType.Bit, Types.BIT, String.class);
@@ -144,7 +144,7 @@ public class AdapterTypeSupport implements TypeSupport {
     }
 
     // value convert to classType.
-    protected void initTypeConvert() {
+    protected void initTypeConvert(Properties properties) {
         // default
         this.addConvert(AdapterType.Unknown, (t, v) -> v);
         this.addConvert(AdapterType.Null, (t, v) -> null);
@@ -214,7 +214,7 @@ public class AdapterTypeSupport implements TypeSupport {
     }
 
     // value convert to classType.
-    protected void initTypeAlias() {
+    protected void initTypeAlias(Properties properties) {
         this.addAlias("Integer", AdapterType.Int);
 
         for (Field f : AdapterType.class.getFields()) {

@@ -21,10 +21,10 @@ class JdbcConnection implements Connection, Closeable {
         String adapter = properties.getProperty(JdbcDriver.P_ADAPTER_NAME);
 
         AdapterFactory factory = AdapterManager.lookup(adapter, cl);
-        TypeSupport ts = factory.getTypeSupport();
+        TypeSupport ts = factory.createTypeSupport(properties);
 
         this.connection = factory.createConnection(jdbcUrl, properties);
-        this.typeSupport = ts == null ? AdapterTypeSupport.DEFAULT : ts;
+        this.typeSupport = ts == null ? new AdapterTypeSupport(properties) : ts;
         this.txSupport = this.connection instanceof TransactionSupport ? (TransactionSupport) this.connection : null;
     }
 

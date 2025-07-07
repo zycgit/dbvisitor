@@ -31,11 +31,11 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     }
 
     @Override
-    protected void onAnyReceive(AdapterRequest request) {
-        super.onAnyReceive(request);
-        AdapterCursor outParameters = this.dataContainer.getOutParameters();
+    protected void afterExecute(AdapterRequest request, AdapterDataContainer container) {
+        super.afterExecute(request, container);
+        AdapterCursor outParameters = container.getOutParameters();
         if (outParameters == null) {
-            outParameters = new AdapterMemoryCursor(Collections.emptyList(), EMPTY, this.dataContainer);
+            outParameters = new AdapterMemoryCursor(Collections.emptyList(), EMPTY);
         }
         this.lastResultOut = new JdbcResultSet(this, outParameters);
     }

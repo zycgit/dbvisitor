@@ -6,11 +6,12 @@ import net.hasor.cobble.logging.LoggerFactory;
 import java.io.Closeable;
 import java.sql.*;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 class JdbcStatement implements Statement, Closeable {
     private static final Logger               logger = LoggerFactory.getLogger(JdbcStatement.class);
     protected final      JdbcConnection       jdbcConn;
-    protected final      AdapterDataContainer dataContainer;
+    protected final      AdapterDataContainer container;
 
     /** Maximum number of rows to return, 0 = unlimited. */
     protected long    maxRows           = 0;
@@ -23,7 +24,7 @@ class JdbcStatement implements Statement, Closeable {
 
     JdbcStatement(JdbcConnection jdbcConn) {
         this.jdbcConn = Objects.requireNonNull(jdbcConn, "jdbcConn is null.");
-        this.dataContainer = new AdapterDataContainer();
+        this.container = new AdapterDataContainer();
     }
 
     @Override
@@ -336,7 +337,7 @@ class JdbcStatement implements Statement, Closeable {
     public synchronized boolean execute(String sql) throws SQLException {
         this.checkOpen();
 
-        switch (this.dataContainer.getState()) {
+        switch (this.container.getState()) {
             case Ready:
             case Finish:
                 break;
@@ -345,40 +346,33 @@ class JdbcStatement implements Statement, Closeable {
         }
 
         try {
-            final AdapterRequest request = this.jdbcConn.adapterConnection().newRequest(sql);
-            this.dataContainer.prepareReceive(request); // PENDING
+            AdapterRequest req = this.jdbcConn.adapterConnection().newRequest(sql);
+            this.configRequest(req);
+
+            // request and receive
+            this.container.prepareReceive(req); // status set to PENDING
 
             // timeout
             if (this.timeoutSec > 0) {
-                this.jdbcConn.adapterConnection().startTimer(request.getTraceId(), this.timeoutSec * 1000, timeout -> {
-                    if (this.dataContainer.getState() == AdapterReceiveState.Pending) {
+                this.jdbcConn.adapterConnection().startTimer(req.getTraceId(), this.timeoutSec * 1000, timeout -> {
+                    if (this.container.getState() == AdapterReceiveState.Pending) {
                         try {
-                            this.jdbcConn.adapterConnection().cancelQuery(request.getTraceId());
+                            this.jdbcConn.adapterConnection().cancelQuery(req);
                         } catch (Exception e) {
                             logger.error(e.getMessage(), e);
                         } finally {
-                            this.dataContainer.failed(new SQLTimeoutException("query timeout.", JdbcErrorCode.SQL_STATE_QUERY_TIMEOUT));
+                            this.container.responseFailed(req, new SQLTimeoutException("query timeout.", JdbcErrorCode.SQL_STATE_QUERY_TIMEOUT));
                         }
                     }
                 });
             }
 
-            // request and receive
-            this.configRequest(request);
-            this.beforeExecute(request);
-            this.jdbcConn.adapterConnection().doRequest(request, this.dataContainer);
+            this.beforeExecute(req, this.container);
+            this.jdbcConn.adapterConnection().doRequest(req, this.container);
+            this.container.waitFor(this.timeoutSec, TimeUnit.SECONDS);
+            this.afterExecute(req, this.container);
 
-            // wait receive.
-            this.beforeReceive(request);
-            this.dataContainer.waitAnyReceive();
-            this.onAnyReceive(request);
-
-            // result
-            if (this.dataContainer.isError()) {
-                throw new SQLException(this.dataContainer.getErrorMessage(), this.dataContainer.getErrorCode());
-            } else {
-                return this.dataContainer.isResult();
-            }
+            return this.container.firstResult().isResult();
         } finally {
             if (this.closeOnCompletion) {
                 this.close();
@@ -389,17 +383,14 @@ class JdbcStatement implements Statement, Closeable {
     protected void configRequest(AdapterRequest request) {
         request.setMaxRows(this.maxRows);
         request.setFetchSize(this.fetchSize);
+        request.setTimeoutSec(this.timeoutSec);
     }
 
-    protected void beforeExecute(AdapterRequest request) {
-
-    }
-
-    protected void beforeReceive(AdapterRequest request) {
+    protected void beforeExecute(AdapterRequest request, AdapterDataContainer container) {
 
     }
 
-    protected void onAnyReceive(AdapterRequest request) {
+    protected void afterExecute(AdapterRequest request, AdapterDataContainer container) {
 
     }
 
@@ -407,48 +398,47 @@ class JdbcStatement implements Statement, Closeable {
     public synchronized void cancel() throws SQLException {
         this.checkOpen();
 
-        switch (this.dataContainer.getState()) {
-            case Ready:
-            case Finish:
-                throw new SQLException("no pending queries found.", JdbcErrorCode.SQL_STATE_QUERY_IS_FINISH);
-            default:
-                break;
+        if (this.container.getState() != AdapterReceiveState.Pending) {
+            throw new SQLException("no pending queries found.", JdbcErrorCode.SQL_STATE_QUERY_IS_FINISH);
         }
 
-        AdapterRequest request = this.dataContainer.lastRequest();
+        AdapterRequest req = this.container.getRequest();
 
         try {
-            this.jdbcConn.adapterConnection().cancelQuery(request.getTraceId());
+            this.jdbcConn.adapterConnection().stopTimer(req.getTraceId());
+            this.jdbcConn.adapterConnection().cancelQuery(req);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
         } finally {
-            this.dataContainer.failed(new JdbcCancelledSQLException());
-
-            this.jdbcConn.adapterConnection().stopTimer(request.getTraceId());
+            this.container.responseFailed(req, new JdbcCancelledSQLException("query cancel.", JdbcErrorCode.SQL_STATE_QUERY_TIMEOUT));
         }
     }
 
     @Override
     public long getLargeUpdateCount() throws SQLException {
         this.checkResultSet();
-        if (this.dataContainer.isEmpty()) {
+        if (this.container.emptyResult()) {
             throw new SQLException("no search any results found.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
         }
 
-        if (this.dataContainer.isResultSet()) {
+        AdapterResponse result = this.container.firstResult();
+        if (result.isResult()) {
             throw new SQLException("No updateCount were returned by the query.", JdbcErrorCode.SQL_STATE_QUERY_IS_RESULT);
         } else {
-            return this.dataContainer.getUpdateCount();
+            return result.getUpdateCount();
         }
     }
 
     @Override
     public ResultSet getResultSet() throws SQLException {
         this.checkResultSet();
-        if (this.dataContainer.isEmpty()) {
+        if (this.container.emptyResult()) {
             throw new SQLException("no search any results found.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
         }
 
-        if (this.dataContainer.isResultSet()) {
-            return new JdbcResultSet(this, this.dataContainer.popResult());
+        AdapterResponse result = this.container.firstResult();
+        if (result.isResult()) {
+            return new JdbcResultSet(this, result.toCursor());
         } else {
             throw new SQLException("No results were returned by the query.", JdbcErrorCode.SQL_STATE_QUERY_IS_UPDATE_COUNT);
         }
@@ -456,29 +446,19 @@ class JdbcStatement implements Statement, Closeable {
 
     @Override
     public boolean getMoreResults() throws SQLException {
-        return this.getMoreResults(Statement.CLOSE_CURRENT_RESULT);
+        return this.getMoreResults(Statement.CLOSE_ALL_RESULTS);
     }
 
     @Override
     public boolean getMoreResults(int current) throws SQLException {
         this.checkOpen();
-        switch (current) {
-            case Statement.CLOSE_CURRENT_RESULT:
-                this.dataContainer.close(false);
-                break;
-            case Statement.CLOSE_ALL_RESULTS:
-                this.dataContainer.close(true);
-                break;
-            case Statement.KEEP_CURRENT_RESULT:
-                break;
-        }
-        return this.dataContainer.nextResult();
+        return this.container.nextResult();
     }
 
     protected void checkResultSet() throws SQLException {
         this.checkOpen();
 
-        switch (this.dataContainer.getState()) {
+        switch (this.container.getState()) {
             case Ready:
             case Pending:
                 throw new SQLException("querying in progress.", JdbcErrorCode.SQL_STATE_QUERY_IS_PENDING);
