@@ -14,9 +14,15 @@ import java.util.concurrent.TimeUnit;
 //
 class AdapterDataContainer implements AdapterReceive {
     private static final Logger                logger   = LoggerFactory.getLogger(AdapterDataContainer.class);
+    private final        JdbcConnection        jdbcConn;
     private volatile     AdapterReceiveState   state    = AdapterReceiveState.Ready;
     private volatile     AdapterRequest        request;
     private final        List<AdapterResponse> response = new LinkedList<>();
+    private final        Object                syncObj  = new Object();
+
+    public AdapterDataContainer(JdbcConnection jdbcConn) {
+        this.jdbcConn = jdbcConn;
+    }
 
     public AdapterReceiveState getState() {
         return this.state;
@@ -96,18 +102,22 @@ class AdapterDataContainer implements AdapterReceive {
 
     @Override
     public void responseFinish() {
-        this.notifyAll();
+        this.syncObj.notifyAll();
     }
 
-    public void waitFor(int timeout, TimeUnit timeUnit) {
+    public void waitFor(int timeout, TimeUnit timeUnit) throws SQLException {
         try {
             if (timeout == 0) {
-                this.wait();
+                this.syncObj.wait();
             } else {
-                this.wait(timeUnit.toMillis(timeout));
+                this.syncObj.wait(timeUnit.toMillis(timeout));
             }
+
+            // TODO 继续判断 结果集中的临近数据是否为异常需要抛出。
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            if (this.jdbcConn.isClosed()) {
+                throw new SQLException("connection closed.");
+            }
         }
     }
 }

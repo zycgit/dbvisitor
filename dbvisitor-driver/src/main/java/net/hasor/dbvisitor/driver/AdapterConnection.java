@@ -143,7 +143,7 @@ public abstract class AdapterConnection implements Closeable {
 
     public abstract void doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException;
 
-    public abstract void cancelQuery(AdapterRequest request);
+    public abstract void cancelRequest(AdapterRequest request);
 
     @Override
     public abstract void close();

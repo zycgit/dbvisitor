@@ -145,6 +145,14 @@ public class AdapterTypeSupport implements TypeSupport {
 
     // value convert to classType.
     protected void initTypeConvert(Properties properties) {
+        String timeZone = properties.getProperty(JdbcDriver.P_TIME_ZONE);
+        ZoneOffset defaultZone;
+        if (StringUtils.isNotBlank(timeZone)) {
+            defaultZone = ZoneOffset.of(timeZone);
+        } else {
+            defaultZone = ZoneOffset.UTC;
+        }
+
         // default
         this.addConvert(AdapterType.Unknown, (t, v) -> v);
         this.addConvert(AdapterType.Null, (t, v) -> null);
@@ -163,8 +171,8 @@ public class AdapterTypeSupport implements TypeSupport {
         this.addConvert(AdapterType.SqlDate, (t, v) -> ConvertUtils.toSqlDate(v));
         this.addConvert(AdapterType.SqlTime, (t, v) -> ConvertUtils.toSqlTime(v));
         this.addConvert(AdapterType.SqlTimestamp, (t, v) -> ConvertUtils.toSqlTimestamp(v));
-        this.addConvert(AdapterType.OffsetTime, (t, v) -> ConvertUtils.toOffsetTime(v));
-        this.addConvert(AdapterType.OffsetDateTime, (t, v) -> ConvertUtils.toOffsetDateTime(v));
+        this.addConvert(AdapterType.OffsetTime, (t, v) -> ConvertUtils.toOffsetTime(v, defaultZone));
+        this.addConvert(AdapterType.OffsetDateTime, (t, v) -> ConvertUtils.toOffsetDateTime(v, defaultZone));
         // javaType
         this.addConvert(Boolean.class.getName(), (t, v) -> ConvertUtils.toBoolean(v, false));
         this.addConvert(boolean.class.getName(), (t, v) -> ConvertUtils.toBoolean(v, true));
@@ -192,13 +200,13 @@ public class AdapterTypeSupport implements TypeSupport {
         this.addConvert(LocalDateTime.class.getName(), (t, v) -> ConvertUtils.toLocalDateTime(v));
         this.addConvert(LocalDate.class.getName(), (t, v) -> ConvertUtils.toLocalDate(v));
         this.addConvert(LocalTime.class.getName(), (t, v) -> ConvertUtils.toLocalTime(v));
-        this.addConvert(ZonedDateTime.class.getName(), (t, v) -> ConvertUtils.toZonedDateTime(v));
+        this.addConvert(ZonedDateTime.class.getName(), (t, v) -> ConvertUtils.toZonedDateTime(v, defaultZone));
         this.addConvert(JapaneseDate.class.getName(), (t, v) -> ConvertUtils.toJapaneseDate(v));
         this.addConvert(YearMonth.class.getName(), (t, v) -> ConvertUtils.toYearMonth(v));
         this.addConvert(Year.class.getName(), (t, v) -> ConvertUtils.toYear(v));
         this.addConvert(Month.class.getName(), (t, v) -> ConvertUtils.toMonth(v));
-        this.addConvert(OffsetTime.class.getName(), (t, v) -> ConvertUtils.toOffsetTime(v));
-        this.addConvert(OffsetDateTime.class.getName(), (t, v) -> ConvertUtils.toOffsetDateTime(v));
+        this.addConvert(OffsetTime.class.getName(), (t, v) -> ConvertUtils.toOffsetTime(v, defaultZone));
+        this.addConvert(OffsetDateTime.class.getName(), (t, v) -> ConvertUtils.toOffsetDateTime(v, defaultZone));
         // java extensions Types
         this.addConvert(String.class.getName(), (t, v) -> ConvertUtils.toString(v));
         this.addConvert(BigInteger.class.getName(), (t, v) -> ConvertUtils.toBigInteger(v));

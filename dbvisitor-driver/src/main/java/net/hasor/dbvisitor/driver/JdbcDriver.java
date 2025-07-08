@@ -17,6 +17,7 @@ public class JdbcDriver implements java.sql.Driver {
     //
     public static final String P_SERVER       = "server";
     public static final String P_ADAPTER_NAME = "adapterName";
+    public static final String P_TIME_ZONE    = "timeZone";
     public static final String P_START_URL    = "jdbc:dbvisitor:";
     //
     /** The major version of this adapter. */

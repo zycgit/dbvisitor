@@ -24,7 +24,7 @@ class JdbcStatement implements Statement, Closeable {
 
     JdbcStatement(JdbcConnection jdbcConn) {
         this.jdbcConn = Objects.requireNonNull(jdbcConn, "jdbcConn is null.");
-        this.container = new AdapterDataContainer();
+        this.container = new AdapterDataContainer(jdbcConn);
     }
 
     @Override
@@ -357,7 +357,7 @@ class JdbcStatement implements Statement, Closeable {
                 this.jdbcConn.adapterConnection().startTimer(req.getTraceId(), this.timeoutSec * 1000, timeout -> {
                     if (this.container.getState() == AdapterReceiveState.Pending) {
                         try {
-                            this.jdbcConn.adapterConnection().cancelQuery(req);
+                            this.jdbcConn.adapterConnection().cancelRequest(req);
                         } catch (Exception e) {
                             logger.error(e.getMessage(), e);
                         } finally {
@@ -406,7 +406,7 @@ class JdbcStatement implements Statement, Closeable {
 
         try {
             this.jdbcConn.adapterConnection().stopTimer(req.getTraceId());
-            this.jdbcConn.adapterConnection().cancelQuery(req);
+            this.jdbcConn.adapterConnection().cancelRequest(req);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         } finally {
