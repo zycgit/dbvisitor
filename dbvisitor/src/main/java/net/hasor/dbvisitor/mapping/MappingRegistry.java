@@ -133,19 +133,42 @@ public class MappingRegistry {
             name = name.substring(1);
         }
 
-        tryLoaded(name, s -> {
-            try (InputStream stream = ResourcesUtils.getResourceAsStream(this.classLoader, s)) {
-                Objects.requireNonNull(stream, "resource '" + s + "' is not exist.");
-                try {
-                    Document document = MappingHelper.loadXmlRoot(stream, getClassLoader());
-                    Element root = document.getDocumentElement();
-                    NamedNodeMap rootAttributes = root.getAttributes();
+        try (InputStream stream = ResourcesUtils.getResourceAsStream(this.classLoader, name)) {
+            Objects.requireNonNull(stream, "resource '" + name + "' is not exist.");
+            this.loadMapping(name, stream);
+        }
+    }
 
-                    String namespace = MappingHelper.readAttribute("namespace", rootAttributes);
-                    this.loadMapping(namespace, root);
-                } catch (ParserConfigurationException | SAXException | ReflectiveOperationException e) {
-                    throw new IOException(e);
-                }
+    /** load stream */
+    public void loadMapping(final String streamId, InputStream stream) throws IOException {
+        Objects.requireNonNull(stream, "resource '" + streamId + "' stream is null.");
+        if (StringUtils.isBlank(streamId)) {
+            return;
+        }
+
+        try {
+            Document document = MappingHelper.loadXmlRoot(stream, getClassLoader());
+            this.loadMapping(streamId, document);
+        } catch (ParserConfigurationException | SAXException e) {
+            throw new IOException(e);
+        }
+    }
+
+    /** load Document */
+    public void loadMapping(final String documentId, Document document) throws IOException {
+        Objects.requireNonNull(document, "resource '" + documentId + "' document is null.");
+        if (StringUtils.isBlank(documentId)) {
+            return;
+        }
+
+        tryLoaded(documentId, s -> {
+            try {
+                Element root = document.getDocumentElement();
+                NamedNodeMap rootAttributes = root.getAttributes();
+                String namespace = MappingHelper.readAttribute("namespace", rootAttributes);
+                this.loadMapping(namespace, root);
+            } catch (ReflectiveOperationException e) {
+                throw new IOException(e);
             }
         });
     }

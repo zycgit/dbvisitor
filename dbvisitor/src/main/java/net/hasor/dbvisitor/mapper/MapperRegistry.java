@@ -49,10 +49,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -181,7 +178,20 @@ public class MapperRegistry {
             if (refXml) {
                 RefMapper refMapper = mapperType.getAnnotation(RefMapper.class);
                 logger.info("mapper '" + mapperType.getName() + "' using '" + refMapper.value() + "'");
-                this.tryLoadRefMapperFile(mapperType, refMapper);
+
+                String resource = refMapper.value();
+                if (StringUtils.isBlank(resource)) {
+                    resource = mapperType.getName().replace('.', '/') + ".xml";
+                }
+                if (resource.startsWith("/")) {
+                    resource = resource.substring(1);
+                }
+
+                if (StringUtils.isBlank(resource) && !matchType(mapperType)) {
+                    return;
+                }
+
+                this.loadMapper(resource);
             } else {
                 logger.info("mapper '" + mapperType.getName() + "' using default.");
             }
@@ -215,45 +225,52 @@ public class MapperRegistry {
         if (StringUtils.isBlank(mapperResource)) {
             throw new FileNotFoundException("mapper file ios empty.");
         }
-        this.tryLoadResourceFile(mapperResource);
+
+        try (InputStream stream = ResourcesUtils.getResourceAsStream(this.classLoader, mapperResource)) {
+            if (stream == null) {
+                throw new FileNotFoundException("not found mapper file '" + mapperResource + "'"); // Don't block the app from launching
+            }
+
+            this.loadMapper(mapperResource, stream);
+        }
     }
 
-    // --------------------------------------------------------------------------------------------
-
-    private void tryLoadRefMapperFile(Class<?> mapperType, RefMapper refMapper) throws Exception {
-        String resource = refMapper.value();
-        if (StringUtils.isBlank(resource)) {
-            resource = mapperType.getName().replace('.', '/') + ".xml";
-        }
-        if (resource.startsWith("/")) {
-            resource = resource.substring(1);
-        }
-
-        if (StringUtils.isBlank(resource) && !matchType(mapperType)) {
+    /**
+     * 从输入流加载 Mapper 配置
+     * @param streamId 流标识符，用于日志记录和缓存键。如果为空，方法将直接返回不执行任何操作
+     * @param stream 包含要加载为 Mapper 的 XML 内容的输入流，不能为 null
+     * @throws IOException 如果发生 I/O 错误或流无法解析为有效的 XML 文档
+     */
+    public void loadMapper(String streamId, InputStream stream) throws Exception {
+        Objects.requireNonNull(stream, "resource '" + streamId + "' stream is null.");
+        if (StringUtils.isBlank(streamId)) {
             return;
         }
 
-        this.tryLoaded(resource, this::tryLoadResourceFile);
+        Document document = MappingHelper.loadXmlRoot(stream, this.mappingRegistry.getClassLoader());
+        this.loadMapper(streamId, document);
     }
 
-    private void tryLoadResourceFile(String resource) throws Exception {
-        this.tryLoaded(resource, r -> {
+    /** load stream */
+    public void loadMapper(final String documentId, Document document) throws Exception {
+        Objects.requireNonNull(document, "resource '" + documentId + "' document is null.");
+        if (StringUtils.isBlank(documentId)) {
+            return;
+        }
+
+        tryLoaded(documentId, s -> {
             // try load mapping
-            this.mappingRegistry.loadMapping(r);
+            this.mappingRegistry.loadMapping(s, document);
 
             // try load mapper
-            try (InputStream stream = ResourcesUtils.getResourceAsStream(this.classLoader, r)) {
-                if (stream == null) {
-                    throw new FileNotFoundException("not found mapper file '" + r + "'"); // Don't block the app from launching
-                }
-
-                Document document = MappingHelper.loadXmlRoot(stream, this.mappingRegistry.getClassLoader());
+            try {
                 this.tryLoadNode(document.getDocumentElement());
             } catch (ParserConfigurationException | SAXException | ClassNotFoundException e) {
                 throw new IOException(e);
             }
         });
     }
+    // --------------------------------------------------------------------------------------------
 
     private void tryLoadNode(Element configRoot) throws Exception {
         NamedNodeMap rootAttributes = configRoot.getAttributes();
