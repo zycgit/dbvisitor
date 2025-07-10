@@ -9,9 +9,9 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 class JdbcStatement implements Statement, Closeable {
-    private static final Logger               logger = LoggerFactory.getLogger(JdbcStatement.class);
-    protected final      JdbcConnection       jdbcConn;
-    protected final      AdapterDataContainer container;
+    private static final Logger           logger = LoggerFactory.getLogger(JdbcStatement.class);
+    protected final      JdbcConnection   jdbcConn;
+    protected final      AdapterContainer container;
 
     /** Maximum number of rows to return, 0 = unlimited. */
     protected long    maxRows           = 0;
@@ -24,7 +24,7 @@ class JdbcStatement implements Statement, Closeable {
 
     JdbcStatement(JdbcConnection jdbcConn) {
         this.jdbcConn = Objects.requireNonNull(jdbcConn, "jdbcConn is null.");
-        this.container = new AdapterDataContainer(jdbcConn);
+        this.container = new AdapterContainer(jdbcConn);
     }
 
     @Override
@@ -337,12 +337,8 @@ class JdbcStatement implements Statement, Closeable {
     public synchronized boolean execute(String sql) throws SQLException {
         this.checkOpen();
 
-        switch (this.container.getState()) {
-            case Ready:
-            case Finish:
-                break;
-            default:
-                throw new SQLException("there is already query in the processing.", JdbcErrorCode.SQL_STATE_QUERY_IS_PENDING);
+        if (this.container.getState() != AdapterReceiveState.Ready) {
+            throw new SQLException("there is already query in the processing.", JdbcErrorCode.SQL_STATE_QUERY_IS_PENDING);
         }
 
         try {
@@ -386,11 +382,11 @@ class JdbcStatement implements Statement, Closeable {
         request.setTimeoutSec(this.timeoutSec);
     }
 
-    protected void beforeExecute(AdapterRequest request, AdapterDataContainer container) {
+    protected void beforeExecute(AdapterRequest request, AdapterContainer container) throws SQLException {
 
     }
 
-    protected void afterExecute(AdapterRequest request, AdapterDataContainer container) {
+    protected void afterExecute(AdapterRequest request, AdapterContainer container) throws SQLException {
 
     }
 
@@ -417,30 +413,32 @@ class JdbcStatement implements Statement, Closeable {
     @Override
     public long getLargeUpdateCount() throws SQLException {
         this.checkResultSet();
-        if (this.container.emptyResult()) {
-            throw new SQLException("no search any results found.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
-        }
 
         AdapterResponse result = this.container.firstResult();
-        if (result.isResult()) {
-            throw new SQLException("No updateCount were returned by the query.", JdbcErrorCode.SQL_STATE_QUERY_IS_RESULT);
+        if (result == null) {
+            throw new SQLException("No results were returned by the query.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
         } else {
-            return result.getUpdateCount();
+            if (result.isResult()) {
+                throw new SQLException("current result is ResultSet.", JdbcErrorCode.SQL_STATE_QUERY_IS_UPDATE_COUNT);
+            } else {
+                return result.getUpdateCount();
+            }
         }
     }
 
     @Override
     public ResultSet getResultSet() throws SQLException {
         this.checkResultSet();
-        if (this.container.emptyResult()) {
-            throw new SQLException("no search any results found.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
-        }
 
         AdapterResponse result = this.container.firstResult();
-        if (result.isResult()) {
-            return new JdbcResultSet(this, result.toCursor());
+        if (result == null) {
+            throw new SQLException("No results were returned by the query.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
         } else {
-            throw new SQLException("No results were returned by the query.", JdbcErrorCode.SQL_STATE_QUERY_IS_UPDATE_COUNT);
+            if (result.isResult()) {
+                return new JdbcResultSet(this, result.toCursor());
+            } else {
+                throw new SQLException("current result is updateCount.", JdbcErrorCode.SQL_STATE_QUERY_IS_UPDATE_COUNT);
+            }
         }
     }
 
@@ -463,7 +461,6 @@ class JdbcStatement implements Statement, Closeable {
             case Pending:
                 throw new SQLException("querying in progress.", JdbcErrorCode.SQL_STATE_QUERY_IS_PENDING);
             case Receive:
-            case Finish:
                 break;
         }
     }

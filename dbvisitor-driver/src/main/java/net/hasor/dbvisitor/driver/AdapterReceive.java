@@ -1,13 +1,17 @@
 package net.hasor.dbvisitor.driver;
 
 public interface AdapterReceive {
-    void responseFailed(AdapterRequest request, Exception e);
+    boolean responseFailed(AdapterRequest request, Exception e);
 
-    void responseResult(AdapterRequest request, AdapterCursor cursor);
+    boolean responseResult(AdapterRequest request, AdapterCursor cursor);
 
-    void responseUpdateCount(AdapterRequest request, long updateCount);
+    boolean responseUpdateCount(AdapterRequest request, long updateCount);
 
-    void responseParameter(AdapterRequest request, String paramName, String paramType);
+    boolean responseParameter(AdapterRequest request, String paramName, String paramType, Object value);
+
+    boolean responseNotify(AdapterRequest request);
+
+    boolean responseFinish(AdapterRequest request);
 
     void responseFinish();
 }

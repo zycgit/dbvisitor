@@ -31,7 +31,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     }
 
     @Override
-    protected void afterExecute(AdapterRequest request, AdapterDataContainer container) {
+    protected void afterExecute(AdapterRequest request, AdapterContainer container) throws SQLException {
         super.afterExecute(request, container);
         AdapterCursor outParameters = container.getOutParameters();
         if (outParameters == null) {
