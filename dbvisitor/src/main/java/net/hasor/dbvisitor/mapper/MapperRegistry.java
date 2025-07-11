@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.mapper;
 import net.hasor.cobble.ClassUtils;
+import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.EConsumer;
@@ -300,14 +301,27 @@ public class MapperRegistry {
             if (sqlConfig.getType() == QueryType.Segment) {
                 String macroId = StringUtils.isBlank(configSpace) ? configId : (configSpace + "." + configId);
                 this.macroRegistry.register(macroId, sqlConfig);
-            } else if (sqlConfig.getType() == QueryType.Select) {
-                StatementDef def = new StatementDef(configSpace, configId, sqlConfig);
-                this.applyResultConfig(def);
-                this.configMap.computeIfAbsent(configSpace, s -> new ConcurrentHashMap<>()).put(configId, def);
             } else {
-                StatementDef def = new StatementDef(configSpace, configId, sqlConfig);
-                this.configMap.computeIfAbsent(configSpace, s -> new ConcurrentHashMap<>()).put(configId, def);
+                this.addSqlConfig(configSpace, configId, sqlConfig);
             }
+        }
+    }
+
+    protected void addSqlConfig(String space, String configId, SqlConfig sqlConfig) throws Exception {
+        if (sqlConfig.getType() == QueryType.Select) {
+            StatementDef def = new StatementDef(space, configId, sqlConfig);
+            this.applyResultConfig(def);
+            this.configMap.computeIfAbsent(space, s -> new ConcurrentHashMap<>()).put(configId, def);
+        } else {
+            StatementDef def = new StatementDef(space, configId, sqlConfig);
+            this.configMap.computeIfAbsent(space, s -> new ConcurrentHashMap<>()).put(configId, def);
+        }
+    }
+
+    protected void removeSqlConfig(String space, String configId) {
+        Map<String, StatementDef> defMap = this.configMap.get(space);
+        if (CollectionUtils.isNotEmpty(defMap)) {
+            defMap.remove(configId);
         }
     }
 
@@ -382,7 +396,7 @@ public class MapperRegistry {
     }
 
     // config 'resultType/ResultSetExtractor/RowCallbackHandler/RowMapper'
-    private void applyResultConfig(StatementDef def) throws Exception {
+    protected void applyResultConfig(StatementDef def) throws Exception {
         if (!(def.getConfig() instanceof DqlConfig)) {
             return;
         }
@@ -559,7 +573,7 @@ public class MapperRegistry {
         }
     }
 
-    private static void testMapper(Class<?> mapperType) {
+    protected void testMapper(Class<?> mapperType) {
         if (!mapperType.isInterface()) {
             throw new UnsupportedOperationException("the '" + mapperType.getName() + "' must interface.");
         }
@@ -581,7 +595,7 @@ public class MapperRegistry {
         }
     }
 
-    private static boolean matchType(Class<?> dalType) {
+    protected boolean matchType(Class<?> dalType) {
         if (!dalType.isInterface()) {
             return false;
         }
@@ -594,7 +608,7 @@ public class MapperRegistry {
         return false;
     }
 
-    private static boolean matchMethod(Method dalMethod) {
+    protected boolean matchMethod(Method dalMethod) {
         if (dalMethod.getDeclaringClass() == Object.class) {
             return false;
         }
@@ -606,11 +620,11 @@ public class MapperRegistry {
         return false;
     }
 
-    private SqlConfigResolve<Method> getMethodDynamicResolve() {
+    protected SqlConfigResolve<Method> getMethodDynamicResolve() {
         return new ClassSqlConfigResolve();
     }
 
-    private SqlConfigResolve<Node> getXmlDynamicResolve() {
+    protected SqlConfigResolve<Node> getXmlDynamicResolve() {
         return new XmlSqlConfigResolve();
     }
 }
