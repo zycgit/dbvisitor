@@ -1,5 +1,19 @@
+/*
+ * Copyright 2015-2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.hasor.dbvisitor.driver;
-
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
@@ -12,8 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 class AdapterContainer implements AdapterReceive {
     private static final Logger                  logger = LoggerFactory.getLogger(AdapterContainer.class);
     private final        JdbcConnection          jdbcConn;
-    private              AdapterReceiveState     state;
-    private              AdapterRequest          request;
+    private volatile     AdapterReceiveState     state;
+    private volatile     AdapterRequest          request;
     private final        Map<String, JdbcColumn> parameterDefs;
     private final        Map<String, Object>     parameterValues;
     private final        List<AdapterResponse>   response;
@@ -58,7 +72,6 @@ class AdapterContainer implements AdapterReceive {
         }
         return response.isEmpty();
     }
-
 
     public AdapterResponse firstResult() throws SQLException {
         if (this.state == AdapterReceiveState.Pending) {
@@ -182,6 +195,7 @@ class AdapterContainer implements AdapterReceive {
         this.syncObj.notifyAll();
     }
 
+    // TODO 如果 status 不是 Ready ，那么 JdbcStatement nextResult 就需要被 block 等待。
     public void waitFor(int timeout, TimeUnit timeUnit) throws SQLException {
         try {
             if (timeout == 0) {
