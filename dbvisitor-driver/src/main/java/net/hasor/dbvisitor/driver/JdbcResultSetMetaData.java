@@ -21,10 +21,12 @@ import java.sql.Statement;
 import java.util.List;
 
 class JdbcResultSetMetaData implements ResultSetMetaData {
+    private final ResultSet        resultSet;
     private final JdbcStatement    statement;
     private final List<JdbcColumn> columns;
 
-    JdbcResultSetMetaData(JdbcStatement statement, List<JdbcColumn> columns) {
+    JdbcResultSetMetaData(ResultSet resultSet, JdbcStatement statement, List<JdbcColumn> columns) {
+        this.resultSet = resultSet;
         this.statement = statement;
         this.columns = columns;
     }
@@ -34,7 +36,7 @@ class JdbcResultSetMetaData implements ResultSetMetaData {
     }
 
     protected ResultSet getResultSet() {
-        return null; // TODO
+        return this.resultSet;
     }
 
     protected JdbcColumn column(int index) throws SQLException {

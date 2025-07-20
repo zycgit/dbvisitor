@@ -14,22 +14,33 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver;
-
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class AdapterResultCursor implements AdapterCursor {
-    private final List<JdbcColumn>           columns;
-    private final Queue<Map<String, Object>> inputQueue;
-    private final int                        batchSize;
+    private final    AdapterRequest             request;
+    private final    List<JdbcColumn>           columns;
+    private final    Map<Integer, String>       columnIdMap;
+    //
+    private final    List<String>               warnings;
+    private final    Queue<Map<String, Object>> rowSet;
+    private volatile Map<String, Object>        currentRow;
+    private volatile boolean                    closed;
 
-    public AdapterResultCursor(List<JdbcColumn> columns, Queue<Map<String, Object>> input, int batchSize) {
+    public AdapterResultCursor(AdapterRequest request, List<JdbcColumn> columns) {
+        this.request = request;
         this.columns = columns;
-        this.inputQueue = inputQueue;
-        this.batchSize = batchSize;
+        this.columnIdMap = new HashMap<>();
+        this.warnings = new ArrayList<>();
+        this.rowSet = new ConcurrentLinkedQueue<>();
+        this.closed = false;
+
+        for (int i = 0; i < columns.size(); i++) {
+            JdbcColumn column = columns.get(i);
+            this.columnIdMap.put(i + 1, column.name);
+        }
     }
 
     @Override
@@ -38,41 +49,58 @@ public class AdapterResultCursor implements AdapterCursor {
     }
 
     @Override
-    public boolean next() {
-        return this.inputStream.hasNextRow();
+    public boolean next() throws SQLException {
+        if (this.closed) {
+            throw new SQLException("cursor is closed.");
+        }
+
+        if (this.rowSet.isEmpty()) {
+            this.currentRow = null;
+            return false;
+        }
+
+        this.currentRow = this.rowSet.poll();
+        return true;
     }
 
     @Override
     public int batchSize() {
-        return this.batchSize;
+        return this.request.fetchSize;
     }
 
     @Override
     public void close() throws IOException {
-        this.inputStream.close();
+        this.closed = true;
+        this.rowSet.clear();
+    }
+
+    public void pushData(Map<String, Object> row) throws SQLException {
+        if (this.closed) {
+            throw new SQLException("cursor is closed.");
+        }
+
+        this.rowSet.offer(Objects.requireNonNull(row, "row is null."));
     }
 
     @Override
-    public Object column(int column) throws IOException {
-        this.inputStream.discardReadRow();
-        if (this.inputStream.nextRow()) {
-            for (int i = 0; i < this.inputStream.getDataCount(); i++) {
-                ResultSetInputStream.DataHeader header = this.inputStream.nextDataHeader();
-                if (i + 1 == column) {
-                    return this.inputStream.readColumn(i);
-                }
-            }
+    public Object column(int column) throws SQLException {
+        if (this.currentRow == null) {
+            throw new SQLException("empty ResultSet or After end of ResultSet");
         }
-        return null;
+        if (!this.columnIdMap.containsKey(column)) {
+            throw new SQLException("Before start of ResultSet.");
+        }
+
+        return this.currentRow.get(this.columnIdMap.get(column));
     }
 
     @Override
     public List<String> warnings() {
-        return Collections.emptyList();
+        return this.warnings;
     }
 
     @Override
     public void clearWarnings() {
-
+        this.warnings.clear();
     }
 }

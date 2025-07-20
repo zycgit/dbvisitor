@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.driver;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.io.IOUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 
@@ -62,29 +63,6 @@ class AdapterContainer implements AdapterReceive {
         return this.request;
     }
 
-    public boolean nextResult() {
-        if (this.state == AdapterReceiveState.Pending) {
-            return false;
-        }
-
-        if (!this.response.isEmpty()) {
-            this.response.removeFirst();
-        }
-        return response.isEmpty();
-    }
-
-    public AdapterResponse firstResult() throws SQLException {
-        if (this.state == AdapterReceiveState.Pending) {
-            throw new SQLException("the query in progress, result is Pending.", JdbcErrorCode.SQL_STATE_QUERY_IS_PENDING);
-        }
-
-        if (this.response.isEmpty()) {
-            return null;
-        } else {
-            return this.response.getFirst();
-        }
-    }
-
     public AdapterCursor getOutParameters() throws SQLException {
         if (this.state == AdapterReceiveState.Pending) {
             throw new SQLException("the query in progress, result is Pending.", JdbcErrorCode.SQL_STATE_QUERY_IS_PENDING);
@@ -102,57 +80,58 @@ class AdapterContainer implements AdapterReceive {
         return new AdapterMemoryCursor(Arrays.asList(toCols), toVals);
     }
 
-    private boolean ifStatusForResponse(AdapterRequest request) {
+    private boolean ifErrorStatusForResponse(AdapterRequest request) {
         if (this.request == null || !StringUtils.equals(this.request.getTraceId(), request.getTraceId())) {
-            return false;
+            logger.warn("received an unrelated response, traceId " + request.getTraceId());
+            return true;
         }
 
-        // TODO
-        return true;
+        if (this.state == AdapterReceiveState.Ready) {
+            logger.warn("received error, no query in progress, traceId " + request.getTraceId());
+            return true;
+        }
+
+        return false;
     }
 
     @Override
     public boolean responseFailed(AdapterRequest request, Exception e) {
         Objects.requireNonNull(e, "received error is null.");
-        if (!this.ifStatusForResponse(request)) {
-            logger.warn("received an unrelated error, traceId " + request.getTraceId() + ", error " + e.getMessage(), e);
+        if (this.ifErrorStatusForResponse(request)) {
             return false;
         }
 
         this.response.add(AdapterResponse.ofError(e));
-        this.state = AdapterReceiveState.Receive;
+        this.onReceive();
         return true;
     }
 
     @Override
     public boolean responseResult(AdapterRequest request, AdapterCursor cursor) {
         Objects.requireNonNull(cursor, "received cursor is null.");
-        if (!this.ifStatusForResponse(request)) {
-            logger.warn("received an unrelated data, traceId " + request.getTraceId() + ", cursor " + cursor);
+        if (this.ifErrorStatusForResponse(request)) {
             return false;
         }
 
         this.response.add(AdapterResponse.ofCursor(cursor));
-        this.state = AdapterReceiveState.Receive;
+        this.onReceive();
         return true;
     }
 
     @Override
     public boolean responseUpdateCount(AdapterRequest request, long updateCount) {
-        if (!this.ifStatusForResponse(request)) {
-            logger.warn("received an unrelated data, traceId " + request.getTraceId() + ", updateCount " + updateCount);
+        if (this.ifErrorStatusForResponse(request)) {
             return false;
         }
 
         this.response.add(AdapterResponse.ofUpdateCount(updateCount));
-        this.state = AdapterReceiveState.Receive;
+        this.onReceive();
         return true;
     }
 
     @Override
     public boolean responseParameter(AdapterRequest request, String paramName, String paramType, Object value) {
-        if (!this.ifStatusForResponse(request)) {
-            logger.warn("received an unrelated data, traceId " + request.getTraceId() + ", paramName " + paramName);
+        if (this.ifErrorStatusForResponse(request)) {
             return false;
         }
 
@@ -162,40 +141,59 @@ class AdapterContainer implements AdapterReceive {
 
         this.parameterDefs.put(paramName, new JdbcColumn(paramName, paramType, "", "", ""));
         this.parameterValues.put(paramName, value);
-        this.state = AdapterReceiveState.Receive;
-        return true;
-    }
-
-    @Override
-    public boolean responseNotify(AdapterRequest request) {
-        if (this.state != AdapterReceiveState.Receive) {
-            logger.warn("received an unrelated notify, traceId " + request.getTraceId());
-            return false;
-        }
-
-        this.syncObj.notifyAll();
         return true;
     }
 
     @Override
     public boolean responseFinish(AdapterRequest request) {
-        if (!this.ifStatusForResponse(request)) {
+        if (this.ifErrorStatusForResponse(request)) {
             logger.warn("received an unrelated finish, traceId " + request.getTraceId());
             return false;
         }
 
+        this.onReceive();
         this.state = AdapterReceiveState.Ready;
-        this.syncObj.notifyAll();
         return true;
     }
 
-    @Override
-    public void responseFinish() {
-        this.state = AdapterReceiveState.Ready;
+    protected void onReceive() {
+        this.state = AdapterReceiveState.Receive;
         this.syncObj.notifyAll();
     }
 
-    // TODO 如果 status 不是 Ready ，那么 JdbcStatement nextResult 就需要被 block 等待。
+    public boolean nextResult(int timeout, TimeUnit timeUnit) throws SQLException {
+        if (this.state == AdapterReceiveState.Pending) {
+            throw new SQLException("querying in progress.", JdbcErrorCode.SQL_STATE_QUERY_IS_PENDING);
+        }
+
+        if (!this.response.isEmpty()) {
+            AdapterResponse res = this.response.removeFirst();
+            if (res.isResult()) {
+                IOUtils.closeQuietly(res.toCursor());
+            }
+        }
+
+        boolean empty = this.response.isEmpty();
+        if (empty && this.state == AdapterReceiveState.Receive) {
+            this.waitFor(timeout, timeUnit);
+            return !this.response.isEmpty();
+        } else {
+            return !empty;
+        }
+    }
+
+    public AdapterResponse firstResult() throws SQLException {
+        if (this.state == AdapterReceiveState.Pending) {
+            throw new SQLException("querying in progress.", JdbcErrorCode.SQL_STATE_QUERY_IS_PENDING);
+        }
+
+        if (this.response.isEmpty()) {
+            return null;
+        } else {
+            return this.response.getFirst();
+        }
+    }
+
     public void waitFor(int timeout, TimeUnit timeUnit) throws SQLException {
         try {
             if (timeout == 0) {
@@ -204,7 +202,15 @@ class AdapterContainer implements AdapterReceive {
                 this.syncObj.wait(timeUnit.toMillis(timeout));
             }
 
-            // TODO 继续判断 结果集中的临近数据是否为异常需要抛出。
+            if (this.response.isEmpty()) {
+                throw new SQLException("no data received, or wait timeout.");
+            }
+
+            AdapterResponse res = this.response.getFirst();
+            if (res.isError()) {
+                this.response.removeFirst();
+                throw res.toError();
+            }
         } catch (InterruptedException e) {
             if (this.jdbcConn.isClosed()) {
                 throw new SQLException("connection closed.");

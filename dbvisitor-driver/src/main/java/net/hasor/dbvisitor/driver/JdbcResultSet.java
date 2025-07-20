@@ -164,7 +164,7 @@ class JdbcResultSet implements ResultSet, Closeable {
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
         checkOpen();
-        return new JdbcResultSetMetaData(this.statement, this.cursor.columns());
+        return new JdbcResultSetMetaData(this, this.statement, this.cursor.columns());
     }
 
     @Override

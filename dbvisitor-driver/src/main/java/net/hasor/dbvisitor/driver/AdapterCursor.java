@@ -24,7 +24,7 @@ public interface AdapterCursor extends AutoCloseable {
 
     boolean next() throws SQLException;
 
-    Object column(int column) throws IOException;
+    Object column(int column) throws IOException, SQLException;
 
     int batchSize();
 

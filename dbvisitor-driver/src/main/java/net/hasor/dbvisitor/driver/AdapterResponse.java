@@ -16,35 +16,77 @@
 package net.hasor.dbvisitor.driver;
 import net.hasor.cobble.concurrent.future.BasicFuture;
 
+import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 public class AdapterResponse extends BasicFuture<AdapterResponse> {
 
+    private boolean          resultIsResult;
+    private boolean          resultIsError;
+    private List<JdbcColumn> columns;
+    private AdapterCursor    resultSet;
+    private long             updateCount;
+    private Exception        exception;
+
     public List<JdbcColumn> getColumnList() {
-        return null;
+        return this.columns;
     }
 
     public boolean isResult() {
-        return false;
+        return this.resultIsResult;
+    }
+
+    public boolean isError() {
+        return this.resultIsError;
     }
 
     public AdapterCursor toCursor() {
-        return null;
+        return this.resultSet;
+    }
+
+    public SQLException toError() {
+        if (this.exception instanceof SQLException) {
+            return (SQLException) this.exception;
+        } else {
+            return new SQLException(this.exception);
+        }
     }
 
     public long getUpdateCount() {
-        return 0;
+        return this.updateCount;
     }
 
     public static AdapterResponse ofError(Exception e) {
+        AdapterResponse res = new AdapterResponse();
+        res.resultIsError = true;
 
+        res.columns = Collections.emptyList();
+        res.resultSet = null;
+        res.updateCount = 0;
+        res.exception = e;
+        return res;
     }
 
     public static AdapterResponse ofCursor(AdapterCursor cursor) {
+        AdapterResponse res = new AdapterResponse();
+        res.resultIsResult = true;
 
+        res.columns = cursor.columns();
+        res.resultSet = cursor;
+        res.updateCount = 0;
+        res.exception = null;
+        return res;
     }
 
     public static AdapterResponse ofUpdateCount(long updateCount) {
+        AdapterResponse res = new AdapterResponse();
+        res.resultIsResult = false;
 
+        res.columns = Collections.emptyList();
+        res.resultSet = null;
+        res.updateCount = updateCount;
+        res.exception = null;
+        return res;
     }
 }

@@ -464,7 +464,7 @@ class JdbcStatement implements Statement, Closeable {
     @Override
     public boolean getMoreResults(int current) throws SQLException {
         this.checkOpen();
-        return this.container.nextResult();
+        return this.container.nextResult(this.timeoutSec, TimeUnit.SECONDS);
     }
 
     protected void checkResultSet() throws SQLException {

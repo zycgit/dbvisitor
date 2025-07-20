@@ -23,9 +23,5 @@ public interface AdapterReceive {
 
     boolean responseParameter(AdapterRequest request, String paramName, String paramType, Object value);
 
-    boolean responseNotify(AdapterRequest request);
-
     boolean responseFinish(AdapterRequest request);
-
-    void responseFinish();
 }

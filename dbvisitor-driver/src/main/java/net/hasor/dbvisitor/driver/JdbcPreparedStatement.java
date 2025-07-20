@@ -498,7 +498,7 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
             throw new SQLException("No results were returned by the query.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
         } else {
             if (result.isResult()) {
-                return new JdbcResultSetMetaData(this, result.getColumnList());
+                return new JdbcResultSetMetaData(this.getResultSet(), this, result.getColumnList());
             } else {
                 throw new SQLException("current result is updateCount.", JdbcErrorCode.SQL_STATE_QUERY_IS_UPDATE_COUNT);
             }
