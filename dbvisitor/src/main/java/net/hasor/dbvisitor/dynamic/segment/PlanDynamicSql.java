@@ -106,7 +106,7 @@ public class PlanDynamicSql implements Cloneable, DynamicSql {
         this.queryStringPlan.add(new NamedSqlSegment(exprString, exprMap));
     }
 
-    /** 追加名称参数，例如：:name 或 &name */
+    /** 追加名称参数，例如：:name 或 &amp;name */
     public void appendNamedParameter(String exprString, boolean isAmp) {
         if (isAmp) {
             this.queryStringOri.append("&" + exprString);

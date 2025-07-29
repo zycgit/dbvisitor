@@ -54,14 +54,14 @@ public interface EntityQueryCompare<R> {
     R eq(boolean test, String property, Object value);
 
     /**
-     * 不等于条件，类似：'col <> ?'，当 value 只为 null 时会自动使用 col is not null.
+     * 不等于条件，类似：'col &lt;&gt; ?'，当 value 只为 null 时会自动使用 col is not null.
      */
     default R ne(String property, Object value) {
         return this.ne(true, property, value);
     }
 
     /**
-     * 当 test 条件为真时才使用不等于条件，类似：'if test then col <> ?'，当 value 只为 null 时会自动使用 col is not null.
+     * 当 test 条件为真时才使用不等于条件，类似：'if test then col &lt;&gt; ?'，当 value 只为 null 时会自动使用 col is not null.
      */
     R ne(boolean test, String property, Object value);
 
@@ -90,26 +90,26 @@ public interface EntityQueryCompare<R> {
     R ge(boolean test, String property, Object value);
 
     /**
-     * 小于条件，类似：'col < ?'
+     * 小于条件，类似：'col &lt; ?'
      */
     default R lt(String property, Object value) {
         return this.lt(true, property, value);
     }
 
     /**
-     * 当 test 条件为真时才使用小于条件，类似：'if test then col < ?'
+     * 当 test 条件为真时才使用小于条件，类似：'if test then col &lt; ?'
      */
     R lt(boolean test, String property, Object value);
 
     /**
-     * 小于等于条件，类似：'col <= ?'
+     * 小于等于条件，类似：'col &lt;= ?'
      */
     default R le(String property, Object value) {
         return this.le(true, property, value);
     }
 
     /**
-     * 当 test 条件为真时才使用小于等于条件，类似：'if test then col <= ?'
+     * 当 test 条件为真时才使用小于等于条件，类似：'if test then col &lt;= ?'
      */
     R le(boolean test, String property, Object value);
 

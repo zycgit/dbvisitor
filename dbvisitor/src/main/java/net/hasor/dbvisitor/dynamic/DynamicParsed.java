@@ -43,8 +43,8 @@ public class DynamicParsed {
      * select from user where id = ?
      * select from user where id = :id
      * select from user where id = :id.ccc['aaa'][0]
-     * select from user where id = &id
-     * select from user where id = &id.ccc['aaa'][0]
+     * select from user where id = &amp;id
+     * select from user where id = &amp;id.ccc['aaa'][0]
      * select from user where id = @{abc}
      * select from user where id = #{abc}
      * select from user where id = ${abc}
@@ -67,8 +67,8 @@ public class DynamicParsed {
      * select from user where id = ?
      * select from user where id = :id
      * select from user where id = :id.ccc['aaa'][0]
-     * select from user where id = &id
-     * select from user where id = &id.ccc['aaa'][0]
+     * select from user where id = &amp;id
+     * select from user where id = &amp;id.ccc['aaa'][0]
      * select from user where id = @{abc}
      * select from user where id = #{abc}
      * select from user where id = ${abc}

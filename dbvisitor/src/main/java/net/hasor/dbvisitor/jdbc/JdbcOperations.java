@@ -78,7 +78,7 @@ public interface JdbcOperations {
     /** 通过回调函数，执行一个JDBC数据访问操作 */
     <T> T execute(StatementCallback<T> action) throws SQLException;
 
-    /** 执行一个 静态 SQL 语句，通常是一个 DDL 语句（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &name, #{...}, ${...}, @{...}） */
+    /** 执行一个 静态 SQL 语句，通常是一个 DDL 语句（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, &amp;{...}, @{...}） */
     void execute(String sql) throws SQLException;
 
     // ------------------------------------------------------------------------ executeCallback(PreparedStatementCreator)
@@ -118,7 +118,7 @@ public interface JdbcOperations {
     Map<String, Object> call(String callString, Object args) throws SQLException;
 
     /**
-     * 执行查询语句，接收存储过程所有结果集和输出参数（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &name, #{...}, ${...}, @{...}）
+     * 执行查询语句，接收存储过程所有结果集和输出参数（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, ${...}, @{...}）
      */
     <T> T call(String callString, CallableStatementSetter args, CallableStatementCallback<T> callback) throws SQLException;
 
@@ -146,7 +146,7 @@ public interface JdbcOperations {
     Map<String, Object> multipleExecute(String sql, Object args) throws SQLException;
 
     /**
-     * 执行查询语句，期待语句可能返回多个结果（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &name, #{...}, ${...}, @{...}）
+     * 执行查询语句，期待语句可能返回多个结果（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, ${...}, @{...}）
      */
     Map<String, Object> multipleExecute(String sql, PreparedStatementSetter args) throws SQLException;
 
@@ -174,7 +174,7 @@ public interface JdbcOperations {
     <T> T query(String sql, Object args, ResultSetExtractor<T> rse) throws SQLException;
 
     /**
-     * 执行查询语句，并且将 SQL 查询结果集使用 {@link ResultSetExtractor} 接口处理（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &name, #{...}, ${...}, @{...}）
+     * 执行查询语句，并且将 SQL 查询结果集使用 {@link ResultSetExtractor} 接口处理（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, ${...}, @{...}）
      */
     <T> T query(String sql, PreparedStatementSetter args, ResultSetExtractor<T> rse) throws SQLException;
 
@@ -201,7 +201,7 @@ public interface JdbcOperations {
     void query(String sql, Object args, RowCallbackHandler rch) throws SQLException;
 
     /**
-     * 执行查询语句，并通过 {@link RowCallbackHandler} 处理行数据（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &name, #{...}, ${...}, @{...}）
+     * 执行查询语句，并通过 {@link RowCallbackHandler} 处理行数据（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, ${...}, @{...}）
      */
     void query(String sql, PreparedStatementSetter args, RowCallbackHandler rch) throws SQLException;
 
@@ -228,7 +228,7 @@ public interface JdbcOperations {
     <T> List<T> queryForList(String sql, Object args, RowMapper<T> rowMapper) throws SQLException;
 
     /**
-     * 执行查询语句，并通过 {@link RowMapper} 接口映射记录（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &name, #{...}, ${...}, @{...}）
+     * 执行查询语句，并通过 {@link RowMapper} 接口映射记录（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, ${...}, @{...}）
      */
     <T> List<T> queryForList(String sql, PreparedStatementSetter args, RowMapper<T> rowMapper) throws SQLException;
 
@@ -255,7 +255,7 @@ public interface JdbcOperations {
     <T> List<T> queryForList(String sql, Object args, Class<T> elementType) throws SQLException;
 
     /**
-     * 执行查询语句，并通过 <code>elementType</code> 类型将数据记录映射到对象上（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &name, #{...}, ${...}, @{...}）
+     * 执行查询语句，并通过 <code>elementType</code> 类型将数据记录映射到对象上（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, ${...}, @{...}）
      */
     <T> List<T> queryForList(String sql, PreparedStatementSetter args, Class<T> elementType) throws SQLException;
 
@@ -282,7 +282,7 @@ public interface JdbcOperations {
     List<Map<String, Object>> queryForList(String sql, Object args) throws SQLException;
 
     /**
-     * 执行查询语句，结果以每行通过 Map 结构进行封装（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &name, #{...}, ${...}, @{...}）
+     * 执行查询语句，结果以每行通过 Map 结构进行封装（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, ${...}, @{...}）
      */
     List<Map<String, Object>> queryForList(String sql, PreparedStatementSetter args) throws SQLException;
 
@@ -313,7 +313,7 @@ public interface JdbcOperations {
     <T> T queryForObject(String sql, Object args, RowMapper<T> rowMapper) throws SQLException;
 
     /**
-     * 执行查询语句，并使用 {@link RowMapper} 处理结果集（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &name, #{...}, ${...}, @{...}）
+     * 执行查询语句，并使用 {@link RowMapper} 处理结果集（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, &amp;{...}, @{...}）
      * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。</p>
      * @return 当不存在记录时返回<code>null</code>。
      */
@@ -346,7 +346,7 @@ public interface JdbcOperations {
     <T> T queryForObject(String sql, Object args, Class<T> requiredType) throws SQLException;
 
     /**
-     * 执行查询语句，并将结果集数据转换成<code>requiredType</code>参数指定的类型对象（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &name, #{...}, ${...}, @{...}）
+     * 执行查询语句，并将结果集数据转换成<code>requiredType</code>参数指定的类型对象（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, &amp;{...}, @{...}）
      * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。</p>
      * @return 当不存在记录时返回<code>null</code>。
      */
@@ -379,7 +379,7 @@ public interface JdbcOperations {
     Map<String, Object> queryForMap(String sql, Object args) throws SQLException;
 
     /**
-     * 执行查询语句，并将结果集数据转换成<code>Map</code>（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &name, #{...}, ${...}, @{...}）
+     * 执行查询语句，并将结果集数据转换成<code>Map</code>（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, &amp;{...}, @{...}）
      * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据将会取得第一条数据作为结果。</p>
      * @return 当不存在记录时返回<code>null</code>。
      */
@@ -410,7 +410,7 @@ public interface JdbcOperations {
     long queryForLong(String sql, Object args) throws SQLException;
 
     /**
-     * 执行查询语句，并以 long 类型返回数据（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &name, #{...}, ${...}, @{...}）
+     * 执行查询语句，并以 long 类型返回数据（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, &amp;{...}, @{...}）
      * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。</p>
      */
     long queryForLong(String sql, PreparedStatementSetter args) throws SQLException;
@@ -439,7 +439,7 @@ public interface JdbcOperations {
     int queryForInt(String sql, Object args) throws SQLException;
 
     /**
-     * 执行查询语句，并以 int 类型返回数据（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &name, #{...}, ${...}, @{...}）
+     * 执行查询语句，并以 int 类型返回数据（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, &amp;{...}, @{...}）
      * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。</p>
      */
     int queryForInt(String sql, PreparedStatementSetter args) throws SQLException;
@@ -469,7 +469,7 @@ public interface JdbcOperations {
     String queryForString(String sql, Object args) throws SQLException;
 
     /**
-     * 执行查询语句，并以 string 类型返回数据（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &name, #{...}, ${...}, @{...}）
+     * 执行查询语句，并以 string 类型返回数据（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, &amp;{...}, @{...}）
      * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。</p>
      */
     String queryForString(String sql, PreparedStatementSetter args) throws SQLException;
@@ -497,7 +497,7 @@ public interface JdbcOperations {
     int executeUpdate(String sql, Object args) throws SQLException;
 
     /**
-     * 执行查询语句，通常用于 insert、update、delete DML 操作，返回值用于表示受影响的行数（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &name, #{...}, ${...}, @{...}）
+     * 执行查询语句，通常用于 insert、update、delete DML 操作，返回值用于表示受影响的行数（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, &amp;{...}, @{...}）
      */
     int executeUpdate(String sql, PreparedStatementSetter args) throws SQLException;
 
@@ -524,7 +524,7 @@ public interface JdbcOperations {
     int[] executeBatch(String sql, Object[] batchArgs) throws SQLException;
 
     /**
-     * 批量执行 insert 或 update、delete 语句，参数使用 {@link BatchPreparedStatementSetter} 接口设置（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &name, #{...}, ${...}, @{...}）
+     * 批量执行 insert 或 update、delete 语句，参数使用 {@link BatchPreparedStatementSetter} 接口设置（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, &amp;{...}, @{...}）
      */
     int[] executeBatch(String sql, BatchPreparedStatementSetter setter) throws SQLException;
 }

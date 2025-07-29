@@ -142,62 +142,62 @@ public interface QueryCompare<R, T, P> {
     R eq(boolean test, P property, Object value);
 
     /**
-     * 不等于条件，类似：'col <> ?'
+     * 不等于条件，类似：'col &lt;&gt; ?'
      */
     default R ne(P property, Object value) {
         return this.ne(true, property, value);
     }
 
     /**
-     * 当 test 条件为真时才使用不等于条件，类似：'if test then col <> ?'
+     * 当 test 条件为真时才使用不等于条件，类似：'if test then col &lt;&gt; ?'
      */
     R ne(boolean test, P property, Object value);
 
     /**
-     * 大于条件，类似：'col > ?'
+     * 大于条件，类似：'col &gt; ?'
      */
     default R gt(P property, Object value) {
         return this.gt(true, property, value);
     }
 
     /**
-     * 当 test 条件为真时才使用大于条件，类似：'if test then col > ?'
+     * 当 test 条件为真时才使用大于条件，类似：'if test then col &gt; ?'
      */
     R gt(boolean test, P property, Object value);
 
     /**
-     * 大于等于条件，类似：'col >= ?'
+     * 大于等于条件，类似：'col &gt;= ?'
      */
     default R ge(P property, Object value) {
         return this.ge(true, property, value);
     }
 
     /**
-     * 当 test 条件为真时才使用大于等于条件，类似：'if test then col >= ?'
+     * 当 test 条件为真时才使用大于等于条件，类似：'if test then col &gt;= ?'
      */
     R ge(boolean test, P property, Object value);
 
     /**
-     * 小于条件，类似：'col < ?'
+     * 小于条件，类似：'col &lt; ?'
      */
     default R lt(P property, Object value) {
         return this.lt(true, property, value);
     }
 
     /**
-     * 当 test 条件为真时才使用小于条件，类似：'if test then col < ?'
+     * 当 test 条件为真时才使用小于条件，类似：'if test then col &lt; ?'
      */
     R lt(boolean test, P property, Object value);
 
     /**
-     * 小于等于条件，类似：'col <= ?'
+     * 小于等于条件，类似：'col &lt;= ?'
      */
     default R le(P property, Object value) {
         return this.le(true, property, value);
     }
 
     /**
-     * 当 test 条件为真时才使用小于等于条件，类似：'if test then col <= ?'
+     * 当 test 条件为真时才使用小于等于条件，类似：'if test then col &lt;= ?'
      */
     R le(boolean test, P property, Object value);
 
@@ -346,98 +346,98 @@ public interface QueryCompare<R, T, P> {
     R rangeNotBetween(boolean test, P property, Object value1, Object value2);
 
     /**
-     * 类似：'xx < col < xx'
+     * 类似：'xx &lt; col &lt; xx'
      */
     default R rangeOpenOpen(P property, Object value1, Object value2) {
         return this.rangeOpenOpen(true, property, value1, value2);
     }
 
     /**
-     * 当 test 条件为真时才使用 rangeOpenOpen 条件，类似：'if test then xx < col < xx'
+     * 当 test 条件为真时才使用 rangeOpenOpen 条件，类似：'if test then xx &lt; col &lt; xx'
      */
     R rangeOpenOpen(boolean test, P property, Object value1, Object value2);
 
     /**
-     * 类似：'not (xx < col < xx)'
+     * 类似：'not (xx &lt; col &lt; xx)'
      */
     default R rangeNotOpenOpen(P property, Object value1, Object value2) {
         return this.rangeNotOpenOpen(true, property, value1, value2);
     }
 
     /**
-     * 当 test 条件为真时才使用 rangeNotOpenOpen 条件，类似：'if test then not (xx < col < xx)'
+     * 当 test 条件为真时才使用 rangeNotOpenOpen 条件，类似：'if test then not (xx &lt; col &lt; xx)'
      */
     R rangeNotOpenOpen(boolean test, P property, Object value1, Object value2);
 
     /**
-     * 类似：'xx < col <= xx'
+     * 类似：'xx &lt; col &lt;= xx'
      */
     default R rangeOpenClosed(P property, Object value1, Object value2) {
         return this.rangeOpenClosed(true, property, value1, value2);
     }
 
     /**
-     * 当 test 条件为真时才使用 rangeOpenClosed 条件，类似：'if test then xx < col <= xx'
+     * 当 test 条件为真时才使用 rangeOpenClosed 条件，类似：'if test then xx &lt; col &lt;= xx'
      */
     R rangeOpenClosed(boolean test, P property, Object value1, Object value2);
 
     /**
-     * 类似：'not (xx < col <= xx)'
+     * 类似：'not (xx &lt; col &lt;= xx)'
      */
     default R rangeNotOpenClosed(P property, Object value1, Object value2) {
         return this.rangeNotOpenClosed(true, property, value1, value2);
     }
 
     /**
-     * 当 test 条件为真时才使用 rangeNotOpenClosed 条件，类似：'if test then not (xx < col <= xx)'
+     * 当 test 条件为真时才使用 rangeNotOpenClosed 条件，类似：'if test then not (xx &lt; col &lt;= xx)'
      */
     R rangeNotOpenClosed(boolean test, P property, Object value1, Object value2);
 
     /**
-     * 类似：'xx <= col < xx'
+     * 类似：'xx &lt;= col &lt; xx'
      */
     default R rangeClosedOpen(P property, Object value1, Object value2) {
         return this.rangeClosedOpen(true, property, value1, value2);
     }
 
     /**
-     * 当 test 条件为真时才使用 rangeClosedOpen 条件，类似：'if test then xx <= col < xx'
+     * 当 test 条件为真时才使用 rangeClosedOpen 条件，类似：'if test then xx &lt;= col &lt; xx'
      */
     R rangeClosedOpen(boolean test, P property, Object value1, Object value2);
 
     /**
-     * 类似：'not (xx <= col < xx)'
+     * 类似：'not (xx &lt;= col &lt; xx)'
      */
     default R rangeNotClosedOpen(P property, Object value1, Object value2) {
         return this.rangeNotClosedOpen(true, property, value1, value2);
     }
 
     /**
-     * 当 test 条件为真时才使用 rangeNotClosedOpen 条件，类似：'if test then not (xx <= col < xx)'
+     * 当 test 条件为真时才使用 rangeNotClosedOpen 条件，类似：'if test then not (xx &lt;= col &lt; xx)'
      */
     R rangeNotClosedOpen(boolean test, P property, Object value1, Object value2);
 
     /**
-     * 类似：'xx <= col <= xx'
+     * 类似：'xx &lt;= col &lt;= xx'
      */
     default R rangeClosedClosed(P property, Object value1, Object value2) {
         return this.rangeClosedClosed(true, property, value1, value2);
     }
 
     /**
-     * 当 test 条件为真时才使用 rangeClosedClosed 条件，类似：'if test then xx <= col <= xx'
+     * 当 test 条件为真时才使用 rangeClosedClosed 条件，类似：'if test then xx &lt;= col &lt;= xx'
      */
     R rangeClosedClosed(boolean test, P property, Object value1, Object value2);
 
     /**
-     * 类似：'not (xx <= col <= xx)'
+     * 类似：'not (xx &lt;= col &lt;= xx)'
      */
     default R rangeNotClosedClosed(P property, Object value1, Object value2) {
         return this.rangeNotClosedClosed(true, property, value1, value2);
     }
 
     /**
-     * 当 test 条件为真时才使用 rangeNotClosedClosed 条件，类似：'if test then not (xx <= col <= xx)'
+     * 当 test 条件为真时才使用 rangeNotClosedClosed 条件，类似：'if test then not (xx &lt;= col &lt;= xx)'
      */
     R rangeNotClosedClosed(boolean test, P property, Object value1, Object value2);
 
