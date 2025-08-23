@@ -29,19 +29,20 @@ public class JdbcDriver implements java.sql.Driver {
     private static final ClassLoader classLoader  = JdbcDriver.class.getClassLoader();
 
     //
-    public static final String P_SERVER       = "server";
-    public static final String P_ADAPTER_NAME = "adapterName";
-    public static final String P_TIME_ZONE    = "timeZone";
-    public static final String P_START_URL    = "jdbc:dbvisitor:";
+    public static final String P_SERVER       = "server";     // driver attr for host
+    public static final String P_TIME_ZONE    = "timeZone";   // driver attr for dataConvert
+    public static final String P_ADAPTER_NAME = "adapterName";// adapter attr is readOnly
+
     //
+    public static final String START_URL     = "jdbc:dbvisitor:";
     /** The major version of this adapter. */
-    public static final String NAME           = "dbVisitor JDBC Adapter";
+    public static final String NAME          = "dbVisitor JDBC Adapter";
     /** The major version of this adapter. */
-    public static final String VERSION        = "6.0";
+    public static final String VERSION       = "6.0";
     /** The major version of this adapter. */
-    public static final int    VERSION_MAJOR  = 6;
+    public static final int    VERSION_MAJOR = 6;
     /** The minor version of this adapter. */
-    public static final int    VERSION_MINOR  = 0;
+    public static final int    VERSION_MINOR = 0;
 
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
@@ -53,7 +54,7 @@ public class JdbcDriver implements java.sql.Driver {
         if (url == null) {
             throw new SQLException("driver jdbcUrl format error.", JdbcErrorCode.CODE_URL_FORMAT_ERROR);
         } else {
-            return url.startsWith(P_START_URL);
+            return url.startsWith(START_URL);
         }
     }
 
@@ -74,11 +75,11 @@ public class JdbcDriver implements java.sql.Driver {
             urlArgs = url.substring(qPos + 1);
         }
 
-        if (!StringUtils.startsWith(urlServer, P_START_URL)) {
+        if (!StringUtils.startsWith(urlServer, START_URL)) {
             logger.log(Level.FINE, "JDBC URL must start with \"jdbc:dbvisitor:xxx\" but was: {0}", url);
             return null;
         }
-        urlServer = urlServer.substring(P_START_URL.length());
+        urlServer = urlServer.substring(START_URL.length());
         if (urlServer.startsWith("//")) {
             logger.log(Level.FINE, "JDBC URL missing adapter is like \"jdbc:dbvisitor:name\" but was: {0}", url);
             return null;

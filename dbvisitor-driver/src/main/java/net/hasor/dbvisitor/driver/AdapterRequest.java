@@ -15,20 +15,17 @@
  */
 package net.hasor.dbvisitor.driver;
 import java.util.Map;
+import java.util.UUID;
 
 public abstract class AdapterRequest {
-    private   String               traceId;
-    protected long                 maxRows    = 0;
-    protected int                  fetchSize  = 0;
-    protected int                  timeoutSec = 0;
-    private   Map<String, JdbcArg> argMap;
+    private final String               traceId    = UUID.randomUUID().toString().replace("-", "");
+    protected     long                 maxRows    = 0;
+    protected     int                  fetchSize  = 0;
+    protected     int                  timeoutSec = 0;
+    private       Map<String, JdbcArg> argMap;
 
     public String getTraceId() {
         return traceId;
-    }
-
-    public void setTraceId(String traceId) {
-        this.traceId = traceId;
     }
 
     public long getMaxRows() {

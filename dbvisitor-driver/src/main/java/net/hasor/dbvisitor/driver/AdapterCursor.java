@@ -33,4 +33,8 @@ public interface AdapterCursor extends AutoCloseable {
     List<String> warnings();
 
     void clearWarnings();
+
+    boolean isPending();
+
+    boolean isClose();
 }

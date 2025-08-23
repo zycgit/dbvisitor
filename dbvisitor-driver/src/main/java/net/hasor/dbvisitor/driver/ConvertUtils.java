@@ -33,7 +33,7 @@ import java.util.Date;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-final class ConvertUtils {
+public final class ConvertUtils {
     private static final LocalDateTime epochDateTime = LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0);
     /** The set of strings that are known to map to Boolean.TRUE. */
     private static final String[]      trueStrings   = { "true", "yes", "y", "t", "on", "1" };

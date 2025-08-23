@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.Map;
 
 class JdbcCallableStatement extends JdbcPreparedStatement implements CallableStatement {
+
     private static final Object[][] EMPTY         = new Object[0][0];
     private              ResultSet  lastResultOut = null;
 
@@ -103,31 +104,37 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
 
     @Override
     public void registerOutParameter(int parameterIndex, SQLType sqlType, String typeName) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.registerOutParameter("arg" + parameterIndex, sqlType);
     }
 
     @Override
     public void registerOutParameter(int parameterIndex, SQLType sqlType, int scale) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.registerOutParameter("arg" + parameterIndex, sqlType);
     }
 
     @Override
     public void registerOutParameter(int parameterIndex, SQLType sqlType) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.registerOutParameter("arg" + parameterIndex, sqlType);
     }
 
     @Override
     public void registerOutParameter(int parameterIndex, int sqlType) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.Out, "arg" + parameterIndex, this.getTypeName(sqlType), null);
     }
 
     @Override
     public void registerOutParameter(int parameterIndex, int sqlType, int scale) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.Out, "arg" + parameterIndex, this.getTypeName(sqlType), null);
     }
 
     @Override
     public void registerOutParameter(int parameterIndex, int sqlType, String typeName) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.registerOutParameter("arg" + parameterIndex, sqlType, typeName);
     }
 
@@ -144,6 +151,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public boolean getBoolean(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getBoolean("arg" + parameterIndex);
     }
 
@@ -156,6 +164,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public byte getByte(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getByte("arg" + parameterIndex);
     }
 
@@ -168,6 +177,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public short getShort(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getShort("arg" + parameterIndex);
     }
 
@@ -180,6 +190,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public int getInt(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getInt("arg" + parameterIndex);
     }
 
@@ -192,6 +203,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public long getLong(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getInt("arg" + parameterIndex);
     }
 
@@ -204,6 +216,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public float getFloat(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getFloat("arg" + parameterIndex);
     }
 
@@ -216,6 +229,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public double getDouble(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getDouble("arg" + parameterIndex);
     }
 
@@ -228,12 +242,14 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public BigDecimal getBigDecimal(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getBigDecimal("arg" + parameterIndex);
     }
 
     @Override
     public BigDecimal getBigDecimal(int parameterIndex, int scale) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getBigDecimal("arg" + parameterIndex, scale);
     }
 
@@ -246,6 +262,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public byte[] getBytes(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getBytes("arg" + parameterIndex);
     }
 
@@ -258,6 +275,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public String getString(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getString("arg" + parameterIndex);
     }
 
@@ -270,6 +288,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public String getNString(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getNString("arg" + parameterIndex);
     }
 
@@ -282,12 +301,14 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public Date getDate(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getDate("arg" + parameterIndex);
     }
 
     @Override
     public Date getDate(int parameterIndex, Calendar cal) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getDate("arg" + parameterIndex, cal);
     }
 
@@ -306,12 +327,14 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public Time getTime(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getTime("arg" + parameterIndex);
     }
 
     @Override
     public Time getTime(int parameterIndex, Calendar cal) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getTime("arg" + parameterIndex, cal);
     }
 
@@ -330,12 +353,14 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public Timestamp getTimestamp(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getTimestamp("arg" + parameterIndex);
     }
 
     @Override
     public Timestamp getTimestamp(int parameterIndex, Calendar cal) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getTimestamp("arg" + parameterIndex, cal);
     }
 
@@ -354,6 +379,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public Clob getClob(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getClob("arg" + parameterIndex);
     }
 
@@ -366,6 +392,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public NClob getNClob(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getNClob("arg" + parameterIndex);
     }
 
@@ -378,6 +405,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public Blob getBlob(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getBlob("arg" + parameterIndex);
     }
 
@@ -390,6 +418,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public URL getURL(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getURL("arg" + parameterIndex);
     }
 
@@ -402,6 +431,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public SQLXML getSQLXML(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getSQLXML("arg" + parameterIndex);
     }
 
@@ -414,6 +444,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public RowId getRowId(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getRowId("arg" + parameterIndex);
     }
 
@@ -426,6 +457,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public Reader getNCharacterStream(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getNCharacterStream("arg" + parameterIndex);
     }
 
@@ -438,6 +470,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public Reader getCharacterStream(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getCharacterStream("arg" + parameterIndex);
     }
 
@@ -450,6 +483,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public Ref getRef(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getRef("arg" + parameterIndex);
     }
 
@@ -462,6 +496,7 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public Array getArray(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getArray("arg" + parameterIndex);
     }
 
@@ -474,18 +509,21 @@ class JdbcCallableStatement extends JdbcPreparedStatement implements CallableSta
     @Override
     public Object getObject(int parameterIndex) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getObject("arg" + parameterIndex);
     }
 
     @Override
     public Object getObject(int parameterIndex, Map<String, Class<?>> map) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getObject("arg" + parameterIndex, map);
     }
 
     @Override
     public <T> T getObject(int parameterIndex, Class<T> type) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         return this.getOutParameter().getObject("arg" + parameterIndex, type);
     }
 

@@ -367,9 +367,9 @@ class JdbcStatement implements Statement, Closeable {
                 this.jdbcConn.adapterConnection().startTimer(req.getTraceId(), this.timeoutSec * 1000, timeout -> {
                     if (this.container.getState() == AdapterReceiveState.Pending) {
                         try {
-                            this.jdbcConn.adapterConnection().cancelRequest(req);
+                            this.jdbcConn.adapterConnection().cancelRequest();
                         } catch (Exception e) {
-                            logger.error(e.getMessage(), e);
+                            logger.error("cancel request failed, traceId: " + req.getTraceId() + ", " + e.getMessage(), e); // TODO 取消请求失败
                         } finally {
                             this.container.responseFailed(req, new SQLTimeoutException("query timeout.", JdbcErrorCode.SQL_STATE_QUERY_TIMEOUT));
                         }
@@ -383,6 +383,8 @@ class JdbcStatement implements Statement, Closeable {
             this.afterExecute(req, this.container);
 
             return this.container.firstResult().isResult();
+        } catch (Throwable e) {
+            throw (SQLException) ((e instanceof SQLException) ? e : new SQLException(e));
         } finally {
             if (this.closeOnCompletion) {
                 this.close();
@@ -416,7 +418,7 @@ class JdbcStatement implements Statement, Closeable {
 
         try {
             this.jdbcConn.adapterConnection().stopTimer(req.getTraceId());
-            this.jdbcConn.adapterConnection().cancelRequest(req);
+            this.jdbcConn.adapterConnection().cancelRequest();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         } finally {
@@ -433,7 +435,7 @@ class JdbcStatement implements Statement, Closeable {
             throw new SQLException("No results were returned by the query.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
         } else {
             if (result.isResult()) {
-                throw new SQLException("current result is ResultSet.", JdbcErrorCode.SQL_STATE_QUERY_IS_UPDATE_COUNT);
+                return -1;
             } else {
                 return result.getUpdateCount();
             }
@@ -469,6 +471,11 @@ class JdbcStatement implements Statement, Closeable {
 
     protected void checkResultSet() throws SQLException {
         this.checkOpen();
+
+        AdapterResponse result = this.container.firstResult();
+        if (result != null) {
+            return;
+        }
 
         switch (this.container.getState()) {
             case Ready:

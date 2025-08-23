@@ -157,8 +157,10 @@ class AdapterContainer implements AdapterReceive {
     }
 
     protected void onReceive() {
-        this.state = AdapterReceiveState.Receive;
-        this.syncObj.notifyAll();
+        synchronized (this.syncObj) {
+            this.state = AdapterReceiveState.Receive;
+            this.syncObj.notifyAll();
+        }
     }
 
     public boolean nextResult(int timeout, TimeUnit timeUnit) throws SQLException {
@@ -196,10 +198,14 @@ class AdapterContainer implements AdapterReceive {
 
     public void waitFor(int timeout, TimeUnit timeUnit) throws SQLException {
         try {
-            if (timeout == 0) {
-                this.syncObj.wait();
-            } else {
-                this.syncObj.wait(timeUnit.toMillis(timeout));
+            if (this.response.isEmpty()) {
+                synchronized (this.syncObj) {
+                    if (timeout == 0) {
+                        this.syncObj.wait();
+                    } else {
+                        this.syncObj.wait(timeUnit.toMillis(timeout));
+                    }
+                }
             }
 
             if (this.response.isEmpty()) {

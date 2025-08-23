@@ -41,6 +41,10 @@ public class AdapterResponse extends BasicFuture<AdapterResponse> {
         return this.resultIsError;
     }
 
+    public boolean isPending() {
+        return this.resultIsResult && this.resultSet.isPending();
+    }
+
     public AdapterCursor toCursor() {
         return this.resultSet;
     }

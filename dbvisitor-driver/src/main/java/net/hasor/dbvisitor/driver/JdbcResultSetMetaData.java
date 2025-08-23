@@ -40,10 +40,10 @@ class JdbcResultSetMetaData implements ResultSetMetaData {
     }
 
     protected JdbcColumn column(int index) throws SQLException {
-        if (index < 0 || index >= columns.size()) {
+        if (index < 0 || index > columns.size()) {
             throw new SQLException("Invalid column index [" + index + "]");
         } else {
-            return this.columns.get(index);
+            return this.columns.get(index - 1);
         }
     }
 

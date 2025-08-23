@@ -28,6 +28,7 @@ public class AdapterResultCursor implements AdapterCursor {
     private final    Queue<Map<String, Object>> rowSet;
     private volatile Map<String, Object>        currentRow;
     private volatile boolean                    closed;
+    private volatile boolean                    pending;
 
     public AdapterResultCursor(AdapterRequest request, List<JdbcColumn> columns) {
         this.request = request;
@@ -36,6 +37,7 @@ public class AdapterResultCursor implements AdapterCursor {
         this.warnings = new ArrayList<>();
         this.rowSet = new ConcurrentLinkedQueue<>();
         this.closed = false;
+        this.pending = true;
 
         for (int i = 0; i < columns.size(); i++) {
             JdbcColumn column = columns.get(i);
@@ -78,8 +80,15 @@ public class AdapterResultCursor implements AdapterCursor {
         if (this.closed) {
             throw new SQLException("cursor is closed.");
         }
+        if (!this.pending) {
+            throw new SQLException("cursor is finish.");
+        }
 
         this.rowSet.offer(Objects.requireNonNull(row, "row is null."));
+    }
+
+    public void pushFinish() {
+        this.pending = true;
     }
 
     @Override
@@ -102,5 +111,15 @@ public class AdapterResultCursor implements AdapterCursor {
     @Override
     public void clearWarnings() {
         this.warnings.clear();
+    }
+
+    @Override
+    public boolean isPending() {
+        return this.pending;
+    }
+
+    @Override
+    public boolean isClose() {
+        return this.closed;
     }
 }

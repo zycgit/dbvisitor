@@ -22,15 +22,14 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.sql.Date;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
+
     private final Map<String, JdbcArg> parameters     = new LinkedHashMap<>();
     private final Map<String, JdbcArg> parametersKeep = new LinkedHashMap<>();
     private final String               query;
@@ -43,7 +42,7 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
     @Override
     protected void configRequest(AdapterRequest request) {
         super.configRequest(request);
-        request.setArgMap(Collections.unmodifiableMap(this.parameters));
+        request.setArgMap(new HashMap<>(this.parameters));
     }
 
     @Override
@@ -52,6 +51,12 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
         this.parametersKeep.clear();
         this.parametersKeep.putAll(this.parameters);
         this.parameters.clear();
+    }
+
+    protected void checkParameterIndex(int parameterIndex) throws SQLException {
+        if (parameterIndex < 1) {
+            throw new SQLException("Parameter index starts from 1, but got " + parameterIndex + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        }
     }
 
     protected void setParameter(JdbcArgMode mode, String parameterName, String typeName, Object object) throws SQLException {
@@ -142,11 +147,13 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, this.getTypeName(sqlType), null);
     }
 
     @Override
     public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         if (StringUtils.isNotBlank(typeName)) {
             this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, typeName, null);
         } else {
@@ -156,107 +163,128 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
     @Override
     public void setBoolean(int parameterIndex, boolean x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Boolean, x);
     }
 
     @Override
     public void setByte(int parameterIndex, byte x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Byte, x);
     }
 
     @Override
     public void setShort(int parameterIndex, short x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Short, x);
     }
 
     @Override
     public void setInt(int parameterIndex, int x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Int, x);
     }
 
     @Override
     public void setLong(int parameterIndex, long x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Long, x);
     }
 
     @Override
     public void setFloat(int parameterIndex, float x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Float, x);
     }
 
     @Override
     public void setDouble(int parameterIndex, double x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Double, x);
     }
 
     @Override
     public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.BigDecimal, x);
     }
 
     @Override
     public void setURL(int parameterIndex, URL val) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         String value = val == null ? null : val.toString();
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.String, value);
     }
 
     @Override
     public void setString(int parameterIndex, String value) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.String, value);
     }
 
     @Override
     public void setNString(int parameterIndex, String value) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.String, value);
     }
 
     @Override
     public void setClob(int parameterIndex, Reader reader) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setStringReader("arg" + parameterIndex, reader);
     }
 
     @Override
     public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setStringReader("arg" + parameterIndex, reader, length);
     }
 
     @Override
     public void setClob(int parameterIndex, Clob x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setStringReader("arg" + parameterIndex, x == null ? null : x.getCharacterStream());
     }
 
     @Override
     public void setNClob(int parameterIndex, NClob x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setStringReader("arg" + parameterIndex, x == null ? null : x.getCharacterStream());
     }
 
     @Override
     public void setNClob(int parameterIndex, Reader reader) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setStringReader("arg" + parameterIndex, reader);
     }
 
     @Override
     public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setStringReader("arg" + parameterIndex, reader, length);
     }
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setStringReader("arg" + parameterIndex, reader);
     }
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setStringReader("arg" + parameterIndex, reader, length);
     }
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setStringReader("arg" + parameterIndex, reader, length);
     }
 
     @Override
     public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         if (x == null) {
             this.setStringReader("arg" + parameterIndex, null, length);
         } else {
@@ -266,71 +294,85 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
     @Override
     public void setNCharacterStream(int parameterIndex, Reader reader) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setStringReader("arg" + parameterIndex, reader);
     }
 
     @Override
     public void setNCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setStringReader("arg" + parameterIndex, reader, length);
     }
 
     @Override
     public void setBytes(int parameterIndex, byte[] x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Bytes, x);
     }
 
     @Override
     public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setBinaryStream("arg" + parameterIndex, x);
     }
 
     @Override
     public void setBinaryStream(int parameterIndex, InputStream x, int length) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setBinaryStream("arg" + parameterIndex, x, length);
     }
 
     @Override
     public void setBinaryStream(int parameterIndex, InputStream x, long length) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setBinaryStream("arg" + parameterIndex, x, length);
     }
 
     @Override
     public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setBinaryStream("arg" + parameterIndex, x);
     }
 
     @Override
     public void setAsciiStream(int parameterIndex, InputStream x, int length) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setBinaryStream("arg" + parameterIndex, x, length);
     }
 
     @Override
     public void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setBinaryStream("arg" + parameterIndex, x, length);
     }
 
     @Override
     public void setBlob(int parameterIndex, Blob x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setBinaryStream("arg" + parameterIndex, x == null ? null : x.getBinaryStream());
     }
 
     @Override
     public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setBinaryStream("arg" + parameterIndex, inputStream);
     }
 
     @Override
     public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setBinaryStream("arg" + parameterIndex, inputStream, length);
     }
 
     @Override
     public void setDate(int parameterIndex, Date x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.SqlDate, x);
     }
 
     @Override
     public void setDate(int parameterIndex, Date x, Calendar cal) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         if (x == null) {
             this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.SqlDate, null);
         } else {
@@ -346,11 +388,13 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
     @Override
     public void setTime(int parameterIndex, Time x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.SqlTime, x);
     }
 
     @Override
     public void setTime(int parameterIndex, Time x, Calendar cal) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         if (x == null) {
             this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.SqlTime, null);
         } else {
@@ -366,11 +410,13 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.SqlTimestamp, x);
     }
 
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         if (x == null) {
             this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.SqlTimestamp, null);
         } else {
@@ -387,29 +433,34 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
     @Override
     public void setRowId(int parameterIndex, RowId x) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         throw new SQLFeatureNotSupportedException("type RowId not supported");
     }
 
     @Override
     public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         throw new SQLFeatureNotSupportedException("type SQLXML not supported");
     }
 
     @Override
     public void setRef(int parameterIndex, Ref x) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         throw new SQLFeatureNotSupportedException("type Ref not supported");
     }
 
     @Override
     public void setArray(int parameterIndex, Array x) throws SQLException {
         this.checkOpen();
+        this.checkParameterIndex(parameterIndex);
         throw new SQLFeatureNotSupportedException("type Array not supported");
     }
 
     @Override
     public void setObject(int parameterIndex, Object x) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         if (x == null) {
             this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Unknown, null);
         } else {
@@ -420,6 +471,7 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, this.getTypeName(targetSqlType), x);
     }
 
@@ -430,6 +482,7 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
     @Override
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType) throws SQLException {
+        this.checkParameterIndex(parameterIndex);
         if (targetSqlType != null) {
             if (StringUtils.isNotBlank(targetSqlType.getName())) {
                 this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, targetSqlType.getName(), x);

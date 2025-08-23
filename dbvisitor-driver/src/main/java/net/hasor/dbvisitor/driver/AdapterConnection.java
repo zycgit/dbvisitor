@@ -19,6 +19,7 @@ import net.hasor.cobble.concurrent.timer.Timeout;
 import net.hasor.cobble.concurrent.timer.TimerTask;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -126,7 +127,7 @@ public abstract class AdapterConnection implements Closeable {
         } else if (ResultSet.class.isAssignableFrom(iface)) {
             return (T) jdbcResultSet;
         } else {
-            return null;
+            return this.unwrap(iface);
         }
     }
 
@@ -152,12 +153,16 @@ public abstract class AdapterConnection implements Closeable {
 
     //
 
+    protected <T> T unwrap(Class<T> iface) throws SQLException {
+        return null;
+    }
+
     public abstract AdapterRequest newRequest(String sql);
 
     public abstract void doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException;
 
-    public abstract void cancelRequest(AdapterRequest request);
+    public abstract void cancelRequest();
 
     @Override
-    public abstract void close();
+    public abstract void close() throws IOException;
 }

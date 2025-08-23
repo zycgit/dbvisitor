@@ -79,4 +79,14 @@ class AdapterMemoryCursor implements AdapterCursor {
     @Override
     public void clearWarnings() {
     }
+
+    @Override
+    public boolean isPending() {
+        return false;
+    }
+
+    @Override
+    public boolean isClose() {
+        return this.data == null;
+    }
 }
