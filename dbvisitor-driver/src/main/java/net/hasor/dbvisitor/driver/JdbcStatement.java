@@ -18,6 +18,7 @@ import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 
 import java.io.Closeable;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.sql.*;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -355,10 +356,9 @@ class JdbcStatement implements Statement, Closeable {
             throw new SQLException("there is already query in the processing.", JdbcErrorCode.SQL_STATE_QUERY_IS_PENDING);
         }
 
+        AdapterRequest req = this.jdbcConn.adapterConnection().newRequest(sql);
+        this.configRequest(req);
         try {
-            AdapterRequest req = this.jdbcConn.adapterConnection().newRequest(sql);
-            this.configRequest(req);
-
             // request and receive
             this.container.prepareReceive(req); // status set to PENDING
 
@@ -383,7 +383,12 @@ class JdbcStatement implements Statement, Closeable {
             this.afterExecute(req, this.container);
 
             return this.container.firstResult().isResult();
+        } catch (UndeclaredThrowableException e) {
+            Throwable ee = e.getUndeclaredThrowable();
+            this.container.responseFailed(req, ee);
+            throw (SQLException) ((ee instanceof SQLException) ? ee : new SQLException(ee));
         } catch (Throwable e) {
+            this.container.responseFailed(req, e);
             throw (SQLException) ((e instanceof SQLException) ? e : new SQLException(e));
         } finally {
             if (this.closeOnCompletion) {

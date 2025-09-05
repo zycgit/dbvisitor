@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver;
+
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.cobble.logging.Logger;
@@ -25,14 +26,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 class AdapterContainer implements AdapterReceive {
-    private static final Logger                  logger = LoggerFactory.getLogger(AdapterContainer.class);
-    private final        JdbcConnection          jdbcConn;
-    private volatile     AdapterReceiveState     state;
-    private volatile     AdapterRequest          request;
-    private final        Map<String, JdbcColumn> parameterDefs;
-    private final        Map<String, Object>     parameterValues;
-    private final        List<AdapterResponse>   response;
-    private final        Object                  syncObj;
+    private static final Logger logger = LoggerFactory.getLogger(AdapterContainer.class);
+    private final JdbcConnection jdbcConn;
+    private volatile AdapterReceiveState state;
+    private volatile AdapterRequest request;
+    private final Map<String, JdbcColumn> parameterDefs;
+    private final Map<String, Object> parameterValues;
+    private final LinkedList<AdapterResponse> response;
+    private final Object syncObj;
 
     public AdapterContainer(JdbcConnection jdbcConn) {
         this.jdbcConn = jdbcConn;
@@ -95,7 +96,7 @@ class AdapterContainer implements AdapterReceive {
     }
 
     @Override
-    public boolean responseFailed(AdapterRequest request, Exception e) {
+    public boolean responseFailed(AdapterRequest request, Throwable e) {
         Objects.requireNonNull(e, "received error is null.");
         if (this.ifErrorStatusForResponse(request)) {
             return false;

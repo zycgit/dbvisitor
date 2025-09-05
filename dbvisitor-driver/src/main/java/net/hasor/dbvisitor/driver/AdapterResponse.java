@@ -27,7 +27,7 @@ public class AdapterResponse extends BasicFuture<AdapterResponse> {
     private List<JdbcColumn> columns;
     private AdapterCursor    resultSet;
     private long             updateCount;
-    private Exception        exception;
+    private Throwable        exception;
 
     public List<JdbcColumn> getColumnList() {
         return this.columns;
@@ -61,7 +61,7 @@ public class AdapterResponse extends BasicFuture<AdapterResponse> {
         return this.updateCount;
     }
 
-    public static AdapterResponse ofError(Exception e) {
+    public static AdapterResponse ofError(Throwable e) {
         AdapterResponse res = new AdapterResponse();
         res.resultIsError = true;
 

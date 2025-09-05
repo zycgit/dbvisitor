@@ -15,7 +15,7 @@
  */
 package net.hasor.dbvisitor.driver;
 public interface AdapterReceive {
-    boolean responseFailed(AdapterRequest request, Exception e);
+    boolean responseFailed(AdapterRequest request, Throwable e);
 
     boolean responseResult(AdapterRequest request, AdapterCursor cursor);
 

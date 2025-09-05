@@ -38,6 +38,7 @@ class JdbcResultSet implements ResultSet, Closeable {
     private       boolean                  wasNull       = false;
     private       boolean                  wasLast       = false;
     private       int                      rowNumber;
+    private final Map<Integer, String>     indexToName   = new LinkedHashMap<>();
     private final Map<String, Integer>     nameToIndex   = new LinkedHashMap<>();
     private final Map<String, String>      nameToType    = new LinkedHashMap<>();
     private final Map<String, TypeConvert> nameToConvert = new LinkedHashMap<>();
@@ -47,8 +48,13 @@ class JdbcResultSet implements ResultSet, Closeable {
         this.cursor = cursor;
         List<JdbcColumn> columns = cursor.columns();
         for (int i = 0; i < columns.size(); i++) {
-            this.nameToIndex.put(columns.get(i).name, i + 1);
-            this.nameToType.put(columns.get(i).name, columns.get(i).type);
+            String label = columns.get(i).name;
+            String type = columns.get(i).type;
+            int index = i + 1;
+
+            this.nameToIndex.put(label, index);
+            this.indexToName.put(index, label);
+            this.nameToType.put(label, type);
         }
     }
 
@@ -57,6 +63,23 @@ class JdbcResultSet implements ResultSet, Closeable {
         Integer columnIndex = this.nameToIndex.get(name);
         if (columnIndex == null) {
             throw new SQLException("Invalid column " + name);
+        } else {
+            return columnValue(columnIndex);
+        }
+    }
+
+    private String columnLabel(int columnIndex) throws SQLException {
+        this.checkOpen();
+        if (columnIndex <= 0 || columnIndex > this.cursor.columns().size()) {
+            throw new SQLException("Invalid column " + columnIndex);
+        }
+        return this.indexToName.get(columnIndex);
+    }
+
+    private Object columnValue(int columnIndex) throws SQLException {
+        this.checkOpen();
+        if (columnIndex <= 0 || columnIndex > this.cursor.columns().size()) {
+            throw new SQLException("Invalid column " + columnIndex);
         }
 
         if (this.wasLast || this.rowNumber < 1) {
@@ -281,7 +304,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public boolean getBoolean(int columnIndex) throws SQLException {
-        return this.getBoolean("arg" + columnIndex);
+        Boolean res = this.getObject(columnIndex, Boolean.class);
+        return res != null && res;
     }
 
     @Override
@@ -292,7 +316,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public byte getByte(int columnIndex) throws SQLException {
-        return this.getByte("arg" + columnIndex);
+        Byte res = this.getObject(columnIndex, Byte.class);
+        return res == null ? 0 : res;
     }
 
     @Override
@@ -303,7 +328,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public short getShort(int columnIndex) throws SQLException {
-        return this.getShort("arg" + columnIndex);
+        Short res = this.getObject(columnIndex, Short.class);
+        return res == null ? 0 : res;
     }
 
     @Override
@@ -314,7 +340,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public int getInt(int columnIndex) throws SQLException {
-        return this.getInt("arg" + columnIndex);
+        Integer res = this.getObject(columnIndex, Integer.class);
+        return res == null ? 0 : res;
     }
 
     @Override
@@ -325,7 +352,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public long getLong(int columnIndex) throws SQLException {
-        return this.getLong("arg" + columnIndex);
+        Long res = this.getObject(columnIndex, Long.class);
+        return res == null ? 0 : res;
     }
 
     @Override
@@ -336,7 +364,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public float getFloat(int columnIndex) throws SQLException {
-        return this.getFloat("arg" + columnIndex);
+        Float res = this.getObject(columnIndex, Float.class);
+        return res == null ? 0.0f : res;
     }
 
     @Override
@@ -347,7 +376,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public double getDouble(int columnIndex) throws SQLException {
-        return this.getDouble("arg" + columnIndex);
+        Double res = this.getObject(columnIndex, Double.class);
+        return res == null ? 0.0d : res;
     }
 
     @Override
@@ -358,7 +388,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
-        return this.getBigDecimal("arg" + columnIndex, scale);
+        BigDecimal res = this.getBigDecimal(columnIndex);
+        return res == null ? null : res.setScale(scale, RoundingMode.HALF_UP);
     }
 
     @Override
@@ -369,7 +400,7 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
-        return this.getBigDecimal("arg" + columnIndex);
+        return this.getObject(columnIndex, BigDecimal.class);
     }
 
     @Override
@@ -379,7 +410,7 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public Date getDate(int columnIndex) throws SQLException {
-        return this.getDate("arg" + columnIndex, null);
+        return this.getDate(columnIndex, null);
     }
 
     @Override
@@ -389,7 +420,14 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public Date getDate(int columnIndex, Calendar cal) throws SQLException {
-        return this.getDate("arg" + columnIndex, cal);
+        this.checkOpen();
+        String label = this.columnLabel(columnIndex);
+        Object value = this.columnValue(columnIndex);
+        if (value == null) {
+            return null;
+        } else {
+            return this.convertTo(label, this.convertTimeZone(value, cal), Date.class);
+        }
     }
 
     @Override
@@ -405,7 +443,7 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public Time getTime(int columnIndex) throws SQLException {
-        return this.getTime("arg" + columnIndex, null);
+        return this.getTime(columnIndex, null);
     }
 
     @Override
@@ -415,7 +453,14 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public Time getTime(int columnIndex, Calendar cal) throws SQLException {
-        return this.getTime("arg" + columnIndex, cal);
+        this.checkOpen();
+        String label = this.columnLabel(columnIndex);
+        Object value = this.columnValue(columnIndex);
+        if (value == null) {
+            return null;
+        } else {
+            return this.convertTo(label, this.convertTimeZone(value, cal), Time.class);
+        }
     }
 
     @Override
@@ -431,7 +476,7 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public Timestamp getTimestamp(int columnIndex) throws SQLException {
-        return this.getTimestamp("arg" + columnIndex, null);
+        return this.getTimestamp(columnIndex, null);
     }
 
     @Override
@@ -441,7 +486,14 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public Timestamp getTimestamp(int columnIndex, Calendar cal) throws SQLException {
-        return this.getTimestamp("arg" + columnIndex, cal);
+        this.checkOpen();
+        String label = this.columnLabel(columnIndex);
+        Object value = this.columnValue(columnIndex);
+        if (value == null) {
+            return null;
+        } else {
+            return this.convertTo(label, this.convertTimeZone(value, cal), Timestamp.class);
+        }
     }
 
     @Override
@@ -457,7 +509,7 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public String getString(int columnIndex) throws SQLException {
-        return this.getString("arg" + columnIndex);
+        return this.getObject(columnIndex, String.class);
     }
 
     @Override
@@ -467,7 +519,7 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public String getNString(int columnIndex) throws SQLException {
-        return this.getNString("arg" + columnIndex);
+        return this.getObject(columnIndex, String.class);
     }
 
     @Override
@@ -477,7 +529,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public Reader getCharacterStream(int columnIndex) throws SQLException {
-        return this.getCharacterStream("arg" + columnIndex);
+        String str = this.getObject(columnIndex, String.class);
+        return str == null ? null : new StringReader(str);
     }
 
     @Override
@@ -488,7 +541,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public Reader getNCharacterStream(int columnIndex) throws SQLException {
-        return this.getNCharacterStream("arg" + columnIndex);
+        String str = this.getObject(columnIndex, String.class);
+        return str == null ? null : new StringReader(str);
     }
 
     @Override
@@ -499,7 +553,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public Clob getClob(int columnIndex) throws SQLException {
-        return this.getClob("arg" + columnIndex);
+        String str = this.getObject(columnIndex, String.class);
+        return str == null ? null : new JdbcCob(str);
     }
 
     @Override
@@ -510,7 +565,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public NClob getNClob(int columnIndex) throws SQLException {
-        return this.getNClob("arg" + columnIndex);
+        String str = this.getObject(columnIndex, String.class);
+        return str == null ? null : new JdbcCob(str);
     }
 
     @Override
@@ -521,7 +577,7 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public byte[] getBytes(int columnIndex) throws SQLException {
-        return this.getBytes("arg" + columnIndex);
+        return this.getObject(columnIndex, byte[].class);
     }
 
     @Override
@@ -531,7 +587,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public Blob getBlob(int columnIndex) throws SQLException {
-        return this.getBlob("arg" + columnIndex);
+        byte[] res = this.getObject(columnIndex, byte[].class);
+        return res == null ? null : new JdbcBob(res);
     }
 
     @Override
@@ -542,7 +599,7 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public InputStream getAsciiStream(int columnIndex) throws SQLException {
-        return this.getBinaryStream("arg" + columnIndex);
+        return this.getBinaryStream(columnIndex);
     }
 
     @Override
@@ -552,7 +609,7 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public InputStream getUnicodeStream(int columnIndex) throws SQLException {
-        return this.getBinaryStream("arg" + columnIndex);
+        return this.getBinaryStream(columnIndex);
     }
 
     @Override
@@ -562,7 +619,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public InputStream getBinaryStream(int columnIndex) throws SQLException {
-        return this.getBinaryStream("arg" + columnIndex);
+        byte[] res = this.getObject(columnIndex, byte[].class);
+        return res == null ? null : new ByteArrayInputStream(res);
     }
 
     @Override
@@ -573,7 +631,15 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public URL getURL(int columnIndex) throws SQLException {
-        return this.getURL("arg" + columnIndex);
+        String urlStr = this.getString(columnIndex);
+        if (StringUtils.isBlank(urlStr)) {
+            return null;
+        }
+        try {
+            return new URL(urlStr);
+        } catch (MalformedURLException e) {
+            throw new SQLException(e);
+        }
     }
 
     @Override
@@ -591,7 +657,7 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public Object getObject(int columnIndex) throws SQLException {
-        return this.getObject("arg" + columnIndex);
+        return this.columnValue(columnIndex);
     }
 
     @Override
@@ -601,7 +667,10 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
-        return this.getObject("arg" + columnIndex, type);
+        this.checkOpen();
+        String label = this.columnLabel(columnIndex);
+        Object value = this.columnValue(columnIndex);
+        return this.convertTo(label, value, Objects.requireNonNull(type, "the to type is null."));
     }
 
     @Override
@@ -613,7 +682,15 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public Object getObject(int columnIndex, Map<String, Class<?>> map) throws SQLException {
-        return this.getObject("arg" + columnIndex, map);
+        this.checkOpen();
+        String label = this.columnLabel(columnIndex);
+        Object value = this.columnValue(columnIndex);
+        if (value == null) {
+            return null;
+        }
+        // 该方法是为了数据库自定义类型而设计，基本上涉及 SQL STRUCT、REF 或 ARRAY 类型。目前属于不支持的状态。
+        // map 参数中是用来表示数据库自定义类型字段的 java 映射类型。
+        throw new SQLFeatureNotSupportedException("not support getObject(String,Map)");
     }
 
     @Override
@@ -630,7 +707,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public Ref getRef(int columnIndex) throws SQLException {
-        return this.getRef("arg" + columnIndex);
+        this.checkOpen();
+        throw new SQLFeatureNotSupportedException("type Ref not supported");
     }
 
     @Override
@@ -641,7 +719,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public Array getArray(int columnIndex) throws SQLException {
-        return this.getArray("arg" + columnIndex);
+        this.checkOpen();
+        throw new SQLFeatureNotSupportedException("type Array not supported");
     }
 
     @Override
@@ -652,7 +731,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public SQLXML getSQLXML(int columnIndex) throws SQLException {
-        return this.getSQLXML("arg" + columnIndex);
+        this.checkOpen();
+        throw new SQLFeatureNotSupportedException("type SQLXML not supported");
     }
 
     @Override
@@ -663,7 +743,8 @@ class JdbcResultSet implements ResultSet, Closeable {
 
     @Override
     public RowId getRowId(int columnIndex) throws SQLException {
-        return this.getRowId("arg" + columnIndex);
+        this.checkOpen();
+        throw new SQLFeatureNotSupportedException("type SQLXML not supported");
     }
 
     @Override

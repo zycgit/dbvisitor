@@ -86,7 +86,8 @@ public class JdbcDriver implements java.sql.Driver {
         }
 
         // parse the args part of the url
-        Properties properties = new Properties(defaults);
+        Properties properties = new Properties();
+        properties.putAll(defaults);
         Properties urlArgMap = new Properties();
         for (String cfgPart : StringUtils.split(urlArgs, "&")) {
             if (StringUtils.contains(cfgPart, "=")) {
