@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper;
-
+import java.lang.annotation.*;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.RowMapper;
-
-import java.lang.annotation.*;
 
 /**
  * select 语句注解，用于标记一个方法对应一条 select 查询语句。

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.time;
-import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
-
 import java.sql.*;
+import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 /**
  * 读写 jdbc {@link java.sql.Timestamp} 数据。

@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.logic;
+import java.sql.SQLException;
+import java.util.Arrays;
 import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
-
-import java.sql.SQLException;
-import java.util.Arrays;
 
 /**
  * 对应XML中 <trim> 标签实现类，用于动态SQL的字符串修剪

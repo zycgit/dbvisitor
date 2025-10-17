@@ -14,6 +14,21 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
+import java.io.InputStream;
+import java.io.Reader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.URI;
+import java.net.URL;
+import java.sql.*;
+import java.time.*;
+import java.time.chrono.JapaneseDate;
+import java.util.*;
+import java.util.Date;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.reflect.TypeReference;
@@ -32,22 +47,6 @@ import net.hasor.dbvisitor.types.handler.number.*;
 import net.hasor.dbvisitor.types.handler.string.*;
 import net.hasor.dbvisitor.types.handler.time.*;
 
-import java.io.InputStream;
-import java.io.Reader;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.URI;
-import java.net.URL;
-import java.sql.*;
-import java.time.*;
-import java.time.chrono.JapaneseDate;
-import java.util.*;
-import java.util.Date;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-
 /**
  * JDBC 4.2 full  compatible
  * @author 赵永春 (zyc@hasor.net)
@@ -63,8 +62,8 @@ public final class TypeHandlerRegistry {
     private final Map<String, TypeHandler<?>>                 cachedByJavaType          = new ConcurrentHashMap<>();
     private final Map<Integer, TypeHandler<?>>                cachedByJdbcType          = new ConcurrentHashMap<>();
     private final Map<String, Map<Integer, TypeHandler<?>>>   cachedByCrossType         = new ConcurrentHashMap<>();
-    private final Map<Class<?>, TypeHandler<?>>               abstractCachedByJavaType  = new LinkedHashMap<>();
-    private final Map<Class<?>, Map<Integer, TypeHandler<?>>> abstractCachedByCrossType = new LinkedHashMap<>();
+    private final Map<Class<?>, TypeHandler<?>>               abstractCachedByJavaType  = new ConcurrentHashMap<>();
+    private final Map<Class<?>, Map<Integer, TypeHandler<?>>> abstractCachedByCrossType = new ConcurrentHashMap<>();
 
     static {
         // primitive and wrapper
@@ -322,11 +321,11 @@ public final class TypeHandlerRegistry {
         });
     }
 
-    protected TypeHandler<?> createByClass(Class<?> typeHandlerClass, Class<?> argType) {
+    private TypeHandler<?> createByClass(Class<?> typeHandlerClass, Class<?> argType) {
         return ClassUtils.newInstance(typeHandlerClass);
     }
 
-    protected TypeHandler<?> createByConstructor(Constructor<?> typeHandlerConstructor, Class<?> argType) {
+    private TypeHandler<?> createByConstructor(Constructor<?> typeHandlerConstructor, Class<?> argType) {
         try {
             return (TypeHandler<?>) typeHandlerConstructor.newInstance(argType);
         } catch (ReflectiveOperationException e) {
@@ -486,7 +485,6 @@ public final class TypeHandlerRegistry {
             return jdbcType;
         }
         return Types.OTHER;
-
     }
 
     /**

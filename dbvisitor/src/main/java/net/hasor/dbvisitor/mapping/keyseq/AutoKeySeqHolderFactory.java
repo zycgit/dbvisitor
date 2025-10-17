@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.keyseq;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerContext;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerFactory;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * 使用 jdbc 接受来自数据库的自增回填值

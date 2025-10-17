@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.error;
-import net.hasor.dbvisitor.jdbc.SqlProvider;
-
 import java.sql.SQLException;
+import net.hasor.dbvisitor.jdbc.SqlProvider;
 
 /**
  * 未分类的SQL执行异常，继承自 SQLException 并实现了 SqlProvider 接口

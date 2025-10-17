@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
-import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dialect.provider.AbstractDialect;
-
 import java.util.List;
 import java.util.Map;
+import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.dialect.provider.AbstractDialect;
 
 /**
  * 默认 SqlDialect 实现

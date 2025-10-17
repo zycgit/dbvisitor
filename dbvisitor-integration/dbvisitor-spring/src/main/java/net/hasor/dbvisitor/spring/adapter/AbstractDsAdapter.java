@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.adapter;
-import net.hasor.dbvisitor.jdbc.DynamicConnection;
-
 import javax.sql.DataSource;
+import net.hasor.dbvisitor.jdbc.DynamicConnection;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

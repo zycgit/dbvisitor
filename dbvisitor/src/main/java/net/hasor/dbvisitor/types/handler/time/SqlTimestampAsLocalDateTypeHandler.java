@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.time;
-import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
-
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 /**
  * 使用 {@link LocalDate} 类型读写 jdbc {@link java.sql.Timestamp} 数据。缺失的时间信息使用 00:00 补充。

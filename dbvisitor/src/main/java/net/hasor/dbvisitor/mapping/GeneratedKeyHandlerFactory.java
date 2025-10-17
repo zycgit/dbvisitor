@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping;
-
 /**
  * 主键生成器工厂接口，用于创建主键生成处理器实例，实现该接口可以提供自定义的主键生成策略
  * @author 赵永春 (zyc@hasor.net)

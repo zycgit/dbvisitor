@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic;
-import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
-import net.hasor.dbvisitor.dynamic.rule.*;
-
 import java.util.Map;
 import java.util.Objects;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
+import net.hasor.dbvisitor.dynamic.rule.*;
 
 /**
  * SqlBuildRule 注册器，用于管理和查找 SQL 处理规则

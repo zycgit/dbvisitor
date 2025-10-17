@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.string;
-import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 /**
  * 读写 url 类型。

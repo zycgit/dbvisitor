@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.def;
+import java.util.*;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.cobble.reflect.Annotations;
 import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Primary;
-
-import java.util.*;
 
 /**
  * 一个实体的映射信息

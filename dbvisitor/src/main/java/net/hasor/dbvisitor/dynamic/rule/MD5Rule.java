@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.rule;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.sql.Types;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.codec.MD5;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;
@@ -23,10 +26,6 @@ import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * MD5 编码规则实现类，用于对 SQL 参数进行 MD5 编码然后加入到 SQL 参数中

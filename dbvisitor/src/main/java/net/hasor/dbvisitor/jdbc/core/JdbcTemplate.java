@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.sql.*;
+import java.util.*;
+import java.util.stream.Collectors;
+import javax.sql.DataSource;
 import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.ResourcesUtils;
@@ -41,14 +48,6 @@ import net.hasor.dbvisitor.jdbc.mapper.SingleColumnRowMapper;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-
-import javax.sql.DataSource;
-import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.sql.*;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * dbVisitor based and reimplements

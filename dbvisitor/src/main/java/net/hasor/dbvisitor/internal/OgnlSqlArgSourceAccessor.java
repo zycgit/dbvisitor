@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.internal;
-import net.hasor.dbvisitor.dynamic.SqlArgSource;
-import ognl.*;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
+import net.hasor.dbvisitor.dynamic.SqlArgSource;
+import ognl.*;
 
 public class OgnlSqlArgSourceAccessor implements PropertyAccessor {
 

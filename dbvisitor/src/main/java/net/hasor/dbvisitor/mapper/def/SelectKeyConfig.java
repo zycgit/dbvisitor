@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.def;
+import java.util.function.Function;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
 import net.hasor.dbvisitor.mapper.ResultSetType;
-
-import java.util.function.Function;
 
 /**
  * <selectKey> 标签配置类，用于处理数据库主键生成策略

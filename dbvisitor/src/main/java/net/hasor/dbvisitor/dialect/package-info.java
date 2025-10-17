@@ -15,7 +15,6 @@
  */
 /**
  * SQL方言包
- *
  * <p>提供数据库方言相关功能，包括：</p>
  * <ul>
  *   <li>基础SQL方言接口(SqlDialect)</li>
@@ -25,7 +24,6 @@
  *   <li>序列方言(SeqSqlDialect)</li>
  *   <li>方言注册管理(SqlDialectRegister)</li>
  * </ul>
- *
  * @author 赵永春 (zyc@hasor.net)
  * @version 2017-03-23
  */

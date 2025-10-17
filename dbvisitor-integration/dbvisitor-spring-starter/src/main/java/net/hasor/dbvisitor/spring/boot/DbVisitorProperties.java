@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.boot;
-import static net.hasor.dbvisitor.spring.boot.DbVisitorProperties.PREFIX;
+import java.lang.annotation.Annotation;
 import net.hasor.dbvisitor.spring.support.MapperBean;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import java.lang.annotation.Annotation;
+import static net.hasor.dbvisitor.spring.boot.DbVisitorProperties.PREFIX;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

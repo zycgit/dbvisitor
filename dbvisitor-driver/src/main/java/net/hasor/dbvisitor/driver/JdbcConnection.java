@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver;
-import net.hasor.dbvisitor.driver.lob.JdbcBob;
-import net.hasor.dbvisitor.driver.lob.JdbcCob;
-
 import java.io.Closeable;
 import java.sql.*;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Executor;
+import net.hasor.dbvisitor.driver.lob.JdbcBob;
+import net.hasor.dbvisitor.driver.lob.JdbcCob;
 
 class JdbcConnection implements Connection, Closeable {
     private       boolean            closed = false;

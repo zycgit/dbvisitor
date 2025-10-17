@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping;
-import net.hasor.dbvisitor.mapping.def.ColumnMapping;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 
 /**
  * 主键生成处理器接口，用于自定义数据库主键生成策略

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
+import java.util.Map;
 import net.hasor.dbvisitor.lambda.core.BasicFunc;
 import net.hasor.dbvisitor.lambda.core.QueryCompare;
 import net.hasor.dbvisitor.lambda.core.QueryFunc;
-
-import java.util.Map;
 
 /**
  * lambda Query for Map.

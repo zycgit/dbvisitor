@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.mapper;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /**
  * @author 赵永春 (zyc@byshell.org)

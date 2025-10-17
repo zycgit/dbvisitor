@@ -27,7 +27,7 @@ import javax.sql.DataSource;
  */
 public class TransactionHelper {
 
-    public static Object newProxyService(ClassLoader loader, Object original, DataSource dataSource) throws ReflectiveOperationException {
+    public static Object newProxyService(Object original, DataSource dataSource) {
         if (original == null) {
             return null;
         }
@@ -36,6 +36,6 @@ public class TransactionHelper {
         DynamicConfig classConfig = new DynamicConfig(originalType);
         classConfig.addAopInterceptor(Matchers.annotatedWithMethod(Transactional.class), new TransactionalInterceptor(dataSource));
 
-        return Proxy.newProxyInstance(loader, original);
+        return Proxy.newProxyInstance(original);
     }
 }

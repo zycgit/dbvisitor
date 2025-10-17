@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
+import java.sql.SQLException;
+import java.util.*;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
@@ -27,9 +29,6 @@ import net.hasor.dbvisitor.lambda.segment.Segment;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-
-import java.sql.SQLException;
-import java.util.*;
 
 /**
  * 所有 SQL 执行器必要的公共属性

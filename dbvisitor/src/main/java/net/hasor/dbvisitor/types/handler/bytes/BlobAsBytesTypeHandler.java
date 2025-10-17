@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.bytes;
-import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
-
 import java.io.ByteArrayInputStream;
 import java.sql.*;
+import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 /**
  * 使用 bytes 类型读写 jdbc blob 数据。

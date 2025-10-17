@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.guice.provider;
+import javax.sql.DataSource;
 import com.google.inject.Provider;
 import net.hasor.dbvisitor.transaction.TransactionTemplate;
 import net.hasor.dbvisitor.transaction.TransactionTemplateManager;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
-
-import javax.sql.DataSource;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

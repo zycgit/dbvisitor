@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper;
+import java.io.Serializable;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageResult;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
@@ -24,16 +29,9 @@ import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 import net.hasor.dbvisitor.session.Session;
 
-import java.io.Serializable;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 /**
  * 基础 Mapper 接口，提供通用的 CRUD 操作方法。
  * 继承该接口的 Mapper 可以获得基本的数据库操作能力。
- *
  * @param <T> 实体类型，对应数据库表结构
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-10-31

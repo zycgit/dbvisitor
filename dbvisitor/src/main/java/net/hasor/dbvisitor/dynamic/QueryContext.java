@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic;
-
 import net.hasor.dbvisitor.dynamic.rule.SqlRule;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.args;
+import java.util.List;
 import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.CollectionUtils;
-
-import java.util.List;
 
 /**
  * 数组类型SQL参数源

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.logic;
-
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 
 /**

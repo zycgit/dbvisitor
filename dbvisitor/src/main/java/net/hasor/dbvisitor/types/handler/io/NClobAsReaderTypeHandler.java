@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.io;
-import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
-
 import java.io.Reader;
 import java.sql.*;
+import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 /**
  * 使用 {@link Reader} 类型读写 jdbc NClob 数据。

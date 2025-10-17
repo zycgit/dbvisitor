@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import java.util.Map;
 import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.logging.Logger;
@@ -21,11 +25,6 @@ import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.provider.*;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
 import net.hasor.dbvisitor.mapping.Options;
-
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
-import java.util.Map;
 
 /**
  * SQL 方言注册管理器

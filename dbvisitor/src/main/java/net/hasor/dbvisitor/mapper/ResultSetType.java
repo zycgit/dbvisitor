@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper;
-import net.hasor.cobble.StringUtils;
-
 import java.sql.ResultSet;
+import net.hasor.cobble.StringUtils;
 
 /**
  * 该枚举类定义了几种不同的结果集类型，包含 FORWARD_ONLY、SCROLL_SENSITIVE、SCROLL_INSENSITIVE 和 DEFAULT。

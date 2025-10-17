@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
+import java.sql.SQLException;
+import java.util.Objects;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.QueryContext;
@@ -22,9 +24,6 @@ import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.lambda.segment.SqlKeyword;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-
-import java.sql.SQLException;
-import java.util.Objects;
 
 /**
  * 提供 lambda delete 基础能力。

@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.array;
-import net.hasor.cobble.codec.HexUtils;
-import net.hasor.dbvisitor.types.NoCache;
-import net.hasor.dbvisitor.types.handler.number.PgMoneyAsBigDecimalTypeHandler;
-
 import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import net.hasor.cobble.codec.HexUtils;
+import net.hasor.dbvisitor.types.NoCache;
+import net.hasor.dbvisitor.types.handler.number.PgMoneyAsBigDecimalTypeHandler;
 
 /**
  * PostgreSQL，数组类型

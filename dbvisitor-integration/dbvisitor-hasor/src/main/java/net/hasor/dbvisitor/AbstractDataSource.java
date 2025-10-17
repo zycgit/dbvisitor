@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor;
-import net.hasor.cobble.logging.Logger;
-
-import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import javax.sql.DataSource;
+import net.hasor.cobble.logging.Logger;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

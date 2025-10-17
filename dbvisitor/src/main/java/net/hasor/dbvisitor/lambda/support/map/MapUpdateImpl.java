@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.support.map;
+import java.util.Map;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.MapUpdate;
 import net.hasor.dbvisitor.lambda.core.AbstractUpdate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-
-import java.util.Map;
 
 /**
  * 提供 lambda update 能力，是 MapUpdate 接口的实现类。

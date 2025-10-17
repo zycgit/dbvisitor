@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.annotation;
+import java.lang.annotation.Annotation;
+import java.util.*;
+import java.util.stream.Collectors;
 import net.hasor.dbvisitor.spring.mapper.ClassPathMapperScanner;
 import net.hasor.dbvisitor.spring.mapper.MapperFileConfigurer;
 import net.hasor.dbvisitor.spring.mapper.MapperScannerConfigurer;
@@ -29,10 +32,6 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
-
-import java.lang.annotation.Annotation;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * A {@link ImportBeanDefinitionRegistrar} to allow annotation configuration of dbVisitor mapper scanning. Using

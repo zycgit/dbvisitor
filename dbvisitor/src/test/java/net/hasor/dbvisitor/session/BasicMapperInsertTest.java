@@ -1,5 +1,5 @@
 package net.hasor.dbvisitor.session;
-import net.hasor.cobble.WellKnowFormat;
+import net.hasor.cobble.time.DateTimeFormat;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.session.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
@@ -27,7 +27,7 @@ public class BasicMapperInsertTest {
             return null;
         } else {
             ZonedDateTime zonedDateTime = date.toInstant().atZone(ZoneId.systemDefault());
-            return WellKnowFormat.WKF_DATE_TIME24.toPattern().format(zonedDateTime);
+            return DateTimeFormat.WKF_DATE_TIME24.toPattern().format(zonedDateTime);
         }
     }
 

@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.io;
-import net.hasor.cobble.io.IOUtils;
-import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -24,6 +21,8 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import net.hasor.cobble.io.IOUtils;
+import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 /**
  * 使用 {@link Reader} 类型读写 jdbc string 数据。

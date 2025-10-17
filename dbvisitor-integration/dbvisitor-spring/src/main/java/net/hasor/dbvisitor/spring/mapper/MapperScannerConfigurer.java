@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.mapper;
+import java.lang.annotation.Annotation;
+import java.util.Map;
+import java.util.Optional;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.spring.annotation.MapperScan;
@@ -29,12 +32,8 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
-import static org.springframework.util.Assert.notNull;
 import org.springframework.util.StringUtils;
-
-import java.lang.annotation.Annotation;
-import java.util.Map;
-import java.util.Optional;
+import static org.springframework.util.Assert.notNull;
 
 /**
  * A resource load for {@link MapperScan}.

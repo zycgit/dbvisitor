@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.annotation;
+import java.lang.annotation.*;
 import net.hasor.dbvisitor.spring.mapper.MapperScannerConfigurer;
 import net.hasor.dbvisitor.spring.support.ConfigurationBean;
 import net.hasor.dbvisitor.spring.support.MapperBean;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.context.annotation.Import;
-
-import java.lang.annotation.*;
 
 /**
  * Use this annotation to register dbVisitor mapper interfaces when using Java Config. It performs when same work as

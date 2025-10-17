@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.transaction.support;
-import net.hasor.dbvisitor.transaction.DataSourceUtils;
-
 import javax.sql.DataSource;
+import net.hasor.dbvisitor.transaction.DataSourceUtils;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

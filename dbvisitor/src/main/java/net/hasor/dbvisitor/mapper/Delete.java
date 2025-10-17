@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper;
-
 import java.lang.annotation.*;
 
 /**
  * 用于标注删除操作的注解。
  * 该注解通常用在Mapper接口的方法上，用于执行数据库删除操作。
- *
  * @author 赵永春 (zyc@hasor.net)
  * @version 2021-05-19
  */

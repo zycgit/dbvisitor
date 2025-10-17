@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver.lob;
-import net.hasor.dbvisitor.driver.JdbcErrorCode;
-
 import java.io.*;
 import java.sql.Clob;
 import java.sql.NClob;
 import java.sql.SQLException;
+import net.hasor.dbvisitor.driver.JdbcErrorCode;
 
 public class JdbcCob implements Clob, NClob, JdbcOutputStreamWatcher, JdbcWriterWatcher {
     protected String charData;

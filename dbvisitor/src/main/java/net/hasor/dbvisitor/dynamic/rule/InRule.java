@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.rule;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Iterator;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.*;
 import net.hasor.dbvisitor.dynamic.args.ArraySqlArgSource;
 import net.hasor.dbvisitor.internal.OgnlUtils;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
-
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Iterator;
 
 /**
  * IN 条件规则用于自动生成 in 语句后的多重参数，例如： where col in (?,?,?,?)。

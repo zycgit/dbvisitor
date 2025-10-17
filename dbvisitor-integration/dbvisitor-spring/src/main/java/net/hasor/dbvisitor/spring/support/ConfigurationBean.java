@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.support;
+import java.util.Map;
+import java.util.Objects;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
@@ -28,9 +30,6 @@ import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.springframework.core.io.Resource;
-
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * BeanFactory that enables injection of DalRegistry.

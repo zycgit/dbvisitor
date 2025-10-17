@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.guice;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.net.URI;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Stream;
+import javax.sql.DataSource;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.Provider;
@@ -32,31 +40,22 @@ import net.hasor.cobble.setting.BasicSettings;
 import net.hasor.cobble.setting.SettingNode;
 import net.hasor.cobble.setting.Settings;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
-import static net.hasor.dbvisitor.guice.ConfigKeys.*;
 import net.hasor.dbvisitor.guice.provider.JdbcTemplateProvider;
+import net.hasor.dbvisitor.guice.provider.LambdaTemplateProvider;
 import net.hasor.dbvisitor.guice.provider.TransactionManagerProvider;
 import net.hasor.dbvisitor.guice.provider.TransactionTemplateProvider;
-import net.hasor.dbvisitor.guice.provider.LambdaTemplateProvider;
 import net.hasor.dbvisitor.jdbc.JdbcOperations;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.lambda.LambdaOperations;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.transaction.*;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.lambda.LambdaOperations;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Stream;
+import static net.hasor.dbvisitor.guice.ConfigKeys.*;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

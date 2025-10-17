@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver.lob;
-import net.hasor.dbvisitor.driver.JdbcErrorCode;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +21,7 @@ import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import net.hasor.dbvisitor.driver.JdbcErrorCode;
 
 /**
  * The representation (mapping) in the JavaTM programming language of an SQL BLOB value. An SQL BLOB is a built-in type that stores a Binary Large Object
@@ -45,7 +44,7 @@ public class JdbcBob implements Blob, JdbcOutputStreamWatcher {
 
     /**
      * Creates a BLOB encapsulating the given binary data
-     * @param data   data to fill the Blob
+     * @param data data to fill the Blob
      */
     public JdbcBob(byte[] data) {
         setBinaryData(data);

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.keyseq;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.reflect.Annotation;
 import net.hasor.cobble.reflect.Annotations;
@@ -21,9 +23,6 @@ import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerContext;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerFactory;
 import net.hasor.dbvisitor.mapping.KeyHolder;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 支持 @KeyHolder 注解方式

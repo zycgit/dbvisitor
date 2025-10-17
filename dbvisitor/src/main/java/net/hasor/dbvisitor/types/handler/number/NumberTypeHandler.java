@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.number;
-import net.hasor.cobble.NumberUtils;
-import net.hasor.cobble.io.IOUtils;
-import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.sql.*;
+import net.hasor.cobble.NumberUtils;
+import net.hasor.cobble.io.IOUtils;
+import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 /**
  * 读写 Number 类型数据，由于 Number 类型是一个抽象类型。会根据 Object 具体类型来决定如何读写

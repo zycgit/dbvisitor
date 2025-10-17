@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.segment;
-import net.hasor.dbvisitor.dialect.SqlDialect;
-
 import java.sql.SQLException;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 
 /**
  * SQL 片段。

@@ -1,12 +1,11 @@
 package net.hasor.dbvisitor.session;
+import java.io.StringReader;
+import java.util.List;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.types.SqlArg;
-
-import java.io.StringReader;
-import java.util.List;
 
 class SessionHelper {
     public static boolean usingPage(Page pageInfo) {

@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.dbvisitor.types.TypeHandler;
-import net.hasor.dbvisitor.types.handler.UnknownTypeHandler;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.sql.Types;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.types.TypeHandler;
+import net.hasor.dbvisitor.types.handler.UnknownTypeHandler;
 
 /**
  * （可选）标记在字段或者 get/set 方法上表示映射到的列

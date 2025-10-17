@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.logic;
+import java.lang.reflect.Array;
+import java.sql.SQLException;
+import java.util.Collection;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.internal.OgnlUtils;
-
-import java.lang.reflect.Array;
-import java.sql.SQLException;
-import java.util.Collection;
 
 /**
  * 对应XML中 <foreach> 标签的实现类

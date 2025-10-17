@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.resolve;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
+import java.util.stream.Collectors;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.NumberUtils;
 import net.hasor.cobble.StringUtils;
@@ -24,14 +31,6 @@ import net.hasor.dbvisitor.mapping.*;
 import net.hasor.dbvisitor.mapping.def.*;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
-import java.util.stream.Collectors;
 
 /**
  * 通过 Class 来解析 TableMapping

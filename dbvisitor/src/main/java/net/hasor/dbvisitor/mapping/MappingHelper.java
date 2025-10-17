@@ -14,22 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping;
-import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.function.EFunction;
-import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
-import net.hasor.cobble.reflect.Annotation;
-import net.hasor.cobble.reflect.Annotations;
-import net.hasor.cobble.reflect.resolvable.ResolvableType;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -42,6 +26,21 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.function.EFunction;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
+import net.hasor.cobble.reflect.Annotation;
+import net.hasor.cobble.reflect.Annotations;
+import net.hasor.cobble.reflect.resolvable.ResolvableType;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * TableMappingResolve 的公共方法

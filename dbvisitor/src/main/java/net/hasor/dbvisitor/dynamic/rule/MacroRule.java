@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.rule;
+import java.sql.SQLException;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.internal.OgnlUtils;
-
-import java.sql.SQLException;
 
 /**
  * 宏规则实现类，用于动态SQL中的宏引用，`<include refid="sqlid"/>` 标签相同

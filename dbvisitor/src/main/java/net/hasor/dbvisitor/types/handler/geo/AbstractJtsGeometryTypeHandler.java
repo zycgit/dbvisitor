@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.geo;
+import java.sql.SQLException;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.io.*;
-
-import java.sql.SQLException;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.resolve;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import javax.xml.parsers.ParserConfigurationException;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
@@ -23,14 +30,6 @@ import net.hasor.dbvisitor.mapper.def.*;
 import net.hasor.dbvisitor.mapping.MappingHelper;
 import net.hasor.dbvisitor.mapping.ResultMap;
 import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * 解析动态 SQL 配置（注解形式）

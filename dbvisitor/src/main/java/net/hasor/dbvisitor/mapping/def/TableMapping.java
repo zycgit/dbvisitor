@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.def;
-import net.hasor.cobble.reflect.Annotations;
-
 import java.util.Collection;
 import java.util.List;
+import net.hasor.cobble.reflect.Annotations;
 
 /**
  * 表映射信息接口，定义数据库表与Java实体类之间的映射关系

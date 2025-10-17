@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.boot;
+import java.sql.SQLException;
+import java.util.List;
+import javax.sql.DataSource;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.mapper.Mapper;
 import net.hasor.dbvisitor.mapper.MapperDef;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-import static net.hasor.dbvisitor.spring.boot.DbVisitorProperties.PREFIX;
 import net.hasor.dbvisitor.spring.mapper.MapperFileConfigurer;
 import net.hasor.dbvisitor.spring.mapper.MapperScannerConfigurer;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.*;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -46,10 +48,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.StringUtils;
-
-import javax.sql.DataSource;
-import java.sql.SQLException;
-import java.util.List;
+import static net.hasor.dbvisitor.spring.boot.DbVisitorProperties.PREFIX;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

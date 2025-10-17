@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.number;
-import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
-
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 /**
  * 读写 float 数据。

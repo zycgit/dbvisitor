@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.adapter;
+import java.sql.Connection;
+import javax.sql.DataSource;
 import net.hasor.dbvisitor.mapper.Mapper;
 import org.springframework.jdbc.datasource.DataSourceUtils;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
 
 /**
  * <pre class="code">

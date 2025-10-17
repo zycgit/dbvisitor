@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.io;
-import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
-
 import java.io.InputStream;
 import java.sql.*;
+import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 /**
  * 使用 {@link InputStream} 类型读写 jdbc blob 数据。

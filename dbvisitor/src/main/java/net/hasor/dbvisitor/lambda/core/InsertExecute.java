@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
-
-import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
-
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import net.hasor.dbvisitor.lambda.DuplicateKeyStrategy;
 
 /**
  * lambda Insert 执行器

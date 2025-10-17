@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.def;
+import java.util.function.Function;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
-
-import java.util.function.Function;
 
 /**
  * Insert SqlConfig

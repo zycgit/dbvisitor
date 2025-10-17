@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.guice.provider;
+import javax.sql.DataSource;
 import com.google.inject.Provider;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-
-import javax.sql.DataSource;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

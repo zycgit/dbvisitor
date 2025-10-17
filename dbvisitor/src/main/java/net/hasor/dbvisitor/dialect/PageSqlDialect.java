@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
-
 /**
  * SQL 分页方言
  * @author 赵永春 (zyc@hasor.net)

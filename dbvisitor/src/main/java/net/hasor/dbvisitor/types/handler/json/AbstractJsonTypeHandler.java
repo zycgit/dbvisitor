@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.json;
-import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
-
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
-import net.hasor.dbvisitor.dynamic.args.SqlArgDisposer;
-
 import java.util.Arrays;
 import java.util.Collection;
+import net.hasor.dbvisitor.dynamic.args.SqlArgDisposer;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

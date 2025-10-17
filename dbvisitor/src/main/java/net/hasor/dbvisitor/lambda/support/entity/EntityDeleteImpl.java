@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.support.entity;
+import java.util.Collection;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.ObjectUtils;
 import net.hasor.cobble.reflect.SFunction;
@@ -27,8 +28,6 @@ import net.hasor.dbvisitor.lambda.segment.SqlKeyword;
 import net.hasor.dbvisitor.lambda.support.map.MapDeleteImpl;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-
-import java.util.Collection;
 
 /**
  * 提供 lambda delete 能力，是 EntityDelete 接口的实现类。

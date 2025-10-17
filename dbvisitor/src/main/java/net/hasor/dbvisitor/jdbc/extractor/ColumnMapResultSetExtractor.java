@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.extractor;
+import java.util.Map;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-
-import java.util.Map;
 
 /**
  * {@link ResultSetExtractor} 接口实现类，该类会将结果集中的每一行进行处理，并返回一个 List 用 Map 封装结果。
@@ -42,7 +41,6 @@ public class ColumnMapResultSetExtractor extends RowMapperResultSetExtractor<Map
     /**
      * 创建 {@link ColumnMapResultSetExtractor} 对象
      * @param rowsExpected 预期结果集大小（实际得到的结果集条目不受此参数限制）。
-     * @param typeHandler
      */
     public ColumnMapResultSetExtractor(int rowsExpected, TypeHandlerRegistry typeHandler) {
         this(rowsExpected, typeHandler, true);
@@ -51,7 +49,6 @@ public class ColumnMapResultSetExtractor extends RowMapperResultSetExtractor<Map
     /**
      * 创建 {@link ColumnMapResultSetExtractor} 对象
      * @param rowsExpected 预期结果集大小（实际得到的结果集条目不受此参数限制）。
-     * @param typeHandler
      */
     public ColumnMapResultSetExtractor(int rowsExpected, TypeHandlerRegistry typeHandler, boolean caseInsensitive) {
         super(new ColumnMapRowMapper(caseInsensitive, typeHandler), rowsExpected);

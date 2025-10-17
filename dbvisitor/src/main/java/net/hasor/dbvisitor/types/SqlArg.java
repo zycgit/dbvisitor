@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
+import java.util.Objects;
 import net.hasor.dbvisitor.dynamic.SqlMode;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.RowMapper;
-
-import java.util.Objects;
 
 /**
  * 表示动态SQL构建后的具体SQL参数。

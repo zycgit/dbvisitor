@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.guice;
+import java.io.IOException;
+import java.net.URI;
+import java.util.Set;
+import javax.sql.DataSource;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -22,11 +26,6 @@ import net.hasor.cobble.ExceptionUtils;
 import net.hasor.dbvisitor.mapper.Mapper;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.net.URI;
-import java.util.Set;
 
 /**
  * BeanFactory that enables injection of DalSession.

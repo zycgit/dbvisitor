@@ -16,7 +16,6 @@
 package net.hasor.dbvisitor.dynamic;
 /**
  * SQL参数模式枚举，用于标识存储过程/函数参数的方向
- *
  * <p>枚举值说明：</p>
  * <ul>
  *   <li>In - 输入参数</li>

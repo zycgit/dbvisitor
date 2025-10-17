@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic;
+import java.util.Map;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.rule.ArgRule;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
-
-import java.util.Map;
 
 /**
  * Holds information about a parsed SQL statement.

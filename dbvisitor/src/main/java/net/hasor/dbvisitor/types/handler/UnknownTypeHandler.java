@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler;
-import net.hasor.cobble.ResourcesUtils;
-import net.hasor.dbvisitor.types.TypeHandler;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
+import net.hasor.cobble.ResourcesUtils;
+import net.hasor.dbvisitor.types.TypeHandler;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /**
  * @author Clinton Begin

@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler;
-import net.hasor.cobble.reflect.TypeReference;
-import net.hasor.dbvisitor.types.TypeHandler;
-
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import net.hasor.cobble.reflect.TypeReference;
+import net.hasor.dbvisitor.types.TypeHandler;
 
 /**
  * The base {@link TypeHandler} for references a generic type.

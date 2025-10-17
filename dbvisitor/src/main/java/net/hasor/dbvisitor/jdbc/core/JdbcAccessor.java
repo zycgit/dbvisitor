@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
-import net.hasor.dbvisitor.jdbc.DynamicConnection;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
+import javax.sql.DataSource;
+import net.hasor.dbvisitor.jdbc.DynamicConnection;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

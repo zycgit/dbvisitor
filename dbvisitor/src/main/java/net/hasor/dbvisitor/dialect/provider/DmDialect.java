@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect.provider;
-import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.dialect.InsertSqlDialect;
-import net.hasor.dbvisitor.dialect.PageSqlDialect;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.dialect.BoundSql;
+import net.hasor.dbvisitor.dialect.InsertSqlDialect;
+import net.hasor.dbvisitor.dialect.PageSqlDialect;
 
 /**
  * 达梦 的 SqlDialect 实现

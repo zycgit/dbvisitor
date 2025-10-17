@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.xml.parsers.ParserConfigurationException;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.ResourcesUtils;
@@ -43,15 +51,6 @@ import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Mapper 配置中心，负责加载和管理 Mapper 相关的配置信息，
@@ -166,7 +165,6 @@ public class MapperRegistry {
      * 如果 mapper 类型上存在 {@link RefMapper} 注解，会尝试加载对应的 XML 文件；
      * 如果 mapper 类型是 {@link BaseMapper} 的实现类，会加载其泛型对应的实体映射信息；
      * 最后会加载 mapper 类型中所有方法的 SQL 配置。
-     *
      * @param mapperType 要加载的 mapper 类型，必须是一个接口，并且需要有 @RefMapper 或 @SimpleMapper 或 @DalMapper 注解。
      */
     public void loadMapper(Class<?> mapperType) throws Exception {

@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.segment;
-
-import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dynamic.*;
-
 import java.sql.SQLException;
 import java.util.*;
+import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.dynamic.*;
 
 /**
  * 动态 SQL 解析和执行计划实现类，兼容 @{...}、#{...}、${...} 三种写法。

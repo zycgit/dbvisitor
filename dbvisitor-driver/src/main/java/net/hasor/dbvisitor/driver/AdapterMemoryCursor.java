@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver;
-import net.hasor.cobble.ArrayUtils;
-
 import java.util.Collections;
 import java.util.List;
+import net.hasor.cobble.ArrayUtils;
 
 class AdapterMemoryCursor implements AdapterCursor {
     private List<JdbcColumn> columns;

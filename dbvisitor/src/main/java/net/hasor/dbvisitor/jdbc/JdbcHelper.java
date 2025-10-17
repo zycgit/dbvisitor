@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc;
-import net.hasor.cobble.StringUtils;
-
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import net.hasor.cobble.StringUtils;
 
 /**
  * 工具类来自于 druid-1.1.23.jar

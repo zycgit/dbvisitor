@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.resolve;
-import net.hasor.cobble.StringUtils;
-
 import java.util.*;
+import net.hasor.cobble.StringUtils;
 
 /**
  * TableMappingResolve 的公共方法

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.def;
-import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
-
 import java.util.function.Function;
+import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
 
 /**
  * DELETE操作SQL配置类

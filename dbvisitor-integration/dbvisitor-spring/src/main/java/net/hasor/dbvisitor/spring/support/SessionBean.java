@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.support;
+import java.util.Objects;
+import javax.sql.DataSource;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.mapper.Mapper;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.spring.adapter.AbstractDsAdapter;
 import net.hasor.dbvisitor.spring.adapter.SpringDsAdapter;
-
-import javax.sql.DataSource;
-import java.util.Objects;
 
 /**
  * BeanFactory that enables injection of DalSession.

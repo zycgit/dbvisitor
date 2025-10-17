@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.solon;
-import net.hasor.dbvisitor.jdbc.DynamicConnection;
-import org.noear.solon.data.tran.TranUtils;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import javax.sql.DataSource;
+import net.hasor.dbvisitor.jdbc.DynamicConnection;
+import org.noear.solon.data.tran.TranUtils;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

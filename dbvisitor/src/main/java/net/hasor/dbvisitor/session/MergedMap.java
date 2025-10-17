@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.session;
-import net.hasor.cobble.CollectionUtils;
-
 import java.util.*;
 import java.util.function.BiConsumer;
+import net.hasor.cobble.CollectionUtils;
 
 /**
  * 可以将多个Map合并成一个Map对象进行操作。

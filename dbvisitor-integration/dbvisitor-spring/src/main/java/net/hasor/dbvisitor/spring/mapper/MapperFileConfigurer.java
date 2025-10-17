@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.mapper;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.session.Session;
@@ -27,10 +30,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.util.StringUtils;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * A resource load for {@link MapperScan}.

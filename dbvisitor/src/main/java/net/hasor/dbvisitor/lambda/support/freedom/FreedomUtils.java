@@ -1,13 +1,12 @@
 package net.hasor.dbvisitor.lambda.support.freedom;
+import java.util.Map;
+import java.util.WeakHashMap;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.dbvisitor.mapping.def.ColumnDef;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-
-import java.util.Map;
-import java.util.WeakHashMap;
 
 class FreedomUtils {
     private static final TypeHandler<?>                     DEFAULT_TYPE_HANDLER = TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();

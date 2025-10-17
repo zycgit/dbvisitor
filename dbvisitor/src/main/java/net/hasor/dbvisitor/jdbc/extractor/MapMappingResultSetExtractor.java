@@ -14,14 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.extractor;
-import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
-import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.mapper.AbstractMapping;
-import net.hasor.dbvisitor.mapping.MappingRegistry;
-import net.hasor.dbvisitor.mapping.def.ColumnMapping;
-import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.types.TypeHandler;
-
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -29,6 +21,13 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
+import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.mapper.AbstractMapping;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
+import net.hasor.dbvisitor.mapping.def.ColumnMapping;
+import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.types.TypeHandler;
 
 /**
  * 用于 POJO 的 RowMapper，带有 ORM 能力

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.resolve;
+import java.io.IOException;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-
-import java.io.IOException;
 
 /**
  * TableMapping 解析器
@@ -28,7 +27,6 @@ import java.io.IOException;
 public interface TableMappingResolve<T> {
     /**
      * 解析并返回表映射配置
-     *
      * @param refData 要解析的引用数据，可以是类、注解或其他类型
      * @param refFile 解析过程中使用的配置选项
      * @param registry 映射注册表，用于存储和查找映射关系

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping;
-import net.hasor.cobble.WellKnowFormat;
+import net.hasor.cobble.time.DateTimeFormat;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.dto.MultipleMappingBean1;
 import net.hasor.test.utils.DsUtils;
@@ -40,8 +40,8 @@ public class MappingTest {
             assert list.get(0).getName().equals("Verdi");
             assert list.get(0).getCreateTime1() != list.get(0).getCreateTime2();
             assert list.get(0).getCreateTime1().equals(list.get(0).getCreateTime2());
-            assert WellKnowFormat.WKF_DATE_TIME24.format(list.get(0).getCreateTime1()).equals("2021-05-11 00:00:00");
-            assert WellKnowFormat.WKF_DATE_TIME24.format(list.get(0).getCreateTime2()).equals("2021-05-11 00:00:00");
+            assert DateTimeFormat.WKF_DATE_TIME24.format(list.get(0).getCreateTime1()).equals("2021-05-11 00:00:00");
+            assert DateTimeFormat.WKF_DATE_TIME24.format(list.get(0).getCreateTime2()).equals("2021-05-11 00:00:00");
         }
     }
 

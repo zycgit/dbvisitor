@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.def;
+import java.sql.SQLException;
+import java.util.Objects;
+import java.util.function.Function;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.DynamicSql;
 import net.hasor.dbvisitor.dynamic.QueryContext;
@@ -21,10 +24,6 @@ import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.logic.ArrayDynamicSql;
 import net.hasor.dbvisitor.mapper.StatementType;
-
-import java.sql.SQLException;
-import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * 该抽象类表示 SQL 配置，实现了 {@link DynamicSql} 接口，

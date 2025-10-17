@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.segment;
+import java.sql.SQLException;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
-
-import java.sql.SQLException;
 
 /**
  * SQL 片段接口，表示动态 SQL 中的一个可构建片段。

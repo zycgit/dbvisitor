@@ -20,7 +20,6 @@ import java.sql.Connection;
 /**
  * 数据库连接代理接口，扩展了标准Connection接口
  * 提供了获取原始连接的能力，并继承了Closeable接口
- *
  * @author 赵永春 (zyc@hasor.net)
  * @version 2013-12-3
  */

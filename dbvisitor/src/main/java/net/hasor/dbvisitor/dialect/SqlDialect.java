@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
-import net.hasor.dbvisitor.lambda.core.OrderType;
-
 import java.util.Set;
+import net.hasor.dbvisitor.lambda.core.OrderType;
 
 /**
  * SQL 方言接口，定义数据库方言的基本功能

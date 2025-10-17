@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.guice.provider;
+import java.sql.SQLException;
+import javax.sql.DataSource;
 import com.google.inject.Provider;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
-
-import javax.sql.DataSource;
-import java.sql.SQLException;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

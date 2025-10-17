@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.segment;
-import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dialect.SqlDialect;
-
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 
 /**
  * 提供多个 Segment 汇聚成为一个的工具。

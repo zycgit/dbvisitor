@@ -29,12 +29,11 @@
 //  DAMAGE.
 //--------------------------------------------------------------------------
 package net.hasor.dbvisitor.internal;
-import ognl.MemberAccess;
-import ognl.OgnlContext;
-
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
+import ognl.MemberAccess;
+import ognl.OgnlContext;
 
 /**
  * This class provides methods for setting up and restoring

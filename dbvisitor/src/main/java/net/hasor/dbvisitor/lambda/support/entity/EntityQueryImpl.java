@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.support.entity;
+import java.util.*;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.ObjectUtils;
 import net.hasor.cobble.reflect.SFunction;
@@ -29,8 +30,6 @@ import net.hasor.dbvisitor.lambda.segment.SqlKeyword;
 import net.hasor.dbvisitor.lambda.support.map.MapQueryImpl;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
-
-import java.util.*;
 
 /**
  * 提供 lambda query 能力。是 EntityQuery 接口的实现类。

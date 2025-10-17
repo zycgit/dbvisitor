@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.io;
-import net.hasor.cobble.io.IOUtils;
-import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,6 +22,8 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import net.hasor.cobble.io.IOUtils;
+import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 /**
  * 使用 {@link InputStream} 类型读写 jdbc bytes 数据。

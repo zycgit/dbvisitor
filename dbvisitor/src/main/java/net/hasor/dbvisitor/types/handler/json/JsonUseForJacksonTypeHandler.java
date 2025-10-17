@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.json;
+import java.util.function.Function;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.hasor.cobble.ObjectUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.dbvisitor.types.NoCache;
-
-import java.util.function.Function;
 
 /**
  * 基于 Jackson 库实现的 JSON 类型处理器，用于数据库字段与 Java 对象之间的 JSON 格式转换。

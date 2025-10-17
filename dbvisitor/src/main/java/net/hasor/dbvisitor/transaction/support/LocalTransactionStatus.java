@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.transaction.support;
+import java.sql.SQLException;
+import java.sql.Savepoint;
 import net.hasor.dbvisitor.transaction.Isolation;
 import net.hasor.dbvisitor.transaction.Propagation;
 import net.hasor.dbvisitor.transaction.TransactionStatus;
-
-import java.sql.SQLException;
-import java.sql.Savepoint;
 
 /**
  * 表示一个用于管理事务的状态点

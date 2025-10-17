@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.guice.provider;
-
 import com.google.inject.Provider;
 
 /**

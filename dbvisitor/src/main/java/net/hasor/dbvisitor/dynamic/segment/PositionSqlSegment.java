@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.segment;
+import java.sql.SQLException;
+import java.util.Collections;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.rule.ArgRule;
-
-import java.sql.SQLException;
-import java.util.Collections;
 
 /**
  * 位置参数 SQL 片段实现类，用于处理按位置绑定的 SQL 参数

@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor;
+import java.net.URI;
+import java.util.Set;
+import java.util.function.Supplier;
+import javax.sql.DataSource;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.core.AppContext;
 import net.hasor.core.BindInfo;
@@ -21,11 +25,6 @@ import net.hasor.core.spi.AppContextAware;
 import net.hasor.dbvisitor.mapper.Mapper;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
-
-import javax.sql.DataSource;
-import java.net.URI;
-import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * BeanFactory that enables injection of DalSession.

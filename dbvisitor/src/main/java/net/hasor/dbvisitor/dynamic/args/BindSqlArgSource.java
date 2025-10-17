@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.args;
-import net.hasor.dbvisitor.dynamic.SqlArgSource;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
+import net.hasor.dbvisitor.dynamic.SqlArgSource;
 
 /**
  * 基于Map的SQL参数源实现类，实现了 SqlArgSource 和 SqlArgDisposer 接口

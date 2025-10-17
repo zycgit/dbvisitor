@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.mapper;
-import net.hasor.dbvisitor.mapping.MappingRegistry;
-import net.hasor.dbvisitor.mapping.def.ColumnMapping;
-import net.hasor.dbvisitor.mapping.def.TableMapping;
-import net.hasor.dbvisitor.types.TypeHandler;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
+import net.hasor.dbvisitor.mapping.MappingRegistry;
+import net.hasor.dbvisitor.mapping.def.ColumnMapping;
+import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.types.TypeHandler;
 
 /**
  * 用于 POJO 的 RowMapper，带有 ORM 能力

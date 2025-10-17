@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.rule;
-
 /**
  * OR条件规则实现类，用于生成OR条件的SQL片段。如果参数不为空，则生成 'or column = ?' 或者 'column = ?' 。
  * @author 赵永春 (zyc@hasor.net)

@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.extractor;
-import net.hasor.dbvisitor.dynamic.SqlBuilder;
-import net.hasor.dbvisitor.jdbc.PreparedStatementCallback;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import net.hasor.dbvisitor.dynamic.SqlBuilder;
+import net.hasor.dbvisitor.jdbc.PreparedStatementCallback;
 
 /**
  * {@link PreparedStatementCallback} 接口实现类用于处理存储过程的参数传递和调用。

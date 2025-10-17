@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.extractor;
-import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
-import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 
 /**
  * 使用 {@link RowCallbackHandler} 类型循环处理每一行记录的适配器。

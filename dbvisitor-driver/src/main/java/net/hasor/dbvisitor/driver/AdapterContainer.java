@@ -14,26 +14,24 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver;
-
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 class AdapterContainer implements AdapterReceive {
-    private static final Logger logger = LoggerFactory.getLogger(AdapterContainer.class);
-    private final JdbcConnection jdbcConn;
-    private volatile AdapterReceiveState state;
-    private volatile AdapterRequest request;
-    private final Map<String, JdbcColumn> parameterDefs;
-    private final Map<String, Object> parameterValues;
-    private final LinkedList<AdapterResponse> response;
-    private final Object syncObj;
+    private static final Logger                      logger = LoggerFactory.getLogger(AdapterContainer.class);
+    private final        JdbcConnection              jdbcConn;
+    private volatile     AdapterReceiveState         state;
+    private volatile     AdapterRequest              request;
+    private final        Map<String, JdbcColumn>     parameterDefs;
+    private final        Map<String, Object>         parameterValues;
+    private final        LinkedList<AdapterResponse> response;
+    private final        Object                      syncObj;
 
     public AdapterContainer(JdbcConnection jdbcConn) {
         this.jdbcConn = jdbcConn;

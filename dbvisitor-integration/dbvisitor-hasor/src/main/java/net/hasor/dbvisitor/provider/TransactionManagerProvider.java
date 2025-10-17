@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.provider;
+import java.util.function.Supplier;
+import javax.sql.DataSource;
 import net.hasor.cobble.provider.SingleProvider;
 import net.hasor.dbvisitor.transaction.TransactionManager;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
-
-import javax.sql.DataSource;
-import java.util.function.Supplier;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

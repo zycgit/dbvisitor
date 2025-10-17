@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.segment;
+import java.sql.SQLException;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.internal.OgnlUtils;
-
-import java.sql.SQLException;
 
 /**
  * 注入式 SQL 片段实现类，用于动态 SQL 中的 OGNL 表达式注入

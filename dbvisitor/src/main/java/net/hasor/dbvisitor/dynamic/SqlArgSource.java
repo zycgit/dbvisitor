@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Set;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 
 /**
  * Interface that defines common functionality for objects that can

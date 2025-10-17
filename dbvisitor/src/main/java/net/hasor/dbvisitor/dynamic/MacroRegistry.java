@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic;
-import net.hasor.cobble.StringUtils;
-
 import java.util.HashMap;
 import java.util.Map;
+import net.hasor.cobble.StringUtils;
 
 /**
  * 用于注册和管理 SQL 片段，也可称之为 SQL 宏定义。

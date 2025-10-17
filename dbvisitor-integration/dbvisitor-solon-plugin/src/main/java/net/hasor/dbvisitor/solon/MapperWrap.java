@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.solon;
-import net.hasor.dbvisitor.session.Configuration;
-
 import java.util.ArrayList;
 import java.util.List;
+import net.hasor.dbvisitor.session.Configuration;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

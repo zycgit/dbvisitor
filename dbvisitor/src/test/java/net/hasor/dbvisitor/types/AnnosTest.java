@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
-import net.hasor.cobble.WellKnowFormat;
+import net.hasor.cobble.time.DateTimeFormat;
 import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
@@ -61,7 +61,7 @@ public class AnnosTest {
             assert list.size() == 1;
             assert list.get(0).getName().equals("Verdi");
             assert list.get(0).getCreateTime1().equals("2021-05-11");
-            assert WellKnowFormat.WKF_DATE_TIME24.format(list.get(0).getCreateTime2()).equals("2021-05-11 00:00:00");
+            assert DateTimeFormat.WKF_DATE_TIME24.format(list.get(0).getCreateTime2()).equals("2021-05-11 00:00:00");
         }
     }
 

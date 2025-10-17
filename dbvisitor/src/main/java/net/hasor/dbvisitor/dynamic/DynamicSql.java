@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic;
-
-import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
-
 import java.sql.SQLException;
 import java.util.Map;
+import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 
 /**
  * 本处理器，支持处理 @{...}、#{...}、${...} 三种写法。

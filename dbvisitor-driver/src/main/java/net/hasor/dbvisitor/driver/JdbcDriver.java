@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver;
-import net.hasor.cobble.StringUtils;
-
 import java.sql.Connection;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.hasor.cobble.StringUtils;
 
 public class JdbcDriver implements java.sql.Driver {
     private static final Logger      loggerParent = Logger.getLogger("dbvisitor.adapter");
@@ -60,8 +59,7 @@ public class JdbcDriver implements java.sql.Driver {
 
     /**
      * Constructs a new DriverURL, splitting the specified URL into its component parts.
-     *
-     * @param url      JDBC URL to parse
+     * @param url JDBC URL to parse
      * @param defaults Default properties
      * @return Properties with elements added from the url
      */

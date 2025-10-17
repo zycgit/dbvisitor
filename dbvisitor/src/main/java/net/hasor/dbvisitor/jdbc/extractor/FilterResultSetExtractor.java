@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.extractor;
-import net.hasor.dbvisitor.jdbc.RowMapper;
-
 import java.util.Objects;
 import java.util.function.Predicate;
+import net.hasor.dbvisitor.jdbc.RowMapper;
 
 /**
  * 扩展了 {@link RowMapperResultSetExtractor}，通过实现 testRow 方法保证在处理结果中过滤空值。

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
-
 import java.util.List;
 import java.util.Map;
 

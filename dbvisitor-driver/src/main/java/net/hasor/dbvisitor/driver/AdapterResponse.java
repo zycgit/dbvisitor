@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver;
-import net.hasor.cobble.concurrent.future.BasicFuture;
-
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import net.hasor.cobble.concurrent.future.BasicFuture;
 
 public class AdapterResponse extends BasicFuture<AdapterResponse> {
 

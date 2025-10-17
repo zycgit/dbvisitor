@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.spring.annotation;
+import java.lang.annotation.*;
 import net.hasor.dbvisitor.spring.annotation.ScannerRegistrar.RepeatingRegistrar;
 import org.springframework.context.annotation.Import;
-
-import java.lang.annotation.*;
 
 /**
  * The Container annotation that aggregates several {@link MapperScan} annotations.

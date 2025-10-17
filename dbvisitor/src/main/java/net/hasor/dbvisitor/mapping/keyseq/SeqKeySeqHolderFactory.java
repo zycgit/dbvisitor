@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.keyseq;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.reflect.Annotation;
 import net.hasor.cobble.reflect.Annotations;
@@ -26,11 +30,6 @@ import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerFactory;
 import net.hasor.dbvisitor.mapping.KeySeq;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.types.TypeHandler;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * 支持 @KeySequence 注解方式

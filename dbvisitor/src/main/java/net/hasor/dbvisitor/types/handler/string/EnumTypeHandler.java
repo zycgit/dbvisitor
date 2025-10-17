@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler.string;
-import net.hasor.dbvisitor.types.NoCache;
-import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
-
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import net.hasor.dbvisitor.types.NoCache;
+import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 /**
  * 读写枚举类型，支持枚举实现 {@link EnumOfCode}、{@link EnumOfValue} 接口。

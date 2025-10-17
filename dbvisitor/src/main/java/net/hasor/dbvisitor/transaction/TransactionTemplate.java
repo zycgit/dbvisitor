@@ -17,7 +17,6 @@ package net.hasor.dbvisitor.transaction;
 /**
  * 事务模板接口，提供统一的事务执行模板方法。
  * 通过回调机制封装事务管理逻辑，简化编程式事务的使用。
- *
  * @author 赵永春 (zyc@hasor.net)
  * @version 2015-10-22
  */

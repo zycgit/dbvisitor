@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc;
-import net.hasor.dbvisitor.dynamic.SqlArgSource;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import net.hasor.dbvisitor.dynamic.SqlArgSource;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /**
  * JDBC核心操作接口

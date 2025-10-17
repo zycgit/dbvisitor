@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
-
 import java.sql.SQLException;
 
 /**

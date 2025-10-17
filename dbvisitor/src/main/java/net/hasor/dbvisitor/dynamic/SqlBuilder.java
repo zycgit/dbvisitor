@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic;
-import net.hasor.dbvisitor.dialect.BoundSql;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import net.hasor.dbvisitor.dialect.BoundSql;
 
 /**
  * SQL构建器，用于动态构建SQL语句和参数。

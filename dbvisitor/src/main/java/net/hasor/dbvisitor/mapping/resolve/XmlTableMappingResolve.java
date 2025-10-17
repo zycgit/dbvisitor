@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping.resolve;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import net.hasor.cobble.*;
 import net.hasor.cobble.convert.ConverterUtils;
 import net.hasor.cobble.function.Property;
@@ -27,13 +33,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 通过 Xml 来解析 TableMapping

@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver;
-import net.hasor.cobble.StringUtils;
-import net.hasor.cobble.convert.ConverterUtils;
-import net.hasor.cobble.ref.Tuple;
-
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -30,6 +26,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.convert.ConverterUtils;
+import net.hasor.cobble.ref.Tuple;
 
 public class AdapterTypeSupport implements TypeSupport {
     private static final Tuple       defaultTypeTuple = Tuple.of(Types.OTHER, Object.class);

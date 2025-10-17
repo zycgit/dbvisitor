@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver;
-import net.hasor.cobble.logging.Logger;
-import net.hasor.cobble.logging.LoggerFactory;
-
 import java.io.Closeable;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.sql.*;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import net.hasor.cobble.logging.Logger;
+import net.hasor.cobble.logging.LoggerFactory;
 
 class JdbcStatement implements Statement, Closeable {
     private static final Logger           logger = LoggerFactory.getLogger(JdbcStatement.class);

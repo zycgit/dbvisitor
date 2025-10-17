@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.rule;
+import java.sql.Types;
+import java.util.UUID;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
@@ -21,9 +23,6 @@ import net.hasor.dbvisitor.dynamic.SqlMode;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-
-import java.sql.Types;
-import java.util.UUID;
 
 /**
  * UUID32 规则实现类，产生一个 32 字符长度的 `UUID`，并加入到 SQL 参数中

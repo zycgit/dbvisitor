@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.mapper;
-import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
-import net.hasor.dbvisitor.jdbc.JdbcOperations;
-import net.hasor.dbvisitor.jdbc.RowMapper;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
+import net.hasor.dbvisitor.jdbc.JdbcOperations;
+import net.hasor.dbvisitor.jdbc.RowMapper;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /**
  * {@link RowMapper} implementation that creates a <code>java.util.Map</code>

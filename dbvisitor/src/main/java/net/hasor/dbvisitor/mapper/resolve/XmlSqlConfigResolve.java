@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.resolve;
+import java.util.HashMap;
+import java.util.Map;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dynamic.logic.*;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.mapper.def.*;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * parse dynamic SQL from mapperFile

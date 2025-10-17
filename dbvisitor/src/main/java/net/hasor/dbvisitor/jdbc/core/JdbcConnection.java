@@ -14,15 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
-import net.hasor.cobble.logging.Logger;
-import net.hasor.cobble.logging.LoggerFactory;
-import net.hasor.dbvisitor.jdbc.ConnectionCallback;
-import net.hasor.dbvisitor.jdbc.DynamicConnection;
-import net.hasor.dbvisitor.jdbc.StatementCallback;
-import net.hasor.dbvisitor.transaction.ConnectionProxy;
-import net.hasor.dbvisitor.transaction.DataSourceUtils;
-
-import javax.sql.DataSource;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -32,6 +23,14 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.Objects;
+import javax.sql.DataSource;
+import net.hasor.cobble.logging.Logger;
+import net.hasor.cobble.logging.LoggerFactory;
+import net.hasor.dbvisitor.jdbc.ConnectionCallback;
+import net.hasor.dbvisitor.jdbc.DynamicConnection;
+import net.hasor.dbvisitor.jdbc.StatementCallback;
+import net.hasor.dbvisitor.transaction.ConnectionProxy;
+import net.hasor.dbvisitor.transaction.DataSourceUtils;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

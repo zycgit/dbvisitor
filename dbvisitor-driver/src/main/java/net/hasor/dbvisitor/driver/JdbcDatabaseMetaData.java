@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver;
-import net.hasor.cobble.StringUtils;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import net.hasor.cobble.StringUtils;
 
 class JdbcDatabaseMetaData implements DatabaseMetaData {
     private final JdbcConnection    jdbcConnection;

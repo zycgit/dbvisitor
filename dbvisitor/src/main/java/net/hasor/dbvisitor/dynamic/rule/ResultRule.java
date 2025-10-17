@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.rule;
+import java.sql.SQLException;
+import java.util.Map;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
@@ -21,9 +23,6 @@ import net.hasor.dbvisitor.dynamic.*;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor;
 import net.hasor.dbvisitor.mapping.MappingHelper;
-
-import java.sql.SQLException;
-import java.util.Map;
 
 /**
  * 结果集规则实现类，用于处理存储过程/函数调用的结果集。

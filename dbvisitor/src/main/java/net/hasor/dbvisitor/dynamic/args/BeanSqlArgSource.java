@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.args;
+import java.util.*;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
-
-import java.util.*;
 
 /**
  * 基于Java Bean 对象的 SQL 参数源实现类。

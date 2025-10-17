@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
+import java.sql.Types;
+import java.util.*;
+import java.util.function.Consumer;
 import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.ObjectUtils;
 import net.hasor.cobble.StringUtils;
@@ -34,10 +37,6 @@ import net.hasor.dbvisitor.mapping.def.TableMapping;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-
-import java.sql.Types;
-import java.util.*;
-import java.util.function.Consumer;
 
 /**
  * 扩展了 AbstractQueryExecute 提供 lambda 方式生成 SQL。 实现了 Compare 接口。

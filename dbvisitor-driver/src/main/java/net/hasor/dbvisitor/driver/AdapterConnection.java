@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver;
-import net.hasor.cobble.concurrent.timer.HashedWheelTimer;
-import net.hasor.cobble.concurrent.timer.Timeout;
-import net.hasor.cobble.concurrent.timer.TimerTask;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.sql.Connection;
@@ -27,6 +23,9 @@ import java.sql.Statement;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import net.hasor.cobble.concurrent.timer.HashedWheelTimer;
+import net.hasor.cobble.concurrent.timer.Timeout;
+import net.hasor.cobble.concurrent.timer.TimerTask;
 
 public abstract class AdapterConnection implements Closeable {
     private final static HashedWheelTimer     TIMER;

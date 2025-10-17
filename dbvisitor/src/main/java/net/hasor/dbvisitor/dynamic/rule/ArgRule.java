@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.rule;
+import java.sql.JDBCType;
+import java.sql.SQLException;
+import java.util.Map;
 import net.hasor.cobble.NumberUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
@@ -24,10 +27,6 @@ import net.hasor.dbvisitor.dynamic.SqlMode;
 import net.hasor.dbvisitor.internal.OgnlUtils;
 import net.hasor.dbvisitor.types.SqlArg;
 import net.hasor.dbvisitor.types.TypeHandler;
-
-import java.sql.JDBCType;
-import java.sql.SQLException;
-import java.util.Map;
 
 /**
  * 动态参数规则，负责动态 SQL 中 #{} 的解析。
