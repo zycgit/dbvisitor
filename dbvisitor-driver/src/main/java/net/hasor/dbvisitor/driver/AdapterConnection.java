@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import net.hasor.cobble.concurrent.timer.HashedWheelTimer;
@@ -29,6 +30,7 @@ import net.hasor.cobble.concurrent.timer.TimerTask;
 
 public abstract class AdapterConnection implements Closeable {
     private final static HashedWheelTimer     TIMER;
+    private final        String               objectId;
     private final        AdapterInfo          adapterInfo;
     private final        Map<String, Timeout> timeout;
 
@@ -37,12 +39,17 @@ public abstract class AdapterConnection implements Closeable {
     }
 
     public AdapterConnection(String jdbcUrl, String userName) {
+        this.objectId = UUID.randomUUID().toString().replace("-", "");
         this.adapterInfo = new AdapterInfo();
         this.adapterInfo.setUrl(jdbcUrl);
         this.adapterInfo.setUserName(userName);
         this.adapterInfo.setDbVersion(this.jdbcVersion());
         this.adapterInfo.setDriverVersion(this.driverVersion());
         this.timeout = new ConcurrentHashMap<>();
+    }
+
+    public String getObjectId() {
+        return this.objectId;
     }
 
     protected AdapterVersion driverVersion() {
@@ -163,5 +170,13 @@ public abstract class AdapterConnection implements Closeable {
     public abstract void cancelRequest();
 
     @Override
-    public abstract void close() throws IOException;
+    public final void close() throws IOException {
+        try {
+            this.doClose();
+        } finally {
+            AdapterConnManager.removeConnection(this);
+        }
+    }
+
+    protected abstract void doClose() throws IOException;
 }

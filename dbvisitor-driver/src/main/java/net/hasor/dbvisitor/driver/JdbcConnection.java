@@ -39,6 +39,7 @@ class JdbcConnection implements Connection, Closeable {
         this.connection = factory.createConnection(jdbcUrl, properties);
         this.typeSupport = ts == null ? new AdapterTypeSupport(properties) : ts;
         this.txSupport = this.connection instanceof TransactionSupport ? (TransactionSupport) this.connection : null;
+        AdapterConnManager.newConnection(this.connection);
     }
 
     protected TypeSupport typeSupport() {
@@ -57,6 +58,7 @@ class JdbcConnection implements Connection, Closeable {
     public void close() {
         if (!this.isClosed()) {
             this.closed = true;
+            AdapterConnManager.removeConnection(this.connection);
         }
     }
 
