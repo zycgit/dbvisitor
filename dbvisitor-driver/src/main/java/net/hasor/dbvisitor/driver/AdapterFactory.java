@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -24,5 +25,5 @@ public interface AdapterFactory {
 
     TypeSupport createTypeSupport(Properties properties);
 
-    AdapterConnection createConnection(String jdbcUrl, Properties properties) throws SQLException;
+    AdapterConnection createConnection(Connection owner, String jdbcUrl, Properties properties) throws SQLException;
 }

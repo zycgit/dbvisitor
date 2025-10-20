@@ -34,4 +34,5 @@ public class AdapterType {
     public static final String SqlTimestamp   = "SqlTimestamp";
     public static final String OffsetTime     = "OffsetTime";
     public static final String OffsetDateTime = "OffsetDateTime";
+    public static final String Array          = "Array";
 }

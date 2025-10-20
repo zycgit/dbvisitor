@@ -22,10 +22,7 @@ import java.net.URL;
 import java.sql.Types;
 import java.time.*;
 import java.time.chrono.JapaneseDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.convert.ConverterUtils;
 import net.hasor.cobble.ref.Tuple;
@@ -79,6 +76,7 @@ public class AdapterTypeSupport implements TypeSupport {
         this.addNumberMapping(Types.TIMESTAMP, AdapterType.SqlTimestamp);
         this.addNumberMapping(Types.TIME_WITH_TIMEZONE, AdapterType.OffsetTime);
         this.addNumberMapping(Types.TIMESTAMP_WITH_TIMEZONE, AdapterType.OffsetDateTime);
+        this.addNumberMapping(Types.ARRAY, AdapterType.Array);
         this.addNumberMapping(Types.NULL, AdapterType.Null);
         this.addNumberMapping(Types.DATALINK, AdapterType.String);
         this.addNumberMapping(Types.OTHER, AdapterType.Unknown);
@@ -129,7 +127,9 @@ public class AdapterTypeSupport implements TypeSupport {
         this.addClassMapping(URI.class, AdapterType.String);
         this.addClassMapping(Byte[].class, AdapterType.Bytes);
         this.addClassMapping(byte[].class, AdapterType.Bytes);
-        //this.addClassMapping(Object[].class, AdapterType.ARRAY);
+        this.addClassMapping(Object[].class, AdapterType.Array);
+        this.addClassMapping(List.class, AdapterType.Array);
+        this.addClassMapping(Set[].class, AdapterType.Array);
         this.addClassMapping(Object.class, AdapterType.Unknown);
     }
 
@@ -281,7 +281,16 @@ public class AdapterTypeSupport implements TypeSupport {
 
     @Override
     public String getTypeName(Class<?> classType) {
-        return this.classToNameMap.getOrDefault(classType, AdapterType.Unknown);
+        String type = this.classToNameMap.get(classType);
+        if (type != null) {
+            return type;
+        }
+
+        if (classType.getClass().isArray()) {
+            return AdapterType.Array;
+        } else {
+            return AdapterType.Unknown;
+        }
     }
 
     @Override

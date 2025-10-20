@@ -454,9 +454,8 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
     @Override
     public void setArray(int parameterIndex, Array x) throws SQLException {
-        this.checkOpen();
         this.checkParameterIndex(parameterIndex);
-        throw new SQLFeatureNotSupportedException("type Array not supported");
+        this.setParameter(JdbcArgMode.In, "arg" + parameterIndex, AdapterType.Array, x);
     }
 
     @Override

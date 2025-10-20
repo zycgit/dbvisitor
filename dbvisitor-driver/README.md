@@ -2,8 +2,8 @@
 
 不支持的类型有：
 
-- SQLXML、REF_CURSOR、RowId、Ref、Array、Struct、DISTINCT
-- Blob、Clob、NClob 类型不支持超大数据，因为数据会预先读进内存。
+- SQLXML、REF_CURSOR、RowId、Ref、Struct、DISTINCT
+- Array、Blob、Clob、NClob 类型的数据会预先读进内存，请注意数据大小。
 
 不支持的特性有：
 

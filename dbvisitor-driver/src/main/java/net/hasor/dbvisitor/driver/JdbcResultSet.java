@@ -719,13 +719,29 @@ class JdbcResultSet implements ResultSet, Closeable {
     @Override
     public Array getArray(int columnIndex) throws SQLException {
         this.checkOpen();
-        throw new SQLFeatureNotSupportedException("type Array not supported");
+        Object value = this.columnValue(columnIndex);
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Array) {
+            return (Array) value;
+        } else {
+            throw new SQLFeatureNotSupportedException("column value is not java.sql.Array");
+        }
     }
 
     @Override
     public Array getArray(String columnLabel) throws SQLException {
         this.checkOpen();
-        throw new SQLFeatureNotSupportedException("type Array not supported");
+        Object value = this.columnValue(columnLabel);
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Array) {
+            return (Array) value;
+        } else {
+            throw new SQLFeatureNotSupportedException("column value is not java.sql.Array");
+        }
     }
 
     @Override

@@ -609,7 +609,7 @@ public final class ConvertUtils {
         throw new IllegalArgumentException("unsupported value type convert to BigDecimal,type:" + v.getClass().getName());
     }
 
-    // null/Boolean/String/Integer/Long/Short/Byte/byte[]/Float/Double/BigDecimal/BigInteger
+    // null/Boolean/String/Integer/Long/Short/Byte/byte[]/Float/Double/BigDecimal/BigInteger/JdbcArray
     //  - byte[] as HexString.
     public static String toString(Object v) {
         if (v == null) {
@@ -626,6 +626,8 @@ public final class ConvertUtils {
             return ((BigDecimal) v).toPlainString();
         } else if (v instanceof BigInteger) {
             return ((BigInteger) v).toString(10);
+        } else if (v instanceof JdbcArray) {
+            return StringUtils.join(((JdbcArray) v).getArray().toArray(), ", ");
         } else {
             return v.toString();
         }

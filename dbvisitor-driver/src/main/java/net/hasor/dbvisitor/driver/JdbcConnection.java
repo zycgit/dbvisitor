@@ -16,9 +16,7 @@
 package net.hasor.dbvisitor.driver;
 import java.io.Closeable;
 import java.sql.*;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.Executor;
 import net.hasor.dbvisitor.driver.lob.JdbcBob;
 import net.hasor.dbvisitor.driver.lob.JdbcCob;
@@ -36,7 +34,7 @@ class JdbcConnection implements Connection, Closeable {
         AdapterFactory factory = AdapterManager.lookup(adapter, cl);
         TypeSupport ts = factory.createTypeSupport(properties);
 
-        this.connection = factory.createConnection(jdbcUrl, properties);
+        this.connection = factory.createConnection(this, jdbcUrl, properties);
         this.typeSupport = ts == null ? new AdapterTypeSupport(properties) : ts;
         this.txSupport = this.connection instanceof TransactionSupport ? (TransactionSupport) this.connection : null;
         AdapterConnManager.newConnection(this.connection);
@@ -369,7 +367,11 @@ class JdbcConnection implements Connection, Closeable {
     @Override
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
         this.checkOpen();
-        throw new SQLFeatureNotSupportedException("type Array not supported");
+        if (elements != null) {
+            return new JdbcArray(this, typeName, new ArrayList<>(Arrays.asList(elements)));
+        } else {
+            return new JdbcArray(this, typeName, new ArrayList<>());
+        }
     }
 
     @Override
