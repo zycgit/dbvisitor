@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  *
  */
-class JdbcArray implements Array {
+public class JdbcArray implements Array {
     private final JdbcConnection connection;
     private final String         baseType;
     private final List<?>        resultValue;
@@ -69,12 +69,12 @@ class JdbcArray implements Array {
 
     @Override
     public ResultSet getResultSet() throws SQLException {
-        return null; // TODO
+        throw new SQLFeatureNotSupportedException("not support getObject(long,int,Map)");
     }
 
     @Override
     public ResultSet getResultSet(long index, int count) throws SQLException {
-        return null; // TODO
+        throw new SQLFeatureNotSupportedException("not support getObject(long,int,Map)");
     }
 
     @Override

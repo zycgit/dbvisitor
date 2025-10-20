@@ -48,15 +48,15 @@
     <modules>
         <module>dbvisitor</module>
         <module>dbvisitor-driver</module>
-        <module>dbvisitor-dependencies</module>
         <module>dbvisitor-integration/dbvisitor-spring</module>
         <module>dbvisitor-integration/dbvisitor-spring-starter</module>
         <module>dbvisitor-integration/dbvisitor-hasor</module>
         <module>dbvisitor-integration/dbvisitor-guice</module>
         <module>dbvisitor-integration/dbvisitor-solon-plugin</module>
-        <module>dbvisitor-adapter/adapter-mongodb</module>
-        <module>dbvisitor-adapter/adapter-elasticsearch6</module>
-        <module>dbvisitor-adapter/adapter-elasticsearch7</module>
+        <module>dbvisitor-adapter/jdbc-redis</module>
+        <!--        <module>dbvisitor-adapter/adapter-elasticsearch6</module>-->
+        <!--        <module>dbvisitor-adapter/adapter-elasticsearch7</module>-->
+        <!--        <module>dbvisitor-adapter/adapter-mongodb</module>-->
     </modules>
 
     <dependencyManagement>

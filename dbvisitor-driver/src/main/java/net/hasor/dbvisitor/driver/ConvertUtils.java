@@ -353,7 +353,7 @@ public final class ConvertUtils {
                 return primitive ? 0F : null;
             }
             if (NumberUtils.isNumber(sv)) {
-                return NumberUtils.createNumber(sv).floatValue();
+                return NumberUtils.createFloat(sv);
             } else {
                 throw new ConversionException("Can't convert value '" + sv + "' to a Float");
             }
@@ -403,7 +403,7 @@ public final class ConvertUtils {
                 return primitive ? 0D : null;
             }
             if (NumberUtils.isNumber(sv)) {
-                return NumberUtils.createNumber(sv).doubleValue();
+                return NumberUtils.createDouble(sv);
             } else {
                 throw new ConversionException("Can't convert value '" + sv + "' to a Double");
             }
@@ -453,7 +453,7 @@ public final class ConvertUtils {
                 return primitive ? '\0' : null;
             }
             if (NumberUtils.isNumber(sv)) {
-                return (char) NumberUtils.createNumber(sv).intValue();
+                return (char) NumberUtils.createInteger(sv).intValue();
             } else {
                 throw new ConversionException("Can't convert value '" + sv + "' to a Character");
             }
@@ -1315,13 +1315,12 @@ public final class ConvertUtils {
 
     private static OffsetDateTime stringToOffsetDateTime(String v, ZoneOffset defaultZone) {
         LocalDateTime localDateTime = stringToLocalDateTime(v);
-        ZoneOffset useZone = defaultZone;
 
         String zoneValue = extractZone(v);
         if (StringUtils.isNotBlank(zoneValue)) {
             return OffsetDateTime.of(localDateTime, ZoneOffset.of(zoneValue));
         } else {
-            return OffsetDateTime.of(localDateTime, useZone);
+            return OffsetDateTime.of(localDateTime, defaultZone);
         }
     }
 
