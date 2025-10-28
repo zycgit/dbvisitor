@@ -19,7 +19,6 @@ package net.hasor.dbvisitor.driver.lob;
  * and register themselves with setWatcher() on the JdbcWatchableOutputStream instance.
  */
 public interface JdbcWatchableStream {
-
     void setWatcher(JdbcOutputStreamWatcher watcher);
 
     int size();

@@ -471,7 +471,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zadd key nx gt ch incr 123.123 element")) {
                     if (rs.next()) {
                         assert rs.getDouble(1) == 1.1d;
-                        assert rs.getDouble("VALUE") == 1.1d;
+                        assert rs.getDouble("RESULT") == 1.1d;
                     }
                 }
             }
@@ -501,7 +501,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zadd key nx gt ch 123.123 element 333.333 e2")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123;
-                        assert rs.getLong("VALUE") == 123;
+                        assert rs.getLong("RESULT") == 123;
                     }
                 }
             }
@@ -530,7 +530,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zadd key nx 123.123 element 333.333 e2")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123;
-                        assert rs.getLong("VALUE") == 123;
+                        assert rs.getLong("RESULT") == 123;
                     }
                 }
             }
@@ -559,7 +559,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zadd key 123.123 element 333.333 e2")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123;
-                        assert rs.getLong("VALUE") == 123;
+                        assert rs.getLong("RESULT") == 123;
                     }
                 }
             }
@@ -585,10 +585,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zcard key")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -614,7 +613,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zcount key 123 321")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
+                        assert rs.getLong("RESULT") == 123L;
                     }
                 }
             }
@@ -645,7 +644,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("1", "2", "3"));
                     assert r2.equals(Arrays.asList("1", "2", "3"));
@@ -678,8 +677,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r1 = new ArrayList<>();
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
-                        r1.add(rs.getString(1));
-                        r2.add(rs.getString(2));
+                        r1.add(rs.getString("SCORE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("123.0", "456.0"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -708,7 +707,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zdiffstore destKey 2 mykey1 mykey2")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
+                        assert rs.getLong("RESULT") == 123L;
                     }
                 }
             }
@@ -736,7 +735,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zincrby theKey 1 element")) {
                     if (rs.next()) {
                         assert rs.getDouble(1) == 123d;
-                        assert rs.getDouble("VALUE") == 123d;
+                        assert rs.getDouble("SCORE") == 123d;
                     }
                 }
             }
@@ -769,8 +768,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r1 = new ArrayList<>();
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
-                        r1.add(rs.getString(1));
-                        r2.add(rs.getString(2));
+                        r1.add(rs.getString("SCORE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("123.0", "456.0"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -804,8 +803,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r1 = new ArrayList<>();
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
-                        r1.add(rs.getString(1));
-                        r2.add(rs.getString(2));
+                        r1.add(rs.getString("SCORE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("123.0", "456.0"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -839,8 +838,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r1 = new ArrayList<>();
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
-                        r1.add(rs.getString(1));
-                        r2.add(rs.getString(2));
+                        r1.add(rs.getString("SCORE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("123.0", "456.0"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -872,7 +871,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("v1", "v2"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -904,7 +903,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("v1", "v2"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -934,7 +933,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zintercard 3 key1 key2 key3 limit 10")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123d;
-                        assert rs.getLong("VALUE") == 123d;
+                        assert rs.getLong("RESULT") == 123d;
                     }
                 }
             }
@@ -962,7 +961,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zintercard 3 key1 key2 key3")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123d;
-                        assert rs.getLong("VALUE") == 123d;
+                        assert rs.getLong("RESULT") == 123d;
                     }
                 }
             }
@@ -989,7 +988,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zinterstore dstKey 3 key1 key2 key3 weights 1 1 1 aggregate sum")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123d;
-                        assert rs.getLong("VALUE") == 123d;
+                        assert rs.getLong("RESULT") == 123d;
                     }
                 }
             }
@@ -1018,7 +1017,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zlexcount theKey 111 222")) {
                     if (rs.next()) {
                         assert rs.getDouble(1) == 123d;
-                        assert rs.getDouble("VALUE") == 123d;
+                        assert rs.getDouble("RESULT") == 123d;
                     }
                 }
             }
@@ -1047,7 +1046,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zscore theKey element")) {
                     if (rs.next()) {
                         assert rs.getDouble(1) == 123d;
-                        assert rs.getDouble("VALUE") == 123d;
+                        assert rs.getDouble("SCORE") == 123d;
                     }
                 }
             }
@@ -1077,7 +1076,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<Double> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getDouble(1));
-                        r2.add(rs.getDouble("VALUE"));
+                        r2.add(rs.getDouble("SCORE"));
                     }
                     assert r1.equals(Arrays.asList(1.1d, 1.2d, 1.3d));
                     assert r2.equals(Arrays.asList(1.1d, 1.2d, 1.3d));
@@ -1144,7 +1143,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("v1", "v2"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -1176,7 +1175,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("v1"));
                     assert r2.equals(Arrays.asList("v1"));
@@ -1209,8 +1208,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r1 = new ArrayList<>();
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
-                        r1.add(rs.getString(1));
-                        r2.add(rs.getString(2));
+                        r1.add(rs.getString("SCORE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("123.0", "456.0"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -1244,8 +1243,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r1 = new ArrayList<>();
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
-                        r1.add(rs.getString(1));
-                        r2.add(rs.getString(2));
+                        r1.add(rs.getString("SCORE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("123.0", "456.0"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -1279,8 +1278,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r1 = new ArrayList<>();
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
-                        r1.add(rs.getString(1));
-                        r2.add(rs.getString(2));
+                        r1.add(rs.getString("SCORE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("123.0", "456.0"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -1312,7 +1311,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("v1", "v2"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -1344,7 +1343,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("v1", "v2"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -1376,7 +1375,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("v1", "v2"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -1411,7 +1410,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("v1", "v2"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -1446,8 +1445,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r1 = new ArrayList<>();
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
-                        r1.add(rs.getString(1));
-                        r2.add(rs.getString(2));
+                        r1.add(rs.getString("SCORE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("123.0", "456.0"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -1484,8 +1483,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r1 = new ArrayList<>();
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
-                        r1.add(rs.getString(1));
-                        r2.add(rs.getString(2));
+                        r1.add(rs.getString("SCORE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("123.0", "456.0"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -1518,7 +1517,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("v1", "v2"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -1553,7 +1552,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("v1", "v2"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -1584,7 +1583,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zrangestore dstKey srcKey 10 20 byscore rev limit 11 22")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123d;
-                        assert rs.getLong("VALUE") == 123d;
+                        assert rs.getLong("RESULT") == 123d;
                     }
                 }
             }
@@ -1613,7 +1612,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zrangestore dstKey srcKey 10 20 rev limit 11 22")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123d;
-                        assert rs.getLong("VALUE") == 123d;
+                        assert rs.getLong("RESULT") == 123d;
                     }
                 }
             }
@@ -1642,7 +1641,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zrangestore dstKey srcKey 10 20")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123d;
-                        assert rs.getLong("VALUE") == 123d;
+                        assert rs.getLong("RESULT") == 123d;
                     }
                 }
             }
@@ -1787,7 +1786,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zrem theKey v1 v2 v3")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
+                        assert rs.getLong("RESULT") == 123L;
                     }
                 }
             }
@@ -1815,7 +1814,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zremrangebylex theKey 11 20")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
+                        assert rs.getLong("RESULT") == 123L;
                     }
                 }
             }
@@ -1844,7 +1843,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zremrangebyrank theKey 11 20")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
+                        assert rs.getLong("RESULT") == 123L;
                     }
                 }
             }
@@ -1873,7 +1872,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zremrangebyscore theKey 11 20")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
+                        assert rs.getLong("RESULT") == 123L;
                     }
                 }
             }
@@ -1940,7 +1939,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("v1", "v2"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -1973,7 +1972,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("v1", "v2"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -2008,7 +2007,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("v1", "v2"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -2113,7 +2112,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zrevrangebyscore theKey 11 20 limit 0 2")) {
                     ArrayList<String> r1 = new ArrayList<>();
                     while (rs.next()) {
-                        r1.add(rs.getString("VALUE"));
+                        r1.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("v1", "v2"));
                 }
@@ -2145,7 +2144,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zrevrangebyscore theKey 11 20")) {
                     ArrayList<String> r1 = new ArrayList<>();
                     while (rs.next()) {
-                        r1.add(rs.getString("VALUE"));
+                        r1.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("v1", "v2"));
                 }
@@ -2309,7 +2308,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zunion 3 key1 key2 key3 weights 1 1 1 aggregate sum")) {
                     ArrayList<String> r1 = new ArrayList<>();
                     while (rs.next()) {
-                        r1.add(rs.getString("VALUE"));
+                        r1.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("v1", "v2"));
                 }
@@ -2338,7 +2337,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zunionstore dstKey 3 key1 key2 key3 weights 1 1 1 aggregate sum")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
+                        assert rs.getLong("RESULT") == 123L;
                     }
                 }
             }
@@ -2367,7 +2366,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zunionstore dstKey 3 key1 key2 key3 weights 1 1 1")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
+                        assert rs.getLong("RESULT") == 123L;
                     }
                 }
             }
@@ -2396,7 +2395,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("zunionstore dstKey 3 key1 key2 key3")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
+                        assert rs.getLong("RESULT") == 123L;
                     }
                 }
             }

@@ -1,10 +1,8 @@
 package net.hasor.dbvisitor.driver;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class AdapterConnManager {
-
     private static final Map<String, AdapterConnection> connectionMap = new ConcurrentHashMap<>();
 
     static void newConnection(AdapterConnection connection) {

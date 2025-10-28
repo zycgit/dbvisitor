@@ -27,6 +27,7 @@ command
 serverCommands
     : moveCommand
     | waitCommand
+    | waitaofCommand
     ;
 
 keysCommands
@@ -768,6 +769,10 @@ typeCommand
 
 waitCommand
     : WAIT replicas=integer timeout=integer
+    ;
+
+waitaofCommand
+    : WAITAOF numlocal=integer replicas=integer timeout=integer
     ;
 
 stringSetCommand

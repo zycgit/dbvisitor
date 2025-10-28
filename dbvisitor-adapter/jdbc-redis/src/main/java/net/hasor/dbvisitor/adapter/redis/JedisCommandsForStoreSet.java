@@ -18,52 +18,16 @@ import redis.clients.jedis.resps.Tuple;
 import redis.clients.jedis.util.KeyValue;
 
 class JedisCommandsForStoreSet extends JedisCommands {
-    private static Future<?> resultKeyAndScoreAndElement1(Future<Object> sync, AdapterRequest request, AdapterReceive receive, KeyValue<String, List<Tuple>> result) throws SQLException {
-        AdapterResultCursor receiveCur = new AdapterResultCursor(request, Arrays.asList(//
-                COL_KEY_STRING,     //
-                COL_SCORE_DOUBLE,   //
-                COL_ELEMENT_STRING));
-        receive.responseResult(request, receiveCur);
-
-        for (Tuple tuple : result.getValue()) {
-            receiveCur.pushData(CollectionUtils.asMap(          //
-                    COL_KEY_STRING.name, result.getKey(),       //
-                    COL_SCORE_DOUBLE.name, tuple.getScore(),    //
-                    COL_ELEMENT_STRING.name, tuple.getElement() //
-            ));
-        }
-        receiveCur.pushFinish();
-        return completed(sync);
-    }
-
-    private static Future<?> resultKeyAndScoreAndElement2(Future<Object> sync, AdapterRequest request, AdapterReceive receive, KeyValue<String, Tuple> result) throws SQLException {
-        AdapterResultCursor receiveCur = new AdapterResultCursor(request, Arrays.asList(//
-                COL_KEY_STRING,     //
-                COL_SCORE_DOUBLE,   //
-                COL_ELEMENT_STRING));
-        receive.responseResult(request, receiveCur);
-
-        receiveCur.pushData(CollectionUtils.asMap(                      //
-                COL_KEY_STRING.name, result.getKey(),                   //
-                COL_SCORE_DOUBLE.name, result.getValue().getScore(),    //
-                COL_ELEMENT_STRING.name, result.getValue().getElement() //
-        ));
-
-        receiveCur.pushFinish();
-        return completed(sync);
-    }
-
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ZmpopCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx, Connection conn) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         int numKeys = ConvertUtils.toInteger(argOrValue(argIndex, request, cmd.integer()), true);
-        List<String> keys = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.SortedSetKeyNameContext setKeyNameContext : cmd.sortedSetKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, setKeyNameContext.identifier()));
-            cnt++;
+        List<RedisParser.SortedSetKeyNameContext> nameContexts = cmd.sortedSetKeyName();
+        String[] keys = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (cnt != numKeys) {
-            throw new SQLException("ZMPOP numKeys " + numKeys + " not match actual keys " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (keys.length != numKeys) {
+            throw new SQLException("ZMPOP numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
         SortedSetOption option = getSortedSetOption(cmd.minMaxClause());
         Integer count = null;
@@ -73,26 +37,27 @@ class JedisCommandsForStoreSet extends JedisCommands {
 
         KeyValue<String, List<Tuple>> result;
         if (count == null) {
-            result = jedisCmd.getSortedSetCommands().zmpop(option, keys.toArray(new String[0]));
+            result = jedisCmd.getSortedSetCommands().zmpop(option, keys);
         } else {
-            result = jedisCmd.getSortedSetCommands().zmpop(option, count, keys.toArray(new String[0]));
+            result = jedisCmd.getSortedSetCommands().zmpop(option, count, keys);
         }
 
-        return resultKeyAndScoreAndElement1(sync, request, receive, result);
+        AdapterResultCursor resultCursor = listResult(request, COL_KEY_STRING, result);
+        receive.responseResult(request, resultCursor);
+        return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.BzmpopCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         double timeout = ConvertUtils.toDouble(argOrValue(argIndex, request, cmd.timeout), true);
         int numKeys = ConvertUtils.toInteger(argOrValue(argIndex, request, cmd.number), true);
-        List<String> keys = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.SortedSetKeyNameContext setKeyNameContext : cmd.sortedSetKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, setKeyNameContext.identifier()));
-            cnt++;
+        List<RedisParser.SortedSetKeyNameContext> nameContexts = cmd.sortedSetKeyName();
+        String[] keys = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (cnt != numKeys) {
-            throw new SQLException("BZMPOP numKeys " + numKeys + " not match actual keys " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (keys.length != numKeys) {
+            throw new SQLException("BZMPOP numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
         SortedSetOption option = getSortedSetOption(cmd.minMaxClause());
         Integer count = null;
@@ -102,17 +67,19 @@ class JedisCommandsForStoreSet extends JedisCommands {
 
         KeyValue<String, List<Tuple>> result;
         if (count == null) {
-            result = jedisCmd.getSortedSetCommands().bzmpop(timeout, option, keys.toArray(new String[0]));
+            result = jedisCmd.getSortedSetCommands().bzmpop(timeout, option, keys);
         } else {
-            result = jedisCmd.getSortedSetCommands().bzmpop(timeout, option, count, keys.toArray(new String[0]));
+            result = jedisCmd.getSortedSetCommands().bzmpop(timeout, option, count, keys);
         }
 
-        return resultKeyAndScoreAndElement1(sync, request, receive, result);
+        AdapterResultCursor resultCursor = listResult(request, COL_KEY_STRING, result);
+        receive.responseResult(request, resultCursor);
+        return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ZpopmaxCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.sortedSetKeyName().identifier());
+        String key = argAsString(argIndex, request, cmd.sortedSetKeyName().identifier());
         Integer count = null;
         if (cmd.integer() != null) {
             count = ConvertUtils.toInteger(argOrValue(argIndex, request, cmd.integer()), true);
@@ -125,26 +92,30 @@ class JedisCommandsForStoreSet extends JedisCommands {
             result = jedisCmd.getSortedSetCommands().zpopmax(key, count);
         }
 
-        receive.responseResult(request, resultScoreAndElement(request, receive, result, -1));
+        receive.responseResult(request, listResult(request, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.BzpopmaxCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         double timeout = ConvertUtils.toInteger(argOrValue(argIndex, request, cmd.integer()), true);
-        List<String> keys = new ArrayList<>();
-        for (RedisParser.SortedSetKeyNameContext setKeyNameContext : cmd.sortedSetKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, setKeyNameContext.identifier()));
+
+        List<RedisParser.SortedSetKeyNameContext> nameContexts = cmd.sortedSetKeyName();
+        String[] keys = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
 
-        KeyValue<String, Tuple> result = jedisCmd.getSortedSetCommands().bzpopmax(timeout, keys.toArray(new String[0]));
+        KeyValue<String, Tuple> result = jedisCmd.getSortedSetCommands().bzpopmax(timeout, keys);
 
-        return resultKeyAndScoreAndElement2(sync, request, receive, result);
+        AdapterResultCursor resultCursor = listResult(request, COL_KEY_STRING, new KeyValue<>(result.getKey(), Collections.singletonList(result.getValue())));
+        receive.responseResult(request, resultCursor);
+        return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ZpopminCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.sortedSetKeyName().identifier());
+        String key = argAsString(argIndex, request, cmd.sortedSetKeyName().identifier());
         Integer count = null;
         if (cmd.integer() != null) {
             count = ConvertUtils.toInteger(argOrValue(argIndex, request, cmd.integer()), true);
@@ -157,26 +128,30 @@ class JedisCommandsForStoreSet extends JedisCommands {
             result = jedisCmd.getSortedSetCommands().zpopmin(key, count);
         }
 
-        receive.responseResult(request, resultScoreAndElement(request, receive, result, -1));
+        receive.responseResult(request, listResult(request, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.BzpopminCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         double timeout = ConvertUtils.toInteger(argOrValue(argIndex, request, cmd.integer()), true);
-        List<String> keys = new ArrayList<>();
-        for (RedisParser.SortedSetKeyNameContext setKeyNameContext : cmd.sortedSetKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, setKeyNameContext.identifier()));
+
+        List<RedisParser.SortedSetKeyNameContext> nameContexts = cmd.sortedSetKeyName();
+        String[] keys = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
 
-        KeyValue<String, Tuple> result = jedisCmd.getSortedSetCommands().bzpopmin(timeout, keys.toArray(new String[0]));
+        KeyValue<String, Tuple> result = jedisCmd.getSortedSetCommands().bzpopmin(timeout, keys);
 
-        return resultKeyAndScoreAndElement2(sync, request, receive, result);
+        AdapterResultCursor resultCursor = listResult(request, COL_KEY_STRING, new KeyValue<>(result.getKey(), Collections.singletonList(result.getValue())));
+        receive.responseResult(request, resultCursor);
+        return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ZaddCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.sortedSetKeyName().identifier());
+        String key = argAsString(argIndex, request, cmd.sortedSetKeyName().identifier());
         RedisParser.KeyExistenceClauseContext keyExistenceClauseContext = cmd.keyExistenceClause();
         RedisParser.KeyUpdateClauseContext keyUpdateClauseContext = cmd.keyUpdateClause();
 
@@ -214,7 +189,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
         String member = null;
         for (RedisParser.ScoreMemberClauseContext scoreMemberClauseContext : cmd.scoreMemberClause()) {
             score = ConvertUtils.toDouble(argOrValue(argIndex, request, scoreMemberClauseContext.decimal()), true);
-            member = (String) argOrValue(argIndex, request, scoreMemberClauseContext.identifier());
+            member = argAsString(argIndex, request, scoreMemberClauseContext.identifier());
             scoreMembers.put(member, score);
         }
 
@@ -224,7 +199,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
             }
             zAddParams = zAddParams == null ? new ZAddParams() : zAddParams;
             double result = jedisCmd.getSortedSetCommands().zaddIncr(key, score, member, zAddParams);
-            receive.responseResult(request, singleValueDoubleResult(request, result));
+            receive.responseResult(request, singleResult(request, COL_RESULT_DOUBLE, result));
         } else {
             long result;
             if (zAddParams != null) {
@@ -232,7 +207,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
             } else {
                 result = jedisCmd.getSortedSetCommands().zadd(key, scoreMembers);
             }
-            receive.responseResult(request, singleValueLongResult(request, result));
+            receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         }
 
         return completed(sync);
@@ -240,11 +215,11 @@ class JedisCommandsForStoreSet extends JedisCommands {
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ZcardCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.sortedSetKeyName().identifier());
+        String key = argAsString(argIndex, request, cmd.sortedSetKeyName().identifier());
 
         long result = jedisCmd.getSortedSetCommands().zcard(key);
-        receive.responseResult(request, singleValueLongResult(request, result));
 
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -255,30 +230,29 @@ class JedisCommandsForStoreSet extends JedisCommands {
         String max = argAsString(argIndex, request, cmd.max);
 
         long result = jedisCmd.getSortedSetCommands().zcount(key, min, max);
-        receive.responseResult(request, singleValueLongResult(request, result));
 
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ZdiffCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.integer()), true);
-        List<String> keys = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.SortedSetKeyNameContext keyNameContext : cmd.sortedSetKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, keyNameContext.identifier()));
-            cnt++;
+        List<RedisParser.SortedSetKeyNameContext> nameContexts = cmd.sortedSetKeyName();
+        String[] keys = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (cnt != numKeys) {
-            throw new SQLException("ZDIFF numKeys " + numKeys + " not match actual keys " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (keys.length != numKeys) {
+            throw new SQLException("ZDIFF numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
         if (cmd.WITHSCORES() != null) {
-            List<Tuple> result = jedisCmd.getSortedSetCommands().zdiffWithScores(keys.toArray(new String[0]));
-            receive.responseResult(request, resultScoreAndElement(request, receive, result, -1));
+            List<Tuple> result = jedisCmd.getSortedSetCommands().zdiffWithScores(keys);
+            receive.responseResult(request, listResult(request, result));
         } else {
-            List<String> result = jedisCmd.getSortedSetCommands().zdiff(keys.toArray(new String[0]));
-            receive.responseResult(request, resultValueStringList(request, result, -1));
+            List<String> result = jedisCmd.getSortedSetCommands().zdiff(keys);
+            receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, result));
         }
 
         return completed(sync);
@@ -288,44 +262,44 @@ class JedisCommandsForStoreSet extends JedisCommands {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String dstKey = argAsString(argIndex, request, cmd.identifier());
         long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.integer()), true);
-        List<String> keys = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.SortedSetKeyNameContext keyNameContext : cmd.sortedSetKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, keyNameContext.identifier()));
-            cnt++;
+
+        List<RedisParser.SortedSetKeyNameContext> nameContexts = cmd.sortedSetKeyName();
+        String[] keys = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (cnt != numKeys) {
-            throw new SQLException("ZDIFFSTORE numKeys " + numKeys + " not match actual keys " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (keys.length != numKeys) {
+            throw new SQLException("ZDIFFSTORE numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
-        long result = jedisCmd.getSortedSetCommands().zdiffstore(dstKey, keys.toArray(new String[0]));
-        receive.responseResult(request, singleValueLongResult(request, result));
+        long result = jedisCmd.getSortedSetCommands().zdiffstore(dstKey, keys);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ZincrbyCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = ConvertUtils.toString(argOrValue(argIndex, request, cmd.sortedSetKeyName().identifier()));
+        String key = argAsString(argIndex, request, cmd.sortedSetKeyName().identifier());
         long increment = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.decimal()), true);
-        String member = ConvertUtils.toString(argOrValue(argIndex, request, cmd.identifier()));
+        String member = argAsString(argIndex, request, cmd.identifier());
 
         double value = jedisCmd.getSortedSetCommands().zincrby(key, increment, member);
 
-        receive.responseResult(request, singleValueDoubleResult(request, value));
+        receive.responseResult(request, singleResult(request, COL_SCORE_DOUBLE, value));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ZinterCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.integer()), true);
-        List<String> keys = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.SortedSetKeyNameContext keyNameContext : cmd.sortedSetKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, keyNameContext.identifier()));
-            cnt++;
+
+        List<RedisParser.SortedSetKeyNameContext> nameContexts = cmd.sortedSetKeyName();
+        String[] keys = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (cnt != numKeys) {
-            throw new SQLException("ZINTER numKeys " + numKeys + " not match actual keys " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (keys.length != numKeys) {
+            throw new SQLException("ZINTER numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
         ZParams zParams = new ZParams();
@@ -346,11 +320,11 @@ class JedisCommandsForStoreSet extends JedisCommands {
         }
 
         if (cmd.WITHSCORES() != null) {
-            List<Tuple> value = jedisCmd.getSortedSetCommands().zinterWithScores(zParams, keys.toArray(new String[0]));
-            receive.responseResult(request, resultScoreAndElement(request, receive, value, -1));
+            List<Tuple> result = jedisCmd.getSortedSetCommands().zinterWithScores(zParams, keys);
+            receive.responseResult(request, listResult(request, result));
         } else {
-            List<String> value = jedisCmd.getSortedSetCommands().zinter(zParams, keys.toArray(new String[0]));
-            receive.responseResult(request, resultValueStringList(request, value, -1));
+            List<String> result = jedisCmd.getSortedSetCommands().zinter(zParams, keys);
+            receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, result));
         }
 
         return completed(sync);
@@ -359,40 +333,39 @@ class JedisCommandsForStoreSet extends JedisCommands {
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ZintercardCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.integer()), true);
-        List<String> keys = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.SortedSetKeyNameContext keyNameContext : cmd.sortedSetKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, keyNameContext.identifier()));
-            cnt++;
+
+        List<RedisParser.SortedSetKeyNameContext> nameContexts = cmd.sortedSetKeyName();
+        String[] keys = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (cnt != numKeys) {
-            throw new SQLException("ZINTERCARD numKeys " + numKeys + " not match actual keys " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (keys.length != numKeys) {
+            throw new SQLException("ZINTERCARD numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
         long result;
         if (cmd.limitClause() != null) {
             long limit = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.limitClause().integer()), true);
-            result = jedisCmd.getSortedSetCommands().zintercard(limit, keys.toArray(new String[0]));
+            result = jedisCmd.getSortedSetCommands().zintercard(limit, keys);
         } else {
-            result = jedisCmd.getSortedSetCommands().zintercard(keys.toArray(new String[0]));
+            result = jedisCmd.getSortedSetCommands().zintercard(keys);
         }
 
-        receive.responseResult(request, singleValueLongResult(request, result));
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ZinterstoreCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String dstKey = ConvertUtils.toString(argOrValue(argIndex, request, cmd.identifier()));
+        String dstKey = argAsString(argIndex, request, cmd.identifier());
         long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.integer()), true);
-        List<String> keys = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.SortedSetKeyNameContext keyNameContext : cmd.sortedSetKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, keyNameContext.identifier()));
-            cnt++;
+        List<RedisParser.SortedSetKeyNameContext> nameContexts = cmd.sortedSetKeyName();
+        String[] keys = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (cnt != numKeys) {
-            throw new SQLException("ZINTERSTORE numKeys " + numKeys + " not match actual keys " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (keys.length != numKeys) {
+            throw new SQLException("ZINTERSTORE numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
         ZParams zParams = new ZParams();
@@ -412,8 +385,8 @@ class JedisCommandsForStoreSet extends JedisCommands {
             zParams.aggregate(getAggregateOption(cmd.aggregateClause()));
         }
 
-        long result = jedisCmd.getSortedSetCommands().zinterstore(dstKey, zParams, keys.toArray(new String[0]));
-        receive.responseResult(request, singleValueLongResult(request, result));
+        long result = jedisCmd.getSortedSetCommands().zinterstore(dstKey, zParams, keys);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -424,8 +397,8 @@ class JedisCommandsForStoreSet extends JedisCommands {
         String max = argAsString(argIndex, request, cmd.max.identifier());
 
         long result = jedisCmd.getSortedSetCommands().zlexcount(key, min, max);
-        receive.responseResult(request, singleValueLongResult(request, result));
 
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -435,40 +408,42 @@ class JedisCommandsForStoreSet extends JedisCommands {
         String member = argAsString(argIndex, request, cmd.identifier());
 
         Double result = jedisCmd.getSortedSetCommands().zscore(key, member);
-        receive.responseResult(request, singleValueDoubleResult(request, result));
 
+        receive.responseResult(request, singleResult(request, COL_SCORE_DOUBLE, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ZmscoreCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = ConvertUtils.toString(argOrValue(argIndex, request, cmd.sortedSetKeyName().identifier()));
-        List<String> member = new ArrayList<>();
-        for (RedisParser.IdentifierContext memberContext : cmd.identifier()) {
-            member.add((String) argOrValue(argIndex, request, memberContext));
+        String key = argAsString(argIndex, request, cmd.sortedSetKeyName().identifier());
+        List<RedisParser.IdentifierContext> nameContexts = cmd.identifier();
+        String[] member = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            member[i] = argAsString(argIndex, request, nameContexts.get(i));
         }
 
-        List<Double> result = jedisCmd.getSortedSetCommands().zmscore(key, member.toArray(new String[0]));
-        receive.responseResult(request, resultValueDoubleList(request, result, -1));
+        List<Double> result = jedisCmd.getSortedSetCommands().zmscore(key, member);
+
+        receive.responseResult(request, listResult(request, COL_SCORE_DOUBLE, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ZrandmemberCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = ConvertUtils.toString(argOrValue(argIndex, request, cmd.sortedSetKeyName().identifier()));
+        String key = argAsString(argIndex, request, cmd.sortedSetKeyName().identifier());
 
         if (cmd.decimal() != null) {
             long count = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.decimal()), true);
             if (cmd.WITHSCORES() != null) {
                 List<Tuple> result = jedisCmd.getSortedSetCommands().zrandmemberWithScores(key, count);
-                receive.responseResult(request, resultScoreAndElement(request, receive, result, -1));
+                receive.responseResult(request, listResult(request, result));
             } else {
                 List<String> result = jedisCmd.getSortedSetCommands().zrandmember(key, count);
-                receive.responseResult(request, resultValueStringList(request, result, -1));
+                receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, result));
             }
         } else {
             List<String> result = Collections.singletonList(jedisCmd.getSortedSetCommands().zrandmember(key));
-            receive.responseResult(request, resultValueStringList(request, result, -1));
+            receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, result));
         }
 
         return completed(sync);
@@ -509,10 +484,10 @@ class JedisCommandsForStoreSet extends JedisCommands {
 
         if (cmd.WITHSCORES() != null) {
             List<Tuple> value = jedisCmd.getSortedSetCommands().zrangeWithScores(key, params);
-            receive.responseResult(request, resultScoreAndElement(request, receive, value, -1));
+            receive.responseResult(request, listResult(request, value));
         } else {
             List<String> value = jedisCmd.getSortedSetCommands().zrange(key, params);
-            receive.responseResult(request, resultValueStringList(request, value, -1));
+            receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, value));
         }
 
         return completed(sync);
@@ -533,7 +508,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
             value = jedisCmd.getSortedSetCommands().zrangeByLex(key, min, max);
         }
 
-        receive.responseResult(request, resultValueStringList(request, value, -1));
+        receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, value));
         return completed(sync);
     }
 
@@ -552,7 +527,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
             } else {
                 value = jedisCmd.getSortedSetCommands().zrangeByScoreWithScores(key, min, max);
             }
-            receive.responseResult(request, resultScoreAndElement(request, receive, value, -1));
+            receive.responseResult(request, listResult(request, value));
         } else {
             List<String> value;
             if (cmd.limitOffsetClause() != null) {
@@ -562,7 +537,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
             } else {
                 value = jedisCmd.getSortedSetCommands().zrangeByScore(key, min, max);
             }
-            receive.responseResult(request, resultValueStringList(request, value, -1));
+            receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, value));
         }
 
         return completed(sync);
@@ -603,7 +578,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
         }
 
         long result = jedisCmd.getSortedSetCommands().zrangestore(dst, src, params);
-        receive.responseResult(request, singleValueLongResult(request, result));
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -616,20 +591,19 @@ class JedisCommandsForStoreSet extends JedisCommands {
             KeyValue<Long, Double> result = jedisCmd.getSortedSetCommands().zrankWithScore(key, member);
 
             AdapterResultCursor receiveCur = new AdapterResultCursor(request, Arrays.asList(//
-                    COL_RANK_LONG,  //
-                    COL_SCORE_DOUBLE));
+                    COL_SCORE_DOUBLE, COL_RANK_LONG));
             receive.responseResult(request, receiveCur);
 
             receiveCur.pushData(CollectionUtils.asMap(       //
-                    COL_RANK_LONG.name, result.getKey(),     //
-                    COL_SCORE_DOUBLE.name, result.getValue() //
+                    COL_SCORE_DOUBLE.name, result.getValue(),//
+                    COL_RANK_LONG.name, result.getKey()      //
             ));
 
             receiveCur.pushFinish();
             return completed(sync);
         } else {
             Long result = jedisCmd.getSortedSetCommands().zrank(key, member);
-            receive.responseResult(request, singleRankLongResult(request, result));
+            receive.responseResult(request, singleResult(request, COL_RANK_LONG, result));
             return completed(sync);
         }
     }
@@ -656,21 +630,23 @@ class JedisCommandsForStoreSet extends JedisCommands {
             return completed(sync);
         } else {
             Long result = jedisCmd.getSortedSetCommands().zrevrank(key, member);
-            receive.responseResult(request, singleRankLongResult(request, result));
+            receive.responseResult(request, singleResult(request, COL_RANK_LONG, result));
             return completed(sync);
         }
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ZremCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = ConvertUtils.toString(argOrValue(argIndex, request, cmd.sortedSetKeyName().identifier()));
-        List<String> member = new ArrayList<>();
-        for (RedisParser.IdentifierContext keyContext : cmd.identifier()) {
-            member.add((String) argOrValue(argIndex, request, keyContext));
+        String key = argAsString(argIndex, request, cmd.sortedSetKeyName().identifier());
+
+        List<RedisParser.IdentifierContext> nameContexts = cmd.identifier();
+        String[] member = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            member[i] = argAsString(argIndex, request, nameContexts.get(i));
         }
 
-        long result = jedisCmd.getSortedSetCommands().zrem(key, member.toArray(new String[0]));
-        receive.responseResult(request, singleValueLongResult(request, result));
+        long result = jedisCmd.getSortedSetCommands().zrem(key, member);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -681,7 +657,8 @@ class JedisCommandsForStoreSet extends JedisCommands {
         String maxStr = argAsString(argIndex, request, cmd.max.identifier());
 
         long result = jedisCmd.getSortedSetCommands().zremrangeByLex(key, minStr, maxStr);
-        receive.responseResult(request, singleValueLongResult(request, result));
+
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -692,7 +669,8 @@ class JedisCommandsForStoreSet extends JedisCommands {
         long stop = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.end), true);
 
         long result = jedisCmd.getSortedSetCommands().zremrangeByRank(key, start, stop);
-        receive.responseResult(request, singleValueLongResult(request, result));
+
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -703,7 +681,8 @@ class JedisCommandsForStoreSet extends JedisCommands {
         String max = argAsString(argIndex, request, cmd.max);
 
         long result = jedisCmd.getSortedSetCommands().zremrangeByScore(key, min, max);
-        receive.responseResult(request, singleValueLongResult(request, result));
+
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -715,10 +694,10 @@ class JedisCommandsForStoreSet extends JedisCommands {
 
         if (cmd.WITHSCORES() != null) {
             List<Tuple> result = jedisCmd.getSortedSetCommands().zrevrangeWithScores(key, start, stop);
-            receive.responseResult(request, resultScoreAndElement(request, receive, result, -1));
+            receive.responseResult(request, listResult(request, result));
         } else {
             List<String> result = jedisCmd.getSortedSetCommands().zrevrange(key, start, stop);
-            receive.responseResult(request, resultValueStringList(request, result, -1));
+            receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, result));
         }
 
         return completed(sync);
@@ -739,7 +718,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
             result = jedisCmd.getSortedSetCommands().zrevrangeByLex(key, max, min);
         }
 
-        receive.responseResult(request, resultValueStringList(request, result, -1));
+        receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, result));
         return completed(sync);
     }
 
@@ -758,7 +737,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
             } else {
                 result = jedisCmd.getSortedSetCommands().zrevrangeByScoreWithScores(key, max, min);
             }
-            receive.responseResult(request, resultScoreAndElement(request, receive, result, -1));
+            receive.responseResult(request, listResult(request, result));
         } else {
             List<String> result;
             if (cmd.limitOffsetClause() != null) {
@@ -769,7 +748,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
                 result = jedisCmd.getSortedSetCommands().zrevrangeByScore(key, max, min);
             }
 
-            receive.responseResult(request, resultValueStringList(request, result, -1));
+            receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, result));
         }
 
         return completed(sync);
@@ -777,13 +756,13 @@ class JedisCommandsForStoreSet extends JedisCommands {
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ZscanCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.sortedSetKeyName().identifier());
-        String cursor = (String) argOrValue(argIndex, request, cmd.decimal());
+        String key = argAsString(argIndex, request, cmd.sortedSetKeyName().identifier());
+        String cursor = argAsString(argIndex, request, cmd.decimal());
         String pattern = null;
         Integer count = null;
         long maxRows = request.getMaxRows();
         if (cmd.matchClause() != null) {
-            pattern = (String) argOrValue(argIndex, request, cmd.matchClause().keyPattern().identifier());
+            pattern = argAsString(argIndex, request, cmd.matchClause().keyPattern().identifier());
         }
         if (cmd.countClause() != null) {
             count = ConvertUtils.toInteger(argOrValue(argIndex, request, cmd.countClause().integer()), true);
@@ -798,29 +777,47 @@ class JedisCommandsForStoreSet extends JedisCommands {
         }
 
         ScanResult<Tuple> result = jedisCmd.getSortedSetCommands().zscan(key, cursor, scanParams);
-
-        if (!sync.isDone()) {
-            AdapterResultCursor receiveCur = resultCursorAndScoreAndElement(request, receive, result.getCursor(), result.getResult(), maxRows);
-            receive.responseResult(request, receiveCur);
-            return completed(sync);
-        } else {
+        if (sync.isDone()) {
             SQLException err = new SQLException("command interrupted.");
             receive.responseFailed(request, err);
             throw err;
         }
+
+        AdapterResultCursor receiveCur = new AdapterResultCursor(request, Arrays.asList(//
+                COL_CURSOR_STRING,   //
+                COL_SCORE_DOUBLE,   //
+                COL_ELEMENT_STRING));
+        receive.responseResult(request, receiveCur);
+
+        int affectRows = 0;
+        for (Tuple tuple : result.getResult()) {
+            receiveCur.pushData(CollectionUtils.asMap(          //
+                    COL_CURSOR_STRING.name, result.getCursor(), //
+                    COL_SCORE_DOUBLE.name, tuple.getScore(),    //
+                    COL_ELEMENT_STRING.name, tuple.getElement() //
+            ));
+            affectRows++;
+
+            if (maxRows > 0 && affectRows >= maxRows) {
+                break;
+            }
+        }
+
+        receiveCur.pushFinish();
+        receive.responseResult(request, receiveCur);
+        return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ZunionCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.integer()), true);
-        List<String> keys = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.SortedSetKeyNameContext keyNameContext : cmd.sortedSetKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, keyNameContext.identifier()));
-            cnt++;
+        List<RedisParser.SortedSetKeyNameContext> nameContexts = cmd.sortedSetKeyName();
+        String[] keys = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (cnt != numKeys) {
-            throw new SQLException("ZUNION numKeys " + numKeys + " not match actual keys " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (keys.length != numKeys) {
+            throw new SQLException("ZUNION numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
         ZParams zParams = new ZParams();
@@ -841,11 +838,11 @@ class JedisCommandsForStoreSet extends JedisCommands {
         }
 
         if (cmd.WITHSCORES() != null) {
-            List<Tuple> result = jedisCmd.getSortedSetCommands().zunionWithScores(zParams, keys.toArray(new String[0]));
-            receive.responseResult(request, resultScoreAndElement(request, receive, result, -1));
+            List<Tuple> result = jedisCmd.getSortedSetCommands().zunionWithScores(zParams, keys);
+            receive.responseResult(request, listResult(request, result));
         } else {
-            List<String> result = jedisCmd.getSortedSetCommands().zunion(zParams, keys.toArray(new String[0]));
-            receive.responseResult(request, resultValueStringList(request, result, -1));
+            List<String> result = jedisCmd.getSortedSetCommands().zunion(zParams, keys);
+            receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, result));
         }
 
         return completed(sync);
@@ -853,16 +850,15 @@ class JedisCommandsForStoreSet extends JedisCommands {
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ZunionstoreCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String dstKey = (String) argOrValue(argIndex, request, cmd.identifier());
+        String dstKey = argAsString(argIndex, request, cmd.identifier());
         long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.integer()), true);
-        List<String> keys = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.SortedSetKeyNameContext keyNameContext : cmd.sortedSetKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, keyNameContext.identifier()));
-            cnt++;
+        List<RedisParser.SortedSetKeyNameContext> nameContexts = cmd.sortedSetKeyName();
+        String[] keys = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (cnt != numKeys) {
-            throw new SQLException("ZUNION numKeys " + numKeys + " not match actual keys " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (keys.length != numKeys) {
+            throw new SQLException("ZUNIONSTORE numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
         ZParams zParams = new ZParams();
@@ -882,8 +878,9 @@ class JedisCommandsForStoreSet extends JedisCommands {
             zParams.aggregate(getAggregateOption(cmd.aggregateClause()));
         }
 
-        long result = jedisCmd.getSortedSetCommands().zunionstore(dstKey, zParams, keys.toArray(new String[0]));
-        receive.responseResult(request, singleValueLongResult(request, result));
+        long result = jedisCmd.getSortedSetCommands().zunionstore(dstKey, zParams, keys);
+
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 }

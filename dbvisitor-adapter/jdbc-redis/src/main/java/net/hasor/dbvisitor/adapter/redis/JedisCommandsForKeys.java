@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.cobble.CollectionUtils;
-import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.redis.parser.RedisParser;
 import net.hasor.dbvisitor.driver.*;
@@ -15,8 +14,8 @@ import redis.clients.jedis.resps.ScanResult;
 class JedisCommandsForKeys extends JedisCommands {
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.CopyCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String oldKeyName = (String) argOrValue(argIndex, request, cmd.keyName().identifier());
-        String newKeyName = (String) argOrValue(argIndex, request, cmd.identifier());
+        String oldKeyName = argAsString(argIndex, request, cmd.keyName().identifier());
+        String newKeyName = argAsString(argIndex, request, cmd.identifier());
         boolean replace = cmd.REPLACE() != null;
 
         boolean result;
@@ -38,7 +37,7 @@ class JedisCommandsForKeys extends JedisCommands {
         String[] keys = new String[keyNameContexts.size()];
         for (int i = 0; i < keyNameContexts.size(); i++) {
             RedisParser.KeyNameContext keyNameContext = keyNameContexts.get(i);
-            keys[i] = (String) argOrValue(argIndex, request, keyNameContext.identifier());
+            keys[i] = argAsString(argIndex, request, keyNameContext.identifier());
         }
 
         long result = jedisCmd.getKeyCommands().del(keys);
@@ -54,7 +53,7 @@ class JedisCommandsForKeys extends JedisCommands {
         String[] keys = new String[keyNameContexts.size()];
         for (int i = 0; i < keyNameContexts.size(); i++) {
             RedisParser.KeyNameContext keyNameContext = keyNameContexts.get(i);
-            keys[i] = (String) argOrValue(argIndex, request, keyNameContext.identifier());
+            keys[i] = argAsString(argIndex, request, keyNameContext.identifier());
         }
 
         long result = jedisCmd.getKeyCommands().unlink(keys);
@@ -65,11 +64,11 @@ class JedisCommandsForKeys extends JedisCommands {
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.DumpCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String keyName = (String) argOrValue(argIndex, request, cmd.keyName().identifier());
+        String keyName = argAsString(argIndex, request, cmd.keyName().identifier());
 
         byte[] dump = jedisCmd.getKeyCommands().dump(keyName);
 
-        receive.responseResult(request, singleValueBytesResult(request, dump));
+        receive.responseResult(request, singleResult(request, COL_VALUE_BYTES, dump));
         return completed(sync);
     }
 
@@ -80,18 +79,18 @@ class JedisCommandsForKeys extends JedisCommands {
         String[] keys = new String[keyNameContexts.size()];
         for (int i = 0; i < keyNameContexts.size(); i++) {
             RedisParser.KeyNameContext keyNameContext = keyNameContexts.get(i);
-            keys[i] = (String) argOrValue(argIndex, request, keyNameContext.identifier());
+            keys[i] = argAsString(argIndex, request, keyNameContext.identifier());
         }
 
-        long result = jedisCmd.getKeyCommands().exists(keys);
+        long found = jedisCmd.getKeyCommands().exists(keys);
 
-        receive.responseUpdateCount(request, result);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, found));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ExpireCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.keyName().identifier());
+        String key = argAsString(argIndex, request, cmd.keyName().identifier());
         long seconds = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.decimal()), true);
 
         long result;
@@ -103,13 +102,13 @@ class JedisCommandsForKeys extends JedisCommands {
             result = jedisCmd.getKeyCommands().expire(key, seconds);
         }
 
-        receive.responseUpdateCount(request, result);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ExpireAtCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.keyName().identifier());
+        String key = argAsString(argIndex, request, cmd.keyName().identifier());
         long unixTime = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.decimal()), true);
 
         long result;
@@ -121,23 +120,23 @@ class JedisCommandsForKeys extends JedisCommands {
             result = jedisCmd.getKeyCommands().expireAt(key, unixTime);
         }
 
-        receive.responseUpdateCount(request, result);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ExpireTimeCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.keyName().identifier());
+        String key = argAsString(argIndex, request, cmd.keyName().identifier());
 
         long result = jedisCmd.getKeyCommands().expireTime(key);
 
-        receive.responseUpdateCount(request, result);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.PExpireCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.keyName().identifier());
+        String key = argAsString(argIndex, request, cmd.keyName().identifier());
         long milliSeconds = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.decimal()), true);
 
         long result;
@@ -149,13 +148,13 @@ class JedisCommandsForKeys extends JedisCommands {
             result = jedisCmd.getKeyCommands().pexpire(key, milliSeconds);
         }
 
-        receive.responseUpdateCount(request, result);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.PExpireAtCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.keyName().identifier());
+        String key = argAsString(argIndex, request, cmd.keyName().identifier());
         long milliSecondsTimestamp = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.decimal()), true);
 
         long result;
@@ -167,23 +166,23 @@ class JedisCommandsForKeys extends JedisCommands {
             result = jedisCmd.getKeyCommands().pexpireAt(key, milliSecondsTimestamp);
         }
 
-        receive.responseUpdateCount(request, result);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.PExpireTimeCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.keyName().identifier());
+        String key = argAsString(argIndex, request, cmd.keyName().identifier());
 
         long result = jedisCmd.getKeyCommands().pexpireTime(key);
 
-        receive.responseUpdateCount(request, result);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.KeysCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String pattern = (String) argOrValue(argIndex, request, cmd.keyPattern().identifier());
+        String pattern = argAsString(argIndex, request, cmd.keyPattern().identifier());
 
         int affectRows = 0;
         long maxRows = request.getMaxRows();
@@ -237,20 +236,20 @@ class JedisCommandsForKeys extends JedisCommands {
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ObjectCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.keyName().identifier());
+        String key = argAsString(argIndex, request, cmd.keyName().identifier());
 
         if (cmd.objectOptions().ENCODING() != null) {
             String result = jedisCmd.getKeyCommands().objectEncoding(key);
-            receive.responseResult(request, singleValueStringResult(request, result));
+            receive.responseResult(request, singleResult(request, COL_RESULT_STRING, result));
         } else if (cmd.objectOptions().FREQ() != null) {
             Long result = jedisCmd.getKeyCommands().objectFreq(key);
-            receive.responseResult(request, singleValueLongResult(request, result));
+            receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         } else if (cmd.objectOptions().IDLETIME() != null) {
             Long result = jedisCmd.getKeyCommands().objectIdletime(key);
-            receive.responseResult(request, singleValueLongResult(request, result));
+            receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         } else if (cmd.objectOptions().REFCOUNT() != null) {
             Long result = jedisCmd.getKeyCommands().objectRefcount(key);
-            receive.responseResult(request, singleValueLongResult(request, result));
+            receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         } else {
             throw new SQLException("object options(" + cmd.objectOptions().getText() + ") not support.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
@@ -260,78 +259,77 @@ class JedisCommandsForKeys extends JedisCommands {
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.PersistCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.keyName().identifier());
+        String key = argAsString(argIndex, request, cmd.keyName().identifier());
 
         long result = jedisCmd.getKeyCommands().persist(key);
 
-        receive.responseUpdateCount(request, result);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.TtlCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.keyName().identifier());
+        String key = argAsString(argIndex, request, cmd.keyName().identifier());
 
         long result = jedisCmd.getKeyCommands().ttl(key);
 
-        receive.responseUpdateCount(request, result);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.PTtlCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.keyName().identifier());
+        String key = argAsString(argIndex, request, cmd.keyName().identifier());
 
         long result = jedisCmd.getKeyCommands().pttl(key);
 
-        receive.responseUpdateCount(request, result);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.RandomKeyCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         String result = jedisCmd.getKeyCommands().randomKey();
 
-        receive.responseResult(request, singleValueStringResult(request, result));
+        receive.responseResult(request, singleResult(request, COL_KEY_STRING, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.RenameCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String oldKey = (String) argOrValue(argIndex, request, cmd.keyName().identifier());
-        String newKey = (String) argOrValue(argIndex, request, cmd.identifier());
+        String oldKey = argAsString(argIndex, request, cmd.keyName().identifier());
+        String newKey = argAsString(argIndex, request, cmd.identifier());
 
         String result = jedisCmd.getKeyCommands().rename(oldKey, newKey);
 
-        receive.responseUpdateCount(request, StringUtils.equalsIgnoreCase("ok", result) ? 1 : 0);
+        receive.responseResult(request, singleResult(request, COL_RESULT_STRING, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.RenameNxCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String oldKey = (String) argOrValue(argIndex, request, cmd.keyName().identifier());
-        String newKey = (String) argOrValue(argIndex, request, cmd.identifier());
+        String oldKey = argAsString(argIndex, request, cmd.keyName().identifier());
+        String newKey = argAsString(argIndex, request, cmd.identifier());
 
         long result = jedisCmd.getKeyCommands().renamenx(oldKey, newKey);
 
-        receive.responseUpdateCount(request, result);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ScanCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String cursor = (String) argOrValue(argIndex, request, cmd.decimal());
+        String cursor = argAsString(argIndex, request, cmd.decimal());
         String pattern = null;
         Integer count = null;
         String type = null;
-        long maxRows = request.getMaxRows();
         if (cmd.matchClause() != null) {
-            pattern = (String) argOrValue(argIndex, request, cmd.matchClause().keyPattern().identifier());
+            pattern = argAsString(argIndex, request, cmd.matchClause().keyPattern().identifier());
         }
         if (cmd.countClause() != null) {
             count = ConvertUtils.toInteger(argOrValue(argIndex, request, cmd.countClause().integer()), true);
         }
         if (cmd.typeClause() != null) {
-            type = (String) argOrValue(argIndex, request, cmd.typeClause().identifier());
+            type = argAsString(argIndex, request, cmd.typeClause().identifier());
         }
 
         ScanParams scanParams = new ScanParams();
@@ -340,6 +338,11 @@ class JedisCommandsForKeys extends JedisCommands {
         }
         if (count != null) {
             scanParams.count(count);
+            request.setMaxRows(count);
+        } else {
+            if (request.getMaxRows() > 0) {
+                scanParams.count(Math.toIntExact(request.getMaxRows()));
+            }
         }
 
         ScanResult<String> result;
@@ -350,7 +353,7 @@ class JedisCommandsForKeys extends JedisCommands {
         }
 
         if (!sync.isDone()) {
-            AdapterResultCursor receiveCur = resultCursorAndKeyStringList(request, result.getCursor(), result.getResult(), maxRows);
+            AdapterResultCursor receiveCur = listFixedColAndResult(request, COL_CURSOR_STRING, result.getCursor(), COL_KEY_STRING, result.getResult());
             receive.responseResult(request, receiveCur);
             return completed(sync);
         } else {
@@ -367,7 +370,7 @@ class JedisCommandsForKeys extends JedisCommands {
         String[] keys = new String[keyNameContexts.size()];
         for (int i = 0; i < keyNameContexts.size(); i++) {
             RedisParser.KeyNameContext keyNameContext = keyNameContexts.get(i);
-            keys[i] = (String) argOrValue(argIndex, request, keyNameContext.identifier());
+            keys[i] = argAsString(argIndex, request, keyNameContext.identifier());
         }
 
         long result = jedisCmd.getKeyCommands().touch(keys);
@@ -378,11 +381,11 @@ class JedisCommandsForKeys extends JedisCommands {
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.TypeCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String keyName = (String) argOrValue(argIndex, request, cmd.keyName().identifier());
+        String keyName = argAsString(argIndex, request, cmd.keyName().identifier());
 
         String type = jedisCmd.getKeyCommands().type(keyName);
 
-        receive.responseResult(request, singleValueStringResult(request, type));
+        receive.responseResult(request, singleResult(request, COL_RESULT_STRING, type));
         return completed(sync);
     }
 }

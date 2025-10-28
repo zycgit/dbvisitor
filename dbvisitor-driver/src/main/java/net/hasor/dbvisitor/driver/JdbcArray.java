@@ -21,9 +21,6 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.List;
 import java.util.Map;
 
-/**
- *
- */
 public class JdbcArray implements Array {
     private final JdbcConnection connection;
     private final String         baseType;

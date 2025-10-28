@@ -19,7 +19,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface AdapterCursor extends AutoCloseable {
-
     List<JdbcColumn> columns();
 
     boolean next() throws SQLException;

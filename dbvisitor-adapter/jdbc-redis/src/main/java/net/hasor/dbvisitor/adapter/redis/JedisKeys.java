@@ -2,7 +2,6 @@ package net.hasor.dbvisitor.adapter.redis;
 import net.hasor.dbvisitor.driver.JdbcDriver;
 
 public class JedisKeys {
-
     public static final String ADAPTER_NAME        = JdbcDriver.P_ADAPTER_NAME;
     public static final String ADAPTER_NAME_VALUE  = "jedis";
     public static final String START_URL           = JdbcDriver.START_URL + ADAPTER_NAME_VALUE + ":";

@@ -1,6 +1,9 @@
 package net.hasor.dbvisitor.adapter.redis;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.redis.parser.RedisParser;
@@ -11,81 +14,83 @@ import redis.clients.jedis.resps.ScanResult;
 class JedisCommandsForSet extends JedisCommands {
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SaddCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.setKeyName().identifier());
-        List<String> member = new ArrayList<>();
-        for (RedisParser.IdentifierContext identifierContext : cmd.identifier()) {
-            member.add((String) argOrValue(argIndex, request, identifierContext));
+        String key = argAsString(argIndex, request, cmd.setKeyName().identifier());
+        List<RedisParser.IdentifierContext> contextList = cmd.identifier();
+        String[] member = new String[contextList.size()];
+        for (int i = 0; i < contextList.size(); i++) {
+            member[i] = argAsString(argIndex, request, contextList.get(i));
         }
+        long result = jedisCmd.getSetCommands().sadd(key, member);
 
-        long result = jedisCmd.getSetCommands().sadd(key, member.toArray(new String[0]));
-
-        receive.responseResult(request, singleValueLongResult(request, result));
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ScardCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.setKeyName().identifier());
+        String key = argAsString(argIndex, request, cmd.setKeyName().identifier());
 
         long result = jedisCmd.getSetCommands().scard(key);
 
-        receive.responseResult(request, singleValueLongResult(request, result));
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SdiffCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        List<String> keys = new ArrayList<>();
-        for (RedisParser.SetKeyNameContext setKeyNameContext : cmd.setKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, setKeyNameContext.identifier()));
+        List<RedisParser.SetKeyNameContext> contextList = cmd.setKeyName();
+        String[] keys = new String[contextList.size()];
+        for (int i = 0; i < contextList.size(); i++) {
+            keys[i] = argAsString(argIndex, request, contextList.get(i).identifier());
         }
 
-        Set<String> result = jedisCmd.getSetCommands().sdiff(keys.toArray(new String[0]));
+        Set<String> result = jedisCmd.getSetCommands().sdiff(keys);
 
-        AdapterResultCursor receiveCur = resultValueStringList(request, result, -1);
-        receive.responseResult(request, receiveCur);
+        receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SdiffstoreCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String dst = (String) argOrValue(argIndex, request, cmd.identifier());
-        List<String> keys = new ArrayList<>();
-        for (RedisParser.SetKeyNameContext setKeyNameContext : cmd.setKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, setKeyNameContext.identifier()));
+        String dst = argAsString(argIndex, request, cmd.identifier());
+
+        List<RedisParser.SetKeyNameContext> nameContexts = cmd.setKeyName();
+        String[] keys = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
 
-        long result = jedisCmd.getSetCommands().sdiffstore(dst, keys.toArray(new String[0]));
+        long result = jedisCmd.getSetCommands().sdiffstore(dst, keys);
 
-        receive.responseResult(request, singleValueLongResult(request, result));
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SinterCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        List<String> keys = new ArrayList<>();
-        for (RedisParser.SetKeyNameContext setKeyNameContext : cmd.setKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, setKeyNameContext.identifier()));
+        List<RedisParser.SetKeyNameContext> nameContexts = cmd.setKeyName();
+        String[] keys = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
 
-        Set<String> result = jedisCmd.getSetCommands().sinter(keys.toArray(new String[0]));
+        Set<String> result = jedisCmd.getSetCommands().sinter(keys);
 
-        AdapterResultCursor receiveCur = resultValueStringList(request, result, -1);
-        receive.responseResult(request, receiveCur);
+        receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SintercardCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.integer()), true);
-        List<String> keys = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.SetKeyNameContext setKeyNameContext : cmd.setKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, setKeyNameContext.identifier()));
-            cnt++;
+
+        List<RedisParser.SetKeyNameContext> nameContexts = cmd.setKeyName();
+        String[] keys = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (cnt != numKeys) {
-            throw new SQLException("SINTERCARD numKeys " + numKeys + " not match actual keys " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (keys.length != numKeys) {
+            throw new SQLException("SINTERCARD numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
         Integer limit = null;
@@ -95,79 +100,83 @@ class JedisCommandsForSet extends JedisCommands {
 
         long result;
         if (limit != null) {
-            result = jedisCmd.getSetCommands().sintercard(limit, keys.toArray(new String[0]));
+            result = jedisCmd.getSetCommands().sintercard(limit, keys);
         } else {
-            result = jedisCmd.getSetCommands().sintercard(keys.toArray(new String[0]));
+            result = jedisCmd.getSetCommands().sintercard(keys);
         }
 
-        receive.responseResult(request, singleValueLongResult(request, result));
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SinterstoreCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String dstKey = (String) argOrValue(argIndex, request, cmd.identifier());
-        List<String> keys = new ArrayList<>();
-        for (RedisParser.SetKeyNameContext setKeyNameContext : cmd.setKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, setKeyNameContext.identifier()));
+        String dstKey = argAsString(argIndex, request, cmd.identifier());
+
+        List<RedisParser.SetKeyNameContext> nameContexts = cmd.setKeyName();
+        String[] keys = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
 
-        long result = jedisCmd.getSetCommands().sinterstore(dstKey, keys.toArray(new String[0]));
+        long result = jedisCmd.getSetCommands().sinterstore(dstKey, keys);
 
-        receive.responseResult(request, singleValueLongResult(request, result));
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SismemberCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.setKeyName().identifier());
-        String member = (String) argOrValue(argIndex, request, cmd.identifier());
+        String key = argAsString(argIndex, request, cmd.setKeyName().identifier());
+        String member = argAsString(argIndex, request, cmd.identifier());
 
         boolean result = jedisCmd.getSetCommands().sismember(key, member);
 
-        receive.responseUpdateCount(request, result ? 1 : 0);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result ? 1 : 0));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SmismemberCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.setKeyName().identifier());
-        List<String> member = new ArrayList<>();
-        for (RedisParser.IdentifierContext identifierContext : cmd.identifier()) {
-            member.add((String) argOrValue(argIndex, request, identifierContext));
+        String key = argAsString(argIndex, request, cmd.setKeyName().identifier());
+
+        List<RedisParser.IdentifierContext> nameContexts = cmd.identifier();
+        String[] member = new String[nameContexts.size()];
+        for (int i = 0; i < nameContexts.size(); i++) {
+            member[i] = argAsString(argIndex, request, nameContexts.get(i));
         }
 
-        List<Boolean> result = jedisCmd.getSetCommands().smismember(key, member.toArray(new String[0]));
+        List<Boolean> result = jedisCmd.getSetCommands().smismember(key, member);
 
-        receive.responseResult(request, resultValueBooleanList(request, result, -1));
+        receive.responseResult(request, listResult(request, COL_RESULT_BOOLEAN, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SmembersCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.setKeyName().identifier());
+        String key = argAsString(argIndex, request, cmd.setKeyName().identifier());
 
         Set<String> result = jedisCmd.getSetCommands().smembers(key);
 
-        receive.responseResult(request, resultValueStringList(request, result, -1));
+        receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SmoveCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String srcKey = (String) argOrValue(argIndex, request, cmd.src.identifier());
-        String dstKey = (String) argOrValue(argIndex, request, cmd.dst.identifier());
-        String member = (String) argOrValue(argIndex, request, cmd.member.identifier());
+        String srcKey = argAsString(argIndex, request, cmd.src.identifier());
+        String dstKey = argAsString(argIndex, request, cmd.dst.identifier());
+        String member = argAsString(argIndex, request, cmd.member.identifier());
 
         long result = jedisCmd.getSetCommands().smove(srcKey, dstKey, member);
 
-        receive.responseResult(request, singleValueLongResult(request, result));
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SpopCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.setKeyName().identifier());
+        String key = argAsString(argIndex, request, cmd.setKeyName().identifier());
         Long count = null;
         if (cmd.integer() != null) {
             count = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.integer()), true);
@@ -180,13 +189,13 @@ class JedisCommandsForSet extends JedisCommands {
             result = Collections.singletonList(jedisCmd.getSetCommands().spop(key));
         }
 
-        receive.responseResult(request, resultValueStringList(request, result, -1));
+        receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SrandmemberCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.setKeyName().identifier());
+        String key = argAsString(argIndex, request, cmd.setKeyName().identifier());
         Integer count = null;
         if (cmd.decimal() != null) {
             count = ConvertUtils.toInteger(argOrValue(argIndex, request, cmd.decimal()), true);
@@ -199,33 +208,34 @@ class JedisCommandsForSet extends JedisCommands {
             result = Collections.singletonList(jedisCmd.getSetCommands().srandmember(key));
         }
 
-        receive.responseResult(request, resultValueStringList(request, result, -1));
+        receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SremCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.setKeyName().identifier());
-        List<String> member = new ArrayList<>();
-        for (RedisParser.IdentifierContext identifierContext : cmd.identifier()) {
-            member.add((String) argOrValue(argIndex, request, identifierContext));
+        String key = argAsString(argIndex, request, cmd.setKeyName().identifier());
+
+        List<RedisParser.IdentifierContext> contextList = cmd.identifier();
+        String[] member = new String[contextList.size()];
+        for (int i = 0; i < contextList.size(); i++) {
+            member[i] = argAsString(argIndex, request, contextList.get(i));
         }
 
-        long result = jedisCmd.getSetCommands().srem(key, member.toArray(new String[0]));
+        long result = jedisCmd.getSetCommands().srem(key, member);
 
-        receive.responseResult(request, singleValueLongResult(request, result));
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SscanCommanContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.setKeyName().identifier());
-        String cursor = (String) argOrValue(argIndex, request, cmd.decimal());
+        String key = argAsString(argIndex, request, cmd.setKeyName().identifier());
+        String cursor = argAsString(argIndex, request, cmd.decimal());
         String pattern = null;
         Integer count = null;
-        long maxRows = request.getMaxRows();
         if (cmd.matchClause() != null) {
-            pattern = (String) argOrValue(argIndex, request, cmd.matchClause().keyPattern().identifier());
+            pattern = argAsString(argIndex, request, cmd.matchClause().keyPattern().identifier());
         }
         if (cmd.countClause() != null) {
             count = ConvertUtils.toInteger(argOrValue(argIndex, request, cmd.countClause().integer()), true);
@@ -242,7 +252,7 @@ class JedisCommandsForSet extends JedisCommands {
         ScanResult<String> result = jedisCmd.getSetCommands().sscan(key, cursor, scanParams);
 
         if (!sync.isDone()) {
-            AdapterResultCursor receiveCur = resultCursorAndValueStringList(request, result.getCursor(), result.getResult(), maxRows);
+            AdapterResultCursor receiveCur = listFixedColAndResult(request, COL_CURSOR_STRING, result.getCursor(), COL_ELEMENT_STRING, result.getResult());
             receive.responseResult(request, receiveCur);
             return completed(sync);
         } else {
@@ -254,28 +264,32 @@ class JedisCommandsForSet extends JedisCommands {
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SunionCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        List<String> keys = new ArrayList<>();
-        for (RedisParser.SetKeyNameContext setKeyNameContext : cmd.setKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, setKeyNameContext.identifier()));
+
+        List<RedisParser.SetKeyNameContext> keysContexts = cmd.setKeyName();
+        String[] keys = new String[keysContexts.size()];
+        for (int i = 0; i < keysContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, keysContexts.get(i).identifier());
         }
 
-        Set<String> result = jedisCmd.getSetCommands().sunion(keys.toArray(new String[0]));
+        Set<String> result = jedisCmd.getSetCommands().sunion(keys);
 
-        receive.responseResult(request, resultValueStringList(request, result, -1));
+        receive.responseResult(request, listResult(request, COL_ELEMENT_STRING, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SunionstoreCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String dstKey = (String) argOrValue(argIndex, request, cmd.identifier());
-        List<String> keys = new ArrayList<>();
-        for (RedisParser.SetKeyNameContext setKeyNameContext : cmd.setKeyName()) {
-            keys.add((String) argOrValue(argIndex, request, setKeyNameContext.identifier()));
+        String dstKey = argAsString(argIndex, request, cmd.identifier());
+
+        List<RedisParser.SetKeyNameContext> keysContexts = cmd.setKeyName();
+        String[] keys = new String[keysContexts.size()];
+        for (int i = 0; i < keysContexts.size(); i++) {
+            keys[i] = argAsString(argIndex, request, keysContexts.get(i).identifier());
         }
 
-        long result = jedisCmd.getSetCommands().sunionstore(dstKey, keys.toArray(new String[0]));
+        long result = jedisCmd.getSetCommands().sunionstore(dstKey, keys);
 
-        receive.responseResult(request, singleValueLongResult(request, result));
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 }

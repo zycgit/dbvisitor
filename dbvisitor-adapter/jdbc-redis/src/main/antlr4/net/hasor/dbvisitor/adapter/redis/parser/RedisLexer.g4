@@ -47,6 +47,7 @@ COUNT       : 'COUNT';
 TYPE        : 'TYPE';
 TOUCH       : 'TOUCH';
 WAIT        : 'WAIT';
+WAITAOF     : 'WAITAOF';
 LEFT        : 'LEFT';
 RIGHT       : 'RIGHT';
 BEFORE      : 'BEFORE';

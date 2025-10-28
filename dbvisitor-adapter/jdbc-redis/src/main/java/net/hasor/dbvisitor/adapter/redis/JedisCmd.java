@@ -8,8 +8,7 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.commands.*;
 
 public class JedisCmd implements AutoCloseable {
-
-    private final AutoCloseable                      closeable;
+    private final AutoCloseable                      target;
     private       AccessControlLogBinaryCommands     accessControlLogBinaryCommands;
     private       AccessControlLogCommands           accessControlLogCommands;
     private       BitBinaryCommands                  bitBinaryCommands;
@@ -89,18 +88,22 @@ public class JedisCmd implements AutoCloseable {
 
     public JedisCmd(Jedis jedis, InvocationHandler invocation) {
         this.initCommands(jedis, invocation);
-        this.closeable = jedis;
+        this.target = jedis;
     }
 
     public JedisCmd(JedisCluster jedis, InvocationHandler invocation) {
         this.initCommands(jedis, invocation);
-        this.closeable = jedis;
+        this.target = jedis;
+    }
+
+    public Object getTarget() {
+        return this.target;
     }
 
     @Override
     public void close() throws IOException {
         try {
-            this.closeable.close();
+            this.target.close();
         } catch (IOException e) {
             throw e;
         } catch (Exception e) {

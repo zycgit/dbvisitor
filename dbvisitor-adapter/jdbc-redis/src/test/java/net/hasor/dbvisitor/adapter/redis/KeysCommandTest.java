@@ -205,9 +205,11 @@ public class KeysCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("dump mykey")) {
-                    while (rs.next()) {
+                    if (rs.next()) {
                         assert rs.getBytes(1) == returnValue;
                         assert rs.getBytes("VALUE") == returnValue;
+                    } else {
+                        assert false;
                     }
                 }
             }
@@ -230,7 +232,14 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("exists mykey copyMyKey") == 2;
+                try (ResultSet rs = stmt.executeQuery("exists mykey copyMyKey")) {
+                    if (rs.next()) {
+                        assert rs.getLong(1) == 2L;
+                        assert rs.getLong("RESULT") == 2L;
+                    } else {
+                        assert false;
+                    }
+                }
             }
 
             assert ((Object[]) argList.get(0))[0].equals("mykey");
@@ -252,7 +261,14 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("expire mykey 123") == 2;
+                try (ResultSet rs = stmt.executeQuery("expire mykey 123")) {
+                    if (rs.next()) {
+                        assert rs.getLong(1) == 2L;
+                        assert rs.getLong("RESULT") == 2L;
+                    } else {
+                        assert false;
+                    }
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L));
@@ -273,7 +289,14 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("expire mykey 123 nx") == 2;
+                try (ResultSet rs = stmt.executeQuery("expire mykey 123 nx")) {
+                    if (rs.next()) {
+                        assert rs.getLong(1) == 2L;
+                        assert rs.getLong("RESULT") == 2L;
+                    } else {
+                        assert false;
+                    }
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L, ExpiryOption.NX));
@@ -294,7 +317,14 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("expire mykey 123 xx") == 2;
+                try (ResultSet rs = stmt.executeQuery("expire mykey 123 xx")) {
+                    if (rs.next()) {
+                        assert rs.getLong(1) == 2L;
+                        assert rs.getLong("RESULT") == 2L;
+                    } else {
+                        assert false;
+                    }
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L, ExpiryOption.XX));
@@ -315,7 +345,14 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("expire mykey 123 gt") == 2;
+                try (ResultSet rs = stmt.executeQuery("expire mykey 123 gt")) {
+                    if (rs.next()) {
+                        assert rs.getLong(1) == 2L;
+                        assert rs.getLong("RESULT") == 2L;
+                    } else {
+                        assert false;
+                    }
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L, ExpiryOption.GT));
@@ -336,7 +373,14 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("expire mykey 123 LT") == 2;
+                try (ResultSet rs = stmt.executeQuery("expire mykey 123 LT")) {
+                    if (rs.next()) {
+                        assert rs.getLong(1) == 2L;
+                        assert rs.getLong("RESULT") == 2L;
+                    } else {
+                        assert false;
+                    }
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L, ExpiryOption.LT));
@@ -357,7 +401,14 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("expireat mykey 123") == 2;
+                try (ResultSet rs = stmt.executeQuery("expireat mykey 123")) {
+                    if (rs.next()) {
+                        assert rs.getLong(1) == 2L;
+                        assert rs.getLong("RESULT") == 2L;
+                    } else {
+                        assert false;
+                    }
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L));
@@ -378,7 +429,14 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("expireat mykey 123 LT") == 2;
+                try (ResultSet rs = stmt.executeQuery("expireat mykey 123 LT")) {
+                    if (rs.next()) {
+                        assert rs.getLong(1) == 2L;
+                        assert rs.getLong("RESULT") == 2L;
+                    } else {
+                        assert false;
+                    }
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L, ExpiryOption.LT));
@@ -399,7 +457,14 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("expiretime mykey") == 2;
+                try (ResultSet rs = stmt.executeQuery("expiretime mykey")) {
+                    if (rs.next()) {
+                        assert rs.getLong(1) == 2L;
+                        assert rs.getLong("RESULT") == 2L;
+                    } else {
+                        assert false;
+                    }
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey"));
@@ -420,7 +485,14 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("pexpire mykey 123") == 2;
+                try (ResultSet rs = stmt.executeQuery("pexpire mykey 123")) {
+                    if (rs.next()) {
+                        assert rs.getLong(1) == 2L;
+                        assert rs.getLong("RESULT") == 2L;
+                    } else {
+                        assert false;
+                    }
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L));
@@ -441,7 +513,14 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("pexpire mykey 123 LT") == 2;
+                try (ResultSet rs = stmt.executeQuery("pexpire mykey 123 LT")) {
+                    if (rs.next()) {
+                        assert rs.getLong(1) == 2L;
+                        assert rs.getLong("RESULT") == 2L;
+                    } else {
+                        assert false;
+                    }
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L, ExpiryOption.LT));
@@ -462,7 +541,14 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("pexpireat mykey 123") == 2;
+                try (ResultSet rs = stmt.executeQuery("pexpireat mykey 123")) {
+                    if (rs.next()) {
+                        assert rs.getLong(1) == 2L;
+                        assert rs.getLong("RESULT") == 2L;
+                    } else {
+                        assert false;
+                    }
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L));
@@ -483,7 +569,14 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("pexpireat mykey 123 LT") == 2;
+                try (ResultSet rs = stmt.executeQuery("pexpireat mykey 123 LT")) {
+                    if (rs.next()) {
+                        assert rs.getLong(1) == 2L;
+                        assert rs.getLong("RESULT") == 2L;
+                    } else {
+                        assert false;
+                    }
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L, ExpiryOption.LT));
@@ -504,7 +597,14 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("pexpiretime mykey") == 2;
+                try (ResultSet rs = stmt.executeQuery("pexpiretime mykey")) {
+                    if (rs.next()) {
+                        assert rs.getLong(1) == 2L;
+                        assert rs.getLong("RESULT") == 2L;
+                    } else {
+                        assert false;
+                    }
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey"));
@@ -643,7 +743,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
             try (java.sql.PreparedStatement ps = conn.prepareStatement("object encoding mykey")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     rs.next();
-                    assert rs.getString("VALUE").equals("abcdefg");
+                    assert rs.getString("RESULT").equals("abcdefg");
                 }
             }
 
@@ -668,7 +768,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
             try (java.sql.PreparedStatement ps = conn.prepareStatement("object freq mykey")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     rs.next();
-                    assert rs.getLong("VALUE") == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -693,7 +793,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
             try (java.sql.PreparedStatement ps = conn.prepareStatement("object idletime mykey")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     rs.next();
-                    assert rs.getLong("VALUE") == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -718,7 +818,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
             try (java.sql.PreparedStatement ps = conn.prepareStatement("object refcount mykey")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     rs.next();
-                    assert rs.getLong("VALUE") == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -741,7 +841,10 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("persist mykey") == 2;
+                try (ResultSet rs = stmt.executeQuery("persist mykey")) {
+                    rs.next();
+                    assert rs.getLong("RESULT") == 2L;
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey"));
@@ -762,7 +865,10 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("ttl mykey") == 2;
+                try (ResultSet rs = stmt.executeQuery("ttl mykey")) {
+                    rs.next();
+                    assert rs.getLong("RESULT") == 2;
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey"));
@@ -783,7 +889,10 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("pttl mykey") == 2;
+                try (ResultSet rs = stmt.executeQuery("pttl mykey")) {
+                    rs.next();
+                    assert rs.getLong("RESULT") == 2;
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey"));
@@ -808,13 +917,12 @@ public class KeysCommandTest extends AbstractJdbcTest {
             try (java.sql.PreparedStatement ps = conn.prepareStatement("randomkey")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     rs.next();
-                    assert rs.getString("VALUE").equals("abcdef");
+                    assert rs.getString("KEY").equals("abcdef");
                 }
             }
 
             assert argList.isEmpty();
         } catch (SQLException e) {
-            e.printStackTrace();
             assert false;
         }
     }
@@ -831,7 +939,10 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("rename oldKey newKey") == 1;
+                try (ResultSet rs = stmt.executeQuery("rename oldKey newKey")) {
+                    rs.next();
+                    assert rs.getString("RESULT").equals("ok");
+                }
             }
 
             assert argList.equals(Arrays.asList("oldKey", "newKey"));
@@ -852,12 +963,14 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("renamenx mykey copyMyKey") == 1;
+                try (ResultSet rs = stmt.executeQuery("renamenx mykey copyMyKey")) {
+                    rs.next();
+                    assert rs.getLong("RESULT") == 1L;
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey", "copyMyKey"));
         } catch (SQLException e) {
-            e.printStackTrace();
             assert false;
         }
     }
@@ -878,6 +991,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r1 = new ArrayList<>();
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
+                        assert rs.getString("CURSOR").equals("0");
                         r1.add(rs.getString(2));
                         r2.add(rs.getString("KEY"));
                     }
@@ -1019,7 +1133,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("type mykey")) {
                     while (rs.next()) {
                         assert rs.getString(1).equals("int");
-                        assert rs.getString("VALUE").equals("int");
+                        assert rs.getString("RESULT").equals("int");
                     }
                 }
             }

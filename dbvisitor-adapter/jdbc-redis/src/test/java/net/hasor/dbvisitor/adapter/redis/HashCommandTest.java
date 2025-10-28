@@ -49,7 +49,14 @@ public class HashCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("hexists theKey mykey") == 1;
+                try (ResultSet rs = stmt.executeQuery("hexists theKey mykey")) {
+                    if (rs.next()) {
+                        assert rs.getBoolean(1);
+                        assert rs.getBoolean("RESULT");
+                    } else {
+                        assert false;
+                    }
+                }
             }
 
             assert argList.size() == 2;
@@ -77,7 +84,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     ArrayList<Long> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getLong(1));
-                        r2.add(rs.getLong("VALUE"));
+                        r2.add(rs.getLong("RESULT"));
                     }
                     assert r1.equals(Arrays.asList(1L, 2L, 3L));
                     assert r2.equals(Arrays.asList(1L, 2L, 3L));
@@ -105,12 +112,46 @@ public class HashCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
+                stmt.setMaxRows(2);
+                try (ResultSet rs = stmt.executeQuery("hexpire mykey 10 fields 3 field1 field2 field3")) {
+                    ArrayList<Long> r1 = new ArrayList<>();
+                    ArrayList<Long> r2 = new ArrayList<>();
+                    while (rs.next()) {
+                        r1.add(rs.getLong(1));
+                        r2.add(rs.getLong("RESULT"));
+                    }
+                    assert r1.equals(Arrays.asList(1L, 2L));
+                    assert r2.equals(Arrays.asList(1L, 2L));
+                }
+            }
+
+            assert argList.size() == 3;
+            assert argList.get(0).equals("mykey");
+            assert argList.get(1).equals(10L);
+            assert Objects.deepEquals(argList.get(2), new String[] { "field1", "field2", "field3" });
+        } catch (SQLException e) {
+            assert false;
+        }
+    }
+
+    @Test
+    public void hexpire_3() {
+        List<Object> argList = new ArrayList<>();
+        List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
+
+        RedisCommandInterceptor.resetInterceptor();
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexpire", args -> {
+            argList.addAll(Arrays.asList(args));
+            return returnValue;
+        }));
+        try (Connection conn = redisConnection()) {
+            try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("hexpire mykey 10 nx fields 3 field1 field2 field3")) {
                     ArrayList<Long> r1 = new ArrayList<>();
                     ArrayList<Long> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getLong(1));
-                        r2.add(rs.getLong("VALUE"));
+                        r2.add(rs.getLong("RESULT"));
                     }
                     assert r1.equals(Arrays.asList(1L, 2L, 3L));
                     assert r2.equals(Arrays.asList(1L, 2L, 3L));
@@ -144,7 +185,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     ArrayList<Long> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getLong(1));
-                        r2.add(rs.getLong("VALUE"));
+                        r2.add(rs.getLong("RESULT"));
                     }
                     assert r1.equals(Arrays.asList(1L, 2L, 3L));
                     assert r2.equals(Arrays.asList(1L, 2L, 3L));
@@ -172,12 +213,46 @@ public class HashCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
+                stmt.setMaxRows(2);
+                try (ResultSet rs = stmt.executeQuery("hexpireat mykey 10 fields 3 field1 field2 field3")) {
+                    ArrayList<Long> r1 = new ArrayList<>();
+                    ArrayList<Long> r2 = new ArrayList<>();
+                    while (rs.next()) {
+                        r1.add(rs.getLong(1));
+                        r2.add(rs.getLong("RESULT"));
+                    }
+                    assert r1.equals(Arrays.asList(1L, 2L));
+                    assert r2.equals(Arrays.asList(1L, 2L));
+                }
+            }
+
+            assert argList.size() == 3;
+            assert argList.get(0).equals("mykey");
+            assert argList.get(1).equals(10L);
+            assert Objects.deepEquals(argList.get(2), new String[] { "field1", "field2", "field3" });
+        } catch (SQLException e) {
+            assert false;
+        }
+    }
+
+    @Test
+    public void hexpireat_3() {
+        List<Object> argList = new ArrayList<>();
+        List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
+
+        RedisCommandInterceptor.resetInterceptor();
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexpireAt", args -> {
+            argList.addAll(Arrays.asList(args));
+            return returnValue;
+        }));
+        try (Connection conn = redisConnection()) {
+            try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("hexpireat mykey 10 nx fields 3 field1 field2 field3")) {
                     ArrayList<Long> r1 = new ArrayList<>();
                     ArrayList<Long> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getLong(1));
-                        r2.add(rs.getLong("VALUE"));
+                        r2.add(rs.getLong("RESULT"));
                     }
                     assert r1.equals(Arrays.asList(1L, 2L, 3L));
                     assert r2.equals(Arrays.asList(1L, 2L, 3L));
@@ -195,7 +270,7 @@ public class HashCommandTest extends AbstractJdbcTest {
     }
 
     @Test
-    public void hexpiretime_2() {
+    public void hexpiretime_1() {
         List<Object> argList = new ArrayList<>();
         List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
 
@@ -211,7 +286,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     ArrayList<Long> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getLong(1));
-                        r2.add(rs.getLong("VALUE"));
+                        r2.add(rs.getLong("RESULT"));
                     }
                     assert r1.equals(Arrays.asList(1L, 2L, 3L));
                     assert r2.equals(Arrays.asList(1L, 2L, 3L));
@@ -243,7 +318,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     ArrayList<Long> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getLong(1));
-                        r2.add(rs.getLong("VALUE"));
+                        r2.add(rs.getLong("RESULT"));
                     }
                     assert r1.equals(Arrays.asList(1L, 2L, 3L));
                     assert r2.equals(Arrays.asList(1L, 2L, 3L));
@@ -276,7 +351,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     ArrayList<Long> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getLong(1));
-                        r2.add(rs.getLong("VALUE"));
+                        r2.add(rs.getLong("RESULT"));
                     }
                     assert r1.equals(Arrays.asList(1L, 2L, 3L));
                     assert r2.equals(Arrays.asList(1L, 2L, 3L));
@@ -310,7 +385,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     ArrayList<Long> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getLong(1));
-                        r2.add(rs.getLong("VALUE"));
+                        r2.add(rs.getLong("RESULT"));
                     }
                     assert r1.equals(Arrays.asList(1L, 2L, 3L));
                     assert r2.equals(Arrays.asList(1L, 2L, 3L));
@@ -343,7 +418,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     ArrayList<Long> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getLong(1));
-                        r2.add(rs.getLong("VALUE"));
+                        r2.add(rs.getLong("RESULT"));
                     }
                     assert r1.equals(Arrays.asList(1L, 2L, 3L));
                     assert r2.equals(Arrays.asList(1L, 2L, 3L));
@@ -377,7 +452,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     ArrayList<Long> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getLong(1));
-                        r2.add(rs.getLong("VALUE"));
+                        r2.add(rs.getLong("RESULT"));
                     }
                     assert r1.equals(Arrays.asList(1L, 2L, 3L));
                     assert r2.equals(Arrays.asList(1L, 2L, 3L));
@@ -408,6 +483,8 @@ public class HashCommandTest extends AbstractJdbcTest {
                     if (rs.next()) {
                         assert rs.getString(1).equals("abc");
                         assert rs.getString("VALUE").equals("abc");
+                    } else {
+                        assert false;
                     }
                 }
             }
@@ -469,6 +546,8 @@ public class HashCommandTest extends AbstractJdbcTest {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123L;
                         assert rs.getLong("VALUE") == 123L;
+                    } else {
+                        assert false;
                     }
                 }
             }
@@ -528,7 +607,9 @@ public class HashCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("hlen myhash")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
+                        assert rs.getLong("RESULT") == 123L;
+                    } else {
+                        assert false;
                     }
                 }
             }
@@ -584,12 +665,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("hset myhash field1 hello field2 word")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
-                    }
-                }
+                assert stmt.executeUpdate("hset myhash field1 hello field2 word") == 123L;
             }
 
             assert argList.size() == 2;
@@ -603,7 +679,7 @@ public class HashCommandTest extends AbstractJdbcTest {
     @Test
     public void hmset_1() {
         List<Object> argList = new ArrayList<>();
-        String returnValue = "abc";
+        String returnValue = "OK";
 
         RedisCommandInterceptor.resetInterceptor();
         RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hmset", args -> {
@@ -614,8 +690,10 @@ public class HashCommandTest extends AbstractJdbcTest {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("hmset myhash field1 hello field2 word")) {
                     if (rs.next()) {
-                        assert rs.getString(1).equals("abc");
-                        assert rs.getString("VALUE").equals("abc");
+                        assert rs.getString(1).equals("OK");
+                        assert rs.getString("RESULT").equals("OK");
+                    } else {
+                        assert false;
                     }
                 }
             }
@@ -643,7 +721,9 @@ public class HashCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("hsetnx myhash field1 hello")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
+                        assert rs.getLong("RESULT") == 123L;
+                    } else {
+                        assert false;
                     }
                 }
             }
@@ -674,7 +754,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     ArrayList<Long> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getLong(1));
-                        r2.add(rs.getLong("VALUE"));
+                        r2.add(rs.getLong("RESULT"));
                     }
                     assert r1.equals(Arrays.asList(1L, 2L, 3L));
                     assert r2.equals(Arrays.asList(1L, 2L, 3L));
@@ -706,7 +786,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     ArrayList<Long> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getLong(1));
-                        r2.add(rs.getLong("VALUE"));
+                        r2.add(rs.getLong("RESULT"));
                     }
                     assert r1.equals(Arrays.asList(1L, 2L, 3L));
                     assert r2.equals(Arrays.asList(1L, 2L, 3L));
@@ -738,7 +818,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     ArrayList<Long> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getLong(1));
-                        r2.add(rs.getLong("VALUE"));
+                        r2.add(rs.getLong("RESULT"));
                     }
                     assert r1.equals(Arrays.asList(1L, 2L, 3L));
                     assert r2.equals(Arrays.asList(1L, 2L, 3L));
@@ -770,7 +850,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("FIELD"));
                     }
                     assert r1.equals(Arrays.asList("v1"));
                     assert r2.equals(Arrays.asList("v1"));
@@ -801,7 +881,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("FIELD"));
                     }
                     assert r1.equals(Arrays.asList("v1", "v2"));
                     assert r2.equals(Arrays.asList("v1", "v2"));
@@ -834,7 +914,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     Map<String, String> r1 = new LinkedHashMap<>();
                     Map<String, String> r2 = new LinkedHashMap<>();
                     while (rs.next()) {
-                        r1.put(rs.getString("KEY"), rs.getString("VALUE"));
+                        r1.put(rs.getString("FIELD"), rs.getString("VALUE"));
                         r2.put(rs.getString(1), rs.getString(2));
                     }
                     assert r1.equals(CollectionUtils.asMap("v1k", "v1v", "v2k", "v2v"));
@@ -870,7 +950,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     while (rs.next()) {
                         assert rs.getString(1).equals("0");
                         assert rs.getString("CURSOR").equals("0");
-                        r1.put(rs.getString("KEY"), rs.getString("VALUE"));
+                        r1.put(rs.getString("FIELD"), rs.getString("VALUE"));
                         r2.put(rs.getString(2), rs.getString(3));
                     }
                     assert r1.equals(CollectionUtils.asMap("v1k", "v1v", "v2k", "v2v"));
@@ -905,7 +985,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     while (rs.next()) {
                         assert rs.getString(1).equals("0");
                         assert rs.getString("CURSOR").equals("0");
-                        r1.put(rs.getString("KEY"), rs.getString("VALUE"));
+                        r1.put(rs.getString("FIELD"), rs.getString("VALUE"));
                         r2.put(rs.getString(2), rs.getString(3));
                     }
                     assert r1.equals(CollectionUtils.asMap("v1k", "v1v", "v2k", "v2v"));
@@ -940,7 +1020,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     while (rs.next()) {
                         assert rs.getString(1).equals("0");
                         assert rs.getString("CURSOR").equals("0");
-                        r1.put(rs.getString("KEY"), rs.getString("VALUE"));
+                        r1.put(rs.getString("FIELD"), rs.getString("VALUE"));
                         r2.put(rs.getString(2), rs.getString(3));
                     }
                     assert r1.equals(CollectionUtils.asMap("v1k", "v1v", "v2k", "v2v"));
@@ -971,8 +1051,10 @@ public class HashCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r1 = new ArrayList<>();
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
+                        assert rs.getString(1).equals("0");
+                        assert rs.getString("CURSOR").equals("0");
                         r1.add(rs.getString(2));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("FIELD"));
                     }
                     assert r1.equals(Arrays.asList("key1", "key2", "key3", "key4", "key5", "key6"));
                     assert r2.equals(Arrays.asList("key1", "key2", "key3", "key4", "key5", "key6"));
@@ -1001,7 +1083,9 @@ public class HashCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("hstrlen theKey field")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
+                        assert rs.getLong("RESULT") == 123L;
+                    } else {
+                        assert false;
                     }
                 }
             }

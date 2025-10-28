@@ -32,7 +32,6 @@ import net.hasor.dbvisitor.driver.JdbcErrorCode;
  * determining the position of a pattern of bytes within a BLOB value. This class is new in the JDBC 2.0 API.
  */
 public class JdbcBob implements Blob, JdbcOutputStreamWatcher {
-
     //
     // This is a real brain-dead implementation of BLOB. Once I add streamability to the I/O for MySQL this will be more efficiently implemented
     // (except for the position() method, ugh).

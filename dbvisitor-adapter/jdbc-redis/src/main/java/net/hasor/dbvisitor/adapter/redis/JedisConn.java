@@ -14,6 +14,8 @@ import net.hasor.dbvisitor.adapter.redis.parser.ThrowingListener;
 import net.hasor.dbvisitor.driver.*;
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.CharStreams;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisCluster;
 
 public class JedisConn extends AdapterConnection {
     private final Connection owner;
@@ -62,9 +64,16 @@ public class JedisConn extends AdapterConnection {
             return (T) this;
         } else if (iface == JedisCmd.class) {
             return (T) this.jedisCmd;
-        } else {
-            return super.unwrap(iface);
+        } else if (iface == Jedis.class || iface == JedisCluster.class) {
+            Object target = this.jedisCmd.getTarget();
+            if (iface == Jedis.class && target instanceof Jedis) {
+                return (T) target;
+            } else if (iface == JedisCluster.class && target instanceof JedisCluster) {
+                return (T) target;
+            }
         }
+
+        return super.unwrap(iface);
     }
 
     public void killDriverConnection(String connID) throws SQLException {

@@ -13,13 +13,13 @@ import redis.clients.jedis.resps.ScanResult;
 class JedisCommandsForHash extends JedisCommands {
     private static Future<?> resultFiledValueList1(Future<Object> sync, AdapterRequest request, AdapterReceive receive, List<Map.Entry<String, String>> result) throws SQLException {
         AdapterResultCursor receiveCur = new AdapterResultCursor(request, Arrays.asList(//
-                COL_KEY_STRING,   //
+                COL_FIELD_STRING,   //
                 COL_VALUE_STRING));
         receive.responseResult(request, receiveCur);
 
         for (Map.Entry<String, String> item : result) {
             receiveCur.pushData(CollectionUtils.asMap(    //
-                    COL_KEY_STRING.name, item.getKey(),   //
+                    COL_FIELD_STRING.name, item.getKey(), //
                     COL_VALUE_STRING.name, item.getValue()//
             ));
         }
@@ -30,14 +30,14 @@ class JedisCommandsForHash extends JedisCommands {
     private static Future<?> resultFiledValueList2(Future<Object> sync, AdapterRequest request, AdapterReceive receive, String cursor, List<Map.Entry<String, String>> result) throws SQLException {
         AdapterResultCursor receiveCur = new AdapterResultCursor(request, Arrays.asList(//
                 COL_CURSOR_STRING,//
-                COL_KEY_STRING,   //
+                COL_FIELD_STRING, //
                 COL_VALUE_STRING));
         receive.responseResult(request, receiveCur);
 
         for (Map.Entry<String, String> item : result) {
             receiveCur.pushData(CollectionUtils.asMap(    //
                     COL_CURSOR_STRING.name, cursor,       //
-                    COL_KEY_STRING.name, item.getKey(),   //
+                    COL_FIELD_STRING.name, item.getKey(), //
                     COL_VALUE_STRING.name, item.getValue()//
             ));
         }
@@ -53,7 +53,7 @@ class JedisCommandsForHash extends JedisCommands {
         String[] keys = new String[keyNameContexts.size()];
         for (int i = 0; i < keyNameContexts.size(); i++) {
             RedisParser.IdentifierContext keyNameContext = keyNameContexts.get(i);
-            keys[i] = (String) argOrValue(argIndex, request, keyNameContext);
+            keys[i] = argAsString(argIndex, request, keyNameContext);
         }
 
         long result = jedisCmd.getHashCommands().hdel(key, keys);
@@ -69,7 +69,7 @@ class JedisCommandsForHash extends JedisCommands {
 
         boolean result = jedisCmd.getHashCommands().hexists(key, field);
 
-        receive.responseUpdateCount(request, result ? 1 : 0);
+        receive.responseResult(request, singleResult(request, COL_RESULT_BOOLEAN, result));
         return completed(sync);
     }
 
@@ -84,25 +84,25 @@ class JedisCommandsForHash extends JedisCommands {
         }
 
         RedisParser.FieldsClauseContext fieldsClause = cmd.fieldsClause();
-        long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, fieldsClause.integer()), true);
-        List<String> fields = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.IdentifierContext fieldContext : fieldsClause.identifier()) {
-            fields.add((String) argOrValue(argIndex, request, fieldContext));
-            cnt++;
+        int numKeys = ConvertUtils.toInteger(argOrValue(argIndex, request, fieldsClause.integer()), true);
+
+        List<RedisParser.IdentifierContext> fieldContexts = fieldsClause.identifier();
+        String[] fields = new String[fieldContexts.size()];
+        for (int i = 0; i < fieldContexts.size(); i++) {
+            fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (cnt != numKeys) {
-            throw new SQLException("HEXPIRE numFields " + numKeys + " not match actual fields " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (fields.length != numKeys) {
+            throw new SQLException("HEXPIRE numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
         List<Long> result;
         if (option != null) {
-            result = jedisCmd.getHashCommands().hexpire(key, seconds, option, fields.toArray(new String[0]));
+            result = jedisCmd.getHashCommands().hexpire(key, seconds, option, fields);
         } else {
-            result = jedisCmd.getHashCommands().hexpire(key, seconds, fields.toArray(new String[0]));
+            result = jedisCmd.getHashCommands().hexpire(key, seconds, fields);
         }
 
-        receive.responseResult(request, resultValueLongList(request, result, -1));
+        receive.responseResult(request, listResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -111,31 +111,31 @@ class JedisCommandsForHash extends JedisCommands {
         String key = argAsString(argIndex, request, cmd.hashKeyName().identifier());
         long seconds = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.decimal()), true);
 
+        RedisParser.FieldsClauseContext fieldsClause = cmd.fieldsClause();
+        int numKeys = ConvertUtils.toInteger(argOrValue(argIndex, request, fieldsClause.integer()), true);
+
+        List<RedisParser.IdentifierContext> fieldContexts = fieldsClause.identifier();
+        String[] fields = new String[fieldContexts.size()];
+        for (int i = 0; i < fieldContexts.size(); i++) {
+            fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
+        }
+        if (fields.length != numKeys) {
+            throw new SQLException("HEXPIREAT numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        }
+
         ExpiryOption option = null;
         if (cmd.expireOptions() != null) {
             option = getExpiryOption(cmd.expireOptions());
         }
 
-        RedisParser.FieldsClauseContext fieldsClause = cmd.fieldsClause();
-        long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, fieldsClause.integer()), true);
-        List<String> fields = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.IdentifierContext fieldContext : fieldsClause.identifier()) {
-            fields.add((String) argOrValue(argIndex, request, fieldContext));
-            cnt++;
-        }
-        if (cnt != numKeys) {
-            throw new SQLException("HEXPIREAT numFields " + numKeys + " not match actual fields " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
-
         List<Long> result;
         if (option != null) {
-            result = jedisCmd.getHashCommands().hexpireAt(key, seconds, option, fields.toArray(new String[0]));
+            result = jedisCmd.getHashCommands().hexpireAt(key, seconds, option, fields);
         } else {
-            result = jedisCmd.getHashCommands().hexpireAt(key, seconds, fields.toArray(new String[0]));
+            result = jedisCmd.getHashCommands().hexpireAt(key, seconds, fields);
         }
 
-        receive.responseResult(request, resultValueLongList(request, result, -1));
+        receive.responseResult(request, listResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -144,20 +144,20 @@ class JedisCommandsForHash extends JedisCommands {
         String key = argAsString(argIndex, request, cmd.hashKeyName().identifier());
 
         RedisParser.FieldsClauseContext fieldsClause = cmd.fieldsClause();
-        long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, fieldsClause.integer()), true);
-        List<String> fields = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.IdentifierContext fieldContext : fieldsClause.identifier()) {
-            fields.add((String) argOrValue(argIndex, request, fieldContext));
-            cnt++;
+        int numKeys = ConvertUtils.toInteger(argOrValue(argIndex, request, fieldsClause.integer()), true);
+
+        List<RedisParser.IdentifierContext> fieldContexts = fieldsClause.identifier();
+        String[] fields = new String[fieldContexts.size()];
+        for (int i = 0; i < fieldContexts.size(); i++) {
+            fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (cnt != numKeys) {
-            throw new SQLException("HEXPIRETIME numFields " + numKeys + " not match actual fields " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (fields.length != numKeys) {
+            throw new SQLException("HEXPIRETIME numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
-        List<Long> result = jedisCmd.getHashCommands().hexpireTime(key, fields.toArray(new String[0]));
+        List<Long> result = jedisCmd.getHashCommands().hexpireTime(key, fields);
 
-        receive.responseResult(request, resultValueLongList(request, result, -1));
+        receive.responseResult(request, listResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -172,25 +172,25 @@ class JedisCommandsForHash extends JedisCommands {
         }
 
         RedisParser.FieldsClauseContext fieldsClause = cmd.fieldsClause();
-        long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, fieldsClause.integer()), true);
-        List<String> fields = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.IdentifierContext fieldContext : fieldsClause.identifier()) {
-            fields.add((String) argOrValue(argIndex, request, fieldContext));
-            cnt++;
+        int numKeys = ConvertUtils.toInteger(argOrValue(argIndex, request, fieldsClause.integer()), true);
+
+        List<RedisParser.IdentifierContext> fieldContexts = fieldsClause.identifier();
+        String[] fields = new String[fieldContexts.size()];
+        for (int i = 0; i < fieldContexts.size(); i++) {
+            fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (cnt != numKeys) {
-            throw new SQLException("HPEXPIRE numFields " + numKeys + " not match actual fields " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (fields.length != numKeys) {
+            throw new SQLException("HPEXPIRE numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
         List<Long> result;
         if (option != null) {
-            result = jedisCmd.getHashCommands().hpexpire(key, seconds, option, fields.toArray(new String[0]));
+            result = jedisCmd.getHashCommands().hpexpire(key, seconds, option, fields);
         } else {
-            result = jedisCmd.getHashCommands().hpexpire(key, seconds, fields.toArray(new String[0]));
+            result = jedisCmd.getHashCommands().hpexpire(key, seconds, fields);
         }
 
-        receive.responseResult(request, resultValueLongList(request, result, -1));
+        receive.responseResult(request, listResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -205,25 +205,25 @@ class JedisCommandsForHash extends JedisCommands {
         }
 
         RedisParser.FieldsClauseContext fieldsClause = cmd.fieldsClause();
-        long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, fieldsClause.integer()), true);
-        List<String> fields = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.IdentifierContext fieldContext : fieldsClause.identifier()) {
-            fields.add((String) argOrValue(argIndex, request, fieldContext));
-            cnt++;
+        int numKeys = ConvertUtils.toInteger(argOrValue(argIndex, request, fieldsClause.integer()), true);
+
+        List<RedisParser.IdentifierContext> fieldContexts = fieldsClause.identifier();
+        String[] fields = new String[fieldContexts.size()];
+        for (int i = 0; i < fieldContexts.size(); i++) {
+            fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (cnt != numKeys) {
-            throw new SQLException("HPEXPIREAT numFields " + numKeys + " not match actual fields " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (fields.length != numKeys) {
+            throw new SQLException("HPEXPIREAT numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
         List<Long> result;
         if (option != null) {
-            result = jedisCmd.getHashCommands().hpexpireAt(key, seconds, option, fields.toArray(new String[0]));
+            result = jedisCmd.getHashCommands().hpexpireAt(key, seconds, option, fields);
         } else {
-            result = jedisCmd.getHashCommands().hpexpireAt(key, seconds, fields.toArray(new String[0]));
+            result = jedisCmd.getHashCommands().hpexpireAt(key, seconds, fields);
         }
 
-        receive.responseResult(request, resultValueLongList(request, result, -1));
+        receive.responseResult(request, listResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -232,20 +232,19 @@ class JedisCommandsForHash extends JedisCommands {
         String key = argAsString(argIndex, request, cmd.hashKeyName().identifier());
 
         RedisParser.FieldsClauseContext fieldsClause = cmd.fieldsClause();
-        long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, fieldsClause.integer()), true);
-        List<String> fields = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.IdentifierContext fieldContext : fieldsClause.identifier()) {
-            fields.add((String) argOrValue(argIndex, request, fieldContext));
-            cnt++;
+        int numKeys = ConvertUtils.toInteger(argOrValue(argIndex, request, fieldsClause.integer()), true);
+
+        List<RedisParser.IdentifierContext> fieldContexts = fieldsClause.identifier();
+        String[] fields = new String[fieldContexts.size()];
+        for (int i = 0; i < fieldContexts.size(); i++) {
+            fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (cnt != numKeys) {
-            throw new SQLException("HPEXPIRETIME numFields " + numKeys + " not match actual fields " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (fields.length != numKeys) {
+            throw new SQLException("HPEXPIRETIME numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
-        List<Long> result = jedisCmd.getHashCommands().hpexpireTime(key, fields.toArray(new String[0]));
-
-        receive.responseResult(request, resultValueLongList(request, result, -1));
+        List<Long> result = jedisCmd.getHashCommands().hpexpireTime(key, fields);
+        receive.responseResult(request, listResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -256,7 +255,7 @@ class JedisCommandsForHash extends JedisCommands {
 
         String result = jedisCmd.getHashCommands().hget(key, field);
 
-        receive.responseResult(request, singleValueStringResult(request, result));
+        receive.responseResult(request, singleResult(request, COL_VALUE_STRING, result));
         return completed(sync);
     }
 
@@ -266,19 +265,35 @@ class JedisCommandsForHash extends JedisCommands {
 
         Map<String, String> result = jedisCmd.getHashCommands().hgetAll(key);
 
-        receive.responseResult(request, resultFiledValueList(request, receive, result, -1));
+        long maxRows = request.getMaxRows();
+        AdapterResultCursor receiveCur = new AdapterResultCursor(request, Arrays.asList(COL_FIELD_STRING, COL_VALUE_STRING));
+
+        int affectRows = 0;
+        for (Map.Entry<String, String> item : result.entrySet()) {
+            receiveCur.pushData(CollectionUtils.asMap(    //
+                    COL_FIELD_STRING.name, item.getKey(), //
+                    COL_VALUE_STRING.name, item.getValue()//
+            ));
+            affectRows++;
+
+            if (maxRows > 0 && affectRows >= maxRows) {
+                break;
+            }
+        }
+        receiveCur.pushFinish();
+        receive.responseResult(request, receiveCur);
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.HincrByCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = ConvertUtils.toString(argOrValue(argIndex, request, cmd.hashKeyName().identifier()));
-        String field = ConvertUtils.toString(argOrValue(argIndex, request, cmd.identifier()));
+        String key = argAsString(argIndex, request, cmd.hashKeyName().identifier());
+        String field = argAsString(argIndex, request, cmd.identifier());
         long increment = ConvertUtils.toLong(argOrValue(argIndex, request, cmd.decimal()), true);
 
         long value = jedisCmd.getHashCommands().hincrBy(key, field, increment);
 
-        receive.responseResult(request, singleValueLongResult(request, value));
+        receive.responseResult(request, singleResult(request, COL_VALUE_LONG, value));
         return completed(sync);
     }
 
@@ -288,7 +303,7 @@ class JedisCommandsForHash extends JedisCommands {
 
         Set<String> value = jedisCmd.getHashCommands().hkeys(key);
 
-        receive.responseResult(request, resultKeysStringList(request, value, -1));
+        receive.responseResult(request, listResult(request, COL_KEY_STRING, value));
         return completed(sync);
     }
 
@@ -298,7 +313,7 @@ class JedisCommandsForHash extends JedisCommands {
 
         long result = jedisCmd.getHashCommands().hlen(key);
 
-        receive.responseResult(request, singleValueLongResult(request, result));
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -310,12 +325,12 @@ class JedisCommandsForHash extends JedisCommands {
         String[] keys = new String[keyNameContexts.size()];
         for (int i = 0; i < keyNameContexts.size(); i++) {
             RedisParser.IdentifierContext keyNameContext = keyNameContexts.get(i);
-            keys[i] = (String) argOrValue(argIndex, request, keyNameContext);
+            keys[i] = argAsString(argIndex, request, keyNameContext);
         }
 
         List<String> result = jedisCmd.getHashCommands().hmget(key, keys);
 
-        receive.responseResult(request, resultValueStringList(request, result, -1));
+        receive.responseResult(request, listResult(request, COL_VALUE_STRING, result));
         return completed(sync);
     }
 
@@ -326,14 +341,14 @@ class JedisCommandsForHash extends JedisCommands {
         List<RedisParser.FiledValueClauseContext> kvContexts = cmd.filedValueClause();
         Map<String, String> data = new LinkedHashMap<>();
         for (RedisParser.FiledValueClauseContext keyNameContext : kvContexts) {
-            String vKey = (String) argOrValue(argIndex, request, keyNameContext.field);
-            String vValue = (String) argOrValue(argIndex, request, keyNameContext.value);
+            String vKey = argAsString(argIndex, request, keyNameContext.field);
+            String vValue = argAsString(argIndex, request, keyNameContext.value);
             data.put(vKey, vValue);
         }
 
         long result = jedisCmd.getHashCommands().hset(key, data);
 
-        receive.responseResult(request, singleValueLongResult(request, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -344,26 +359,26 @@ class JedisCommandsForHash extends JedisCommands {
         List<RedisParser.FiledValueClauseContext> kvContexts = cmd.filedValueClause();
         Map<String, String> data = new LinkedHashMap<>();
         for (RedisParser.FiledValueClauseContext keyNameContext : kvContexts) {
-            String vKey = (String) argOrValue(argIndex, request, keyNameContext.field);
-            String vValue = (String) argOrValue(argIndex, request, keyNameContext.value);
+            String vKey = argAsString(argIndex, request, keyNameContext.field);
+            String vValue = argAsString(argIndex, request, keyNameContext.value);
             data.put(vKey, vValue);
         }
 
         String result = jedisCmd.getHashCommands().hmset(key, data);
 
-        receive.responseResult(request, singleValueStringResult(request, result));
+        receive.responseResult(request, singleResult(request, COL_RESULT_STRING, result));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.HsetnxCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String key = argAsString(argIndex, request, cmd.hashKeyName().identifier());
-        String vKey = (String) argOrValue(argIndex, request, cmd.filedValueClause().field);
-        String vValue = (String) argOrValue(argIndex, request, cmd.filedValueClause().value);
+        String vKey = argAsString(argIndex, request, cmd.filedValueClause().field);
+        String vValue = argAsString(argIndex, request, cmd.filedValueClause().value);
 
         long result = jedisCmd.getHashCommands().hsetnx(key, vKey, vValue);
 
-        receive.responseResult(request, singleValueLongResult(request, result));
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -372,20 +387,20 @@ class JedisCommandsForHash extends JedisCommands {
         String key = argAsString(argIndex, request, cmd.hashKeyName().identifier());
 
         RedisParser.FieldsClauseContext fieldsClause = cmd.fieldsClause();
-        long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, fieldsClause.integer()), true);
-        List<String> fields = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.IdentifierContext fieldContext : fieldsClause.identifier()) {
-            fields.add((String) argOrValue(argIndex, request, fieldContext));
-            cnt++;
+        int numKeys = ConvertUtils.toInteger(argOrValue(argIndex, request, fieldsClause.integer()), true);
+
+        List<RedisParser.IdentifierContext> fieldContexts = fieldsClause.identifier();
+        String[] fields = new String[fieldContexts.size()];
+        for (int i = 0; i < fieldContexts.size(); i++) {
+            fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (cnt != numKeys) {
-            throw new SQLException("HPERSIST numFields " + numKeys + " not match actual fields " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (fields.length != numKeys) {
+            throw new SQLException("HPERSIST numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
-        List<Long> result = jedisCmd.getHashCommands().hpersist(key, fields.toArray(new String[0]));
+        List<Long> result = jedisCmd.getHashCommands().hpersist(key, fields);
 
-        receive.responseResult(request, resultValueLongList(request, result, -1));
+        receive.responseResult(request, listResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -394,20 +409,20 @@ class JedisCommandsForHash extends JedisCommands {
         String key = argAsString(argIndex, request, cmd.hashKeyName().identifier());
 
         RedisParser.FieldsClauseContext fieldsClause = cmd.fieldsClause();
-        long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, fieldsClause.integer()), true);
-        List<String> fields = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.IdentifierContext fieldContext : fieldsClause.identifier()) {
-            fields.add((String) argOrValue(argIndex, request, fieldContext));
-            cnt++;
+        int numKeys = ConvertUtils.toInteger(argOrValue(argIndex, request, fieldsClause.integer()), true);
+
+        List<RedisParser.IdentifierContext> fieldContexts = fieldsClause.identifier();
+        String[] fields = new String[fieldContexts.size()];
+        for (int i = 0; i < fieldContexts.size(); i++) {
+            fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (cnt != numKeys) {
-            throw new SQLException("HTTL numFields " + numKeys + " not match actual fields " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (fields.length != numKeys) {
+            throw new SQLException("HTTL numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
-        List<Long> result = jedisCmd.getHashCommands().httl(key, fields.toArray(new String[0]));
+        List<Long> result = jedisCmd.getHashCommands().httl(key, fields);
 
-        receive.responseResult(request, resultValueLongList(request, result, -1));
+        receive.responseResult(request, listResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -416,20 +431,20 @@ class JedisCommandsForHash extends JedisCommands {
         String key = argAsString(argIndex, request, cmd.hashKeyName().identifier());
 
         RedisParser.FieldsClauseContext fieldsClause = cmd.fieldsClause();
-        long numKeys = ConvertUtils.toLong(argOrValue(argIndex, request, fieldsClause.integer()), true);
-        List<String> fields = new ArrayList<>();
-        int cnt = 0;
-        for (RedisParser.IdentifierContext fieldContext : fieldsClause.identifier()) {
-            fields.add((String) argOrValue(argIndex, request, fieldContext));
-            cnt++;
+        int numKeys = ConvertUtils.toInteger(argOrValue(argIndex, request, fieldsClause.integer()), true);
+
+        List<RedisParser.IdentifierContext> fieldContexts = fieldsClause.identifier();
+        String[] fields = new String[fieldContexts.size()];
+        for (int i = 0; i < fieldContexts.size(); i++) {
+            fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (cnt != numKeys) {
-            throw new SQLException("HPTTL numFields " + numKeys + " not match actual fields " + cnt + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        if (fields.length != numKeys) {
+            throw new SQLException("HPTTL numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
         }
 
-        List<Long> result = jedisCmd.getHashCommands().hpttl(key, fields.toArray(new String[0]));
+        List<Long> result = jedisCmd.getHashCommands().hpttl(key, fields);
 
-        receive.responseResult(request, resultValueLongList(request, result, -1));
+        receive.responseResult(request, listResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -448,25 +463,24 @@ class JedisCommandsForHash extends JedisCommands {
                 return resultFiledValueList1(sync, request, receive, result);
             } else {
                 List<String> result = jedisCmd.getHashCommands().hrandfield(key, count);
-                receive.responseResult(request, resultValueStringList(request, result, -1));
+                receive.responseResult(request, listResult(request, COL_FIELD_STRING, result));
                 return completed(sync);
             }
         } else {
             List<String> result = Collections.singletonList(jedisCmd.getHashCommands().hrandfield(key));
-            receive.responseResult(request, resultValueStringList(request, result, -1));
+            receive.responseResult(request, listResult(request, COL_FIELD_STRING, result));
             return completed(sync);
         }
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.HscanCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = (String) argOrValue(argIndex, request, cmd.hashKeyName().identifier());
-        String cursor = (String) argOrValue(argIndex, request, cmd.decimal());
+        String key = argAsString(argIndex, request, cmd.hashKeyName().identifier());
+        String cursor = argAsString(argIndex, request, cmd.decimal());
         String pattern = null;
         Integer count = null;
-        long maxRows = request.getMaxRows();
         if (cmd.matchClause() != null) {
-            pattern = (String) argOrValue(argIndex, request, cmd.matchClause().keyPattern().identifier());
+            pattern = argAsString(argIndex, request, cmd.matchClause().keyPattern().identifier());
         }
         if (cmd.countClause() != null) {
             count = ConvertUtils.toInteger(argOrValue(argIndex, request, cmd.countClause().integer()), true);
@@ -482,7 +496,7 @@ class JedisCommandsForHash extends JedisCommands {
 
         if (cmd.NOVALUES() != null) {
             ScanResult<String> result = jedisCmd.getHashCommands().hscanNoValues(key, cursor, scanParams);
-            AdapterResultCursor receiveCur = resultCursorAndValueStringList(request, result.getCursor(), result.getResult(), maxRows);
+            AdapterResultCursor receiveCur = listFixedColAndResult(request, COL_CURSOR_STRING, result.getCursor(), COL_FIELD_STRING, result.getResult());
             receive.responseResult(request, receiveCur);
             return completed(sync);
         } else {
@@ -496,9 +510,9 @@ class JedisCommandsForHash extends JedisCommands {
         String key = argAsString(argIndex, request, cmd.hashKeyName().identifier());
         String field = argAsString(argIndex, request, cmd.identifier());
 
-        long result = jedisCmd.getHashCommands().hstrlen(key, field);
+        long value = jedisCmd.getHashCommands().hstrlen(key, field);
 
-        receive.responseResult(request, singleValueLongResult(request, result));
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, value));
         return completed(sync);
     }
 
@@ -506,9 +520,9 @@ class JedisCommandsForHash extends JedisCommands {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String key = argAsString(argIndex, request, cmd.hashKeyName().identifier());
 
-        List<String> result = jedisCmd.getHashCommands().hvals(key);
+        List<String> value = jedisCmd.getHashCommands().hvals(key);
 
-        receive.responseResult(request, resultValueStringList(request, result, -1));
+        receive.responseResult(request, listResult(request, COL_VALUE_STRING, value));
         return completed(sync);
     }
 }

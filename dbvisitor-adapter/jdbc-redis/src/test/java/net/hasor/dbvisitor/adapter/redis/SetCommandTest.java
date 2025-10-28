@@ -24,10 +24,9 @@ public class SetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("sadd myKey v1 v2 v3")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -52,10 +51,9 @@ public class SetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("scard myKey")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -83,7 +81,7 @@ public class SetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("1", "2", "3"));
                     assert r2.equals(Arrays.asList("1", "2", "3"));
@@ -110,10 +108,9 @@ public class SetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("sdiffstore dst myKey1 myKey2")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -142,7 +139,7 @@ public class SetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("1", "2", "3"));
                     assert r2.equals(Arrays.asList("1", "2", "3"));
@@ -169,10 +166,9 @@ public class SetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("sintercard 2 myKey1 myKey2")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -196,10 +192,9 @@ public class SetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("sintercard 2 myKey1 myKey2 limit 10")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -224,10 +219,9 @@ public class SetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("sinterstore dstKey myKey1 myKey2")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -251,7 +245,11 @@ public class SetCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("sismember key member") == 1;
+                try (ResultSet rs = stmt.executeQuery("sismember key member")) {
+                    rs.next();
+                    assert rs.getLong(1) == 1L;
+                    assert rs.getLong("RESULT") == 1L;
+                }
             }
 
             assert argList.size() == 2;
@@ -274,7 +272,11 @@ public class SetCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("sismember key member") == 0;
+                try (ResultSet rs = stmt.executeQuery("sismember key member")) {
+                    rs.next();
+                    assert rs.getLong(1) == 0L;
+                    assert rs.getLong("RESULT") == 0L;
+                }
             }
 
             assert argList.size() == 2;
@@ -302,7 +304,7 @@ public class SetCommandTest extends AbstractJdbcTest {
                     ArrayList<Boolean> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getBoolean(1));
-                        r2.add(rs.getBoolean("VALUE"));
+                        r2.add(rs.getBoolean("RESULT"));
                     }
                     assert r1.equals(Arrays.asList(true, false, true));
                     assert r2.equals(Arrays.asList(true, false, true));
@@ -334,7 +336,7 @@ public class SetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("1", "2", "3"));
                     assert r2.equals(Arrays.asList("1", "2", "3"));
@@ -361,10 +363,9 @@ public class SetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("smove srcKey dstKey member")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -394,7 +395,7 @@ public class SetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("1", "2", "3"));
                     assert r2.equals(Arrays.asList("1", "2", "3"));
@@ -426,7 +427,7 @@ public class SetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("1"));
                     assert r2.equals(Arrays.asList("1"));
@@ -458,7 +459,7 @@ public class SetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("1", "2", "3"));
                     assert r2.equals(Arrays.asList("1", "2", "3"));
@@ -491,7 +492,7 @@ public class SetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("1"));
                     assert r2.equals(Arrays.asList("1"));
@@ -521,7 +522,7 @@ public class SetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("srem myKey member1 member2 member3")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
+                        assert rs.getLong("RESULT") == 123L;
                     }
                 }
             }
@@ -550,8 +551,10 @@ public class SetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r1 = new ArrayList<>();
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
+                        assert rs.getString(1).equals("0");
+                        assert rs.getString("CURSOR").equals("0");
                         r1.add(rs.getString(2));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("key1", "key2", "key3", "key4", "key5", "key6"));
                     assert r2.equals(Arrays.asList("key1", "key2", "key3", "key4", "key5", "key6"));
@@ -581,7 +584,7 @@ public class SetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(2));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("key1", "key2", "key3", "key4", "key5", "key6"));
                     assert r2.equals(Arrays.asList("key1", "key2", "key3", "key4", "key5", "key6"));
@@ -611,7 +614,7 @@ public class SetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(2));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("key1", "key2", "key3", "key4", "key5", "key6"));
                     assert r2.equals(Arrays.asList("key1", "key2", "key3", "key4", "key5", "key6"));
@@ -641,7 +644,7 @@ public class SetCommandTest extends AbstractJdbcTest {
                     ArrayList<String> r2 = new ArrayList<>();
                     while (rs.next()) {
                         r1.add(rs.getString(1));
-                        r2.add(rs.getString("VALUE"));
+                        r2.add(rs.getString("ELEMENT"));
                     }
                     assert r1.equals(Arrays.asList("key1", "key2", "key3", "key4", "key5", "key6"));
                     assert r2.equals(Arrays.asList("key1", "key2", "key3", "key4", "key5", "key6"));
@@ -670,7 +673,7 @@ public class SetCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("sunionstore dstKey myKey1 myKey2 myKey3")) {
                     if (rs.next()) {
                         assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
+                        assert rs.getLong("RESULT") == 123L;
                     }
                 }
             }
