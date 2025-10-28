@@ -15,15 +15,21 @@ commands
     ;
 
 command
-    : commonCommand
-    | stringCommand
-    | listCommand
-    | setCommand
-    | sortedSetCommand
-    | hashCommand
+    : serverCommands
+    | keysCommands
+    | stringCommands
+    | listCommands
+    | setCommands
+    | sortedSetCommands
+    | hashCommands
     ;
 
-commonCommand
+serverCommands
+    : moveCommand
+    | waitCommand
+    ;
+
+keysCommands
     : copyCommand
     | deleteCommand
     | unlinkCommand
@@ -36,7 +42,6 @@ commonCommand
     | pExpireAtCommand
     | pExpireTimeCommand
     | keysCommand
-    | moveCommand
     | objectCommand
     | persistCommand
     | ttlCommand
@@ -47,10 +52,9 @@ commonCommand
     | scanCommand
     | touchCommand
     | typeCommand
-    | waitCommand
     ;
 
-stringCommand
+stringCommands
     : stringSetCommand
     | getCommand
     | incrementCommand
@@ -73,7 +77,7 @@ stringCommand
     | substringCommand
     ;
 
-listCommand
+listCommands
     : lmoveCommand
     | blmoveCommand
     | lmpopCommand
@@ -98,7 +102,7 @@ listCommand
     | ltrimCommand
     ;
 
-setCommand
+setCommands
     : saddCommand
     | scardCommand
     | sdiffCommand
@@ -118,7 +122,7 @@ setCommand
     | sunionstoreCommand
     ;
 
-sortedSetCommand
+sortedSetCommands
     : zmpopCommand
     | bzmpopCommand
     | zpopmaxCommand
@@ -156,7 +160,7 @@ sortedSetCommand
     | zunionstoreCommand
     ;
 
-hashCommand
+hashCommands
     : hdelCommand
     | hexistsCommand
     | hexpireCommand

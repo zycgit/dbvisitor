@@ -11,11 +11,10 @@ import org.junit.Test;
 import redis.clients.jedis.args.ExpiryOption;
 import redis.clients.jedis.commands.DatabaseCommands;
 import redis.clients.jedis.commands.KeyCommands;
-import redis.clients.jedis.commands.ServerCommands;
 import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;
 
-public class CommonCommandTest extends AbstractJdbcTest {
+public class KeysCommandTest extends AbstractJdbcTest {
     @Test
     public void copy_1() {
         List<Object> argList = new ArrayList<>();
@@ -631,27 +630,6 @@ public class CommonCommandTest extends AbstractJdbcTest {
     }
 
     @Test
-    public void move_0() {
-        List<Object> argList = new ArrayList<>();
-        long returnValue = 2;
-
-        RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(DatabaseCommands.class, createInvocationHandler("move", args -> {
-            argList.addAll(Arrays.asList(args));
-            return returnValue;
-        }));
-        try (Connection conn = redisConnection()) {
-            try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("move mykey 123") == 2;
-            }
-
-            assert argList.equals(Arrays.asList("mykey", 123));
-        } catch (SQLException e) {
-            assert false;
-        }
-    }
-
-    @Test
     public void object_0() {
         List<Object> argList = new ArrayList<>();
         String returnValue = "abcdefg";
@@ -1047,33 +1025,6 @@ public class CommonCommandTest extends AbstractJdbcTest {
             }
 
             assert argList.get(0).equals("mykey");
-        } catch (SQLException e) {
-            assert false;
-        }
-    }
-
-    @Test
-    public void wait_1() {
-        List<Object> argList = new ArrayList<>();
-        long returnValue = 123;
-
-        RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(ServerCommands.class, createInvocationHandler("waitReplicas", args -> {
-            argList.addAll(Arrays.asList(args));
-            return returnValue;
-        }));
-        try (Connection conn = redisConnection()) {
-            try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("wait 10 10")) {
-                    while (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
-                    }
-                }
-            }
-
-            assert argList.get(0).equals(10);
-            assert argList.get(1).equals(10L);
         } catch (SQLException e) {
             assert false;
         }

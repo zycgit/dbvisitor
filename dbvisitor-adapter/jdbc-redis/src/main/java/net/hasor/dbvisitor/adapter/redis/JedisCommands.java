@@ -3,12 +3,17 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.cobble.CollectionUtils;
+import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.redis.parser.RedisParser;
 import net.hasor.dbvisitor.driver.*;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import redis.clients.jedis.args.ExpiryOption;
+import redis.clients.jedis.args.ListDirection;
+import redis.clients.jedis.args.SortedSetOption;
+import redis.clients.jedis.params.ZParams;
 import redis.clients.jedis.resps.Tuple;
 
-class JedisUtils {
+abstract class JedisCommands {
     protected static final JdbcColumn COL_VALUE_BYTES    = new JdbcColumn("VALUE", AdapterType.Bytes, "", "", "");
     protected static final JdbcColumn COL_VALUE_STRING   = new JdbcColumn("VALUE", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_VALUE_BOOLEAN  = new JdbcColumn("VALUE", AdapterType.Boolean, "", "", "");
@@ -310,4 +315,60 @@ class JedisUtils {
             return ctx.getText();
         }
     }
+
+    protected static ExpiryOption getExpiryOption(RedisParser.ExpireOptionsContext expireOpt) throws SQLException {
+        if (expireOpt.NX() != null) {
+            return ExpiryOption.NX;
+        } else if (expireOpt.XX() != null) {
+            return ExpiryOption.XX;
+        } else if (expireOpt.GT() != null) {
+            return ExpiryOption.GT;
+        } else if (expireOpt.LT() != null) {
+            return ExpiryOption.LT;
+        } else {
+            throw new SQLException("expire options(" + expireOpt.getText() + ") not support.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        }
+    }
+
+    protected static ListDirection getListDirection(RedisParser.LeftOrRightClauseContext lr, ListDirection defaultValue) throws SQLException {
+        if (lr == null) {
+            return defaultValue;
+        } else if (lr.LEFT() != null) {
+            return ListDirection.LEFT;
+        } else if (lr.RIGHT() != null) {
+            return ListDirection.RIGHT;
+        } else {
+            throw new SQLException("LeftOrRightClause " + lr.getText() + " not support.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        }
+    }
+
+    protected static SortedSetOption getSortedSetOption(RedisParser.MinMaxClauseContext minmax) throws SQLException {
+        if (minmax != null) {
+            if (minmax.MAX() != null) {
+                return SortedSetOption.MAX;
+            } else if (minmax.MIN() != null) {
+                return SortedSetOption.MIN;
+            }
+        }
+        throw new SQLException("MinMaxClause " + (minmax == null ? "null" : minmax.getText()) + " not support.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+    }
+
+    protected static ZParams.Aggregate getAggregateOption(RedisParser.AggregateClauseContext aggregate) throws SQLException {
+        if (aggregate != null) {
+            if (aggregate.MIN() != null) {
+                return ZParams.Aggregate.MIN;
+            } else if (aggregate.MAX() != null) {
+                return ZParams.Aggregate.MAX;
+            } else if (aggregate.SUM() != null) {
+                return ZParams.Aggregate.SUM;
+            }
+        }
+        throw new SQLException("AggregateClause " + aggregate.getText() + " not support.", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+    }
+
+    protected static Future<?> completed(Future<Object> sync) {
+        sync.completed(true);
+        return sync;
+    }
+
 }
