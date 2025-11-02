@@ -18,7 +18,6 @@ abstract class JedisCommands {
     protected static final JdbcColumn COL_VALUE_STRING   = new JdbcColumn("VALUE", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_VALUE_LONG     = new JdbcColumn("VALUE", AdapterType.Long, "", "", "");
     protected static final JdbcColumn COL_VALUE_BYTES    = new JdbcColumn("VALUE", AdapterType.Bytes, "", "", "");
-    protected static final JdbcColumn COL_VALUE_DOUBLE   = new JdbcColumn("VALUE", AdapterType.Double, "", "", "");
     protected static final JdbcColumn COL_ELEMENT_STRING = new JdbcColumn("ELEMENT", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_RANK_LONG      = new JdbcColumn("RANK", AdapterType.Long, "", "", "");
     protected static final JdbcColumn COL_SCORE_DOUBLE   = new JdbcColumn("SCORE", AdapterType.Double, "", "", "");
@@ -156,39 +155,6 @@ abstract class JedisCommands {
                     COL_SCORE_DOUBLE.name, tuple.getScore(),    //
                     COL_ELEMENT_STRING.name, tuple.getElement() //
             ));
-        }
-        receiveCur.pushFinish();
-        return receiveCur;
-    }
-
-    //
-    //
-    //
-
-    protected static AdapterResultCursor singleValueStringResult(AdapterRequest request, String value) throws SQLException {
-        AdapterResultCursor result = new AdapterResultCursor(request, Collections.singletonList(COL_VALUE_STRING));
-        result.pushData(singletonMap(COL_VALUE_STRING.name, value));
-        result.pushFinish();
-        return result;
-    }
-
-    protected static AdapterResultCursor singleValueLongResult(AdapterRequest request, Long value) throws SQLException {
-        AdapterResultCursor result = new AdapterResultCursor(request, Collections.singletonList(COL_VALUE_LONG));
-        result.pushData(singletonMap(COL_VALUE_LONG.name, value));
-        result.pushFinish();
-        return result;
-    }
-
-    protected static AdapterResultCursor resultValueStringList(AdapterRequest request, Collection<String> result, long maxRows) throws SQLException {
-        AdapterResultCursor receiveCur = new AdapterResultCursor(request, Collections.singletonList(COL_VALUE_STRING));
-        int affectRows = 0;
-        for (String item : result) {
-            receiveCur.pushData(CollectionUtils.asMap(COL_VALUE_STRING.name, item));
-            affectRows++;
-
-            if (maxRows > 0 && affectRows >= maxRows) {
-                break;
-            }
         }
         receiveCur.pushFinish();
         return receiveCur;

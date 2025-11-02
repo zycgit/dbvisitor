@@ -44,7 +44,13 @@ public class JedisConnFactory implements AdapterFactory {
         int soTimeoutSec = (StringUtils.isBlank(soTimeoutSecStr) ? 10 : Integer.parseInt(soTimeoutSecStr)) * 1000;
         boolean useTLS = !StringUtils.isBlank(useTLSStr) && Boolean.parseBoolean(useTLSStr);
 
-        DefaultJedisClientConfig.Builder builder = DefaultJedisClientConfig.builder().connectionTimeoutMillis(connTimeoutMs).socketTimeoutMillis(soTimeoutSec).user(username).password(password).database(database).clientName(clientName);
+        DefaultJedisClientConfig.Builder builder = DefaultJedisClientConfig.builder()//
+                .connectionTimeoutMillis(connTimeoutMs)//
+                .socketTimeoutMillis(soTimeoutSec)     //
+                .user(username)                        //
+                .password(password)                    //
+                .database(database)                    //
+                .clientName(clientName);               //
 
         if (useTLS) {
             //builder.ssl(true);

@@ -41,7 +41,7 @@
 | 命令                                                                          | 返回值 | 行数       | 结果                                                                                |
 |-----------------------------------------------------------------------------|-----|----------|-----------------------------------------------------------------------------------|
 | Hash 命令集                                                                    |     |          |                                                                                   |
-| [HDEL](https://redis.io/docs/latest/commands/hdel/)                         | 值   | --       | 成功删除的字段数。                                                                         |
+| [HDEL](https://redis.io/docs/latest/commands/hdel/)                         | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
 | [HEXISTS](https://redis.io/docs/latest/commands/hexists/)                   | 结果集 | 1        | RESULT 字段，BOOLEAN 类型                                                              |
 | [HEXPIRE](https://redis.io/docs/latest/commands/hexpire/)                   | 结果集 | multiple | RESULT 字段，LONG 类型                                                                 |
 | [HEXPIREAT](https://redis.io/docs/latest/commands/hexpireat/)               | 结果集 | multiple | RESULT 字段，LONG 类型                                                                 |
@@ -55,7 +55,7 @@
 | [HKEYS](https://redis.io/docs/latest/commands/hkeys/)                       | 结果集 | multiple | KEY 字段，STRING 类型                                                                  |
 | [HLEN](https://redis.io/docs/latest/commands/hlen/)                         | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
 | [HMGET](https://redis.io/docs/latest/commands/hmget/)                       | 结果集 | multiple | VALUE 字段，STRING 类型                                                                |
-| [HSET](https://redis.io/docs/latest/commands/hset/)                         | 值   | --       | 成功写入的字段数。                                                                         |
+| [HSET](https://redis.io/docs/latest/commands/hset/)                         | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
 | [HMSET](https://redis.io/docs/latest/commands/hmset/)                       | 结果集 | 1        | RESULT 字段，STRING 类型                                                               |
 | [HSETNX](https://redis.io/docs/latest/commands/hsetnx/)                     | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
 | [HPERSIST](https://redis.io/docs/latest/commands/hpersist/)                 | 结果集 | multiple | RESULT 字段，LONG 类型                                                                 |
@@ -66,9 +66,9 @@
 | [HSTRLEN](https://redis.io/docs/latest/commands/hstrlen/)                   | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
 | [HVALS](https://redis.io/docs/latest/commands/hvals/)                       | 结果集 | multiple | VALUE 字段，STRING 类型                                                                |
 | Keys 命令集                                                                    |     |          |                                                                                   |
-| [COPY](https://redis.io/docs/latest/commands/COPY/)                         | 值   | --       | 1 表示成功，0 表示失败。                                                                    |
-| [DEL](https://redis.io/docs/latest/commands/del/)                           | 值   | --       | 成功删除的键数。                                                                          |
-| [UNLINK](https://redis.io/docs/latest/commands/unlink/)                     | 值   | --       | 成功解除链接的键数。                                                                        |
+| [COPY](https://redis.io/docs/latest/commands/COPY/)                         | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
+| [DEL](https://redis.io/docs/latest/commands/del/)                           | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
+| [UNLINK](https://redis.io/docs/latest/commands/unlink/)                     | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
 | [DUMP](https://redis.io/docs/latest/commands/dump/)                         | 结果集 | 1        | VALUE 字段，BYTES 类型                                                                 |
 | [EXISTS](https://redis.io/docs/latest/commands/exists/)                     | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
 | [EXPIRE](https://redis.io/docs/latest/commands/expire/)                     | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
@@ -89,7 +89,7 @@
 | [RENAME](https://redis.io/docs/latest/commands/rename/)                     | 结果集 | 1        | RESULT 字段，STRING 类型                                                               |
 | [RENAMENX](https://redis.io/docs/latest/commands/renamenx/)                 | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
 | [SCAN](https://redis.io/docs/latest/commands/scan/)                         | 结果集 | multiple | CURSOR 字段，STRING 类型<br/>KEY 字段，STRING 类型                                          |
-| [TOUCH](https://redis.io/docs/latest/commands/touch/)                       | 值   | --       | 成功创建的键数。                                                                          |
+| [TOUCH](https://redis.io/docs/latest/commands/touch/)                       | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
 | [TYPE](https://redis.io/docs/latest/commands/type/)                         | 结果集 | 1        | RESULT 字段，STRING 类型                                                               |
 | List 命令集                                                                    |     |          |                                                                                   |
 | [LMOVE](https://redis.io/docs/latest/commands/lmove/)                       | 结果集 | 1        | ELEMENT 字段，STRING 类型                                                              |
@@ -115,7 +115,7 @@
 | [LSET](https://redis.io/docs/latest/commands/lset/)                         | 结果集 | 1        | RESULT 字段，STRING 类型                                                               |
 | [LTRIM](https://redis.io/docs/latest/commands/ltrim/)                       | 结果集 | 1        | RESULT 字段，STRING 类型                                                               |
 | Server 命令集                                                                  |     |          |                                                                                   |
-| [MOVE](https://redis.io/docs/latest/commands/move/)                         | 值   | --       | 是否操作成功：1 表示键已移动；0 表示键未移动                                                          |
+| [MOVE](https://redis.io/docs/latest/commands/move/)                         | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
 | [WAIT](https://redis.io/docs/latest/commands/wait/)                         | 结果集 | 1        | REPLICAS 字段，LONG 类型                                                               |
 | [WAITAOF](https://redis.io/docs/latest/commands/waitaof/)                   | 结果集 | 1        | LOCAL 字段，LONG 类型<br/>REPLICAS 字段，LONG 类型                                          |
 | Set 命令集                                                                     |     |          |                                                                                   |
@@ -157,7 +157,7 @@
 | [ZMSCORE](https://redis.io/docs/latest/commands/zmscore/)                   | 结果集 | multiple | SCORE 字段，DOUBLE 类型                                                                |
 | [ZRANDMEMBER](https://redis.io/docs/latest/commands/zrandmember/)           | 结果集 | multiple | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/>ELEMENT 字段，STRING 类型                     |
 | [ZRANGE](https://redis.io/docs/latest/commands/zrange/)                     | 结果集 | multiple | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/>ELEMENT 字段，STRING 类型                     |
-| [ZRANGEBYLEX](https://redis.io/docs/latest/commands/zrangebylex/)           | 结果集 | multiple | ELEMENT_STRING                                                                    |
+| [ZRANGEBYLEX](https://redis.io/docs/latest/commands/zrangebylex/)           | 结果集 | multiple | ELEMENT 字段，STRING 类型                                                              |
 | [ZRANGEBYSCORE](https://redis.io/docs/latest/commands/zrangebyscore/)       | 结果集 | multiple | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/>ELEMENT 字段，STRING 类型                     |
 | [ZRANGESTORE](https://redis.io/docs/latest/commands/zrangestore/)           | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
 | [ZRANK](https://redis.io/docs/latest/commands/zrank/)                       | 结果集 | 1        | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/> RANK 字段，LONG 类型                         |
@@ -167,19 +167,38 @@
 | [ZREMRANGEBYRANK](https://redis.io/docs/latest/commands/zremrangebyrank/)   | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
 | [ZREMRANGEBYSCORE](https://redis.io/docs/latest/commands/zremrangebyscore/) | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
 | [ZREVRANGE](https://redis.io/docs/latest/commands/zrevrange/)               | 结果集 | multiple | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/>ELEMENT 字段，STRING 类型                     |
-| [ZREVRANGEBYLEX](https://redis.io/docs/latest/commands/zrevrangebylex/)     | 结果集 | multiple | ELEMENT_STRING                                                                    |
+| [ZREVRANGEBYLEX](https://redis.io/docs/latest/commands/zrevrangebylex/)     | 结果集 | multiple | ELEMENT 字段，STRING 类型                                                              |
 | [ZREVRANGEBYSCORE](https://redis.io/docs/latest/commands/zrevrangebyscore/) | 结果集 | multiple | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/>ELEMENT 字段，STRING 类型                     |
-| [ZSCAN](https://redis.io/docs/latest/commands/zscan/)                       | 结果集 | multiple | CURSOR_STRING<br/>SCORE  字段，DOUBLE 类型<br/>ELEMENT 字段，STRING 类型                    |
+| [ZSCAN](https://redis.io/docs/latest/commands/zscan/)                       | 结果集 | multiple | CURSOR 字段，STRING 类型<br/>SCORE 字段，DOUBLE 类型<br/>ELEMENT 字段，STRING 类型               |
 | [ZUNION](https://redis.io/docs/latest/commands/zunion/)                     | 结果集 | multiple | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/>ELEMENT 字段，STRING 类型                     |
 | [ZUNIONSTORE](https://redis.io/docs/latest/commands/zunionstore/)           | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
-
-
+| String 命令集                                                                  |     |          |                                                                                   |
+| [SET](https://redis.io/docs/latest/commands/set/)                           | 结果集 | 1        | RESULT 字段，STRING 类型（当不使用 GET 时）、VALUE 字段，STRING 类型（当使用 GET 时）                     |
+| [GET](https://redis.io/docs/latest/commands/get/)                           | 结果集 | 1        | VALUE 字段，STRING 类型                                                                |
+| [INCR](https://redis.io/docs/latest/commands/incr/)                         | 结果集 | 1        | VALUE 字段，LONG 类型                                                                  |
+| [INCRBY](https://redis.io/docs/latest/commands/incrby/)                     | 结果集 | 1        | VALUE 字段，LONG 类型                                                                  |
+| [DECR](https://redis.io/docs/latest/commands/decr/)                         | 结果集 | 1        | VALUE 字段，LONG 类型                                                                  |
+| [DECRBY](https://redis.io/docs/latest/commands/decrby/)                     | 结果集 | 1        | VALUE 字段，LONG 类型                                                                  |
+| [APPEND](https://redis.io/docs/latest/commands/append/)                     | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
+| [GETDEL](https://redis.io/docs/latest/commands/getdel/)                     | 结果集 | 1        | VALUE 字段，STRING 类型                                                                |
+| [GETEX](https://redis.io/docs/latest/commands/getex/)                       | 结果集 | 1        | VALUE 字段，STRING 类型                                                                |
+| [GETRANGE](https://redis.io/docs/latest/commands/getrange/)                 | 结果集 | 1        | VALUE 字段，STRING 类型                                                                |
+| [GETSET](https://redis.io/docs/latest/commands/getset/)                     | 结果集 | 1        | VALUE 字段，STRING 类型                                                                |
+| [MGET](https://redis.io/docs/latest/commands/mget/)                         | 结果集 | multiple | VALUE 字段，STRING 类型                                                                |
+| [MSET](https://redis.io/docs/latest/commands/mset/)                         | 结果集 | 1        | RESULT 字段，STRING 类型                                                               |
+| [MSETNX](https://redis.io/docs/latest/commands/msetnx/)                     | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
+| [PSETEX](https://redis.io/docs/latest/commands/psetex/)                     | 结果集 | 1        | RESULT 字段，STRING 类型                                                               |
+| [SETEX](https://redis.io/docs/latest/commands/setex/)                       | 结果集 | 1        | RESULT 字段，STRING 类型                                                               |
+| [SETNX](https://redis.io/docs/latest/commands/setnx/)                       | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
+| [SETRANGE](https://redis.io/docs/latest/commands/setrange/)                 | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
+| [STRLEN](https://redis.io/docs/latest/commands/strlen/)                     | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
+| [SUBSTR](https://redis.io/docs/latest/commands/substr/)                     | 结果集 | 1        | VALUE 字段，STRING 类型                                                                |
 
 
 
 ## TODO
 
-client setname connection-name
+
 
 - 需要一个 JDBC 参数用于可以跳过 numKeys 的校验，因为本身 Redis 底层 API 命令并不需要这个参数。
     - 默认必须填写正确的 numKeys 参数，否则会抛出异常。如 zmpop、sintercard、blmpop 等命令

@@ -520,10 +520,9 @@ public class SetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("srem myKey member1 member2 member3")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RESULT") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -671,10 +670,9 @@ public class SetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("sunionstore dstKey myKey1 myKey2 myKey3")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RESULT") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 

@@ -116,8 +116,8 @@ class JedisDistributeCall {
     }
 
     private static Future<?> execStringCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.StringCommandsContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, Connection conn) throws SQLException {
-        if (c.stringSetCommand() != null) {
-            return JedisCommandsForString.execCmd(sync, jedisCmd, c.stringSetCommand(), request, receive, startArgIdx);
+        if (c.strSetCommand() != null) {
+            return JedisCommandsForString.execCmd(sync, jedisCmd, c.strSetCommand(), request, receive, startArgIdx);
         }
         if (c.getCommand() != null) {
             return JedisCommandsForString.execCmd(sync, jedisCmd, c.getCommand(), request, receive, startArgIdx);

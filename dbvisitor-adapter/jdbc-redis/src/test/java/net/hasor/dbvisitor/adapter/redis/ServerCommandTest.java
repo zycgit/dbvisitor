@@ -18,7 +18,7 @@ public class ServerCommandTest extends AbstractJdbcTest {
     @Test
     public void move_0() {
         List<Object> argList = new ArrayList<>();
-        long returnValue = 0;
+        long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
         RedisCommandInterceptor.addInterceptor(DatabaseCommands.class, createInvocationHandler("move", args -> {
@@ -27,7 +27,11 @@ public class ServerCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("move mykey 123") == 0;
+                try (ResultSet rs = stmt.executeQuery("move mykey 123")) {
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
+                }
             }
 
             assert argList.equals(Arrays.asList("mykey", 123));

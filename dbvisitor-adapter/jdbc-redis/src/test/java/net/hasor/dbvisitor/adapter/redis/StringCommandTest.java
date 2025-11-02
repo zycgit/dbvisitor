@@ -27,10 +27,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("set mykey value")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals(returnValue);
-                        assert rs.getString("VALUE").equals(returnValue);
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals(returnValue);
+                    assert rs.getString("RESULT").equals(returnValue);
                 }
             }
 
@@ -54,10 +53,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("set mykey value nx")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals(returnValue);
-                        assert rs.getString("VALUE").equals(returnValue);
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals(returnValue);
+                    assert rs.getString("RESULT").equals(returnValue);
                 }
             }
 
@@ -74,7 +72,7 @@ public class StringCommandTest extends AbstractJdbcTest {
                 try (ResultSet rs = stmt.executeQuery("set mykey value xx")) {
                     while (rs.next()) {
                         assert rs.getString(1).equals(returnValue);
-                        assert rs.getString("VALUE").equals(returnValue);
+                        assert rs.getString("RESULT").equals(returnValue);
                     }
                 }
             }
@@ -101,10 +99,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("set mykey value xx ex 123")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals(returnValue);
-                        assert rs.getString("VALUE").equals(returnValue);
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals(returnValue);
+                    assert rs.getString("RESULT").equals(returnValue);
                 }
             }
 
@@ -130,10 +127,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("set mykey value xx keepttl")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals(returnValue);
-                        assert rs.getString("VALUE").equals(returnValue);
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals(returnValue);
+                    assert rs.getString("RESULT").equals(returnValue);
                 }
             }
 
@@ -160,10 +156,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("set mykey value get")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals(returnValue);
-                        assert rs.getString("VALUE").equals(returnValue);
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals(returnValue);
+                    assert rs.getString("VALUE").equals(returnValue);
                 }
             }
 
@@ -178,10 +173,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("set mykey value xx get")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals(returnValue);
-                        assert rs.getString("VALUE").equals(returnValue);
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals(returnValue);
+                    assert rs.getString("VALUE").equals(returnValue);
                 }
             }
 
@@ -207,10 +201,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("set mykey value xx get")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals(returnValue);
-                        assert rs.getString("VALUE").equals(returnValue);
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals(returnValue);
+                    assert rs.getString("VALUE").equals(returnValue);
                 }
             }
 
@@ -236,10 +229,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("set mykey value xx get keepttl")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals(returnValue);
-                        assert rs.getString("VALUE").equals(returnValue);
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals(returnValue);
+                    assert rs.getString("VALUE").equals(returnValue);
                 }
             }
 
@@ -265,10 +257,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("get mykey")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals(returnValue);
-                        assert rs.getString("VALUE").equals(returnValue);
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals(returnValue);
+                    assert rs.getString("VALUE").equals(returnValue);
                 }
             }
 
@@ -292,10 +283,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("incr mykey")) {
-                    while (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("VALUE") == 123L;
                 }
             }
 
@@ -319,10 +309,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("incrby mykey 111")) {
-                    while (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("VALUE") == 123L;
                 }
             }
 
@@ -346,10 +335,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("decr mykey")) {
-                    while (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("VALUE") == 123L;
                 }
             }
 
@@ -373,10 +361,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("decrby mykey 111")) {
-                    while (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("VALUE") == 123L;
                 }
             }
 
@@ -400,10 +387,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("append mykey value")) {
-                    while (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -427,10 +413,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("getdel mykey")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals("abc");
-                        assert rs.getString("VALUE").equals("abc");
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals("abc");
+                    assert rs.getString("VALUE").equals("abc");
                 }
             }
 
@@ -454,10 +439,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("getex mykey")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals("abc");
-                        assert rs.getString("VALUE").equals("abc");
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals("abc");
+                    assert rs.getString("VALUE").equals("abc");
                 }
             }
 
@@ -481,10 +465,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("getex mykey persist")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals("abc");
-                        assert rs.getString("VALUE").equals("abc");
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals("abc");
+                    assert rs.getString("VALUE").equals("abc");
                 }
             }
 
@@ -508,10 +491,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("getex mykey ex 100")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals("abc");
-                        assert rs.getString("VALUE").equals("abc");
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals("abc");
+                    assert rs.getString("VALUE").equals("abc");
                 }
             }
 
@@ -535,10 +517,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("getrange mykey 1 20")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals("abc");
-                        assert rs.getString("VALUE").equals("abc");
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals("abc");
+                    assert rs.getString("VALUE").equals("abc");
                 }
             }
 
@@ -562,10 +543,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("getset mykey value")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals("abc");
-                        assert rs.getString("VALUE").equals("abc");
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals("abc");
+                    assert rs.getString("VALUE").equals("abc");
                 }
             }
 
@@ -616,7 +596,11 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("mset ket1 k1value ket2 k2value") == 1;
+                try (ResultSet rs = stmt.executeQuery("mset ket1 k1value ket2 k2value")) {
+                    rs.next();
+                    assert rs.getString(1).equals("ok");
+                    assert rs.getString("RESULT").equals("ok");
+                }
             }
 
             assert argList.size() == 1;
@@ -638,7 +622,11 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("msetnx ket1 k1value ket2 k2value") == 1;
+                try (ResultSet rs = stmt.executeQuery("msetnx ket1 k1value ket2 k2value")) {
+                    rs.next();
+                    assert rs.getLong(1) == 1L;
+                    assert rs.getLong("RESULT") == 1L;
+                }
             }
 
             assert argList.size() == 1;
@@ -660,7 +648,11 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("psetex ket1 100 value") == 1;
+                try (ResultSet rs = stmt.executeQuery("psetex ket1 100 value")) {
+                    rs.next();
+                    assert rs.getString(1).equals("ok");
+                    assert rs.getString("RESULT").equals("ok");
+                }
             }
             assert argList.size() == 3;
             assert argList.equals(Arrays.asList("ket1", 100L, "value"));
@@ -681,7 +673,11 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("setex ket1 100 value") == 1;
+                try (ResultSet rs = stmt.executeQuery("setex ket1 100 value")) {
+                    rs.next();
+                    assert rs.getString(1).equals("ok");
+                    assert rs.getString("RESULT").equals("ok");
+                }
             }
             assert argList.size() == 3;
             assert argList.equals(Arrays.asList("ket1", 100L, "value"));
@@ -702,7 +698,11 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("setnx ket1 value") == 1;
+                try (ResultSet rs = stmt.executeQuery("setnx ket1 value")) {
+                    rs.next();
+                    assert rs.getLong(1) == 1L;
+                    assert rs.getLong("RESULT") == 1L;
+                }
             }
             assert argList.size() == 2;
             assert argList.equals(Arrays.asList("ket1", "value"));
@@ -723,7 +723,11 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("setrange ket1 100 value") == 1;
+                try (ResultSet rs = stmt.executeQuery("setrange ket1 100 value")) {
+                    rs.next();
+                    assert rs.getLong(1) == 1L;
+                    assert rs.getLong("RESULT") == 1L;
+                }
             }
             assert argList.size() == 3;
             assert argList.equals(Arrays.asList("ket1", 100L, "value"));
@@ -744,7 +748,11 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("strlen ket1") == 10L;
+                try (ResultSet rs = stmt.executeQuery("strlen ket1")) {
+                    rs.next();
+                    assert rs.getLong(1) == 10L;
+                    assert rs.getLong("RESULT") == 10L;
+                }
             }
             assert argList.size() == 1;
             assert argList.equals(Arrays.asList("ket1"));
@@ -766,10 +774,9 @@ public class StringCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("substr mykey 12 22")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals("abc");
-                        assert rs.getString("VALUE").equals("abc");
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals("abc");
+                    assert rs.getString("VALUE").equals("abc");
                 }
             }
 

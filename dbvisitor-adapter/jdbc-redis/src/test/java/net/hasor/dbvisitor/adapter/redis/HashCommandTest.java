@@ -26,7 +26,11 @@ public class HashCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("hdel theKey mykey1 mykey2") == 123L;
+                try (ResultSet rs = stmt.executeQuery("hdel theKey mykey1 mykey2")) {
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
+                }
             }
 
             assert argList.size() == 2;
@@ -50,12 +54,9 @@ public class HashCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("hexists theKey mykey")) {
-                    if (rs.next()) {
-                        assert rs.getBoolean(1);
-                        assert rs.getBoolean("RESULT");
-                    } else {
-                        assert false;
-                    }
+                    rs.next();
+                    assert rs.getBoolean(1);
+                    assert rs.getBoolean("RESULT");
                 }
             }
 
@@ -480,12 +481,9 @@ public class HashCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("hget theKey field")) {
-                    if (rs.next()) {
-                        assert rs.getString(1).equals("abc");
-                        assert rs.getString("VALUE").equals("abc");
-                    } else {
-                        assert false;
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals("abc");
+                    assert rs.getString("VALUE").equals("abc");
                 }
             }
 
@@ -543,12 +541,9 @@ public class HashCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("hincrby myhash field -1")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("VALUE") == 123L;
-                    } else {
-                        assert false;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("VALUE") == 123L;
                 }
             }
 
@@ -605,12 +600,9 @@ public class HashCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("hlen myhash")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RESULT") == 123L;
-                    } else {
-                        assert false;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -665,7 +657,11 @@ public class HashCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("hset myhash field1 hello field2 word") == 123L;
+                try (ResultSet rs = stmt.executeQuery("hset myhash field1 hello field2 word")) {
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
+                }
             }
 
             assert argList.size() == 2;
@@ -689,12 +685,9 @@ public class HashCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("hmset myhash field1 hello field2 word")) {
-                    if (rs.next()) {
-                        assert rs.getString(1).equals("OK");
-                        assert rs.getString("RESULT").equals("OK");
-                    } else {
-                        assert false;
-                    }
+                    rs.next();
+                    assert rs.getString(1).equals("OK");
+                    assert rs.getString("RESULT").equals("OK");
                 }
             }
 
@@ -719,12 +712,9 @@ public class HashCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("hsetnx myhash field1 hello")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RESULT") == 123L;
-                    } else {
-                        assert false;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -1081,12 +1071,9 @@ public class HashCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("hstrlen theKey field")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RESULT") == 123L;
-                    } else {
-                        assert false;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 

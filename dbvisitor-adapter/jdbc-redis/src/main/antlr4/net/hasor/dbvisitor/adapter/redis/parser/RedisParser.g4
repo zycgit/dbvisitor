@@ -56,7 +56,7 @@ keysCommands
     ;
 
 stringCommands
-    : stringSetCommand
+    : strSetCommand
     | getCommand
     | incrementCommand
     | incrementByCommand
@@ -775,7 +775,7 @@ waitaofCommand
     : WAITAOF numlocal=integer replicas=integer timeout=integer
     ;
 
-stringSetCommand
+strSetCommand
     : SET stringKeyName identifier keyExistenceClause? GET? (expirationClause | KEEPTTL)?
     ;
 

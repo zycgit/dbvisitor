@@ -58,7 +58,7 @@ class JedisCommandsForHash extends JedisCommands {
 
         long result = jedisCmd.getHashCommands().hdel(key, keys);
 
-        receive.responseUpdateCount(request, result);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -348,7 +348,7 @@ class JedisCommandsForHash extends JedisCommands {
 
         long result = jedisCmd.getHashCommands().hset(key, data);
 
-        receive.responseUpdateCount(request, result);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 

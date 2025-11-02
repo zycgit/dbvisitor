@@ -26,7 +26,7 @@ class JedisCommandsForKeys extends JedisCommands {
             result = jedisCmd.getKeyCommands().copy(oldKeyName, newKeyName, replace);
         }
 
-        receive.responseUpdateCount(request, result ? 1 : 0);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result ? 1 : 0));
         return completed(sync);
     }
 
@@ -42,7 +42,7 @@ class JedisCommandsForKeys extends JedisCommands {
 
         long result = jedisCmd.getKeyCommands().del(keys);
 
-        receive.responseUpdateCount(request, result);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -58,7 +58,7 @@ class JedisCommandsForKeys extends JedisCommands {
 
         long result = jedisCmd.getKeyCommands().unlink(keys);
 
-        receive.responseUpdateCount(request, result);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 
@@ -375,7 +375,7 @@ class JedisCommandsForKeys extends JedisCommands {
 
         long result = jedisCmd.getKeyCommands().touch(keys);
 
-        receive.responseUpdateCount(request, result);
+        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
         return completed(sync);
     }
 

@@ -469,10 +469,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zadd key nx gt ch incr 123.123 element")) {
-                    if (rs.next()) {
-                        assert rs.getDouble(1) == 1.1d;
-                        assert rs.getDouble("RESULT") == 1.1d;
-                    }
+                    rs.next();
+                    assert rs.getDouble(1) == 1.1d;
+                    assert rs.getDouble("RESULT") == 1.1d;
                 }
             }
 
@@ -499,10 +498,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zadd key nx gt ch 123.123 element 333.333 e2")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123;
-                        assert rs.getLong("RESULT") == 123;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123;
+                    assert rs.getLong("RESULT") == 123;
                 }
             }
 
@@ -528,10 +526,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zadd key nx 123.123 element 333.333 e2")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123;
-                        assert rs.getLong("RESULT") == 123;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123;
+                    assert rs.getLong("RESULT") == 123;
                 }
             }
 
@@ -557,10 +554,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zadd key 123.123 element 333.333 e2")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123;
-                        assert rs.getLong("RESULT") == 123;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123;
+                    assert rs.getLong("RESULT") == 123;
                 }
             }
 
@@ -611,10 +607,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zcount key 123 321")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RESULT") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -705,10 +700,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zdiffstore destKey 2 mykey1 mykey2")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RESULT") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -733,10 +727,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zincrby theKey 1 element")) {
-                    if (rs.next()) {
-                        assert rs.getDouble(1) == 123d;
-                        assert rs.getDouble("SCORE") == 123d;
-                    }
+                    rs.next();
+                    assert rs.getDouble(1) == 123d;
+                    assert rs.getDouble("SCORE") == 123d;
                 }
             }
 
@@ -931,10 +924,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zintercard 3 key1 key2 key3 limit 10")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123d;
-                        assert rs.getLong("RESULT") == 123d;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123d;
+                    assert rs.getLong("RESULT") == 123d;
                 }
             }
 
@@ -959,10 +951,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zintercard 3 key1 key2 key3")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123d;
-                        assert rs.getLong("RESULT") == 123d;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123d;
+                    assert rs.getLong("RESULT") == 123d;
                 }
             }
 
@@ -986,10 +977,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zinterstore dstKey 3 key1 key2 key3 weights 1 1 1 aggregate sum")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123d;
-                        assert rs.getLong("RESULT") == 123d;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123d;
+                    assert rs.getLong("RESULT") == 123d;
                 }
             }
 
@@ -1015,10 +1005,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zlexcount theKey 111 222")) {
-                    if (rs.next()) {
-                        assert rs.getDouble(1) == 123d;
-                        assert rs.getDouble("RESULT") == 123d;
-                    }
+                    rs.next();
+                    assert rs.getDouble(1) == 123d;
+                    assert rs.getDouble("RESULT") == 123d;
                 }
             }
 
@@ -1044,10 +1033,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zscore theKey element")) {
-                    if (rs.next()) {
-                        assert rs.getDouble(1) == 123d;
-                        assert rs.getDouble("SCORE") == 123d;
-                    }
+                    rs.next();
+                    assert rs.getDouble(1) == 123d;
+                    assert rs.getDouble("SCORE") == 123d;
                 }
             }
 
@@ -1581,10 +1569,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zrangestore dstKey srcKey 10 20 byscore rev limit 11 22")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123d;
-                        assert rs.getLong("RESULT") == 123d;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123d;
+                    assert rs.getLong("RESULT") == 123d;
                 }
             }
 
@@ -1610,10 +1597,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zrangestore dstKey srcKey 10 20 rev limit 11 22")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123d;
-                        assert rs.getLong("RESULT") == 123d;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123d;
+                    assert rs.getLong("RESULT") == 123d;
                 }
             }
 
@@ -1639,10 +1625,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zrangestore dstKey srcKey 10 20")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123d;
-                        assert rs.getLong("RESULT") == 123d;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123d;
+                    assert rs.getLong("RESULT") == 123d;
                 }
             }
 
@@ -1668,12 +1653,11 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zrank theKey element withscore")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RANK") == 123L;
-                        assert rs.getDouble(2) == 123.0d;
-                        assert rs.getDouble("SCORE") == 123.0d;
-                    }
+                    rs.next();
+                    assert rs.getDouble(1) == 123.0d;
+                    assert rs.getDouble("SCORE") == 123.0d;
+                    assert rs.getLong(2) == 123L;
+                    assert rs.getLong("RANK") == 123L;
                 }
             }
 
@@ -1698,10 +1682,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zrank theKey element")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RANK") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RANK") == 123L;
                 }
             }
 
@@ -1726,12 +1709,11 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zrevrank theKey element withscore")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RANK") == 123L;
-                        assert rs.getDouble(2) == 123.0d;
-                        assert rs.getDouble("SCORE") == 123.0d;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RANK") == 123L;
+                    assert rs.getDouble(2) == 123.0d;
+                    assert rs.getDouble("SCORE") == 123.0d;
                 }
             }
 
@@ -1756,10 +1738,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zrevrank theKey element")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RANK") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RANK") == 123L;
                 }
             }
 
@@ -1784,10 +1765,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zrem theKey v1 v2 v3")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RESULT") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -1812,10 +1792,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zremrangebylex theKey 11 20")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RESULT") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -1841,10 +1820,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zremrangebyrank theKey 11 20")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RESULT") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -1870,10 +1848,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zremrangebyscore theKey 11 20")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RESULT") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -2335,10 +2312,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zunionstore dstKey 3 key1 key2 key3 weights 1 1 1 aggregate sum")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RESULT") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -2364,10 +2340,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zunionstore dstKey 3 key1 key2 key3 weights 1 1 1")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RESULT") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
@@ -2393,10 +2368,9 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("zunionstore dstKey 3 key1 key2 key3")) {
-                    if (rs.next()) {
-                        assert rs.getLong(1) == 123L;
-                        assert rs.getLong("RESULT") == 123L;
-                    }
+                    rs.next();
+                    assert rs.getLong(1) == 123L;
+                    assert rs.getLong("RESULT") == 123L;
                 }
             }
 
