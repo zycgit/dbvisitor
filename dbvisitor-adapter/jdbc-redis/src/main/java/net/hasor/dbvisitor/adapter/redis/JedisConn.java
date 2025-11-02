@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.concurrent.future.BasicFuture;
 import net.hasor.cobble.concurrent.future.Future;
@@ -21,12 +21,26 @@ public class JedisConn extends AdapterConnection {
     private final Connection owner;
     private final JedisCmd   jedisCmd;
     private       int        database;
+    private final boolean    uncheckNumKeys;
+    private final char       separatorChar;
 
-    JedisConn(Connection owner, JedisCmd jedisCmd, String jdbcUrl, Properties properties, int database) {
-        super(jdbcUrl, properties.getProperty(JedisKeys.USERNAME));
+    JedisConn(Connection owner, JedisCmd jedisCmd, String jdbcUrl, Map<String, String> prop, int database) throws SQLException {
+        super(jdbcUrl, prop.get(JedisKeys.USERNAME));
         this.owner = owner;
         this.jedisCmd = jedisCmd;
         this.database = database;
+        this.uncheckNumKeys = Boolean.parseBoolean(prop.getOrDefault(JedisKeys.UNCHECK_NUM_KEYS, "false"));
+
+        switch (prop.getOrDefault(JedisKeys.SEPARATOR_CHAR, "\n").charAt(0)) {
+            case '\n':
+                this.separatorChar = '\n';
+                break;
+            case ';':
+                this.separatorChar = ';';
+                break;
+            default:
+                throw new SQLException("SeparatorChar must be '\\n' or ';'");
+        }
     }
 
     @Override
@@ -55,7 +69,9 @@ public class JedisConn extends AdapterConnection {
 
     @Override
     public AdapterRequest newRequest(String sql) {
-        return new JedisRequest(sql);
+        JedisRequest request = new JedisRequest(sql);
+        request.setNumKeysCheck(this.uncheckNumKeys);
+        return request;
     }
 
     @Override
@@ -95,10 +111,12 @@ public class JedisConn extends AdapterConnection {
     @Override
     public synchronized void doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException {
         RedisLexer lexer = new RedisLexer(CharStreams.fromString(((JedisRequest) request).getCommandBody()));
+        lexer.setSeparatorChar(this.separatorChar);
         lexer.removeErrorListeners();
         lexer.addErrorListener(ThrowingListener.INSTANCE);
 
         RedisParser parser = new RedisParser(new BufferedTokenStream(lexer));
+        parser.setSeparatorChar(this.separatorChar);
         parser.removeErrorListeners();
         parser.addErrorListener(ThrowingListener.INSTANCE);
         RedisParser.RootContext root = parser.root();

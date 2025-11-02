@@ -3,9 +3,7 @@ import java.lang.reflect.InvocationHandler;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Duration;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.driver.AdapterFactory;
@@ -26,14 +24,14 @@ public class JedisConnFactory implements AdapterFactory {
         }
     }
 
-    private static DefaultJedisClientConfig passerClientConfig(Properties dsConfig) {
-        String username = dsConfig.getProperty(JedisKeys.USERNAME);
-        String password = dsConfig.getProperty(JedisKeys.PASSWORD);
-        String clientName = dsConfig.getProperty(JedisKeys.CLIENT_NAME);
-        String defaultDataBase = dsConfig.getProperty(JedisKeys.DATABASE);
-        String connTimeoutMsStr = dsConfig.getProperty(JedisKeys.CONN_TIMEOUT);
-        String soTimeoutSecStr = dsConfig.getProperty(JedisKeys.SO_TIMEOUT);
-        String useTLSStr = "false";//dsConfig.getProperty(JedisKeys.SSL.getConfigKey());
+    private static DefaultJedisClientConfig passerClientConfig(Map<String, String> dsConfig) {
+        String username = dsConfig.get(JedisKeys.USERNAME);
+        String password = dsConfig.get(JedisKeys.PASSWORD);
+        String clientName = dsConfig.get(JedisKeys.CLIENT_NAME);
+        String defaultDataBase = dsConfig.get(JedisKeys.DATABASE);
+        String connTimeoutMsStr = dsConfig.get(JedisKeys.CONN_TIMEOUT);
+        String soTimeoutSecStr = dsConfig.get(JedisKeys.SO_TIMEOUT);
+        String useTLSStr = "false";//dsConfig.get(JedisKeys.SSL.getConfigKey());
 
         //
         username = "".equals(username) ? null : username;
@@ -64,11 +62,11 @@ public class JedisConnFactory implements AdapterFactory {
         return builder.build();
     }
 
-    private static ConnectionPoolConfig passerPoolConfig(Properties dsConfig) {
-        String maxTotalStr = dsConfig.getProperty(JedisKeys.MAX_TOTAL);
-        String maxIdleStr = dsConfig.getProperty(JedisKeys.MAX_IDLE);
-        String minIdleStr = dsConfig.getProperty(JedisKeys.MIN_IDLE);
-        String testWhileIdleStr = dsConfig.getProperty(JedisKeys.TEST_WHILE_IDLE);
+    private static ConnectionPoolConfig passerPoolConfig(Map<String, String> dsConfig) {
+        String maxTotalStr = dsConfig.get(JedisKeys.MAX_TOTAL);
+        String maxIdleStr = dsConfig.get(JedisKeys.MAX_IDLE);
+        String minIdleStr = dsConfig.get(JedisKeys.MIN_IDLE);
+        String testWhileIdleStr = dsConfig.get(JedisKeys.TEST_WHILE_IDLE);
 
         int maxTotal = StringUtils.isBlank(maxTotalStr) ? GenericObjectPoolConfig.DEFAULT_MAX_TOTAL : Integer.parseInt(maxTotalStr);
         int maxIdle = StringUtils.isBlank(maxIdleStr) ? GenericObjectPoolConfig.DEFAULT_MAX_IDLE : Integer.parseInt(maxIdleStr);
@@ -132,9 +130,16 @@ public class JedisConnFactory implements AdapterFactory {
 
     @Override
     public JedisConn createConnection(Connection owner, String jdbcUrl, Properties props) throws SQLException {
-        String host = props.getProperty(JedisKeys.SERVER);
-        String customJedis = props.getProperty(JedisKeys.CUSTOM_JEDIS);
-        String defaultDataBase = props.getProperty(JedisKeys.DATABASE);
+        if (!StringUtils.startsWithIgnoreCase(jdbcUrl, JedisKeys.START_URL)) {
+            throw new SQLException("jdbcUrl is not a valid jedis url.");
+        }
+
+        Map<String, String> caseProps = new LinkedHashMap<>();
+        props.forEach((k, v) -> caseProps.put((String) k, (String) v));
+
+        String host = caseProps.get(JedisKeys.SERVER);
+        String customJedis = caseProps.get(JedisKeys.CUSTOM_JEDIS);
+        String defaultDataBase = caseProps.get(JedisKeys.DATABASE);
         Object jedisObject;
         int database;
 
@@ -142,7 +147,7 @@ public class JedisConnFactory implements AdapterFactory {
             try {
                 Class<?> customJedisClass = JedisConnFactory.class.getClassLoader().loadClass(customJedis);
                 CustomJedis customJedisCmd = (CustomJedis) customJedisClass.newInstance();
-                jedisObject = customJedisCmd.createJedisCmd(jdbcUrl, props);
+                jedisObject = customJedisCmd.createJedisCmd(jdbcUrl, caseProps);
                 database = StringUtils.isNotBlank(defaultDataBase) ? Integer.parseInt(defaultDataBase) : Protocol.DEFAULT_DATABASE;
                 if (jedisObject == null) {
                     throw new SQLException("create jedis connection failed, custom jedis return null.");
@@ -156,34 +161,36 @@ public class JedisConnFactory implements AdapterFactory {
                 clusterHosts.add(passerIpPort(h, 6379));
             }
 
-            DefaultJedisClientConfig clientConfig = passerClientConfig(props);
-            int maxAttempts = 5;
+            DefaultJedisClientConfig clientConfig = passerClientConfig(caseProps);
+            String maxAttemptsStr = caseProps.get(JedisKeys.MAX_ATTEMPTS);
+            int maxAttempts = StringUtils.isNotBlank(maxAttemptsStr) ? Integer.parseInt(maxAttemptsStr) : 5;
+
             Duration maxTotalRetriesDuration = Duration.ofMillis((long) maxAttempts * clientConfig.getSocketTimeoutMillis());
-            ConnectionPoolConfig poolConfig = passerPoolConfig(props);
+            ConnectionPoolConfig poolConfig = passerPoolConfig(caseProps);
             jedisObject = new JedisCluster(clusterHosts, clientConfig, maxAttempts, maxTotalRetriesDuration, poolConfig);
             database = clientConfig.getDatabase();
         } else {
             HostAndPort hostAndPort = passerIpPort(host, 6379);
-            DefaultJedisClientConfig clientConfig = passerClientConfig(props);
+            DefaultJedisClientConfig clientConfig = passerClientConfig(caseProps);
             jedisObject = new Jedis(hostAndPort, clientConfig);
             database = clientConfig.getDatabase();
         }
 
         if (jedisObject instanceof JedisCluster) {
-            JedisCmd cmd = new JedisCmd((JedisCluster) jedisObject, this.createInvocation(props));
-            return new JedisConn(owner, cmd, jdbcUrl, props, database);
+            JedisCmd cmd = new JedisCmd((JedisCluster) jedisObject, this.createInvocation(caseProps));
+            return new JedisConn(owner, cmd, jdbcUrl, caseProps, database);
         } else if (jedisObject instanceof Jedis) {
-            JedisCmd cmd = new JedisCmd((Jedis) jedisObject, this.createInvocation(props));
-            return new JedisConn(owner, cmd, jdbcUrl, props, database);
+            JedisCmd cmd = new JedisCmd((Jedis) jedisObject, this.createInvocation(caseProps));
+            return new JedisConn(owner, cmd, jdbcUrl, caseProps, database);
         } else {
             throw new SQLException("create jedis connection failed, unknown jedis object type " + jedisObject.getClass().getName());
         }
     }
 
-    private InvocationHandler createInvocation(Properties props) throws SQLException {
+    private InvocationHandler createInvocation(Map<String, String> props) throws SQLException {
         if (props.containsKey(JedisKeys.INTERCEPTOR)) {
             try {
-                String interceptorClass = props.getProperty(JedisKeys.INTERCEPTOR);
+                String interceptorClass = props.get(JedisKeys.INTERCEPTOR);
                 Class<?> interceptor = ClassUtils.getClass(JedisConnFactory.class.getClassLoader(), interceptorClass);
                 return (InvocationHandler) interceptor.newInstance();
             } catch (Exception e) {

@@ -8,8 +8,11 @@ public class JedisKeys {
     public static final String DEFAULT_CLIENT_NAME = "Jedis-JDBC-Client";
 
     // for call
-    public static final String INTERCEPTOR     = "interceptor";
-    public static final String CUSTOM_JEDIS    = "customJedis";
+    public static final String INTERCEPTOR      = "interceptor";
+    public static final String CUSTOM_JEDIS     = "customJedis";
+    public static final String UNCHECK_NUM_KEYS = "uncheckNumKeys";
+    public static final String SEPARATOR_CHAR   = "separatorChar";
+
     // for client
     public static final String SERVER          = JdbcDriver.P_SERVER;
     public static final String TIME_ZONE       = JdbcDriver.P_TIME_ZONE;
@@ -24,4 +27,5 @@ public class JedisKeys {
     public static final String MAX_IDLE        = "maxIdle";
     public static final String MIN_IDLE        = "minIdle";
     public static final String TEST_WHILE_IDLE = "testWhileIdle";
+    public static final String MAX_ATTEMPTS    = "maxAttempts";
 }

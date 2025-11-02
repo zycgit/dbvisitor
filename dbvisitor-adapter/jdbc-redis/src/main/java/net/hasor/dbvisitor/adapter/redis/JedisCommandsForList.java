@@ -25,6 +25,18 @@ class JedisCommandsForList extends JedisCommands {
         }
     }
 
+    private static ListPosition getListPosition(RedisParser.BeforeOrAfterClauseContext cmd) throws SQLException {
+        ListPosition where;
+        if (cmd.BEFORE() != null) {
+            where = ListPosition.BEFORE;
+        } else if (cmd.AFTER() != null) {
+            where = ListPosition.AFTER;
+        } else {
+            throw new SQLException("must be BEFORE or AFTER", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        }
+        return where;
+    }
+
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.LmoveCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String srcKey = argAsString(argIndex, request, cmd.src.identifier());
@@ -62,9 +74,7 @@ class JedisCommandsForList extends JedisCommands {
             RedisParser.ListKeyNameContext keyClauseContext = kvContexts.get(i);
             keyValues[i] = argAsString(argIndex, request, keyClauseContext.identifier());
         }
-        if (keyValues.length != numKeys) {
-            throw new SQLException("LMPOP numkeys " + numKeys + " not match actual keys " + keyValues.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "LMPOP", keyValues.length, numKeys);
 
         ListDirection lr = getListDirection(cmd.leftOrRightClause(), ListDirection.LEFT);
 
@@ -92,9 +102,7 @@ class JedisCommandsForList extends JedisCommands {
             RedisParser.ListKeyNameContext keyClauseContext = kvContexts.get(i);
             keyValues[i] = argAsString(argIndex, request, keyClauseContext.identifier());
         }
-        if (keyValues.length != numKeys) {
-            throw new SQLException("BLMPOP numkeys " + numKeys + " not match actual keys " + keyValues.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "BLMPOP", keyValues.length, numKeys);
 
         ListDirection lr = getListDirection(cmd.leftOrRightClause(), ListDirection.LEFT);
 
@@ -214,15 +222,7 @@ class JedisCommandsForList extends JedisCommands {
         String key = argAsString(argIndex, request, cmd.listKeyName().identifier());
         String pivot = argAsString(argIndex, request, cmd.pivot);
         String ele = argAsString(argIndex, request, cmd.ele);
-
-        ListPosition where;
-        if (cmd.beforeOrAfterClause().BEFORE() != null) {
-            where = ListPosition.BEFORE;
-        } else if (cmd.beforeOrAfterClause().AFTER() != null) {
-            where = ListPosition.AFTER;
-        } else {
-            throw new SQLException("LINSERT must be BEFORE or AFTER", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        ListPosition where = getListPosition(cmd.beforeOrAfterClause());
 
         long result = jedisCmd.getListCommands().linsert(key, where, pivot, ele);
 

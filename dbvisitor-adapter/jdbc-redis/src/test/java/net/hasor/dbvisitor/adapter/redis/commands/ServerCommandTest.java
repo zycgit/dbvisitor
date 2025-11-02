@@ -1,13 +1,12 @@
-package net.hasor.dbvisitor.adapter.redis;
-
+package net.hasor.dbvisitor.adapter.redis.commands;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import net.hasor.dbvisitor.adapter.redis.support.AbstractJdbcTest;
-import net.hasor.dbvisitor.adapter.redis.support.RedisCommandInterceptor;
+import net.hasor.dbvisitor.adapter.redis.AbstractJdbcTest;
+import net.hasor.dbvisitor.adapter.redis.RedisCommandInterceptor;
 import org.junit.Test;
 import redis.clients.jedis.commands.DatabaseCommands;
 import redis.clients.jedis.commands.ServerCommands;
@@ -21,7 +20,7 @@ public class ServerCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(DatabaseCommands.class, createInvocationHandler("move", args -> {
+        RedisCommandInterceptor.addInterceptor(DatabaseCommands.class, createInvocationHandler("move", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -46,7 +45,7 @@ public class ServerCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(ServerCommands.class, createInvocationHandler("waitReplicas", args -> {
+        RedisCommandInterceptor.addInterceptor(ServerCommands.class, createInvocationHandler("waitReplicas", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -72,7 +71,7 @@ public class ServerCommandTest extends AbstractJdbcTest {
         KeyValue<Long, Long> returnValue = new KeyValue<>(123L, 321L);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(ServerCommands.class, createInvocationHandler("waitAOF", args -> {
+        RedisCommandInterceptor.addInterceptor(ServerCommands.class, createInvocationHandler("waitAOF", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));

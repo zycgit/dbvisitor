@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.adapter.redis;
+package net.hasor.dbvisitor.adapter.redis.commands;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -7,8 +7,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import net.hasor.cobble.CollectionUtils;
-import net.hasor.dbvisitor.adapter.redis.support.AbstractJdbcTest;
-import net.hasor.dbvisitor.adapter.redis.support.RedisCommandInterceptor;
+import net.hasor.dbvisitor.adapter.redis.AbstractJdbcTest;
+import net.hasor.dbvisitor.adapter.redis.RedisCommandInterceptor;
 import org.junit.Test;
 import redis.clients.jedis.args.SortedSetOption;
 import redis.clients.jedis.commands.SortedSetCommands;
@@ -30,7 +30,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         ));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zmpop", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zmpop", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -69,7 +69,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         ));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zmpop", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zmpop", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -108,7 +108,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         ));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zmpop", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zmpop", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -146,7 +146,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         ));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zmpop", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zmpop", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -184,7 +184,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         ));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("bzmpop", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("bzmpop", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -224,7 +224,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         ));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("bzmpop", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("bzmpop", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -263,7 +263,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         );
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zpopmax", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zpopmax", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -295,7 +295,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         Tuple returnValue = new Tuple("v1", 123.0);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zpopmax", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zpopmax", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -329,7 +329,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         );
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zpopmin", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zpopmin", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -361,7 +361,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         Tuple returnValue = new Tuple("v1", 123.0);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zpopmin", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zpopmin", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -392,7 +392,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         KeyValue<String, Tuple> returnValue = new KeyValue<>("key", new Tuple("v1", 123.0));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("bzpopmax", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("bzpopmax", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -427,7 +427,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         KeyValue<String, Tuple> returnValue = new KeyValue<>("key", new Tuple("v1", 123.0));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("bzpopmin", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("bzpopmin", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -462,7 +462,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         double returnValue = 1.1d;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zaddIncr", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zaddIncr", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -491,7 +491,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zadd", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zadd", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -519,7 +519,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zadd", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zadd", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -547,7 +547,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zadd", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zadd", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -574,7 +574,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zcard", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zcard", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -600,7 +600,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zcount", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zcount", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -628,7 +628,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("1", "2", "3");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zdiff", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zdiff", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -662,7 +662,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         );
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zdiffWithScores", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zdiffWithScores", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -693,7 +693,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zdiffstore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zdiffstore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -720,7 +720,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         double returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zincrby", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zincrby", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -751,7 +751,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         );
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zinterWithScores", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zinterWithScores", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -786,7 +786,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         );
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zinterWithScores", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zinterWithScores", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -821,7 +821,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         );
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zinterWithScores", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zinterWithScores", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -853,7 +853,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zinter", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zinter", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -885,7 +885,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zinter", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zinter", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -917,7 +917,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zintercard", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zintercard", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -944,7 +944,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zintercard", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zintercard", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -970,7 +970,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zinterstore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zinterstore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -998,7 +998,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zlexcount", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zlexcount", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1026,7 +1026,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         Double returnValue = 123d;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zscore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zscore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1053,7 +1053,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<Double> returnValue = Arrays.asList(1.1, 1.2, 1.3);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zmscore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zmscore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1088,7 +1088,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         );
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrandmemberWithScores", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrandmemberWithScores", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1120,7 +1120,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrandmember", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrandmember", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1152,7 +1152,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         String returnValue = "v1";
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrandmember", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrandmember", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1186,7 +1186,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         );
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeWithScores", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeWithScores", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1221,7 +1221,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         );
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeWithScores", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeWithScores", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1256,7 +1256,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         );
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeWithScores", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeWithScores", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1288,7 +1288,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrange", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrange", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1320,7 +1320,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrange", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrange", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1352,7 +1352,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeByLex", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeByLex", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1387,7 +1387,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeByLex", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeByLex", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1423,7 +1423,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         );
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeByScoreWithScores", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeByScoreWithScores", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1461,7 +1461,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         );
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeByScoreWithScores", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeByScoreWithScores", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1494,7 +1494,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeByScore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeByScore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1529,7 +1529,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeByScore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangeByScore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1562,7 +1562,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123L;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangestore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangestore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1590,7 +1590,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123L;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangestore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangestore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1618,7 +1618,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123L;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangestore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrangestore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1646,7 +1646,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         KeyValue<Long, Double> returnValue = new KeyValue<>(123L, 123.0);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrankWithScore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrankWithScore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1675,7 +1675,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         Long returnValue = 123L;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrank", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrank", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1702,7 +1702,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         KeyValue<Long, Double> returnValue = new KeyValue<>(123L, 123.0);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrankWithScore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrankWithScore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1731,7 +1731,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         Long returnValue = 123L;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrank", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrank", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1758,7 +1758,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123L;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrem", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrem", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1785,7 +1785,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123L;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zremrangeByLex", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zremrangeByLex", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1813,7 +1813,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123L;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zremrangeByRank", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zremrangeByRank", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1841,7 +1841,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123L;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zremrangeByScore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zremrangeByScore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1872,7 +1872,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         );
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrangeWithScores", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrangeWithScores", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1905,7 +1905,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrange", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrange", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1938,7 +1938,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrangeByLex", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrangeByLex", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1973,7 +1973,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrangeByLex", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrangeByLex", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -2009,7 +2009,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         );
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrangeByScoreWithScores", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrangeByScoreWithScores", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -2047,7 +2047,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         );
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrangeByScoreWithScores", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrangeByScoreWithScores", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -2080,7 +2080,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrangeByScore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrangeByScore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -2112,7 +2112,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrangeByScore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zrevrangeByScore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -2145,7 +2145,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         ));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zscan", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zscan", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -2178,7 +2178,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         ));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zscan", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zscan", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -2211,7 +2211,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         ));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zscan", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zscan", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -2244,7 +2244,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         );
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zunionWithScores", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zunionWithScores", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -2276,7 +2276,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zunion", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zunion", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -2305,7 +2305,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zunionstore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zunionstore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -2333,7 +2333,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zunionstore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zunionstore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -2361,7 +2361,7 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zunionstore", args -> {
+        RedisCommandInterceptor.addInterceptor(SortedSetCommands.class, createInvocationHandler("zunionstore", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));

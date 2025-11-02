@@ -1,13 +1,16 @@
 lexer grammar RedisLexer;
 
 options {
+    superClass = JedisBaseLexer;
     caseInsensitive = true;
 }
 
-// Spaces
-
-SPACE   : [ \t]+ -> skip;
-NEWLINE : ('\r' '\n'? | '\n');
+// using '\n'
+SPACE1   : {separatorChar == '\n'}?  [ \t\f]+ -> skip;
+NEWLINE1 : ('\r' '\n'? | '\n');
+// using ';'
+SPACE2   : {separatorChar == ';'}?   [ \t\f\n\r]+ -> skip;
+NEWLINE2 : ';';
 
 // Common keywords
 

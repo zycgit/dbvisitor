@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.adapter.redis.support;
+package net.hasor.dbvisitor.adapter.redis;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;

@@ -7,7 +7,10 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.redis.parser.RedisParser;
-import net.hasor.dbvisitor.driver.*;
+import net.hasor.dbvisitor.driver.AdapterReceive;
+import net.hasor.dbvisitor.driver.AdapterRequest;
+import net.hasor.dbvisitor.driver.AdapterResultCursor;
+import net.hasor.dbvisitor.driver.ConvertUtils;
 import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;
 
@@ -89,9 +92,7 @@ class JedisCommandsForSet extends JedisCommands {
         for (int i = 0; i < nameContexts.size(); i++) {
             keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (keys.length != numKeys) {
-            throw new SQLException("SINTERCARD numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "SINTERCARD", keys.length, numKeys);
 
         Integer limit = null;
         if (cmd.limitClause() != null) {

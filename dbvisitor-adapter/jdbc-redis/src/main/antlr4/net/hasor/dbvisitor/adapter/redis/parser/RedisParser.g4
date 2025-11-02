@@ -1,6 +1,7 @@
 parser grammar RedisParser;
 
 options {
+    superClass = JedisBaseParser;
     tokenVocab = RedisLexer;
 }
 
@@ -10,9 +11,12 @@ root
 
 // We can omit newline only if it's the last statement
 commands
-    : command NEWLINE*
-    | command NEWLINE+ commands
+    : command newLine*
+    | command newLine+ commands
     ;
+
+newLine : {separatorChar == '\n'}? NEWLINE1
+        | {separatorChar == ';'}?  NEWLINE2;
 
 command
     : serverCommands

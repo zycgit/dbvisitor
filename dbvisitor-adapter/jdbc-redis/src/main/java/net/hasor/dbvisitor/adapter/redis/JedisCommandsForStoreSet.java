@@ -26,9 +26,8 @@ class JedisCommandsForStoreSet extends JedisCommands {
         for (int i = 0; i < nameContexts.size(); i++) {
             keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (keys.length != numKeys) {
-            throw new SQLException("ZMPOP numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "keys", keys.length, numKeys);
+
         SortedSetOption option = getSortedSetOption(cmd.minMaxClause());
         Integer count = null;
         if (cmd.countClause() != null) {
@@ -56,9 +55,8 @@ class JedisCommandsForStoreSet extends JedisCommands {
         for (int i = 0; i < nameContexts.size(); i++) {
             keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (keys.length != numKeys) {
-            throw new SQLException("BZMPOP numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "BZMPOP", keys.length, numKeys);
+
         SortedSetOption option = getSortedSetOption(cmd.minMaxClause());
         Integer count = null;
         if (cmd.countClause() != null) {
@@ -243,9 +241,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
         for (int i = 0; i < nameContexts.size(); i++) {
             keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (keys.length != numKeys) {
-            throw new SQLException("ZDIFF numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "ZDIFF", keys.length, numKeys);
 
         if (cmd.WITHSCORES() != null) {
             List<Tuple> result = jedisCmd.getSortedSetCommands().zdiffWithScores(keys);
@@ -268,9 +264,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
         for (int i = 0; i < nameContexts.size(); i++) {
             keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (keys.length != numKeys) {
-            throw new SQLException("ZDIFFSTORE numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "ZDIFFSTORE", keys.length, numKeys);
 
         long result = jedisCmd.getSortedSetCommands().zdiffstore(dstKey, keys);
         receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
@@ -298,9 +292,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
         for (int i = 0; i < nameContexts.size(); i++) {
             keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (keys.length != numKeys) {
-            throw new SQLException("ZINTER numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "ZINTER", keys.length, numKeys);
 
         ZParams zParams = new ZParams();
         if (cmd.weightsClause() != null) {
@@ -339,9 +331,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
         for (int i = 0; i < nameContexts.size(); i++) {
             keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (keys.length != numKeys) {
-            throw new SQLException("ZINTERCARD numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "ZINTERCARD", keys.length, numKeys);
 
         long result;
         if (cmd.limitClause() != null) {
@@ -364,9 +354,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
         for (int i = 0; i < nameContexts.size(); i++) {
             keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (keys.length != numKeys) {
-            throw new SQLException("ZINTERSTORE numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "ZINTERSTORE", keys.length, numKeys);
 
         ZParams zParams = new ZParams();
         if (cmd.weightsClause() != null) {
@@ -816,9 +804,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
         for (int i = 0; i < nameContexts.size(); i++) {
             keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (keys.length != numKeys) {
-            throw new SQLException("ZUNION numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "ZUNION", keys.length, numKeys);
 
         ZParams zParams = new ZParams();
         if (cmd.weightsClause() != null) {
@@ -857,9 +843,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
         for (int i = 0; i < nameContexts.size(); i++) {
             keys[i] = argAsString(argIndex, request, nameContexts.get(i).identifier());
         }
-        if (keys.length != numKeys) {
-            throw new SQLException("ZUNIONSTORE numKeys " + numKeys + " not match actual keys " + keys.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "ZUNIONSTORE", keys.length, numKeys);
 
         ZParams zParams = new ZParams();
         if (cmd.weightsClause() != null) {

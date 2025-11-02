@@ -5,7 +5,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.redis.parser.RedisParser;
-import net.hasor.dbvisitor.driver.*;
+import net.hasor.dbvisitor.driver.AdapterReceive;
+import net.hasor.dbvisitor.driver.AdapterRequest;
+import net.hasor.dbvisitor.driver.AdapterResultCursor;
+import net.hasor.dbvisitor.driver.ConvertUtils;
 import redis.clients.jedis.args.ExpiryOption;
 import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;
@@ -91,9 +94,7 @@ class JedisCommandsForHash extends JedisCommands {
         for (int i = 0; i < fieldContexts.size(); i++) {
             fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (fields.length != numKeys) {
-            throw new SQLException("HEXPIRE numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "HEXPIRE", fields.length, numKeys);
 
         List<Long> result;
         if (option != null) {
@@ -119,9 +120,7 @@ class JedisCommandsForHash extends JedisCommands {
         for (int i = 0; i < fieldContexts.size(); i++) {
             fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (fields.length != numKeys) {
-            throw new SQLException("HEXPIREAT numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "HEXPIREAT", fields.length, numKeys);
 
         ExpiryOption option = null;
         if (cmd.expireOptions() != null) {
@@ -151,9 +150,7 @@ class JedisCommandsForHash extends JedisCommands {
         for (int i = 0; i < fieldContexts.size(); i++) {
             fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (fields.length != numKeys) {
-            throw new SQLException("HEXPIRETIME numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "HEXPIRETIME", fields.length, numKeys);
 
         List<Long> result = jedisCmd.getHashCommands().hexpireTime(key, fields);
 
@@ -179,9 +176,7 @@ class JedisCommandsForHash extends JedisCommands {
         for (int i = 0; i < fieldContexts.size(); i++) {
             fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (fields.length != numKeys) {
-            throw new SQLException("HPEXPIRE numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "HPEXPIRE", fields.length, numKeys);
 
         List<Long> result;
         if (option != null) {
@@ -212,9 +207,7 @@ class JedisCommandsForHash extends JedisCommands {
         for (int i = 0; i < fieldContexts.size(); i++) {
             fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (fields.length != numKeys) {
-            throw new SQLException("HPEXPIREAT numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "HPEXPIREAT", fields.length, numKeys);
 
         List<Long> result;
         if (option != null) {
@@ -239,9 +232,7 @@ class JedisCommandsForHash extends JedisCommands {
         for (int i = 0; i < fieldContexts.size(); i++) {
             fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (fields.length != numKeys) {
-            throw new SQLException("HPEXPIRETIME numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "HPEXPIRETIME", fields.length, numKeys);
 
         List<Long> result = jedisCmd.getHashCommands().hpexpireTime(key, fields);
         receive.responseResult(request, listResult(request, COL_RESULT_LONG, result));
@@ -394,9 +385,7 @@ class JedisCommandsForHash extends JedisCommands {
         for (int i = 0; i < fieldContexts.size(); i++) {
             fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (fields.length != numKeys) {
-            throw new SQLException("HPERSIST numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "HPERSIST", fields.length, numKeys);
 
         List<Long> result = jedisCmd.getHashCommands().hpersist(key, fields);
 
@@ -416,9 +405,7 @@ class JedisCommandsForHash extends JedisCommands {
         for (int i = 0; i < fieldContexts.size(); i++) {
             fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (fields.length != numKeys) {
-            throw new SQLException("HTTL numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "HTTL", fields.length, numKeys);
 
         List<Long> result = jedisCmd.getHashCommands().httl(key, fields);
 
@@ -438,9 +425,7 @@ class JedisCommandsForHash extends JedisCommands {
         for (int i = 0; i < fieldContexts.size(); i++) {
             fields[i] = argAsString(argIndex, request, fieldContexts.get(i));
         }
-        if (fields.length != numKeys) {
-            throw new SQLException("HPTTL numFields " + numKeys + " not match actual fields " + fields.length + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
-        }
+        numKeysCheck(request, "HPTTL", fields.length, numKeys);
 
         List<Long> result = jedisCmd.getHashCommands().hpttl(key, fields);
 

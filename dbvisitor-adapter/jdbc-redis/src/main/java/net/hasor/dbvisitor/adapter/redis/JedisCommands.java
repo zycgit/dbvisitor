@@ -160,6 +160,14 @@ abstract class JedisCommands {
         return receiveCur;
     }
 
+    //
+
+    protected static void numKeysCheck(AdapterRequest request, String command, long numKeys, long expect) throws SQLException {
+        if (((JedisRequest) request).isNumKeysCheck() && numKeys != expect) {
+            throw new SQLException(command + " numKeys " + numKeys + " not match actual keys " + expect + ".", JdbcErrorCode.SQL_STATE_ILLEGAL_ARGUMENT);
+        }
+    }
+
     private static String getIdentifier(TerminalNode term) {
         String nodeText = term.getText();
         char firstChar = nodeText.charAt(0);

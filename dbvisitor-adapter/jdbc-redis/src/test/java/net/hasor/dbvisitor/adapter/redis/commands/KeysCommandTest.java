@@ -1,12 +1,11 @@
-package net.hasor.dbvisitor.adapter.redis;
-
+package net.hasor.dbvisitor.adapter.redis.commands;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import net.hasor.dbvisitor.adapter.redis.support.AbstractJdbcTest;
-import net.hasor.dbvisitor.adapter.redis.support.RedisCommandInterceptor;
+import net.hasor.dbvisitor.adapter.redis.AbstractJdbcTest;
+import net.hasor.dbvisitor.adapter.redis.RedisCommandInterceptor;
 import org.junit.Test;
 import redis.clients.jedis.args.ExpiryOption;
 import redis.clients.jedis.commands.DatabaseCommands;
@@ -21,7 +20,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         boolean returnValue = true;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("copy", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("copy", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -46,7 +45,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         boolean returnValue = false;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("copy", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("copy", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -71,7 +70,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         boolean returnValue = false;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(DatabaseCommands.class, createInvocationHandler("copy", args -> {
+        RedisCommandInterceptor.addInterceptor(DatabaseCommands.class, createInvocationHandler("copy", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -96,7 +95,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         boolean returnValue = false;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(DatabaseCommands.class, createInvocationHandler("copy", args -> {
+        RedisCommandInterceptor.addInterceptor(DatabaseCommands.class, createInvocationHandler("copy", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -122,7 +121,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("del", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("del", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -148,7 +147,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("del", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("del", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -176,7 +175,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("unlink", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("unlink", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -202,7 +201,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("unlink", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("unlink", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -230,7 +229,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         byte[] returnValue = new byte[] { 1, 2, 3, 4, 5 };
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("dump", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("dump", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -255,7 +254,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("exists", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("exists", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -281,7 +280,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("expire", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("expire", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -306,7 +305,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("expire", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("expire", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -331,7 +330,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("expire", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("expire", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -356,7 +355,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("expire", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("expire", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -381,7 +380,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("expire", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("expire", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -406,7 +405,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("expireAt", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("expireAt", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -431,7 +430,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("expireAt", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("expireAt", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -456,7 +455,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("expireTime", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("expireTime", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -481,7 +480,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("pexpire", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("pexpire", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -506,7 +505,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("pexpire", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("pexpire", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -531,7 +530,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("pexpireAt", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("pexpireAt", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -556,7 +555,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("pexpireAt", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("pexpireAt", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -581,7 +580,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("pexpireTime", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("pexpireTime", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -606,7 +605,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         ScanResult returnValue = new ScanResult("0", Arrays.asList("key1", "key2", "key3", "key4", "key5", "key6"));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("scan", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("scan", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -641,7 +640,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         AtomicInteger scanCnt = new AtomicInteger();
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("scan", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("scan", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             scanCnt.incrementAndGet();
             return paged.get(args[0]);
@@ -685,7 +684,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         AtomicInteger scanCnt = new AtomicInteger();
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("scan", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("scan", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             scanCnt.incrementAndGet();
             return paged.get(args[0]);
@@ -722,7 +721,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         String returnValue = "abcdefg";
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("objectEncoding", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("objectEncoding", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -747,7 +746,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("objectFreq", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("objectFreq", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -772,7 +771,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("objectIdletime", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("objectIdletime", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -797,7 +796,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("objectRefcount", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("objectRefcount", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -822,7 +821,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("persist", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("persist", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -846,7 +845,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("ttl", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("ttl", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -870,7 +869,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("pttl", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("pttl", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -894,7 +893,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         String returnValue = "abcdef";
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("randomKey", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("randomKey", (name, args) -> {
             if (args != null) {
                 argList.addAll(Arrays.asList(args));
             }
@@ -920,7 +919,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         String returnValue = "ok";
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("rename", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("rename", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -944,7 +943,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 1;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("renamenx", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("renamenx", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -968,7 +967,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         ScanResult returnValue = new ScanResult("0", Arrays.asList("key1", "key2", "key3", "key4", "key5", "key6"));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("scan", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("scan", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -998,7 +997,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         ScanResult returnValue = new ScanResult("0", Arrays.asList("key1", "key2", "key3", "key4", "key5", "key6"));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("scan", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("scan", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1028,7 +1027,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         ScanResult returnValue = new ScanResult("0", Arrays.asList("key1", "key2", "key3", "key4", "key5", "key6"));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("scan", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("scan", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1058,7 +1057,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         ScanResult returnValue = new ScanResult("0", Arrays.asList("key1", "key2", "key3", "key4", "key5", "key6"));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("scan", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("scan", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1089,7 +1088,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         long returnValue = 2;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("touch", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("touch", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1115,7 +1114,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         String returnValue = "int";
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("type", args -> {
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("type", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));

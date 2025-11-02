@@ -1,10 +1,9 @@
-package net.hasor.dbvisitor.adapter.redis.support;
+package net.hasor.dbvisitor.adapter.redis;
 
 import java.lang.reflect.InvocationHandler;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
-import net.hasor.dbvisitor.adapter.redis.JedisKeys;
 import net.hasor.dbvisitor.driver.JdbcDriver;
 
 public class AbstractJdbcTest {
@@ -19,7 +18,18 @@ public class AbstractJdbcTest {
     public InvocationHandler createInvocationHandler(String methodName, TestInvocationHandler handler) {
         return (proxy, method, args) -> {
             if (method.getName().equals(methodName)) {
-                return handler.invoke(args);
+                return handler.invoke(method.getName(), args);
+            }
+            return null;
+        };
+    }
+
+    public InvocationHandler createInvocationHandler(String[] methodName, TestInvocationHandler handler) {
+        return (proxy, method, args) -> {
+            for (String c : methodName) {
+                if (method.getName().equals(c)) {
+                    return handler.invoke(method.getName(), args);
+                }
             }
             return null;
         };

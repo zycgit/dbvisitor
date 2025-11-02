@@ -1,12 +1,11 @@
-package net.hasor.dbvisitor.adapter.redis;
-
+package net.hasor.dbvisitor.adapter.redis.commands;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import net.hasor.cobble.CollectionUtils;
-import net.hasor.dbvisitor.adapter.redis.support.AbstractJdbcTest;
-import net.hasor.dbvisitor.adapter.redis.support.RedisCommandInterceptor;
+import net.hasor.dbvisitor.adapter.redis.AbstractJdbcTest;
+import net.hasor.dbvisitor.adapter.redis.RedisCommandInterceptor;
 import org.junit.Test;
 import redis.clients.jedis.args.ExpiryOption;
 import redis.clients.jedis.commands.HashCommands;
@@ -20,7 +19,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hdel", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hdel", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -47,7 +46,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         boolean returnValue = true;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexists", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexists", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -74,7 +73,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexpire", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexpire", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -107,7 +106,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexpire", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexpire", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -141,7 +140,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexpire", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexpire", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -175,7 +174,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexpireAt", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexpireAt", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -208,7 +207,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexpireAt", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexpireAt", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -242,7 +241,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexpireAt", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexpireAt", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -276,7 +275,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexpireTime", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hexpireTime", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -308,7 +307,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hpexpire", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hpexpire", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -341,7 +340,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hpexpire", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hpexpire", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -375,7 +374,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hpexpireAt", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hpexpireAt", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -408,7 +407,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hpexpireAt", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hpexpireAt", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -442,7 +441,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hpexpireTime", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hpexpireTime", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -474,7 +473,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         String returnValue = "abc";
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hget", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hget", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -503,7 +502,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         returnValue.put("field2", "def");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hgetAll", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hgetAll", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -534,7 +533,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hincrBy", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hincrBy", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -562,7 +561,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         Set<String> returnValue = new LinkedHashSet<>(Arrays.asList("field1", "field2"));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hkeys", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hkeys", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -593,7 +592,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hlen", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hlen", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -619,7 +618,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("a", "b");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hmget", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hmget", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -651,7 +650,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hset", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hset", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -678,7 +677,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         String returnValue = "OK";
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hmset", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hmset", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -705,7 +704,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hsetnx", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hsetnx", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -733,7 +732,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hpersist", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hpersist", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -765,7 +764,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("httl", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("httl", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -797,7 +796,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<Long> returnValue = Arrays.asList(1L, 2L, 3L);
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hpttl", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hpttl", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -829,7 +828,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         String returnValue = "v1";
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hrandfield", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hrandfield", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -860,7 +859,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hrandfield", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hrandfield", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -894,7 +893,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                 new AbstractMap.SimpleEntry<>("v2k", "v2v"));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hrandfieldWithValues", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hrandfieldWithValues", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -928,7 +927,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                 new AbstractMap.SimpleEntry<>("v2k", "v2v")));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hscan", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hscan", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -963,7 +962,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                 new AbstractMap.SimpleEntry<>("v2k", "v2v")));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hscan", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hscan", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -998,7 +997,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                 new AbstractMap.SimpleEntry<>("v2k", "v2v")));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hscan", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hscan", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1031,7 +1030,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         ScanResult returnValue = new ScanResult("0", Arrays.asList("key1", "key2", "key3", "key4", "key5", "key6"));
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hscanNoValues", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hscanNoValues", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1063,7 +1062,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         long returnValue = 123;
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hstrlen", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hstrlen", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
@@ -1091,7 +1090,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         List<String> returnValue = Arrays.asList("v1", "v2");
 
         RedisCommandInterceptor.resetInterceptor();
-        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hvals", args -> {
+        RedisCommandInterceptor.addInterceptor(HashCommands.class, createInvocationHandler("hvals", (name, args) -> {
             argList.addAll(Arrays.asList(args));
             return returnValue;
         }));
