@@ -11,12 +11,9 @@ root
 
 // We can omit newline only if it's the last statement
 commands
-    : command newLine*
-    | command newLine+ commands
+    : command NEWLINE*
+    | command NEWLINE+ commands
     ;
-
-newLine : {separatorChar == '\n'}? NEWLINE1
-        | {separatorChar == ';'}?  NEWLINE2;
 
 command
     : serverCommands

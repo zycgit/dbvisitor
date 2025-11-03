@@ -7,13 +7,13 @@ options {
 
 // using '\n'
 SPACE1   : {separatorChar == '\n'}?  [ \t\f]+ -> skip;
-NEWLINE1 : ('\r' '\n'? | '\n');
 // using ';'
 SPACE2   : {separatorChar == ';'}?   [ \t\f\n\r]+ -> skip;
-NEWLINE2 : ';';
+
+NEWLINE  : {separatorChar == '\n'}? ('\r' '\n'? | '\n')
+         | {separatorChar == ';'}?  ';';
 
 // Common keywords
-
 COPY        : 'COPY';
 DB          : 'DB';
 REPLACE     : 'REPLACE';
@@ -226,6 +226,7 @@ DECIMAL_SCORE   : FLOAT_NUM | (('+' | '-')? 'inf');
 
 fragment DOUBLE_QUOTE_STRING : '"' ( '\\' . | ~('"' | '\\' | '\n' | '\r'))* '"';
 fragment SINGLE_QUOTE_STRING : '\'' ('\\' . | ~('\'' | '\\' | '\n' | '\r'))* '\'';
-fragment BASE_IDENTIFIER     : ~(' ' | '\t' | '\'' | '"' | '\n' | '\r')+;
+fragment BASE_IDENTIFIER     : {separatorChar == '\n'}? ~(' ' | '\t' | '\'' | '"' | '\n' | '\r')+
+                             | {separatorChar == ';'}?  ~(' ' | '\t' | '\'' | '"' | '\n' | '\r' | ';')+;
 
 IDENTIFIER: BASE_IDENTIFIER | DOUBLE_QUOTE_STRING | SINGLE_QUOTE_STRING;

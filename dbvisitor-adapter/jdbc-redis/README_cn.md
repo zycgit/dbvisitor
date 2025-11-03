@@ -1,8 +1,7 @@
 ## 介绍
 
 jdbc-redis 是一个 Redis 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和命令的方式来操作 Redis 数据。
-旨在简化 Redis 数据库的访问和操作，使熟悉 JDBC 编程模型的开发者能够无缝地使用 Redis。
-该项目是 dbVisitor 框架的底层适配器本身并不依赖 dbVisitor，您可以在任何支持 JDBC 的环境中使用它。
+目的是通过熟悉 JDBC 编程模型，使开发者能够无缝地使用 Redis。
 
 ## 特性：
 
@@ -108,30 +107,32 @@ ResultSet rs = pstmt.executeQuery();
 jdbc:dbvisitor:jedis://server?database=0&param1=value1&param2=value2
 ```
 
-| 参数名            | 类型      | 默认值               | 参数说明                                                                                                     |
-|----------------|---------|-------------------|----------------------------------------------------------------------------------------------------------|
-| server         | string  |                   | redis 服务地址，如果没有指定端口号将会采用 `6379` 作为默认端口，格式为：`ip` 或 `ip:port`，集群模式为 `ip:port;ip:port` 或 `ip;ip;ip `        |
-| username       | string  |                   | 用户名                                                                                                      |
-| password       | string  |                   | 密码                                                                                                       |
-| database       | int     | 0                 | 默认数据库                                                                                                    |
-| connectTimeout | int     | 5000              | 连接超时时间（毫秒）                                                                                               |
-| socketTimeout  | int     | 10                | 套接字超时时间（秒）                                                                                               |
-| timeZone       | string  |                   | 驱动在处理时间类型时使用的本地时区。                                                                                       |
-| clientName     | string  | Jedis-JDBC-Client | 客户端名称                                                                                                    |
-| uncheckNumKeys | boolean | false             | 是否禁用检查键数量，默认值为 false。当设置为 true 时，驱动将不会检查执行的命令中对于 Keys 数量的要求。如 HEXPIRE、HTTL 的 numfields，ZMPOP 的 numkeys。  |
-| separatorChar  | char    | '\n'              | 命令分隔符，默认值为 '\n'，可设置为（\n、分号）。驱动将根据该字符来分隔多个命令，如：`SET mykey hello; GET mykey`。                              |
-| interceptor    | class   |                   | 命令拦截器，用于拦截 JedisCluster 或 Jedis 对象执行命令调用，需要实现 java.lang.reflect.InvocationHandler                        |
-| customJedis    | class   |                   | 在驱动外自定义 JedisCluster 或 Jedis 对象的创建过程，需要实现 net.hasor.dbvisitor.adapter.redis.CustomJedis                  |
-| maxTotal       | int     | 8                 | (集群) 池中“maxTotal”配置属性的值。                                                                                 |
-| maxIdle        | int     | 8                 | (集群) 池中“maxIdle”配置属性的值。                                                                                  |
-| minIdle        | int     | 0                 | (集群) 池中“minIdle”配置属性的值。                                                                                  |
-| testWhileIdle  | boolean | false             | (集群) 池中“testWhileIdle”配置属性的值。                                                                            |
-| maxAttempts    | int     | 5                 | (集群) 执行命令的最大尝试次数。                                                                                        |
+| 参数名            | 类型      | 默认值               | 参数说明                                                                                                    |
+|----------------|---------|-------------------|---------------------------------------------------------------------------------------------------------|
+| server         | string  |                   | redis 服务地址，如果没有指定端口号将会采用 `6379` 作为默认端口，格式为：`ip` 或 `ip:port`，集群模式为 `ip:port;ip:port` 或 `ip;ip;ip `       |
+| username       | string  |                   | 用户名                                                                                                     |
+| password       | string  |                   | 密码                                                                                                      |
+| database       | int     | 0                 | 默认数据库                                                                                                   |
+| connectTimeout | int     | 5000              | 连接超时时间（毫秒）                                                                                              |
+| socketTimeout  | int     | 10                | 套接字超时时间（秒）                                                                                              |
+| timeZone       | string  |                   | 驱动在处理时间类型时使用的本地时区。                                                                                      |
+| clientName     | string  | Jedis-JDBC-Client | 客户端名称                                                                                                   |
+| uncheckNumKeys | boolean | false             | 是否禁用检查键数量，默认值为 false。当设置为 true 时，驱动将不会检查执行的命令中对于 Keys 数量的要求。如 HEXPIRE、HTTL 的 numfields，ZMPOP 的 numkeys。 |
+| separatorChar  | char    | '\n'              | 命令分隔符，默认值为 '\n'，可设置为（\n、“;”分号）驱动将根据该字符来分隔多个命令，如：`SET mykey hello; GET mykey`。                           |
+| interceptor    | class   |                   | 命令拦截器，用于拦截 JedisCluster 或 Jedis 对象执行命令调用，需要实现 java.lang.reflect.InvocationHandler                       |
+| customJedis    | class   |                   | 在驱动外自定义 JedisCluster 或 Jedis 对象的创建过程，需要实现 net.hasor.dbvisitor.adapter.redis.CustomJedis                 |
+| maxTotal       | int     | 8                 | (集群) 池中“maxTotal”配置属性的值。                                                                                |
+| maxIdle        | int     | 8                 | (集群) 池中“maxIdle”配置属性的值。                                                                                 |
+| minIdle        | int     | 0                 | (集群) 池中“minIdle”配置属性的值。                                                                                 |
+| testWhileIdle  | boolean | false             | (集群) 池中“testWhileIdle”配置属性的值。                                                                           |
+| maxAttempts    | int     | 5                 | (集群) 执行命令的最大尝试次数。                                                                                       |
 
 - 参数 uncheckNumKeys 将会影响的命令有：
   - HEXPIRE、HEXPIREAT、HEXPIRETIME、HPEXPIRE、HPEXPIREAT、HPEXPIRETIME、HPERSIST、HTTL、HPTTL
   - ZMPOP、BZMPOP、ZDIFF、ZDIFFSTORE、ZINTER、ZINTERCARD、ZINTERSTORE、ZUNION、ZUNIONSTORE
   - LMPOP、BLMPOP、SINTERCARD
+- 参数 separatorChar 当设置为 “;” 分号时
+  - 含有分号的内容需要用双引号进行处理，否则会导致脚本解析错误。
 
 ## 支持的命令列表
 
@@ -243,7 +244,7 @@ jdbc:dbvisitor:jedis://server?database=0&param1=value1&param2=value2
 | [BZPOPMAX](https://redis.io/docs/latest/commands/bzpopmax/)                 | 结果集 | 1        | KEY 字段，STRING 类型<br/>SCORE 字段，DOUBLE 类型<br/>ELEMENT 字段，STRING 类型                  |
 | [ZPOPMIN](https://redis.io/docs/latest/commands/zpopmin/)                   | 结果集 | multiple | SCORE 字段，DOUBLE 类型<br/>ELEMENT 字段，STRING 类型                                       |
 | [BZPOPMIN](https://redis.io/docs/latest/commands/bzpopmin/)                 | 结果集 | 1        | KEY 字段，STRING 类型<br/>SCORE 字段，DOUBLE 类型<br/>ELEMENT 字段，STRING 类型                  |
-| [ZADD](https://redis.io/docs/latest/commands/zadd/)                         | 结果集 | 1        | RESULT 字段，DOUBLE 类（当使用 INCR 时）<br/>RESULT 字段，LONG 类型（当不使用 INCR 时）                 |
+| [ZADD](https://redis.io/docs/latest/commands/zadd/)                         | 结果集 | 1        | RESULT 字段，DOUBLE 类型（当使用 INCR 时）<br/>RESULT 字段，LONG 类型（当不使用 INCR 时）                |
 | [ZCARD](https://redis.io/docs/latest/commands/zcard/)                       | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
 | [ZCOUNT](https://redis.io/docs/latest/commands/zcount/)                     | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
 | [ZDIFF](https://redis.io/docs/latest/commands/zdiff/)                       | 结果集 | multiple | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/>ELEMENT 字段，STRING 类型                     |

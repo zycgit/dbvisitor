@@ -46,9 +46,15 @@ public class SeparatorCharTest extends AbstractJdbcTest {
 
         try (Connection conn = redisConnection(';')) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("set aaa 123 ; get aaa")) {
+                stmt.executeQuery("set aaa 123; get aaa");
+                try (ResultSet rs = stmt.getResultSet()) {
                     rs.next();
                     assert rs.getString(1).equals("abc1");
+                }
+
+                assert stmt.getMoreResults();
+
+                try (ResultSet rs = stmt.getResultSet()) {
                     rs.next();
                     assert rs.getString(1).equals("abc2");
                 }
@@ -56,7 +62,7 @@ public class SeparatorCharTest extends AbstractJdbcTest {
 
             assert getArgList.size() == 1;
             assert getArgList.get(0).equals("aaa");
-            assert setArgList.size() == 2;
+            assert setArgList.size() == 3;
             assert setArgList.get(0).equals("aaa");
             assert setArgList.get(1).equals("123");
         }
@@ -66,7 +72,7 @@ public class SeparatorCharTest extends AbstractJdbcTest {
     public void test_1_error() throws SQLException {
         try (Connection conn = redisConnection(';')) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                stmt.executeQuery("set aaa 123 \n get aaa");
+                stmt.executeQuery("set aaa 123\n get aaa");
                 assert false;
             } catch (Exception e) {
                 assert e.getCause() instanceof QueryParseException;
@@ -95,17 +101,24 @@ public class SeparatorCharTest extends AbstractJdbcTest {
 
         try (Connection conn = redisConnection('\n')) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("set aaa 123 \n get aaa")) {
+                stmt.executeQuery("set aaa 123\n get aaa");
+                try (ResultSet rs = stmt.getResultSet()) {
                     rs.next();
                     assert rs.getString(1).equals("abc1");
+                }
+
+                assert stmt.getMoreResults();
+
+                try (ResultSet rs = stmt.getResultSet()) {
                     rs.next();
                     assert rs.getString(1).equals("abc2");
                 }
+
             }
 
             assert getArgList.size() == 1;
             assert getArgList.get(0).equals("aaa");
-            assert setArgList.size() == 2;
+            assert setArgList.size() == 3;
             assert setArgList.get(0).equals("aaa");
             assert setArgList.get(1).equals("123");
         }
@@ -115,7 +128,7 @@ public class SeparatorCharTest extends AbstractJdbcTest {
     public void test_2_error() throws SQLException {
         try (Connection conn = redisConnection('\n')) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                stmt.executeQuery("set aaa 123 ; get aaa");
+                stmt.executeQuery("set aaa 123; get aaa");
                 assert false;
             } catch (Exception e) {
                 assert e.getCause() instanceof QueryParseException;
