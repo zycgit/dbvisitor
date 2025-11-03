@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.test.utils;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import static net.hasor.test.utils.TestUtils.*;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Collections;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import static net.hasor.test.utils.TestUtils.*;
 
 /***
  * 创建JDBC环境
@@ -28,10 +27,13 @@ import java.util.Collections;
  * @author 赵永春 (zyc@hasor.net)
  */
 public class DsUtils {
+    public static String TEST_SERVER       = "192.168.0.127";
+    //public static String TEST_SERVER       = "127.0.0.1";
     public static String MYSQL_SCHEMA_NAME = "devtester";
-    public static String MYSQL_JDBC_URL    = "jdbc:mysql://127.0.0.1:13306/devtester?allowMultiQueries=true";
-    public static String PG_JDBC_URL       = "jdbc:postgresql://127.0.0.1:15432/postgres";
-    public static String ORACLE_JDBC_URL   = "jdbc:oracle:thin:@127.0.0.1:11521:xe";
+    public static String MYSQL_JDBC_URL    = "jdbc:mysql://" + TEST_SERVER + ":13306/devtester?allowMultiQueries=true";
+    public static String PG_JDBC_URL       = "jdbc:postgresql://" + TEST_SERVER + ":15432/postgres";
+    public static String ORACLE_JDBC_URL   = "jdbc:oracle:thin:@" + TEST_SERVER + ":11521:xe";//ORCLCDB
+    public static String REDIS_JDBC_URL    = "jdbc:dbvisitor:jedis://" + TEST_SERVER + ":16379?database=0&uncheckNumKeys=true&separatorChar=;";
 
     private static void initH2(JdbcTemplate jdbcTemplate) {
         try {
@@ -92,6 +94,11 @@ public class DsUtils {
         return conn;
     }
 
+    public static Connection redisConn() throws SQLException, ClassNotFoundException {
+        Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
+        return DriverManager.getConnection(REDIS_JDBC_URL, null, "123456");
+    }
+
     public static Connection mysqlConn() throws SQLException {
         Connection conn = DriverManager.getConnection(MYSQL_JDBC_URL, "root", "123456");
         JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
@@ -100,7 +107,7 @@ public class DsUtils {
     }
 
     public static Connection oracleConn() throws SQLException {
-        Connection connection = DriverManager.getConnection(ORACLE_JDBC_URL, "sys as sysdba", "oracle");
+        Connection connection = DriverManager.getConnection(ORACLE_JDBC_URL, "sys as SYSDBA", "123456");
         connection.createStatement().execute("alter session set current_schema = SCOTT");
         return connection;
     }

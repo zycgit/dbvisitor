@@ -101,6 +101,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.12.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>2.2.220</version>
@@ -142,6 +148,11 @@
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
             <version>11.2.0.jre8</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.hasor</groupId>
+            <artifactId>jdbc-redis</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -190,6 +201,14 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <argLine>-Djavax.xml.parsers.SAXParserFactory=org.apache.xerces.jaxp.SAXParserFactoryImpl</argLine>
+                </configuration>
             </plugin>
         </plugins>
     </build>
