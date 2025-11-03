@@ -81,6 +81,12 @@
                 <artifactId>dbvisitor-spring</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>net.hasor</groupId>
+                <artifactId>jdbc-redis</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
 
             <!-- test -->
             <dependency>

@@ -39,6 +39,16 @@ The jdbc-redis project uses the Adapter pattern to map standard JDBC interfaces 
 
 ## Usage
 
+### Dependency
+
+```xml title='Maven Dependency'
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>jdbc-redis</artifactId>
+  <version>6.1.0</version>
+</dependency>
+```
+
 ### Connection
 
 Connect to Redis using the JDBC URL format:

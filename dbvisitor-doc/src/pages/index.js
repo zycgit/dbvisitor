@@ -14,7 +14,7 @@ function HomepageHeader() {
             <div className="container">
                 <h1 className="hero__title">dbVisitor</h1>
                 <p className="hero__subtitle">
-                    <Translate id="dbv.tagline">提供 Java 对数据库更加自然的访问</Translate>
+                    <Translate id="dbv.tagline">dbVisitor 数据库数据库访问库，提供 Java 对多种不同类型数据库统一访问</Translate>
                     <br/><br/>
                 </p>
                 <div className={styles.buttons}>
@@ -31,9 +31,9 @@ export default function Home() {
     return (
         <Layout>
             <HomepageHeader/>
-            {/*<main>*/}
-            {/*    <DbVisitorFeatures/>*/}
-            {/*</main>*/}
+            <main>
+                <DbVisitorFeatures/>
+            </main>
         </Layout>
     );
 }

@@ -38,6 +38,16 @@ jdbc-redis 项目采用了适配器模式，将标准的 JDBC 接口适配到 Re
 
 ## 使用方法
 
+### 引入依赖
+
+```xml title='Maven 依赖'
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>jdbc-redis</artifactId>
+  <version>6.1.0</version>
+</dependency>
+```
+
 ### 连接配置
 
 使用标准的 JDBC URL 格式连接 Redis：
@@ -57,7 +67,7 @@ Connection conn = DriverManager.getConnection(url, props);
 - connectTimeout：连接超时时间（毫秒），默认 5000。
 - socketTimeout：套接字超时时间（秒），默认 10。
 
-### 命令执行示例
+### 执行命令
 
 ```java
 // 创建连接
@@ -81,7 +91,7 @@ pstmt.setString(3, "value1");
 ResultSet rs = pstmt.executeQuery();
 ```
 
-## 限制与注意事项
+## 限制
 
 - 在使用 DatabaseMetaData 接口时获取的属性不可信。
 - 在使用 resultSetType、resultSetConcurrency、resultSetHoldability、fetchDirection 参数时只能选择如下默认值：

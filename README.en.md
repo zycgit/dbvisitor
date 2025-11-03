@@ -2,7 +2,7 @@ About
 ------------------------------------
 
 <p align="center">
-    dbVisitor database access library provides a unified Java API for interacting with multiple types of databases, making data reads and writes more natural.
+    dbVisitor database access library provides a unified Java API for interacting with multiple types of databases.
 </p>
 
 <p align="center">
