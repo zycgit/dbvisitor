@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.driver;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -42,6 +43,14 @@ public class JdbcDriver implements java.sql.Driver {
     public static final int    VERSION_MAJOR = 6;
     /** The minor version of this adapter. */
     public static final int    VERSION_MINOR = 0;
+
+    static {
+        try {
+            DriverManager.registerDriver(new JdbcDriver());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
