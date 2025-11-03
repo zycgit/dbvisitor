@@ -2,7 +2,7 @@ About
 ------------------------------------
 
 <p align="center">
-	dbVisitor database access library, provides Java with more natural access to relational databases.
+    dbVisitor database access library provides a unified Java API for interacting with multiple types of databases, making data reads and writes more natural.
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@ About
     <a target="_blank" href="https://central.sonatype.com/artifact/net.hasor/dbvisitor">
         <img src="https://img.shields.io/maven-central/v/net.hasor/dbvisitor.svg?label=Maven%20Central" alt="Maven" />
     </a>
-    <a target="_blank" href="LICENSE">
+    <a target="_blank" href="LICENSE.txt">
 		<img src="https://img.shields.io/:License-Apache2-blue.svg" alt="Apache 2" />
 	</a>
     <a target="_blank" href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">
@@ -31,15 +31,24 @@ About
     [<a target="_blank" href='./README.cn.md'>中文</a>]
 </p>
 
-dbVisitor is built on top of JDBC. If your data source has a JDBC driver, you can easily use it in conjunction with dbVisitor. It enhances the low - level JDBC interfaces by providing a more intuitive API.
+dbVisitor is built on top of JDBC and refines JDBC's low-level interfaces to provide a more natural API. It mainly consists of the following three parts:
+- dbvisitor-adapter — JDBC driver adapters intended to allow databases without a JDBC Driver to be accessed via the JDBC interface. supports [Redis](dbvisitor-adapter/jdbc-redis/README.md) and MongoDB.
+- dbvisitor-integration — integration modules that connect dbVisitor with mainstream frameworks. Supports Spring, Spring Boot, Solon, Hasor, Guice, etc.
+- dbvisitor — the core module that provides a unified database access API.
 
 ## Why use it?
 
-There are already many JDBC-based database access methods and libraries, including several well-known tools. Nevertheless, people continue to seek simpler and more convenient data access methods, which has led to the emergence of more advanced or interesting data access approaches. From EJB to Hibernate, then to MyBatis, SpringJDBC, and other active or once-active technologies like ActiveRecord, QueryWrapper, Row, Chain, JPA, etc. Each new method brings surprises while having its inherent limitations.
+When relational databases dominated, data access methods became more varied and many mature JDBC-based tools emerged.
+With the rise of non relational databases, storage formats have become more diverse and access APIs more complex.
+Developers must switch between different APIs, increasing learning costs and usage difficulty.
+Existing data access technologies such as Hibernate, MyBatis, Spring JDBC and approaches like ActiveRecord, QueryWrapper,
+Row, Chain, JPA mainly target relational databases and show limitations when facing the growing variety of non relational storage.
 
-The core breakthrough of dbVisitor lies in its seamless integration of access patterns, allowing developers to mix different access paradigms within the same project. This design solves compatibility issues caused by coexisting multiple frameworks in traditional solutions, such as operations with different styles between JdbcTemplate and MyBatis.
 
-his multi-paradigm integrated architecture enables dbVisitor to adapt to scenarios of varying complexity: small projects can quickly enable ActiveRecord mode to improve development efficiency, while medium and large systems can implement complex business logic through dynamic SQL and stored procedure support.
+The core breakthrough of dbVisitor is the seamless integration of access patterns.
+Developers can mix multiple access paradigms within the same project and obtain a unified experience between relational and non-relational storage.
+With the drivers module, dbVisitor is no longer limited to accessing relational databases via JDBC; it supports non-relational databases such as Redis and MongoDB through adapters,
+thereby resolving compatibility issues that arise when multiple frameworks coexist (for example, stylistic differences between JdbcTemplate and MyBatis) and unifying the operational interfaces across different storage types.
 
 ## About dbVisitor
 

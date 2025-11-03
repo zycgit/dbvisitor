@@ -2,7 +2,7 @@
 ------------------------------------
 
 <p align="center">
-	dbVisitor 数据库访问库，提供 Java 对关系数据库更加自然的访问。
+	dbVisitor 数据库数据库访问库，提供 Java 对多种不同类型数据库统一访问。让数据的读写更加自然。
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@
     <a target="_blank" href="https://central.sonatype.com/artifact/net.hasor/dbvisitor">
         <img src="https://img.shields.io/maven-central/v/net.hasor/dbvisitor.svg?label=Maven%20Central" alt="Maven" />
     </a>
-    <a target="_blank" href="LICENSE">
+    <a target="_blank" href="LICENSE.txt">
 		<img src="https://img.shields.io/:License-Apache2-blue.svg" alt="Apache 2" />
 	</a>
     <a target="_blank" href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">
@@ -31,16 +31,19 @@
     [<a target="_blank" href='./README.cn.md'>中文</a>]
 </p>
 
-dbVisitor 是建立在 JDBC 基础之上，如果您的数据源有 JDBC 驱动程序，则可以很方便的将其与 dbVisitor 一起使用。 它改进了 JDBC 低级接口提供更加自然的 API。
+dbVisitor 是建立在 JDBC 基础之上，它改进了 JDBC 低级接口提供更加自然的 API。主要包含如下三个部分：
+- dbvisitor-adapter，是 JDBC 驱动适配器集合，目的是使不具备 JDBC Driver 的数据库可以用过 JDBC 接口访问。支持 [Redis](dbvisitor-adapter/jdbc-redis/README.md)、MongoDB 等非关系型数据库。
+- dbvisitor-integration，是 dbVisitor 与主流框架的集成模块。支持 Spring、SpringBoot、Solon、Hasor、Guice 等主流框架。
+- dbvisitor，是核心模块，提供统一的数据库访问 API。
 
 ## 为什么使用它？
 
-已经有许多基于JDBC的数据库访问方法和库，其中不乏许多知名的工具。尽管如此，人们仍然在寻求更简单、更方便的数据访问方法，这导致了更先进或更有趣的数据访问方法的出现。从EJB到Hibernate，然后到MyBatis、SpringJDBC，以及曾经或仍然活跃的ActiveRecord、QueryWrapper、Row、Chain、JPA等。每一种新方法都给人们带来惊喜，同时也有其固有的局限性。
-即便如此人们依然在寻找对数据的访问更加简单便利的方法，这也使得有更多先进或更有意思的数据访问方式出现。
+过去关系型数据库占主导时，数据访问手段已趋多样并且涌现了大量基于 JDBC 的成熟工具；但随着非关系型数据库兴起，数据存储形式更加多元访问 API 也变得更加复杂。开发者需要在不同的 API 之间切换，增加了学习成本和使用难度。
+而已有的数据访问技术如 Hibernate、MyBatis、Spring JDBC 以及 ActiveRecord、QueryWrapper、Row、Chain、JPA 等主要针对关系型数据库，在面对日益多样的非关系型存储时显现出局限性。
 
-dbVisitor 的核心突破在于访问模式的无缝集成，开发者可在同一项目中混合使用不同的访问范式。这种设计解决了传统方案中多框架并存导致的兼容性问题，例如：JdbcTemplate 和 MyBatis 不同风格操作。
-
-这种多范式集成架构使得 dbVisitor 能够适应不同复杂度场景：小型项目可快速启用 ActiveRecord 模式提升开发效率，中大型系统则可通过动态 SQL 与存储过程支持实现复杂业务逻辑。
+dbVisitor 的核心突破在于访问模式的无缝集成：开发者可以在同一项目中混合使用多种访问范式，并在关系型与非关系型存储之间获得统一体验。
+借助 drivers 模块，dbVisitor 已不再局限于通过 JDBC 访问关系型数据库，而是通过适配器支持例如 Redis、MongoDB 等非关系型数据库，
+从而解决了传统多框架并存时的兼容性问题（例如 JdbcTemplate 与 MyBatis 的风格差异），并统一不同存储类型的操作接口。
 
 ## 使用 dbVisitor
 
