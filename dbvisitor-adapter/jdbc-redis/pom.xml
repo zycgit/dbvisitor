@@ -13,7 +13,7 @@
 
     <!-- Project Info -->
     <name>dbVisitor Adapter of Redis</name>
-    <description>integrate dbVisitor and Guice, make Guice easier to use JDBC/ORM.</description>
+    <description>JDBC driver adapter for Redis, that allows developers to operate Redis data using the standard JDBC interfaces and commands.</description>
 
     <developers>
         <developer>
