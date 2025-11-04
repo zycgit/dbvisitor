@@ -8,4 +8,4 @@ https://github.com/jean-humann/docs-to-pdf
     mvn release:clean release:prepare -Prelease -Darguments="-DskipTests=true"
 
 ## push to center maven repository (version tag must be RELEASE)
-    mvn clean package install deploy -Prelease -Darguments="-DskipTests=true"
+    mvn clean package install deploy -Prelease -Dmaven.test.skip=true

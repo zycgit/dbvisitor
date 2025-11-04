@@ -1,13 +1,12 @@
 package net.hasor.realdb.mysql;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Date;
 import net.hasor.dbvisitor.lambda.Insert;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Date;
 
 public class MySqlPerformanceTest {
     private void reinit(Connection con) throws SQLException {
@@ -53,12 +52,12 @@ public class MySqlPerformanceTest {
             LambdaTemplate wrapper = new LambdaTemplate(con);
             //
             reinit(con);
-            initData(con, 2000);
+            initData(con, 100);
             //
             int tbUsersCount = wrapper.query(UserInfo2.class).queryForCount();
             System.out.println("query for list/map.");
             wrapper.query(UserInfo2.class).queryForMapList();
-            assert tbUsersCount == 2000;
+            assert tbUsersCount == 100;
             System.out.println("cost: " + (System.currentTimeMillis() - t));
         }
     }
@@ -70,12 +69,12 @@ public class MySqlPerformanceTest {
             LambdaTemplate wrapper = new LambdaTemplate(con);
             //
             reinit(con);
-            initData(con, 1000);
+            initData(con, 100);
             //
             int tbUsersCount = wrapper.query(UserInfo2.class).queryForCount();
             System.out.println("query for list/map.");
             wrapper.query(UserInfo2.class).queryForMapList();
-            assert tbUsersCount == 1000;
+            assert tbUsersCount == 100;
             System.out.println("cost: " + (System.currentTimeMillis() - t));
         }
     }

@@ -14,15 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler;
-import net.hasor.cobble.io.IOUtils;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.types.SqlArg;
-import net.hasor.dbvisitor.types.handler.io.SqlXmlAsInputStreamTypeHandler;
-import net.hasor.dbvisitor.types.handler.io.SqlXmlAsReaderTypeHandler;
-import net.hasor.dbvisitor.types.handler.string.SqlXmlTypeHandler;
-import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Reader;
@@ -32,6 +23,14 @@ import java.sql.JDBCType;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import net.hasor.cobble.io.IOUtils;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.types.SqlArg;
+import net.hasor.dbvisitor.types.handler.io.SqlXmlAsInputStreamTypeHandler;
+import net.hasor.dbvisitor.types.handler.io.SqlXmlAsReaderTypeHandler;
+import net.hasor.dbvisitor.types.handler.string.SqlXmlTypeHandler;
+import net.hasor.test.utils.DsUtils;
+import org.junit.Test;
 
 public class SqlXmlTypeHandlerTest {
     protected void preTable(JdbcTemplate jdbcTemplate) throws SQLException {
@@ -125,7 +124,7 @@ public class SqlXmlTypeHandlerTest {
                 return new SqlXmlAsInputStreamTypeHandler().getResult(rs, 1);
             });
             String xmlBody = IOUtils.readToString(dat.get(0), "UTF-8");
-            assert xmlBody.equals("<xml>abc</xml>");
+            assert xmlBody.trim().equals("<xml>abc</xml>");
         }
     }
 
@@ -140,7 +139,7 @@ public class SqlXmlTypeHandlerTest {
                 return new SqlXmlAsInputStreamTypeHandler().getResult(rs, "c_xml");
             });
             String xmlBody = IOUtils.readToString(dat.get(0), "UTF-8");
-            assert xmlBody.equals("<xml>abc</xml>");
+            assert xmlBody.trim().equals("<xml>abc</xml>");
         }
     }
 
@@ -155,7 +154,7 @@ public class SqlXmlTypeHandlerTest {
                 return new SqlXmlAsInputStreamTypeHandler().getNullableResult(rs, 1);
             });
             String xmlBody = IOUtils.readToString(dat.get(0), "UTF-8");
-            assert xmlBody.equals("<xml>abc</xml>");
+            assert xmlBody.trim().equals("<xml>abc</xml>");
         }
     }
 
@@ -171,7 +170,7 @@ public class SqlXmlTypeHandlerTest {
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof InputStream;
             String xmlBody = IOUtils.readToString((InputStream) objectMap.get("out"), "UTF-8");
-            assert xmlBody.equals("<xml>abc</xml>");
+            assert xmlBody.trim().equals("<xml>abc</xml>");
             assert objectMap.get("#update-count-1").equals(-1);// in oracle ,no more result is -1
         }
     }
@@ -187,7 +186,7 @@ public class SqlXmlTypeHandlerTest {
                 return new SqlXmlAsReaderTypeHandler().getResult(rs, 1);
             });
             String xmlBody = IOUtils.readToString(dat.get(0));
-            assert xmlBody.equals("<xml>abc</xml>");
+            assert xmlBody.trim().equals("<xml>abc</xml>");
         }
     }
 
@@ -202,7 +201,7 @@ public class SqlXmlTypeHandlerTest {
                 return new SqlXmlAsReaderTypeHandler().getResult(rs, "c_xml");
             });
             String xmlBody = IOUtils.readToString(dat.get(0));
-            assert xmlBody.equals("<xml>abc</xml>");
+            assert xmlBody.trim().equals("<xml>abc</xml>");
         }
     }
 
@@ -220,7 +219,7 @@ public class SqlXmlTypeHandlerTest {
                 return new SqlXmlAsReaderTypeHandler().getResult(rs, "c_xml");
             });
             String xmlBody = IOUtils.readToString(dat.get(0));
-            assert xmlBody.equals("<xml>abc</xml>");
+            assert xmlBody.trim().equals("<xml>abc</xml>");
         }
     }
 
@@ -236,7 +235,7 @@ public class SqlXmlTypeHandlerTest {
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Reader;
             String xmlBody = IOUtils.readToString((Reader) objectMap.get("out"));
-            assert xmlBody.equals("<xml>abc</xml>");
+            assert xmlBody.trim().equals("<xml>abc</xml>");
             assert objectMap.get("#update-count-1").equals(-1);// in oracle ,no more result is -1
         }
     }

@@ -32,7 +32,7 @@ public class DsUtils {
     public static String MYSQL_SCHEMA_NAME = "devtester";
     public static String MYSQL_JDBC_URL    = "jdbc:mysql://" + TEST_SERVER + ":13306/devtester?allowMultiQueries=true";
     public static String PG_JDBC_URL       = "jdbc:postgresql://" + TEST_SERVER + ":15432/postgres";
-    public static String ORACLE_JDBC_URL   = "jdbc:oracle:thin:@" + TEST_SERVER + ":11521:xe";//ORCLCDB
+    public static String ORACLE_JDBC_URL   = "jdbc:oracle:thin:@" + TEST_SERVER + ":11521:ORCLCDB";
     public static String REDIS_JDBC_URL    = "jdbc:dbvisitor:jedis://" + TEST_SERVER + ":16379?database=0&uncheckNumKeys=true&separatorChar=;";
 
     private static void initH2(JdbcTemplate jdbcTemplate) {
@@ -108,7 +108,7 @@ public class DsUtils {
 
     public static Connection oracleConn() throws SQLException {
         Connection connection = DriverManager.getConnection(ORACLE_JDBC_URL, "sys as SYSDBA", "123456");
-        connection.createStatement().execute("alter session set current_schema = SCOTT");
+        connection.createStatement().execute("alter session SET container = ORCLPDB1");
         return connection;
     }
 
