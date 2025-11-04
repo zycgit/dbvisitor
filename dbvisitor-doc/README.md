@@ -5,7 +5,7 @@ npm run build
 https://github.com/jean-humann/docs-to-pdf
 
 ## release versions and prepare next SNAPSHOT version
-    mvn release:clean release:prepare -Dmaven.test.skip -Prelease
+    mvn release:clean release:prepare -Prelease -Darguments="-DskipTests=true"
 
 ## push to center maven repository (version tag must be RELEASE)
-    mvn clean package install deploy -Prelease
+    mvn clean package install deploy -Prelease -Darguments="-DskipTests=true"
