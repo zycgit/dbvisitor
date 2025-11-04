@@ -293,7 +293,11 @@ class JdbcStatement implements Statement, Closeable {
     @Override
     public int executeUpdate(String sql) throws SQLException {
         long updateCount = this.executeLargeUpdate(sql);
-        return updateCount <= Integer.MAX_VALUE ? (int) updateCount : SUCCESS_NO_INFO;
+        if ((int) updateCount != updateCount) {
+            return SUCCESS_NO_INFO;
+        } else {
+            return (int) updateCount;
+        }
     }
 
     @Override
@@ -301,7 +305,12 @@ class JdbcStatement implements Statement, Closeable {
         long[] updateCountLong = this.executeLargeBatch();
         int[] updateCountInt = new int[updateCountLong.length];
         for (int i = 0; i < updateCountLong.length; i++) {
-            updateCountInt[i] = updateCountLong[i] <= Integer.MAX_VALUE ? (int) updateCountLong[i] : SUCCESS_NO_INFO;
+            long tmpLong = updateCountLong[i];
+            if ((int) tmpLong != tmpLong) {
+                updateCountInt[i] = SUCCESS_NO_INFO;
+            } else {
+                updateCountInt[i] = (int) tmpLong;
+            }
         }
         return updateCountInt;
     }
@@ -326,7 +335,11 @@ class JdbcStatement implements Statement, Closeable {
     @Override
     public int getUpdateCount() throws SQLException {
         long updateCount = this.getLargeUpdateCount();
-        return updateCount <= Integer.MAX_VALUE ? (int) updateCount : SUCCESS_NO_INFO;
+        if ((int) updateCount != updateCount) {
+            return SUCCESS_NO_INFO;
+        } else {
+            return (int) updateCount;
+        }
     }
 
     @Override
@@ -432,11 +445,11 @@ class JdbcStatement implements Statement, Closeable {
 
     @Override
     public long getLargeUpdateCount() throws SQLException {
-        this.checkResultSet();
+        this.checkOpen();
 
         AdapterResponse result = this.container.firstResult();
         if (result == null) {
-            throw new SQLException("No results were returned by the query.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
+            return -1;
         } else {
             if (result.isResult()) {
                 return -1;
