@@ -1,4 +1,9 @@
 package net.hasor.dbvisitor.session;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.convert.ConverterBean;
 import net.hasor.cobble.ref.BeanMap;
@@ -8,12 +13,6 @@ import net.hasor.dbvisitor.session.dto.AutoIncrID;
 import net.hasor.dbvisitor.session.dto.ProxyStatementMapper;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
 public class ProxyStatementTest {
     private void reinit(Connection con) throws SQLException, IOException {

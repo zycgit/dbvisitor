@@ -92,6 +92,7 @@ public class XmlSqlConfigResolve implements SqlConfigResolve<Node>, ConfigKeys {
                 cfg.put(RESULT_SET_EXTRACTOR, getNodeAttributeValue(config, "resultSetExtractor"));
                 cfg.put(RESULT_ROW_CALLBACK, getNodeAttributeValue(config, "resultRowCallback"));
                 cfg.put(RESULT_ROW_MAPPER, getNodeAttributeValue(config, "resultRowMapper"));
+                cfg.put(RESULT_TYPE_HANDLER, getNodeAttributeValue(config, "resultTypeHandler"));
                 cfg.put(BIND_OUT, getNodeAttributeValue(config, "bindOut"));
                 return new SelectConfig(dynamicSql, cfg::get);
             }

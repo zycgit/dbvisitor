@@ -21,6 +21,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.sql.SQLException;
 import java.util.*;
 import net.hasor.cobble.StringUtils;
@@ -90,18 +91,18 @@ class ExecuteInvocationHandler implements InvocationHandler {
             Map<String, Integer> argNames = this.argNamesMap.computeIfAbsent(dynamicId, s -> new HashMap<>());
 
             int parameterCount = method.getParameterCount();
-            Annotation[][] annotations = method.getParameterAnnotations();
-            Class<?>[] parameterTypes = method.getParameterTypes();
+            Parameter[] parameters = method.getParameters();
             for (int i = 0; i < parameterCount; i++) {
                 String fixedName = "arg" + i;
                 argNames.put(fixedName, i);
 
-                String name = method.getParameters()[i].getName();
+                String name = parameters[i].getName();
                 if (!argNames.containsKey(name)) {
                     argNames.put(name, i);
                 }
 
-                for (Annotation paramAnno : annotations[i]) {
+                Annotation[] annotations = parameters[i].getAnnotations();
+                for (Annotation paramAnno : annotations) {
                     if (!(paramAnno instanceof Param)) {
                         continue;
                     }
@@ -116,7 +117,7 @@ class ExecuteInvocationHandler implements InvocationHandler {
                     }
                 }
 
-                if (Page.class.isAssignableFrom(parameterTypes[i])) {
+                if (Page.class.isAssignableFrom(parameters[i].getType())) {
                     this.pageInfoMap.put(dynamicId, i);
                 }
             }

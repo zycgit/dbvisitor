@@ -24,6 +24,7 @@ import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.RowMapper;
 import net.hasor.dbvisitor.mapper.def.SqlConfig;
+import net.hasor.dbvisitor.types.TypeHandler;
 
 /**
  * 引用 Mapper 配置文件中的 SQL。
@@ -39,6 +40,8 @@ public class StatementDef {
     private       ResultSetExtractor<?> resultExtractor;
     private       RowCallbackHandler    resultRowCallback;
     private       RowMapper<?>          resultRowMapper;
+    private       TypeHandler<?>        resultTypeHandler;
+    private       Class<?>              resultTypeHandlerType;
 
     public StatementDef(String configNamespace, String configId, SqlConfig config) {
         this.configNamespace = Objects.requireNonNull(configNamespace);
@@ -101,6 +104,22 @@ public class StatementDef {
 
     public void setResultRowMapper(RowMapper<?> resultRowMapper) {
         this.resultRowMapper = resultRowMapper;
+    }
+
+    public TypeHandler<?> getResultTypeHandler() {
+        return this.resultTypeHandler;
+    }
+
+    public void setResultTypeHandler(TypeHandler<?> resultTypeHandler) {
+        this.resultTypeHandler = resultTypeHandler;
+    }
+
+    public Class<?> getResultTypeHandlerType() {
+        return this.resultTypeHandlerType;
+    }
+
+    public void setResultTypeHandlerType(Class<?> resultTypeHandlerType) {
+        this.resultTypeHandlerType = resultTypeHandlerType;
     }
 
     public SqlBuilder buildQuery(Map<String, Object> ctx, QueryContext context) throws SQLException {

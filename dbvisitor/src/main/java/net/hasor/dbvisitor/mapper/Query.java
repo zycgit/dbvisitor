@@ -18,6 +18,7 @@ import java.lang.annotation.*;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.RowCallbackHandler;
 import net.hasor.dbvisitor.jdbc.RowMapper;
+import net.hasor.dbvisitor.types.TypeHandler;
 
 /**
  * select 语句注解，用于标记一个方法对应一条 select 查询语句。
@@ -80,6 +81,13 @@ public @interface Query {
      * @return 用于结果集处理的 {@link RowMapper} 类，默认值为 {@link Object} 类
      */
     Class<?> resultRowMapper() default Object.class;
+
+    /**
+     * 可为该方法配置一个 {@link TypeHandler} 对象用于结果集处理。
+     * 如果配置了 {@code bindOut} 那么该配置将会失效。
+     * @return 用于结果集处理的 {@link TypeHandler} 类，默认值为 {@link Object} 类
+     */
+    Class<?> resultTypeHandler() default Object.class;
 
     /**
      * 获取用于绑定输出参数的参数名数组。

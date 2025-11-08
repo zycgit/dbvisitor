@@ -18,17 +18,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.parsers.ParserConfigurationException;
-import net.hasor.cobble.ClassUtils;
-import net.hasor.cobble.CollectionUtils;
-import net.hasor.cobble.ResourcesUtils;
-import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.*;
 import net.hasor.cobble.function.EConsumer;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
+import net.hasor.cobble.reflect.ConstructorUtils;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
 import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
@@ -48,6 +47,8 @@ import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.ResultMap;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
+import net.hasor.dbvisitor.types.NoCache;
+import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -405,12 +406,18 @@ public class MapperRegistry {
         String resultSetExtractor = ((DqlConfig) def.getConfig()).getResultSetExtractor();
         String resultRowCallback = ((DqlConfig) def.getConfig()).getResultRowCallback();
         String resultRowMapper = ((DqlConfig) def.getConfig()).getResultRowMapper();
+        String resultTypeHandler = ((DqlConfig) def.getConfig()).getResultTypeHandler();
         int hasResultCnt = 0;
         hasResultCnt += (StringUtils.isNotBlank(configId) ? 1 : 0);
         hasResultCnt += (StringUtils.isNotBlank(resultType) ? 1 : 0);
         hasResultCnt += (StringUtils.isNotBlank(resultSetExtractor) ? 1 : 0);
         hasResultCnt += (StringUtils.isNotBlank(resultRowCallback) ? 1 : 0);
         hasResultCnt += (StringUtils.isNotBlank(resultRowMapper) ? 1 : 0);
+        if (StringUtils.isNotBlank(resultType) && StringUtils.isNotBlank(resultTypeHandler)) {
+            // ignore check
+        } else {
+            hasResultCnt += (StringUtils.isNotBlank(resultTypeHandler) ? 1 : 0);
+        }
 
         if (hasResultCnt > 1) {
             throw new IllegalArgumentException("only one of the options can be selected. e.g., resultMap/resultType/resultSetExtractor/resultRowCallback/resultRowMapper, at mapperId '" + def.toConfigId() + "'.");
@@ -451,6 +458,31 @@ public class MapperRegistry {
             def.setResultType(MappingHelper.typeMappingOr(resultType, this.classLoader::loadClass));
         }
 
+        // for TypeHandler
+        if (StringUtils.isNotBlank(resultTypeHandler)) {
+            Class<?> loadType = MappingHelper.typeMappingOr(resultTypeHandler, this.classLoader::loadClass);
+            if (!TypeHandler.class.isAssignableFrom(loadType)) {
+                throw new ClassCastException("the type '" + loadType.getName() + "' cannot be as TypeHandler, at mapperId '" + def.toConfigId() + "'.");
+            } else {
+                if (loadType.isAnnotationPresent(NoCache.class)) {
+                    def.setResultTypeHandlerType(loadType);
+                } else {
+                    try {
+                        Constructor<?> constructor = ConstructorUtils.getAccessibleConstructor(loadType, Class.class);
+                        TypeHandler<?> typeHandler = null;
+                        if (constructor == null || def.getResultType() == null) {
+                            typeHandler = (TypeHandler<?>) ClassUtils.newInstance(loadType);
+                        } else {
+                            typeHandler = (TypeHandler<?>) ConstructorUtils.invokeConstructor(loadType, def.getResultType());
+                        }
+                        def.setResultTypeHandler(typeHandler);
+                    } catch (Exception e) {
+                        throw ExceptionUtils.toRuntime(e);
+                    }
+                }
+            }
+        }
+
         if (StringUtils.isNotBlank(configId)) {
             // for resultMap
             TableMapping<?> tabMapping = this.mappingRegistry.findBySpace(configSpace, configId);
@@ -469,7 +501,7 @@ public class MapperRegistry {
                     logger.warn("ignore resultMap '" + fullname + "' and use ResultRowMapper '" + mapperType + "', at mapperId '" + def.toConfigId() + "'.");
                 }
             }
-        } else if (StringUtils.isNotBlank(resultType)) {
+        } else if (StringUtils.isBlank(resultTypeHandler) && StringUtils.isNotBlank(resultType)) {
             // for resultType
             Class<?> requiredType = MappingHelper.typeMappingOr(resultType, this.classLoader::loadClass);
             if (def.getResultRowMapper() == null) {

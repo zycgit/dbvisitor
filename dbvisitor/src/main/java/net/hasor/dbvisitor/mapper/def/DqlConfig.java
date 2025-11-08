@@ -35,6 +35,7 @@ public abstract class DqlConfig extends SqlConfig {
     private String        resultSetExtractor = null;                          // 结果集提取器
     private String        resultRowCallback  = null;                          // 行回调处理器
     private String        resultRowMapper    = null;                          // 行映射器
+    private String        resultTypeHandler  = null;                          // 结果类型处理器
     private String[]      bindOut            = ArrayUtils.EMPTY_STRING_ARRAY; // 输出参数绑定
 
     /**
@@ -54,6 +55,7 @@ public abstract class DqlConfig extends SqlConfig {
             this.resultSetExtractor = config.apply(RESULT_SET_EXTRACTOR);
             this.resultRowCallback = config.apply(RESULT_ROW_CALLBACK);
             this.resultRowMapper = config.apply(RESULT_ROW_MAPPER);
+            this.resultTypeHandler = config.apply(RESULT_TYPE_HANDLER);
             this.bindOut = config.andThen(s -> StringUtils.isNotBlank(s) ? s.split(",") : ArrayUtils.EMPTY_STRING_ARRAY).apply(BIND_OUT);
         }
     }
@@ -120,6 +122,14 @@ public abstract class DqlConfig extends SqlConfig {
 
     public void setResultRowMapper(String resultRowMapper) {
         this.resultRowMapper = resultRowMapper;
+    }
+
+    public String getResultTypeHandler() {
+        return this.resultTypeHandler;
+    }
+
+    public void setResultTypeHandler(String resultTypeHandler) {
+        this.resultTypeHandler = resultTypeHandler;
     }
 
     public String[] getBindOut() {

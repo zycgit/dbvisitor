@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.List;
 import net.hasor.cobble.time.DateTimeFormat;
 import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.types.custom.MyStringTypeHandler1;
 import net.hasor.dbvisitor.types.custom.MyTypeHandler;
+import net.hasor.dbvisitor.types.custom.UserFutures2;
 import net.hasor.dbvisitor.types.custom.UserTable;
+import net.hasor.dbvisitor.types.handler.json.JsonUseForFastjson2TypeHandler;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.List;
 
 public class AnnosTest {
     @Test
@@ -88,6 +89,13 @@ public class AnnosTest {
 
             assert handler1.isReadMark();
         }
+    }
+
+    @Test
+    public void testBindTypeHandler_2() {
+        assert TypeHandlerRegistry.DEFAULT.hasTypeHandler(UserFutures2.class);
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(UserFutures2.class) instanceof JsonUseForFastjson2TypeHandler;
+        assert TypeHandlerRegistry.DEFAULT.getTypeHandler(UserFutures2.class) == TypeHandlerRegistry.DEFAULT.getTypeHandler(UserFutures2.class);
     }
 
 }

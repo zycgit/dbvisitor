@@ -30,7 +30,9 @@ import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import net.hasor.cobble.ClassUtils;
+import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.reflect.ConstructorUtils;
 import net.hasor.cobble.reflect.TypeReference;
 import net.hasor.dbvisitor.dynamic.SqlMode;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
@@ -507,7 +509,7 @@ public final class TypeHandlerRegistry {
      */
     public boolean hasTypeHandler(Class<?> typeClass) {
         Objects.requireNonNull(typeClass, "typeClass is null.");
-        if (typeClass.isEnum()) {
+        if (typeClass.isEnum() || typeClass.isAnnotationPresent(BindTypeHandler.class)) {
             return true;
         }
 
@@ -558,6 +560,10 @@ public final class TypeHandlerRegistry {
             return jdbcHandlerMap.containsKey(jdbcType);
         }
 
+        if (typeClass.isAnnotationPresent(BindTypeHandler.class)) {
+            return true;
+        }
+
         for (Class<?> abstractType : this.abstractCachedByCrossType.keySet()) {
             if (abstractType.isAssignableFrom(typeClass) || abstractType == typeClass) {
                 return true;
@@ -590,6 +596,30 @@ public final class TypeHandlerRegistry {
         TypeHandler<?> typeHandler = this.cachedByJavaType.get(typeClassName);
         if (typeHandler != null) {
             return typeHandler;
+        }
+
+        // maybe classType include BindTypeHandler
+        if (typeClass.isAnnotationPresent(BindTypeHandler.class)) {
+            synchronized (this) {
+                if (this.cachedByJavaType.containsKey(typeClassName)) {
+                    return this.cachedByJavaType.get(typeClassName);
+                }
+
+                try {
+                    BindTypeHandler handler = typeClass.getAnnotation(BindTypeHandler.class);
+                    Constructor<?> constructor = ConstructorUtils.getAccessibleConstructor(handler.value(), Class.class);
+                    if (constructor == null) {
+                        typeHandler = (TypeHandler<?>) handler.value().newInstance();
+                    } else {
+                        typeHandler = (TypeHandler<?>) ConstructorUtils.invokeConstructor(handler.value(), typeClass);
+                    }
+                } catch (Exception e) {
+                    throw ExceptionUtils.toRuntime(e);
+                }
+
+                this.cachedByJavaType.put(typeClassName, typeHandler);
+                return typeHandler;
+            }
         }
 
         // maybe classType is enum
@@ -649,6 +679,33 @@ public final class TypeHandlerRegistry {
         TypeHandler<?> typeHandler = this.cachedByJavaType.get(typeClassName);
         if (typeHandler != null) {
             return typeHandler;
+        }
+
+        // maybe classType include BindTypeHandler
+        if (typeClass.isAnnotationPresent(BindTypeHandler.class)) {
+            synchronized (this) {
+                if (this.cachedByCrossType.containsKey(typeClassName)) {
+                    handlerMap = this.cachedByCrossType.get(typeClassName);
+                    if (handlerMap.containsKey(jdbcType)) {
+                        return handlerMap.get(jdbcType);
+                    }
+                }
+
+                try {
+                    BindTypeHandler handler = typeClass.getAnnotation(BindTypeHandler.class);
+                    Constructor<?> constructor = ConstructorUtils.getAccessibleConstructor(handler.value(), Class.class);
+                    if (constructor == null) {
+                        typeHandler = (TypeHandler<?>) handler.value().newInstance();
+                    } else {
+                        typeHandler = (TypeHandler<?>) ConstructorUtils.invokeConstructor(handler.value(), typeClass);
+                    }
+                } catch (Exception e) {
+                    throw ExceptionUtils.toRuntime(e);
+                }
+
+                register(jdbcType, typeClass, typeHandler);
+                return typeHandler;
+            }
         }
 
         // maybe classType is enum

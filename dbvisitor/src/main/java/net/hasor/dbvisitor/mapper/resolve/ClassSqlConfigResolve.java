@@ -129,6 +129,9 @@ public class ClassSqlConfigResolve implements SqlConfigResolve<Method>, ConfigKe
                 cfg.put(RESULT_ROW_CALLBACK, ((Query) annotation).resultRowCallback().getName());
             } else if (((Query) annotation).resultRowMapper() != Object.class) {
                 cfg.put(RESULT_ROW_MAPPER, ((Query) annotation).resultRowMapper().getName());
+            } else if (((Query) annotation).resultTypeHandler() != Object.class) {
+                cfg.put(RESULT_TYPE_HANDLER, ((Query) annotation).resultTypeHandler().getName());
+                cfg.put(RESULT_TYPE, MappingHelper.typeName(requiredClass)); // RESULT_TYPE is argument for TypeHandler
             } else if (method.isAnnotationPresent(ResultMap.class)) {
                 MappingHelper.NameInfo nameInfo = MappingHelper.findNameInfo(method);
                 if (nameInfo == null) {

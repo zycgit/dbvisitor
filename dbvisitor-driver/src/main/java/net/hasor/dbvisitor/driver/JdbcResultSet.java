@@ -258,8 +258,8 @@ class JdbcResultSet implements ResultSet, Closeable {
     }
 
     @Override
-    public boolean isLast() throws SQLException {
-        throw new SQLFeatureNotSupportedException("isLast not supported");
+    public boolean isLast() {
+        return this.wasLast;
     }
 
     @Override

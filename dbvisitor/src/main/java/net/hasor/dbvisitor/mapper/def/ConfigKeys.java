@@ -34,6 +34,7 @@ public interface ConfigKeys {
     String RESULT_SET_EXTRACTOR = "resultSetExtractor"; // 结果集提取器
     String RESULT_ROW_CALLBACK  = "resultRowCallback";  // 行回调处理器
     String RESULT_ROW_MAPPER    = "resultRowMapper";    // 行映射器
+    String RESULT_TYPE_HANDLER  = "resultTypeHandler";  // 结果类型处理器
     String BIND_OUT             = "bindOut";            // 输出参数绑定
 
     // 插入(INSERT)相关配置键

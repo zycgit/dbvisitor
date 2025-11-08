@@ -100,7 +100,7 @@ public class SessionPrototype {
             return new FacadeStatement(space, dynamicId, this.configuration);
         });
 
-        Map<String, Object> mapData = this.extractData(parameter);
+        Map<String, Object> mapData = extractData(parameter);
         return proxy.execute(conn, mapData, page, pageResult);
     }
 

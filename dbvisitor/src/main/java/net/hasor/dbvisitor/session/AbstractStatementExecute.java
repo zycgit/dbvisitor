@@ -29,12 +29,14 @@ import net.hasor.dbvisitor.jdbc.extractor.BeanMappingResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.extractor.ColumnMapResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.extractor.RowCallbackHandlerResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
+import net.hasor.dbvisitor.jdbc.mapper.TypeHandlerColumnRowMapper;
 import net.hasor.dbvisitor.mapper.StatementDef;
 import net.hasor.dbvisitor.mapper.def.DmlConfig;
 import net.hasor.dbvisitor.mapper.def.DqlConfig;
 import net.hasor.dbvisitor.mapper.def.ExecuteConfig;
 import net.hasor.dbvisitor.mapper.def.SqlConfig;
 import net.hasor.dbvisitor.mapping.MappingHelper;
+import net.hasor.dbvisitor.types.TypeHandler;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 
 /**
@@ -206,6 +208,17 @@ public abstract class AbstractStatementExecute {
                     } else if (def.getResultRowMapper() != null) {
                         boolean isSingle = !def.isUsingCollection();
                         List<?> objects = new RowMapperResultSetExtractor<>(def.getResultRowMapper(), (isSingle ? 1 : 0)).extractData(rs);
+                        return isSingle ? (objects.isEmpty() ? null : objects.get(0)) : pageOrNot(objects, oriPageInfo, newPageCnt, pageResult);
+                    } else if (def.getResultTypeHandler() != null) {
+                        boolean isSingle = !def.isUsingCollection();
+                        TypeHandlerColumnRowMapper<?> rowMapper = new TypeHandlerColumnRowMapper<>(def.getResultTypeHandler());
+                        List<?> objects = new RowMapperResultSetExtractor<>(rowMapper, (isSingle ? 1 : 0)).extractData(rs);
+                        return isSingle ? (objects.isEmpty() ? null : objects.get(0)) : pageOrNot(objects, oriPageInfo, newPageCnt, pageResult);
+                    } else if (def.getResultTypeHandlerType() != null) {
+                        boolean isSingle = !def.isUsingCollection();
+                        TypeHandler<?> typeHandler = this.registry.getMappingRegistry().getTypeRegistry().createTypeHandler(def.getResultTypeHandlerType(), def.getResultType());
+                        TypeHandlerColumnRowMapper<?> rowMapper = new TypeHandlerColumnRowMapper<>(typeHandler);
+                        List<?> objects = new RowMapperResultSetExtractor<>(rowMapper, (isSingle ? 1 : 0)).extractData(rs);
                         return isSingle ? (objects.isEmpty() ? null : objects.get(0)) : pageOrNot(objects, oriPageInfo, newPageCnt, pageResult);
                     } else if (def.getResultType() != null) {
                         boolean isSingle = !def.isUsingCollection();
