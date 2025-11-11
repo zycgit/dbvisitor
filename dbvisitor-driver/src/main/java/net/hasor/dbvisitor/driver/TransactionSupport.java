@@ -19,11 +19,11 @@ import java.sql.SQLException;
 public interface TransactionSupport {
     boolean supportIsolation(int value);
 
-    void setIsolation(int value);
+    void setIsolation(int value) throws SQLException;
 
     int getIsolation();
 
-    void setAutoCommit(boolean value);
+    void setAutoCommit(boolean value) throws SQLException;
 
     boolean isAutoCommit();
 

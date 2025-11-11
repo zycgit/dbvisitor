@@ -25,11 +25,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("hdel theKey mykey1 mykey2")) {
-                    rs.next();
-                    assert rs.getLong(1) == 123L;
-                    assert rs.getLong("RESULT") == 123L;
-                }
+                assert stmt.executeUpdate("hdel theKey mykey1 mykey2") == 123L;
             }
 
             assert argList.size() == 2;
@@ -571,7 +567,7 @@ public class HashCommandTest extends AbstractJdbcTest {
                     List<String> r1 = new ArrayList<>();
                     List<String> r2 = new ArrayList<>();
                     while (rs.next()) {
-                        r1.add(rs.getString("KEY"));
+                        r1.add(rs.getString("FIELD"));
                         r2.add(rs.getString(1));
                     }
                     assert r1.equals(Arrays.asList("field1", "field2"));
@@ -656,11 +652,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("hset myhash field1 hello field2 word")) {
-                    rs.next();
-                    assert rs.getLong(1) == 123L;
-                    assert rs.getLong("RESULT") == 123L;
-                }
+                assert stmt.executeUpdate("hset myhash field1 hello field2 word") == 123L;
             }
 
             assert argList.size() == 2;
@@ -683,11 +675,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("hmset myhash field1 hello field2 word")) {
-                    rs.next();
-                    assert rs.getString(1).equals("OK");
-                    assert rs.getString("RESULT").equals("OK");
-                }
+                assert stmt.executeUpdate("hmset myhash field1 hello field2 word") == 2L;
             }
 
             assert argList.size() == 2;
@@ -710,11 +698,7 @@ public class HashCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("hsetnx myhash field1 hello")) {
-                    rs.next();
-                    assert rs.getLong(1) == 123L;
-                    assert rs.getLong("RESULT") == 123L;
-                }
+                assert stmt.executeUpdate("hsetnx myhash field1 hello") == 123L;
             }
 
             assert argList.size() == 3;

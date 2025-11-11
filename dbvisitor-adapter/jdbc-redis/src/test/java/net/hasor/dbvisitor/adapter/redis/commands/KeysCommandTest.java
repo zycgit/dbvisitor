@@ -26,11 +26,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("copy mykey copyMyKey")) {
-                    rs.next();
-                    assert rs.getBoolean(1);
-                    assert rs.getBoolean("RESULT");
-                }
+                assert stmt.executeUpdate("copy mykey copyMyKey") == 1;
             }
 
             assert argList.equals(Arrays.asList("mykey", "copyMyKey", false));
@@ -51,11 +47,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("copy mykey copyMyKey")) {
-                    rs.next();
-                    assert !rs.getBoolean(1);
-                    assert !rs.getBoolean("RESULT");
-                }
+                assert stmt.executeUpdate("copy mykey copyMyKey") == 0;
             }
 
             assert argList.equals(Arrays.asList("mykey", "copyMyKey", false));
@@ -76,11 +68,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("copy mykey copyMyKey db 12 replace")) {
-                    rs.next();
-                    assert !rs.getBoolean(1);
-                    assert !rs.getBoolean("RESULT");
-                }
+                assert stmt.executeUpdate("copy mykey copyMyKey db 12 replace") == 0;
             }
 
             assert argList.equals(Arrays.asList("mykey", "copyMyKey", 12, true));
@@ -102,11 +90,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection()) {
             try (java.sql.PreparedStatement stmt = conn.prepareStatement("copy mykey ? db 12 replace")) {
                 stmt.setString(1, "copyMyKey");
-                try (ResultSet rs = stmt.executeQuery()) {
-                    rs.next();
-                    assert !rs.getBoolean(1);
-                    assert !rs.getBoolean("RESULT");
-                }
+                assert stmt.executeUpdate() == 0;
             }
 
             assert argList.equals(Arrays.asList("mykey", "copyMyKey", 12, true));
@@ -127,11 +111,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("del mykey copyMyKey")) {
-                    rs.next();
-                    assert rs.getLong(1) == 2;
-                    assert rs.getLong("RESULT") == 2;
-                }
+                assert stmt.executeUpdate("del mykey copyMyKey") == 2L;
             }
 
             assert ((Object[]) argList.get(0))[0].equals("mykey");
@@ -155,11 +135,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
             try (java.sql.PreparedStatement stmt = conn.prepareStatement("del ? ?")) {
                 stmt.setString(1, "mykey");
                 stmt.setString(2, "copyMyKey");
-                try (ResultSet rs = stmt.executeQuery("del mykey copyMyKey")) {
-                    rs.next();
-                    assert rs.getLong(1) == 2;
-                    assert rs.getLong("RESULT") == 2;
-                }
+                assert stmt.executeUpdate("del mykey copyMyKey") == 2L;
             }
 
             assert ((Object[]) argList.get(0))[0].equals("mykey");
@@ -181,11 +157,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("unlink mykey copyMyKey")) {
-                    rs.next();
-                    assert rs.getLong(1) == 2;
-                    assert rs.getLong("RESULT") == 2;
-                }
+                assert stmt.executeUpdate("unlink mykey copyMyKey") == 2L;
             }
 
             assert ((Object[]) argList.get(0))[0].equals("mykey");
@@ -209,11 +181,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
             try (java.sql.PreparedStatement stmt = conn.prepareStatement("unlink ? ?")) {
                 stmt.setString(1, "mykey");
                 stmt.setString(2, "copyMyKey");
-                try (ResultSet rs = stmt.executeQuery("unlink mykey copyMyKey")) {
-                    rs.next();
-                    assert rs.getLong(1) == 2;
-                    assert rs.getLong("RESULT") == 2;
-                }
+                assert stmt.executeUpdate() == 2L;
             }
 
             assert ((Object[]) argList.get(0))[0].equals("mykey");
@@ -286,11 +254,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("expire mykey 123")) {
-                    rs.next();
-                    assert rs.getLong(1) == 2L;
-                    assert rs.getLong("RESULT") == 2L;
-                }
+                assert stmt.executeUpdate("expire mykey 123") == 2L;
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L));
@@ -311,11 +275,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("expire mykey 123 nx")) {
-                    rs.next();
-                    assert rs.getLong(1) == 2L;
-                    assert rs.getLong("RESULT") == 2L;
-                }
+                assert stmt.executeUpdate("expire mykey 123 nx") == 2L;
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L, ExpiryOption.NX));
@@ -336,11 +296,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("expire mykey 123 xx")) {
-                    rs.next();
-                    assert rs.getLong(1) == 2L;
-                    assert rs.getLong("RESULT") == 2L;
-                }
+                assert stmt.executeUpdate("expire mykey 123 xx") == 2L;
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L, ExpiryOption.XX));
@@ -361,11 +317,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("expire mykey 123 gt")) {
-                    rs.next();
-                    assert rs.getLong(1) == 2L;
-                    assert rs.getLong("RESULT") == 2L;
-                }
+                assert stmt.executeUpdate("expire mykey 123 gt") == 2L;
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L, ExpiryOption.GT));
@@ -386,11 +338,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("expire mykey 123 LT")) {
-                    rs.next();
-                    assert rs.getLong(1) == 2L;
-                    assert rs.getLong("RESULT") == 2L;
-                }
+                assert stmt.executeUpdate("expire mykey 123 LT") == 2L;
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L, ExpiryOption.LT));
@@ -411,11 +359,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("expireat mykey 123")) {
-                    rs.next();
-                    assert rs.getLong(1) == 2L;
-                    assert rs.getLong("RESULT") == 2L;
-                }
+                assert stmt.executeUpdate("expireat mykey 123") == 2L;
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L));
@@ -436,11 +380,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("expireat mykey 123 LT")) {
-                    rs.next();
-                    assert rs.getLong(1) == 2L;
-                    assert rs.getLong("RESULT") == 2L;
-                }
+                assert stmt.executeUpdate("expireat mykey 123 LT") == 2L;
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L, ExpiryOption.LT));
@@ -486,11 +426,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("pexpire mykey 123")) {
-                    rs.next();
-                    assert rs.getLong(1) == 2L;
-                    assert rs.getLong("RESULT") == 2L;
-                }
+                assert stmt.executeUpdate("pexpire mykey 123") == 2L;
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L));
@@ -511,11 +447,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("pexpire mykey 123 LT")) {
-                    rs.next();
-                    assert rs.getLong(1) == 2L;
-                    assert rs.getLong("RESULT") == 2L;
-                }
+                assert stmt.executeUpdate("pexpire mykey 123 LT") == 2L;
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L, ExpiryOption.LT));
@@ -536,11 +468,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("pexpireat mykey 123")) {
-                    rs.next();
-                    assert rs.getLong(1) == 2L;
-                    assert rs.getLong("RESULT") == 2L;
-                }
+                assert stmt.executeUpdate("pexpireat mykey 123") == 2L;
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L));
@@ -561,11 +489,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("pexpireat mykey 123 LT")) {
-                    rs.next();
-                    assert rs.getLong(1) == 2L;
-                    assert rs.getLong("RESULT") == 2L;
-                }
+                assert stmt.executeUpdate("pexpireat mykey 123 LT") == 2L;
             }
 
             assert argList.equals(Arrays.asList("mykey", 123L, ExpiryOption.LT));
@@ -827,10 +751,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("persist mykey")) {
-                    rs.next();
-                    assert rs.getLong("RESULT") == 2L;
-                }
+                assert stmt.executeUpdate("persist mykey") == 2;
             }
 
             assert argList.equals(Arrays.asList("mykey"));
@@ -925,10 +846,28 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("rename oldKey newKey")) {
-                    rs.next();
-                    assert rs.getString("RESULT").equals("ok");
-                }
+                assert stmt.executeUpdate("rename oldKey newKey") == 1;
+            }
+
+            assert argList.equals(Arrays.asList("oldKey", "newKey"));
+        } catch (SQLException e) {
+            assert false;
+        }
+    }
+
+    @Test
+    public void rename_2() {
+        List<Object> argList = new ArrayList<>();
+        String returnValue = "abc";
+
+        RedisCommandInterceptor.resetInterceptor();
+        RedisCommandInterceptor.addInterceptor(KeyCommands.class, createInvocationHandler("rename", (name, args) -> {
+            argList.addAll(Arrays.asList(args));
+            return returnValue;
+        }));
+        try (Connection conn = redisConnection()) {
+            try (java.sql.Statement stmt = conn.createStatement()) {
+                assert stmt.executeUpdate("rename oldKey newKey") == 0;
             }
 
             assert argList.equals(Arrays.asList("oldKey", "newKey"));
@@ -949,10 +888,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("renamenx mykey copyMyKey")) {
-                    rs.next();
-                    assert rs.getLong("RESULT") == 1L;
-                }
+                assert stmt.executeUpdate("renamenx mykey copyMyKey") == 1;
             }
 
             assert argList.equals(Arrays.asList("mykey", "copyMyKey"));
@@ -1094,11 +1030,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("touch mykey copyMyKey")) {
-                    rs.next();
-                    assert rs.getLong(1) == 2;
-                    assert rs.getLong("RESULT") == 2;
-                }
+                assert stmt.executeUpdate("touch mykey copyMyKey") == 2;
             }
 
             assert ((Object[]) argList.get(0))[0].equals("mykey");

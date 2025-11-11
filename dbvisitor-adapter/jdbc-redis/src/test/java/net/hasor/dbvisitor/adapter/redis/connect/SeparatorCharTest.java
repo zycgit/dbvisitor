@@ -34,7 +34,7 @@ public class SeparatorCharTest extends AbstractJdbcTest {
         RedisCommandInterceptor.addInterceptor(StringCommands.class, createInvocationHandler(new String[] { "set", "get" }, (name, args) -> {
             if (StringUtils.equalsIgnoreCase(name, "set")) {
                 setArgList.addAll(Arrays.asList(args));
-                return "abc1";
+                return "ok";
             }
             if (StringUtils.equalsIgnoreCase(name, "get")) {
                 getArgList.addAll(Arrays.asList(args));
@@ -46,11 +46,9 @@ public class SeparatorCharTest extends AbstractJdbcTest {
 
         try (Connection conn = redisConnection(';')) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                stmt.executeQuery("set aaa 123; get aaa");
-                try (ResultSet rs = stmt.getResultSet()) {
-                    rs.next();
-                    assert rs.getString(1).equals("abc1");
-                }
+                stmt.execute("set aaa 123; get aaa");
+                assert stmt.getUpdateCount() == 1;
+                assert stmt.getUpdateCount() == 1;
 
                 assert stmt.getMoreResults();
 
@@ -101,11 +99,9 @@ public class SeparatorCharTest extends AbstractJdbcTest {
 
         try (Connection conn = redisConnection('\n')) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                stmt.executeQuery("set aaa 123\n get aaa");
-                try (ResultSet rs = stmt.getResultSet()) {
-                    rs.next();
-                    assert rs.getString(1).equals("abc1");
-                }
+                stmt.execute("set aaa 123\n get aaa");
+                assert stmt.getUpdateCount() == 0;
+                assert stmt.getUpdateCount() == 0;
 
                 assert stmt.getMoreResults();
 

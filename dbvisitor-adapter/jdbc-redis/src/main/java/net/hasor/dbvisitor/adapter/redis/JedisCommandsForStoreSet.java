@@ -267,7 +267,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
         numKeysCheck(request, "ZDIFFSTORE", keys.length, numKeys);
 
         long result = jedisCmd.getSortedSetCommands().zdiffstore(dstKey, keys);
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -374,7 +374,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
         }
 
         long result = jedisCmd.getSortedSetCommands().zinterstore(dstKey, zParams, keys);
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -566,7 +566,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
         }
 
         long result = jedisCmd.getSortedSetCommands().zrangestore(dst, src, params);
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -634,7 +634,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
         }
 
         long result = jedisCmd.getSortedSetCommands().zrem(key, member);
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -646,7 +646,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
 
         long result = jedisCmd.getSortedSetCommands().zremrangeByLex(key, minStr, maxStr);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -658,7 +658,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
 
         long result = jedisCmd.getSortedSetCommands().zremrangeByRank(key, start, stop);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -670,7 +670,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
 
         long result = jedisCmd.getSortedSetCommands().zremrangeByScore(key, min, max);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -864,7 +864,7 @@ class JedisCommandsForStoreSet extends JedisCommands {
 
         long result = jedisCmd.getSortedSetCommands().zunionstore(dstKey, zParams, keys);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 }

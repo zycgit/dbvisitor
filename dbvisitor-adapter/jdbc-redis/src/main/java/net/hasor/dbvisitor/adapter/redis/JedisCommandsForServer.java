@@ -16,7 +16,7 @@ class JedisCommandsForServer extends JedisCommands {
 
         long result = jedisCmd.getDatabaseCommands().move(key, database);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 

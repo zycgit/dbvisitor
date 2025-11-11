@@ -47,25 +47,25 @@ description: jdbc-redis 支持 140+ 常用命令，涵盖 DB、Server、Keys、L
 | [UNLINK](https://redis.io/docs/latest/commands/unlink/)                   | 结果集 | 1        | RESULT 字段，LONG 类型                               |
 | [DUMP](https://redis.io/docs/latest/commands/dump/)                       | 结果集 | 1        | VALUE 字段，BYTES 类型                               |
 | [EXISTS](https://redis.io/docs/latest/commands/exists/)                   | 结果集 | 1        | RESULT 字段，LONG 类型                               |
-| [EXPIRE](https://redis.io/docs/latest/commands/expire/)                   | 结果集 | 1        | RESULT 字段，LONG 类型                               |
-| [EXPIREAT](https://redis.io/docs/latest/commands/expireat/)               | 结果集 | 1        | RESULT 字段，LONG 类型                               |
+| [EXPIRE](https://redis.io/docs/latest/commands/expire/)                   | 值   | --       | 如果设置了超时时间，则为 1；否则为 0。                           |
+| [EXPIREAT](https://redis.io/docs/latest/commands/expireat/)               | 值   | --       | 如果设置了超时时间，则为 1；否则为 0。                           |
 | [EXPIRETIME](https://redis.io/docs/latest/commands/expiretime/)           | 结果集 | 1        | RESULT 字段，LONG 类型                               |
-| [PEXPIRE](https://redis.io/docs/latest/commands/pexpire/)                 | 结果集 | 1        | RESULT 字段，LONG 类型                               |
-| [PEXPIREAT](https://redis.io/docs/latest/commands/pexpireat/)             | 结果集 | 1        | RESULT 字段，LONG 类型                               |
+| [PEXPIRE](https://redis.io/docs/latest/commands/pexpire/)                 | 值   | --       | 如果设置了超时时间，则为 1；否则为 0。                           |
+| [PEXPIREAT](https://redis.io/docs/latest/commands/pexpireat/)             | 值   | --       | 如果设置了超时时间，则为 1；否则为 0。                           |
 | [PEXPIRETIME](https://redis.io/docs/latest/commands/pexpiretime/)         | 结果集 | 1        | RESULT 字段，LONG 类型                               |
 | [KEYS](https://redis.io/docs/latest/commands/keys/)                       | 结果集 | multiple | KEY 字段，STRING 类型（提示：驱动会使用 scan 命令替代 keys 命令的调用） |
 | [OBJECT ENCODING](https://redis.io/docs/latest/commands/object-encoding/) | 结果集 | 1        | RESULT 字段，STRING 类型                             |
 | [OBJECT FREQ](https://redis.io/docs/latest/commands/object-freq/)         | 结果集 | 1        | RESULT 字段，LONG 类型                               |
 | [OBJECT IDLETIME](https://redis.io/docs/latest/commands/object-idletime/) | 结果集 | 1        | RESULT 字段，LONG 类型                               |
 | [OBJECT REFCOUNT](https://redis.io/docs/latest/commands/object-refcount/) | 结果集 | 1        | RESULT 字段，LONG 类型                               |
-| [PERSIST](https://redis.io/docs/latest/commands/persist/)                 | 结果集 | 1        | RESULT 字段，LONG 类型                               |
+| [PERSIST](https://redis.io/docs/latest/commands/persist/)                 | 值   | --       | 如果该键当前已生效则为 1，否则为 0（仅在该键未设置的情况下出现）              |
 | [TTL](https://redis.io/docs/latest/commands/ttl/)                         | 结果集 | 1        | RESULT 字段，LONG 类型                               |
 | [PTTL](https://redis.io/docs/latest/commands/pttl/)                       | 结果集 | 1        | RESULT 字段，LONG 类型                               |
 | [RANDOMKEY](https://redis.io/docs/latest/commands/randomkey/)             | 结果集 | 1        | KEY 字段，STRING 类型                                |
-| [RENAME](https://redis.io/docs/latest/commands/rename/)                   | 结果集 | 1        | RESULT 字段，STRING 类型                             |
-| [RENAMENX](https://redis.io/docs/latest/commands/renamenx/)               | 结果集 | 1        | RESULT 字段，LONG 类型                               |
+| [RENAME](https://redis.io/docs/latest/commands/rename/)                   | 值   | --       | 1 表示键已重命名，0 表示目标键已存在.（使用 OK 状态码判断）              |
+| [RENAMENX](https://redis.io/docs/latest/commands/renamenx/)               | 值   | --       | 1 表示键已重命名，0 表示目标键已存在.                           |
 | [SCAN](https://redis.io/docs/latest/commands/scan/)                       | 结果集 | multiple | CURSOR 字段，STRING 类型<br/>KEY 字段，STRING 类型        |
-| [TOUCH](https://redis.io/docs/latest/commands/touch/)                     | 结果集 | 1        | RESULT 字段，LONG 类型                               |
+| [TOUCH](https://redis.io/docs/latest/commands/touch/)                     | 值   | --       | 被 TOUCH 的键的数量。                                  |
 | [TYPE](https://redis.io/docs/latest/commands/type/)                       | 结果集 | 1        | RESULT 字段，STRING 类型                             |
 
 ## List 命令集 {#list}

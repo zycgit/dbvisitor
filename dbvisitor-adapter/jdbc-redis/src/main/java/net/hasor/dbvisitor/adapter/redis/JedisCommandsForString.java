@@ -52,7 +52,7 @@ class JedisCommandsForString extends JedisCommands {
             receive.responseResult(request, singleResult(request, COL_VALUE_STRING, value));
         } else {
             String result = jedisCmd.getStringCommands().set(setKey, setValue, params);
-            receive.responseResult(request, singleResult(request, COL_RESULT_STRING, result));
+            receive.responseUpdateCount(request, StringUtils.equalsIgnoreCase(result, "OK") ? 1 : 0);
         }
 
         return completed(sync);

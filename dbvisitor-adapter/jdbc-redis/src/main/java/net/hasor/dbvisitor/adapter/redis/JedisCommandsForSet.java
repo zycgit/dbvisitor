@@ -25,7 +25,7 @@ class JedisCommandsForSet extends JedisCommands {
         }
         long result = jedisCmd.getSetCommands().sadd(key, member);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -65,7 +65,7 @@ class JedisCommandsForSet extends JedisCommands {
 
         long result = jedisCmd.getSetCommands().sdiffstore(dst, keys);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -122,7 +122,7 @@ class JedisCommandsForSet extends JedisCommands {
 
         long result = jedisCmd.getSetCommands().sinterstore(dstKey, keys);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -171,7 +171,7 @@ class JedisCommandsForSet extends JedisCommands {
 
         long result = jedisCmd.getSetCommands().smove(srcKey, dstKey, member);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -225,7 +225,7 @@ class JedisCommandsForSet extends JedisCommands {
 
         long result = jedisCmd.getSetCommands().srem(key, member);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -290,7 +290,7 @@ class JedisCommandsForSet extends JedisCommands {
 
         long result = jedisCmd.getSetCommands().sunionstore(dstKey, keys);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 }

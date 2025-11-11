@@ -23,11 +23,7 @@ public class SetCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("sadd myKey v1 v2 v3")) {
-                    rs.next();
-                    assert rs.getLong(1) == 123L;
-                    assert rs.getLong("RESULT") == 123L;
-                }
+                assert stmt.executeUpdate("sadd myKey v1 v2 v3") == 123L;
             }
 
             assert argList.size() == 2;
@@ -107,11 +103,7 @@ public class SetCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("sdiffstore dst myKey1 myKey2")) {
-                    rs.next();
-                    assert rs.getLong(1) == 123L;
-                    assert rs.getLong("RESULT") == 123L;
-                }
+                assert stmt.executeUpdate("sdiffstore dst myKey1 myKey2") == 123L;
             }
 
             assert argList.size() == 2;
@@ -218,11 +210,7 @@ public class SetCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("sinterstore dstKey myKey1 myKey2")) {
-                    rs.next();
-                    assert rs.getLong(1) == 123L;
-                    assert rs.getLong("RESULT") == 123L;
-                }
+                assert stmt.executeUpdate("sinterstore dstKey myKey1 myKey2") == 123L;
             }
 
             assert argList.size() == 2;
@@ -362,11 +350,7 @@ public class SetCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("smove srcKey dstKey member")) {
-                    rs.next();
-                    assert rs.getLong(1) == 123L;
-                    assert rs.getLong("RESULT") == 123L;
-                }
+                assert stmt.executeUpdate("smove srcKey dstKey member") == 123L;
             }
 
             assert argList.size() == 3;
@@ -519,11 +503,7 @@ public class SetCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("srem myKey member1 member2 member3")) {
-                    rs.next();
-                    assert rs.getLong(1) == 123L;
-                    assert rs.getLong("RESULT") == 123L;
-                }
+                assert stmt.executeUpdate("srem myKey member1 member2 member3") == 123L;
             }
 
             assert argList.size() == 2;
@@ -669,11 +649,7 @@ public class SetCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("sunionstore dstKey myKey1 myKey2 myKey3")) {
-                    rs.next();
-                    assert rs.getLong(1) == 123L;
-                    assert rs.getLong("RESULT") == 123L;
-                }
+                assert stmt.executeUpdate("sunionstore dstKey myKey1 myKey2 myKey3") == 123L;
             }
 
             assert argList.size() == 2;

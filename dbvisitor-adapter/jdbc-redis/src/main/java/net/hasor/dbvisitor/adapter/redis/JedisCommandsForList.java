@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.redis.parser.RedisParser;
 import net.hasor.dbvisitor.driver.*;
@@ -226,7 +227,7 @@ class JedisCommandsForList extends JedisCommands {
 
         long result = jedisCmd.getListCommands().linsert(key, where, pivot, ele);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -290,7 +291,7 @@ class JedisCommandsForList extends JedisCommands {
 
         long result = jedisCmd.getListCommands().lpush(key, elements);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -307,7 +308,7 @@ class JedisCommandsForList extends JedisCommands {
 
         long result = jedisCmd.getListCommands().lpushx(key, elements);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -324,7 +325,7 @@ class JedisCommandsForList extends JedisCommands {
 
         long result = jedisCmd.getListCommands().rpush(key, elements);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -341,7 +342,7 @@ class JedisCommandsForList extends JedisCommands {
 
         long result = jedisCmd.getListCommands().rpushx(key, elements);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -365,7 +366,7 @@ class JedisCommandsForList extends JedisCommands {
 
         long result = jedisCmd.getListCommands().lrem(key, count, value);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -377,7 +378,7 @@ class JedisCommandsForList extends JedisCommands {
 
         String result = jedisCmd.getListCommands().lset(key, index, value);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_STRING, result));
+        receive.responseUpdateCount(request, StringUtils.equalsIgnoreCase("ok", result) ? 1 : 0);
         return completed(sync);
     }
 
@@ -389,7 +390,7 @@ class JedisCommandsForList extends JedisCommands {
 
         String result = jedisCmd.getListCommands().ltrim(key, begin, end);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_STRING, result));
+        receive.responseUpdateCount(request, StringUtils.equalsIgnoreCase("ok", result) ? 1 : 0);
         return completed(sync);
     }
 }

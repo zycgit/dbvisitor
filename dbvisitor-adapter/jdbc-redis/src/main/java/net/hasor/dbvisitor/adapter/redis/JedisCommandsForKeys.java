@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.cobble.CollectionUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.redis.parser.RedisParser;
 import net.hasor.dbvisitor.driver.*;
@@ -26,7 +27,7 @@ class JedisCommandsForKeys extends JedisCommands {
             result = jedisCmd.getKeyCommands().copy(oldKeyName, newKeyName, replace);
         }
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result ? 1 : 0));
+        receive.responseUpdateCount(request, result ? 1 : 0);
         return completed(sync);
     }
 
@@ -42,7 +43,7 @@ class JedisCommandsForKeys extends JedisCommands {
 
         long result = jedisCmd.getKeyCommands().del(keys);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -58,7 +59,7 @@ class JedisCommandsForKeys extends JedisCommands {
 
         long result = jedisCmd.getKeyCommands().unlink(keys);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -102,7 +103,7 @@ class JedisCommandsForKeys extends JedisCommands {
             result = jedisCmd.getKeyCommands().expire(key, seconds);
         }
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -120,7 +121,7 @@ class JedisCommandsForKeys extends JedisCommands {
             result = jedisCmd.getKeyCommands().expireAt(key, unixTime);
         }
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -148,7 +149,7 @@ class JedisCommandsForKeys extends JedisCommands {
             result = jedisCmd.getKeyCommands().pexpire(key, milliSeconds);
         }
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -166,7 +167,7 @@ class JedisCommandsForKeys extends JedisCommands {
             result = jedisCmd.getKeyCommands().pexpireAt(key, milliSecondsTimestamp);
         }
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -263,7 +264,7 @@ class JedisCommandsForKeys extends JedisCommands {
 
         long result = jedisCmd.getKeyCommands().persist(key);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -301,7 +302,7 @@ class JedisCommandsForKeys extends JedisCommands {
 
         String result = jedisCmd.getKeyCommands().rename(oldKey, newKey);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_STRING, result));
+        receive.responseUpdateCount(request, StringUtils.equalsIgnoreCase("ok", result) ? 1 : 0);
         return completed(sync);
     }
 
@@ -312,7 +313,7 @@ class JedisCommandsForKeys extends JedisCommands {
 
         long result = jedisCmd.getKeyCommands().renamenx(oldKey, newKey);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -375,7 +376,7 @@ class JedisCommandsForKeys extends JedisCommands {
 
         long result = jedisCmd.getKeyCommands().touch(keys);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 

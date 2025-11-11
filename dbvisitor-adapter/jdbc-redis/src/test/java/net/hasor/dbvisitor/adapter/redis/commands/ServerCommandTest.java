@@ -26,11 +26,7 @@ public class ServerCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("move mykey 123")) {
-                    rs.next();
-                    assert rs.getLong(1) == 123L;
-                    assert rs.getLong("RESULT") == 123L;
-                }
+                assert stmt.executeUpdate("move mykey 123") == 123L;
             }
 
             assert argList.equals(Arrays.asList("mykey", 123));

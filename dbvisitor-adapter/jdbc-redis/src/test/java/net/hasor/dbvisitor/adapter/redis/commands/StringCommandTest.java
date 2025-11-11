@@ -17,7 +17,7 @@ public class StringCommandTest extends AbstractJdbcTest {
     @Test
     public void set_1() {
         List<Object> argList = new ArrayList<>();
-        String returnValue = "abc";
+        String returnValue = "ok";
 
         RedisCommandInterceptor.resetInterceptor();
         RedisCommandInterceptor.addInterceptor(StringCommands.class, createInvocationHandler("set", (name, args) -> {
@@ -26,11 +26,7 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("set mykey value")) {
-                    rs.next();
-                    assert rs.getString(1).equals(returnValue);
-                    assert rs.getString("RESULT").equals(returnValue);
-                }
+                assert stmt.executeUpdate("set mykey value") == 1;
             }
 
             assert argList.size() == 3;
@@ -43,7 +39,7 @@ public class StringCommandTest extends AbstractJdbcTest {
     @Test
     public void set_2() {
         List<Object> argList = new ArrayList<>();
-        String returnValue = "abc";
+        String returnValue = "ok";
 
         RedisCommandInterceptor.resetInterceptor();
         RedisCommandInterceptor.addInterceptor(StringCommands.class, createInvocationHandler("set", (name, args) -> {
@@ -52,11 +48,7 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("set mykey value nx")) {
-                    rs.next();
-                    assert rs.getString(1).equals(returnValue);
-                    assert rs.getString("RESULT").equals(returnValue);
-                }
+                assert stmt.executeUpdate("set mykey value nx") == 1;
             }
 
             assert argList.size() == 3;
@@ -69,12 +61,7 @@ public class StringCommandTest extends AbstractJdbcTest {
 
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("set mykey value xx")) {
-                    while (rs.next()) {
-                        assert rs.getString(1).equals(returnValue);
-                        assert rs.getString("RESULT").equals(returnValue);
-                    }
-                }
+                assert stmt.executeUpdate("set mykey value xx") == 1;
             }
 
             assert argList.size() == 3;
@@ -98,11 +85,7 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("set mykey value xx ex 123")) {
-                    rs.next();
-                    assert rs.getString(1).equals(returnValue);
-                    assert rs.getString("RESULT").equals(returnValue);
-                }
+                assert stmt.executeUpdate("set mykey value xx ex 123") == 0;
             }
 
             assert argList.size() == 3;
@@ -117,7 +100,7 @@ public class StringCommandTest extends AbstractJdbcTest {
     @Test
     public void set_4() {
         List<Object> argList = new ArrayList<>();
-        String returnValue = "abc";
+        String returnValue = "ok";
 
         RedisCommandInterceptor.resetInterceptor();
         RedisCommandInterceptor.addInterceptor(StringCommands.class, createInvocationHandler("set", (name, args) -> {
@@ -126,17 +109,12 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("set mykey value xx keepttl")) {
-                    rs.next();
-                    assert rs.getString(1).equals(returnValue);
-                    assert rs.getString("RESULT").equals(returnValue);
-                }
+                assert stmt.executeUpdate("set mykey value xx keepttl") == 1;
             }
 
             assert argList.size() == 3;
             assert argList.equals(Arrays.asList("mykey", "value", new SetParams().xx().keepTtl()));
         } catch (SQLException e) {
-            e.printStackTrace();
             assert false;
         } finally {
             argList.clear();

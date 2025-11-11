@@ -61,7 +61,7 @@ class JedisCommandsForHash extends JedisCommands {
 
         long result = jedisCmd.getHashCommands().hdel(key, keys);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -290,17 +290,17 @@ class JedisCommandsForHash extends JedisCommands {
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.HkeysCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = ConvertUtils.toString(argOrValue(argIndex, request, cmd.hashKeyName().identifier()));
+        String key = argAsString(argIndex, request, cmd.hashKeyName().identifier());
 
         Set<String> value = jedisCmd.getHashCommands().hkeys(key);
 
-        receive.responseResult(request, listResult(request, COL_KEY_STRING, value));
+        receive.responseResult(request, listResult(request, COL_FIELD_STRING, value));
         return completed(sync);
     }
 
     public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.HlenCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String key = ConvertUtils.toString(argOrValue(argIndex, request, cmd.hashKeyName().identifier()));
+        String key = argAsString(argIndex, request, cmd.hashKeyName().identifier());
 
         long result = jedisCmd.getHashCommands().hlen(key);
 
@@ -339,7 +339,7 @@ class JedisCommandsForHash extends JedisCommands {
 
         long result = jedisCmd.getHashCommands().hset(key, data);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 
@@ -355,9 +355,9 @@ class JedisCommandsForHash extends JedisCommands {
             data.put(vKey, vValue);
         }
 
-        String result = jedisCmd.getHashCommands().hmset(key, data);
+        jedisCmd.getHashCommands().hmset(key, data);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_STRING, result));
+        receive.responseUpdateCount(request, data.size());
         return completed(sync);
     }
 
@@ -369,7 +369,7 @@ class JedisCommandsForHash extends JedisCommands {
 
         long result = jedisCmd.getHashCommands().hsetnx(key, vKey, vValue);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, result));
+        receive.responseUpdateCount(request, result);
         return completed(sync);
     }
 

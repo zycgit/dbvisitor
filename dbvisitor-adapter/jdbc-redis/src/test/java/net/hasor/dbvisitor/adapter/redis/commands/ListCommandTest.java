@@ -480,11 +480,7 @@ public class ListCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("linsert myKey1 after Hello Word")) {
-                    rs.next();
-                    assert rs.getLong(1) == 123L;
-                    assert rs.getLong("RESULT") == 123L;
-                }
+                assert stmt.executeUpdate("linsert myKey1 after Hello Word") == 123L;
             }
 
             assert argList.size() == 4;
@@ -646,11 +642,7 @@ public class ListCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("lpush myKey v1 v2 v3")) {
-                    rs.next();
-                    assert rs.getLong(1) == 123L;
-                    assert rs.getLong("RESULT") == 123L;
-                }
+                assert stmt.executeUpdate("lpush myKey v1 v2 v3") == 123L;
             }
 
             assert argList.size() == 2;
@@ -673,11 +665,7 @@ public class ListCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("lpushx myKey v1 v2 v3")) {
-                    rs.next();
-                    assert rs.getLong(1) == 123L;
-                    assert rs.getLong("RESULT") == 123L;
-                }
+                assert stmt.executeUpdate("lpushx myKey v1 v2 v3") == 123L;
             }
 
             assert argList.size() == 2;
@@ -700,11 +688,7 @@ public class ListCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("rpush myKey v1 v2 v3")) {
-                    rs.next();
-                    assert rs.getLong(1) == 123L;
-                    assert rs.getLong("RESULT") == 123L;
-                }
+                assert stmt.executeUpdate("rpush myKey v1 v2 v3") == 123L;
             }
 
             assert argList.size() == 2;
@@ -727,11 +711,7 @@ public class ListCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("rpushx myKey v1 v2 v3")) {
-                    rs.next();
-                    assert rs.getLong(1) == 123L;
-                    assert rs.getLong("RESULT") == 123L;
-                }
+                assert stmt.executeUpdate("rpushx myKey v1 v2 v3") == 123L;
             }
 
             assert argList.size() == 2;
@@ -785,11 +765,29 @@ public class ListCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("lrem myKey 10 value")) {
-                    rs.next();
-                    assert rs.getLong(1) == 123L;
-                    assert rs.getLong("RESULT") == 123L;
-                }
+                assert stmt.executeUpdate("lrem myKey 10 value") == 123L;
+            }
+
+            assert argList.size() == 3;
+            assert argList.equals(Arrays.asList("myKey", 10L, "value"));
+        } catch (SQLException e) {
+            assert false;
+        }
+    }
+
+    @Test
+    public void lset_0() {
+        List<Object> argList = new ArrayList<>();
+        String returnValue = "ok";
+
+        RedisCommandInterceptor.resetInterceptor();
+        RedisCommandInterceptor.addInterceptor(ListCommands.class, createInvocationHandler("lset", (name, args) -> {
+            argList.addAll(Arrays.asList(args));
+            return returnValue;
+        }));
+        try (Connection conn = redisConnection()) {
+            try (java.sql.Statement stmt = conn.createStatement()) {
+                assert stmt.executeUpdate("lset myKey 10 value") == 1L;
             }
 
             assert argList.size() == 3;
@@ -811,11 +809,7 @@ public class ListCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("lset myKey 10 value")) {
-                    rs.next();
-                    assert rs.getString(1).equals("abc");
-                    assert rs.getString("RESULT").equals("abc");
-                }
+                assert stmt.executeUpdate("lset myKey 10 value") == 0L;
             }
 
             assert argList.size() == 3;
@@ -828,6 +822,28 @@ public class ListCommandTest extends AbstractJdbcTest {
     @Test
     public void ltrim_1() {
         List<Object> argList = new ArrayList<>();
+        String returnValue = "ok";
+
+        RedisCommandInterceptor.resetInterceptor();
+        RedisCommandInterceptor.addInterceptor(ListCommands.class, createInvocationHandler("ltrim", (name, args) -> {
+            argList.addAll(Arrays.asList(args));
+            return returnValue;
+        }));
+        try (Connection conn = redisConnection()) {
+            try (java.sql.Statement stmt = conn.createStatement()) {
+                assert stmt.executeUpdate("ltrim myKey 10 20") == 1;
+            }
+
+            assert argList.size() == 3;
+            assert argList.equals(Arrays.asList("myKey", 10L, 20L));
+        } catch (SQLException e) {
+            assert false;
+        }
+    }
+
+    @Test
+    public void ltrim_2() {
+        List<Object> argList = new ArrayList<>();
         String returnValue = "abc";
 
         RedisCommandInterceptor.resetInterceptor();
@@ -837,11 +853,7 @@ public class ListCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("ltrim myKey 10 20")) {
-                    rs.next();
-                    assert rs.getString(1).equals("abc");
-                    assert rs.getString("RESULT").equals("abc");
-                }
+                assert stmt.executeUpdate("ltrim myKey 10 20") == 0;
             }
 
             assert argList.size() == 3;
