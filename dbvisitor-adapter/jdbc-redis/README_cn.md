@@ -214,39 +214,39 @@ jdbc:dbvisitor:jedis://server?database=0&param1=value1&param2=value2
 | [RPOPLPUSH](https://redis.io/docs/latest/commands/rpoplpush/)               | 结果集   | 1        | ELEMENT 字段，STRING 类型                                                              |
 | [BRPOPLPUSH](https://redis.io/docs/latest/commands/brpoplpush/)             | 结果集   | 1        | ELEMENT 字段，STRING 类型                                                              |
 | [LINDEX](https://redis.io/docs/latest/commands/lindex/)                     | 结果集   | 1        | ELEMENT 字段，STRING 类型                                                              |
-| [LINSERT](https://redis.io/docs/latest/commands/linsert/)                   | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
+| [LINSERT](https://redis.io/docs/latest/commands/linsert/)                   | 值     | --       | 插入操作后列表的长度，当 key 不存在时返回 0;当未找到 pivot 时返回 -1。                                      |
 | [LLEN](https://redis.io/docs/latest/commands/llen/)                         | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
 | [LPOS](https://redis.io/docs/latest/commands/lpos/)                         | 结果集   | multiple | RESULT 字段，LONG 类型                                                                 |
-| [LPUSH](https://redis.io/docs/latest/commands/lpush/)                       | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
-| [LPUSHX](https://redis.io/docs/latest/commands/lpushx/)                     | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
-| [RPUSH](https://redis.io/docs/latest/commands/rpush/)                       | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
-| [RPUSHX](https://redis.io/docs/latest/commands/rpushx/)                     | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
+| [LPUSH](https://redis.io/docs/latest/commands/lpush/)                       | 值     | --       | PUSH 操作后列表的长度。                                                                    |
+| [LPUSHX](https://redis.io/docs/latest/commands/lpushx/)                     | 值     | --       | PUSH 操作后列表的长度。                                                                    |
+| [RPUSH](https://redis.io/docs/latest/commands/rpush/)                       | 值     | --       | PUSH 操作后列表的长度。                                                                    |
+| [RPUSHX](https://redis.io/docs/latest/commands/rpushx/)                     | 值     | --       | PUSH 操作后列表的长度。                                                                    |
 | [LRANGE](https://redis.io/docs/latest/commands/lrange/)                     | 结果集   | multiple | ELEMENT 字段，STRING 类型                                                              |
-| [LREM](https://redis.io/docs/latest/commands/lrem/)                         | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
-| [LSET](https://redis.io/docs/latest/commands/lset/)                         | 结果集   | 1        | RESULT 字段，STRING 类型                                                               |
-| [LTRIM](https://redis.io/docs/latest/commands/ltrim/)                       | 结果集   | 1        | RESULT 字段，STRING 类型                                                               |
+| [LREM](https://redis.io/docs/latest/commands/lrem/)                         | 值     | --       | 移除的元素数量。                                                                          |
+| [LSET](https://redis.io/docs/latest/commands/lset/)                         | 值     | --       | 操作是否成功，成功返回 1 否则返回 0，当状态为 “OK” 时表示成功                                              |
+| [LTRIM](https://redis.io/docs/latest/commands/ltrim/)                       | 值     | --       | 操作是否成功，成功返回 1 否则返回 0，当状态为 “OK” 时表示成功                                              |
 | Server 命令集                                                                  |       |          |                                                                                   |
-| [MOVE](https://redis.io/docs/latest/commands/move/)                         | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
+| [MOVE](https://redis.io/docs/latest/commands/move/)                         | 值     | --       | 如果 key 被移动，则为 1；未被移动则为 0                                                          |
 | [WAIT](https://redis.io/docs/latest/commands/wait/)                         | 结果集   | 1        | REPLICAS 字段，LONG 类型                                                               |
 | [WAITAOF](https://redis.io/docs/latest/commands/waitaof/)                   | 结果集   | 1        | LOCAL 字段，LONG 类型<br/>REPLICAS 字段，LONG 类型                                          |
 | Set 命令集                                                                     |       |          |                                                                                   |
-| [SADD](https://redis.io/docs/latest/commands/sadd/)                         | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
+| [SADD](https://redis.io/docs/latest/commands/sadd/)                         | 值     | --       | 添加到集合中的元素数量，不包括集合中已有的元素。                                                          |
 | [SCARD](https://redis.io/docs/latest/commands/scard/)                       | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
 | [SDIFF](https://redis.io/docs/latest/commands/sdiff/)                       | 结果集   | multiple | ELEMENT 字段，STRING 类型                                                              |
-| [SDIFFSTORE](https://redis.io/docs/latest/commands/sdiffstore/)             | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
+| [SDIFFSTORE](https://redis.io/docs/latest/commands/sdiffstore/)             | 值     | --       | 结果集合中的元素数量。                                                                       |
 | [SINTER](https://redis.io/docs/latest/commands/sinter/)                     | 结果集   | multiple | ELEMENT 字段，STRING 类型                                                              |
 | [SINTERCARD](https://redis.io/docs/latest/commands/sintercard/)             | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
-| [SINTERSTORE](https://redis.io/docs/latest/commands/sinterstore/)           | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
+| [SINTERSTORE](https://redis.io/docs/latest/commands/sinterstore/)           | 值     | --       | 结果集合中的元素数量。                                                                       |
 | [SISMEMBER](https://redis.io/docs/latest/commands/sismember/)               | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
 | [SMISMEMBER](https://redis.io/docs/latest/commands/smismember/)             | 结果集   | multiple | RESULT 字段，BOOLEAN 类型                                                              |
 | [SMEMBERS](https://redis.io/docs/latest/commands/smembers/)                 | 结果集   | multiple | ELEMENT 字段，STRING 类型                                                              |
-| [SMOVE](https://redis.io/docs/latest/commands/smove/)                       | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
+| [SMOVE](https://redis.io/docs/latest/commands/smove/)                       | 值     | --       | 如果元素被移动，则为 1；未被移动则为 0                                                             |
 | [SPOP](https://redis.io/docs/latest/commands/spop/)                         | 结果集   | multiple | ELEMENT 字段，STRING 类型                                                              |
 | [SRANDMEMBER](https://redis.io/docs/latest/commands/srandmember/)           | 结果集   | multiple | ELEMENT 字段，STRING 类型                                                              |
-| [SREM](https://redis.io/docs/latest/commands/srem/)                         | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
+| [SREM](https://redis.io/docs/latest/commands/srem/)                         | 值     | --       | 从集合中移除的成员数量，不包括不存在的成员。                                                            |
 | [SSCAN](https://redis.io/docs/latest/commands/sscan/)                       | 结果集   | multiple | CURSOR 字段，STRING 类型<br/>ELEMENT 字段，STRING 类型                                      |
 | [SUNION](https://redis.io/docs/latest/commands/sunion/)                     | 结果集   | multiple | ELEMENT 字段，STRING 类型                                                              |
-| [SUNIONSTORE](https://redis.io/docs/latest/commands/sunionstore/)           | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
+| [SUNIONSTORE](https://redis.io/docs/latest/commands/sunionstore/)           | 值     | --       | 结果集合中的元素数量。                                                                       |
 | StoreSet 命令集                                                                |       |          |                                                                                   |
 | [ZMPOP](https://redis.io/docs/latest/commands/zmpop/)                       | 结果集   | multiple | KEY 字段，STRING 类型                                                                  |
 | [BZMPOP](https://redis.io/docs/latest/commands/bzmpop/)                     | 结果集   | multiple | KEY 字段，STRING 类型                                                                  |
@@ -258,11 +258,11 @@ jdbc:dbvisitor:jedis://server?database=0&param1=value1&param2=value2
 | [ZCARD](https://redis.io/docs/latest/commands/zcard/)                       | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
 | [ZCOUNT](https://redis.io/docs/latest/commands/zcount/)                     | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
 | [ZDIFF](https://redis.io/docs/latest/commands/zdiff/)                       | 结果集   | multiple | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/>ELEMENT 字段，STRING 类型                     |
-| [ZDIFFSTORE](https://redis.io/docs/latest/commands/zdiffstore/)             | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
+| [ZDIFFSTORE](https://redis.io/docs/latest/commands/zdiffstore/)             | 值     | --       | 结果有序集合中的元素数量。                                                                     |
 | [ZINCRBY](https://redis.io/docs/latest/commands/zincrby/)                   | 结果集   | 1        | SCORE 字段，DOUBLE 类型                                                                |
 | [ZINTER](https://redis.io/docs/latest/commands/zinter/)                     | 结果集   | multiple | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/>ELEMENT 字段，STRING 类型                     |
 | [ZINTERCARD](https://redis.io/docs/latest/commands/zintercard/)             | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
-| [ZINTERSTORE](https://redis.io/docs/latest/commands/zinterstore/)           | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
+| [ZINTERSTORE](https://redis.io/docs/latest/commands/zinterstore/)           | 值     | --       | 结果有序集合中的元素数量。                                                                     |
 | [ZLEXCOUNT](https://redis.io/docs/latest/commands/zlexcount/)               | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
 | [ZSCORE](https://redis.io/docs/latest/commands/zscore/)                     | 结果集   | 1        | SCORE 字段，DOUBLE 类型                                                                |
 | [ZMSCORE](https://redis.io/docs/latest/commands/zmscore/)                   | 结果集   | multiple | SCORE 字段，DOUBLE 类型                                                                |
@@ -270,19 +270,19 @@ jdbc:dbvisitor:jedis://server?database=0&param1=value1&param2=value2
 | [ZRANGE](https://redis.io/docs/latest/commands/zrange/)                     | 结果集   | multiple | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/>ELEMENT 字段，STRING 类型                     |
 | [ZRANGEBYLEX](https://redis.io/docs/latest/commands/zrangebylex/)           | 结果集   | multiple | ELEMENT 字段，STRING 类型                                                              |
 | [ZRANGEBYSCORE](https://redis.io/docs/latest/commands/zrangebyscore/)       | 结果集   | multiple | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/>ELEMENT 字段，STRING 类型                     |
-| [ZRANGESTORE](https://redis.io/docs/latest/commands/zrangestore/)           | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
+| [ZRANGESTORE](https://redis.io/docs/latest/commands/zrangestore/)           | 值     | --       | 结果有序集合中的元素数量。                                                                     |
 | [ZRANK](https://redis.io/docs/latest/commands/zrank/)                       | 结果集   | 1        | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/> RANK 字段，LONG 类型                         |
 | [ZREVRANK](https://redis.io/docs/latest/commands/zrevrank/)                 | 结果集   | 1        | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/> RANK 字段，LONG 类型                         |
-| [ZREM](https://redis.io/docs/latest/commands/zrem/)                         | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
-| [ZREMRANGEBYLEX](https://redis.io/docs/latest/commands/zremrangebylex/)     | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
-| [ZREMRANGEBYRANK](https://redis.io/docs/latest/commands/zremrangebyrank/)   | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
-| [ZREMRANGEBYSCORE](https://redis.io/docs/latest/commands/zremrangebyscore/) | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
+| [ZREM](https://redis.io/docs/latest/commands/zrem/)                         | 值     | --       | 从有序集合中移除的成员数量，不包括不存在的成员。                                                          |
+| [ZREMRANGEBYLEX](https://redis.io/docs/latest/commands/zremrangebylex/)     | 值     | --       | 从有序集合中移除的成员数量，不包括不存在的成员。                                                          |
+| [ZREMRANGEBYRANK](https://redis.io/docs/latest/commands/zremrangebyrank/)   | 值     | --       | 从有序集合中移除的成员数量，不包括不存在的成员。                                                          |
+| [ZREMRANGEBYSCORE](https://redis.io/docs/latest/commands/zremrangebyscore/) | 值     | --       | 从有序集合中移除的成员数量，不包括不存在的成员。                                                          |
 | [ZREVRANGE](https://redis.io/docs/latest/commands/zrevrange/)               | 结果集   | multiple | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/>ELEMENT 字段，STRING 类型                     |
 | [ZREVRANGEBYLEX](https://redis.io/docs/latest/commands/zrevrangebylex/)     | 结果集   | multiple | ELEMENT 字段，STRING 类型                                                              |
 | [ZREVRANGEBYSCORE](https://redis.io/docs/latest/commands/zrevrangebyscore/) | 结果集   | multiple | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/>ELEMENT 字段，STRING 类型                     |
 | [ZSCAN](https://redis.io/docs/latest/commands/zscan/)                       | 结果集   | multiple | CURSOR 字段，STRING 类型<br/>SCORE 字段，DOUBLE 类型<br/>ELEMENT 字段，STRING 类型               |
 | [ZUNION](https://redis.io/docs/latest/commands/zunion/)                     | 结果集   | multiple | SCORE 字段，DOUBLE 类型（当使用 WITHSCORES 时）<br/>ELEMENT 字段，STRING 类型                     |
-| [ZUNIONSTORE](https://redis.io/docs/latest/commands/zunionstore/)           | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
+| [ZUNIONSTORE](https://redis.io/docs/latest/commands/zunionstore/)           | 值     | --       | 结果有序集合中的元素数量。                                                                     |
 | String 命令集                                                                  |       |          |                                                                                   |
 | [SET](https://redis.io/docs/latest/commands/set/)                           | 值/结果集 | --/1     | 值：当不使用 GET 时，返回 0（表示没有设置） 或 1（表示设置成功）<br/>结果集：当使用 GET 时，VALUE 字段，STRING 类型        |
 | [GET](https://redis.io/docs/latest/commands/get/)                           | 结果集   | 1        | VALUE 字段，STRING 类型                                                                |

@@ -24,7 +24,7 @@ description: jdbc-redis 支持 140+ 常用命令，涵盖 DB、Server、Keys、L
 | [HGET](https://redis.io/docs/latest/commands/hget/)                 | 结果集 | 1        | VALUE 字段，STRING 类型                                                                |
 | [HGETALL](https://redis.io/docs/latest/commands/hgetall/)           | 结果集 | multiple | FIELD 字段，STRING 类型<br/>VALUE 字段，STRING 类型                                         |
 | [HINCRBY](https://redis.io/docs/latest/commands/hincrby/)           | 结果集 | 1        | VALUE 字段，LONG 类型                                                                  |
-| [HKEYS](https://redis.io/docs/latest/commands/hkeys/)               | 结果集 | multiple | KEY 字段，STRING 类型                                                                  |
+| [HKEYS](https://redis.io/docs/latest/commands/hkeys/)               | 结果集 | multiple | FIELD 字段，STRING 类型                                                                |
 | [HLEN](https://redis.io/docs/latest/commands/hlen/)                 | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
 | [HMGET](https://redis.io/docs/latest/commands/hmget/)               | 结果集 | multiple | VALUE 字段，STRING 类型                                                                |
 | [HSET](https://redis.io/docs/latest/commands/hset/)                 | 结果集 | 1        | RESULT 字段，LONG 类型                                                                 |
