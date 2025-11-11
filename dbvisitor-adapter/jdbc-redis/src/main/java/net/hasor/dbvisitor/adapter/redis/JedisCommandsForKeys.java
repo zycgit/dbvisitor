@@ -193,7 +193,7 @@ class JedisCommandsForKeys extends JedisCommands {
         if (fetchSize > 0) {
             scanParams.count(fetchSize);
         }
-        String cursor = null;
+        String cursor = "0";
 
         AdapterResultCursor receiveCur = new AdapterResultCursor(request, Collections.singletonList(COL_KEY_STRING));
         receive.responseResult(request, receiveCur);
