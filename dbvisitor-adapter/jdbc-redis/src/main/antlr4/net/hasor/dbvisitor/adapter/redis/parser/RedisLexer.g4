@@ -54,6 +54,7 @@ WAITAOF     : 'WAITAOF';
 PING        : 'PING';
 ECHO        : 'ECHO';
 SELECT      : 'SELECT';
+INFO        : 'INFO';
 LEFT        : 'LEFT';
 RIGHT       : 'RIGHT';
 BEFORE      : 'BEFORE';

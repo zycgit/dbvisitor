@@ -32,6 +32,7 @@ serverCommands
     | pingCommand
     | echoCommand
     | selectCommand
+    | infoCommand
     ;
 
 keysCommands
@@ -789,6 +790,10 @@ echoCommand
 
 selectCommand
     : SELECT integer
+    ;
+
+infoCommand
+    : INFO stringKeyName*
     ;
 
 strSetCommand

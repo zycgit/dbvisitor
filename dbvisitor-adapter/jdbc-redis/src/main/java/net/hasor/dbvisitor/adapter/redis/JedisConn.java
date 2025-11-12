@@ -1,17 +1,16 @@
 package net.hasor.dbvisitor.adapter.redis;
 import java.io.IOException;
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.BasicFuture;
 import net.hasor.cobble.concurrent.future.Future;
-import net.hasor.dbvisitor.adapter.redis.parser.JedisArgVisitor;
-import net.hasor.dbvisitor.adapter.redis.parser.RedisLexer;
-import net.hasor.dbvisitor.adapter.redis.parser.RedisParser;
-import net.hasor.dbvisitor.adapter.redis.parser.ThrowingListener;
+import net.hasor.dbvisitor.adapter.redis.parser.*;
 import net.hasor.dbvisitor.driver.*;
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -44,8 +43,47 @@ public class JedisConn extends AdapterConnection {
         }
     }
 
+    protected String getSeparatorCharString() {
+        switch (this.separatorChar) {
+            case '\n':
+                return "\\n";
+            case ';':
+                return ";";
+            default:
+                return String.valueOf(this.separatorChar);
+        }
+    }
+
     protected Connection getOwner() {
         return this.owner;
+    }
+
+    public void initConnection() {
+        AdapterInfo info = this.getInfo();
+        info.getDriverVersion().setName(JedisKeys.DEFAULT_CLIENT_NAME);
+        info.getDbVersion().setName("Redis");
+        info.getDbVersion().setVersion("Unknown");
+        info.getDbVersion().setMajorVersion(0);
+        info.getDbVersion().setMinorVersion(0);
+
+        try {
+            String serverInfo = jedisCmd.getServerCommands().info("server");
+            Properties properties = new Properties();
+            properties.load(new StringReader(serverInfo));
+            String redisVersion = String.valueOf(properties.get("redis_version"));
+            info.getDbVersion().setVersion(redisVersion);
+
+            if (StringUtils.isNotBlank(redisVersion)) {
+                String[] version = StringUtils.split(redisVersion, ".");
+                if (version.length >= 1) {
+                    info.getDbVersion().setMajorVersion(Integer.parseInt(version[0]));
+                }
+                if (version.length >= 2) {
+                    info.getDbVersion().setMinorVersion(Integer.parseInt(version[1]));
+                }
+            }
+        } catch (Throwable ignored) {
+        }
     }
 
     @Override
@@ -116,29 +154,27 @@ public class JedisConn extends AdapterConnection {
         }
     }
 
-    @Override
-    public synchronized void doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException {
+    protected RedisParser.RootContext parserRequest(AdapterRequest request) throws SQLException {
         try {
-            this._doRequest(request, receive);
-        } catch (Throwable e) {
-            throw new SQLException("Command '" + ((JedisRequest) request).getCommandBody() + "' " + e.getMessage(), e);
+            RedisLexer lexer = new RedisLexer(CharStreams.fromString(((JedisRequest) request).getCommandBody()));
+            lexer.setSeparatorChar(this.separatorChar);
+            lexer.removeErrorListeners();
+            lexer.addErrorListener(ThrowingListener.INSTANCE);
+
+            RedisParser parser = new RedisParser(new BufferedTokenStream(lexer));
+            parser.setSeparatorChar(this.separatorChar);
+            parser.removeErrorListeners();
+            parser.addErrorListener(ThrowingListener.INSTANCE);
+            return parser.root();
+        } catch (QueryParseException e) {
+            String errorMsg = "command '" + ((JedisRequest) request).getCommandBody() + "' parserFailed. (separatorChar = '" + getSeparatorCharString() + "')";
+            throw new SQLException(errorMsg, JdbcErrorCode.SQL_STATE_SYNTAX_ERROR);
         }
     }
 
-    //    @Override
-    public synchronized void _doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException {
-
-        RedisLexer lexer = new RedisLexer(CharStreams.fromString(((JedisRequest) request).getCommandBody()));
-        lexer.setSeparatorChar(this.separatorChar);
-        lexer.removeErrorListeners();
-        lexer.addErrorListener(ThrowingListener.INSTANCE);
-
-        RedisParser parser = new RedisParser(new BufferedTokenStream(lexer));
-        parser.setSeparatorChar(this.separatorChar);
-        parser.removeErrorListeners();
-        parser.addErrorListener(ThrowingListener.INSTANCE);
-        RedisParser.RootContext root = parser.root();
-
+    @Override
+    public synchronized void doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException {
+        RedisParser.RootContext root = parserRequest(request);
         JedisArgVisitor argVisitor = new JedisArgVisitor();
         root.accept(argVisitor);
         int argCount = argVisitor.getArgCount();

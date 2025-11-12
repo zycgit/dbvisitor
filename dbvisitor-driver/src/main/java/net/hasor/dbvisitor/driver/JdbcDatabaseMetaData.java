@@ -137,12 +137,12 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     @Override
     public int getJDBCMajorVersion() {
-        return JdbcDriver.VERSION_MAJOR;
+        return JdbcDriver.JDBC_MAJOR;
     }
 
     @Override
     public int getJDBCMinorVersion() {
-        return JdbcDriver.VERSION_MINOR;
+        return JdbcDriver.JDBC_MINOR;
     }
 
     @Override

@@ -32,9 +32,16 @@ abstract class JedisCommands {
     protected static final JdbcColumn COL_CURSOR_STRING  = new JdbcColumn("CURSOR", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_LOCAL_LONG     = new JdbcColumn("LOCAL", AdapterType.Long, "", "", "");
     protected static final JdbcColumn COL_REPLICAS_LONG  = new JdbcColumn("REPLICAS", AdapterType.Long, "", "", "");
+    protected static final JdbcColumn COL_GROUP_STRING   = new JdbcColumn("GROUP", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_NAME_STRING    = new JdbcColumn("NAME", AdapterType.String, "", "", "");
 
     protected static Future<?> completed(Future<Object> sync) {
         sync.completed(true);
+        return sync;
+    }
+
+    public static Future<?> failed(Future<Object> sync, Exception e) {
+        sync.failed(e);
         return sync;
     }
 

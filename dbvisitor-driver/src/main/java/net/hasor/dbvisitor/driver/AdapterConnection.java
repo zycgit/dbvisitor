@@ -43,7 +43,7 @@ public abstract class AdapterConnection implements Closeable {
         this.adapterInfo = new AdapterInfo();
         this.adapterInfo.setUrl(jdbcUrl);
         this.adapterInfo.setUserName(userName);
-        this.adapterInfo.setDbVersion(this.jdbcVersion());
+        this.adapterInfo.setDbVersion(this.dbVersion());
         this.adapterInfo.setDriverVersion(this.driverVersion());
         this.timeout = new ConcurrentHashMap<>();
     }
@@ -61,7 +61,7 @@ public abstract class AdapterConnection implements Closeable {
         return jdbc;
     }
 
-    protected AdapterVersion jdbcVersion() {
+    protected AdapterVersion dbVersion() {
         AdapterVersion jdbc = new AdapterVersion();
         jdbc.setName(JdbcDriver.NAME);
         jdbc.setVersion(JdbcDriver.VERSION);

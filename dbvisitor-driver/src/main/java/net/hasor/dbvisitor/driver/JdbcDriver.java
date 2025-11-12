@@ -38,11 +38,15 @@ public class JdbcDriver implements java.sql.Driver {
     /** The major version of this adapter. */
     public static final String NAME          = "dbVisitor JDBC Adapter";
     /** The major version of this adapter. */
-    public static final String VERSION       = "6.0";
+    public static final String VERSION       = "6.1";
     /** The major version of this adapter. */
     public static final int    VERSION_MAJOR = 6;
     /** The minor version of this adapter. */
-    public static final int    VERSION_MINOR = 0;
+    public static final int    VERSION_MINOR = 1;
+    /** The major version of JDBC adapter. */
+    public static final int    JDBC_MAJOR    = 4;
+    /** The minor version of JDBC adapter. */
+    public static final int    JDBC_MINOR    = 2;
 
     static {
         try {
@@ -95,12 +99,11 @@ public class JdbcDriver implements java.sql.Driver {
         // parse the args part of the url
         Properties properties = new Properties();
         properties.putAll(defaults);
-        Properties urlArgMap = new Properties();
         for (String cfgPart : StringUtils.split(urlArgs, "&")) {
             if (StringUtils.contains(cfgPart, "=")) {
                 String k = StringUtils.substringBefore(cfgPart, "=").trim();
                 String v = StringUtils.substringAfter(cfgPart, "=").trim();
-                urlArgMap.put(k, v);
+                properties.put(k, v);
             }
         }
 
@@ -114,8 +117,6 @@ public class JdbcDriver implements java.sql.Driver {
         String configUrl = urlServer.substring(adapterNameIdx + 2);
         if (StringUtils.isNotBlank(configUrl)) {
             properties.setProperty(P_SERVER, configUrl);
-        } else {
-            properties.putAll(urlArgMap);
         }
 
         return properties;

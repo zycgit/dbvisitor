@@ -176,15 +176,19 @@ public class JedisConnFactory implements AdapterFactory {
             database = clientConfig.getDatabase();
         }
 
+        JedisConn jedisConn;
         if (jedisObject instanceof JedisCluster) {
             JedisCmd cmd = new JedisCmd((JedisCluster) jedisObject, this.createInvocation(caseProps));
-            return new JedisConn(owner, cmd, jdbcUrl, caseProps, database);
+            jedisConn = new JedisConn(owner, cmd, jdbcUrl, caseProps, database);
         } else if (jedisObject instanceof Jedis) {
             JedisCmd cmd = new JedisCmd((Jedis) jedisObject, this.createInvocation(caseProps));
-            return new JedisConn(owner, cmd, jdbcUrl, caseProps, database);
+            jedisConn = new JedisConn(owner, cmd, jdbcUrl, caseProps, database);
         } else {
             throw new SQLException("create jedis connection failed, unknown jedis object type " + jedisObject.getClass().getName());
         }
+
+        jedisConn.initConnection();
+        return jedisConn;
     }
 
     private InvocationHandler createInvocation(Map<String, String> props) throws SQLException {

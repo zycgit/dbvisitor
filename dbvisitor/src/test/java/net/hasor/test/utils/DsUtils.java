@@ -96,13 +96,11 @@ public class DsUtils {
         return conn;
     }
 
-    public static Connection redisConn() throws SQLException, ClassNotFoundException {
-        Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
+    public static Connection redisConn() throws SQLException {
         return DriverManager.getConnection(REDIS_JDBC_URL, null, "123456");
     }
 
-    public static Connection redisConnSeparatorChar() throws SQLException, ClassNotFoundException {
-        Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
+    public static Connection redisConnSeparatorChar() throws SQLException {
         Properties prop = new Properties();
         prop.setProperty(JedisKeys.PASSWORD, "123456");
         prop.setProperty(JedisKeys.SEPARATOR_CHAR, ";");
@@ -145,27 +143,35 @@ public class DsUtils {
     }
 
     public static DefaultDs mysqlDs() throws SQLException {
-        DefaultDs druid = new DefaultDs();
-        druid.setUrl(MYSQL_JDBC_URL);
-        druid.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        druid.setUsername("root");
-        druid.setPassword("123456");
-        return druid;
+        DefaultDs pool = new DefaultDs();
+        pool.setUrl(MYSQL_JDBC_URL);
+        pool.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        pool.setUsername("root");
+        pool.setPassword("123456");
+        return pool;
     }
 
     public static DefaultDs oracleDs() throws SQLException {
-        DefaultDs druid = new DefaultDs();
-        druid.setUrl(ORACLE_JDBC_URL);
-        druid.setUsername("sys as sysdba");
-        druid.setPassword("oracle");
-        druid.setConnectionInitSqls(Collections.singletonList("alter session set current_schema = SCOTT"));
-        return druid;
+        DefaultDs pool = new DefaultDs();
+        pool.setUrl(ORACLE_JDBC_URL);
+        pool.setUsername("sys as sysdba");
+        pool.setPassword("oracle");
+        pool.setConnectionInitSqls(Collections.singletonList("alter session set current_schema = SCOTT"));
+        return pool;
     }
 
     public static DefaultDs pgDs() throws SQLException {
+        DefaultDs pool = new DefaultDs();
+        pool.setUrl(PG_JDBC_URL);
+        pool.setUsername("postgres");
+        pool.setPassword("123456");
+        return pool;
+    }
+
+    public static DefaultDs redisDs() {
         DefaultDs druid = new DefaultDs();
-        druid.setUrl(PG_JDBC_URL);
-        druid.setUsername("postgres");
+        druid.setUrl(REDIS_JDBC_URL);
+        druid.setDriverClassName("net.hasor.dbvisitor.driver.JdbcDriver");
         druid.setPassword("123456");
         return druid;
     }
