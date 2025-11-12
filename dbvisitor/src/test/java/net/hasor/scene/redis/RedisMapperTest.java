@@ -7,6 +7,7 @@ import net.hasor.scene.redis.dto2.UserInfo2;
 import net.hasor.scene.redis.dto2.UserInfo2Mapper;
 import net.hasor.scene.redis.dto3.UserInfo3;
 import net.hasor.scene.redis.dto3.UserInfo3Mapper;
+import net.hasor.scene.redis.dto3.UserInfo4Mapper;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
@@ -117,6 +118,39 @@ public class RedisMapperTest {
             int delStatus = infoMapper.deleteUser("3333");
             assert delStatus == 1;
             assert s.getConnection().unwrap(Jedis.class).get("user_3333") == null;
+        }
+    }
+
+    @Test
+    public void using_mapper_file_2() throws Exception {
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Session s = config.newSession(DsUtils.redisConnSeparatorChar())) {
+            UserInfo4Mapper infoMapper = s.createMapper(UserInfo4Mapper.class);
+
+            UserInfo1 user = new UserInfo1();
+            user.setUid("4444");
+            user.setName("username");
+            user.setLoginName("login_123");
+            user.setLoginPassword("password");
+
+            // insert
+            int saveStatus = infoMapper.saveUser(user);
+            assert saveStatus == 1;
+
+            // load1
+            UserInfo1 info1 = infoMapper.loadUser("4444");
+            assert info1.getUid().equals("4444");
+            assert info1.getName().equals("username");
+            assert info1.getLoginName().equals("login_123");
+            assert info1.getLoginPassword().equals("password");
+
+            // delete
+            assert s.getConnection().unwrap(Jedis.class).get("user_4444") != null;
+            int delStatus = infoMapper.deleteUser("4444");
+            assert delStatus == 1;
+            assert s.getConnection().unwrap(Jedis.class).get("user4444") == null;
         }
     }
 }

@@ -209,8 +209,8 @@ class JedisCommandsForString extends JedisCommands {
             keyValues[i++] = argAsString(argIndex, request, keyValueClauseContext.identifier());
         }
 
-        String status = jedisCmd.getStringCommands().mset(keyValues);
-        receive.responseResult(request, singleResult(request, COL_RESULT_STRING, status));
+        jedisCmd.getStringCommands().mset(keyValues);
+        receive.responseUpdateCount(request, 1);
         return completed(sync);
     }
 
@@ -227,7 +227,7 @@ class JedisCommandsForString extends JedisCommands {
 
         long status = jedisCmd.getStringCommands().msetnx(keyValues);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, status));
+        receive.responseUpdateCount(request, status);
         return completed(sync);
     }
 
@@ -239,7 +239,7 @@ class JedisCommandsForString extends JedisCommands {
 
         String status = jedisCmd.getStringCommands().psetex(key, milliseconds, value);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_STRING, status));
+        receive.responseUpdateCount(request, StringUtils.equalsIgnoreCase(status, "OK") ? 1 : 0);
         return completed(sync);
     }
 
@@ -251,7 +251,7 @@ class JedisCommandsForString extends JedisCommands {
 
         String status = jedisCmd.getStringCommands().setex(key, seconds, value);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_STRING, status));
+        receive.responseUpdateCount(request, StringUtils.equalsIgnoreCase(status, "OK") ? 1 : 0);
         return completed(sync);
     }
 
@@ -262,7 +262,7 @@ class JedisCommandsForString extends JedisCommands {
 
         long status = jedisCmd.getStringCommands().setnx(key, value);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, status));
+        receive.responseUpdateCount(request, status);
         return completed(sync);
     }
 
@@ -274,7 +274,7 @@ class JedisCommandsForString extends JedisCommands {
 
         long status = jedisCmd.getStringCommands().setrange(key, offset, value);
 
-        receive.responseResult(request, singleResult(request, COL_RESULT_LONG, status));
+        receive.responseUpdateCount(request, status);
         return completed(sync);
     }
 

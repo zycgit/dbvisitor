@@ -23,7 +23,7 @@ import net.hasor.scene.redis.dto1.UserInfo1;
  * @author 赵永春 (zyc@hasor.net)
  * @version 2013-12-10
  */
-@RefMapper("dbvisitor_scene/redis/user-mapper.xml")
+@RefMapper("dbvisitor_scene/redis/user-mapper-3.xml")
 public interface UserInfo3Mapper {
     int saveUser(@Param("info") UserInfo3 info);
 

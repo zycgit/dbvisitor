@@ -11,7 +11,6 @@ import net.hasor.dbvisitor.adapter.redis.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.redis.JedisKeys;
 import net.hasor.dbvisitor.adapter.redis.RedisCommandInterceptor;
 import net.hasor.dbvisitor.adapter.redis.RedisCustomJedis;
-import net.hasor.dbvisitor.adapter.redis.parser.QueryParseException;
 import net.hasor.dbvisitor.driver.JdbcDriver;
 import org.junit.Test;
 import redis.clients.jedis.commands.StringCommands;
@@ -70,10 +69,10 @@ public class SeparatorCharTest extends AbstractJdbcTest {
     public void test_1_error() throws SQLException {
         try (Connection conn = redisConnection(';')) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                stmt.executeQuery("set aaa 123\n get aaa");
+                stmt.executeUpdate("set aaa 123\n get aaa");
                 assert false;
-            } catch (Exception e) {
-                assert e.getCause() instanceof QueryParseException;
+            } catch (SQLException e) {
+                assert e.getMessage().contains("parserFailed. (separatorChar = ';')");
             }
         }
     }
@@ -124,10 +123,10 @@ public class SeparatorCharTest extends AbstractJdbcTest {
     public void test_2_error() throws SQLException {
         try (Connection conn = redisConnection('\n')) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                stmt.executeQuery("set aaa 123; get aaa");
+                stmt.executeUpdate("set aaa 123; get aaa");
                 assert false;
-            } catch (Exception e) {
-                assert e.getCause() instanceof QueryParseException;
+            } catch (SQLException e) {
+                assert e.getMessage().contains("parserFailed. (separatorChar = '\\n')");
             }
         }
     }

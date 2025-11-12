@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.scene.redis.dto1;
-import net.hasor.dbvisitor.mapper.*;
+package net.hasor.scene.redis.dto3;
+import net.hasor.dbvisitor.mapper.Param;
+import net.hasor.dbvisitor.mapper.RefMapper;
+import net.hasor.scene.redis.dto1.UserInfo1;
 
 /**
- * UserInfo1 类型上通过 BindTypeHandler 注释来绑定数据的序列化和反序列化。
+ * UserInfo3 类型上没有任何注释，通过在 Mapper XML 中描述序列化和反序列化。
  * @author 赵永春 (zyc@hasor.net)
  * @version 2013-12-10
  */
-@SimpleMapper()
-public interface UserInfo1Mapper {
-    @Insert("set #{'user_' + info.uid} #{info}")
+@RefMapper("dbvisitor_scene/redis/user-mapper-4.xml")
+public interface UserInfo4Mapper {
     int saveUser(@Param("info") UserInfo1 info);
 
-    @Query("get #{'user_' + uid}")
     UserInfo1 loadUser(@Param("uid") String uid);
 
-    @Delete("del #{'user_' + uid}")
     int deleteUser(@Param("uid") String uid);
 }

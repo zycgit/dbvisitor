@@ -574,11 +574,7 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("mset ket1 k1value ket2 k2value")) {
-                    rs.next();
-                    assert rs.getString(1).equals("ok");
-                    assert rs.getString("RESULT").equals("ok");
-                }
+                assert stmt.executeUpdate("mset ket1 k1value ket2 k2value") == 1L;
             }
 
             assert argList.size() == 1;
@@ -600,11 +596,7 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("msetnx ket1 k1value ket2 k2value")) {
-                    rs.next();
-                    assert rs.getLong(1) == 1L;
-                    assert rs.getLong("RESULT") == 1L;
-                }
+                assert stmt.executeUpdate("msetnx ket1 k1value ket2 k2value") == 1L;
             }
 
             assert argList.size() == 1;
@@ -626,11 +618,7 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("psetex ket1 100 value")) {
-                    rs.next();
-                    assert rs.getString(1).equals("ok");
-                    assert rs.getString("RESULT").equals("ok");
-                }
+                assert stmt.executeUpdate("psetex ket1 100 value") == 1L;
             }
             assert argList.size() == 3;
             assert argList.equals(Arrays.asList("ket1", 100L, "value"));
@@ -651,11 +639,7 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("setex ket1 100 value")) {
-                    rs.next();
-                    assert rs.getString(1).equals("ok");
-                    assert rs.getString("RESULT").equals("ok");
-                }
+                assert stmt.executeUpdate("setex ket1 100 value") == 1L;
             }
             assert argList.size() == 3;
             assert argList.equals(Arrays.asList("ket1", 100L, "value"));
@@ -676,11 +660,7 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("setnx ket1 value")) {
-                    rs.next();
-                    assert rs.getLong(1) == 1L;
-                    assert rs.getLong("RESULT") == 1L;
-                }
+                assert stmt.executeUpdate("setnx ket1 value") == 1L;
             }
             assert argList.size() == 2;
             assert argList.equals(Arrays.asList("ket1", "value"));
@@ -701,11 +681,7 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("setrange ket1 100 value")) {
-                    rs.next();
-                    assert rs.getLong(1) == 1L;
-                    assert rs.getLong("RESULT") == 1L;
-                }
+                assert stmt.executeUpdate("setrange ket1 100 value") == 1L;
             }
             assert argList.size() == 3;
             assert argList.equals(Arrays.asList("ket1", 100L, "value"));

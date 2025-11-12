@@ -548,7 +548,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
                 }
             }
             assert argList.size() == 2;
-            assert argList.get(0) == null;
+            assert argList.get(0) == "0";
             assert argList.get(1).equals(new ScanParams().match("*"));
         }
     }
@@ -557,7 +557,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
     public void keys_2() throws SQLException {
         List<Object> argList = new ArrayList<>();
         Map<String, ScanResult> paged = new HashMap<>();
-        paged.put(null, new ScanResult("1", Arrays.asList("key1", "key2")));
+        paged.put("0", new ScanResult("1", Arrays.asList("key1", "key2")));
         paged.put("1", new ScanResult("2", Arrays.asList("key3", "key4")));
         paged.put("2", new ScanResult("3", Arrays.asList("key5")));
         paged.put("3", new ScanResult("0", Arrays.asList("key6")));
@@ -586,7 +586,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
 
             assert scanCnt.get() == 4;
             assert argList.size() == 8;
-            assert argList.get(0) == null;
+            assert argList.get(0) == "0";
             assert argList.get(1).equals(new ScanParams().match("*"));
             assert argList.get(2).equals("1");
             assert argList.get(3).equals(new ScanParams().match("*"));
@@ -601,7 +601,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
     public void keys_3() throws SQLException {
         List<Object> argList = new ArrayList<>();
         Map<String, ScanResult> paged = new HashMap<>();
-        paged.put(null, new ScanResult("1", Arrays.asList("key1", "key2")));
+        paged.put("0", new ScanResult("1", Arrays.asList("key1", "key2")));
         paged.put("1", new ScanResult("2", Arrays.asList("key3", "key4")));
         paged.put("2", new ScanResult("3", Arrays.asList("key5")));
         paged.put("3", new ScanResult("0", Arrays.asList("key6")));
@@ -632,7 +632,7 @@ public class KeysCommandTest extends AbstractJdbcTest {
 
             assert scanCnt.get() == 2;
             assert argList.size() == 4;
-            assert argList.get(0) == null;
+            assert argList.get(0) == "0";
             assert argList.get(1).equals(new ScanParams().match("*").count(20));
             assert argList.get(2).equals("1");
             assert argList.get(3).equals(new ScanParams().match("*").count(20));

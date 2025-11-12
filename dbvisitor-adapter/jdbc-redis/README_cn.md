@@ -299,11 +299,11 @@ jdbc:dbvisitor:jedis://server?database=0&param1=value1&param2=value2
 | [GETRANGE](https://redis.io/docs/latest/commands/getrange/)                 | 结果集   | 1        | VALUE 字段，STRING 类型                                                                |
 | [GETSET](https://redis.io/docs/latest/commands/getset/)                     | 结果集   | 1        | VALUE 字段，STRING 类型                                                                |
 | [MGET](https://redis.io/docs/latest/commands/mget/)                         | 结果集   | multiple | VALUE 字段，STRING 类型                                                                |
-| [MSET](https://redis.io/docs/latest/commands/mset/)                         | 结果集   | 1        | RESULT 字段，STRING 类型                                                               |
-| [MSETNX](https://redis.io/docs/latest/commands/msetnx/)                     | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
-| [PSETEX](https://redis.io/docs/latest/commands/psetex/)                     | 结果集   | 1        | RESULT 字段，STRING 类型                                                               |
-| [SETEX](https://redis.io/docs/latest/commands/setex/)                       | 结果集   | 1        | RESULT 字段，STRING 类型                                                               |
-| [SETNX](https://redis.io/docs/latest/commands/setnx/)                       | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
-| [SETRANGE](https://redis.io/docs/latest/commands/setrange/)                 | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
+| [MSET](https://redis.io/docs/latest/commands/mset/)                         | 值     | --       | 始终是 1，因为 MSET 不会失败。                                                               |
+| [MSETNX](https://redis.io/docs/latest/commands/msetnx/)                     | 值     | --       | 如果没有设置任何键（至少有一个键已存在），则返回 0；如果所有键都已设置，则返回 1。                                       |
+| [PSETEX](https://redis.io/docs/latest/commands/psetex/)                     | 值     | --       | 如果操作成功，则返回 1；否则返回 0。（当状态为 “OK” 时，表示操作成功）                                          |
+| [SETEX](https://redis.io/docs/latest/commands/setex/)                       | 值     | --       | 如果操作成功，则返回 1；否则返回 0。（当状态为 “OK” 时，表示操作成功）                                          |
+| [SETNX](https://redis.io/docs/latest/commands/setnx/)                       | 值     | --       | 如果键被设置，则为 1，否则为 0                                                                 |
+| [SETRANGE](https://redis.io/docs/latest/commands/setrange/)                 | 值     | --       | 命令修改后字符串的长度。                                                                      |
 | [STRLEN](https://redis.io/docs/latest/commands/strlen/)                     | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
 | [SUBSTR](https://redis.io/docs/latest/commands/substr/)                     | 结果集   | 1        | VALUE 字段，STRING 类型                                                                |
