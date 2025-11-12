@@ -229,6 +229,9 @@ jdbc:dbvisitor:jedis://server?database=0&param1=value1&param2=value2
 | [MOVE](https://redis.io/docs/latest/commands/move/)                         | 值     | --       | 如果 key 被移动，则为 1；未被移动则为 0                                                          |
 | [WAIT](https://redis.io/docs/latest/commands/wait/)                         | 结果集   | 1        | REPLICAS 字段，LONG 类型                                                               |
 | [WAITAOF](https://redis.io/docs/latest/commands/waitaof/)                   | 结果集   | 1        | LOCAL 字段，LONG 类型<br/>REPLICAS 字段，LONG 类型                                          |
+| [PING](https://redis.io/docs/latest/commands/ping/)                         | 结果集   | 1        | RESULT 字段，STRING 类型                                                               |
+| [ECHO](https://redis.io/docs/latest/commands/echo/)                         | 结果集   | 1        | RESULT 字段，STRING 类型                                                               |
+| [SELECT](https://redis.io/docs/latest/commands/select/)                     | 值     | --       | 操作成功返回 1，否则抛出异常                                                                   |
 | Set 命令集                                                                     |       |          |                                                                                   |
 | [SADD](https://redis.io/docs/latest/commands/sadd/)                         | 值     | --       | 添加到集合中的元素数量，不包括集合中已有的元素。                                                          |
 | [SCARD](https://redis.io/docs/latest/commands/scard/)                       | 结果集   | 1        | RESULT 字段，LONG 类型                                                                 |
