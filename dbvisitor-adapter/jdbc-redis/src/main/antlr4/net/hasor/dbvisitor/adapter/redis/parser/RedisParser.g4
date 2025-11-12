@@ -29,6 +29,9 @@ serverCommands
     : moveCommand
     | waitCommand
     | waitaofCommand
+    | pingCommand
+    | echoCommand
+    | selectCommand
     ;
 
 keysCommands
@@ -774,6 +777,18 @@ waitCommand
 
 waitaofCommand
     : WAITAOF numlocal=integer replicas=integer timeout=integer
+    ;
+
+pingCommand
+    : PING stringKeyName?
+    ;
+
+echoCommand
+    : ECHO stringKeyName?
+    ;
+
+selectCommand
+    : SELECT integer
     ;
 
 strSetCommand

@@ -89,4 +89,104 @@ public class ServerCommandTest extends AbstractJdbcTest {
             assert false;
         }
     }
+
+    @Test
+    public void ping_1() {
+        List<Object> argList = new ArrayList<>();
+        String returnValue = "abc";
+
+        RedisCommandInterceptor.resetInterceptor();
+        RedisCommandInterceptor.addInterceptor(ServerCommands.class, createInvocationHandler("ping", (name, args) -> {
+            if (args != null) {
+                argList.addAll(Arrays.asList(args));
+            }
+            return returnValue;
+        }));
+        try (Connection conn = redisConnection()) {
+            try (java.sql.Statement stmt = conn.createStatement()) {
+                try (ResultSet rs = stmt.executeQuery("ping")) {
+                    rs.next();
+                    assert rs.getString(1).equals("abc");
+                    assert rs.getString("RESULT").equals("abc");
+                }
+            }
+
+            assert argList.isEmpty();
+        } catch (SQLException e) {
+            assert false;
+        }
+    }
+
+    @Test
+    public void ping_2() {
+        List<Object> argList = new ArrayList<>();
+        String returnValue = "abc";
+
+        RedisCommandInterceptor.resetInterceptor();
+        RedisCommandInterceptor.addInterceptor(ServerCommands.class, createInvocationHandler("ping", (name, args) -> {
+            if (args != null) {
+                argList.addAll(Arrays.asList(args));
+            }
+            return returnValue;
+        }));
+        try (Connection conn = redisConnection()) {
+            try (java.sql.Statement stmt = conn.createStatement()) {
+                try (ResultSet rs = stmt.executeQuery("ping hello")) {
+                    rs.next();
+                    assert rs.getString(1).equals("abc");
+                    assert rs.getString("RESULT").equals("abc");
+                }
+            }
+
+            assert argList.get(0).equals("hello");
+        } catch (SQLException e) {
+            assert false;
+        }
+    }
+
+    @Test
+    public void echo_1() {
+        List<Object> argList = new ArrayList<>();
+        String returnValue = "abc";
+
+        RedisCommandInterceptor.resetInterceptor();
+        RedisCommandInterceptor.addInterceptor(ServerCommands.class, createInvocationHandler("echo", (name, args) -> {
+            argList.addAll(Arrays.asList(args));
+            return returnValue;
+        }));
+        try (Connection conn = redisConnection()) {
+            try (java.sql.Statement stmt = conn.createStatement()) {
+                try (ResultSet rs = stmt.executeQuery("echo hello")) {
+                    rs.next();
+                    assert rs.getString(1).equals("abc");
+                    assert rs.getString("RESULT").equals("abc");
+                }
+            }
+
+            assert argList.get(0).equals("hello");
+        } catch (SQLException e) {
+            assert false;
+        }
+    }
+
+    @Test
+    public void select_1() {
+        List<Object> argList = new ArrayList<>();
+        String returnValue = "ok";
+
+        RedisCommandInterceptor.resetInterceptor();
+        RedisCommandInterceptor.addInterceptor(DatabaseCommands.class, createInvocationHandler("select", (name, args) -> {
+            argList.addAll(Arrays.asList(args));
+            return returnValue;
+        }));
+        try (Connection conn = redisConnection()) {
+            try (java.sql.Statement stmt = conn.createStatement()) {
+                assert stmt.executeUpdate("select 111") == 1;
+            }
+
+            assert argList.get(0).equals(111);
+        } catch (SQLException e) {
+            assert false;
+        }
+    }
 }

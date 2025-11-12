@@ -1,5 +1,4 @@
 package net.hasor.dbvisitor.adapter.redis;
-import java.sql.Connection;
 import java.sql.SQLException;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.redis.parser.RedisParser;
@@ -7,7 +6,7 @@ import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 
 class JedisDistributeCall {
-    public static Future<?> execRedisCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.CommandContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, Connection conn) throws SQLException {
+    public static Future<?> execRedisCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.CommandContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, JedisConn conn) throws SQLException {
         if (c.serverCommands() != null) {
             return execServerCmd(sync, jedisCmd, c.serverCommands(), request, receive, startArgIdx, conn);
         }
@@ -32,7 +31,7 @@ class JedisDistributeCall {
         throw new SQLException("unknown command.");
     }
 
-    private static Future<?> execServerCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ServerCommandsContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, Connection conn) throws SQLException {
+    private static Future<?> execServerCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ServerCommandsContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, JedisConn conn) throws SQLException {
         if (c.moveCommand() != null) {
             return JedisCommandsForServer.execCmd(sync, jedisCmd, c.moveCommand(), request, receive, startArgIdx);
         }
@@ -42,10 +41,19 @@ class JedisDistributeCall {
         if (c.waitaofCommand() != null) {
             return JedisCommandsForServer.execCmd(sync, jedisCmd, c.waitaofCommand(), request, receive, startArgIdx);
         }
+        if (c.pingCommand() != null) {
+            return JedisCommandsForServer.execCmd(sync, jedisCmd, c.pingCommand(), request, receive, startArgIdx);
+        }
+        if (c.echoCommand() != null) {
+            return JedisCommandsForServer.execCmd(sync, jedisCmd, c.echoCommand(), request, receive, startArgIdx);
+        }
+        if (c.selectCommand() != null) {
+            return JedisCommandsForServer.execCmd(sync, jedisCmd, c.selectCommand(), request, receive, startArgIdx, conn);
+        }
         throw new SQLException("unknown Common Command.");
     }
 
-    private static Future<?> execKeysCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.KeysCommandsContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, Connection conn) throws SQLException {
+    private static Future<?> execKeysCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.KeysCommandsContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, JedisConn conn) throws SQLException {
         if (c.copyCommand() != null) {
             return JedisCommandsForKeys.execCmd(sync, jedisCmd, c.copyCommand(), request, receive, startArgIdx);
         }
@@ -115,7 +123,7 @@ class JedisDistributeCall {
         throw new SQLException("unknown Common Command.");
     }
 
-    private static Future<?> execStringCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.StringCommandsContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, Connection conn) throws SQLException {
+    private static Future<?> execStringCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.StringCommandsContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, JedisConn conn) throws SQLException {
         if (c.strSetCommand() != null) {
             return JedisCommandsForString.execCmd(sync, jedisCmd, c.strSetCommand(), request, receive, startArgIdx);
         }
@@ -179,7 +187,7 @@ class JedisDistributeCall {
         throw new SQLException("unknown String Command.");
     }
 
-    private static Future<?> execListCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ListCommandsContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, Connection conn) throws SQLException {
+    private static Future<?> execListCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.ListCommandsContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, JedisConn conn) throws SQLException {
         if (c.lmoveCommand() != null) {
             return JedisCommandsForList.execCmd(sync, jedisCmd, c.lmoveCommand(), request, receive, startArgIdx);
         }
@@ -187,10 +195,10 @@ class JedisDistributeCall {
             return JedisCommandsForList.execCmd(sync, jedisCmd, c.blmoveCommand(), request, receive, startArgIdx);
         }
         if (c.lmpopCommand() != null) {
-            return JedisCommandsForList.execCmd(sync, jedisCmd, c.lmpopCommand(), request, receive, startArgIdx, conn);
+            return JedisCommandsForList.execCmd(sync, jedisCmd, c.lmpopCommand(), request, receive, startArgIdx, conn.getOwner());
         }
         if (c.blmpopCommand() != null) {
-            return JedisCommandsForList.execCmd(sync, jedisCmd, c.blmpopCommand(), request, receive, startArgIdx, conn);
+            return JedisCommandsForList.execCmd(sync, jedisCmd, c.blmpopCommand(), request, receive, startArgIdx, conn.getOwner());
         }
         if (c.lpopCommand() != null) {
             return JedisCommandsForList.execCmd(sync, jedisCmd, c.lpopCommand(), request, receive, startArgIdx);
@@ -249,7 +257,7 @@ class JedisDistributeCall {
         throw new SQLException("unknown List Command.");
     }
 
-    private static Future<?> execSetCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SetCommandsContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, Connection conn) throws SQLException {
+    private static Future<?> execSetCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SetCommandsContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, JedisConn conn) throws SQLException {
         if (c.saddCommand() != null) {
             return JedisCommandsForSet.execCmd(sync, jedisCmd, c.saddCommand(), request, receive, startArgIdx);
         }
@@ -304,9 +312,9 @@ class JedisDistributeCall {
         throw new SQLException("unknown Set Command.");
     }
 
-    private static Future<?> execSortedSetCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SortedSetCommandsContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, Connection conn) throws SQLException {
+    private static Future<?> execSortedSetCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SortedSetCommandsContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, JedisConn conn) throws SQLException {
         if (c.zmpopCommand() != null) {
-            return JedisCommandsForStoreSet.execCmd(sync, jedisCmd, c.zmpopCommand(), request, receive, startArgIdx, conn);
+            return JedisCommandsForStoreSet.execCmd(sync, jedisCmd, c.zmpopCommand(), request, receive, startArgIdx, conn.getOwner());
         }
         if (c.bzmpopCommand() != null) {
             return JedisCommandsForStoreSet.execCmd(sync, jedisCmd, c.bzmpopCommand(), request, receive, startArgIdx);
@@ -413,7 +421,7 @@ class JedisDistributeCall {
         throw new SQLException("unknown SortedSet Command.");
     }
 
-    private static Future<?> execHashCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.HashCommandsContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, Connection conn) throws SQLException {
+    private static Future<?> execHashCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.HashCommandsContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, JedisConn conn) throws SQLException {
         if (c.hdelCommand() != null) {
             return JedisCommandsForHash.execCmd(sync, jedisCmd, c.hdelCommand(), request, receive, startArgIdx);
         }

@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import net.hasor.cobble.ExceptionUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.BasicFuture;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.redis.parser.JedisArgVisitor;
@@ -43,13 +44,17 @@ public class JedisConn extends AdapterConnection {
         }
     }
 
+    protected Connection getOwner() {
+        return this.owner;
+    }
+
     @Override
     public String getCatalog() {
         return this.getSchema();
     }
 
     @Override
-    public void setCatalog(String catalog) {
+    public void setCatalog(String catalog) throws SQLException {
         this.setSchema(catalog);
     }
 
@@ -59,11 +64,14 @@ public class JedisConn extends AdapterConnection {
     }
 
     @Override
-    public void setSchema(String schema) {
+    public void setSchema(String schema) throws SQLException {
         int newDatabase = Integer.parseInt(schema);
         if (this.database != newDatabase) {
             this.database = newDatabase;
-            this.jedisCmd.getDatabaseCommands().select(newDatabase);
+            String status = this.jedisCmd.getDatabaseCommands().select(newDatabase);
+            if (!StringUtils.equalsIgnoreCase(status, "ok")) {
+                throw new SQLException("select database failed, status: " + status);
+            }
         }
     }
 
@@ -110,6 +118,16 @@ public class JedisConn extends AdapterConnection {
 
     @Override
     public synchronized void doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException {
+        try {
+            this._doRequest(request, receive);
+        } catch (Throwable e) {
+            throw new SQLException("Command '" + ((JedisRequest) request).getCommandBody() + "' " + e.getMessage(), e);
+        }
+    }
+
+    //    @Override
+    public synchronized void _doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException {
+
         RedisLexer lexer = new RedisLexer(CharStreams.fromString(((JedisRequest) request).getCommandBody()));
         lexer.setSeparatorChar(this.separatorChar);
         lexer.removeErrorListeners();
@@ -141,10 +159,10 @@ public class JedisConn extends AdapterConnection {
             if (argCount > 0) {
                 argVisitor.reset();
                 redisCmd.accept(argVisitor);
-                JedisDistributeCall.execRedisCmd(sync, this.jedisCmd, redisCmd, request, receive, startArgIdx, this.owner);
+                JedisDistributeCall.execRedisCmd(sync, this.jedisCmd, redisCmd, request, receive, startArgIdx, this);
                 startArgIdx += argVisitor.getArgCount();
             } else {
-                JedisDistributeCall.execRedisCmd(sync, this.jedisCmd, redisCmd, request, receive, startArgIdx, this.owner);
+                JedisDistributeCall.execRedisCmd(sync, this.jedisCmd, redisCmd, request, receive, startArgIdx, this);
             }
             sync.await();
         }

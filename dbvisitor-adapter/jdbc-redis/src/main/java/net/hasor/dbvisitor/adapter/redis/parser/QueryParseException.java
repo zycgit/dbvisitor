@@ -20,20 +20,7 @@ package net.hasor.dbvisitor.adapter.redis.parser;
  * @version : 2020-01-22
  */
 public class QueryParseException extends RuntimeException {
-    private final int line;
-    private final int charPosition;
-
     public QueryParseException(int line, int charPosition, String errorMessage) {
         super("parsing error, line number is " + line + ", char position in line number is " + charPosition + ", " + errorMessage);
-        this.line = line;
-        this.charPosition = charPosition;
-    }
-
-    public int getLine() {
-        return this.line;
-    }
-
-    public int getCharPosition() {
-        return this.charPosition;
     }
 }

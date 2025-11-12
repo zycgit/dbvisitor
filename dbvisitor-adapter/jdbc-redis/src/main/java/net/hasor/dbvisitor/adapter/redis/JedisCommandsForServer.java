@@ -6,6 +6,7 @@ import net.hasor.dbvisitor.adapter.redis.parser.RedisParser;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.ConvertUtils;
+import redis.clients.jedis.commands.ServerCommands;
 import redis.clients.jedis.util.KeyValue;
 
 class JedisCommandsForServer extends JedisCommands {
@@ -40,6 +41,41 @@ class JedisCommandsForServer extends JedisCommands {
         KeyValue<Long, Long> result = jedisCmd.getServerCommands().waitAOF(local, replicas, timeout);
 
         receive.responseResult(request, twoResult(request, COL_LOCAL_LONG, result.getKey(), COL_REPLICAS_LONG, result.getValue()));
+        return completed(sync);
+    }
+
+    public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.PingCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+        AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        String ping;
+        if (cmd.stringKeyName() != null) {
+            ping = argAsString(argIndex, request, cmd.stringKeyName().identifier());
+        } else {
+            ping = null;
+        }
+
+        ServerCommands serverCommands = jedisCmd.getServerCommands();
+        String pong = ping == null ? serverCommands.ping() : serverCommands.ping(ping);
+
+        receive.responseResult(request, singleResult(request, COL_RESULT_STRING, pong));
+        return completed(sync);
+    }
+
+    public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.EchoCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+        AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        String ping = argAsString(argIndex, request, cmd.stringKeyName().identifier());
+
+        String pong = jedisCmd.getServerCommands().echo(ping);
+
+        receive.responseResult(request, singleResult(request, COL_RESULT_STRING, pong));
+        return completed(sync);
+    }
+
+    public static Future<?> execCmd(Future<Object> sync, JedisCmd jedisCmd, RedisParser.SelectCommandContext cmd, AdapterRequest request, AdapterReceive receive, int startArgIdx, JedisConn conn) throws SQLException {
+        AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        int db = ConvertUtils.toInteger(argOrValue(argIndex, request, cmd.integer()), true);
+
+        conn.setSchema(String.valueOf(db));
+        receive.responseUpdateCount(request, 1);
         return completed(sync);
     }
 }
