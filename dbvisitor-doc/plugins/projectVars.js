@@ -1,4 +1,4 @@
 module.exports = {
-    lastReleaseVer: "6.1.0",
-    lastReleaseTime: "2025-11-04"
+    lastReleaseVer: "6.2.0",
+    lastReleaseTime: "2025-11-12"
 }

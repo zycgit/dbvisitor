@@ -1,0 +1,11 @@
+{
+  "label": "v6.x",
+  "position": 993,
+  "className": "red",
+  "collapsible": true,
+  "collapsed": false,
+  "link": {
+    "type": "generated-index",
+    "title": "v6.x"
+  }
+}

@@ -2,7 +2,7 @@
 id: about
 sidebar_position: 0
 hide_table_of_contents: true
-title: 11.1 JDBC Redis 适配器
+title: 11.1 JDBC Redis
 description: jdbc-redis 是一个 Redis 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和命令的方式来操作 Redis 数据。
 ---
 
@@ -36,6 +36,6 @@ jdbc-redis 架构设计采用了适配器模式，将标准的 JDBC 接口适配
 - 执行结果通过标准的 ResultSet 或更新计数返回给用户。
 
 ## 依赖技术
-- Jedis：Redis 官方推荐的 Java 客户端，版本 6.1.0。
+- Jedis：Redis 官方推荐的 Java 客户端，版本 6.1.0+
 - ANTLR4：强大的语法解析器生成工具，用于解析 Redis 命令。
 - dbVisitor-driver：基础的数据库驱动框架。

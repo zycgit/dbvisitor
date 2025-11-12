@@ -14,7 +14,7 @@ function HomepageHeader() {
             <div className="container">
                 <h1 className="hero__title">dbVisitor</h1>
                 <p className="hero__subtitle">
-                    <Translate id="dbv.tagline">dbVisitor 数据库数据库访问库，提供 Java 对多种不同类型数据库统一访问</Translate>
+                    <Translate id="dbv.tagline">dbVisitor 提供了一种统一且简便的方式，可访问多种不同类型的数据库。</Translate>
                     <br/><br/>
                 </p>
                 <div className={styles.buttons}>
