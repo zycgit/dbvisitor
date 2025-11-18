@@ -1,6 +1,8 @@
 package net.hasor.dbvisitor.adapter.redis;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
@@ -194,7 +196,12 @@ class JedisCommandsForString extends JedisCommands {
 
         List<String> values = jedisCmd.getStringCommands().mget(keys);
 
-        receive.responseResult(request, listResult(request, COL_VALUE_STRING, values));
+        Map<String, String> resultMap = new LinkedHashMap<>();
+        for (int i = 0; i < keys.length; i++) {
+            resultMap.put(keys[i], values.get(i));
+        }
+
+        receive.responseResult(request, listResult(request, COL_KEY_STRING, COL_VALUE_STRING, resultMap));
         return completed(sync);
     }
 
@@ -210,7 +217,7 @@ class JedisCommandsForString extends JedisCommands {
         }
 
         jedisCmd.getStringCommands().mset(keyValues);
-        receive.responseUpdateCount(request, 1);
+        receive.responseUpdateCount(request, kvContexts.size());
         return completed(sync);
     }
 
@@ -227,7 +234,7 @@ class JedisCommandsForString extends JedisCommands {
 
         long status = jedisCmd.getStringCommands().msetnx(keyValues);
 
-        receive.responseUpdateCount(request, status);
+        receive.responseUpdateCount(request, status == 0 ? 0 : kvContexts.size());
         return completed(sync);
     }
 

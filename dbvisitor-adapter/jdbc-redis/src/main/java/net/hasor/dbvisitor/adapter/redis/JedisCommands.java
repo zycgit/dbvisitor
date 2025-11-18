@@ -111,6 +111,22 @@ abstract class JedisCommands {
         return receiveCur;
     }
 
+    protected static AdapterResultCursor listResult(AdapterRequest request, JdbcColumn keyCol, JdbcColumn valCol, Map<?, ?> result) throws SQLException {
+        long maxRows = request.getMaxRows();
+        AdapterResultCursor receiveCur = new AdapterResultCursor(request, Arrays.asList(keyCol, valCol));
+        int affectRows = 0;
+        for (Map.Entry<?, ?> item : result.entrySet()) {
+            receiveCur.pushData(CollectionUtils.asMap(keyCol.name, item.getKey(), valCol.name, item.getValue()));
+
+            affectRows++;
+            if (maxRows > 0 && affectRows >= maxRows) {
+                break;
+            }
+        }
+        receiveCur.pushFinish();
+        return receiveCur;
+    }
+
     protected static AdapterResultCursor listFixedColAndResult(AdapterRequest request, JdbcColumn fixedCol, Object fixedColValue, JdbcColumn col, Collection<?> result) throws SQLException {
         long maxRows = request.getMaxRows();
         AdapterResultCursor receiveCur = new AdapterResultCursor(request, Arrays.asList(fixedCol, col));

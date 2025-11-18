@@ -3,9 +3,13 @@ import java.lang.reflect.InvocationHandler;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Duration;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.StringUtils;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.driver.AdapterFactory;
 import net.hasor.dbvisitor.driver.AdapterTypeSupport;
 import net.hasor.dbvisitor.driver.TypeSupport;
@@ -134,7 +138,7 @@ public class JedisConnFactory implements AdapterFactory {
             throw new SQLException("jdbcUrl is not a valid jedis url.");
         }
 
-        Map<String, String> caseProps = new LinkedHashMap<>();
+        Map<String, String> caseProps = new LinkedCaseInsensitiveMap<>();
         props.forEach((k, v) -> caseProps.put((String) k, (String) v));
 
         String host = caseProps.get(JedisKeys.SERVER);

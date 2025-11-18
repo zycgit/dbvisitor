@@ -574,7 +574,7 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("mset ket1 k1value ket2 k2value") == 1L;
+                assert stmt.executeUpdate("mset ket1 k1value ket2 k2value") == 2L;
             }
 
             assert argList.size() == 1;
@@ -596,7 +596,7 @@ public class StringCommandTest extends AbstractJdbcTest {
         }));
         try (Connection conn = redisConnection()) {
             try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("msetnx ket1 k1value ket2 k2value") == 1L;
+                assert stmt.executeUpdate("msetnx ket1 k1value ket2 k2value") == 2L;
             }
 
             assert argList.size() == 1;
