@@ -633,7 +633,7 @@ public final class ConvertUtils {
         }
     }
 
-    // null/Boolean/String/Integer/Long/Short/Byte/byte[]/Float/Double/BigInteger
+    // null/Boolean/String/Integer/Long/Short/Byte/byte[]/Byte[]/Float/Double/BigInteger
     //  - float\double use IEEE 754 floating-point to encode. (support BIG_ENDIAN or LITTLE_ENDIAN).
     //  - BigDecimal unsupport.
     //  - boolean as 0 or 1.
@@ -648,6 +648,12 @@ public final class ConvertUtils {
             return ((String) v).getBytes();
         } else if (v instanceof byte[]) {
             return (byte[]) v;
+        } else if (v instanceof Byte[]) {
+            byte[] r = new byte[((Byte[]) v).length];
+            for (int i = 0; i < ((Byte[]) v).length; i++) {
+                r[i] = ((Byte[]) v)[i];
+            }
+            return r;
         } else if (v instanceof Number) {
             if (v instanceof Integer) {
                 return buildBytes(4, bb -> bb.putInt((Integer) v));
