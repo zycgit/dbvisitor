@@ -568,39 +568,54 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
     }
 
     @Override
-    public long queryForLong(final String sql) throws SQLException {
+    public <K, V> Map<K, V> queryForPairs(String sql, Class<K> pairKey, Class<V> pairValue) throws SQLException {
+        return this.query(sql, ArrayUtils.EMPTY_OBJECT_ARRAY, this.createPairsResultSetExtractor(pairKey, pairValue));
+    }
+
+    @Override
+    public <K, V> Map<K, V> queryForPairs(String sql, Class<K> pairKey, Class<V> pairValue, Object args) throws SQLException {
+        return this.query(sql, args, this.createPairsResultSetExtractor(pairKey, pairValue));
+    }
+
+    @Override
+    public <K, V> Map<K, V> queryForPairs(String sql, Class<K> pairKey, Class<V> pairValue, PreparedStatementSetter args) throws SQLException {
+        return this.query(sql, args, this.createPairsResultSetExtractor(pairKey, pairValue));
+    }
+
+    @Override
+    public Long queryForLong(final String sql) throws SQLException {
         Number number = this.queryForObject(sql, ArrayUtils.EMPTY_OBJECT_ARRAY, this.createSingleColumnRowMapper(long.class));
-        return number != null ? number.longValue() : 0;
+        return number != null ? number.longValue() : null;
     }
 
     @Override
-    public long queryForLong(final String sql, final Object args) throws SQLException {
+    public Long queryForLong(final String sql, final Object args) throws SQLException {
         Number number = this.queryForObject(sql, args, this.createSingleColumnRowMapper(long.class));
-        return number != null ? number.longValue() : 0;
+        return number != null ? number.longValue() : null;
     }
 
     @Override
-    public long queryForLong(final String sql, final PreparedStatementSetter args) throws SQLException {
+    public Long queryForLong(final String sql, final PreparedStatementSetter args) throws SQLException {
         Number number = this.queryForObject(sql, args, this.createSingleColumnRowMapper(long.class));
-        return number != null ? number.longValue() : 0;
+        return number != null ? number.longValue() : null;
     }
 
     @Override
-    public int queryForInt(final String sql) throws SQLException {
+    public Integer queryForInt(final String sql) throws SQLException {
         Number number = this.queryForObject(sql, ArrayUtils.EMPTY_OBJECT_ARRAY, this.createSingleColumnRowMapper(int.class));
-        return number != null ? number.intValue() : 0;
+        return number != null ? number.intValue() : null;
     }
 
     @Override
-    public int queryForInt(final String sql, final Object args) throws SQLException {
+    public Integer queryForInt(final String sql, final Object args) throws SQLException {
         Number number = this.queryForObject(sql, args, this.createSingleColumnRowMapper(int.class));
-        return number != null ? number.intValue() : 0;
+        return number != null ? number.intValue() : null;
     }
 
     @Override
-    public int queryForInt(final String sql, final PreparedStatementSetter args) throws SQLException {
+    public Integer queryForInt(final String sql, final PreparedStatementSetter args) throws SQLException {
         Number number = this.queryForObject(sql, args, this.createSingleColumnRowMapper(int.class));
-        return number != null ? number.intValue() : 0;
+        return number != null ? number.intValue() : null;
     }
 
     @Override
@@ -685,6 +700,11 @@ public class JdbcTemplate extends JdbcConnection implements JdbcOperations {
         }
 
         return new BeanMappingResultSetExtractor<>(requiredType, this.registry);
+    }
+
+    /** Create a new PairsResultSetExtractor for reading row as key-value pairs. */
+    protected <K, V> ResultSetExtractor<Map<K, V>> createPairsResultSetExtractor(Class<K> pairKey, Class<V> pairValue) {
+        return new PairsResultSetExtractor<>(this.registry.getTypeRegistry(), pairKey, pairValue);
     }
 
     /** Build a PreparedStatementCreator based on the given SQL and args parameters. */

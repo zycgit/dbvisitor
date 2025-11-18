@@ -351,7 +351,7 @@ public interface JdbcOperations {
      */
     <T> T queryForObject(String sql, PreparedStatementSetter args, Class<T> requiredType) throws SQLException;
 
-    // ------------------------------------------------------------------------ queryForLong
+    // ------------------------------------------------------------------------ queryForMap
 
     /**
      * 执行查询语句，并将结果集数据转换成<code>Map</code>。
@@ -384,13 +384,45 @@ public interface JdbcOperations {
      */
     Map<String, Object> queryForMap(String sql, PreparedStatementSetter args) throws SQLException;
 
+    // ------------------------------------------------------------------------ queryForPairs
+
+    /**
+     * 执行查询语句，将查询结果的每一行数据都转换为一个键值对，最后将这些键值对放到一个<code>Map</code>中返回。
+     * <p>每行数据的第一个列被用作 Key，第二个列被用作 Value。如果查询结果存在多个相同的 Key 数据将取第一条记录作为结果。</p>
+     */
+    <K, V> Map<K, V> queryForPairs(String sql, Class<K> pairKey, Class<V> pairValue) throws SQLException;
+
+    /**
+     * 执行查询语句，将查询结果的每一行数据都转换为一个键值对，最后将这些键值对放到一个<code>Map</code>中返回。
+     * <p>每行数据的第一个列被用作 Key，第二个列被用作 Value。如果查询结果存在多个相同的 Key 数据将取第一条记录作为结果。</p>
+     * @param sql 动态 SQL 语句。
+     * @param args 语句参数，可支持的参数种类有：
+     * <ul>
+     *  <li>Array</li>
+     *  <li>Map&lt;String,?&gt;</li>
+     *  <li>Pojo Bean</li>
+     *  <li>{@link TypeHandlerRegistry} 中注册的类型。</li>
+     *  <li>{@link SqlArgSource}</li>
+     *  <li>{@link PreparedStatementSetter}，使用这种类型设置参数时 SQL 语句中只能通过 ? 来定义传参。</li>
+     * </ul>
+     * @return 当不存在记录时返回<code>null</code>。
+     */
+    <K, V> Map<K, V> queryForPairs(String sql, Class<K> pairKey, Class<V> pairValue, Object args) throws SQLException;
+
+    /**
+     * 执行查询语句，将查询结果的每一行数据都转换为一个键值对，最后将这些键值对放到一个<code>Map</code>中返回。（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, &amp;{...}, @{...}）
+     * <p>每行数据的第一个列被用作 Key，第二个列被用作 Value。如果查询结果存在多个相同的 Key 数据将取第一条记录作为结果。</p>
+     * @return 当不存在记录时返回<code>null</code>。
+     */
+    <K, V> Map<K, V> queryForPairs(String sql, Class<K> pairKey, Class<V> pairValue, PreparedStatementSetter args) throws SQLException;
+
     // ------------------------------------------------------------------------ queryForLong
 
     /**
      * 执行查询语句，并以 long 类型返回数据。
      * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。</p>
      */
-    long queryForLong(String sql) throws SQLException;
+    Long queryForLong(String sql) throws SQLException;
 
     /**
      * 执行动态 SQL，并以 long 类型返回数据。
@@ -406,20 +438,21 @@ public interface JdbcOperations {
      *  <li>{@link PreparedStatementSetter}，使用这种类型设置参数时 SQL 语句中只能通过 ? 来定义传参。</li>
      * </ul>
      */
-    long queryForLong(String sql, Object args) throws SQLException;
+    Long queryForLong(String sql, Object args) throws SQLException;
 
     /**
      * 执行查询语句，并以 long 类型返回数据（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, &amp;{...}, @{...}）
      * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。</p>
      */
-    long queryForLong(String sql, PreparedStatementSetter args) throws SQLException;
+    Long queryForLong(String sql, PreparedStatementSetter args) throws SQLException;
+
     // ------------------------------------------------------------------------ queryForInt
 
     /**
      * 执行查询语句，并以 int 类型返回数据。
      * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。</p>
      */
-    int queryForInt(String sql) throws SQLException;
+    Integer queryForInt(String sql) throws SQLException;
 
     /**
      * 执行动态 SQL，并以 int 类型返回数据。
@@ -435,13 +468,13 @@ public interface JdbcOperations {
      *  <li>{@link PreparedStatementSetter}，使用这种类型设置参数时 SQL 语句中只能通过 ? 来定义传参。</li>
      * </ul>
      */
-    int queryForInt(String sql, Object args) throws SQLException;
+    Integer queryForInt(String sql, Object args) throws SQLException;
 
     /**
      * 执行查询语句，并以 int 类型返回数据（该方法将不会使用任何 dbVisitor 的动态 SQL 特性。如：:name, &amp;name, #{...}, &amp;{...}, @{...}）
      * <p>预计该方法只会处理一条数据，如果查询结果存在多条数据或者多列将会引发异常。</p>
      */
-    int queryForInt(String sql, PreparedStatementSetter args) throws SQLException;
+    Integer queryForInt(String sql, PreparedStatementSetter args) throws SQLException;
 
     // ------------------------------------------------------------------------ queryForString
 

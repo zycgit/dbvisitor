@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import net.hasor.cobble.ClassUtils;
 import net.hasor.cobble.ExceptionUtils;
+import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.reflect.ConstructorUtils;
 import net.hasor.cobble.reflect.TypeReference;
@@ -733,6 +734,48 @@ public final class TypeHandlerRegistry {
         }
         register(jdbcType, typeClass, typeHandler);
         return typeHandler;
+    }
+
+    /** 获取读取列用到的那个 TypeHandler */
+    public TypeHandler<?> getResultSetTypeHandler(ResultSet rs, int columnIndex, Class<?> targetType) throws SQLException {
+        int jdbcType = rs.getMetaData().getColumnType(columnIndex);
+        String columnTypeName = rs.getMetaData().getColumnTypeName(columnIndex);
+        String columnClassName = rs.getMetaData().getColumnClassName(columnIndex);
+
+        if ("YEAR".equalsIgnoreCase(columnTypeName)) {
+            // TODO with mysql `YEAR` type, columnType is DATE. but getDate() throw Long cast Date failed.
+            jdbcType = JDBCType.INTEGER.getVendorTypeNumber();
+        } else if (StringUtils.isNotBlank(columnClassName) && columnClassName.startsWith("oracle.")) {
+            // TODO with oracle columnClassName is specifically customizes standard types, it specializes process.
+            jdbcType = TypeHandlerRegistry.toSqlType(columnClassName);
+            if (targetType != null) {
+                return this.getTypeHandler(targetType, jdbcType);
+            } else {
+                return this.getTypeHandler(jdbcType);
+            }
+        }
+
+        Class<?> columnTypeClass = targetType;
+        if (columnTypeClass == null) {
+            try {
+                columnTypeClass = ResourcesUtils.classForName(columnClassName);
+            } catch (ClassNotFoundException e) {
+                /**/
+            }
+        }
+
+        if (this.hasTypeHandler(columnTypeClass, jdbcType)) {
+            return this.getTypeHandler(columnTypeClass, jdbcType);
+        } else if (this.hasTypeHandler(columnTypeClass)) {
+            return this.getTypeHandler(columnTypeClass);
+        } else {
+            TypeHandler<?> typeHandler = this.getTypeHandler(columnTypeClass, jdbcType);
+            if (typeHandler == null) {
+                String message = "jdbcType=" + jdbcType + " ,columnTypeClass=" + columnTypeClass;
+                throw new SQLException("no typeHandler is matched to any available " + message);
+            }
+            return typeHandler;
+        }
     }
 
     /** 获取默认类型处理器 */

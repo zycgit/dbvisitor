@@ -1,5 +1,7 @@
 package net.hasor.scene.redis;
 import java.sql.Connection;
+import java.util.Map;
+import java.util.Objects;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.scene.redis.dto1.UserInfo1;
@@ -8,8 +10,60 @@ import org.junit.Test;
 import redis.clients.jedis.Jedis;
 
 public class RedisJdbcTest {
+
     @Test
     public void using_jdbc_1() throws Exception {
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Connection c = DsUtils.redisConn()) {
+            JdbcTemplate jdbc = new JdbcTemplate(c);
+            jdbc.executeUpdate("del myKey1");// 预删除避免 test case 相互污染
+
+            // read
+            assert jdbc.queryForInt("get myKey1") == null;
+
+            // write
+            assert jdbc.executeUpdate("set myKey1 123") == 1;
+
+            // read
+            assert jdbc.queryForInt("get myKey1") == 123;
+
+            // delete
+            assert jdbc.executeUpdate("del myKey1") == 1;
+            assert jdbc.queryForInt("get myKey1") == null;
+        }
+    }
+
+    @Test
+    public void using_jdbc_2() throws Exception {
+        Configuration config = new Configuration();
+        config.options().mapUnderscoreToCamelCase(true);
+
+        try (Connection c = DsUtils.redisConn()) {
+            JdbcTemplate jdbc = new JdbcTemplate(c);
+            jdbc.executeUpdate("del myKey1 myKey2");// 预删除避免 test case 相互污染
+
+            // read
+            assert jdbc.queryForPairs("mget myKey1 myKey2", String.class, Integer.class).values().stream().noneMatch(Objects::nonNull);
+
+            // write
+            assert jdbc.executeUpdate("mset myKey1 123 myKey2 456") == 2;
+
+            // read
+            Map<String, Integer> res = jdbc.queryForPairs("mget myKey1 myKey2", String.class, Integer.class);
+            assert res.size() == 2;
+            assert res.get("myKey1") == 123;
+            assert res.get("myKey2") == 456;
+
+            // delete
+            assert jdbc.executeUpdate("del myKey1 myKey2") == 2;
+            assert jdbc.queryForPairs("mget myKey1 myKey2", String.class, Integer.class).values().stream().noneMatch(Objects::nonNull);
+        }
+    }
+
+    @Test
+    public void using_jdbc_bean_1() throws Exception {
         Configuration config = new Configuration();
         config.options().mapUnderscoreToCamelCase(true);
 
@@ -40,4 +94,5 @@ public class RedisJdbcTest {
             assert c.unwrap(Jedis.class).get("user_j1111") == null;
         }
     }
+
 }
