@@ -1,0 +1,14 @@
+Rule:
+  label: Rule
+  permalink: /docs/rules/about
+  description: 在 SQL 语句中通过规则简化 SQL 拼写。
+
+DynamicSQL:
+  label: DynamicSQL
+  permalink: /dynamicSQL
+  description: Hello tag description
+
+Streaming:
+  label: Streaming
+  permalink: /streaming
+  description: Hola tag description

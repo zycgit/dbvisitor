@@ -1,9 +1,9 @@
 ---
-id: rule_multiple_conditions
-sidebar_position: 8
-hide_table_of_contents: true
+slug: rule_multiple_conditions
 title: 使用规则处理复杂条件
 description: 使用 dbVisitor AND/OR 规则定义复杂一些的条件。
+authors: [ZhaoYongChun]
+tags: [Rule, DynamicSQL]
 ---
 
 ## AND/OR 规则进阶

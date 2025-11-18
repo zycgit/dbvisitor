@@ -13,7 +13,6 @@ const config = {
     url: 'https://www.dbvisitor.net',
     baseUrl: '/',
     onBrokenLinks: 'throw',
-    onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',
     organizationName: 'zycgit', // Usually your GitHub org/user name.
     projectName: 'dbVisitor',   // Usually your repo name.
@@ -25,15 +24,26 @@ const config = {
         [
             'classic',
             /** @type {import('@docusaurus/preset-classic').Options} */
-            ({
+            {
                 docs: {
                     sidebarPath: require.resolve('./sidebars.js'),
                     editUrl: 'https://gitee.com/zycgit/dbvisitor/blob/main/dbvisitor-doc/',
                 },
+                blog: {
+                    showReadingTime: true,
+                    feedOptions: {
+                        type: ['rss', 'atom'],
+                        xslt: true,
+                    },
+                    editUrl: 'https://gitee.com/zycgit/dbvisitor/blob/main/dbvisitor-doc/',
+                    onInlineTags: 'warn',
+                    onInlineAuthors: 'warn',
+                    onUntruncatedBlogPosts: 'warn',
+                },
                 theme: {
                     customCss: require.resolve('./src/css/custom.css'),
                 },
-            }),
+            }
         ],
     ],
     themeConfig: /** @type {import('@docusaurus/preset-classic').ThemeConfig} */ {
@@ -58,19 +68,19 @@ const config = {
             items: [
                 {
                     position: 'left',
-                    label: 'dbVisitor 框架',
+                    label: '文档',
                     href: '/docs/guides/overview'
                 },
                 {
                     type: 'doc',
                     docId: 'releases/latest',
                     position: 'left',
-                    label: '发布版本',
+                    label: '版本',
                 },
                 {
-                    position: 'right',
-                    label: 'QQ群 948706820',
-                    href: 'https://qm.qq.com/cgi-bin/qm/qr?k=FpO8j2y59N7gGEvX7DOuB8Hx79lE425-&jump_from=webapi&authKey=QF7WNIwxzH6ZsVlCpJlcyFId++YPovIhI8TvuV8/L6x7Icf1FSqYGI/svlUZyF4R'
+                    to: '/blog',
+                    label: '博客',
+                    position: 'left'
                 },
                 {
                     position: 'right',

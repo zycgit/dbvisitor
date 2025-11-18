@@ -184,7 +184,7 @@ result = lambda.query(User.class)
 ## 分页查询 {#page}
 
 :::info[提示]
-分页查询需要依赖数据库方言的支持，在 **[数据库支持性](../../yourproject/support)** 中已列出 dbVisitor 所支持的数据库。
+分页查询需要依赖数据库方言的支持，在 **[数据库支持性](../../api/differences#dialect)** 中已列出 dbVisitor 所支持的数据库。
 :::
 
 dbVisitor 内置了分页查询机制，使用方便且无需任何配置。具体工作方式为：

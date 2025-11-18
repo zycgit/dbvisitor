@@ -1,12 +1,10 @@
 ---
-id: mysql_stream_read
-sidebar_position: 8
-hide_table_of_contents: true
+slug: mysql_stream_read
 title: MySQL 流式读取超大表
 description: 使用 dbVisitor ORM 查询并处理一张超大表。
+authors: [ZhaoYongChun]
+tags: [Streaming]
 ---
-
-# MySQL 流式读取超大表
 
 当查询一张超大表并获取它的结果集时要使用 `流式返回` 否则内存极易出现溢出。
 不同的数据库开启流式返回的方式虽有差异，但都需要设置 `Statement/PreparedStatement` 的参数。

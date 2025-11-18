@@ -6,7 +6,7 @@ title: 支持的命令
 description: jdbc-redis 支持 140+ 常用命令，涵盖 DB、Server、Keys、List、Set、StoreSet、String、Hash 命令集。
 ---
 
-- 值：使用 executeUpdate / getUpdateCount 获取影响行数。
+- 更新数(值)：使用 executeUpdate / getUpdateCount 获取影响行数。
 - 结果集：使用 executeQuery / getResultSet 获取结果集。
 
 ## Hash 命令集 {#hash}
@@ -42,7 +42,7 @@ description: jdbc-redis 支持 140+ 常用命令，涵盖 DB、Server、Keys、L
 
 | 命令                                                                        | 返回值 | 行数       | 结果                                              |
 |---------------------------------------------------------------------------|-----|----------|-------------------------------------------------|
-| [COPY](https://redis.io/docs/latest/commands/COPY/)                       | 结果集 | 1        | RESULT 字段，LONG 类型                               |
+| [COPY](https://redis.io/docs/latest/commands/COPY/)                       | 值   | --       | 如果操作成功，则为 1；如果操作失败，则为 0                         |
 | [DEL](https://redis.io/docs/latest/commands/del/)                         | 值   | --       | 如果移除一个或多个键，则为大于0的整数；如果指定的键都不存在，则为 0             |
 | [UNLINK](https://redis.io/docs/latest/commands/unlink/)                   | 结果集 | 1        | RESULT 字段，LONG 类型                               |
 | [DUMP](https://redis.io/docs/latest/commands/dump/)                       | 结果集 | 1        | VALUE 字段，BYTES 类型                               |
@@ -183,9 +183,9 @@ description: jdbc-redis 支持 140+ 常用命令，涵盖 DB、Server、Keys、L
 | [GETEX](https://redis.io/docs/latest/commands/getex/)       | 结果集   | 1        | VALUE 字段，STRING 类型                                                         |
 | [GETRANGE](https://redis.io/docs/latest/commands/getrange/) | 结果集   | 1        | VALUE 字段，STRING 类型                                                         |
 | [GETSET](https://redis.io/docs/latest/commands/getset/)     | 结果集   | 1        | VALUE 字段，STRING 类型                                                         |
-| [MGET](https://redis.io/docs/latest/commands/mget/)         | 结果集   | multiple | VALUE 字段，STRING 类型                                                         |
-| [MSET](https://redis.io/docs/latest/commands/mset/)         | 值     | --       | 始终是 1，因为 MSET 不会失败。                                                        |
-| [MSETNX](https://redis.io/docs/latest/commands/msetnx/)     | 值     | --       | 如果没有设置任何键（至少有一个键已存在），则返回 0；如果所有键都已设置，则返回 1。                                |
+| [MGET](https://redis.io/docs/latest/commands/mget/)         | 结果集   | multiple | KEY 字段，STRING 类型<br/>VALUE 字段，STRING 类型                                    |
+| [MSET](https://redis.io/docs/latest/commands/mset/)         | 值     | --       | 添加的键数量。                                                                    |
+| [MSETNX](https://redis.io/docs/latest/commands/msetnx/)     | 值     | --       | 如果没有设置任何键（至少有一个键已存在），则返回 0；如果所有键都已设置，则返回键数量。                               |
 | [PSETEX](https://redis.io/docs/latest/commands/psetex/)     | 值     | --       | 如果操作成功，则返回 1；否则返回 0。（当状态为 “OK” 时，表示操作成功）                                   |
 | [SETEX](https://redis.io/docs/latest/commands/setex/)       | 值     | --       | 如果操作成功，则返回 1；否则返回 0。（当状态为 “OK” 时，表示操作成功）                                   |
 | [SETNX](https://redis.io/docs/latest/commands/setnx/)       | 值     | --       | 如果键被设置，则为 1，否则为 0                                                          |

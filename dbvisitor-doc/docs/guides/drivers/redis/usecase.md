@@ -30,12 +30,7 @@ Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
 Connection conn = DriverManager.getConnection(url, props);
 ```
 
-主要的连接参数包括：
-- server：Redis 服务地址，格式为 ip 或 ip:port，集群模式为 ip:port;ip:port。
-- username/password：认证信息。
-- database：默认数据库索引，默认为 0。
-- connectTimeout：连接超时时间（毫秒），默认 5000。
-- socketTimeout：套接字超时时间（秒），默认 10。
+详细的连接参数参考 **[驱动参数](./params)**
 
 ## 命令执行
 

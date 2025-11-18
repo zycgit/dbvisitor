@@ -59,13 +59,14 @@ Map<Integer, String> result = adapter.queryByEntity(User.class)
 
 ## 内置实现 {#inner}
 
-在 dbVisitor 中一共内置了 8 个实现，除此之外用户可以自己所以扩展。
+在 dbVisitor 中一共内置了 9 个实现，除此之外用户可以自己所以扩展。
 
 - 基于对象映射
   - BeanMappingResultSetExtractor 效用等同 BeanMappingRowMapper
   - MapMappingResultSetExtractor 效用等同 MapMappingRowMapper
 - 基于查询结果
   - ColumnMapResultSetExtractor 效用等同 ColumnMapRowMapper
+  - PairsResultSetExtractor 可以将查询结果的每一行数据映射为一个键值对，键值对的类型可以通过 TypeHandler 来处理。
 - 处理多结果集
   - CallableMultipleResultSetExtractor 可以用来处理 CallableStatement 执行时返回的所有数据包括，出参、结果集、多个执行结果。
   - PreparedMultipleResultSetExtractor 可以用来处理 PreparedStatement 执行时返回的所有数据包括，结果集、多个执行结果。

@@ -1,6 +1,6 @@
 {
-  "label": "12. 最佳实践",
-  "position": 12,
+  "label": "5.8 Redis 特异性",
+  "position": 8,
   "className": "red",
   "link": {
     "type": "doc",

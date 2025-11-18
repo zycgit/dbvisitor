@@ -200,6 +200,23 @@ import TOCInline from '@theme/TOCInline';
     List<String> result = jdbc.queryForList("select name from users where id = :id", args, String.class);
     ```
 
+## 查询键值对 {#pairs}
+
+键值对查询是指查询返回的结果集有两列，分别作为 Map 的键和值。
+
+- 使用方式
+    ```java title='使用原始 SQL'
+    Map<Long, String> userMap = jdbc.queryForPairs("select uid, name from user", Long.class, String.class);
+    ```
+    ```java title='使用位置参数'
+    Object[] args = new Object[]{ 2 };
+    Map<Long, String> userMap = jdbc.queryForPairs("select uid, name from user where id = ?", Long.class, String.class, args);
+    ```
+    ```java title='使用名称参数'
+    Map<String, Object> args = CollectionUtils.asMap("id", 2);
+    Map<Long, String> userMap = jdbc.queryForPairs("select uid, name from user where id = :id", Long.class, String.class, args);
+    ```
+
 ## 查询中处理数据
 
 通过 [RowCallbackHandler](../../result/row_callback) 专注每一行的数据处理，而非获取结果集。
