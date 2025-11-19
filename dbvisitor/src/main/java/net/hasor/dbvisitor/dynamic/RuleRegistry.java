@@ -45,6 +45,7 @@ public class RuleRegistry {
         DEFAULT.register("and", AndRule.INSTANCE);
         DEFAULT.register("or", OrRule.INSTANCE);
         DEFAULT.register("set", SetRule.INSTANCE);
+        DEFAULT.register("pairs", PairsRule.INSTANCE);
 
         DEFAULT.register("arg", ArgRule.INSTANCE);
         DEFAULT.register(ResultRule.FUNC_RESULT_SET, ResultRule.INSTANCE_OF_RESULT_SET);

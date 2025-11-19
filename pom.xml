@@ -53,7 +53,7 @@
         <module>dbvisitor-integration/dbvisitor-guice</module>
         <module>dbvisitor-integration/dbvisitor-solon-plugin</module>
         <module>dbvisitor-adapter/jdbc-redis</module>
-        <module>dbvisitor-adapter/jdbc-mongo</module>
+        <!-- <module>dbvisitor-adapter/jdbc-mongo</module>-->
         <!-- <module>dbvisitor-adapter/adapter-elasticsearch6</module>-->
         <!-- <module>dbvisitor-adapter/adapter-elasticsearch7</module>-->
     </modules>
@@ -86,13 +86,17 @@
                 <version>${project.version}</version>
             </dependency>
 
-
-            <!-- test -->
+            <!-- other dependencies -->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.13.1</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>4.13.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
