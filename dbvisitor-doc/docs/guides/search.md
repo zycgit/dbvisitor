@@ -1,11 +1,11 @@
 ---
 id: search
 sidebar_position: 2
-title: 2. 快速检索
+title: 2. 快速开始
 description: 本文会略过 API 概述部分并以更加直观的形式按照使用场景对手册做分类检索。
 ---
 
-# 快速检索
+# 快速开始
 
 :::info[说明]
 本文会略过 API 概述部分并以更加直观的形式按照使用场景对手册做分类检索。
@@ -85,7 +85,7 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
   - 通过 [BeanMappingRowMapper](./result/for_mapper#inner) 基于对象映射处理行数据，并将每一行数据都转换为 Bean。
   - 通过 [MapMappingRowMapper](./result/for_mapper#inner) 基于对象映射处理行数据，并将每一行数据都转换为 Map。
 - 在不同的 API 上使用 [ResultSetExtractor](./result/for_extractor) 自定义 ResultSet 结果集的处理。
-  - dbVisitor [内置了 8 种 不同的 ResultSetExtractor 实现](./result/for_extractor#inner) 事实上很多内部逻辑也都用到了它们。
+  - dbVisitor [内置了多种 不同的 ResultSetExtractor 实现](./result/for_extractor#inner) 事实上很多内部逻辑也都用到了它们。
 - 在不同的 API 上使用 [RowCallbackHandler](./result/row_callback) 处理查询结果的每一条记录，而非获取它们。
   - 利用 RowCallbackHandler 实现 [MySQL 流式读取超大表](/blog/mysql_stream_read)。
 

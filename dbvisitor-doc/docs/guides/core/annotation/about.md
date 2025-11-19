@@ -8,7 +8,7 @@ description: dbVisitor 提供了一些注解用于标记在接口的方法上，
 
 dbVisitor 提供了一些注解用于标记在接口的方法上，这些方法充当数据库访问的媒介，从而避免复杂的 JDBC 操作代码。
 
-```java title='使用 方法注解 的特点是 SQL 和调用逻辑相互分离'
+```java title='1. 使用 方法注解 的特点是 SQL 和调用逻辑相互分离'
 @SimpleMapper
 public interface UserMapper {
     @Query("select * from users where id > ?")
