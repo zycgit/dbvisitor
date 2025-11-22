@@ -101,7 +101,7 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 
 ### Redis 支持
 - 了解 dbVisitor 对 Redis [支持的 140+ 命令](./drivers/redis/commands)。
-- 详细的使用方法请参考 **[Redis 支持]()**。
+- 详细的使用方法请参考 **[Redis 支持](./core/redis/about)**。
 - 简单了解 dbVisitor 如何操作 Redis 不同类型的数据（[字符串](./core/redis/redis_type#string)、[哈希](./core/redis/redis_type#hash)、
   [列表](./core/redis/redis_type#list)、[集合](./core/redis/redis_type#set)、[有序集合](./core/redis/redis_type#sorted_set)）
 - 使用 JdbcTemplate [执行命令方式](./core/redis/exec_command) 读写 Redis 数据。

@@ -173,6 +173,7 @@
         resultSetExtractor CDATA #IMPLIED
         resultRowCallback CDATA #IMPLIED
         resultRowMapper CDATA #IMPLIED
+        resultTypeHandler CDATA #IMPLIED
         bindOut CDATA #IMPLIED
         >
 
