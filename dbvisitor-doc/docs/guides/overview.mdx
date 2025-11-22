@@ -26,8 +26,9 @@ dbVisitor 是简单的，它专注数据库的访问。任何带有具体业务�
 而已有的数据访问技术如 Hibernate、MyBatis、Spring JDBC 以及 ActiveRecord、QueryWrapper、Row、Chain、JPA 等主要针对关系型数据库，在面对日益多样的非关系型存储时显现出局限性。
 
 dbVisitor 的核心突破在于访问模式的无缝集成：开发者可以在同一项目中混合使用多种访问范式，并在关系型与非关系型存储之间获得统一体验。
-借助 drivers 模块，dbVisitor 已不再局限于通过 JDBC 访问关系型数据库，而是通过适配器支持例如 [Redis](./core/redis/about)、MongoDB 等非关系型数据库，
-从而解决了传统多框架并存时的兼容性问题（例如 JdbcTemplate 与 MyBatis 的风格差异），并统一不同存储类型的操作接口。
+借助 drivers 模块，dbVisitor 已不再局限于通过 JDBC 访问关系型数据库，而是通过适配器支持例如 [Redis](./core/redis/about)、MongoDB 等非关系型数据库。
+
+在设计上，dbVisitor 提供了与 JdbcTemplate、MyBatis 近似风格的 API，这种设计可以让开发者避免接受大量新的概念和知识，从而减少学习成本和使用难度。
 
 ## 使用 dbVisitor
 
@@ -50,6 +51,7 @@ dbVisitor 可在所有 Java 8 或更高版本上运行，所有版本均使用 J
 - dbVisitor 提供了一种更加灵活和高效的 [规则](./rules/about) 机制，通过规则可以更加简洁的维护应用程序 SQL。
 - dbVisitor 内置多种 [类型处理器](./types/about)，可以方便的处理绝大多数数据库类型。
 - dbVisitor 支持在多个不同方法调用之间使用 [数据库事务](./transaction/about)。
+- dbVisitor 使用统一的 API 操作非关系型数据库 [Redis](./core/redis/about)。
 
 ## 框架整合
 
@@ -57,6 +59,8 @@ dbVisitor 可在所有 Java 8 或更高版本上运行，所有版本均使用 J
 - [dbvisitor-solon](./yourproject/with_solon)，支持在使用了 [Solon](https://solon.noear.org/) 作为应用程序开发框架的程序中自动配置和注入 dbVisitor 配置的 Mapper 和实例。
 - [dbvisitor-hasor](./yourproject/with_hasor)，支持在使用了 [Hasor](https://www.hasor.net/) 作为应用程序开发框架的程序中自动配置和注入 dbVisitor 配置的 Mapper 和实例。
 - [dbvisitor-guice](./yourproject/with_guice)，支持在使用了 [Google Guice](https://github.com/google/guice) 依赖注入的应用程序中自动配置和注入 dbVisitor 配置的 Mapper 和实例。
+- [dbvisitor-guice](./yourproject/with_guice)，支持在使用了 [Google Guice](https://github.com/google/guice) 依赖注入的应用程序中自动配置和注入 dbVisitor 配置的 Mapper 和实例。
+- [jdbc-redis](./drivers/redis/about)，支持使用 JDBC 接口操作 Redis 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和命令的方式来操作 Redis。
 
 ## 版本事件
 

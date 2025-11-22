@@ -106,8 +106,9 @@ select * from users where status = :status or @{and, uid = :userId} -- 会自动
 例如，生成带有多个参数的 in 语句在不同方式下使用规则的前后对比：
 
 ```sql title='使用规则生成 in 语句'
-select * from users where status = :arg0
-                          @{in,and id in :arg1} -- 生成 id in (?,?,?)
+select * from users
+where status = :arg0
+      @{in,and id in :arg1} -- 生成 id in (?,?,?)
 ```
 
 ```xml title='等效代码：XML Mapper'
@@ -122,7 +123,7 @@ select * from users where status = :arg0
     </if>
 </select>
 
-<!-- 即便是 Mapper 也可以使用规则哦 -->
+<!-- 即便是 Mapper 也可以使用规则 -->
 <select id="queryUser">
     select * from users 
     where status = #{status} @{in,and id in :ids}
@@ -156,8 +157,9 @@ jdbc.queryForList(querySQL.toString(), queryArgs.toArray());
 IFIN 规则允许通过一个表达式来判断是否使用这个规则，相比 IN 规则具有更高的灵活性。
 
 ```sql title='在编程方式中使用 IFIN 规则'
-select * from users where status = :arg0
-                          @{ifin, arg1.size() > 2 , and id in :arg1}
+select * from users
+where status = :arg0
+      @{ifin, arg1.size() > 2 , and id in :arg1}
 ```
 
 - 只有当条件参数数量大于 2 时才激活 IN 规则添加 in 条件。

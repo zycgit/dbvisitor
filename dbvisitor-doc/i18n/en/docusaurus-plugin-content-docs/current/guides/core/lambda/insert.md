@@ -81,7 +81,7 @@ if (adapter.queryByEntity(User.class)
 - Oracle 数据库可以使用 `MERGE INTO ... WHEN MATCHED THEN ... WHEN NOT MATCHED THEN ...` 语句。
 
 使用这些数据库特性需要有 2 个先决条件。
-- 需要 dbVisitor 的数据库方言能够支持，[了解数据库支持性](../../yourproject/support)。
+- 需要 dbVisitor 的数据库方言能够支持，[了解数据库支持性](../../api/differences#dialect)。
 - 需要通过 onDuplicateStrategy 方法指定冲突处理策略。
 
 dbVisitor 中对于这种情况可以配置冲突策略，这样就可以避免在写入数据时多余的代码逻辑。可选的冲突策略有三个：

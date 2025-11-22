@@ -5,6 +5,13 @@ hide_table_of_contents: true
 title: 如何使用
 description: 展示如何使用 jdbc-redis 以 JDBC 的方式访问 Redis 数据库。
 ---
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+import Vars from '@site/plugins/projectVars';
+
+export const Highlight = ({children, color}) => (
+<span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+);
 
 ### 引入依赖
 
@@ -15,6 +22,7 @@ description: 展示如何使用 jdbc-redis 以 JDBC 的方式访问 Redis 数据
   <version>最新版本的版本号</version>
 </dependency>
 ```
+- 当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
 
 ## 连接创建
 
@@ -26,7 +34,6 @@ Properties props = new Properties();
 props.setProperty("username", "user");
 props.setProperty("password", "pass");
 
-Class.forName("net.hasor.dbvisitor.driver.JdbcDriver");
 Connection conn = DriverManager.getConnection(url, props);
 ```
 

@@ -1,9 +1,9 @@
 {
-  "label": "v6.0.x",
-  "position": 998,
+  "label": "v2.x",
+  "position": 997,
   "className": "red",
   "link": {
     "type": "generated-index",
-    "title": "v6.0.x"
+    "title": "v2.x"
   }
 }

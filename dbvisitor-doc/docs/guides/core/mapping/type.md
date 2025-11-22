@@ -47,11 +47,23 @@ public class Users {
 
 ### 处理 JSON 序列化
 
-```java
+```java title="使用 @Column 注解绑定 Json 序列化器"
 @Table
 public class Users {
     @Column(typeHandler = net.hasor.dbvisitor.types.handler.json.JsonTypeHandler)
     private UserExtInfo moreInfo; // 属性会使用 JSON 结构进行序列化/反序列化
+}
+```
+
+```java title="使用 @BindTypeHandler 为类型设置序列化器"
+@BindTypeHandler(net.hasor.dbvisitor.types.handler.json.JsonTypeHandler)
+public class UserExtInfo {
+    ...
+}
+
+@Table
+public class Users {
+    private UserExtInfo moreInfo;
 }
 ```
 

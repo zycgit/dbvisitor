@@ -1,29 +1,30 @@
 ---
-id: v6.1.0
-sidebar_position: 998
-title: v6.1.0 (2025-11-04)
+id: usecase
+sidebar_position: 1
+hide_table_of_contents: true
+title: 如何使用
+description: 展示如何使用 jdbc-redis 以 JDBC 的方式访问 Redis 数据库。
 ---
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+import Vars from '@site/plugins/projectVars';
 
-# v6.1.0 (2025-11-04)
+export const Highlight = ({children, color}) => (
+<span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+);
 
-```xml
+### 引入依赖
+
+```xml title='Maven 依赖'
 <dependency>
     <groupId>net.hasor</groupId>
     <artifactId>jdbc-redis</artifactId>
-    <version>6.1.0</version>
+  <version>最新版本的版本号</version>
 </dependency>
 ```
+- 当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
 
-## 影响范围
-
-- 无
-
-## 更新内容
-
-- [新增] 新增 dbvisitor-driver 子项目，它提供了一个灵活的 JDBC 驱动适配器实现。旨在抽象 JDBC 驱动的实现细节，使非关系型数据库能够通过请求/响应模型快速集成到基于 JDBC 的应用程序中。
-- [新增] 新增 jdbc-redis 驱动适配器，它允许开发者使用标准的 JDBC 接口和命令的方式来操作 Redis 数据。
-
-## 如何使用?
+## 连接创建
 
 使用标准的 JDBC URL 格式连接 Redis：
 
@@ -32,15 +33,11 @@ String url = "jdbc:dbvisitor:jedis://server:port?database=0&param1=value1&param2
 Properties props = new Properties();
 props.setProperty("username", "user");
 props.setProperty("password", "pass");
+
 Connection conn = DriverManager.getConnection(url, props);
 ```
 
-主要的连接参数包括：
-- server：Redis 服务地址，格式为 ip 或 ip:port，集群模式为 ip:port;ip:port。
-- username/password：认证信息。
-- database：默认数据库索引，默认为 0。
-- connectTimeout：连接超时时间（毫秒），默认 5000。
-- socketTimeout：套接字超时时间（秒），默认 10。
+详细的连接参数参考 **[驱动参数](./params)**
 
 ## 命令执行
 

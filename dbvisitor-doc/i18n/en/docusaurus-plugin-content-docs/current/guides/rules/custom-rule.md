@@ -21,8 +21,9 @@ public class MyRule implements SqlBuildRule {
 
     @Override
     public void executeRule(SqlArgSource data, DynamicContext context, 
-                            SqlBuilder sqlBuilder, String activeExpr,
-                            String ruleValue) {
+                            SqlBuilder sqlBuilder, String activeExpr, String ruleValue) {
+        // activeExpr 为激活条件
+        // ruleValue  为规则内容
         ...
         SqlArg arg = new SqlArg(expr, value, sqlMode, jdbcType, javaType, typeHandler);
         sqlBuilder.appendSql("?", arg);

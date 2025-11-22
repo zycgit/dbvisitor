@@ -1,9 +1,9 @@
 {
-  "label": "Archives",
+  "label": "v0.x",
   "position": 999,
   "className": "red",
   "link": {
     "type": "generated-index",
-    "title": "Archives"
+    "title": "v0.x"
   }
 }

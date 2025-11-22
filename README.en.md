@@ -32,23 +32,24 @@ About
 </p>
 
 dbVisitor is built on top of JDBC and refines JDBC's low-level interfaces to provide a more natural API. It mainly consists of the following three parts:
-- dbvisitor-adapter — JDBC driver adapters intended to allow databases without a JDBC Driver to be accessed via the JDBC interface. supports [Redis](dbvisitor-adapter/jdbc-redis/README.md) and MongoDB.
-- dbvisitor-integration — integration modules that connect dbVisitor with mainstream frameworks. Supports Spring, Spring Boot, Solon, Hasor, Guice, etc.
 - dbvisitor — the core module that provides a unified database access API.
+- dbvisitor-integration — integration modules that connect dbVisitor with mainstream frameworks. Supports Spring, Spring Boot, Solon, Hasor, Guice, etc.
+- dbvisitor-adapter — JDBC driver adapters intended to allow databases without a JDBC Driver to be accessed via the JDBC interface. supports [Redis](dbvisitor-adapter/jdbc-redis/README.md) and MongoDB.
 
 ## Why use it?
 
-When relational databases dominated, data access methods became more varied and many mature JDBC-based tools emerged.
-With the rise of non relational databases, storage formats have become more diverse and access APIs more complex.
-Developers must switch between different APIs, increasing learning costs and usage difficulty.
-Existing data access technologies such as Hibernate, MyBatis, Spring JDBC and approaches like ActiveRecord, QueryWrapper,
-Row, Chain, JPA mainly target relational databases and show limitations when facing the growing variety of non relational storage.
+When relational databases dominated, data access methods diversified and a large number of mature JDBC-based tools emerged;
+however, with the rise of non-relational databases, data storage formats have become more varied and access APIs have grown more complex.
+Developers need to switch between different APIs, which increases the learning curve and the difficulty of use.
+Existing data access technologies such as Hibernate, MyBatis, Spring JDBC, as well as ActiveRecord, QueryWrapper,
+Row, Chain, and JPA, are primarily targeted at relational databases and show limitations when confronted with an increasingly diverse set of non-relational stores.
 
+The core breakthrough of dbVisitor lies in the seamless integration of access patterns: developers can mix multiple access paradigms 
+within the same project and obtain a unified experience across relational and non-relational storage. With the drivers module, 
+dbVisitor is no longer limited to accessing relational databases via JDBC, but supports non-relational databases such as Redis and MongoDB through adapters.
 
-The core breakthrough of dbVisitor is the seamless integration of access patterns.
-Developers can mix multiple access paradigms within the same project and obtain a unified experience between relational and non-relational storage.
-With the drivers module, dbVisitor is no longer limited to accessing relational databases via JDBC; it supports non-relational databases such as Redis and MongoDB through adapters,
-thereby resolving compatibility issues that arise when multiple frameworks coexist (for example, stylistic differences between JdbcTemplate and MyBatis) and unifying the operational interfaces across different storage types.
+In its design, dbVisitor offers an API style similar to JdbcTemplate and MyBatis, enabling developers to avoid adopting a large number of
+new concepts and thus reducing the learning curve and usage complexity.
 
 ## About dbVisitor
 

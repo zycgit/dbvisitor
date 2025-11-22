@@ -99,6 +99,15 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 - 在依赖 JTS 后 dbVisitor 可以处理 [WKB 或 WKT](./types/gis-handler) 格式的地理信息数据。
 - 对于 [InputStream/Reader 类型](./types/stream-handler) 或 [数组类型](./types/array-handler) dbVisitor 也有一定的支持。
 
+### Redis 支持
+- 了解 dbVisitor 对 Redis [支持的 140+ 命令](./drivers/redis/commands)。
+- 详细的使用方法请参考 **[Redis 支持]()**。
+- 简单了解 dbVisitor 如何操作 Redis 不同类型的数据（[字符串](./core/redis/redis_type#string)、[哈希](./core/redis/redis_type#hash)、
+  [列表](./core/redis/redis_type#list)、[集合](./core/redis/redis_type#set)、[有序集合](./core/redis/redis_type#sorted_set)）
+- 使用 JdbcTemplate [执行命令方式](./core/redis/exec_command) 读写 Redis 数据。
+- 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](./core/redis/exec_annotation) 操作 Redis 数据。
+- 在 [Mapper 文件](./core/redis/exec_file) 中通过标签配置执行命令。
+
 ### 数据库事务
 - 当项目是基于 Spring 技术构建时，通过 Spring 的 [事务注解](./yourproject/with_spring#tran) 完成事务控制。
 - 当项目是基于 Solon 技术构建时，通过 Solon 的 [事务注解](./yourproject/with_solon#tran) 完成事务控制。
@@ -111,4 +120,3 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 - 利用 [dbvisitor-spring](./yourproject/with_spring) 在 Spring、SpringBoot 中使用 dbVisitor。
 - 利用 [dbvisitor-solon](./yourproject/with_solon) 在 Solon 中使用 dbVisitor。
 - 利用 [dbvisitor-hasor](./yourproject/with_hasor) 在 Hasor 中使用 dbVisitor。
-

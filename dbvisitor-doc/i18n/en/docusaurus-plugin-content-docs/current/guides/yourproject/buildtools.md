@@ -2,7 +2,7 @@
 id: buildtools
 sidebar_position: 0
 hide_table_of_contents: true
-title: 构建工具
+title: 引入依赖
 description: 在熟悉的构建工具中引入 dbVisitor。
 ---
 import Vars from '@site/plugins/projectVars';
@@ -11,7 +11,7 @@ export const Highlight = ({children, color}) => (
   <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
 );
 
-# 构建工具
+# 引入依赖
 
 所有 dbVisitor 模块以及依赖项都可以通过 [Maven Central](https://central.sonatype.com/search?q=dbvisitor) 获得。
 因此任何使用依赖管理工具（Apache Maven、Gradle、sbt、leiningen、Apache Ivy 等）的项目都可以访问这些模块。

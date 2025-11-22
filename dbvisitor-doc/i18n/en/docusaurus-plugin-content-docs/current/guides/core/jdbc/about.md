@@ -49,7 +49,7 @@ T result = jdbc.execute((ConnectionCallback<T>) con -> {
 在所有模版方法中以 `execute(ConnectionCallback)` 最为基础，在这个基础模版方法中 JdbcTemplate 会处理获取连接、释放连接、捕获异常。
 上层代码只需要专注于使用 Connection。
 
-## 使用指引
+## 使用指引 {#guide}
 
 - [查询](./query)，执行有返回结果的 SQL 语句。例如：一个SELECT 语句或任何带有返回结果的语句。
 - [更新](./update)，执行无返回值的 SQL 语句。例如：INSERT、UPDATE、DELETE 或 DDL操作。
