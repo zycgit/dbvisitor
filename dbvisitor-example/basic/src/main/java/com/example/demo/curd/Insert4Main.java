@@ -1,16 +1,15 @@
 package com.example.demo.curd;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import javax.sql.DataSource;
 import com.example.demo.DsUtils;
 import com.example.demo.PrintUtils;
-import net.hasor.cobble.DateFormatType;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.dbvisitor.lambda.MapInsert;
 import net.hasor.dbvisitor.mapping.Options;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Insert4Main {
     // 纯 Map 模式，开启驼峰转换，因此都是属性名。
@@ -24,7 +23,7 @@ public class Insert4Main {
         newValue.put("id", 20);
         newValue.put("name", "new name");
         newValue.put("age", 88);
-        newValue.put("createTime", DateFormatType.s_yyyyMMdd_HHmmss.toDate("2000-01-01 12:12:12"));
+        newValue.put("createTime", new Date());
 
         MapInsert insert = wrapper.insertFreedom(null, null, "test_user");
         int result = insert.applyMap(newValue).executeSumResult();

@@ -18,14 +18,46 @@
         <module>springboot3</module>
     </modules>
 
+    <properties>
+        <dbvisitor.version>6.2.0</dbvisitor.version>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>net.hasor</groupId>
-                <artifactId>dbvisitor-dependencies</artifactId>
-                <version>6.0.5</version>
-                <type>pom</type>
-                <scope>import</scope>
+                <artifactId>dbvisitor</artifactId>
+                <version>${dbvisitor.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.hasor</groupId>
+                <artifactId>dbvisitor-guice</artifactId>
+                <version>${dbvisitor.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.hasor</groupId>
+                <artifactId>dbvisitor-hasor</artifactId>
+                <version>${dbvisitor.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.hasor</groupId>
+                <artifactId>dbvisitor-solon-plugin</artifactId>
+                <version>${dbvisitor.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.hasor</groupId>
+                <artifactId>dbvisitor-spring</artifactId>
+                <version>${dbvisitor.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.hasor</groupId>
+                <artifactId>dbvisitor-spring-starter</artifactId>
+                <version>${dbvisitor.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.hasor</groupId>
+                <artifactId>jdbc-redis</artifactId>
+                <version>${dbvisitor.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

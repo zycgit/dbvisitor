@@ -1,13 +1,12 @@
 package com.example.demo.curd;
-import com.example.demo.DsUtils;
-import com.example.demo.PrintUtils;
-import net.hasor.cobble.DateFormatType;
-import net.hasor.dbvisitor.lambda.EntityInsert;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
-
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Date;
+import javax.sql.DataSource;
+import com.example.demo.DsUtils;
+import com.example.demo.PrintUtils;
+import net.hasor.dbvisitor.lambda.EntityInsert;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
 
 public class Insert1Main {
     // 使用实体映射 Table
@@ -21,7 +20,7 @@ public class Insert1Main {
         testUser.setId(20);
         testUser.setName("new name");
         testUser.setAge(88);
-        testUser.setCreateTime(DateFormatType.s_yyyyMMdd_HHmmss.toDate("2000-01-01 12:12:12"));
+        testUser.setCreateTime(new Date());
 
         EntityInsert<TestUser> insert = wrapper.insert(TestUser.class);
         int result = insert.applyEntity(testUser).executeSumResult();
