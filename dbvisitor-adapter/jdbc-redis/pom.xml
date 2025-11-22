@@ -4,7 +4,7 @@
     <parent>
         <groupId>net.hasor</groupId>
         <artifactId>dbvisitor-parent</artifactId>
-        <version>6.1.1-SNAPSHOT</version>
+        <version>6.2.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -107,8 +107,8 @@
                         <phase>compile</phase>
                         <configuration>
                             <target>
-                                <copy file="${basedir}/target/generated-sources/antlr4/RedisLexer.tokens" tofile="${basedir}/target/generated-sources/antlr4/net/hasor/dbvisitor/adapter/redis/parser/RedisLexer.tokens"/>
-                                <copy file="${basedir}/target/generated-sources/antlr4/RedisParser.tokens" tofile="${basedir}/target/generated-sources/antlr4/net/hasor/dbvisitor/adapter/redis/parser/RedisParser.tokens"/>
+                                <copy file="${basedir}/target/generated-sources/antlr4/RedisLexer.tokens" tofile="${basedir}/target/generated-sources/antlr4/net/hasor/dbvisitor/adapter/redis/parser/RedisLexer.tokens" />
+                                <copy file="${basedir}/target/generated-sources/antlr4/RedisParser.tokens" tofile="${basedir}/target/generated-sources/antlr4/net/hasor/dbvisitor/adapter/redis/parser/RedisParser.tokens" />
                             </target>
                         </configuration>
                         <goals>
