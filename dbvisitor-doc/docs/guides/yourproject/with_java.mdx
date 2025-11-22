@@ -1,0 +1,41 @@
+---
+id: with_java
+sidebar_position: 2
+hide_table_of_contents: true
+title: 3.2 普通项目
+description: 如何在一个普通项目上使用 dbVisitor。
+---
+import Vars from '@site/plugins/projectVars';
+
+export const Highlight = ({children, color}) => (
+  <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+);
+
+普通 Java 项目是指不使用任何框架或容器的 Java 项目，它通常是一个简单的 Java 应用程序，没有任何外部依赖项。
+
+:::tip[提示]
+dbvisitor 也可以很好的和任何 Java 项目整合使用，包括 Spring Boot、Quarkus 等，因此你也可以这些项目当成普通项目来看待。
+:::
+
+## 引入依赖
+
+首先引入依赖包，当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+
+```xml title='Maven 依赖'
+<dependency>
+  <groupId>net.hasor</groupId>
+  <artifactId>dbvisitor</artifactId>
+  <version>最新版本的版本号</version>
+</dependency>
+```
+
+## 如何使用
+
+在普通项目中使用 dbVisitor 只需要项目中可以提供 DataSource 或者 Connection 即可开始使用。
+
+dbVisitor 的 API 提供分为以下几种：
+- dbVisitor 支持通过原始 SQL 方式利用 [编程式 API](../api/program_api) 来访问数据库。
+- dbVisitor 支持在接口上通过注解标记以 [声明式 API](../api/declarative_api) 方式来访问数据库。
+- dbVisitor 支持通过 [构造器](../api/lambda_api) 方式用同一种 API 来访问所有框架支持的数据库。
+- dbVisitor 支持通过 [BaseMapper](../api/base_mapper) 中预定的方法对数据库进行常规操作，从而简化应用。
+- dbVisitor 支持使用 [使用 Mapper XML](../api/file_mapper) 文件配置统一管理 SQL 语句。
