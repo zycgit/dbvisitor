@@ -772,17 +772,17 @@ class JedisCommandsForStoreSet extends JedisCommands {
         }
 
         AdapterResultCursor receiveCur = new AdapterResultCursor(request, Arrays.asList(//
-                COL_CURSOR_STRING,   //
-                COL_SCORE_DOUBLE,   //
-                COL_ELEMENT_STRING));
+                COL_CURSOR_STRING,  //
+                COL_ELEMENT_STRING, //
+                COL_SCORE_DOUBLE));
         receive.responseResult(request, receiveCur);
 
         int affectRows = 0;
         for (Tuple tuple : result.getResult()) {
             receiveCur.pushData(CollectionUtils.asMap(          //
                     COL_CURSOR_STRING.name, result.getCursor(), //
-                    COL_SCORE_DOUBLE.name, tuple.getScore(),    //
-                    COL_ELEMENT_STRING.name, tuple.getElement() //
+                    COL_ELEMENT_STRING.name, tuple.getElement(),//
+                    COL_SCORE_DOUBLE.name, tuple.getScore()     //
             ));
             affectRows++;
 

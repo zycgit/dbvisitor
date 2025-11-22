@@ -46,8 +46,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                         r3.add(rs.getString(3));
                     }
                     assert r1.equals(Arrays.asList("key", "key"));
-                    assert r2.equals(Arrays.asList("123.0", "456.0"));
-                    assert r3.equals(Arrays.asList("v1", "v2"));
+                    assert r2.equals(Arrays.asList("v1", "v2"));
+                    assert r3.equals(Arrays.asList("123.0", "456.0"));
                 }
             }
 
@@ -124,8 +124,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                         r3.add(rs.getString(3));
                     }
                     assert r1.equals(Arrays.asList("key", "key"));
-                    assert r2.equals(Arrays.asList("123.0", "456.0"));
-                    assert r3.equals(Arrays.asList("v1", "v2"));
+                    assert r2.equals(Arrays.asList("v1", "v2"));
+                    assert r3.equals(Arrays.asList("123.0", "456.0"));
                 }
             }
 
@@ -200,8 +200,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                         r3.add(rs.getString(3));
                     }
                     assert r1.equals(Arrays.asList("key", "key"));
-                    assert r2.equals(Arrays.asList("123.0", "456.0"));
-                    assert r3.equals(Arrays.asList("v1", "v2"));
+                    assert r2.equals(Arrays.asList("v1", "v2"));
+                    assert r3.equals(Arrays.asList("123.0", "456.0"));
                 }
             }
 
@@ -240,8 +240,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                         r3.add(rs.getString(3));
                     }
                     assert r1.equals(Arrays.asList("key", "key"));
-                    assert r2.equals(Arrays.asList("123.0", "456.0"));
-                    assert r3.equals(Arrays.asList("v1", "v2"));
+                    assert r2.equals(Arrays.asList("v1", "v2"));
+                    assert r3.equals(Arrays.asList("123.0", "456.0"));
                 }
             }
 
@@ -276,8 +276,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                         r1.add(rs.getString(1));
                         r2.add(rs.getString(2));
                     }
-                    assert r1.equals(Arrays.asList("123.0", "456.0"));
-                    assert r2.equals(Arrays.asList("v1", "v2"));
+                    assert r1.equals(Arrays.asList("v1", "v2"));
+                    assert r2.equals(Arrays.asList("123.0", "456.0"));
                 }
             }
 
@@ -308,8 +308,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                         r1.add(rs.getString(1));
                         r2.add(rs.getString(2));
                     }
-                    assert r1.equals(Arrays.asList("123.0"));
-                    assert r2.equals(Arrays.asList("v1"));
+                    assert r1.equals(Arrays.asList("v1"));
+                    assert r2.equals(Arrays.asList("123.0"));
                 }
             }
 
@@ -342,8 +342,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                         r1.add(rs.getString(1));
                         r2.add(rs.getString(2));
                     }
-                    assert r1.equals(Arrays.asList("123.0", "456.0"));
-                    assert r2.equals(Arrays.asList("v1", "v2"));
+                    assert r1.equals(Arrays.asList("v1", "v2"));
+                    assert r2.equals(Arrays.asList("123.0", "456.0"));
                 }
             }
 
@@ -374,8 +374,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                         r1.add(rs.getString(1));
                         r2.add(rs.getString(2));
                     }
-                    assert r1.equals(Arrays.asList("123.0"));
-                    assert r2.equals(Arrays.asList("v1"));
+                    assert r1.equals(Arrays.asList("v1"));
+                    assert r2.equals(Arrays.asList("123.0"));
                 }
             }
 
@@ -408,8 +408,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                         r3.add(rs.getString(3));
                     }
                     assert r1.equals(Arrays.asList("key"));
-                    assert r2.equals(Arrays.asList("123.0"));
-                    assert r3.equals(Arrays.asList("v1"));
+                    assert r2.equals(Arrays.asList("v1"));
+                    assert r3.equals(Arrays.asList("123.0"));
                 }
             }
 
@@ -443,8 +443,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                         r3.add(rs.getString(3));
                     }
                     assert r1.equals(Arrays.asList("key"));
-                    assert r2.equals(Arrays.asList("123.0"));
-                    assert r3.equals(Arrays.asList("v1"));
+                    assert r2.equals(Arrays.asList("v1"));
+                    assert r3.equals(Arrays.asList("123.0"));
                 }
             }
 
@@ -1093,8 +1093,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                         r1.add(rs.getString(1));
                         r2.add(rs.getString(2));
                     }
-                    assert r1.equals(Arrays.asList("123.0", "456.0"));
-                    assert r2.equals(Arrays.asList("v1", "v2"));
+                    assert r1.equals(Arrays.asList("v1", "v2"));
+                    assert r2.equals(Arrays.asList("123.0", "456.0"));
                 }
             }
 
@@ -1849,8 +1849,8 @@ public class StoreSetCommandTest extends AbstractJdbcTest {
                         r1.add(rs.getString(1));
                         r2.add(rs.getString(2));
                     }
-                    assert r1.equals(Arrays.asList("123.0", "456.0"));
-                    assert r2.equals(Arrays.asList("v1", "v2"));
+                    assert r1.equals(Arrays.asList("v1", "v2"));
+                    assert r2.equals(Arrays.asList("123.0", "456.0"));
                 }
             }
 

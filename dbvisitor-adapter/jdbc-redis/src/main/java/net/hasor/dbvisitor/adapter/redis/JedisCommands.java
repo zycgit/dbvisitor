@@ -145,15 +145,15 @@ abstract class JedisCommands {
 
     protected static AdapterResultCursor listResult(AdapterRequest request, List<Tuple> result) throws SQLException {
         AdapterResultCursor receiveCur = new AdapterResultCursor(request, Arrays.asList(//
-                COL_SCORE_DOUBLE,   //
-                COL_ELEMENT_STRING));
+                COL_ELEMENT_STRING,//
+                COL_SCORE_DOUBLE));
 
         long maxRows = request.getMaxRows();
         int affectRows = 0;
         for (Tuple tuple : result) {
             receiveCur.pushData(CollectionUtils.asMap(          //
-                    COL_SCORE_DOUBLE.name, tuple.getScore(),    //
-                    COL_ELEMENT_STRING.name, tuple.getElement() //
+                    COL_ELEMENT_STRING.name, tuple.getElement(),//
+                    COL_SCORE_DOUBLE.name, tuple.getScore()     //
             ));
             affectRows++;
 
@@ -168,15 +168,16 @@ abstract class JedisCommands {
 
     protected static AdapterResultCursor listResult(AdapterRequest request, JdbcColumn keyCol, KeyValue<String, List<Tuple>> result) throws SQLException {
         AdapterResultCursor receiveCur = new AdapterResultCursor(request, Arrays.asList(//
-                keyCol,     //
-                COL_SCORE_DOUBLE,   //
-                COL_ELEMENT_STRING));
+                keyCol,            //
+                COL_ELEMENT_STRING,//
+                COL_SCORE_DOUBLE   //
+        ));
 
         for (Tuple tuple : result.getValue()) {
             receiveCur.pushData(CollectionUtils.asMap(          //
-                    keyCol.name, result.getKey(),       //
-                    COL_SCORE_DOUBLE.name, tuple.getScore(),    //
-                    COL_ELEMENT_STRING.name, tuple.getElement() //
+                    keyCol.name, result.getKey(),               //
+                    COL_ELEMENT_STRING.name, tuple.getElement(),//
+                    COL_SCORE_DOUBLE.name, tuple.getScore()     //
             ));
         }
         receiveCur.pushFinish();

@@ -301,7 +301,7 @@ public class AdapterTypeSupport implements TypeSupport {
         if (StringUtils.isBlank(typeName)) {
             return Object.class.getName();
         } else {
-            return ((Class<?>) this.typeMap.getOrDefault(typeName, defaultTypeTuple).get1()).getName();
+            return ((Class<?>) this.typeMap.getOrDefault(typeName, defaultTypeTuple).getArg1()).getName();
         }
     }
 
@@ -313,7 +313,7 @@ public class AdapterTypeSupport implements TypeSupport {
         if (StringUtils.isBlank(typeName)) {
             return Types.OTHER;
         } else {
-            return this.typeMap.getOrDefault(typeName, defaultTypeTuple).get0();
+            return this.typeMap.getOrDefault(typeName, defaultTypeTuple).getArg0();
         }
     }
 
