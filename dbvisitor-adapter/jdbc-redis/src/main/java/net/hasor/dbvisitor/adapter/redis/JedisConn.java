@@ -213,7 +213,7 @@ public class JedisConn extends AdapterConnection {
 
     @Override
     protected void doClose() throws IOException {
-        this.cancelRequest();
+        // this.cancelRequest();
         this.jedisCmd.close();
     }
 }

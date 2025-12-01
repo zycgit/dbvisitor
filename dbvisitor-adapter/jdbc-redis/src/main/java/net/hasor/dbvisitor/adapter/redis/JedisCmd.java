@@ -86,12 +86,12 @@ public class JedisCmd implements AutoCloseable {
     private       StringPipelineBinaryCommands       stringPipelineBinaryCommands;
     private       StringPipelineCommands             stringPipelineCommands;
 
-    public JedisCmd(Jedis jedis, InvocationHandler invocation) {
+    JedisCmd(Jedis jedis, InvocationHandler invocation) {
         this.initCommands(jedis, invocation);
         this.target = jedis;
     }
 
-    public JedisCmd(JedisCluster jedis, InvocationHandler invocation) {
+    JedisCmd(JedisCluster jedis, InvocationHandler invocation) {
         this.initCommands(jedis, invocation);
         this.target = jedis;
     }
