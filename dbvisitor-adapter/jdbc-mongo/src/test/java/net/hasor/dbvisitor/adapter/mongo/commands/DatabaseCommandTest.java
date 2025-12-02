@@ -1,0 +1,34 @@
+package net.hasor.dbvisitor.adapter.mongo.commands;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import com.mongodb.client.MongoDatabase;
+import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
+import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
+import org.junit.Test;
+
+public class DatabaseCommandTest extends AbstractJdbcTest {
+
+    @Test
+    public void move_0() {
+        List<Object> argList = new ArrayList<>();
+        long returnValue = 123;
+
+        MongoCommandInterceptor.resetInterceptor();
+        MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getName", (name, args) -> {
+            argList.addAll(Arrays.asList(args));
+            return returnValue;
+        }));
+        try (Connection conn = redisConnection()) {
+            try (java.sql.Statement stmt = conn.createStatement()) {
+                assert stmt.executeUpdate("show collections") == 123L;
+            }
+
+            assert argList.equals(Arrays.asList("mykey", 123));
+        } catch (SQLException e) {
+            assert false;
+        }
+    }
+}

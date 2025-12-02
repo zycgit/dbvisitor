@@ -15,9 +15,9 @@ import org.bson.conversions.Bson;
 
 @SuppressWarnings({ "NullableProblems" })
 class MongoDatabaseProxy implements MongoDatabase {
+    private final MongoDatabase proxy;
     private       String        catalog;
     private       MongoDatabase target;
-    private final MongoDatabase proxy;
 
     public MongoDatabaseProxy(final InvocationHandler handler) {
         if (handler != null) {

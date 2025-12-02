@@ -18,9 +18,9 @@ import org.bson.conversions.Bson;
 
 @SuppressWarnings({ "deprecation", "NullableProblems" })
 class MongoCollectionProxy implements MongoCollection<Document> {
+    private final MongoCollection<Document> proxy;
     private       String                    schema;
     private       MongoCollection<Document> target;
-    private final MongoCollection<Document> proxy;
 
     public MongoCollectionProxy(final InvocationHandler handler) {
         if (handler != null) {

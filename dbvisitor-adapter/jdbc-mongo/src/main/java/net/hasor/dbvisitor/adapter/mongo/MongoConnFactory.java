@@ -18,7 +18,6 @@ import net.hasor.dbvisitor.driver.AdapterTypeSupport;
 import net.hasor.dbvisitor.driver.TypeSupport;
 
 public class MongoConnFactory implements AdapterFactory {
-
     private static ServerAddress passerIpPort(String host, int defaultPort) {
         String[] ipPort = host.split(":");
         if (ipPort.length == 1) {
@@ -44,7 +43,6 @@ public class MongoConnFactory implements AdapterFactory {
                 return MongoCredential.createScramSha256Credential(username, database, password.toCharArray());
             case "MONGODB-CR":
                 return MongoCredential.createMongoCRCredential(username, database, password.toCharArray());
-
             case "GSSAPI":
                 return MongoCredential.createGSSAPICredential(username);
             case "X-509":

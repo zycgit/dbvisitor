@@ -97,11 +97,6 @@ public class MongoConn extends AdapterConnection {
         }
     }
 
-    //
-    //
-    //
-    //
-
     protected MongoParserParser.MongoCommandsContext parserRequest(AdapterRequest request) throws SQLException {
         try {
             MongoParserLexer lexer = new MongoParserLexer(CharStreams.fromString(((MongoRequest) request).getCommandBody()));
@@ -117,6 +112,11 @@ public class MongoConn extends AdapterConnection {
             throw new SQLException(errorMsg, JdbcErrorCode.SQL_STATE_SYNTAX_ERROR);
         }
     }
+
+    //
+    //
+    //
+    //
 
     @Override
     public synchronized void doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException {
