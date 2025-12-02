@@ -97,13 +97,13 @@ public class MongoConn extends AdapterConnection {
         }
     }
 
-    protected MongoParserParser.MongoCommandsContext parserRequest(AdapterRequest request) throws SQLException {
+    protected MongoParser.MongoCommandsContext parserRequest(AdapterRequest request) throws SQLException {
         try {
-            MongoParserLexer lexer = new MongoParserLexer(CharStreams.fromString(((MongoRequest) request).getCommandBody()));
+            MongoLexer lexer = new MongoLexer(CharStreams.fromString(((MongoRequest) request).getCommandBody()));
             lexer.removeErrorListeners();
             lexer.addErrorListener(ThrowingListener.INSTANCE);
 
-            MongoParserParser parser = new MongoParserParser(new BufferedTokenStream(lexer));
+            MongoParser parser = new MongoParser(new BufferedTokenStream(lexer));
             parser.removeErrorListeners();
             parser.addErrorListener(ThrowingListener.INSTANCE);
             return parser.mongoCommands();
@@ -120,11 +120,11 @@ public class MongoConn extends AdapterConnection {
 
     @Override
     public synchronized void doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException {
-        MongoParserParser.MongoCommandsContext root = parserRequest(request);
+        MongoParser.MongoCommandsContext root = parserRequest(request);
         MongoArgVisitor argVisitor = new MongoArgVisitor();
         root.accept(argVisitor);
         int argCount = argVisitor.getArgCount();
-        List<MongoParserParser.CommandContext> commandList = argVisitor.getCommandList();
+        List<MongoParser.CommandContext> commandList = argVisitor.getCommandList();
 
         if (commandList.isEmpty()) {
             throw new SQLException("query command is empty.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
@@ -136,7 +136,7 @@ public class MongoConn extends AdapterConnection {
         }
 
         int startArgIdx = 0;
-        for (MongoParserParser.CommandContext mongoCmd : commandList) {
+        for (MongoParser.CommandContext mongoCmd : commandList) {
             Future<Object> sync = new BasicFuture<>();
             if (argCount > 0) {
                 argVisitor.reset();

@@ -1,0 +1,2 @@
+db.users.find({ "age": { "$gt": 18 } });
+db.orders.insert({ "item": "card", "qty": 15 });

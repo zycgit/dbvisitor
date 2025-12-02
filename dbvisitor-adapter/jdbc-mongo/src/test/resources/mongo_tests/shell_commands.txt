@@ -1,0 +1,5 @@
+use my_database
+show dbs
+show databases
+show collections
+show tables

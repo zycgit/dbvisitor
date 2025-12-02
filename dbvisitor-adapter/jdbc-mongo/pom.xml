@@ -108,7 +108,7 @@
                         <configuration>
                             <target>
                                 <copy file="${basedir}/target/generated-sources/antlr4/MongoParser.tokens" tofile="${basedir}/target/generated-sources/antlr4/net/hasor/dbvisitor/adapter/mongo/parser/MongoParser.tokens"/>
-                                <copy file="${basedir}/target/generated-sources/antlr4/MongoParserLexer.tokens" tofile="${basedir}/target/generated-sources/antlr4/net/hasor/dbvisitor/adapter/mongo/parser/MongoParserLexer.tokens"/>
+                                <copy file="${basedir}/target/generated-sources/antlr4/MongoLexer.tokens" tofile="${basedir}/target/generated-sources/antlr4/net/hasor/dbvisitor/adapter/mongo/parser/MongoLexer.tokens"/>
                             </target>
                         </configuration>
                         <goals>

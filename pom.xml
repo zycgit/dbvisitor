@@ -53,9 +53,9 @@
         <module>dbvisitor-integration/dbvisitor-guice</module>
         <module>dbvisitor-integration/dbvisitor-solon-plugin</module>
         <module>dbvisitor-adapter/jdbc-redis</module>
-        <!-- <module>dbvisitor-adapter/jdbc-mongo</module>-->
-        <!-- <module>dbvisitor-adapter/adapter-elasticsearch6</module>-->
-        <!-- <module>dbvisitor-adapter/adapter-elasticsearch7</module>-->
+        <module>dbvisitor-adapter/jdbc-mongo</module>
+        <!-- <module>dbvisitor-adapter/adapter-es6</module>-->
+        <!-- <module>dbvisitor-adapter/adapter-es7</module>-->
     </modules>
 
     <dependencyManagement>

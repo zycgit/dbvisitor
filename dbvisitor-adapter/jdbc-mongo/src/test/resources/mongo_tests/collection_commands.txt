@@ -1,0 +1,44 @@
+db.orders.aggregate([
+   { $match: { status: "A" } },
+   { $group: { _id: "$cust_id", total: { $sum: "$amount" } } }
+])
+db.orders.distinct("status", { price: { $gt: 10 } })
+db.orders.findOne({ "_id": 1 })
+db.orders.replaceOne({ "item": "paper" }, { "item": "paper", "instock": [ { "warehouse": "A", "qty": 60 }, { "warehouse": "B", "qty": 40 } ] })
+db.orders.deleteOne({ "status": "D" })
+db.orders.deleteMany({ "status": "D" })
+db.orders.insertOne({ "item": "card", "qty": 15 })
+db.orders.insertMany([
+   { "item": "card", "qty": 15 },
+   { "item": "envelope", "qty": 20 },
+   { "item": "stamps", "qty": 30 }
+])
+db.orders.updateOne(
+   { "item": "paper" },
+   {
+     $set: { "size.uom": "cm", "status": "P" },
+     $currentDate: { "lastModified": true }
+   }
+)
+db.orders.updateMany(
+   { "qty": { $lt: 50 } },
+   {
+     $set: { "size.uom": "in", "status": "P" },
+     $currentDate: { "lastModified": true }
+   }
+)
+db.orders.bulkWrite([
+   { insertOne: { "document": { "_id": 1, "char": "Brisbane", "class": "mammal", "water": false } } },
+   { updateOne: { "filter": { "char": "Eldon" }, "update": { $set: { "status": "Critical" } } } },
+   { deleteOne: { "filter": { "char": "Manor" } } },
+   { replaceOne: { "filter": { "char": "Mardon" }, "replacement": { "char": "Mardon", "class": "mammal", "water": false } } }
+])
+db.orders.createIndex({ "item": 1, "qty": -1 })
+db.orders.dropIndex("item_1_qty_-1")
+db.orders.getIndexes()
+db.orders.renameCollection("new_orders")
+db.orders.stats()
+db.users.find({}).sort({ "age": -1 }).skip(10).limit(5);
+db.users.find({ "status": "A" }).explain()
+db.users.find({ "status": "A" }).hint({ "_id": 1 })
+db.users.count({ "active": true });

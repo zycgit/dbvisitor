@@ -1,0 +1,5 @@
+db.users.find({ "age": { "$gt": 18 } }).limit(10);
+db.users.find({ "status": "A" }).sort({ "user_id": 1 });
+db.users.find({}).skip(5).limit(10);
+db.users.find({}).sort({ "age": -1 }).skip(10).limit(5);
+db.users.count({ "active": true });

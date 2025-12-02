@@ -1,0 +1,4 @@
+db.collection.insert({ "name": "test" });
+db.collection.update({ "name": "test" }, { "$set": { "age": 1 } });
+db.collection.remove({ "name": "test" });
+db.collection.count({ "age": { "$gt": 10 } });
