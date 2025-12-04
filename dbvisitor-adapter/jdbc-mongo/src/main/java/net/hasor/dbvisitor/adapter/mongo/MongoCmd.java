@@ -9,27 +9,19 @@ import net.hasor.cobble.StringUtils;
 import org.bson.Document;
 
 public class MongoCmd implements AutoCloseable {
-    private final MongoClient          client;
-    private final InvocationHandler    invocation;
-    private final MongoDatabaseProxy   catalog;
-    private final MongoCollectionProxy schema;
+    private final MongoClient        client;
+    private final InvocationHandler  invocation;
+    private final MongoDatabaseProxy catalog;
+    //    private final ThreadLocal<MongoCollectionProxy> schema;
 
-    MongoCmd(MongoClient client, InvocationHandler invocation, String defaultDB, String defaultSchema) throws SQLException {
+    MongoCmd(MongoClient client, InvocationHandler invocation, String defaultDB) throws SQLException {
         this.client = client;
         this.invocation = invocation;
         this.catalog = new MongoDatabaseProxy(invocation);
-        this.schema = new MongoCollectionProxy(invocation);
+        //        this.schema = ThreadLocal.withInitial(() -> new MongoCollectionProxy(invocation));
 
         if (StringUtils.isNotBlank(defaultDB)) {
             this.catalog.updateTarget(defaultDB, client.getDatabase(defaultDB));
-        }
-        if (StringUtils.isNotBlank(defaultSchema)) {
-            if (this.catalog.mongoDB() == null) {
-                throw new SQLException("No database selected when selecting schema.");
-            }
-
-            MongoCollection<Document> collection = this.catalog.mongoDB().getCollection(defaultSchema);
-            this.schema.updateTarget(defaultSchema, collection);
         }
     }
 
@@ -41,10 +33,6 @@ public class MongoCmd implements AutoCloseable {
         return this.catalog;
     }
 
-    MongoCollectionProxy getSchemaProxy() {
-        return this.schema;
-    }
-
     public String getCatalog() {
         return this.catalog != null ? this.catalog.getCatalog() : null;
     }
@@ -52,26 +40,9 @@ public class MongoCmd implements AutoCloseable {
     public void setCatalog(String catalog) {
         if (StringUtils.isBlank(catalog)) {
             this.catalog.updateTarget(null, null);
-            this.schema.updateTarget(null, null);
         } else {
             MongoDatabase database = this.client.getDatabase(catalog);
             this.catalog.updateTarget(catalog, database);
-            this.schema.updateTarget(null, null);
-        }
-    }
-
-    public String getSchema() {
-        return this.schema != null ? this.schema.getSchema() : null;
-    }
-
-    public void setSchema(String schema) throws SQLException {
-        if (StringUtils.isBlank(schema)) {
-            this.schema.updateTarget(null, null);
-        } else if (this.catalog.mongoDB() == null) {
-            throw new SQLException("No database selected when selecting schema.");
-        } else {
-            MongoCollection<Document> schemaObj = this.catalog.mongoDB().getCollection(schema);
-            this.schema.updateTarget(schema, schemaObj);
         }
     }
 
@@ -86,10 +57,6 @@ public class MongoCmd implements AutoCloseable {
 
     //
 
-    public MongoCollection<Document> getMongoSchema() {
-        return this.schema;
-    }
-
     public MongoDatabase getMongoDB(String database) {
         if (StringUtils.equals(database, this.getCatalog())) {
             return this.catalog;
@@ -101,9 +68,10 @@ public class MongoCmd implements AutoCloseable {
     }
 
     public MongoCollection<Document> getMongoSchema(String database, String schema) {
-        if (StringUtils.equals(database, this.getCatalog()) && StringUtils.equals(schema, this.getSchema())) {
-            return this.schema;
-        }
+        //        MongoCollectionProxy local = this.schema.get();
+        //        if (StringUtils.equals(database, local.getCatalog()) && StringUtils.equals(schema, local.getSchema())) {
+        //            return local;
+        //        }
 
         MongoDatabaseProxy db;
         if (StringUtils.equals(database, this.getCatalog())) {
@@ -116,7 +84,7 @@ public class MongoCmd implements AutoCloseable {
 
         MongoCollectionProxy tmp = new MongoCollectionProxy(this.invocation);
         MongoCollection<Document> schemaObj = db.mongoDB().getCollection(schema);
-        tmp.updateTarget(schema, schemaObj);
+        tmp.updateTarget(database, schema, schemaObj);
         return tmp;
     }
 }

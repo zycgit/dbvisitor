@@ -19,7 +19,6 @@ public class MongoKeys {
     public static final String PASSWORD                 = "password";
     public static final String MECHANISM                = "mechanism";
     public static final String DATABASE                 = "database";
-    public static final String COLLECTION               = "collection";
     // options
     public static final String CLIENT_NAME              = "clientName";
     public static final String CLIENT_DESCRIPTION       = "clientDescription";

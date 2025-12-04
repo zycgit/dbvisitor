@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.BasicFuture;
@@ -58,22 +57,22 @@ public class MongoConn extends AdapterConnection {
 
     @Override
     public String getCatalog() {
-        return this.mongoCmd.getCatalog();
+        return this.getSchema();
     }
 
     @Override
     public void setCatalog(String catalog) {
-        this.mongoCmd.setCatalog(catalog);
+        this.setSchema(catalog);
     }
 
     @Override
     public String getSchema() {
-        return this.mongoCmd.getSchema();
+        return this.mongoCmd.getCatalog();
     }
 
     @Override
-    public void setSchema(String schema) throws SQLException {
-        this.mongoCmd.setSchema(schema);
+    public void setSchema(String catalog) {
+        this.mongoCmd.setCatalog(catalog);
     }
 
     @Override
@@ -91,8 +90,6 @@ public class MongoConn extends AdapterConnection {
             return (T) this.mongoCmd.getClient();
         } else if (iface == MongoDatabase.class) {
             return (T) this.mongoCmd.getCatalogProxy().mongoDBWithoutError();
-        } else if (iface == MongoCollection.class) {
-            return (T) this.mongoCmd.getSchemaProxy().mongoDBWithoutError();
         } else {
             return super.unwrap(iface);
         }

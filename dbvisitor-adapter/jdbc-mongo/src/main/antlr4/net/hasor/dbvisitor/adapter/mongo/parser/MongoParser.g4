@@ -9,8 +9,8 @@ mongoCommands
 commands: (command | SEMICOLON)+;
 
 command
-	: DB DOT collection DOT mongoOp SEMICOLON?
-    | DB DOT dbOp SEMICOLON?
+	: databaseName DOT collection DOT mongoOp SEMICOLON?
+    | databaseName DOT dbOp SEMICOLON?
 	| USE databaseName SEMICOLON?
 	| SHOW showTarget SEMICOLON?
 	;

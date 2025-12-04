@@ -19,6 +19,7 @@ import org.bson.conversions.Bson;
 @SuppressWarnings({ "deprecation", "NullableProblems" })
 class MongoCollectionProxy implements MongoCollection<Document> {
     private final MongoCollection<Document> proxy;
+    private       String                    catalog;
     private       String                    schema;
     private       MongoCollection<Document> target;
 
@@ -31,7 +32,8 @@ class MongoCollectionProxy implements MongoCollection<Document> {
         }
     }
 
-    public void updateTarget(String schema, MongoCollection<Document> target) {
+    public void updateTarget(String catalog, String schema, MongoCollection<Document> target) {
+        this.catalog = catalog;
         this.schema = schema;
         this.target = Objects.requireNonNull(target, "target MongoCollection is null");
     }
@@ -49,6 +51,10 @@ class MongoCollectionProxy implements MongoCollection<Document> {
     }
 
     //
+
+    public String getCatalog() {
+        return this.catalog;
+    }
 
     public String getSchema() {
         return this.schema;

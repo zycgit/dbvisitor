@@ -148,7 +148,6 @@ public class MongoConnFactory implements AdapterFactory {
         String host = caseProps.get(MongoKeys.SERVER);
         String customMongo = caseProps.get(MongoKeys.CUSTOM_MONGO);
         String defaultDataBase = caseProps.get(MongoKeys.DATABASE);
-        String defaultCollection = caseProps.get(MongoKeys.COLLECTION);
         MongoClient mongoObject;
 
         if (StringUtils.isNotBlank(customMongo)) {
@@ -178,7 +177,7 @@ public class MongoConnFactory implements AdapterFactory {
             mongoObject = new MongoClient(hostAndPort, credentialConfig, optionConfig);
         }
 
-        MongoCmd cmd = new MongoCmd(mongoObject, this.createInvocation(caseProps), defaultDataBase, defaultCollection);
+        MongoCmd cmd = new MongoCmd(mongoObject, this.createInvocation(caseProps), defaultDataBase);
         MongoConn conn = new MongoConn(owner, cmd, jdbcUrl, caseProps);
         conn.initConnection();
         return conn;
