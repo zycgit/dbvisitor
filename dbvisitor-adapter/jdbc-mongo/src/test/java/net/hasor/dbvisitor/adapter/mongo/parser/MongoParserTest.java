@@ -51,6 +51,11 @@ public class MongoParserTest {
         runTestFromFile("mongo_tests/bson_types.txt");
     }
 
+    @Test
+    public void testPlaceholderTests() throws IOException {
+        runTestFromFile("mongo_tests/placeholder_tests.txt");
+    }
+
     private void runTestFromFile(String resourcePath) throws IOException {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
             if (inputStream == null) {

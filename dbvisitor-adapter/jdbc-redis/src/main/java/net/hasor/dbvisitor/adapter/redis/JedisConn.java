@@ -155,6 +155,9 @@ public class JedisConn extends AdapterConnection {
     }
 
     protected RedisParser.RootContext parserRequest(AdapterRequest request) throws SQLException {
+        if (StringUtils.isBlank(((JedisRequest) request).getCommandBody())) {
+            throw new SQLException("query command is empty.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
+        }
         try {
             RedisLexer lexer = new RedisLexer(CharStreams.fromString(((JedisRequest) request).getCommandBody()));
             lexer.setSeparatorChar(this.separatorChar);

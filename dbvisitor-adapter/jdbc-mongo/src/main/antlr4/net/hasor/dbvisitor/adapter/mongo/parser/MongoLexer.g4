@@ -181,7 +181,7 @@ fragment DecimalDigit
 
 // Generic String (Identifier-like)
 // Must be after keywords and specific literals
-STRING_LITERAL: ((~[",\\ \t\n\r:.;(){}\-]) | STRING_ESCAPE )+;
+STRING_LITERAL: ((~[",\\ \t\n\r:.;(){}\-?]) | STRING_ESCAPE )+;
 
 fragment STRING_ESCAPE: '\\' [\\"'];
 

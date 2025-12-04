@@ -7,6 +7,7 @@ import java.util.Map;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.BasicFuture;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.mongo.parser.*;
@@ -98,6 +99,9 @@ public class MongoConn extends AdapterConnection {
     }
 
     protected MongoParser.MongoCommandsContext parserRequest(AdapterRequest request) throws SQLException {
+        if (StringUtils.isBlank(((MongoRequest) request).getCommandBody())) {
+            throw new SQLException("query command is empty.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
+        }
         try {
             MongoLexer lexer = new MongoLexer(CharStreams.fromString(((MongoRequest) request).getCommandBody()));
             lexer.removeErrorListeners();
@@ -112,11 +116,6 @@ public class MongoConn extends AdapterConnection {
             throw new SQLException(errorMsg, JdbcErrorCode.SQL_STATE_SYNTAX_ERROR);
         }
     }
-
-    //
-    //
-    //
-    //
 
     @Override
     public synchronized void doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException {
