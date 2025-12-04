@@ -3,6 +3,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import com.mongodb.MongoNamespace;
 import com.mongodb.ReadConcern;
 import com.mongodb.ReadPreference;
@@ -11,6 +12,8 @@ import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.*;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.InsertManyResult;
+import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -36,10 +39,6 @@ class MongoCollectionProxy implements MongoCollection<Document> {
         this.catalog = catalog;
         this.schema = schema;
         this.target = Objects.requireNonNull(target, "target MongoCollection is null");
-    }
-
-    MongoCollection<Document> mongoDBWithoutError() {
-        return this.proxy == null ? this.target : this.proxy;
     }
 
     public MongoCollection<Document> mongoDB() {
@@ -91,6 +90,11 @@ class MongoCollectionProxy implements MongoCollection<Document> {
     }
 
     @Override
+    public Long getTimeout(TimeUnit timeUnit) {
+        return this.mongoDB().getTimeout(timeUnit);
+    }
+
+    @Override
     public <NewTDocument> MongoCollection<NewTDocument> withDocumentClass(Class<NewTDocument> clazz) {
         return this.mongoDB().withDocumentClass(clazz);
     }
@@ -113,6 +117,11 @@ class MongoCollectionProxy implements MongoCollection<Document> {
     @Override
     public MongoCollection<Document> withReadConcern(ReadConcern readConcern) {
         return this.mongoDB().withReadConcern(readConcern);
+    }
+
+    @Override
+    public MongoCollection<Document> withTimeout(long l, TimeUnit timeUnit) {
+        return this.mongoDB().withTimeout(l, timeUnit);
     }
 
     @Override
@@ -316,43 +325,43 @@ class MongoCollectionProxy implements MongoCollection<Document> {
     }
 
     @Override
-    public void insertOne(Document document) {
-        this.mongoDB().insertOne(document);
+    public InsertOneResult insertOne(Document document) {
+        return this.mongoDB().insertOne(document);
     }
 
     @Override
-    public void insertOne(Document document, InsertOneOptions options) {
-        this.mongoDB().insertOne(document, options);
+    public InsertOneResult insertOne(Document document, InsertOneOptions options) {
+        return this.mongoDB().insertOne(document, options);
     }
 
     @Override
-    public void insertOne(ClientSession clientSession, Document document) {
-        this.mongoDB().insertOne(clientSession, document);
+    public InsertOneResult insertOne(ClientSession clientSession, Document document) {
+        return this.mongoDB().insertOne(clientSession, document);
     }
 
     @Override
-    public void insertOne(ClientSession clientSession, Document document, InsertOneOptions options) {
-        this.mongoDB().insertOne(clientSession, document, options);
+    public InsertOneResult insertOne(ClientSession clientSession, Document document, InsertOneOptions options) {
+        return this.mongoDB().insertOne(clientSession, document, options);
     }
 
     @Override
-    public void insertMany(List<? extends Document> documents) {
-        this.mongoDB().insertMany(documents);
+    public InsertManyResult insertMany(List<? extends Document> documents) {
+        return this.mongoDB().insertMany(documents);
     }
 
     @Override
-    public void insertMany(List<? extends Document> documents, InsertManyOptions options) {
-        this.mongoDB().insertMany(documents, options);
+    public InsertManyResult insertMany(List<? extends Document> documents, InsertManyOptions options) {
+        return this.mongoDB().insertMany(documents, options);
     }
 
     @Override
-    public void insertMany(ClientSession clientSession, List<? extends Document> documents) {
-        this.mongoDB().insertMany(clientSession, documents);
+    public InsertManyResult insertMany(ClientSession clientSession, List<? extends Document> documents) {
+        return this.mongoDB().insertMany(clientSession, documents);
     }
 
     @Override
-    public void insertMany(ClientSession clientSession, List<? extends Document> documents, InsertManyOptions options) {
-        this.mongoDB().insertMany(clientSession, documents, options);
+    public InsertManyResult insertMany(ClientSession clientSession, List<? extends Document> documents, InsertManyOptions options) {
+        return this.mongoDB().insertMany(clientSession, documents, options);
     }
 
     @Override
@@ -523,6 +532,51 @@ class MongoCollectionProxy implements MongoCollection<Document> {
     @Override
     public void drop(ClientSession clientSession) {
         this.mongoDB().drop(clientSession);
+    }
+
+    @Override
+    public void drop(DropCollectionOptions dropCollectionOptions) {
+        this.mongoDB().drop(dropCollectionOptions);
+    }
+
+    @Override
+    public void drop(ClientSession clientSession, DropCollectionOptions dropCollectionOptions) {
+        this.mongoDB().drop(clientSession, dropCollectionOptions);
+    }
+
+    @Override
+    public String createSearchIndex(String s, Bson bson) {
+        return this.mongoDB().createSearchIndex(s, bson);
+    }
+
+    @Override
+    public String createSearchIndex(Bson bson) {
+        return this.mongoDB().createSearchIndex(bson);
+    }
+
+    @Override
+    public List<String> createSearchIndexes(List<SearchIndexModel> list) {
+        return this.mongoDB().createSearchIndexes(list);
+    }
+
+    @Override
+    public void updateSearchIndex(String s, Bson bson) {
+        this.mongoDB().updateSearchIndex(s, bson);
+    }
+
+    @Override
+    public void dropSearchIndex(String s) {
+        this.mongoDB().dropSearchIndex(s);
+    }
+
+    @Override
+    public ListSearchIndexesIterable<Document> listSearchIndexes() {
+        return this.mongoDB().listSearchIndexes();
+    }
+
+    @Override
+    public <TResult> ListSearchIndexesIterable<TResult> listSearchIndexes(Class<TResult> aClass) {
+        return this.mongoDB().listSearchIndexes(aClass);
     }
 
     @Override
@@ -723,45 +777,5 @@ class MongoCollectionProxy implements MongoCollection<Document> {
     @Override
     public Document findOneAndUpdate(Bson filter, List<? extends Bson> updatePipeline) {
         return this.mongoDB().findOneAndUpdate(filter, updatePipeline);
-    }
-
-    @Override
-    public long count(ClientSession clientSession, Bson filter, CountOptions options) {
-        return this.mongoDB().count(clientSession, filter, options);
-    }
-
-    @Override
-    public long count(ClientSession clientSession, Bson filter) {
-        return this.mongoDB().count(clientSession, filter);
-    }
-
-    @Override
-    public long count(Bson filter, CountOptions options) {
-        return this.mongoDB().count(filter, options);
-    }
-
-    @Override
-    public long count(ClientSession clientSession) {
-        return this.mongoDB().count(clientSession);
-    }
-
-    @Override
-    public long count(Bson filter) {
-        return this.mongoDB().count(filter);
-    }
-
-    @Override
-    public long count() {
-        return this.mongoDB().count();
-    }
-
-    @Override
-    public UpdateResult replaceOne(ClientSession clientSession, Bson filter, Document replacement, UpdateOptions updateOptions) {
-        return this.mongoDB().replaceOne(clientSession, filter, replacement, updateOptions);
-    }
-
-    @Override
-    public UpdateResult replaceOne(Bson filter, Document replacement, UpdateOptions updateOptions) {
-        return this.mongoDB().replaceOne(filter, replacement, updateOptions);
     }
 }

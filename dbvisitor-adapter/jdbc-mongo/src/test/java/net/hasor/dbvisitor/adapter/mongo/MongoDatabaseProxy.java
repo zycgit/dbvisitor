@@ -3,6 +3,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import com.mongodb.ReadConcern;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
@@ -15,11 +16,13 @@ import org.bson.conversions.Bson;
 
 @SuppressWarnings({ "NullableProblems" })
 class MongoDatabaseProxy implements MongoDatabase {
-    private final MongoDatabase proxy;
-    private       String        catalog;
-    private       MongoDatabase target;
+    private final MongoDatabase     proxy;
+    private       String            catalog;
+    private       MongoDatabase     target;
+    private final InvocationHandler handler;
 
     public MongoDatabaseProxy(final InvocationHandler handler) {
+        this.handler = handler;
         if (handler != null) {
             InvocationHandler h = (proxy, method, args) -> handler.invoke(this.target, method, args);
             this.proxy = (MongoDatabase) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] { MongoDatabase.class }, h);
@@ -31,10 +34,6 @@ class MongoDatabaseProxy implements MongoDatabase {
     public void updateTarget(String catalog, MongoDatabase target) {
         this.catalog = catalog;
         this.target = Objects.requireNonNull(target, "target MongoDatabase is null");
-    }
-
-    MongoDatabase mongoDBWithoutError() {
-        return this.proxy == null ? this.target : this.proxy;
     }
 
     public MongoDatabase mongoDB() {
@@ -77,6 +76,11 @@ class MongoDatabaseProxy implements MongoDatabase {
     }
 
     @Override
+    public Long getTimeout(TimeUnit timeUnit) {
+        return this.mongoDB().getTimeout(timeUnit);
+    }
+
+    @Override
     public MongoDatabase withCodecRegistry(CodecRegistry codecRegistry) {
         return this.mongoDB().withCodecRegistry(codecRegistry);
     }
@@ -94,6 +98,11 @@ class MongoDatabaseProxy implements MongoDatabase {
     @Override
     public MongoDatabase withReadConcern(ReadConcern readConcern) {
         return this.mongoDB().withReadConcern(readConcern);
+    }
+
+    @Override
+    public MongoDatabase withTimeout(long l, TimeUnit timeUnit) {
+        return this.mongoDB().withTimeout(l, timeUnit);
     }
 
     @Override
@@ -147,12 +156,12 @@ class MongoDatabaseProxy implements MongoDatabase {
     }
 
     @Override
-    public MongoIterable<String> listCollectionNames() {
+    public ListCollectionNamesIterable listCollectionNames() {
         return this.mongoDB().listCollectionNames();
     }
 
     @Override
-    public MongoIterable<String> listCollectionNames(ClientSession clientSession) {
+    public ListCollectionNamesIterable listCollectionNames(ClientSession clientSession) {
         return this.mongoDB().listCollectionNames(clientSession);
     }
 
@@ -278,11 +287,11 @@ class MongoDatabaseProxy implements MongoDatabase {
 
     @Override
     public MongoCollection<Document> getCollection(String collectionName) {
-        throw new UnsupportedOperationException("getCollection is not supported, please use MongoCmd to get collection.");
+        return this.mongoDB().getCollection(collectionName);
     }
 
     @Override
     public <TDocument> MongoCollection<TDocument> getCollection(String collectionName, Class<TDocument> documentClass) {
-        throw new UnsupportedOperationException("getCollection is not supported, please use MongoCmd to get collection.");
+        return this.mongoDB().getCollection(collectionName, documentClass);
     }
 }

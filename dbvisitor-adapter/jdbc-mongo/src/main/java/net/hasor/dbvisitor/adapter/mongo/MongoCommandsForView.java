@@ -6,7 +6,7 @@ import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.DatabaseNameContext;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 
-class MongoCommandsForView {
+class MongoCommandsForView extends MongoCommands {
     public static Future<?> execCreateView(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CreateViewOpContext c, //
             AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
         throw new SQLException("not implemented yet");

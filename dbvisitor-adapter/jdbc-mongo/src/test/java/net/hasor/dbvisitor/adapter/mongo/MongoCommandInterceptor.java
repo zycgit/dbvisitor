@@ -17,9 +17,14 @@ public class MongoCommandInterceptor implements InvocationHandler {
         interceptorList.put(type, handler);
     }
 
+    public static InvocationHandler getInterceptor(Class<?> type) {
+        return interceptorList.get(type);
+    }
+
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        InvocationHandler interceptor = interceptorList.get(method.getDeclaringClass());
+        Class<?> declaringClass = method.getDeclaringClass();
+        InvocationHandler interceptor = interceptorList.get(declaringClass);
         if (interceptor == null) {
             try {
                 return method.invoke(proxy, args);

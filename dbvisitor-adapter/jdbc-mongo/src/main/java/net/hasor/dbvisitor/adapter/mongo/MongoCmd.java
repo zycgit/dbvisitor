@@ -1,27 +1,21 @@
 package net.hasor.dbvisitor.adapter.mongo;
 import java.io.IOException;
-import java.lang.reflect.InvocationHandler;
 import java.sql.SQLException;
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import net.hasor.cobble.StringUtils;
 import org.bson.Document;
 
 public class MongoCmd implements AutoCloseable {
-    private final MongoClient        client;
-    private final InvocationHandler  invocation;
-    private final MongoDatabaseProxy catalog;
-    //    private final ThreadLocal<MongoCollectionProxy> schema;
+    private final MongoClient   client;
+    private       String        currentCatalog;
+    private       MongoDatabase currentDatabase;
 
-    MongoCmd(MongoClient client, InvocationHandler invocation, String defaultDB) throws SQLException {
+    MongoCmd(MongoClient client, String defaultDB) throws SQLException {
         this.client = client;
-        this.invocation = invocation;
-        this.catalog = new MongoDatabaseProxy(invocation);
-        //        this.schema = ThreadLocal.withInitial(() -> new MongoCollectionProxy(invocation));
-
         if (StringUtils.isNotBlank(defaultDB)) {
-            this.catalog.updateTarget(defaultDB, client.getDatabase(defaultDB));
+            this.setCatalog(defaultDB);
         }
     }
 
@@ -29,20 +23,16 @@ public class MongoCmd implements AutoCloseable {
         return this.client;
     }
 
-    MongoDatabaseProxy getCatalogProxy() {
-        return this.catalog;
-    }
-
     public String getCatalog() {
-        return this.catalog != null ? this.catalog.getCatalog() : null;
+        return this.currentCatalog;
     }
 
     public void setCatalog(String catalog) {
+        this.currentCatalog = catalog;
         if (StringUtils.isBlank(catalog)) {
-            this.catalog.updateTarget(null, null);
+            this.currentDatabase = null;
         } else {
-            MongoDatabase database = this.client.getDatabase(catalog);
-            this.catalog.updateTarget(catalog, database);
+            this.currentDatabase = this.client.getDatabase(catalog);
         }
     }
 
@@ -58,34 +48,16 @@ public class MongoCmd implements AutoCloseable {
     //
 
     public MongoDatabase getMongoDB(String database) {
-        if (StringUtils.equals(database, this.getCatalog())) {
-            return this.catalog;
+        if (StringUtils.equals(database, this.currentCatalog)) {
+            return this.currentDatabase;
         } else {
-            MongoDatabaseProxy tmp = new MongoDatabaseProxy(this.invocation);
-            tmp.updateTarget(database, this.client.getDatabase(database));
-            return tmp;
+            return this.client.getDatabase(database);
         }
     }
 
     public MongoCollection<Document> getMongoSchema(String database, String schema) {
-        //        MongoCollectionProxy local = this.schema.get();
-        //        if (StringUtils.equals(database, local.getCatalog()) && StringUtils.equals(schema, local.getSchema())) {
-        //            return local;
-        //        }
-
-        MongoDatabaseProxy db;
-        if (StringUtils.equals(database, this.getCatalog())) {
-            db = this.catalog;
-        } else {
-            MongoDatabaseProxy tmp = new MongoDatabaseProxy(this.invocation);
-            tmp.updateTarget(database, this.client.getDatabase(database));
-            db = tmp;
-        }
-
-        MongoCollectionProxy tmp = new MongoCollectionProxy(this.invocation);
-        MongoCollection<Document> schemaObj = db.mongoDB().getCollection(schema);
-        tmp.updateTarget(database, schema, schemaObj);
-        return tmp;
+        MongoDatabase db = getMongoDB(database);
+        return db.getCollection(schema);
     }
 }
 

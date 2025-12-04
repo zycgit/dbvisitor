@@ -5,7 +5,7 @@ import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.*;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 
-class MongoCommandsForIndex {
+class MongoCommandsForIndex extends MongoCommands {
     public static Future<?> execCreateIndex(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, CreateIndexOpContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
         throw new SQLException("not implemented yet");

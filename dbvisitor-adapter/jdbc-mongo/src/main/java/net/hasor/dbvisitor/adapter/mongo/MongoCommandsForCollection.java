@@ -5,7 +5,7 @@ import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.*;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 
-class MongoCommandsForCollection {
+class MongoCommandsForCollection extends MongoCommands {
     public static Future<?> execCreateCollection(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CreateCollectionOpContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
         throw new SQLException("not implemented yet");

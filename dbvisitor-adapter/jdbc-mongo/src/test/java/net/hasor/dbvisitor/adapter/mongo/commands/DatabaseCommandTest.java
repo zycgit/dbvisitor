@@ -1,70 +1,154 @@
 package net.hasor.dbvisitor.adapter.mongo.commands;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import com.mongodb.client.MongoCluster;
 import com.mongodb.client.MongoDatabase;
 import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
 import org.junit.Test;
+import org.powermock.api.mockito.PowerMockito;
 
 public class DatabaseCommandTest extends AbstractJdbcTest {
 
-    //@Test
-    public void move_0() {
-        List<Object> argList = new ArrayList<>();
-        long returnValue = 123;
-
+    @Test
+    public void show_dbs_0() {
+        List<String> result = Arrays.asList("db1", "db2");
         MongoCommandInterceptor.resetInterceptor();
-        MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getName", (name, args) -> {
-            argList.addAll(Arrays.asList(args));
-            return returnValue;
+        MongoCommandInterceptor.addInterceptor(MongoCluster.class, createInvocationHandler("listDatabaseNames", (name, args) -> {
+            return mockListDatabasesIterable(result);
         }));
-        try (Connection conn = redisConnection()) {
-            try (java.sql.Statement stmt = conn.createStatement()) {
-                assert stmt.executeUpdate("show collections") == 123L;
-            }
 
-            assert argList.equals(Arrays.asList("mykey", 123));
+        try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
+            try (ResultSet rs = stmt.executeQuery("show dbs")) {
+                List<String> r = new ArrayList<>();
+                while (rs.next()) {
+                    r.add(rs.getString("DATABASE"));
+                }
+                assert result.equals(r);
+            }
+        } catch (SQLException e) {
+            assert false;
+        }
+
+        try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
+            try (ResultSet rs = stmt.executeQuery("show databases")) {
+                List<String> r = new ArrayList<>();
+                while (rs.next()) {
+                    r.add(rs.getString("DATABASE"));
+                }
+                assert result.equals(r);
+            }
         } catch (SQLException e) {
             assert false;
         }
     }
 
     @Test
-    public void test_show_collections() {
-        try (Connection conn = redisConnection()) {
-            try (java.sql.Statement stmt = conn.createStatement()) {
-                stmt.executeQuery("show collections");
-                assert false;
+    public void drop_database_0() {
+        List<String> dbs = Collections.singletonList("mydb");
+        List<Object> dropped = new ArrayList<>();
+        MongoCommandInterceptor.resetInterceptor();
+        MongoCommandInterceptor.addInterceptor(MongoCluster.class, createInvocationHandler(new String[] { "listDatabaseNames", "getDatabase" }, (name, args) -> {
+            if ("listDatabaseNames".equals(name)) {
+                return mockListDatabasesIterable(dbs);
             }
+            if ("getDatabase".equals(name)) {
+                return PowerMockito.mock(MongoDatabase.class);
+            }
+            return null;
+        }));
+        MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("drop", (name, args) -> {
+            dropped.add("mydb");
+            return null;
+        }));
+
+        try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
+            assert stmt.executeUpdate("mydb.dropDatabase()") == 1;
+            assert dropped.size() == 1;
+            assert dropped.get(0).equals("mydb");
         } catch (SQLException e) {
-            assert e.getMessage().contains("not implemented yet");
+            assert false;
         }
     }
 
     @Test
-    public void test_param_mismatch() {
-        try (Connection conn = redisConnection()) {
-            try (java.sql.PreparedStatement stmt = conn.prepareStatement("db.createCollection(?)")) {
-                stmt.executeUpdate();
-                assert false;
+    public void drop_database_1() {
+        List<String> dbs = Collections.singletonList("mydb");
+        List<Object> dropped = new ArrayList<>();
+        MongoCommandInterceptor.resetInterceptor();
+        MongoCommandInterceptor.addInterceptor(MongoCluster.class, createInvocationHandler(new String[] { "listDatabaseNames", "getDatabase" }, (name, args) -> {
+            if ("listDatabaseNames".equals(name)) {
+                return mockListDatabasesIterable(dbs);
             }
+            if ("getDatabase".equals(name)) {
+                return PowerMockito.mock(MongoDatabase.class);
+            }
+            return null;
+        }));
+        MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("drop", (name, args) -> {
+            dropped.add("mydb");
+            return null;
+        }));
+
+        try (Connection conn = redisConnection("mydb"); Statement stmt = conn.createStatement()) {
+            assert stmt.executeUpdate("db.dropDatabase()") == 1;
+            assert dropped.size() == 1;
+            assert dropped.get(0).equals("mydb");
         } catch (SQLException e) {
-            assert e.getMessage().contains("param size not match.");
+            assert false;
         }
     }
 
     @Test
-    public void test_empty_command() {
-        try (Connection conn = redisConnection()) {
-            try (java.sql.Statement stmt = conn.createStatement()) {
-                stmt.executeQuery("");
-                assert false;
+    public void drop_database_2() {
+        List<String> dbs = Collections.singletonList("mydb");
+        List<Object> dropped = new ArrayList<>();
+        MongoCommandInterceptor.resetInterceptor();
+        MongoCommandInterceptor.addInterceptor(MongoCluster.class, createInvocationHandler(new String[] { "listDatabaseNames", "getDatabase" }, (name, args) -> {
+            if ("listDatabaseNames".equals(name)) {
+                return mockListDatabasesIterable(dbs);
             }
+            if ("getDatabase".equals(name)) {
+                return PowerMockito.mock(MongoDatabase.class);
+            }
+            return null;
+        }));
+        MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("drop", (name, args) -> {
+            dropped.add("mydb");
+            return null;
+        }));
+
+        try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
+            assert stmt.executeUpdate("use mydb") == 1;
+            assert stmt.executeUpdate("db.dropDatabase()") == 1;
+            assert dropped.size() == 1;
+            assert dropped.get(0).equals("mydb");
         } catch (SQLException e) {
-            assert e.getMessage().contains("query command is empty.");
+            assert false;
+        }
+    }
+
+    @Test
+    public void use_database_0() {
+        MongoCommandInterceptor.resetInterceptor();
+
+        try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
+            assert conn.getCatalog() == null;
+            assert conn.getSchema() == null;
+
+            stmt.execute("use mydb");
+
+            assert "mydb".equals(conn.getCatalog());
+            assert "mydb".equals(conn.getSchema());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 }

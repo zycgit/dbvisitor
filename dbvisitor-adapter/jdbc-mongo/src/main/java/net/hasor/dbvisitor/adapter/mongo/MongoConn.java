@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.BasicFuture;
@@ -89,7 +89,8 @@ public class MongoConn extends AdapterConnection {
         } else if (iface == MongoClient.class) {
             return (T) this.mongoCmd.getClient();
         } else if (iface == MongoDatabase.class) {
-            return (T) this.mongoCmd.getCatalogProxy().mongoDBWithoutError();
+            String catalog = this.mongoCmd.getCatalog();
+            return StringUtils.isBlank(catalog) ? null : (T) this.mongoCmd.getMongoDB(catalog);
         } else {
             return super.unwrap(iface);
         }

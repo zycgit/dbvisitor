@@ -5,12 +5,7 @@ import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.*;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 
-class MongoCommandsForOther {
-    public static Future<?> execCmd(Future<Object> sync, MongoCmd mongoCmd, CommandContext c,//
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
-        throw new SQLException("not implemented yet");
-    }
-
+class MongoCommandsForOther extends MongoCommands {
     public static Future<?> execRunCommand(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, RunCommandOpContext c, //
             AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
         throw new SQLException("not implemented yet");

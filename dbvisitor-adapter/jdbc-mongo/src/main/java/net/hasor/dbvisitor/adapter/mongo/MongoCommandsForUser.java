@@ -5,7 +5,7 @@ import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.*;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 
-class MongoCommandsForUser {
+class MongoCommandsForUser extends MongoCommands {
     public static Future<?> execCreateUser(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CreateUserOpContext c, //
             AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
         throw new SQLException("not implemented yet");

@@ -10,7 +10,7 @@ import net.hasor.dbvisitor.driver.AdapterRequest;
 class MongoDistributeCall {
     public static Future<?> execMongoCmd(Future<Object> sync, MongoCmd mongoCmd, CommandContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
         if (c.USE() != null) {
-            return MongoCommandsForOther.execCmd(sync, mongoCmd, c, request, receive, startArgIdx, conn);
+            return MongoCommandsForDB.execCmd(sync, mongoCmd, c, request, receive, startArgIdx);
         }
         if (c.SHOW() != null) {
             return execShowOp(sync, mongoCmd, c, request, receive, startArgIdx, conn);
@@ -27,7 +27,7 @@ class MongoDistributeCall {
     private static Future<?> execShowOp(Future<Object> sync, MongoCmd mongoCmd, MongoParser.CommandContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
         String target = c.showTarget().getText();
         if (StringUtils.equalsIgnoreCase(target, "dbs") || StringUtils.equalsIgnoreCase(target, "databases")) {
-            return MongoCommandsForDB.execShowDbs(sync, mongoCmd, c, request, receive, startArgIdx, conn);
+            return MongoCommandsForDB.execShowDbs(sync, mongoCmd, c, request, receive, startArgIdx);
         }
         if (StringUtils.equalsIgnoreCase(target, "collections") || StringUtils.equalsIgnoreCase(target, "tables")) {
             return MongoCommandsForCollection.execShowCollections(sync, mongoCmd, c, request, receive, startArgIdx, conn);
@@ -61,7 +61,7 @@ class MongoDistributeCall {
             return MongoCommandsForOther.execRunCommand(sync, mongoCmd, database, c.runCommandOp(), request, receive, startArgIdx, conn);
         }
         if (c.dropDatabaseOp() != null) {
-            return MongoCommandsForDB.execDropDatabase(sync, mongoCmd, database, c.dropDatabaseOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForDB.execDropDatabase(sync, mongoCmd, database, c.dropDatabaseOp(), request, receive, startArgIdx);
         }
         if (c.createUserOp() != null) {
             return MongoCommandsForUser.execCreateUser(sync, mongoCmd, database, c.createUserOp(), request, receive, startArgIdx, conn);
