@@ -11,20 +11,17 @@ import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 
 class MongoCommandsForDB extends MongoCommands {
-    public static Future<?> execCmd(Future<Object> sync, MongoCmd mongoCmd, CommandContext c,//
+    public static Future<?> execUseCmd(Future<Object> sync, MongoCmd mongoCmd, CommandContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String dbName = argAsString(argIndex, request, c.databaseName(), mongoCmd);
+        String dbName = argAsDbName(argIndex, request, c.databaseName(), mongoCmd);
 
         String catalog = mongoCmd.getCatalog();
-        if (StringUtils.equals(catalog, dbName)) {
-            receive.responseUpdateCount(request, 0);
-            return completed(sync);
-        } else {
+        if (!StringUtils.equals(catalog, dbName)) {
             mongoCmd.setCatalog(dbName);
-            receive.responseUpdateCount(request, 1);
-            return completed(sync);
         }
+        receive.responseUpdateCount(request, 0);
+        return completed(sync);
     }
 
     public static Future<?> execShowDbs(Future<Object> sync, MongoCmd mongoCmd, CommandContext c,//
@@ -41,7 +38,7 @@ class MongoCommandsForDB extends MongoCommands {
     public static Future<?> execDropDatabase(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, DropDatabaseOpContext c, //
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String dbName = argAsString(argIndex, request, database, mongoCmd);
+        String dbName = argAsDbName(argIndex, request, database, mongoCmd);
 
         if (StringUtils.isBlank(dbName)) {
             throw new SQLException("database name is empty or No database selected.");
@@ -56,12 +53,12 @@ class MongoCommandsForDB extends MongoCommands {
         }
 
         if (!exists) {
-            receive.responseUpdateCount(request, 0);
+            throw new SQLException("database not exists.");
         } else {
             mongoCmd.getClient().getDatabase(dbName).drop();
-            receive.responseUpdateCount(request, 1);
         }
 
+        receive.responseUpdateCount(request, 0);
         return completed(sync);
     }
 }

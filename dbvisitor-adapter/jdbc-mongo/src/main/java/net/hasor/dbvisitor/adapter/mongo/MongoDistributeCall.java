@@ -10,7 +10,7 @@ import net.hasor.dbvisitor.driver.AdapterRequest;
 class MongoDistributeCall {
     public static Future<?> execMongoCmd(Future<Object> sync, MongoCmd mongoCmd, CommandContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
         if (c.USE() != null) {
-            return MongoCommandsForDB.execCmd(sync, mongoCmd, c, request, receive, startArgIdx);
+            return MongoCommandsForDB.execUseCmd(sync, mongoCmd, c, request, receive, startArgIdx);
         }
         if (c.SHOW() != null) {
             return execShowOp(sync, mongoCmd, c, request, receive, startArgIdx, conn);
@@ -30,7 +30,7 @@ class MongoDistributeCall {
             return MongoCommandsForDB.execShowDbs(sync, mongoCmd, c, request, receive, startArgIdx);
         }
         if (StringUtils.equalsIgnoreCase(target, "collections") || StringUtils.equalsIgnoreCase(target, "tables")) {
-            return MongoCommandsForCollection.execShowCollections(sync, mongoCmd, c, request, receive, startArgIdx, conn);
+            return MongoCommandsForCollection.execShowCollections(sync, mongoCmd, c, request, receive, startArgIdx);
         }
         if (StringUtils.equalsIgnoreCase(target, "users")) {
             return MongoCommandsForUser.execShowUsers(sync, mongoCmd, c, request, receive, startArgIdx, conn);
@@ -46,16 +46,16 @@ class MongoDistributeCall {
 
     private static Future<?> execDbOp(Future<Object> sync, MongoCmd mongoCmd, MongoParser.DatabaseNameContext database, MongoParser.DbOpContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
         if (c.createCollectionOp() != null) {
-            return MongoCommandsForCollection.execCreateCollection(sync, mongoCmd, database, c.createCollectionOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForCollection.execCreateCollection(sync, mongoCmd, database, c.createCollectionOp(), request, receive, startArgIdx);
         }
         if (c.getCollectionNamesOp() != null) {
-            return MongoCommandsForCollection.execGetCollectionNames(sync, mongoCmd, database, c.getCollectionNamesOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForCollection.execGetCollectionNames(sync, mongoCmd, database, c.getCollectionNamesOp(), request, receive, startArgIdx);
         }
         if (c.getCollectionInfosOp() != null) {
-            return MongoCommandsForCollection.execGetCollectionInfos(sync, mongoCmd, database, c.getCollectionInfosOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForCollection.execGetCollectionInfos(sync, mongoCmd, database, c.getCollectionInfosOp(), request, receive, startArgIdx);
         }
         if (c.createViewOp() != null) {
-            return MongoCommandsForView.execCreateView(sync, mongoCmd, database, c.createViewOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForCollection.execCreateView(sync, mongoCmd, database, c.createViewOp(), request, receive, startArgIdx);
         }
         if (c.runCommandOp() != null) {
             return MongoCommandsForOther.execRunCommand(sync, mongoCmd, database, c.runCommandOp(), request, receive, startArgIdx, conn);

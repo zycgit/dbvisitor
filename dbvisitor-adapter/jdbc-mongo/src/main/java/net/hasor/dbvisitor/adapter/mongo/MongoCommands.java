@@ -2,32 +2,16 @@ package net.hasor.dbvisitor.adapter.mongo;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.mongodb.client.model.*;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.DatabaseNameContext;
 import net.hasor.dbvisitor.driver.*;
+import org.bson.Document;
 
 abstract class MongoCommands {
-    // value (value / element / the value hash)
-    protected static final JdbcColumn COL_DATABASE_STRING = new JdbcColumn("DATABASE", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_VALUE_LONG      = new JdbcColumn("VALUE", AdapterType.Long, "", "", "");
-    protected static final JdbcColumn COL_VALUE_BYTES     = new JdbcColumn("VALUE", AdapterType.Bytes, "", "", "");
-    protected static final JdbcColumn COL_ELEMENT_STRING  = new JdbcColumn("ELEMENT", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_RANK_LONG       = new JdbcColumn("RANK", AdapterType.Long, "", "", "");
-    protected static final JdbcColumn COL_SCORE_DOUBLE    = new JdbcColumn("SCORE", AdapterType.Double, "", "", "");
-    // result (not value)
-    protected static final JdbcColumn COL_RESULT_BOOLEAN  = new JdbcColumn("RESULT", AdapterType.Boolean, "", "", "");
-    protected static final JdbcColumn COL_RESULT_STRING   = new JdbcColumn("RESULT", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_RESULT_LONG     = new JdbcColumn("RESULT", AdapterType.Long, "", "", "");
-    protected static final JdbcColumn COL_RESULT_DOUBLE   = new JdbcColumn("RESULT", AdapterType.Double, "", "", "");
-    // other
-    protected static final JdbcColumn COL_KEY_STRING      = new JdbcColumn("KEY", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_FIELD_STRING    = new JdbcColumn("FIELD", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_CURSOR_STRING   = new JdbcColumn("CURSOR", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_LOCAL_LONG      = new JdbcColumn("LOCAL", AdapterType.Long, "", "", "");
-    protected static final JdbcColumn COL_REPLICAS_LONG   = new JdbcColumn("REPLICAS", AdapterType.Long, "", "", "");
-    protected static final JdbcColumn COL_GROUP_STRING    = new JdbcColumn("GROUP", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_NAME_STRING     = new JdbcColumn("NAME", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_DATABASE_STRING   = new JdbcColumn("DATABASE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_COLLECTION_STRING = new JdbcColumn("COLLECTION", AdapterType.String, "", "", "");
 
     protected static Object getArg(AtomicInteger argIndex, AdapterRequest request) throws SQLException {
         int argIdx = argIndex.getAndIncrement();
@@ -53,7 +37,7 @@ abstract class MongoCommands {
         }
     }
 
-    protected static String argAsString(AtomicInteger argIndex, AdapterRequest request, DatabaseNameContext ctx, MongoCmd mongoCmd) throws SQLException {
+    protected static String argAsDbName(AtomicInteger argIndex, AdapterRequest request, DatabaseNameContext ctx, MongoCmd mongoCmd) throws SQLException {
         if (ctx.ARG() != null) {
             Object arg = getArg(argIndex, request);
             return arg == null ? null : arg.toString();
@@ -66,6 +50,16 @@ abstract class MongoCommands {
             return text;
         }
     }
+
+    protected static String argAsCollectionName(AtomicInteger argIndex, AdapterRequest request, net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.CollectionContext ctx) throws SQLException {
+        if (ctx.ARG() != null) {
+            Object arg = getArg(argIndex, request);
+            return arg == null ? null : arg.toString();
+        }
+        return getIdentifier(ctx.getText());
+    }
+
+    //
 
     protected static Future<?> completed(Future<Object> sync) {
         sync.completed(true);
@@ -130,5 +124,72 @@ abstract class MongoCommands {
         }
         receiveCur.pushFinish();
         return receiveCur;
+    }
+
+    //
+
+    protected static Collation jsonb2Collation(Map<String, Object> options) {
+        if (options == null) {
+            return null;
+        }
+        Collation.Builder builder = Collation.builder();
+        if (options.containsKey("locale")) {
+            builder.locale((String) options.get("locale"));
+        }
+        if (options.containsKey("caseLevel")) {
+            builder.caseLevel((Boolean) options.get("caseLevel"));
+        }
+        if (options.containsKey("caseFirst")) {
+            builder.collationCaseFirst(CollationCaseFirst.fromString((String) options.get("caseFirst")));
+        }
+        if (options.containsKey("strength")) {
+            builder.collationStrength(CollationStrength.fromInt(((Number) options.get("strength")).intValue()));
+        }
+        if (options.containsKey("numericOrdering")) {
+            builder.numericOrdering((Boolean) options.get("numericOrdering"));
+        }
+        if (options.containsKey("alternate")) {
+            builder.collationAlternate(CollationAlternate.fromString((String) options.get("alternate")));
+        }
+        if (options.containsKey("maxVariable")) {
+            builder.collationMaxVariable(CollationMaxVariable.fromString((String) options.get("maxVariable")));
+        }
+        if (options.containsKey("normalization")) {
+            builder.normalization((Boolean) options.get("normalization"));
+        }
+        if (options.containsKey("backwards")) {
+            builder.backwards((Boolean) options.get("backwards"));
+        }
+        return builder.build();
+    }
+
+    protected static Document toDocument(Map<?, ?> map) {
+        Document doc = new Document();
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
+            String key = entry.getKey().toString();
+            Object value = entry.getValue();
+            if (value instanceof Map) {
+                doc.put(key, toDocument((Map<?, ?>) value));
+            } else if (value instanceof List) {
+                doc.put(key, toList((List<?>) value));
+            } else {
+                doc.put(key, value);
+            }
+        }
+        return doc;
+    }
+
+    protected static List<Object> toList(List<?> list) {
+        List<Object> newList = new ArrayList<>();
+        for (Object item : list) {
+            if (item instanceof Map) {
+                newList.add(toDocument((Map<?, ?>) item));
+            } else if (item instanceof List) {
+                newList.add(toList((List<?>) item));
+            } else {
+                newList.add(item);
+            }
+        }
+        return newList;
     }
 }

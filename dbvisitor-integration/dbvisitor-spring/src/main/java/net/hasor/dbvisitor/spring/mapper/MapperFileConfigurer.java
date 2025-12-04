@@ -29,7 +29,7 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.util.StringUtils;
+import net.hasor.cobble.StringUtils;
 
 /**
  * A resource load for {@link MapperScan}.
@@ -67,7 +67,7 @@ public class MapperFileConfigurer extends AbstractConfigurer implements Initiali
         }
 
         if (this.session == null) {
-            if (StringUtils.hasText(this.sessionRef)) {
+            if (StringUtils.isNotBlank(this.sessionRef)) {
                 logger.info("load MapperFile to Session '" + this.sessionRef + "'");
                 this.session = (Session) this.applicationContext.getBean(this.sessionRef);
             } else {
@@ -76,7 +76,8 @@ public class MapperFileConfigurer extends AbstractConfigurer implements Initiali
             }
         }
 
-        String[] mapperLocationsArrays = StringUtils.tokenizeToStringArray(this.mapperLocations, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
+        String[] mapperLocationsArrays = Stream.of(Optional.ofNullable(this.mapperLocations).orElse("").split("[,; \t\n]"))
+                .filter(StringUtils::isNotBlank).map(String::trim).toArray(String[]::new);
         Resource[] mapperResources = Stream.of(Optional.ofNullable(mapperLocationsArrays).orElse(new String[0]))//
                 .flatMap(location -> Stream.of(getResources(location))).toArray(Resource[]::new);
         for (Resource resource : mapperResources) {

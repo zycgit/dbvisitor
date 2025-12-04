@@ -56,6 +56,11 @@ public class MongoParserTest {
         runTestFromFile("mongo_tests/placeholder_tests.txt");
     }
 
+    @Test
+    public void testEmptyStructures() throws IOException {
+        runTestFromFile("mongo_tests/empty_structures.txt");
+    }
+
     private void runTestFromFile(String resourcePath) throws IOException {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
             if (inputStream == null) {

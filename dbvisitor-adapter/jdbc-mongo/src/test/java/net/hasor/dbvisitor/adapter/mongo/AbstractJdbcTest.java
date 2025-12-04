@@ -60,4 +60,49 @@ public class AbstractJdbcTest {
 
         return iterable;
     }
+
+    protected <T> com.mongodb.client.MongoIterable<T> mockMongoIterable(List<T> list) {
+        com.mongodb.client.MongoIterable<T> iterable = PowerMockito.mock(com.mongodb.client.MongoIterable.class);
+        MongoCursor<T> cursor = PowerMockito.mock(MongoCursor.class);
+        Iterator<T> iterator = list.iterator();
+
+        PowerMockito.when(iterable.iterator()).thenReturn(cursor);
+        PowerMockito.when(cursor.hasNext()).thenAnswer(inv -> iterator.hasNext());
+        PowerMockito.when(cursor.next()).thenAnswer(inv -> {
+            T val = iterator.next();
+            return val;
+        });
+
+        return iterable;
+    }
+
+    protected com.mongodb.client.ListCollectionNamesIterable mockListCollectionNamesIterable(List<String> list) {
+        com.mongodb.client.ListCollectionNamesIterable iterable = PowerMockito.mock(com.mongodb.client.ListCollectionNamesIterable.class);
+        MongoCursor<String> cursor = PowerMockito.mock(MongoCursor.class);
+        Iterator<String> iterator = list.iterator();
+
+        PowerMockito.when(iterable.iterator()).thenReturn(cursor);
+        PowerMockito.when(cursor.hasNext()).thenAnswer(inv -> iterator.hasNext());
+        PowerMockito.when(cursor.next()).thenAnswer(inv -> {
+            String val = iterator.next();
+            return val;
+        });
+
+        return iterable;
+    }
+
+    protected <T> com.mongodb.client.ListCollectionsIterable<T> mockListCollectionsIterable(List<T> list) {
+        com.mongodb.client.ListCollectionsIterable<T> iterable = PowerMockito.mock(com.mongodb.client.ListCollectionsIterable.class);
+        MongoCursor<T> cursor = PowerMockito.mock(MongoCursor.class);
+        Iterator<T> iterator = list.iterator();
+
+        PowerMockito.when(iterable.iterator()).thenReturn(cursor);
+        PowerMockito.when(cursor.hasNext()).thenAnswer(inv -> iterator.hasNext());
+        PowerMockito.when(cursor.next()).thenAnswer(inv -> {
+            T val = iterator.next();
+            return val;
+        });
+
+        return iterable;
+    }
 }

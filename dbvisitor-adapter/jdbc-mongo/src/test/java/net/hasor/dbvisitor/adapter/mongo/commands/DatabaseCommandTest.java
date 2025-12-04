@@ -17,7 +17,7 @@ import org.powermock.api.mockito.PowerMockito;
 public class DatabaseCommandTest extends AbstractJdbcTest {
 
     @Test
-    public void show_dbs_0() {
+    public void show_dbs_0() throws SQLException {
         List<String> result = Arrays.asList("db1", "db2");
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoCluster.class, createInvocationHandler("listDatabaseNames", (name, args) -> {
@@ -44,13 +44,11 @@ public class DatabaseCommandTest extends AbstractJdbcTest {
                 }
                 assert result.equals(r);
             }
-        } catch (SQLException e) {
-            assert false;
         }
     }
 
     @Test
-    public void drop_database_0() {
+    public void drop_database_0() throws SQLException {
         List<String> dbs = Collections.singletonList("mydb");
         List<Object> dropped = new ArrayList<>();
         MongoCommandInterceptor.resetInterceptor();
@@ -69,16 +67,14 @@ public class DatabaseCommandTest extends AbstractJdbcTest {
         }));
 
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
-            assert stmt.executeUpdate("mydb.dropDatabase()") == 1;
+            assert stmt.executeUpdate("mydb.dropDatabase()") == 0;
             assert dropped.size() == 1;
             assert dropped.get(0).equals("mydb");
-        } catch (SQLException e) {
-            assert false;
         }
     }
 
     @Test
-    public void drop_database_1() {
+    public void drop_database_1() throws SQLException {
         List<String> dbs = Collections.singletonList("mydb");
         List<Object> dropped = new ArrayList<>();
         MongoCommandInterceptor.resetInterceptor();
@@ -97,16 +93,14 @@ public class DatabaseCommandTest extends AbstractJdbcTest {
         }));
 
         try (Connection conn = redisConnection("mydb"); Statement stmt = conn.createStatement()) {
-            assert stmt.executeUpdate("db.dropDatabase()") == 1;
+            assert stmt.executeUpdate("db.dropDatabase()") == 0;
             assert dropped.size() == 1;
             assert dropped.get(0).equals("mydb");
-        } catch (SQLException e) {
-            assert false;
         }
     }
 
     @Test
-    public void drop_database_2() {
+    public void drop_database_2() throws SQLException {
         List<String> dbs = Collections.singletonList("mydb");
         List<Object> dropped = new ArrayList<>();
         MongoCommandInterceptor.resetInterceptor();
@@ -125,17 +119,15 @@ public class DatabaseCommandTest extends AbstractJdbcTest {
         }));
 
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
-            assert stmt.executeUpdate("use mydb") == 1;
-            assert stmt.executeUpdate("db.dropDatabase()") == 1;
+            assert stmt.executeUpdate("use mydb") == 0;
+            assert stmt.executeUpdate("db.dropDatabase()") == 0;
             assert dropped.size() == 1;
             assert dropped.get(0).equals("mydb");
-        } catch (SQLException e) {
-            assert false;
         }
     }
 
     @Test
-    public void use_database_0() {
+    public void use_database_0() throws SQLException {
         MongoCommandInterceptor.resetInterceptor();
 
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
@@ -146,9 +138,6 @@ public class DatabaseCommandTest extends AbstractJdbcTest {
 
             assert "mydb".equals(conn.getCatalog());
             assert "mydb".equals(conn.getSchema());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            assert false;
         }
     }
 }
