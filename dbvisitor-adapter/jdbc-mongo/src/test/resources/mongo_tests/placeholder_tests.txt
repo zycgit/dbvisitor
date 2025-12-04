@@ -1,0 +1,8 @@
+use ?;
+db.?.find();
+db.collection.find({ ?: "value" });
+db.collection.find({ "key": ? });
+db.collection.find({ "tags": [?, "urgent"] });
+db.collection.distinct(?, { "status": "A" });
+db.collection.update({ "_id": ? }, { "$set": { "name": ? } });
+db.?.aggregate([ { "$match": { "status": ? } } ]);

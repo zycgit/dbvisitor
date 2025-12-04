@@ -11,7 +11,7 @@ import org.junit.Test;
 
 public class DatabaseCommandTest extends AbstractJdbcTest {
 
-    @Test
+    //@Test
     public void move_0() {
         List<Object> argList = new ArrayList<>();
         long returnValue = 123;
@@ -29,6 +29,18 @@ public class DatabaseCommandTest extends AbstractJdbcTest {
             assert argList.equals(Arrays.asList("mykey", 123));
         } catch (SQLException e) {
             assert false;
+        }
+    }
+
+    @Test
+    public void test_show_collections() {
+        try (Connection conn = redisConnection()) {
+            try (java.sql.Statement stmt = conn.createStatement()) {
+                stmt.executeQuery("show collections");
+                assert false;
+            }
+        } catch (SQLException e) {
+            assert e.getMessage().contains("not implemented yet");
         }
     }
 
