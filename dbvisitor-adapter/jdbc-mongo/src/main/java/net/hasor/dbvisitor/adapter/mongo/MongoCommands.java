@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.mongodb.client.model.*;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.concurrent.future.Future;
+import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.CollectionContext;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.DatabaseNameContext;
 import net.hasor.dbvisitor.driver.*;
 import org.bson.Document;
@@ -12,6 +13,7 @@ import org.bson.Document;
 abstract class MongoCommands {
     protected static final JdbcColumn COL_DATABASE_STRING   = new JdbcColumn("DATABASE", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_COLLECTION_STRING = new JdbcColumn("COLLECTION", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_JSON_             = new JdbcColumn("JSON", AdapterType.String, "", "", "");
 
     protected static Object getArg(AtomicInteger argIndex, AdapterRequest request) throws SQLException {
         int argIdx = argIndex.getAndIncrement();
@@ -51,7 +53,7 @@ abstract class MongoCommands {
         }
     }
 
-    protected static String argAsCollectionName(AtomicInteger argIndex, AdapterRequest request, net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.CollectionContext ctx) throws SQLException {
+    protected static String argAsCollectionName(AtomicInteger argIndex, AdapterRequest request, CollectionContext ctx) throws SQLException {
         if (ctx.ARG() != null) {
             Object arg = getArg(argIndex, request);
             return arg == null ? null : arg.toString();

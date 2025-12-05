@@ -202,7 +202,7 @@ public class CollectionCommandTest extends AbstractJdbcTest {
     }
 
     @Test
-    public void get_collection_names_0() {
+    public void get_collection_names_0() throws SQLException {
         List<String> result = Arrays.asList("col1", "col2");
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("listCollectionNames", (name, args) -> {
@@ -218,9 +218,6 @@ public class CollectionCommandTest extends AbstractJdbcTest {
                 }
                 assert result.equals(r);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            assert false;
         }
     }
 

@@ -205,7 +205,7 @@ class MongoCommandsForCollection extends MongoCommands {
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
-        MongoDatabase mongoDatabase = mongoCmd.getClient().getDatabase(dbName);
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
 
         MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
@@ -220,49 +220,45 @@ class MongoCommandsForCollection extends MongoCommands {
             if (options.containsKey("collation")) {
                 createOptions.collation(jsonb2Collation((Map<String, Object>) options.get("collation")));
             }
-            mongoDatabase.createView(viewName, viewOn, pipeline, createOptions);
+            mongoDB.createView(viewName, viewOn, pipeline, createOptions);
         } else {
-            mongoDatabase.createView(viewName, viewOn, pipeline);
+            mongoDB.createView(viewName, viewOn, pipeline);
         }
 
         receive.responseUpdateCount(request, 0);
         return completed(sync);
     }
 
-    //
-    //
-    //
-
     public static Future<?> execInsert(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, InsertOpContext c,//
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
         String collName = argAsCollectionName(argIndex, request, collection);
-        MongoDatabase mongoDatabase = mongoCmd.getClient().getDatabase(dbName);
-        MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(collName);
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
+        MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
         MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
         Object docOrList = args.get(0);
         if (docOrList instanceof List) {
-            mongoCollection.insertMany((List<Document>) docOrList);
+            mongoColl.insertMany((List<Document>) docOrList);
             receive.responseUpdateCount(request, ((List) docOrList).size());
         } else {
-            mongoCollection.insertOne((Document) docOrList);
+            mongoColl.insertOne((Document) docOrList);
             receive.responseUpdateCount(request, 1);
         }
         return completed(sync);
     }
 
     public static Future<?> execUpdate(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, UpdateOpContext c, //
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
         String collName = argAsCollectionName(argIndex, request, collection);
-        MongoDatabase mongoDatabase = mongoCmd.getClient().getDatabase(dbName);
-        MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(collName);
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
+        MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
         MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
@@ -270,7 +266,6 @@ class MongoCommandsForCollection extends MongoCommands {
         Bson update = (Bson) args.get(1);
         UpdateOptions options = new UpdateOptions();
         boolean multi = false;
-
         if (args.size() > 2) {
             Map<String, Object> opts = (Map<String, Object>) args.get(2);
             if (opts.containsKey("upsert")) {
@@ -289,22 +284,22 @@ class MongoCommandsForCollection extends MongoCommands {
 
         UpdateResult result;
         if (multi) {
-            result = mongoCollection.updateMany(filter, update, options);
+            result = mongoColl.updateMany(filter, update, options);
         } else {
-            result = mongoCollection.updateOne(filter, update, options);
+            result = mongoColl.updateOne(filter, update, options);
         }
         receive.responseUpdateCount(request, (int) result.getModifiedCount());
         return completed(sync);
     }
 
     public static Future<?> execRemove(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, RemoveOpContext c, //
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
         String collName = argAsCollectionName(argIndex, request, collection);
-        MongoDatabase mongoDatabase = mongoCmd.getClient().getDatabase(dbName);
-        MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(collName);
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
+        MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
         MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
@@ -319,76 +314,101 @@ class MongoCommandsForCollection extends MongoCommands {
                 if (options.containsKey("justOne")) {
                     justOne = (Boolean) options.get("justOne");
                 }
+            } else {
+                throw new SQLException("invalid remove options argument.");
             }
         }
 
         DeleteResult result;
         if (justOne) {
-            result = mongoCollection.deleteOne(filter);
+            result = mongoColl.deleteOne(filter);
         } else {
-            result = mongoCollection.deleteMany(filter);
+            result = mongoColl.deleteMany(filter);
         }
         receive.responseUpdateCount(request, (int) result.getDeletedCount());
         return completed(sync);
     }
 
-    public static Future<?> execFind(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, FindOpContext c, //
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+    public static Future<?> execBulkWrite(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, BulkWriteOpContext c, //
+            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
         String collName = argAsCollectionName(argIndex, request, collection);
-        MongoDatabase mongoDatabase = mongoCmd.getClient().getDatabase(dbName);
-        MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(collName);
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
+        MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
         MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
-        Bson filter = (args.size() > 0) ? (Bson) args.get(0) : new Document();
-        Bson projection = (args.size() > 1) ? (Bson) args.get(1) : null;
-
-        FindIterable<Document> findIterable = mongoCollection.find(filter);
-        if (projection != null) {
-            findIterable.projection(projection);
-        }
-
-        if (c.methodCall() != null) {
-            for (MethodCallContext method : c.methodCall()) {
-                if (method instanceof LimitOpContext) {
-                    List<Object> limitArgs = (List<Object>) visitor.visit(((LimitOpContext) method).arguments());
-                    findIterable.limit(((Number) limitArgs.get(0)).intValue());
-                } else if (method instanceof SkipOpContext) {
-                    List<Object> skipArgs = (List<Object>) visitor.visit(((SkipOpContext) method).arguments());
-                    findIterable.skip(((Number) skipArgs.get(0)).intValue());
-                } else if (method instanceof SortOpContext) {
-                    List<Object> sortArgs = (List<Object>) visitor.visit(((SortOpContext) method).arguments());
-                    findIterable.sort((Bson) sortArgs.get(0));
-                } else if (method instanceof HintOpContext) {
-                    List<Object> hintArgs = (List<Object>) visitor.visit(((HintOpContext) method).arguments());
-                    findIterable.hint((Bson) hintArgs.get(0));
-                }
+        List<WriteModel<Document>> models = new ArrayList<>();
+        List<Map<String, Object>> ops = (List<Map<String, Object>>) args.get(0);
+        for (Map<String, Object> op : ops) {
+            if (op.containsKey("insertOne")) {
+                Map<String, Object> spec = (Map<String, Object>) op.get("insertOne");
+                models.add(new InsertOneModel<>((Document) spec.get("document")));
+            } else if (op.containsKey("updateOne")) {
+                Map<String, Object> spec = (Map<String, Object>) op.get("updateOne");
+                UpdateOptions options = new UpdateOptions();
+                if (spec.containsKey("upsert"))
+                    options.upsert((Boolean) spec.get("upsert"));
+                if (spec.containsKey("collation"))
+                    options.collation(jsonb2Collation((Map<String, Object>) spec.get("collation")));
+                if (spec.containsKey("arrayFilters"))
+                    options.arrayFilters((List<? extends Bson>) spec.get("arrayFilters"));
+                models.add(new UpdateOneModel<>((Bson) spec.get("filter"), (Bson) spec.get("update"), options));
+            } else if (op.containsKey("updateMany")) {
+                Map<String, Object> spec = (Map<String, Object>) op.get("updateMany");
+                UpdateOptions options = new UpdateOptions();
+                if (spec.containsKey("upsert"))
+                    options.upsert((Boolean) spec.get("upsert"));
+                if (spec.containsKey("collation"))
+                    options.collation(jsonb2Collation((Map<String, Object>) spec.get("collation")));
+                if (spec.containsKey("arrayFilters"))
+                    options.arrayFilters((List<? extends Bson>) spec.get("arrayFilters"));
+                models.add(new UpdateManyModel<>((Bson) spec.get("filter"), (Bson) spec.get("update"), options));
+            } else if (op.containsKey("deleteOne")) {
+                Map<String, Object> spec = (Map<String, Object>) op.get("deleteOne");
+                DeleteOptions options = new DeleteOptions();
+                if (spec.containsKey("collation"))
+                    options.collation(jsonb2Collation((Map<String, Object>) spec.get("collation")));
+                models.add(new DeleteOneModel<>((Bson) spec.get("filter"), options));
+            } else if (op.containsKey("deleteMany")) {
+                Map<String, Object> spec = (Map<String, Object>) op.get("deleteMany");
+                DeleteOptions options = new DeleteOptions();
+                if (spec.containsKey("collation"))
+                    options.collation(jsonb2Collation((Map<String, Object>) spec.get("collation")));
+                models.add(new DeleteManyModel<>((Bson) spec.get("filter"), options));
+            } else if (op.containsKey("replaceOne")) {
+                Map<String, Object> spec = (Map<String, Object>) op.get("replaceOne");
+                ReplaceOptions options = new ReplaceOptions();
+                if (spec.containsKey("upsert"))
+                    options.upsert((Boolean) spec.get("upsert"));
+                if (spec.containsKey("collation"))
+                    options.collation(jsonb2Collation((Map<String, Object>) spec.get("collation")));
+                models.add(new ReplaceOneModel<>((Bson) spec.get("filter"), (Document) spec.get("replacement"), options));
             }
         }
 
-        JdbcColumn colJson = new JdbcColumn("json", AdapterType.String, "", "", "");
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(colJson));
-        for (Document doc : findIterable) {
-            cursor.pushData(Collections.singletonMap("json", doc.toJson()));
+        BulkWriteOptions options = new BulkWriteOptions();
+        if (args.size() > 1) {
+            Map<String, Object> opts = (Map<String, Object>) args.get(1);
+            if (opts.containsKey("ordered")) {
+                options.ordered((Boolean) opts.get("ordered"));
+            }
+            if (opts.containsKey("bypassDocumentValidation")) {
+                options.bypassDocumentValidation((Boolean) opts.get("bypassDocumentValidation"));
+            }
         }
-        cursor.pushFinish();
 
-        receive.responseResult(request, cursor);
+        com.mongodb.bulk.BulkWriteResult result = mongoColl.bulkWrite(models, options);
+        receive.responseUpdateCount(request, result.getModifiedCount() + result.getInsertedCount() + result.getDeletedCount());
         return completed(sync);
-    }
-
-    public static Future<?> execBulkWrite(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, BulkWriteOpContext c, //
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
-        throw new SQLException("not implemented yet");
     }
 
     //
 
     public static Future<?> execCount(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, CountOpContext c, //
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
         String collName = argAsCollectionName(argIndex, request, collection);
@@ -411,7 +431,7 @@ class MongoCommandsForCollection extends MongoCommands {
     }
 
     public static Future<?> execDistinct(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, DistinctOpContext c, //
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
         String collName = argAsCollectionName(argIndex, request, collection);
@@ -430,6 +450,56 @@ class MongoCommandsForCollection extends MongoCommands {
         AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(colValue));
         for (Object val : distinct) {
             cursor.pushData(Collections.singletonMap("value", val));
+        }
+        cursor.pushFinish();
+
+        receive.responseResult(request, cursor);
+        return completed(sync);
+    }
+
+    //
+
+    public static Future<?> execFind(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, FindOpContext c, //
+            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+        AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        String dbName = argAsDbName(argIndex, request, database, mongoCmd);
+        String collName = argAsCollectionName(argIndex, request, collection);
+
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
+        MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
+        MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
+        List<Object> args = (List<Object>) visitor.visit(c.arguments());
+
+        Bson filter = (!args.isEmpty()) ? (Bson) args.get(0) : new Document();
+        Bson projection = (args.size() > 1) ? (Bson) args.get(1) : null;
+        FindIterable<Document> it = mongoColl.find(filter);
+        if (projection != null) {
+            it.projection(projection);
+        }
+
+        if (c.methodCall() != null) {
+            for (MethodCallContext method : c.methodCall()) {
+                if (method instanceof LimitOpContext) {
+                    List<Object> limitArgs = (List<Object>) visitor.visit(((LimitOpContext) method).arguments());
+                    it.limit(((Number) limitArgs.get(0)).intValue());
+                } else if (method instanceof SkipOpContext) {
+                    List<Object> skipArgs = (List<Object>) visitor.visit(((SkipOpContext) method).arguments());
+                    it.skip(((Number) skipArgs.get(0)).intValue());
+                } else if (method instanceof SortOpContext) {
+                    List<Object> sortArgs = (List<Object>) visitor.visit(((SortOpContext) method).arguments());
+                    it.sort((Bson) sortArgs.get(0));
+                } else if (method instanceof HintOpContext) {
+                    List<Object> hintArgs = (List<Object>) visitor.visit(((HintOpContext) method).arguments());
+                    it.hint((Bson) hintArgs.get(0));
+                } else {
+                    throw new SQLException("unknown method call: " + method.getText());
+                }
+            }
+        }
+
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_));
+        for (Document doc : it) {
+            cursor.pushData(Collections.singletonMap(COL_JSON_.name, doc.toJson()));
         }
         cursor.pushFinish();
 

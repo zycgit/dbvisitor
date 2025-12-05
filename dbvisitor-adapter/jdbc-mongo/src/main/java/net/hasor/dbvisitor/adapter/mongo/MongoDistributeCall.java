@@ -104,28 +104,28 @@ class MongoDistributeCall {
             return MongoCommandsForIndex.execGetIndexes(sync, mongoCmd, database, collection, c.getIndexesOp(), request, receive, startArgIdx, conn);
         }
         if (c.insertOp() != null) {
-            return MongoCommandsForCollection.execInsert(sync, mongoCmd, database, collection, c.insertOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForCollection.execInsert(sync, mongoCmd, database, collection, c.insertOp(), request, receive, startArgIdx);
         }
         if (c.removeOp() != null) {
-            return MongoCommandsForCollection.execRemove(sync, mongoCmd, database, collection, c.removeOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForCollection.execRemove(sync, mongoCmd, database, collection, c.removeOp(), request, receive, startArgIdx);
         }
         if (c.updateOp() != null) {
-            return MongoCommandsForCollection.execUpdate(sync, mongoCmd, database, collection, c.updateOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForCollection.execUpdate(sync, mongoCmd, database, collection, c.updateOp(), request, receive, startArgIdx);
+        }
+        if (c.bulkWriteOp() != null) {
+            return MongoCommandsForCollection.execBulkWrite(sync, mongoCmd, database, collection, c.bulkWriteOp(), request, receive, startArgIdx);
         }
         if (c.findOp() != null) {
-            return MongoCommandsForCollection.execFind(sync, mongoCmd, database, collection, c.findOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForCollection.execFind(sync, mongoCmd, database, collection, c.findOp(), request, receive, startArgIdx);
         }
         if (c.countOp() != null) {
-            return MongoCommandsForCollection.execCount(sync, mongoCmd, database, collection, c.countOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForCollection.execCount(sync, mongoCmd, database, collection, c.countOp(), request, receive, startArgIdx);
         }
         if (c.distinctOp() != null) {
-            return MongoCommandsForCollection.execDistinct(sync, mongoCmd, database, collection, c.distinctOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForCollection.execDistinct(sync, mongoCmd, database, collection, c.distinctOp(), request, receive, startArgIdx);
         }
         if (c.aggregateOp() != null) {
             return MongoCommandsForCollection.execAggregate(sync, mongoCmd, database, collection, c.aggregateOp(), request, receive, startArgIdx, conn);
-        }
-        if (c.bulkWriteOp() != null) {
-            return MongoCommandsForCollection.execBulkWrite(sync, mongoCmd, database, collection, c.bulkWriteOp(), request, receive, startArgIdx, conn);
         }
         throw new SQLException("unknown command.");
     }
