@@ -116,7 +116,7 @@ class MongoDistributeCall {
             return MongoCommandsForCollection.execBulkWrite(sync, mongoCmd, database, collection, c.bulkWriteOp(), request, receive, startArgIdx);
         }
         if (c.findOp() != null) {
-            return MongoCommandsForCollection.execFind(sync, mongoCmd, database, collection, c.findOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execFind(sync, mongoCmd, database, collection, c.findOp(), request, receive, startArgIdx, conn);
         }
         if (c.countOp() != null) {
             return MongoCommandsForCollection.execCount(sync, mongoCmd, database, collection, c.countOp(), request, receive, startArgIdx);

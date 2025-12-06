@@ -1,4 +1,5 @@
 package net.hasor.dbvisitor.adapter.mongo;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -139,6 +140,19 @@ class MongoCommandsForCollection extends MongoCommands {
         }
 
         receive.responseUpdateCount(request, 0);
+        return completed(sync);
+    }
+
+    public static Future<?> execDrop(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, DropOpContext c,//
+            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+        AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        String dbName = argAsDbName(argIndex, request, database, mongoCmd);
+        String collName = argAsCollectionName(argIndex, request, collection);
+
+        MongoDatabase mongoDB = mongoCmd.getMongoDB(dbName);
+        MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
+        mongoColl.drop();
+
         return completed(sync);
     }
 
@@ -461,10 +475,8 @@ class MongoCommandsForCollection extends MongoCommands {
         return completed(sync);
     }
 
-    //
-
     public static Future<?> execFind(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, FindOpContext c, //
-            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
         String collName = argAsCollectionName(argIndex, request, collection);
@@ -501,14 +513,24 @@ class MongoCommandsForCollection extends MongoCommands {
             }
         }
 
-        List<Document> resultData = new ArrayList<>();
-        Set<String> keySet = new LinkedHashSet<>();
-        keySet.add(COL_JSON_.name);
+        if (((MongoRequest) request).isPreRead()) {
+            try (MongoResultBuffer buffer = new MongoResultBuffer(conn.getPreReadThreshold(), conn.getPreReadMaxFileSize(), conn.getPreReadCacheDir())) {
+                return execFindWithPreRead(sync, request, receive, conn, buffer, it);
+            } catch (IOException e) {
+                throw new SQLException(e);
+            }
+        } else {
+            return execFindWithDirect(sync, request, receive, it);
+        }
+    }
 
+    private static Future<?> execFindWithPreRead(Future<Object> sync, AdapterRequest request, AdapterReceive receive, MongoConn conn, MongoResultBuffer buffer, FindIterable<Document> it) throws SQLException, IOException {
+        Set<String> keySet = new LinkedHashSet<>();
+        keySet.add(COL_JSON_STRING.name);
         long maxRows = request.getMaxRows();
         int affectRows = 0;
         for (Document doc : it) {
-            resultData.add(doc);
+            buffer.add(doc);
             keySet.addAll(doc.keySet());
 
             affectRows++;
@@ -516,6 +538,7 @@ class MongoCommandsForCollection extends MongoCommands {
                 break;
             }
         }
+        buffer.finish();
 
         List<JdbcColumn> columns = new ArrayList<>();
         for (String key : keySet) {
@@ -523,9 +546,9 @@ class MongoCommandsForCollection extends MongoCommands {
         }
 
         AdapterResultCursor cursor = new AdapterResultCursor(request, columns);
-        for (Document doc : resultData) {
+        for (Document doc : buffer) {
             Map<String, Object> row = new LinkedHashMap<>();
-            row.put(COL_JSON_.name, doc.toJson());
+            row.put(COL_JSON_STRING.name, doc.toJson());
             for (String key : keySet) {
                 if (doc.containsKey(key)) {
                     Object val = doc.get(key);
@@ -535,7 +558,22 @@ class MongoCommandsForCollection extends MongoCommands {
             cursor.pushData(row);
         }
         cursor.pushFinish();
+        receive.responseResult(request, cursor);
+        return completed(sync);
+    }
 
+    private static Future<?> execFindWithDirect(Future<Object> sync, AdapterRequest request, AdapterReceive receive, FindIterable<Document> it) throws SQLException {
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_STRING));
+        long maxRows = request.getMaxRows();
+        int affectRows = 0;
+        for (Document doc : it) {
+            cursor.pushData(Collections.singletonMap(COL_JSON_STRING.name, doc.toJson()));
+            affectRows++;
+            if (maxRows > 0 && affectRows >= maxRows) {
+                break;
+            }
+        }
+        cursor.pushFinish();
         receive.responseResult(request, cursor);
         return completed(sync);
     }
@@ -560,9 +598,9 @@ class MongoCommandsForCollection extends MongoCommands {
             applyAggregateOptions(aggregate, options);
         }
 
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_JSON_));
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_JSON_STRING));
         for (Document doc : aggregate) {
-            cursor.pushData(Collections.singletonMap(COL_JSON_.name, doc.toJson()));
+            cursor.pushData(Collections.singletonMap(COL_JSON_STRING.name, doc.toJson()));
         }
         cursor.pushFinish();
 
@@ -612,16 +650,4 @@ class MongoCommandsForCollection extends MongoCommands {
         }
     }
 
-    public static Future<?> execDrop(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, DropOpContext c,//
-            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
-        AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String dbName = argAsDbName(argIndex, request, database, mongoCmd);
-        String collectionName = argAsCollectionName(argIndex, request, collection);
-
-        MongoDatabase mongoDatabase = mongoCmd.getMongoDB(dbName);
-        MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(collectionName);
-        mongoCollection.drop();
-
-        return completed(sync);
-    }
 }

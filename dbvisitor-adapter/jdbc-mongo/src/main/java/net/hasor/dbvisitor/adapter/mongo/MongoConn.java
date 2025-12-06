@@ -18,15 +18,66 @@ import org.antlr.v4.runtime.CharStreams;
 import org.bson.Document;
 
 public class MongoConn extends AdapterConnection {
-    private static final Logger     logger    = LoggerFactory.getLogger(MongoConn.class);
-    private final        Connection owner;
-    private final        MongoCmd   mongoCmd;
-    private volatile     boolean    cancelled = false;
+    private static final Logger       logger    = LoggerFactory.getLogger(MongoConn.class);
+    private final        Connection   owner;
+    private final        MongoCmd     mongoCmd;
+    private final        boolean      preRead;
+    private final        long         preReadThreshold;
+    private final        long         preReadMaxFileSize;
+    private final        java.io.File preReadCacheDir;
+    private volatile     boolean      cancelled = false;
 
     public MongoConn(Connection owner, MongoCmd mongoCmd, String jdbcUrl, Map<String, String> prop) {
         super(jdbcUrl, prop.get(MongoKeys.USERNAME));
         this.owner = owner;
         this.mongoCmd = mongoCmd;
+
+        this.preRead = "true".equalsIgnoreCase(prop.getOrDefault(MongoKeys.PREREAD_ENABLED, "true"));
+        this.preReadThreshold = parseSize(prop.get(MongoKeys.PREREAD_THRESHOLD), 5 * 1024 * 1024); // Default 5MB
+        this.preReadMaxFileSize = parseSize(prop.get(MongoKeys.PREREAD_MAX_FILE_SIZE), 20 * 1024 * 1024); // Default 20MB
+        String cacheDirStr = prop.get(MongoKeys.PREREAD_CACHE_DIR);
+        this.preReadCacheDir = StringUtils.isBlank(cacheDirStr) ? new java.io.File(System.getProperty("java.io.tmpdir")) : new java.io.File(cacheDirStr);
+    }
+
+    private long parseSize(String sizeStr, long defaultValue) {
+        if (StringUtils.isBlank(sizeStr)) {
+            return defaultValue;
+        }
+        sizeStr = sizeStr.toUpperCase().trim();
+        long multiplier = 1;
+        if (sizeStr.endsWith("KB")) {
+            multiplier = 1024;
+            sizeStr = sizeStr.substring(0, sizeStr.length() - 2);
+        } else if (sizeStr.endsWith("MB")) {
+            multiplier = 1024 * 1024;
+            sizeStr = sizeStr.substring(0, sizeStr.length() - 2);
+        } else if (sizeStr.endsWith("GB")) {
+            multiplier = 1024 * 1024 * 1024;
+            sizeStr = sizeStr.substring(0, sizeStr.length() - 2);
+        } else if (sizeStr.endsWith("B")) {
+            sizeStr = sizeStr.substring(0, sizeStr.length() - 1);
+        }
+        try {
+            return Long.parseLong(sizeStr.trim()) * multiplier;
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    public boolean isPreRead() {
+        return this.preRead;
+    }
+
+    public long getPreReadThreshold() {
+        return this.preReadThreshold;
+    }
+
+    public long getPreReadMaxFileSize() {
+        return this.preReadMaxFileSize;
+    }
+
+    public java.io.File getPreReadCacheDir() {
+        return this.preReadCacheDir;
     }
 
     protected Connection getOwner() {
@@ -82,7 +133,8 @@ public class MongoConn extends AdapterConnection {
 
     @Override
     public AdapterRequest newRequest(String sql) {
-        return new MongoRequest(sql);
+        MongoRequest request = new MongoRequest(sql, this.preRead);
+        return request;
     }
 
     @Override

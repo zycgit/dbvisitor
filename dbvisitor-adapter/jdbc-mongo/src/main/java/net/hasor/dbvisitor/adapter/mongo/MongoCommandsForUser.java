@@ -24,7 +24,7 @@ class MongoCommandsForUser extends MongoCommands {
         Document command = new Document("usersInfo", 1);
         Document result = mongoDB.runCommand(command);
 
-        List<JdbcColumn> columns = Arrays.asList(COL_USER_STRING, COL_DB_STRING, COL_ROLES_STRING, COL_JSON_);
+        List<JdbcColumn> columns = Arrays.asList(COL_USER_STRING, COL_DB_STRING, COL_ROLES_STRING, COL_JSON_STRING);
         AdapterResultCursor cursor = new AdapterResultCursor(request, columns);
         long maxRows = request.getMaxRows();
         int affectRows = 0;
@@ -36,7 +36,7 @@ class MongoCommandsForUser extends MongoCommands {
                 row.put(COL_USER_STRING.name, user.getString("user"));
                 row.put(COL_DB_STRING.name, user.getString("db"));
                 row.put(COL_ROLES_STRING.name, user.get("roles").toString());
-                row.put(COL_JSON_.name, user.toJson());
+                row.put(COL_JSON_STRING.name, user.toJson());
                 cursor.pushData(row);
 
                 affectRows++;
@@ -164,7 +164,7 @@ class MongoCommandsForUser extends MongoCommands {
         Document command = new Document("rolesInfo", 1);
         Document result = mongoDB.runCommand(command);
 
-        List<JdbcColumn> columns = Arrays.asList(COL_ROLE_STRING, COL_DB_STRING, COL_IS_BUILTIN_BOOLEAN, COL_INHERITED_ROLES_STRING, COL_JSON_);
+        List<JdbcColumn> columns = Arrays.asList(COL_ROLE_STRING, COL_DB_STRING, COL_IS_BUILTIN_BOOLEAN, COL_INHERITED_ROLES_STRING, COL_JSON_STRING);
         AdapterResultCursor cursor = new AdapterResultCursor(request, columns);
         long maxRows = request.getMaxRows();
         int affectRows = 0;
@@ -177,7 +177,7 @@ class MongoCommandsForUser extends MongoCommands {
                 row.put(COL_DB_STRING.name, role.getString("db"));
                 row.put(COL_IS_BUILTIN_BOOLEAN.name, role.getBoolean("isBuiltin"));
                 row.put(COL_INHERITED_ROLES_STRING.name, role.get("roles").toString());
-                row.put(COL_JSON_.name, role.toJson());
+                row.put(COL_JSON_STRING.name, role.toJson());
                 cursor.pushData(row);
 
                 affectRows++;

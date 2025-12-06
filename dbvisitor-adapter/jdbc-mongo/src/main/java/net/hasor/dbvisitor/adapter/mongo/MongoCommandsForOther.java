@@ -44,8 +44,8 @@ class MongoCommandsForOther extends MongoCommands {
         }
 
         Document result = mongoDB.runCommand(command);
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_));
-        cursor.pushData(Collections.singletonMap(COL_JSON_.name, result.toJson()));
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_STRING));
+        cursor.pushData(Collections.singletonMap(COL_JSON_STRING.name, result.toJson()));
         cursor.pushFinish();
 
         receive.responseResult(request, cursor);
@@ -63,9 +63,9 @@ class MongoCommandsForOther extends MongoCommands {
             find.limit((int) request.getMaxRows());
         }
 
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_));
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_STRING));
         for (Document doc : find) {
-            cursor.pushData(Collections.singletonMap(COL_JSON_.name, doc.toJson()));
+            cursor.pushData(Collections.singletonMap(COL_JSON_STRING.name, doc.toJson()));
         }
         cursor.pushFinish();
 
@@ -85,8 +85,8 @@ class MongoCommandsForOther extends MongoCommands {
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
 
         Document result = mongoDB.runCommand(new Document("serverStatus", 1));
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_));
-        cursor.pushData(Collections.singletonMap(COL_JSON_.name, result.toJson()));
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_STRING));
+        cursor.pushData(Collections.singletonMap(COL_JSON_STRING.name, result.toJson()));
         cursor.pushFinish();
 
         receive.responseResult(request, cursor);
@@ -105,8 +105,8 @@ class MongoCommandsForOther extends MongoCommands {
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
 
         Document result = mongoDB.runCommand(new Document("buildInfo", 1));
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_));
-        cursor.pushData(Collections.singletonMap(COL_JSON_.name, result.toJson()));
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_STRING));
+        cursor.pushData(Collections.singletonMap(COL_JSON_STRING.name, result.toJson()));
         cursor.pushFinish();
 
         receive.responseResult(request, cursor);
@@ -125,8 +125,8 @@ class MongoCommandsForOther extends MongoCommands {
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
 
         Document result = mongoDB.runCommand(new Document("dbStats", 1));
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_));
-        cursor.pushData(Collections.singletonMap(COL_JSON_.name, result.toJson()));
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_STRING));
+        cursor.pushData(Collections.singletonMap(COL_JSON_STRING.name, result.toJson()));
         cursor.pushFinish();
 
         receive.responseResult(request, cursor);

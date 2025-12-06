@@ -167,7 +167,7 @@ class MongoCommandsForIndex extends MongoCommands {
         MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
 
         List<JdbcColumn> columns = Arrays.asList(COL_IDX_V_INT, COL_IDX_KEY_STRING, COL_IDX_NAME_STRING, COL_IDX_NS_STRING, //
-                COL_IDX_UNIQUE_BOOLEAN, COL_IDX_SPARSE_BOOLEAN, COL_IDX_BACKGROUND_BOOLEAN, COL_IDX_HIDDEN_BOOLEAN, COL_JSON_);
+                COL_IDX_UNIQUE_BOOLEAN, COL_IDX_SPARSE_BOOLEAN, COL_IDX_BACKGROUND_BOOLEAN, COL_IDX_HIDDEN_BOOLEAN, COL_JSON_STRING);
 
         AdapterResultCursor result = new AdapterResultCursor(request, columns);
         long maxRows = request.getMaxRows();
@@ -182,7 +182,7 @@ class MongoCommandsForIndex extends MongoCommands {
             row.put(COL_IDX_SPARSE_BOOLEAN.name, doc.get("sparse"));
             row.put(COL_IDX_BACKGROUND_BOOLEAN.name, doc.get("background"));
             row.put(COL_IDX_HIDDEN_BOOLEAN.name, doc.get("hidden"));
-            row.put(COL_JSON_.name, doc.toJson());
+            row.put(COL_JSON_STRING.name, doc.toJson());
             result.pushData(row);
 
             affectRows++;

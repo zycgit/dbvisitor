@@ -23,7 +23,7 @@ abstract class MongoCommands {
     protected static final JdbcColumn COL_TYPE_STRING            = new JdbcColumn("TYPE", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_OPTIONS_STRING         = new JdbcColumn("OPTIONS", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_INFO_STRING            = new JdbcColumn("INFO", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_JSON_                  = new JdbcColumn("JSON", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_JSON_STRING            = new JdbcColumn("JSON", AdapterType.String, "", "", "");
     // for index
     protected static final JdbcColumn COL_IDX_V_INT              = new JdbcColumn("V", AdapterType.Int, "", "", "");
     protected static final JdbcColumn COL_IDX_KEY_STRING         = new JdbcColumn("KEY", AdapterType.String, "", "", "");
