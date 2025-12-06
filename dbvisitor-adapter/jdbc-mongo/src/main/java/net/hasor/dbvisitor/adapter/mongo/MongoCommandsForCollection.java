@@ -257,9 +257,25 @@ class MongoCommandsForCollection extends MongoCommands {
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
         Object docOrList = args.get(0);
+        if (docOrList instanceof String) {
+            String json = ((String) docOrList).trim();
+            if (json.startsWith("[")) {
+                org.bson.BsonArray bsonArray = org.bson.BsonArray.parse(json);
+                List<Document> list = new ArrayList<>();
+                for (org.bson.BsonValue val : bsonArray) {
+                    if (val.isDocument()) {
+                        list.add(Document.parse(val.asDocument().toJson()));
+                    }
+                }
+                docOrList = list;
+            } else {
+                docOrList = Document.parse(json);
+            }
+        }
+
         if (docOrList instanceof List) {
             mongoColl.insertMany((List<Document>) docOrList);
-            receive.responseUpdateCount(request, ((List) docOrList).size());
+            receive.responseUpdateCount(request, ((List<?>) docOrList).size());
         } else {
             mongoColl.insertOne((Document) docOrList);
             receive.responseUpdateCount(request, 1);
@@ -649,5 +665,4 @@ class MongoCommandsForCollection extends MongoCommands {
             aggregate.hint(new Document(hint));
         }
     }
-
 }
