@@ -118,14 +118,14 @@ public class DynamicParsed {
                     continue;
                 }
 
-                if (i != pos) {
-                    segment.appendString(statement, pos, i - pos);
-                }
-
                 while (j < statement.length && !isParameterSeparator(statement[j])) {
                     j++;
                 }
                 if (j - i > 1) {
+                    if (i != pos) {
+                        segment.appendString(statement, pos, i - pos);
+                    }
+
                     String parameter = originalSql.substring(i + 1, j);
                     if (statement[i + 1] == '#' || statement[i + 1] == '@') {
                         throw new RuntimeSQLException("expr cannot include '#' or '@', the expr is " + parameter);// 禁止可以造成安全隐患的 #,@操作符
@@ -136,7 +136,7 @@ public class DynamicParsed {
                     i = j;
                     pos = j;
                 } else {
-                    i = j - 1;
+                    i++;
                 }
             } else if (c2 != null && c2.equals("@{")) {
                 if ((i > 0 && statement[i - 1] != '\\') || i == 0) {

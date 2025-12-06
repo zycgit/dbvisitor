@@ -1,17 +1,16 @@
 package net.hasor.dbvisitor.dynamic;
-import net.hasor.cobble.CollectionUtils;
-import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
-import net.hasor.dbvisitor.dynamic.segment.SqlModifier;
-import net.hasor.dbvisitor.types.SqlArg;
-import net.hasor.dbvisitor.types.handler.number.BigDecimalTypeHandler;
-import org.junit.Test;
-
 import java.sql.JDBCType;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import net.hasor.cobble.CollectionUtils;
+import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
+import net.hasor.dbvisitor.dynamic.segment.SqlModifier;
+import net.hasor.dbvisitor.types.SqlArg;
+import net.hasor.dbvisitor.types.handler.number.BigDecimalTypeHandler;
+import org.junit.Test;
 
 public class DynamicTest {
     private static void assertArgCnt(int argCnt, String sql) throws SQLException {
@@ -238,6 +237,17 @@ public class DynamicTest {
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getJdbcType().equals(JDBCType.INTEGER.getVendorTypeNumber());
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getJavaType() == Integer.class;
         assert ((SqlArg) sqlBuilder.getArgs()[0]).getTypeHandler().getClass() == BigDecimalTypeHandler.class;
+    }
+
+    @Test
+    public void named_Test_4() throws SQLException {
+        assertArgNamedCnt(Arrays.asList(),              //
+                "test.user_info.find({name: 'mali'})",  //
+                "test.user_info.find({name: 'mali'})");
+
+        assertArgNamedCnt(Arrays.asList("name", "nameValue"),//
+                "test.user_info.find({:name: :nameValue})",  //
+                "test.user_info.find({?: ?})");
     }
 
     private static void assertRule(List<String> ruleExpr, String sql, String testSql) throws SQLException {

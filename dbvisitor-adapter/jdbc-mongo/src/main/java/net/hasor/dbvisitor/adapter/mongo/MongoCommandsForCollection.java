@@ -10,10 +10,7 @@ import com.mongodb.client.result.UpdateResult;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoBsonVisitor;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.*;
-import net.hasor.dbvisitor.driver.AdapterReceive;
-import net.hasor.dbvisitor.driver.AdapterRequest;
-import net.hasor.dbvisitor.driver.AdapterResultCursor;
-import net.hasor.dbvisitor.driver.JdbcColumn;
+import net.hasor.dbvisitor.driver.*;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -504,9 +501,38 @@ class MongoCommandsForCollection extends MongoCommands {
             }
         }
 
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_));
+        List<Document> resultData = new ArrayList<>();
+        Set<String> keySet = new LinkedHashSet<>();
+        keySet.add(COL_JSON_.name);
+
+        long maxRows = request.getMaxRows();
+        int affectRows = 0;
         for (Document doc : it) {
-            cursor.pushData(Collections.singletonMap(COL_JSON_.name, doc.toJson()));
+            resultData.add(doc);
+            keySet.addAll(doc.keySet());
+
+            affectRows++;
+            if (maxRows > 0 && affectRows >= maxRows) {
+                break;
+            }
+        }
+
+        List<JdbcColumn> columns = new ArrayList<>();
+        for (String key : keySet) {
+            columns.add(new JdbcColumn(key, AdapterType.String, "", "", ""));
+        }
+
+        AdapterResultCursor cursor = new AdapterResultCursor(request, columns);
+        for (Document doc : resultData) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put(COL_JSON_.name, doc.toJson());
+            for (String key : keySet) {
+                if (doc.containsKey(key)) {
+                    Object val = doc.get(key);
+                    row.put(key, val);
+                }
+            }
+            cursor.pushData(row);
         }
         cursor.pushFinish();
 
@@ -584,5 +610,18 @@ class MongoCommandsForCollection extends MongoCommands {
         if (hint != null) {
             aggregate.hint(new Document(hint));
         }
+    }
+
+    public static Future<?> execDrop(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, DropOpContext c,//
+            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+        AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        String dbName = argAsDbName(argIndex, request, database, mongoCmd);
+        String collectionName = argAsCollectionName(argIndex, request, collection);
+
+        MongoDatabase mongoDatabase = mongoCmd.getMongoDB(dbName);
+        MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(collectionName);
+        mongoCollection.drop();
+
+        return completed(sync);
     }
 }

@@ -127,6 +127,9 @@ class MongoDistributeCall {
         if (c.aggregateOp() != null) {
             return MongoCommandsForCollection.execAggregate(sync, mongoCmd, database, collection, c.aggregateOp(), request, receive, startArgIdx);
         }
+        if (c.dropOp() != null) {
+            return MongoCommandsForCollection.execDrop(sync, mongoCmd, database, collection, c.dropOp(), request, receive, startArgIdx);
+        }
         throw new SQLException("unknown command.");
     }
 }

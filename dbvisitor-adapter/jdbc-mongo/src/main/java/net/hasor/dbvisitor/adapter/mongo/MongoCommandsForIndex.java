@@ -169,8 +169,8 @@ class MongoCommandsForIndex extends MongoCommands {
         List<JdbcColumn> columns = Arrays.asList(COL_IDX_V_INT, COL_IDX_KEY_STRING, COL_IDX_NAME_STRING, COL_IDX_NS_STRING, //
                 COL_IDX_UNIQUE_BOOLEAN, COL_IDX_SPARSE_BOOLEAN, COL_IDX_BACKGROUND_BOOLEAN, COL_IDX_HIDDEN_BOOLEAN, COL_JSON_);
 
-        long maxRows = request.getMaxRows();
         AdapterResultCursor result = new AdapterResultCursor(request, columns);
+        long maxRows = request.getMaxRows();
         int affectRows = 0;
         for (Document doc : mongoColl.listIndexes()) {
             Map<String, Object> row = new LinkedHashMap<>();
