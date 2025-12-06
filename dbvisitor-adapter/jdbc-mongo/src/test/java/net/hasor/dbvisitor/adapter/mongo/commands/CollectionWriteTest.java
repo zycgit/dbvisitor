@@ -20,7 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 public class CollectionWriteTest extends AbstractJdbcTest {
     @Test
-    public void insert_0() throws SQLException {
+    public void insert_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
             if ("getCollection".equals(method.getName())) {
@@ -40,11 +40,14 @@ public class CollectionWriteTest extends AbstractJdbcTest {
 
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("mydb1.mycol.insert({name:'zhangsan'})");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void insert_1() throws SQLException {
+    public void insert_1() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
             if ("getCollection".equals(method.getName())) {
@@ -66,11 +69,14 @@ public class CollectionWriteTest extends AbstractJdbcTest {
 
         try (Connection conn = redisConnection("mydb"); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("db.mycol.insert([{name:'zhangsan'}, {name:'lisi'}])");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void update_0() throws SQLException {
+    public void update_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
             if ("getCollection".equals(method.getName())) {
@@ -89,11 +95,14 @@ public class CollectionWriteTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection("bbb"); Statement stmt = conn.createStatement()) {
             int count = stmt.executeUpdate("db.mycol.update({name:'zhangsan'}, {$set:{age:20}})");
             assert count == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void remove_0() throws SQLException {
+    public void remove_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
             if ("getCollection".equals(method.getName())) {
@@ -113,11 +122,14 @@ public class CollectionWriteTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             int count = stmt.executeUpdate("db.mycol.remove({age:{$gt:20}})");
             assert count == 5;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void bulk_write_0() throws SQLException {
+    public void bulk_write_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
             if ("getCollection".equals(method.getName())) {
@@ -141,6 +153,9 @@ public class CollectionWriteTest extends AbstractJdbcTest {
                     "{ updateOne : { filter : { name : 'lisi' }," +             //
                     " update : { $set : { age : 20 } } } } ])");
             assert count == 2;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 }

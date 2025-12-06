@@ -33,7 +33,7 @@ class MongoCommandsForOther extends MongoCommands {
             if (list.isEmpty()) {
                 throw new SQLException("runCommand requires at least one argument");
             }
-            Object firstArg = tryParseBson(list.get(0));
+            Object firstArg = toObjBson(list.get(0));
             if (firstArg instanceof Document) {
                 command = (Document) firstArg;
             } else {

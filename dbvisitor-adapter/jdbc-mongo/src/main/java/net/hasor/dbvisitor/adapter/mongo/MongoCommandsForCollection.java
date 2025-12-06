@@ -256,14 +256,9 @@ class MongoCommandsForCollection extends MongoCommands {
         MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
-        Object docOrList = tryParseBson(args.get(0));
-        if (docOrList instanceof List) {
-            mongoColl.insertMany((List<Document>) docOrList);
-            receive.responseUpdateCount(request, ((List<?>) docOrList).size());
-        } else {
-            mongoColl.insertOne((Document) docOrList);
-            receive.responseUpdateCount(request, 1);
-        }
+        List<Object> docList = toArrayBson(args.get(0));
+        mongoColl.insertMany((List<Document>) (List<?>) docList);
+        receive.responseUpdateCount(request, docList.size());
         return completed(sync);
     }
 
@@ -278,8 +273,8 @@ class MongoCommandsForCollection extends MongoCommands {
         MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
-        Bson filter = (Bson) tryParseBson(args.get(0));
-        Bson update = (Bson) tryParseBson(args.get(1));
+        Bson filter = (Bson) toObjBson(args.get(0));
+        Bson update = (Bson) toObjBson(args.get(1));
         UpdateOptions options = new UpdateOptions();
         boolean multi = false;
         if (args.size() > 2) {
@@ -308,7 +303,7 @@ class MongoCommandsForCollection extends MongoCommands {
         } else {
             result = mongoColl.updateOne(filter, update, options);
         }
-        receive.responseUpdateCount(request, (int) result.getModifiedCount());
+        receive.responseUpdateCount(request, result.getModifiedCount());
         return completed(sync);
     }
 
@@ -323,7 +318,7 @@ class MongoCommandsForCollection extends MongoCommands {
         MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
-        Bson filter = (Bson) tryParseBson(args.get(0));
+        Bson filter = (Bson) toObjBson(args.get(0));
         boolean justOne = false;
         if (args.size() > 1) {
             Object arg1 = args.get(1);

@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 public class IndexCommandTest extends AbstractJdbcTest {
     @Test
-    public void create_index_0() throws SQLException {
+    public void create_index_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
             MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
@@ -33,20 +33,25 @@ public class IndexCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             int res = stmt.executeUpdate("db.mycol.createIndex({name: 1}, {name: 'idx_name'})");
             assert res == 0;
-        }
-    }
-
-    @Test(expected = SQLException.class)
-    public void create_index_fail_no_name() throws SQLException {
-        MongoCommandInterceptor.resetInterceptor();
-        try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
-            stmt.execute("use mydb");
-            stmt.executeUpdate("db.mycol.createIndex({name: 1})");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void create_index_1() throws SQLException {
+    public void create_index_fail_no_name() {
+        MongoCommandInterceptor.resetInterceptor();
+        try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
+            stmt.execute("use mydb");
+            stmt.executeUpdate("db.mycol.createIndex({name: 1})");
+        } catch (SQLException e) {
+            assert e.getMessage().contains("The index name must be specified.");
+        }
+    }
+
+    @Test
+    public void create_index_1() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
             MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
@@ -63,11 +68,14 @@ public class IndexCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             int res = stmt.executeUpdate("db.mycol.createIndex({name: 1}, {unique: true, name: 'my_idx'})");
             assert res == 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void create_index_2() throws SQLException {
+    public void create_index_2() {
         // Test background, sparse, expireAfterSeconds, hidden
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
@@ -87,11 +95,14 @@ public class IndexCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             int res = stmt.executeUpdate("db.mycol.createIndex({name: 1}, {name: 'idx_2', background: true, sparse: true, expireAfterSeconds: 3600, hidden: true})");
             assert res == 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void create_index_3() throws SQLException {
+    public void create_index_3() {
         // Test weights, default_language, language_override, textIndexVersion
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
@@ -112,11 +123,14 @@ public class IndexCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             int res = stmt.executeUpdate("db.mycol.createIndex({content: 'text'}, {name: 'idx_3', weights: {content: 10}, default_language: 'english', language_override: 'lang', textIndexVersion: 3})");
             assert res == 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void create_index_4() throws SQLException {
+    public void create_index_4() {
         // Test 2dsphereIndexVersion, bits, min, max
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
@@ -136,26 +150,29 @@ public class IndexCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             int res = stmt.executeUpdate("db.mycol.createIndex({loc: '2dsphere'}, {name: 'idx_4', 2dsphereIndexVersion: 2, bits: 26, min: -180.0, max: 180.0})");
             assert res == 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void create_index_5() throws SQLException {
+    public void create_index_5() {
         // Test partialFilterExpression, collation, storageEngine
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
             MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
             PowerMockito.when(mockColl.createIndex(any(Bson.class), any(IndexOptions.class))).thenAnswer(inv -> {
                 IndexOptions opts = inv.getArgument(1);
-                
+
                 Bson partial = opts.getPartialFilterExpression();
                 assert partial.toBsonDocument(BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry()).getDocument("rating").getNumber("$gt").intValue() == 5;
-                
+
                 assert "en".equals(opts.getCollation().getLocale());
-                
+
                 Bson storage = opts.getStorageEngine();
                 assert storage.toBsonDocument(BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry()).getDocument("wiredTiger").getString("configString").getValue().equals("block_compressor=zlib");
-                
+
                 return "idx_5";
             });
             return mockColl;
@@ -165,11 +182,14 @@ public class IndexCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             int res = stmt.executeUpdate("db.mycol.createIndex({name: 1}, {name: 'idx_5', partialFilterExpression: {rating: {$gt: 5}}, collation: {locale: 'en'}, storageEngine: {wiredTiger: {configString: 'block_compressor=zlib'}}})");
             assert res == 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void drop_index_0() throws SQLException {
+    public void drop_index_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
             MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
@@ -180,11 +200,14 @@ public class IndexCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             int res = stmt.executeUpdate("db.mycol.dropIndex('idx_name')");
             assert res == 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void drop_index_1() throws SQLException {
+    public void drop_index_1() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
             MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
@@ -195,21 +218,21 @@ public class IndexCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             int res = stmt.executeUpdate("db.mycol.dropIndex({name: 1})");
             assert res == 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void get_indexes_0() throws SQLException {
+    public void get_indexes_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
             MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
             ListIndexesIterable iterable = PowerMockito.mock(ListIndexesIterable.class);
             MongoCursor cursor = PowerMockito.mock(MongoCursor.class);
 
-            List<Document> indexes = Arrays.asList(
-                new Document("name", "idx_1").append("v", 2).append("key", new Document("a", 1)),
-                new Document("name", "idx_2").append("v", 2).append("key", new Document("b", 1))
-            );
+            List<Document> indexes = Arrays.asList(new Document("name", "idx_1").append("v", 2).append("key", new Document("a", 1)), new Document("name", "idx_2").append("v", 2).append("key", new Document("b", 1)));
             java.util.Iterator<Document> iterator = indexes.iterator();
 
             PowerMockito.when(mockColl.listIndexes()).thenReturn(iterable);
@@ -228,13 +251,16 @@ public class IndexCommandTest extends AbstractJdbcTest {
                 assert rs.getInt("V") == 2;
                 assert rs.getString("KEY").contains("\"a\": 1");
                 assert rs.getString("JSON").contains("idx_1");
-                
+
                 assert rs.next();
                 assert "idx_2".equals(rs.getString("NAME"));
                 assert rs.getInt("V") == 2;
                 assert rs.getString("KEY").contains("\"b\": 1");
                 assert rs.getString("JSON").contains("idx_2");
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 }

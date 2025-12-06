@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 public class CollectionQueryTest extends AbstractJdbcTest {
 
     @Test
-    public void count_0() throws SQLException {
+    public void count_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
             MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
@@ -33,11 +33,14 @@ public class CollectionQueryTest extends AbstractJdbcTest {
                 assert rs.next();
                 assert rs.getLong("COUNT") == 10L;
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void count_1() throws SQLException {
+    public void count_1() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
             MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
@@ -53,11 +56,14 @@ public class CollectionQueryTest extends AbstractJdbcTest {
                 assert rs.next();
                 assert rs.getLong("COUNT") == 5L;
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void distinct_0() throws SQLException {
+    public void distinct_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
             MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
@@ -82,11 +88,14 @@ public class CollectionQueryTest extends AbstractJdbcTest {
                 assert rs.next();
                 assert "lisi".equals(rs.getString("VALUE"));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void distinct_1() throws SQLException {
+    public void distinct_1() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("getCollection", (name, args) -> {
             MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
@@ -109,6 +118,9 @@ public class CollectionQueryTest extends AbstractJdbcTest {
                 assert rs.next();
                 assert "wangwu".equals(rs.getString("VALUE"));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 }

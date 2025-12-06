@@ -13,7 +13,7 @@ import org.junit.Test;
 
 public class OtherCommandTest extends AbstractJdbcTest {
     @Test
-    public void runCommand_0() throws SQLException {
+    public void runCommand_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
@@ -29,11 +29,14 @@ public class OtherCommandTest extends AbstractJdbcTest {
             String json = res.getString("JSON");
             assert json.contains("ok");
             assert json.contains("1");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void serverStatus_0() throws SQLException {
+    public void serverStatus_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
@@ -48,11 +51,14 @@ public class OtherCommandTest extends AbstractJdbcTest {
             assert res.next();
             String json = res.getString("JSON");
             assert json.contains("4.4.0");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void version_0() throws SQLException {
+    public void version_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
@@ -67,11 +73,14 @@ public class OtherCommandTest extends AbstractJdbcTest {
             assert res.next();
             String json = res.getString("JSON");
             assert json.contains("5.0.0");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void stats_0() throws SQLException {
+    public void stats_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
@@ -86,6 +95,9 @@ public class OtherCommandTest extends AbstractJdbcTest {
             assert res.next();
             String json = res.getString("JSON");
             assert json.contains("mydb");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 }

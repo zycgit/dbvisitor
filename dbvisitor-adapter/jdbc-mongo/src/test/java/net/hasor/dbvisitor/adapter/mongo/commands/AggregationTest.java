@@ -15,7 +15,7 @@ import org.mockito.Mockito;
 @SuppressWarnings("unchecked")
 public class AggregationTest extends AbstractJdbcTest {
     @Test
-    public void aggregate_options_test() throws SQLException {
+    public void aggregate_options_test() {
         AggregateIterable<Document> iterable = Mockito.mock(AggregateIterable.class);
         Mockito.when(iterable.batchSize(Mockito.anyInt())).thenReturn(iterable);
         Mockito.when(iterable.maxTime(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(iterable);
@@ -30,6 +30,9 @@ public class AggregationTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
             stmt.executeQuery("db.mycol.aggregate([{$match: {}}], { allowDiskUse: true, batchSize: 100, maxTimeMS: 5000 })");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
 
         Mockito.verify(iterable).allowDiskUse(true);
@@ -38,7 +41,7 @@ public class AggregationTest extends AbstractJdbcTest {
     }
 
     @Test
-    public void aggregate_prepared_statement_test() throws SQLException {
+    public void aggregate_prepared_statement_test() {
         AggregateIterable<Document> iterable = Mockito.mock(AggregateIterable.class);
         Mockito.when(iterable.batchSize(Mockito.anyInt())).thenReturn(iterable);
         Mockito.when(iterable.maxTime(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(iterable);
@@ -54,6 +57,9 @@ public class AggregationTest extends AbstractJdbcTest {
             stmt.setBoolean(1, true);
             stmt.setInt(2, 100);
             stmt.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
 
         Mockito.verify(iterable).allowDiskUse(true);
@@ -61,7 +67,7 @@ public class AggregationTest extends AbstractJdbcTest {
     }
 
     @Test
-    public void aggregate_options_error_test() throws SQLException {
+    public void aggregate_options_error_test() {
         AggregateIterable<Document> iterable = Mockito.mock(AggregateIterable.class);
         Mockito.when(iterable.iterator()).thenReturn(Mockito.mock(com.mongodb.client.MongoCursor.class));
 

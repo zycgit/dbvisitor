@@ -14,7 +14,7 @@ import org.junit.Test;
 
 public class CollectionCommandTest extends AbstractJdbcTest {
     @Test
-    public void show_collections_0() throws SQLException {
+    public void show_collections_0() {
         List<String> result = Arrays.asList("col1", "col2");
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("listCollectionNames", (name, args) -> {
@@ -30,11 +30,14 @@ public class CollectionCommandTest extends AbstractJdbcTest {
                 }
                 assert result.equals(r);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void create_collection_0() throws SQLException {
+    public void create_collection_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("createCollection", (name, args) -> {
             assert "new_col".equals(args[0]);
@@ -44,11 +47,14 @@ public class CollectionCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
             stmt.executeUpdate("db.createCollection('new_col')");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void create_collection_1() throws SQLException {
+    public void create_collection_1() {
         // Test capped, size, max
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("createCollection", (name, args) -> {
@@ -63,11 +69,14 @@ public class CollectionCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
             stmt.executeUpdate("db.createCollection('capped_col', { capped: true, size: 1024, max: 100 })");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void create_collection_2() throws SQLException {
+    public void create_collection_2() {
         // Test validation
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("createCollection", (name, args) -> {
@@ -82,11 +91,14 @@ public class CollectionCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
             stmt.executeUpdate("db.createCollection('valid_col', { validator: { $jsonSchema: { bsonType: 'object' } }, validationLevel: 'strict', validationAction: 'error' })");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void create_collection_3() throws SQLException {
+    public void create_collection_3() {
         // Test collation
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("createCollection", (name, args) -> {
@@ -100,11 +112,14 @@ public class CollectionCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
             stmt.executeUpdate("db.createCollection('collation_col', { collation: { locale: 'en', caseLevel: true } })");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void create_collection_4() throws SQLException {
+    public void create_collection_4() {
         // Test timeseries
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("createCollection", (name, args) -> {
@@ -119,11 +134,14 @@ public class CollectionCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
             stmt.executeUpdate("db.createCollection('ts_col', { timeseries: { timeField: 'timestamp', metaField: 'metadata', granularity: 'seconds' } })");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void create_collection_5() throws SQLException {
+    public void create_collection_5() {
         // Test clusteredIndex
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("createCollection", (name, args) -> {
@@ -137,6 +155,9 @@ public class CollectionCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
             stmt.executeUpdate("db.createCollection('clustered_col', { clusteredIndex: { key: { _id: 1 }, unique: true, name: 'c_index' } })");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
@@ -153,7 +174,7 @@ public class CollectionCommandTest extends AbstractJdbcTest {
     }
 
     @Test
-    public void create_collection_7() throws SQLException {
+    public void create_collection_7() {
         // Test expireAfterSeconds
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("createCollection", (name, args) -> {
@@ -166,11 +187,14 @@ public class CollectionCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
             stmt.executeUpdate("db.createCollection('expire_col', { expireAfterSeconds: 3600 })");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void create_collection_8() throws SQLException {
+    public void create_collection_8() {
         // Test storageEngine, changeStreamPreAndPostImages, indexOptionDefaults
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("createCollection", (name, args) -> {
@@ -198,11 +222,14 @@ public class CollectionCommandTest extends AbstractJdbcTest {
                     "changeStreamPreAndPostImages: { enabled: true }, " +                                                   //
                     "indexOptionDefaults: { storageEngine: { wiredTiger: { configString: 'block_compressor=zlib' } } } " +  //
                     "})");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void get_collection_names_0() throws SQLException {
+    public void get_collection_names_0() {
         List<String> result = Arrays.asList("col1", "col2");
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("listCollectionNames", (name, args) -> {
@@ -218,11 +245,14 @@ public class CollectionCommandTest extends AbstractJdbcTest {
                 }
                 assert result.equals(r);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void get_collection_infos_0() throws SQLException {
+    public void get_collection_infos_0() {
         List<Document> result = Arrays.asList(new Document("name", "col1").append("type", "collection").append("options", new Document("capped", true)), new Document("name", "view1").append("type", "view").append("options", new Document("viewOn", "col1")));
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("listCollections", (name, args) -> {
@@ -244,11 +274,14 @@ public class CollectionCommandTest extends AbstractJdbcTest {
                 assert Arrays.asList("col1", "view1").equals(names);
                 assert Arrays.asList("collection", "view").equals(types);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void show_collections_1() throws SQLException {
+    public void show_collections_1() {
         List<String> result = new ArrayList<>();
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("listCollectionNames", (name, args) -> {
@@ -260,11 +293,14 @@ public class CollectionCommandTest extends AbstractJdbcTest {
             try (ResultSet rs = stmt.executeQuery("show collections")) {
                 assert !rs.next();
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void get_collection_names_1() throws SQLException {
+    public void get_collection_names_1() {
         List<String> result = new ArrayList<>();
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("listCollectionNames", (name, args) -> {
@@ -276,11 +312,14 @@ public class CollectionCommandTest extends AbstractJdbcTest {
             try (ResultSet rs = stmt.executeQuery("db.getCollectionNames()")) {
                 assert !rs.next();
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void create_view_0() throws SQLException {
+    public void create_view_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("createView", (name, args) -> {
             assert "my_view".equals(args[0]);
@@ -293,11 +332,14 @@ public class CollectionCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
             stmt.executeUpdate("db.createView('my_view', 'source_col', [{ $match: { status: 'A' } }])");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void create_view_1() throws SQLException {
+    public void create_view_1() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("createView", (name, args) -> {
             assert "my_view_2".equals(args[0]);
@@ -312,6 +354,9 @@ public class CollectionCommandTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("use mydb");
             stmt.executeUpdate("db.createView('my_view_2', 'source_col', [], { collation: { locale: 'en' } })");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 }

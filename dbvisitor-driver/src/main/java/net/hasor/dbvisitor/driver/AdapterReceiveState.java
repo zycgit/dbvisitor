@@ -21,7 +21,6 @@ public enum AdapterReceiveState {
     Pending(false),
     /** 接收中，表示查询已经完毕，服务器开始向客户端传送查询结果数据。 */
     Receive(false),
-
     ;
     private final boolean finish;
 

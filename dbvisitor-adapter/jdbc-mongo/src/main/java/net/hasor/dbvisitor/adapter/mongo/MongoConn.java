@@ -94,6 +94,11 @@ public class MongoConn extends AdapterConnection {
 
         try {
             Document buildInfo = mongoCmd.getClient().getDatabase("admin").runCommand(new Document("buildInfo", 1));
+            if (buildInfo == null || !buildInfo.containsKey("version")) {
+                logger.warn("initConnection failed: buildInfo is null or version not found");
+                return;
+            }
+
             String version = buildInfo.getString("version");
             info.getDbVersion().setVersion(version);
 

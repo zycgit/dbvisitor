@@ -51,11 +51,13 @@ class AdapterContainer implements AdapterReceive {
             throw new SQLException("there is already query in the processing.", JdbcErrorCode.SQL_STATE_QUERY_IS_PENDING);
         }
 
-        this.state = AdapterReceiveState.Pending;
-        this.request = request;
-        this.parameterDefs.clear();
-        this.parameterValues.clear();
-        this.response.clear();
+        synchronized (this.syncObj) {
+            this.state = AdapterReceiveState.Pending;
+            this.request = request;
+            this.parameterDefs.clear();
+            this.parameterValues.clear();
+            this.response.clear();
+        }
     }
 
     public AdapterRequest getRequest() {
@@ -67,17 +69,16 @@ class AdapterContainer implements AdapterReceive {
             throw new SQLException("the query in progress, result is Pending.", JdbcErrorCode.SQL_STATE_QUERY_IS_PENDING);
         }
 
-        synchronized (this.syncObj) {
-            JdbcColumn[] toCols = new JdbcColumn[this.parameterDefs.size()];
-            Object[][] toVals = new Object[1][this.parameterDefs.size()];
-            AtomicInteger counter = new AtomicInteger(0);
-            this.parameterDefs.forEach((k, v) -> {
-                int i = counter.getAndIncrement();
-                toCols[i] = v;
-                toVals[0][i] = parameterValues.get(k);
-            });
-            return new AdapterMemoryCursor(Arrays.asList(toCols), toVals);
-        }
+        JdbcColumn[] toCols = new JdbcColumn[this.parameterDefs.size()];
+        Object[][] toVals = new Object[1][this.parameterDefs.size()];
+        AtomicInteger counter = new AtomicInteger(0);
+        this.parameterDefs.forEach((k, v) -> {
+            int i = counter.getAndIncrement();
+            toCols[i] = v;
+            toVals[0][i] = parameterValues.get(k);
+        });
+
+        return new AdapterMemoryCursor(Arrays.asList(toCols), toVals);
     }
 
     private boolean ifErrorStatusForResponse(AdapterRequest request) {
@@ -101,12 +102,9 @@ class AdapterContainer implements AdapterReceive {
             return false;
         }
 
-        synchronized (this.syncObj) {
-            this.response.add(AdapterResponse.ofError(e));
-            this.state = AdapterReceiveState.Ready;
-            this.syncObj.notifyAll();
-            return true;
-        }
+        this.response.add(AdapterResponse.ofError(e));
+        this.onReceive();
+        return true;
     }
 
     @Override
@@ -116,12 +114,9 @@ class AdapterContainer implements AdapterReceive {
             return false;
         }
 
-        synchronized (this.syncObj) {
-            this.response.add(AdapterResponse.ofCursor(cursor));
-            this.state = AdapterReceiveState.Receive;
-            this.syncObj.notifyAll();
-            return true;
-        }
+        this.response.add(AdapterResponse.ofCursor(cursor));
+        this.onReceive();
+        return true;
     }
 
     @Override
@@ -130,12 +125,9 @@ class AdapterContainer implements AdapterReceive {
             return false;
         }
 
-        synchronized (this.syncObj) {
-            this.response.add(AdapterResponse.ofUpdateCount(updateCount));
-            this.state = AdapterReceiveState.Receive;
-            this.syncObj.notifyAll();
-            return true;
-        }
+        this.response.add(AdapterResponse.ofUpdateCount(updateCount));
+        this.onReceive();
+        return true;
     }
 
     @Override
@@ -148,11 +140,9 @@ class AdapterContainer implements AdapterReceive {
             throw new NullPointerException("received an unrelated data, paramName or paramType is blank.");
         }
 
-        synchronized (this.syncObj) {
-            this.parameterDefs.put(paramName, new JdbcColumn(paramName, paramType, "", "", ""));
-            this.parameterValues.put(paramName, value);
-            return true;
-        }
+        this.parameterDefs.put(paramName, new JdbcColumn(paramName, paramType, "", "", ""));
+        this.parameterValues.put(paramName, value);
+        return true;
     }
 
     @Override
@@ -162,15 +152,23 @@ class AdapterContainer implements AdapterReceive {
             return false;
         }
 
-        synchronized (this.syncObj) {
-            this.state = AdapterReceiveState.Ready;
-            this.syncObj.notifyAll();
-            return true;
-        }
+        this.onReceive();
+        this.onReady();
+        return true;
     }
 
     protected void onReceive() {
-        // logic moved to synchronized blocks in response methods
+        synchronized (this.syncObj) {
+            this.state = AdapterReceiveState.Receive;
+            this.syncObj.notifyAll();
+        }
+    }
+
+    protected void onReady() {
+        synchronized (this.syncObj) {
+            this.state = AdapterReceiveState.Ready;
+            this.syncObj.notifyAll();
+        }
     }
 
     public boolean nextResult(int timeout, TimeUnit timeUnit) throws SQLException {
@@ -178,21 +176,19 @@ class AdapterContainer implements AdapterReceive {
             throw new SQLException("querying in progress.", JdbcErrorCode.SQL_STATE_QUERY_IS_PENDING);
         }
 
-        synchronized (this.syncObj) {
-            if (!this.response.isEmpty()) {
-                AdapterResponse res = this.response.removeFirst();
-                if (res.isResult()) {
-                    IOUtils.closeQuietly(res.toCursor());
-                }
+        if (!this.response.isEmpty()) {
+            AdapterResponse res = this.response.removeFirst();
+            if (res.isResult()) {
+                IOUtils.closeQuietly(res.toCursor());
             }
+        }
 
-            boolean empty = this.response.isEmpty();
-            if (empty && this.state == AdapterReceiveState.Receive) {
-                this.waitFor(timeout, timeUnit);
-                return !this.response.isEmpty();
-            } else {
-                return !empty;
-            }
+        boolean empty = this.response.isEmpty();
+        if (empty && this.state == AdapterReceiveState.Receive) {
+            this.waitFor(timeout, timeUnit);
+            return !this.response.isEmpty();
+        } else {
+            return !empty;
         }
     }
 
@@ -201,20 +197,18 @@ class AdapterContainer implements AdapterReceive {
             throw new SQLException("querying in progress.", JdbcErrorCode.SQL_STATE_QUERY_IS_PENDING);
         }
 
-        synchronized (this.syncObj) {
-            if (this.response.isEmpty()) {
-                return null;
-            } else {
-                return this.response.getFirst();
-            }
+        if (this.response.isEmpty()) {
+            return null;
+        } else {
+            return this.response.getFirst();
         }
     }
 
     public void waitFor(int timeout, TimeUnit timeUnit) throws SQLException {
         try {
-            synchronized (this.syncObj) {
-                if (this.response.isEmpty()) {
-                    if (this.state != AdapterReceiveState.Ready) {
+            if (this.response.isEmpty()) {
+                synchronized (this.syncObj) {
+                    if (this.state == AdapterReceiveState.Pending) {
                         if (timeout == 0) {
                             this.syncObj.wait();
                         } else {
@@ -222,16 +216,16 @@ class AdapterContainer implements AdapterReceive {
                         }
                     }
                 }
+            }
 
-                if (this.response.isEmpty()) {
-                    throw new SQLException("no data received, or wait timeout.");
-                }
+            if (this.response.isEmpty()) {
+                throw new SQLException("no data received, or wait timeout.");
+            }
 
-                AdapterResponse res = this.response.getFirst();
-                if (res.isError()) {
-                    this.response.removeFirst();
-                    throw res.toError();
-                }
+            AdapterResponse res = this.response.getFirst();
+            if (res.isError()) {
+                this.response.removeFirst();
+                throw res.toError();
             }
         } catch (InterruptedException e) {
             if (this.jdbcConn.isClosed()) {

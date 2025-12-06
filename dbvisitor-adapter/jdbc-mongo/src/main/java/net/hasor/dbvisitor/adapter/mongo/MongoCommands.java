@@ -306,22 +306,22 @@ abstract class MongoCommands {
         if (!options.containsKey(key)) {
             return null;
         }
-        Object val = tryParseBson(options.get(key));
-        if (val instanceof Map) {
-            return (Map<String, Object>) val;
+        try {
+            return toObjBson(options.get(key));
+        } catch (Exception e) {
+            throw new SQLException(key + " must be object", e);
         }
-        throw new SQLException(key + " must be object");
     }
 
     protected static <T> List<T> getOptionList(Map<String, Object> options, String key) throws SQLException {
         if (!options.containsKey(key)) {
             return null;
         }
-        Object val = tryParseBson(options.get(key));
-        if (val instanceof List) {
-            return (List<T>) val;
+        try {
+            return (List<T>) toArrayBson(options.get(key));
+        } catch (Exception e) {
+            throw new SQLException(key + " must be array", e);
         }
-        throw new SQLException(key + " must be array");
     }
 
     protected static Double getOptionDouble(Map<String, Object> options, String key) throws SQLException {
@@ -335,22 +335,86 @@ abstract class MongoCommands {
         throw new SQLException(key + " must be number");
     }
 
-    protected static Object tryParseBson(Object docOrList) {
+    protected static List<Object> toArrayBson(Object docOrList) throws SQLException {
+        if (docOrList == null) {
+            return null;
+        }
+        if (docOrList instanceof List) {
+            return (List<Object>) docOrList;
+        }
         if (docOrList instanceof String) {
             String json = ((String) docOrList).trim();
-            if (json.startsWith("[")) {
-                org.bson.BsonArray bsonArray = org.bson.BsonArray.parse(json);
-                List<Document> list = new ArrayList<>();
-                for (org.bson.BsonValue val : bsonArray) {
-                    if (val.isDocument()) {
-                        list.add(Document.parse(val.asDocument().toJson()));
+            try {
+                if (json.startsWith("[")) {
+                    org.bson.BsonArray bsonArray = org.bson.BsonArray.parse(json);
+                    List<Object> list = new ArrayList<>();
+                    for (org.bson.BsonValue val : bsonArray) {
+                        if (val.isDocument()) {
+                            list.add(Document.parse(val.asDocument().toJson()));
+                        } else if (val.isString()) {
+                            list.add(val.asString().getValue());
+                        } else if (val.isBoolean()) {
+                            list.add(val.asBoolean().getValue());
+                        } else if (val.isInt32()) {
+                            list.add(val.asInt32().getValue());
+                        } else if (val.isInt64()) {
+                            list.add(val.asInt64().getValue());
+                        } else if (val.isDouble()) {
+                            list.add(val.asDouble().getValue());
+                        } else if (val.isNull()) {
+                            list.add(null);
+                        } else {
+                            list.add(val);
+                        }
                     }
+                    return list;
+                } else {
+                    List<Object> list = new ArrayList<>();
+                    list.add(Document.parse(json));
+                    return list;
                 }
-                return list;
-            } else {
-                return Document.parse(json);
+            } catch (Exception e) {
+                throw new SQLException("Parse JSON failed: " + e.getMessage(), e);
             }
         }
-        return docOrList;
+        List<Object> list = new ArrayList<>();
+        list.add(docOrList);
+        return list;
+    }
+
+    protected static Map<String, Object> toObjBson(Object docOrList) throws SQLException {
+        if (docOrList == null) {
+            return null;
+        }
+        if (docOrList instanceof Map) {
+            return (Map<String, Object>) docOrList;
+        }
+        if (docOrList instanceof String) {
+            String json = ((String) docOrList).trim();
+            try {
+                if (json.startsWith("[")) {
+                    org.bson.BsonArray bsonArray = org.bson.BsonArray.parse(json);
+                    if (bsonArray.size() == 1 && bsonArray.get(0).isDocument()) {
+                        return Document.parse(bsonArray.get(0).asDocument().toJson());
+                    }
+                    throw new SQLException("Expected JSON Object, but got JSON Array with size != 1 or content is not document.");
+                } else {
+                    return Document.parse(json);
+                }
+            } catch (Exception e) {
+                if (e instanceof SQLException) {
+                    throw (SQLException) e;
+                }
+                throw new SQLException("Parse JSON failed: " + e.getMessage(), e);
+            }
+        }
+        if (docOrList instanceof List) {
+            List<?> list = (List<?>) docOrList;
+            if (list.size() == 1 && list.get(0) instanceof Map) {
+                return (Map<String, Object>) list.get(0);
+            }
+            throw new SQLException("Expected Object/Map, but got List with size != 1 or content is not map.");
+        }
+        throw new SQLException("Cannot convert " + docOrList.getClass().getName() + " to Bson Object/Map.");
     }
 }

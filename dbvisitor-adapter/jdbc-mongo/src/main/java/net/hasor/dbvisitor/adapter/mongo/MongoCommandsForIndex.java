@@ -32,10 +32,10 @@ class MongoCommandsForIndex extends MongoCommands {
         MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
-        Bson keys = (Bson) tryParseBson(args.get(0));
+        Bson keys = (Bson) toObjBson(args.get(0));
         IndexOptions options = new IndexOptions();
         if (args.size() > 1) {
-            Map<String, Object> opts = (Map<String, Object>) tryParseBson(args.get(1));
+            Map<String, Object> opts = (Map<String, Object>) toObjBson(args.get(1));
             if (!opts.containsKey("name")) {
                 throw new SQLException("The index name must be specified.");
             }
@@ -61,7 +61,7 @@ class MongoCommandsForIndex extends MongoCommands {
                 options.expireAfter(expireAfterSeconds, TimeUnit.SECONDS);
             }
             if (opts.containsKey("storageEngine")) {
-                Object val = tryParseBson(opts.get("storageEngine"));
+                Object val = toObjBson(opts.get("storageEngine"));
                 if (val instanceof Bson) {
                     options.storageEngine((Bson) val);
                 } else if (val instanceof Map) {
@@ -71,7 +71,7 @@ class MongoCommandsForIndex extends MongoCommands {
                 }
             }
             if (opts.containsKey("weights")) {
-                Object val = tryParseBson(opts.get("weights"));
+                Object val = toObjBson(opts.get("weights"));
                 if (val instanceof Bson) {
                     options.weights((Bson) val);
                 } else if (val instanceof Map) {
@@ -109,7 +109,7 @@ class MongoCommandsForIndex extends MongoCommands {
                 options.max(max);
             }
             if (opts.containsKey("partialFilterExpression")) {
-                Object val = tryParseBson(opts.get("partialFilterExpression"));
+                Object val = toObjBson(opts.get("partialFilterExpression"));
                 if (val instanceof Bson) {
                     options.partialFilterExpression((Bson) val);
                 } else if (val instanceof Map) {
@@ -149,7 +149,7 @@ class MongoCommandsForIndex extends MongoCommands {
         Object index = args.get(0);
         if (index instanceof String) {
             try {
-                mongoColl.dropIndex((Bson) tryParseBson(index));
+                mongoColl.dropIndex((Bson) toObjBson(index));
             } catch (Exception e) {
                 mongoColl.dropIndex((String) index);
             }

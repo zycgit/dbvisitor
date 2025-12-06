@@ -14,7 +14,7 @@ import org.junit.Test;
 
 public class UserCommandTest extends AbstractJdbcTest {
     @Test
-    public void create_user_0() throws SQLException {
+    public void create_user_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
@@ -31,11 +31,14 @@ public class UserCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             int res = stmt.executeUpdate("db.createUser('myUser', 'password', ['read'])");
             assert res == 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void create_user_1() throws SQLException {
+    public void create_user_1() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
@@ -55,11 +58,14 @@ public class UserCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             int res = stmt.executeUpdate("db.createUser('myUser', 'password', [{role: 'read', db: 'otherDb'}])");
             assert res == 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void drop_user_0() throws SQLException {
+    public void drop_user_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
@@ -74,11 +80,14 @@ public class UserCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             int res = stmt.executeUpdate("db.dropUser('myUser')");
             assert res == 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void update_user_0() throws SQLException {
+    public void update_user_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
@@ -94,11 +103,14 @@ public class UserCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             int res = stmt.executeUpdate("db.updateUser('myUser', {pwd: 'newPassword'})");
             assert res == 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void change_user_password_0() throws SQLException {
+    public void change_user_password_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
@@ -114,11 +126,14 @@ public class UserCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             int res = stmt.executeUpdate("db.changeUserPassword('myUser', 'newPassword')");
             assert res == 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void show_users_0() throws SQLException {
+    public void show_users_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
@@ -138,11 +153,14 @@ public class UserCommandTest extends AbstractJdbcTest {
                 assert "mydb".equals(rs.getString("DB"));
                 assert rs.getString("ROLES").contains("read");
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void show_roles_0() throws SQLException {
+    public void show_roles_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
@@ -163,11 +181,14 @@ public class UserCommandTest extends AbstractJdbcTest {
                 assert !rs.getBoolean("IS_BUILTIN");
                 assert rs.getString("INHERITED_ROLES").contains("read");
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void grant_roles_to_user_0() throws SQLException {
+    public void grant_roles_to_user_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
@@ -183,11 +204,14 @@ public class UserCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             int res = stmt.executeUpdate("db.grantRolesToUser('myUser', ['readWrite'])");
             assert res == 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 
     @Test
-    public void revoke_roles_from_user_0() throws SQLException {
+    public void revoke_roles_from_user_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
@@ -203,6 +227,9 @@ public class UserCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             int res = stmt.executeUpdate("db.revokeRolesFromUser('myUser', ['readWrite'])");
             assert res == 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assert false;
         }
     }
 }
