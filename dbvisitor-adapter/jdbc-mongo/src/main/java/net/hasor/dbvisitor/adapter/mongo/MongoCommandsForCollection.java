@@ -49,14 +49,17 @@ class MongoCommandsForCollection extends MongoCommands {
             }
 
             options = new CreateCollectionOptions();
-            if (bson.containsKey("capped")) {
-                options.capped((Boolean) bson.get("capped"));
+            Boolean capped = getOptionBoolean(bson, "capped");
+            if (capped != null) {
+                options.capped(capped);
             }
-            if (bson.containsKey("size")) {
-                options.sizeInBytes(((Number) bson.get("size")).longValue());
+            Long size = getOptionLong(bson, "size");
+            if (size != null) {
+                options.sizeInBytes(size);
             }
-            if (bson.containsKey("max")) {
-                options.maxDocuments(((Number) bson.get("max")).longValue());
+            Long max = getOptionLong(bson, "max");
+            if (max != null) {
+                options.maxDocuments(max);
             }
             if (bson.containsKey("storageEngine")) {
                 options.storageEngineOptions((Bson) bson.get("storageEngine"));
@@ -64,35 +67,41 @@ class MongoCommandsForCollection extends MongoCommands {
             if (hasValidation) {
                 options.validationOptions(validation);
             }
-            if (bson.containsKey("collation")) {
-                options.collation(jsonb2Collation((Map<String, Object>) bson.get("collation")));
+            Map<String, Object> collation = getOptionMap(bson, "collation");
+            if (collation != null) {
+                options.collation(jsonb2Collation(collation));
             }
-            if (bson.containsKey("expireAfterSeconds")) {
-                options.expireAfter(((Number) bson.get("expireAfterSeconds")).longValue(), TimeUnit.SECONDS);
+            Long expireAfterSeconds = getOptionLong(bson, "expireAfterSeconds");
+            if (expireAfterSeconds != null) {
+                options.expireAfter(expireAfterSeconds, TimeUnit.SECONDS);
             }
 
-            if (bson.containsKey("timeseries")) {
-                Map<String, Object> tsMap = (Map<String, Object>) bson.get("timeseries");
-                TimeSeriesOptions tsOptions = new TimeSeriesOptions((String) tsMap.get("timeField"));
-                if (tsMap.containsKey("metaField")) {
-                    tsOptions.metaField((String) tsMap.get("metaField"));
+            Map<String, Object> tsMap = getOptionMap(bson, "timeseries");
+            if (tsMap != null) {
+                TimeSeriesOptions tsOptions = new TimeSeriesOptions(getOptionString(tsMap, "timeField"));
+                String metaField = getOptionString(tsMap, "metaField");
+                if (metaField != null) {
+                    tsOptions.metaField(metaField);
                 }
-                if (tsMap.containsKey("granularity")) {
-                    tsOptions.granularity(TimeSeriesGranularity.valueOf(((String) tsMap.get("granularity")).toUpperCase()));
+                String granularity = getOptionString(tsMap, "granularity");
+                if (granularity != null) {
+                    tsOptions.granularity(TimeSeriesGranularity.valueOf(granularity.toUpperCase()));
                 }
-                if (tsMap.containsKey("bucketMaxSpanSeconds")) {
-                    tsOptions.bucketMaxSpan(((Number) tsMap.get("bucketMaxSpanSeconds")).longValue(), TimeUnit.SECONDS);
+                Long bucketMaxSpanSeconds = getOptionLong(tsMap, "bucketMaxSpanSeconds");
+                if (bucketMaxSpanSeconds != null) {
+                    tsOptions.bucketMaxSpan(bucketMaxSpanSeconds, TimeUnit.SECONDS);
                 }
-                if (tsMap.containsKey("bucketRoundingSeconds")) {
-                    tsOptions.bucketRounding(((Number) tsMap.get("bucketRoundingSeconds")).longValue(), TimeUnit.SECONDS);
+                Long bucketRoundingSeconds = getOptionLong(tsMap, "bucketRoundingSeconds");
+                if (bucketRoundingSeconds != null) {
+                    tsOptions.bucketRounding(bucketRoundingSeconds, TimeUnit.SECONDS);
                 }
                 options.timeSeriesOptions(tsOptions);
             }
 
-            if (bson.containsKey("clusteredIndex")) {
-                Map<String, Object> ciMap = (Map<String, Object>) bson.get("clusteredIndex");
+            Map<String, Object> ciMap = getOptionMap(bson, "clusteredIndex");
+            if (ciMap != null) {
                 Bson key = (Bson) ciMap.get("key");
-                boolean unique = (Boolean) ciMap.get("unique");
+                Boolean unique = getOptionBoolean(ciMap, "unique");
                 org.bson.BsonDocument keyDoc;
                 if (key instanceof org.bson.BsonDocument) {
                     keyDoc = (org.bson.BsonDocument) key;
@@ -100,21 +109,22 @@ class MongoCommandsForCollection extends MongoCommands {
                     keyDoc = key.toBsonDocument(org.bson.BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry());
                 }
 
-                ClusteredIndexOptions ciOptions = new ClusteredIndexOptions(keyDoc, unique);
-                if (ciMap.containsKey("name")) {
-                    ciOptions.name((String) ciMap.get("name"));
+                ClusteredIndexOptions ciOptions = new ClusteredIndexOptions(keyDoc, unique != null ? unique : false);
+                String name = getOptionString(ciMap, "name");
+                if (name != null) {
+                    ciOptions.name(name);
                 }
                 options.clusteredIndexOptions(ciOptions);
             }
 
-            if (bson.containsKey("changeStreamPreAndPostImages")) {
-                Map<String, Object> csMap = (Map<String, Object>) bson.get("changeStreamPreAndPostImages");
-                boolean enabled = (Boolean) csMap.get("enabled");
-                options.changeStreamPreAndPostImagesOptions(new ChangeStreamPreAndPostImagesOptions(enabled));
+            Map<String, Object> csMap = getOptionMap(bson, "changeStreamPreAndPostImages");
+            if (csMap != null) {
+                Boolean enabled = getOptionBoolean(csMap, "enabled");
+                options.changeStreamPreAndPostImagesOptions(new ChangeStreamPreAndPostImagesOptions(enabled != null ? enabled : false));
             }
 
-            if (bson.containsKey("indexOptionDefaults")) {
-                Map<String, Object> iodMap = (Map<String, Object>) bson.get("indexOptionDefaults");
+            Map<String, Object> iodMap = getOptionMap(bson, "indexOptionDefaults");
+            if (iodMap != null) {
                 IndexOptionDefaults iod = new IndexOptionDefaults();
                 if (iodMap.containsKey("storageEngine")) {
                     iod.storageEngine((Bson) iodMap.get("storageEngine"));
@@ -211,8 +221,9 @@ class MongoCommandsForCollection extends MongoCommands {
         if (args.size() > 3) {
             Map<String, Object> options = (Map<String, Object>) args.get(3);
             CreateViewOptions createOptions = new CreateViewOptions();
-            if (options.containsKey("collation")) {
-                createOptions.collation(jsonb2Collation((Map<String, Object>) options.get("collation")));
+            Map<String, Object> collation = getOptionMap(options, "collation");
+            if (collation != null) {
+                createOptions.collation(jsonb2Collation(collation));
             }
             mongoDB.createView(viewName, viewOn, pipeline, createOptions);
         } else {
@@ -262,17 +273,21 @@ class MongoCommandsForCollection extends MongoCommands {
         boolean multi = false;
         if (args.size() > 2) {
             Map<String, Object> opts = (Map<String, Object>) args.get(2);
-            if (opts.containsKey("upsert")) {
-                options.upsert((Boolean) opts.get("upsert"));
+            Boolean upsert = getOptionBoolean(opts, "upsert");
+            if (upsert != null) {
+                options.upsert(upsert);
             }
-            if (opts.containsKey("multi")) {
-                multi = (Boolean) opts.get("multi");
+            Boolean multiOpt = getOptionBoolean(opts, "multi");
+            if (multiOpt != null) {
+                multi = multiOpt;
             }
-            if (opts.containsKey("collation")) {
-                options.collation(jsonb2Collation((Map<String, Object>) opts.get("collation")));
+            Map<String, Object> collation = getOptionMap(opts, "collation");
+            if (collation != null) {
+                options.collation(jsonb2Collation(collation));
             }
-            if (opts.containsKey("arrayFilters")) {
-                options.arrayFilters((List<? extends Bson>) opts.get("arrayFilters"));
+            List<Bson> arrayFilters = getOptionList(opts, "arrayFilters");
+            if (arrayFilters != null) {
+                options.arrayFilters(arrayFilters);
             }
         }
 
@@ -305,8 +320,9 @@ class MongoCommandsForCollection extends MongoCommands {
                 justOne = (Boolean) arg1;
             } else if (arg1 instanceof Map) {
                 Map<String, Object> options = (Map<String, Object>) arg1;
-                if (options.containsKey("justOne")) {
-                    justOne = (Boolean) options.get("justOne");
+                Boolean justOneOpt = getOptionBoolean(options, "justOne");
+                if (justOneOpt != null) {
+                    justOne = justOneOpt;
                 }
             } else {
                 throw new SQLException("invalid remove options argument.");
@@ -396,11 +412,13 @@ class MongoCommandsForCollection extends MongoCommands {
         BulkWriteOptions options = new BulkWriteOptions();
         if (args.size() > 1) {
             Map<String, Object> opts = (Map<String, Object>) args.get(1);
-            if (opts.containsKey("ordered")) {
-                options.ordered((Boolean) opts.get("ordered"));
+            Boolean ordered = getOptionBoolean(opts, "ordered");
+            if (ordered != null) {
+                options.ordered(ordered);
             }
-            if (opts.containsKey("bypassDocumentValidation")) {
-                options.bypassDocumentValidation((Boolean) opts.get("bypassDocumentValidation"));
+            Boolean bypassDocumentValidation = getOptionBoolean(opts, "bypassDocumentValidation");
+            if (bypassDocumentValidation != null) {
+                options.bypassDocumentValidation(bypassDocumentValidation);
             }
         }
 
@@ -501,6 +519,7 @@ class MongoCommandsForCollection extends MongoCommands {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
         String collName = argAsCollectionName(argIndex, request, collection);
+
         MongoDatabase mongoDatabase = mongoCmd.getClient().getDatabase(dbName);
         MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(collName);
 
@@ -510,6 +529,11 @@ class MongoCommandsForCollection extends MongoCommands {
         List<Bson> pipeline = (List<Bson>) args.get(0);
         AggregateIterable<Document> aggregate = mongoCollection.aggregate(pipeline);
 
+        if (args.size() > 1) {
+            Map<String, Object> options = (Map<String, Object>) args.get(1);
+            applyAggregateOptions(aggregate, options);
+        }
+
         AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_JSON_));
         for (Document doc : aggregate) {
             cursor.pushData(Collections.singletonMap(COL_JSON_.name, doc.toJson()));
@@ -518,5 +542,47 @@ class MongoCommandsForCollection extends MongoCommands {
 
         receive.responseResult(request, cursor);
         return completed(sync);
+    }
+
+    private static void applyAggregateOptions(AggregateIterable<Document> aggregate, Map<String, Object> options) throws SQLException {
+        Boolean allowDiskUse = getOptionBoolean(options, "allowDiskUse");
+        if (allowDiskUse != null) {
+            aggregate.allowDiskUse(allowDiskUse);
+        }
+
+        Integer batchSize = getOptionInt(options, "batchSize");
+        if (batchSize != null) {
+            aggregate.batchSize(batchSize);
+        }
+
+        Long maxTimeMS = getOptionLong(options, "maxTimeMS");
+        if (maxTimeMS != null) {
+            aggregate.maxTime(maxTimeMS, TimeUnit.MILLISECONDS);
+        }
+
+        Long maxAwaitTimeMS = getOptionLong(options, "maxAwaitTimeMS");
+        if (maxAwaitTimeMS != null) {
+            aggregate.maxAwaitTime(maxAwaitTimeMS, TimeUnit.MILLISECONDS);
+        }
+
+        Boolean bypassDocumentValidation = getOptionBoolean(options, "bypassDocumentValidation");
+        if (bypassDocumentValidation != null) {
+            aggregate.bypassDocumentValidation(bypassDocumentValidation);
+        }
+
+        Map<String, Object> collation = getOptionMap(options, "collation");
+        if (collation != null) {
+            aggregate.collation(jsonb2Collation(collation));
+        }
+
+        String comment = getOptionString(options, "comment");
+        if (comment != null) {
+            aggregate.comment(comment);
+        }
+
+        Map<String, Object> hint = getOptionMap(options, "hint");
+        if (hint != null) {
+            aggregate.hint(new Document(hint));
+        }
     }
 }

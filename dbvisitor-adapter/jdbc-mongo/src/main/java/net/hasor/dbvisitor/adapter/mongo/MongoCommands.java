@@ -257,4 +257,81 @@ abstract class MongoCommands {
         }
         return newList;
     }
+
+    protected static Boolean getOptionBoolean(Map<String, Object> options, String key) throws SQLException {
+        if (!options.containsKey(key)) {
+            return null;
+        }
+        Object val = options.get(key);
+        if (val instanceof Boolean) {
+            return (Boolean) val;
+        }
+        throw new SQLException(key + " must be boolean");
+    }
+
+    protected static Integer getOptionInt(Map<String, Object> options, String key) throws SQLException {
+        if (!options.containsKey(key)) {
+            return null;
+        }
+        Object val = options.get(key);
+        if (val instanceof Number) {
+            return ((Number) val).intValue();
+        }
+        throw new SQLException(key + " must be number");
+    }
+
+    protected static Long getOptionLong(Map<String, Object> options, String key) throws SQLException {
+        if (!options.containsKey(key)) {
+            return null;
+        }
+        Object val = options.get(key);
+        if (val instanceof Number) {
+            return ((Number) val).longValue();
+        }
+        throw new SQLException(key + " must be number");
+    }
+
+    protected static String getOptionString(Map<String, Object> options, String key) throws SQLException {
+        if (!options.containsKey(key)) {
+            return null;
+        }
+        Object val = options.get(key);
+        if (val instanceof String) {
+            return (String) val;
+        }
+        throw new SQLException(key + " must be string");
+    }
+
+    protected static Map<String, Object> getOptionMap(Map<String, Object> options, String key) throws SQLException {
+        if (!options.containsKey(key)) {
+            return null;
+        }
+        Object val = options.get(key);
+        if (val instanceof Map) {
+            return (Map<String, Object>) val;
+        }
+        throw new SQLException(key + " must be object");
+    }
+
+    protected static <T> List<T> getOptionList(Map<String, Object> options, String key) throws SQLException {
+        if (!options.containsKey(key)) {
+            return null;
+        }
+        Object val = options.get(key);
+        if (val instanceof List) {
+            return (List<T>) val;
+        }
+        throw new SQLException(key + " must be array");
+    }
+
+    protected static Double getOptionDouble(Map<String, Object> options, String key) throws SQLException {
+        if (!options.containsKey(key)) {
+            return null;
+        }
+        Object val = options.get(key);
+        if (val instanceof Number) {
+            return ((Number) val).doubleValue();
+        }
+        throw new SQLException(key + " must be number");
+    }
 }

@@ -27,6 +27,7 @@ public class JdbcErrorCode {
     public static final String SQL_STATE_QUERY_IS_FINISH       = "S2007";
     public static final String SQL_STATE_QUERY_EMPTY           = "S2008";
     public static final String SQL_STATE_SYNTAX_ERROR          = "S2009";
+    public static final String SQL_STATE_IS_CANCELLED          = "S2010";
     // for Types
     public static final String SQL_STATE_GENERAL_ERROR         = "S3001";
 }

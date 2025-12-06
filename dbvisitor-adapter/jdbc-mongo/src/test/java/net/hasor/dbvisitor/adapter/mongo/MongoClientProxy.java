@@ -99,7 +99,7 @@ class MongoClientProxy implements MongoClient {
         MongoDatabase db = this.mongoDB().getDatabase(databaseName);
         MongoDatabaseProxy proxy = new MongoDatabaseProxy(this.handler);
         proxy.updateTarget(databaseName, db);
-        return proxy.mongoDB();
+        return proxy;
     }
     @Override
     public ClientSession startSession() {

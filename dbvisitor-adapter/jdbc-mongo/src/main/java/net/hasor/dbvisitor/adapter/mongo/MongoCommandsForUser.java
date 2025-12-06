@@ -15,6 +15,7 @@ import net.hasor.dbvisitor.driver.AdapterResultCursor;
 import net.hasor.dbvisitor.driver.JdbcColumn;
 import org.bson.Document;
 
+@SuppressWarnings("unchecked")
 class MongoCommandsForUser extends MongoCommands {
     public static Future<?> execShowUsers(Future<Object> sync, MongoCmd mongoCmd, CommandContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
@@ -66,6 +67,15 @@ class MongoCommandsForUser extends MongoCommands {
         command.put("pwd", password);
         command.put("roles", roles);
         if (options != null) {
+            if (options.containsKey("authenticationRestrictions")) {
+                getOptionList(options, "authenticationRestrictions");
+            }
+            if (options.containsKey("mechanisms")) {
+                getOptionList(options, "mechanisms");
+            }
+            if (options.containsKey("passwordDigestor")) {
+                getOptionString(options, "passwordDigestor");
+            }
             command.putAll(options);
         }
 
@@ -104,6 +114,21 @@ class MongoCommandsForUser extends MongoCommands {
         Map<String, Object> update = (Map<String, Object>) args.get(1);
 
         Document command = new Document("updateUser", username);
+        if (update.containsKey("pwd")) {
+            getOptionString(update, "pwd");
+        }
+        if (update.containsKey("roles")) {
+            getOptionList(update, "roles");
+        }
+        if (update.containsKey("authenticationRestrictions")) {
+            getOptionList(update, "authenticationRestrictions");
+        }
+        if (update.containsKey("mechanisms")) {
+            getOptionList(update, "mechanisms");
+        }
+        if (update.containsKey("passwordDigestor")) {
+            getOptionString(update, "passwordDigestor");
+        }
         command.putAll(update);
 
         mongoDB.runCommand(command);

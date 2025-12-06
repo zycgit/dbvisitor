@@ -10,6 +10,8 @@ import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.BasicFuture;
 import net.hasor.cobble.concurrent.future.Future;
+import net.hasor.cobble.logging.Logger;
+import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.adapter.redis.parser.*;
 import net.hasor.dbvisitor.driver.*;
 import org.antlr.v4.runtime.BufferedTokenStream;
@@ -18,11 +20,12 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 
 public class JedisConn extends AdapterConnection {
-    private final Connection owner;
-    private final JedisCmd   jedisCmd;
-    private       int        database;
-    private final boolean    uncheckNumKeys;
-    private final char       separatorChar;
+    private final    Connection owner;
+    private final    JedisCmd   jedisCmd;
+    private          int        database;
+    private final    boolean    uncheckNumKeys;
+    private final    char       separatorChar;
+    private volatile boolean    cancelled = false;
 
     JedisConn(Connection owner, JedisCmd jedisCmd, String jdbcUrl, Map<String, String> prop, int database) throws SQLException {
         super(jdbcUrl, prop.get(JedisKeys.USERNAME));
@@ -177,6 +180,7 @@ public class JedisConn extends AdapterConnection {
 
     @Override
     public synchronized void doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException {
+        this.cancelled = false;
         RedisParser.RootContext root = parserRequest(request);
         JedisArgVisitor argVisitor = new JedisArgVisitor();
         root.accept(argVisitor);
@@ -194,6 +198,9 @@ public class JedisConn extends AdapterConnection {
 
         int startArgIdx = 0;
         for (RedisParser.CommandContext redisCmd : commandList) {
+            if (this.cancelled) {
+                throw new SQLException("Operation cancelled.", JdbcErrorCode.SQL_STATE_IS_CANCELLED);
+            }
             Future<Object> sync = new BasicFuture<>();
             if (argCount > 0) {
                 argVisitor.reset();
@@ -211,12 +218,12 @@ public class JedisConn extends AdapterConnection {
 
     @Override
     public void cancelRequest() {
-        throw new UnsupportedOperationException("cancelRequest not support."); // TODO
+        this.cancelled = true;
     }
 
     @Override
     protected void doClose() throws IOException {
-        // this.cancelRequest();
+        this.cancelRequest();
         this.jedisCmd.close();
     }
 }

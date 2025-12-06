@@ -287,7 +287,10 @@ class MongoDatabaseProxy implements MongoDatabase {
 
     @Override
     public MongoCollection<Document> getCollection(String collectionName) {
-        return this.mongoDB().getCollection(collectionName);
+        MongoCollection<Document> collection = this.mongoDB().getCollection(collectionName);
+        MongoCollectionProxy proxy = new MongoCollectionProxy(this.handler);
+        proxy.updateTarget(this.catalog, null, collection);
+        return proxy;
     }
 
     @Override

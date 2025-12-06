@@ -16,8 +16,9 @@ import org.antlr.v4.runtime.CharStreams;
 import org.bson.Document;
 
 public class MongoConn extends AdapterConnection {
-    private final Connection owner;
-    private final MongoCmd   mongoCmd;
+    private final    Connection owner;
+    private final    MongoCmd   mongoCmd;
+    private volatile boolean    cancelled = false;
 
     public MongoConn(Connection owner, MongoCmd mongoCmd, String jdbcUrl, Map<String, String> prop) {
         super(jdbcUrl, prop.get(MongoKeys.USERNAME));
@@ -117,6 +118,7 @@ public class MongoConn extends AdapterConnection {
 
     @Override
     public synchronized void doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException {
+        this.cancelled = false;
         MongoParser.MongoCommandsContext root = parserRequest(request);
         MongoArgVisitor argVisitor = new MongoArgVisitor();
         root.accept(argVisitor);
@@ -134,6 +136,9 @@ public class MongoConn extends AdapterConnection {
 
         int startArgIdx = 0;
         for (MongoParser.CommandContext mongoCmd : commandList) {
+            if (this.cancelled) {
+                throw new SQLException("Operation cancelled.", JdbcErrorCode.SQL_STATE_IS_CANCELLED);
+            }
             Future<Object> sync = new BasicFuture<>();
             if (argCount > 0) {
                 argVisitor.reset();
@@ -151,12 +156,12 @@ public class MongoConn extends AdapterConnection {
 
     @Override
     public void cancelRequest() {
-        throw new UnsupportedOperationException("cancelRequest not support."); // TODO
+        this.cancelled = true;
     }
 
     @Override
     protected void doClose() throws IOException {
-        // this.cancelRequest();
+        this.cancelRequest();
         this.mongoCmd.close();
     }
 }

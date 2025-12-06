@@ -19,6 +19,7 @@ import net.hasor.dbvisitor.driver.JdbcColumn;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+@SuppressWarnings("unchecked")
 class MongoCommandsForIndex extends MongoCommands {
     public static Future<?> execCreateIndex(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, CreateIndexOpContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
@@ -39,56 +40,91 @@ class MongoCommandsForIndex extends MongoCommands {
                 throw new SQLException("The index name must be specified.");
             }
 
-            if (opts.containsKey("background")) {
-                options.background((Boolean) opts.get("background"));
+            Boolean background = getOptionBoolean(opts, "background");
+            if (background != null) {
+                options.background(background);
             }
-            if (opts.containsKey("unique")) {
-                options.unique((Boolean) opts.get("unique"));
+            Boolean unique = getOptionBoolean(opts, "unique");
+            if (unique != null) {
+                options.unique(unique);
             }
-            if (opts.containsKey("name")) {
-                options.name((String) opts.get("name"));
+            String name = getOptionString(opts, "name");
+            if (name != null) {
+                options.name(name);
             }
-            if (opts.containsKey("sparse")) {
-                options.sparse((Boolean) opts.get("sparse"));
+            Boolean sparse = getOptionBoolean(opts, "sparse");
+            if (sparse != null) {
+                options.sparse(sparse);
             }
-            if (opts.containsKey("expireAfterSeconds")) {
-                options.expireAfter(((Number) opts.get("expireAfterSeconds")).longValue(), TimeUnit.SECONDS);
+            Long expireAfterSeconds = getOptionLong(opts, "expireAfterSeconds");
+            if (expireAfterSeconds != null) {
+                options.expireAfter(expireAfterSeconds, TimeUnit.SECONDS);
             }
             if (opts.containsKey("storageEngine")) {
-                options.storageEngine((Bson) opts.get("storageEngine"));
+                Object val = opts.get("storageEngine");
+                if (val instanceof Bson) {
+                    options.storageEngine((Bson) val);
+                } else if (val instanceof Map) {
+                    options.storageEngine(new Document((Map<String, Object>) val));
+                } else {
+                    throw new SQLException("storageEngine must be object");
+                }
             }
             if (opts.containsKey("weights")) {
-                options.weights((Bson) opts.get("weights"));
+                Object val = opts.get("weights");
+                if (val instanceof Bson) {
+                    options.weights((Bson) val);
+                } else if (val instanceof Map) {
+                    options.weights(new Document((Map<String, Object>) val));
+                } else {
+                    throw new SQLException("weights must be object");
+                }
             }
-            if (opts.containsKey("default_language")) {
-                options.defaultLanguage((String) opts.get("default_language"));
+            String defaultLanguage = getOptionString(opts, "default_language");
+            if (defaultLanguage != null) {
+                options.defaultLanguage(defaultLanguage);
             }
-            if (opts.containsKey("language_override")) {
-                options.languageOverride((String) opts.get("language_override"));
+            String languageOverride = getOptionString(opts, "language_override");
+            if (languageOverride != null) {
+                options.languageOverride(languageOverride);
             }
-            if (opts.containsKey("textIndexVersion")) {
-                options.textVersion(((Number) opts.get("textIndexVersion")).intValue());
+            Integer textIndexVersion = getOptionInt(opts, "textIndexVersion");
+            if (textIndexVersion != null) {
+                options.textVersion(textIndexVersion);
             }
-            if (opts.containsKey("2dsphereIndexVersion")) {
-                options.sphereVersion(((Number) opts.get("2dsphereIndexVersion")).intValue());
+            Integer sphereIndexVersion = getOptionInt(opts, "2dsphereIndexVersion");
+            if (sphereIndexVersion != null) {
+                options.sphereVersion(sphereIndexVersion);
             }
-            if (opts.containsKey("bits")) {
-                options.bits(((Number) opts.get("bits")).intValue());
+            Integer bits = getOptionInt(opts, "bits");
+            if (bits != null) {
+                options.bits(bits);
             }
-            if (opts.containsKey("min")) {
-                options.min(((Number) opts.get("min")).doubleValue());
+            Double min = getOptionDouble(opts, "min");
+            if (min != null) {
+                options.min(min);
             }
-            if (opts.containsKey("max")) {
-                options.max(((Number) opts.get("max")).doubleValue());
+            Double max = getOptionDouble(opts, "max");
+            if (max != null) {
+                options.max(max);
             }
             if (opts.containsKey("partialFilterExpression")) {
-                options.partialFilterExpression((Bson) opts.get("partialFilterExpression"));
+                Object val = opts.get("partialFilterExpression");
+                if (val instanceof Bson) {
+                    options.partialFilterExpression((Bson) val);
+                } else if (val instanceof Map) {
+                    options.partialFilterExpression(new Document((Map<String, Object>) val));
+                } else {
+                    throw new SQLException("partialFilterExpression must be object");
+                }
             }
-            if (opts.containsKey("collation")) {
-                options.collation(jsonb2Collation((Map<String, Object>) opts.get("collation")));
+            Map<String, Object> collation = getOptionMap(opts, "collation");
+            if (collation != null) {
+                options.collation(jsonb2Collation(collation));
             }
-            if (opts.containsKey("hidden")) {
-                options.hidden((Boolean) opts.get("hidden"));
+            Boolean hidden = getOptionBoolean(opts, "hidden");
+            if (hidden != null) {
+                options.hidden(hidden);
             }
         } else {
             throw new SQLException("The index name must be specified.");
