@@ -256,23 +256,7 @@ class MongoCommandsForCollection extends MongoCommands {
         MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
-        Object docOrList = args.get(0);
-        if (docOrList instanceof String) {
-            String json = ((String) docOrList).trim();
-            if (json.startsWith("[")) {
-                org.bson.BsonArray bsonArray = org.bson.BsonArray.parse(json);
-                List<Document> list = new ArrayList<>();
-                for (org.bson.BsonValue val : bsonArray) {
-                    if (val.isDocument()) {
-                        list.add(Document.parse(val.asDocument().toJson()));
-                    }
-                }
-                docOrList = list;
-            } else {
-                docOrList = Document.parse(json);
-            }
-        }
-
+        Object docOrList = tryParseBson(args.get(0));
         if (docOrList instanceof List) {
             mongoColl.insertMany((List<Document>) docOrList);
             receive.responseUpdateCount(request, ((List<?>) docOrList).size());
@@ -294,8 +278,8 @@ class MongoCommandsForCollection extends MongoCommands {
         MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
-        Bson filter = (Bson) args.get(0);
-        Bson update = (Bson) args.get(1);
+        Bson filter = (Bson) tryParseBson(args.get(0));
+        Bson update = (Bson) tryParseBson(args.get(1));
         UpdateOptions options = new UpdateOptions();
         boolean multi = false;
         if (args.size() > 2) {
@@ -339,7 +323,7 @@ class MongoCommandsForCollection extends MongoCommands {
         MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
-        Bson filter = (Bson) args.get(0);
+        Bson filter = (Bson) tryParseBson(args.get(0));
         boolean justOne = false;
         if (args.size() > 1) {
             Object arg1 = args.get(1);

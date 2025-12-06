@@ -306,7 +306,7 @@ abstract class MongoCommands {
         if (!options.containsKey(key)) {
             return null;
         }
-        Object val = options.get(key);
+        Object val = tryParseBson(options.get(key));
         if (val instanceof Map) {
             return (Map<String, Object>) val;
         }
@@ -317,7 +317,7 @@ abstract class MongoCommands {
         if (!options.containsKey(key)) {
             return null;
         }
-        Object val = options.get(key);
+        Object val = tryParseBson(options.get(key));
         if (val instanceof List) {
             return (List<T>) val;
         }
@@ -333,5 +333,24 @@ abstract class MongoCommands {
             return ((Number) val).doubleValue();
         }
         throw new SQLException(key + " must be number");
+    }
+
+    protected static Object tryParseBson(Object docOrList) {
+        if (docOrList instanceof String) {
+            String json = ((String) docOrList).trim();
+            if (json.startsWith("[")) {
+                org.bson.BsonArray bsonArray = org.bson.BsonArray.parse(json);
+                List<Document> list = new ArrayList<>();
+                for (org.bson.BsonValue val : bsonArray) {
+                    if (val.isDocument()) {
+                        list.add(Document.parse(val.asDocument().toJson()));
+                    }
+                }
+                return list;
+            } else {
+                return Document.parse(json);
+            }
+        }
+        return docOrList;
     }
 }

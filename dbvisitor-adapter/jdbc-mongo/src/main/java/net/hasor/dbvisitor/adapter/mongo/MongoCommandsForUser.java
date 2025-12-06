@@ -60,8 +60,8 @@ class MongoCommandsForUser extends MongoCommands {
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
         String username = (String) args.get(0);
         String password = (String) args.get(1);
-        List<?> roles = (List<?>) args.get(2);
-        Map<String, Object> options = args.size() > 3 ? (Map<String, Object>) args.get(3) : null;
+        List<?> roles = (List<?>) tryParseBson(args.get(2));
+        Map<String, Object> options = args.size() > 3 ? (Map<String, Object>) tryParseBson(args.get(3)) : null;
 
         Document command = new Document("createUser", username);
         command.put("pwd", password);
@@ -111,7 +111,7 @@ class MongoCommandsForUser extends MongoCommands {
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
         String username = (String) args.get(0);
-        Map<String, Object> update = (Map<String, Object>) args.get(1);
+        Map<String, Object> update = (Map<String, Object>) tryParseBson(args.get(1));
 
         Document command = new Document("updateUser", username);
         if (update.containsKey("pwd")) {
@@ -154,8 +154,6 @@ class MongoCommandsForUser extends MongoCommands {
         receive.responseUpdateCount(request, 0);
         return completed(sync);
     }
-
-    //
 
     public static Future<?> execShowRoles(Future<Object> sync, MongoCmd mongoCmd, CommandContext c, //
             AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
@@ -201,7 +199,7 @@ class MongoCommandsForUser extends MongoCommands {
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
         String username = (String) args.get(0);
-        List<?> roles = (List<?>) args.get(1);
+        List<?> roles = (List<?>) tryParseBson(args.get(1));
 
         Document command = new Document("grantRolesToUser", username);
         command.put("roles", roles);
@@ -221,7 +219,7 @@ class MongoCommandsForUser extends MongoCommands {
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
         String username = (String) args.get(0);
-        List<?> roles = (List<?>) args.get(1);
+        List<?> roles = (List<?>) tryParseBson(args.get(1));
 
         Document command = new Document("revokeRolesFromUser", username);
         command.put("roles", roles);
