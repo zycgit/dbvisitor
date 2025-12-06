@@ -40,10 +40,6 @@ class MongoCommandsForDB extends MongoCommands {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
 
-        if (StringUtils.isBlank(dbName)) {
-            throw new SQLException("database name is empty or No database selected.");
-        }
-
         boolean exists = false;
         for (String name : mongoCmd.getClient().listDatabaseNames()) {
             if (StringUtils.equals(name, dbName)) {

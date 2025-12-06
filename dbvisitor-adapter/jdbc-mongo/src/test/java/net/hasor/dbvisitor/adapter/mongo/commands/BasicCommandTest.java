@@ -29,4 +29,16 @@ public class BasicCommandTest extends AbstractJdbcTest {
             assert e.getMessage().contains("query command is empty.");
         }
     }
+
+    @Test
+    public void test_no_db_selected() {
+        try (Connection conn = redisConnection()) {
+            try (java.sql.Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate("db.mycoll.insert({name:'abc'})");
+                assert false;
+            }
+        } catch (SQLException e) {
+            assert e.getMessage().contains("No database selected");
+        }
+    }
 }

@@ -1,0 +1,6 @@
+db.createView('v1', 's1', [])
+db.createView('v2', 's2', [{}])
+db.collection.insert({})
+db.collection.insert([])
+db.collection.find({a: []})
+db.collection.find({a: {}})

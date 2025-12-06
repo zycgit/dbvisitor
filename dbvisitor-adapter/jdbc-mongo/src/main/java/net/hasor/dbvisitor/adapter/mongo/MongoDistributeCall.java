@@ -33,7 +33,7 @@ class MongoDistributeCall {
             return MongoCommandsForCollection.execShowCollections(sync, mongoCmd, c, request, receive, startArgIdx);
         }
         if (StringUtils.equalsIgnoreCase(target, "users")) {
-            return MongoCommandsForUser.execShowUsers(sync, mongoCmd, c, request, receive, startArgIdx, conn);
+            return MongoCommandsForUser.execShowUsers(sync, mongoCmd, c, request, receive, startArgIdx);
         }
         if (StringUtils.equalsIgnoreCase(target, "roles")) {
             return MongoCommandsForUser.execShowRoles(sync, mongoCmd, c, request, receive, startArgIdx, conn);
@@ -64,7 +64,7 @@ class MongoDistributeCall {
             return MongoCommandsForDB.execDropDatabase(sync, mongoCmd, database, c.dropDatabaseOp(), request, receive, startArgIdx);
         }
         if (c.createUserOp() != null) {
-            return MongoCommandsForUser.execCreateUser(sync, mongoCmd, database, c.createUserOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForUser.execCreateUser(sync, mongoCmd, database, c.createUserOp(), request, receive, startArgIdx);
         }
         if (c.dropUserOp() != null) {
             return MongoCommandsForUser.execDropUser(sync, mongoCmd, database, c.dropUserOp(), request, receive, startArgIdx, conn);
@@ -95,13 +95,13 @@ class MongoDistributeCall {
 
     private static Future<?> execMongoOp(Future<Object> sync, MongoCmd mongoCmd, MongoParser.DatabaseNameContext database, MongoParser.CollectionContext collection, MongoParser.MongoOpContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
         if (c.createIndexOp() != null) {
-            return MongoCommandsForIndex.execCreateIndex(sync, mongoCmd, database, collection, c.createIndexOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForIndex.execCreateIndex(sync, mongoCmd, database, collection, c.createIndexOp(), request, receive, startArgIdx);
         }
         if (c.dropIndexOp() != null) {
-            return MongoCommandsForIndex.execDropIndex(sync, mongoCmd, database, collection, c.dropIndexOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForIndex.execDropIndex(sync, mongoCmd, database, collection, c.dropIndexOp(), request, receive, startArgIdx);
         }
         if (c.getIndexesOp() != null) {
-            return MongoCommandsForIndex.execGetIndexes(sync, mongoCmd, database, collection, c.getIndexesOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForIndex.execGetIndexes(sync, mongoCmd, database, collection, c.getIndexesOp(), request, receive, startArgIdx);
         }
         if (c.insertOp() != null) {
             return MongoCommandsForCollection.execInsert(sync, mongoCmd, database, collection, c.insertOp(), request, receive, startArgIdx);
@@ -125,7 +125,7 @@ class MongoDistributeCall {
             return MongoCommandsForCollection.execDistinct(sync, mongoCmd, database, collection, c.distinctOp(), request, receive, startArgIdx);
         }
         if (c.aggregateOp() != null) {
-            return MongoCommandsForCollection.execAggregate(sync, mongoCmd, database, collection, c.aggregateOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForCollection.execAggregate(sync, mongoCmd, database, collection, c.aggregateOp(), request, receive, startArgIdx);
         }
         throw new SQLException("unknown command.");
     }

@@ -2,8 +2,11 @@ package net.hasor.dbvisitor.adapter.mongo;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.mongodb.client.DistinctIterable;
+import com.mongodb.client.ListCollectionNamesIterable;
 import com.mongodb.client.model.*;
 import net.hasor.cobble.CollectionUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.CollectionContext;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.DatabaseNameContext;
@@ -11,9 +14,32 @@ import net.hasor.dbvisitor.driver.*;
 import org.bson.Document;
 
 abstract class MongoCommands {
-    protected static final JdbcColumn COL_DATABASE_STRING   = new JdbcColumn("DATABASE", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_COLLECTION_STRING = new JdbcColumn("COLLECTION", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_JSON_             = new JdbcColumn("JSON", AdapterType.String, "", "", "");
+    // for db and collections
+    protected static final JdbcColumn COL_DATABASE_STRING        = new JdbcColumn("DATABASE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_COLLECTION_STRING      = new JdbcColumn("COLLECTION", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_VALUE_STRING           = new JdbcColumn("VALUE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_COUNT_LONG             = new JdbcColumn("COUNT", AdapterType.Long, "", "", "");
+    protected static final JdbcColumn COL_NAME_STRING            = new JdbcColumn("NAME", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_TYPE_STRING            = new JdbcColumn("TYPE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_OPTIONS_STRING         = new JdbcColumn("OPTIONS", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_INFO_STRING            = new JdbcColumn("INFO", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_JSON_                  = new JdbcColumn("JSON", AdapterType.String, "", "", "");
+    // for index
+    protected static final JdbcColumn COL_IDX_V_INT              = new JdbcColumn("V", AdapterType.Int, "", "", "");
+    protected static final JdbcColumn COL_IDX_KEY_STRING         = new JdbcColumn("KEY", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_IDX_NAME_STRING        = new JdbcColumn("NAME", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_IDX_NS_STRING          = new JdbcColumn("NS", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_IDX_UNIQUE_BOOLEAN     = new JdbcColumn("UNIQUE", AdapterType.Boolean, "", "", "");
+    protected static final JdbcColumn COL_IDX_SPARSE_BOOLEAN     = new JdbcColumn("SPARSE", AdapterType.Boolean, "", "", "");
+    protected static final JdbcColumn COL_IDX_BACKGROUND_BOOLEAN = new JdbcColumn("BACKGROUND", AdapterType.Boolean, "", "", "");
+    protected static final JdbcColumn COL_IDX_HIDDEN_BOOLEAN     = new JdbcColumn("HIDDEN", AdapterType.Boolean, "", "", "");
+    // for user and role
+    protected static final JdbcColumn COL_USER_STRING            = new JdbcColumn("USER", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_DB_STRING              = new JdbcColumn("DB", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_ROLES_STRING           = new JdbcColumn("ROLES", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_ROLE_STRING            = new JdbcColumn("ROLE", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_IS_BUILTIN_BOOLEAN     = new JdbcColumn("IS_BUILTIN", AdapterType.Boolean, "", "", "");
+    protected static final JdbcColumn COL_INHERITED_ROLES_STRING = new JdbcColumn("INHERITED_ROLES", AdapterType.String, "", "", "");
 
     protected static Object getArg(AtomicInteger argIndex, AdapterRequest request) throws SQLException {
         int argIdx = argIndex.getAndIncrement();
@@ -47,7 +73,12 @@ abstract class MongoCommands {
 
         String text = getIdentifier(ctx.getText());
         if ("db".equals(text)) {
-            return mongoCmd.getCatalog();
+            String dbName = mongoCmd.getCatalog();
+            if (StringUtils.isBlank(dbName)) {
+                throw new SQLException("No database selected.");
+            } else {
+                return dbName;
+            }
         } else {
             return text;
         }
@@ -97,6 +128,38 @@ abstract class MongoCommands {
     }
 
     protected static AdapterResultCursor listResult(AdapterRequest request, JdbcColumn col, Collection<?> result) throws SQLException {
+        long maxRows = request.getMaxRows();
+        AdapterResultCursor receiveCur = new AdapterResultCursor(request, Collections.singletonList(col));
+        int affectRows = 0;
+        for (Object item : result) {
+            receiveCur.pushData(CollectionUtils.asMap(col.name, item));
+
+            affectRows++;
+            if (maxRows > 0 && affectRows >= maxRows) {
+                break;
+            }
+        }
+        receiveCur.pushFinish();
+        return receiveCur;
+    }
+
+    protected static AdapterResultCursor listResult(AdapterRequest request, JdbcColumn col, DistinctIterable<?> result) throws SQLException {
+        long maxRows = request.getMaxRows();
+        AdapterResultCursor receiveCur = new AdapterResultCursor(request, Collections.singletonList(col));
+        int affectRows = 0;
+        for (Object item : result) {
+            receiveCur.pushData(CollectionUtils.asMap(col.name, item));
+
+            affectRows++;
+            if (maxRows > 0 && affectRows >= maxRows) {
+                break;
+            }
+        }
+        receiveCur.pushFinish();
+        return receiveCur;
+    }
+
+    protected static AdapterResultCursor listResult(AdapterRequest request, JdbcColumn col, ListCollectionNamesIterable result) throws SQLException {
         long maxRows = request.getMaxRows();
         AdapterResultCursor receiveCur = new AdapterResultCursor(request, Collections.singletonList(col));
         int affectRows = 0;

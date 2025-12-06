@@ -10,7 +10,10 @@ import com.mongodb.client.result.UpdateResult;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoBsonVisitor;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.*;
-import net.hasor.dbvisitor.driver.*;
+import net.hasor.dbvisitor.driver.AdapterReceive;
+import net.hasor.dbvisitor.driver.AdapterRequest;
+import net.hasor.dbvisitor.driver.AdapterResultCursor;
+import net.hasor.dbvisitor.driver.JdbcColumn;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -167,19 +170,14 @@ class MongoCommandsForCollection extends MongoCommands {
         }
 
         // convert data
-        JdbcColumn colName = new JdbcColumn("NAME", AdapterType.String, "", "", "");
-        JdbcColumn colType = new JdbcColumn("TYPE", AdapterType.String, "", "", "");
-        JdbcColumn colOptions = new JdbcColumn("OPTIONS", AdapterType.String, "", "", "");
-        JdbcColumn colInfo = new JdbcColumn("INFO", AdapterType.String, "", "", "");
-
-        List<JdbcColumn> columns = Arrays.asList(colName, colType, colOptions, colInfo);
+        List<JdbcColumn> columns = Arrays.asList(COL_NAME_STRING, COL_TYPE_STRING, COL_OPTIONS_STRING, COL_INFO_STRING);
         AdapterResultCursor cursor = new AdapterResultCursor(request, columns);
         for (Document doc : collections) {
             Map<String, Object> row = new LinkedHashMap<>();
-            row.put(colName.name, doc.getString("name"));
-            row.put(colType.name, doc.getString("type"));
-            row.put(colOptions.name, doc.get("options") != null ? doc.get("options").toString() : null);
-            row.put(colInfo.name, doc.toJson());
+            row.put(COL_NAME_STRING.name, doc.getString("name"));
+            row.put(COL_TYPE_STRING.name, doc.getString("type"));
+            row.put(COL_OPTIONS_STRING.name, doc.get("options") != null ? doc.get("options").toString() : null);
+            row.put(COL_INFO_STRING.name, doc.toJson());
             cursor.pushData(row);
         }
         cursor.pushFinish();
@@ -191,11 +189,7 @@ class MongoCommandsForCollection extends MongoCommands {
     public static Future<?> execShowCollections(Future<Object> sync, MongoCmd mongoCmd, CommandContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(mongoCmd.getCatalog());
-
-        List<String> collNames = new ArrayList<>();
-        for (String name : mongoDB.listCollectionNames()) {
-            collNames.add(name);
-        }
+        ListCollectionNamesIterable collNames = mongoDB.listCollectionNames();
 
         receive.responseResult(request, listResult(request, COL_COLLECTION_STRING, collNames));
         return completed(sync);
@@ -349,42 +343,52 @@ class MongoCommandsForCollection extends MongoCommands {
             } else if (op.containsKey("updateOne")) {
                 Map<String, Object> spec = (Map<String, Object>) op.get("updateOne");
                 UpdateOptions options = new UpdateOptions();
-                if (spec.containsKey("upsert"))
+                if (spec.containsKey("upsert")) {
                     options.upsert((Boolean) spec.get("upsert"));
-                if (spec.containsKey("collation"))
+                }
+                if (spec.containsKey("collation")) {
                     options.collation(jsonb2Collation((Map<String, Object>) spec.get("collation")));
-                if (spec.containsKey("arrayFilters"))
+                }
+                if (spec.containsKey("arrayFilters")) {
                     options.arrayFilters((List<? extends Bson>) spec.get("arrayFilters"));
+                }
                 models.add(new UpdateOneModel<>((Bson) spec.get("filter"), (Bson) spec.get("update"), options));
             } else if (op.containsKey("updateMany")) {
                 Map<String, Object> spec = (Map<String, Object>) op.get("updateMany");
                 UpdateOptions options = new UpdateOptions();
-                if (spec.containsKey("upsert"))
+                if (spec.containsKey("upsert")) {
                     options.upsert((Boolean) spec.get("upsert"));
-                if (spec.containsKey("collation"))
+                }
+                if (spec.containsKey("collation")) {
                     options.collation(jsonb2Collation((Map<String, Object>) spec.get("collation")));
-                if (spec.containsKey("arrayFilters"))
+                }
+                if (spec.containsKey("arrayFilters")) {
                     options.arrayFilters((List<? extends Bson>) spec.get("arrayFilters"));
+                }
                 models.add(new UpdateManyModel<>((Bson) spec.get("filter"), (Bson) spec.get("update"), options));
             } else if (op.containsKey("deleteOne")) {
                 Map<String, Object> spec = (Map<String, Object>) op.get("deleteOne");
                 DeleteOptions options = new DeleteOptions();
-                if (spec.containsKey("collation"))
+                if (spec.containsKey("collation")) {
                     options.collation(jsonb2Collation((Map<String, Object>) spec.get("collation")));
+                }
                 models.add(new DeleteOneModel<>((Bson) spec.get("filter"), options));
             } else if (op.containsKey("deleteMany")) {
                 Map<String, Object> spec = (Map<String, Object>) op.get("deleteMany");
                 DeleteOptions options = new DeleteOptions();
-                if (spec.containsKey("collation"))
+                if (spec.containsKey("collation")) {
                     options.collation(jsonb2Collation((Map<String, Object>) spec.get("collation")));
+                }
                 models.add(new DeleteManyModel<>((Bson) spec.get("filter"), options));
             } else if (op.containsKey("replaceOne")) {
                 Map<String, Object> spec = (Map<String, Object>) op.get("replaceOne");
                 ReplaceOptions options = new ReplaceOptions();
-                if (spec.containsKey("upsert"))
+                if (spec.containsKey("upsert")) {
                     options.upsert((Boolean) spec.get("upsert"));
-                if (spec.containsKey("collation"))
+                }
+                if (spec.containsKey("collation")) {
                     options.collation(jsonb2Collation((Map<String, Object>) spec.get("collation")));
+                }
                 models.add(new ReplaceOneModel<>((Bson) spec.get("filter"), (Document) spec.get("replacement"), options));
             }
         }
@@ -405,28 +409,21 @@ class MongoCommandsForCollection extends MongoCommands {
         return completed(sync);
     }
 
-    //
-
     public static Future<?> execCount(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, CountOpContext c, //
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
         String collName = argAsCollectionName(argIndex, request, collection);
-        MongoDatabase mongoDatabase = mongoCmd.getClient().getDatabase(dbName);
-        MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(collName);
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
+        MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
         MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
-        Bson filter = (args.size() > 0) ? (Bson) args.get(0) : new Document();
-        long count = mongoCollection.countDocuments(filter);
+        Bson filter = (!args.isEmpty()) ? (Bson) args.get(0) : new Document();
+        long count = mongoColl.countDocuments(filter);
 
-        JdbcColumn colCount = new JdbcColumn("count", AdapterType.Int, "", "", "");
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(colCount));
-        cursor.pushData(Collections.singletonMap("count", count));
-        cursor.pushFinish();
-
-        receive.responseResult(request, cursor);
+        receive.responseResult(request, singleResult(request, COL_COUNT_LONG, count));
         return completed(sync);
     }
 
@@ -435,25 +432,17 @@ class MongoCommandsForCollection extends MongoCommands {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
         String collName = argAsCollectionName(argIndex, request, collection);
-        MongoDatabase mongoDatabase = mongoCmd.getClient().getDatabase(dbName);
-        MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(collName);
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
+        MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
         MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
         String fieldName = (String) args.get(0);
         Bson filter = (args.size() > 1) ? (Bson) args.get(1) : new Document();
+        DistinctIterable<Object> distinct = mongoColl.distinct(fieldName, filter, Object.class);
 
-        DistinctIterable<Object> distinct = mongoCollection.distinct(fieldName, filter, Object.class);
-
-        JdbcColumn colValue = new JdbcColumn("value", AdapterType.String, "", "", "");
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(colValue));
-        for (Object val : distinct) {
-            cursor.pushData(Collections.singletonMap("value", val));
-        }
-        cursor.pushFinish();
-
-        receive.responseResult(request, cursor);
+        receive.responseResult(request, listResult(request, COL_VALUE_STRING, distinct));
         return completed(sync);
     }
 
@@ -508,7 +497,7 @@ class MongoCommandsForCollection extends MongoCommands {
     }
 
     public static Future<?> execAggregate(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, AggregateOpContext c, //
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
         String collName = argAsCollectionName(argIndex, request, collection);
@@ -521,10 +510,9 @@ class MongoCommandsForCollection extends MongoCommands {
         List<Bson> pipeline = (List<Bson>) args.get(0);
         AggregateIterable<Document> aggregate = mongoCollection.aggregate(pipeline);
 
-        JdbcColumn colJson = new JdbcColumn("json", AdapterType.String, "", "", "");
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(colJson));
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_JSON_));
         for (Document doc : aggregate) {
-            cursor.pushData(Collections.singletonMap("json", doc.toJson()));
+            cursor.pushData(Collections.singletonMap(COL_JSON_.name, doc.toJson()));
         }
         cursor.pushFinish();
 
