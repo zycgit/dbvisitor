@@ -67,16 +67,17 @@ class AdapterContainer implements AdapterReceive {
             throw new SQLException("the query in progress, result is Pending.", JdbcErrorCode.SQL_STATE_QUERY_IS_PENDING);
         }
 
-        JdbcColumn[] toCols = new JdbcColumn[this.parameterDefs.size()];
-        Object[][] toVals = new Object[1][this.parameterDefs.size()];
-        AtomicInteger counter = new AtomicInteger(0);
-        this.parameterDefs.forEach((k, v) -> {
-            int i = counter.getAndIncrement();
-            toCols[i] = v;
-            toVals[0][i] = parameterValues.get(k);
-        });
-
-        return new AdapterMemoryCursor(Arrays.asList(toCols), toVals);
+        synchronized (this.syncObj) {
+            JdbcColumn[] toCols = new JdbcColumn[this.parameterDefs.size()];
+            Object[][] toVals = new Object[1][this.parameterDefs.size()];
+            AtomicInteger counter = new AtomicInteger(0);
+            this.parameterDefs.forEach((k, v) -> {
+                int i = counter.getAndIncrement();
+                toCols[i] = v;
+                toVals[0][i] = parameterValues.get(k);
+            });
+            return new AdapterMemoryCursor(Arrays.asList(toCols), toVals);
+        }
     }
 
     private boolean ifErrorStatusForResponse(AdapterRequest request) {
@@ -100,9 +101,12 @@ class AdapterContainer implements AdapterReceive {
             return false;
         }
 
-        this.response.add(AdapterResponse.ofError(e));
-        this.onReceive();
-        return true;
+        synchronized (this.syncObj) {
+            this.response.add(AdapterResponse.ofError(e));
+            this.state = AdapterReceiveState.Ready;
+            this.syncObj.notifyAll();
+            return true;
+        }
     }
 
     @Override
@@ -112,9 +116,12 @@ class AdapterContainer implements AdapterReceive {
             return false;
         }
 
-        this.response.add(AdapterResponse.ofCursor(cursor));
-        this.onReceive();
-        return true;
+        synchronized (this.syncObj) {
+            this.response.add(AdapterResponse.ofCursor(cursor));
+            this.state = AdapterReceiveState.Receive;
+            this.syncObj.notifyAll();
+            return true;
+        }
     }
 
     @Override
@@ -123,9 +130,12 @@ class AdapterContainer implements AdapterReceive {
             return false;
         }
 
-        this.response.add(AdapterResponse.ofUpdateCount(updateCount));
-        this.onReceive();
-        return true;
+        synchronized (this.syncObj) {
+            this.response.add(AdapterResponse.ofUpdateCount(updateCount));
+            this.state = AdapterReceiveState.Receive;
+            this.syncObj.notifyAll();
+            return true;
+        }
     }
 
     @Override
@@ -138,9 +148,11 @@ class AdapterContainer implements AdapterReceive {
             throw new NullPointerException("received an unrelated data, paramName or paramType is blank.");
         }
 
-        this.parameterDefs.put(paramName, new JdbcColumn(paramName, paramType, "", "", ""));
-        this.parameterValues.put(paramName, value);
-        return true;
+        synchronized (this.syncObj) {
+            this.parameterDefs.put(paramName, new JdbcColumn(paramName, paramType, "", "", ""));
+            this.parameterValues.put(paramName, value);
+            return true;
+        }
     }
 
     @Override
@@ -150,16 +162,15 @@ class AdapterContainer implements AdapterReceive {
             return false;
         }
 
-        this.onReceive();
-        this.state = AdapterReceiveState.Ready;
-        return true;
+        synchronized (this.syncObj) {
+            this.state = AdapterReceiveState.Ready;
+            this.syncObj.notifyAll();
+            return true;
+        }
     }
 
     protected void onReceive() {
-        synchronized (this.syncObj) {
-            this.state = AdapterReceiveState.Receive;
-            this.syncObj.notifyAll();
-        }
+        // logic moved to synchronized blocks in response methods
     }
 
     public boolean nextResult(int timeout, TimeUnit timeUnit) throws SQLException {
@@ -167,19 +178,21 @@ class AdapterContainer implements AdapterReceive {
             throw new SQLException("querying in progress.", JdbcErrorCode.SQL_STATE_QUERY_IS_PENDING);
         }
 
-        if (!this.response.isEmpty()) {
-            AdapterResponse res = this.response.removeFirst();
-            if (res.isResult()) {
-                IOUtils.closeQuietly(res.toCursor());
+        synchronized (this.syncObj) {
+            if (!this.response.isEmpty()) {
+                AdapterResponse res = this.response.removeFirst();
+                if (res.isResult()) {
+                    IOUtils.closeQuietly(res.toCursor());
+                }
             }
-        }
 
-        boolean empty = this.response.isEmpty();
-        if (empty && this.state == AdapterReceiveState.Receive) {
-            this.waitFor(timeout, timeUnit);
-            return !this.response.isEmpty();
-        } else {
-            return !empty;
+            boolean empty = this.response.isEmpty();
+            if (empty && this.state == AdapterReceiveState.Receive) {
+                this.waitFor(timeout, timeUnit);
+                return !this.response.isEmpty();
+            } else {
+                return !empty;
+            }
         }
     }
 
@@ -188,33 +201,37 @@ class AdapterContainer implements AdapterReceive {
             throw new SQLException("querying in progress.", JdbcErrorCode.SQL_STATE_QUERY_IS_PENDING);
         }
 
-        if (this.response.isEmpty()) {
-            return null;
-        } else {
-            return this.response.getFirst();
+        synchronized (this.syncObj) {
+            if (this.response.isEmpty()) {
+                return null;
+            } else {
+                return this.response.getFirst();
+            }
         }
     }
 
     public void waitFor(int timeout, TimeUnit timeUnit) throws SQLException {
         try {
-            if (this.response.isEmpty()) {
-                synchronized (this.syncObj) {
-                    if (timeout == 0) {
-                        this.syncObj.wait();
-                    } else {
-                        this.syncObj.wait(timeUnit.toMillis(timeout));
+            synchronized (this.syncObj) {
+                if (this.response.isEmpty()) {
+                    if (this.state != AdapterReceiveState.Ready) {
+                        if (timeout == 0) {
+                            this.syncObj.wait();
+                        } else {
+                            this.syncObj.wait(timeUnit.toMillis(timeout));
+                        }
                     }
                 }
-            }
 
-            if (this.response.isEmpty()) {
-                throw new SQLException("no data received, or wait timeout.");
-            }
+                if (this.response.isEmpty()) {
+                    throw new SQLException("no data received, or wait timeout.");
+                }
 
-            AdapterResponse res = this.response.getFirst();
-            if (res.isError()) {
-                this.response.removeFirst();
-                throw res.toError();
+                AdapterResponse res = this.response.getFirst();
+                if (res.isError()) {
+                    this.response.removeFirst();
+                    throw res.toError();
+                }
             }
         } catch (InterruptedException e) {
             if (this.jdbcConn.isClosed()) {
