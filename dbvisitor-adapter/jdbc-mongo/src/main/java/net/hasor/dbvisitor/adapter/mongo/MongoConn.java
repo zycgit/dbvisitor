@@ -9,6 +9,8 @@ import com.mongodb.client.MongoDatabase;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.BasicFuture;
 import net.hasor.cobble.concurrent.future.Future;
+import net.hasor.cobble.logging.Logger;
+import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.adapter.mongo.parser.*;
 import net.hasor.dbvisitor.driver.*;
 import org.antlr.v4.runtime.BufferedTokenStream;
@@ -16,9 +18,10 @@ import org.antlr.v4.runtime.CharStreams;
 import org.bson.Document;
 
 public class MongoConn extends AdapterConnection {
-    private final    Connection owner;
-    private final    MongoCmd   mongoCmd;
-    private volatile boolean    cancelled = false;
+    private static final Logger     logger    = LoggerFactory.getLogger(MongoConn.class);
+    private final        Connection owner;
+    private final        MongoCmd   mongoCmd;
+    private volatile     boolean    cancelled = false;
 
     public MongoConn(Connection owner, MongoCmd mongoCmd, String jdbcUrl, Map<String, String> prop) {
         super(jdbcUrl, prop.get(MongoKeys.USERNAME));
@@ -52,7 +55,8 @@ public class MongoConn extends AdapterConnection {
                     info.getDbVersion().setMinorVersion(versionArray.get(1));
                 }
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable e) {
+            logger.warn("initConnection failed: " + e.getMessage(), e);
         }
     }
 
@@ -118,6 +122,9 @@ public class MongoConn extends AdapterConnection {
 
     @Override
     public synchronized void doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("doRequest: " + ((MongoRequest) request).getCommandBody());
+        }
         this.cancelled = false;
         MongoParser.MongoCommandsContext root = parserRequest(request);
         MongoArgVisitor argVisitor = new MongoArgVisitor();

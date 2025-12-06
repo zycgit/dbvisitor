@@ -20,12 +20,13 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 
 public class JedisConn extends AdapterConnection {
-    private final    Connection owner;
-    private final    JedisCmd   jedisCmd;
-    private          int        database;
-    private final    boolean    uncheckNumKeys;
-    private final    char       separatorChar;
-    private volatile boolean    cancelled = false;
+    private static final Logger     logger    = LoggerFactory.getLogger(JedisConn.class);
+    private final        Connection owner;
+    private final        JedisCmd   jedisCmd;
+    private              int        database;
+    private final        boolean    uncheckNumKeys;
+    private final        char       separatorChar;
+    private volatile     boolean    cancelled = false;
 
     JedisConn(Connection owner, JedisCmd jedisCmd, String jdbcUrl, Map<String, String> prop, int database) throws SQLException {
         super(jdbcUrl, prop.get(JedisKeys.USERNAME));
@@ -85,7 +86,8 @@ public class JedisConn extends AdapterConnection {
                     info.getDbVersion().setMinorVersion(Integer.parseInt(version[1]));
                 }
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable e) {
+            logger.warn("initConnection failed: " + e.getMessage(), e);
         }
     }
 
@@ -180,6 +182,9 @@ public class JedisConn extends AdapterConnection {
 
     @Override
     public synchronized void doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("doRequest: " + ((JedisRequest) request).getCommandBody());
+        }
         this.cancelled = false;
         RedisParser.RootContext root = parserRequest(request);
         JedisArgVisitor argVisitor = new JedisArgVisitor();
