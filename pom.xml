@@ -85,6 +85,11 @@
                 <artifactId>jdbc-redis</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>net.hasor</groupId>
+                <artifactId>jdbc-mongo</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- other dependencies -->
             <dependency>
