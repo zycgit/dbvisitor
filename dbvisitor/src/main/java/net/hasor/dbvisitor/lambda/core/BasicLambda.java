@@ -23,6 +23,7 @@ import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
+import net.hasor.dbvisitor.dialect.builder.CommandBuilder;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
@@ -45,6 +46,7 @@ public abstract class BasicLambda<R, T, P> {
     protected final        MappingRegistry registry;
     protected final        QueryContext    queryContext;
     protected final        JdbcTemplate    jdbc;
+    protected final        CommandBuilder  cmdBuilder;
     protected final        SqlDialect      dialect;
 
     public BasicLambda(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {
@@ -55,6 +57,7 @@ public abstract class BasicLambda<R, T, P> {
         this.jdbc = jdbc;
         this.queryContext = ctx;
         this.dialect = SqlDialectRegister.findOrDefault(registry.getGlobalOptions());
+        this.cmdBuilder = this.dialect.newBuilder();
     }
 
     public final Class<?> exampleType() {

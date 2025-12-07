@@ -28,6 +28,8 @@ import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
+import net.hasor.dbvisitor.dialect.builder.CommandBuilder;
+import net.hasor.dbvisitor.dialect.builder.SqlCommandBuilder;
 
 /**
  * 公共 SqlDialect 实现
@@ -152,5 +154,10 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
     @Override
     public String aliasSeparator() {
         return " ";
+    }
+
+    @Override
+    public CommandBuilder newBuilder() {
+        return new SqlCommandBuilder();
     }
 }

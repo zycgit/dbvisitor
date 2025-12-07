@@ -16,6 +16,7 @@
 package net.hasor.dbvisitor.dialect;
 import java.util.Set;
 import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.dialect.builder.CommandBuilder;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 
 /**
@@ -90,4 +91,6 @@ public interface SqlDialect {
     default boolean supportOrderByAlias() {
         return false;
     }
+
+    CommandBuilder newBuilder();
 }

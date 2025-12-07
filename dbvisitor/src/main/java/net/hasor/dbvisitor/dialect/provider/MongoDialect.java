@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.Set;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
+import net.hasor.dbvisitor.dialect.builder.CommandBuilder;
+import net.hasor.dbvisitor.dialect.builder.SqlCommandBuilder;
 
 /**
  * MongoDB 方言实现
@@ -28,16 +30,6 @@ import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
 public class MongoDialect extends AbstractDialect implements ConditionSqlDialect {
     public Set<String> keywords() {
         return Collections.emptySet();
-    }
-
-    @Override
-    protected String defaultQualifier() {
-        return "";
-    }
-
-    @Override
-    public String aliasSeparator() {
-        return ":";
     }
 
     @Override
@@ -62,6 +54,21 @@ public class MongoDialect extends AbstractDialect implements ConditionSqlDialect
     @Override
     public String fmtName(boolean useQualifier, String name) {
         return name;
+    }
+
+    @Override
+    protected String defaultQualifier() {
+        return "";
+    }
+
+    @Override
+    public String aliasSeparator() {
+        return ":";
+    }
+
+    @Override
+    public CommandBuilder newBuilder() {
+        return new SqlCommandBuilder();
     }
 
     @Override
