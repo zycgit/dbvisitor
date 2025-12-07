@@ -80,7 +80,7 @@ public class MongoCommandBuilderTest {
     public void testUpdate() throws SQLException {
         MongoCommandBuilder builder = new MongoCommandBuilder();
         builder.setTable(null, null, "user_collection");
-        builder.addUpdateSet("name", "Doe", null);
+        builder.addUpdateSet("name", null, "Doe", null);
         builder.addCondition(ConditionLogic.AND, "id", null, ConditionType.EQ, 1, null, null);
 
         BoundSql boundSql = builder.buildUpdate(new MongoDialect(), false, false);

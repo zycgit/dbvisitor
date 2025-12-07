@@ -148,7 +148,7 @@ public class FreedomToCamelBuildQueryOtherTest {
                 .eq("loginName", "a")//
                 .asc("loginName").asc("seq")//
                 .getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC , seq ASC");
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC, seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
 
         BoundSql boundSql3 = newLambda().queryFreedom("user_info")//
@@ -162,7 +162,7 @@ public class FreedomToCamelBuildQueryOtherTest {
                 .eq("loginName", "a")//
                 .asc("seq").desc("loginName")//
                 .getBoundSql();
-        assert boundSql4.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY seq ASC , login_name DESC");
+        assert boundSql4.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY seq ASC, login_name DESC");
         assert boundSql4.getArgs()[0].equals("a");
 
         BoundSql boundSql5 = newLambda().queryFreedom("user_info")//
@@ -196,7 +196,7 @@ public class FreedomToCamelBuildQueryOtherTest {
                 .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
-        assert boundSql1.getSqlString().equals("SELECT login_name , seq FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
+        assert boundSql1.getSqlString().equals("SELECT login_name, seq FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);

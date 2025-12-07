@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import net.hasor.cobble.ExceptionUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.Page;
 import net.hasor.dbvisitor.dialect.PageSqlDialect;
@@ -33,10 +34,8 @@ import net.hasor.dbvisitor.jdbc.extractor.MapMappingResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.BeanMappingRowMapper;
 import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
 import net.hasor.dbvisitor.jdbc.mapper.MapMappingRowMapper;
-import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
-import net.hasor.dbvisitor.lambda.segment.Segment;
-import net.hasor.dbvisitor.lambda.segment.SqlKeyword;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
+import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 /**
@@ -45,12 +44,7 @@ import net.hasor.dbvisitor.mapping.def.TableMapping;
  * @version 2020-10-27
  */
 public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P> implements QueryFunc<R, T, P> {
-    protected final MergeSqlSegment customSelect = new MergeSqlSegment();
-    protected final MergeSqlSegment groupByList  = new MergeSqlSegment();
-    protected final MergeSqlSegment orderByList  = new MergeSqlSegment();
-    private final   Page            pageInfo     = new PageObjectForFetchCount(0, this::queryForLargeCount);
-    protected       boolean         lockGroupBy  = false;
-    protected       boolean         lockOrderBy  = false;
+    private final Page pageInfo = new PageObjectForFetchCount(0, this::queryForLargeCount);
 
     public AbstractSelect(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {
         super(exampleType, tableMapping, registry, jdbc, ctx);
@@ -59,18 +53,14 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
     @Override
     public R reset() {
         super.reset();
-        this.customSelect.cleanSegment();
-        this.groupByList.cleanSegment();
-        this.orderByList.cleanSegment();
         this.initPage(-1, 0);
-        this.lockGroupBy = false;
-        this.lockOrderBy = false;
         return this.getSelf();
     }
 
     @Override
     public R selectAll() {
-        this.customSelect.cleanSegment();
+        this.cmdBuilder.clearSelect();
+        this.cmdBuilder.addSelectAll();
         return this.getSelf();
     }
 
@@ -118,48 +108,42 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
         }
 
         if (cleanSelect) {
-            this.customSelect.cleanSegment();
+            this.cmdBuilder.clearSelect();
         }
 
         for (String property : properties) {
-            if (!this.customSelect.isEmpty()) {
-                this.customSelect.addSegment((delimited, d) -> ",");
+            String colName;
+            String colTerm;
+            if (isFreedom()) {
+                colName = this.getTableMapping().isToCamelCase() ? StringUtils.humpToLine(property) : property;
+                colTerm = null;
+            } else {
+                ColumnMapping mapping = this.findPropertyByName(property);
+                colName = mapping != null ? mapping.getColumn() : property;
+                colTerm = mapping != null ? mapping.getSelectTemplate() : null;
             }
-            this.customSelect.addSegment(buildSelectByProperty(property));
+
+            this.cmdBuilder.addSelect(colName, colTerm);
         }
         return this.getSelf();
     }
 
     @Override
     public R applySelect(String select) {
-        this.customSelect.cleanSegment();
-        this.customSelect.addSegment((delimited, d) -> select);
+        this.cmdBuilder.clearSelect();
+        this.cmdBuilder.addSelectCustom(select, null);
         return this.getSelf();
     }
 
     @Override
     public R applySelectAdd(String select) {
-        if (!this.customSelect.isEmpty()) {
-            this.customSelect.addSegment((delimited, d) -> ",");
-        }
-        this.customSelect.addSegment((delimited, d) -> select);
+        this.cmdBuilder.addSelectCustom(select, null);
         return this.getSelf();
-    }
-
-    protected void lockGroupBy() {
-        this.lockGroupBy = true;
     }
 
     @SafeVarargs
     @Override
     public final R groupBy(P first, P... other) {
-        if (this.lockGroupBy) {
-            throw new IllegalStateException("must before order by invoke it.");
-        }
-
-        lockCondition();
-
-        //
         List<P> groupBy;
         if (first == null && other == null) {
             throw new IndexOutOfBoundsException("properties is empty.");
@@ -175,45 +159,45 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
 
         //
         if (!groupBy.isEmpty()) {
-            if (this.groupByList.isEmpty()) {
-                this.queryTemplate.addSegment(SqlKeyword.GROUP_BY);
-                this.queryTemplate.addSegment(this.groupByList);
-            }
-
             for (P property : groupBy) {
-                if (!this.groupByList.isEmpty()) {
-                    this.groupByList.addSegment((delimited, d) -> ",");
+                String propertyName = getPropertyName(property);
+                String colName;
+                String colTerm;
+                if (isFreedom()) {
+                    colName = this.getTableMapping().isToCamelCase() ? StringUtils.humpToLine(propertyName) : propertyName;
+                    colTerm = null;
+                } else {
+                    ColumnMapping mapping = this.findPropertyByName(propertyName);
+                    if (mapping == null) {
+                        colName = this.getTableMapping().isToCamelCase() ? StringUtils.humpToLine(propertyName) : propertyName;
+                        colTerm = null;
+                    } else {
+                        colName = mapping.getColumn();
+                        colTerm = mapping.getSelectTemplate();
+                    }
                 }
-                this.groupByList.addSegment(buildGroupByProperty(getPropertyName(property)));
 
+                this.cmdBuilder.addGroupBy(colName, colTerm);
             }
         }
         return this.getSelf();
     }
 
-    protected void lockOrderBy() {
-        this.lockGroupBy = true;
-    }
-
     protected R addOrderBy(OrderType orderType, List<String> orderBy, OrderNullsStrategy strategy) {
-        if (this.lockOrderBy) {
-            throw new IllegalStateException("must before order by invoke it.");
-        }
-
-        lockCondition();
-        lockGroupBy();
-
         if (orderBy != null && !orderBy.isEmpty()) {
-            if (this.orderByList.isEmpty()) {
-                this.queryTemplate.addSegment(SqlKeyword.ORDER_BY);
-                this.queryTemplate.addSegment(this.orderByList);
-            }
             for (String property : orderBy) {
-                if (!this.orderByList.isEmpty()) {
-                    this.orderByList.addSegment((delimited, d) -> ",");
+                String colName;
+                String colTerm;
+                if (isFreedom()) {
+                    colName = this.getTableMapping().isToCamelCase() ? StringUtils.humpToLine(property) : property;
+                    colTerm = null;
+                } else {
+                    ColumnMapping mapping = this.findPropertyByName(property);
+                    colName = mapping != null ? mapping.getColumn() : property;
+                    colTerm = mapping != null ? mapping.getOrderByColTemplate() : null;
                 }
 
-                this.orderByList.addSegment(buildOrderByProperty(property, orderType, strategy));
+                this.cmdBuilder.addOrderBy(colName, colTerm, orderType, strategy);
             }
         }
         return this.getSelf();
@@ -370,53 +354,14 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
     }
 
     private BoundSql buildBoundSqlWithoutPage(SqlDialect dialect) throws SQLException {
-        MergeSqlSegment sqlSegment = new MergeSqlSegment();
-
-        // select
-        sqlSegment.addSegment(SqlKeyword.SELECT);
-        if (this.customSelect.isEmpty()) {
-            if (this.getTableMapping().hashSelectTemplate() && !this.isFreedom()) {
-                MergeSqlSegment tmp = new MergeSqlSegment();
-                this.getTableMapping().getProperties().forEach(cm -> {
-                    tmp.addSegment((delimited, d) -> ",");
-                    tmp.addSegment(buildSelectByProperty(cm.getProperty()));
-                });
-                sqlSegment.addSegment(tmp.sub(1));
-            } else {
-                sqlSegment.addSegment((delimited, d) -> "*");
-            }
-        } else {
-            sqlSegment.addSegment(this.customSelect);
+        if (!this.cmdBuilder.hasSelect() && this.getTableMapping().hashSelectTemplate() && !this.isFreedom()) {
+            this.getTableMapping().getProperties().forEach(cm -> {
+                String colName = cm.getColumn();
+                String colTerm = cm.getSelectTemplate();
+                this.cmdBuilder.addSelect(colName, colTerm);
+            });
         }
-
-        // from
-        sqlSegment.addSegment(SqlKeyword.FROM);
-        sqlSegment.addSegment((delimited, d) -> {
-            TableMapping<?> tableMapping = this.getTableMapping();
-            String catalogName = tableMapping.getCatalog();
-            String schemaName = tableMapping.getSchema();
-            String tableName = tableMapping.getTable();
-            return d.tableName(isQualifier(), catalogName, schemaName, tableName);
-        });
-
-        if (!this.queryTemplate.isEmpty()) {
-            Segment firstSqlSegment = this.queryTemplate.firstSqlSegment();
-            if (firstSqlSegment == SqlKeyword.GROUP_BY || firstSqlSegment == SqlKeyword.HAVING || firstSqlSegment == SqlKeyword.ORDER_BY) {
-                sqlSegment.addSegment(this.queryTemplate);
-            } else {
-                sqlSegment.addSegment(SqlKeyword.WHERE);
-                if (this.queryTemplate.firstSqlSegment() == SqlKeyword.NOT) {
-                    sqlSegment.addSegment(this.queryTemplate);
-                } else {
-                    sqlSegment.addSegment(this.queryTemplate.sub(1));
-                }
-            }
-        }
-
-        // if have any group by condition, then orderBy must be in groupBy
-        String sqlQuery = sqlSegment.getSqlSegment(this.isQualifier(), dialect);
-        Object[] args = this.queryParam.toArray().clone();
-        return new BoundSql.BoundSqlObj(sqlQuery, args);
+        return this.cmdBuilder.buildSelect(dialect, isQualifier());
     }
 
     @Override

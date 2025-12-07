@@ -43,6 +43,9 @@ public interface CommandBuilder {
     /** 添加查询条件 */
     void addConditionForIn(ConditionLogic logic, String col, String colTerm, ConditionType type, Object[] values, String valueTerm);
 
+    /** 添加原生查询条件 */
+    void addRawCondition(ConditionLogic logic, BoundSql boundSql);
+
     /** 添加嵌套条件组 */
     void addConditionGroup(ConditionLogic logic, Consumer<CommandBuilder> group);
 
@@ -50,18 +53,20 @@ public interface CommandBuilder {
     void addSelect(String col, String colTerm);
 
     /** 添加查询列 */
-    void addSelect(String col, String custom, Object[] args);
+    void addSelectCustom(String custom, Object[] args);
+
+    void addSelectAll();
 
     /** 添加查询列 */
     boolean hasSelect(String col);
 
-    /** 添加查询列 */
-    boolean hasSelectAll();
+    /** 是否包含查询列 */
+    boolean hasSelect();
 
     //
 
     /** 添加分组 */
-    void addGroupBy(String col) throws SQLException;
+    void addGroupBy(String col, String colTerm);
 
     /** 添加排序 */
     void addOrderBy(String col, String colTerm, OrderType type, OrderNullsStrategy nullsStrategy);
@@ -69,12 +74,28 @@ public interface CommandBuilder {
     //
 
     /** 添加更新列和值 */
-    void addUpdateSet(String col, Object value, String valueTerm);
+    void addUpdateSet(String col, String colTerm, Object value, String valueTerm);
 
     /** 添加插入列和值 */
     void addInsert(String col, Object value, String valueTerm);
 
+    /** 是否包含更新列 */
+    boolean hasUpdateSet();
+
     //
+
+    /** 清空查询列 */
+    void clearSelect();
+
+    /** 清空更新列 */
+    void clearUpdateSet();
+
+    void clearAll();
+
+    //
+
+    /** 是否包含插入列 */
+    boolean hasInsert();
 
     /** 构建 Select */
     BoundSql buildSelect(SqlDialect dialect, boolean delimited) throws SQLException;

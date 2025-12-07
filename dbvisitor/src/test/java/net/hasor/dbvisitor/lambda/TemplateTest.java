@@ -111,7 +111,7 @@ public class TemplateTest {
 
         BoundSql boundSql1 = lambdaQuery.getBoundSql();
         assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("SELECT id , AsText(point) point FROM point_table WHERE ( AsText(point) = ? )");
+        assert boundSql1.getSqlString().equals("SELECT id, AsText(point) point FROM point_table WHERE ( AsText(point) = ? )");
         assert boundSql1.getArgs()[0].equals("point(11,11)");
     }
 
@@ -122,7 +122,7 @@ public class TemplateTest {
 
         BoundSql boundSql1 = lambdaQuery.getBoundSql();
         assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("SELECT id , AsText(point) point FROM point_table WHERE ( AsText(point) = ? )");
+        assert boundSql1.getSqlString().equals("SELECT id, AsText(point) point FROM point_table WHERE ( AsText(point) = ? )");
         assert boundSql1.getArgs()[0].equals("point(11,11)");
     }
 }

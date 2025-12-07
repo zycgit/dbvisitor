@@ -20,8 +20,6 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
-import net.hasor.dbvisitor.lambda.segment.SqlKeyword;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
@@ -66,34 +64,6 @@ public abstract class AbstractDelete<R, T, P> extends BasicQueryCompare<R, T, P>
 
     @Override
     protected BoundSql buildBoundSql(SqlDialect dialect) throws SQLException {
-        // must be clean , The getOriginalBoundSql will reinitialize.
-        this.queryParam.clear();
-        //
-        // delete
-        MergeSqlSegment updateTemplate = new MergeSqlSegment();
-        updateTemplate.addSegment(SqlKeyword.DELETE);
-        updateTemplate.addSegment(SqlKeyword.FROM);
-
-        // tableName
-        updateTemplate.addSegment((delimited, d) -> {
-            TableMapping<?> tableMapping = this.getTableMapping();
-            String catalogName = tableMapping.getCatalog();
-            String schemaName = tableMapping.getSchema();
-            String tableName = tableMapping.getTable();
-            return d.tableName(isQualifier(), catalogName, schemaName, tableName);
-        });
-
-        // WHERE
-        if (!this.queryTemplate.isEmpty()) {
-            updateTemplate.addSegment(SqlKeyword.WHERE);
-            updateTemplate.addSegment(this.queryTemplate.sub(1));
-        } else if (!this.allowEmptyWhere) {
-            throw new UnsupportedOperationException("The dangerous DELETE operation, You must call `allowEmptyWhere()` to enable DELETE ALL.");
-        }
-
-        String sqlQuery = updateTemplate.getSqlSegment(this.isQualifier(), dialect);
-        Object[] args = this.queryParam.toArray().clone();
-        return new BoundSql.BoundSqlObj(sqlQuery, args);
+        return this.cmdBuilder.buildDelete(dialect, isQualifier(), this.allowEmptyWhere);
     }
-
 }

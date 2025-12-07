@@ -24,8 +24,6 @@ import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
-import net.hasor.dbvisitor.lambda.segment.SqlKeyword;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
@@ -43,7 +41,6 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
     protected final Set<String>                primaryKeys;
     protected final Map<String, ColumnMapping> allowUpdateProperties;
     //
-    private final   Map<String, SqlArg>        updateValueMap;
     private         boolean                    allowEmptyWhere = false;
     private         boolean                    allowUpdateKey  = false;
 
@@ -66,7 +63,6 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
         this.allowUpdateKeys = Collections.unmodifiableSet(allowUpdateKeys);
         this.primaryKeys = Collections.unmodifiableSet(primaryKeys);
         this.allowUpdateProperties = Collections.unmodifiableMap(allowUpdateProperties);
-        this.updateValueMap = new LinkedHashMap<>();
     }
 
     @Override
@@ -74,7 +70,6 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
         super.reset();
         this.allowEmptyWhere = false;
         this.allowUpdateKey = false;
-        this.updateValueMap.clear();
         return this.getSelf();
     }
 
@@ -92,7 +87,7 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
 
     @Override
     public int doUpdate() throws SQLException {
-        if (this.updateValueMap.isEmpty()) {
+        if (!this.cmdBuilder.hasUpdateSet()) {
             throw new IllegalStateException("there nothing to update.");
         }
 
@@ -278,7 +273,7 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
 
     protected R updateToByCondition(Set<String> foreach, boolean doClear, Predicate<String> tester, Function<String, String> colConvert, Function<String, Object> reader) {
         if (doClear) {
-            this.updateValueMap.clear();
+            this.cmdBuilder.clearUpdateSet();
         }
 
         Set<String> updateColumns = new LinkedHashSet<>();
@@ -304,86 +299,42 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
                 }
             }
 
+            Object value;
             if (propertyValue == null) {
-                this.updateValueMap.put(propertyName, null);
+                value = null;
             } else if (mapping != null) {
-                SqlArg mappedArg = new SqlArg(propertyValue, mapping.getJdbcType(), exampleIsMap() ? null : mapping.getTypeHandler());
-                this.updateValueMap.put(propertyName, mappedArg);
+                value = new SqlArg(propertyValue, mapping.getJdbcType(), exampleIsMap() ? null : mapping.getTypeHandler());
             } else {
                 int sqlType = TypeHandlerRegistry.toSqlType(propertyValue.getClass());
                 TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(propertyValue.getClass());
-                SqlArg mappedArg = new SqlArg(propertyValue, sqlType, typeHandler);
-                this.updateValueMap.put(propertyName, mappedArg);
+                value = new SqlArg(propertyValue, sqlType, typeHandler);
             }
+
+            String colTerm = null;
+            String valTerm = null;
+            if (mapping != null) {
+                colTerm = mapping.getSetColTemplate();
+                valTerm = mapping.getSetValueTemplate();
+            }
+
+            String col;
+            if (this.isFreedom()) {
+                col = this.getTableMapping().isToCamelCase() ? StringUtils.humpToLine(propertyName) : propertyName;
+            } else {
+                col = mapping != null ? mapping.getColumn() : propertyName;
+            }
+
+            this.cmdBuilder.addUpdateSet(col, colTerm, value, valTerm);
         }
         return this.getSelf();
     }
 
     @Override
     protected BoundSql buildBoundSql(SqlDialect dialect) throws SQLException {
-        if (this.updateValueMap.isEmpty()) {
+        if (!this.cmdBuilder.hasUpdateSet()) {
             throw new IllegalStateException("there nothing to update.");
+        } else {
+            return this.cmdBuilder.buildUpdate(dialect, isQualifier(), this.allowEmptyWhere);
         }
-        // must be clean , The getOriginalBoundSql will reinitialize.
-        this.queryParam.clear();
-        //
-        // update
-        MergeSqlSegment updateTemplate = new MergeSqlSegment();
-        updateTemplate.addSegment(SqlKeyword.UPDATE);
-
-        // tableName
-        updateTemplate.addSegment((delimited, d) -> {
-            TableMapping<?> tableMapping = this.getTableMapping();
-            String catalogName = tableMapping.getCatalog();
-            String schemaName = tableMapping.getSchema();
-            String tableName = tableMapping.getTable();
-            return d.tableName(isQualifier(), catalogName, schemaName, tableName);
-        });
-
-        // SET
-        updateTemplate.addSegment(SqlKeyword.SET);
-        boolean isFirstColumn = true;
-        for (String propertyName : this.updateValueMap.keySet()) {
-            if (isFirstColumn) {
-                isFirstColumn = false;
-            } else {
-                updateTemplate.addSegment((delimited, d) -> ",");
-            }
-
-            String colName;
-            String colValue;
-            if (this.isFreedom()) {
-                String col = this.getTableMapping().isToCamelCase() ? StringUtils.humpToLine(propertyName) : propertyName;
-                colName = dialect.fmtName(isQualifier(), col);
-                colValue = "?";
-            } else {
-                ColumnMapping mapping = this.allowUpdateProperties.get(propertyName);
-                String specialName = mapping.getSetColTemplate();
-                String specialValue = mapping.getSetValueTemplate();
-
-                colName = StringUtils.isNotBlank(specialName) ? specialName : dialect.fmtName(isQualifier(), mapping.getColumn());
-                colValue = StringUtils.isNotBlank(specialValue) ? specialValue : "?";
-            }
-
-            Object columnValue = this.updateValueMap.get(propertyName);
-            if (columnValue == null) {
-                updateTemplate.addSegment((delimited, d) -> colName, SqlKeyword.EQ, SqlKeyword.NULL);
-            } else {
-                updateTemplate.addSegment((delimited, d) -> colName, SqlKeyword.EQ, formatSegment(colValue, columnValue));
-            }
-        }
-
-        // WHERE
-        if (!this.queryTemplate.isEmpty()) {
-            updateTemplate.addSegment(SqlKeyword.WHERE);
-            updateTemplate.addSegment(this.queryTemplate.sub(1));
-        } else if (!this.allowEmptyWhere) {
-            throw new UnsupportedOperationException("The dangerous UPDATE operation, You must call `allowEmptyWhere()` to enable UPDATE ALL.");
-        }
-
-        String sqlQuery = updateTemplate.getSqlSegment(this.isQualifier(), dialect);
-        Object[] args = this.queryParam.toArray().clone();
-        return new BoundSql.BoundSqlObj(sqlQuery, args);
     }
-
 }

@@ -96,7 +96,7 @@ public final class MergeSqlSegment implements Segment {
         return this.segments.get(this.segments.size() - 1);
     }
 
-    public void cleanSegment() {
+    public void clear() {
         this.segments.clear();
     }
 

@@ -17,8 +17,10 @@ package net.hasor.dbvisitor.lambda.support.entity;
 import java.util.*;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.ObjectUtils;
+import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.reflect.SFunction;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
+import net.hasor.dbvisitor.dialect.builder.ConditionType;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.lambda.EntityQuery;
@@ -26,9 +28,9 @@ import net.hasor.dbvisitor.lambda.MapQuery;
 import net.hasor.dbvisitor.lambda.core.AbstractSelect;
 import net.hasor.dbvisitor.lambda.core.OrderNullsStrategy;
 import net.hasor.dbvisitor.lambda.core.OrderType;
-import net.hasor.dbvisitor.lambda.segment.SqlKeyword;
 import net.hasor.dbvisitor.lambda.support.map.MapQueryImpl;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
+import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
 
 /**
@@ -59,13 +61,6 @@ public class EntityQueryImpl<T> extends AbstractSelect<EntityQuery<T>, T, SFunct
     @SafeVarargs
     @Override
     public final EntityQuery<T> groupBy(String first, String... other) {
-        if (this.lockGroupBy) {
-            throw new IllegalStateException("must before order by invoke it.");
-        }
-
-        lockCondition();
-
-        //
         List<String> groupBy;
         if (first == null && other == null) {
             throw new IndexOutOfBoundsException("properties is empty.");
@@ -79,19 +74,20 @@ public class EntityQueryImpl<T> extends AbstractSelect<EntityQuery<T>, T, SFunct
             groupBy = Collections.singletonList(first);
         }
 
-        //
         if (!groupBy.isEmpty()) {
-            if (this.groupByList.isEmpty()) {
-                this.queryTemplate.addSegment(SqlKeyword.GROUP_BY);
-                this.queryTemplate.addSegment(this.groupByList);
-            }
-
             for (String property : groupBy) {
-                if (!this.groupByList.isEmpty()) {
-                    this.groupByList.addSegment((delimited, d) -> ",");
+                String colName;
+                String colTerm;
+                ColumnMapping mapping = this.findPropertyByName(property);
+                if (mapping == null) {
+                    colName = this.getTableMapping().isToCamelCase() ? StringUtils.humpToLine(property) : property;
+                    colTerm = null;
+                } else {
+                    colName = mapping.getColumn();
+                    colTerm = mapping.getSelectTemplate();
                 }
-                this.groupByList.addSegment(buildGroupByProperty(property));
 
+                this.cmdBuilder.addGroupBy(colName, colTerm);
             }
         }
         return this.getSelf();
@@ -159,172 +155,154 @@ public class EntityQueryImpl<T> extends AbstractSelect<EntityQuery<T>, T, SFunct
     public EntityQuery<T> eq(boolean test, String property, Object value) {
         if (test) {
             if (value == null) {
-                return this.addCondition(buildConditionByProperty(property), SqlKeyword.IS, SqlKeyword.NULL);
+                this.addCondition(property, ConditionType.IS_NULL, null);
             } else {
-                return this.addCondition(buildConditionByProperty(property), SqlKeyword.EQ, formatValue(property, value));
+                this.addCondition(property, ConditionType.EQ, value);
             }
-        } else {
-            return this.getSelf();
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> ne(boolean test, String property, Object value) {
         if (test) {
             if (value == null) {
-                return this.addCondition(buildConditionByProperty(property), SqlKeyword.IS, SqlKeyword.NOT, SqlKeyword.NULL);
+                this.addCondition(property, ConditionType.IS_NOT_NULL, null);
             } else {
-                return this.addCondition(buildConditionByProperty(property), SqlKeyword.NE, formatValue(property, value));
+                this.addCondition(property, ConditionType.NE, value);
             }
-        } else {
-            return this.getSelf();
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> gt(boolean test, String property, Object value) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.GT, formatValue(property, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(property, ConditionType.GT, value);
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> ge(boolean test, String property, Object value) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.GE, formatValue(property, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(property, ConditionType.GE, value);
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> lt(boolean test, String property, Object value) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.LT, formatValue(property, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(property, ConditionType.LT, value);
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> le(boolean test, String property, Object value) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.LE, formatValue(property, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(property, ConditionType.LE, value);
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> like(boolean test, String property, Object value) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.LIKE, formatLikeValue(property, SqlLike.DEFAULT, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(property, ConditionType.LIKE, value, SqlLike.DEFAULT);
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> notLike(boolean test, String property, Object value) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.NOT, SqlKeyword.LIKE, formatLikeValue(property, SqlLike.DEFAULT, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(property, ConditionType.NOT_LIKE, value, SqlLike.DEFAULT);
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> likeRight(boolean test, String property, Object value) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.LIKE, formatLikeValue(property, SqlLike.RIGHT, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(property, ConditionType.LIKE, value, SqlLike.RIGHT);
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> notLikeRight(boolean test, String property, Object value) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.NOT, SqlKeyword.LIKE, formatLikeValue(property, SqlLike.RIGHT, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(property, ConditionType.NOT_LIKE, value, SqlLike.RIGHT);
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> likeLeft(boolean test, String property, Object value) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.LIKE, formatLikeValue(property, SqlLike.LEFT, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(property, ConditionType.LIKE, value, SqlLike.LEFT);
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> notLikeLeft(boolean test, String property, Object value) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.NOT, SqlKeyword.LIKE, formatLikeValue(property, SqlLike.LEFT, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(property, ConditionType.NOT_LIKE, value, SqlLike.LEFT);
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> isNull(boolean test, String property) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.IS, SqlKeyword.NULL);
-        } else {
-            return this.getSelf();
+            this.addCondition(property, ConditionType.IS_NULL, null);
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> isNotNull(boolean test, String property) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.IS, SqlKeyword.NOT, SqlKeyword.NULL);
-        } else {
-            return this.getSelf();
+            this.addCondition(property, ConditionType.IS_NOT_NULL, null);
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> in(boolean test, String property, Collection<?> value) {
         if (test) {
             ObjectUtils.assertTrue(!value.isEmpty(), "build in failed, value is empty.");
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.IN, SqlKeyword.LEFT, formatValue(property, value.toArray()), SqlKeyword.RIGHT);
-        } else {
-            return this.getSelf();
+            this.addConditionForIn(property, ConditionType.IN, value);
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> notIn(boolean test, String property, Collection<?> value) {
         if (test) {
             ObjectUtils.assertTrue(!value.isEmpty(), "build notIn failed, value is empty.");
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.NOT, SqlKeyword.IN, SqlKeyword.LEFT, formatValue(property, value.toArray()), SqlKeyword.RIGHT);
-        } else {
-            return this.getSelf();
+            this.addConditionForIn(property, ConditionType.NOT_IN, value);
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> between(boolean test, String property, Object value1, Object value2) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.BETWEEN, formatValue(property, value1), SqlKeyword.AND, formatValue(property, value2));
-        } else {
-            return this.getSelf();
+            this.addConditionForBetween(property, ConditionType.BETWEEN, value1, value2);
         }
+        return this.getSelf();
     }
 
     @Override
     public EntityQuery<T> notBetween(boolean test, String property, Object value1, Object value2) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(property), SqlKeyword.NOT, SqlKeyword.BETWEEN, formatValue(property, value1), SqlKeyword.AND, formatValue(property, value2));
-        } else {
-            return this.getSelf();
+            this.addConditionForBetween(property, ConditionType.NOT_BETWEEN, value1, value2);
         }
+        return this.getSelf();
     }
 
     @SafeVarargs

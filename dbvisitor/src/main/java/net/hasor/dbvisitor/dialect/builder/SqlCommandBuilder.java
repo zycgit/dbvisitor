@@ -35,35 +35,40 @@ import net.hasor.dbvisitor.lambda.segment.Segment;
  * @version 2025-12-06
  */
 public class SqlCommandBuilder implements CommandBuilder {
-    private static final Segment              LEFT_PAREN  = (delimited, d) -> "(";
-    private static final Segment              RIGHT_PAREN = (delimited, d) -> ")";
+    public static final Segment              LEFT_PAREN  = (delimited, d) -> "(";
+    public static final Segment              RIGHT_PAREN = (delimited, d) -> ")";
     //
-    private final        List<Object>         args;
-    private final        MergeSqlSegment      selectColumns;
-    private final        Map<String, Segment> selectColumnsCache;
-    private final        MergeSqlSegment      whereConditions;
-    private final        MergeSqlSegment      groupByColumns;
-    private final        MergeSqlSegment      orderByColumns;
-    private              String               catalog;
-    private              String               schema;
-    private              String               table;
+    private final       List<Object>         args;
+    private final       MergeSqlSegment      selectColumns;
+    private final       Map<String, Segment> selectColumnsCache;
+    private             boolean              selectAll;
     //
-    private              boolean              selectAll;
+    private final       MergeSqlSegment      whereConditions;
+    private             boolean              hasWhereConditions;
+    private final       MergeSqlSegment      groupByColumns;
+    private final       MergeSqlSegment      orderByColumns;
+    private             String               catalog;
+    private             String               schema;
+    private             String               table;
     //
-    private              MergeSqlSegment      insertColumns;
-    private              List<String>         insertColNames;
-    private              Map<String, String>  insertColTerms;
+    private             MergeSqlSegment      insertColumns;
+    private             List<String>         insertColNames;
+    private             Map<String, String>  insertColTerms;
     //
-    private              MergeSqlSegment      insertValues;
-    private              MergeSqlSegment      updateColumns;
+    private             MergeSqlSegment      insertValues;
+    private             MergeSqlSegment      updateColumns;
+    //
+    protected           boolean              lockWhere;
+    protected           boolean              lockGroupBy;
 
     public SqlCommandBuilder() {
         this.args = new ArrayList<>();
 
-        this.selectAll = false;
         this.selectColumns = new MergeSqlSegment(", ");
         this.selectColumnsCache = new HashMap<>();
+        this.selectAll = false;
         this.whereConditions = new MergeSqlSegment();
+        this.hasWhereConditions = false;
         this.groupByColumns = new MergeSqlSegment(", ");
         this.orderByColumns = new MergeSqlSegment(", ");
         this.insertColumns = new MergeSqlSegment(", ");
@@ -71,6 +76,8 @@ public class SqlCommandBuilder implements CommandBuilder {
         this.insertColTerms = new HashMap<>();
         this.insertValues = new MergeSqlSegment(", ");
         this.updateColumns = new MergeSqlSegment(", ");
+        this.lockWhere = false;
+        this.lockGroupBy = false;
     }
 
     @Override
@@ -81,7 +88,44 @@ public class SqlCommandBuilder implements CommandBuilder {
     }
 
     @Override
+    public void clearSelect() {
+        this.selectColumns.clear();
+        this.selectColumnsCache.clear();
+    }
+
+    @Override
+    public void clearUpdateSet() {
+        this.updateColumns.clear();
+    }
+
+    @Override
+    public void clearAll() {
+        this.args.clear();
+        this.selectColumns.clear();
+        this.selectColumnsCache.clear();
+        this.selectAll = false;
+        this.whereConditions.clear();
+        this.hasWhereConditions = false;
+        this.groupByColumns.clear();
+        this.orderByColumns.clear();
+        this.catalog = null;
+        this.schema = null;
+        this.table = null;
+        this.insertColumns.clear();
+        this.insertColNames.clear();
+        this.insertColTerms.clear();
+        this.insertValues.clear();
+        this.updateColumns.clear();
+        this.lockWhere = false;
+        this.lockGroupBy = false;
+    }
+
+    @Override
     public void addCondition(final ConditionLogic logic, final String col, final String colTerm, final ConditionType type, final Object value, final String valueTerm, final SqlLike forLikeType) {
+        if (this.lockWhere) {
+            throw new IllegalStateException("must before (group by/order by) invoke it.");
+        }
+
         appendConditionLogic(logic);
         this.whereConditions.addSegment((d, dia) -> formatColumn(d, dia, col, colTerm));
         switch (type) {
@@ -106,6 +150,9 @@ public class SqlCommandBuilder implements CommandBuilder {
             case LIKE:
                 this.whereConditions.addSegment((d, dia) -> "LIKE");
                 break;
+            case NOT_LIKE:
+                this.whereConditions.addSegment((d, dia) -> "NOT LIKE");
+                break;
             case IS_NULL:
                 this.whereConditions.addSegment((d, dia) -> "IS NULL");
                 break;
@@ -116,7 +163,7 @@ public class SqlCommandBuilder implements CommandBuilder {
                 throw new UnsupportedOperationException("Unsupported type: " + type);
         }
 
-        if (type == ConditionType.LIKE) {
+        if (type == ConditionType.LIKE || type == ConditionType.NOT_LIKE) {
             this.whereConditions.addSegment((d, dia) -> formatLikeValue(dia, value, valueTerm, forLikeType));
         } else if (type != ConditionType.IS_NULL && type != ConditionType.IS_NOT_NULL) {
             this.whereConditions.addSegment((d, dia) -> formatValue(dia, value, valueTerm));
@@ -125,9 +172,17 @@ public class SqlCommandBuilder implements CommandBuilder {
 
     @Override
     public void addConditionForBetween(ConditionLogic logic, String col, String colTerm, ConditionType type, Object value1, String value1Term, Object value2, String value2Term) {
+        if (this.lockWhere) {
+            throw new IllegalStateException("must before (group by/order by) invoke it.");
+        }
+
         appendConditionLogic(logic);
         this.whereConditions.addSegment((d, dia) -> formatColumn(d, dia, col, colTerm));
-        this.whereConditions.addSegment((d, dia) -> "BETWEEN");
+        if (type == ConditionType.NOT_BETWEEN) {
+            this.whereConditions.addSegment((d, dia) -> "NOT BETWEEN");
+        } else {
+            this.whereConditions.addSegment((d, dia) -> "BETWEEN");
+        }
         this.whereConditions.addSegment((d, dia) -> formatValue(dia, value1, value1Term));
         this.whereConditions.addSegment((d, dia) -> "AND");
         this.whereConditions.addSegment((d, dia) -> formatValue(dia, value2, value2Term));
@@ -135,21 +190,57 @@ public class SqlCommandBuilder implements CommandBuilder {
 
     @Override
     public void addConditionForIn(ConditionLogic logic, String col, String colTerm, ConditionType type, Object[] values, String valueTerm) {
+        if (this.lockWhere) {
+            throw new IllegalStateException("must before (group by/order by) invoke it.");
+        }
+
         appendConditionLogic(logic);
         this.whereConditions.addSegment((d, dia) -> formatColumn(d, dia, col, colTerm));
-        this.whereConditions.addSegment((d, dia) -> "IN");
-        this.whereConditions.addSegment((d, dia) -> formatInValue(dia, values, valueTerm));
+        if (type == ConditionType.NOT_IN) {
+            this.whereConditions.addSegment((d, dia) -> "NOT IN");
+        } else {
+            this.whereConditions.addSegment((d, dia) -> "IN");
+        }
+        this.whereConditions.addSegment(LEFT_PAREN);
+        for (int i = 0; i < values.length; i++) {
+            if (i > 0) {
+                this.whereConditions.addSegment((d, dia) -> ",");
+            }
+            Object val = values[i];
+            this.whereConditions.addSegment((d, dia) -> formatValue(dia, val, valueTerm));
+        }
+        this.whereConditions.addSegment(RIGHT_PAREN);
     }
 
     @Override
     public void addConditionGroup(ConditionLogic logic, Consumer<CommandBuilder> group) {
+        if (this.lockWhere) {
+            throw new IllegalStateException("must before (group by/order by) invoke it.");
+        }
+
         appendConditionLogic(logic);
         this.whereConditions.addSegment(LEFT_PAREN);
         group.accept(this);
         this.whereConditions.addSegment(RIGHT_PAREN);
     }
 
+    @Override
+    public void addRawCondition(ConditionLogic logic, BoundSql boundSql) {
+        this.whereConditions.addSegment((d, dia) -> {
+            String bsql = boundSql.getSqlString();
+            Object[] barg = boundSql.getArgs();
+            if (barg != null) {
+                for (Object arg : barg) {
+                    appendValue(arg);
+                }
+            }
+            return bsql;
+        });
+    }
+
     private void appendConditionLogic(ConditionLogic logic) {
+        this.hasWhereConditions = true;
+
         final ConditionLogic colLogic = logic == null ? ConditionLogic.AND : logic;
         boolean needPrefix = !this.whereConditions.isEmpty() && !isLastElementOpenParen();
         if (needPrefix) {
@@ -197,23 +288,6 @@ public class SqlCommandBuilder implements CommandBuilder {
         }
     }
 
-    private String formatInValue(SqlDialect dia, Object[] value, String valueTerm) {
-        if (value == null || value.length == 0) {
-            throw new IllegalArgumentException("value is empty.");
-        }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("(");
-        for (int i = 0; i < value.length; i++) {
-            if (i > 0) {
-                sb.append(", ");
-            }
-            sb.append(formatValue(dia, value[i], valueTerm));
-        }
-        sb.append(")");
-        return sb.toString();
-    }
-
     private void appendValue(Object value) {
         this.args.add(value);
     }
@@ -236,45 +310,70 @@ public class SqlCommandBuilder implements CommandBuilder {
     }
 
     @Override
-    public void addSelect(String col, String colExpr, Object[] args) {
+    public void addSelectCustom(String colExpr, Object[] args) {
         Segment s = (d, dia) -> {
-            Arrays.asList(args).forEach(this::appendValue);
-            String colAlias = dia.fmtName(d, col);
-            return colExpr + dia.aliasSeparator() + colAlias;
+            if (args != null) {
+                Arrays.asList(args).forEach(this::appendValue);
+            }
+            return colExpr;
         };
         this.selectColumns.addSegment(s);
-        this.selectColumnsCache.put(col, s);
+    }
+
+    @Override
+    public void addSelectAll() {
+        this.selectAll = true;
     }
 
     @Override
     public boolean hasSelect(String col) {
-        return this.selectAll || this.selectColumnsCache.containsKey(col);
+        return this.selectColumnsCache.containsKey(col);
     }
 
     @Override
-    public boolean hasSelectAll() {
-        return this.selectAll;
+    public boolean hasSelect() {
+        return !this.selectColumns.isEmpty();
     }
 
     //
 
     @Override
-    public void addGroupBy(String col) throws SQLException {
-        if (!this.selectColumnsCache.containsKey(col)) {
-            throw new SQLException("group by column not found.");
+    public void addGroupBy(String col, String colTerm) {
+        if (this.lockGroupBy) {
+            throw new IllegalStateException("must before order by invoke it.");
         }
+
+        // first group by
+        if (this.groupByColumns.isEmpty()) {
+            this.whereConditions.addSegment((d, dia) -> "GROUP BY");
+            this.whereConditions.addSegment(this.groupByColumns);
+            this.lockWhere = true;
+        }
+
         this.groupByColumns.addSegment((d, dia) -> {
-            if (dia.supportGroupByAlias()) {
-                return dia.fmtName(d, col); // same as addSelect colAlias
+            if (this.selectColumnsCache.containsKey(col)) {
+                if (dia.supportGroupByAlias()) {
+                    return dia.fmtName(d, col); // same as addSelect colAlias
+                } else {
+                    Segment s = this.selectColumnsCache.get(col);
+                    return s.getSqlSegment(d, dia);
+                }
             } else {
-                Segment s = this.selectColumnsCache.get(col);
-                return s.getSqlSegment(d, dia);
+                return formatColumn(d, dia, col, colTerm);
             }
         });
     }
 
     @Override
     public void addOrderBy(String col, String colTerm, OrderType type, OrderNullsStrategy nullsStrategy) {
+        // first order by
+        if (this.orderByColumns.isEmpty()) {
+            this.whereConditions.addSegment((d, dia) -> "ORDER BY");
+            this.whereConditions.addSegment(this.orderByColumns);
+            this.lockWhere = true;
+            this.lockGroupBy = true;
+        }
+
         this.orderByColumns.addSegment((d, dia) -> {
             String orderByCol = dia.fmtName(d, col);
             Segment orderByTerm;
@@ -322,9 +421,9 @@ public class SqlCommandBuilder implements CommandBuilder {
     //
 
     @Override
-    public void addUpdateSet(final String col, final Object value, final String valueTerm) {
+    public void addUpdateSet(final String col, final String colTerm, final Object value, final String valueTerm) {
         this.updateColumns.addSegment((d, dia) -> {
-            String c = formatColumn(d, dia, col, null);
+            String c = formatColumn(d, dia, col, colTerm);
             if (value == null && StringUtils.isBlank(valueTerm)) {
                 return c + " = NULL";
             } else {
@@ -354,7 +453,7 @@ public class SqlCommandBuilder implements CommandBuilder {
     public BoundSql buildSelect(SqlDialect dialect, boolean delimited) throws SQLException {
         MergeSqlSegment segment = new MergeSqlSegment();
         segment.addSegment((d, dia) -> "SELECT");
-        if (this.selectColumns.isEmpty() || this.selectAll) {
+        if (this.selectColumns.isEmpty()) {
             segment.addSegment((d, dia) -> "*");
         } else {
             segment.addSegment(this.selectColumns);
@@ -363,16 +462,7 @@ public class SqlCommandBuilder implements CommandBuilder {
         segment.addSegment((d, dia) -> "FROM");
         segment.addSegment((d, dia) -> dia.tableName(d, this.catalog, this.schema, this.table));
 
-        buildWhere(segment, true);
-
-        if (!this.groupByColumns.isEmpty()) {
-            segment.addSegment((d, dia) -> "GROUP BY");
-            segment.addSegment(this.groupByColumns);
-        }
-        if (!this.orderByColumns.isEmpty()) {
-            segment.addSegment((d, dia) -> "ORDER BY");
-            segment.addSegment(this.orderByColumns);
-        }
+        buildWhere(segment, true, "SELECT");
 
         String sqlString = segment.getSqlSegment(delimited, dialect);
         Object[] sqlArgs = this.args.toArray();
@@ -388,7 +478,7 @@ public class SqlCommandBuilder implements CommandBuilder {
         segment.addSegment((d, dia) -> "SET");
         segment.addSegment(this.updateColumns);
 
-        buildWhere(segment, allowEmptyWhere);
+        buildWhere(segment, allowEmptyWhere, "UPDATE");
 
         String sqlString = segment.getSqlSegment(delimited, dialect);
         Object[] sqlArgs = this.args.toArray();
@@ -401,19 +491,21 @@ public class SqlCommandBuilder implements CommandBuilder {
         segment.addSegment((d, dia) -> "DELETE FROM");
         segment.addSegment((d, dia) -> dia.tableName(d, this.catalog, this.schema, this.table));
 
-        buildWhere(segment, allowEmptyWhere);
+        buildWhere(segment, allowEmptyWhere, "DELETE");
 
         String sqlString = segment.getSqlSegment(delimited, dialect);
         Object[] sqlArgs = this.args.toArray();
         return new BoundSql.BoundSqlObj(sqlString, sqlArgs);
     }
 
-    private void buildWhere(MergeSqlSegment segment, boolean allowEmptyWhere) {
+    private void buildWhere(MergeSqlSegment segment, boolean allowEmptyWhere, String tips) {
         if (!this.whereConditions.isEmpty()) {
-            segment.addSegment((d, dia) -> "WHERE");
+            if (this.hasWhereConditions) {
+                segment.addSegment((d, dia) -> "WHERE");
+            }
             segment.addSegment(this.whereConditions);
         } else if (!allowEmptyWhere) {
-            throw new IllegalStateException("Where clause is empty.");
+            throw new IllegalStateException("The dangerous " + tips + " operation, You must call `allowEmptyWhere()` to enable " + tips + " ALL.");
         }
     }
 
@@ -448,17 +540,27 @@ public class SqlCommandBuilder implements CommandBuilder {
         } else {
             segment.addSegment((d, dia) -> "INSERT INTO");
             segment.addSegment((d, dia) -> dia.tableName(d, this.catalog, this.schema, this.table));
-            segment.addSegment((d, dia) -> "(");
+            segment.addSegment(LEFT_PAREN);
             segment.addSegment(this.insertColumns);
-            segment.addSegment((d, dia) -> ")");
+            segment.addSegment(RIGHT_PAREN);
             segment.addSegment((d, dia) -> "VALUES");
-            segment.addSegment((d, dia) -> "(");
+            segment.addSegment(LEFT_PAREN);
             segment.addSegment(this.insertValues);
-            segment.addSegment((d, dia) -> ")");
+            segment.addSegment(RIGHT_PAREN);
         }
 
         String sqlString = segment.getSqlSegment(delimited, dialect);
         Object[] sqlArgs = this.args.toArray();
         return new BoundSql.BoundSqlObj(sqlString, sqlArgs);
+    }
+
+    @Override
+    public boolean hasUpdateSet() {
+        return !this.updateColumns.isEmpty();
+    }
+
+    @Override
+    public boolean hasInsert() {
+        return !this.insertColumns.isEmpty();
     }
 }

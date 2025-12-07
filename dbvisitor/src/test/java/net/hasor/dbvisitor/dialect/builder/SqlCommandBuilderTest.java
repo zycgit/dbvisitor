@@ -56,7 +56,7 @@ public class SqlCommandBuilderTest {
         builder.setTable(null, null, "user_table");
         builder.addSelect("role", null);
         builder.addSelect("cnt", "count(*)");
-        builder.addGroupBy("role");
+        builder.addGroupBy("role", null);
 
         BoundSql boundSql = builder.buildSelect(new MySqlDialect(), false);
         assertEquals("SELECT role, count(*) cnt FROM user_table GROUP BY role", boundSql.getSqlString());
@@ -84,7 +84,7 @@ public class SqlCommandBuilderTest {
     public void testUpdate() throws SQLException {
         SqlCommandBuilder builder = new SqlCommandBuilder();
         builder.setTable(null, null, "user_table");
-        builder.addUpdateSet("name", "Doe", null);
+        builder.addUpdateSet("name", null, "Doe", null);
         builder.addCondition(ConditionLogic.AND, "id", null, ConditionType.EQ, 1, null, null);
 
         BoundSql boundSql = builder.buildUpdate(new MySqlDialect(), false, false);
@@ -157,7 +157,7 @@ public class SqlCommandBuilderTest {
     public void testUpdateWithTerm() throws SQLException {
         SqlCommandBuilder builder = new SqlCommandBuilder();
         builder.setTable(null, null, "user_table");
-        builder.addUpdateSet("name", "Doe", "upper(?)");
+        builder.addUpdateSet("name", null, "Doe", "upper(?)");
         builder.addCondition(ConditionLogic.AND, "id", null, ConditionType.EQ, 1, null, null);
 
         BoundSql boundSql = builder.buildUpdate(new MySqlDialect(), false, false);
@@ -199,7 +199,7 @@ public class SqlCommandBuilderTest {
     public void testUpdateWithNull() throws SQLException {
         SqlCommandBuilder builder = new SqlCommandBuilder();
         builder.setTable(null, null, "user_table");
-        builder.addUpdateSet("name", null, null);
+        builder.addUpdateSet("name", null, null, null);
         builder.addCondition(ConditionLogic.AND, "id", null, ConditionType.EQ, 1, null, null);
 
         BoundSql boundSql = builder.buildUpdate(new MySqlDialect(), false, false);

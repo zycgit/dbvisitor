@@ -16,7 +16,6 @@
 package net.hasor.dbvisitor.dialect.builder;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import net.hasor.cobble.StringUtils;
@@ -55,6 +54,30 @@ public class MongoCommandBuilder implements CommandBuilder {
     }
 
     @Override
+    public void clearSelect() {
+        this.projections.clear();
+        this.selectAll = false;
+    }
+
+    @Override
+    public void clearUpdateSet() {
+        this.updates.clear();
+    }
+
+    @Override
+    public void clearAll() {
+        this.catalog = null;
+        this.collection = null;
+        this.args.clear();
+        this.conditions.clear();
+        this.projections.clear();
+        this.sorts.clear();
+        this.updates.clear();
+        this.inserts.clear();
+        this.selectAll = false;
+    }
+
+    @Override
     public void addCondition(ConditionLogic logic, String col, String colTerm, ConditionType type, Object value, String valueTerm, SqlLike forLikeType) {
         this.conditions.addSegment((delimited, dialect) -> {
             String field = StringUtils.isNotBlank(colTerm) ? colTerm : col;
@@ -67,6 +90,15 @@ public class MongoCommandBuilder implements CommandBuilder {
                     val = formatValue(value, valueTerm);
                 }
                 return field + ": { $regex: " + val + " }";
+            }
+            if (type == ConditionType.NOT_LIKE) {
+                String val;
+                if (dialect instanceof ConditionSqlDialect) {
+                    val = ((ConditionSqlDialect) dialect).like(forLikeType != null ? forLikeType : SqlLike.DEFAULT, value, valueTerm);
+                } else {
+                    val = formatValue(value, valueTerm);
+                }
+                return field + ": { $not: { $regex: " + val + " } }";
             }
 
             if (type == ConditionType.IS_NULL) {
@@ -103,9 +135,12 @@ public class MongoCommandBuilder implements CommandBuilder {
             String field = StringUtils.isNotBlank(colTerm) ? colTerm : col;
             String val1 = formatValue(value1, value1Term);
             String val2 = formatValue(value2, value2Term);
-            // field >= val1 AND field <= val2
-            // In Mongo: field: { $gte: val1, $lte: val2 }
-            return field + ": { $gte: " + val1 + ", $lte: " + val2 + " }";
+
+            if (type == ConditionType.NOT_BETWEEN) {
+                return "$or: [ { " + field + ": { $lt: " + val1 + " } }, { " + field + ": { $gt: " + val2 + " } } ]";
+            } else {
+                return field + ": { $gte: " + val1 + ", $lte: " + val2 + " }";
+            }
         });
     }
 
@@ -122,8 +157,18 @@ public class MongoCommandBuilder implements CommandBuilder {
                 sb.append(formatValue(values[i], valueTerm));
             }
             sb.append("]");
-            return field + ": { $in: " + sb.toString() + " }";
+
+            if (type == ConditionType.NOT_IN) {
+                return field + ": { $nin: " + sb.toString() + " }";
+            } else {
+                return field + ": { $in: " + sb.toString() + " }";
+            }
         });
+    }
+
+    @Override
+    public void addRawCondition(ConditionLogic logic, BoundSql boundSql) {
+        throw new UnsupportedOperationException("Mongo does not support raw SQL conditions.");
     }
 
     @Override
@@ -140,14 +185,13 @@ public class MongoCommandBuilder implements CommandBuilder {
     }
 
     @Override
-    public void addSelect(String col, String colExpr, Object[] args) {
-        this.projections.addSegment((delimited, dialect) -> {
-            String field = StringUtils.isNotBlank(colExpr) ? colExpr : col;
-            if (args != null) {
-                this.args.addAll(Arrays.asList(args));
-            }
-            return field + ": 1";
-        });
+    public void addSelectCustom(String colExpr, Object[] args) {
+        throw new UnsupportedOperationException("Mongo does not support custom projections.");
+    }
+
+    @Override
+    public void addSelectAll() {
+        this.selectAll = true;
     }
 
     @Override
@@ -156,12 +200,12 @@ public class MongoCommandBuilder implements CommandBuilder {
     }
 
     @Override
-    public boolean hasSelectAll() {
-        return selectAll;
+    public boolean hasSelect() {
+        return !this.projections.isEmpty() || this.selectAll;
     }
 
     @Override
-    public void addGroupBy(String col) throws SQLException {
+    public void addGroupBy(String col, String colTerm) {
         throw new UnsupportedOperationException("GroupBy not supported in simple find command. Use aggregate.");
     }
 
@@ -175,10 +219,11 @@ public class MongoCommandBuilder implements CommandBuilder {
     }
 
     @Override
-    public void addUpdateSet(String col, Object value, String valueTerm) {
+    public void addUpdateSet(String col, String colTerm, Object value, String valueTerm) {
         this.updates.addSegment((delimited, dialect) -> {
+            String field = StringUtils.isNotBlank(colTerm) ? colTerm : col;
             String val = formatValue(value, valueTerm);
-            return col + ": " + val;
+            return field + ": " + val;
         });
     }
 
@@ -283,6 +328,16 @@ public class MongoCommandBuilder implements CommandBuilder {
         String sqlString = segment.getSqlSegment(delimited, dialect);
         Object[] sqlArgs = this.args.toArray();
         return new BoundSql.BoundSqlObj(sqlString, sqlArgs);
+    }
+
+    @Override
+    public boolean hasUpdateSet() {
+        return !this.updates.isEmpty();
+    }
+
+    @Override
+    public boolean hasInsert() {
+        return !this.inserts.isEmpty();
     }
 
     private String formatValue(Object value, String valueTerm) {

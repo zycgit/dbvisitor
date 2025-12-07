@@ -101,7 +101,7 @@ public class FreedomToCamelBuildUpdateTest {
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
         assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("UPDATE user_info SET login_name = ? , password = ? , abc = ? WHERE ( seq = ? )");
+        assert boundSql1.getSqlString().equals("UPDATE user_info SET login_name = ?, password = ?, abc = ? WHERE ( seq = ? )");
         assert boundSql1.getArgs()[0].equals("acc");
         assert boundSql1.getArgs()[1].equals("pwd");
         assert boundSql1.getArgs()[2].equals("pwd2");
@@ -120,7 +120,7 @@ public class FreedomToCamelBuildUpdateTest {
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
         assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("UPDATE user_info SET login_name = ? , password = ? , abc = ? WHERE ( seq = ? )");
+        assert boundSql1.getSqlString().equals("UPDATE user_info SET login_name = ?, password = ?, abc = ? WHERE ( seq = ? )");
         assert boundSql1.getArgs()[0].equals("acc");
         assert boundSql1.getArgs()[1].equals("pwd");
         assert boundSql1.getArgs()[2].equals("pwd2");
@@ -141,7 +141,7 @@ public class FreedomToCamelBuildUpdateTest {
                 .allowUpdateKey()//
                 .updateRow(map)//
                 .getBoundSql();
-        assert boundSql1.getSqlString().equals("UPDATE user_info SET password = ? , abc = ? , login_name = ? WHERE login_name = ? AND password = ?");
+        assert boundSql1.getSqlString().equals("UPDATE user_info SET password = ?, abc = ?, login_name = ? WHERE login_name = ? AND password = ?");
     }
 
     @Test
@@ -162,7 +162,7 @@ public class FreedomToCamelBuildUpdateTest {
 
         // delete from user where id = 1 and name = 'mail';
         BoundSql boundSql1 = lambdaTemplate.updateFreedom("user_info").eqBySampleMap(whereValue).updateToSampleMap(setValue).getBoundSql();
-        assert boundSql1.getSqlString().equals("UPDATE user_info SET user_name = ? , name = ? , abc = ? , create_time = ? WHERE ( id = ? AND user_name = ? AND name = ? AND abc = ? )");
+        assert boundSql1.getSqlString().equals("UPDATE user_info SET user_name = ?, name = ?, abc = ?, create_time = ? WHERE ( id = ? AND user_name = ? AND name = ? AND abc = ? )");
         assert ((SqlArg) boundSql1.getArgs()[0]).getValue().equals("mali2");
         assert ((SqlArg) boundSql1.getArgs()[1]).getValue().equals("321");
         assert ((SqlArg) boundSql1.getArgs()[2]).getValue().equals("abc");

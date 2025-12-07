@@ -631,7 +631,7 @@ public class DoEntUpdateTest {
                     .eq(AnnoUserInfoDTO::getLoginName, "muhammad")//
                     .updateRow(tbUser1) //
                     .getBoundSql();
-            assert boundSql.getSqlString().equals("UPDATE user_info SET user_name = ? , login_name = ? , login_password = ? , email = ? , seq = ? , register_time = ? WHERE login_name = ?");
+            assert boundSql.getSqlString().equals("UPDATE user_info SET user_name = ?, login_name = ?, login_password = ?, email = ?, seq = ?, register_time = ? WHERE login_name = ?");
         }
     }
 
@@ -654,7 +654,7 @@ public class DoEntUpdateTest {
                     .allowUpdateKey()//
                     .updateRow(tbUser1) //
                     .getBoundSql();
-            assert boundSql.getSqlString().equals("UPDATE user_info SET user_uuid = ? , user_name = ? , login_name = ? , login_password = ? , email = ? , seq = ? , register_time = ? WHERE login_name = ?");
+            assert boundSql.getSqlString().equals("UPDATE user_info SET user_uuid = ?, user_name = ?, login_name = ?, login_password = ?, email = ?, seq = ?, register_time = ? WHERE login_name = ?");
         }
     }
 
@@ -676,7 +676,7 @@ public class DoEntUpdateTest {
                     .eq("loginName", "muhammad")//
                     .updateRow(tbUser1) //
                     .getBoundSql();
-            assert boundSql.getSqlString().equals("UPDATE user_info SET user_name = ? , login_name = ? , login_password = ? , email = ? , seq = ? , register_time = ? WHERE login_name = ?");
+            assert boundSql.getSqlString().equals("UPDATE user_info SET user_name = ?, login_name = ?, login_password = ?, email = ?, seq = ?, register_time = ? WHERE login_name = ?");
         }
     }
 
@@ -699,7 +699,7 @@ public class DoEntUpdateTest {
                     .allowUpdateKey()//
                     .updateRow(tbUser1) //
                     .getBoundSql();
-            assert boundSql.getSqlString().equals("UPDATE user_info SET user_uuid = ? , user_name = ? , login_name = ? , login_password = ? , email = ? , seq = ? , register_time = ? WHERE login_name = ?");
+            assert boundSql.getSqlString().equals("UPDATE user_info SET user_uuid = ?, user_name = ?, login_name = ?, login_password = ?, email = ?, seq = ?, register_time = ? WHERE login_name = ?");
         }
     }
 

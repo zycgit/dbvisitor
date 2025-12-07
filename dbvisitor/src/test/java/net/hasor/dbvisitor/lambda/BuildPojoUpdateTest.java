@@ -139,7 +139,7 @@ public class BuildPojoUpdateTest {
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
         assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("UPDATE UserInfo SET loginName = ? , password = ? WHERE ( seq = ? )");
+        assert boundSql1.getSqlString().equals("UPDATE UserInfo SET loginName = ?, password = ? WHERE ( seq = ? )");
         assert boundSql1.getArgs()[0].equals("acc");
         assert boundSql1.getArgs()[1].equals("pwd");
         assert boundSql1.getArgs()[2].equals(123);
@@ -157,7 +157,7 @@ public class BuildPojoUpdateTest {
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
         assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("UPDATE UserInfo SET loginName = ? , password = ? WHERE ( seq = ? )");
+        assert boundSql1.getSqlString().equals("UPDATE UserInfo SET loginName = ?, password = ? WHERE ( seq = ? )");
         assert boundSql1.getArgs()[0].equals("acc");
         assert boundSql1.getArgs()[1].equals("pwd");
         assert boundSql1.getArgs()[2].equals(123);
@@ -173,7 +173,7 @@ public class BuildPojoUpdateTest {
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
         assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("UPDATE UserInfo SET loginName = ? , password = ? WHERE ( seq = ? )");
+        assert boundSql1.getSqlString().equals("UPDATE UserInfo SET loginName = ?, password = ? WHERE ( seq = ? )");
         assert boundSql1.getArgs()[0].equals("acc");
         assert boundSql1.getArgs()[1].equals("pwd");
         assert boundSql1.getArgs()[2].equals(123);
@@ -191,7 +191,7 @@ public class BuildPojoUpdateTest {
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
         assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("UPDATE UserInfo SET loginName = ? , password = ? WHERE ( seq = ? )");
+        assert boundSql1.getSqlString().equals("UPDATE UserInfo SET loginName = ?, password = ? WHERE ( seq = ? )");
         assert boundSql1.getArgs()[0].equals("acc");
         assert boundSql1.getArgs()[1].equals("pwd");
         assert boundSql1.getArgs()[2].equals(123);
@@ -210,7 +210,7 @@ public class BuildPojoUpdateTest {
                 .allowUpdateKey()//
                 .updateRow(data)//
                 .getBoundSql();
-        assert boundSql1.getSqlString().equals("UPDATE UserInfo SET uid = NULL , name = NULL , loginName = ? , password = ? , email = NULL , seq = NULL , createTime = NULL WHERE loginName = ? AND password = ?");
+        assert boundSql1.getSqlString().equals("UPDATE UserInfo SET uid = NULL, name = NULL, loginName = ?, password = ?, email = NULL, seq = NULL, createTime = NULL WHERE loginName = ? AND password = ?");
         assert boundSql1.getArgs()[0].equals("acc");
         assert boundSql1.getArgs()[1].equals("pwd");
         assert boundSql1.getArgs()[2].equals("admin");
@@ -231,7 +231,7 @@ public class BuildPojoUpdateTest {
                 .allowUpdateKey()//
                 .updateRow(map)//
                 .getBoundSql();
-        assert boundSql1.getSqlString().equals("UPDATE UserInfo SET uid = NULL , name = NULL , loginName = ? , password = ? , email = NULL , seq = NULL , createTime = NULL WHERE loginName = ? AND password = ?");
+        assert boundSql1.getSqlString().equals("UPDATE UserInfo SET uid = NULL, name = NULL, loginName = ?, password = ?, email = NULL, seq = NULL, createTime = NULL WHERE loginName = ? AND password = ?");
         assert boundSql1.getArgs()[0].equals("acc");
         assert boundSql1.getArgs()[1].equals("pwd");
         assert boundSql1.getArgs()[2].equals("admin");

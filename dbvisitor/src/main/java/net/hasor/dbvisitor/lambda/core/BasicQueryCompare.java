@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
+import java.sql.SQLException;
 import java.sql.Types;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
-import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.ObjectUtils;
 import net.hasor.cobble.StringUtils;
-import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
+import net.hasor.cobble.ref.Tuple;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect.SqlLike;
+import net.hasor.dbvisitor.dialect.builder.CommandBuilder;
+import net.hasor.dbvisitor.dialect.builder.ConditionLogic;
+import net.hasor.dbvisitor.dialect.builder.ConditionType;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.args.ArraySqlArgSource;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
-import net.hasor.dbvisitor.lambda.segment.Segment;
-import net.hasor.dbvisitor.lambda.segment.SqlKeyword;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
 import net.hasor.dbvisitor.mapping.def.TableMapping;
@@ -44,10 +47,7 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  * @version 2020-10-27
  */
 public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> implements QueryCompare<R, T, P> {
-    protected MergeSqlSegment queryTemplate     = new MergeSqlSegment();
-    protected List<Object>    queryParam        = new ArrayList<>();
-    private   Segment         nextSegmentPrefix = null;
-    private   boolean         lockCondition     = false;
+    private ConditionLogic nextLogic = ConditionLogic.AND;
 
     public BasicQueryCompare(Class<?> exampleType, TableMapping<?> tableMapping, MappingRegistry registry, JdbcTemplate jdbc, QueryContext ctx) {
         super(exampleType, tableMapping, registry, jdbc, ctx);
@@ -56,10 +56,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     @Override
     public R reset() {
         super.reset();
-        this.queryTemplate.cleanSegment();
-        this.queryParam.clear();
-        this.nextSegmentPrefix = null;
-        this.lockCondition = false;
+        this.nextLogic = ConditionLogic.AND;
         return this.getSelf();
     }
 
@@ -67,18 +64,23 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
     public R ifTrue(boolean test, Consumer<QueryCompare<R, T, P>> lambda) {
         if (test) {
             lambda.accept(this);
-            return getSelf();
         }
         return getSelf();
     }
 
     @Override
     public R nested(Consumer<R> lambda) {
-        this.addCondition(SqlKeyword.LEFT);
-        this.nextSegmentPrefix = SqlKeyword.EMPTY;
-        lambda.accept(this.getSelf());
-        this.nextSegmentPrefix = SqlKeyword.EMPTY;
-        this.addCondition(SqlKeyword.RIGHT);
+        ConditionLogic tempLogic = this.nextLogic;
+        this.nextLogic = ConditionLogic.AND;
+        this.cmdBuilder.addConditionGroup(tempLogic, cb -> {
+            CommandBuilder oldBuilder = this.cmdBuilder;
+            this.cmdBuilder = cb;
+            try {
+                lambda.accept(this.getSelf());
+            } finally {
+                this.cmdBuilder = oldBuilder;
+            }
+        });
         return this.getSelf();
     }
 
@@ -89,7 +91,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
 
     @Override
     public R or() {
-        this.nextSegmentPrefix = SqlKeyword.OR;
+        this.nextLogic = ConditionLogic.OR;
         return this.getSelf();
     }
 
@@ -100,7 +102,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
 
     @Override
     public R and() {
-        this.nextSegmentPrefix = SqlKeyword.AND;
+        this.nextLogic = ConditionLogic.AND;
         return this.getSelf();
     }
 
@@ -111,128 +113,34 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
 
     @Override
     public R not() {
-        this.nextSegmentPrefix = SqlKeyword.NOT;
+        if (this.nextLogic == ConditionLogic.OR) {
+            this.nextLogic = ConditionLogic.OR_NOT;
+        } else {
+            this.nextLogic = ConditionLogic.AND_NOT;
+        }
         return this.getSelf();
     }
 
     @Override
     public R not(boolean test, Consumer<R> lambda) {
-        return test ? and(lambda) : getSelf();
+        if (test) {
+            this.not();
+            this.nested(lambda);
+        }
+        return this.getSelf();
     }
 
     @Override
-    public R apply(final String sqlString, final Object... args) {
+    public R apply(final String sqlString, final Object... args) throws SQLException {
         if (StringUtils.isBlank(sqlString)) {
             return this.getSelf();
         }
-        this.queryTemplate.addSegment((delimited, d) -> {
-            PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(sqlString);
-            SqlBuilder build = parsedSql.buildQuery(new ArraySqlArgSource(args), this.queryContext);
-            for (Object arg : build.getArgs()) {
-                format("?", arg);
-            }
-            return build.getSqlString();
-        });
+
+        PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(sqlString);
+        SqlBuilder build = parsedSql.buildQuery(new ArraySqlArgSource(args), this.queryContext);
+        this.cmdBuilder.addRawCondition(this.nextLogic, build);
+        this.nextLogic = ConditionLogic.AND;
         return this.getSelf();
-    }
-
-    protected void lockCondition() {
-        this.lockCondition = true;
-    }
-
-    protected final R addCondition(Segment... segments) {
-        if (this.lockCondition) {
-            throw new IllegalStateException("must before (group by/order by) invoke it.");
-        }
-
-        if (this.nextSegmentPrefix == SqlKeyword.EMPTY) {
-            this.nextSegmentPrefix = null;
-        } else if (this.nextSegmentPrefix == null) {
-            this.queryTemplate.addSegment(SqlKeyword.AND);
-            this.nextSegmentPrefix = null;
-        } else {
-            this.queryTemplate.addSegment(this.nextSegmentPrefix);
-            this.nextSegmentPrefix = null;
-        }
-
-        for (Segment segment : segments) {
-            this.queryTemplate.addSegment(segment);
-        }
-        return this.getSelf();
-    }
-
-    protected Segment formatLikeValue(String property, SqlLike like, Object param) {
-        ColumnMapping mapping = this.findPropertyByName(property);
-        String specialValue = mapping.getWhereValueTemplate();
-        String colValue = StringUtils.isNotBlank(specialValue) ? specialValue : "?";
-
-        return (delimited, d) -> {
-            format(colValue, param);
-            return ((ConditionSqlDialect) d).like(like, param, colValue);
-        };
-    }
-
-    protected Segment formatValue(String property, Object... params) {
-        if (ArrayUtils.isEmpty(params)) {
-            return (delimited, d) -> "";
-        }
-
-        ColumnMapping mapping = this.findPropertyByName(property);
-        String specialValue = mapping.getWhereValueTemplate();
-        String colValue = StringUtils.isNotBlank(specialValue) ? specialValue : "?";
-
-        MergeSqlSegment mergeSqlSegment = new MergeSqlSegment();
-        Iterator<Object> iterator = Arrays.asList(params).iterator();
-        while (iterator.hasNext()) {
-            Object arg = iterator.next();
-            SqlArg sqlArg;
-            if (arg instanceof SqlArg) {
-                sqlArg = (SqlArg) arg;
-            } else {
-                sqlArg = new SqlArg(arg, mapping.getJdbcType(), exampleIsMap() ? null : mapping.getTypeHandler());
-            }
-            mergeSqlSegment.addSegment(formatSegment(colValue, sqlArg));
-            if (iterator.hasNext()) {
-                mergeSqlSegment.addSegment((delimited, d) -> ",");
-            }
-        }
-        return mergeSqlSegment;
-    }
-
-    protected Segment formatValue(Object... params) {
-        if (ArrayUtils.isEmpty(params)) {
-            return (delimited, d) -> "";
-        }
-
-        String colValue = "?";
-        MergeSqlSegment mergeSqlSegment = new MergeSqlSegment();
-        Iterator<Object> iterator = Arrays.asList(params).iterator();
-        while (iterator.hasNext()) {
-            Object nextArg = iterator.next();
-            int sqlType = Types.OTHER;
-            TypeHandler<?> typeHandler = TypeHandlerRegistry.DEFAULT.getDefaultTypeHandler();
-
-            if (nextArg != null) {
-                sqlType = TypeHandlerRegistry.toSqlType(nextArg.getClass());
-                typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(nextArg.getClass());
-            }
-
-            Object arg = new SqlArg(nextArg, sqlType, exampleIsMap() ? null : typeHandler);
-            mergeSqlSegment.addSegment(formatSegment(colValue, arg));
-            if (iterator.hasNext()) {
-                mergeSqlSegment.addSegment((delimited, d) -> ",");
-            }
-        }
-        return mergeSqlSegment;
-    }
-
-    protected Segment formatSegment(String argTemp, Object param) {
-        return (delimited, d) -> format(argTemp, param);
-    }
-
-    private String format(String argTemp, Object param) {
-        this.queryParam.add(param);
-        return argTemp;
     }
 
     @Override
@@ -240,13 +148,12 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
         if (test) {
             String propertyName = getPropertyName(property);
             if (value == null) {
-                return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.IS, SqlKeyword.NULL);
+                this.addCondition(propertyName, ConditionType.IS_NULL, null);
             } else {
-                return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.EQ, formatValue(propertyName, value));
+                this.addCondition(propertyName, ConditionType.EQ, value);
             }
-        } else {
-            return this.getSelf();
         }
+        return this.getSelf();
     }
 
     @Override
@@ -254,313 +161,206 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
         if (test) {
             String propertyName = getPropertyName(property);
             if (value == null) {
-                return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.IS, SqlKeyword.NOT, SqlKeyword.NULL);
+                this.addCondition(propertyName, ConditionType.IS_NOT_NULL, null);
             } else {
-                return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.NE, formatValue(propertyName, value));
+                this.addCondition(propertyName, ConditionType.NE, value);
             }
-        } else {
-            return this.getSelf();
         }
+        return this.getSelf();
     }
 
     @Override
     public R gt(boolean test, P property, Object value) {
         if (test) {
-            String propertyName = getPropertyName(property);
-            return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.GT, formatValue(propertyName, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(getPropertyName(property), ConditionType.GT, value);
         }
+        return this.getSelf();
     }
 
     @Override
     public R ge(boolean test, P property, Object value) {
         if (test) {
-            String propertyName = getPropertyName(property);
-            return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.GE, formatValue(propertyName, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(getPropertyName(property), ConditionType.GE, value);
         }
+        return this.getSelf();
     }
 
     @Override
     public R lt(boolean test, P property, Object value) {
         if (test) {
-            String propertyName = getPropertyName(property);
-            return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.LT, formatValue(propertyName, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(getPropertyName(property), ConditionType.LT, value);
         }
+        return this.getSelf();
     }
 
     @Override
     public R le(boolean test, P property, Object value) {
         if (test) {
-            String propertyName = getPropertyName(property);
-            return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.LE, formatValue(propertyName, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(getPropertyName(property), ConditionType.LE, value);
         }
+        return this.getSelf();
     }
 
     @Override
     public R like(boolean test, P property, Object value) {
         if (test) {
-            String propertyName = getPropertyName(property);
-            return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.LIKE, formatLikeValue(propertyName, SqlLike.DEFAULT, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(getPropertyName(property), ConditionType.LIKE, value, SqlLike.DEFAULT);
         }
+        return this.getSelf();
     }
 
     @Override
     public R notLike(boolean test, P property, Object value) {
         if (test) {
-            String propertyName = getPropertyName(property);
-            return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.NOT, SqlKeyword.LIKE, formatLikeValue(propertyName, SqlLike.DEFAULT, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(getPropertyName(property), ConditionType.NOT_LIKE, value, SqlLike.DEFAULT);
         }
+        return this.getSelf();
     }
 
     @Override
     public R likeRight(boolean test, P property, Object value) {
         if (test) {
-            String propertyName = getPropertyName(property);
-            return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.LIKE, formatLikeValue(propertyName, SqlLike.RIGHT, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(getPropertyName(property), ConditionType.LIKE, value, SqlLike.RIGHT);
         }
+        return this.getSelf();
     }
 
     @Override
     public R notLikeRight(boolean test, P property, Object value) {
         if (test) {
-            String propertyName = getPropertyName(property);
-            return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.NOT, SqlKeyword.LIKE, formatLikeValue(propertyName, SqlLike.RIGHT, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(getPropertyName(property), ConditionType.NOT_LIKE, value, SqlLike.RIGHT);
         }
+        return this.getSelf();
     }
 
     @Override
     public R likeLeft(boolean test, P property, Object value) {
         if (test) {
-            String propertyName = getPropertyName(property);
-            return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.LIKE, formatLikeValue(propertyName, SqlLike.LEFT, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(getPropertyName(property), ConditionType.LIKE, value, SqlLike.LEFT);
         }
+        return this.getSelf();
     }
 
     @Override
     public R notLikeLeft(boolean test, P property, Object value) {
         if (test) {
-            String propertyName = getPropertyName(property);
-            return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.NOT, SqlKeyword.LIKE, formatLikeValue(propertyName, SqlLike.LEFT, value));
-        } else {
-            return this.getSelf();
+            this.addCondition(getPropertyName(property), ConditionType.NOT_LIKE, value, SqlLike.LEFT);
         }
+        return this.getSelf();
     }
 
     @Override
     public R isNull(boolean test, P property) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(getPropertyName(property)), SqlKeyword.IS, SqlKeyword.NULL);
-        } else {
-            return this.getSelf();
+            this.addCondition(getPropertyName(property), ConditionType.IS_NULL, null);
         }
+        return this.getSelf();
     }
 
     @Override
     public R isNotNull(boolean test, P property) {
         if (test) {
-            return this.addCondition(buildConditionByProperty(getPropertyName(property)), SqlKeyword.IS, SqlKeyword.NOT, SqlKeyword.NULL);
-        } else {
-            return this.getSelf();
+            this.addCondition(getPropertyName(property), ConditionType.IS_NOT_NULL, null);
         }
+        return this.getSelf();
     }
 
     @Override
     public R in(boolean test, P property, Collection<?> value) {
         if (test) {
             ObjectUtils.assertTrue(!value.isEmpty(), "build notIn failed, value is empty.");
-            String propertyName = getPropertyName(property);
-            return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.IN, SqlKeyword.LEFT, formatValue(propertyName, value.toArray()), SqlKeyword.RIGHT);
-        } else {
-            return this.getSelf();
+            this.addConditionForIn(getPropertyName(property), ConditionType.IN, value);
         }
+        return this.getSelf();
     }
 
     @Override
     public R notIn(boolean test, P property, Collection<?> value) {
         if (test) {
             ObjectUtils.assertTrue(!value.isEmpty(), "build notIn failed, value is empty.");
-            String propertyName = getPropertyName(property);
-            return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.NOT, SqlKeyword.IN, SqlKeyword.LEFT, formatValue(propertyName, value.toArray()), SqlKeyword.RIGHT);
-        } else {
-            return this.getSelf();
+            this.addConditionForIn(getPropertyName(property), ConditionType.NOT_IN, value);
         }
+        return this.getSelf();
     }
 
     @Override
     public R rangeBetween(boolean test, P property, Object value1, Object value2) {
         if (test) {
-            String propertyName = getPropertyName(property);
-            return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.BETWEEN, formatValue(propertyName, value1), SqlKeyword.AND, formatValue(propertyName, value2));
-        } else {
-            return this.getSelf();
+            this.addConditionForBetween(getPropertyName(property), ConditionType.BETWEEN, value1, value2);
         }
+        return this.getSelf();
     }
 
     @Override
     public R rangeNotBetween(boolean test, P property, Object value1, Object value2) {
         if (test) {
-            String propertyName = getPropertyName(property);
-            return this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.NOT, SqlKeyword.BETWEEN, formatValue(propertyName, value1), SqlKeyword.AND, formatValue(propertyName, value2));
-        } else {
-            return this.getSelf();
+            this.addConditionForBetween(getPropertyName(property), ConditionType.NOT_BETWEEN, value1, value2);
         }
+        return this.getSelf();
     }
 
     @Override
     public R rangeOpenOpen(boolean test, P property, Object value1, Object value2) {
-        if (test) {
-            String propertyName = getPropertyName(property);
-            Segment colName = buildConditionByProperty(propertyName);
-            return this.addCondition(   //
-                    SqlKeyword.LEFT,    //
-                    formatValue(propertyName, value1), SqlKeyword.LT, colName,//
-                    SqlKeyword.AND,     //
-                    colName, SqlKeyword.LT, formatValue(propertyName, value2),//
-                    SqlKeyword.RIGHT    //
-            );
-        } else {
-            return this.getSelf();
-        }
+        return test ? nested(p -> {
+            this.gt(property, value1);
+            this.lt(property, value2);
+        }) : getSelf();
     }
 
     @Override
     public R rangeNotOpenOpen(boolean test, P property, Object value1, Object value2) {
-        if (test) {
-            String propertyName = getPropertyName(property);
-            Segment colName = buildConditionByProperty(propertyName);
-            return this.addCondition(   //
-                    SqlKeyword.NOT,     //
-                    SqlKeyword.LEFT,    //
-                    formatValue(propertyName, value1), SqlKeyword.LT, colName,//
-                    SqlKeyword.AND,     //
-                    colName, SqlKeyword.LT, formatValue(propertyName, value2),//
-                    SqlKeyword.RIGHT    //
-            );
-        } else {
-            return this.getSelf();
-        }
+        return test ? not(p -> {
+            this.gt(property, value1);
+            this.lt(property, value2);
+        }) : getSelf();
     }
 
     @Override
     public R rangeOpenClosed(boolean test, P property, Object value1, Object value2) {
-        if (test) {
-            String propertyName = getPropertyName(property);
-            Segment colName = buildConditionByProperty(propertyName);
-            return this.addCondition(   //
-                    SqlKeyword.LEFT,    //
-                    formatValue(propertyName, value1), SqlKeyword.LT, colName,//
-                    SqlKeyword.AND,     //
-                    colName, SqlKeyword.LE, formatValue(propertyName, value2),//
-                    SqlKeyword.RIGHT    //
-            );
-        } else {
-            return this.getSelf();
-        }
+        return test ? nested(p -> {
+            this.gt(property, value1);
+            this.le(property, value2);
+        }) : getSelf();
     }
 
     @Override
     public R rangeNotOpenClosed(boolean test, P property, Object value1, Object value2) {
-        if (test) {
-            String propertyName = getPropertyName(property);
-            Segment colName = buildConditionByProperty(propertyName);
-            return this.addCondition(   //
-                    SqlKeyword.NOT,     //
-                    SqlKeyword.LEFT,    //
-                    formatValue(propertyName, value1), SqlKeyword.LT, colName,//
-                    SqlKeyword.AND,     //
-                    colName, SqlKeyword.LE, formatValue(propertyName, value2),//
-                    SqlKeyword.RIGHT    //
-            );
-        } else {
-            return this.getSelf();
-        }
+        return test ? not(p -> {
+            this.gt(property, value1);
+            this.le(property, value2);
+        }) : getSelf();
     }
 
     @Override
     public R rangeClosedOpen(boolean test, P property, Object value1, Object value2) {
-        if (test) {
-            String propertyName = getPropertyName(property);
-            Segment colName = buildConditionByProperty(propertyName);
-            return this.addCondition(   //
-                    SqlKeyword.LEFT,    //
-                    formatValue(propertyName, value1), SqlKeyword.LE, colName,//
-                    SqlKeyword.AND,     //
-                    colName, SqlKeyword.LT, formatValue(propertyName, value2),//
-                    SqlKeyword.RIGHT    //
-            );
-        } else {
-            return this.getSelf();
-        }
+        return test ? nested(p -> {
+            this.ge(property, value1);
+            this.lt(property, value2);
+        }) : getSelf();
     }
 
     @Override
     public R rangeNotClosedOpen(boolean test, P property, Object value1, Object value2) {
-        if (test) {
-            String propertyName = getPropertyName(property);
-            Segment colName = buildConditionByProperty(propertyName);
-            return this.addCondition(   //
-                    SqlKeyword.NOT,    //
-                    SqlKeyword.LEFT,    //
-                    formatValue(propertyName, value1), SqlKeyword.LE, colName,//
-                    SqlKeyword.AND,     //
-                    colName, SqlKeyword.LT, formatValue(propertyName, value2),//
-                    SqlKeyword.RIGHT    //
-            );
-        } else {
-            return this.getSelf();
-        }
+        return test ? not(p -> {
+            this.ge(property, value1);
+            this.lt(property, value2);
+        }) : getSelf();
     }
 
     @Override
     public R rangeClosedClosed(boolean test, P property, Object value1, Object value2) {
-        if (test) {
-            String propertyName = getPropertyName(property);
-            Segment colName = buildConditionByProperty(propertyName);
-            return this.addCondition(   //
-                    SqlKeyword.LEFT,    //
-                    formatValue(propertyName, value1), SqlKeyword.LE, colName,//
-                    SqlKeyword.AND,     //
-                    colName, SqlKeyword.LE, formatValue(propertyName, value2),//
-                    SqlKeyword.RIGHT    //
-            );
-        } else {
-            return this.getSelf();
-        }
+        return test ? nested(p -> {
+            this.ge(property, value1);
+            this.le(property, value2);
+        }) : getSelf();
     }
 
     @Override
     public R rangeNotClosedClosed(boolean test, P property, Object value1, Object value2) {
-        if (test) {
-            String propertyName = getPropertyName(property);
-            Segment colName = buildConditionByProperty(propertyName);
-            return this.addCondition(   //
-                    SqlKeyword.NOT,    //
-                    SqlKeyword.LEFT,    //
-                    formatValue(propertyName, value1), SqlKeyword.LE, colName,//
-                    SqlKeyword.AND,     //
-                    colName, SqlKeyword.LE, formatValue(propertyName, value2),//
-                    SqlKeyword.RIGHT    //
-            );
-        } else {
-            return this.getSelf();
-        }
+        return test ? not(p -> {
+            this.ge(property, value1);
+            this.le(property, value2);
+        }) : getSelf();
     }
 
     @Override
@@ -573,24 +373,22 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
             return this.eqBySampleMap((Map<String, Object>) sample);
         }
 
-        boolean hasCondition = false;
-        TableMapping<?> tableMapping = this.getTableMapping();
-        for (ColumnMapping property : tableMapping.getProperties()) {
-            Object value = property.getHandler().get(sample);
-            if (value != null) {
-                if (!hasCondition) {
-                    this.addCondition(SqlKeyword.LEFT);
-                    this.nextSegmentPrefix = SqlKeyword.EMPTY;
-                    hasCondition = true;
+        final List<Tuple> condition = new ArrayList<>();
+        for (ColumnMapping property : this.getTableMapping().getProperties()) {
+            if (property.getHandler().get(sample) != null) {
+                Object value = property.getHandler().get(sample);
+                if (value != null) {
+                    condition.add(Tuple.of(property.getProperty(), value));
                 }
-                String propertyName = property.getProperty();
-                this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.EQ, formatValue(propertyName, value));
             }
         }
 
-        if (hasCondition) {
-            this.nextSegmentPrefix = SqlKeyword.EMPTY;
-            this.addCondition(SqlKeyword.RIGHT);
+        if (!condition.isEmpty()) {
+            this.nested(p -> {
+                for (Tuple tuple : condition) {
+                    this.addCondition(tuple.getArg0(), ConditionType.EQ, tuple.getArg1());
+                }
+            });
         }
 
         return this.getSelf();
@@ -602,21 +400,15 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
             throw new NullPointerException("sample is null.");
         }
 
-        boolean hasCondition = false;
         TableMapping<?> tableMapping = this.getTableMapping();
+        final List<Tuple> condition = new ArrayList<>();
         if (!tableMapping.getProperties().isEmpty()) {
             // use column def.
             for (ColumnMapping property : tableMapping.getProperties()) {
                 String propertyName = property.getProperty();
                 Object value = sample.get(propertyName);
                 if (value != null) {
-                    if (!hasCondition) {
-                        this.addCondition(SqlKeyword.LEFT);
-                        this.nextSegmentPrefix = SqlKeyword.EMPTY;
-                        hasCondition = true;
-                    }
-
-                    this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.EQ, formatValue(propertyName, value));
+                    condition.add(Tuple.of(propertyName, value));
                 }
             }
         } else {
@@ -624,21 +416,95 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
             for (String propertyName : sample.keySet()) {
                 Object value = sample.get(propertyName);
                 if (value != null) {
-                    if (!hasCondition) {
-                        this.addCondition(SqlKeyword.LEFT);
-                        this.nextSegmentPrefix = SqlKeyword.EMPTY;
-                        hasCondition = true;
-                    }
-                    this.addCondition(buildConditionByProperty(propertyName), SqlKeyword.EQ, formatValue(value));
+                    condition.add(Tuple.of(propertyName, value));
                 }
             }
         }
 
-        if (hasCondition) {
-            this.nextSegmentPrefix = SqlKeyword.EMPTY;
-            this.addCondition(SqlKeyword.RIGHT);
+        if (!condition.isEmpty()) {
+            this.nested(p -> {
+                for (Tuple tuple : condition) {
+                    this.addCondition(tuple.getArg0(), ConditionType.EQ, tuple.getArg1());
+                }
+            });
         }
 
         return this.getSelf();
+    }
+
+    protected SqlArg wrapValue(String propertyName, Object value) {
+        if (value instanceof SqlArg) {
+            return (SqlArg) value;
+        }
+        ColumnMapping mapping = this.findPropertyByName(propertyName);
+        int sqlType = Types.OTHER;
+        TypeHandler<?> typeHandler = null;
+
+        if (mapping != null) {
+            Integer jdbcType = mapping.getJdbcType();
+            if (jdbcType != null) {
+                sqlType = jdbcType;
+            }
+            if (!exampleIsMap()) {
+                typeHandler = mapping.getTypeHandler();
+            }
+        } else if (value != null) {
+            sqlType = TypeHandlerRegistry.toSqlType(value.getClass());
+            typeHandler = TypeHandlerRegistry.DEFAULT.getTypeHandler(value.getClass());
+        }
+
+        return new SqlArg(value, sqlType, typeHandler);
+    }
+
+    protected SqlArg[] wrapValues(String propertyName, Object[] values) {
+        if (values == null) {
+            return new SqlArg[0];
+        }
+        SqlArg[] args = new SqlArg[values.length];
+        for (int i = 0; i < values.length; i++) {
+            args[i] = wrapValue(propertyName, values[i]);
+        }
+        return args;
+    }
+
+    protected void addCondition(String propertyName, ConditionType type, Object value) {
+        addCondition(propertyName, type, value, null);
+    }
+
+    protected void addCondition(String propertyName, ConditionType type, Object value, SqlLike likeType) {
+        ColumnMapping mapping = this.findPropertyByName(propertyName);
+        String colName = mapping != null ? mapping.getColumn() : propertyName;
+        String colTerm = mapping != null ? mapping.getWhereColTemplate() : null;
+        String valTerm = mapping != null ? mapping.getWhereValueTemplate() : null;
+
+        Object val = wrapValue(propertyName, value);
+
+        this.cmdBuilder.addCondition(this.nextLogic, colName, colTerm, type, val, valTerm, likeType);
+        this.nextLogic = ConditionLogic.AND;
+    }
+
+    protected void addConditionForIn(String propertyName, ConditionType type, Collection<?> value) {
+        ColumnMapping mapping = this.findPropertyByName(propertyName);
+        String colName = mapping != null ? mapping.getColumn() : propertyName;
+        String colTerm = mapping != null ? mapping.getWhereColTemplate() : null;
+        String valTerm = mapping != null ? mapping.getWhereValueTemplate() : null;
+
+        Object[] values = wrapValues(propertyName, value.toArray());
+
+        this.cmdBuilder.addConditionForIn(this.nextLogic, colName, colTerm, type, values, valTerm);
+        this.nextLogic = ConditionLogic.AND;
+    }
+
+    protected void addConditionForBetween(String propertyName, ConditionType type, Object value1, Object value2) {
+        ColumnMapping mapping = this.findPropertyByName(propertyName);
+        String colName = mapping != null ? mapping.getColumn() : propertyName;
+        String colTerm = mapping != null ? mapping.getWhereColTemplate() : null;
+        String valTerm = mapping != null ? mapping.getWhereValueTemplate() : null;
+
+        Object val1 = wrapValue(propertyName, value1);
+        Object val2 = wrapValue(propertyName, value2);
+
+        this.cmdBuilder.addConditionForBetween(this.nextLogic, colName, colTerm, type, val1, valTerm, val2, valTerm);
+        this.nextLogic = ConditionLogic.AND;
     }
 }

@@ -244,7 +244,7 @@ public class BuildPojoQueryOtherTest {
                 .eq(UserInfo::getLoginName, "a")//
                 .asc(UserInfo::getLoginName).asc(UserInfo::getSeq)//
                 .getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE loginName = ? ORDER BY loginName ASC , seq ASC");
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE loginName = ? ORDER BY loginName ASC, seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
 
         BoundSql boundSql3 = newLambda().query(UserInfo.class)//
@@ -258,7 +258,7 @@ public class BuildPojoQueryOtherTest {
                 .eq(UserInfo::getLoginName, "a")//
                 .asc(UserInfo::getSeq).desc(UserInfo::getLoginName)//
                 .getBoundSql();
-        assert boundSql4.getSqlString().equals("SELECT * FROM UserInfo WHERE loginName = ? ORDER BY seq ASC , loginName DESC");
+        assert boundSql4.getSqlString().equals("SELECT * FROM UserInfo WHERE loginName = ? ORDER BY seq ASC, loginName DESC");
         assert boundSql4.getArgs()[0].equals("a");
 
         BoundSql boundSql5 = newLambda().query(UserInfo.class)//
@@ -281,7 +281,7 @@ public class BuildPojoQueryOtherTest {
                 .eq("loginName", "a")//
                 .asc("loginName").asc("seq")//
                 .getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE loginName = ? ORDER BY loginName ASC , seq ASC");
+        assert boundSql2.getSqlString().equals("SELECT * FROM UserInfo WHERE loginName = ? ORDER BY loginName ASC, seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
 
         BoundSql boundSql3 = newLambda().query(UserInfo.class).asMap()//
@@ -295,7 +295,7 @@ public class BuildPojoQueryOtherTest {
                 .eq("loginName", "a")//
                 .asc("seq").desc("loginName")//
                 .getBoundSql();
-        assert boundSql4.getSqlString().equals("SELECT * FROM UserInfo WHERE loginName = ? ORDER BY seq ASC , loginName DESC");
+        assert boundSql4.getSqlString().equals("SELECT * FROM UserInfo WHERE loginName = ? ORDER BY seq ASC, loginName DESC");
         assert boundSql4.getArgs()[0].equals("a");
 
         BoundSql boundSql5 = newLambda().query(UserInfo.class).asMap()//
@@ -344,7 +344,7 @@ public class BuildPojoQueryOtherTest {
                 .rangeBetween(UserInfo::getLoginName, 2, 3)//
                 .getBoundSql();
 
-        assert boundSql1.getSqlString().equals("SELECT loginName , seq FROM UserInfo WHERE seq = ? OR loginName BETWEEN ? AND ?");
+        assert boundSql1.getSqlString().equals("SELECT loginName, seq FROM UserInfo WHERE seq = ? OR loginName BETWEEN ? AND ?");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
@@ -359,7 +359,7 @@ public class BuildPojoQueryOtherTest {
                 .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
-        assert boundSql1.getSqlString().equals("SELECT loginName , seq FROM UserInfo WHERE seq = ? OR loginName BETWEEN ? AND ?");
+        assert boundSql1.getSqlString().equals("SELECT loginName, seq FROM UserInfo WHERE seq = ? OR loginName BETWEEN ? AND ?");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);

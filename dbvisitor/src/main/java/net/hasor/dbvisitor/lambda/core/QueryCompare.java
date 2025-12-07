@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda.core;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -33,7 +34,7 @@ public interface QueryCompare<R, T, P> {
      * <p>例2: apply("date_format(dateColumn,'%Y-%m-%d') = '2008-08-08'")</p>
      * <p>例3: apply("date_format(dateColumn,'%Y-%m-%d') = {0}", LocalDate.now())</p>
      */
-    R apply(String sqlString, Object... args);
+    R apply(String sqlString, Object... args) throws SQLException;
 
     /**
      * ifTrue(Consumer) 当 test 条件为 true 的时才执行。相当于如下逻辑：

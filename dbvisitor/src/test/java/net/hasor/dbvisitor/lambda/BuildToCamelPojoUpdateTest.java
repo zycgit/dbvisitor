@@ -139,7 +139,7 @@ public class BuildToCamelPojoUpdateTest {
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
         assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("UPDATE user_info SET login_name = ? , password = ? WHERE ( seq = ? )");
+        assert boundSql1.getSqlString().equals("UPDATE user_info SET login_name = ?, password = ? WHERE ( seq = ? )");
         assert boundSql1.getArgs()[0].equals("acc");
         assert boundSql1.getArgs()[1].equals("pwd");
         assert boundSql1.getArgs()[2].equals(123);
@@ -157,7 +157,7 @@ public class BuildToCamelPojoUpdateTest {
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
         assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("UPDATE user_info SET login_name = ? , password = ? WHERE ( seq = ? )");
+        assert boundSql1.getSqlString().equals("UPDATE user_info SET login_name = ?, password = ? WHERE ( seq = ? )");
         assert boundSql1.getArgs()[0].equals("acc");
         assert boundSql1.getArgs()[1].equals("pwd");
         assert boundSql1.getArgs()[2].equals(123);
@@ -173,7 +173,7 @@ public class BuildToCamelPojoUpdateTest {
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
         assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("UPDATE user_info SET login_name = ? , password = ? WHERE ( seq = ? )");
+        assert boundSql1.getSqlString().equals("UPDATE user_info SET login_name = ?, password = ? WHERE ( seq = ? )");
         assert boundSql1.getArgs()[0].equals("acc");
         assert boundSql1.getArgs()[1].equals("pwd");
         assert boundSql1.getArgs()[2].equals(123);
@@ -191,7 +191,7 @@ public class BuildToCamelPojoUpdateTest {
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
         assert !(boundSql1 instanceof BatchBoundSql);
-        assert boundSql1.getSqlString().equals("UPDATE user_info SET login_name = ? , password = ? WHERE ( seq = ? )");
+        assert boundSql1.getSqlString().equals("UPDATE user_info SET login_name = ?, password = ? WHERE ( seq = ? )");
         assert boundSql1.getArgs()[0].equals("acc");
         assert boundSql1.getArgs()[1].equals("pwd");
         assert boundSql1.getArgs()[2].equals(123);
@@ -207,7 +207,7 @@ public class BuildToCamelPojoUpdateTest {
         lambdaUpdate.eq(UserInfo::getLoginName, "admin").and().eq(UserInfo::getPassword, "pass").allowUpdateKey().updateRow(data);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
-        assert boundSql1.getSqlString().equals("UPDATE user_info SET uid = NULL , name = NULL , login_name = ? , password = ? , email = NULL , seq = NULL , create_time = NULL WHERE login_name = ? AND password = ?");
+        assert boundSql1.getSqlString().equals("UPDATE user_info SET uid = NULL, name = NULL, login_name = ?, password = ?, email = NULL, seq = NULL, create_time = NULL WHERE login_name = ? AND password = ?");
         assert boundSql1.getArgs()[0].equals("acc");
         assert boundSql1.getArgs()[1].equals("pwd");
         assert boundSql1.getArgs()[2].equals("admin");
@@ -225,7 +225,7 @@ public class BuildToCamelPojoUpdateTest {
         lambdaUpdate.eq("loginName", "admin").and().eq("password", "pass").allowUpdateKey().updateRow(map);
 
         BoundSql boundSql1 = lambdaUpdate.getBoundSql();
-        assert boundSql1.getSqlString().equals("UPDATE user_info SET uid = NULL , name = NULL , login_name = ? , password = ? , email = NULL , seq = NULL , create_time = NULL WHERE login_name = ? AND password = ?");
+        assert boundSql1.getSqlString().equals("UPDATE user_info SET uid = NULL, name = NULL, login_name = ?, password = ?, email = NULL, seq = NULL, create_time = NULL WHERE login_name = ? AND password = ?");
         assert boundSql1.getArgs()[0].equals("acc");
         assert boundSql1.getArgs()[1].equals("pwd");
         assert boundSql1.getArgs()[2].equals("admin");

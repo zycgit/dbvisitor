@@ -248,7 +248,7 @@ public class BuildEntQueryOtherTest {
                 .eq(AnnoUserInfoDTO::getLoginName, "a")//
                 .asc(AnnoUserInfoDTO::getLoginName).asc(AnnoUserInfoDTO::getSeq)//
                 .getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC , seq ASC");
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC, seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
 
         BoundSql boundSql3 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
@@ -262,7 +262,7 @@ public class BuildEntQueryOtherTest {
                 .eq(AnnoUserInfoDTO::getLoginName, "a")//
                 .asc(AnnoUserInfoDTO::getSeq).desc(AnnoUserInfoDTO::getLoginName)//
                 .getBoundSql();
-        assert boundSql4.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY seq ASC , login_name DESC");
+        assert boundSql4.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY seq ASC, login_name DESC");
         assert boundSql4.getArgs()[0].equals("a");
 
         BoundSql boundSql5 = new LambdaTemplate().query(AnnoUserInfoDTO.class)//
@@ -285,7 +285,7 @@ public class BuildEntQueryOtherTest {
                 .eq("loginName", "a")//
                 .asc("loginName").asc("seq")//
                 .getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC , seq ASC");
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY login_name ASC, seq ASC");
         assert boundSql2.getArgs()[0].equals("a");
 
         BoundSql boundSql3 = new LambdaTemplate().query(AnnoUserInfoDTO.class).asMap()//
@@ -299,7 +299,7 @@ public class BuildEntQueryOtherTest {
                 .eq("loginName", "a")//
                 .asc("seq").desc("loginName")//
                 .getBoundSql();
-        assert boundSql4.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY seq ASC , login_name DESC");
+        assert boundSql4.getSqlString().equals("SELECT * FROM user_info WHERE login_name = ? ORDER BY seq ASC, login_name DESC");
         assert boundSql4.getArgs()[0].equals("a");
 
         BoundSql boundSql5 = new LambdaTemplate().query(AnnoUserInfoDTO.class).asMap()//
@@ -348,7 +348,7 @@ public class BuildEntQueryOtherTest {
                 .rangeBetween(AnnoUserInfoDTO::getLoginName, 2, 3)//
                 .getBoundSql();
 
-        assert boundSql1.getSqlString().equals("SELECT login_name , seq FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
+        assert boundSql1.getSqlString().equals("SELECT login_name, seq FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
@@ -363,7 +363,7 @@ public class BuildEntQueryOtherTest {
                 .rangeBetween("loginName", 2, 3)//
                 .getBoundSql();
 
-        assert boundSql1.getSqlString().equals("SELECT login_name , seq FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
+        assert boundSql1.getSqlString().equals("SELECT login_name, seq FROM user_info WHERE seq = ? OR login_name BETWEEN ? AND ?");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);

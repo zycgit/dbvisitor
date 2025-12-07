@@ -27,6 +27,8 @@ import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 /***
  * @version 2021-3-22
  * @author 赵永春 (zyc@hasor.net)
@@ -338,21 +340,21 @@ public class FreedomToCamelBuildQueryConditionTest {
     public void queryBuild_rangeOpenOpen_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).rangeOpenOpen("loginName", 2, 3).getBoundSql();
-        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? < login_name AND login_name < ? )");
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( login_name > ? AND login_name < ? )");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
 
         BoundSql boundSql2 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).or().rangeOpenOpen("loginName", 2, 3).getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR ( ? < login_name AND login_name < ? )");
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR ( login_name > ? AND login_name < ? )");
         assert boundSql2.getArgs()[0].equals(1);
         assert boundSql2.getArgs()[1].equals(2);
         assert boundSql2.getArgs()[2].equals(3);
 
         BoundSql boundSql3 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).and().rangeOpenOpen("loginName", 2, 3).getBoundSql();
-        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? < login_name AND login_name < ? )");
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( login_name > ? AND login_name < ? )");
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
         assert boundSql3.getArgs()[2].equals(3);
@@ -362,21 +364,21 @@ public class FreedomToCamelBuildQueryConditionTest {
     public void queryBuild_not_rangeOpenOpen_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).rangeNotOpenOpen("loginName", 2, 3).getBoundSql();
-        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? < login_name AND login_name < ? )");
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( login_name > ? AND login_name < ? )");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
 
         BoundSql boundSql2 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).or().rangeNotOpenOpen("loginName", 2, 3).getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR NOT ( ? < login_name AND login_name < ? )");
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR NOT ( login_name > ? AND login_name < ? )");
         assert boundSql2.getArgs()[0].equals(1);
         assert boundSql2.getArgs()[1].equals(2);
         assert boundSql2.getArgs()[2].equals(3);
 
         BoundSql boundSql3 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).and().rangeNotOpenOpen("loginName", 2, 3).getBoundSql();
-        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? < login_name AND login_name < ? )");
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( login_name > ? AND login_name < ? )");
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
         assert boundSql3.getArgs()[2].equals(3);
@@ -386,21 +388,21 @@ public class FreedomToCamelBuildQueryConditionTest {
     public void queryBuild_rangeOpenClosed_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).rangeOpenClosed("loginName", 2, 3).getBoundSql();
-        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? < login_name AND login_name <= ? )");
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( login_name > ? AND login_name <= ? )");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
 
         BoundSql boundSql2 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).or().rangeOpenClosed("loginName", 2, 3).getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR ( ? < login_name AND login_name <= ? )");
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR ( login_name > ? AND login_name <= ? )");
         assert boundSql2.getArgs()[0].equals(1);
         assert boundSql2.getArgs()[1].equals(2);
         assert boundSql2.getArgs()[2].equals(3);
 
         BoundSql boundSql3 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).and().rangeOpenClosed("loginName", 2, 3).getBoundSql();
-        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? < login_name AND login_name <= ? )");
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( login_name > ? AND login_name <= ? )");
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
         assert boundSql3.getArgs()[2].equals(3);
@@ -410,21 +412,21 @@ public class FreedomToCamelBuildQueryConditionTest {
     public void queryBuild_not_rangeOpenClosed_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).rangeNotOpenClosed("loginName", 2, 3).getBoundSql();
-        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? < login_name AND login_name <= ? )");
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( login_name > ? AND login_name <= ? )");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
 
         BoundSql boundSql2 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).or().rangeNotOpenClosed("loginName", 2, 3).getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR NOT ( ? < login_name AND login_name <= ? )");
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR NOT ( login_name > ? AND login_name <= ? )");
         assert boundSql2.getArgs()[0].equals(1);
         assert boundSql2.getArgs()[1].equals(2);
         assert boundSql2.getArgs()[2].equals(3);
 
         BoundSql boundSql3 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).and().rangeNotOpenClosed("loginName", 2, 3).getBoundSql();
-        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? < login_name AND login_name <= ? )");
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( login_name > ? AND login_name <= ? )");
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
         assert boundSql3.getArgs()[2].equals(3);
@@ -434,21 +436,21 @@ public class FreedomToCamelBuildQueryConditionTest {
     public void queryBuild_rangeClosedOpen_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).rangeClosedOpen("loginName", 2, 3).getBoundSql();
-        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? <= login_name AND login_name < ? )");
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( login_name >= ? AND login_name < ? )");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
 
         BoundSql boundSql2 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).or().rangeClosedOpen("loginName", 2, 3).getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR ( ? <= login_name AND login_name < ? )");
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR ( login_name >= ? AND login_name < ? )");
         assert boundSql2.getArgs()[0].equals(1);
         assert boundSql2.getArgs()[1].equals(2);
         assert boundSql2.getArgs()[2].equals(3);
 
         BoundSql boundSql3 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).and().rangeClosedOpen("loginName", 2, 3).getBoundSql();
-        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? <= login_name AND login_name < ? )");
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( login_name >= ? AND login_name < ? )");
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
         assert boundSql3.getArgs()[2].equals(3);
@@ -458,21 +460,21 @@ public class FreedomToCamelBuildQueryConditionTest {
     public void queryBuild_not_rangeClosedOpen_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).rangeNotClosedOpen("loginName", 2, 3).getBoundSql();
-        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? <= login_name AND login_name < ? )");
+        assertEquals("SELECT * FROM user_info WHERE seq = ? AND NOT ( login_name >= ? AND login_name < ? )", boundSql1.getSqlString());
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
 
         BoundSql boundSql2 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).or().rangeNotClosedOpen("loginName", 2, 3).getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR NOT ( ? <= login_name AND login_name < ? )");
+        assertEquals("SELECT * FROM user_info WHERE seq = ? OR NOT ( login_name >= ? AND login_name < ? )", boundSql2.getSqlString());
         assert boundSql2.getArgs()[0].equals(1);
         assert boundSql2.getArgs()[1].equals(2);
         assert boundSql2.getArgs()[2].equals(3);
 
         BoundSql boundSql3 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).and().rangeNotClosedOpen("loginName", 2, 3).getBoundSql();
-        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? <= login_name AND login_name < ? )");
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( login_name >= ? AND login_name < ? )");
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
         assert boundSql3.getArgs()[2].equals(3);
@@ -482,21 +484,21 @@ public class FreedomToCamelBuildQueryConditionTest {
     public void queryBuild_rangeClosedClosed_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).rangeClosedClosed("loginName", 2, 3).getBoundSql();
-        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? <= login_name AND login_name <= ? )");
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( login_name >= ? AND login_name <= ? )");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
 
         BoundSql boundSql2 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).or().rangeClosedClosed("loginName", 2, 3).getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR ( ? <= login_name AND login_name <= ? )");
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR ( login_name >= ? AND login_name <= ? )");
         assert boundSql2.getArgs()[0].equals(1);
         assert boundSql2.getArgs()[1].equals(2);
         assert boundSql2.getArgs()[2].equals(3);
 
         BoundSql boundSql3 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).and().rangeClosedClosed("loginName", 2, 3).getBoundSql();
-        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( ? <= login_name AND login_name <= ? )");
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND ( login_name >= ? AND login_name <= ? )");
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
         assert boundSql3.getArgs()[2].equals(3);
@@ -506,21 +508,21 @@ public class FreedomToCamelBuildQueryConditionTest {
     public void queryBuild_not_rangeClosedClosed_1() throws SQLException {
         BoundSql boundSql1 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).rangeNotClosedClosed("loginName", 2, 3).getBoundSql();
-        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? <= login_name AND login_name <= ? )");
+        assert boundSql1.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( login_name >= ? AND login_name <= ? )");
         assert boundSql1.getArgs()[0].equals(1);
         assert boundSql1.getArgs()[1].equals(2);
         assert boundSql1.getArgs()[2].equals(3);
 
         BoundSql boundSql2 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).or().rangeNotClosedClosed("loginName", 2, 3).getBoundSql();
-        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR NOT ( ? <= login_name AND login_name <= ? )");
+        assert boundSql2.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? OR NOT ( login_name >= ? AND login_name <= ? )");
         assert boundSql2.getArgs()[0].equals(1);
         assert boundSql2.getArgs()[1].equals(2);
         assert boundSql2.getArgs()[2].equals(3);
 
         BoundSql boundSql3 = newLambda().queryFreedom("user_info")//
                 .eq("seq", 1).and().rangeNotClosedClosed("loginName", 2, 3).getBoundSql();
-        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( ? <= login_name AND login_name <= ? )");
+        assert boundSql3.getSqlString().equals("SELECT * FROM user_info WHERE seq = ? AND NOT ( login_name >= ? AND login_name <= ? )");
         assert boundSql3.getArgs()[0].equals(1);
         assert boundSql3.getArgs()[1].equals(2);
         assert boundSql3.getArgs()[2].equals(3);
