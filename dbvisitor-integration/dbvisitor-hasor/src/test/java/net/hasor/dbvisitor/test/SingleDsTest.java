@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.test;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
 import net.hasor.core.AppContext;
 import net.hasor.core.Hasor;
 import net.hasor.dbvisitor.DbVisitorModule;
@@ -22,12 +27,6 @@ import net.hasor.dbvisitor.test.dao.role.RoleMapper;
 import net.hasor.dbvisitor.test.dao.user.UserMapper;
 import net.hasor.dbvisitor.test.dto.UserDTO;
 import org.junit.Test;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class SingleDsTest {
     @Inject

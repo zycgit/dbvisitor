@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import javax.sql.DataSource;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.provider.MySqlDialect;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
@@ -26,15 +32,8 @@ import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
-import static net.hasor.test.utils.TestUtils.INSERT_ARRAY;
 import org.junit.Test;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import static net.hasor.test.utils.TestUtils.INSERT_ARRAY;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

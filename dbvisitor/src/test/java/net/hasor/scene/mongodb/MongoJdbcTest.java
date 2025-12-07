@@ -16,7 +16,7 @@ public class MongoJdbcTest {
 
         try (Connection c = DsUtils.mongoConn()) {
             JdbcTemplate jdbc = new JdbcTemplate(c);
-            
+
             // 1. clean
             try {
                 jdbc.execute("test.user_info.drop()");
@@ -32,7 +32,7 @@ public class MongoJdbcTest {
             // 3. query list
             List<Map<String, Object>> list = jdbc.queryForList("test.user_info.find()");
             assert list.size() == 3;
-            
+
             // 4. query condition
             Map<String, Object> mali = jdbc.queryForMap("test.user_info.find({name: 'mali'})");
             String json = (String) mali.get("JSON");
@@ -49,7 +49,7 @@ public class MongoJdbcTest {
             jdbc.execute("test.user_info.remove({name: 'mali'})");
             list = jdbc.queryForList("test.user_info.find({name: 'mali'})");
             assert list.isEmpty();
-            
+
             list = jdbc.queryForList("test.user_info.find()");
             assert list.size() == 2;
         }
@@ -59,7 +59,7 @@ public class MongoJdbcTest {
     public void using_jdbc_2() throws Exception {
         try (Connection c = DsUtils.mongoConn()) {
             JdbcTemplate jdbc = new JdbcTemplate(c);
-            
+
             // 1. clean
             try {
                 jdbc.execute("test.user_info.drop()");

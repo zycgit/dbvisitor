@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.session.dto;
+import java.io.Serializable;
+import java.util.Date;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Table;
-
-import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

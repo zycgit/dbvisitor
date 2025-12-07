@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.mapper;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.types.TypeHandlerRegistry;
-import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.types.TypeHandlerRegistry;
+import net.hasor.test.utils.DsUtils;
+import org.junit.Test;
 import static net.hasor.test.utils.TestUtils.*;
 
 public class ColumnMapRowMapperTest {

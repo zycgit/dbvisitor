@@ -1,12 +1,11 @@
 package net.hasor.scene.types.primitive;
-import net.hasor.dbvisitor.session.Configuration;
+import java.sql.Connection;
+import java.util.List;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.scene.types.primitive.dto.PrimitiveDTO;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.util.List;
 
 public class PrimitiveTestCase {
 

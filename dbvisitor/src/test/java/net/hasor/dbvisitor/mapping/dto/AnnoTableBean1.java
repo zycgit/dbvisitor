@@ -1,9 +1,8 @@
 package net.hasor.dbvisitor.mapping.dto;
 
+import java.util.Date;
 import net.hasor.dbvisitor.mapping.*;
 import net.hasor.test.dto.ResourceType;
-
-import java.util.Date;
 
 @Table(catalog = "master", schema = "dbo", table = "blob_resource")
 @TableDescribe(comment = "test table")

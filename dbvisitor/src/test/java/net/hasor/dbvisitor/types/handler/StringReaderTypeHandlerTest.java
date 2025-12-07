@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler;
+import java.io.Reader;
+import java.io.StringReader;
+import java.sql.Connection;
+import java.sql.JDBCType;
+import java.util.List;
+import java.util.Map;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.types.SqlArg;
@@ -23,13 +29,6 @@ import net.hasor.dbvisitor.types.handler.io.NStringAsReaderTypeHandler;
 import net.hasor.dbvisitor.types.handler.io.StringAsReaderTypeHandler;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.io.Reader;
-import java.io.StringReader;
-import java.sql.Connection;
-import java.sql.JDBCType;
-import java.util.List;
-import java.util.Map;
 
 public class StringReaderTypeHandlerTest {
     @Test

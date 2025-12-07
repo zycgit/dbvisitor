@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
-import net.hasor.dbvisitor.lambda.dto.AnnoUserInfoDTO;
-import net.hasor.test.utils.DsUtils;
-import static net.hasor.test.utils.TestUtils.*;
-import org.junit.Test;
-
 import java.sql.Connection;
 import java.util.List;
 import java.util.stream.Collectors;
+import net.hasor.dbvisitor.lambda.dto.AnnoUserInfoDTO;
+import net.hasor.test.utils.DsUtils;
+import org.junit.Test;
+import static net.hasor.test.utils.TestUtils.*;
 
 /***
  * Lambda 方式执行 Delete 操作

@@ -106,7 +106,7 @@ public class MongoCommandBuilderTest {
     public void testConditions() throws SQLException {
         MongoCommandBuilder builder = new MongoCommandBuilder();
         builder.setTable(null, null, "test");
-        
+
         builder.addCondition(ConditionLogic.AND, "c1", null, ConditionType.EQ, 1, null, null);
         builder.addCondition(ConditionLogic.AND, "c2", null, ConditionType.NE, 2, null, null);
         builder.addCondition(ConditionLogic.AND, "c3", null, ConditionType.GT, 3, null, null);
@@ -118,18 +118,8 @@ public class MongoCommandBuilderTest {
         builder.addCondition(ConditionLogic.AND, "c9", null, ConditionType.LIKE, "abc", null, SqlLike.DEFAULT);
 
         BoundSql boundSql = builder.buildSelect(new MongoDialect(), false);
-        String expected = "db.test.find({" +
-                "c1: ?, " +
-                "c2: { $ne: ? }, " +
-                "c3: { $gt: ? }, " +
-                "c4: { $gte: ? }, " +
-                "c5: { $lt: ? }, " +
-                "c6: { $lte: ? }, " +
-                "c7: null, " +
-                "c8: { $ne: null }, " +
-                "c9: { $regex: abc }" + 
-                "})";
-        
+        String expected = "db.test.find({" + "c1: ?, " + "c2: { $ne: ? }, " + "c3: { $gt: ? }, " + "c4: { $gte: ? }, " + "c5: { $lt: ? }, " + "c6: { $lte: ? }, " + "c7: null, " + "c8: { $ne: null }, " + "c9: { $regex: abc }" + "})";
+
         assertEquals(expected, boundSql.getSqlString());
         assertEquals(6, boundSql.getArgs().length);
     }
@@ -151,7 +141,7 @@ public class MongoCommandBuilderTest {
     public void testIn() throws SQLException {
         MongoCommandBuilder builder = new MongoCommandBuilder();
         builder.setTable(null, null, "test");
-        builder.addConditionForIn(ConditionLogic.AND, "status", null, ConditionType.IN, new Object[]{"A", "B"}, null);
+        builder.addConditionForIn(ConditionLogic.AND, "status", null, ConditionType.IN, new Object[] { "A", "B" }, null);
 
         BoundSql boundSql = builder.buildSelect(new MongoDialect(), false);
         assertEquals("db.test.find({status: { $in: [?, ?] }})", boundSql.getSqlString());

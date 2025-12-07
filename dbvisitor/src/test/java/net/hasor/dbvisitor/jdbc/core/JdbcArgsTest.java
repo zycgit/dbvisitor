@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
-import net.hasor.test.AbstractDbTest;
-import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.utils.DsUtils;
+import org.junit.Test;
 
 /***
  * executeBatch 系列方法测试

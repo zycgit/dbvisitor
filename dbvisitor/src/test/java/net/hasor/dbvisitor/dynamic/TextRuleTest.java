@@ -1,10 +1,9 @@
 package net.hasor.dbvisitor.dynamic;
+import java.sql.SQLException;
+import java.util.Collections;
 import net.hasor.dbvisitor.dynamic.rule.TextRule;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import org.junit.Test;
-
-import java.sql.SQLException;
-import java.util.Collections;
 
 public class TextRuleTest {
     @Test

@@ -1,10 +1,4 @@
 package net.hasor.test.utils;
-import net.hasor.cobble.CollectionUtils;
-import net.hasor.cobble.function.EConsumer;
-import net.hasor.cobble.io.IOUtils;
-import net.hasor.dbvisitor.transaction.ConnectionProxy;
-
-import javax.sql.DataSource;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -22,6 +16,11 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import javax.sql.DataSource;
+import net.hasor.cobble.CollectionUtils;
+import net.hasor.cobble.function.EConsumer;
+import net.hasor.cobble.io.IOUtils;
+import net.hasor.dbvisitor.transaction.ConnectionProxy;
 
 public class DefaultDs implements DataSource, Closeable {
     private String                              url;

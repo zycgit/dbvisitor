@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.test;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.solon.Db;
 import net.hasor.dbvisitor.test.dao.role.RoleMapper;
@@ -24,11 +28,6 @@ import org.junit.runner.RunWith;
 import org.noear.solon.annotation.Import;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.test.SolonJUnit4ClassRunner;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Import(profiles = "classpath:multi-ds.yml")
 @RunWith(SolonJUnit4ClassRunner.class)

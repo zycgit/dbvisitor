@@ -1,12 +1,11 @@
 package net.hasor.dbvisitor.types.custom;
 
-import net.hasor.dbvisitor.types.MappedJavaTypes;
-import net.hasor.dbvisitor.types.handler.string.StringTypeHandler;
-
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import net.hasor.dbvisitor.types.MappedJavaTypes;
+import net.hasor.dbvisitor.types.handler.string.StringTypeHandler;
 
 @MappedJavaTypes(String.class)
 public class MyStringTypeHandler1 extends StringTypeHandler {

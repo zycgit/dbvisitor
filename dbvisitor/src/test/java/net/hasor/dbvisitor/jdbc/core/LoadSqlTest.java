@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
-import net.hasor.cobble.ResourcesUtils;
-import net.hasor.dbvisitor.jdbc.ConnectionCallback;
-import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
-import net.hasor.test.AbstractDbTest;
-import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,7 +23,12 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-
+import net.hasor.cobble.ResourcesUtils;
+import net.hasor.dbvisitor.jdbc.ConnectionCallback;
+import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.utils.DsUtils;
+import org.junit.Test;
 import static net.hasor.test.utils.DsUtils.MYSQL_SCHEMA_NAME;
 
 /***

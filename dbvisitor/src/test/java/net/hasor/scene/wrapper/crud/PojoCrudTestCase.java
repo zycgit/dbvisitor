@@ -1,4 +1,11 @@
 package net.hasor.scene.wrapper.crud;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.lambda.EntityQuery;
 import net.hasor.dbvisitor.lambda.Insert;
@@ -7,14 +14,6 @@ import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.scene.wrapper.crud.dto.UserTable;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /** 使用标准的 pojo 来做 DTO 进行数据 插入 */
 public class PojoCrudTestCase {

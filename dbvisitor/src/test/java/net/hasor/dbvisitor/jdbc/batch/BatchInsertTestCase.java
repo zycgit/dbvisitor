@@ -1,4 +1,9 @@
 package net.hasor.dbvisitor.jdbc.batch;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.stream.Collectors;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
@@ -6,12 +11,6 @@ import net.hasor.dbvisitor.jdbc.BatchPreparedStatementSetter;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /** 批量插入的不同传参方式 */
 public class BatchInsertTestCase {

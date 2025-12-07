@@ -1,12 +1,11 @@
 package net.hasor.dbvisitor.dynamic;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.Map;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.rule.IfRule;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import org.junit.Test;
-
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.Map;
 
 public class IfRuleTest {
 

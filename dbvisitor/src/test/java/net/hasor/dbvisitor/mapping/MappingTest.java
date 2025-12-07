@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapping;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
 import net.hasor.cobble.time.DateTimeFormat;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.mapping.dto.MultipleMappingBean1;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.List;
 
 public class MappingTest {
 

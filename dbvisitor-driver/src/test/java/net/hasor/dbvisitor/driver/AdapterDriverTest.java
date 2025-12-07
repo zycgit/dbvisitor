@@ -1,8 +1,7 @@
 package net.hasor.dbvisitor.driver;
 
-import org.junit.Test;
-
 import java.util.Properties;
+import org.junit.Test;
 
 public class AdapterDriverTest {
 

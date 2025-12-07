@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.logic;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import net.hasor.dbvisitor.dynamic.DynamicParsed;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.dynamic.TestQueryContext;
@@ -21,12 +26,6 @@ import net.hasor.dbvisitor.dynamic.dto.UserFutures;
 import net.hasor.dbvisitor.dynamic.dto.UsersDTO;
 import net.hasor.dbvisitor.dynamic.segment.PlanDynamicSql;
 import org.junit.Test;
-
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 多个 SQL 节点组合成一个 SqlNode

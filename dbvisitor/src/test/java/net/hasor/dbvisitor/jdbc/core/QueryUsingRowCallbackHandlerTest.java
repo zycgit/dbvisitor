@@ -1,14 +1,13 @@
 package net.hasor.dbvisitor.jdbc.core;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Map;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
 import net.hasor.dbvisitor.jdbc.PreparedStatementSetter;
 import net.hasor.dbvisitor.jdbc.core.test.UserNameRowCallback;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Map;
 
 public class QueryUsingRowCallbackHandlerTest {
     @Test

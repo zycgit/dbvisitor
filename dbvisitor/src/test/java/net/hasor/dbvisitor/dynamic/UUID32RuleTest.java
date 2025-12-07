@@ -1,11 +1,10 @@
 package net.hasor.dbvisitor.dynamic;
+import java.sql.SQLException;
+import java.util.Map;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.rule.UUID32Rule;
 import net.hasor.dbvisitor.types.SqlArg;
 import org.junit.Test;
-
-import java.sql.SQLException;
-import java.util.Map;
 
 public class UUID32RuleTest {
 

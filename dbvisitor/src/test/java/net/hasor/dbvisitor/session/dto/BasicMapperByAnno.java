@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.session.dto;
-import net.hasor.dbvisitor.mapper.*;
-
 import java.util.List;
 import java.util.Map;
+import net.hasor.dbvisitor.mapper.*;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

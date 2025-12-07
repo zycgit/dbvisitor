@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.transaction;
+import java.sql.Connection;
+import java.sql.SQLException;
 import net.hasor.cobble.function.EConsumer;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.transaction.support.TransactionHelper;
 import net.hasor.test.utils.DefaultDs;
 import net.hasor.test.utils.DsUtils;
-import static net.hasor.test.utils.TestUtils.*;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.SQLException;
+import static net.hasor.test.utils.TestUtils.*;
 
 /**
  * 事务传播属性
- * @version : 2015年11月10日
  * @author 赵永春 (zyc@hasor.net)
+ * @version : 2015年11月10日
  */
 public class AnnoPropagationNotSupportedTest extends AbstractPropagationTest {
 

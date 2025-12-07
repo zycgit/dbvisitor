@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler;
+import java.sql.Connection;
+import java.sql.JDBCType;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.transaction.Isolation;
 import net.hasor.dbvisitor.types.SqlArg;
@@ -23,12 +28,6 @@ import net.hasor.dbvisitor.types.custom.LicenseOfValueEnum;
 import net.hasor.dbvisitor.types.handler.string.EnumTypeHandler;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.JDBCType;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
 public class EnumTypeHandlerTest {
     @Test

@@ -1,4 +1,8 @@
 package net.hasor.scene.wrapper.crud;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.stream.Collectors;
 import net.hasor.dbvisitor.lambda.EntityQuery;
 import net.hasor.dbvisitor.lambda.Insert;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
@@ -6,11 +10,6 @@ import net.hasor.dbvisitor.lambda.MapQuery;
 import net.hasor.scene.wrapper.crud.dto.UserTableDTO;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /** 使用 MAP 映射数据库 CRUD */
 public class MapCrudTestCase {

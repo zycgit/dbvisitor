@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.extractor;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
-import net.hasor.test.AbstractDbTest;
-import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
-
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.utils.DsUtils;
+import org.junit.Test;
 import static net.hasor.test.utils.TestUtils.*;
 
 /***

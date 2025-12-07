@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.realdb.oracle;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.test.utils.DsUtils;
+import org.junit.Test;
 
 public class OracleTypesTest {
     protected void preTable(JdbcTemplate jdbc) throws SQLException, IOException {

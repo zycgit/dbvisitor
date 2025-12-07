@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
-import net.hasor.dbvisitor.dialect.BatchBoundSql;
-import net.hasor.dbvisitor.lambda.dto.AnnoUserInfoDTO;
-import net.hasor.test.dto.UserInfo2;
-import net.hasor.test.utils.DsUtils;
-import static net.hasor.test.utils.TestUtils.newID;
-import org.junit.Test;
-
 import java.sql.Connection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import net.hasor.dbvisitor.dialect.BatchBoundSql;
+import net.hasor.dbvisitor.lambda.dto.AnnoUserInfoDTO;
+import net.hasor.test.dto.UserInfo2;
+import net.hasor.test.utils.DsUtils;
+import org.junit.Test;
+import static net.hasor.test.utils.TestUtils.newID;
 
 /**
  * Lambda 方式执行 Insert 操作

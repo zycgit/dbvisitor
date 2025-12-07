@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.transaction;
+import java.sql.Connection;
+import java.sql.SQLException;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.utils.DefaultDs;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import static net.hasor.test.utils.TestUtils.INSERT_ARRAY;
 import static net.hasor.test.utils.TestUtils.arrayForData4;
 

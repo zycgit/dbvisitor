@@ -17,6 +17,7 @@ package net.hasor.dbvisitor.spring.mapper;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.dbvisitor.session.Session;
@@ -29,7 +30,6 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import net.hasor.cobble.StringUtils;
 
 /**
  * A resource load for {@link MapperScan}.
@@ -76,8 +76,7 @@ public class MapperFileConfigurer extends AbstractConfigurer implements Initiali
             }
         }
 
-        String[] mapperLocationsArrays = Stream.of(Optional.ofNullable(this.mapperLocations).orElse("").split("[,; \t\n]"))
-                .filter(StringUtils::isNotBlank).map(String::trim).toArray(String[]::new);
+        String[] mapperLocationsArrays = Stream.of(Optional.ofNullable(this.mapperLocations).orElse("").split("[,; \t\n]")).filter(StringUtils::isNotBlank).map(String::trim).toArray(String[]::new);
         Resource[] mapperResources = Stream.of(Optional.ofNullable(mapperLocationsArrays).orElse(new String[0]))//
                 .flatMap(location -> Stream.of(getResources(location))).toArray(Resource[]::new);
         for (Resource resource : mapperResources) {

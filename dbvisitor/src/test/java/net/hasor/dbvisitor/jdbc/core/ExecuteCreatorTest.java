@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import net.hasor.dbvisitor.jdbc.core.test.UserNameResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.core.test.UserNameRowCallback;
 import net.hasor.dbvisitor.jdbc.core.test.UserNameRowMapper;
@@ -23,12 +28,6 @@ import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import net.hasor.test.utils.TestUtils;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 /***
  * executeUpdate 系列方法测试

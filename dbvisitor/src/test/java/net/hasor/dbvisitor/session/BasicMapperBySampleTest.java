@@ -1,11 +1,10 @@
 package net.hasor.dbvisitor.session;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.session.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class BasicMapperBySampleTest {
     @Test

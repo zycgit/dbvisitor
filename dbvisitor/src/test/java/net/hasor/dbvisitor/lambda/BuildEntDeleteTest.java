@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
+import java.sql.SQLException;
 import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.lambda.dto.AnnoUserInfoDTO;
 import org.junit.Test;
-
-import java.sql.SQLException;
 
 /***
  * @version 2021-3-22

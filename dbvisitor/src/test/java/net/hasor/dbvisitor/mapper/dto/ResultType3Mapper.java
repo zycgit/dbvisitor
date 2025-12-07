@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.dto;
-import net.hasor.dbvisitor.mapper.Query;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
-import org.h2.value.CaseInsensitiveMap;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -26,6 +22,9 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.hasor.dbvisitor.mapper.Query;
+import net.hasor.dbvisitor.mapper.SimpleMapper;
+import org.h2.value.CaseInsensitiveMap;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

@@ -1,4 +1,6 @@
 package net.hasor.dbvisitor.dynamic;
+import java.sql.SQLException;
+import java.util.Map;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.dto.LicenseOfValueEnum;
 import net.hasor.dbvisitor.dynamic.dto.ResourceType;
@@ -12,9 +14,6 @@ import net.hasor.dbvisitor.types.handler.number.ShortTypeHandler;
 import net.hasor.dbvisitor.types.handler.string.EnumTypeHandler;
 import net.hasor.dbvisitor.types.handler.string.SqlXmlTypeHandler;
 import org.junit.Test;
-
-import java.sql.SQLException;
-import java.util.Map;
 
 public class ArgRuleTest {
 

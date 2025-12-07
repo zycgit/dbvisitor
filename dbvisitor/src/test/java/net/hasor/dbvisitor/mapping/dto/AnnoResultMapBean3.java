@@ -1,8 +1,7 @@
 package net.hasor.dbvisitor.mapping.dto;
 
-import net.hasor.dbvisitor.mapping.ResultMap;
-
 import java.util.Date;
+import net.hasor.dbvisitor.mapping.ResultMap;
 
 @ResultMap(space = "abc")
 public class AnnoResultMapBean3 {

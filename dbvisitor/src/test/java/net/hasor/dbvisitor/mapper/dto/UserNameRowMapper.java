@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.dto;
-import net.hasor.dbvisitor.jdbc.RowMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import net.hasor.dbvisitor.jdbc.RowMapper;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

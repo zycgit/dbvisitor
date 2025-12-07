@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.mapper;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.util.Date;
+import java.util.List;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.test.dto.UserInfo3;
 import net.hasor.test.dto.UserInfo4;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.util.Date;
-import java.util.List;
 
 public class SingleColumnRowMapperTest {
 

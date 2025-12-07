@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 package net.hasor.test;
+import java.io.PrintStream;
+import java.util.*;
+import java.util.Map.Entry;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.CharUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.convert.ConverterUtils;
 
-import java.io.PrintStream;
-import java.util.*;
-import java.util.Map.Entry;
-
 /**
  * @author 赵永春 (zyc@hasor.net)
- * @version  2014-07-11
+ * @version 2014-07-11
  */
 public abstract class AbstractDbTest {
 

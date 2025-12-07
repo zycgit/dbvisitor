@@ -1,16 +1,15 @@
 package net.hasor.dbvisitor.session;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import net.hasor.dbvisitor.session.dto.AutoIncrID;
 import net.hasor.dbvisitor.session.dto.BasicMapperByAnno;
 import net.hasor.dbvisitor.session.dto.UserInfo;
 import net.hasor.dbvisitor.session.dto.UserInfoMap;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class BasicMapperByAnnoTest {
 

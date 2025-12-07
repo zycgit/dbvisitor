@@ -1,13 +1,12 @@
 package net.hasor.dbvisitor.transaction;
+import java.sql.Connection;
+import java.sql.Statement;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.dbvisitor.transaction.support.LocalTransactionManager;
 import net.hasor.test.utils.DefaultDs;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.Statement;
 
 public class DsManagerTest {
     @Test

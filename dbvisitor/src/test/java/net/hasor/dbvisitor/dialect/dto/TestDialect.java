@@ -1,9 +1,8 @@
 package net.hasor.dbvisitor.dialect.dto;
 
-import net.hasor.dbvisitor.dialect.SqlDialect;
-
 import java.util.Collections;
 import java.util.Set;
+import net.hasor.dbvisitor.dialect.SqlDialect;
 
 public class TestDialect implements SqlDialect {
     @Override

@@ -15,17 +15,16 @@
  */
 package net.hasor.dbvisitor.mapper;
 
-import net.hasor.dbvisitor.mapper.def.QueryType;
-import net.hasor.dbvisitor.mapper.dto.ResultType2Mapper;
-import org.h2.value.CaseInsensitiveMap;
-import org.junit.Test;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import net.hasor.dbvisitor.mapper.def.QueryType;
+import net.hasor.dbvisitor.mapper.dto.ResultType2Mapper;
+import org.h2.value.CaseInsensitiveMap;
+import org.junit.Test;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

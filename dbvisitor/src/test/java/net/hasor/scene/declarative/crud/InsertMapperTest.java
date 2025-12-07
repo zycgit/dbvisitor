@@ -1,14 +1,13 @@
 package net.hasor.scene.declarative.crud;
 
+import java.util.Date;
+import java.util.List;
 import net.hasor.dbvisitor.session.Configuration;
 import net.hasor.dbvisitor.session.Session;
 import net.hasor.dbvisitor.session.dto.UserInfoMap;
 import net.hasor.scene.declarative.crud.dto.UserTable;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.util.Date;
-import java.util.List;
 
 public class InsertMapperTest {
     @Test

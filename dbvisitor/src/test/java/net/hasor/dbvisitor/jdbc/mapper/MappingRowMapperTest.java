@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.mapper;
+import java.sql.Connection;
+import java.util.List;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
 import net.hasor.test.utils.TestUtils;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.util.List;
 
 /***
  *

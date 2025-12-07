@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dialect;
-import org.junit.Test;
-
 import java.util.Map;
+import org.junit.Test;
 
 /**
  * 分页器的功能测试。

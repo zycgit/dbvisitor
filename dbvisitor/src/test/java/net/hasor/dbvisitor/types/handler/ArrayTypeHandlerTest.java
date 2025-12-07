@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.types.handler.array.ArrayTypeHandler;
-import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
-
 import java.sql.Connection;
 import java.sql.JDBCType;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.types.handler.array.ArrayTypeHandler;
+import net.hasor.test.utils.DsUtils;
+import org.junit.Test;
 
 public class ArrayTypeHandlerTest {
     @Test

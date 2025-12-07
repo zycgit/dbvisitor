@@ -15,13 +15,12 @@
  */
 package net.hasor.dbvisitor.dialect;
 
+import java.util.List;
+import java.util.Map;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dialect.provider.OracleDialect;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
 
 /***
  * Oracle 方言

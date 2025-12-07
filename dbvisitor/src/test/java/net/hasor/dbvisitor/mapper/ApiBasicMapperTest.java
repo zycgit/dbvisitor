@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.mapper;
 
+import java.util.Map;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.jdbc.core.JdbcQueryContext;
@@ -24,8 +25,6 @@ import net.hasor.dbvisitor.mapper.dto.ApiBasicCrudMapper;
 import net.hasor.dbvisitor.mapper.dto.UserInfo;
 import net.hasor.dbvisitor.types.SqlArg;
 import org.junit.Test;
-
-import java.util.Map;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

@@ -1,10 +1,10 @@
 package net.hasor.dbvisitor.mapping.dto;
 
+import java.util.Date;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.ResultMap;
 import net.hasor.test.dto.ResourceType;
-import java.util.Date;
 
 @ResultMap
 public class AnnoResultMapBean1 {

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.dynamic;
-import net.hasor.dbvisitor.jdbc.DynamicConnection;
-import net.hasor.test.utils.DsUtils;
-
 import java.sql.Connection;
 import java.sql.SQLException;
+import net.hasor.dbvisitor.jdbc.DynamicConnection;
+import net.hasor.test.utils.DsUtils;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

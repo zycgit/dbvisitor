@@ -1,15 +1,14 @@
 package net.hasor.dbvisitor.jdbc.core;
-import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
-import net.hasor.test.utils.DsUtils;
-import net.hasor.test.utils.TestUtils;
-import net.hasor.test.utils.UserInfo;
-import org.junit.Test;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.hasor.dbvisitor.dynamic.args.MapSqlArgSource;
+import net.hasor.test.utils.DsUtils;
+import net.hasor.test.utils.TestUtils;
+import net.hasor.test.utils.UserInfo;
+import org.junit.Test;
 
 public class QueryUsingNothingTest {
     @Test

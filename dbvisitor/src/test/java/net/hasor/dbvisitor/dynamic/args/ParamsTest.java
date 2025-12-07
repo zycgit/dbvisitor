@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.dynamic.args;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 import net.hasor.cobble.BeanUtils;
 import net.hasor.test.AbstractDbTest;
 import net.hasor.test.utils.UserInfo;
 import org.junit.Test;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
-
 import static net.hasor.test.utils.TestUtils.beanForData1;
 
 /***

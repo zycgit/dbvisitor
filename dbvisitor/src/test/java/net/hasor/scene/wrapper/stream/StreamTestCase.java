@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 package net.hasor.scene.wrapper.stream;
-import net.hasor.dbvisitor.dialect.provider.H2Dialect;
-import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.session.Configuration;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.test.AbstractDbTest;
-import net.hasor.test.dto.UserInfo2;
-import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
-
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import net.hasor.dbvisitor.dialect.provider.H2Dialect;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.mapping.Options;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.test.AbstractDbTest;
+import net.hasor.test.dto.UserInfo2;
+import net.hasor.test.utils.DsUtils;
+import org.junit.Test;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

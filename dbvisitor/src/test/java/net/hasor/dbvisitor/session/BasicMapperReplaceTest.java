@@ -1,14 +1,13 @@
 package net.hasor.dbvisitor.session;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import net.hasor.dbvisitor.mapper.BaseMapper;
 import net.hasor.dbvisitor.session.dto.UserInfo;
 import net.hasor.dbvisitor.session.dto.UserInfo2;
 import net.hasor.dbvisitor.session.dto.UserInfo3;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class BasicMapperReplaceTest {
     @Test

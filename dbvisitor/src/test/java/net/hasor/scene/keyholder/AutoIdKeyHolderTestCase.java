@@ -1,18 +1,17 @@
 package net.hasor.scene.keyholder;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Date;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
-import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.lambda.Insert;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.scene.keyholder.dto.UserDTO_32;
 import net.hasor.scene.keyholder.dto.UserDTO_36;
 import net.hasor.scene.keyholder.dto.UserDTO_KEYHOLDER;
 import net.hasor.scene.keyholder.dto.UserDTO_SEQ;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Date;
 
 public class AutoIdKeyHolderTestCase {
 

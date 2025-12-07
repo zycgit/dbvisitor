@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.types.SqlArg;
-import net.hasor.dbvisitor.types.handler.number.NumberTypeHandler;
-import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
-
 import java.sql.Connection;
 import java.sql.JDBCType;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.types.SqlArg;
+import net.hasor.dbvisitor.types.handler.number.NumberTypeHandler;
+import net.hasor.test.utils.DsUtils;
+import org.junit.Test;
 
 public class NumberTypeHandlerTest {
     @Test

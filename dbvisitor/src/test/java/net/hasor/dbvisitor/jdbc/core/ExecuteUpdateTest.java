@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dynamic.args.BeanSqlArgSource;
 import net.hasor.dbvisitor.jdbc.PreparedStatementSetter;
@@ -23,13 +29,6 @@ import net.hasor.test.utils.DsUtils;
 import net.hasor.test.utils.TestUtils;
 import net.hasor.test.utils.UserInfo;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /***
  * executeUpdate 系列方法测试

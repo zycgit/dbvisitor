@@ -1,10 +1,9 @@
 package net.hasor.dbvisitor.mapping.dto;
+import java.util.Date;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Table;
 import net.hasor.test.dto.ResourceType;
-
-import java.util.Date;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

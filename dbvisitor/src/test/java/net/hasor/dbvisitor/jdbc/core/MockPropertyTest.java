@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.Statement;
+import javax.sql.DataSource;
 import net.hasor.dbvisitor.jdbc.ConnectionCallback;
 import net.hasor.dbvisitor.jdbc.StatementCallback;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
@@ -24,12 +29,6 @@ import net.hasor.test.AbstractDbTest;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.SQLWarning;
-import java.sql.Statement;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

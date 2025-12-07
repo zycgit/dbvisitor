@@ -14,6 +14,18 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types;
+import java.io.ByteArrayInputStream;
+import java.io.StringReader;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.URI;
+import java.net.URL;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.NClob;
+import java.time.*;
+import java.time.chrono.JapaneseDate;
+import java.util.concurrent.atomic.LongAccumulator;
 import net.hasor.cobble.ArrayUtils;
 import net.hasor.dbvisitor.dynamic.ArgRuleTest;
 import net.hasor.dbvisitor.types.handler.UnknownTypeHandler;
@@ -29,19 +41,6 @@ import net.hasor.dbvisitor.types.handler.string.*;
 import net.hasor.dbvisitor.types.handler.time.*;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.io.ByteArrayInputStream;
-import java.io.StringReader;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.URI;
-import java.net.URL;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.NClob;
-import java.time.*;
-import java.time.chrono.JapaneseDate;
-import java.util.concurrent.atomic.LongAccumulator;
 
 public class RegistryTest {
 

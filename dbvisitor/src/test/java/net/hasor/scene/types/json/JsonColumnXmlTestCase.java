@@ -1,18 +1,17 @@
 package net.hasor.scene.types.json;
-import net.hasor.dbvisitor.session.Configuration;
-import net.hasor.dbvisitor.session.Session;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.scene.types.json.dto.Project1;
-import net.hasor.scene.types.json.dto.Project2;
-import net.hasor.scene.types.json.dto.ProjectFeature;
-import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
-
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.session.Configuration;
+import net.hasor.dbvisitor.session.Session;
+import net.hasor.scene.types.json.dto.Project1;
+import net.hasor.scene.types.json.dto.Project2;
+import net.hasor.scene.types.json.dto.ProjectFeature;
+import net.hasor.test.utils.DsUtils;
+import org.junit.Test;
 
 public class JsonColumnXmlTestCase {
 

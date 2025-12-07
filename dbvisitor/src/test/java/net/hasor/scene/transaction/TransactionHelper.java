@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.scene.transaction;
+import javax.sql.DataSource;
 import net.hasor.cobble.dynamic.DynamicConfig;
 import net.hasor.cobble.dynamic.Matchers;
 import net.hasor.cobble.dynamic.Proxy;
-
-import javax.sql.DataSource;
 
 /**
  * 可以标记在：方法、类 上面

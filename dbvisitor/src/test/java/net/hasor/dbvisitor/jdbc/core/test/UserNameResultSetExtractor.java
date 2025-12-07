@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.core.test;
-import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import net.hasor.dbvisitor.jdbc.ResultSetExtractor;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

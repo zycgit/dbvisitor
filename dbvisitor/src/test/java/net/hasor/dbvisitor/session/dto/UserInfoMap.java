@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.session.dto;
-import net.hasor.dbvisitor.mapping.Column;
-
 import java.util.Date;
+import net.hasor.dbvisitor.mapping.Column;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

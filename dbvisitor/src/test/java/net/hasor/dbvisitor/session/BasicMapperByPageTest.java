@@ -1,4 +1,9 @@
 package net.hasor.dbvisitor.session;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.dbvisitor.dialect.PageObject;
 import net.hasor.dbvisitor.dialect.PageResult;
@@ -9,14 +14,8 @@ import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.session.dto.UserInfo2;
 import net.hasor.dbvisitor.session.dto.UserInfo3;
 import net.hasor.test.utils.DsUtils;
-import static net.hasor.test.utils.TestUtils.INSERT_ARRAY;
 import org.junit.Test;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import static net.hasor.test.utils.TestUtils.INSERT_ARRAY;
 
 public class BasicMapperByPageTest {
 

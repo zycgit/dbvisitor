@@ -1,12 +1,11 @@
 package net.hasor.scene.keyholder.dto;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandler;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerContext;
 import net.hasor.dbvisitor.mapping.GeneratedKeyHandlerFactory;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class MyKeySeqHolder implements GeneratedKeyHandlerFactory {
 

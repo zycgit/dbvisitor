@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.JDBCType;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 import net.hasor.cobble.codec.MD5;
 import net.hasor.cobble.io.IOUtils;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
@@ -23,14 +30,6 @@ import net.hasor.dbvisitor.types.handler.bytes.BytesTypeHandler;
 import net.hasor.dbvisitor.types.handler.io.BytesAsInputStreamTypeHandler;
 import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.JDBCType;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
 public class BytesTypeHandlerTest {
     private byte[] toPrimitive(Byte[] bytes) {

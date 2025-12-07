@@ -14,14 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.types.handler;
-import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
-import net.hasor.dbvisitor.types.SqlArg;
-import net.hasor.dbvisitor.types.handler.time.IntegerAsMonthTypeHandler;
-import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthTypeHandler;
-import net.hasor.dbvisitor.types.handler.time.StringAsMonthTypeHandler;
-import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
-
 import java.sql.Connection;
 import java.sql.JDBCType;
 import java.sql.SQLException;
@@ -31,6 +23,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.types.SqlArg;
+import net.hasor.dbvisitor.types.handler.time.IntegerAsMonthTypeHandler;
+import net.hasor.dbvisitor.types.handler.time.SqlTimestampAsMonthTypeHandler;
+import net.hasor.dbvisitor.types.handler.time.StringAsMonthTypeHandler;
+import net.hasor.test.utils.DsUtils;
+import org.junit.Test;
 
 public class MonthTypeHandlerTest {
     @Test

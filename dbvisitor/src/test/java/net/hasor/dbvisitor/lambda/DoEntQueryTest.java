@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import net.hasor.dbvisitor.jdbc.extractor.RowMapperResultSetExtractor;
 import net.hasor.dbvisitor.jdbc.mapper.ColumnMapRowMapper;
 import net.hasor.dbvisitor.lambda.dto.AnnoUserInfoDTO;
 import net.hasor.dbvisitor.lambda.dto.UserInfo;
 import net.hasor.test.dto.UserInfo2;
 import net.hasor.test.utils.DsUtils;
-import static net.hasor.test.utils.TestUtils.*;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import static net.hasor.test.utils.TestUtils.*;
 
 /***
  * Lambda 方式执行 Select 操作

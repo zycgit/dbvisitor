@@ -1,10 +1,9 @@
 package net.hasor.dbvisitor.dynamic.dto;
-import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
-
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 public class MyTypeHandler extends AbstractTypeHandler<String> {
     @Override

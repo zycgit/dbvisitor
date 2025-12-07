@@ -1,16 +1,15 @@
 package net.hasor.scene.wrapper.casesensitive;
-import net.hasor.dbvisitor.dialect.SqlDialectRegister;
-import net.hasor.dbvisitor.mapping.Options;
-import net.hasor.dbvisitor.lambda.Insert;
-import net.hasor.dbvisitor.lambda.MapQuery;
-import net.hasor.dbvisitor.lambda.LambdaTemplate;
-import net.hasor.test.utils.DsUtils;
-import org.junit.Test;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import net.hasor.dbvisitor.dialect.SqlDialectRegister;
+import net.hasor.dbvisitor.lambda.Insert;
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.lambda.MapQuery;
+import net.hasor.dbvisitor.mapping.Options;
+import net.hasor.test.utils.DsUtils;
+import org.junit.Test;
 
 public class CaseSensitiveTest {
     // 默认大小写不敏感，数据字段全大写

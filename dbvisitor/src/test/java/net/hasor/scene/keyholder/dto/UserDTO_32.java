@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 package net.hasor.scene.keyholder.dto;
+import java.util.Date;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.KeyType;
 import net.hasor.dbvisitor.mapping.Table;
-
-import java.util.Date;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

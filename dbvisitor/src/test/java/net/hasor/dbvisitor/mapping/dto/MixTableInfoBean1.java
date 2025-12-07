@@ -1,8 +1,7 @@
 package net.hasor.dbvisitor.mapping.dto;
 
-import net.hasor.dbvisitor.mapping.*;
-
 import java.util.Date;
+import net.hasor.dbvisitor.mapping.*;
 
 @Table(catalog = "master", schema = "dbo", table = "blob_resource", ddlAuto = DdlAuto.CreateDrop)
 @TableDescribe(comment = "test table")

@@ -28,8 +28,8 @@ public class MongoKeys {
     public static final String RETRY_READS  = "retryReads";
 
     // pre-read options
-    public static final String PREREAD_ENABLED        = "preRead";
-    public static final String PREREAD_THRESHOLD      = "preReadThreshold"; // MB
+    public static final String PREREAD_ENABLED       = "preRead";
+    public static final String PREREAD_THRESHOLD     = "preReadThreshold"; // MB
     public static final String PREREAD_MAX_FILE_SIZE = "preReadMaxFileSize"; // MB
-    public static final String PREREAD_CACHE_DIR      = "preReadCacheDir";
+    public static final String PREREAD_CACHE_DIR     = "preReadCacheDir";
 }

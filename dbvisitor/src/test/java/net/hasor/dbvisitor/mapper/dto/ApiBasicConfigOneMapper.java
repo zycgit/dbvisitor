@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.mapper.dto;
-import net.hasor.dbvisitor.mapper.RefMapper;
-
 import java.util.List;
+import net.hasor.dbvisitor.mapper.RefMapper;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

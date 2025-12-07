@@ -1,8 +1,7 @@
 package net.hasor.dbvisitor.types.custom;
+import java.sql.*;
 import net.hasor.dbvisitor.types.MappedCrossTypes;
 import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
-
-import java.sql.*;
 
 @MappedCrossTypes(javaType = String.class, jdbcType = Types.DATALINK)
 @MappedCrossTypes(javaType = StringBuffer.class, jdbcType = Types.VARCHAR)

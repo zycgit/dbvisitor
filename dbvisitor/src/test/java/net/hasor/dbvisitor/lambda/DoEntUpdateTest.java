@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
-import net.hasor.dbvisitor.dialect.BoundSql;
-import net.hasor.dbvisitor.lambda.dto.AnnoUserInfoDTO;
-import net.hasor.test.utils.DsUtils;
-import static net.hasor.test.utils.TestUtils.beanForData1;
-import org.junit.Test;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import net.hasor.dbvisitor.dialect.BoundSql;
+import net.hasor.dbvisitor.lambda.dto.AnnoUserInfoDTO;
+import net.hasor.test.utils.DsUtils;
+import org.junit.Test;
+import static net.hasor.test.utils.TestUtils.beanForData1;
 
 /***
  * Lambda 方式执行 Update 操作

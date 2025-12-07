@@ -1,6 +1,5 @@
 package net.hasor.scene.mongodb.dto2;
 import net.hasor.dbvisitor.mapper.*;
-import net.hasor.dbvisitor.types.handler.json.JsonTypeHandler;
 
 @SimpleMapper()
 public interface UserInfo2Mapper {

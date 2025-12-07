@@ -1,10 +1,9 @@
 package net.hasor.dbvisitor.types.custom;
 
-import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
-
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 public class MyDateTypeHandler extends AbstractTypeHandler<String> {
     public void setNonNullParameter(PreparedStatement ps, int i, String parameter, Integer jdbcType) throws SQLException {

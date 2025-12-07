@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.lambda;
+import java.sql.SQLException;
+import javax.sql.DataSource;
 import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dynamic.MacroRegistry;
@@ -24,9 +26,6 @@ import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.Options;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.junit.Test;
-
-import javax.sql.DataSource;
-import java.sql.SQLException;
 
 /**
  * @author 赵永春 (zyc@hasor.net)

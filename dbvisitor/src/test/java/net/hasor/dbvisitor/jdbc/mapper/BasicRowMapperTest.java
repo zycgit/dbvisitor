@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.jdbc.mapper;
+import java.sql.ResultSet;
 import net.hasor.dbvisitor.types.TypeHandlerRegistry;
 import org.junit.Test;
-
-import java.sql.ResultSet;
 
 public class BasicRowMapperTest {
     @Test

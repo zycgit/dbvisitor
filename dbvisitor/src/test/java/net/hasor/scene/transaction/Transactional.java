@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package net.hasor.scene.transaction;
-import net.hasor.dbvisitor.transaction.Isolation;
-import net.hasor.dbvisitor.transaction.Propagation;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import net.hasor.dbvisitor.transaction.Isolation;
+import net.hasor.dbvisitor.transaction.Propagation;
 
 /**
  * 可以标记在：方法、类 上面。 通过 TransactionHelper 或者 TransactionalInterceptor 来使用该注解。
