@@ -27,14 +27,20 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
  * @version 2020-11-02
  */
 public final class MergeSqlSegment implements Segment {
+    private final String        separator;
     private final List<Segment> segments = new LinkedList<>();
 
     public MergeSqlSegment(List<Segment> segments) {
+        this.separator = " ";
         this.segments.addAll(segments);
     }
 
-    public MergeSqlSegment(Segment... segments) {
-        this.segments.addAll(Arrays.asList(segments));
+    public MergeSqlSegment() {
+        this.separator = " ";
+    }
+
+    public MergeSqlSegment(String separator) {
+        this.separator = separator;
     }
 
     public void addSegment(Segment... segmentArrays) {
@@ -44,25 +50,29 @@ public final class MergeSqlSegment implements Segment {
     }
 
     @Override
-    public String getSqlSegment(SqlDialect dialect) throws SQLException {
-        return this.getSqlSegment(dialect, this.segments);
+    public String getSqlSegment(boolean delimited, SqlDialect dialect) throws SQLException {
+        return this.getSqlSegment(delimited, dialect, this.segments);
     }
 
     public MergeSqlSegment sub(int form) {
         return new MergeSqlSegment(this.segments.subList(form, this.segments.size()));
     }
 
-    private String getSqlSegment(SqlDialect dialect, List<Segment> dataList) throws SQLException {
+    private String getSqlSegment(boolean delimited, SqlDialect dialect, List<Segment> dataList) throws SQLException {
         StringBuilder strBuilder = new StringBuilder("");
+        boolean first = true;
         for (Segment segment : dataList) {
-            String str = segment.getSqlSegment(dialect);
-            if (StringUtils.isNotBlank(str)) {
-                strBuilder.append(str).append(" ");
-            } else {
-                strBuilder.append(" ");
+            String str = segment.getSqlSegment(delimited, dialect);
+            if (StringUtils.isBlank(str)) {
+                continue;
             }
+            if (!first) {
+                strBuilder.append(this.separator);
+            }
+            strBuilder.append(str);
+            first = false;
         }
-        return strBuilder.toString().trim();
+        return strBuilder.toString();
     }
 
     public boolean isEmpty() {
@@ -82,7 +92,19 @@ public final class MergeSqlSegment implements Segment {
         }
     }
 
+    public Segment lastSegment() {
+        return this.segments.get(this.segments.size() - 1);
+    }
+
     public void cleanSegment() {
         this.segments.clear();
+    }
+
+    public int size() {
+        return this.segments.size();
+    }
+
+    public Segment getSqlSegment(int i) {
+        return this.segments.get(i);
     }
 }

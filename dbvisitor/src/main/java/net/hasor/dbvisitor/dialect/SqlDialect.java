@@ -15,6 +15,7 @@
  */
 package net.hasor.dbvisitor.dialect;
 import java.util.Set;
+import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.lambda.core.OrderType;
 
 /**
@@ -53,15 +54,16 @@ public interface SqlDialect {
      * @param orderType 排序类型
      * @return 排序语句
      */
-    default String orderByDefault(boolean useQualifier, String name, OrderType orderType) {
+    default String orderByDefault(boolean useQualifier, String name, String nameTerm, OrderType orderType) {
+        String orderName = StringUtils.isBlank(nameTerm) ? this.fmtName(useQualifier, name) : nameTerm;
         switch (orderType) {
             case ASC:
-                return this.fmtName(useQualifier, name) + " ASC";
+                return orderName + " ASC";
             case DESC:
-                return this.fmtName(useQualifier, name) + " DESC";
+                return orderName + " DESC";
             case DEFAULT:
             default:
-                return this.fmtName(useQualifier, name);
+                return orderName;
         }
     }
 
@@ -72,23 +74,20 @@ public interface SqlDialect {
      * @param orderType 排序类型
      * @return 排序语句
      */
-    default String orderByNullsFirst(boolean useQualifier, String name, OrderType orderType) {
-        return this.orderByDefault(useQualifier, name, orderType);
-    }
-
-    /**
-     * 生成 NULL 值最后的排序语句
-     * @param useQualifier 是否使用限定符
-     * @param name 列名
-     * @param orderType 排序类型
-     * @return 排序语句
-     */
-    default String orderByNullsLast(boolean useQualifier, String name, OrderType orderType) {
-        return this.orderByDefault(useQualifier, name, orderType);
+    default String orderByNulls(boolean useQualifier, String name, String nameTerm, OrderType orderType) {
+        return "";
     }
 
     /** 是否支持批量操作 */
     default boolean supportBatch() {
         return true;
+    }
+
+    default boolean supportGroupByAlias() {
+        return false;
+    }
+
+    default boolean supportOrderByAlias() {
+        return false;
     }
 }

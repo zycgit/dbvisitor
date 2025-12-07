@@ -64,6 +64,9 @@ public class JdbcHelper {
     public static final String KDB              = "kdb";
     /** Aliyun PolarDB */
     public static final String POLARDB          = "polardb";
+    // nosql
+    public static final String REDIS            = "redis";
+    public static final String MONGO            = "mongo";
 
     /**
      * 根据 JDBC URL和驱动类名获取数据库类型
@@ -171,6 +174,10 @@ public class JdbcHelper {
             return KDB;
         } else if (rawUrl.startsWith("jdbc:polardb")) {
             return POLARDB;
+        } else if (rawUrl.startsWith("jdbc:dbvisitor:jedis")) {
+            return REDIS;
+        } else if (rawUrl.startsWith("jdbc:dbvisitor:mongo")) {
+            return MONGO;
         } else {
             return null;
         }

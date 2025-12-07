@@ -25,6 +25,7 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.jdbc.core.JdbcTemplate;
+import net.hasor.dbvisitor.lambda.segment.MergeSqlSegment;
 import net.hasor.dbvisitor.lambda.segment.Segment;
 import net.hasor.dbvisitor.mapping.MappingRegistry;
 import net.hasor.dbvisitor.mapping.def.ColumnMapping;
@@ -78,10 +79,10 @@ public abstract class BasicLambda<R, T, P> {
         ColumnMapping property = this.findPropertyByName(propertyName);
         String specialCol = property.getSelectTemplate();
         if (StringUtils.isNotBlank(specialCol)) {
-            return d -> specialCol + d.aliasSeparator() + d.fmtName(isQualifier(), property.getColumn());
+            return (delimited, d) -> specialCol + d.aliasSeparator() + d.fmtName(isQualifier(), property.getColumn());
         } else {
             String columnName = property.getColumn();
-            return d -> d.fmtName(isQualifier(), columnName);
+            return (delimited, d) -> d.fmtName(isQualifier(), columnName);
         }
     }
 
@@ -97,10 +98,10 @@ public abstract class BasicLambda<R, T, P> {
 
     private Segment buildColName(String specialCol, ColumnMapping property) {
         if (StringUtils.isNotBlank(specialCol)) {
-            return d -> specialCol;
+            return (delimited, d) -> specialCol;
         } else {
             String columnName = property.getColumn();
-            return d -> d.fmtName(isQualifier(), columnName);
+            return (delimited, d) -> d.fmtName(isQualifier(), columnName);
         }
     }
 
@@ -108,20 +109,34 @@ public abstract class BasicLambda<R, T, P> {
         ColumnMapping property = this.findPropertyByName(propertyName);
 
         String specialCol = property.getOrderByColTemplate();
-        if (StringUtils.isNotBlank(specialCol)) {
-            return d -> specialCol;
-        } else {
-            String columnName = property.getColumn();
+        String columnName = property.getColumn();
+        MergeSqlSegment orderBySegment = new MergeSqlSegment();
+        if (nullsStrategy != null) {
             switch (nullsStrategy) {
                 case FIRST:
-                    return d -> d.orderByNullsFirst(isQualifier(), columnName, orderType);
+                    orderBySegment.addSegment((delimited, d) -> {
+                        String s = d.orderByNulls(isQualifier(), columnName, specialCol, OrderType.DESC);
+                        return StringUtils.isBlank(s) ? "" : (s + ",");
+                    });
+                    break;
                 case LAST:
-                    return d -> d.orderByNullsLast(isQualifier(), columnName, orderType);
+                    orderBySegment.addSegment((delimited, d) -> {
+                        String s = d.orderByNulls(isQualifier(), columnName, specialCol, OrderType.ASC);
+                        return StringUtils.isBlank(s) ? "" : (s + ",");
+                    });
+                    break;
                 case DEFAULT:
                 default:
-                    return d -> d.orderByDefault(isQualifier(), columnName, orderType);
+                    orderBySegment.addSegment((delimited, d) -> {
+                        String s = d.orderByNulls(isQualifier(), columnName, specialCol, OrderType.DEFAULT);
+                        return StringUtils.isBlank(s) ? "" : (s + ",");
+                    });
+                    break;
             }
         }
+
+        orderBySegment.addSegment((delimited, d) -> d.orderByDefault(isQualifier(), columnName, specialCol, orderType));
+        return orderBySegment;
     }
 
     protected ColumnMapping findPropertyByName(String propertyName) {

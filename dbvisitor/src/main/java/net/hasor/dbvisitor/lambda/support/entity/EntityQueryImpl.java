@@ -88,7 +88,7 @@ public class EntityQueryImpl<T> extends AbstractSelect<EntityQuery<T>, T, SFunct
 
             for (String property : groupBy) {
                 if (!this.groupByList.isEmpty()) {
-                    this.groupByList.addSegment(d -> ",");
+                    this.groupByList.addSegment((delimited, d) -> ",");
                 }
                 this.groupByList.addSegment(buildGroupByProperty(property));
 

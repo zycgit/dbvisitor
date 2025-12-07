@@ -75,7 +75,7 @@ public abstract class AbstractDelete<R, T, P> extends BasicQueryCompare<R, T, P>
         updateTemplate.addSegment(SqlKeyword.FROM);
 
         // tableName
-        updateTemplate.addSegment(d -> {
+        updateTemplate.addSegment((delimited, d) -> {
             TableMapping<?> tableMapping = this.getTableMapping();
             String catalogName = tableMapping.getCatalog();
             String schemaName = tableMapping.getSchema();
@@ -91,7 +91,7 @@ public abstract class AbstractDelete<R, T, P> extends BasicQueryCompare<R, T, P>
             throw new UnsupportedOperationException("The dangerous DELETE operation, You must call `allowEmptyWhere()` to enable DELETE ALL.");
         }
 
-        String sqlQuery = updateTemplate.getSqlSegment(dialect);
+        String sqlQuery = updateTemplate.getSqlSegment(this.isQualifier(), dialect);
         Object[] args = this.queryParam.toArray().clone();
         return new BoundSql.BoundSqlObj(sqlQuery, args);
     }

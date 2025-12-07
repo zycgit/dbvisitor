@@ -70,7 +70,7 @@ public enum SqlKeyword implements Segment {
     }
 
     @Override
-    public String getSqlSegment(SqlDialect dialect) {
+    public String getSqlSegment(boolean delimited, SqlDialect dialect) {
         return this.sqlString;
     }
 }

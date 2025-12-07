@@ -117,17 +117,17 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
 
     /** 排序条件，类似：order by xxx */
     default R orderBy(P property) {
-        return this.orderBy(OrderType.DEFAULT, OrderNullsStrategy.DEFAULT, property, (P[]) null);
+        return this.orderBy(OrderType.DEFAULT, null, property, (P[]) null);
     }
 
     /** 排序条件，类似：order by xxx */
     default R orderBy(P[] properties) {
-        return this.orderBy(OrderType.DEFAULT, OrderNullsStrategy.DEFAULT, null, properties);
+        return this.orderBy(OrderType.DEFAULT, null, null, properties);
     }
 
     /** 分组条件，类似：group by xxx */
     default R orderBy(P first, P... other) {
-        return this.orderBy(OrderType.DEFAULT, OrderNullsStrategy.DEFAULT, first, other);
+        return this.orderBy(OrderType.DEFAULT, null, first, other);
     }
 
     /** 排序条件，类似：order by xxx */
@@ -145,17 +145,17 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
 
     /** 排序(升序)，类似：order by xxx asc */
     default R asc(P property) {
-        return this.orderBy(OrderType.ASC, OrderNullsStrategy.DEFAULT, property, (P[]) null);
+        return this.orderBy(OrderType.ASC, null, property, (P[]) null);
     }
 
     /** 排序(升序)，类似：order by xxx asc */
     default R asc(P[] properties) {
-        return this.orderBy(OrderType.ASC, OrderNullsStrategy.DEFAULT, null, properties);
+        return this.orderBy(OrderType.ASC, null, null, properties);
     }
 
     /** 排序(升序)，类似：order by xxx asc */
     default R asc(P first, P... other) {
-        return this.orderBy(OrderType.ASC, OrderNullsStrategy.DEFAULT, first, other);
+        return this.orderBy(OrderType.ASC, null, first, other);
     }
 
     /** 排序(升序)，类似：order by xxx asc */
@@ -175,12 +175,12 @@ public interface QueryFunc<R, T, P> extends BasicFunc<R>, BoundSqlBuilder {
 
     /** 排序(降序)，类似：order by xxx desc */
     default R desc(P property) {
-        return this.orderBy(OrderType.DESC, OrderNullsStrategy.DEFAULT, property, (P[]) null);
+        return this.orderBy(OrderType.DESC, null, property, (P[]) null);
     }
 
     /** 排序(降序)，类似：order by xxx desc */
     default R desc(P[] properties) {
-        return this.orderBy(OrderType.DESC, OrderNullsStrategy.DEFAULT, null, properties);
+        return this.orderBy(OrderType.DESC, null, null, properties);
     }
 
     /** 排序(降序)，类似：order by xxx desc */

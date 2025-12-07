@@ -54,6 +54,8 @@ public class SqlDialectRegister {
         registerDialectAlias(JdbcHelper.SQL_SERVER, SqlServerDialect.class);
         registerDialectAlias(JdbcHelper.JTDS, SqlServerDialect.class);
         registerDialectAlias(JdbcHelper.XUGU, XuGuDialect.class);
+        //registerDialectAlias(JdbcHelper.REDIS, RedisDialect.class);
+        registerDialectAlias(JdbcHelper.MONGO, MongoDialect.class);
     }
 
     /** 清空方言缓存 */

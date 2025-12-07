@@ -60,32 +60,16 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
     }
 
     @Override
-    public String orderByNullsFirst(boolean useQualifier, String name, OrderType orderType) {
-        String colName = this.fmtName(useQualifier, name);
+    public String orderByNulls(boolean useQualifier, String name, String nameTerm, OrderType orderType) {
+        String orderName = StringUtils.isBlank(nameTerm) ? this.fmtName(useQualifier, name) : nameTerm;
         switch (orderType) {
             case ASC:
-                return colName + " IS NULL DESC," + colName + " ASC";
+                return orderName + " IS NULL ASC";
             case DESC:
-                return colName + " IS NULL DESC," + colName + " DESC";
+                return orderName + " IS NULL DESC";
             case DEFAULT:
-                return colName + " IS NULL DESC," + colName;
             default:
-                return this.fmtName(useQualifier, name);
-        }
-    }
-
-    @Override
-    public String orderByNullsLast(boolean useQualifier, String name, OrderType orderType) {
-        String colName = this.fmtName(useQualifier, name);
-        switch (orderType) {
-            case ASC:
-                return colName + " IS NULL ASC," + colName + " ASC";
-            case DESC:
-                return colName + " IS NULL ASC," + colName + " DESC";
-            case DEFAULT:
-                return colName + " IS NULL ASC," + colName;
-            default:
-                return this.fmtName(useQualifier, name);
+                return orderName + " IS NULL" + orderName;
         }
     }
 
@@ -176,5 +160,15 @@ public class MySqlDialect extends AbstractDialect implements PageSqlDialect, Ins
         strBuilder.append(")");
         strBuilder.append(appendSql);
         return strBuilder.toString();
+    }
+
+    @Override
+    public boolean supportGroupByAlias() {
+        return true;
+    }
+
+    @Override
+    public boolean supportOrderByAlias() {
+        return true;
     }
 }

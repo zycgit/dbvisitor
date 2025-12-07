@@ -25,5 +25,5 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
 @FunctionalInterface
 public interface Segment {
     /** 获取 SQL 内容 */
-    String getSqlSegment(SqlDialect dialect) throws SQLException;
+    String getSqlSegment(boolean delimited, SqlDialect dialect) throws SQLException;
 }

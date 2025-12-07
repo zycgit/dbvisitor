@@ -332,7 +332,7 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
         updateTemplate.addSegment(SqlKeyword.UPDATE);
 
         // tableName
-        updateTemplate.addSegment(d -> {
+        updateTemplate.addSegment((delimited, d) -> {
             TableMapping<?> tableMapping = this.getTableMapping();
             String catalogName = tableMapping.getCatalog();
             String schemaName = tableMapping.getSchema();
@@ -347,7 +347,7 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
             if (isFirstColumn) {
                 isFirstColumn = false;
             } else {
-                updateTemplate.addSegment(d -> ",");
+                updateTemplate.addSegment((delimited, d) -> ",");
             }
 
             String colName;
@@ -367,9 +367,9 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
 
             Object columnValue = this.updateValueMap.get(propertyName);
             if (columnValue == null) {
-                updateTemplate.addSegment(d -> colName, SqlKeyword.EQ, SqlKeyword.NULL);
+                updateTemplate.addSegment((delimited, d) -> colName, SqlKeyword.EQ, SqlKeyword.NULL);
             } else {
-                updateTemplate.addSegment(d -> colName, SqlKeyword.EQ, formatSegment(colValue, columnValue));
+                updateTemplate.addSegment((delimited, d) -> colName, SqlKeyword.EQ, formatSegment(colValue, columnValue));
             }
         }
 
@@ -381,7 +381,7 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
             throw new UnsupportedOperationException("The dangerous UPDATE operation, You must call `allowEmptyWhere()` to enable UPDATE ALL.");
         }
 
-        String sqlQuery = updateTemplate.getSqlSegment(dialect);
+        String sqlQuery = updateTemplate.getSqlSegment(this.isQualifier(), dialect);
         Object[] args = this.queryParam.toArray().clone();
         return new BoundSql.BoundSqlObj(sqlQuery, args);
     }

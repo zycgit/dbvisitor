@@ -123,7 +123,7 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
 
         for (String property : properties) {
             if (!this.customSelect.isEmpty()) {
-                this.customSelect.addSegment(d -> ",");
+                this.customSelect.addSegment((delimited, d) -> ",");
             }
             this.customSelect.addSegment(buildSelectByProperty(property));
         }
@@ -133,16 +133,16 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
     @Override
     public R applySelect(String select) {
         this.customSelect.cleanSegment();
-        this.customSelect.addSegment(d -> select);
+        this.customSelect.addSegment((delimited, d) -> select);
         return this.getSelf();
     }
 
     @Override
     public R applySelectAdd(String select) {
         if (!this.customSelect.isEmpty()) {
-            this.customSelect.addSegment(d -> ",");
+            this.customSelect.addSegment((delimited, d) -> ",");
         }
-        this.customSelect.addSegment(d -> select);
+        this.customSelect.addSegment((delimited, d) -> select);
         return this.getSelf();
     }
 
@@ -182,7 +182,7 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
 
             for (P property : groupBy) {
                 if (!this.groupByList.isEmpty()) {
-                    this.groupByList.addSegment(d -> ",");
+                    this.groupByList.addSegment((delimited, d) -> ",");
                 }
                 this.groupByList.addSegment(buildGroupByProperty(getPropertyName(property)));
 
@@ -210,7 +210,7 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
             }
             for (String property : orderBy) {
                 if (!this.orderByList.isEmpty()) {
-                    this.orderByList.addSegment(d -> ",");
+                    this.orderByList.addSegment((delimited, d) -> ",");
                 }
 
                 this.orderByList.addSegment(buildOrderByProperty(property, orderType, strategy));
@@ -378,12 +378,12 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
             if (this.getTableMapping().hashSelectTemplate() && !this.isFreedom()) {
                 MergeSqlSegment tmp = new MergeSqlSegment();
                 this.getTableMapping().getProperties().forEach(cm -> {
-                    tmp.addSegment(d -> ",");
+                    tmp.addSegment((delimited, d) -> ",");
                     tmp.addSegment(buildSelectByProperty(cm.getProperty()));
                 });
                 sqlSegment.addSegment(tmp.sub(1));
             } else {
-                sqlSegment.addSegment(d -> "*");
+                sqlSegment.addSegment((delimited, d) -> "*");
             }
         } else {
             sqlSegment.addSegment(this.customSelect);
@@ -391,7 +391,7 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
 
         // from
         sqlSegment.addSegment(SqlKeyword.FROM);
-        sqlSegment.addSegment(d -> {
+        sqlSegment.addSegment((delimited, d) -> {
             TableMapping<?> tableMapping = this.getTableMapping();
             String catalogName = tableMapping.getCatalog();
             String schemaName = tableMapping.getSchema();
@@ -414,7 +414,7 @@ public abstract class AbstractSelect<R, T, P> extends BasicQueryCompare<R, T, P>
         }
 
         // if have any group by condition, then orderBy must be in groupBy
-        String sqlQuery = sqlSegment.getSqlSegment(dialect);
+        String sqlQuery = sqlSegment.getSqlSegment(this.isQualifier(), dialect);
         Object[] args = this.queryParam.toArray().clone();
         return new BoundSql.BoundSqlObj(sqlQuery, args);
     }

@@ -57,7 +57,7 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
         return fmtName(useQualifier, table);
     }
 
-    public String like(SqlLike likeType, Object value) {
+    public String like(SqlLike likeType, Object value, String valueTerm) {
         if (value == null || StringUtils.isBlank(value.toString())) {
             return "%";
         }
@@ -228,5 +228,15 @@ public class OracleDialect extends AbstractDialect implements PageSqlDialect, In
 
     public boolean supportBatch() {
         return false;
+    }
+
+    @Override
+    public boolean supportGroupByAlias() {
+        return true; // oracle 12 开始支持
+    }
+
+    @Override
+    public boolean supportOrderByAlias() {
+        return true; // oracle 12 开始支持
     }
 }

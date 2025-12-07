@@ -146,4 +146,14 @@ public class PostgreSqlDialect extends AbstractDialect implements PageSqlDialect
         strBuilder.append(appendSql);
         return strBuilder.toString();
     }
+
+    @Override
+    public boolean supportGroupByAlias() {
+        return true;
+    }
+
+    @Override
+    public boolean supportOrderByAlias() {
+        return true;
+    }
 }

@@ -72,6 +72,7 @@ public interface ColumnMapping {
      * 用作 update 的 set 语句时 column name 的写法，默认是空
      * 注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险。
      */
+    @Deprecated
     String getSetColTemplate();
 
     /**
@@ -96,12 +97,14 @@ public interface ColumnMapping {
      * 用作 group by 时 column name 的写法，默认是空
      * 注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险。
      */
+    @Deprecated
     String getGroupByColTemplate();
 
     /**
      * 用作 order by 时 column name 的写法，默认是空
      * 注意：由于语句模版会直接参与 SQL 语句生成，因此在使用语句模版时请评估注入风险。
      */
+    @Deprecated
     String getOrderByColTemplate();
 
     /** 获取主键生成策略类型 */

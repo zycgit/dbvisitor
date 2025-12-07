@@ -27,6 +27,16 @@ import net.hasor.dbvisitor.dialect.PageSqlDialect;
  * @since 2016-11-10
  */
 public class SqlServerDialect extends AbstractDialect implements PageSqlDialect {
+    private static String getOrderByPart(String sql) {
+        String loweredString = sql.toLowerCase();
+        int orderByIndex = loweredString.indexOf("order by");
+        if (orderByIndex != -1) {
+            return sql.substring(orderByIndex);
+        } else {
+            return "";
+        }
+    }
+
     @Override
     protected String keyWordsResource() {
         return "/META-INF/db-keywords/sqlserver.keywords";
@@ -66,16 +76,6 @@ public class SqlServerDialect extends AbstractDialect implements PageSqlDialect 
 
         strBuilder.append(fmtName(useQualifier, table));
         return strBuilder.toString();
-    }
-
-    private static String getOrderByPart(String sql) {
-        String loweredString = sql.toLowerCase();
-        int orderByIndex = loweredString.indexOf("order by");
-        if (orderByIndex != -1) {
-            return sql.substring(orderByIndex);
-        } else {
-            return "";
-        }
     }
 
     @Override

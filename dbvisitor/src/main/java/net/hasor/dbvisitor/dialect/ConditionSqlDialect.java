@@ -22,6 +22,24 @@ import net.hasor.cobble.StringUtils;
  * @version 2020-10-31
  */
 public interface ConditionSqlDialect extends SqlDialect {
+    /**
+     * 生成 LIKE 条件 SQL 片段
+     * @param likeType LIKE 模式枚举值
+     * @param value 匹配值
+     * @return 生成的 LIKE 条件 SQL 片段
+     */
+    default String like(SqlLike likeType, Object value, String valueTerm) {
+        valueTerm = StringUtils.isBlank(valueTerm) ? "?" : valueTerm.trim();
+        switch (likeType) {
+            case LEFT:
+                return "CONCAT('%', " + valueTerm + " )";
+            case RIGHT:
+                return "CONCAT( " + valueTerm + " ,'%')";
+            default:
+                return "CONCAT('%', " + valueTerm + " ,'%')";
+        }
+    }
+
     /** like 查询相关的选项 */
     enum SqlLike {
         /** %值 */
@@ -30,25 +48,5 @@ public interface ConditionSqlDialect extends SqlDialect {
         RIGHT,
         /** %值% */
         DEFAULT
-    }
-
-    /**
-     * 生成 LIKE 条件 SQL 片段
-     * @param likeType LIKE 模式枚举值
-     * @param value 匹配值
-     * @return 生成的 LIKE 条件 SQL 片段
-     */
-    default String like(SqlLike likeType, Object value) {
-        if (value == null || StringUtils.isBlank(value.toString())) {
-            return "%";
-        }
-        switch (likeType) {
-            case LEFT:
-                return "CONCAT('%', ? )";
-            case RIGHT:
-                return "CONCAT( ? ,'%')";
-            default:
-                return "CONCAT('%', ? ,'%')";
-        }
     }
 }

@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.hasor.dbvisitor.lambda.core;
-/**
- * lambda Delete for Entity.
- * @author 赵永春 (zyc@hasor.net)
- * @version 2022-04-02
- */
-public interface ConditionFunc<R> {
+package net.hasor.dbvisitor.dialect.builder;
 
-    /** 允许空 Where条件（注意：空 Where 条件会导致删除或更新整个数据库） */
-    R allowEmptyWhere();
+/**
+ * 条件逻辑
+ * @author 赵永春 (zyc@hasor.net)
+ * @version 2025-12-06
+ */
+public enum ConditionLogic {
+    AND,
+    OR,
+    AND_NOT,
+    OR_NOT
 }

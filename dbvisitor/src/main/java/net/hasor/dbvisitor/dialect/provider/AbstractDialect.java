@@ -35,10 +35,9 @@ import net.hasor.dbvisitor.dialect.SqlDialect;
  * @version 2020-10-31
  */
 public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect {
-    private static final Logger      logger = LoggerFactory.getLogger(AbstractDialect.class);
-    private static final char[]      FIRST_CHAR;
-    private static final char[]      CONTAINS_CHAR;
-    private              Set<String> keyWords;
+    private static final Logger logger = LoggerFactory.getLogger(AbstractDialect.class);
+    private static final char[] FIRST_CHAR;
+    private static final char[] CONTAINS_CHAR;
 
     static {
         CONTAINS_CHAR = new char[] {//
@@ -52,8 +51,10 @@ public abstract class AbstractDialect implements SqlDialect, ConditionSqlDialect
         };
     }
 
+    private Set<String> keyWords;
+
     @Override
-    public final Set<String> keywords() {
+    public Set<String> keywords() {
         if (this.keyWords == null) {
             this.keyWords = new HashSet<>();
 

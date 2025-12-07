@@ -125,7 +125,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
         if (StringUtils.isBlank(sqlString)) {
             return this.getSelf();
         }
-        this.queryTemplate.addSegment(d -> {
+        this.queryTemplate.addSegment((delimited, d) -> {
             PlanDynamicSql parsedSql = DynamicParsed.getParsedSql(sqlString);
             SqlBuilder build = parsedSql.buildQuery(new ArraySqlArgSource(args), this.queryContext);
             for (Object arg : build.getArgs()) {
@@ -166,15 +166,15 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
         String specialValue = mapping.getWhereValueTemplate();
         String colValue = StringUtils.isNotBlank(specialValue) ? specialValue : "?";
 
-        return d -> {
+        return (delimited, d) -> {
             format(colValue, param);
-            return ((ConditionSqlDialect) d).like(like, param);
+            return ((ConditionSqlDialect) d).like(like, param, colValue);
         };
     }
 
     protected Segment formatValue(String property, Object... params) {
         if (ArrayUtils.isEmpty(params)) {
-            return d -> "";
+            return (delimited, d) -> "";
         }
 
         ColumnMapping mapping = this.findPropertyByName(property);
@@ -193,7 +193,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
             }
             mergeSqlSegment.addSegment(formatSegment(colValue, sqlArg));
             if (iterator.hasNext()) {
-                mergeSqlSegment.addSegment(d -> ",");
+                mergeSqlSegment.addSegment((delimited, d) -> ",");
             }
         }
         return mergeSqlSegment;
@@ -201,7 +201,7 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
 
     protected Segment formatValue(Object... params) {
         if (ArrayUtils.isEmpty(params)) {
-            return d -> "";
+            return (delimited, d) -> "";
         }
 
         String colValue = "?";
@@ -220,14 +220,14 @@ public abstract class BasicQueryCompare<R, T, P> extends BasicLambda<R, T, P> im
             Object arg = new SqlArg(nextArg, sqlType, exampleIsMap() ? null : typeHandler);
             mergeSqlSegment.addSegment(formatSegment(colValue, arg));
             if (iterator.hasNext()) {
-                mergeSqlSegment.addSegment(d -> ",");
+                mergeSqlSegment.addSegment((delimited, d) -> ",");
             }
         }
         return mergeSqlSegment;
     }
 
     protected Segment formatSegment(String argTemp, Object param) {
-        return d -> format(argTemp, param);
+        return (delimited, d) -> format(argTemp, param);
     }
 
     private String format(String argTemp, Object param) {
