@@ -1,6 +1,6 @@
 {
-  "label": "11.3 自定义适配器",
-  "position": 20,
+  "label": "11.2 JDBC Mongo",
+  "position": 2,
   "className": "red",
   "link": {
     "type": "doc",

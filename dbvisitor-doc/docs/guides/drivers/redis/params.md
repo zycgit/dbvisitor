@@ -1,8 +1,8 @@
 ---
 id: params
-sidebar_position: 2
+sidebar_position: 3
 hide_table_of_contents: true
-title: 驱动参数
+title: 连接参数
 description: jdbc-redis 驱动程序可以设置的 JDBC 参数。
 ---
 

@@ -1,0 +1,84 @@
+---
+id: usecase
+sidebar_position: 2
+hide_table_of_contents: true
+title: 安装与配置
+description: 介绍如何引入 jdbc-mongo 依赖以及配置 JDBC 连接。
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import Vars from '@site/plugins/projectVars';
+
+export const Highlight = ({children, color}) => (
+    <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+);
+
+## 引入依赖
+
+在使用 `jdbc-mongo` 之前，需要在项目中引入相应的 Maven 依赖。当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+
+<Tabs>
+  <TabItem value="maven" label="Maven" default>
+    ```xml
+    <dependency>
+        <groupId>net.hasor</groupId>
+        <artifactId>jdbc-mongo</artifactId>
+        <version>6.3.0</version> <!-- 请使用最新版本 -->
+    </dependency>
+    ```
+  </TabItem>
+  <TabItem value="gradle" label="Gradle">
+    ```groovy
+    implementation 'net.hasor:jdbc-mongo:6.3.0' // 请使用最新版本
+    ```
+  </TabItem>
+</Tabs>
+
+## JDBC 连接
+
+使用标准的 JDBC URL 格式进行连接。
+
+```text
+jdbc:dbvisitor:mongo://<host>:<port>/<database>?<parameters>
+```
+
+- `host`: MongoDB 服务器地址。
+- `port`: MongoDB 服务器端口（默认 27017）。
+- `database`: 数据库名称。
+- `parameters`: 连接参数，详见 [连接参数](./params)。
+
+### 示例代码
+
+```java
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+public class MongoJdbcExample {
+    public static void main(String[] args) throws Exception {
+        String url = "jdbc:dbvisitor:mongo://127.0.0.1:27017/testdb";
+        try (Connection conn = DriverManager.getConnection(url)) {
+            // Statement Example
+            try (Statement stmt = conn.createStatement()) {
+                try (ResultSet rs = stmt.executeQuery("db.my_collection.find().limit(10)")) {
+                    while (rs.next()) {
+                        System.out.println(rs.getString("name"));
+                    }
+                }
+            }
+
+            // PreparedStatement Example
+            try (PreparedStatement pstmt = conn.prepareStatement("db.my_collection.find({name:?})")) {
+                pstmt.setString(1, "mali");
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        System.out.println(rs.getString("name"));
+                    }
+                }
+            }
+        }
+    }
+}
+```
