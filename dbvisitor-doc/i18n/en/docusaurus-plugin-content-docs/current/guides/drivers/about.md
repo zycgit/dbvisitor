@@ -15,6 +15,7 @@ dbVisitor 适配器是从 6.1.0 版本开始引入的一个重要组建，它提
 ## 使用指引
 
 - 已提供的适配器
-  - **[jdbc-redis](./redis/about)** 是 Redis 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和命令的方式来操作 Redis。
+  - **[jdbc-redis](./redis/about)** 是 Redis 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和 Redis 命令的方式来操作数据库。
+  - **[jdbc-mongo](./mongo/about)** 是 MongoDB 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和 MopngoDB 命令的方式来操作数据库。
 - 开发新的适配器
   - **[自定义适配器](./dev/about)** 学习如何开发一个自定义的 JDBC 驱动适配器，为自己的数据库实现 JDBC 兼容层。

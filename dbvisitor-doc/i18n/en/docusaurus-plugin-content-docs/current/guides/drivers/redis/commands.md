@@ -1,7 +1,6 @@
 ---
 id: commands
-sidebar_position: 3
-hide_table_of_contents: true
+sidebar_position: 2
 title: 支持的命令
 description: jdbc-redis 支持 140+ 常用命令，涵盖 DB、Server、Keys、List、Set、StoreSet、String、Hash 命令集。
 ---

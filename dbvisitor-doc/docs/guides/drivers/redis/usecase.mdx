@@ -51,12 +51,6 @@ jdbc:dbvisitor:jedis://<host>:<port>?database=<database>&<parameters>
 ### 示例代码
 
 ```java
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
-
 public class RedisJdbcExample {
     public static void main(String[] args) throws Exception {
         String url = "jdbc:dbvisitor:jedis://127.0.0.1:6379/0";

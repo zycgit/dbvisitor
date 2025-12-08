@@ -71,11 +71,9 @@
         update (true|false) #IMPLIED
         selectTemplate CDATA #IMPLIED
         insertTemplate CDATA #IMPLIED
-        setColTemplate CDATA #IMPLIED
         setValueTemplate CDATA #IMPLIED
         whereColTemplate CDATA #IMPLIED
         whereValueTemplate CDATA #IMPLIED
-        groupByColTemplate CDATA #IMPLIED
         orderByColTemplate CDATA #IMPLIED
         sqlType CDATA #IMPLIED
         length CDATA #IMPLIED

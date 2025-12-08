@@ -87,3 +87,13 @@ select * from users where
 - 使用 `:name` 或 `&name` 写法不支持参数选项。
 - 有关更多参数选项的信息请到 **[参数选项](./options)** 查看。
 :::
+
+## 忽略规则
+
+在 SQL 中如果冒号 `:` 后面紧跟空白字符（如空格、换行、制表符等），dbVisitor 会忽略该冒号的参数解析，将其视为普通字符。
+这一特性使得在 SQL 中可以直接书写 JSON 或类似 MongoDB 的查询语句，而无需对冒号进行转义。
+
+```sql
+-- 冒号后面有空格，不会被识别为参数
+select * from table where config = '{ "key": "value" }'
+```

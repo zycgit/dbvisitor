@@ -25,6 +25,7 @@ dbVisitor 在统一内核架构下面向使用而设计的 API 主要分为 4 �
 
 对于 **非关系型数据库** 通过下列指引可详细了解其中差异：
 - [Redis 数据源特异性](../core/redis/about)
+- [MongoDB 数据源特异性](../core/mongo/about)
 
 ## 数据库方言 {#dialect}
 

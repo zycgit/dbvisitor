@@ -2,63 +2,81 @@
 id: usecase
 sidebar_position: 1
 hide_table_of_contents: true
-title: 如何使用
+title: 安装与配置
 description: 展示如何使用 jdbc-redis 以 JDBC 的方式访问 Redis 数据库。
 ---
-import TagRed from '@site/src/components/tags/TagRed';
-import TagGray from '@site/src/components/tags/TagGray';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 import Vars from '@site/plugins/projectVars';
 
 export const Highlight = ({children, color}) => (
-<span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+    <span style={{backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem',}}>{children}</span>
 );
 
 ### 引入依赖
 
-```xml title='Maven 依赖'
-<dependency>
-    <groupId>net.hasor</groupId>
-    <artifactId>jdbc-redis</artifactId>
-  <version>最新版本的版本号</version>
-</dependency>
+在使用 `jdbc-redis` 之前，需要在项目中引入相应的 Maven 依赖。当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+
+<Tabs>
+    <TabItem value="maven" label="Maven" default>
+        ```xml
+        <dependency>
+            <groupId>net.hasor</groupId>
+            <artifactId>jdbc-redis</artifactId>
+            <version>6.3.0</version>
+            <!-- 请使用最新版本 -->
+        </dependency>
+        ```
+    </TabItem>
+    <TabItem value="gradle" label="Gradle">
+        ```groovy
+        implementation 'net.hasor:jdbc-redis:6.3.0' // 请使用最新版本
+        ```
+    </TabItem>
+</Tabs>
+
+## JDBC 连接
+
+使用标准的 JDBC URL 格式进行连接。
+
+```text
+jdbc:dbvisitor:jedis://<host>:<port>?database=<database>&<parameters>
 ```
-- 当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
 
-## 连接创建
+- `host`: Redis 服务器地址。
+- `port`: Redis 服务器端口（默认 6379）。
+- `database`: 数据库索引（默认 0）。
+- `parameters`: 连接参数，详见 [连接参数](./params)。
 
-使用标准的 JDBC URL 格式连接 Redis：
+### 示例代码
 
 ```java
-String url = "jdbc:dbvisitor:jedis://server:port?database=0&param1=value1&param2=value2";
-Properties props = new Properties();
-props.setProperty("username", "user");
-props.setProperty("password", "pass");
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
-Connection conn = DriverManager.getConnection(url, props);
-```
+public class RedisJdbcExample {
+    public static void main(String[] args) throws Exception {
+        String url = "jdbc:dbvisitor:jedis://127.0.0.1:6379/0";
+        try (Connection conn = DriverManager.getConnection(url)) {
+            // Statement Example
+            try (Statement stmt = conn.createStatement()) {
+                try (ResultSet rs = stmt.executeQuery("GET mykey")) {
+                    while (rs.next()) {
+                        System.out.println(rs.getString(1));
+                    }
+                }
+            }
 
-详细的连接参数参考 **[驱动参数](./params)**
-
-## 命令执行
-
-```java
-// 创建连接
-Connection conn = DriverManager.getConnection("jdbc:dbvisitor:jedis://localhost:6379");
-
-// 执行命令
-Statement stmt = conn.createStatement();
-ResultSet rs = stmt.executeQuery("SET mykey hello");
-
-// 处理结果
-rs = stmt.executeQuery("GET mykey");
-if (rs.next()) {
-    System.out.println(rs.getString(1)); // 输出: hello
+            // PreparedStatement Example
+            try (PreparedStatement pstmt = conn.prepareStatement("SET ? ?")) {
+                pstmt.setString(1, "acc");
+                pstmt.setString(2, "123");
+                pstmt.executeUpdate();
+            }
+        }
+    }
 }
-
-// 参数化查询
-PreparedStatement pstmt = conn.prepareStatement("HSET ? ? ?");
-pstmt.setString(1, "myhash");
-pstmt.setString(2, "field1");
-pstmt.setString(3, "value1");
-ResultSet rs = pstmt.executeQuery();
 ```

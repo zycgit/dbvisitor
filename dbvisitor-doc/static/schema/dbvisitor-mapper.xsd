@@ -130,11 +130,9 @@
         <xs:attribute name="update" type="boolean_type"/>
         <xs:attribute name="selectTemplate"/>
         <xs:attribute name="insertTemplate"/>
-        <xs:attribute name="setColTemplate"/>
         <xs:attribute name="setValueTemplate"/>
         <xs:attribute name="whereColTemplate"/>
         <xs:attribute name="whereValueTemplate"/>
-        <xs:attribute name="groupByColTemplate"/>
         <xs:attribute name="orderByColTemplate"/>
         <!-- META -->
         <xs:attribute name="sqlType"/>
@@ -159,11 +157,9 @@
         <xs:attribute name="update" type="boolean_type"/>
         <xs:attribute name="selectTemplate"/>
         <xs:attribute name="insertTemplate"/>
-        <xs:attribute name="setColTemplate"/>
         <xs:attribute name="setValueTemplate"/>
         <xs:attribute name="whereColTemplate"/>
         <xs:attribute name="whereValueTemplate"/>
-        <xs:attribute name="groupByColTemplate"/>
         <xs:attribute name="orderByColTemplate"/>
         <!-- META -->
         <xs:attribute name="sqlType"/>
