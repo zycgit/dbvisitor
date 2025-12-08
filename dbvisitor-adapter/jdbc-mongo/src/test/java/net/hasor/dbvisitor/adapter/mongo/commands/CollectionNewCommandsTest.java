@@ -227,7 +227,7 @@ public class CollectionNewCommandsTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery("mydb.mycol.findOne({name:'zhangsan'})");
             assert rs.next();
-            assert rs.getString("JSON").contains("zhangsan");
+            assert rs.getString("_JSON").contains("zhangsan");
         } catch (SQLException e) {
             e.printStackTrace();
             assert false;
@@ -248,7 +248,7 @@ public class CollectionNewCommandsTest extends AbstractJdbcTest {
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery("mydb.mycol.stats()");
             assert rs.next();
-            assert rs.getString("JSON").contains("ok");
+            assert rs.getString("_JSON").contains("ok");
         } catch (SQLException e) {
             e.printStackTrace();
             assert false;

@@ -24,7 +24,7 @@ class MongoCommandsForUser extends MongoCommands {
         Document command = new Document("usersInfo", 1);
         Document result = mongoDB.runCommand(command);
 
-        List<JdbcColumn> columns = Arrays.asList(COL_USER_STRING, COL_DB_STRING, COL_ROLES_STRING, COL_JSON_STRING);
+        List<JdbcColumn> columns = Arrays.asList(COL_ID_STRING, COL_JSON_STRING, COL_USER_STRING, COL_DB_STRING, COL_ROLES_STRING);
         AdapterResultCursor cursor = new AdapterResultCursor(request, columns);
         long maxRows = request.getMaxRows();
         int affectRows = 0;
@@ -33,10 +33,11 @@ class MongoCommandsForUser extends MongoCommands {
         if (users != null) {
             for (Document user : users) {
                 Map<String, Object> row = new LinkedHashMap<>();
+                row.put(COL_ID_STRING.name, hexObjectId(user));
+                row.put(COL_JSON_STRING.name, user.toJson());
                 row.put(COL_USER_STRING.name, user.getString("user"));
                 row.put(COL_DB_STRING.name, user.getString("db"));
                 row.put(COL_ROLES_STRING.name, user.get("roles").toString());
-                row.put(COL_JSON_STRING.name, user.toJson());
                 cursor.pushData(row);
 
                 affectRows++;
@@ -162,7 +163,7 @@ class MongoCommandsForUser extends MongoCommands {
         Document command = new Document("rolesInfo", 1);
         Document result = mongoDB.runCommand(command);
 
-        List<JdbcColumn> columns = Arrays.asList(COL_ROLE_STRING, COL_DB_STRING, COL_IS_BUILTIN_BOOLEAN, COL_INHERITED_ROLES_STRING, COL_JSON_STRING);
+        List<JdbcColumn> columns = Arrays.asList(COL_ID_STRING, COL_JSON_STRING, COL_ROLE_STRING, COL_DB_STRING, COL_IS_BUILTIN_BOOLEAN, COL_INHERITED_ROLES_STRING);
         AdapterResultCursor cursor = new AdapterResultCursor(request, columns);
         long maxRows = request.getMaxRows();
         int affectRows = 0;
@@ -171,11 +172,12 @@ class MongoCommandsForUser extends MongoCommands {
         if (roles != null) {
             for (Document role : roles) {
                 Map<String, Object> row = new LinkedHashMap<>();
+                row.put(COL_ID_STRING.name, hexObjectId(role));
+                row.put(COL_JSON_STRING.name, role.toJson());
                 row.put(COL_ROLE_STRING.name, role.getString("role"));
                 row.put(COL_DB_STRING.name, role.getString("db"));
                 row.put(COL_IS_BUILTIN_BOOLEAN.name, role.getBoolean("isBuiltin"));
                 row.put(COL_INHERITED_ROLES_STRING.name, role.get("roles").toString());
-                row.put(COL_JSON_STRING.name, role.toJson());
                 cursor.pushData(row);
 
                 affectRows++;

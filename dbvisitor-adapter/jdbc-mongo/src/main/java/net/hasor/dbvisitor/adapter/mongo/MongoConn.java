@@ -45,17 +45,19 @@ public class MongoConn extends AdapterConnection {
         }
         sizeStr = sizeStr.toUpperCase().trim();
         long multiplier = 1;
-        if (sizeStr.endsWith("KB")) {
+        if (StringUtils.endsWithIgnoreCase(sizeStr, "KB")) {
             multiplier = 1024;
             sizeStr = sizeStr.substring(0, sizeStr.length() - 2);
-        } else if (sizeStr.endsWith("MB")) {
+        } else if (StringUtils.endsWithIgnoreCase(sizeStr, "MB")) {
             multiplier = 1024 * 1024;
             sizeStr = sizeStr.substring(0, sizeStr.length() - 2);
-        } else if (sizeStr.endsWith("GB")) {
+        } else if (StringUtils.endsWithIgnoreCase(sizeStr, "GB")) {
             multiplier = 1024 * 1024 * 1024;
             sizeStr = sizeStr.substring(0, sizeStr.length() - 2);
-        } else if (sizeStr.endsWith("B")) {
+        } else if (StringUtils.endsWithIgnoreCase(sizeStr, "B")) {
             sizeStr = sizeStr.substring(0, sizeStr.length() - 1);
+        } else {
+            multiplier = 1024 * 1024;
         }
         try {
             return Long.parseLong(sizeStr.trim()) * multiplier;

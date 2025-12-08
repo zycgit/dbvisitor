@@ -170,14 +170,16 @@ class MongoCommandsForIndex extends MongoCommands {
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
 
-        List<JdbcColumn> columns = Arrays.asList(COL_IDX_V_INT, COL_IDX_KEY_STRING, COL_IDX_NAME_STRING, COL_IDX_NS_STRING, //
-                COL_IDX_UNIQUE_BOOLEAN, COL_IDX_SPARSE_BOOLEAN, COL_IDX_BACKGROUND_BOOLEAN, COL_IDX_HIDDEN_BOOLEAN, COL_JSON_STRING);
+        List<JdbcColumn> columns = Arrays.asList(COL_ID_STRING, COL_JSON_STRING, COL_IDX_V_INT, COL_IDX_KEY_STRING, COL_IDX_NAME_STRING, COL_IDX_NS_STRING, //
+                COL_IDX_UNIQUE_BOOLEAN, COL_IDX_SPARSE_BOOLEAN, COL_IDX_BACKGROUND_BOOLEAN, COL_IDX_HIDDEN_BOOLEAN);
 
         AdapterResultCursor result = new AdapterResultCursor(request, columns);
         long maxRows = request.getMaxRows();
         int affectRows = 0;
         for (Document doc : mongoColl.listIndexes()) {
             Map<String, Object> row = new LinkedHashMap<>();
+            row.put(COL_ID_STRING.name, hexObjectId(doc));
+            row.put(COL_JSON_STRING.name, doc.toJson());
             row.put(COL_IDX_V_INT.name, doc.get("v"));
             row.put(COL_IDX_KEY_STRING.name, doc.get("key") != null ? ((Document) doc.get("key")).toJson() : null);
             row.put(COL_IDX_NAME_STRING.name, doc.get("name"));
@@ -186,7 +188,6 @@ class MongoCommandsForIndex extends MongoCommands {
             row.put(COL_IDX_SPARSE_BOOLEAN.name, doc.get("sparse"));
             row.put(COL_IDX_BACKGROUND_BOOLEAN.name, doc.get("background"));
             row.put(COL_IDX_HIDDEN_BOOLEAN.name, doc.get("hidden"));
-            row.put(COL_JSON_STRING.name, doc.toJson());
             result.pushData(row);
 
             affectRows++;

@@ -35,7 +35,7 @@ class MongoResultBuffer implements Closeable, Iterable<Document> {
 
     public void add(Document doc) throws SQLException, IOException {
         // Simple size estimation
-        long docSize = doc.toJson().length() * 2L; // Rough estimate
+        long docSize = doc.toJson().getBytes().length;
         currentSize += docSize;
 
         if (switchedToDisk) {

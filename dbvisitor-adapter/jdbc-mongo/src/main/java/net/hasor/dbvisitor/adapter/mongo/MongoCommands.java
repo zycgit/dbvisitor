@@ -12,9 +12,12 @@ import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.CollectionContext;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.DatabaseNameContext;
 import net.hasor.dbvisitor.driver.*;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 abstract class MongoCommands {
     // for db and collections
+    protected static final JdbcColumn COL_ID_STRING              = new JdbcColumn("_ID", AdapterType.String, "", "", "");
+    protected static final JdbcColumn COL_JSON_STRING            = new JdbcColumn("_JSON", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_DATABASE_STRING        = new JdbcColumn("DATABASE", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_COLLECTION_STRING      = new JdbcColumn("COLLECTION", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_VALUE_STRING           = new JdbcColumn("VALUE", AdapterType.String, "", "", "");
@@ -23,7 +26,6 @@ abstract class MongoCommands {
     protected static final JdbcColumn COL_TYPE_STRING            = new JdbcColumn("TYPE", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_OPTIONS_STRING         = new JdbcColumn("OPTIONS", AdapterType.String, "", "", "");
     protected static final JdbcColumn COL_INFO_STRING            = new JdbcColumn("INFO", AdapterType.String, "", "", "");
-    protected static final JdbcColumn COL_JSON_STRING            = new JdbcColumn("JSON", AdapterType.String, "", "", "");
     // for index
     protected static final JdbcColumn COL_IDX_V_INT              = new JdbcColumn("V", AdapterType.Int, "", "", "");
     protected static final JdbcColumn COL_IDX_KEY_STRING         = new JdbcColumn("KEY", AdapterType.String, "", "", "");
@@ -66,6 +68,10 @@ abstract class MongoCommands {
     }
 
     protected static String argAsDbName(AtomicInteger argIndex, AdapterRequest request, DatabaseNameContext ctx, MongoCmd mongoCmd) throws SQLException {
+        if (ctx == null) {
+            return mongoCmd.getCatalog();
+        }
+
         if (ctx.ARG() != null) {
             Object arg = getArg(argIndex, request);
             return arg == null ? null : arg.toString();
@@ -192,6 +198,15 @@ abstract class MongoCommands {
     }
 
     //
+
+    protected static String hexObjectId(Document doc) {
+        try {
+            ObjectId docId = doc.getObjectId("_id");
+            return docId == null ? null : docId.toHexString();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     protected static Collation jsonb2Collation(Map<String, Object> options) {
         if (options == null) {

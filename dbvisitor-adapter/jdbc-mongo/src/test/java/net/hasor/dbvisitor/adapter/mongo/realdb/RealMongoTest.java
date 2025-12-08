@@ -8,7 +8,7 @@ import java.util.Properties;
 import org.junit.Test;
 
 public class RealMongoTest {
-    private static final String MONGO_URL = "jdbc:dbvisitor:mongo://127.0.0.1:17017?database=admin";
+    private static final String MONGO_URL = "jdbc:dbvisitor:mongo://127.0.0.1:17017/admin";
 
     @Test
     public void test_01() throws Exception {
@@ -41,7 +41,7 @@ public class RealMongoTest {
             try (Statement s = c.createStatement()) {
                 try (ResultSet rs = s.executeQuery("test.user_info.find({name: 'mali'})")) {
                     if (rs.next()) {
-                        String json = rs.getString("JSON");
+                        String json = rs.getString("_JSON");
                         if (!json.contains("\"name\": \"mali\"") || !json.contains("\"age\": 26")) {
                             throw new RuntimeException("data not match: " + json);
                         }

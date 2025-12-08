@@ -26,18 +26,17 @@ public class MongoConnFactory implements AdapterFactory {
         }
     }
 
-    private static MongoCredential passerMongoConfig(Map<String, String> caseProps) throws SQLException {
+    private static MongoCredential passerMongoConfig(String defaultDB, Map<String, String> caseProps) throws SQLException {
         String username = StringUtils.trimToEmpty(caseProps.get(MongoKeys.USERNAME));
         String password = StringUtils.trimToEmpty(caseProps.get(MongoKeys.PASSWORD));
-        String database = StringUtils.trimToEmpty(caseProps.get(MongoKeys.DATABASE));
         String mechanism = StringUtils.trimToEmpty(caseProps.get(MongoKeys.MECHANISM)).toUpperCase();
         switch (mechanism) {
             case "PLAIN":
-                return MongoCredential.createPlainCredential(username, database, password.toCharArray());
+                return MongoCredential.createPlainCredential(username, defaultDB, password.toCharArray());
             case "SCRAM-SHA-1":
-                return MongoCredential.createScramSha1Credential(username, database, password.toCharArray());
+                return MongoCredential.createScramSha1Credential(username, defaultDB, password.toCharArray());
             case "SCRAM-SHA-256":
-                return MongoCredential.createScramSha256Credential(username, database, password.toCharArray());
+                return MongoCredential.createScramSha256Credential(username, defaultDB, password.toCharArray());
             case "GSSAPI":
                 return MongoCredential.createGSSAPICredential(username);
             case "X-509":
@@ -47,20 +46,20 @@ public class MongoConnFactory implements AdapterFactory {
                     return MongoCredential.createMongoX509Credential();
                 }
             case "":
-                return MongoCredential.createCredential(username, database, password.toCharArray());
+                return MongoCredential.createCredential(username, defaultDB, password.toCharArray());
             default:
                 throw new SQLException("unsupported authentication mechanism:" + mechanism);
         }
     }
 
-    private static MongoClientSettings passerMongoSettings(Map<String, String> caseProps, List<ServerAddress> clusterHosts) throws SQLException {
+    private static MongoClientSettings passerMongoSettings(String defaultDB, Map<String, String> caseProps, List<ServerAddress> clusterHosts) throws SQLException {
         MongoClientSettings.Builder builder = MongoClientSettings.builder();
 
         // hosts
         builder.applyToClusterSettings(b -> b.hosts(clusterHosts)).build();
 
         // credential
-        builder.credential(passerMongoConfig(caseProps));
+        builder.credential(passerMongoConfig(defaultDB, caseProps));
 
         // socket settings
         builder.applyToSocketSettings(b -> {
@@ -104,7 +103,7 @@ public class MongoConnFactory implements AdapterFactory {
 
     @Override
     public String[] getPropertyNames() {
-        return new String[] { MongoKeys.SERVER, MongoKeys.ADAPTER_NAME, MongoKeys.TIME_ZONE, MongoKeys.CONN_TIMEOUT, MongoKeys.SO_TIMEOUT, MongoKeys.USERNAME, MongoKeys.PASSWORD, MongoKeys.DATABASE, MongoKeys.CLIENT_NAME };
+        return new String[] { MongoKeys.SERVER, MongoKeys.ADAPTER_NAME, MongoKeys.TIME_ZONE, MongoKeys.CONN_TIMEOUT, MongoKeys.SO_TIMEOUT, MongoKeys.USERNAME, MongoKeys.PASSWORD, MongoKeys.CLIENT_NAME };
     }
 
     @Override
@@ -121,9 +120,9 @@ public class MongoConnFactory implements AdapterFactory {
         Map<String, String> caseProps = new LinkedCaseInsensitiveMap<>();
         props.forEach((k, v) -> caseProps.put((String) k, (String) v));
 
-        String host = caseProps.get(MongoKeys.SERVER);
+        String host = StringUtils.trimToEmpty(caseProps.get(MongoKeys.SERVER));
         String customMongo = caseProps.get(MongoKeys.CUSTOM_MONGO);
-        String defaultDataBase = caseProps.get(MongoKeys.DATABASE);
+        String defaultDB = extractPathFromJdbcUrl(jdbcUrl, host);
         MongoClient mongoObject;
 
         if (StringUtils.isNotBlank(customMongo)) {
@@ -143,17 +142,39 @@ public class MongoConnFactory implements AdapterFactory {
                 clusterHosts.add(passerIpPort(h, 27017));
             }
 
-            MongoClientSettings settings = passerMongoSettings(caseProps, clusterHosts);
+            MongoClientSettings settings = passerMongoSettings(defaultDB, caseProps, clusterHosts);
             mongoObject = MongoClients.create(settings);
         } else {
             ServerAddress hostAndPort = passerIpPort(host, 27017);
-            MongoClientSettings settings = passerMongoSettings(caseProps, Collections.singletonList(hostAndPort));
+            MongoClientSettings settings = passerMongoSettings(defaultDB, caseProps, Collections.singletonList(hostAndPort));
             mongoObject = MongoClients.create(settings);
         }
 
-        MongoCmd cmd = new MongoCmd(mongoObject, defaultDataBase);
+        MongoCmd cmd = new MongoCmd(mongoObject, defaultDB);
         MongoConn conn = new MongoConn(owner, cmd, jdbcUrl, caseProps);
         conn.initConnection();
         return conn;
+    }
+
+    private static String extractPathFromJdbcUrl(String jdbcUrl, String host) throws SQLException {
+        jdbcUrl = jdbcUrl.substring(jdbcUrl.indexOf("://") + 3 + host.length());
+
+        int params = jdbcUrl.indexOf("?");
+        if (params > -1) {
+            jdbcUrl = jdbcUrl.substring(0, params);
+        }
+
+        if (jdbcUrl.isEmpty()) {
+            return null;
+        } else if (jdbcUrl.startsWith("/")) {
+            int path = jdbcUrl.indexOf("/", 1);
+            if (path > -1) {
+                throw new SQLException("jdbcUrl is not a valid mongo url.");
+            } else {
+                return jdbcUrl.substring(1);
+            }
+        } else {
+            throw new SQLException("jdbcUrl is not a valid mongo url.");
+        }
     }
 }

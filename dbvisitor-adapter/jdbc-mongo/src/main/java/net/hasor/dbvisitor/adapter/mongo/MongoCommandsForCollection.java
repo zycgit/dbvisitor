@@ -9,6 +9,7 @@ import com.mongodb.client.*;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoBsonVisitor;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.*;
@@ -767,8 +768,8 @@ class MongoCommandsForCollection extends MongoCommands {
         }
 
         Document result = mongoDB.runCommand(command);
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_STRING));
-        cursor.pushData(Collections.singletonMap(COL_JSON_STRING.name, result.toJson()));
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_ID_STRING, COL_JSON_STRING));
+        cursor.pushData(CollectionUtils.asMap(COL_ID_STRING.name, hexObjectId(result), COL_JSON_STRING.name, result.toJson()));
         cursor.pushFinish();
 
         receive.responseResult(request, cursor);
@@ -826,6 +827,7 @@ class MongoCommandsForCollection extends MongoCommands {
 
     private static Future<?> execFindWithPreRead(Future<Object> sync, AdapterRequest request, AdapterReceive receive, MongoConn conn, MongoResultBuffer buffer, FindIterable<Document> it) throws SQLException, IOException {
         Set<String> keySet = new LinkedHashSet<>();
+        keySet.add(COL_ID_STRING.name);
         keySet.add(COL_JSON_STRING.name);
         long maxRows = request.getMaxRows();
         int affectRows = 0;
@@ -848,6 +850,7 @@ class MongoCommandsForCollection extends MongoCommands {
         AdapterResultCursor cursor = new AdapterResultCursor(request, columns);
         for (Document doc : buffer) {
             Map<String, Object> row = new LinkedHashMap<>();
+            row.put(COL_ID_STRING.name, hexObjectId(doc));
             row.put(COL_JSON_STRING.name, doc.toJson());
             for (String key : keySet) {
                 if (doc.containsKey(key)) {
@@ -863,11 +866,11 @@ class MongoCommandsForCollection extends MongoCommands {
     }
 
     private static Future<?> execFindWithDirect(Future<Object> sync, AdapterRequest request, AdapterReceive receive, FindIterable<Document> it) throws SQLException {
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_STRING));
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_ID_STRING, COL_JSON_STRING));
         long maxRows = request.getMaxRows();
         int affectRows = 0;
         for (Document doc : it) {
-            cursor.pushData(Collections.singletonMap(COL_JSON_STRING.name, doc.toJson()));
+            cursor.pushData(CollectionUtils.asMap(COL_ID_STRING.name, hexObjectId(doc), COL_JSON_STRING.name, doc.toJson()));
             affectRows++;
             if (maxRows > 0 && affectRows >= maxRows) {
                 break;
@@ -898,9 +901,9 @@ class MongoCommandsForCollection extends MongoCommands {
             applyAggregateOptions(aggregate, options);
         }
 
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_JSON_STRING));
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_ID_STRING, COL_JSON_STRING));
         for (Document doc : aggregate) {
-            cursor.pushData(Collections.singletonMap(COL_JSON_STRING.name, doc.toJson()));
+            cursor.pushData(CollectionUtils.asMap(COL_ID_STRING.name, hexObjectId(doc), COL_JSON_STRING.name, doc.toJson()));
         }
         cursor.pushFinish();
 

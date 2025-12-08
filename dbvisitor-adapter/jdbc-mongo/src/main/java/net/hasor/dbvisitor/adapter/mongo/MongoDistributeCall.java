@@ -58,7 +58,7 @@ class MongoDistributeCall {
             return MongoCommandsForCollection.execCreateView(sync, mongoCmd, database, c.createViewOp(), request, receive, startArgIdx);
         }
         if (c.runCommandOp() != null) {
-            return MongoCommandsForOther.execRunCommand(sync, mongoCmd, database, c.runCommandOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForOther.execRunCommand(sync, mongoCmd, database, c.runCommandOp(), request, receive, startArgIdx);
         }
         if (c.dropDatabaseOp() != null) {
             return MongoCommandsForDB.execDropDatabase(sync, mongoCmd, database, c.dropDatabaseOp(), request, receive, startArgIdx);

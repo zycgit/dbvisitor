@@ -17,7 +17,6 @@ public class MongoKeys {
     public static final String USERNAME     = "username";
     public static final String PASSWORD     = "password";
     public static final String MECHANISM    = "mechanism";
-    public static final String DATABASE     = "database";
     // options
     public static final String CLIENT_NAME  = "clientName";
     public static final String CONN_TIMEOUT = "connectTimeout";         // milliseconds

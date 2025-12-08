@@ -115,6 +115,10 @@ public class JdbcDriver implements java.sql.Driver {
 
         // hosts
         String configUrl = urlServer.substring(adapterNameIdx + 2);
+        if (configUrl.indexOf("/") > -1) {
+            configUrl = configUrl.substring(0, configUrl.indexOf("/"));
+        }
+
         if (StringUtils.isNotBlank(configUrl)) {
             properties.setProperty(P_SERVER, configUrl);
         }

@@ -1,10 +1,11 @@
 package net.hasor.dbvisitor.adapter.mongo;
 import java.sql.SQLException;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoBsonVisitor;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.*;
@@ -15,7 +16,7 @@ import org.bson.Document;
 
 class MongoCommandsForOther extends MongoCommands {
     public static Future<?> execRunCommand(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, RunCommandOpContext c, //
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
         String dbName;
         if (database != null) {
@@ -44,8 +45,8 @@ class MongoCommandsForOther extends MongoCommands {
         }
 
         Document result = mongoDB.runCommand(command);
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_STRING));
-        cursor.pushData(Collections.singletonMap(COL_JSON_STRING.name, result.toJson()));
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_ID_STRING, COL_JSON_STRING));
+        cursor.pushData(CollectionUtils.asMap(COL_ID_STRING.name, hexObjectId(result), COL_JSON_STRING.name, result.toJson()));
         cursor.pushFinish();
 
         receive.responseResult(request, cursor);
@@ -63,9 +64,9 @@ class MongoCommandsForOther extends MongoCommands {
             find.limit((int) request.getMaxRows());
         }
 
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_STRING));
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_ID_STRING, COL_JSON_STRING));
         for (Document doc : find) {
-            cursor.pushData(Collections.singletonMap(COL_JSON_STRING.name, doc.toJson()));
+            cursor.pushData(CollectionUtils.asMap(COL_ID_STRING.name, hexObjectId(doc), COL_JSON_STRING.name, doc.toJson()));
         }
         cursor.pushFinish();
 
@@ -85,8 +86,8 @@ class MongoCommandsForOther extends MongoCommands {
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
 
         Document result = mongoDB.runCommand(new Document("serverStatus", 1));
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_STRING));
-        cursor.pushData(Collections.singletonMap(COL_JSON_STRING.name, result.toJson()));
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_ID_STRING, COL_JSON_STRING));
+        cursor.pushData(CollectionUtils.asMap(COL_ID_STRING.name, hexObjectId(result), COL_JSON_STRING.name, result.toJson()));
         cursor.pushFinish();
 
         receive.responseResult(request, cursor);
@@ -105,8 +106,8 @@ class MongoCommandsForOther extends MongoCommands {
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
 
         Document result = mongoDB.runCommand(new Document("buildInfo", 1));
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_STRING));
-        cursor.pushData(Collections.singletonMap(COL_JSON_STRING.name, result.toJson()));
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_ID_STRING, COL_JSON_STRING));
+        cursor.pushData(CollectionUtils.asMap(COL_ID_STRING.name, hexObjectId(result), COL_JSON_STRING.name, result.toJson()));
         cursor.pushFinish();
 
         receive.responseResult(request, cursor);
@@ -125,8 +126,8 @@ class MongoCommandsForOther extends MongoCommands {
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
 
         Document result = mongoDB.runCommand(new Document("dbStats", 1));
-        AdapterResultCursor cursor = new AdapterResultCursor(request, Collections.singletonList(COL_JSON_STRING));
-        cursor.pushData(Collections.singletonMap(COL_JSON_STRING.name, result.toJson()));
+        AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_ID_STRING, COL_JSON_STRING));
+        cursor.pushData(CollectionUtils.asMap(COL_ID_STRING.name, hexObjectId(result), COL_JSON_STRING.name, result.toJson()));
         cursor.pushFinish();
 
         receive.responseResult(request, cursor);

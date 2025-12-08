@@ -250,13 +250,13 @@ public class IndexCommandTest extends AbstractJdbcTest {
                 assert "idx_1".equals(rs.getString("NAME"));
                 assert rs.getInt("V") == 2;
                 assert rs.getString("KEY").contains("\"a\": 1");
-                assert rs.getString("JSON").contains("idx_1");
+                assert rs.getString("_JSON").contains("idx_1");
 
                 assert rs.next();
                 assert "idx_2".equals(rs.getString("NAME"));
                 assert rs.getInt("V") == 2;
                 assert rs.getString("KEY").contains("\"b\": 1");
-                assert rs.getString("JSON").contains("idx_2");
+                assert rs.getString("_JSON").contains("idx_2");
             }
         } catch (SQLException e) {
             e.printStackTrace();

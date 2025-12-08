@@ -26,7 +26,7 @@ public class OtherCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             ResultSet res = stmt.executeQuery("db.runCommand({ ping: 1 })");
             assert res.next();
-            String json = res.getString("JSON");
+            String json = res.getString("_JSON");
             assert json.contains("ok");
             assert json.contains("1");
         } catch (SQLException e) {
@@ -49,7 +49,7 @@ public class OtherCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             ResultSet res = stmt.executeQuery("db.serverStatus()");
             assert res.next();
-            String json = res.getString("JSON");
+            String json = res.getString("_JSON");
             assert json.contains("4.4.0");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -71,7 +71,7 @@ public class OtherCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             ResultSet res = stmt.executeQuery("db.version()");
             assert res.next();
-            String json = res.getString("JSON");
+            String json = res.getString("_JSON");
             assert json.contains("5.0.0");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -93,7 +93,7 @@ public class OtherCommandTest extends AbstractJdbcTest {
             stmt.execute("use mydb");
             ResultSet res = stmt.executeQuery("db.stats()");
             assert res.next();
-            String json = res.getString("JSON");
+            String json = res.getString("_JSON");
             assert json.contains("mydb");
         } catch (SQLException e) {
             e.printStackTrace();

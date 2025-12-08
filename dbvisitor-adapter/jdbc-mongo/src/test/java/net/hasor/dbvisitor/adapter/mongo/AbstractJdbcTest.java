@@ -22,8 +22,7 @@ public class AbstractJdbcTest {
     public Connection redisConnection(String defaultDB) throws SQLException {
         Properties prop = new Properties();
         prop.setProperty(MongoKeys.CUSTOM_MONGO, MongoCustomJedis.class.getName());
-        prop.setProperty(MongoKeys.DATABASE, defaultDB);
-        return new JdbcDriver().connect("jdbc:dbvisitor:mongo://xxxxxx", prop);
+        return new JdbcDriver().connect("jdbc:dbvisitor:mongo://xxxxxx/" + defaultDB, prop);
     }
 
     public InvocationHandler createInvocationHandler(String methodName, TestInvocationHandler handler) {
