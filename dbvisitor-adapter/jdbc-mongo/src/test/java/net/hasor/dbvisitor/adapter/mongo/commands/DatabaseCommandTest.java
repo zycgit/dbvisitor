@@ -1,4 +1,6 @@
 package net.hasor.dbvisitor.adapter.mongo.commands;
+import org.bson.Document;
+import static org.mockito.ArgumentMatchers.any;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,8 +22,22 @@ public class DatabaseCommandTest extends AbstractJdbcTest {
     public void show_dbs_0() {
         List<String> result = Arrays.asList("db1", "db2");
         MongoCommandInterceptor.resetInterceptor();
-        MongoCommandInterceptor.addInterceptor(MongoCluster.class, createInvocationHandler("listDatabaseNames", (name, args) -> {
-            return mockListDatabasesIterable(result);
+        MongoCommandInterceptor.addInterceptor(MongoCluster.class, createInvocationHandler(new String[] { "listDatabaseNames", "getDatabase" }, (name, args) -> {
+            if ("listDatabaseNames".equals(name)) {
+                return mockListDatabasesIterable(result);
+            }
+            if ("getDatabase".equals(name)) {
+                MongoDatabase mockDb = PowerMockito.mock(MongoDatabase.class);
+                PowerMockito.when(mockDb.runCommand(any())).thenAnswer(inv -> {
+                    Document doc = inv.getArgument(0);
+                    if (doc.containsKey("buildInfo")) {
+                        return new Document("version", "4.0.0");
+                    }
+                    return null;
+                });
+                return mockDb;
+            }
+            return null;
         }));
 
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
@@ -60,12 +76,20 @@ public class DatabaseCommandTest extends AbstractJdbcTest {
                 return mockListDatabasesIterable(dbs);
             }
             if ("getDatabase".equals(name)) {
-                return PowerMockito.mock(MongoDatabase.class);
+                MongoDatabase mockDb = PowerMockito.mock(MongoDatabase.class);
+                PowerMockito.when(mockDb.runCommand(any())).thenAnswer(inv -> {
+                    Document doc = inv.getArgument(0);
+                    if (doc.containsKey("buildInfo")) {
+                        return new Document("version", "4.0.0");
+                    }
+                    return null;
+                });
+                PowerMockito.doAnswer(inv -> {
+                    dropped.add("mydb");
+                    return null;
+                }).when(mockDb).drop();
+                return mockDb;
             }
-            return null;
-        }));
-        MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("drop", (name, args) -> {
-            dropped.add("mydb");
             return null;
         }));
 
@@ -89,12 +113,20 @@ public class DatabaseCommandTest extends AbstractJdbcTest {
                 return mockListDatabasesIterable(dbs);
             }
             if ("getDatabase".equals(name)) {
-                return PowerMockito.mock(MongoDatabase.class);
+                MongoDatabase mockDb = PowerMockito.mock(MongoDatabase.class);
+                PowerMockito.when(mockDb.runCommand(any())).thenAnswer(inv -> {
+                    Document doc = inv.getArgument(0);
+                    if (doc.containsKey("buildInfo")) {
+                        return new Document("version", "4.0.0");
+                    }
+                    return null;
+                });
+                PowerMockito.doAnswer(inv -> {
+                    dropped.add("mydb");
+                    return null;
+                }).when(mockDb).drop();
+                return mockDb;
             }
-            return null;
-        }));
-        MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("drop", (name, args) -> {
-            dropped.add("mydb");
             return null;
         }));
 
@@ -118,17 +150,24 @@ public class DatabaseCommandTest extends AbstractJdbcTest {
                 return mockListDatabasesIterable(dbs);
             }
             if ("getDatabase".equals(name)) {
-                return PowerMockito.mock(MongoDatabase.class);
+                MongoDatabase mockDb = PowerMockito.mock(MongoDatabase.class);
+                PowerMockito.when(mockDb.runCommand(any())).thenAnswer(inv -> {
+                    Document doc = inv.getArgument(0);
+                    if (doc.containsKey("buildInfo")) {
+                        return new Document("version", "4.0.0");
+                    }
+                    return null;
+                });
+                PowerMockito.doAnswer(inv -> {
+                    dropped.add("mydb");
+                    return null;
+                }).when(mockDb).drop();
+                return mockDb;
             }
             return null;
         }));
-        MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("drop", (name, args) -> {
-            dropped.add("mydb");
-            return null;
-        }));
 
-        try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
-            assert stmt.executeUpdate("use mydb") == 0;
+        try (Connection conn = redisConnection("mydb"); Statement stmt = conn.createStatement()) {
             assert stmt.executeUpdate("db.dropDatabase()") == 0;
             assert dropped.size() == 1;
             assert dropped.get(0).equals("mydb");

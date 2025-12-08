@@ -3,6 +3,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import com.mongodb.client.MongoDatabase;
 import net.hasor.dbvisitor.adapter.mongo.AbstractJdbcTest;
 import net.hasor.dbvisitor.adapter.mongo.MongoCommandInterceptor;
@@ -18,6 +19,9 @@ public class OtherCommandTest extends AbstractJdbcTest {
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
             BsonDocument doc = command.toBsonDocument(BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry());
+            if (doc.containsKey("buildInfo")) {
+                return new Document("version", "4.0.0").append("versionArray", Arrays.asList(4, 0, 0));
+            }
             assert doc.containsKey("ping");
             return new Document("ok", 1.0);
         }));
@@ -41,6 +45,9 @@ public class OtherCommandTest extends AbstractJdbcTest {
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
             BsonDocument doc = command.toBsonDocument(BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry());
+            if (doc.containsKey("buildInfo")) {
+                return new Document("version", "4.0.0").append("versionArray", Arrays.asList(4, 0, 0));
+            }
             assert doc.containsKey("serverStatus");
             return new Document("ok", 1.0).append("version", "4.4.0");
         }));
@@ -85,6 +92,9 @@ public class OtherCommandTest extends AbstractJdbcTest {
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
             BsonDocument doc = command.toBsonDocument(BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry());
+            if (doc.containsKey("buildInfo")) {
+                return new Document("version", "4.0.0").append("versionArray", Arrays.asList(4, 0, 0));
+            }
             assert doc.containsKey("dbStats");
             return new Document("ok", 1.0).append("db", "mydb");
         }));

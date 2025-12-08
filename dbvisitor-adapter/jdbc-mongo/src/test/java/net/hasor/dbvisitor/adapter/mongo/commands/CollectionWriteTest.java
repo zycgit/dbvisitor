@@ -23,11 +23,17 @@ public class CollectionWriteTest extends AbstractJdbcTest {
     public void insert_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
+            if ("runCommand".equals(method.getName())) {
+                Document doc = (Document) args[0];
+                if (doc.containsKey("buildInfo")) {
+                    return new Document("version", "4.0.0");
+                }
+            }
             if ("getCollection".equals(method.getName())) {
                 assert ((MongoDatabase) proxy).getName().equals("mydb1");
                 assert args[0].equals("mycol");
 
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
+                MongoCollection<Document> mockColl = PowerMockito.mock(MongoCollection.class);
                 PowerMockito.when(mockColl.insertOne(any())).thenAnswer(inv -> {
                     Document doc = inv.getArgument(0);
                     assert doc.get("name").equals("zhangsan");
@@ -50,11 +56,17 @@ public class CollectionWriteTest extends AbstractJdbcTest {
     public void insert_1() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
+            if ("runCommand".equals(method.getName())) {
+                Document doc = (Document) args[0];
+                if (doc.containsKey("buildInfo")) {
+                    return new Document("version", "4.0.0");
+                }
+            }
             if ("getCollection".equals(method.getName())) {
                 assert ((MongoDatabase) proxy).getName().equals("mydb");
                 assert args[0].equals("mycol");
 
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
+                MongoCollection<Document> mockColl = (MongoCollection<Document>) PowerMockito.mock(MongoCollection.class);
                 PowerMockito.when(mockColl.insertMany(any())).thenAnswer(inv -> {
                     List<Document> docs = inv.getArgument(0);
                     assert docs.size() == 2;
@@ -79,11 +91,17 @@ public class CollectionWriteTest extends AbstractJdbcTest {
     public void update_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
+            if ("runCommand".equals(method.getName())) {
+                Document doc = (Document) args[0];
+                if (doc.containsKey("buildInfo")) {
+                    return new Document("version", "4.0.0");
+                }
+            }
             if ("getCollection".equals(method.getName())) {
                 assert ((MongoDatabase) proxy).getName().equals("bbb");
                 assert args[0].equals("mycol");
 
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
+                MongoCollection<Document> mockColl = (MongoCollection<Document>) PowerMockito.mock(MongoCollection.class);
                 UpdateResult res = PowerMockito.mock(UpdateResult.class);
                 PowerMockito.when(res.getModifiedCount()).thenReturn(1L);
                 PowerMockito.when(mockColl.updateOne(any(Bson.class), any(Bson.class), any(UpdateOptions.class))).thenReturn(res);
@@ -105,11 +123,17 @@ public class CollectionWriteTest extends AbstractJdbcTest {
     public void remove_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
+            if ("runCommand".equals(method.getName())) {
+                Document doc = (Document) args[0];
+                if (doc.containsKey("buildInfo")) {
+                    return new Document("version", "4.0.0");
+                }
+            }
             if ("getCollection".equals(method.getName())) {
                 assert ((MongoDatabase) proxy).getName().equals("mydb");
                 assert args[0].equals("mycol");
 
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
+                MongoCollection<Document> mockColl = (MongoCollection<Document>) PowerMockito.mock(MongoCollection.class);
                 DeleteResult res = PowerMockito.mock(DeleteResult.class);
                 PowerMockito.when(res.getDeletedCount()).thenReturn(5L);
                 PowerMockito.when(mockColl.deleteMany(any())).thenReturn(res);
@@ -132,27 +156,35 @@ public class CollectionWriteTest extends AbstractJdbcTest {
     public void bulk_write_0() {
         MongoCommandInterceptor.resetInterceptor();
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, (proxy, method, args) -> {
+            if ("runCommand".equals(method.getName())) {
+                Document doc = (Document) args[0];
+                if (doc.containsKey("buildInfo")) {
+                    return new Document("version", "4.0.0");
+                }
+            }
             if ("getCollection".equals(method.getName())) {
                 assert ((MongoDatabase) proxy).getName().equals("mydb");
                 assert args[0].equals("mycol");
 
-                MongoCollection mockColl = PowerMockito.mock(MongoCollection.class);
+                MongoCollection<Document> mockColl = (MongoCollection<Document>) PowerMockito.mock(MongoCollection.class);
                 BulkWriteResult res = PowerMockito.mock(BulkWriteResult.class);
                 PowerMockito.when(res.getInsertedCount()).thenReturn(1);
                 PowerMockito.when(res.getModifiedCount()).thenReturn(1);
-                PowerMockito.when(res.getDeletedCount()).thenReturn(0);
+                PowerMockito.when(res.getDeletedCount()).thenReturn(1);
                 PowerMockito.when(mockColl.bulkWrite(any(List.class), any(BulkWriteOptions.class))).thenReturn(res);
                 return mockColl;
             }
             return null;
         });
 
-        try (Connection conn = redisConnection(); Statement stmt = conn.createStatement()) {
-            int count = stmt.executeUpdate("mydb.mycol.bulkWrite([ " +            //
-                    "{ insertOne : { document : { name : 'zhangsan' } } }, " +  //
-                    "{ updateOne : { filter : { name : 'lisi' }," +             //
-                    " update : { $set : { age : 20 } } } } ])");
-            assert count == 2;
+        try (Connection conn = redisConnection("mydb"); Statement stmt = conn.createStatement()) {
+            int count = stmt.executeUpdate("db.mycol.bulkWrite([\n" + //
+                    "   { insertOne: { \"document\": { \"_id\": 1, \"char\": \"Brisbane\", \"class\": \"mammal\", \"water\": false } } },\n" + //
+                    "   { updateOne: { \"filter\": { \"char\": \"Eldon\" }, \"update\": { $set: { \"status\": \"Critical\" } } } },\n" + //
+                    "   { deleteOne: { \"filter\": { \"char\": \"Manor\" } } },\n" + //
+                    "   { replaceOne: { \"filter\": { \"char\": \"Mardon\" }, \"replacement\": { \"char\": \"Mardon\", \"class\": \"mammal\", \"water\": false } } }\n" + //
+                    "])");
+            assert count == 3;
         } catch (SQLException e) {
             e.printStackTrace();
             assert false;

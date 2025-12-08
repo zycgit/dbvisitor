@@ -19,6 +19,9 @@ public class UserCommandTest extends AbstractJdbcTest {
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
             BsonDocument doc = command.toBsonDocument(BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry());
+            if (doc.containsKey("buildInfo")) {
+                return new Document("version", "4.0.0").append("versionArray", Arrays.asList(4, 0, 0));
+            }
 
             assert doc.getString("createUser").getValue().equals("myUser");
             assert doc.getString("pwd").getValue().equals("password");
@@ -43,6 +46,9 @@ public class UserCommandTest extends AbstractJdbcTest {
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
             BsonDocument doc = command.toBsonDocument(BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry());
+            if (doc.containsKey("buildInfo")) {
+                return new Document("version", "4.0.0").append("versionArray", Arrays.asList(4, 0, 0));
+            }
 
             assert doc.getString("createUser").getValue().equals("myUser");
             assert doc.getString("pwd").getValue().equals("password");
@@ -70,6 +76,9 @@ public class UserCommandTest extends AbstractJdbcTest {
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
             BsonDocument doc = command.toBsonDocument(BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry());
+            if (doc.containsKey("buildInfo")) {
+                return new Document("version", "4.0.0").append("versionArray", Arrays.asList(4, 0, 0));
+            }
 
             assert doc.getString("dropUser").getValue().equals("myUser");
 
@@ -92,6 +101,9 @@ public class UserCommandTest extends AbstractJdbcTest {
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
             BsonDocument doc = command.toBsonDocument(BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry());
+            if (doc.containsKey("buildInfo")) {
+                return new Document("version", "4.0.0").append("versionArray", Arrays.asList(4, 0, 0));
+            }
 
             assert doc.getString("updateUser").getValue().equals("myUser");
             assert doc.getString("pwd").getValue().equals("newPassword");
@@ -115,6 +127,9 @@ public class UserCommandTest extends AbstractJdbcTest {
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
             BsonDocument doc = command.toBsonDocument(BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry());
+            if (doc.containsKey("buildInfo")) {
+                return new Document("version", "4.0.0").append("versionArray", Arrays.asList(4, 0, 0));
+            }
 
             assert doc.getString("updateUser").getValue().equals("myUser");
             assert doc.getString("pwd").getValue().equals("newPassword");
@@ -138,6 +153,9 @@ public class UserCommandTest extends AbstractJdbcTest {
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
             BsonDocument doc = command.toBsonDocument(BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry());
+            if (doc.containsKey("buildInfo")) {
+                return new Document("version", "4.0.0").append("versionArray", Arrays.asList(4, 0, 0));
+            }
             assert doc.getInt32("usersInfo").getValue() == 1;
 
             Document userDoc = new Document("_id", "mydb.myUser").append("user", "myUser").append("db", "mydb").append("roles", Arrays.asList(new Document("role", "read").append("db", "mydb")));
@@ -165,6 +183,9 @@ public class UserCommandTest extends AbstractJdbcTest {
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
             BsonDocument doc = command.toBsonDocument(BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry());
+            if (doc.containsKey("buildInfo")) {
+                return new Document("version", "4.0.0").append("versionArray", Arrays.asList(4, 0, 0));
+            }
             assert doc.getInt32("rolesInfo").getValue() == 1;
 
             Document roleDoc = new Document("role", "myRole").append("db", "mydb").append("isBuiltin", false).append("roles", Arrays.asList(new Document("role", "read").append("db", "mydb")));
@@ -193,6 +214,9 @@ public class UserCommandTest extends AbstractJdbcTest {
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
             BsonDocument doc = command.toBsonDocument(BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry());
+            if (doc.containsKey("buildInfo")) {
+                return new Document("version", "4.0.0").append("versionArray", Arrays.asList(4, 0, 0));
+            }
 
             assert doc.getString("grantRolesToUser").getValue().equals("myUser");
             assert doc.getArray("roles").get(0).asString().getValue().equals("readWrite");
@@ -216,6 +240,9 @@ public class UserCommandTest extends AbstractJdbcTest {
         MongoCommandInterceptor.addInterceptor(MongoDatabase.class, createInvocationHandler("runCommand", (name, args) -> {
             Bson command = (Bson) args[0];
             BsonDocument doc = command.toBsonDocument(BsonDocument.class, com.mongodb.MongoClientSettings.getDefaultCodecRegistry());
+            if (doc.containsKey("buildInfo")) {
+                return new Document("version", "4.0.0").append("versionArray", Arrays.asList(4, 0, 0));
+            }
 
             assert doc.getString("revokeRolesFromUser").getValue().equals("myUser");
             assert doc.getArray("roles").get(0).asString().getValue().equals("readWrite");

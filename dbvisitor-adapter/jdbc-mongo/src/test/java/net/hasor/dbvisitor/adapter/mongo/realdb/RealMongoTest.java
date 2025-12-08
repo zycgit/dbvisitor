@@ -5,12 +5,14 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Properties;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class RealMongoTest {
     private static final String MONGO_URL = "jdbc:dbvisitor:mongo://127.0.0.1:17017/admin";
 
     @Test
+    @Ignore("Requires real MongoDB")
     public void test_01() throws Exception {
         Properties props = new Properties();
         props.setProperty("username", "root");

@@ -16,13 +16,13 @@ public class AbstractJdbcTest {
     public Connection redisConnection() throws SQLException {
         Properties prop = new Properties();
         prop.setProperty(MongoKeys.CUSTOM_MONGO, MongoCustomJedis.class.getName());
-        return new JdbcDriver().connect("jdbc:dbvisitor:mongo://xxxxxx", prop);
+        return new JdbcDriver().connect("jdbc:dbvisitor:mongo://xxxxxx:27017", prop);
     }
 
     public Connection redisConnection(String defaultDB) throws SQLException {
         Properties prop = new Properties();
         prop.setProperty(MongoKeys.CUSTOM_MONGO, MongoCustomJedis.class.getName());
-        return new JdbcDriver().connect("jdbc:dbvisitor:mongo://xxxxxx/" + defaultDB, prop);
+        return new JdbcDriver().connect("jdbc:dbvisitor:mongo://xxxxxx:27017/" + defaultDB, prop);
     }
 
     public InvocationHandler createInvocationHandler(String methodName, TestInvocationHandler handler) {

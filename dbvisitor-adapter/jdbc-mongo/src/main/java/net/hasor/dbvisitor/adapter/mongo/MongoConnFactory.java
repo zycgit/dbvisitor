@@ -121,6 +121,10 @@ public class MongoConnFactory implements AdapterFactory {
         props.forEach((k, v) -> caseProps.put((String) k, (String) v));
 
         String host = StringUtils.trimToEmpty(caseProps.get(MongoKeys.SERVER));
+        if (host.contains("/")) {
+            host = host.substring(0, host.indexOf("/"));
+        }
+
         String customMongo = caseProps.get(MongoKeys.CUSTOM_MONGO);
         String defaultDB = extractPathFromJdbcUrl(jdbcUrl, host);
         MongoClient mongoObject;
