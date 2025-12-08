@@ -8,6 +8,9 @@ import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.driver.AdapterFactory;
@@ -60,6 +63,11 @@ public class MongoConnFactory implements AdapterFactory {
 
         // credential
         builder.credential(passerMongoConfig(defaultDB, caseProps));
+
+        // codec registry
+        CodecRegistry pojoCodecRegistry = CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build());
+        CodecRegistry codecRegistry = CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), pojoCodecRegistry);
+        builder.codecRegistry(codecRegistry);
 
         // socket settings
         builder.applyToSocketSettings(b -> {
@@ -127,6 +135,9 @@ public class MongoConnFactory implements AdapterFactory {
 
         String customMongo = caseProps.get(MongoKeys.CUSTOM_MONGO);
         String defaultDB = extractPathFromJdbcUrl(jdbcUrl, host);
+        if (StringUtils.isBlank(defaultDB)) {
+            defaultDB = caseProps.get("database");
+        }
         MongoClient mongoObject;
 
         if (StringUtils.isNotBlank(customMongo)) {
