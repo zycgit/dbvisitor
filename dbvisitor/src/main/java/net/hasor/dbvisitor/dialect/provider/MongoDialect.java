@@ -20,7 +20,7 @@ import java.util.Set;
 import net.hasor.cobble.StringUtils;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
 import net.hasor.dbvisitor.dialect.builder.CommandBuilder;
-import net.hasor.dbvisitor.dialect.builder.SqlCommandBuilder;
+import net.hasor.dbvisitor.dialect.builder.MongoCommandBuilder;
 
 /**
  * MongoDB 方言实现
@@ -68,7 +68,7 @@ public class MongoDialect extends AbstractDialect implements ConditionSqlDialect
 
     @Override
     public CommandBuilder newBuilder() {
-        return new SqlCommandBuilder();
+        return new MongoCommandBuilder();
     }
 
     @Override

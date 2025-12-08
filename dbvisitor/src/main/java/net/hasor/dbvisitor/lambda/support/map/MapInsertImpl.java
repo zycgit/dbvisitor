@@ -111,7 +111,7 @@ public class MapInsertImpl extends AbstractInsert<Insert<Map<String, Object>>, M
         }
     }
 
-    protected BoundSqlObj buildBoundSql(SqlDialect dialect, Map entity) {
+    protected BoundSqlObj buildBoundSql(SqlDialect dialect, Map entity) throws SQLException {
         Map<String, String> entityKeyMap = this.extractKeysMap(entity);
         List<String> insertProperties = new ArrayList<>();
         List<String> insertColumns = new ArrayList<>();

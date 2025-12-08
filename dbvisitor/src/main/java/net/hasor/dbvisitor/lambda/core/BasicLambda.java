@@ -21,6 +21,7 @@ import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.dialect.BoundSql;
+import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dialect.SqlDialectRegister;
 import net.hasor.dbvisitor.dialect.builder.CommandBuilder;
@@ -54,7 +55,17 @@ public abstract class BasicLambda<R, T, P> {
         this.registry = Objects.requireNonNull(registry, "registry is null.");
         this.jdbc = jdbc;
         this.queryContext = ctx;
-        this.dialect = SqlDialectRegister.findOrDefault(registry.getGlobalOptions());
+
+        SqlDialect dialect = SqlDialectRegister.findOrDefault(registry.getGlobalOptions());
+        if (dialect == DefaultSqlDialect.DEFAULT && jdbc != null) {
+            try {
+                dialect = this.jdbc.execute(SqlDialectRegister::findDialect);
+            } catch (SQLException e) {
+                logger.error("find dialect error.", e);
+            }
+        }
+
+        this.dialect = dialect;
         this.cmdBuilder = this.dialect.newBuilder();
         this.cmdBuilder.setTable(tableMapping.getCatalog(), tableMapping.getSchema(), tableMapping.getTable());
     }

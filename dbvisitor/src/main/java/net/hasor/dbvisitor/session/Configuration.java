@@ -50,7 +50,7 @@ public class Configuration implements QueryContext {
     private final SessionPrototype    prototype;
 
     public Configuration() {
-        this(Options.of().dialect(new DefaultSqlDialect()));
+        this(Options.of().dialect(DefaultSqlDialect.DEFAULT));
     }
 
     public Configuration(Options options) {

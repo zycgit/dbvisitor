@@ -324,6 +324,17 @@ abstract class MongoCommands {
         }
     }
 
+    protected static Number getOptionNumber(Map<String, Object> options, String key) throws SQLException {
+        if (!options.containsKey(key)) {
+            return null;
+        }
+        Object val = options.get(key);
+        if (val instanceof Number) {
+            return (Number) val;
+        }
+        throw new SQLException(key + " must be number");
+    }
+
     protected static Double getOptionDouble(Map<String, Object> options, String key) throws SQLException {
         if (!options.containsKey(key)) {
             return null;

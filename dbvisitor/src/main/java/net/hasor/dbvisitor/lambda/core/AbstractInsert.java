@@ -21,8 +21,8 @@ import java.sql.Statement;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import net.hasor.dbvisitor.dialect.DefaultSqlDialect;
-import net.hasor.dbvisitor.dialect.InsertSqlDialect;
+import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.SqlDialect;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.error.RuntimeSQLException;
@@ -149,40 +149,20 @@ public abstract class AbstractInsert<R, T, P> extends BasicLambda<R, T, P> imple
         return this.getSelf();
     }
 
-    protected String buildInsert(SqlDialect dialect, List<String> primaryKeys, List<String> insertColumns, Map<String, String> insertColumnTerms) {
-        boolean isInsertSqlDialect = dialect instanceof InsertSqlDialect;
-        TableMapping<?> tableMapping = this.getTableMapping();
-        String catalogName = tableMapping.getCatalog();
-        String schemaName = tableMapping.getSchema();
-        String tableName = tableMapping.getTable();
-        if (!isInsertSqlDialect) {
-            return DefaultSqlDialect.DEFAULT.insertInto(this.isQualifier(), catalogName, schemaName, tableName, primaryKeys, insertColumns, insertColumnTerms);
+    protected String buildInsert(SqlDialect dialect, List<String> primaryKeys, List<String> insertColumns, Map<String, String> insertColumnTerms) throws SQLException {
+        this.cmdBuilder.clearAll();
+        this.cmdBuilder.setTable(this.getTableMapping().getCatalog(), this.getTableMapping().getSchema(), this.getTableMapping().getTable());
+
+        for (String col : insertColumns) {
+            String term = insertColumnTerms != null ? insertColumnTerms.get(col) : null;
+            if (StringUtils.isBlank(term)) {
+                term = "?";
+            }
+            this.cmdBuilder.addInsert(col, null, term);
         }
 
-        switch (this.insertStrategy) {
-            case Into: {
-                InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
-                if (insertDialect.supportInto(primaryKeys, insertColumns)) {
-                    return insertDialect.insertInto(this.isQualifier(), catalogName, schemaName, tableName, primaryKeys, insertColumns, insertColumnTerms);
-                }
-                break;
-            }
-            case Ignore: {
-                InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
-                if (insertDialect.supportIgnore(primaryKeys, insertColumns)) {
-                    return insertDialect.insertIgnore(this.isQualifier(), catalogName, schemaName, tableName, primaryKeys, insertColumns, insertColumnTerms);
-                }
-                break;
-            }
-            case Update: {
-                InsertSqlDialect insertDialect = (InsertSqlDialect) dialect;
-                if (insertDialect.supportReplace(primaryKeys, insertColumns)) {
-                    return insertDialect.insertReplace(this.isQualifier(), catalogName, schemaName, tableName, primaryKeys, insertColumns, insertColumnTerms);
-                }
-                break;
-            }
-        }
-        throw new UnsupportedOperationException(this.insertStrategy + " Unsupported.");
+        BoundSql boundSql = this.cmdBuilder.buildInsert(dialect, isQualifier(), primaryKeys, this.insertStrategy);
+        return boundSql.getSqlString();
     }
 
     protected PreparedStatement createPrepareStatement(Connection con, String sqlString) throws SQLException {

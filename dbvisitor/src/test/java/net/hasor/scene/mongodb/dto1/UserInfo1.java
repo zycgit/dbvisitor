@@ -1,8 +1,10 @@
 package net.hasor.scene.mongodb.dto1;
 import net.hasor.dbvisitor.mapping.Column;
+import net.hasor.dbvisitor.mapping.Table;
 
+@Table("user_info")
 public class UserInfo1 {
-    @Column("uid")
+    @Column(value = "uid", primary = true)
     private String uid;
     @Column("name")
     private String name;

@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 import net.hasor.cobble.BeanUtils;
-import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.reflect.SFunction;
 import net.hasor.dbvisitor.dialect.BatchBoundSql;
 import net.hasor.dbvisitor.dialect.BatchBoundSql.BatchBoundSqlObj;
@@ -146,23 +145,19 @@ public class EntityInsertImpl<T> extends AbstractInsert<Insert<T>, T, SFunction<
 
     @Override
     protected BatchBoundSql buildBoundSql(SqlDialect dialect) throws SQLException {
-        try {
-            List<String> useColumns = this.findInsertColumns();
-            String insertSql = super.buildInsert(dialect, this.forBuildPrimaryKeys, useColumns, this.forBuildInsertColumnTerms);
-            SqlArg[][] batchBoundSql;
+        List<String> useColumns = this.findInsertColumns();
+        String insertSql = super.buildInsert(dialect, this.forBuildPrimaryKeys, useColumns, this.forBuildInsertColumnTerms);
+        SqlArg[][] batchBoundSql;
 
-            if (this.jdbc != null) {
-                batchBoundSql = this.jdbc.execute((ConnectionCallback<SqlArg[][]>) con -> {
-                    return buildInsertArgs(useColumns, false, con);
-                });
-            } else {
-                batchBoundSql = buildInsertArgs(useColumns, false, null);
-            }
-
-            return new BatchBoundSqlObj(insertSql, batchBoundSql);
-        } catch (SQLException e) {
-            throw ExceptionUtils.toRuntime(e); // never in effect
+        if (this.jdbc != null) {
+            batchBoundSql = this.jdbc.execute((ConnectionCallback<SqlArg[][]>) con -> {
+                return buildInsertArgs(useColumns, false, con);
+            });
+        } else {
+            batchBoundSql = buildInsertArgs(useColumns, false, null);
         }
+
+        return new BatchBoundSqlObj(insertSql, batchBoundSql);
     }
 
     private List<String> findInsertColumns() {

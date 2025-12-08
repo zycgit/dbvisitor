@@ -130,6 +130,36 @@ class MongoDistributeCall {
         if (c.dropOp() != null) {
             return MongoCommandsForCollection.execDrop(sync, mongoCmd, database, collection, c.dropOp(), request, receive, startArgIdx);
         }
+        if (c.findOneOp() != null) {
+            return MongoCommandsForCollection.execFindOne(sync, mongoCmd, database, collection, c.findOneOp(), request, receive, startArgIdx, conn);
+        }
+        if (c.insertOneOp() != null) {
+            return MongoCommandsForCollection.execInsertOne(sync, mongoCmd, database, collection, c.insertOneOp(), request, receive, startArgIdx);
+        }
+        if (c.insertManyOp() != null) {
+            return MongoCommandsForCollection.execInsertMany(sync, mongoCmd, database, collection, c.insertManyOp(), request, receive, startArgIdx);
+        }
+        if (c.deleteOneOp() != null) {
+            return MongoCommandsForCollection.execDeleteOne(sync, mongoCmd, database, collection, c.deleteOneOp(), request, receive, startArgIdx);
+        }
+        if (c.deleteManyOp() != null) {
+            return MongoCommandsForCollection.execDeleteMany(sync, mongoCmd, database, collection, c.deleteManyOp(), request, receive, startArgIdx);
+        }
+        if (c.updateOneOp() != null) {
+            return MongoCommandsForCollection.execUpdateOne(sync, mongoCmd, database, collection, c.updateOneOp(), request, receive, startArgIdx);
+        }
+        if (c.updateManyOp() != null) {
+            return MongoCommandsForCollection.execUpdateMany(sync, mongoCmd, database, collection, c.updateManyOp(), request, receive, startArgIdx);
+        }
+        if (c.replaceOneOp() != null) {
+            return MongoCommandsForCollection.execReplaceOne(sync, mongoCmd, database, collection, c.replaceOneOp(), request, receive, startArgIdx);
+        }
+        if (c.renameCollectionOp() != null) {
+            return MongoCommandsForCollection.execRenameCollection(sync, mongoCmd, database, collection, c.renameCollectionOp(), request, receive, startArgIdx);
+        }
+        if (c.statsOp() != null) {
+            return MongoCommandsForCollection.execStats(sync, mongoCmd, database, collection, c.statsOp(), request, receive, startArgIdx);
+        }
         throw new SQLException("unknown command.");
     }
 }

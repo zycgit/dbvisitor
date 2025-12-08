@@ -145,10 +145,10 @@ public class SqlDialectRegister {
      * @return 分页方言实例
      * @throws SQLException 如果获取元数据失败
      */
-    public static PageSqlDialect findDialect(Connection conn) throws SQLException {
+    public static SqlDialect findDialect(Connection conn) throws SQLException {
         DatabaseMetaData metaData = conn.getMetaData();
         String tmpDbType = JdbcHelper.getDbType(metaData.getURL(), metaData.getDriverName());
         SqlDialect tempDialect = SqlDialectRegister.findOrCreate(tmpDbType);
-        return (!(tempDialect instanceof PageSqlDialect)) ? DefaultSqlDialect.DEFAULT : (PageSqlDialect) tempDialect;
+        return tempDialect == null ? DefaultSqlDialect.DEFAULT : tempDialect;
     }
 }
