@@ -139,7 +139,7 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.antlr</pattern>
-                                    <shadedPattern>net.hasor.dbvisitor.adapter.redis.internal.jars.antlr</shadedPattern>
+                                    <shadedPattern>net.hasor.dbvisitor.adapter.mongo.internal.jars.antlr</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>
