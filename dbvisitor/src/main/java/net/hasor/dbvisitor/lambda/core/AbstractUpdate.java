@@ -310,10 +310,8 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
                 value = new SqlArg(propertyValue, sqlType, typeHandler);
             }
 
-            String colTerm = null;
             String valTerm = null;
             if (mapping != null) {
-                colTerm = mapping.getSetColTemplate();
                 valTerm = mapping.getSetValueTemplate();
             }
 
@@ -324,7 +322,7 @@ public abstract class AbstractUpdate<R, T, P> extends BasicQueryCompare<R, T, P>
                 col = mapping != null ? mapping.getColumn() : propertyName;
             }
 
-            this.cmdBuilder.addUpdateSet(col, colTerm, value, valTerm);
+            this.cmdBuilder.addUpdateSet(col, value, valTerm);
         }
         return this.getSelf();
     }

@@ -204,22 +204,18 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
             String updateStr = MappingHelper.readAttribute("update", xmlAttr);
             String selectTemplate = MappingHelper.readAttribute("selectTemplate", xmlAttr);
             String insertTemplate = MappingHelper.readAttribute("insertTemplate", xmlAttr);
-            String setColTemplate = MappingHelper.readAttribute("setColTemplate", xmlAttr);
             String setValueTemplate = MappingHelper.readAttribute("setValueTemplate", xmlAttr);
             String whereColTemplate = MappingHelper.readAttribute("whereColTemplate", xmlAttr);
             String whereValueTemplate = MappingHelper.readAttribute("whereValueTemplate", xmlAttr);
-            String groupByColTemplate = MappingHelper.readAttribute("groupByColTemplate", xmlAttr);
             String orderByColTemplate = MappingHelper.readAttribute("orderByColTemplate", xmlAttr);
             colDef.setPrimaryKey(asPrimaryKey);
             colDef.setInsert(StringUtils.isBlank(insertStr) || Boolean.parseBoolean(insertStr));
             colDef.setUpdate(StringUtils.isBlank(updateStr) || Boolean.parseBoolean(updateStr));
             colDef.setSelectTemplate(StringUtils.isNotBlank(selectTemplate) ? selectTemplate : null);
             colDef.setInsertTemplate(StringUtils.isNotBlank(insertTemplate) ? insertTemplate : null);
-            colDef.setSetColTemplate(StringUtils.isNotBlank(setColTemplate) ? setColTemplate : null);
             colDef.setSetValueTemplate(StringUtils.isNotBlank(setValueTemplate) ? setValueTemplate : null);
             colDef.setWhereColTemplate(StringUtils.isNotBlank(whereColTemplate) ? whereColTemplate : null);
             colDef.setWhereValueTemplate(StringUtils.isNotBlank(whereValueTemplate) ? whereValueTemplate : null);
-            colDef.setGroupByColTemplate(StringUtils.isNotBlank(groupByColTemplate) ? groupByColTemplate : null);
             colDef.setOrderByColTemplate(StringUtils.isNotBlank(orderByColTemplate) ? orderByColTemplate : null);
 
             // for Description

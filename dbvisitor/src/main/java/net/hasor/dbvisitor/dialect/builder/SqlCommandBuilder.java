@@ -421,9 +421,9 @@ public class SqlCommandBuilder implements CommandBuilder {
     //
 
     @Override
-    public void addUpdateSet(final String col, final String colTerm, final Object value, final String valueTerm) {
+    public void addUpdateSet(final String col, final Object value, final String valueTerm) {
         this.updateColumns.addSegment((d, dia) -> {
-            String c = formatColumn(d, dia, col, colTerm);
+            String c = formatColumn(d, dia, col, null);
             if (value == null && StringUtils.isBlank(valueTerm)) {
                 return c + " = NULL";
             } else {

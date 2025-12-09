@@ -219,11 +219,9 @@ public class MongoCommandBuilder implements CommandBuilder {
     }
 
     @Override
-    public void addUpdateSet(String col, String colTerm, Object value, String valueTerm) {
+    public void addUpdateSet(String col, Object value, String valueTerm) {
         this.updates.addSegment((delimited, dialect) -> {
-            String field = StringUtils.isNotBlank(colTerm) ? colTerm : col;
-            String val = formatValue(value, valueTerm);
-            return field + ": " + val;
+            return col + ": " + formatValue(value, valueTerm);
         });
     }
 

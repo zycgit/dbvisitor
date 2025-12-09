@@ -74,7 +74,7 @@ public interface CommandBuilder {
     //
 
     /** 添加更新列和值 */
-    void addUpdateSet(String col, String colTerm, Object value, String valueTerm);
+    void addUpdateSet(String col, Object value, String valueTerm);
 
     /** 添加插入列和值 */
     void addInsert(String col, Object value, String valueTerm);

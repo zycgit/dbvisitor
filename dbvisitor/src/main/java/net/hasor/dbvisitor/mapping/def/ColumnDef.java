@@ -41,11 +41,9 @@ public class ColumnDef implements ColumnMapping {
     private       boolean             primary;
     private       String              selectTemplate;
     private       String              insertTemplate;
-    private       String              setColTemplate;
     private       String              setValueTemplate;
     private       String              whereColTemplate;
     private       String              whereValueTemplate;
-    private       String              groupByColTemplate;
     private       String              orderByColTemplate;
 
     private ColumnDescription description;
@@ -166,15 +164,6 @@ public class ColumnDef implements ColumnMapping {
     }
 
     @Override
-    public String getSetColTemplate() {
-        return this.setColTemplate;
-    }
-
-    public void setSetColTemplate(String setColTemplate) {
-        this.setColTemplate = setColTemplate;
-    }
-
-    @Override
     public String getSetValueTemplate() {
         return this.setValueTemplate;
     }
@@ -199,15 +188,6 @@ public class ColumnDef implements ColumnMapping {
 
     public void setWhereValueTemplate(String whereValueTemplate) {
         this.whereValueTemplate = whereValueTemplate;
-    }
-
-    @Override
-    public String getGroupByColTemplate() {
-        return this.groupByColTemplate;
-    }
-
-    public void setGroupByColTemplate(String groupByColTemplate) {
-        this.groupByColTemplate = groupByColTemplate;
     }
 
     @Override

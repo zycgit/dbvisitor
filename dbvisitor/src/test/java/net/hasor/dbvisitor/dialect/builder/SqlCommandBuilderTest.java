@@ -84,7 +84,7 @@ public class SqlCommandBuilderTest {
     public void testUpdate() throws SQLException {
         SqlCommandBuilder builder = new SqlCommandBuilder();
         builder.setTable(null, null, "user_table");
-        builder.addUpdateSet("name", null, "Doe", null);
+        builder.addUpdateSet("name", "Doe", null);
         builder.addCondition(ConditionLogic.AND, "id", null, ConditionType.EQ, 1, null, null);
 
         BoundSql boundSql = builder.buildUpdate(new MySqlDialect(), false, false);
@@ -157,7 +157,7 @@ public class SqlCommandBuilderTest {
     public void testUpdateWithTerm() throws SQLException {
         SqlCommandBuilder builder = new SqlCommandBuilder();
         builder.setTable(null, null, "user_table");
-        builder.addUpdateSet("name", null, "Doe", "upper(?)");
+        builder.addUpdateSet("name", "Doe", "upper(?)");
         builder.addCondition(ConditionLogic.AND, "id", null, ConditionType.EQ, 1, null, null);
 
         BoundSql boundSql = builder.buildUpdate(new MySqlDialect(), false, false);
@@ -199,7 +199,7 @@ public class SqlCommandBuilderTest {
     public void testUpdateWithNull() throws SQLException {
         SqlCommandBuilder builder = new SqlCommandBuilder();
         builder.setTable(null, null, "user_table");
-        builder.addUpdateSet("name", null, null, null);
+        builder.addUpdateSet("name", null, null);
         builder.addCondition(ConditionLogic.AND, "id", null, ConditionType.EQ, 1, null, null);
 
         BoundSql boundSql = builder.buildUpdate(new MySqlDialect(), false, false);
