@@ -75,9 +75,7 @@ int result = lambda.delete(User.class)
 |--------------------|------------------------------------------------|
 | selectTemplate     | 用作 select 语句中的列名。默认是空，表示列名本身。                  |
 | insertTemplate     | 用作 insert 语句时参数写法，默认是 ?。                       |
-| setColTemplate     | 用作 update 的 set 语句时列名的写法。默认是空，表示列名本身。          |
 | setValueTemplate   | 用作 update set 语句时参数写法，默认是 ?。                   |
 | whereColTemplate   | 用作 update/delete 的 where 语句时列名的写法。默认是空，表示列名本身。 |
 | whereValueTemplate | 用作 update/delete 的 where 语句时参数写法，默认是 ?。        |
-| groupByColTemplate | 用作 group by 语句时列名的写法。默认是空，表示列名本身。              |
 | orderByColTemplate | 用作 order by 语句时列名的写法。默认是空，表示列名本身。              |
