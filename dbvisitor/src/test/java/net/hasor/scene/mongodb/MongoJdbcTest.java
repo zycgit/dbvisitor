@@ -34,14 +34,14 @@ public class MongoJdbcTest {
 
             // 4. query condition
             Map<String, Object> mali = jdbc.queryForMap("test.user_info.find({name: 'mali'})");
-            String json = (String) mali.get("JSON");
+            String json = (String) mali.get("_JSON");
             assert json.contains("\"name\": \"mali\"");
             assert json.contains("\"age\": 26");
 
             // 5. update
             jdbc.execute("test.user_info.update({name: 'mali'}, {$set: {age: 27}})");
             mali = jdbc.queryForMap("test.user_info.find({name: 'mali'})");
-            json = (String) mali.get("JSON");
+            json = (String) mali.get("_JSON");
             assert json.contains("\"age\": 27");
 
             // 6. remove

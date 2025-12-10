@@ -63,7 +63,7 @@
             <dependency>
                 <groupId>net.hasor</groupId>
                 <artifactId>cobble-all</artifactId>
-                <version>4.8.3</version>
+                <version>4.8.4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>net.hasor</groupId>
@@ -127,7 +127,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore />
+                                        <ignore/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>

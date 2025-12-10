@@ -61,7 +61,7 @@ public class MongoMapperTest {
             // verify with raw jdbc
             List<Map<String, Object>> list = jdbc.queryForList("test.user_info.find({uid: '1111'})");
             assert list.size() == 1;
-            String json = (String) list.get(0).get("JSON");
+            String json = (String) list.get(0).get("_JSON");
             assert json.contains("\"uid\": \"1111\"");
 
             // delete

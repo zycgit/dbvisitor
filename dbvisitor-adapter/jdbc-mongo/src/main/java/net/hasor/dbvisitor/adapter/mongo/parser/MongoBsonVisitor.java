@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 import net.hasor.dbvisitor.driver.JdbcArg;
+import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.types.*;
 
@@ -113,7 +114,49 @@ public class MongoBsonVisitor extends MongoParserBaseVisitor<Object> {
         if (ctx.bsonLiteral() != null) {
             return visit(ctx.bsonLiteral());
         }
+        if (ctx.functionCall() != null) {
+            return visit(ctx.functionCall());
+        }
         return super.visitPropertyValue(ctx);
+    }
+
+    @Override
+    public Object visitFunctionCall(MongoParser.FunctionCallContext ctx) {
+        String funcName = ctx.identifier().getText();
+        List<Object> args = (List<Object>) visit(ctx.arguments());
+        Object arg0 = args.size() > 0 ? args.get(0) : null;
+
+        if ("ObjectId".equalsIgnoreCase(funcName)) {
+            return convertObjectId(arg0);
+        }
+        if ("ISODate".equalsIgnoreCase(funcName)) {
+            return arg0 == null ? new Date() : new Date(arg0.toString()); // TODO: better ISO parsing
+        }
+        if ("NumberInt".equalsIgnoreCase(funcName)) {
+            return arg0 instanceof Number ? ((Number) arg0).intValue() : Integer.parseInt(arg0.toString());
+        }
+        if ("NumberLong".equalsIgnoreCase(funcName)) {
+            return arg0 instanceof Number ? ((Number) arg0).longValue() : Long.parseLong(arg0.toString());
+        }
+        if ("NumberDecimal".equalsIgnoreCase(funcName)) {
+            return new Decimal128(new java.math.BigDecimal(arg0.toString()));
+        }
+        if ("Timestamp".equalsIgnoreCase(funcName)) {
+            int time = args.size() > 0 ? ((Number) args.get(0)).intValue() : 0;
+            int inc = args.size() > 1 ? ((Number) args.get(1)).intValue() : 0;
+            return new BSONTimestamp(time, inc);
+        }
+        if ("UUID".equalsIgnoreCase(funcName)) {
+            return java.util.UUID.fromString(arg0.toString());
+        }
+        if ("MinKey".equalsIgnoreCase(funcName)) {
+            return new MinKey();
+        }
+        if ("MaxKey".equalsIgnoreCase(funcName)) {
+            return new MaxKey();
+        }
+        // fallback
+        return super.visitFunctionCall(ctx);
     }
 
     @Override
@@ -122,7 +165,7 @@ public class MongoBsonVisitor extends MongoParserBaseVisitor<Object> {
         Object arg0 = args.size() > 0 ? args.get(0) : null;
 
         if (ctx.OBJECT_ID() != null) {
-            return arg0 == null ? new ObjectId() : new ObjectId(arg0.toString());
+            return convertObjectId(arg0);
         }
         if (ctx.ISO_DATE() != null) {
             // Simple implementation, might need better parsing for ISO strings
@@ -154,6 +197,38 @@ public class MongoBsonVisitor extends MongoParserBaseVisitor<Object> {
         }
         // Add other types as needed
         return null;
+    }
+
+    private Object convertObjectId(Object arg0) {
+        if (arg0 == null) {
+            return new ObjectId();
+        }
+
+        if (arg0 instanceof ObjectId) {
+            return arg0;
+        }
+        if (arg0 instanceof BsonValue) {
+            BsonValue bsonVal = (BsonValue) arg0;
+            if (bsonVal.isObjectId()) {
+                return bsonVal.asObjectId().getValue();
+            }
+            if (bsonVal.isString() && ObjectId.isValid(bsonVal.asString().getValue())) {
+                return new ObjectId(bsonVal.asString().getValue());
+            }
+        }
+
+        if (arg0 instanceof byte[]) {
+            byte[] bytes = (byte[]) arg0;
+            if (bytes.length == 12) {
+                return new ObjectId(bytes);
+            }
+        }
+
+        String oidText = String.valueOf(arg0);
+        if (ObjectId.isValid(oidText)) {
+            return new ObjectId(oidText);
+        }
+        return new ObjectId(oidText);
     }
 
     @Override
