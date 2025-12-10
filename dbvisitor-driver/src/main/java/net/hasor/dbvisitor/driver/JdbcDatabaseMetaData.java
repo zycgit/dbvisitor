@@ -202,12 +202,12 @@ class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     @Override
     public boolean supportsGetGeneratedKeys() {
-        return false;
+        return this.adapterConnection.getFeatures().hasFeature(AdapterFeatureKey.ReturnGeneratedKeys);
     }
 
     @Override
     public boolean generatedKeyAlwaysReturned() {
-        return false;
+        return this.adapterConnection.getFeatures().boolFeatureVal(AdapterFeatureKey.ReturnGeneratedKeys);
     }
 
     @Override

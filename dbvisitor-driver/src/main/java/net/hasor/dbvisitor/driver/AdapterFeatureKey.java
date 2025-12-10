@@ -14,18 +14,6 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver;
-public interface AdapterReceive {
-    boolean responseFailed(AdapterRequest request, Throwable e);
-
-    boolean responseResult(AdapterRequest request, AdapterCursor cursor);
-
-    boolean responseResult(AdapterRequest request, AdapterCursor cursor, AdapterCursor generatedKeys);
-
-    boolean responseUpdateCount(AdapterRequest request, long updateCount);
-
-    boolean responseUpdateCount(AdapterRequest request, long updateCount, AdapterCursor generatedKeys);
-
-    boolean responseParameter(AdapterRequest request, String paramName, String paramType, Object value);
-
-    boolean responseFinish(AdapterRequest request);
+public enum AdapterFeatureKey {
+    ReturnGeneratedKeys,
 }

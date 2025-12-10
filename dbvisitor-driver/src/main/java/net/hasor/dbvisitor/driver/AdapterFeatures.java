@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 package net.hasor.dbvisitor.driver;
-public interface AdapterReceive {
-    boolean responseFailed(AdapterRequest request, Throwable e);
+import java.util.HashMap;
+import java.util.Map;
 
-    boolean responseResult(AdapterRequest request, AdapterCursor cursor);
+public class AdapterFeatures {
 
-    boolean responseResult(AdapterRequest request, AdapterCursor cursor, AdapterCursor generatedKeys);
+    private Map<AdapterFeatureKey, Boolean> boolFeatures = new HashMap<>();
 
-    boolean responseUpdateCount(AdapterRequest request, long updateCount);
+    AdapterFeatures() {
+    }
 
-    boolean responseUpdateCount(AdapterRequest request, long updateCount, AdapterCursor generatedKeys);
+    public void addFeature(AdapterFeatureKey key, boolean value) {
+        this.boolFeatures.put(key, value);
+    }
 
-    boolean responseParameter(AdapterRequest request, String paramName, String paramType, Object value);
+    public boolean hasFeature(AdapterFeatureKey key) {
+        return this.boolFeatures.containsKey(key);
+    }
 
-    boolean responseFinish(AdapterRequest request);
+    public boolean boolFeatureVal(AdapterFeatureKey adapterFeatureKey) {
+        return this.boolFeatures.getOrDefault(adapterFeatureKey, false);
+    }
 }

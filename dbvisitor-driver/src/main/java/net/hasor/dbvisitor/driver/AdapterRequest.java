@@ -19,6 +19,7 @@ import java.util.UUID;
 
 public abstract class AdapterRequest {
     private final String               traceId    = UUID.randomUUID().toString().replace("-", "");
+    protected     boolean              generatedKeys;
     protected     long                 maxRows    = 0;
     protected     int                  fetchSize  = 0;
     protected     int                  timeoutSec = 0;
@@ -34,6 +35,14 @@ public abstract class AdapterRequest {
 
     public void setMaxRows(long maxRows) {
         this.maxRows = maxRows;
+    }
+
+    public boolean isGeneratedKeys() {
+        return this.generatedKeys;
+    }
+
+    public void setGeneratedKeys(boolean generatedKeys) {
+        this.generatedKeys = generatedKeys;
     }
 
     public int getFetchSize() {

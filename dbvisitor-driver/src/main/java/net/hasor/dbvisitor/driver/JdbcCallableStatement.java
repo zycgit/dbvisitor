@@ -31,12 +31,11 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.io.IOUtils;
 
 class JdbcCallableStatement extends JdbcPreparedStatement implements CallableStatement {
-
     private static final Object[][] EMPTY         = new Object[0][0];
     private              ResultSet  lastResultOut = null;
 
     JdbcCallableStatement(JdbcConnection jdbcConn, String sql) {
-        super(jdbcConn, sql);
+        super(jdbcConn, sql, jdbcConn.getDefaultGeneratedKeys());
     }
 
     private ResultSet getOutParameter() throws SQLException {

@@ -32,6 +32,7 @@ public abstract class AdapterConnection implements Closeable {
     private final static HashedWheelTimer     TIMER;
     private final        String               objectId;
     private final        AdapterInfo          adapterInfo;
+    private final        AdapterFeatures      features;
     private final        Map<String, Timeout> timeout;
 
     static {
@@ -45,11 +46,22 @@ public abstract class AdapterConnection implements Closeable {
         this.adapterInfo.setUserName(userName);
         this.adapterInfo.setDbVersion(this.dbVersion());
         this.adapterInfo.setDriverVersion(this.driverVersion());
+        this.features = new AdapterFeatures();
         this.timeout = new ConcurrentHashMap<>();
     }
 
     public String getObjectId() {
         return this.objectId;
+    }
+
+    public AdapterFeatures getFeatures() {
+        return this.features;
+    }
+
+    public int getDefaultGeneratedKeys() {
+        return this.features.boolFeatureVal(AdapterFeatureKey.ReturnGeneratedKeys) ?//
+                Statement.RETURN_GENERATED_KEYS ://
+                Statement.NO_GENERATED_KEYS;
     }
 
     protected AdapterVersion driverVersion() {

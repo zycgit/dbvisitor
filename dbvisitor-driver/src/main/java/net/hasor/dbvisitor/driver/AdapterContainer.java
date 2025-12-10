@@ -109,23 +109,33 @@ class AdapterContainer implements AdapterReceive {
 
     @Override
     public boolean responseResult(AdapterRequest request, AdapterCursor cursor) {
+        return this.responseResult(request, cursor, null);
+    }
+
+    @Override
+    public boolean responseResult(AdapterRequest request, AdapterCursor cursor, AdapterCursor generatedKeys) {
         Objects.requireNonNull(cursor, "received cursor is null.");
         if (this.ifErrorStatusForResponse(request)) {
             return false;
         }
 
-        this.response.add(AdapterResponse.ofCursor(cursor));
+        this.response.add(AdapterResponse.ofCursor(cursor, generatedKeys));
         this.onReceive();
         return true;
     }
 
     @Override
     public boolean responseUpdateCount(AdapterRequest request, long updateCount) {
+        return this.responseUpdateCount(request, updateCount, null);
+    }
+
+    @Override
+    public boolean responseUpdateCount(AdapterRequest request, long updateCount, AdapterCursor generatedKeys) {
         if (this.ifErrorStatusForResponse(request)) {
             return false;
         }
 
-        this.response.add(AdapterResponse.ofUpdateCount(updateCount));
+        this.response.add(AdapterResponse.ofUpdateCount(updateCount, generatedKeys));
         this.onReceive();
         return true;
     }

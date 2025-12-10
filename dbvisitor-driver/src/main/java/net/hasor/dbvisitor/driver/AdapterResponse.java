@@ -27,6 +27,7 @@ public class AdapterResponse extends BasicFuture<AdapterResponse> {
     private AdapterCursor    resultSet;
     private long             updateCount;
     private Throwable        exception;
+    private AdapterCursor    generatedKeysResultSet;
 
     public List<JdbcColumn> getColumnList() {
         return this.columns;
@@ -46,6 +47,10 @@ public class AdapterResponse extends BasicFuture<AdapterResponse> {
 
     public AdapterCursor toCursor() {
         return this.resultSet;
+    }
+
+    public AdapterCursor toGeneratedKeys() {
+        return this.generatedKeysResultSet;
     }
 
     public SQLException toError() {
@@ -71,23 +76,25 @@ public class AdapterResponse extends BasicFuture<AdapterResponse> {
         return res;
     }
 
-    public static AdapterResponse ofCursor(AdapterCursor cursor) {
+    public static AdapterResponse ofCursor(AdapterCursor cursor, AdapterCursor generatedKeys) {
         AdapterResponse res = new AdapterResponse();
         res.resultIsResult = true;
 
         res.columns = cursor.columns();
         res.resultSet = cursor;
+        res.generatedKeysResultSet = generatedKeys;
         res.updateCount = 0;
         res.exception = null;
         return res;
     }
 
-    public static AdapterResponse ofUpdateCount(long updateCount) {
+    public static AdapterResponse ofUpdateCount(long updateCount, AdapterCursor generatedKeys) {
         AdapterResponse res = new AdapterResponse();
         res.resultIsResult = false;
 
         res.columns = Collections.emptyList();
         res.resultSet = null;
+        res.generatedKeysResultSet = generatedKeys;
         res.updateCount = updateCount;
         res.exception = null;
         return res;
