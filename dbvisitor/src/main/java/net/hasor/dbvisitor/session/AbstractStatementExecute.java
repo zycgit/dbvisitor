@@ -23,6 +23,7 @@ import net.hasor.cobble.ArrayUtils;
 import net.hasor.cobble.ExceptionUtils;
 import net.hasor.cobble.logging.Logger;
 import net.hasor.cobble.logging.LoggerFactory;
+import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.dialect.*;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
 import net.hasor.dbvisitor.jdbc.extractor.BeanMappingResultSetExtractor;
@@ -216,7 +217,8 @@ public abstract class AbstractStatementExecute {
                         return isSingle ? (objects.isEmpty() ? null : objects.get(0)) : pageOrNot(objects, oriPageInfo, newPageCnt, pageResult);
                     } else if (def.getResultTypeHandlerType() != null) {
                         boolean isSingle = !def.isUsingCollection();
-                        TypeHandler<?> typeHandler = this.registry.getMappingRegistry().getTypeRegistry().createTypeHandler(def.getResultTypeHandlerType(), def.getResultType());
+                        ResolvableType resolvableType = ResolvableType.forType(def.getResultType());
+                        TypeHandler<?> typeHandler = this.registry.getMappingRegistry().getTypeRegistry().createTypeHandler(def.getResultTypeHandlerType(), resolvableType);
                         TypeHandlerColumnRowMapper<?> rowMapper = new TypeHandlerColumnRowMapper<>(typeHandler);
                         List<?> objects = new RowMapperResultSetExtractor<>(rowMapper, (isSingle ? 1 : 0)).extractData(rs);
                         return isSingle ? (objects.isEmpty() ? null : objects.get(0)) : pageOrNot(objects, oriPageInfo, newPageCnt, pageResult);

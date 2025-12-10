@@ -27,6 +27,7 @@ import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.reflect.Annotation;
 import net.hasor.cobble.reflect.Annotations;
+import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.mapping.*;
 import net.hasor.dbvisitor.mapping.def.*;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -175,12 +176,18 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
 
         for (String name : names) {
             Property property = properties.get(name);
-            Class<?> type = BeanUtils.getPropertyType(property);
-            this.resolveProperty(isEntity, classAnno, def, name, type, property, registry);
+            ResolvableType argType;
+            if (property.getField() != null) {
+                argType = ResolvableType.forField(property.getField(), entityType);
+            } else {
+                Class<?> type = BeanUtils.getPropertyType(property);
+                argType = ResolvableType.forType(type);
+            }
+            this.resolveProperty(isEntity, classAnno, def, name, argType, property, registry);
         }
     }
 
-    protected void resolveProperty(boolean isEntity, Annotations classAnno, TableDef<?> def, String name, Class<?> type, Property handler, MappingRegistry registry) throws ReflectiveOperationException {
+    protected void resolveProperty(boolean isEntity, Annotations classAnno, TableDef<?> def, String name, ResolvableType type, Property handler, MappingRegistry registry) throws ReflectiveOperationException {
         Annotations propertyAnno = Annotations.merge(                                          //
                 classAnno.getField(name),                                                      //
                 classAnno.getMethod("is" + StringUtils.firstCharToUpperCase(name)), //
@@ -209,7 +216,7 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
             ClassLoader classLoader = registry.getClassLoader();
             Class<?> javaType = info.getClass("specialJavaType", classLoader, false);
             if (javaType == null) {
-                javaType = CLASS_MAPPING_MAP.getOrDefault(type, type);
+                javaType = CLASS_MAPPING_MAP.getOrDefault(type.getRawClass(), type.getRawClass());
             } else {
                 javaType = CLASS_MAPPING_MAP.getOrDefault(javaType, javaType);
             }
@@ -233,14 +240,14 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
                     typeHandler = typeRegistry.getDefaultTypeHandler();
                 }
             } else {
-                typeHandler = typeRegistry.createTypeHandler(typeHandlerType, javaType);
+                typeHandler = typeRegistry.createTypeHandler(typeHandlerType, type);
             }
 
             colDef = new ColumnDef(column, name, jdbcType, javaType, typeHandler, handler);
             colDef.setAnnotations(propertyAnno);
         } else if (def.isAutoProperty()) {
             String column = hump2Line(name, def.isMapUnderscoreToCamelCase());
-            Class<?> javaType = CLASS_MAPPING_MAP.getOrDefault(type, type);
+            Class<?> javaType = CLASS_MAPPING_MAP.getOrDefault(type.getRawClass(), type.getRawClass());
             int jdbcType = TypeHandlerRegistry.toSqlType(javaType);
             TypeHandler<?> typeHandler = registry.getTypeRegistry().getTypeHandler(javaType);
 

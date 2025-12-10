@@ -14,8 +14,8 @@ public class MongoKeys {
     public static final String SERVER       = JdbcDriver.P_SERVER;
     public static final String TIME_ZONE    = JdbcDriver.P_TIME_ZONE;
     // auth
-    public static final String USERNAME     = "username";
-    public static final String PASSWORD     = "password";
+    public static final String USERNAME     = JdbcDriver.P_USER;
+    public static final String PASSWORD     = JdbcDriver.P_PASSWORD;
     public static final String MECHANISM    = "mechanism";
     // options
     public static final String CLIENT_NAME  = "clientName";

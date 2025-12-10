@@ -8,14 +8,14 @@ import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import org.bson.codecs.configuration.CodecRegistries;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.driver.AdapterFactory;
 import net.hasor.dbvisitor.driver.AdapterTypeSupport;
 import net.hasor.dbvisitor.driver.TypeSupport;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
 
 public class MongoConnFactory implements AdapterFactory {
     private static ServerAddress passerIpPort(String host, int defaultPort) {
@@ -30,7 +30,14 @@ public class MongoConnFactory implements AdapterFactory {
     }
 
     private static MongoCredential passerMongoConfig(String defaultDB, Map<String, String> caseProps) throws SQLException {
-        String username = StringUtils.trimToEmpty(caseProps.get(MongoKeys.USERNAME));
+        String username;
+        if (StringUtils.isNotBlank(caseProps.get(MongoKeys.USERNAME))) {
+            username = caseProps.get(MongoKeys.USERNAME);
+        } else if (StringUtils.isNotBlank(caseProps.get("username"))) {
+            username = caseProps.get("username");
+        } else {
+            username = null;
+        }
         String password = StringUtils.trimToEmpty(caseProps.get(MongoKeys.PASSWORD));
         String mechanism = StringUtils.trimToEmpty(caseProps.get(MongoKeys.MECHANISM)).toUpperCase();
         switch (mechanism) {

@@ -25,6 +25,7 @@ import net.hasor.cobble.convert.ConverterUtils;
 import net.hasor.cobble.function.Property;
 import net.hasor.cobble.reflect.Annotation;
 import net.hasor.cobble.reflect.Annotations;
+import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.mapping.*;
 import net.hasor.dbvisitor.mapping.def.*;
 import net.hasor.dbvisitor.types.TypeHandler;
@@ -362,7 +363,7 @@ public class XmlTableMappingResolve extends AbstractTableMappingResolve<Node> {
 
     private static TypeHandler<?> resolveTypeHandler(Class<?> javaType, Integer jdbcType, ClassLoader classLoader, String typeHandler, TypeHandlerRegistry typeRegistry) throws ClassNotFoundException {
         if (StringUtils.isNotBlank(typeHandler)) {
-            return typeRegistry.createTypeHandler(ClassUtils.getClass(classLoader, typeHandler), javaType);
+            return typeRegistry.createTypeHandler(ClassUtils.getClass(classLoader, typeHandler), ResolvableType.forType(javaType));
         }
 
         if (typeRegistry.hasTypeHandler(javaType, jdbcType)) {

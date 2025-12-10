@@ -35,6 +35,7 @@ import net.hasor.cobble.ResourcesUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.reflect.ConstructorUtils;
 import net.hasor.cobble.reflect.TypeReference;
+import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.dynamic.SqlMode;
 import net.hasor.dbvisitor.jdbc.JdbcHelper;
 import net.hasor.dbvisitor.types.handler.ObjectTypeHandler;
@@ -304,7 +305,7 @@ public final class TypeHandlerRegistry {
      * @return 类型处理器实例
      */
     public TypeHandler<?> createTypeHandler(Class<?> typeHandler) {
-        return this.createTypeHandler(typeHandler, null);
+        return this.createTypeHandler(typeHandler, (ResolvableType) null);
     }
 
     /**
@@ -314,12 +315,28 @@ public final class TypeHandlerRegistry {
      * @return 类型处理器实例
      */
     public TypeHandler<?> createTypeHandler(Class<?> typeHandler, Class<?> argType) {
+        return this.createTypeHandler(typeHandler, ResolvableType.forType(argType));
+    }
+
+    /**
+     * 创建指定类型的类型处理器实例
+     * @param typeHandler 类型处理器类
+     * @param argType 类型处理器构造参数类型
+     * @return 类型处理器实例
+     */
+    public TypeHandler<?> createTypeHandler(Class<?> typeHandler, ResolvableType argType) {
         return this.createTypeHandler(typeHandler, argType, type -> {
             try {
-                Constructor<?> constructor = typeHandler.getConstructor(Class.class);
-                return this.createByConstructor(constructor, argType);
-            } catch (NoSuchMethodException e) {
-                return this.createByClass(typeHandler, argType);
+                Constructor<?> constructor = typeHandler.getConstructor(ResolvableType.class);
+                return this.createByConstructor(constructor, type);
+            } catch (NoSuchMethodException e1) {
+                try {
+                    Constructor<?> constructor = typeHandler.getConstructor(Class.class);
+                    Class<?> rawClass = type == null ? null : type.getRawClass();
+                    return this.createByConstructor(constructor, rawClass);
+                } catch (NoSuchMethodException e2) {
+                    return this.createByClass(typeHandler, null);
+                }
             }
         });
     }
@@ -328,7 +345,7 @@ public final class TypeHandlerRegistry {
         return ClassUtils.newInstance(typeHandlerClass);
     }
 
-    private TypeHandler<?> createByConstructor(Constructor<?> typeHandlerConstructor, Class<?> argType) {
+    private TypeHandler<?> createByConstructor(Constructor<?> typeHandlerConstructor, Object argType) {
         try {
             return (TypeHandler<?>) typeHandlerConstructor.newInstance(argType);
         } catch (ReflectiveOperationException e) {
@@ -337,6 +354,10 @@ public final class TypeHandlerRegistry {
     }
 
     public TypeHandler<?> createTypeHandler(Class<?> typeHandler, Class<?> argType, Function<Class<?>, TypeHandler<?>> supplier) {
+        return this.createTypeHandler(typeHandler, ResolvableType.forType(argType), r -> supplier.apply(r.getRawClass()));
+    }
+
+    public TypeHandler<?> createTypeHandler(Class<?> typeHandler, ResolvableType argType, Function<ResolvableType, TypeHandler<?>> supplier) {
         if (!TypeHandler.class.isAssignableFrom(typeHandler)) {
             throw new ClassCastException(typeHandler.getName() + " is not a subclass of " + TypeHandler.class.getName());
         }
@@ -354,7 +375,7 @@ public final class TypeHandlerRegistry {
             }
         } else {
             registerTypeHandlerType(typeHandler);
-            String cacheName = typeHandler.getName() + (argType == null ? "" : ("," + argType.getName()));
+            String cacheName = typeHandler.getName() + (argType == null ? "" : ("," + argType.getType().toString()));
             return this.cachedByHandlerType.computeIfAbsent(cacheName, type -> {
                 if (typeHandler == UnknownTypeHandler.class) {
                     return this.defaultTypeHandler;

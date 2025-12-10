@@ -1,4 +1,5 @@
 package net.hasor.dbvisitor.lambda.support.freedom;
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.WeakHashMap;
 import net.hasor.cobble.StringUtils;
@@ -34,6 +35,11 @@ class FreedomUtils {
         @Override
         public boolean isReadOnly() {
             return false;
+        }
+
+        @Override
+        public Field getField() {
+            return null;
         }
 
         @Override

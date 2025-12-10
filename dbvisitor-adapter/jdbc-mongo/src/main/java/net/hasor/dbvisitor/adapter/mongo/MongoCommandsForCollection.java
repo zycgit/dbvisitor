@@ -8,6 +8,7 @@ import com.mongodb.MongoNamespace;
 import com.mongodb.client.*;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.concurrent.future.Future;
@@ -259,7 +260,7 @@ class MongoCommandsForCollection extends MongoCommands {
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
         List<Object> docList = toArrayBson(args.get(0));
-        mongoColl.insertMany((List<Document>) (List<?>) docList);
+        InsertManyResult insertManyResult = mongoColl.insertMany((List<Document>) (List<?>) docList);
         receive.responseUpdateCount(request, docList.size());
         return completed(sync);
     }

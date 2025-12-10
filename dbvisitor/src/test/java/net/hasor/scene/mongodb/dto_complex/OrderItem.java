@@ -2,7 +2,7 @@ package net.hasor.scene.mongodb.dto_complex;
 
 public class OrderItem {
     private String itemName;
-    private int quantity;
+    private int    quantity;
 
     public String getItemName() {
         return itemName;

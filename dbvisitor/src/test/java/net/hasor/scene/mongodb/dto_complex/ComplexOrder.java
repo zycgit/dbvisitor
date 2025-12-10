@@ -1,18 +1,20 @@
 package net.hasor.scene.mongodb.dto_complex;
-
+import java.util.List;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.Table;
+import net.hasor.dbvisitor.types.handler.bson.BsonListTypeHandler;
+import net.hasor.dbvisitor.types.handler.bson.BsonTypeHandler;
 
 @Table("complex_order")
 public class ComplexOrder {
-    @Column(value = "_id", primary = true)
+    @Column(value = "id", primary = true)
     private String id;
 
     @Column(value = "address", typeHandler = BsonTypeHandler.class)
     private Address address;
 
-    //@Column(value = "items", typeHandler = BsonListTypeHandler.class)
-    //private List<OrderItem> items;
+    @Column(value = "items", typeHandler = BsonListTypeHandler.class)
+    private List<OrderItem> items;
 
     public String getId() {
         return id;
@@ -30,11 +32,11 @@ public class ComplexOrder {
         this.address = address;
     }
 
-    //    public List<OrderItem> getItems() {
-    //        return items;
-    //    }
-    //
-    //    public void setItems(List<OrderItem> items) {
-    //        this.items = items;
-    //    }
+    public List<OrderItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<OrderItem> items) {
+        this.items = items;
+    }
 }

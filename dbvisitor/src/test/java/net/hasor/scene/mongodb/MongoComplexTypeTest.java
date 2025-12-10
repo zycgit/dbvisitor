@@ -40,7 +40,7 @@ public class MongoComplexTypeTest extends AbstractDbTest {
             item2.setQuantity(20);
             items.add(item2);
 
-            //order.setItems(items);
+            order.setItems(items);
 
             // Insert
             int r1 = lambda.insert(ComplexOrder.class).applyEntity(order).executeSumResult();
@@ -59,10 +59,10 @@ public class MongoComplexTypeTest extends AbstractDbTest {
             assert "5th Avenue".equals(loadedOrder.getAddress().getStreet());
 
             // Check Items
-            //            assert loadedOrder.getItems() != null;
-            //            assert loadedOrder.getItems().size() == 2;
-            //            assert "Apple".equals(loadedOrder.getItems().get(0).getItemName());
-            //            assert 10 == loadedOrder.getItems().get(0).getQuantity();
+            assert loadedOrder.getItems() != null;
+            assert loadedOrder.getItems().size() == 2;
+            assert "Apple".equals(loadedOrder.getItems().get(0).getItemName());
+            assert 10 == loadedOrder.getItems().get(0).getQuantity();
         }
     }
 }

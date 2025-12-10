@@ -32,6 +32,8 @@ public class JdbcDriver implements java.sql.Driver {
     public static final String P_SERVER       = "server";     // driver attr for host
     public static final String P_TIME_ZONE    = "timeZone";   // driver attr for dataConvert
     public static final String P_ADAPTER_NAME = "adapterName";// adapter attr is readOnly
+    public static final String P_USER         = "user";
+    public static final String P_PASSWORD     = "password";
 
     //
     public static final String START_URL     = "jdbc:dbvisitor:";
@@ -58,7 +60,11 @@ public class JdbcDriver implements java.sql.Driver {
 
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
-        return new JdbcConnection(url, parseURL(url, info), classLoader);
+        if (StringUtils.startsWith(url, START_URL)) {
+            return new JdbcConnection(url, parseURL(url, info), classLoader);
+        } else {
+            return null;
+        }
     }
 
     @Override

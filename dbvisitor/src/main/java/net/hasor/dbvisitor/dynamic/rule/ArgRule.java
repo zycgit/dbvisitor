@@ -20,6 +20,7 @@ import java.util.Map;
 import net.hasor.cobble.NumberUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
+import net.hasor.cobble.reflect.resolvable.ResolvableType;
 import net.hasor.dbvisitor.dynamic.QueryContext;
 import net.hasor.dbvisitor.dynamic.SqlArgSource;
 import net.hasor.dbvisitor.dynamic.SqlBuilder;
@@ -205,7 +206,7 @@ public class ArgRule implements SqlRule {
         if (javaClass == null) {
             return context.getTypeRegistry().createTypeHandler(handlerClass);
         } else {
-            return context.getTypeRegistry().createTypeHandler(handlerClass, javaClass);
+            return context.getTypeRegistry().createTypeHandler(handlerClass, ResolvableType.forType(javaClass));
         }
     }
 

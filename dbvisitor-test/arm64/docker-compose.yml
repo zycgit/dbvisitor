@@ -2,26 +2,14 @@ version: '3.1'
 
 # use this yml for docker-compose up -d
 services:
-  mysql_8_0_22:
-    image: arm64v8/mysql:8.0.22
+  mysql_8_4:
+    image: arm64v8/mysql:8.4
     environment:
       - MYSQL_DATABASE=devtester
       - MYSQL_ROOT_PASSWORD=123456
       - TZ=Asia/Shanghai
     ports:
       - 13306:3306
-    restart: always
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time_zone='+8:00'
-    # User/Password：root/123456
-
-  mysql_5_7_18:
-    image: arm64v8/mysql:5.7.18
-    environment:
-      - MYSQL_DATABASE=devtester
-      - MYSQL_ROOT_PASSWORD=123456
-      - TZ=Asia/Shanghai
-    ports:
-      - 13307:3306
     restart: always
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time_zone='+8:00'
     # User/Password：root/123456
