@@ -339,10 +339,7 @@ public class MongoCommandBuilder implements CommandBuilder {
     }
 
     private String formatValue(Object value, String valueTerm) {
-        if (StringUtils.isNotBlank(valueTerm)) {
-            return valueTerm;
-        }
         this.args.add(value);
-        return "?";
+        return StringUtils.isNotBlank(valueTerm) ? valueTerm : "?";
     }
 }

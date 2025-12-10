@@ -25,6 +25,8 @@ import net.hasor.cobble.BeanUtils;
 import net.hasor.cobble.NumberUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.function.Property;
+import net.hasor.cobble.logging.Logger;
+import net.hasor.cobble.logging.LoggerFactory;
 import net.hasor.cobble.reflect.Annotation;
 import net.hasor.cobble.reflect.Annotations;
 import net.hasor.cobble.reflect.resolvable.ResolvableType;
@@ -39,7 +41,8 @@ import net.hasor.dbvisitor.types.TypeHandlerRegistry;
  * @version 2021-06-21
  */
 public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<?>> {
-    private final Map<Class<?>, TableDef<?>> CACHE_TABLE_MAP = new WeakHashMap<>();
+    private static final Logger                     logger          = LoggerFactory.getLogger(ClassTableMappingResolve.class);
+    private final        Map<Class<?>, TableDef<?>> CACHE_TABLE_MAP = new WeakHashMap<>();
 
     @Override
     public <V> TableDef<V> resolveTableMapping(Class<?> entityType, Options usingOpt, MappingRegistry registry) throws ReflectiveOperationException, IOException {
@@ -222,9 +225,16 @@ public class ClassTableMappingResolve extends AbstractTableMappingResolve<Class<
             }
 
             String jdbcTypeStr = info.getString("jdbcType", null);
-            Integer jdbcType = null;
-            if (StringUtils.isNumeric(jdbcTypeStr)) {
-                jdbcType = NumberUtils.createNumber(jdbcTypeStr).intValue();
+            Integer jdbcType;
+            try {
+                if (jdbcTypeStr != null) {
+                    jdbcType = NumberUtils.createNumber(jdbcTypeStr).intValue();
+                } else {
+                    jdbcType = null;
+                }
+            } catch (Exception e) {
+                logger.error("jdbcType '" + jdbcTypeStr + "' parse error, using default.");
+                jdbcType = null;
             }
 
             Class<?> typeHandlerType = info.getClass("typeHandler", classLoader);
