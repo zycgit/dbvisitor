@@ -2,8 +2,8 @@ package net.hasor.scene.mongodb.dto_complex;
 import java.util.List;
 import net.hasor.dbvisitor.mapping.Column;
 import net.hasor.dbvisitor.mapping.Table;
-import net.hasor.dbvisitor.types.handler.bson.BsonListTypeHandler;
-import net.hasor.dbvisitor.types.handler.bson.BsonTypeHandler;
+import net.hasor.dbvisitor.types.handler.json.BsonListTypeHandler;
+import net.hasor.dbvisitor.types.handler.json.BsonTypeHandler;
 
 @Table("complex_order")
 public class ComplexOrder {

@@ -37,3 +37,5 @@ dbVisitor 内置支持了 4 个常见 json 序列化服务提供程序可供选�
 | JsonUseForFastjson2TypeHandler | 使用 Fastjson2 作为 JSON 序列化/反序列化 服务提供者。<br/> - 项目地址：https://github.com/alibaba/fastjson2    |
 | JsonUseForGsonTypeHandler      | 使用 Gson 作为 JSON 序列化/反序列化 服务提供者。<br/> - 项目地址：https://github.com/google/gson               |
 | JsonUseForJacksonTypeHandler   | 使用 Jackson 作为 JSON 序列化/反序列化 服务提供者。<br/> - 项目地址：https://github.com/FasterXML/jackson-core |
+| BsonListTypeHandler            | 使用 org.bson/com.mongodb 作为 BSON 序列化/反序列化 服务提供者，专门用来处理 List、Set 等集合类型字段映射，可以自动识别字段泛型。     |
+| BsonTypeHandler                | 使用 org.bson/com.mongodb 作为 BSON 序列化/反序列化 服务提供者。                                          |

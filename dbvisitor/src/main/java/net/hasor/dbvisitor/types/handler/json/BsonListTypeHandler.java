@@ -1,4 +1,4 @@
-package net.hasor.dbvisitor.types.handler.bson;
+package net.hasor.dbvisitor.types.handler.json;
 
 import java.sql.SQLException;
 import java.util.*;
