@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import net.hasor.dbvisitor.lambda.LambdaTemplate;
 import net.hasor.scene.mongodb.dto_complex.Address;
 import net.hasor.scene.mongodb.dto_complex.ComplexOrder;
@@ -22,7 +21,6 @@ public class MongoComplexTypeTest extends AbstractDbTest {
 
             // Prepare Data
             ComplexOrder order = new ComplexOrder();
-            order.setId(UUID.randomUUID().toString());
 
             Address address = new Address();
             address.setCity("New York");

@@ -11,6 +11,7 @@ import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.CollectionContext;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.DatabaseNameContext;
 import net.hasor.dbvisitor.driver.*;
+import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -192,6 +193,16 @@ abstract class MongoCommands {
             if (maxRows > 0 && affectRows >= maxRows) {
                 break;
             }
+        }
+        receiveCur.pushFinish();
+        return receiveCur;
+    }
+
+    protected static AdapterResultCursor listResult(AdapterRequest request, JdbcColumn col, Map<Integer, BsonValue> result, int count) throws SQLException {
+        AdapterResultCursor receiveCur = new AdapterResultCursor(request, Collections.singletonList(col));
+        for (int i = 0; i < count; i++) {
+            BsonValue bsonValue = result.get(i);
+            receiveCur.pushData(CollectionUtils.asMap(col.name, bsonValue.asObjectId().getValue().toHexString()));
         }
         receiveCur.pushFinish();
         return receiveCur;

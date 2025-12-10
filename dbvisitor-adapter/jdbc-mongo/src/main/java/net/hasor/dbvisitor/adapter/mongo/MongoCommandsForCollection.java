@@ -9,12 +9,14 @@ import com.mongodb.client.*;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
+import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoBsonVisitor;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.*;
 import net.hasor.dbvisitor.driver.*;
+import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -260,8 +262,15 @@ class MongoCommandsForCollection extends MongoCommands {
         List<Object> args = (List<Object>) visitor.visit(c.arguments());
 
         List<Object> docList = toArrayBson(args.get(0));
-        InsertManyResult insertManyResult = mongoColl.insertMany((List<Document>) (List<?>) docList);
-        receive.responseUpdateCount(request, docList.size());
+        InsertManyResult insertResult = mongoColl.insertMany((List<Document>) (List<?>) docList);
+        AdapterResultCursor generatedKeys = null;
+
+        if (request.isGeneratedKeys()) {
+            Map<Integer, BsonValue> insertedIds = insertResult.getInsertedIds();
+            generatedKeys = listResult(request, COL_VALUE_STRING, insertedIds, docList.size());
+        }
+
+        receive.responseUpdateCount(request, docList.size(), generatedKeys);
         return completed(sync);
     }
 
@@ -523,8 +532,15 @@ class MongoCommandsForCollection extends MongoCommands {
             }
         }
 
-        mongoColl.insertOne(doc, options);
-        receive.responseUpdateCount(request, 1);
+        InsertOneResult insertOneResult = mongoColl.insertOne(doc, options);
+        AdapterResultCursor generatedKeys = null;
+
+        if (request.isGeneratedKeys()) {
+            Map<Integer, BsonValue> insertedIds = CollectionUtils.asMap(0, insertOneResult.getInsertedId());
+            generatedKeys = listResult(request, COL_VALUE_STRING, insertedIds, 1);
+        }
+
+        receive.responseUpdateCount(request, 1, generatedKeys);
         return completed(sync);
     }
 
@@ -553,8 +569,15 @@ class MongoCommandsForCollection extends MongoCommands {
             }
         }
 
-        mongoColl.insertMany(docs, options);
-        receive.responseUpdateCount(request, docs.size());
+        InsertManyResult insertResult = mongoColl.insertMany(docs, options);
+        AdapterResultCursor generatedKeys = null;
+
+        if (request.isGeneratedKeys()) {
+            Map<Integer, BsonValue> insertedIds = insertResult.getInsertedIds();
+            generatedKeys = listResult(request, COL_VALUE_STRING, insertedIds, docs.size());
+        }
+
+        receive.responseUpdateCount(request, docs.size(), generatedKeys);
         return completed(sync);
     }
 
@@ -719,7 +742,14 @@ class MongoCommandsForCollection extends MongoCommands {
         }
 
         UpdateResult result = mongoColl.replaceOne(filter, replacement, options);
-        receive.responseUpdateCount(request, result.getModifiedCount());
+        AdapterResultCursor generatedKeys = null;
+
+        if (request.isGeneratedKeys()) {
+            Map<Integer, BsonValue> insertedIds = CollectionUtils.asMap(0, result.getUpsertedId());
+            generatedKeys = listResult(request, COL_VALUE_STRING, insertedIds, 1);
+        }
+
+        receive.responseUpdateCount(request, result.getModifiedCount(), generatedKeys);
         return completed(sync);
     }
 

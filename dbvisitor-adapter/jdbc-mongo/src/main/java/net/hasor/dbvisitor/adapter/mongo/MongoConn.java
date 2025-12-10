@@ -2,6 +2,7 @@ package net.hasor.dbvisitor.adapter.mongo;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 import com.mongodb.client.MongoClient;
@@ -37,6 +38,11 @@ public class MongoConn extends AdapterConnection {
         this.preReadMaxFileSize = parseSize(prop.get(MongoKeys.PREREAD_MAX_FILE_SIZE), 20 * 1024 * 1024); // Default 20MB
         String cacheDirStr = prop.get(MongoKeys.PREREAD_CACHE_DIR);
         this.preReadCacheDir = StringUtils.isBlank(cacheDirStr) ? new java.io.File(System.getProperty("java.io.tmpdir")) : new java.io.File(cacheDirStr);
+    }
+
+    @Override
+    public int getDefaultGeneratedKeys() {
+        return Statement.RETURN_GENERATED_KEYS;
     }
 
     private long parseSize(String sizeStr, long defaultValue) {
@@ -87,6 +93,8 @@ public class MongoConn extends AdapterConnection {
     }
 
     public void initConnection() {
+        this.getFeatures().addFeature(AdapterFeatureKey.ReturnGeneratedKeys, true);
+
         AdapterInfo info = this.getInfo();
         info.getDriverVersion().setName(MongoKeys.DEFAULT_CLIENT_NAME);
         info.getDbVersion().setName("Mongo");
