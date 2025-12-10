@@ -29,7 +29,14 @@ public class JedisConnFactory implements AdapterFactory {
     }
 
     private static DefaultJedisClientConfig passerClientConfig(Map<String, String> dsConfig) {
-        String username = dsConfig.get(JedisKeys.USERNAME);
+        String username;
+        if (StringUtils.isNotBlank(dsConfig.get(JedisKeys.USERNAME))) {
+            username = dsConfig.get(JedisKeys.USERNAME);
+        } else if (StringUtils.isNotBlank(dsConfig.get("username"))) {
+            username = dsConfig.get("username");
+        } else {
+            username = null;
+        }
         String password = dsConfig.get(JedisKeys.PASSWORD);
         String clientName = dsConfig.get(JedisKeys.CLIENT_NAME);
         String defaultDataBase = dsConfig.get(JedisKeys.DATABASE);

@@ -18,8 +18,8 @@ public class JedisKeys {
     public static final String TIME_ZONE       = JdbcDriver.P_TIME_ZONE;
     public static final String CONN_TIMEOUT    = "connectTimeout";
     public static final String SO_TIMEOUT      = "socketTimeout";
-    public static final String USERNAME        = "username";
-    public static final String PASSWORD        = "password";
+    public static final String USERNAME        = JdbcDriver.P_USER;
+    public static final String PASSWORD        = JdbcDriver.P_PASSWORD;
     public static final String DATABASE        = "database";
     public static final String CLIENT_NAME     = "clientName";
     // for pool

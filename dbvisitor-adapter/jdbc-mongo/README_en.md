@@ -1,6 +1,6 @@
 ## Introduction
 
-jdbc-mongo is a MongoDB JDBC driver adapter that allows developers to operate MongoDB using the standard JDBC interfaces and SQL-style commands.
+jdbc-mongo is a MongoDB JDBC driver adapter that allows developers to operate MongoDB using the standard JDBC interfaces and MongoDB commands.
 The goal is to enable seamless use of MongoDB by leveraging the familiar JDBC programming model.
 
 ## Features
@@ -75,7 +75,7 @@ Main connection parameters:
 ```java
 public class MongoJdbcExample {
   public static void main(String[] args) throws Exception {
-    String url = "jdbc:mongo://127.0.0.1:27017/testdb";
+    String url = "jdbc:dbvisitor:mongo://127.0.0.1:27017/testdb";
     try (Connection conn = DriverManager.getConnection(url)) {
       // Statement Example
       try (Statement stmt = conn.createStatement()) {

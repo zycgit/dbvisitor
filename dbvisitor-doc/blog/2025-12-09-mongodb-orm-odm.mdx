@@ -1,0 +1,299 @@
+---
+slug: mongodb-orm-odm-tool
+title: MongoDB 数据库 ORM/ODM 新工具
+authors: [ZhaoYongChun]
+tags: [mongodb, orm, odm, jdbc, dbvisitor]
+---
+import Vars from '@site/plugins/projectVars';
+
+export const Highlight = ({children, color}) => (
+    <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+);
+
+在 Java 开发领域，关系型数据库（RDBMS）的 ORM 工具（如 Hibernate, MyBatis）已经非常成熟。然而，随着 NoSQL 数据库特别是 MongoDB 的普及，开发者对于在 Java 中如何优雅、高效地操作 MongoDB 提出了新的需求。
+
+虽然 MongoDB 是文档型数据库，天生具备 Schema-less 的特性，但在强类型的 Java 语言中，我们依然需要一种机制将 BSON 文档映射为 Java 对象，以便于业务逻辑的处理。这就是 ODM（Object-Document Mapping）应运而生的背景。
+
+本文将探讨 MongoDB 开发中的 ORM/ODM 现状，并介绍一款基于 JDBC 协议的 MongoDB 新工具 —— **dbVisitor**。
+
+<!--truncate-->
+
+## 为什么要 ORM/ODM？
+
+MongoDB 存储的是 BSON（Binary JSON）格式的文档，结构灵活。但在实际的 Java 工程开发中，我们面临以下挑战：
+
+1.  **类型安全**：Java 是强类型语言，直接操作 `Document` 或 `Map` 对象容易出错且难以维护。
+2.  **领域模型**：业务逻辑通常基于 POJO领域模型构建，需要自动化的序列化/反序列化机制。
+3.  **开发效率**：手写繁琐的 BSON 构建代码远不如面向对象的操作直观。
+4.  **统一规范**：在同一个项目中，同时使用 RDBMS 和 MongoDB，开发者希望有一套统一的 API 风格。
+
+## ORM/ODM 的区别
+
+在讨论工具之前，我们需要厘清 **ORM** 和 **ODM** 的概念。
+
+*   **ORM (Object-Relational Mapping)**：对象-关系映射。主要用于关系型数据库（MySQL, Oracle 等）。它解决的是 **面向对象模型** 与 **关系模型**（二维表、外键关联）之间的不匹配问题。
+*   **ODM (Object-Document Mapping)**：对象-文档映射。主要用于文档型数据库（MongoDB, Elasticsearch 等）。它解决的是 **Java 对象** 与 **文档** 之间的映射。由于 BSON 本身支持嵌套结构（数组、子文档），与 Java 对象的结构更为接近，因此 ODM 的映射通常比 ORM 更自然，但在处理复杂关联（Reference）时逻辑会有所不同。
+
+简单来说，ORM 映射的是 “表”，ODM 映射的是 “文档”。
+
+## dbVisitor：MongoDB
+
+MongoDB 的 JDBC 驱动与 ORM/ODM 工具，**dbVisitor** 本质上是一个数据库访问工具，它最为独特之处在于：**它通过为 MongoDB 提供了一套完整的 JDBC 驱动实现（jdbc-mongo）**。
+这意味着你可以像操作 MySQL 一样，使用 JDBC 接口，通过原始 MongoDB 命令、甚至 MyBatis 风格的 Mapper 来操作 MongoDB。
+特别贴心的的是 dbVisitor 还为 jdbc-mongo 做了专门的适配，您甚至都无须编写任何 MongoDB 命令就能实现 CRUD 操作。
+
+### 功能特性
+
+1.  **JDBC 协议支持**：
+    dbVisitor 提供了一个标准的 JDBC 驱动 ([jdbc-mongo](../docs/guides/drivers/mongo/about))。
+    你可以使用 JDBC 标准方式获取 MongoDB 连接，使用 `PreparedStatement` 构建带有参数的查询。
+    这使得它可以无缝集成到任何支持 JDBC 的生态系统中（如 HikariCP 连接池等）。
+2.  **原始命令**：
+    为了降低学习成本，dbVisitor 支持使用原始 MongoDB 命令执行查询。
+3.  **多模式 API**：
+    *   **JdbcTemplate**：适合直接执行命令，处理复杂且非结构化的数据。
+    *   **LambdaTemplate**：提供类型安全的构造器 API，类似 MyBatis-Plus 的 LambdaQueryWrapper。
+    *   **Mapper 接口**：支持注解（`@Insert`, `@Query`）和 XML 文件配置，完全复用 MyBatis 的开发习惯。
+4.  **动态 SQL**：
+    支持在 XML 或注解中使用 `<if>`, `<foreach>`, `<where>` 等动态标签，这在构建复杂的 MongoDB 查询条件时非常有用。
+    * dbVisitor 鼓励开发者使用不同的方式来应对查询时的复杂场景。例如，使用原始命令构建复杂的查询，或者使用 LambdaTemplate 构建单表 CRUD。
+
+## 主流工具对比
+
+下面我们将 **dbVisitor** 与目前主流的 MongoDB Java 工具进行对比：
+
+| 特性           | **MongoClient** | **Spring Data MongoDB**  | **Morphia**    | **MongoPlus**                 | **dbVisitor**                               |
+|:-------------|:----------------|:-------------------------|:---------------|:------------------------------|:--------------------------------------------|
+| **定位**       | 官方底层驱动          | Spring 生态标准 ODM          | 轻量级 ODM        | MyBatis-Plus 风格封装             | **JDBC 驱动 + ORM (不依赖 MyBatis)**             |
+| **依赖程度**     | 无（基础库）          | 强依赖 Spring Framework     | 较低             | 依赖 Spring 才能使用完整功能            | **极低 (仅官方底层驱动)**                            |
+| **API 风格**   | BSON/Builder    | Repository / Template    | 注解 / Datastore | Lambda / Mapper               | **JDBC / Template / Lambda / Mapper / 注解**  |
+| **查询语言**     | BSON Filters    | Criteria / Query Methods | Fluent API     | Fluent API                    | **Fluent API / Query Methods / 原始命令**       |
+| **学习曲线**     | 高 (需熟记 API)     | 中 (需懂 Spring Data)       | 高 (需熟记 API)    | 中 (需懂 MyBatis 和 MyBatis-Plus) | **低 (MyBatis / Spring JDBC / 官方命令, 多种方式)**  |
+| **动态 SQL**   | 需手动处理 BSON      | 较弱                       | 不支持            | 不支持                           | **强 (XML 动态标签 / 动态规则)**                     |
+| **JDBC 支持**  | 无               | 无                        | 无              | 无                             | **原生支持**                                    |
+| **多种类数据源** | 不支持             | 需借助 Spring 生态其它模块        | 不支持            | 不支持                           | **MongoDB、Redis、MySQL、PostgreSQL、Oracle 等** |
+
+### 选型建议
+
+*   如果你追求 **极致性能** 且不介意手写 BSON 代码，或者项目非常简单，直接使用 **MongoClient**。
+*   如果你是 **Spring 全家桶** 的忠实用户，且习惯 Spring Data 的 Repository 模式，**Spring Data MongoDB** 是首选。
+*   如果你喜欢 **MyBatis** 的开发模式，希望在 MongoDB 中也能使用 XML 管理命令，或者你需要将 MongoDB 集成到不支持 NoSQL 的旧系统中，那么 **dbVisitor** 是一个极具创新和实用价值的选择。
+
+dbVisitor 通过 JDBC 协议打通了 RDBMS 和 NoSQL 之间的界限，用 **统一的 API** 让开发者轻松驾驭 MongoDB 和 关系型数据库，这在跨数据库类型的混合架构中能显著降低认知负担和维护成本。
+
+## 使用方式
+
+### 1. 依赖引入
+
+在 `pom.xml` 中加入核心依赖与 MongoDB 适配器（Java 8 环境），当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>net.hasor</groupId>
+        <artifactId>dbvisitor</artifactId>
+        <version>6.3.0</version>
+    </dependency>
+    <dependency>
+        <groupId>net.hasor</groupId>
+        <artifactId>jdbc-mongo</artifactId>
+        <version>>6.3.0</version>
+    </dependency>
+</dependencies>
+```
+
+连接 URL 示例：`jdbc:dbvisitor:mongo://127.0.0.1:27017/admin?user=root&password=123456`。
+
+### 2. 原生 Mongo 命令
+适合需要完全控制命令或快速调试。
+
+```java
+try (Connection c = DriverManager.getConnection(url, user, pwd)) {
+    JdbcTemplate jdbc = new JdbcTemplate(c);
+    // 插入
+    jdbc.execute("db.users.insertOne({name: ?, age: ?})", "Alice", 18);
+    // 查询
+    Map<String, Object> row = jdbc.queryForMap("db.users.findOne({name: ?})", "Alice");
+}
+```
+
+### 3. Mapper 接口
+用注解描述命令，保持 MyBatis 风格。
+
+```java
+public interface UserMapper {
+    @Insert("db.users.insertOne({name: :name, age: :age})")
+    int insert(User user);
+
+    @Query("db.users.find({age: {$gt: :age}})")
+    List<User> findByAge(@Param("age") int age);
+}
+
+UserMapper mapper = lambda.getMapper(UserMapper.class);
+mapper.insert(new User("Cindy", 22));
+```
+
+### 4. CRUD 构造器
+无需拼接命令，直接基于实体编写条件。
+
+```java
+public class User {
+    private String name;
+    private int    age;
+
+    // getter/setter 省略
+}
+
+try (Connection c = DriverManager.getConnection(url, user, pwd)) {
+    User u = new User();
+    u.setUserId(123);
+    u.setName("Alice");
+    u.setAge(18);
+
+    LambdaTemplate lambda = new LambdaTemplate(c);
+    int r1 = lambda.insert(User.class)
+            .applyEntity(u)
+            .executeSumResult();
+
+    List<User> list = lambda.query(User.class)
+            .eq(User::getAge, 18)
+            .queryForList();
+
+    // 按主键查询
+    User u2 = lambda.query(User.class)
+            .eq(User::getUserId, u.getUserId())
+            .queryForObject();
+
+    // 更新
+    int r2 = lambda.update(User.class)
+            .updateTo(User::getName, 20)
+            .eq(User::getUserId, u.getUserId())
+            .doUpdate();
+
+    // 删除
+    int r3 = lambda.delete(User.class)
+            .eq(User::getUserId, u.getUserId())
+            .doDelete();
+}
+```
+
+### 5. 映射实体
+通过 @Table / @Column 注解声明集合与字段映射，支持主键、别名、TypeHandler 等。
+
+```java
+@Table("users")
+public class User {
+        @Column(value = "userId", primary = true)
+        private String userId;
+        @Column("name")
+        private String name;
+        @Column("age")
+        private Integer age;
+        // getter/setter 省略
+}
+```
+
+### 6. Mapper File
+适合复杂动态条件；可与注解并存。
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN"
+            "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.scene.mongodb.dto.UserMapper">
+    <insert id="saveUser">
+        db.users.insertOne({name: :name, age: :age})
+    </insert>
+
+    <select id="loadUser" resultType="net.hasor.scene.mongodb.dto.User">
+        db.users.find({name: #{name}})
+    </select>
+
+    <delete id="deleteUser">
+        db.users.remove({name: #{name}})
+    </delete>
+</mapper>
+```
+
+```java
+@RefMapper("dbvisitor/mapper/user-mapper.xml")
+public interface UserMapper {
+    int saveUser(User info);
+
+    User loadUser(@Param("name") String name);
+
+    int deleteUser(@Param("name") String name);
+}
+```
+
+### 7. 选择建议
+- **JdbcTemplate**：最大自由度，适合调试、特殊命令或聚合管道。
+- **Mapper 接口**：轻量配置，适合中小项目或少量固定语句。
+- **LambdaTemplate**：类型安全、无模板字符串，适合标准 CRUD 与中等复杂度条件。
+- **Mapper XML**：最强动态 SQL 能力，适合复杂查询/聚合、多条件组合。
+- **@Table/@Column**：需要实体到文档映射的场景，便于 TypeHandler、字段别名管理。
+
+## 框架整合
+
+下面给出常见框架的快速整合指引（更多细节可参考 [3.3 Spring 整合](../docs/guides/yourproject/with_spring) 对应章节）：
+
+### Spring Boot
+
+在使用之前首先引入依赖，当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+
+```xml
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>dbvisitor-spring-starter</artifactId>
+    <version>6.3.0</version>
+</dependency>
+<dependency>
+    <groupId>net.hasor</groupId>
+    <artifactId>jdbc-mongo</artifactId>
+    <version>>6.3.0</version>
+</dependency>
+  ```
+
+方式一：在 application.properties 配置文件中添加如下配置
+
+```properties
+# Spring JDBC 数据源配置
+spring.datasource.url=jdbc:dbvisitor:mongo://127.0.0.1:27017/admin
+spring.datasource.username=root
+spring.datasource.password=123456
+# 必选
+dbvisitor.mapper-packages=com.example.demo.dao
+dbvisitor.mapper-locations=classpath:dbvisitor/mapper/*.xml
+```
+
+方式二：在启动类上通过注解添加如下配置
+
+```java
+@Configuration
+@MapperScan(basePackages    = "com.example.demo.dao",
+            mapperLocations = "classpath:dbvisitor/mapper/*.xml")
+public class DemoApplication {
+    ...
+}
+```
+
+使用注入 Mapper
+
+```java title='注入 Mapper'
+import net.hasor.dbvisitor.lambda.LambdaTemplate;
+import net.hasor.dbvisitor.jdbc.core.JdbcTemplate; // 注意导包和 Spring 的 JdbcTemplate 区别
+import javax.annotation.Resource;
+
+public class ServiceTest {
+    @Resource // 或 @Autowired
+    private UserMapper userMapper;
+    @Resource // 或 @Autowired
+    private JdbcTemplate jdbc;
+    @Resource // 或 @Autowired
+    private LambdaTemplate lambda;
+    ...
+}
+```
+
+## 总结
+dbVisitor 通过 JDBC 协议把 MongoDB 拉到与关系型数据库一致的开发体验之下：你可以用原生命令、类型安全的 Lambda、注解/XML Mapper，或零命令的通用 CRUD。根据场景选择合适的方式，可以在保持高效迭代的同时，兼顾类型安全和可维护性。在同一套 API 下混合使用 RDBMS 与 MongoDB，也能显著降低团队的认知成本。

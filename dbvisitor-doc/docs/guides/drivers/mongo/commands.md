@@ -8,6 +8,13 @@ description: jdbc-mongo 支持常用的 MongoDB 命令，涵盖数据库管理�
 
 `jdbc-mongo` 支持通过 SQL 风格的语法执行 MongoDB 命令。以下是支持的命令列表。
 
+:::tip[命令增强]
+对于原始的 MongoDB 命令中，`db.` 前缀的增强
+- 您可以在原始命令中省略 `db.` 前缀，直接使用集合名称，例如 `coll1.find()` 此时表示查询当前数据库中的 coll1 集合。
+- 您可以使用 `<数据库名>.<集合名>.` 指定操作的具体集合，例如 `myDb.coll1.find()` 此时表示查询 myDb 数据库中的 coll1 集合。
+- 您可以使用 `use 数据库名` 切换当前数据库。
+:::
+
 ## 集合操作 (Collection Operations) {#collection}
 
 | 命令 | 描述 | 官方文档 |

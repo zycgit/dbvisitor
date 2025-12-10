@@ -1,6 +1,6 @@
 ## 介绍
 
-jdbc-mongo 是一个 MongoDB 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和 SQL 风格的命令来操作 MongoDB 数据。
+jdbc-mongo 是一个 MongoDB 的 JDBC 驱动适配器，它允许开发者使用标准的 JDBC 接口和原始命令来操作 MongoDB 数据。
 目的是通过熟悉 JDBC 编程模型，使开发者能够无缝地使用 MongoDB。
 
 ## 特性：
@@ -74,7 +74,7 @@ Connection conn = DriverManager.getConnection(url, props);
 ```java
 public class MongoJdbcExample {
   public static void main(String[] args) throws Exception {
-    String url = "jdbc:mongo://127.0.0.1:27017/testdb";
+    String url = "jdbc:dbvisitor:mongo://127.0.0.1:27017/testdb";
     try (Connection conn = DriverManager.getConnection(url)) {
       // Statement Example
       try (Statement stmt = conn.createStatement()) {

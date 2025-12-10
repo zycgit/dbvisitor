@@ -8,7 +8,6 @@ import net.hasor.test.utils.DsUtils;
 import org.junit.Test;
 
 public class MongoJdbcTest {
-
     @Test
     public void using_jdbc_1() throws Exception {
         Configuration config = new Configuration();
