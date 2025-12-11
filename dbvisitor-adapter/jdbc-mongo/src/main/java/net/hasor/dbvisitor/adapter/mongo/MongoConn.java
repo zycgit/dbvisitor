@@ -197,7 +197,7 @@ public class MongoConn extends AdapterConnection {
         MongoArgVisitor argVisitor = new MongoArgVisitor();
         root.accept(argVisitor);
         int argCount = argVisitor.getArgCount();
-        List<MongoParser.CommandContext> commandList = argVisitor.getCommandList();
+        List<MongoParser.HintCommandContext> commandList = argVisitor.getCommandList();
 
         if (commandList.isEmpty()) {
             throw new SQLException("query command is empty.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);
@@ -209,7 +209,7 @@ public class MongoConn extends AdapterConnection {
         }
 
         int startArgIdx = 0;
-        for (MongoParser.CommandContext mongoCmd : commandList) {
+        for (MongoParser.HintCommandContext mongoCmd : commandList) {
             if (this.cancelled) {
                 throw new SQLException("Operation cancelled.", JdbcErrorCode.SQL_STATE_IS_CANCELLED);
             }

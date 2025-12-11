@@ -3,162 +3,168 @@ import java.sql.SQLException;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser;
-import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.CommandContext;
+import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.HintCommandContext;
 import net.hasor.dbvisitor.driver.AdapterReceive;
 import net.hasor.dbvisitor.driver.AdapterRequest;
 
 class MongoDistributeCall {
-    public static Future<?> execMongoCmd(Future<Object> sync, MongoCmd mongoCmd, CommandContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
-        if (c.USE() != null) {
-            return MongoCommandsForDB.execUseCmd(sync, mongoCmd, c, request, receive, startArgIdx);
+    public static Future<?> execMongoCmd(Future<Object> sync, MongoCmd mongoCmd, HintCommandContext h, AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+        if (h.command().USE() != null) {
+            return MongoCommandsForDB.execUseCmd(sync, mongoCmd, h, request, receive, startArgIdx);
         }
-        if (c.SHOW() != null) {
-            return execShowOp(sync, mongoCmd, c, request, receive, startArgIdx, conn);
+        if (h.command().SHOW() != null) {
+            return execShowOp(sync, mongoCmd, request, receive, startArgIdx, h);
         }
-        if (c.dbOp() != null) {
-            return execDbOp(sync, mongoCmd, c.databaseName(), c.dbOp(), request, receive, startArgIdx, conn);
+        if (h.command().dbOp() != null) {
+            return execDbOp(sync, mongoCmd, request, receive, startArgIdx, h, conn);
         }
-        if (c.mongoOp() != null) {
-            return execMongoOp(sync, mongoCmd, c.databaseName(), c.collection(), c.mongoOp(), request, receive, startArgIdx, conn);
+        if (h.command().mongoOp() != null) {
+            return execMongoOp(sync, mongoCmd, request, receive, startArgIdx, h, conn);
         }
         throw new SQLException("unknown command.");
     }
 
-    private static Future<?> execShowOp(Future<Object> sync, MongoCmd mongoCmd, MongoParser.CommandContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
-        String target = c.showTarget().getText();
+    private static Future<?> execShowOp(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx, HintCommandContext h) throws SQLException {
+        String target = h.command().showTarget().getText();
         if (StringUtils.equalsIgnoreCase(target, "dbs") || StringUtils.equalsIgnoreCase(target, "databases")) {
-            return MongoCommandsForDB.execShowDbs(sync, mongoCmd, c, request, receive, startArgIdx);
+            return MongoCommandsForDB.execShowDbs(sync, mongoCmd, h, request, receive, startArgIdx);
         }
         if (StringUtils.equalsIgnoreCase(target, "collections") || StringUtils.equalsIgnoreCase(target, "tables")) {
-            return MongoCommandsForCollection.execShowCollections(sync, mongoCmd, c, request, receive, startArgIdx);
+            return MongoCommandsForCollection.execShowCollections(sync, mongoCmd, h, request, receive, startArgIdx);
         }
         if (StringUtils.equalsIgnoreCase(target, "users")) {
-            return MongoCommandsForUser.execShowUsers(sync, mongoCmd, c, request, receive, startArgIdx);
+            return MongoCommandsForUser.execShowUsers(sync, mongoCmd, h, request, receive, startArgIdx);
         }
         if (StringUtils.equalsIgnoreCase(target, "roles")) {
-            return MongoCommandsForUser.execShowRoles(sync, mongoCmd, c, request, receive, startArgIdx, conn);
+            return MongoCommandsForUser.execShowRoles(sync, mongoCmd, h, request, receive, startArgIdx);
         }
         if (StringUtils.equalsIgnoreCase(target, "profile")) {
-            return MongoCommandsForOther.execShowProfile(sync, mongoCmd, c, request, receive, startArgIdx, conn);
+            return MongoCommandsForOther.execShowProfile(sync, mongoCmd, h, request, receive, startArgIdx);
         }
         throw new SQLException("unknown show " + target + " command.");
     }
 
-    private static Future<?> execDbOp(Future<Object> sync, MongoCmd mongoCmd, MongoParser.DatabaseNameContext database, MongoParser.DbOpContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
-        if (c.createCollectionOp() != null) {
-            return MongoCommandsForCollection.execCreateCollection(sync, mongoCmd, database, c.createCollectionOp(), request, receive, startArgIdx);
+    private static Future<?> execDbOp(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx, HintCommandContext h, MongoConn conn) throws SQLException {
+        MongoParser.DatabaseNameContext dbName = h.command().databaseName();
+        MongoParser.DbOpContext dbOp = h.command().dbOp();
+        if (dbOp.createCollectionOp() != null) {
+            return MongoCommandsForCollection.execCreateCollection(sync, mongoCmd, request, receive, startArgIdx, h, dbName, dbOp.createCollectionOp());
         }
-        if (c.getCollectionNamesOp() != null) {
-            return MongoCommandsForCollection.execGetCollectionNames(sync, mongoCmd, database, c.getCollectionNamesOp(), request, receive, startArgIdx);
+        if (dbOp.getCollectionNamesOp() != null) {
+            return MongoCommandsForCollection.execGetCollectionNames(sync, mongoCmd, request, receive, startArgIdx, h, dbName, dbOp.getCollectionNamesOp());
         }
-        if (c.getCollectionInfosOp() != null) {
-            return MongoCommandsForCollection.execGetCollectionInfos(sync, mongoCmd, database, c.getCollectionInfosOp(), request, receive, startArgIdx);
+        if (dbOp.getCollectionInfosOp() != null) {
+            return MongoCommandsForCollection.execGetCollectionInfos(sync, mongoCmd, request, receive, startArgIdx, h, dbName, dbOp.getCollectionInfosOp());
         }
-        if (c.createViewOp() != null) {
-            return MongoCommandsForCollection.execCreateView(sync, mongoCmd, database, c.createViewOp(), request, receive, startArgIdx);
+        if (dbOp.createViewOp() != null) {
+            return MongoCommandsForCollection.execCreateView(sync, mongoCmd, request, receive, startArgIdx, h, dbName, dbOp.createViewOp());
         }
-        if (c.runCommandOp() != null) {
-            return MongoCommandsForOther.execRunCommand(sync, mongoCmd, database, c.runCommandOp(), request, receive, startArgIdx);
+        if (dbOp.runCommandOp() != null) {
+            return MongoCommandsForOther.execRunCommand(sync, mongoCmd, request, receive, startArgIdx, h, dbName, dbOp.runCommandOp());
         }
-        if (c.dropDatabaseOp() != null) {
-            return MongoCommandsForDB.execDropDatabase(sync, mongoCmd, database, c.dropDatabaseOp(), request, receive, startArgIdx);
+        if (dbOp.dropDatabaseOp() != null) {
+            return MongoCommandsForDB.execDropDatabase(sync, mongoCmd, request, receive, startArgIdx, h, dbName, dbOp.dropDatabaseOp());
         }
-        if (c.createUserOp() != null) {
-            return MongoCommandsForUser.execCreateUser(sync, mongoCmd, database, c.createUserOp(), request, receive, startArgIdx);
+        if (dbOp.createUserOp() != null) {
+            return MongoCommandsForUser.execCreateUser(sync, mongoCmd, request, receive, startArgIdx, h, dbName, dbOp.createUserOp());
         }
-        if (c.dropUserOp() != null) {
-            return MongoCommandsForUser.execDropUser(sync, mongoCmd, database, c.dropUserOp(), request, receive, startArgIdx, conn);
+        if (dbOp.dropUserOp() != null) {
+            return MongoCommandsForUser.execDropUser(sync, mongoCmd, request, receive, startArgIdx, h, dbName, dbOp.dropUserOp());
         }
-        if (c.updateUserOp() != null) {
-            return MongoCommandsForUser.execUpdateUser(sync, mongoCmd, database, c.updateUserOp(), request, receive, startArgIdx, conn);
+        if (dbOp.updateUserOp() != null) {
+            return MongoCommandsForUser.execUpdateUser(sync, mongoCmd, request, receive, startArgIdx, h, dbName, dbOp.updateUserOp());
         }
-        if (c.grantRolesToUserOp() != null) {
-            return MongoCommandsForUser.execGrantRolesToUser(sync, mongoCmd, database, c.grantRolesToUserOp(), request, receive, startArgIdx, conn);
+        if (dbOp.grantRolesToUserOp() != null) {
+            return MongoCommandsForUser.execGrantRolesToUser(sync, mongoCmd, request, receive, startArgIdx, h, dbName, dbOp.grantRolesToUserOp());
         }
-        if (c.revokeRolesFromUserOp() != null) {
-            return MongoCommandsForUser.execRevokeRolesFromUser(sync, mongoCmd, database, c.revokeRolesFromUserOp(), request, receive, startArgIdx, conn);
+        if (dbOp.revokeRolesFromUserOp() != null) {
+            return MongoCommandsForUser.execRevokeRolesFromUser(sync, mongoCmd, request, receive, startArgIdx, h, dbName, dbOp.revokeRolesFromUserOp());
         }
-        if (c.changeUserPasswordOp() != null) {
-            return MongoCommandsForUser.execChangeUserPassword(sync, mongoCmd, database, c.changeUserPasswordOp(), request, receive, startArgIdx, conn);
+        if (dbOp.changeUserPasswordOp() != null) {
+            return MongoCommandsForUser.execChangeUserPassword(sync, mongoCmd, request, receive, startArgIdx, h, dbName, dbOp.changeUserPasswordOp());
         }
-        if (c.serverStatusOp() != null) {
-            return MongoCommandsForOther.execServerStatus(sync, mongoCmd, database, c.serverStatusOp(), request, receive, startArgIdx, conn);
+        if (dbOp.serverStatusOp() != null) {
+            return MongoCommandsForOther.execServerStatus(sync, mongoCmd, request, receive, startArgIdx, h, dbName, dbOp.serverStatusOp());
         }
-        if (c.versionOp() != null) {
-            return MongoCommandsForOther.execVersion(sync, mongoCmd, database, c.versionOp(), request, receive, startArgIdx, conn);
+        if (dbOp.versionOp() != null) {
+            return MongoCommandsForOther.execVersion(sync, mongoCmd, request, receive, startArgIdx, h, dbName, dbOp.versionOp());
         }
-        if (c.statsOp() != null) {
-            return MongoCommandsForOther.execStats(sync, mongoCmd, database, c.statsOp(), request, receive, startArgIdx, conn);
+        if (dbOp.statsOp() != null) {
+            return MongoCommandsForOther.execStats(sync, mongoCmd, request, receive, startArgIdx, h, dbName, dbOp.statsOp());
         }
         throw new SQLException("unknown command.");
     }
 
-    private static Future<?> execMongoOp(Future<Object> sync, MongoCmd mongoCmd, MongoParser.DatabaseNameContext database, MongoParser.CollectionContext collection, MongoParser.MongoOpContext c, AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+    private static Future<?> execMongoOp(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx, HintCommandContext h, MongoConn conn) throws SQLException {
+        MongoParser.CommandContext cc = h.command();
+        MongoParser.DatabaseNameContext dbName = cc.databaseName();
+        MongoParser.CollectionContext collName = cc.collection();
+        MongoParser.MongoOpContext c = cc.mongoOp();
         if (c.createIndexOp() != null) {
-            return MongoCommandsForIndex.execCreateIndex(sync, mongoCmd, database, collection, c.createIndexOp(), request, receive, startArgIdx);
+            return MongoCommandsForIndex.execCreateIndex(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.createIndexOp());
         }
         if (c.dropIndexOp() != null) {
-            return MongoCommandsForIndex.execDropIndex(sync, mongoCmd, database, collection, c.dropIndexOp(), request, receive, startArgIdx);
+            return MongoCommandsForIndex.execDropIndex(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.dropIndexOp());
         }
         if (c.getIndexesOp() != null) {
-            return MongoCommandsForIndex.execGetIndexes(sync, mongoCmd, database, collection, c.getIndexesOp(), request, receive, startArgIdx);
+            return MongoCommandsForIndex.execGetIndexes(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.getIndexesOp());
         }
         if (c.insertOp() != null) {
-            return MongoCommandsForCollection.execInsert(sync, mongoCmd, database, collection, c.insertOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execInsert(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.insertOp());
         }
         if (c.removeOp() != null) {
-            return MongoCommandsForCollection.execRemove(sync, mongoCmd, database, collection, c.removeOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execRemove(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.removeOp());
         }
         if (c.updateOp() != null) {
-            return MongoCommandsForCollection.execUpdate(sync, mongoCmd, database, collection, c.updateOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execUpdate(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.updateOp());
         }
         if (c.bulkWriteOp() != null) {
-            return MongoCommandsForCollection.execBulkWrite(sync, mongoCmd, database, collection, c.bulkWriteOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execBulkWrite(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.bulkWriteOp());
         }
         if (c.findOp() != null) {
-            return MongoCommandsForCollection.execFind(sync, mongoCmd, database, collection, c.findOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForCollection.execFind(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.findOp(), conn);
         }
         if (c.countOp() != null) {
-            return MongoCommandsForCollection.execCount(sync, mongoCmd, database, collection, c.countOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execCount(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.countOp());
         }
         if (c.distinctOp() != null) {
-            return MongoCommandsForCollection.execDistinct(sync, mongoCmd, database, collection, c.distinctOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execDistinct(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.distinctOp());
         }
         if (c.aggregateOp() != null) {
-            return MongoCommandsForCollection.execAggregate(sync, mongoCmd, database, collection, c.aggregateOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execAggregate(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.aggregateOp());
         }
         if (c.dropOp() != null) {
-            return MongoCommandsForCollection.execDrop(sync, mongoCmd, database, collection, c.dropOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execDrop(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.dropOp());
         }
         if (c.findOneOp() != null) {
-            return MongoCommandsForCollection.execFindOne(sync, mongoCmd, database, collection, c.findOneOp(), request, receive, startArgIdx, conn);
+            return MongoCommandsForCollection.execFindOne(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.findOneOp(), conn);
         }
         if (c.insertOneOp() != null) {
-            return MongoCommandsForCollection.execInsertOne(sync, mongoCmd, database, collection, c.insertOneOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execInsertOne(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.insertOneOp());
         }
         if (c.insertManyOp() != null) {
-            return MongoCommandsForCollection.execInsertMany(sync, mongoCmd, database, collection, c.insertManyOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execInsertMany(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.insertManyOp());
         }
         if (c.deleteOneOp() != null) {
-            return MongoCommandsForCollection.execDeleteOne(sync, mongoCmd, database, collection, c.deleteOneOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execDeleteOne(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.deleteOneOp());
         }
         if (c.deleteManyOp() != null) {
-            return MongoCommandsForCollection.execDeleteMany(sync, mongoCmd, database, collection, c.deleteManyOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execDeleteMany(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.deleteManyOp());
         }
         if (c.updateOneOp() != null) {
-            return MongoCommandsForCollection.execUpdateOne(sync, mongoCmd, database, collection, c.updateOneOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execUpdateOne(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.updateOneOp());
         }
         if (c.updateManyOp() != null) {
-            return MongoCommandsForCollection.execUpdateMany(sync, mongoCmd, database, collection, c.updateManyOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execUpdateMany(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.updateManyOp());
         }
         if (c.replaceOneOp() != null) {
-            return MongoCommandsForCollection.execReplaceOne(sync, mongoCmd, database, collection, c.replaceOneOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execReplaceOne(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.replaceOneOp());
         }
         if (c.renameCollectionOp() != null) {
-            return MongoCommandsForCollection.execRenameCollection(sync, mongoCmd, database, collection, c.renameCollectionOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execRenameCollection(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.renameCollectionOp());
         }
         if (c.statsOp() != null) {
-            return MongoCommandsForCollection.execStats(sync, mongoCmd, database, collection, c.statsOp(), request, receive, startArgIdx);
+            return MongoCommandsForCollection.execStats(sync, mongoCmd, request, receive, startArgIdx, h, dbName, collName, c.statsOp());
         }
         throw new SQLException("unknown command.");
     }

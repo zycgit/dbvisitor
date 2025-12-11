@@ -1,11 +1,11 @@
 package net.hasor.dbvisitor.adapter.mongo.parser;
 import java.util.ArrayList;
 import java.util.List;
-import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.CommandContext;
+import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.HintCommandContext;
 
 public class MongoArgVisitor extends MongoParserBaseVisitor<Object> {
-    private final List<CommandContext> commandList = new ArrayList<>();
-    private       int                  argCount    = 0;
+    private final List<HintCommandContext> commandList = new ArrayList<>();
+    private       int                      argCount    = 0;
 
     public int getArgCount() {
         return this.argCount;
@@ -16,14 +16,14 @@ public class MongoArgVisitor extends MongoParserBaseVisitor<Object> {
         this.commandList.clear();
     }
 
-    public List<CommandContext> getCommandList() {
+    public List<HintCommandContext> getCommandList() {
         return this.commandList;
     }
 
     @Override
-    public Object visitCommand(MongoParser.CommandContext ctx) {
+    public Object visitHintCommand(HintCommandContext ctx) {
         this.commandList.add(ctx);
-        return super.visitCommand(ctx);
+        return super.visitHintCommand(ctx);
     }
 
     @Override
@@ -32,6 +32,14 @@ public class MongoArgVisitor extends MongoParserBaseVisitor<Object> {
             this.argCount++;
         }
         return super.visitDatabaseName(ctx);
+    }
+
+    @Override
+    public Object visitLiteral(MongoParser.LiteralContext ctx) {
+        if (ctx.ARG() != null) {
+            this.argCount++;
+        }
+        return super.visitLiteral(ctx);
     }
 
     @Override
@@ -50,11 +58,4 @@ public class MongoArgVisitor extends MongoParserBaseVisitor<Object> {
         return super.visitPropertyName(ctx);
     }
 
-    @Override
-    public Object visitLiteral(MongoParser.LiteralContext ctx) {
-        if (ctx.ARG() != null) {
-            this.argCount++;
-        }
-        return super.visitLiteral(ctx);
-    }
 }

@@ -21,16 +21,13 @@ import org.bson.conversions.Bson;
 
 @SuppressWarnings("unchecked")
 class MongoCommandsForIndex extends MongoCommands {
-    public static Future<?> execCreateIndex(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, CreateIndexOpContext c,//
-            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+    public static Future<?> execCreateIndex(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
+            HintCommandContext h, DatabaseNameContext database, CollectionContext collection, CreateIndexOpContext c) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        Map<String, Object> hint = readHints(argIndex, request, h.hint());
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
         String collName = argAsCollectionName(argIndex, request, collection);
-
-        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
-        MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
-        MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
-        List<Object> args = (List<Object>) visitor.visit(c.arguments());
+        List<Object> args = (List<Object>) new MongoBsonVisitor(request, argIndex).visit(c.arguments());
 
         Bson keys = (Bson) toObjBson(args.get(0));
         IndexOptions options = new IndexOptions();
@@ -130,23 +127,25 @@ class MongoCommandsForIndex extends MongoCommands {
             throw new SQLException("The index name must be specified.");
         }
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
+        MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
         mongoColl.createIndex(keys, options);
         receive.responseUpdateCount(request, 0);
         return completed(sync);
     }
 
-    public static Future<?> execDropIndex(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, DropIndexOpContext c,//
-            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+    public static Future<?> execDropIndex(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
+            HintCommandContext h, DatabaseNameContext database, CollectionContext collection, DropIndexOpContext c) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        Map<String, Object> hint = readHints(argIndex, request, h.hint());
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
         String collName = argAsCollectionName(argIndex, request, collection);
+        List<Object> args = (List<Object>) new MongoBsonVisitor(request, argIndex).visit(c.arguments());
+
+        Object index = args.get(0);
 
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
-        MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
-        List<Object> args = (List<Object>) visitor.visit(c.arguments());
-
-        Object index = args.get(0);
         if (index instanceof String) {
             try {
                 mongoColl.dropIndex((Bson) toObjBson(index));
@@ -161,9 +160,10 @@ class MongoCommandsForIndex extends MongoCommands {
         return completed(sync);
     }
 
-    public static Future<?> execGetIndexes(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CollectionContext collection, GetIndexesOpContext c,//
-            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+    public static Future<?> execGetIndexes(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
+            HintCommandContext h, DatabaseNameContext database, CollectionContext collection, GetIndexesOpContext c) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        Map<String, Object> hint = readHints(argIndex, request, h.hint());
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
         String collName = argAsCollectionName(argIndex, request, collection);
 

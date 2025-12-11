@@ -1,2 +1,4 @@
 db.users.find({ "age": { "$gt": 18 } });
 db.orders.insert({ "item": "card", "qty": 15 });
+/*+abc=?,abc=null;abc=aaa*/ db.ccc.drop();
+/*+abc=?,abc=null;abc=aaa*//*+abc=?,abc=null;abc=aaa*/ db.ccc.drop();

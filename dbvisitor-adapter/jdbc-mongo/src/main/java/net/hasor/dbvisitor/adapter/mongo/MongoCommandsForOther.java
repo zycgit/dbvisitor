@@ -1,6 +1,8 @@
 package net.hasor.dbvisitor.adapter.mongo;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -15,35 +17,25 @@ import net.hasor.dbvisitor.driver.AdapterResultCursor;
 import org.bson.Document;
 
 class MongoCommandsForOther extends MongoCommands {
-    public static Future<?> execRunCommand(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, RunCommandOpContext c, //
-            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+    public static Future<?> execRunCommand(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
+            HintCommandContext h, DatabaseNameContext database, RunCommandOpContext c) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String dbName;
-        if (database != null) {
-            dbName = argAsDbName(argIndex, request, database, mongoCmd);
-        } else {
-            dbName = mongoCmd.getCatalog();
-        }
-        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
+        Map<String, Object> hint = readHints(argIndex, request, h.hint());
+        String dbName = argAsDbName(argIndex, request, database, mongoCmd);
+        List<Object> args = (List<Object>) new MongoBsonVisitor(request, argIndex).visit(c.arguments());
 
-        MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
-        Object args = visitor.visit(c.arguments());
+        if (args == null || args.isEmpty()) {
+            throw new SQLException("runCommand requires at least one argument");
+        }
         Document command;
-        if (args instanceof java.util.List) {
-            java.util.List<?> list = (java.util.List<?>) args;
-            if (list.isEmpty()) {
-                throw new SQLException("runCommand requires at least one argument");
-            }
-            Object firstArg = toObjBson(list.get(0));
-            if (firstArg instanceof Document) {
-                command = (Document) firstArg;
-            } else {
-                throw new SQLException("runCommand argument must be a Document, got " + (firstArg == null ? "null" : firstArg.getClass().getName()));
-            }
+        Object firstArg = toObjBson(args.get(0));
+        if (firstArg instanceof Document) {
+            command = (Document) firstArg;
         } else {
-            throw new SQLException("Unexpected return type from visitor: " + (args == null ? "null" : args.getClass().getName()));
+            throw new SQLException("runCommand argument must be a Document, got " + (firstArg == null ? "null" : firstArg.getClass().getName()));
         }
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         Document result = mongoDB.runCommand(command);
         AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_ID_STRING, COL_JSON_STRING));
         cursor.pushData(CollectionUtils.asMap(COL_ID_STRING.name, hexObjectId(result), COL_JSON_STRING.name, result.toJson()));
@@ -53,9 +45,10 @@ class MongoCommandsForOther extends MongoCommands {
         return completed(sync);
     }
 
-    public static Future<?> execShowProfile(Future<Object> sync, MongoCmd mongoCmd, CommandContext c, AdapterRequest request, //
-            AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+    public static Future<?> execShowProfile(Future<Object> sync, MongoCmd mongoCmd, HintCommandContext c, AdapterRequest request, //
+            AdapterReceive receive, int startArgIdx) throws SQLException {
         String dbName = mongoCmd.getCatalog();
+
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         MongoCollection<Document> collection = mongoDB.getCollection("system.profile");
 
@@ -74,17 +67,13 @@ class MongoCommandsForOther extends MongoCommands {
         return completed(sync);
     }
 
-    public static Future<?> execServerStatus(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, ServerStatusOpContext c,//
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+    public static Future<?> execServerStatus(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
+            HintCommandContext h, DatabaseNameContext database, ServerStatusOpContext c) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String dbName;
-        if (database != null) {
-            dbName = argAsDbName(argIndex, request, database, mongoCmd);
-        } else {
-            dbName = mongoCmd.getCatalog();
-        }
-        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
+        Map<String, Object> hint = readHints(argIndex, request, h.hint());
+        String dbName = argAsDbName(argIndex, request, database, mongoCmd);
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         Document result = mongoDB.runCommand(new Document("serverStatus", 1));
         AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_ID_STRING, COL_JSON_STRING));
         cursor.pushData(CollectionUtils.asMap(COL_ID_STRING.name, hexObjectId(result), COL_JSON_STRING.name, result.toJson()));
@@ -94,18 +83,15 @@ class MongoCommandsForOther extends MongoCommands {
         return completed(sync);
     }
 
-    public static Future<?> execVersion(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, VersionOpContext c, //
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+    public static Future<?> execVersion(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
+            HintCommandContext h, DatabaseNameContext database, VersionOpContext c) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String dbName;
-        if (database != null) {
-            dbName = argAsDbName(argIndex, request, database, mongoCmd);
-        } else {
-            dbName = mongoCmd.getCatalog();
-        }
-        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
+        Map<String, Object> hint = readHints(argIndex, request, h.hint());
+        String dbName = argAsDbName(argIndex, request, database, mongoCmd);
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         Document result = mongoDB.runCommand(new Document("buildInfo", 1));
+
         AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_ID_STRING, COL_JSON_STRING));
         cursor.pushData(CollectionUtils.asMap(COL_ID_STRING.name, hexObjectId(result), COL_JSON_STRING.name, result.toJson()));
         cursor.pushFinish();
@@ -114,18 +100,15 @@ class MongoCommandsForOther extends MongoCommands {
         return completed(sync);
     }
 
-    public static Future<?> execStats(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, StatsOpContext c, //
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+    public static Future<?> execStats(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
+            HintCommandContext h, DatabaseNameContext database, StatsOpContext c) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        String dbName;
-        if (database != null) {
-            dbName = argAsDbName(argIndex, request, database, mongoCmd);
-        } else {
-            dbName = mongoCmd.getCatalog();
-        }
-        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
+        Map<String, Object> hint = readHints(argIndex, request, h.hint());
+        String dbName = argAsDbName(argIndex, request, database, mongoCmd);
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         Document result = mongoDB.runCommand(new Document("dbStats", 1));
+
         AdapterResultCursor cursor = new AdapterResultCursor(request, Arrays.asList(COL_ID_STRING, COL_JSON_STRING));
         cursor.pushData(CollectionUtils.asMap(COL_ID_STRING.name, hexObjectId(result), COL_JSON_STRING.name, result.toJson()));
         cursor.pushFinish();

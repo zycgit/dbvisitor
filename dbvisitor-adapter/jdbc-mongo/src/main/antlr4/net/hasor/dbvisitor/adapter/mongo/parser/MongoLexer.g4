@@ -1,8 +1,12 @@
 lexer grammar MongoLexer;
 
+// hint
+HintCommentStart  : '/*+';
+HintCommentEnd    : '*/';
 // Comments
 SingleLineComment : '//' ~[\r\n\u2028\u2029]* -> skip;
-MultiLineComment  : '/*' .*? '*/'             -> skip;
+MultiLineComment  : '/*'                      -> pushMode(COMMENT_EXIT);
+
 
 // Whitespace
 WHITESPACE     : [ \t] -> skip;
@@ -58,24 +62,22 @@ TRUE    : 'true';
 FALSE   : 'false';
 
 // Comparison
-EQ : '$eq';
-GT : '$gt';
+EQ  : '$eq';
+GT  : '$gt';
 GTE : '$gte';
-IN : '$in';
-LT : '$lt';
+IN  : '$in';
+LT  : '$lt';
 LTE : '$lte';
-NE : '$ne';
+NE  : '$ne';
 NIN : '$nin';
-
-// Logical
 AND : '$and';
 NOT : '$not';
 NOR : '$nor';
-OR : '$or';
+OR  : '$or';
 
 // Element
 EXISTS : '$exists';
-TYPE : '$type';
+TYPE   : '$type';
 
 // Evaluation
 EXPR : '$expr';
@@ -98,47 +100,47 @@ NEAR_SPHERE : '$nearSphere';
 
 // Update
 CURRENT_DATE : '$currentDate';
-INC : '$inc';
-MIN : '$min';
-MAX : '$max';
-MUL : '$mul';
-RENAME : '$rename';
-SET : '$set';
-SET_ON_INSERT : '$setOnInsert';
-UNSET : '$unset';
+INC          : '$inc';
+MIN          : '$min';
+MAX          : '$max';
+MUL          : '$mul';
+RENAME       : '$rename';
+SET          : '$set';
+SET_ON_INSERT: '$setOnInsert';
+UNSET        : '$unset';
 
 // Aggregation Stages
-MATCH : '$match';
-GROUP : '$group';
-PROJECT : '$project';
-DOLLAR_SORT : '$sort';
+MATCH        : '$match';
+GROUP        : '$group';
+PROJECT      : '$project';
+DOLLAR_SORT  : '$sort';
 DOLLAR_LIMIT : '$limit';
-DOLLAR_SKIP : '$skip';
+DOLLAR_SKIP  : '$skip';
 DOLLAR_COUNT : '$count';
-UNWIND : '$unwind';
-LOOKUP : '$lookup';
-OUT : '$out';
-ADD_FIELDS : '$addFields';
+UNWIND       : '$unwind';
+LOOKUP       : '$lookup';
+OUT          : '$out';
+ADD_FIELDS   : '$addFields';
 REPLACE_ROOT : '$replaceRoot';
-SAMPLE : '$sample';
-SUM : '$sum';
+SAMPLE       : '$sample';
+SUM          : '$sum';
 
 // BSON Types
-OBJECT_ID : 'ObjectId';
-ISO_DATE : 'ISODate';
-NUMBER_INT : 'NumberInt';
-NUMBER_LONG : 'NumberLong';
+OBJECT_ID      : 'ObjectId';
+ISO_DATE       : 'ISODate';
+NUMBER_INT     : 'NumberInt';
+NUMBER_LONG    : 'NumberLong';
 NUMBER_DECIMAL : 'NumberDecimal';
-TIMESTAMP : 'Timestamp';
-BIN_DATA : 'BinData';
-UUID : 'UUID';
-MIN_KEY : 'MinKey';
-MAX_KEY : 'MaxKey';
-DB_REF : 'DBRef';
-CODE : 'Code';
-NEW : 'new';
-DATE : 'Date';
-REG_EXP : 'RegExp';
+TIMESTAMP      : 'Timestamp';
+BIN_DATA       : 'BinData';
+UUID           : 'UUID';
+MIN_KEY        : 'MinKey';
+MAX_KEY        : 'MaxKey';
+DB_REF         : 'DBRef';
+CODE           : 'Code';
+NEW            : 'new';
+DATE           : 'Date';
+REG_EXP        : 'RegExp';
 
 // Symbols
 OPEN_PARENTHESIS    : '(';
@@ -148,6 +150,7 @@ CLOSED_BRACE        : '}';
 OPEN_BRACKET        : '[';
 CLOSED_BRACKET      : ']';
 COMMA               : ',';
+ASS                 : '=';
 COLON               : ':';
 SEMICOLON           : ';';
 DOT                 : '.';
@@ -181,7 +184,10 @@ fragment DecimalDigit
 
 // Generic String (Identifier-like)
 // Must be after keywords and specific literals
-STRING_LITERAL: ((~[",\\ \t\n\r:.;(){}[\]\-?]) | STRING_ESCAPE )+;
+STRING_LITERAL: ((~[",\\ \t\n\r:.;(){}[\]\-?=*]) | STRING_ESCAPE )+;
 
 fragment STRING_ESCAPE: '\\' [\\"'];
 
+mode COMMENT_EXIT;
+CLOS_TAG    : '*/' -> popMode;
+ANY         : (.)+? -> skip;

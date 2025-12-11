@@ -8,6 +8,7 @@ import com.mongodb.client.model.*;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
+import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.CollectionContext;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.DatabaseNameContext;
 import net.hasor.dbvisitor.driver.*;
@@ -53,6 +54,62 @@ abstract class MongoCommands {
         } else {
             return jdbcArg.getValue();
         }
+    }
+
+    protected static Map<String, Object> readHints(AtomicInteger argIndex, AdapterRequest request, List<MongoParser.HintContext> hint) throws SQLException {
+        Map<String, Object> hintMap = new LinkedHashMap<>();
+        if (hint == null || hint.isEmpty()) {
+            return hintMap;
+        }
+
+        for (MongoParser.HintContext ctx : hint) {
+            if (ctx == null || ctx.hints() == null) {
+                continue;
+            }
+            for (MongoParser.HintItContext it : ctx.hints().hintIt()) {
+                String key = getIdentifier(it.name.getText());
+                MongoParser.HintValueContext valCtx = it.value;
+                Object value = null;
+
+                if (valCtx.literal() != null) {
+                    value = parseLiteral(valCtx.literal(), argIndex, request);
+                } else if (valCtx.identifier() != null) {
+                    value = getIdentifier(valCtx.identifier().getText());
+                }
+
+                hintMap.put(key, value);
+            }
+        }
+        return hintMap;
+    }
+
+    private static Object parseLiteral(MongoParser.LiteralContext ctx, AtomicInteger argIndex, AdapterRequest request) throws SQLException {
+        if (ctx == null) {
+            return null;
+        }
+        if (ctx.ARG() != null) {
+            return getArg(argIndex, request);
+        }
+        if (ctx.NUMERIC_LITERAL() != null) {
+            String text = ctx.NUMERIC_LITERAL().getText();
+            if (text.contains(".") || text.contains("e") || text.contains("E")) {
+                return Double.parseDouble(text);
+            }
+            return Long.parseLong(text);
+        }
+        if (ctx.DOUBLE_QUOTED_STRING_LITERAL() != null || ctx.SINGLE_QUOTED_STRING_LITERAL() != null) {
+            return getIdentifier(ctx.getText());
+        }
+        if (ctx.TRUE() != null) {
+            return Boolean.TRUE;
+        }
+        if (ctx.FALSE() != null) {
+            return Boolean.FALSE;
+        }
+        if (ctx.NULL() != null) {
+            return null;
+        }
+        return ctx.getText();
     }
 
     protected static String getIdentifier(String nodeText) {
@@ -199,6 +256,10 @@ abstract class MongoCommands {
     }
 
     protected static AdapterResultCursor listResult(AdapterRequest request, JdbcColumn col, Map<Integer, BsonValue> result, int count) throws SQLException {
+        if (result == null) {
+            return null;
+        }
+
         AdapterResultCursor receiveCur = new AdapterResultCursor(request, Collections.singletonList(col));
         for (int i = 0; i < count; i++) {
             BsonValue bsonValue = result.get(i);

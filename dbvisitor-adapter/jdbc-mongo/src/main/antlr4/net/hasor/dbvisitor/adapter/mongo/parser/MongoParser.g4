@@ -6,7 +6,14 @@ mongoCommands
 	: commands EOF
 	;
 
-commands: (command | SEMICOLON)+;
+commands: ( hintCommand | SEMICOLON)+;
+
+hintCommand : hint* command;
+
+hint: HintCommentStart hints? HintCommentEnd;
+hints : hintIt ((COMMA | SEMICOLON)  hintIt)*;
+hintIt: name = identifier ASS value = hintValue;
+hintValue: identifier | literal;
 
 command
 	: (databaseName DOT)? dbOp SEMICOLON?

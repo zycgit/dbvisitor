@@ -17,9 +17,10 @@ import org.bson.Document;
 
 @SuppressWarnings("unchecked")
 class MongoCommandsForUser extends MongoCommands {
-    public static Future<?> execShowUsers(Future<Object> sync, MongoCmd mongoCmd, CommandContext c,//
+    public static Future<?> execShowUsers(Future<Object> sync, MongoCmd mongoCmd, HintCommandContext c,//
             AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         String dbName = mongoCmd.getCatalog();
+
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         Document command = new Document("usersInfo", 1);
         Document result = mongoDB.runCommand(command);
@@ -51,19 +52,17 @@ class MongoCommandsForUser extends MongoCommands {
         return completed(sync);
     }
 
-    public static Future<?> execCreateUser(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, CreateUserOpContext c, //
-            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
+    public static Future<?> execCreateUser(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
+            HintCommandContext h, DatabaseNameContext database, CreateUserOpContext c) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        Map<String, Object> hint = readHints(argIndex, request, h.hint());
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
-        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
+        List<Object> args = (List<Object>) new MongoBsonVisitor(request, argIndex).visit(c.arguments());
 
-        MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
-        List<Object> args = (List<Object>) visitor.visit(c.arguments());
         String username = (String) args.get(0);
         String password = (String) args.get(1);
-        List<?> roles = (List<?>) toArrayBson(args.get(2));
-        Map<String, Object> options = args.size() > 3 ? (Map<String, Object>) toObjBson(args.get(3)) : null;
-
+        List<?> roles = toArrayBson(args.get(2));
+        Map<String, Object> options = args.size() > 3 ? toObjBson(args.get(3)) : null;
         Document command = new Document("createUser", username);
         command.put("pwd", password);
         command.put("roles", roles);
@@ -80,39 +79,37 @@ class MongoCommandsForUser extends MongoCommands {
             command.putAll(options);
         }
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         mongoDB.runCommand(command);
         receive.responseUpdateCount(request, 0);
         return completed(sync);
     }
 
-    public static Future<?> execDropUser(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, DropUserOpContext c,//
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+    public static Future<?> execDropUser(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
+            HintCommandContext h, DatabaseNameContext database, DropUserOpContext c) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        Map<String, Object> hint = readHints(argIndex, request, h.hint());
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
-        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
-
-        MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
-        List<Object> args = (List<Object>) visitor.visit(c.arguments());
+        List<Object> args = (List<Object>) new MongoBsonVisitor(request, argIndex).visit(c.arguments());
 
         String username = (String) args.get(0);
         Document command = new Document("dropUser", username);
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         mongoDB.runCommand(command);
         receive.responseUpdateCount(request, 0);
         return completed(sync);
     }
 
-    public static Future<?> execUpdateUser(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, UpdateUserOpContext c,//
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+    public static Future<?> execUpdateUser(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
+            HintCommandContext h, DatabaseNameContext database, UpdateUserOpContext c) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        Map<String, Object> hint = readHints(argIndex, request, h.hint());
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
-        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
-
-        MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
-        List<Object> args = (List<Object>) visitor.visit(c.arguments());
+        List<Object> args = (List<Object>) new MongoBsonVisitor(request, argIndex).visit(c.arguments());
 
         String username = (String) args.get(0);
-        Map<String, Object> update = (Map<String, Object>) toObjBson(args.get(1));
+        Map<String, Object> update = toObjBson(args.get(1));
 
         Document command = new Document("updateUser", username);
         if (update.containsKey("pwd")) {
@@ -132,33 +129,35 @@ class MongoCommandsForUser extends MongoCommands {
         }
         command.putAll(update);
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         mongoDB.runCommand(command);
         receive.responseUpdateCount(request, 0);
         return completed(sync);
     }
 
-    public static Future<?> execChangeUserPassword(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, ChangeUserPasswordOpContext c, //
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+    public static Future<?> execChangeUserPassword(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
+            HintCommandContext h, DatabaseNameContext database, ChangeUserPasswordOpContext c) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        Map<String, Object> hint = readHints(argIndex, request, h.hint());
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
-        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
+        List<Object> args = (List<Object>) new MongoBsonVisitor(request, argIndex).visit(c.arguments());
 
-        MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
-        List<Object> args = (List<Object>) visitor.visit(c.arguments());
         String username = (String) args.get(0);
         String password = (String) args.get(1);
 
         Document command = new Document("updateUser", username);
         command.put("pwd", password);
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         mongoDB.runCommand(command);
         receive.responseUpdateCount(request, 0);
         return completed(sync);
     }
 
-    public static Future<?> execShowRoles(Future<Object> sync, MongoCmd mongoCmd, CommandContext c, //
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+    public static Future<?> execShowRoles(Future<Object> sync, MongoCmd mongoCmd, HintCommandContext c, //
+            AdapterRequest request, AdapterReceive receive, int startArgIdx) throws SQLException {
         String dbName = mongoCmd.getCatalog();
+
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         Document command = new Document("rolesInfo", 1);
         Document result = mongoDB.runCommand(command);
@@ -191,41 +190,39 @@ class MongoCommandsForUser extends MongoCommands {
         return completed(sync);
     }
 
-    public static Future<?> execGrantRolesToUser(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, GrantRolesToUserOpContext c,//
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+    public static Future<?> execGrantRolesToUser(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
+            HintCommandContext h, DatabaseNameContext database, GrantRolesToUserOpContext c) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        Map<String, Object> hint = readHints(argIndex, request, h.hint());
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
-        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
-
-        MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
-        List<Object> args = (List<Object>) visitor.visit(c.arguments());
+        List<Object> args = (List<Object>) new MongoBsonVisitor(request, argIndex).visit(c.arguments());
 
         String username = (String) args.get(0);
-        List<?> roles = (List<?>) toArrayBson(args.get(1));
+        List<?> roles = toArrayBson(args.get(1));
 
         Document command = new Document("grantRolesToUser", username);
         command.put("roles", roles);
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         mongoDB.runCommand(command);
         receive.responseUpdateCount(request, 0);
         return completed(sync);
     }
 
-    public static Future<?> execRevokeRolesFromUser(Future<Object> sync, MongoCmd mongoCmd, DatabaseNameContext database, RevokeRolesFromUserOpContext c,//
-            AdapterRequest request, AdapterReceive receive, int startArgIdx, MongoConn conn) throws SQLException {
+    public static Future<?> execRevokeRolesFromUser(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
+            HintCommandContext h, DatabaseNameContext database, RevokeRolesFromUserOpContext c) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        Map<String, Object> hint = readHints(argIndex, request, h.hint());
         String dbName = argAsDbName(argIndex, request, database, mongoCmd);
-        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
-
-        MongoBsonVisitor visitor = new MongoBsonVisitor(request, argIndex);
-        List<Object> args = (List<Object>) visitor.visit(c.arguments());
+        List<Object> args = (List<Object>) new MongoBsonVisitor(request, argIndex).visit(c.arguments());
 
         String username = (String) args.get(0);
-        List<?> roles = (List<?>) toArrayBson(args.get(1));
+        List<?> roles = toArrayBson(args.get(1));
 
         Document command = new Document("revokeRolesFromUser", username);
         command.put("roles", roles);
 
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         mongoDB.runCommand(command);
         receive.responseUpdateCount(request, 0);
         return completed(sync);
