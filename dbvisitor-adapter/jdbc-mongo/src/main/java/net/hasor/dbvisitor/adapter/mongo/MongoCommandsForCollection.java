@@ -449,24 +449,6 @@ class MongoCommandsForCollection extends MongoCommands {
         return completed(sync);
     }
 
-    public static Future<?> execCount(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
-            HintCommandContext h, DatabaseNameContext database, CollectionContext collection, CountOpContext c) throws SQLException {
-        AtomicInteger argIndex = new AtomicInteger(startArgIdx);
-        Map<String, Object> hint = readHints(argIndex, request, h.hint());
-        String dbName = argAsDbName(argIndex, request, database, mongoCmd);
-        String collName = argAsCollectionName(argIndex, request, collection);
-        List<Object> args = (List<Object>) new MongoBsonVisitor(request, argIndex).visit(c.arguments());
-
-        Bson filter = (!args.isEmpty()) ? (Bson) args.get(0) : new Document();
-
-        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
-        MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
-        long count = mongoColl.countDocuments(filter);
-
-        receive.responseResult(request, singleResult(request, COL_COUNT_LONG, count));
-        return completed(sync);
-    }
-
     public static Future<?> execDistinct(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
             HintCommandContext h, DatabaseNameContext database, CollectionContext collection, DistinctOpContext c) throws SQLException {
         AtomicInteger argIndex = new AtomicInteger(startArgIdx);
@@ -504,6 +486,13 @@ class MongoCommandsForCollection extends MongoCommands {
             it.projection(projection);
         }
 
+        if (hint.containsKey("override_find_limit")) {
+            it.limit(((Number) hint.get("override_find_limit")).intValue());
+        }
+        if (hint.containsKey("override_find_skip")) {
+            it.skip(((Number) hint.get("override_find_skip")).intValue());
+        }
+
         if (((MongoRequest) request).isPreRead()) {
             try (MongoResultBuffer buffer = new MongoResultBuffer(conn.getPreReadThreshold(), conn.getPreReadMaxFileSize(), conn.getPreReadCacheDir())) {
                 return execFindWithPreRead(sync, request, receive, buffer, it);
@@ -529,6 +518,14 @@ class MongoCommandsForCollection extends MongoCommands {
 
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
+
+        if (hint.containsKey("override_find_as_count")) {
+            long count = mongoColl.countDocuments(filter);
+
+            receive.responseResult(request, singleResult(request, COL_COUNT_LONG, count));
+            return completed(sync);
+        }
+
         FindIterable<Document> it = mongoColl.find(filter);
         if (projection != null) {
             it.projection(projection);
@@ -552,6 +549,13 @@ class MongoCommandsForCollection extends MongoCommands {
                     throw new SQLException("unknown method call: " + method.getText());
                 }
             }
+        }
+
+        if (hint.containsKey("override_find_limit")) {
+            it.limit(((Number) hint.get("override_find_limit")).intValue());
+        }
+        if (hint.containsKey("override_find_skip")) {
+            it.skip(((Number) hint.get("override_find_skip")).intValue());
         }
 
         if (((MongoRequest) request).isPreRead()) {
@@ -618,6 +622,24 @@ class MongoCommandsForCollection extends MongoCommands {
         }
         cursor.pushFinish();
         receive.responseResult(request, cursor);
+        return completed(sync);
+    }
+
+    public static Future<?> execCount(Future<Object> sync, MongoCmd mongoCmd, AdapterRequest request, AdapterReceive receive, int startArgIdx,//
+            HintCommandContext h, DatabaseNameContext database, CollectionContext collection, CountOpContext c) throws SQLException {
+        AtomicInteger argIndex = new AtomicInteger(startArgIdx);
+        Map<String, Object> hint = readHints(argIndex, request, h.hint());
+        String dbName = argAsDbName(argIndex, request, database, mongoCmd);
+        String collName = argAsCollectionName(argIndex, request, collection);
+        List<Object> args = (List<Object>) new MongoBsonVisitor(request, argIndex).visit(c.arguments());
+
+        Bson filter = (!args.isEmpty()) ? (Bson) args.get(0) : new Document();
+
+        MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
+        MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
+        long count = mongoColl.countDocuments(filter);
+
+        receive.responseResult(request, singleResult(request, COL_COUNT_LONG, count));
         return completed(sync);
     }
 

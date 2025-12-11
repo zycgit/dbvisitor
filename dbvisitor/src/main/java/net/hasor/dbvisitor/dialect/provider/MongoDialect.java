@@ -18,7 +18,9 @@ package net.hasor.dbvisitor.dialect.provider;
 import java.util.Collections;
 import java.util.Set;
 import net.hasor.cobble.StringUtils;
+import net.hasor.dbvisitor.dialect.BoundSql;
 import net.hasor.dbvisitor.dialect.ConditionSqlDialect;
+import net.hasor.dbvisitor.dialect.PageSqlDialect;
 import net.hasor.dbvisitor.dialect.builder.CommandBuilder;
 import net.hasor.dbvisitor.dialect.builder.MongoCommandBuilder;
 
@@ -27,7 +29,7 @@ import net.hasor.dbvisitor.dialect.builder.MongoCommandBuilder;
  * @author 赵永春 (zyc@hasor.net)
  * @version 2025-12-07
  */
-public class MongoDialect extends AbstractDialect implements ConditionSqlDialect {
+public class MongoDialect extends AbstractDialect implements PageSqlDialect, ConditionSqlDialect {
     public Set<String> keywords() {
         return Collections.emptySet();
     }
@@ -78,30 +80,45 @@ public class MongoDialect extends AbstractDialect implements ConditionSqlDialect
         }
 
         String strVal = value == null ? "" : value.toString();
-        String regexVal = escapeRegex(strVal);
-
         switch (likeType) {
             case LEFT:
-                return regexVal + "$";
+                return escapeRegex("^", strVal, "");
             case RIGHT:
-                return "^" + regexVal;
+                return escapeRegex("", strVal, "$");
             default:
-                return regexVal;
+                return escapeRegex("", strVal, "");
         }
     }
 
-    private String escapeRegex(String input) {
+    private String escapeRegex(String begin, String input, String end) {
         if (input == null) {
             return "";
         }
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < input.length(); i++) {
-            char c = input.charAt(i);
-            if ("^$()*+?.[\\]{}|\\".indexOf(c) != -1) {
-                sb.append('\\');
-            }
-            sb.append(c);
+        if (!begin.isEmpty() && !StringUtils.startsWith(input, begin)) {
+            input = begin + input;
         }
-        return sb.toString();
+        if (!begin.isEmpty() && !StringUtils.endsWith(input, end)) {
+            input = input + end;
+        }
+        return input;
+    }
+
+    @Override
+    public BoundSql countSql(BoundSql boundSql) {
+        return new BoundSql.BoundSqlObj("/*+override_find_as_count*/" + boundSql.getSqlString(), boundSql.getArgs());
+    }
+
+    @Override
+    public BoundSql pageSql(BoundSql boundSql, long start, long limit) {
+        StringBuilder sqlBuilder = new StringBuilder("/*+");
+
+        if (start <= 0) {
+            sqlBuilder.append("override_find_limit=" + limit);
+        } else {
+            sqlBuilder.append("override_find_skip=" + start + ",override_find_limit=" + limit);
+        }
+
+        sqlBuilder.append("*/");
+        return new BoundSql.BoundSqlObj(sqlBuilder + boundSql.getSqlString(), boundSql.getArgs());
     }
 }

@@ -26,6 +26,15 @@ public class MongoCommandInterceptor implements InvocationHandler {
         Class<?> declaringClass = method.getDeclaringClass();
         InvocationHandler interceptor = interceptorList.get(declaringClass);
         if (interceptor == null) {
+            for (Map.Entry<Class<?>, InvocationHandler> entry : interceptorList.entrySet()) {
+                if (declaringClass.isAssignableFrom(entry.getKey())) {
+                    interceptor = entry.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (interceptor == null) {
             try {
                 return method.invoke(proxy, args);
             } catch (InvocationTargetException e) {

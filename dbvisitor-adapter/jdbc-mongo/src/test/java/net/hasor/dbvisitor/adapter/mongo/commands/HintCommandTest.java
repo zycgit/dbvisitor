@@ -73,7 +73,7 @@ public class HintCommandTest extends AbstractJdbcTest {
 
         // Two hint blocks, each with a single placeholder; then db and collection placeholders
         try (Connection conn = redisConnection(); Statement stmt = conn.createStatement();
-                PreparedStatement ps = conn.prepareStatement("/*+abc1=?,abc2=null;abc3=aaa*//*+abc4=?,abc5=null;abc6=bb*/ ?.ccc.drop();")) {
+                PreparedStatement ps = conn.prepareStatement("/*+abc=?,abc=null;abc=aaa*//*+abc=?,abc=null;abc=aaa*/ ?.ccc.drop();")) {
             stmt.execute("use mydb");
             ps.setString(1, "hint1");
             ps.setString(2, "hint2");

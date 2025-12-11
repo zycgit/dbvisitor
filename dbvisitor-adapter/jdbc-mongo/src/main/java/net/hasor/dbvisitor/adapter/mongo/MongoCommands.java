@@ -8,6 +8,7 @@ import com.mongodb.client.model.*;
 import net.hasor.cobble.CollectionUtils;
 import net.hasor.cobble.StringUtils;
 import net.hasor.cobble.concurrent.future.Future;
+import net.hasor.cobble.ref.LinkedCaseInsensitiveMap;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.CollectionContext;
 import net.hasor.dbvisitor.adapter.mongo.parser.MongoParser.DatabaseNameContext;
@@ -57,7 +58,7 @@ abstract class MongoCommands {
     }
 
     protected static Map<String, Object> readHints(AtomicInteger argIndex, AdapterRequest request, List<MongoParser.HintContext> hint) throws SQLException {
-        Map<String, Object> hintMap = new LinkedHashMap<>();
+        Map<String, Object> hintMap = new LinkedCaseInsensitiveMap<>();
         if (hint == null || hint.isEmpty()) {
             return hintMap;
         }
@@ -71,10 +72,12 @@ abstract class MongoCommands {
                 MongoParser.HintValueContext valCtx = it.value;
                 Object value = null;
 
-                if (valCtx.literal() != null) {
-                    value = parseLiteral(valCtx.literal(), argIndex, request);
-                } else if (valCtx.identifier() != null) {
-                    value = getIdentifier(valCtx.identifier().getText());
+                if (valCtx != null) {
+                    if (valCtx.literal() != null) {
+                        value = parseLiteral(valCtx.literal(), argIndex, request);
+                    } else if (valCtx.identifier() != null) {
+                        value = getIdentifier(valCtx.identifier().getText());
+                    }
                 }
 
                 hintMap.put(key, value);
