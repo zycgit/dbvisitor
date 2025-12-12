@@ -96,6 +96,11 @@ public class MapMappingResultSetExtractor extends AbstractMapping<Map<String, Ob
             String column = columns.get(i);
 
             List<ColumnMapping> list = this.tableMapping.getPropertyByColumn(column);
+            if (list == null || list.isEmpty()) {
+                Object result = rs.getObject(column);
+                target.put(column, result);
+                continue;
+            }
             for (ColumnMapping mapping : list) {
                 if (mapping == null || mapping.getHandler().isReadOnly()) {
                     continue;
