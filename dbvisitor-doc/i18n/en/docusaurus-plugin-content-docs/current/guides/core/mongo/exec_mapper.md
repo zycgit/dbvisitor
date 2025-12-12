@@ -15,10 +15,6 @@ description: 介绍如何使用 BaseMapper 接口简化 MongoDB 的 CRUD 操作�
 定义一个接口继承 `BaseMapper<T>`，其中 `T` 是你的实体类。并使用 `@SimpleMapper` 注解标记该接口。
 
 ```java title='定义 Mapper 接口'
-import net.hasor.dbvisitor.mapper.BaseMapper;
-import net.hasor.dbvisitor.mapper.SimpleMapper;
-import net.hasor.scene.mongodb.dto1.UserInfo;
-
 @SimpleMapper
 public interface UserInfoMapper extends BaseMapper<UserInfo> {
     // 可以在此添加自定义的 Mapper 方法

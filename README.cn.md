@@ -34,7 +34,8 @@
 dbVisitor 是建立在 JDBC 基础之上，它改进了 JDBC 低级接口提供更加自然的 API。主要包含如下三个部分：
 - dbvisitor，是核心模块，提供统一的数据库访问 API。
 - dbvisitor-integration，是 dbVisitor 与主流框架的集成模块。支持 Spring、SpringBoot、Solon、Hasor、Guice 等主流框架。
-- dbvisitor-adapter，是 JDBC 驱动适配器集合，目的是使不具备 JDBC Driver 的数据库可以用过 JDBC 接口访问。支持 [Redis](dbvisitor-adapter/jdbc-redis/README.md)、MongoDB 等非关系型数据库。
+- dbvisitor-adapter，是 JDBC 驱动适配器集合，目的是使不具备 JDBC Driver 的数据库可以用过 JDBC 接口访问。
+  支持 [Redis](dbvisitor-adapter/jdbc-redis/README_cn.md) 和 [MongoDB](dbvisitor-adapter/jdbc-mongo/README_cn.md) 等非关系型数据库。
 
 ## 为什么使用它？
 
@@ -42,7 +43,7 @@ dbVisitor 是建立在 JDBC 基础之上，它改进了 JDBC 低级接口提供�
 而已有的数据访问技术如 Hibernate、MyBatis、Spring JDBC 以及 ActiveRecord、QueryWrapper、Row、Chain、JPA 等主要针对关系型数据库，在面对日益多样的非关系型存储时显现出局限性。
 
 dbVisitor 的核心突破在于访问模式的无缝集成：开发者可以在同一项目中混合使用多种访问范式，并在关系型与非关系型存储之间获得统一体验。
-借助 drivers 模块，dbVisitor 已不再局限于通过 JDBC 访问关系型数据库，而是通过适配器支持例如 [Redis](dbvisitor-adapter/jdbc-redis/README.md)、MongoDB 等非关系型数据库。
+借助 drivers 模块，dbVisitor 已不再局限于通过 JDBC 访问关系型数据库，而是通过适配器支持例如 Redis、MongoDB 等非关系型数据库。
 
 在设计上，dbVisitor 提供了与 JdbcTemplate、MyBatis 近似风格的 API，这种设计可以让开发者避免接受大量新的概念和知识，从而减少学习成本和使用难度。
 

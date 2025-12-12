@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//dbvisitor.net//DTD Mapper 1.0//EN" "https://www.dbvisitor.net/schema/dbvisitor-mapper.dtd">
+<mapper namespace="net.hasor.realdb.mongo.dto3.UserInfo4Mapper">
+    <insert id="saveUser">
+        test.user_info.insert(#{info, typeHandler=net.hasor.dbvisitor.types.handler.json.JsonTypeHandler})
+    </insert>
+
+    <select id="loadUser" resultType="net.hasor.realdb.mongo.dto1.UserInfo1">
+        test.user_info.find({uid: #{uid}})
+    </select>
+
+    <delete id="deleteUser">
+        test.user_info.remove({uid: #{uid}})
+    </delete>
+</mapper>

@@ -34,7 +34,8 @@ About
 dbVisitor is built on top of JDBC and refines JDBC's low-level interfaces to provide a more natural API. It mainly consists of the following three parts:
 - dbvisitor — the core module that provides a unified database access API.
 - dbvisitor-integration — integration modules that connect dbVisitor with mainstream frameworks. Supports Spring, Spring Boot, Solon, Hasor, Guice, etc.
-- dbvisitor-adapter — JDBC driver adapters intended to allow databases without a JDBC Driver to be accessed via the JDBC interface. supports [Redis](dbvisitor-adapter/jdbc-redis/README.md) and MongoDB.
+- dbvisitor-adapter — JDBC driver adapters intended to allow databases without a JDBC Driver to be accessed via the JDBC interface.
+  supports [Redis](dbvisitor-adapter/jdbc-redis/README_en.md) and [MongoDB](dbvisitor-adapter/jdbc-mongo/README_en.md).
 
 ## Why use it?
 

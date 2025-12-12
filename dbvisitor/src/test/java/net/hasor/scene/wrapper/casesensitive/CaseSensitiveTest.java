@@ -25,7 +25,7 @@ public class CaseSensitiveTest {
             userData.put("CREATE_TIME", "2022-01-01 12:12:12");
 
             Insert<Map<String, Object>> insert = wrapper.insertFreedom("USER_TABLE").applyMap(userData);
-            assert insert.getBoundSql().getSqlString().equals("INSERT INTO USER_TABLE (AGE, NAME, CREATE_TIME) VALUES (?, ?, ?)");
+            assert insert.getBoundSql().getSqlString().equals("INSERT INTO USER_TABLE ( AGE, NAME, CREATE_TIME ) VALUES ( ?, ?, ? )");
             assert insert.executeSumResult() == 1;
 
             // 校验结果
@@ -48,7 +48,7 @@ public class CaseSensitiveTest {
             userData.put("CREATE_TIME", "2022-01-01 12:12:12");
 
             Insert<Map<String, Object>> insert = wrapper.insertFreedom("USER_TABLE").applyMap(userData);
-            assert insert.getBoundSql().getSqlString().equals("INSERT INTO USER_TABLE (AGE, NAME, CREATE_TIME) VALUES (?, ?, ?)");
+            assert insert.getBoundSql().getSqlString().equals("INSERT INTO USER_TABLE ( AGE, NAME, CREATE_TIME ) VALUES ( ?, ?, ? )");
             assert insert.executeSumResult() == 1;
 
             // 校验结果
