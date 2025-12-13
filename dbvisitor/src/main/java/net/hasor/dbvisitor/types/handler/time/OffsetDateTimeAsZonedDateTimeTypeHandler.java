@@ -28,6 +28,8 @@ import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
  * @version 2020-10-31
  */
 public class OffsetDateTimeAsZonedDateTimeTypeHandler extends AbstractTypeHandler<ZonedDateTime> {
+    private static final OffsetDateTimeTypeHandler DELEGATE = new OffsetDateTimeTypeHandler();
+
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, ZonedDateTime parameter, Integer jdbcType) throws SQLException {
         ps.setObject(i, parameter.toOffsetDateTime());
@@ -35,19 +37,19 @@ public class OffsetDateTimeAsZonedDateTimeTypeHandler extends AbstractTypeHandle
 
     @Override
     public ZonedDateTime getNullableResult(ResultSet rs, String columnName) throws SQLException {
-        OffsetDateTime offsetDateTime = rs.getObject(columnName, OffsetDateTime.class);
+        OffsetDateTime offsetDateTime = DELEGATE.getNullableResult(rs, columnName);
         return (offsetDateTime == null) ? null : offsetDateTime.toZonedDateTime();
     }
 
     @Override
     public ZonedDateTime getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-        OffsetDateTime offsetDateTime = rs.getObject(columnIndex, OffsetDateTime.class);
+        OffsetDateTime offsetDateTime = DELEGATE.getNullableResult(rs, columnIndex);
         return (offsetDateTime == null) ? null : offsetDateTime.toZonedDateTime();
     }
 
     @Override
     public ZonedDateTime getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-        OffsetDateTime offsetDateTime = cs.getObject(columnIndex, OffsetDateTime.class);
+        OffsetDateTime offsetDateTime = DELEGATE.getNullableResult(cs, columnIndex);
         return (offsetDateTime == null) ? null : offsetDateTime.toZonedDateTime();
     }
 }

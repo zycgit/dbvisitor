@@ -78,6 +78,23 @@ public class DsUtils {
         }
     }
 
+    private static void initPg(JdbcTemplate jdbcTemplate) {
+        try {
+            jdbcTemplate.loadSQL("dbvisitor_coverage/all_types/tb_postgre_types.sql");
+
+            jdbcTemplate.loadSQL("/dbvisitor_scene/user_table_for_pg.sql");
+            jdbcTemplate.execute("insert into user_table values (1, 'mali', 26, now());");
+            jdbcTemplate.execute("insert into user_table values (2, 'dative', 32, now());");
+            jdbcTemplate.execute("insert into user_table values (3, 'jon wes', 41, now());");
+            jdbcTemplate.execute("insert into user_table values (4, 'mary', 66, now());");
+            jdbcTemplate.execute("insert into user_table values (5, 'matt', 25, now());");
+
+            jdbcTemplate.execute("create sequence test_seq;");
+        } catch (Exception ignored) {
+            ignored.printStackTrace();
+        }
+    }
+
     // Connection
     public static Connection h2Conn() throws SQLException {
         DefaultDs ds = new DefaultDs();
@@ -129,7 +146,10 @@ public class DsUtils {
     }
 
     public static Connection pgConn() throws SQLException {
-        return DriverManager.getConnection(PG_JDBC_URL, "postgres", "123456");
+        Connection conn = DriverManager.getConnection(PG_JDBC_URL, "postgres", "123456");
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+        initPg(jdbcTemplate);
+        return conn;
     }
 
     // DataSource

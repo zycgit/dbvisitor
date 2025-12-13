@@ -105,21 +105,28 @@ public class OffsetTimeTypeHandlerTest {
 
     @Test
     public void testOffsetDateTimeForSqlTypeHandler_4() throws Exception {
-        try (Connection conn = DsUtils.oracleConn()) {
+        try (Connection conn = DsUtils.pgConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+            jdbcTemplate.execute("drop procedure if exists proc_timestamptz;");
             jdbcTemplate.execute(""//
-                    + "create or replace procedure proc_timestamptz(p_out out timestamp with time zone)\n" //
-                    + "AS\n" //
+                    + "CREATE OR REPLACE PROCEDURE proc_timestamptz(p_out INOUT timestamptz)\n" //
+                    + "LANGUAGE plpgsql AS $$\n" //
                     + "BEGIN\n"//
-                    + "  p_out := to_timestamp_tz('2013-10-15T17:18:28-06:00','YYYY-MM-DD\"T\"HH24:MI:SSTZH:TZM');\n" //
-                    + "END;");
+                    + "  p_out := '2013-10-15T17:18:28-06:00'::timestamptz;\n" //
+                    + "END;\n" //
+                    + "$$;");
+            jdbcTemplate.execute("set time zone '-06';");
 
-            Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamptz(?)}",//
-                    SqlArg.asOut("out", JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber(), new OffsetDateTimeTypeHandler()));
+            SqlArg outArg = SqlArg.asInOut("out", null, JDBCType.TIMESTAMP.getVendorTypeNumber(), new OffsetDateTimeTypeHandler());
+            Map<String, Object> objectMap = jdbcTemplate.call("call proc_timestamptz(?)",//
+                    outArg);
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof OffsetDateTime;
-            assert objectMap.get("out").toString().equals("2013-10-15T17:18:28-06:00");
+            OffsetDateTime out = (OffsetDateTime) objectMap.get("out");
+            OffsetDateTime expected = OffsetDateTime.parse("2013-10-15T17:18:28-06:00");
+            assert out.toInstant().equals(expected.toInstant());
+            assert out.withOffsetSameInstant(expected.getOffset()).equals(expected);
         }
     }
 
@@ -291,21 +298,27 @@ public class OffsetTimeTypeHandlerTest {
 
     @Test
     public void testOffsetTimeForSqlTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.oracleConn()) {
+        try (Connection conn = DsUtils.pgConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+            jdbcTemplate.execute("drop procedure if exists proc_timestamptz;");
             jdbcTemplate.execute(""//
-                    + "create or replace procedure proc_timestamptz(p_out out timestamp with time zone)\n" //
-                    + "AS\n" //
+                    + "CREATE OR REPLACE PROCEDURE proc_timestamptz(p_out INOUT timestamptz)\n" //
+                    + "LANGUAGE plpgsql AS $$\n" //
                     + "BEGIN\n"//
-                    + "  p_out := to_timestamp_tz('2013-10-15T17:18:28-06:00','YYYY-MM-DD\"T\"HH24:MI:SSTZH:TZM');\n" //
-                    + "END;");
+                    + "  p_out := '2013-10-15T17:18:28-06:00'::timestamptz;\n" //
+                    + "END;\n" //
+                    + "$$;");
+            jdbcTemplate.execute("set time zone '-06';");
 
-            Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamptz(?)}",//
-                    SqlArg.asOut("out", JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber(), new OffsetTimeTypeHandler()));
+            SqlArg outArg = SqlArg.asInOut("out", null, JDBCType.TIMESTAMP.getVendorTypeNumber(), new OffsetTimeTypeHandler());
+            Map<String, Object> objectMap = jdbcTemplate.call("call proc_timestamptz(?)",//
+                    outArg);
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof OffsetTime;
-            assert objectMap.get("out").toString().equals("17:18:28-06:00");
+            OffsetTime out = (OffsetTime) objectMap.get("out");
+            OffsetTime expected = OffsetTime.parse("17:18:28-06:00");
+            assert out.withOffsetSameInstant(expected.getOffset()).equals(expected);
         }
     }
 
@@ -477,21 +490,28 @@ public class OffsetTimeTypeHandlerTest {
 
     @Test
     public void testZonedDateTimeTypeHandler_4() throws SQLException {
-        try (Connection conn = DsUtils.oracleConn()) {
+        try (Connection conn = DsUtils.pgConn()) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
+            jdbcTemplate.execute("drop procedure if exists proc_timestamptz;");
             jdbcTemplate.execute(""//
-                    + "create or replace procedure proc_timestamptz(p_out out timestamp with time zone)\n" //
-                    + "AS\n" //
+                    + "CREATE OR REPLACE PROCEDURE proc_timestamptz(p_out INOUT timestamptz)\n" //
+                    + "LANGUAGE plpgsql AS $$\n" //
                     + "BEGIN\n"//
-                    + "  p_out := to_timestamp_tz('2013-10-15T17:18:28-06:00','YYYY-MM-DD\"T\"HH24:MI:SSTZH:TZM');\n" //
-                    + "END;");
+                    + "  p_out := '2013-10-15T17:18:28-06:00'::timestamptz;\n" //
+                    + "END;\n" //
+                    + "$$;");
+            jdbcTemplate.execute("set time zone '-06';");
 
-            Map<String, Object> objectMap = jdbcTemplate.call("{call proc_timestamptz(?)}",//
-                    SqlArg.asOut("out", JDBCType.TIMESTAMP_WITH_TIMEZONE.getVendorTypeNumber(), new OffsetDateTimeAsZonedDateTimeTypeHandler()));
+            SqlArg outArg = SqlArg.asInOut("out", null, JDBCType.TIMESTAMP.getVendorTypeNumber(), new OffsetDateTimeAsZonedDateTimeTypeHandler());
+            Map<String, Object> objectMap = jdbcTemplate.call("call proc_timestamptz(?)",//
+                    outArg);
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof ZonedDateTime;
-            assert objectMap.get("out").toString().equals("2013-10-15T17:18:28-06:00");
+            ZonedDateTime out = (ZonedDateTime) objectMap.get("out");
+            OffsetDateTime expected = OffsetDateTime.parse("2013-10-15T17:18:28-06:00");
+            assert out.toInstant().equals(expected.toInstant());
+            assert out.toOffsetDateTime().withOffsetSameInstant(expected.getOffset()).equals(expected);
         }
     }
 }

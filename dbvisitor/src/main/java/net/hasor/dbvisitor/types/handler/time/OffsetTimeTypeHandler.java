@@ -18,7 +18,19 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.time.OffsetTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Date;
 import net.hasor.dbvisitor.types.handler.AbstractTypeHandler;
 
 /**
@@ -34,16 +46,167 @@ public class OffsetTimeTypeHandler extends AbstractTypeHandler<OffsetTime> {
 
     @Override
     public OffsetTime getNullableResult(ResultSet rs, String columnName) throws SQLException {
-        return rs.getObject(columnName, OffsetTime.class);
+        return readOffsetTime(() -> rs.getObject(columnName, OffsetTime.class), () -> rs.getObject(columnName), () -> rs.getString(columnName));
     }
 
     @Override
     public OffsetTime getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-        return rs.getObject(columnIndex, OffsetTime.class);
+        return readOffsetTime(() -> rs.getObject(columnIndex, OffsetTime.class), () -> rs.getObject(columnIndex), () -> rs.getString(columnIndex));
     }
 
     @Override
     public OffsetTime getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-        return cs.getObject(columnIndex, OffsetTime.class);
+        return readOffsetTime(() -> cs.getObject(columnIndex, OffsetTime.class), () -> cs.getObject(columnIndex), () -> cs.getString(columnIndex));
+    }
+
+    private OffsetTime readOffsetTime(SqlSupplier<OffsetTime> typedReader, SqlSupplier<Object> rawReader, SqlSupplier<String> stringReader) throws SQLException {
+        try {
+            return typedReader.get();
+        } catch (SQLException | AbstractMethodError primaryEx) {
+            Object raw = readRaw(rawReader, primaryEx);
+            if (raw == null) {
+                String text = readString(stringReader, primaryEx);
+                return parseOffsetTime(text, primaryEx);
+            }
+            if (raw instanceof OffsetTime) {
+                return (OffsetTime) raw;
+            }
+            if (raw instanceof OffsetDateTime) {
+                return ((OffsetDateTime) raw).toOffsetTime();
+            }
+            if (raw instanceof Timestamp) {
+                return fromTimestamp((Timestamp) raw, primaryEx);
+            }
+            if (raw instanceof Time) {
+                return fromTimestamp(new Timestamp(((Time) raw).getTime()), primaryEx);
+            }
+            if (raw instanceof LocalTime) {
+                return fromLocalTime((LocalTime) raw);
+            }
+            if (raw instanceof LocalDateTime) {
+                return fromLocalDateTime((LocalDateTime) raw);
+            }
+            if (raw instanceof Date) {
+                return fromInstant(((Date) raw).toInstant());
+            }
+            if (raw instanceof CharSequence) {
+                return parseOffsetTime(raw.toString(), primaryEx);
+            }
+            return parseOffsetTime(raw.toString(), primaryEx);
+        }
+    }
+
+    private Object readRaw(SqlSupplier<Object> rawReader, Throwable suppressed) throws SQLException {
+        try {
+            return rawReader.get();
+        } catch (SQLException ex) {
+            if (suppressed != null) {
+                ex.addSuppressed(suppressed);
+            }
+            throw ex;
+        }
+    }
+
+    private String readString(SqlSupplier<String> stringReader, Throwable suppressed) throws SQLException {
+        try {
+            return stringReader.get();
+        } catch (SQLException ex) {
+            if (suppressed != null) {
+                ex.addSuppressed(suppressed);
+            }
+            throw ex;
+        }
+    }
+
+    private OffsetTime fromTimestamp(Timestamp timestamp, Throwable suppressed) throws SQLException {
+        if (timestamp == null) {
+            return null;
+        }
+        try {
+            return parseOffsetTime(timestamp.toString(), suppressed);
+        } catch (SQLException ex) {
+            if (suppressed != null) {
+                ex.addSuppressed(suppressed);
+            }
+            return fromInstant(timestamp.toInstant());
+        }
+    }
+
+    private OffsetTime fromLocalTime(LocalTime localTime) {
+        ZoneId zoneId = ZoneId.systemDefault();
+        ZoneOffset offset = zoneId.getRules().getOffset(LocalDate.ofEpochDay(0).atTime(localTime));
+        return localTime.atOffset(offset);
+    }
+
+    private OffsetTime fromLocalDateTime(LocalDateTime localDateTime) {
+        ZoneId zoneId = ZoneId.systemDefault();
+        return localDateTime.atZone(zoneId).toOffsetDateTime().toOffsetTime();
+    }
+
+    private OffsetTime fromInstant(Instant instant) {
+        return OffsetDateTime.ofInstant(instant, ZoneOffset.UTC).toOffsetTime();
+    }
+
+    private OffsetTime parseOffsetTime(String text, Throwable suppressed) throws SQLException {
+        if (text == null) {
+            return null;
+        }
+        String trimmed = text.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        String normalized = normalizeOffset(trimmed);
+        try {
+            return OffsetTime.parse(normalized, DateTimeFormatter.ISO_OFFSET_TIME);
+        } catch (DateTimeParseException ex) {
+            try {
+                String dateTimeCandidate = ensureDatePart(normalized);
+                return OffsetDateTime.parse(dateTimeCandidate, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toOffsetTime();
+            } catch (DateTimeParseException ignored) {
+                try {
+                    LocalTime localCandidate = LocalTime.parse(normalized, DateTimeFormatter.ISO_LOCAL_TIME);
+                    return fromLocalTime(localCandidate);
+                } catch (DateTimeParseException ignoredLocal) {
+                    SQLException sqlException = new SQLException("unable to parse OffsetTime value: " + text, ex);
+                    if (suppressed != null) {
+                        sqlException.addSuppressed(suppressed);
+                    }
+                    throw sqlException;
+                }
+            }
+        }
+    }
+
+    private String ensureDatePart(String text) {
+        if (text.indexOf('T') >= 0) {
+            return normalizeOffset(text);
+        }
+        return "1970-01-01T" + text;
+    }
+
+    private String normalizeOffset(String text) {
+        String trimmed = text.trim();
+        if (trimmed.endsWith("Z")) {
+            return trimmed;
+        }
+        int plusIndex = trimmed.lastIndexOf('+');
+        int minusIndex = trimmed.lastIndexOf('-');
+        int idx = Math.max(plusIndex, minusIndex);
+        if (idx > 0) {
+            String prefix = trimmed.substring(0, idx);
+            String offset = trimmed.substring(idx);
+            if (offset.length() == 3) {
+                return prefix + offset + ":00";
+            }
+            if (offset.length() == 5 && offset.charAt(3) != ':') {
+                return prefix + offset.substring(0, 3) + ':' + offset.substring(3);
+            }
+        }
+        return trimmed;
+    }
+
+    @FunctionalInterface
+    private interface SqlSupplier<T> {
+        T get() throws SQLException;
     }
 }

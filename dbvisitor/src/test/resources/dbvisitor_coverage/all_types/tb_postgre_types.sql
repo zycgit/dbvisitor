@@ -306,7 +306,7 @@ INSERT INTO tb_postgre_types ( c_smallserial
 --                                     , c_tsvector
 --                                     , c_tsquery
 --                                     , c_uuid
---                                     , c_xml
+                             , c_xml
                              , c_json
                              , c_jsonb
                              , c_int4range
@@ -403,7 +403,7 @@ VALUES ( 1
 --        , '''1'''
 --        , '''1'''
 --        , '1b1f430c-1f72-46a3-9539-34b8c5230e60'
---        , '<a></a>'
+       , '<xml>abc</xml>'
        , '1'
        , '1'
        , '[4 ,5)'

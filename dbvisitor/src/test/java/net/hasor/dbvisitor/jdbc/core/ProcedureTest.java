@@ -47,7 +47,7 @@ public class ProcedureTest extends AbstractDbTest {
             jdbcTemplate.execute("drop procedure if exists proc_bigint;");
             jdbcTemplate.execute("create procedure proc_bigint(out p_out bigint) begin set p_out=123123; end;");
 
-            Map<String, Object> objectMap = jdbcTemplate.call("{call proc_bigint(#{out,mode=out,jdbcType=bigint, typeHandler=net.hasor.dbvisitor.types.handler.number.LongTypeHandler})}");
+            Map<String, Object> objectMap = jdbcTemplate.call("{call proc_bigint(#{out,mode=out,jdbcType=bigint,typeHandler=net.hasor.dbvisitor.types.handler.number.LongTypeHandler})}");
 
             assert objectMap.size() == 2;
             assert objectMap.get("out") instanceof Long;
@@ -607,40 +607,43 @@ public class ProcedureTest extends AbstractDbTest {
 
     @Test
     public void cursor_result_as_javaType_1() throws SQLException {
-        try (Connection conn = DsUtils.oracleConn()) {
+        try (Connection conn = DsUtils.pgConn()) {
+            conn.setAutoCommit(false);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(conn);
-            jdbcTemplateExecute(jdbcTemplate, "drop table proc_table_forcaller");
+            jdbcTemplateExecute(jdbcTemplate, "drop table if exists proc_table_forcaller");
             jdbcTemplateExecute(jdbcTemplate, "create table proc_table_forcaller( c_id int primary key, c_name varchar(200))");
             jdbcTemplateExecute(jdbcTemplate, "insert into proc_table_forcaller (c_id,c_name) values (1, 'aaa')");
             jdbcTemplateExecute(jdbcTemplate, "insert into proc_table_forcaller (c_id,c_name) values (2, 'bbb')");
             jdbcTemplateExecute(jdbcTemplate, "insert into proc_table_forcaller (c_id,c_name) values (3, 'ccc')");
+            jdbcTemplateExecute(jdbcTemplate, "DROP PROCEDURE IF EXISTS proc_out_cursor");
             jdbcTemplateExecute(jdbcTemplate, "" + //
-                    "create or replace procedure proc_out_cursor( " + //
-                    "    userName in varchar2, " + //
-                    "    tableCursor out sys_refcursor) " + //
-                    "as " + //
-                    "begin " + //
-                    "    open tableCursor for select * from proc_table_forcaller where c_name = userName;" + //
-                    "end;");
+                    "CREATE OR REPLACE PROCEDURE proc_out_cursor(" + //
+                    "    IN userName varchar, " + //
+                    "    INOUT tableCursor refcursor) " + //
+                    "LANGUAGE plpgsql AS $$ " + //
+                    "BEGIN " + //
+                    "    OPEN tableCursor FOR select * from proc_table_forcaller where c_name = userName; " + //
+                    "END; " + //
+                    "$$;");
+            conn.commit();
 
-            //            conn.setAutoCommit(false);
-            Map<String, Object> objectMap1 = new JdbcTemplate(conn).call("{call proc_out_cursor(?,#{res,mode=cursor,javaType=net.hasor.dbvisitor.jdbc.core.test.ProcedureTestUserDTO})}", "aaa");
+            Map<String, Object> objectMap1 = new JdbcTemplate(conn).call("call proc_out_cursor(?,#{res,mode=cursor,javaType=net.hasor.dbvisitor.jdbc.core.test.ProcedureTestUserDTO})", "aaa");
             assert objectMap1.size() == 2;
             assert objectMap1.get("res") instanceof ArrayList;
-            assert objectMap1.get("#update-count-1").equals(-1); // oracle is -1
+            assert objectMap1.get("#update-count-1") instanceof Number;
             assert ((ArrayList<?>) objectMap1.get("res")).size() == 1;
             assert ((ProcedureTestUserDTO) ((ArrayList<?>) objectMap1.get("res")).get(0)).getName().equals("aaa");
             assert ((ProcedureTestUserDTO) ((ArrayList<?>) objectMap1.get("res")).get(0)).getId() == 1;
+            conn.commit();
 
-            //
-            //            conn.setAutoCommit(false);
-            Map<String, Object> objectMap2 = new JdbcTemplate(conn).call("{call proc_out_cursor(?,#{name=res,mode=cursor,javaType=net.hasor.dbvisitor.jdbc.core.test.ProcedureTestUserDTO})}", "aaa");
+            Map<String, Object> objectMap2 = new JdbcTemplate(conn).call("call proc_out_cursor(?,#{name=res,mode=cursor,javaType=net.hasor.dbvisitor.jdbc.core.test.ProcedureTestUserDTO})", "aaa");
             assert objectMap2.size() == 2;
             assert objectMap2.get("res") instanceof ArrayList;
-            assert objectMap2.get("#update-count-1").equals(-1); // oracle is -1
+            assert objectMap2.get("#update-count-1") instanceof Number;
             assert ((ArrayList<?>) objectMap2.get("res")).size() == 1;
             assert ((ProcedureTestUserDTO) ((ArrayList<?>) objectMap2.get("res")).get(0)).getName().equals("aaa");
             assert ((ProcedureTestUserDTO) ((ArrayList<?>) objectMap2.get("res")).get(0)).getId() == 1;
+            conn.commit();
         }
     }
 
