@@ -266,7 +266,17 @@ abstract class MongoCommands {
         AdapterResultCursor receiveCur = new AdapterResultCursor(request, Collections.singletonList(col));
         for (int i = 0; i < count; i++) {
             BsonValue bsonValue = result.get(i);
-            receiveCur.pushData(CollectionUtils.asMap(col.name, bsonValue.asObjectId().getValue().toHexString()));
+            Object val = null;
+            if (bsonValue != null) {
+                if (bsonValue.isObjectId()) {
+                    val = bsonValue.asObjectId().getValue().toHexString();
+                } else if (bsonValue.isString()) {
+                    val = bsonValue.asString().getValue();
+                } else {
+                    val = bsonValue.toString();
+                }
+            }
+            receiveCur.pushData(CollectionUtils.asMap(col.name, val));
         }
         receiveCur.pushFinish();
         return receiveCur;

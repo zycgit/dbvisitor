@@ -670,6 +670,12 @@ public final class ConvertUtils {
             } else if (v instanceof BigInteger) {
                 return ((BigInteger) v).toByteArray();
             }
+        } else if (v.getClass().getName().equals("org.bson.types.Binary")) {
+            try {
+                return (byte[]) v.getClass().getMethod("getData").invoke(v);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("unsupported value type convert to byte[],type:" + v.getClass().getName(), e);
+            }
         }
 
         throw new IllegalArgumentException("unsupported value type convert to byte[],type:" + v.getClass().getName());
