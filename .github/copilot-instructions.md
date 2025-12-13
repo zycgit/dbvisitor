@@ -1,0 +1,40 @@
+# dbVisitor Copilot 指南（中文）
+
+## 项目概览
+- 多模块 Maven 工程（父 `pom.xml`）：核心 `dbvisitor`、驱动 `dbvisitor-driver`、适配器 `dbvisitor-adapter/jdbc-{redis,mongo}`、框架集成、示例、文档站点。
+- 目标：在同一套 API/风格下统一基于 JDBC 实现关系型数据库和非关系型数据库等统一，Redis/Mongo（通过 JDBC 适配器）。
+
+## 核心入口（先看这里）
+- 从 `net.hasor.dbvisitor.session.Configuration` 开始：
+  - 创建 `LambdaTemplate` / `JdbcTemplate` / `Session`：`newLambda(...)`、`newJdbc(...)`、`newSession(...)`
+  - 加载 Mapper：`loadMapper(Class)` / `loadMapper(String)`
+  - 动态 SQL 扩展：`addMacro(...)`、`addSqlRule(...)`
+- 业务 CRUD 优先用 `net.hasor.dbvisitor.lambda.LambdaTemplate`；需要原生 SQL/更底层 JDBC 行为再用 `net.hasor.dbvisitor.jdbc.core.JdbcTemplate`。
+
+## 本项目约定
+- Java 8 编译/兼容（不要用高版本 JDK API）。
+- 依赖尽量少：优先用 `net.hasor.cobble.*` 工具类。
+- 改动前先看目标模块的 `pom.xml`：核心 `dbvisitor/pom.xml` 里有不少 `optional` 依赖（别在未声明的情况下直接使用）。
+
+## 构建 / 测试 / 本地依赖
+- 构建：`./mvnw clean install`
+- 单测（核心模块为主）：`./mvnw -pl dbvisitor test`（测试多继承 `net.hasor.test.AbstractDbTest`）。
+- 集成 DB（Docker）：进入 `dbvisitor-test/x86` 或 `dbvisitor-test/arm64` 执行 `docker compose up -d`。
+- 测试连接默认值见 `net.hasor.test.utils.DsUtils`：
+  - MySQL `127.0.0.1:13306`（root/123456）
+  - Redis `127.0.0.1:16379`（password 123456）
+  - Mongo `127.0.0.1:17017`（root/123456）
+- 注意：Surefire 配置了 `testFailureIgnore=true`（父/模块 POM 均有），本地验证失败请看 `*/target/surefire-reports`。
+
+## 适配器（jdbc-redis / jdbc-mongo）
+- 适配器通过 ANTLR4 解析命令文本，把 JDBC `Connection/Statement/ResultSet` 适配到底层 Redis/Mongo 命令。
+- JDBC URL 示例（见适配器 README）：
+  - Redis：`jdbc:dbvisitor:jedis://host:port?database=0&separatorChar=;&uncheckNumKeys=true`
+  - Mongo：`jdbc:dbvisitor:mongo://host:27017/database?preRead=false`
+- 驱动限制/不支持项以 `dbvisitor-driver/README.md` 为准（含 JDBC 类型/特性限制；`DatabaseMetaData` 返回值不可靠）。
+
+## 文档站点（dbvisitor-doc）
+- 文档工程在 `dbvisitor-doc/`（Docusaurus），构建命令：`cd dbvisitor-doc && npm run build`。
+- 版本发布流程命令（见 `dbvisitor-doc/README.md`）：
+  - `mvn release:clean release:prepare -Prelease -Darguments="-DskipTests=true"`
+  - `mvn clean package install deploy -Prelease -Dmaven.test.skip=true`
