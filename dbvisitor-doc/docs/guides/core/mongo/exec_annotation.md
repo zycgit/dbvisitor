@@ -52,3 +52,27 @@ Session session = config.newSession(connection);
 // 3，创建 Mapper
 UserInfoMapper mapper = session.createMapper(UserInfoMapper.class);
 ```
+
+## 分页查询
+
+在 Mapper 方法中添加 `Page` 参数即可实现分页查询。
+
+```java title='Mapper 定义'
+@SimpleMapper()
+public interface UserInfoMapper {
+    @Query("test.user_info.find({name: #{name}})")
+    List<UserInfo> queryByName(@Param("name") String name, Page page);
+}
+```
+
+```java title='调用分页'
+Page page = new PageObject();
+page.setPageSize(10);
+page.setPageNumber(0);
+
+List<UserInfo> list = mapper.queryByName("mali", page);
+
+// 翻页
+page.nextPage();
+list = mapper.queryByName("mali", page);
+```

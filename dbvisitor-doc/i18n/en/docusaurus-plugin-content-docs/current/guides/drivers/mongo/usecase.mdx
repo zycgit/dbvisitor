@@ -4,13 +4,17 @@ sidebar_position: 2
 title: 安装与配置
 description: 介绍如何引入 jdbc-mongo 依赖以及配置 JDBC 连接。
 ---
-
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import Vars from '@site/plugins/projectVars';
+
+export const Highlight = ({children, color}) => (
+    <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
+);
 
 ## 引入依赖
 
-在使用 `jdbc-mongo` 之前，需要在项目中引入相应的 Maven 依赖。
+在使用 `jdbc-mongo` 之前，需要在项目中引入相应的 Maven 依赖。当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
 
 <Tabs>
   <TabItem value="maven" label="Maven" default>
@@ -18,25 +22,23 @@ import TabItem from '@theme/TabItem';
     <dependency>
         <groupId>net.hasor</groupId>
         <artifactId>jdbc-mongo</artifactId>
-        <version>5.3.0</version> <!-- 请使用最新版本 -->
+        <version>6.3.0</version> <!-- 请使用最新版本 -->
     </dependency>
     ```
   </TabItem>
   <TabItem value="gradle" label="Gradle">
     ```groovy
-    implementation 'net.hasor:jdbc-mongo:5.3.0' // 请使用最新版本
+    implementation 'net.hasor:jdbc-mongo:6.3.0' // 请使用最新版本
     ```
   </TabItem>
 </Tabs>
 
 ## JDBC 连接
 
-`jdbc-mongo` 使用标准的 JDBC URL 格式进行连接。
-
-### URL 格式
+使用标准的 JDBC URL 格式进行连接。
 
 ```text
-jdbc:mongo://<host>:<port>/<database>?<parameters>
+jdbc:dbvisitor:mongo://<host>:<port>/<database>?<parameters>
 ```
 
 - `host`: MongoDB 服务器地址。
@@ -47,23 +49,23 @@ jdbc:mongo://<host>:<port>/<database>?<parameters>
 ### 示例代码
 
 ```java
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
-
 public class MongoJdbcExample {
     public static void main(String[] args) throws Exception {
-        // 1. 加载驱动
-        Class.forName("net.hasor.dbvisitor.jdbc.mongo.MongoDriver");
-
-        // 2. 获取连接
-        String url = "jdbc:mongo://127.0.0.1:27017/testdb";
+        String url = "jdbc:dbvisitor:mongo://127.0.0.1:27017/testdb";
         try (Connection conn = DriverManager.getConnection(url)) {
-            // 3. 创建 Statement
+            // Statement Example
             try (Statement stmt = conn.createStatement()) {
-                // 4. 执行查询
-                try (ResultSet rs = stmt.executeQuery("find my_collection limit 10")) {
+                try (ResultSet rs = stmt.executeQuery("db.my_collection.find().limit(10)")) {
+                    while (rs.next()) {
+                        System.out.println(rs.getString("name"));
+                    }
+                }
+            }
+
+            // PreparedStatement Example
+            try (PreparedStatement pstmt = conn.prepareStatement("db.my_collection.find({name:?})")) {
+                pstmt.setString(1, "mali");
+                try (ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {
                         System.out.println(rs.getString("name"));
                     }
