@@ -105,7 +105,7 @@ public class MongoDialect extends AbstractDialect implements PageSqlDialect, Con
 
     @Override
     public BoundSql countSql(BoundSql boundSql) {
-        return new BoundSql.BoundSqlObj("/*+override_find_as_count*/" + boundSql.getSqlString(), boundSql.getArgs());
+        return new BoundSql.BoundSqlObj("/*+overwrite_find_as_count*/" + boundSql.getSqlString(), boundSql.getArgs());
     }
 
     @Override
@@ -113,9 +113,9 @@ public class MongoDialect extends AbstractDialect implements PageSqlDialect, Con
         StringBuilder sqlBuilder = new StringBuilder("/*+");
 
         if (start <= 0) {
-            sqlBuilder.append("override_find_limit=" + limit);
+            sqlBuilder.append("overwrite_find_limit=" + limit);
         } else {
-            sqlBuilder.append("override_find_skip=" + start + ",override_find_limit=" + limit);
+            sqlBuilder.append("overwrite_find_skip=" + start + ",overwrite_find_limit=" + limit);
         }
 
         sqlBuilder.append("*/");

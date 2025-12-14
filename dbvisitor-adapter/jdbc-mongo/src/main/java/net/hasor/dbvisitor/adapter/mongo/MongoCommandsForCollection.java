@@ -486,11 +486,11 @@ class MongoCommandsForCollection extends MongoCommands {
             it.projection(projection);
         }
 
-        if (hint.containsKey("override_find_limit")) {
-            it.limit(((Number) hint.get("override_find_limit")).intValue());
+        if (hint.containsKey("overwrite_find_limit")) {
+            it.limit(((Number) hint.get("overwrite_find_limit")).intValue());
         }
-        if (hint.containsKey("override_find_skip")) {
-            it.skip(((Number) hint.get("override_find_skip")).intValue());
+        if (hint.containsKey("overwrite_find_skip")) {
+            it.skip(((Number) hint.get("overwrite_find_skip")).intValue());
         }
 
         if (((MongoRequest) request).isPreRead()) {
@@ -519,7 +519,7 @@ class MongoCommandsForCollection extends MongoCommands {
         MongoDatabase mongoDB = mongoCmd.getClient().getDatabase(dbName);
         MongoCollection<Document> mongoColl = mongoDB.getCollection(collName);
 
-        if (hint.containsKey("override_find_as_count")) {
+        if (hint.containsKey("overwrite_find_as_count")) {
             long count = mongoColl.countDocuments(filter);
 
             receive.responseResult(request, singleResult(request, COL_COUNT_LONG, count));
@@ -551,11 +551,11 @@ class MongoCommandsForCollection extends MongoCommands {
             }
         }
 
-        if (hint.containsKey("override_find_limit")) {
-            it.limit(((Number) hint.get("override_find_limit")).intValue());
+        if (hint.containsKey("overwrite_find_limit")) {
+            it.limit(((Number) hint.get("overwrite_find_limit")).intValue());
         }
-        if (hint.containsKey("override_find_skip")) {
-            it.skip(((Number) hint.get("override_find_skip")).intValue());
+        if (hint.containsKey("overwrite_find_skip")) {
+            it.skip(((Number) hint.get("overwrite_find_skip")).intValue());
         }
 
         if (((MongoRequest) request).isPreRead()) {
