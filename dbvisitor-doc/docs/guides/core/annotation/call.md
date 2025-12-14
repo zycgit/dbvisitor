@@ -2,14 +2,13 @@
 id: call
 sidebar_position: 7
 hide_table_of_contents: true
-title: Call 注解
+title: "@Call"
 description: Call 注解用来标记在接口方法上，它接受一个字符串参数或字符串数组表示执行存储过程调用。
 ---
 import TagRed from '@site/src/components/tags/TagRed';
 import TagGray from '@site/src/components/tags/TagGray';
 
 # @Call 注解
-## 注解说明
 
 用来标记在接口方法上，它接受一个字符串参数或字符串数组表示执行存储过程调用。
 

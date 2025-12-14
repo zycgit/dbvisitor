@@ -17,10 +17,26 @@
   },
   "item.label.码云": {
     "message": "Gitee",
-    "description": "码云"
+    "description": "Navbar item with label 码云"
   },
   "item.label.Github": {
     "message": "Github",
-    "description": "Github"
+    "description": "Navbar item with label Github"
+  },
+  "logo.alt": {
+    "message": "dbVisitor Logo",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.文档": {
+    "message": "Document",
+    "description": "Navbar item with label 文档"
+  },
+  "item.label.版本": {
+    "message": "Release Nodes",
+    "description": "Navbar item with label 版本"
+  },
+  "item.label.博客": {
+    "message": "Blog",
+    "description": "Navbar item with label 博客"
   }
 }

@@ -45,10 +45,10 @@ LambdaTemplate lambda = new LambdaTemplate(conn);
 
 核心实现原理是通过 LambdaTemplate 类提供的 insert、update、delete、query、freedom 系列方法提供对表的操作。
 
-- [insert](./insert)，用于生成和执行 INSERT 语句。
-- [update](./update)，用于生成和执行 UPDATE 语句。
-- [delete](./delete)，用于生成和执行 DELETE 语句。
-- [query](./query)，用于生成和执行 SELECT 语句。
+- insert 用于生成和执行 INSERT 语句。
+- update 用于生成和执行 UPDATE 语句。
+- delete 用于生成和执行 DELETE 语句。
+- query 用于生成和执行 SELECT 语句。
 
 开发者通过编程方式指示 SQL 语句的生成逻辑，在执行时会根据逻辑生成 SQL 语句和参数，最终交给 JdbcTemplate 进行执行并获得返回值。
 

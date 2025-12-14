@@ -60,5 +60,5 @@ result = lambda.query(User.class)
 ```
 
 :::info[提示]
-- NULL 最前/最后，所使用的 OrderNullsStrategy 策略是否支持请参考 **[数据库支持性]../../api/differences#dialect)** 中的空值排序策略。
+- NULL 最前/最后，所使用的 OrderNullsStrategy 策略是否支持请参考 **[数据库支持性](../../api/differences#dialect)** 中的空值排序策略。
 :::

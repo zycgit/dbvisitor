@@ -1,15 +1,14 @@
 ---
 slug: mysql_stream_read
-title: MySQL 流式读取超大表
-description: 使用 dbVisitor ORM 查询并处理一张超大表。
+title: Streaming a Huge MySQL Table
+description: Use dbVisitor ORM to query and process a very large table with streaming.
 authors: [ZhaoYongChun]
 tags: [Streaming]
 ---
 
-当查询一张超大表并获取它的结果集时要使用 `流式返回` 否则内存极易出现溢出。
-不同的数据库开启流式返回的方式虽有差异，但都需要设置 `Statement/PreparedStatement` 的参数。
+When querying a huge table, enable streaming results; otherwise the result set can easily exhaust memory. Each database enables streaming differently, but all require configuring `Statement`/`PreparedStatement` parameters.
 
-下面就以 MySQL 为例展示一下通过定制 `Statement` 实现流式查询的例子：
+Here is a MySQL example using a customized `PreparedStatement` to stream the result set:
 
 ```java
 // 定制 PreparedStatement
@@ -23,15 +22,15 @@ PreparedStatementCreator creator = con -> {
     return ps;
 };
 
-// 行读取工具
+// Row mapper
 MappingRowMapper<TestUser> rowMapper = new MappingRowMapper<>(TestUser.class);
 
-// 流式消费数据
+// Stream and consume rows
 RowCallbackHandler handler = (rs, rowNum) -> {
-TestUser dto = rowMapper.mapRow(rs, rowNum);
-
+    TestUser dto = rowMapper.mapRow(rs, rowNum);
+    // handle dto
 };
 
-// 执行流式处理
+// Execute streaming
 jdbcTemplate.executeCreator(creator, handler);
 ```

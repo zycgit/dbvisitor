@@ -3,28 +3,148 @@
     "message": "Next",
     "description": "The label for version current"
   },
-  "sidebar.guides.category.对象映射": {
-    "message": "Entity Mapping",
-    "description": "The label for category 对象映射 in sidebar guides"
+  "sidebar.guides.category.3. 在项目中使用": {
+    "message": "3. Your Project",
+    "description": "The label for category '3. 在项目中使用' in sidebar 'guides'"
   },
-  "sidebar.guides.category.类型": {
-    "message": "Types",
-    "description": "The label for category 类型 in sidebar guides"
+  "sidebar.guides.category.4. API 概述": {
+    "message": "4. API Overview",
+    "description": "The label for category '4. API 概述' in sidebar 'guides'"
   },
-  "sidebar.guides.category.SQL 模式": {
-    "message": "using SQL",
-    "description": "The label for category SQL 模式 in sidebar guides"
+  "sidebar.guides.category.5. 核心 API": {
+    "message": "5. Core APIs",
+    "description": "The label for category '5. 核心 API' in sidebar 'guides'"
   },
-  "sidebar.guides.category.CRUD 模式": {
-    "message": "using CRUD",
-    "description": "The label for category CRUD 模式 in sidebar guides"
+  "sidebar.guides.category.5.1 JdbcTemplate 类": {
+    "message": "5.1 JdbcTemplate",
+    "description": "The label for category '5.1 JdbcTemplate 类' in sidebar 'guides'"
   },
-  "sidebar.guides.category.Mapper 模式": {
-    "message": "using Mapper File",
-    "description": "The label for category Mapper 模式 in sidebar guides"
+  "sidebar.guides.category.5.2 方法注解": {
+    "message": "5.2 Annotations",
+    "description": "The label for category '5.2 方法注解' in sidebar 'guides'"
   },
-  "sidebar.guides.category.资源与事务": {
-    "message": "Transactions",
-    "description": "The label for category 资源与事务 in sidebar guides"
+  "sidebar.guides.category.5.3 Mapper 接口": {
+    "message": "5.3 Mapper Interfaces",
+    "description": "The label for category '5.3 Mapper 接口' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.5.4 LambdaTemplate 类": {
+    "message": "5.4 LambdaTemplate",
+    "description": "The label for category '5.4 LambdaTemplate 类' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.5.5 Mapper 文件": {
+    "message": "5.5 Mapper Files",
+    "description": "The label for category '5.5 Mapper 文件' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.5.6 对象映射": {
+    "message": "5.6 Object Mapping",
+    "description": "The label for category '5.6 对象映射' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.5.7 全局对象": {
+    "message": "5.7 Global Objects",
+    "description": "The label for category '5.7 全局对象' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.5.8 Redis 特异性": {
+    "message": "5.8 Redis Specifics",
+    "description": "The label for category '5.8 Redis 特异性' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.5.9 MongoDB 特异性": {
+    "message": "5.9 MongoDB Specifics",
+    "description": "The label for category '5.9 MongoDB 特异性' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.6. 参数传递": {
+    "message": "6. Arguments",
+    "description": "The label for category '6. 参数传递' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.7. 规则": {
+    "message": "7. Rules",
+    "description": "The label for category '7. 规则' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.8. 类型处理器": {
+    "message": "8. Type Handlers",
+    "description": "The label for category '8. 类型处理器' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.8.3 基础类型处理器": {
+    "message": "8.3 Basic Type",
+    "description": "The label for category '8.3 基础类型处理器' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.9. 接收结果": {
+    "message": "9. Result Handling",
+    "description": "The label for category '9. 接收结果' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.10. 数据库事务": {
+    "message": "10. Transactions",
+    "description": "The label for category '10. 数据库事务' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.10.1 事务管理器": {
+    "message": "10.1 Transaction Manager",
+    "description": "The label for category '10.1 事务管理器' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.11. 驱动适配器": {
+    "message": "11. Driver Adapters",
+    "description": "The label for category '11. 驱动适配器' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.11.1 JDBC Redis": {
+    "message": "11.1 JDBC Redis",
+    "description": "The label for category '11.1 JDBC Redis' in sidebar 'guides'"
+  },
+  "sidebar.guides.category.11.2 JDBC Mongo": {
+    "message": "11.2 JDBC Mongo",
+    "description": "The label for category '11.2 JDBC Mongo' in sidebar 'guides'"
+  },
+  "sidebar.releases.category.v6.x": {
+    "message": "v6.x",
+    "description": "The label for category 'v6.x' in sidebar 'releases'"
+  },
+  "sidebar.releases.category.v6.x.link.generated-index.title": {
+    "message": "v6.x",
+    "description": "The generated-index page title for category 'v6.x' in sidebar 'releases'"
+  },
+  "sidebar.releases.category.v5.x": {
+    "message": "v5.x",
+    "description": "The label for category 'v5.x' in sidebar 'releases'"
+  },
+  "sidebar.releases.category.v5.x.link.generated-index.title": {
+    "message": "v5.x",
+    "description": "The generated-index page title for category 'v5.x' in sidebar 'releases'"
+  },
+  "sidebar.releases.category.v4.x": {
+    "message": "v4.x",
+    "description": "The label for category 'v4.x' in sidebar 'releases'"
+  },
+  "sidebar.releases.category.v4.x.link.generated-index.title": {
+    "message": "v4.x",
+    "description": "The generated-index page title for category 'v4.x' in sidebar 'releases'"
+  },
+  "sidebar.releases.category.v3.x": {
+    "message": "v3.x",
+    "description": "The label for category 'v3.x' in sidebar 'releases'"
+  },
+  "sidebar.releases.category.v3.x.link.generated-index.title": {
+    "message": "v3.x",
+    "description": "The generated-index page title for category 'v3.x' in sidebar 'releases'"
+  },
+  "sidebar.releases.category.v2.x": {
+    "message": "v2.x",
+    "description": "The label for category 'v2.x' in sidebar 'releases'"
+  },
+  "sidebar.releases.category.v2.x.link.generated-index.title": {
+    "message": "v2.x",
+    "description": "The generated-index page title for category 'v2.x' in sidebar 'releases'"
+  },
+  "sidebar.releases.category.v1.x": {
+    "message": "v1.x",
+    "description": "The label for category 'v1.x' in sidebar 'releases'"
+  },
+  "sidebar.releases.category.v1.x.link.generated-index.title": {
+    "message": "v1.x",
+    "description": "The generated-index page title for category 'v1.x' in sidebar 'releases'"
+  },
+  "sidebar.releases.category.v0.x": {
+    "message": "v0.x",
+    "description": "The label for category 'v0.x' in sidebar 'releases'"
+  },
+  "sidebar.releases.category.v0.x.link.generated-index.title": {
+    "message": "v0.x",
+    "description": "The generated-index page title for category 'v0.x' in sidebar 'releases'"
   }
 }

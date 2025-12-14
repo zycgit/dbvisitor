@@ -21,7 +21,7 @@ import TagGray from '@site/src/components/tags/TagGray';
 - 如果查询列语句中包含（别名、函数、case、等特殊情况时）或者查询的列来自不同的表，这时 resultMap 是最佳选择。
 :::
 
-## &lt;entity&gt; 标签
+## entity 标签
 
 ```xml title='定义和使用 resultMap'
 <entity id="user_resultMap" table="users" type="com.example.dto.UserBean">
@@ -43,7 +43,7 @@ import TagGray from '@site/src/components/tags/TagGray';
 
 ### 标签属性
 
-**&lt;entity&gt; 标签**
+**entity 标签**
 
 | 属性名                      | 描述                                                                                                                 |
 |--------------------------|--------------------------------------------------------------------------------------------------------------------|
@@ -62,7 +62,7 @@ import TagGray from '@site/src/components/tags/TagGray';
 | other                    | <TagGray/> 用于描述表的其它参数（在 TableDescription 接口中可获取）                                                                   |
 | ddlAuto                  | <TagGray/> 自动建表方式，可选值范围：`none、create、add、update、create-drop`，（目前还不支持自动建表）                                          |
 
-**&lt;id&gt; 标签** 和 **&lt;mapping&gt; 标签**
+**id 标签** 和 **mapping 标签**
 
 | 属性名                | 描述                                                                                                                            |
 |--------------------|-------------------------------------------------------------------------------------------------------------------------------|

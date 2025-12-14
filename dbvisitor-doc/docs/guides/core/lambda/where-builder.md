@@ -1,7 +1,6 @@
 ---
 id: where-builder
 sidebar_position: 5
-hide_table_of_contents: true
 title: 条件构造器
 description: 条件构造器可以用于 query、update、delete 三类操作中，用于生成 WHERE 语句后面的条件部分。
 ---

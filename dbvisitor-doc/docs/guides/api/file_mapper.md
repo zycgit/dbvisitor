@@ -56,5 +56,5 @@ UserMapper mapper = session.createMapper(UserMapper.class);
 ```
 
 :::info[有关 文件 Mapper 的详细信息，请参阅：]
-- [Mapper 配置文件](../core/file/about)
+- [Mapper 文件](../core/file/about)
 :::

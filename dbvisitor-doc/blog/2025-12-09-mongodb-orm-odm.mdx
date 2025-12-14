@@ -54,7 +54,7 @@ MongoDB 的 JDBC 驱动与 ORM/ODM 工具，**dbVisitor** 本质上是一个数�
     *   **JdbcTemplate**：适合直接执行命令，处理复杂且非结构化的数据。
     *   **LambdaTemplate**：提供类型安全的构造器 API，类似 MyBatis-Plus 的 LambdaQueryWrapper。
     *   **Mapper 接口**：支持注解（`@Insert`, `@Query`）和 XML 文件配置，完全复用 MyBatis 的开发习惯。
-4.  **动态 SQL**：
+4.  **动态命令**：
     支持在 XML 或注解中使用 `<if>`, `<foreach>`, `<where>` 等动态标签，这在构建复杂的 MongoDB 查询条件时非常有用。
     * dbVisitor 鼓励开发者使用不同的方式来应对查询时的复杂场景。例如，使用原始命令构建复杂的查询，或者使用 LambdaTemplate 构建单表 CRUD。
 
@@ -69,7 +69,7 @@ MongoDB 的 JDBC 驱动与 ORM/ODM 工具，**dbVisitor** 本质上是一个数�
 | **API 风格**   | BSON/Builder    | Repository / Template    | 注解 / Datastore | Lambda / Mapper               | **JDBC / Template / Lambda / Mapper / 注解**  |
 | **查询语言**     | BSON Filters    | Criteria / Query Methods | Fluent API     | Fluent API                    | **Fluent API / Query Methods / 原始命令**       |
 | **学习曲线**     | 高 (需熟记 API)     | 中 (需懂 Spring Data)       | 高 (需熟记 API)    | 中 (需懂 MyBatis 和 MyBatis-Plus) | **低 (MyBatis / Spring JDBC / 官方命令, 多种方式)**  |
-| **动态 SQL**   | 需手动处理 BSON      | 较弱                       | 不支持            | 不支持                           | **强 (XML 动态标签 / 动态规则)**                     |
+| **动态命令**   | 需手动处理 BSON      | 较弱                       | 不支持            | 不支持                           | **强 (XML 动态标签 / 动态规则)**                     |
 | **JDBC 支持**  | 无               | 无                        | 无              | 无                             | **原生支持**                                    |
 | **多种类数据源** | 不支持             | 需借助 Spring 生态其它模块        | 不支持            | 不支持                           | **MongoDB、Redis、MySQL、PostgreSQL、Oracle 等** |
 
@@ -230,7 +230,7 @@ public interface UserMapper {
 - **JdbcTemplate**：最大自由度，适合调试、特殊命令或聚合管道。
 - **Mapper 接口**：轻量配置，适合中小项目或少量固定语句。
 - **LambdaTemplate**：类型安全、无模板字符串，适合标准 CRUD 与中等复杂度条件。
-- **Mapper XML**：最强动态 SQL 能力，适合复杂查询/聚合、多条件组合。
+- **Mapper XML**：最强动态命令能力，适合复杂查询/聚合、多条件组合。
 - **@Table/@Column**：需要实体到文档映射的场景，便于 TypeHandler、字段别名管理。
 
 ## 框架整合

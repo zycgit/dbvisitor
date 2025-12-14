@@ -21,7 +21,7 @@ import TagGray from '@site/src/components/tags/TagGray';
 - 如果查询列语句中包含（别名、函数、case、等特殊情况时）或者查询的列来自不同的表，这时 resultMap 是最佳选择。
 :::
 
-## &lt;resultMap&gt; 标签
+##resultMap 标签
 
 ```xml title='定义和使用 resultMap'
 <resultMap id="user_resultMap" type="com.example.dto.UserBean">
@@ -43,7 +43,7 @@ import TagGray from '@site/src/components/tags/TagGray';
 
 ### 标签属性
 
-**&lt;resultMap&gt; 标签**
+**resultMap 标签**
 
 | 属性名                      | 描述                                                                                                                 |
 |--------------------------|--------------------------------------------------------------------------------------------------------------------|
@@ -53,7 +53,7 @@ import TagGray from '@site/src/components/tags/TagGray';
 | autoMapping              | <TagGray/> 用于决定是否进行 [自动映射](./automapping)。默认是 true 自动映射。                                                           |
 | mapUnderscoreToCamelCase | <TagGray/> 配合 autoMapping 使用，用于决定属性名在映射到列名时，是否按照驼峰命名法转换为下划线命名法，例如：属性名 `createTime` 被转换为 `create_time`。默认 false 不转换 |
 
-**&lt;result&gt; 标签**
+**result 标签**
 
 | 属性名         | 描述                                                                                   |
 |-------------|--------------------------------------------------------------------------------------|

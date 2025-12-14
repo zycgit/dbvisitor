@@ -1,35 +1,35 @@
 ---
 slug: mongodb-mybatis-style
-title: dbVisitor 使用 MyBatis 方式操作 MongoDB
+title: Using dbVisitor to Work with MongoDB in a MyBatis Style
 authors: [ZhaoYongChun]
 tags: [mongodb, mybatis, orm, jdbc, dbvisitor]
 ---
 
-在 Java 生态中，操作 MongoDB 最常见的方式莫过于使用官方的 `mongo-java-driver` 或者 Spring 家族的 `spring-data-mongodb`。这些工具非常强大，但对于习惯了关系型数据库（RDBMS）和 MyBatis 开发模式的开发者来说，切换到 MongoDB 往往意味着需要适应一套全新的 API 和思维模式。
+In Java, MongoDB is typically accessed via the official `mongo-java-driver` or Spring’s `spring-data-mongodb`. They are powerful, but for teams accustomed to RDBMS and MyBatis, switching to MongoDB often means learning a completely different API and mindset.
 
-特别是在一个混合架构的项目中，如果同时存在 MySQL 和 MongoDB，数据访问层的代码风格割裂感会非常强：一边是 MyBatis 的 Mapper 接口和 XML，另一边是 `MongoTemplate` 的链式调用或 Repository 接口。这种差异不仅增加了学习成本，也让诸如“分页查询”这样的通用功能难以统一实现。
+In mixed architectures running both MySQL and MongoDB, the data-access layer can feel split: MyBatis Mappers and XML on one side, `MongoTemplate` or Repository on the other. That divergence increases learning cost and makes common features (like pagination) hard to unify.
 
-本文将介绍如何使用 **dbVisitor**，以一种“类 MyBatis”的方式来操作 MongoDB，实现架构上的统一。
+This post shows how **dbVisitor** lets you operate MongoDB in a “MyBatis-like” way to unify the architecture.
 
 <!--truncate-->
 
-## 1. 传统方式的痛点
+## 1. Pain points of the traditional approach
 
-在传统的混合架构中，我们可能会遇到以下问题：
+In mixed stacks you often face:
 
-*   **API 风格不统一**：RDBMS 使用 SQL 和 JDBC，MongoDB 使用 BSON 和专有协议。
-*   **分页实现差异**：MyBatis 通常配合 PageHelper 或 RowBounds，而 MongoDB 需要手动计算 `skip` 和 `limit`，或者使用 Spring Data 的 `Pageable`。
-*   **维护成本高**：需要维护两套完全不同的底层逻辑，增加了代码的复杂度和出错的概率。
+* **API divergence**: SQL/JDBC for RDBMS vs BSON/proprietary protocols for MongoDB.
+* **Pagination differences**: MyBatis with PageHelper/RowBounds vs manual `skip`/`limit` or Spring Data `Pageable` in MongoDB.
+* **High maintenance cost**: Two separate code paths and abstractions increase complexity and error risk.
 
-## 2. dbVisitor 的解决方案
+## 2. How dbVisitor helps
 
-dbVisitor 通过提供一个 JDBC 驱动层（`dbvisitor-driver`）和适配器（`jdbc-mongo`），将 MongoDB 的操作封装成了标准的 JDBC 接口。这意味着你可以像操作 MySQL 一样操作 MongoDB。
+dbVisitor provides a JDBC driver layer (`dbvisitor-driver`) plus an adapter (`jdbc-mongo`) so MongoDB can be accessed via standard JDBC. You operate MongoDB like MySQL.
 
-更进一步，dbVisitor 提供了类似 MyBatis 的 ORM 功能，支持 Mapper 接口、XML 映射文件、注解以及 Lambda 表达式。
+It also offers MyBatis-style ORM: Mapper interfaces, XML mappings, annotations, and Lambda expressions.
 
-### 2.1 对象关系映射 (ORM)
+### 2.1 Object mapping (ORM)
 
-首先，我们定义一个 Java 对象，并使用注解进行映射。这与 MyBatis Plus 或 JPA 非常相似。
+Define a Java object and map it with annotations—similar to MyBatis-Plus or JPA:
 
 ```java
 @Table("user_info")
@@ -48,9 +48,9 @@ public class UserInfo {
 }
 ```
 
-### 2.2 使用 Mapper 接口 (注解方式)
+### 2.2 Mapper interfaces (annotations)
 
-你可以定义一个 Mapper 接口，使用注解来编写 MongoDB 的命令。注意，这里的 SQL 实际上是 MongoDB 的 Shell 命令。
+Define Mapper interfaces and annotate MongoDB commands.
 
 ```java
 @SimpleMapper
@@ -69,9 +69,9 @@ public interface UserInfoMapper {
 }
 ```
 
-### 2.3 使用通用 Mapper
+### 2.3 Base Mapper
 
-如果你不想写任何命令，可以直接继承 `BaseMapper`，dbVisitor 会自动生成基础的 CRUD 操作。
+If you do not want to write any commands, extend `BaseMapper`; dbVisitor generates basic CRUD automatically.
 
 ```java
 @SimpleMapper
@@ -80,9 +80,9 @@ public interface UserInfoBaseMapper extends BaseMapper<UserInfo> {
 }
 ```
 
-### 2.4 使用 Lambda 方式
+### 2.4 Lambda style
 
-dbVisitor 也提供了类似 MyBatis Plus 的 Lambda 调用方式，完全类型安全。
+dbVisitor also provides a MyBatis-Plus–style Lambda API with full type safety.
 
 ```java
 LambdaTemplate lambda = new LambdaTemplate(connection);
@@ -99,9 +99,9 @@ lambda.update(UserInfo.class)
     .doUpdate();
 ```
 
-### 2.5 使用 XML 管理 Mapper (MyBatis 风格)
+### 2.5 Manage mappers with XML (MyBatis style)
 
-对于复杂的查询或需要统一管理 SQL 的场景，dbVisitor 支持使用 XML 文件来定义 Mapper，这与 MyBatis 的体验几乎一致。
+For complex queries or centralized SQL, define Mappers in XML—almost identical to MyBatis.
 
 **Mapper 接口：**
 
@@ -140,9 +140,9 @@ public interface UserInfoXmlMapper {
 </mapper>
 ```
 
-## 3. 统一的分页实现
+## 3. Unified pagination
 
-在 dbVisitor 中，无论是操作 MySQL 还是 MongoDB，分页查询的实现方式是完全统一的。你只需要传递一个 `Page` 对象。
+With dbVisitor, pagination is identical for MySQL and MongoDB. Just pass a `Page` object.
 
 ```java
 // 创建分页对象
@@ -162,8 +162,8 @@ page.nextPage();
 list = mapper.listByUserName("mali", page);
 ```
 
-## 4. 总结
+## 4. Summary
 
-通过 dbVisitor，我们可以在同一个项目中，用同一套 API、同一种思维方式（Mapper/XML/Lambda）同时操作关系型数据库和 MongoDB。这极大地降低了混合架构项目的开发和维护成本，让数据访问层变得更加整洁和统一。
+dbVisitor lets you use one API and one mental model (Mapper/XML/Lambda) for both relational databases and MongoDB. That lowers development and maintenance costs and keeps the data-access layer consistent.
 
-如果你正在寻找一种能够统一 RDBMS 和 NoSQL 开发体验的工具，dbVisitor 绝对值得一试。
+If you want a unified RDBMS/NoSQL experience, dbVisitor is worth trying.

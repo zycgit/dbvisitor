@@ -63,7 +63,7 @@ List<User> result = mapper.listUsers(2, prefixList);
 ## 使用指引
 
 - [文档结构](./document)，了解 Mapper 文件的基本概念，如文档结构以及如何对文档进行验证。
-- [SQL 标签](./sql_element)，用来配置 SQL 语句的 XML 标签元素。
+- [文档标签](./sql_element)，用来配置 SQL 语句的 XML 标签元素。
   - 查阅 &lt;select&gt; 标签的 resultType 属性可用的 [类型别名](./sort_type_name)。
 - [动态 SQL](./dynamic)，允许通过 if、choose、foreach 等标签对 SQL进行动态配置。
 - [规则](../../rules/about)，通过规则赋予 SQL 更加强大的特性。

@@ -21,7 +21,7 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 - 在 Mapper File 中使用 [&lt;update&gt;、&lt;delete&gt;](./core/file/sql_element#update_delete) 标签更新或删除数据。
 
 ### 基础查询
-- 使用 SQL 语句 [查询一行](./core/jdbc/query#row)、[查询单个值](./core/jdbc/query#value)、[查询值列表](./core/jdbc/query#values)、[查询键值对](./core/jdbc/query#pairs)
+- 使用 SQL 语句 [查询结果集](./core/jdbc/query#list)、[查询对象](./core/jdbc/query#one)、[查询键值对](./core/jdbc/query#pairs)、[查询值/值列表](./core/jdbc/query#value)、[流式查询](./core/jdbc/query#stream)
 - 执行语句块并 [接收多个结果集](./core/jdbc/multi)。
 - 通过 [@Query](./core/annotation/query) 在接口上定义查询。
 - 使用构造器 [查询单个对象](./core/lambda/query#object)、[查询列表](./core/lambda/query#list)、[查询总数](./core/lambda/query#count)。
@@ -110,8 +110,8 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 ### MongoDB 支持
 - 了解 dbVisitor 对 MongoDB [支持的命令](./drivers/mongo/commands)。
 - 使用 JdbcTemplate [执行命令方式](./core/mongo/exec_command) 读写 MongoDB 数据。
-- 使用 LambdaTemplate [构造器方式](./core/mongo/exec_lambda) 读写 MongoDB 数据。
-- 使用 BaseMapper [通用 Mapper 方式](./core/mongo/exec_mapper) 读写 MongoDB 数据。
+- 使用 [构造器方式](./core/mongo/exec_lambda) 读写 MongoDB 数据。
+- 使用 [通用 Mapper 方式](./core/mongo/exec_mapper) 读写 MongoDB 数据。
 - 在 Mapper 接口上使用 @Insert、@Update、@Delete 注解，以 [注解方式](./core/mongo/exec_annotation) 操作 MongoDB 数据。
 - 在 [Mapper 文件](./core/mongo/exec_file) 中通过标签配置执行命令。
 

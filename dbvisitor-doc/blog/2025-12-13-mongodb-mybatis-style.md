@@ -50,7 +50,7 @@ public class UserInfo {
 
 ### 2.2 使用 Mapper 接口 (注解方式)
 
-你可以定义一个 Mapper 接口，使用注解来编写 MongoDB 的命令。注意，这里的 SQL 实际上是 MongoDB 的 Shell 命令。
+你可以定义一个 Mapper 接口，使用注解来编写 MongoDB 的命令。
 
 ```java
 @SimpleMapper

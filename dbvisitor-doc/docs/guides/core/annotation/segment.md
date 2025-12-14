@@ -2,14 +2,13 @@
 id: segment
 sidebar_position: 8
 hide_table_of_contents: true
-title: Segment 注解
+title: "@Segment"
 description: Segment 注解用来标记在接口方法的参数上，用于定义一个 SQL 片段。
 ---
 import TagRed from '@site/src/components/tags/TagRed';
 import TagGray from '@site/src/components/tags/TagGray';
 
 # @Segment 注解
-## 注解说明
 
 用来标记在接口方法的参数上，用于定义一个 SQL 片段。
 

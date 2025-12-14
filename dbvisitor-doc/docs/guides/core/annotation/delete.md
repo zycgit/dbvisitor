@@ -2,14 +2,13 @@
 id: delete
 sidebar_position: 5
 hide_table_of_contents: true
-title: Delete 注解
+title: "@Delete"
 description: Delete 注解用来标记在接口方法上，它接受一个字符串参数或字符串数组表示执行一个 DELETE 语句。
 ---
 import TagRed from '@site/src/components/tags/TagRed';
 import TagGray from '@site/src/components/tags/TagGray';
 
 # @Delete 注解
-## 注解说明
 
 用来标记在接口方法上，它接受一个字符串参数或字符串数组表示执行一个 DELETE 语句。
 

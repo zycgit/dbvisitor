@@ -2,7 +2,7 @@
 id: automapping
 sidebar_position: 7
 hide_table_of_contents: true
-title: 关于自动映射
+title: 自动映射
 description: 了解 dbVisitor 中 Mapper 文件里自动映射的功能。
 ---
 
