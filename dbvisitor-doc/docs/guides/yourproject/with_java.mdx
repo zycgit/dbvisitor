@@ -11,7 +11,7 @@ export const Highlight = ({children, color}) => (
   <span style={{ backgroundColor: color, borderRadius: '2px', color: '#fff', padding: '0.2rem', }}>{children}</span>
 );
 
-普通 Java 项目是指不使用任何框架或容器的 Java 项目，它通常是一个简单的 Java 应用程序，没有任何外部依赖项。
+普通 Java 项目是指不使用任何框架或容器的 Java 项目，它通常是一个简单的 Java 应用程序。
 
 :::tip[提示]
 dbvisitor 也可以很好的和任何 Java 项目整合使用，包括 Spring Boot、Quarkus 等，因此你也可以这些项目当成普通项目来看待。
@@ -19,7 +19,7 @@ dbvisitor 也可以很好的和任何 Java 项目整合使用，包括 Spring Bo
 
 ## 引入依赖
 
-首先引入依赖包，当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
+依赖包，当前版本：<Highlight color="rgb(227 17 108)">{Vars.lastReleaseVer}</Highlight>
 
 ```xml title='Maven 依赖'
 <dependency>

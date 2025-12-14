@@ -1,248 +1,407 @@
 ---
 id: query
 sidebar_position: 2
-hide_table_of_contents: true
 title: 查询
 description: 查询是执行带有结果的SQL语句并获取结果集的操作。
 ---
-import TOCInline from '@theme/TOCInline';
-
-查询是执行带有结果的SQL语句并获取结果集的操作。
-
-:::info
-- dbVisitor 支持多种参数传递方式，为了便于理解下面执行 SQL 的案例中选择常用的 **无参数**、**位置参数**、**名称参数** 三种。
-- 想要了解更多参数传递内容请到 **[参数传递](../../args/about)** 页面查看。
+:::tip[提示]
+本文内容结构参考了英文版文档，便于中英文对照。
 :::
 
-下面列出了一些常见用法：
+import TagRed from '@site/src/components/tags/TagRed';
+import TagGray from '@site/src/components/tags/TagGray';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-<TOCInline toc={toc} />
+# 查询
 
-## 查询结果集
+JdbcTemplate 提供多种只读查询 API。大多数接口接受 SQL 字符串和参数（对象或数组），返回由结果集构建的对象；部分接口支持回调/映射器以自定义处理过程。
 
-有许多种方式都可以进行查询并获取结果集。下面列出几种常见的形式：
+## 查询结果集 {#list}
 
-- 返回 [List/Map](../../result/for_map)
-    ```java title='使用原始 SQL'
-    List<Map<String, Object>> result = jdbc.queryForList("select * from users");
-    ```
-    ```java title='使用位置参数'
-    Object[] args = new Object[]{ 2 };
-    List<Map<String, Object>> result = jdbc.queryForList("select * from users where id > ?", args);
-    ```
-    ```java title='使用名称参数'
-    Map<String, Object> args = CollectionUtils.asMap("id", 2);
-    List<Map<String, Object>> result = jdbc.queryForList("select * from users where id > :id", args);
-    ```
-    :::info
-    **queryForList** 查询返回的 **List** 结构中使用 **LinkedCaseInsensitiveMap** 或 **LinkedHashMap** 类型进行行数据的存储。
-    - 更加详细信息请参考使用 List/Map 接收数据中的 **[结果集列名大小写敏感性](../../result/for_map#case)**。
-    :::
+查询一个对象或 Map 集合并返回。
 
-- 使用 [RowMapper](../../result/for_mapper)
-    ```java title='使用原始 SQL'
-    RowMapper<User> rowMapper = ...
-    List<User> result = jdbc.queryForList("select * from users", rowMapper);
-    ```
-    ```java title='使用位置参数'
-    RowMapper<User> rowMapper = ...
-    Object[] args = new Object[]{ 2 };
-    List<User> result = jdbc.queryForList("select * from users where id > ?", args, rowMapper);
-    ```
-    ```java title='使用名称参数'
-    RowMapper<User> rowMapper = ...
-    Map<String, Object> args = CollectionUtils.asMap("id", 2);
-    List<User> result = jdbc.queryForList("select * from users where id > :id", args, rowMapper);
-    ```
+<Tabs>
+    <TabItem value="demo1" label="示例：使用 Bean 映射结果集">
 
-- 使用 [对象映射](../../core/mapping/about) 或 [类型处理器](../../types/about)
-    ```java title='使用原始 SQL'
-    List<User> result = jdbc.queryForList("select * from users", User.class);
-    ```
-    ```java title='使用位置参数'
-    Object[] args = new Object[]{ 2 };
-    List<User> result = jdbc.queryForList("select * from users where id > ?", args, User.class);
-    ```
-    ```java title='使用名称参数'
-    Map<String, Object> args = CollectionUtils.asMap("id", 2);
-    List<User> result = jdbc.queryForList("select * from users where id > :id", args, User.class);
-    ```
+        ```java
+        // 原始 SQL
+        List<User> users = jdbc.queryForList(
+                "select * from users where id > 2", User.class);
 
-- 使用 [ResultSetExtractor](../../result/for_extractor)
-    ```java title='使用原始 SQL'
-    ResultSetExtractor<T> extractor = ...
-    T result = jdbc.query("select * from users", extractor);
-    ```
-    ```java title='使用位置参数'
-    ResultSetExtractor<T> extractor = ...
-    T result = jdbc.query("select * from users where id > ?", args, extractor);
-    ```
-    ```java title='使用名称参数'
-    ResultSetExtractor<T> extractor = ...
-    T result = jdbc.query("select * from users where id > :id", args, extractor);
-    ```
+        // 位置参数
+        Object[] args = new Object[]{ 2 };
+        List<User> result = jdbc.queryForList(
+                "select * from users where id > ?", args, User.class);
 
-## 查询一行 {#row}
+        // 名称参数
+        Map<String, Object> args = CollectionUtils.asMap("id", 2);
+        List<User> result = jdbc.queryForList(
+                "select * from users where id > :id", args, User.class);
+        ```
 
-当查询结果预期只有一条记录时，可以通过下面几种形式的方法获取映射后的结果。
+    </TabItem>
+    <TabItem value="demo2" label="示例：使用 Map 映射结果集">
 
-- 使用 [Map](../../result/for_map)
-    ```java title='使用原始 SQL'
-    Map<String, Object> user = jdbc.queryForMap("select * from users where name = 'Bob'");
-    ```
-    ```java title='使用位置参数'
-    Object[] args = new Object[]{ 2 };
-    Map<String, Object> user = jdbc.queryForMap("select * from users where name = ?", args);
-    ```
-    ```java title='使用名称参数'
-    Map<String, Object> args = CollectionUtils.asMap("name", "Bob");
-    Map<String, Object> user = jdbc.queryForMap("select * from users where name = :name", args);
-    ```
-    :::info
-    **queryForMap** 查询结果会使用 **LinkedCaseInsensitiveMap** 或 **LinkedHashMap** 类型存储行数据。
-    - 更加详细信息请参考 **[使用 List/Map 接收数据](../../result/for_map#case)**。
-    :::
-- 使用 [RowMapper](../../result/for_mapper)
-    ```java title='使用原始 SQL'
-    RowMapper<User> rowMapper = ...
-    List<User> result = jdbc.queryForObject("select * from users where name = 'Bob'", rowMapper);
-    ```
-    ```java title='使用位置参数'
-    RowMapper<User> rowMapper = ...
-    Object[] args = new Object[]{ 2 };
-    List<User> result = jdbc.queryForObject("select * from users where name = ?", args, rowMapper);
-    ```
-    ```java title='使用名称参数'
-    RowMapper<User> rowMapper = ...
-    Map<String, Object> args = CollectionUtils.asMap("name", "Bob");
-    List<User> result = jdbc.queryForObject("select * from users where name = :name", args, rowMapper);
-    ```
-- 使用 [对象映射](../../core/mapping/about)
-    ```java title='使用原始 SQL'
-    List<User> result = jdbc.queryForObject("select * from users where name = 'Bob'", User.class);
-    ```
-    ```java title='使用位置参数'
-    Object[] args = new Object[]{ 2 };
-    List<User> result = jdbc.queryForObject("select * from users where name = ?", args, User.class);
-    ```
-    ```java title='使用名称参数'
-    Map<String, Object> args = CollectionUtils.asMap("name", "Bob");
-    List<User> result = jdbc.queryForObject("select * from users where name = :name", args, User.class);
-    ```
+        ```java
+        // 原始 SQL
+        List<Map<String, Object>> users = jdbc.queryForList(
+                "select * from users where id > 2");
 
-## 查询单值 {#value}
+        // 位置参数
+        Object[] args = new Object[]{ 2 };
+        List<Map<String, Object>> result = jdbc.queryForList(
+                "select * from users where id > ?", args);
 
-当查询结果预期只是一个值时，可以通过下面几种形式的方式获取查询的值。
+        // 名称参数
+        Map<String, Object> args = CollectionUtils.asMap("id", 2);
+        List<Map<String, Object>> result = jdbc.queryForList(
+                "select * from users where id > :id", args);
+        ```
 
-- **int** 类型
-    ```java title='使用原始 SQL'
-    int result = jdbc.queryForInt("select count(*) from users where age > 21");
-    ```
-    ```java title='使用位置参数'
-    Object[] args = new Object[]{ 21 };
-    int result = jdbc.queryForInt("select count(*) from users where age > ?", args);
-    ```
-    ```java title='使用名称参数'
-    Map<String, Object> args = CollectionUtils.asMap("age", 21);
-    int result = jdbc.queryForInt("select count(*) from users where age > :age", args);
-    ```
-- **long** 类型
-    ```java title='使用原始 SQL'
-    int result = jdbc.queryForLong("select count(*) from users where age > 21");
-    ```
-    ```java title='使用位置参数'
-    Object[] args = new Object[]{ 21 };
-    int result = jdbc.queryForLong("select count(*) from users where age > ?", args);
-    ```
-    ```java title='使用名称参数'
-    Map<String, Object> args = CollectionUtils.asMap("age", 21);
-    int result = jdbc.queryForLong("select count(*) from users where age > :age", args);
-    ```
-- **字符串** 类型
-    ```java title='使用原始 SQL'
-    String name = jdbc.queryForString("select name from users where id = 2", User.class);
-    ```
-    ```java title='使用位置参数'
-    Object[] args = new Object[]{ 2 };
-    String name = jdbc.queryForString("select name from users where id = ?", args, User.class);
-    ```
-    ```java title='使用名称参数'
-    Map<String, Object> args = CollectionUtils.asMap("id", 2);
-    String name = jdbc.queryForString("select name from users where id = :id", args, User.class);
-    ```
-- [类型处理器](../../types/about)
-    ```java title='使用原始 SQL'
-    LocalDateTime result = jdbc.queryForObject("select create_time from users where name = 'Bob'", LocalDateTime.class);
-    ```
-    ```java title='使用位置参数'
-    Object[] args = new Object[]{ 2 };
-    LocalDateTime result = jdbc.queryForObject("select create_time from users where name = ?", args, LocalDateTime.class);
-    ```
-    ```java title='使用名称参数'
-    Map<String, Object> args = CollectionUtils.asMap("name", "Bob");
-    LocalDateTime result = jdbc.queryForObject("select create_time from users where name = :name", args, LocalDateTime.class);
-    ```
+    </TabItem>
+    <TabItem value="sig" label="函数签名">
 
-## 查询值列表 {#values}
+        ```java
+        // 使用 对象映射 或 类型处理器
+        List<T> queryForList(String sql, Class<T> elementType);
+        List<T> queryForList(String sql, Object args, Class<T> elementType);
+        List<T> queryForList(String sql, PreparedStatementSetter pss, Class<T> elementType);
 
-值列表方式查询是指查询只返回一个列。被查询的列可以是 [TypeHandlerRegistry](../../types/handlers/about) 注册器中注册的类型。
+        // 使用 RowMapper
+        List<T> queryForList(String sql, RowMapper<T> rowMapper);
+        List<T> queryForList(String sql, Object args, RowMapper<T> rowMapper);
+        List<T> queryForList(String sql, PreparedStatementSetter pss, RowMapper<T> rowMapper);
 
-- 使用方式
-    ```java title='使用原始 SQL'
-    List<String> result = jdbc.queryForList("select name from users", String.class);
-    ```
-    ```java title='使用位置参数'
-    Object[] args = new Object[]{ 2 };
-    List<String> result = jdbc.queryForList("select name from users where name = ?", args, String.class);
-    ```
-    ```java title='使用名称参数'
-    Map<String, Object> args = CollectionUtils.asMap("name", "Bob");
-    List<String> result = jdbc.queryForList("select name from users where id = :id", args, String.class);
-    ```
+        // 无需映射使用 List/Map 接收结果
+        List<Map<String, Object>> queryForList(String sql);
+        List<Map<String, Object>> queryForList(String sql, Object args);
+        List<Map<String, Object>> queryForList(String sql, PreparedStatementSetter pss);
+        ```
+
+    </TabItem>
+</Tabs>
+
+## 查询对象 {#one}
+
+返回映射到指定类型的单行。常见场景：聚合查询、主键查找。若结果为多行会抛出异常。
+
+<Tabs>
+    <TabItem value="demo1" label="示例：使用 Bean 映射结果集">
+
+        ```java
+        // 原始 SQL
+        User user = jdbc.queryForObject(
+                "select * from users where id = 2", User.class);
+
+        // 位置参数
+        Object[] args = new Object[]{ 2 };
+        User user = jdbc.queryForObject(
+                "select * from users where id = ?", args, User.class);
+
+        // 名称参数
+        Map<String, Object> args = CollectionUtils.asMap("id", 2);
+        User user = jdbc.queryForObject(
+                "select * from users where id = :id", args, User.class);
+        ```
+
+</TabItem>
+    <TabItem value="demo2" label="示例：使用 Map 映射结果集">
+
+        ```java
+        // 原始 SQL
+        Map<String, Object> user = jdbc.queryForMap(
+                "select * from users where id = 2");
+
+        // 位置参数
+        Object[] args = new Object[]{ 2 };
+        Map<String, Object> user = jdbc.queryForMap(
+                "select * from users where id = ?", args);
+
+        // 名称参数
+        Map<String, Object> args = CollectionUtils.asMap("id", 2);
+        Map<String, Object> user = jdbc.queryForMap(
+                "select * from users where id = :id", args);
+        ```
+
+    </TabItem>
+    <TabItem value="sig" label="函数签名">
+
+        ```java
+        // 使用 对象映射 或 类型处理器
+        List<T> queryForObject(String sql, Class<T> requiredType);
+        List<T> queryForObject(String sql, Object args, Class<T> requiredType);
+        List<T> queryForObject(String sql, PreparedStatementSetter pss, Class<T> requiredType);
+
+        // 使用 RowMapper
+        List<T> queryForObject(String sql, RowMapper<T> rowMapper);
+        List<T> queryForObject(String sql, Object args, RowMapper<T> rowMapper);
+        List<T> queryForObject(String sql, PreparedStatementSetter pss, RowMapper<T> rowMapper);
+
+        // 无需映射使用 List/Map 接收结果
+        Map<String, Object> queryForMap(String sql);
+        Map<String, Object> queryForMap(String sql, Object args);
+        Map<String, Object> queryForMap(String sql, PreparedStatementSetter pss);
+        ```
+
+</TabItem>
+</Tabs>
 
 ## 查询键值对 {#pairs}
 
 键值对是将查询到的结果集将第一个列和第二个列分别作为 Map 的 Key 和 Value 将整个结果集存储为一个 Map 类型。
 
-- 使用方式
-    ```java title='使用原始 SQL'
-    Map<Long, String> userMap = jdbc.queryForPairs("select uid, name from user", Long.class, String.class);
-    ```
-    ```java title='使用位置参数'
-    Object[] args = new Object[]{ 2 };
-    Map<Long, String> userMap = jdbc.queryForPairs("select uid, name from user where id = ?", Long.class, String.class, args);
-    ```
-    ```java title='使用名称参数'
-    Map<String, Object> args = CollectionUtils.asMap("id", 2);
-    Map<Long, String> userMap = jdbc.queryForPairs("select uid, name from user where id = :id", Long.class, String.class, args);
-    ```
+<Tabs>
+    <TabItem value="demo" label="示例">
 
-## 查询中处理数据
+        ```java
+        // 原始 SQL
+        Map<Long, String> userMap = jdbc.queryForPairs(
+                "select uid, name from user where age > 2", Long.class, String.class);
 
-通过 [RowCallbackHandler](../../result/row_callback) 专注每一行的数据处理，而非获取结果集。
+        // 位置参数
+        Object[] args = new Object[]{ 2 };
+        Map<Long, String> userMap = jdbc.queryForPairs(
+                "select uid, name from user where age > ?", Long.class, String.class, args);
+
+        // 名称参数
+        Map<String, Object> args = CollectionUtils.asMap("age", 2);
+        Map<Long, String> userMap = jdbc.queryForPairs(
+                "select uid, name from user where age > :age", Long.class, String.class, args);
+        ```
+
+    </TabItem>
+    <TabItem value="sig" label="函数签名">
+
+        ```java
+        // pairKey 和 pairValue 会使用 对象映射 或 类型处理器来进行映射。
+        Map<K, V> queryForPairs(String sql,
+                    Class<K> pairKey, Class<V> pairValue);
+        Map<K, V> queryForPairs(String sql,
+                    Class<K> pairKey, Class<V> pairValue, Object args);
+        Map<K, V> queryForPairs(String sql,
+                    Class<K> pairKey, Class<V> pairValue, PreparedStatementSetter args);
+        ```
+
+    </TabItem>
+</Tabs>
+
+## 查询值 {#value}
+
+查询值区别于查询对象是在于值是可映射的最小类型单元，可以是 [TypeHandlerRegistry](../../types/handlers/about) 注册器中的类型。如：`Stirng`、`Int`、`Date` 等。查询值通常有两种情况：
+- 查询值列表，例如获取符合条件的对象 ID 集合。
+- 查询聚合汇总信息，例如统计总数，求平均值等。
+
+<Tabs>
+    <TabItem value="demo1" label="示例：单值">
+
+        ```java
+        // 原始 SQL
+        long count = jdbc.queryForLong(
+                "select count(*) from user where age > 2");
+
+        // 位置参数
+        Object[] args = new Object[]{ 2 };
+        long count = jdbc.queryForLong(
+                "select count(*) from user where age > ?", args);
+
+        // 名称参数
+        Map<String, Object> args = CollectionUtils.asMap("age", 2);
+        long count = jdbc.queryForLong(
+                "select count(*) from user where age > :age", args);
+        ```
+
+        :::info[提示]
+        - jdbc.queryForObject("select count(*) from users", Integer.class); // 具有等效能力
+        :::
+
+    </TabItem>
+    <TabItem value="demo2" label="示例：值列表">
+
+        ```java
+        // 原始 SQL
+        List<String> result = jdbc.queryForList(
+                "select name from users", String.class);
+
+        // 位置参数
+        Object[] args = new Object[]{ 2 };
+        List<String> result = jdbc.queryForList(
+                "select name from users where name = ?", args, String.class);
+
+        // 名称参数
+        Map<String, Object> args = CollectionUtils.asMap("name", "Bob");
+        List<String> result = jdbc.queryForList(
+                "select name from users where id = :id", args, String.class);
+        ```
+
+    </TabItem>
+    <TabItem value="sig" label="函数签名">
+
+        ```java
+        // 查询 Long 类型值
+        Long queryForLong(String sql);
+        Long queryForLong(String sql, Object args);
+        Long queryForLong(String sql, PreparedStatementSetter args)
+
+        // 查询 int 类型值
+        Integer queryForInt(String sql);
+        Integer queryForInt(String sql, Object args);
+        Integer queryForInt(String sql, PreparedStatementSetter args);
+
+        // 查询字符串类型值
+        String queryForString(String sql);
+        String queryForString(String sql, Object args);
+        String queryForString(String sql, PreparedStatementSetter args);
+        ```
+
+    </TabItem>
+</Tabs>
+
+
+## 使用 ResultSetExtractor {#extractor}
+
+使用 `ResultSetExtractor` 接口是最灵活处理结果集的方式，用户需要自行实现执行从 ResultSet 中提取结果的实际工作，同时无需担心异常处理。
+
+<Tabs>
+    <TabItem value="demo1" label="示例：单值">
+
+        ```java
+        // 原始 SQL
+        long count = jdbc.queryForLong(
+        "select count(*) from user where age > 2");
+
+        // 位置参数
+        Object[] args = new Object[]{ 2 };
+        long count = jdbc.queryForLong(
+        "select count(*) from user where age > ?", args);
+
+        // 名称参数
+        Map<String, Object> args = CollectionUtils.asMap("age", 2);
+        long count = jdbc.queryForLong(
+        "select count(*) from user where age > :age", args);
+        ```
+
+        :::info[提示]
+        - jdbc.queryForObject("select count(*) from users", Integer.class); // 具有等效能力
+        :::
+
+    </TabItem>
+    <TabItem value="demo2" label="示例：值列表">
+
+        ```java
+        // 原始 SQL
+        List<String> result = jdbc.queryForList(
+        "select name from users", String.class);
+
+        // 位置参数
+        Object[] args = new Object[]{ 2 };
+        List<String> result = jdbc.queryForList(
+            "select name from users where name = ?", args, String.class);
+
+            // 名称参数
+            Map<String, Object> args = CollectionUtils.asMap("name", "Bob");
+            List<String> result = jdbc.queryForList(
+                "select name from users where id = :id", args, String.class);
+                ```
+
+    </TabItem>
+    <TabItem value="sig" label="函数签名">
+
+        ```java
+        // 使用 ResultSetExtractor
+        T query(String sql, ResultSetExtractor<T> rse);
+        T query(String sql, Object args, ResultSetExtractor<T> rse);
+        T query(String sql, PreparedStatementSetter args, ResultSetExtractor<T> rse);
+        ```
+
+    </TabItem>
+</Tabs>
+
+## 流式查询 {#stream}
+
+针对超大结果集，逐行流式处理以节省内存；每行在回调中即时处理。
+
+<Tabs>
+    <TabItem value="demo1" label="示例">
+
+        ```java
+        // 流式消费数据
+        RowCallbackHandler handler = (rs, rowNum) -> {
+            // 处理一行
+        };
+
+        // 原始 SQL
+        jdbc.query("select * from user where age > 2", handler);
+
+        // 位置参数
+        Object[] args = new Object[]{ 2 };
+        jdbc.query("select * from user where age > ?", args, handler);
+
+        // 名称参数
+        Map<String, Object> args = CollectionUtils.asMap("age", 2);
+        jdbc.query("select * from user where age > :age", args, handler);
+        ```
+
+    </TabItem>
+    <TabItem value="sig" label="函数签名">
+
+        ```java
+        void query(String sql, RowCallbackHandler rch);
+        void query(String sql, Object args, RowCallbackHandler rch);
+        void query(String sql, PreparedStatementSetter args, RowCallbackHandler rch);
+        ```
+
+    </TabItem>
+</Tabs>
+
+## Map 大小写敏感性 {#case}
+
+默认情况下以 Map 为数据存储结构时查询返回的 key 对于大小写不敏感。
+
+```java title='有如下查询'
+List<Map<String, Object>> result = jdbc.queryForList("select * from users");
+```
+
+users 表在相同表结构和数据在不同数据库中执行结果会有不同，例如：
+- 在 Oracle 返回的列名默认：大写
+- 在 MySQL 返回的列名默认：小写
+
+dbVisitor 默认会采用 `LinkedCaseInsensitiveMap` 工具类以不区分大小写的方式存储查询结果的列名。
+- 即 `resultsCaseInsensitive` 参数默认值为 `true`
+
+如果希望使用大小写敏感的方式存储查询结果，需要将其设置为 `false`。
 
 ```java
-RowCallbackHandler handler = new RowCallbackHandler() {
-    @Override
-    public void processRow(ResultSet rs, int rowNum) throws SQLException {
-        ...
-    }
-};
+JdbcTemplate jdbc = ...
+jdbc.setResultsCaseInsensitive(false);
+
+List<Map<String, Object>> result = jdbc.queryForList("select * from users");
 ```
 
-```java title='使用原始 SQL'
-RowCallbackHandler handler = ...
-jdbc.query("select * from users", handler);
-```
+通过设置 `jdbc.setResultsCaseInsensitive(false);` 可以决定结果集列名的大小写敏感性。
+- 默认情况下，属性值为 `true` 表示结果集列名是大小写不敏感。
+- 当设置为 `false` 时，会使用 `LinkedHashMap` 存放数据，结果集中列名会严格区分大小写。
 
-```java title='使用位置参数'
-RowCallbackHandler handler = ...
-Object[] args = new Object[]{ 2 };
-jdbc.query("select * from users where id = ?", args, handler);
-```
+## 结果处理器 {#result}
 
-```java title='使用名称参数'
-RowCallbackHandler handler = ...
-Map<String, Object> args = CollectionUtils.asMap("name", "Bob");
-jdbc.query("select * from users where name = :name", args, handler);
-```
+- [ResultSetExtractor](../../result/for_extractor)，使用 ResultSetExtractor 接口，自定义 ResultSet 结果集的处理。
+- [RowMapper](../../result/row_callback)，使用 RowMapper 的好处是无需关心 ResultSet 的处理过程，只需要将编程工作专注在每一行数据的处理上。
+- [RowCallbackHandler](../../result/row_callback)，通常可以用来流式的处理大规模数据。数据在处理过程中不会遗留在内存中。
+- [TypeHandler](../../types/about)，通过 @BindTypeHandler 注解关联一个 TypeHandler，可在一行一列或单列多行的查询中处理字段的序列化/反序列化。
+
+## 查询参数说明 {#arguments}
+
+在查询相关 API 中，参数统一按 `Object` 传递，可支持的类型如下：
+
+- [位置参数](../../args/position)（相当于 `Object... args`）
+    - 数组、Collection、TypeRegistry 中注册的类型
+- [名称化参数](../../args/named)
+    - Map、实体 Bean、SqlArg（名称会固定为 `arg0`）
+- 自定义，完全自定义参数设置逻辑，适合需要手动类型控制的场景。
+    - [PreparedStatementSetter](../../args/interface#pset)、[SqlArgSource](../../args/interface#source)
+- 动态 SQL
+    - 使用 [规则](../../rules/dynamic_rule) 构建查询命令时进行参数绑定，支持名称化参数。
+    - 使用 `${...}` 进行 [SQL 注入](../../args/inject) 时虽然不会参与 PreparedStatement 但也算所传参的一种。
+
+
+参数类型最终会经过 TypeHandler 处理，确保 JDBC 类型与 Java 类型的正确映射。

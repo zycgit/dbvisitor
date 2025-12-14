@@ -1,6 +1,6 @@
 ---
 id: batch
-sidebar_position: 6
+sidebar_position: 4
 hide_table_of_contents: true
 title: 批量化
 description: 了解使用 JdbcTemplate 的批量操作。

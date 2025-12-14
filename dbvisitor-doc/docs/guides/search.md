@@ -1,11 +1,11 @@
 ---
 id: search
 sidebar_position: 2
-title: 2. 快速开始
+title: 2. 快速查找
 description: 本文会略过 API 概述部分并以更加直观的形式按照使用场景对手册做分类检索。
 ---
 
-# 快速开始
+# 快速查找
 
 :::info[说明]
 本文会略过 API 概述部分并以更加直观的形式按照使用场景对手册做分类检索。
@@ -77,7 +77,7 @@ description: 本文会略过 API 概述部分并以更加直观的形式按照�
 - 通过 [@Execute](./core/annotation/execute) 注释执行任何类型的语句。
 - 在 Mapper File 中使用 [&lt;execute&gt; 标签](./core/file/sql_element#execute) 执行任意的 SQL 语句。
 
-### 接收结果
+### 结果集
 - 在不同的 API 上使用 [List/Map](./result/for_map) 接收查询结果数据。
 - 在不同的 API 上使用 [RowMapper](./result/for_mapper) 处理每一行结果集的映射。
   - 通过 [ColumnMapRowMapper](./result/for_mapper#inner) 将行转换为 Map，最终返回 List/Map 结构数据。

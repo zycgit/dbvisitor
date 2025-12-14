@@ -53,6 +53,32 @@ Session session = config.newSession(connection);
 UserInfoMapper mapper = session.createMapper(UserInfoMapper.class);
 ```
 
+## 映射 ObjectId
+
+MongoDB 的 `_id` 字段通常是 `ObjectId` 类型，而在 Java 对象中我们通常使用 `String` 类型。
+
+```java title='1. 定义对象'
+@Table("user_info")
+public class UserInfo {
+    // 声明 _id 字段，并配置 whereValueTemplate 用于 Lambda/BaseMapper 自动生成查询条件
+    @Column(value = "_id", primary = true, keyType = KeyType.Auto, whereValueTemplate = "ObjectId(?)")
+    private String id;
+    
+    @Column("name")
+    private String name;
+    ...
+}
+```
+
+```java title='2. Mapper 定义'
+@SimpleMapper()
+public interface UserInfoMapper {
+    // 在 @Query 中使用 ObjectId(#{id}) 语法进行查询
+    @Query("test.user_info.find({_id: ObjectId(#{id})})")
+    UserInfo loadById(@Param("id") String id);
+}
+```
+
 ## 分页查询
 
 在 Mapper 方法中添加 `Page` 参数即可实现分页查询。

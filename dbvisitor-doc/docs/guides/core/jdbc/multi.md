@@ -1,6 +1,6 @@
 ---
 id: multi
-sidebar_position: 5
+sidebar_position: 6
 hide_table_of_contents: true
 title: 多值
 description: 使用 JdbcTemplate 类的 multipleExecute 系列方法可以解决 SQL 语句在产生多个值后难以辨识和获取的问题。
@@ -73,5 +73,5 @@ List<User> result2 = result.get("res2"); // 对应 ➎ 语句的结果
 
 :::info
 - **multipleExecute** 查询返回结果会使用 **LinkedCaseInsensitiveMap** 或 **LinkedHashMap** 来保证多个语句结果之间的顺序。
-- 详细信息请参考 **[使用 List/Map 接收数据 (结果集列名大小写敏感性)](../../result/for_map#case)**。
+- 详细信息请参考 **[Map 大小写敏感性](./query#case)**。
 :::

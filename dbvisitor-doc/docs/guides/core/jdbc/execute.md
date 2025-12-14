@@ -1,6 +1,6 @@
 ---
 id: execute
-sidebar_position: 4
+sidebar_position: 7
 hide_table_of_contents: true
 title: 脚本
 description: 利用 JdbcTemplate 的 execute 方法，可以执行任意 SQL 语句。
