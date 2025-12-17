@@ -1,0 +1,6 @@
+GET /users/doc/{?};
+GET /users/search?q={?};
+POST /users/doc { "name": ?, "age": ? };
+POST /users/search { "query": { "term": { "name": ? } } };
+PUT /users/doc/{?} { "name": "Fixed", "age": ? };
+PUT /users/doc/{?} ?;

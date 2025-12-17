@@ -1,0 +1,31 @@
+POST /index/_search
+{
+    "query": { "match_all": {} }
+}
+
+POST /index/_count
+
+POST /index/_doc
+{
+    "field": "value"
+}
+
+POST /index/_create/1
+{
+    "field": "value"
+}
+
+POST /index/_update/1
+{
+    "doc": { "field": "new_value" }
+}
+
+POST /index/_update_by_query
+{
+    "script": "ctx._source.field = 'new_value'"
+}
+
+POST /index/_delete_by_query
+{
+    "query": { "match": { "field": "value" } }
+}

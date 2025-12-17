@@ -1,0 +1,36 @@
+PUT /my_index
+{
+    "settings": { "number_of_shards": 1 },
+    "mappings": { "properties": { "field1": { "type": "text" } } }
+}
+
+DELETE /my_index
+
+HEAD /my_index
+
+GET /my_index/_mapping
+
+PUT /my_index/_mapping
+{
+  "properties": {
+    "email": { "type": "keyword" }
+  }
+}
+
+GET /my_index/_settings
+
+PUT /my_index/_settings
+{
+    "index": { "number_of_replicas": 2 }
+}
+
+POST /_aliases
+{
+    "actions": [
+        { "add": { "index": "test1", "alias": "alias1" } }
+    ]
+}
+
+POST /my_index/_open
+
+POST /my_index/_close
